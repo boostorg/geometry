@@ -35,7 +35,6 @@
 
 #include <boost/geometry/algorithms/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/overlay/self_intersection_points.hpp>
-#include <boost/geometry/algorithms/overlay/adapt_turns.hpp>
 #include <boost/geometry/algorithms/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/overlay/traverse.hpp>
 

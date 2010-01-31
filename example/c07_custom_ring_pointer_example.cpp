@@ -97,6 +97,9 @@ int main()
 
     std::vector<boost::geometry::ring_2d> unioned;
     std::vector<boost::geometry::ring_2d> intersected;
+
+    // Temporarily not working
+    /*
     boost::geometry::intersection_inserter<boost::geometry::ring_2d>(a, b, std::back_inserter(intersected));
     boost::geometry::union_inserter<boost::geometry::ring_2d>(a, b, std::back_inserter(unioned));
 
@@ -115,6 +118,7 @@ int main()
     std::cout << "a & b: " << ai << std::endl;
     std::cout << "a | b: " << au << std::endl;
     std::cout << "a + b - (a & b): " << (aa + ab - ai) << std::endl;
+    */
 
     // free
     BOOST_FOREACH(my_point* p, a)
