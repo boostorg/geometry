@@ -1,14 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright Barend Gehrels 2007-2009, Geodan, Amsterdam, the Netherlands.
-// Copyright Bruno Lalande 2008, 2009
-// Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+// Copyright Barend Gehrels 2007-2010, Geodan, Amsterdam, the Netherlands.
+// Copyright Bruno Lalande 2008-2010
+// Copyright (c) 2009-2010 Mateusz Loskot <mateusz@loskot.net>
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_GGL_HPP
-#define BOOST_GEOMETRY_GGL_HPP
+#ifndef BOOST_GEOMETRY_GEOMETRY_HPP
+#define BOOST_GEOMETRY_GEOMETRY_HPP
 
 // Shortcut to include all header files
 
@@ -31,7 +31,6 @@
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
@@ -40,7 +39,6 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
-#include <boost/geometry/algorithms/intermediate.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/length.hpp>
@@ -48,7 +46,6 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/sectionalize.hpp>
-#include <boost/geometry/algorithms/selected.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/union.hpp>
@@ -64,4 +61,4 @@
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 
-#endif // BOOST_GEOMETRY_GGL_HPP
+#endif // BOOST_GEOMETRY_GEOMETRY_HPP
