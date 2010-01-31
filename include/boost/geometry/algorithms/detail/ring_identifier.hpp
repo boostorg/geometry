@@ -1,0 +1,58 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+//
+// Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands.
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RING_IDENTIFIER_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RING_IDENTIFIER_HPP
+
+
+namespace boost { namespace geometry
+{
+
+
+// Ring Identifier. It is currently: source,multi,ring
+struct ring_identifier
+{
+
+    inline ring_identifier()
+        : source_index(-1)
+        , multi_index(-1)
+        , ring_index(-1)
+    {}
+
+    inline ring_identifier(int src, int mul, int rin)
+        : source_index(src)
+        , multi_index(mul)
+        , ring_index(rin)
+    {
+    }
+
+    inline bool operator<(ring_identifier const& other) const
+    {
+        return source_index != other.source_index ? source_index < other.source_index
+            : multi_index !=other.multi_index ? multi_index < other.multi_index
+            : ring_index < other.ring_index
+            ;
+    }
+
+    inline bool operator==(ring_identifier const& other) const
+    {
+        return source_index == other.source_index
+            && ring_index == other.ring_index
+            && multi_index == other.multi_index
+            ;
+    }
+
+    int source_index;
+    int multi_index;
+    int ring_index;
+};
+
+
+}} // namespace boost::geometry
+
+
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_RING_IDENTIFIER_HPP
