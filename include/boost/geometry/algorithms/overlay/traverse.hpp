@@ -18,29 +18,51 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
-#include <boost/geometry/extensions/gis/io/wkt/write_wkt.hpp>
+#if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT)
+#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #endif
 
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 
-
-
 namespace boost { namespace geometry
 {
+
+
 
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay {
 
 
+template <typename Turns>
+inline void clear_visit_info(Turns& turns)
+{
+    typedef typename boost::range_value<Turns>::type tp_type;
+
+    for (typename boost::range_iterator<Turns>::type
+        it = boost::begin(turns);
+        it != boost::end(turns);
+        ++it)
+    {
+        for (typename boost::range_iterator
+            <
+                typename tp_type::container_type
+            >::type op_it = boost::begin(it->operations);
+            op_it != boost::end(it->operations);
+            ++op_it)
+        {
+            op_it->visited.set_none();
+        }
+    }
+}
+
+
 template <typename Info, typename Turn>
 inline void set_visited_for_contine(Info& info, Turn const& turn)
 {
     // On "continue", set "visited" for ALL directions
-
     if (turn.operation == detail::overlay::operation_continue)
     {
         for (typename boost::range_iterator
@@ -64,19 +86,16 @@ template
     typename GeometryOut,
     typename G1,
     typename G2,
-    typename TurnPoints,
+    typename Turns,
     typename IntersectionInfo
 >
 inline void assign_next_ip(G1 const& g1, G2 const& g2,
-            TurnPoints& turn_points,
-            typename boost::range_iterator<TurnPoints>::type & ip,
+            Turns& turns,
+            typename boost::range_iterator<Turns>::type & ip,
             GeometryOut& current_output,
             IntersectionInfo & info,
             segment_identifier& seg_id)
 {
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
-    //std::cout << "traverse: take: " << info << std::endl;
-#endif
     info.visited.set_visited();
     set_visited_for_contine(*ip, info);
 
@@ -95,12 +114,12 @@ inline void assign_next_ip(G1 const& g1, G2 const& g2,
                     info.enriched.travels_to_vertex_index,
                     current_output);
         }
-        ip = boost::begin(turn_points) + info.enriched.travels_to_ip_index;
+        ip = boost::begin(turns) + info.enriched.travels_to_ip_index;
         seg_id = info.seg_id;
     }
     else
     {
-        ip = boost::begin(turn_points) + info.enriched.next_ip_index;
+        ip = boost::begin(turns) + info.enriched.next_ip_index;
         seg_id = info.seg_id;
     }
     *(std::back_inserter(current_output)++) = ip->point;
@@ -109,9 +128,7 @@ inline void assign_next_ip(G1 const& g1, G2 const& g2,
 
 inline bool select_source(operation_type operation, int source1, int source2)
 {
-    return
-        (operation == operation_intersection && source1 != source2)
-        || (operation == operation_union && source1 == source2);
+    return operation == operation_intersection && source1 != source2;
 }
 
 
@@ -134,7 +151,7 @@ inline bool select_next_ip(operation_type operation,
     {
         // In some cases there are two alternatives.
         // For "ii", take the other one (alternate)
-        // For "uu", take the same one
+        // For "uu", take the same one (see above);
         // For "cc", take either one, but if there is a starting one,
         //           take that one.
         if (   (it->operation == operation_continue
@@ -157,34 +174,50 @@ inline bool select_next_ip(operation_type operation,
         if (it->visited.started())
         {
             selected = it;
-            has_tp = true;
             return true;
         }
-
     }
 
     return has_tp;
 }
 
 
-template <typename Container>
-inline void stop_gracefully(Container& container, bool& stop,
-            std::string const& reason)
+// This backtracking approach is necessary for invalid (== self-interescting)
+// geometries and the approach will be enhanced. TODO
+template
+<
+    typename Rings,
+    typename Turns,
+    typename Geometry1,
+    typename Geometry2
+>
+inline void backtrack(std::size_t size_at_start, bool& fail,
+            Rings& rings, typename boost::range_value<Rings>::type& ring,
+            Turns& turns, typename boost::range_value<Turns>::type& turn,
+            std::string const& reason,
+            Geometry1 const& geometry1,
+            Geometry2 const& geometry2)
 {
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
-    std::cout << "STOPPING: " << reason << std::endl;
+    fail = true;
+
+    // Make bad output clean
+    rings.resize(size_at_start);
+    ring.clear();
+
+    // Reject this as a starting point
+    turn.rejected = true;
+
+    // And clear all visit info
+    clear_visit_info(turns);
+
+
+#ifdef BOOST_GEOMETRY_OVERLAY_REPORT_WKT
+    std::cout << " BT (" << reason << " )";
+    std::cout
+        << geometry::wkt(geometry1) << std::endl
+        << geometry::wkt(geometry2) << std::endl;
 #endif
 
-    stop = true;
-    if (container.size() > 0)
-    {
-        // Two-step adding first value, without assignment
-        // and without (erroneous) push_back of reference
-        typename boost::range_value<Container>::type p;
-        geometry::copy_coordinates(container.front(), p);
-        *(std::back_inserter(container)++) = p;
-
-    }
 }
 
 }} // namespace detail::overlay
@@ -197,146 +230,151 @@ inline void stop_gracefully(Container& container, bool& stop,
  */
 template
 <
-    typename SideStrategy,
-    typename GeometryOut,
     typename Geometry1,
     typename Geometry2,
-    typename TurnPoints,
-    typename OutputIterator
+    typename Turns,
+    typename Rings
 >
 inline void traverse(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             detail::overlay::operation_type operation,
-            TurnPoints& turn_points,
-            OutputIterator out)
+            Turns& turns, Rings& rings)
 {
-    concept::check<const Geometry1>();
-    concept::check<const Geometry2>();
-
-    typedef typename boost::range_iterator<TurnPoints>::type turn_iterator;
-    typedef typename boost::range_value<TurnPoints>::type turn_type;
+    typedef typename boost::range_iterator<Turns>::type turn_iterator;
+    typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename boost::range_iterator
         <
             typename turn_type::container_type
         >::type turn_operation_iterator_type;
 
+    std::size_t size_at_start = boost::size(rings);
 
-    // Iterate through all unvisited points
-    for (turn_iterator it = boost::begin(turn_points);
-        it != boost::end(turn_points);
-        ++it)
+    bool fail = false;
+    do
     {
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
-        //std::cout << "traversal: try: " << *it;
-#endif
-
-        for (turn_operation_iterator_type iit = boost::begin(it->operations);
-            iit != boost::end(it->operations);
-            ++iit)
+        fail = false;
+        // Iterate through all unvisited points
+        for (turn_iterator it = boost::begin(turns);
+            ! fail && it != boost::end(turns);
+            ++it)
         {
-            if (iit->visited.none()
-                && (iit->operation == operation
-                    || iit->operation == detail::overlay::operation_continue)
-                )
+            // Skip the ones marked ignore (these are: "uu", so self-tangent)
+            if (! it->ignore)
             {
-                set_visited_for_contine(*it, *iit);
-
-                GeometryOut current_output;
-                *(std::back_inserter(current_output)++) = it->point;
-
-                turn_iterator current = it;
-                turn_operation_iterator_type current_iit = iit;
-                segment_identifier current_seg_id;
-
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
-                //std::cout << "traversal: start: " << *current;
-#endif
-
-                detail::overlay::assign_next_ip(geometry1, geometry2,
-                            turn_points,
-                            current, current_output,
-                            *iit, current_seg_id);
-                detail::overlay::select_next_ip(
-                                operation,
-                                *current,
-                                current_seg_id,
-                                boost::end(it->operations),
-                                current_iit);
-
-                iit->visited.set_started();
-
-
-                unsigned int i = 0;
-                bool stop = false;
-
-                while (current_iit != iit && ! stop)
+                for (turn_operation_iterator_type iit = boost::begin(it->operations);
+                    ! fail && ! it->rejected && iit != boost::end(it->operations);
+                    ++iit)
                 {
-
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
-                    //std::cout << "traverse: " << *current;
-#endif
-
-                    if (current_iit->visited.visited())
+                    if (iit->visited.none()
+                        && (iit->operation == operation
+                            || iit->operation == detail::overlay::operation_continue)
+                        )
                     {
-                        // It visits a visited node again, without passing the start node.
-                        // This makes it suspicious for endless loops
-                        // Check if it is really same node
-                        detail::overlay::stop_gracefully(
-                            current_output, stop, "Visit again");
-                    }
+                        set_visited_for_contine(*it, *iit);
+
+                        typename boost::range_value<Rings>::type current_output;
+                        *(std::back_inserter(current_output)++) = it->point;
+
+                        turn_iterator current = it;
+                        turn_operation_iterator_type current_iit = iit;
+                        segment_identifier current_seg_id;
+
+                        detail::overlay::assign_next_ip(geometry1, geometry2,
+                                    turns,
+                                    current, current_output,
+                                    *iit, current_seg_id);
+
+                        if (! detail::overlay::select_next_ip(
+                                        operation,
+                                        *current,
+                                        current_seg_id,
+                                        boost::end(it->operations),
+                                        current_iit))
+                        {
+                            detail::overlay::backtrack(
+                                size_at_start, fail,
+                                rings, current_output, turns, *it,
+                                "Dead end at start",
+                                geometry1, geometry2);
+                        }
+                        else
+                        {
+
+                            iit->visited.set_started();
+
+                            unsigned int i = 0;
+
+                            while (current_iit != iit && ! fail)
+                            {
+                                if (current_iit->visited.visited())
+                                {
+                                    // It visits a visited node again, without passing the start node.
+                                    // This makes it suspicious for endless loops
+                                    detail::overlay::backtrack(
+                                        size_at_start, fail,
+                                        rings,  current_output, turns, *it,
+                                        "Visit again",
+                                        geometry1, geometry2);
+                                }
+                                else
+                                {
 
 
-                    // We assume clockwise polygons only, non self-intersecting, closed.
-                    // However, the input might be different, and checking validity
-                    // is up to the library user.
+                                    // We assume clockwise polygons only, non self-intersecting, closed.
+                                    // However, the input might be different, and checking validity
+                                    // is up to the library user.
 
-                    // Therefore we make here some sanity checks. If the input
-                    // violates the assumptions, the output polygon will not be correct
-                    // but the routine will stop and output the current polygon, and
-                    // will continue with the next one.
+                                    // Therefore we make here some sanity checks. If the input
+                                    // violates the assumptions, the output polygon will not be correct
+                                    // but the routine will stop and output the current polygon, and
+                                    // will continue with the next one.
 
-                    // Below three reasons to stop.
-                    assign_next_ip(geometry1, geometry2,
-                        turn_points, current, current_output,
-                        *current_iit, current_seg_id);
+                                    // Below three reasons to stop.
+                                    assign_next_ip(geometry1, geometry2,
+                                        turns, current, current_output,
+                                        *current_iit, current_seg_id);
 
-                    if (! detail::overlay::select_next_ip(
-                                operation,
-                                *current,
-                                current_seg_id,
-                                iit,
-                                current_iit))
-                    {
-                        // Should not occur in valid (non-self-intersecting) polygons
-                        // Should not occur in self-intersecting polygons without spikes
-                        // Might occur in polygons with spikes
-                        detail::overlay::stop_gracefully(
-                            current_output, stop, "Dead end");
-                    }
+                                    if (! detail::overlay::select_next_ip(
+                                                operation,
+                                                *current,
+                                                current_seg_id,
+                                                iit,
+                                                current_iit))
+                                    {
+                                        // Should not occur in valid (non-self-intersecting) polygons
+                                        // Should not occur in self-intersecting polygons without spikes
+                                        // Might occur in polygons with spikes
+                                        detail::overlay::backtrack(
+                                            size_at_start, fail,
+                                            rings,  current_output, turns, *it,
+                                            "Dead end",
+                                            geometry1, geometry2);
+                                    }
 
-                    if (i++ > turn_points.size())
-                    {
-                        // Sanity check: there may be never more loops
-                        // than intersection points.
-                        detail::overlay::stop_gracefully(
-                            current_output, stop, "Endless loop");
+                                    if (i++ > turns.size())
+                                    {
+                                        // Sanity check: there may be never more loops
+                                        // than intersection points.
+                                        detail::overlay::backtrack(
+                                            size_at_start, fail,
+                                            rings,  current_output, turns, *it,
+                                            "Endless loop",
+                                            geometry1, geometry2);
+                                    }
+                                }
+                            }
+
+                            if (! fail)
+                            {
+                                iit->visited.set_finished();
+                                rings.push_back(current_output);
+                            }
+                        }
                     }
                 }
-
-                iit->visited.set_finished();
-
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
-                //std::cout << "traversal: finish: " << *current;
-                std::cout << geometry::wkt(current_output) << std::endl;
-#endif
-
-                *out++ = current_output;
             }
         }
-    }
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
-    std::cout << "traversal: all IP's handled" << std::endl;
-#endif
+    } while (fail);
 }
 
 

@@ -47,6 +47,10 @@ struct base_turn_handler
     {
         ti.operations[0].operation = op;
         ti.operations[1].operation = op;
+        if (op == operation_union)
+        {
+            ti.ignore = true;
+        }
     }
 
     // If condition, first union/second intersection, else vice versa
@@ -63,10 +67,7 @@ struct base_turn_handler
     template <typename TurnInfo>
     static inline void uu_else_ii(bool condition, TurnInfo& ti)
     {
-        ti.operations[0].operation = condition
-                    ? operation_union : operation_intersection;
-        ti.operations[1].operation = condition
-                    ? operation_union : operation_intersection;
+        both(ti, condition ? operation_union : operation_intersection);
     }
 };
 
@@ -241,7 +242,7 @@ struct touch : public base_turn_handler
             {
                 // Collinear -> lines join, continue
                 // (#BRL2)
-                if (side_pk_q2 == 0)
+                if (side_pk_q2 == 0 && ! block_q)
                 {
                     both(ti, operation_continue);
                     return;
@@ -292,7 +293,7 @@ struct touch : public base_turn_handler
             else
             {
                 // Pk at other side than Qi/Pk
-                int const side_qk_q  = SideStrategy::apply(qi, qj, qk);
+                int const side_qk_q = SideStrategy::apply(qi, qj, qk);
                 bool const q_turns_left = side_qk_q == 1;
 
                 ti.operations[0].operation = q_turns_left
@@ -303,6 +304,12 @@ struct touch : public base_turn_handler
                             : side_qi_p1 == 1 || side_qk_p1 == 1
                             ? operation_union
                             : operation_intersection;
+
+                if (ti.operations[0].operation == operation_union
+                    && ti.operations[1].operation == operation_union)
+                {
+                    ti.ignore = true;
+                }
 
                 return;
             }

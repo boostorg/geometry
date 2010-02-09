@@ -90,7 +90,7 @@ template
     typename Strategy
 >
 struct intersection_inserter
-    : detail::overlay::overlay_and_assemble
+    : detail::overlay::overlay
         <G1, G2, OutputIterator, GeometryOut, -1, Strategy>
 {};
 

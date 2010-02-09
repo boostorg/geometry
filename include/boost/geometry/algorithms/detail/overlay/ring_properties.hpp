@@ -8,12 +8,6 @@
 #ifndef BOOST_GEOMETRY_ALG_DET_OV_RING_PROPERTIES_HPP
 #define BOOST_GEOMETRY_ALG_DET_OV_RING_PROPERTIES_HPP
 
-#define BOOST_GEOMETRY_ASSEMBLE_PARENT_DEQUE
-#ifdef BOOST_GEOMETRY_ASSEMBLE_PARENT_DEQUE
-#include <deque>
-#else
-#include <boost/array.hpp>
-#endif
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
@@ -31,89 +25,132 @@ namespace boost { namespace geometry
 template <typename Point>
 struct ring_properties
 {
-    struct parent
-    {
-        int c;
-        ring_identifier id;
+    typedef Point point_type;
+    typedef geometry::box<Point> box_type;
 
-        inline parent()
-            : c(0)
-        {}
+    ring_identifier ring_id;
+    typename area_result<Point>::type area;
+    int signum;
 
-        inline parent(int c_, ring_identifier i)
-            : c(c_), id(i)
-        {}
-    };
+    bool intersects;
+    bool produced;
 
-#ifdef BOOST_GEOMETRY_ASSEMBLE_PARENT_DEQUE
-    inline void push(parent const& p)
+    // "Stack"/counter of non-intersecting parent rings.
+    // This denotes if it a negative ring should be included,
+    int parent_count;
+
+    // ID of the parent
+    ring_identifier parent_ring_id;
+
+    box_type box;
+
+    point_type point;
+    bool has_point;
+
+    // Default constructor (necessary for vector, but not called)
+    inline ring_properties()
+        : intersects(false)
+        , produced(false)
+        , parent_count(0)
+        , has_point(false)
     {
-        parents.push_back(p);
+        parent_ring_id.source_index = -1;
     }
-    inline void pop()
+
+    template <typename Geometry>
+    inline ring_properties(ring_identifier id, Geometry const& geometry,
+            bool i, bool p = false)
+        : ring_id(id)
+        , area(geometry::area(geometry))
+        , intersects(i)
+        , produced(p)
+        , parent_count(0)
+        , box(geometry::make_envelope<box_type>(geometry))
     {
-        parents.pop_back();
+        has_point = geometry::point_on_border(point, geometry, true);
+        typedef typename coordinate_type<Geometry>::type coordinate_type;
+        coordinate_type zero = coordinate_type();
+        signum = area > zero ? 1 : area < zero ? -1 : 0;
+        parent_ring_id.source_index = -1;
     }
-    inline bool parent_stack_empty() const
+
+    inline bool positive() const { return signum == 1; }
+    inline bool negative() const { return signum == -1; }
+
+    inline bool operator<(ring_properties<Point> const& other) const
     {
-        return parents.empty();
+        // Normal sorting: in reverse order
+        return abs(area) > abs(other.area);
     }
-#else
-    inline void push(parent const& p)
+
+    inline ring_identifier const& id(int direction) const
     {
-        parents[array_size++] = p;
+        // Return the id of ifself, or of the parent
+        return positive() || parent_ring_id.source_index < 0
+            ? ring_id
+            : parent_ring_id;
     }
-    inline void pop()
+
+
+    inline void push(ring_properties<Point> const& r,
+                int direction, bool dissolve)
     {
-        array_size--;
-    }
-    inline bool parent_stack_empty() const
-    {
-        return array_size == 0;
-    }
+        if (//(r.produced || r.untouched()) &&
+            r.included(direction, dissolve))
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << " id.push " << r.ring_id;
 #endif
+            parent_ring_id = r.ring_id;
+        }
+        if (! r.produced || dissolve)
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << " or.push " << r.ring_id;
+#endif
+            parent_count++;
+        }
+    }
+
+
+    inline void pop(ring_properties<Point> const& r)
+    {
+        if (! r.produced && parent_count > 0)
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << " or.pop";
+#endif
+
+            parent_count--;
+        }
+    }
 
 
     inline bool interior_included(int direction) const
     {
-        if (area < 0 && ! parent_stack_empty())
+        if (negative())
         {
-            // Inner rings are included if the last encountered parent
-            // matches the operation
-#ifdef BOOST_GEOMETRY_ASSEMBLE_PARENT_DEQUE
-            int d = parents.back().c;
-            if (d == 0
-                && parents.size() == 2
-                && parents.front().c == 0)
-#else
-            int d = parents[array_size - 1].c;
-            if (d == 0
-                && array_size == 2
-                && parents[0].c == 0)
-#endif
+            // Original inner rings are included if there
+            // are two untouched parents (union) or one (intersection);
+            // Produced are ones are included if there is a parent found
+            if (produced)
             {
-                // It is contained by two outer rings, both of them
-                // are not included in the other. So they must be
-                // equal. Then always included, both in union and
-                // in intersection.
-                return direction == -1;
+                return parent_count > 0;
             }
-
-            if (d == 0)
-            {
-                d = 1;
-            }
-            return d * direction == 1;
+            return
+                (direction == 1  && parent_count == 1)
+                || (direction == -1 && parent_count > 1);
         }
         return false;
     }
 
-    inline bool included(int direction) const
+    inline bool included(int direction, bool dissolve) const
     {
-        if (produced)
+        if (produced && ! dissolve)
         {
             // Traversed rings are included in all operations,
             // because traversal was direction-dependant.
+            // On dissolve, this is not the case.
             return true;
         }
         if (intersects)
@@ -123,13 +160,19 @@ struct ring_properties
             return false;
         }
 
-        if (area > 0)
+        if (positive())
         {
             // Outer rings are included if they don't have parents
             // (union) or have parents (intersection)
-            return (parent_stack_empty() ? 1 : -1) * direction == 1;
+            if (produced)
+            {
+                return parent_count == 0;
+            }
+            return
+                (direction == 1  && parent_count == 0)
+                || (direction == -1 && parent_count > 0);
         }
-        else if (area < 0 && ! parent_stack_empty())
+        else if (negative())
         {
             // Inner rings are included if the last encountered parent
             // matches the operation
@@ -138,86 +181,28 @@ struct ring_properties
         return false;
     }
 
-    typedef Point point_type;
-    typedef geometry::box<Point> box_type;
-
-    ring_identifier ring_id;
-    typename area_result<Point>::type area;
-
-    int c;
-    bool intersects;
-    bool produced;
-
-    // Stack of non-intersecting parent rings.
-    // This denotes if it a negative ring should be included,
-    // and which is the parent.
-#ifdef BOOST_GEOMETRY_ASSEMBLE_PARENT_DEQUE
-    std::deque<parent> parents;
-#else
-    parent parents[3];
-    int array_size;
-#endif
-
-    // If the parent is an intersecting ring, take
-    // this as the parent.
-    ring_identifier parent_id;
-    bool has_parent_id;
-
-
-    box_type box;
-
-    point_type point;
-    bool has_point;
-
-    inline ring_properties()
-        : c(0)
-        , intersects(false)
-        , produced(false)
-        , has_point(false)
-        , has_parent_id(false)
-#ifndef BOOST_GEOMETRY_ASSEMBLE_PARENT_DEQUE
-        , array_size(0)
-#endif
-    {}
-
-    template <typename Geometry>
-    inline ring_properties(ring_identifier id, Geometry const& geometry,
-            bool i, bool p = false)
-        : ring_id(id)
-        , area(geometry::area(geometry))
-        , c(0)
-        , intersects(i)
-        , produced(p)
-        , has_parent_id(false)
-        , box(geometry::make_envelope<box_type>(geometry))
-#ifndef BOOST_GEOMETRY_ASSEMBLE_PARENT_DEQUE
-        , array_size(0)
-#endif
+    inline bool untouched() const
     {
-        has_point = geometry::point_on_border(point, geometry);
+        // It should be in comparisons on parent/child if:
+        // it is produced
+        // it is not produced, and not intersecting
+        return ! produced && ! intersects;
     }
 
-    inline bool operator<(ring_properties<Point> const& other) const
-    {
-        // Normal sorting: in reverse order
-        return std::abs(area) > std::abs(other.area);
-    }
 
-    inline ring_identifier const& id() const
+#if defined(BOOST_GEOMETRY_DEBUG_IDENTIFIER)
+    friend std::ostream& operator<<(std::ostream &os, ring_properties<Point> const& prop)
     {
-        if (has_parent_id)
-        {
-            return parent_id;
-        }
-        return parent_stack_empty() || area > 0
-            ? ring_id
-#ifdef BOOST_GEOMETRY_ASSEMBLE_PARENT_DEQUE
-            : parents.back().id;
-#else
-            : parents[array_size - 1].id;
+        os << "prop: " << prop.ring_id << " " << prop.area;
+        os << " count: " << prop.parent_count;
+        std::cout << " parent: " << prop.parent_ring_id;
+        if (prop.produced) std::cout << " produced";
+        if (prop.intersects) std::cout << " intersects";
+        if (prop.included(1, false)) std::cout << " union";
+        if (prop.included(-1, false)) std::cout << " intersection";
+        return os;
+    }
 #endif
-    }
-
 
 };
 
@@ -225,14 +210,21 @@ struct ring_properties
 template<typename Prop>
 struct sort_on_id_or_parent_id
 {
+private :
+    int m_direction;
+public :
+    sort_on_id_or_parent_id(int direction)
+        : m_direction(direction)
+    {}
+
     inline bool operator()(Prop const& left, Prop const& right) const
     {
-        ring_identifier const& left_id = left.id();
-        ring_identifier const& right_id = right.id();
+        ring_identifier const& left_id = left.id(m_direction);
+        ring_identifier const& right_id = right.id(m_direction);
 
         // If it is the same, sort on size descending
         return left_id == right_id
-            ? std::abs(left.area) > std::abs(right.area)
+            ? abs(left.area) > abs(right.area)
             : left_id < right_id;
     }
 };
