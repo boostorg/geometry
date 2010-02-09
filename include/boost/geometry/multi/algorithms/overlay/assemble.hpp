@@ -43,7 +43,7 @@ struct add_to_containment<multi_polygon_tag, MultiPolygon>
     template <typename ContainmentContainer, typename Map>
     static inline void apply(ContainmentContainer& container,
             ring_identifier const& id, MultiPolygon const& multi_polygon,
-            Map const& map)
+            Map const& map, bool dissolve)
     {
         ring_identifier copy = id;
         copy.multi_index = 0;
@@ -58,7 +58,7 @@ struct add_to_containment<multi_polygon_tag, MultiPolygon>
             <
                 polygon_tag,
                 typename boost::range_value<MultiPolygon>::type
-            >::apply(container, copy, *it, map);
+            >::apply(container, copy, *it, map, dissolve);
         }
     }
 };

@@ -21,7 +21,6 @@
 
 #include <boost/geometry/algorithms/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/overlay/enrich_intersection_points.hpp>
-//#include <boost/geometry/algorithms/detail/overlay/enrich.hpp>
 #include <boost/geometry/algorithms/overlay/traverse.hpp>
 
 
@@ -36,8 +35,6 @@
 #include <boost/geometry/iterators/range_type.hpp>
 
 #include <boost/geometry/strategies/intersection.hpp>
-
-//#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/util/write_dsv.hpp>
@@ -165,10 +162,16 @@ struct add_to_containment<ring_tag, Ring>
 {
     template <typename ContainmentContainer, typename Map>
     static inline void apply(ContainmentContainer& container,
-            ring_identifier const& id, Ring const& ring, Map const& map)
+            ring_identifier const& id, Ring const& ring, Map const& map,
+            bool dissolve)
     {
         typedef typename range_value<ContainmentContainer>::type prop;
-        container.push_back(prop(id, ring, map.find(id) != map.end()));
+        bool found = map.find(id) != map.end();
+        if (! dissolve || ! found)
+        {
+            // For dissolve, do not add intersected rings
+            container.push_back(prop(id, ring, found));
+        }
     }
 };
 
@@ -177,10 +180,15 @@ struct add_to_containment<box_tag, Box>
 {
     template <typename ContainmentContainer, typename Map>
     static inline void apply(ContainmentContainer& container,
-            ring_identifier const& id, Box const& box, Map const& map)
+            ring_identifier const& id, Box const& box, Map const& map,
+            bool dissolve)
     {
         typedef typename range_value<ContainmentContainer>::type prop;
-        container.push_back(prop(id, box, map.find(id) != map.end()));
+        bool found = map.find(id) != map.end();
+        if (! dissolve || ! found)
+        {
+            container.push_back(prop(id, box, found));
+        }
     }
 };
 
@@ -190,7 +198,8 @@ struct add_to_containment<polygon_tag, Polygon>
 {
     template <typename ContainmentContainer, typename Map>
     static inline void apply(ContainmentContainer& container,
-            ring_identifier const& id, Polygon const& polygon, Map const& map)
+            ring_identifier const& id, Polygon const& polygon, Map const& map,
+            bool dissolve)
     {
         // Add exterior ring and interior rings
         ring_identifier copy = id;
@@ -201,7 +210,7 @@ struct add_to_containment<polygon_tag, Polygon>
                 typename ring_type<Polygon>::type
             > policy;
 
-        policy::apply(container, copy, exterior_ring(polygon), map);
+        policy::apply(container, copy, exterior_ring(polygon), map, dissolve);
         copy.ring_index = 0;
         for (typename boost::range_iterator
                 <
@@ -210,7 +219,7 @@ struct add_to_containment<polygon_tag, Polygon>
             it != boost::end(interior_rings(polygon));
             ++it, ++copy.ring_index)
         {
-            policy::apply(container, copy, *it, map);
+            policy::apply(container, copy, *it, map, dissolve);
         }
     }
 };
@@ -229,19 +238,22 @@ inline void map_turns(Map& map, TurnPoints const& turn_points)
          it != boost::end(turn_points);
          ++it, ++index)
     {
-        int op_index = 0;
-        for (typename boost::range_iterator<container_type const>::type
-                op_it = boost::begin(it->operations);
-            op_it != boost::end(it->operations);
-            ++op_it, ++op_index)
+        if (! it->ignore)
         {
-            ring_identifier ring_id
-                (
-                    op_it->seg_id.source_index,
-                    op_it->seg_id.multi_index,
-                    op_it->seg_id.ring_index
-                );
-            map[ring_id]++;
+            int op_index = 0;
+            for (typename boost::range_iterator<container_type const>::type
+                    op_it = boost::begin(it->operations);
+                op_it != boost::end(it->operations);
+                ++op_it, ++op_index)
+            {
+                ring_identifier ring_id
+                    (
+                        op_it->seg_id.source_index,
+                        op_it->seg_id.multi_index,
+                        op_it->seg_id.ring_index
+                    );
+                map[ring_id]++;
+            }
         }
     }
 }
@@ -259,46 +271,27 @@ struct enrich_containment
 {
 
     typedef typename boost::range_value<Container>::type item_type;
-    typedef typename item_type::parent parent_type;
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
     typedef void tag3; // For the ring-container
 
 
-    static inline void assign(item_type& item1, item_type& item2)
+    static inline void assign(item_type& larger, item_type& smaller, int direction, bool dissolve)
     {
-        int or1 = item1.area > 0 ? 1 : item1.area < 0 ? -1 : 0;
-        int or2 = item2.area > 0 ? 1 : item2.area < 0 ? -1 : 0;
-        if (or1 != 0 && or2 != 0)
-        {
-            if (or1 == 1 && or2 == 1)
-            {
-                item1.c = 1;
-                item2.c = -1;
-            }
+        typedef typename geometry::coordinate_type
+            <
+                Geometry1
+            >::type coordinate_type;
 
-            if (! item1.produced)
+        if (larger.signum != 0 && smaller.signum != 0)
+        {
+            if (larger.signum == 1)
             {
-                // This is an original ring, used to set info about
-                // the parents of interiors
-                if (or1 == 1)
-                {
-                    item2.push(parent_type(item1.c, item1.ring_id));
-                }
-                else if (or1 == -1 && ! item1.intersects)
-                {
-                    item2.pop();
-                }
+                smaller.push(larger, direction, dissolve);
             }
-            else
+            else if (larger.signum == -1)
             {
-                if (or1 == 1 && or2 == -1 && ! item2.intersects)
-                {
-                    // Assign this produced parent as the parent
-                    // to this hole
-                    item2.has_parent_id = true;
-                    item2.parent_id = item1.ring_id;
-                }
+                smaller.pop(/*from*/larger);
             }
         }
     }
@@ -348,7 +341,7 @@ struct enrich_containment
     static inline void enrich(Selection& selection, Map& map,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
-            int direction)
+            int direction, bool dissolve)
     {
         typedef typename boost::range_iterator<Selection>::type iterator;
 
@@ -370,12 +363,12 @@ struct enrich_containment
 
                     item_type& item2 = **it2;
                     if (geometry::within(item2.point, item1.box)
-                        && std::abs(item2.area) < std::abs(item1.area)
+                        && abs(item2.area) < abs(item1.area)
                         && contains(item1, item2, geometry1, geometry2,
                                     collection)
                         )
                     {
-                        assign(item1, item2);
+                        assign(item1, item2, direction, dissolve);
                     }
                 }
             }
@@ -386,7 +379,7 @@ struct enrich_containment
     static inline void divide_and_conquer(Selection& selection, Map& map,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
-            int direction, Box const& box,
+            int direction, bool dissolve, Box const& box,
             std::size_t iteration = 0, std::size_t previous_count = 0)
     {
         std::size_t n = boost::size(selection);
@@ -400,14 +393,15 @@ std::cout << "spatial divide n="
 
         if (iteration > 3)
         {
-            enrich(selection, map, geometry1, geometry2, collection, direction);
+            enrich(selection, map, geometry1, geometry2, collection, direction, dissolve);
             return;
         }
 
         // Divide the complete box in two (alternating) halves
         Box lower = box, upper = box;
-        typename geometry::coordinate_type<Box>::type two = 2.0;
-        typename geometry::coordinate_type<Box>::type mid
+        typedef typename geometry::coordinate_type<Box>::type coordinate_type;
+        coordinate_type two = 2.0;
+        coordinate_type mid
             = (geometry::get<min_corner, Dimension>(box)
                 + geometry::get<max_corner, Dimension>(box)) / two;
 
@@ -420,15 +414,15 @@ std::cout << "spatial divide n="
         select_by_box(upper_sel, selection, upper);
 
         divide_and_conquer<1 - Dimension>(lower_sel, map, geometry1, geometry2,
-                    collection, direction, lower, iteration + 1, n);
+                    collection, direction, dissolve, lower, iteration + 1, n);
         divide_and_conquer<1 - Dimension>(upper_sel, map, geometry1, geometry2,
-                    collection, direction, upper, iteration + 1, n);
+                    collection, direction, dissolve, upper, iteration + 1, n);
     }
 
     static inline void enrich(Container& container,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
-            int direction)
+            int direction, bool dissolve)
     {
         typedef typename boost::range_iterator<Container>::type iterator;
 
@@ -439,17 +433,26 @@ std::cout << "spatial divide n="
             ++it1)
         {
             item_type& item1 = *it1;
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << item1.ring_id << " area: " << item1.area << std::endl;
+#endif
             iterator it2 = it1;
             for (it2++; it2 != boost::end(container); ++it2)
             {
                 item_type& item2 = *it2;
                 if (geometry::within(item2.point, item1.box)
-                    && std::abs(item2.area) < std::abs(item1.area)
+                    && abs(item2.area) < abs(item1.area)
                     && contains(item1, item2, geometry1, geometry2, collection)
                     )
                 {
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << " -> contains " << item2.ring_id;
+#endif
                     n++;
-                    assign(item1, item2);
+                    assign(item1, item2, direction, dissolve);
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << std::endl;
+#endif
                 }
             }
         }
@@ -461,13 +464,23 @@ std::cout << "spatial divide n="
     static inline void apply(Container& container,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
-            int direction, Box const& box)
+            int direction, bool dissolve, Box const& box)
     {
         if (boost::size(container) == 0)
         {
             return;
         }
-        enrich(container, geometry1, geometry2, collection, direction);
+        enrich(container, geometry1, geometry2, collection, direction, dissolve);
+
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+        for (typename boost::range_iterator<Container const>::type
+                it = boost::begin(container);
+            it != boost::end(container);
+            ++it)
+        {
+            std::cout << *it << std::endl;
+        }
+#endif
         return;
 
         // Method using divide and conquer (does NOT work corretly!)
@@ -484,7 +497,7 @@ std::cout << "spatial divide n="
 
         std::map<std::pair<item_type*, item_type*>, bool> map;
         divide_and_conquer<1>(selection, map, geometry1, geometry2, collection,
-                    direction, box);
+                    direction, dissolve, box);
     }
 };
 
@@ -501,7 +514,7 @@ template
 inline OutputIterator add_all_rings(Container& container,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
-            int direction,
+            int direction, bool dissolve,
             OutputIterator out)
 {
     typedef typename boost::range_iterator<Container>::type iterator;
@@ -520,7 +533,7 @@ inline OutputIterator add_all_rings(Container& container,
         it != boost::end(container);
         ++it)
     {
-        if (it->area > 0)
+        if (it->positive())
         {
             if (result_filled)
             {
@@ -531,7 +544,7 @@ inline OutputIterator add_all_rings(Container& container,
 
             // If it is an outer ring, it is included if there are no parents
             // (union) or if there are parents (intersection)
-            if (it->included(direction))
+            if (it->included(direction, dissolve))
             {
                 geometry::clear(result);
                 previous_id = it->ring_id;
@@ -558,8 +571,8 @@ inline OutputIterator add_all_rings(Container& container,
             // If it is an interior ring, it is included if
             // it's parent-id matches the id of the outputted exterior ring
             if (result_filled
-                && it->id() == previous_id
-                && it->included(direction))
+                && it->id(direction) == previous_id
+                && it->included(direction, dissolve))
             {
                 if (it->ring_id.source_index == 0)
                 {
@@ -589,118 +602,34 @@ inline OutputIterator add_all_rings(Container& container,
     return out;
 }
 
-template <typename Container>
-inline void sort_on_parent_id(Container& container, int direction)
-{
-    typedef typename boost::range_iterator<Container>::type iterator;
-    typedef typename boost::range_value<Container>::type item_type;
-
-    // For negative rings produced by traversal,
-    // find the parent of the selected operation
-    // (by popping from the stack if necessary)
-    for (iterator it = boost::begin(container);
-        it != boost::end(container);
-        ++it)
-    {
-        if (it->produced && it->area < 0)
-        {
-            while (! it->interior_included(direction)
-                && ! it->parent_stack_empty())
-            {
-                it->pop();
-            }
-        }
-    }
-
-    // Sort container on parent-id
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "assemble.properties sort on parent-id "
-    << boost::size(container) << std::endl;
-#endif
-    std::sort(boost::begin(container), boost::end(container),
-            sort_on_id_or_parent_id<item_type>());
-}
 
 template
 <
+    typename GeometryOut,
+    typename Rings, typename Turns,
     typename Geometry1, typename Geometry2,
-    typename OutputIterator, typename GeometryOut,
-    int Direction,
-    typename Strategy
+    typename OutputIterator
 >
-struct overlay_and_assemble
+inline OutputIterator assemble(Rings const& rings, Turns& turn_points,
+            Geometry1 const& geometry1, 
+            Geometry2 const& geometry2,
+            int direction, bool dissolve,
+            OutputIterator out)
 {
-    typedef typename geometry::tag<Geometry1>::type tag1;
-    typedef typename geometry::tag<Geometry2>::type tag2;
-    typedef typename geometry::tag<GeometryOut>::type tag_out;
-
-    static inline OutputIterator apply(Geometry1 const& geometry1,
-                Geometry2 const& geometry2, OutputIterator out,
-                Strategy const& strategy)
-    {
-        if (geometry::num_points(geometry1) == 0
-            || geometry::num_points(geometry2) == 0)
-        {
-            return out;
-        }
+        typedef typename geometry::tag<Geometry1>::type tag1;
+        typedef typename geometry::tag<Geometry2>::type tag2;
+        typedef typename geometry::tag<GeometryOut>::type tag_out;
 
         typedef typename geometry::point_type<GeometryOut>::type point_type;
+        typedef typename boost::range_value<Rings>::type ring_type;
 
-
-        typedef detail::overlay::traversal_turn_info<point_type> turn_info;
-        typedef std::deque<turn_info> container_type;
-
-        // "Abuse" rangetype for ringtype: for polygon, it is the type of the
-        // exterior ring. For ring, it is the ring itself. That is what is
-        // wished here as well.
-        typedef typename geometry::range_type<GeometryOut>::type ring_type;
-
-        container_type turn_points;
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "get turns" << std::endl;
-#endif
-        boost::geometry::get_turns
-            <
-                detail::overlay::CalculateDistancePolicy
-            >(geometry1, geometry2, turn_points);
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "enrich" << std::endl;
-#endif
-        typename Strategy::side_strategy_type side_strategy;
-        geometry::enrich_intersection_points(turn_points, geometry1, geometry2,
-                    side_strategy);
-
-        std::vector<ring_type> rings;
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "traverse" << std::endl;
-#endif
-        geometry::traverse<typename Strategy::side_strategy_type, ring_type>
-            (
-                geometry1,
-                geometry2,
-                Direction == -1
-                    ? boost::geometry::detail::overlay::operation_intersection
-                    : boost::geometry::detail::overlay::operation_union
-                    ,
-                turn_points,
-                std::back_inserter(rings)
-            );
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "assemble" << std::endl;
 #endif
 
-
         // Map intersection-points per ring-identifier to <count>
         std::map<ring_identifier, int> map;
         map_turns(map, turn_points);
-
-// TODO: translate/implement this (sorry for the dutch)
-//1. loop ook door originele ringen heen, map[ring] = 0
-//2. verander dan map.find=.end in .find -> it=0
-//3. we weten nu dat er "untouched"  ringen zijn, als dat zo is,
-// dan "enrich assemble" etc.kl
 
         typedef std::vector
             <
@@ -708,21 +637,23 @@ std::cout << "assemble" << std::endl;
             > ring_properties_container_type;
         ring_properties_container_type ring_properties_container;
 
-
         add_to_containment
             <
                 tag1,
                 Geometry1
             >::apply(ring_properties_container,
-                        ring_identifier(0,-1,-1), geometry1, map);
-        add_to_containment
-            <
-                tag2,
-                Geometry2
-            >::apply(ring_properties_container,
-                        ring_identifier(1,-1,-1), geometry2, map);
-
-
+                        ring_identifier(0, -1,-1), geometry1, 
+                        map, dissolve);
+        if (! dissolve)
+        {
+            add_to_containment
+                <
+                    tag2,
+                    Geometry2
+                >::apply(ring_properties_container,
+                            ring_identifier(1, -1,-1), geometry2, 
+                            map, dissolve);
+        }
 
         // Add all produced rings using source index 2
         {
@@ -745,7 +676,7 @@ std::cout << "assemble" << std::endl;
                 it != boost::end(ring_properties_container);
                 ++it)
             {
-                if (it->area>0)
+                if (it->positive())
                 {
                     pos++;
                 }
@@ -788,15 +719,100 @@ std::cout << "assemble.enrich containment" << std::endl;
                     std::vector<ring_type>,
                     geometry::box<point_type>
                 >::apply(ring_properties_container,
-                        geometry1, geometry2, rings, Direction, total);
+                        geometry1, geometry2, rings, direction, dissolve, total);
 
-            sort_on_parent_id(ring_properties_container, Direction);
+    // Sort container on parent-id
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << "assemble.properties sort on parent-id "
+    << boost::size(ring_properties_container) << std::endl;
+#endif
+            std::sort(boost::begin(ring_properties_container), 
+                    boost::end(ring_properties_container),
+                    sort_on_id_or_parent_id
+                        <
+                            ring_properties<point_type> 
+                        >(direction));
         }
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "assemble.add rings" << std::endl;
 #endif
         return add_all_rings<GeometryOut>(ring_properties_container,
-                    geometry1, geometry2, rings, Direction, out);
+                    geometry1, geometry2, rings, direction, dissolve, out);
+}
+
+
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename OutputIterator, typename GeometryOut,
+    int Direction,
+    typename Strategy
+>
+struct overlay
+{
+    static inline OutputIterator apply(
+                Geometry1 const& geometry1, Geometry2 const& geometry2, 
+                OutputIterator out,
+                Strategy const& strategy)
+    {
+        if (geometry::num_points(geometry1) == 0 && geometry::num_points(geometry2) == 0)
+        {
+            return out;
+        }
+
+        typedef typename geometry::point_type<GeometryOut>::type point_type;
+        typedef detail::overlay::traversal_turn_info<point_type> turn_info;
+        typedef std::deque<turn_info> container_type;
+
+        // "Use" rangetype for ringtype: 
+        // for polygon, it is the type of the exterior ring. 
+        // for ring, it is the ring itself. That is what is
+        // for multi-polygon, it is also the type of the ring.
+        typedef typename geometry::range_type<GeometryOut>::type ring_type;
+
+        container_type turn_points;
+        std::vector<ring_type> rings;
+
+        // If one input is empty, output the other one for a union. 
+        // For an intersection, the intersection is empty.
+        if (geometry::num_points(geometry1) == 0 
+            || geometry::num_points(geometry2) == 0)
+        {
+            if (Direction == 1)
+            {
+                return assemble<GeometryOut>(rings, turn_points, 
+                                geometry1, geometry2, Direction, false, out);
+            }
+            return out;
+        }
+
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << "get turns" << std::endl;
+#endif
+        boost::geometry::get_turns
+            <
+                detail::overlay::CalculateDistancePolicy
+            >(geometry1, geometry2, turn_points);
+
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << "enrich" << std::endl;
+#endif
+        typename Strategy::side_strategy_type side_strategy;
+        geometry::enrich_intersection_points(turn_points, geometry1, geometry2,
+                    side_strategy);
+
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << "traverse" << std::endl;
+#endif
+        geometry::traverse(geometry1, geometry2,
+                Direction == -1
+                    ? boost::geometry::detail::overlay::operation_intersection
+                    : boost::geometry::detail::overlay::operation_union
+                    ,
+                turn_points, rings);
+
+        return assemble<GeometryOut>(rings, turn_points, 
+                        geometry1, geometry2, Direction, false, out);
     }
 };
 
