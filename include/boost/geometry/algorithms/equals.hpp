@@ -58,7 +58,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace equals {
+namespace detail { namespace equals 
+{
 
 
 template
@@ -90,10 +91,66 @@ struct box_box<Box1, Box2, DimensionCount, DimensionCount>
     }
 };
 
+struct equals_interrupt_policy
+{
+    static bool const enabled = true;
+
+    // As soon as a turn is detected, this flag is set to true
+    // and the process of getting turns (intersection points)
+    // is interrupted
+    bool turns_inside_or_outside;
+
+    inline equals_interrupt_policy()
+        : turns_inside_or_outside(false)
+    {}
+
+    template <typename Range>
+    inline bool apply(Range const& range)
+    {
+        for (typename boost::range_iterator<Range const>::type
+            it = boost::begin(range);
+            it != boost::end(range);
+            ++it)
+        {
+            if (it->method == detail::overlay::method_collinear
+                || it->method == detail::overlay::method_equal
+                )
+            {
+                typedef typename boost::range_value<Range>::type turn_type;
+                // If it is not such that both turns are collinear, the rings are not equal
+                for (typename boost::range_iterator
+                        <
+                            typename turn_type::container_type const
+                        >::type oit = boost::begin(it->operations);
+                    oit != boost::end(it->operations);
+                    oit++)
+                {
+                    if (oit->operation != detail::overlay::operation_continue)
+                    {
+                        turns_inside_or_outside = true;
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                turns_inside_or_outside = true;
+                return true;
+            }
+        }
+        // It is not yet known, so don't interrupt
+        return false;
+    }
+
+};
+
+
 
 template <typename Ring1, typename Ring2>
 struct ring_ring
 {
+
+
     static inline bool apply(Ring1 const& ring1, Ring2 const& ring2, bool check_area = true)
     {
         // Note: this implementation makes use of getting interections (turns)
@@ -115,45 +172,17 @@ struct ring_ring
 
         typedef typename geometry::point_type<Ring1>::type point_type;
         typedef detail::overlay::traversal_turn_info<point_type> turn_info;
-        typedef std::deque<turn_info> container_type;
+        std::vector<turn_info> turns;
 
-        container_type ips;
-        boost::geometry::get_turns<detail::overlay::NullPolicy>(ring1, ring2, ips);
+        equals_interrupt_policy policy;
 
-        if (ips.size() == 0)
-        {
-            return false;
-        }
-        for (typename boost::range_iterator<container_type const>::type
-            it = boost::begin(ips);
-            it != boost::end(ips);
-            ++it)
-        {
-            if (it->method == detail::overlay::method_collinear
-                || it->method == detail::overlay::method_equal
-                )
-            {
-                // If it is not such that both turns are collinear, the rings are not equal
-                for (typename boost::range_iterator
-                        <
-                            typename turn_info::container_type const
-                        >::type oit = boost::begin(it->operations);
-                    oit != boost::end(it->operations);
-                    oit++)
-                {
-                    if (oit->operation != detail::overlay::operation_continue)
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
+        boost::geometry::get_turns
+            <
+                detail::overlay::assign_null_policy
+            >(ring1, ring2, turns, policy);
 
-        return true;
+        return turns.size() > 0
+            && ! policy.turns_inside_or_outside;
     }
 };
 
@@ -183,7 +212,7 @@ inline void fill_equal_sortable(Range const& range,
 {
     typedef typename boost::range_value<Collection>::type item_type;
     int i = 0;
-    for (typename boost::range_iterator<Range const>::type 
+    for (typename boost::range_iterator<Range const>::type
             it = boost::begin(range);
          it != boost::end(range);
          ++it, ++i)
@@ -202,10 +231,10 @@ inline void fill_equal_sortable(Range const& range,
 }
 
 
-template 
+template
 <
     typename Policy,
-    typename Range1, 
+    typename Range1,
     typename Range2
 >
 inline bool range_range(Range1 const& range1, Range2 const& range2)
@@ -217,7 +246,7 @@ inline bool range_range(Range1 const& range1, Range2 const& range2)
         <
             equal_sortable<typename geometry::area_result<geometry1>::type>
         > collection;
-    
+
     collection sorted1, sorted2;
 
     fill_equal_sortable(range1, sorted1);
@@ -258,7 +287,7 @@ inline bool range_range(Range1 const& range1, Range2 const& range2)
 template <typename Polygon1, typename Polygon2>
 struct polygon_polygon
 {
-    static inline bool apply(Polygon1 const& polygon1, Polygon2 const& polygon2, 
+    static inline bool apply(Polygon1 const& polygon1, Polygon2 const& polygon2,
                     bool compare_area = false)
     {
         // Check number of rings (area check is done in exterior ring check)
@@ -278,7 +307,7 @@ struct polygon_polygon
         }
 
         return range_range<compare>(
-                interior_rings(polygon1), 
+                interior_rings(polygon1),
                 interior_rings(polygon2));
 
     }
@@ -361,7 +390,7 @@ template
 <
     typename Tag1, typename Tag2,
     bool IsMulti1, bool IsMulti2,
-    typename Geometry1, 
+    typename Geometry1,
     typename Geometry2,
     std::size_t DimensionCount
 >

@@ -281,15 +281,12 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    typedef typename geometry::point_type<GeometryOut>::type point_type;
-    typedef detail::intersection::intersection_point<point_type> ip_type;
-
     typedef strategy_intersection
         <
-            typename cs_tag<point_type>::type,
+            typename cs_tag<GeometryOut>::type,
             Geometry1,
             Geometry2,
-            ip_type
+            typename geometry::point_type<GeometryOut>::type
         > strategy;
 
     return intersection_inserter<GeometryOut>(geometry1, geometry2, out,
@@ -327,20 +324,17 @@ inline void intersection(Geometry1 const& geometry1,
     typedef typename boost::range_value<Collection>::type geometry_out;
     concept::check<geometry_out>();
 
-    typedef typename geometry::point_type<geometry_out>::type point_type;
-    typedef detail::intersection::intersection_point<point_type> ip_type;
-
     typedef strategy_intersection
         <
-            typename cs_tag<point_type>::type,
+            typename cs_tag<geometry_out>::type,
             Geometry1,
             Geometry2,
-            ip_type
+            typename geometry::point_type<geometry_out>::type
         > strategy;
 
 
-    intersection_inserter<geometry_out>(geometry1, geometry2, 
-                std::back_inserter(output_collection), 
+    intersection_inserter<geometry_out>(geometry1, geometry2,
+                std::back_inserter(output_collection),
                 strategy());
 }
 
@@ -348,4 +342,4 @@ inline void intersection(Geometry1 const& geometry1,
 }} // namespace boost::geometry
 
 
-#endif //GGL_ALGORITHMS_INTERSECTION_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_INTERSECTION_HPP

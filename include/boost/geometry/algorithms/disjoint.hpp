@@ -41,7 +41,7 @@
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
-#include <boost/geometry/algorithms/overlay/get_intersection_points.hpp>
+#include <boost/geometry/algorithms/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -55,7 +55,31 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace disjoint {
+namespace detail { namespace disjoint 
+{
+
+
+struct disjoint_interrupt_policy
+{
+    static bool const enabled = true;
+    bool has_intersections;
+
+    inline disjoint_interrupt_policy()
+        : has_intersections(false)
+    {}
+
+    template <typename Range>
+    inline bool apply(Range const& range)
+    {
+        // If there is any IP in the range, it is NOT disjoint
+        if (boost::size(range) > 0)
+        {
+            has_intersections = true;
+            return true;
+        }
+        return false;
+    }
+};
 
 
 template <typename Geometry1, typename Geometry2>
@@ -63,17 +87,22 @@ struct general
 {
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-
         typedef typename geometry::point_type<Geometry1>::type point_type;
-        typedef detail::intersection::intersection_point<point_type> ip_type;
-        std::deque<ip_type> ips; // intersection points
 
-        // Get any intersection
-        geometry::get_intersection_points(geometry1, geometry2, ips);
-        if (ips.size() > 0)
+        typedef overlay::turn_info<point_type> turn_info;
+        std::deque<turn_info> turns;
+
+        // Get (and stop on) any intersection
+        disjoint_interrupt_policy policy;
+        geometry::get_turns
+            <
+                overlay::assign_null_policy
+            >(geometry1, geometry2, turns, policy);
+        if (policy.has_intersections)
         {
             return false;
         }
+
         // If there is no intersection of segments, they might located
         // inside each other
         point_type p1;

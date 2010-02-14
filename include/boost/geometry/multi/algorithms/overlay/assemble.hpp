@@ -91,4 +91,4 @@ struct get_ring<multi_polygon_tag>
 
 }} // namespace boost::geometry
 
-#endif //GGL_ALGORITHMS_OVERLAY_ASSEMBLE_HPP
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_OVERLAY_ASSEMBLE_HPP

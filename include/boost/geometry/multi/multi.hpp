@@ -45,7 +45,6 @@
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
 #include <boost/geometry/multi/algorithms/overlay/copy_segments.hpp>
 #include <boost/geometry/multi/algorithms/overlay/self_turn_points.hpp>
-#include <boost/geometry/multi/algorithms/overlay/get_intersection_points.hpp>
 
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>

@@ -49,7 +49,6 @@ The within algorithm is used as following:
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 
-#include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 
 #include <boost/geometry/core/access.hpp>

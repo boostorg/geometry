@@ -65,30 +65,43 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace get_turns {
+namespace detail { namespace get_turns
+{
 
+
+struct no_interrupt_policy
+{
+    static bool const enabled = false;
+
+    template <typename Range>
+    static inline bool apply(Range const&)
+    {
+        return false;
+    }
+};
 
 
 template
 <
     typename Geometry1, typename Geometry2,
     typename Section1, typename Section2,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 class get_turns_in_sections
 {
 
 public :
-    static inline void apply(
+    // Returns true if terminated, false if interrupted
+    static inline bool apply(
             int source_id1, Geometry1 const& geometry1,
-                Section1 const& sec1,
+                    Section1 const& sec1,
             int source_id2, Geometry2 const& geometry2,
-                Section2 const& sec2,
-            bool return_if_found,
-            TurnCollection& turns,
-            bool& trivial)
+                    Section2 const& sec2,
+            Turns& turns,
+            InterruptPolicy& interrupt_policy)
     {
 
         typedef typename boost::range_const_iterator
@@ -169,7 +182,7 @@ public :
                             begin_range_2, end_range_2, next2, true);
                     advance_to_non_duplicate_next(nd_next2, it2, sec2);
 
-                    typedef typename boost::range_value<TurnCollection>::type turn_info;
+                    typedef typename boost::range_value<Turns>::type turn_info;
                     typedef typename turn_info::point_type ip;
 
                     turn_info ti;
@@ -181,23 +194,29 @@ public :
                     ti.operations[0].other_id = ti.operations[1].seg_id;
                     ti.operations[1].other_id = ti.operations[0].seg_id;
 
+                    std::size_t const size_before = boost::size(turns);
+
                     detail::overlay::get_turn_info
                         <
-                            point1_type,
-                            point2_type,
+                            point1_type, point2_type,
                             turn_info,
                             AssignPolicy
                         >::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
                             ti, std::back_inserter(turns));
 
-                    if (return_if_found
-                        && boost::size(turns) > 0)
+                    if (InterruptPolicy::enabled)
                     {
-                        return;
+                        if (interrupt_policy.apply(
+                            std::make_pair(boost::begin(turns) + size_before,
+                                boost::end(turns))))
+                        {
+                            return false;
+                        }
                     }
                 }
             }
         }
+        return true;
     }
 
 
@@ -275,61 +294,15 @@ private :
 };
 
 
-template
-<
-    typename Ring, typename Box,
-    typename Section1, typename Section2,
-    typename TurnCollection,
-    typename IntersectionStrategy,
-    typename AssignPolicy
->
-class get_turns_range_box
-{
-public :
-    static inline void apply(
-            int source_id1, Ring const& ring,
-            int source_id2, Box const& box,
-            Section1 const& sec1, Section2 const& sec2,
-            TurnCollection& turns, bool& trivial)
-    {
-        get_turns_in_sections
-            <
-                Ring,
-                Box,
-                Section1,
-                Section2,
-                TurnCollection,
-                IntersectionStrategy,
-                AssignPolicy
-            >
-            ::apply(
-                source_id1, ring, sec1,
-                source_id2, box, sec2,
-                false,
-                turns, trivial);
-    }
-};
-
-template <typename Section, int Dimension, int Index>
-struct compare_section
-{
-    inline bool operator()(Section const& left, Section const& right) const
-    {
-        return
-            geometry::get<Index, Dimension>(left.bounding_box)
-                < geometry::get<Index, Dimension>(right.bounding_box);
-    }
-};
-
-
 
 template
 <
     typename Geometry1,
     typename Geometry2,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 class get_turns_generic
 {
@@ -362,13 +335,13 @@ class get_turns_generic
     }
 
     template <typename Sections1, typename Sections2, typename Map>
-    static inline void intersect(
+    static inline bool intersect(
             int source_id1, Geometry1 const& geometry1,
             int source_id2, Geometry2 const& geometry2,
-            TurnCollection& turns,
+            Turns& turns,
+            InterruptPolicy& interrupt_policy,
             Sections1 const& sec1, Sections2 const& sec2,
-            Map& map,
-            bool &trivial)
+            Map& map)
     {
         for (typename boost::range_const_iterator<Sections1>::type
                     it1 = sec1.begin();
@@ -388,24 +361,28 @@ class get_turns_generic
                     if (! geometry::detail::disjoint::disjoint_box_box(
                                     it1->bounding_box, it2->bounding_box))
                     {
-                        get_turns_in_sections
-                        <
-                            Geometry1,
-                            Geometry2,
-                            typename boost::range_value<Sections1>::type,
-                            typename boost::range_value<Sections2>::type,
-                            TurnCollection,
-                            IntersectionStrategy,
-                            AssignPolicy
-                        >::apply(
-                                source_id1, geometry1, *it1,
-                                source_id2, geometry2, *it2,
-                                false,
-                                turns, trivial);
+                        if (! get_turns_in_sections
+                                <
+                                    Geometry1,
+                                    Geometry2,
+                                    typename boost::range_value<Sections1>::type,
+                                    typename boost::range_value<Sections2>::type,
+                                    Turns,
+                                    IntersectionStrategy,
+                                    AssignPolicy, InterruptPolicy
+                                >::apply(
+                                        source_id1, geometry1, *it1,
+                                        source_id2, geometry2, *it2,
+                                        turns, interrupt_policy)
+                            )
+                        {
+                            return false;
+                        }
                     }
                 }
             }
         }
+        return true;
     }
 
 
@@ -417,15 +394,15 @@ class get_turns_generic
             typename Sections1, typename Sections2,
             typename Map
         >
-    static inline void divide_and_conquer(
+    static inline bool divide_and_conquer(
             int source_id1, Geometry1 const& geometry1,
             int source_id2, Geometry2 const& geometry2,
-            TurnCollection& turns,
+            Turns& turns,
+            InterruptPolicy& interrupt_policy,
 
             Box const& box,
             Sections1 const& sec1, Sections2 const& sec2,
             Map& map,
-            bool &trivial,
             std::size_t iteration = 0, std::size_t previous_count = 0)
     {
         // To stop the iteration, fallback to (quadratic) behaviour below certain limits,
@@ -436,9 +413,8 @@ class get_turns_generic
             || n == previous_count
             || iteration > 100)
         {
-            intersect(source_id1, geometry1, source_id2, geometry2,
-                            turns, sec1, sec2, map, trivial);
-            return;
+            return intersect(source_id1, geometry1, source_id2, geometry2,
+                            turns, interrupt_policy, sec1, sec2, map);
         }
 
         // Divide the complete box in two (alternating) halves
@@ -469,20 +445,19 @@ class get_turns_generic
 #endif
 
         // Recursively handle lower and upper half, dividing in other dimension
-        divide_and_conquer<1 - Dimension>(source_id1, geometry1,
-                source_id2, geometry2, turns,
-                lower, lower1, lower2, map, trivial, iteration + 1, n);
-
-        divide_and_conquer<1 - Dimension>(source_id1, geometry1,
-                source_id2, geometry2, turns,
-                upper, upper1, upper2, map, trivial, iteration + 1, n);
+        return divide_and_conquer<1 - Dimension>(source_id1, geometry1,
+                    source_id2, geometry2, turns, interrupt_policy,
+                    lower, lower1, lower2, map, iteration + 1, n)
+            && divide_and_conquer<1 - Dimension>(source_id1, geometry1,
+                    source_id2, geometry2, turns, interrupt_policy,
+                    upper, upper1, upper2, map, iteration + 1, n);
     }
 
 public:
-    static inline bool apply(
+    static inline void apply(
             int source_id1, Geometry1 const& geometry1,
             int source_id2, Geometry2 const& geometry2,
-            TurnCollection& turns)
+            Turns& turns, InterruptPolicy& interrupt_policy)
     {
         // Create monotonic sections in ONE direction
         // - in most cases ONE direction is faster (e.g. ~1% faster for the NLP4 testset)
@@ -491,7 +466,7 @@ public:
         // Note that the sections contain boxes, are dynamic, and therefore
         // are specified using output/intersection-point-type
         // (to enable input-pointer-point-types)
-        typedef typename boost::range_value<TurnCollection>::type ip_type;
+        typedef typename boost::range_value<Turns>::type ip_type;
         typedef typename ip_type::point_type point_type;
         typedef typename geometry::sections<geometry::box<point_type>, 1> sections1_type;
         typedef typename geometry::sections<geometry::box<point_type>, 1> sections2_type;
@@ -511,10 +486,8 @@ public:
         // House-keeping map, to avoid section-pairs being compared twice
         std::map<std::pair<int, int>, bool> map;
 
-        bool trivial = true;
         divide_and_conquer<1>(source_id1, geometry1, source_id2, geometry2,
-            turns, box, sec1, sec2, map, trivial);
-        return trivial;
+            turns, interrupt_policy, box, sec1, sec2, map);
     }
 };
 
@@ -524,17 +497,19 @@ template
 <
     typename Range,
     typename Box,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns_cs
 {
-    static inline void apply(int source_id1, Range const& range,
-            int multi_index, int ring_index,
-            int source_id2, Box const& box,
-            TurnCollection& turns,
-            bool& trivial)
+    static inline void apply(
+                int source_id1, Range const& range,
+                int multi_index, int ring_index,
+                int source_id2, Box const& box,
+                Turns& turns,
+                InterruptPolicy& interrupt_policy)
     {
         if (boost::size(range) <= 1)
         {
@@ -602,7 +577,7 @@ struct get_turns_cs
                 )*/
             if (true)
             {
-                typedef typename boost::range_value<TurnCollection>::type turn_info;
+                typedef typename boost::range_value<Turns>::type turn_info;
                 typedef detail::overlay::get_turn_info
                     <
                         box_point_type,
@@ -639,6 +614,8 @@ struct get_turns_cs
                 relater::apply(*prev, *it, *next,
                         lower_right, lower_left, upper_left,
                         ti, std::back_inserter(turns));
+
+                // TODO: call the break policy
 
             }
         }
@@ -682,9 +659,10 @@ template
     typename GeometryTag1, typename GeometryTag2,
     bool IsMulti1, bool IsMulti2,
     typename Geometry1, typename Geometry2,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
 {
@@ -695,24 +673,26 @@ template
 <
     typename Polygon,
     typename Box,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
         polygon_tag, box_tag, false, false,
         Polygon, Box,
-        TurnCollection,
+        Turns,
         IntersectionStrategy,
-        AssignPolicy
+        AssignPolicy,
+        InterruptPolicy
     >
 {
 
-    static inline bool apply(
+    static inline void apply(
             int source_id1, Polygon const& polygon,
             int source_id2, Box const& box,
-            TurnCollection& turns)
+            Turns& turns, InterruptPolicy& interrupt_policy)
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
 
@@ -726,16 +706,15 @@ struct get_turns
             <
                 ring_type,
                 Box,
-                TurnCollection,
+                Turns,
                 IntersectionStrategy,
-                AssignPolicy
+                AssignPolicy, InterruptPolicy
             > intersector_type;
 
-        bool trivial = true;
         intersector_type::apply(
                 source_id1, geometry::exterior_ring(polygon), -1, -1,
                 source_id2, box,
-                turns, trivial);
+                turns, interrupt_policy);
 
         int i = 0;
         for (iterator_type it = boost::begin(interior_rings(polygon));
@@ -744,10 +723,9 @@ struct get_turns
         {
             intersector_type::apply(
                     source_id1, *it, -1, i,
-                    source_id2, box, turns, trivial);
+                    source_id2, box, turns, interrupt_policy);
         }
 
-        return trivial;
     }
 };
 
@@ -756,23 +734,24 @@ template
 <
     typename Ring,
     typename Box,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
         ring_tag, box_tag, false, false,
         Ring, Box,
-        TurnCollection,
+        Turns,
         IntersectionStrategy,
-        AssignPolicy
+        AssignPolicy, InterruptPolicy
     >
 {
-    static inline bool apply(
+    static inline void apply(
             int source_id1, Ring const& ring,
             int source_id2, Box const& box,
-            TurnCollection& turns)
+            Turns& turns, InterruptPolicy& interrupt_policy)
     {
         typedef typename boost::range_const_iterator
             <
@@ -783,18 +762,16 @@ struct get_turns
             <
                 Ring,
                 Box,
-                TurnCollection,
+                Turns,
                 IntersectionStrategy,
-                AssignPolicy
+                AssignPolicy, InterruptPolicy
             > intersector_type;
 
-        bool trivial = true;
         intersector_type::apply(
                 source_id1, ring, -1, -1,
                 source_id2, box,
-                turns, trivial);
+                turns, interrupt_policy);
 
-        return trivial;
     }
 };
 
@@ -803,24 +780,25 @@ template
 <
     typename Ring1,
     typename Ring2,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
         ring_tag, ring_tag, false, false,
         Ring1, Ring2,
-        TurnCollection, IntersectionStrategy,
-        AssignPolicy
+        Turns, IntersectionStrategy,
+        AssignPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
             Ring1,
             Ring2,
-            TurnCollection,
+            Turns,
             IntersectionStrategy,
-            AssignPolicy
+            AssignPolicy, InterruptPolicy
         >
 {};
 
@@ -829,24 +807,25 @@ template
 <
     typename Polygon1,
     typename Polygon2,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
         polygon_tag, polygon_tag, false, false,
         Polygon1, Polygon2,
-        TurnCollection, IntersectionStrategy,
-        AssignPolicy
+        Turns, IntersectionStrategy,
+        AssignPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
             Polygon1,
             Polygon2,
-            TurnCollection,
+            Turns,
             IntersectionStrategy,
-            AssignPolicy
+            AssignPolicy, InterruptPolicy
         >
 {};
 
@@ -854,24 +833,25 @@ template
 <
     typename Polygon,
     typename Ring,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
         polygon_tag, ring_tag, false, false,
         Polygon, Ring,
-        TurnCollection, IntersectionStrategy,
-        AssignPolicy
+        Turns, IntersectionStrategy,
+        AssignPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
             Polygon,
             Ring,
-            TurnCollection,
+            Turns,
             IntersectionStrategy,
-            AssignPolicy
+            AssignPolicy, InterruptPolicy
         >
 {};
 
@@ -879,24 +859,25 @@ template
 <
     typename LineString1,
     typename LineString2,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
         linestring_tag, linestring_tag, false, false,
         LineString1, LineString2,
-        TurnCollection, IntersectionStrategy,
-        AssignPolicy
+        Turns, IntersectionStrategy,
+        AssignPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
             LineString1,
             LineString2,
-            TurnCollection,
+            Turns,
             IntersectionStrategy,
-            AssignPolicy
+            AssignPolicy, InterruptPolicy
         >
 {};
 
@@ -905,25 +886,25 @@ template
     typename GeometryTag1, typename GeometryTag2,
     bool IsMulti1, bool IsMulti2,
     typename Geometry1, typename Geometry2,
-    typename TurnCollection,
+    typename Turns,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy, typename InterruptPolicy
 >
 struct get_turns_reversed
 {
-    static inline bool apply(
+    static inline void apply(
             int source_id1, Geometry1 const& g1,
             int source_id2, Geometry2 const& g2,
-            TurnCollection& turns)
+            Turns& turns, InterruptPolicy& interrupt_policy)
     {
-        return get_turns
+        get_turns
             <
                 GeometryTag2, GeometryTag1,
                 IsMulti2, IsMulti1,
                 Geometry2, Geometry1,
-                TurnCollection, IntersectionStrategy,
-                AssignPolicy
-            >::apply(source_id2, g2, source_id1, g1, turns);
+                Turns, IntersectionStrategy,
+                AssignPolicy, InterruptPolicy
+            >::apply(source_id2, g2, source_id1, g1, turns, interrupt_policy);
     }
 };
 
@@ -938,7 +919,7 @@ struct get_turns_reversed
     \ingroup overlay
     \tparam Geometry1 first geometry type
     \tparam Geometry2 second geometry type
-    \tparam TurnCollection type of turn-container (e.g. vector of "intersection/turn point"'s)
+    \tparam Turns type of turn-container (e.g. vector of "intersection/turn point"'s)
     \param geometry1 first geometry
     \param geometry2 second geometry
     \param turns container which will contain intersection points
@@ -948,22 +929,22 @@ template
     typename AssignPolicy,
     typename Geometry1,
     typename Geometry2,
-    typename TurnCollection
+    typename Turns,
+    typename InterruptPolicy
 >
 inline void get_turns(Geometry1 const& geometry1,
-            Geometry2 const& geometry2, TurnCollection& turns)
+            Geometry2 const& geometry2,
+            Turns& turns,
+            InterruptPolicy& interrupt_policy)
 {
     concept::check_concepts_and_equal_dimensions<const Geometry1, const Geometry2>();
-
-    typedef typename boost::remove_const<Geometry1>::type ncg1_type;
-    typedef typename boost::remove_const<Geometry2>::type ncg2_type;
 
     typedef typename strategy_intersection
         <
             typename cs_tag<Geometry1>::type,
             Geometry1,
             Geometry2,
-            typename boost::range_value<TurnCollection>::type
+            typename boost::range_value<Turns>::type
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     boost::mpl::if_c
@@ -975,11 +956,11 @@ inline void get_turns(Geometry1 const& geometry1,
                 typename tag<Geometry2>::type,
                 is_multi<Geometry1>::type::value,
                 is_multi<Geometry2>::type::value,
-                ncg1_type,
-                ncg2_type,
-                TurnCollection,
+                Geometry1,
+                Geometry2,
+                Turns,
                 segment_intersection_strategy_type,
-                AssignPolicy
+                AssignPolicy, InterruptPolicy
             >,
             dispatch::get_turns
             <
@@ -987,16 +968,16 @@ inline void get_turns(Geometry1 const& geometry1,
                 typename tag<Geometry2>::type,
                 is_multi<Geometry1>::type::value,
                 is_multi<Geometry2>::type::value,
-                ncg1_type,
-                ncg2_type,
-                TurnCollection,
+                Geometry1,
+                Geometry2,
+                Turns,
                 segment_intersection_strategy_type,
-                AssignPolicy
+                AssignPolicy, InterruptPolicy
             >
         >::type::apply(
             0, geometry1,
             1, geometry2,
-            turns);
+            turns, interrupt_policy);
 }
 
 

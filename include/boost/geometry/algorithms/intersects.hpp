@@ -33,10 +33,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
-#include <boost/geometry/algorithms/overlay/get_intersection_points.hpp>
-#include <boost/geometry/algorithms/overlay/self_intersection_points.hpp>
-#include <boost/geometry/algorithms/overlay/enrich_intersection_points.hpp>
-#include <boost/geometry/algorithms/overlay/traverse.hpp>
+#include <boost/geometry/algorithms/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 
@@ -58,32 +55,33 @@ namespace boost { namespace geometry
 template <typename Geometry>
 inline bool intersects(Geometry const& geometry)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
-    typedef typename boost::remove_const<Geometry>::type ncg_type;
 
-    typedef geometry::detail::intersection::intersection_point
-        <typename geometry::point_type<Geometry>::type> ip;
-    typedef std::vector<ip> ip_vector;
-
-    ip_vector ips;
+    typedef detail::overlay::turn_info
+        <
+            typename geometry::point_type<Geometry>::type
+        > turn_info;
+    std::deque<turn_info> turns;
 
     typedef typename strategy_intersection
         <
             typename cs_tag<Geometry>::type,
             Geometry,
             Geometry,
-            ip
+            typename geometry::point_type<Geometry>::type
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
-    dispatch::self_intersection_points
+    detail::disjoint::disjoint_interrupt_policy policy;
+    detail::self_get_turn_points::get_turns
             <
-                typename tag<ncg_type>::type,
-                is_multi<ncg_type>::type::value,
-                ncg_type,
-                ip_vector, segment_intersection_strategy_type
-            >::apply(geometry, true, ips);
-    return ips.size() > 0;
+                Geometry,
+                std::deque<turn_info>,
+                segment_intersection_strategy_type,
+                detail::overlay::assign_null_policy,
+                detail::disjoint::disjoint_interrupt_policy
+            >::apply(geometry, turns, policy);
+    return policy.has_intersections;
 }
 
 
@@ -109,4 +107,4 @@ inline bool intersects(Geometry1 const& geometry1, Geometry2 const& geometry2)
 
 }} // namespace boost::geometry
 
-#endif //GGL_ALGORITHMS_INTERSECTS_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_INTERSECTS_HPP

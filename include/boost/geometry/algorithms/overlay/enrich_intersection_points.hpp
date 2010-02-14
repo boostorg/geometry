@@ -178,7 +178,7 @@ struct sort_on_segment_and_distance
                 Geometry1, Geometry2, Strategy
             >
 {
-    sort_on_segment_and_distance(Geometry1 const& geometry1, 
+    sort_on_segment_and_distance(Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
                 Strategy const& strategy)
         : sort_on_distance
@@ -291,10 +291,10 @@ static inline bool enrich(Container& operations,
             operation_type& op = turn_points[it->index]
                 .operations[it->operation_index];
            if ((prev_op.seg_id == op.seg_id || prev_op.other_id == op.other_id)
-               && geometry::math::equals(prev_op.enriched.distance, 
+               && geometry::math::equals(prev_op.enriched.distance,
                         op.enriched.distance))
            {
-                std::cout << "Equal Distance on " 
+                std::cout << "Equal Distance on "
                     << " : "    << prev_op.seg_id  << " / "  << prev_op.other_id
                     << " and "  << op.seg_id << " / " << op.other_id
                     << std::endl;
@@ -305,7 +305,7 @@ static inline bool enrich(Container& operations,
 
                 if (swap_operations
                     <
-                        typename point_type<Geometry1>::type 
+                        typename point_type<Geometry1>::type
                     >(prev_op, op, geometry1, geometry2))
                 {
                     std::cout << "Should be swapped" << std::endl;
@@ -358,7 +358,7 @@ static inline bool enrich(Container& operations,
     \brief All intersection points are enriched with successor information
     \ingroup overlay
     \tparam TurnPoints type of intersection container
-                (e.g. vector of "intersection_point"'s)
+                (e.g. vector of "intersection/turn point"'s)
     \param turn_points container containing intersectionpoints
  */
 template
@@ -414,7 +414,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         }
     }
 
-    // Note: no const-operator because contents of mapped copy is temporary, 
+    // Note: no const-operator because contents of mapped copy is temporary,
     // and changed by enrich)
     for (typename mapped_vector_type::iterator mit
         = mapped_vector.begin();
