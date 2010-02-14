@@ -16,8 +16,6 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/algorithms/overlay/intersection_point.hpp>
-
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
 #include <boost/geometry/iterators/range_type.hpp>

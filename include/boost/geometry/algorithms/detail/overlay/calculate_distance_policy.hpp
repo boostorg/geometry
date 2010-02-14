@@ -26,13 +26,15 @@ namespace detail { namespace overlay {
         extra information.
         This policy calculates the distance (using default distance strategy)
  */
-struct CalculateDistancePolicy
+struct calculate_distance_policy
 {
     template <typename Point1, typename Point2, typename Info>
     static inline void apply(Info& info, Point1 const& p1, Point2 const& p2)
     {
-        info.operations[0].enriched.distance = boost::geometry::distance(info.point, p1);
-        info.operations[1].enriched.distance = boost::geometry::distance(info.point, p2);
+        info.operations[0].enriched.distance
+                    = boost::geometry::distance(info.point, p1);
+        info.operations[1].enriched.distance
+                    = boost::geometry::distance(info.point, p2);
     }
 
 };

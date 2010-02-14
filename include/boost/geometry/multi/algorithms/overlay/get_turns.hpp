@@ -35,7 +35,8 @@ template
     typename MultiGeometry2,
     typename IntersectionPoints,
     typename Strategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
@@ -44,7 +45,7 @@ struct get_turns
         MultiGeometry1, MultiGeometry2,
         IntersectionPoints,
         Strategy,
-        AssignPolicy
+        AssignPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
@@ -52,7 +53,7 @@ struct get_turns
             MultiGeometry2,
             IntersectionPoints,
             Strategy,
-            AssignPolicy
+            AssignPolicy, InterruptPolicy
         >
 {};
 
@@ -65,7 +66,8 @@ template
     typename MultiGeometry,
     typename IntersectionPoints,
     typename Strategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
@@ -74,7 +76,7 @@ struct get_turns
         SingleGeometry, MultiGeometry,
         IntersectionPoints,
         Strategy,
-        AssignPolicy
+        AssignPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
@@ -82,7 +84,7 @@ struct get_turns
             MultiGeometry,
             IntersectionPoints,
             Strategy,
-            AssignPolicy
+            AssignPolicy, InterruptPolicy
         >
 {};
 
@@ -96,7 +98,8 @@ template
     typename SingleGeometry,
     typename IntersectionPoints,
     typename Strategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct get_turns
     <
@@ -105,7 +108,7 @@ struct get_turns
         MultiGeometry, SingleGeometry,
         IntersectionPoints,
         Strategy,
-        AssignPolicy
+        AssignPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
@@ -113,7 +116,7 @@ struct get_turns
             SingleGeometry,
             IntersectionPoints,
             Strategy,
-            AssignPolicy
+            AssignPolicy, InterruptPolicy
         >
 {};
 

@@ -11,7 +11,7 @@
 
 // Note: contrary to most files, the geometry::detail::disjoint namespace
 // is partly implemented in a separate file, to avoid circular references
-// disjoint -> get_intersection_points -> disjoint
+// disjoint -> get_turns -> disjoint
 
 
 #include <boost/geometry/core/access.hpp>

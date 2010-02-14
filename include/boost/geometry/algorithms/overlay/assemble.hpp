@@ -45,8 +45,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay {
-
+namespace detail { namespace overlay 
+{
 
 
 template<typename Tag>
@@ -611,7 +611,7 @@ template
     typename OutputIterator
 >
 inline OutputIterator assemble(Rings const& rings, Turns& turn_points,
-            Geometry1 const& geometry1, 
+            Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             int direction, bool dissolve,
             OutputIterator out)
@@ -642,7 +642,7 @@ std::cout << "assemble" << std::endl;
                 tag1,
                 Geometry1
             >::apply(ring_properties_container,
-                        ring_identifier(0, -1,-1), geometry1, 
+                        ring_identifier(0, -1,-1), geometry1,
                         map, dissolve);
         if (! dissolve)
         {
@@ -651,7 +651,7 @@ std::cout << "assemble" << std::endl;
                     tag2,
                     Geometry2
                 >::apply(ring_properties_container,
-                            ring_identifier(1, -1,-1), geometry2, 
+                            ring_identifier(1, -1,-1), geometry2,
                             map, dissolve);
         }
 
@@ -726,11 +726,11 @@ std::cout << "assemble.enrich containment" << std::endl;
 std::cout << "assemble.properties sort on parent-id "
     << boost::size(ring_properties_container) << std::endl;
 #endif
-            std::sort(boost::begin(ring_properties_container), 
+            std::sort(boost::begin(ring_properties_container),
                     boost::end(ring_properties_container),
                     sort_on_id_or_parent_id
                         <
-                            ring_properties<point_type> 
+                            ring_properties<point_type>
                         >(direction));
         }
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
@@ -751,7 +751,7 @@ template
 struct overlay
 {
     static inline OutputIterator apply(
-                Geometry1 const& geometry1, Geometry2 const& geometry2, 
+                Geometry1 const& geometry1, Geometry2 const& geometry2,
                 OutputIterator out,
                 Strategy const& strategy)
     {
@@ -764,8 +764,8 @@ struct overlay
         typedef detail::overlay::traversal_turn_info<point_type> turn_info;
         typedef std::deque<turn_info> container_type;
 
-        // "Use" rangetype for ringtype: 
-        // for polygon, it is the type of the exterior ring. 
+        // "Use" rangetype for ringtype:
+        // for polygon, it is the type of the exterior ring.
         // for ring, it is the ring itself. That is what is
         // for multi-polygon, it is also the type of the ring.
         typedef typename geometry::range_type<GeometryOut>::type ring_type;
@@ -773,14 +773,14 @@ struct overlay
         container_type turn_points;
         std::vector<ring_type> rings;
 
-        // If one input is empty, output the other one for a union. 
+        // If one input is empty, output the other one for a union.
         // For an intersection, the intersection is empty.
-        if (geometry::num_points(geometry1) == 0 
+        if (geometry::num_points(geometry1) == 0
             || geometry::num_points(geometry2) == 0)
         {
             if (Direction == 1)
             {
-                return assemble<GeometryOut>(rings, turn_points, 
+                return assemble<GeometryOut>(rings, turn_points,
                                 geometry1, geometry2, Direction, false, out);
             }
             return out;
@@ -789,10 +789,11 @@ struct overlay
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "get turns" << std::endl;
 #endif
+        detail::get_turns::no_interrupt_policy policy;
         boost::geometry::get_turns
             <
-                detail::overlay::CalculateDistancePolicy
-            >(geometry1, geometry2, turn_points);
+                detail::overlay::calculate_distance_policy
+            >(geometry1, geometry2, turn_points, policy);
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
@@ -811,7 +812,7 @@ std::cout << "traverse" << std::endl;
                     ,
                 turn_points, rings);
 
-        return assemble<GeometryOut>(rings, turn_points, 
+        return assemble<GeometryOut>(rings, turn_points,
                         geometry1, geometry2, Direction, false, out);
     }
 };

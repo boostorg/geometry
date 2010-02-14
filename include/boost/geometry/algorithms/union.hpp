@@ -176,15 +176,12 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
     concept::check<const Geometry1>();
     concept::check<const Geometry2>();
 
-    typedef typename geometry::point_type<GeometryOut>::type point_type;
-    typedef detail::intersection::intersection_point<point_type> ip_type;
-
     typedef strategy_intersection
         <
-            typename cs_tag<point_type>::type,
+            typename cs_tag<GeometryOut>::type,
             Geometry1,
             Geometry2,
-            ip_type
+            typename geometry::point_type<GeometryOut>::type
         > strategy;
 
     return union_inserter<GeometryOut>(geometry1, geometry2, out, strategy());
@@ -194,4 +191,4 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
 }} // namespace boost::geometry
 
 
-#endif //GGL_ALGORITHMS_UNION_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_UNION_HPP

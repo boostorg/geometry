@@ -674,11 +674,11 @@ struct crosses : public base_turn_handler
 
 /*!
     \brief Policy doing nothing
-    \details get_turn_info can have an optional policy to get some
+    \details get_turn_info can have an optional policy to get/assign some
         extra information. By default it does not, and this class
         is that default.
  */
-struct NullPolicy
+struct assign_null_policy
 {
     template <typename Point1, typename Point2, typename Info>
     static inline void apply(Info& info, Point1 const& p1, Point2 const& p2)
@@ -704,7 +704,7 @@ template
     typename Point1,
     typename Point2,
     typename TurnInfo,
-    typename AssignPolicy = NullPolicy
+    typename AssignPolicy = assign_null_policy
 >
 struct get_turn_info
 {
