@@ -305,29 +305,29 @@ private :
         //    a_1-----a_2/b_1-------b_2 or reverse (B left of A)
         if (has_common_points && (math::equals(a_2, b_1) || math::equals(b_2, a_1)))
         {
-            if (a2_eq_b1) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, -1); 
-            if (a1_eq_b2) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, 0); 
-            if (a2_eq_b2) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, 0); 
-            if (a1_eq_b1) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, -1); 
+            if (a2_eq_b1) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, -1);
+            if (a1_eq_b2) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, 0);
+            if (a2_eq_b2) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, 0);
+            if (a1_eq_b1) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, -1);
         }
 
 
         // "Touch/within" -> there are common points and also an intersection of interiors:
         // Corresponds to many cases:
-        // #1a: a1------->a2  #1b:        a1-->a2  
-        //          b1--->b2         b1------->b2           
-        // #2a: a2<-------a1  #2b:        a2<--a1  
-        //          b1--->b2         b1------->b2           
+        // #1a: a1------->a2  #1b:        a1-->a2
+        //          b1--->b2         b1------->b2
+        // #2a: a2<-------a1  #2b:        a2<--a1
+        //          b1--->b2         b1------->b2
         // #3a: a1------->a2  #3b:        a1-->a2
-        //          b2<---b1         b2<-------b1           
-        // #4a: a2<-------a1  #4b:        a2<--a1  
-        //          b2<---b1         b2<-------b1       
+        //          b2<---b1         b2<-------b1
+        // #4a: a2<-------a1  #4b:        a2<--a1
+        //          b2<---b1         b2<-------b1
 
         // Note: next cases are similar and handled by the code
         // #4c: a1--->a2
-        //      b1-------->b2      
+        //      b1-------->b2
         // #4d: a1-------->a2
-        //      b1-->b2      
+        //      b1-->b2
 
         // For case 1-4: a_1 < (b_1 or b_2) < a_2, two intersections are equal to segment B
         // For case 5-8: b_1 < (a_1 or a_2) < b_2, two intersections are equal to segment A
@@ -365,54 +365,65 @@ private :
 
 
         /*
+
         Now that all cases with equal,touch,inside,disjoint,
         degenerate are handled the only thing left is an overlap
+
+        Either a1 is between b1,b2
+        or a2 is between b1,b2 (a2 arrives)
 
         Next table gives an overview.
         The IP's are ordered following the line A1->A2
 
-        #   Layout               swapped  arrival info     IP info
-        #1: a1--------->a2                a arrives in b   (b1,a2)
-                    b1----->b2            -
-        #2: a2<---------a1       a        -                (a1,b1)
-                    b1----->b2            -
-        #3: a1--------->a2                a arrives in b   (b2,a2)
-                    b2<-----b1   b        b arrives in a
-        #4: a2<---------a1       a        -                (a1,b2)
-                    b2<-----b1   b        b arrives in a
-
-        #5:     a1--------->a2            -                (a1,b2)
-            b1----->b2                    b arrives in a
-        #6:     a2<---------a1   a        a arrives in b   (b2,a2)
-            b1----->b2                    b arrives in a
-        #7:     a1--------->a2            -                (a1,b1)
-            b2<-----b1           b        -
-        #8:     a2<---------a1   a        a arrives in b   (b1,a2)
-            b2<-----b1           b        -
+             |                                 |
+             |          a_2 in between         |       a_1 in between
+             |                                 |
+        -----+---------------------------------+--------------------------
+             |   a1--------->a2                |       a1--------->a2
+             |          b1----->b2             |   b1----->b2
+             |   (b1,a2), a arrives            |   (a1,b2), b arrives
+             |                                 |
+        -----+---------------------------------+--------------------------
+        a sw.|   a2<---------a1*               |       a2<---------a1*
+             |           b1----->b2            |   b1----->b2
+             |   (a1,b1), no arrival           |   (b2,a2), a and b arrive
+             |                                 |
+        -----+---------------------------------+--------------------------
+             |   a1--------->a2                |       a1--------->a2
+        b sw.|           b2<-----b1            |   b2<-----b1
+             |   (b2,a2), a and b arrive       |   (a1,b1), no arrival
+             |                                 |
+        -----+---------------------------------+--------------------------
+        a sw.|    a2<---------a1*              |       a2<---------a1*
+        b sw.|            b2<-----b1           |   b2<-----b1
+             |   (a1,b2), b arrives            |   (b1,a2), a arrives
+             |                                 |
+        -----+---------------------------------+--------------------------
+        * Note that a_1 < a_2, and a1 <> a_1; if a is swapped,
+          the picture might seem wrong but it (supposed to be) is right.
         */
 
-        bool no_swap = !a_swapped && !b_swapped;
-        if (a_1 < b_1 && b_1 < a_2)
+        bool const both_swapped = a_swapped && b_swapped;
+        if (b_1 < a_2 && a_2 < b_2)
         {
-            // # 1,2,3,4
+            // Left column, from bottom to top
             return
-                  no_swap   ? Policy::collinear_overlaps(get<0, 0>(b), get<0, 1>(b), get<1, 0>(a), get<1, 1>(a),  1, -1, opposite)
-                : a_swapped ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<0, 0>(b), get<0, 1>(b), -1, -1, opposite)
-                : b_swapped ? Policy::collinear_overlaps(get<1, 0>(b), get<1, 1>(b), get<1, 0>(a), get<1, 1>(a),  1,  1, opposite)
-                :             Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<1, 0>(b), get<1, 1>(b), -1,  1, opposite)
+                both_swapped ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<1, 0>(b), get<1, 1>(b), -1,  1, opposite)
+                : b_swapped  ? Policy::collinear_overlaps(get<1, 0>(b), get<1, 1>(b), get<1, 0>(a), get<1, 1>(a),  1,  1, opposite)
+                : a_swapped  ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<0, 0>(b), get<0, 1>(b), -1, -1, opposite)
+                :              Policy::collinear_overlaps(get<0, 0>(b), get<0, 1>(b), get<1, 0>(a), get<1, 1>(a),  1, -1, opposite)
                 ;
         }
         if (b_1 < a_1 && a_1 < b_2)
         {
-            // # 5, 6, 7, 8
+            // Right column, from bottom to top
             return
-                 no_swap    ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<1, 0>(b), get<1, 1>(b), -1,  1, opposite)
-                : a_swapped ? Policy::collinear_overlaps(get<1, 0>(b), get<1, 1>(b), get<1, 0>(a), get<1, 1>(a),  1,  1, opposite)
-                : b_swapped ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<0, 0>(b), get<0, 1>(b), -1, -1, opposite)
-                :             Policy::collinear_overlaps(get<0, 0>(b), get<0, 1>(b), get<1, 0>(a), get<1, 1>(a),  1, -1, opposite)
+                both_swapped ? Policy::collinear_overlaps(get<0, 0>(b), get<0, 1>(b), get<1, 0>(a), get<1, 1>(a),  1, -1, opposite)
+                : b_swapped  ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<0, 0>(b), get<0, 1>(b), -1, -1, opposite)
+                : a_swapped  ? Policy::collinear_overlaps(get<1, 0>(b), get<1, 1>(b), get<1, 0>(a), get<1, 1>(a),  1,  1, opposite)
+                :              Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<1, 0>(b), get<1, 1>(b), -1,  1, opposite)
                 ;
         }
-
         // Nothing should goes through. If any we have made an error
         // Robustness: it can occur here...
         return Policy::error("Robustness issue, non-logical behaviour");

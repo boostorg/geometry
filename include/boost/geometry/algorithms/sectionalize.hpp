@@ -123,7 +123,8 @@ struct get_direction_loop
         coordinate_type const diff =
             geometry::get<1, Dimension>(seg) - geometry::get<0, Dimension>(seg);
 
-        directions[Dimension] = diff > 0 ? 1 : (diff < 0 ? -1 : 0);
+        coordinate_type zero = coordinate_type();
+        directions[Dimension] = diff > zero ? 1 : diff < zero ? -1 : 0;
 
         get_direction_loop
             <

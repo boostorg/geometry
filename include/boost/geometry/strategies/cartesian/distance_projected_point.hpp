@@ -99,8 +99,9 @@ struct projected_point
 
         Strategy strategy;
 
+        coordinate_type zero = coordinate_type();
         coordinate_type c1 = dot_product(w, v);
-        if (c1 <= 0)
+        if (c1 <= zero)
         {
             return strategy.apply(p, p1);
         }

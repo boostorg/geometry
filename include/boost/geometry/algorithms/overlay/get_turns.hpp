@@ -43,8 +43,10 @@
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 
-#include <boost/geometry/algorithms/detail/sections/get_full_section.hpp>
+#include <boost/geometry/algorithms/overlay/segment_identifier.hpp>
 
+
+#include <boost/geometry/algorithms/detail/sections/get_full_section.hpp>
 
 #include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/algorithms/distance.hpp>

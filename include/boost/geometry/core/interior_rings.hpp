@@ -118,12 +118,16 @@ struct interior_rings<polygon_tag, Polygon, IsConst>
 
 template <typename Tag, typename Geometry>
 struct num_interior_rings
+{};
+
+
+template <typename Ring>
+struct num_interior_rings<ring_tag, Ring>
 {
-    static inline std::size_t apply(Geometry const&)
+    static inline std::size_t apply(Ring const& ring)
     {
         return 0;
     }
-
 };
 
 

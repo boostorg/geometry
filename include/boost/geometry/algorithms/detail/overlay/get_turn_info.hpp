@@ -191,13 +191,13 @@ struct touch : public base_turn_handler
         return side1 == side2 && ! opposite(side1, turn);
     }
 
-    static inline void block_second(bool block, TurnInfo& ti)
+    /*static inline void block_second(bool block, TurnInfo& ti)
     {
         if (block)
         {
             ti.operations[1].operation = operation_blocked;
         }
-    }
+    }*/
 
 
     template
@@ -269,7 +269,11 @@ struct touch : public base_turn_handler
                 if (between(side_pk_q1, side_pk_q2, side_qk_q))
                 {
                     ui_else_iu(q_turns_left, ti);
-                    block_second(block_q, ti);
+                    if (block_q)
+                    {
+                        ti.operations[1].operation = operation_blocked;
+                    }
+                    //block_second(block_q, ti);
                     return;
                 }
 
@@ -286,7 +290,12 @@ struct touch : public base_turn_handler
                 if (side_pk_q1 == -side_qk_q)
                 {
                     uu_else_ii(! q_turns_left, ti);
-                    block_second(block_q, ti);
+                    if (block_q)
+                    {
+                        ti.ignore = false;
+                        ti.operations[1].operation = operation_blocked;
+                    }
+                    //block_second(block_q, ti);
                     return;
                 }
             }

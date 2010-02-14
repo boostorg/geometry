@@ -90,10 +90,18 @@ public :
 
         typedef typename geometry::coordinate_type<P2>::type ct2;
 
+        /*
         set<0>(p2, boost::numeric_cast<ct2>(
             c1 * m_matrix(0,0) + c2 * m_matrix(0,1) + m_matrix(0,2)));
         set<1>(p2, boost::numeric_cast<ct2>(
             c1 * m_matrix(1,0) + c2 * m_matrix(1,1) + m_matrix(1,2)));
+            */
+
+        coordinate_type p2x = c1 * m_matrix(0,0) + c2 * m_matrix(0,1) + m_matrix(0,2);
+        coordinate_type p2y = c1 * m_matrix(1,0) + c2 * m_matrix(1,1) + m_matrix(1,2);
+
+        set<0>(p2, p2x);
+        set<1>(p2, p2y);
 
         return true;
     }

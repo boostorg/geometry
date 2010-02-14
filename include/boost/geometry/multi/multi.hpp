@@ -13,6 +13,7 @@
 
 #include <boost/geometry/multi/core/geometry_id.hpp>
 #include <boost/geometry/multi/core/is_multi.hpp>
+#include <boost/geometry/multi/core/interior_rings.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 #include <boost/geometry/multi/core/ring_type.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
@@ -23,6 +24,7 @@
 #include <boost/geometry/multi/algorithms/centroid.hpp>
 #include <boost/geometry/multi/algorithms/convex_hull.hpp>
 #include <boost/geometry/multi/algorithms/correct.hpp>
+#include <boost/geometry/multi/algorithms/dissolve.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/equals.hpp>
@@ -36,10 +38,13 @@
 #include <boost/geometry/multi/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/transform.hpp>
 #include <boost/geometry/multi/algorithms/union.hpp>
+#include <boost/geometry/multi/algorithms/unique.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
+
 #include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
 #include <boost/geometry/multi/algorithms/overlay/copy_segments.hpp>
+#include <boost/geometry/multi/algorithms/overlay/self_turn_points.hpp>
 #include <boost/geometry/multi/algorithms/overlay/get_intersection_points.hpp>
 
 

@@ -80,7 +80,8 @@ namespace strategy
 
                 promoted_type const s = dx * dpy - dy * dpx;
 
-                return math::equals(s, 0) ? 0 : s > 0 ? 1 : -1;
+                promoted_type zero = promoted_type();
+                return math::equals(s, zero) ? 0 : s > zero ? 1 : -1;
                 //return s > 0 ? 1 : s < 0 ? -1 : 0;
             }
         };
