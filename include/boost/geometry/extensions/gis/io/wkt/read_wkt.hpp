@@ -116,7 +116,13 @@ struct parsing_assigner
             // Note that it is much slower than atof. However, it is more standard
             // and in parsing the change in performance falls probably away against
             // the tokenizing
-            set<Dimension>(point, (finished ? type() : boost::lexical_cast<type>(it->c_str())));
+            set<Dimension>(point, finished ? type()
+#if defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
+                    : atof(it->c_str())
+#else
+                    : boost::lexical_cast<type>(it->c_str())
+#endif
+                    );
         }
         catch(boost::bad_lexical_cast const& blc)
         {

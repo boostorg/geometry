@@ -99,8 +99,10 @@ struct map_transformer
 
             // Calculate appropriate scale, take min because whole box must fit
             // Scale is in PIXELS/MAPUNITS (meters)
-            type sx = type(px2 - px1) / type(wx2 - wx1);
-            type sy = type(py2 - py1) / type(wy2 - wy1);
+            W wdx = wx2 - wx1;
+            W wdy = wy2 - wy1;
+            type sx = (px2 - px1) / boost::numeric_cast<type>(wdx);
+            type sy = (py2 - py1) / boost::numeric_cast<type>(wdy);
 
             if (SameScale)
             {
@@ -110,10 +112,13 @@ struct map_transformer
             }
 
             // Calculate centerpoints
-            type wmx = type(wx1 + wx2) / 2.0;
-            type wmy = type(wy1 + wy2) / 2.0;
-            type pmx = type(px1 + px2) / 2.0;
-            type pmy = type(py1 + py2) / 2.0;
+            W wtx = wx1 + wx2;
+            W wty = wy1 + wy2;
+            W two = 2;
+            W wmx = wtx / two;
+            W wmy = wty / two;
+            type pmx = (px1 + px2) / 2.0;
+            type pmy = (py1 + py2) / 2.0;
 
             set_transformation_point(wmx, wmy, pmx, pmy, sx, sy);
 

@@ -23,6 +23,7 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
+#include <boost/geometry/algorithms/within.hpp>
 
 /*!
 \defgroup distance distance: calculate distance between two geometries
@@ -93,28 +94,28 @@ struct point_to_segment
 };
 
 
-template<typename P, typename L, typename PPStrategy, typename PSStrategy>
-struct point_to_linestring
+template<typename Point, typename Range, typename PPStrategy, typename PSStrategy>
+struct point_to_range
 {
     typedef typename PPStrategy::return_type return_type;
 
-    static inline return_type apply(P const& point, L const& linestring,
+    static inline return_type apply(Point const& point, Range const& range,
             PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
     {
-        typedef segment<const typename point_type<L>::type> segment_type;
+        typedef segment<const typename point_type<Range>::type> segment_type;
 
-        if (boost::begin(linestring) == boost::end(linestring))
+        if (boost::size(range) == 0)
         {
             return return_type(0);
         }
 
         // line of one point: return point square_distance
-        typedef typename boost::range_const_iterator<L>::type iterator_type;
-        iterator_type it = boost::begin(linestring);
+        typedef typename boost::range_const_iterator<Range>::type iterator_type;
+        iterator_type it = boost::begin(range);
         iterator_type prev = it++;
-        if (it == boost::end(linestring))
+        if (it == boost::end(range))
         {
-            return pp_strategy.apply(point, *boost::begin(linestring));
+            return pp_strategy.apply(point, *boost::begin(range));
         }
 
 
@@ -123,7 +124,7 @@ struct point_to_linestring
 
         // check if other segments are closer
         prev = it++;
-        while(it != boost::end(linestring))
+        while(it != boost::end(range))
         {
             return_type ds = ps_strategy.apply(point, *prev, *it);
             if (geometry::close_to_zero(ds))
@@ -141,6 +142,77 @@ struct point_to_linestring
     }
 };
 
+
+template<typename Point, typename Ring, typename PPStrategy, typename PSStrategy>
+struct point_to_ring
+{
+    typedef std::pair<typename PPStrategy::return_type, bool> distance_containment;
+
+    static inline distance_containment apply(Point const& point, 
+                Ring const& ring,
+                PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
+    {
+        return distance_containment
+            (
+                point_to_range
+                    <
+                        Point,
+                        Ring,
+                        PPStrategy,
+                        PSStrategy
+                    >::apply(point, ring, pp_strategy, ps_strategy), 
+                geometry::within(point, ring)
+            );
+    }
+};
+
+
+
+template<typename Point, typename Polygon, typename PPStrategy, typename PSStrategy>
+struct point_to_polygon
+{
+    typedef typename PPStrategy::return_type return_type;
+    typedef std::pair<typename PPStrategy::return_type, bool> distance_containment;
+
+    static inline distance_containment apply(Point const& point, 
+                Polygon const& polygon,
+                PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
+    {
+        // Check distance to all rings
+        typedef point_to_ring
+            <
+                Point,
+                typename ring_type<Polygon>::type,
+                PPStrategy,
+                PSStrategy
+            > per_ring;
+
+        distance_containment dc = per_ring::apply(point, 
+                        exterior_ring(polygon), pp_strategy, ps_strategy);
+
+        for (typename boost::range_const_iterator
+                <
+                    typename interior_type<Polygon>::type
+                >::type it = boost::begin(interior_rings(polygon));
+             it != boost::end(interior_rings(polygon));
+             ++it)
+        {
+            distance_containment dcr = per_ring::apply(point, 
+                            *it, pp_strategy, ps_strategy);
+            if (dcr.first < dc.first)
+            {
+                dc.first = dcr.first;
+            }
+            // If it was inside, and also inside inner ring,
+            // turn off the inside-flag, it is outside the polygon
+            if (dc.second && dcr.second)
+            {
+                dc.second = false;
+            }
+        }
+        return dc;
+    }
+};
 
 
 }} // namespace detail::distance
@@ -196,7 +268,7 @@ struct distance
                             typename point_type<Linestring>::type
                     >::type ps_strategy_type;
 
-        return detail::distance::point_to_linestring
+        return detail::distance::point_to_range
             <
                 Point, Linestring, Strategy, ps_strategy_type
             >::apply(point, linestring, strategy, ps_strategy_type());
@@ -219,12 +291,48 @@ struct distance
             Strategy const& strategy)
     {
         typedef typename Strategy::point_strategy_type pp_strategy_type;
-        return detail::distance::point_to_linestring
+        return detail::distance::point_to_range
             <
                 Point, Linestring, pp_strategy_type, Strategy
             >::apply(point, linestring, pp_strategy_type(), strategy);
     }
 };
+
+/// Point-polygon , where point-segment strategy is specified
+template <typename Point, typename Polygon, typename Strategy>
+struct distance
+<
+    point_tag, polygon_tag,
+    Point, Polygon,
+    strategy_tag_distance_point_point, Strategy,
+    false, false
+>
+{
+    typedef typename Strategy::return_type return_type;
+
+    static inline return_type apply(Point const& point,
+            Polygon const& polygon,
+            Strategy const& strategy)
+    {
+        typedef typename geometry::strategy_distance_segment
+                    <
+                            typename cs_tag<Point>::type,
+                            typename cs_tag<Polygon>::type,
+                            Point,
+                            typename point_type<Polygon>::type
+                    >::type ps_strategy_type;
+
+        std::pair<return_type, bool>
+            dc = detail::distance::point_to_polygon
+            <
+                Point, Polygon, Strategy, ps_strategy_type
+            >::apply(point, polygon, strategy, ps_strategy_type());
+
+        return dc.second ? return_type(0) : dc.first;
+    }
+};
+
+
 
 // Point-segment version 1, with point-point strategy
 template <typename Point, typename Segment, typename Strategy>

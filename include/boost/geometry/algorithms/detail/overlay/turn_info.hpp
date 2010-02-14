@@ -10,6 +10,7 @@
 
 #include <boost/array.hpp>
 
+#include <boost/geometry/algorithms/overlay/segment_identifier.hpp>
 
 namespace boost { namespace geometry
 {
@@ -52,6 +53,8 @@ enum method_type
 struct turn_operation
 {
     operation_type operation;
+    segment_identifier seg_id;
+    segment_identifier other_id;
 
     turn_operation()
         : operation(operation_none)

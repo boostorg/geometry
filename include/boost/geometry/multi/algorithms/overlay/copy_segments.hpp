@@ -58,11 +58,8 @@ struct copy_segments_multi
 #endif // DOXYGEN_NO_DETAIL
 
 
-
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch {
-
 
 
 template
@@ -93,12 +90,11 @@ struct copy_segments
 {};
 
 
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
 
-
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP

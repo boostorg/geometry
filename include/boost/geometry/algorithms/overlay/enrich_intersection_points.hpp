@@ -14,9 +14,10 @@
 #include <map>
 #include <vector>
 
-#ifdef BOOST_GEOMETRY_DEBUG_OVERLAY
+//#ifdef BOOST_GEOMETRY_DEBUG_OVERLAY
 #include <iostream>
-#endif
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+//#endif
 
 #include <boost/assert.hpp>
 #include <boost/range/functions.hpp>
@@ -170,14 +171,15 @@ template
     typename Geometry2,
     typename Strategy
 >
-struct sort_on_operation
+struct sort_on_segment_and_distance
         : public sort_on_distance
             <
                 Indexed,
                 Geometry1, Geometry2, Strategy
             >
 {
-    sort_on_operation(Geometry1 const& geometry1, Geometry2 const& geometry2,
+    sort_on_segment_and_distance(Geometry1 const& geometry1, 
+                Geometry2 const& geometry2,
                 Strategy const& strategy)
         : sort_on_distance
             <
@@ -198,6 +200,49 @@ struct sort_on_operation
 };
 
 
+template <typename Point, typename Operation, typename Geometry1, typename Geometry2>
+inline bool swap_operations(Operation const& left, Operation const& right,
+        Geometry1 const& geometry1, Geometry2 const& geometry2)
+{
+    Point pi, pj, ri, rj, si, sj;
+    if (left.seg_id == right.seg_id)
+    {
+        geometry::copy_segment_points(geometry1, geometry2,
+            left.seg_id,
+            pi, pj);
+        geometry::copy_segment_points(geometry1, geometry2,
+            left.other_id,
+            ri, rj);
+        geometry::copy_segment_points(geometry1, geometry2,
+            right.other_id,
+            si, sj);
+        std::cout << "Considering seg"  << std::endl;
+    }
+    else if (left.other_id == right.other_id)
+    {
+        geometry::copy_segment_points(geometry1, geometry2,
+            left.other_id,
+            pi, pj);
+        geometry::copy_segment_points(geometry1, geometry2,
+            left.seg_id,
+            ri, rj);
+        geometry::copy_segment_points(geometry1, geometry2,
+            right.seg_id,
+            si, sj);
+        std::cout << "Considering other"  << std::endl;
+    }
+    else
+    {
+        return false;
+    }
+
+    int const order = get_relative_order<Point>::apply(pi, pj,
+                    ri, rj, si, sj);
+    std::cout << "Order: "  << order << std::endl;
+    return order == 1;
+}
+
+
 // Sorts IP-s of this ring on segment-identifier, and if on same segment,
 //  on distance.
 // Then assigns for each IP which is the next IP on this segment,
@@ -212,14 +257,14 @@ template
     typename Geometry2,
     typename Strategy
 >
-static inline bool assign_order(Container& operation_container,
+static inline bool enrich(Container& operations,
             TurnPoints& turn_points,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             Strategy const& strategy)
 {
-    std::sort(boost::begin(operation_container),
-                boost::end(operation_container),
-                sort_on_operation
+    std::sort(boost::begin(operations),
+                boost::end(operations),
+                sort_on_segment_and_distance
                     <
                         IndexType,
                         Geometry1, Geometry2,
@@ -227,48 +272,61 @@ static inline bool assign_order(Container& operation_container,
                     >(geometry1, geometry2, strategy));
 
 
+    typedef typename IndexType::type operation_type;
+    typedef typename boost::range_iterator<Container const>::type iterator_type;
 
-#ifdef BOOST_GEOMETRY_DEBUG_OVERLAY
+//#ifdef BOOST_GEOMETRY_DEBUG_OVERLAY
+    /***
     // Check if it is really sorted.
-    if (copy.size() > 1)
+    if (operations.size() > 1)
     {
-        indexed_iterator_type it = boost::begin(copy);
-        for (indexed_iterator_type prev = it++;
-            it != boost::end(copy);
+        typedef typename boost::range_iterator<Container>::type nc_iterator;
+        nc_iterator it = boost::begin(operations);
+        for (nc_iterator prev = it++;
+            it != boost::end(operations);
             prev = it++)
         {
-           if (geometry::math::equals(
-                prev->operations_of_subject.front().enriched.distance,
-               it->operations_of_subject.front().enriched.distance))
+            operation_type& prev_op = turn_points[prev->index]
+                .operations[prev->operation_index];
+            operation_type& op = turn_points[it->index]
+                .operations[it->operation_index];
+           if ((prev_op.seg_id == op.seg_id || prev_op.other_id == op.other_id)
+               && geometry::math::equals(prev_op.enriched.distance, 
+                        op.enriched.distance))
            {
-                typedef typename turn_point_type::operation_type op;
-                op const& first = prev->operations_of_subject.front();
-                op const& second = it->operations_of_subject.front();
-
-                std::cout << "Equal Distance on " << seg_id
-                    << " : "    << first.seg_id  << " / "  << first.other_id
-                    << " and "  << second.seg_id << " / " << second.other_id
+                std::cout << "Equal Distance on " 
+                    << " : "    << prev_op.seg_id  << " / "  << prev_op.other_id
+                    << " and "  << op.seg_id << " / " << op.other_id
                     << std::endl;
                 std::cout << "\tType of intersections: "
-                    << prev->subject.method
-                    << " , " << it->subject.method
+                    << operation_char(prev_op.operation)
+                    << " , " << operation_char(op.operation)
                     << std::endl;
+
+                if (swap_operations
+                    <
+                        typename point_type<Geometry1>::type 
+                    >(prev_op, op, geometry1, geometry2))
+                {
+                    std::cout << "Should be swapped" << std::endl;
+
+                    std::swap(*prev, *it);
+                }
            }
         }
     }
-#endif
+    ***/
+//#endif
 
-    typedef typename IndexType::type operation_type;
-    typedef typename boost::range_iterator<Container const>::type iterator_type;
 
     // Assign travel-to-vertex/ip index for each turning point.
     // Because IP's are circular, PREV starts at the very last one,
     // being assigned from the first one.
     // For "next ip on same segment" it should not be considered circular.
     bool first = true;
-    iterator_type it = boost::begin(operation_container);
-    for (iterator_type prev = it + (boost::size(operation_container) - 1);
-         it != boost::end(operation_container);
+    iterator_type it = boost::begin(operations);
+    for (iterator_type prev = it + (boost::size(operations) - 1);
+         it != boost::end(operations);
          prev = it++)
     {
         operation_type& prev_op = turn_points[prev->index]
@@ -287,12 +345,6 @@ static inline bool assign_order(Container& operation_container,
         }
         first = false;
     }
-
-#ifdef BOOST_GEOMETRY_DEBUG_OVERLAY
-    std::cout << "Enrichment - ordered  on segment (src: "
-        << source_index << "): " << std::endl;
-    report_tp(turn_points);
-#endif
 
     return true;
 }
@@ -340,36 +392,36 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
          it != boost::end(turn_points);
          ++it, ++index)
     {
-        int op_index = 0;
-        for (typename boost::range_iterator<container_type const>::type
-                op_it = boost::begin(it->operations);
-            op_it != boost::end(it->operations);
-            ++op_it, ++op_index)
+        if (! it->ignore)
         {
-            ring_identifier ring_id
-                (
-                    op_it->seg_id.source_index,
-                    op_it->seg_id.multi_index,
-                    op_it->seg_id.ring_index
-                );
-            mapped_vector[ring_id].push_back
-                (
-                    indexed_type(index, op_index, *op_it)
-                );
+            int op_index = 0;
+            for (typename boost::range_iterator<container_type const>::type
+                    op_it = boost::begin(it->operations);
+                op_it != boost::end(it->operations);
+                ++op_it, ++op_index)
+            {
+                ring_identifier ring_id
+                    (
+                        op_it->seg_id.source_index,
+                        op_it->seg_id.multi_index,
+                        op_it->seg_id.ring_index
+                    );
+                mapped_vector[ring_id].push_back
+                    (
+                        indexed_type(index, op_index, *op_it)
+                    );
+            }
         }
     }
 
-#ifdef BOOST_GEOMETRY_DEBUG_OVERLAY
-    detail::overlay::report_map(map);
-#endif
-
-    // No const-operator because contents of mapped copy is changed)
+    // Note: no const-operator because contents of mapped copy is temporary, 
+    // and changed by enrich)
     for (typename mapped_vector_type::iterator mit
         = mapped_vector.begin();
         mit != mapped_vector.end();
         ++mit)
     {
-        detail::overlay::assign_order<indexed_type>(mit->second, turn_points,
+        detail::overlay::enrich<indexed_type>(mit->second, turn_points,
                     geometry1, geometry2, strategy);
     }
 }

@@ -222,8 +222,8 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
             OutputIterator out,
             Strategy const& strategy)
 {
-    concept::check<const Geometry1>();
-    concept::check<const Geometry2>();
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
 
     return boost::mpl::if_c
         <
@@ -278,8 +278,8 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out)
 {
-    concept::check<const Geometry1>();
-    concept::check<const Geometry2>();
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
 
     typedef typename geometry::point_type<GeometryOut>::type point_type;
     typedef detail::intersection::intersection_point<point_type> ip_type;
@@ -293,6 +293,54 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
         > strategy;
 
     return intersection_inserter<GeometryOut>(geometry1, geometry2, out,
+                strategy());
+}
+
+
+/*!
+    \brief Intersects two geometries
+    \ingroup intersection
+    \details The two input geometries are intersected and the resulting
+        linestring(s), ring(s) or polygon(s) are added
+        to the specified collection.
+    \tparam Geometry1 first geometry type
+    \tparam Geometry2 second geometry type
+    \tparam Collection collection of rings, polygons (e.g. a vector<polygon> or a multi_polygon)
+    \param geometry1 first geometry
+    \param geometry2 second geometry
+    \param output_collection the collection
+    \return true if successful
+*/
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename Collection
+>
+inline void intersection(Geometry1 const& geometry1,
+            Geometry2 const& geometry2,
+            Collection& output_collection)
+{
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
+
+    typedef typename boost::range_value<Collection>::type geometry_out;
+    concept::check<geometry_out>();
+
+    typedef typename geometry::point_type<geometry_out>::type point_type;
+    typedef detail::intersection::intersection_point<point_type> ip_type;
+
+    typedef strategy_intersection
+        <
+            typename cs_tag<point_type>::type,
+            Geometry1,
+            Geometry2,
+            ip_type
+        > strategy;
+
+
+    intersection_inserter<geometry_out>(geometry1, geometry2, 
+                std::back_inserter(output_collection), 
                 strategy());
 }
 

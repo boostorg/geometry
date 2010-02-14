@@ -77,8 +77,8 @@ struct point_on_range
 
             iterator it = boost::begin(range);
             iterator prev = it++;
-            while (detail::equals::equals_point_point(*it, *prev)
-                && it != boost::end(range))
+            while (it != boost::end(range)
+                && detail::equals::equals_point_point(*it, *prev))
             {
                 prev = it++;
             }

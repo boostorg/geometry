@@ -25,8 +25,6 @@ namespace detail { namespace overlay {
 template <typename P>
 struct traversal_turn_operation : public turn_operation
 {
-    segment_identifier seg_id;
-    segment_identifier other_id;
     enrichment_info<P> enriched;
     visit_info visited;
 };

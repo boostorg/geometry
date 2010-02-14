@@ -139,7 +139,7 @@ struct cartesian_distance
 #if defined(NUMERIC_ADAPTOR_INCLUDED)
                 boost::sqrt(sq);
 #else
-                std::sqrt(sq);
+                sqrt(sq);
 #endif
             return os;
         }

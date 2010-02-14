@@ -182,8 +182,6 @@ inline bool select_next_ip(operation_type operation,
 }
 
 
-// This backtracking approach is necessary for invalid (== self-interescting)
-// geometries and the approach will be enhanced. TODO
 template
 <
     typename Rings,
