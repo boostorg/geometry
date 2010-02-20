@@ -124,7 +124,7 @@ struct num_interior_rings
 template <typename Ring>
 struct num_interior_rings<ring_tag, Ring>
 {
-    static inline std::size_t apply(Ring const& ring)
+    static inline std::size_t apply(Ring const& )
     {
         return 0;
     }

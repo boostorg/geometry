@@ -509,7 +509,7 @@ struct get_turns_cs
                 int multi_index, int ring_index,
                 int source_id2, Box const& box,
                 Turns& turns,
-                InterruptPolicy& interrupt_policy)
+                InterruptPolicy& )
     {
         if (boost::size(range) <= 1)
         {

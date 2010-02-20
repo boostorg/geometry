@@ -57,7 +57,7 @@ template<>
 struct get_ring<ring_tag>
 {
     template<typename Ring>
-    static inline Ring const& apply(ring_identifier const& id, Ring const& ring)
+    static inline Ring const& apply(ring_identifier const& , Ring const& ring)
     {
         return ring;
     }
@@ -80,7 +80,7 @@ template<>
 struct get_ring<box_tag>
 {
     template<typename Box>
-    static inline Box const& apply(ring_identifier const& id,
+    static inline Box const& apply(ring_identifier const& ,
                     Box const& box)
     {
         return box;
@@ -375,6 +375,7 @@ struct enrich_containment
         }
     }
 
+    /***
     template <int Dimension, typename Selection, typename Map>
     static inline void divide_and_conquer(Selection& selection, Map& map,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
@@ -418,6 +419,7 @@ std::cout << "spatial divide n="
         divide_and_conquer<1 - Dimension>(upper_sel, map, geometry1, geometry2,
                     collection, direction, dissolve, upper, iteration + 1, n);
     }
+    ***/
 
     static inline void enrich(Container& container,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
@@ -464,7 +466,7 @@ std::cout << std::endl;
     static inline void apply(Container& container,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
-            int direction, bool dissolve, Box const& box)
+            int direction, bool dissolve, Box const& )
     {
         if (boost::size(container) == 0)
         {
@@ -481,6 +483,8 @@ std::cout << std::endl;
             std::cout << *it << std::endl;
         }
 #endif
+
+        /***
         return;
 
         // Method using divide and conquer (does NOT work corretly!)
@@ -498,6 +502,7 @@ std::cout << std::endl;
         std::map<std::pair<item_type*, item_type*>, bool> map;
         divide_and_conquer<1>(selection, map, geometry1, geometry2, collection,
                     direction, dissolve, box);
+        ***/
     }
 };
 
@@ -571,7 +576,7 @@ inline OutputIterator add_all_rings(Container& container,
             // If it is an interior ring, it is included if
             // it's parent-id matches the id of the outputted exterior ring
             if (result_filled
-                && it->id(direction) == previous_id
+                && it->id() == previous_id
                 && it->included(direction, dissolve))
             {
                 if (it->ring_id.source_index == 0)
@@ -731,7 +736,7 @@ std::cout << "assemble.properties sort on parent-id "
                     sort_on_id_or_parent_id
                         <
                             ring_properties<point_type>
-                        >(direction));
+                        >());
         }
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "assemble.add rings" << std::endl;
@@ -753,7 +758,7 @@ struct overlay
     static inline OutputIterator apply(
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
                 OutputIterator out,
-                Strategy const& strategy)
+                Strategy const& )
     {
         if (geometry::num_points(geometry1) == 0 && geometry::num_points(geometry2) == 0)
         {

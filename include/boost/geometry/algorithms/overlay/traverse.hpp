@@ -140,7 +140,6 @@ template
 inline bool select_next_ip(operation_type operation,
             Turn& turn,
             segment_identifier const& seg_id,
-            Iterator const& start,
             Iterator& selected)
 {
     bool has_tp = false;
@@ -192,9 +191,16 @@ template
 inline void backtrack(std::size_t size_at_start, bool& fail,
             Rings& rings, typename boost::range_value<Rings>::type& ring,
             Turns& turns, typename boost::range_value<Turns>::type& turn,
+#ifdef BOOST_GEOMETRY_OVERLAY_REPORT_WKT
             std::string const& reason,
             Geometry1 const& geometry1,
-            Geometry2 const& geometry2)
+            Geometry2 const& geometry2
+#else
+            std::string const& ,
+            Geometry1 const& ,
+            Geometry2 const& 
+#endif
+            )
 {
     fail = true;
 
@@ -286,7 +292,7 @@ inline void traverse(Geometry1 const& geometry1,
                                         operation,
                                         *current,
                                         current_seg_id,
-                                        boost::end(it->operations),
+                                        
                                         current_iit))
                         {
                             detail::overlay::backtrack(
@@ -336,7 +342,7 @@ inline void traverse(Geometry1 const& geometry1,
                                                 operation,
                                                 *current,
                                                 current_seg_id,
-                                                iit,
+                                                
                                                 current_iit))
                                     {
                                         // Should not occur in valid (non-self-intersecting) polygons

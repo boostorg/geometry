@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../..;..;../../example/contrib/gd-2.0.35"
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NONDLL;_CRT_SECURE_NO_WARNINGS;TEST_WITH_SVG"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -117,7 +117,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../..;..;../../example/contrib/gd-2.0.35"
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NONDLL;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"

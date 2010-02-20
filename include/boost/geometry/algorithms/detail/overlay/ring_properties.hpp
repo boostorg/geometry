@@ -83,7 +83,7 @@ struct ring_properties
         return abs(area) > abs(other.area);
     }
 
-    inline ring_identifier const& id(int direction) const
+    inline ring_identifier const& id() const
     {
         // Return the id of ifself, or of the parent
         return positive() || parent_ring_id.source_index < 0
@@ -210,17 +210,11 @@ std::cout << " or.pop";
 template<typename Prop>
 struct sort_on_id_or_parent_id
 {
-private :
-    int m_direction;
 public :
-    sort_on_id_or_parent_id(int direction)
-        : m_direction(direction)
-    {}
-
     inline bool operator()(Prop const& left, Prop const& right) const
     {
-        ring_identifier const& left_id = left.id(m_direction);
-        ring_identifier const& right_id = right.id(m_direction);
+        ring_identifier const& left_id = left.id();
+        ring_identifier const& right_id = right.id();
 
         // If it is the same, sort on size descending
         return left_id == right_id
