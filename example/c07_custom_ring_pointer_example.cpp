@@ -90,6 +90,8 @@ int main()
     double aa = boost::geometry::area(a);
     double ab = boost::geometry::area(b);
 
+    std::cout << "a: " << aa << std::endl;
+    std::cout << "b: " << ab << std::endl;
 
     // This will NOT work because would need dynamicly allocating memory for point* in algorithms:
     //std::vector<ring_type> unioned;
