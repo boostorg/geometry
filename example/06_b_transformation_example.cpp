@@ -89,7 +89,7 @@ struct svg_output
 
         if (!label.empty())
         {
-            point_type<G>::type c;
+            typename point_type<G>::type c;
             centroid(g, c);
             os << style.text(static_cast<int>(get<0>(c)), static_cast<int>(get<1>(c)), label);
         }
