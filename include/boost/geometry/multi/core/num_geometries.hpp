@@ -13,7 +13,7 @@
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 
-#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/num_geometries.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
 
