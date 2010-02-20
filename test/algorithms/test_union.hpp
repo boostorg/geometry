@@ -68,7 +68,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         << std::endl;
     ***/
 
-    BOOST_CHECK_MESSAGE(int(n) == expected_point_count,
+    BOOST_CHECK_MESSAGE(std::size_t(n) == expected_point_count,
             "union: " << caseid
             << " #points expected: " << expected_point_count
             << " detected: " << n
