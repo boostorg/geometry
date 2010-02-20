@@ -346,12 +346,14 @@ void test_all()
 int test_main(int, char* [])
 {
     //test_all<int[2]>();
-    test_all<float[2]>();
-    test_all<double[2]>();
-    test_all<test::test_point>();
+    //test_all<float[2]>();
+    //test_all<double[2]>();
+    //test_all<test::test_point>();
     //test_all<boost::geometry::point_xy<int> >();
-    test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    //test_all<boost::geometry::point_xy<float> >();
+    //test_all<boost::geometry::point_xy<double> >();
+
+    // Leave onlye one here, because this divides compilation time with 6 or 7
     test_all<boost::geometry::point_xy<long double> >();
 
     return 0;

@@ -59,12 +59,12 @@ namespace boost { namespace geometry { namespace projection
 
             struct par_sconics
             {
-                double    n;
-                double    rho_c;
-                double    rho_0;
-                double    sig;
-                double    c1, c2;
-                int        type;
+                double  n;
+                double  rho_c;
+                double  rho_0;
+                double  sig;
+                double  c1, c2;
+                int     type;
             };
             /* get common factors for simple conics */
             template <typename Parameters>
@@ -111,7 +111,7 @@ namespace boost { namespace geometry { namespace projection
                         rho = this->m_proj_parm.rho_c + tan(this->m_proj_parm.sig - lp_lat);
                         break;
                     case PCONIC:
-                        rho = this->m_proj_parm.c2 * (this->m_proj_parm.c1 - tan(lp_lat));
+                        rho = this->m_proj_parm.c2 * (this->m_proj_parm.c1 - tan(lp_lat - this->m_proj_parm.sig));
                         break;
                     default:
                         rho = this->m_proj_parm.rho_c - lp_lat;
@@ -180,7 +180,6 @@ namespace boost { namespace geometry { namespace projection
                     proj_parm.n = sin(proj_parm.sig) * sin(del) / del;
                     del *= 0.5;
                     proj_parm.rho_c = del / (tan(del) * tan(proj_parm.sig)) + proj_parm.sig;
-                
                     proj_parm.rho_0 = proj_parm.rho_c - par.phi0;
                     break;
                 case PCONIC:
