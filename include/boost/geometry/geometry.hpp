@@ -44,7 +44,6 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
-#include <boost/geometry/algorithms/intermediate.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/length.hpp>
@@ -52,7 +51,6 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/sectionalize.hpp>
-#include <boost/geometry/algorithms/selected.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/union.hpp>
