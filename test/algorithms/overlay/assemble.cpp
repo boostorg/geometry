@@ -10,7 +10,7 @@
 #include <string>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -61,7 +61,7 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
     BOOST_CHECK_CLOSE(diff, 0.0, 0.0001);
     if (abs(diff) > 0.001)
     {
-        std::cout 
+        std::cout
             << id << std::endl
             << bg::wkt(p) << std::endl
             << bg::wkt(q) << std::endl;
@@ -80,12 +80,12 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
         mapper.map(q, "fill-opacity:0.6;stroke-opacity:0.9;fill:rgb(0,255,0);stroke:rgb(0,255,0);stroke-width:2");
         BOOST_FOREACH(Geometry const& geometry, u)
         {
-            mapper.map(geometry, 
+            mapper.map(geometry,
                 "stroke-opacity:0.6;fill:none;stroke:rgb(255,0,255);stroke-width:5");
         }
         BOOST_FOREACH(Geometry const& geometry, i)
         {
-            mapper.map(geometry, 
+            mapper.map(geometry,
                 "stroke-opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
         }
     }
@@ -97,7 +97,7 @@ inline bool int_ok(Polygon const& poly)
 {
     namespace bg = boost::geometry;
 
-    typename bg::point_type<Polygon>::type const& pi = 
+    typename bg::point_type<Polygon>::type const& pi =
         bg::interior_rings(poly)[0].front();
 
     return bg::within(pi, bg::exterior_ring(poly));
@@ -132,21 +132,21 @@ void generate()
                     std::string ps = "POLYGON(" + exteriors[pe] + "," + interiors[pi] + ")";
                     std::string qs = "POLYGON(" + exteriors[qe] + "," + interiors[qi] + ")";
 
-                    bg::polygon_2d p, q; 
+                    bg::polygon_2d p, q;
                     bg::read_wkt(ps, p);
                     bg::read_wkt(qs, q);
                     bg::correct(p);
                     bg::correct(q);
-                    if (! intersects(p) 
+                    if (! intersects(p)
                         && ! intersects(q)
-                        && int_ok(p) 
+                        && int_ok(p)
                         && int_ok(q)
                         )
                     {
                         std::ostringstream out;
                         out << pe << qe << pi << qi;
                         test_assemble(out.str(), p, q);
-                        
+
                     }
                 }
             }
@@ -155,7 +155,7 @@ void generate()
 }
 
 
-#if ! defined(GGL_TEST_MULTI)
+#if ! defined(GEOMETRY_TEST_MULTI)
 int test_main(int, char* [])
 {
     generate();

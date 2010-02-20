@@ -7,8 +7,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#ifndef GGL_TEST_TEST_COMMON_TEST_POINT_HPP
-#define GGL_TEST_TEST_COMMON_TEST_POINT_HPP
+#ifndef GEOMETRY_TEST_TEST_COMMON_TEST_POINT_HPP
+#define GEOMETRY_TEST_TEST_COMMON_TEST_POINT_HPP
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -87,4 +87,4 @@ template<> struct access<test::test_point, 2>
 
 }}} // namespace boost::geometry::traits
 
-#endif // GGL_TEST_TEST_COMMON_TEST_POINT_HPP
+#endif // GEOMETRY_TEST_TEST_COMMON_TEST_POINT_HPP

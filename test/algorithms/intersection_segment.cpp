@@ -13,7 +13,7 @@
 #include <vector>
 
 #include <boost/config.hpp>
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/within.hpp>

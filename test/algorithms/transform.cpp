@@ -10,7 +10,7 @@
 #include <sstream>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/transform.hpp>

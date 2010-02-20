@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_TEST_PERIMETER_HPP
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -23,7 +23,7 @@ void test_perimeter(Geometry const& geometry, long double expected_perimeter)
 {
     long double perimeter = boost::geometry::perimeter(geometry);
 
-#ifdef GGL_TEST_DEBUG
+#ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
     out << typeid(typename boost::geometry::coordinate_type<Geometry>::type).name()
         << std::endl

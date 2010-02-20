@@ -8,7 +8,7 @@
 #include <string>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>

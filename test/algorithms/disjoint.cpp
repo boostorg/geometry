@@ -10,7 +10,7 @@
 #include <string>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -24,8 +24,8 @@
 
 
 template <typename G1, typename G2>
-void test_disjoint(std::string const& id, 
-            std::string const& wkt1, 
+void test_disjoint(std::string const& id,
+            std::string const& wkt1,
             std::string const& wkt2, bool expected)
 {
     G1 g1;

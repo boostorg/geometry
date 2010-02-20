@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_TEST_COMBINE_HPP
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/strategies/strategies.hpp>

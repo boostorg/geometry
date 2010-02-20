@@ -14,7 +14,7 @@
 #include <boost/geometry/geometries/linear_ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
-//#define GGL_TEST_DEBUG
+//#define GEOMETRY_TEST_DEBUG
 
 
 

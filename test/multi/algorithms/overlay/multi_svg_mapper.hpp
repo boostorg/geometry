@@ -7,8 +7,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#ifndef GGL_TEST_MULTI_UTIL_SVG_MAPPER_HPP
-#define GGL_TEST_MULTI_UTIL_SVG_MAPPER_HPP
+#ifndef GEOMETRY_TEST_MULTI_UTIL_SVG_MAPPER_HPP
+#define GEOMETRY_TEST_MULTI_UTIL_SVG_MAPPER_HPP
 
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/transform.hpp>
@@ -41,4 +41,4 @@ struct svg_map<boost::geometry::multi_polygon_tag, true, MultiPolygon>
 
 
 
-#endif // GGL_TEST_MULTI_UTIL_SVG_MAPPER_HPP
+#endif // GEOMETRY_TEST_MULTI_UTIL_SVG_MAPPER_HPP

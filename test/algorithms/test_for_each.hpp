@@ -8,7 +8,7 @@
 #ifndef BOOST_GEOMETRY_TEST_FOR_EACH_HPP
 #define BOOST_GEOMETRY_TEST_FOR_EACH_HPP
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/for_each.hpp>
 

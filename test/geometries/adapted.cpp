@@ -8,7 +8,7 @@
 #include <deque>
 #include <vector>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/multi/multi.hpp>

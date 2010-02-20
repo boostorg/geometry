@@ -8,7 +8,7 @@
 #ifndef BOOST_GEOMETRY_TEST_CONVEX_HULL_HPP
 #define BOOST_GEOMETRY_TEST_CONVEX_HULL_HPP
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/convex_hull.hpp>
 #include <boost/geometry/algorithms/area.hpp>

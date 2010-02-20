@@ -9,7 +9,7 @@
 #include <sstream>
 #include <string>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 

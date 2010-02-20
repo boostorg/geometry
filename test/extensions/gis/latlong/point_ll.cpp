@@ -7,7 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/stream_wkt.hpp>

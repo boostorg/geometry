@@ -11,7 +11,7 @@
 #include <string>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/extensions/algorithms/remove_holes_if.hpp>

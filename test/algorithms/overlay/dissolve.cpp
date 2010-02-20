@@ -10,7 +10,7 @@
 #include <string>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -75,14 +75,14 @@ void test_geometry(std::string const& id, int expected_count, double expected_ar
 
     std::string caseid = id;
 
-//#ifdef GGL_DEBUG_INTERSECTION
+//#ifdef GEOMETRY_DEBUG_INTERSECTION
     std::cout << std::endl << std::endl << "# " << caseid << std::endl;
 //#endif
     test_dissolve(caseid, expected_count, expected_area, geometry, precision);
 }
 
 
-#if ! defined(GGL_TEST_MULTI)
+#if ! defined(GEOMETRY_TEST_MULTI)
 
 template <typename P>
 void test_all()
@@ -172,7 +172,7 @@ void test_all()
 
 
 
-#if ! defined(GGL_TEST_MULTI)
+#if ! defined(GEOMETRY_TEST_MULTI)
 int test_main(int, char* [])
 {
     test_all<boost::geometry::point_xy<double> >();

@@ -6,6 +6,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+    // WARNING: this file takes several minutes to quarters to compile on GCC
+
+
 #if defined(_MSC_VER)
 #pragma warning( disable : 4305 ) // truncation double -> float
 #pragma warning( disable : 4244 ) // loss of data
@@ -15,7 +18,7 @@
 
 #include <sstream>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/projection.hpp>

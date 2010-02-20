@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/geometries/cartesian2d.hpp>

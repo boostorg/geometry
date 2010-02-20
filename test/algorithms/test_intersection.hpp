@@ -12,7 +12,7 @@
 #include <iomanip>
 
 #include <boost/foreach.hpp>
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/area.hpp>

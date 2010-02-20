@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_TEST_AREA_HPP
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -22,7 +22,7 @@ void test_area(Geometry const& geometry, long double expected_area)
 {
     long double area = boost::geometry::area(geometry);
 
-#ifdef GGL_TEST_DEBUG
+#ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
     out << typeid(typename boost::geometry::coordinate_type<Geometry>::type).name()
         << " "

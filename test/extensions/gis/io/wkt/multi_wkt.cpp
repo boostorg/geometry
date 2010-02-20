@@ -38,7 +38,7 @@ void test_all();
 
 
 // Include the single test
-#define GGL_TEST_MULTI
+#define GEOMETRY_TEST_MULTI
 #include "extensions/gis/io/wkt/wkt.cpp"
 
 

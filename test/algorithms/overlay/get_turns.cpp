@@ -9,7 +9,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 
@@ -138,7 +138,7 @@ struct test_get_turns
 };
 
 
-#if ! defined(GGL_TEST_MULTI)
+#if ! defined(GEOMETRY_TEST_MULTI)
 template <typename T>
 void test_all()
 {

@@ -13,7 +13,7 @@
 #include <string>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 //#define HAVE_TTMATH
 #ifdef HAVE_TTMATH

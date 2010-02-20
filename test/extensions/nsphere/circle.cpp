@@ -13,7 +13,7 @@
 
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/extensions/nsphere/core/access.hpp>
 #include <boost/geometry/extensions/nsphere/geometries/concepts/nsphere_concept.hpp>
