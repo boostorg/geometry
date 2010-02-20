@@ -117,7 +117,19 @@ class factory : public detail::base_factory<LatLong, Cartesian, Parameters>
 {
 private:
 
-    typedef std::map<std::string, boost::shared_ptr<detail::factory_entry<LatLong, Cartesian, Parameters> > > prj_registry;
+    typedef std::map
+        <
+            std::string, 
+            boost::shared_ptr
+                <
+                    detail::factory_entry
+                        <
+                            LatLong, 
+                            Cartesian, 
+                            Parameters
+                        > 
+                > 
+        > prj_registry;
     prj_registry m_registry;
 
 public:
@@ -220,12 +232,13 @@ public:
 
     virtual ~factory() {}
 
-    virtual void add_to_factory(const std::string& name, detail::factory_entry<LatLong, Cartesian, Parameters>* sub)
+    virtual void add_to_factory(std::string const& name, 
+                    detail::factory_entry<LatLong, Cartesian, Parameters>* sub)
     {
         m_registry[name].reset(sub);
     }
 
-    inline projection<LatLong, Cartesian>* create_new(const Parameters& parameters)
+    inline projection<LatLong, Cartesian>* create_new(Parameters const& parameters)
     {
         typename prj_registry::iterator it = m_registry.find(parameters.name);
         if (it != m_registry.end())
