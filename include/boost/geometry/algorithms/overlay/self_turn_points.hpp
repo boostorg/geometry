@@ -177,17 +177,17 @@ struct self_get_turn_points
     \param geometry geometry
     \param turns container which will contain intersection points
  */
-template 
+template
 <
-    typename AssignPolicy, 
-    typename Geometry, 
+    typename AssignPolicy,
+    typename Geometry,
     typename Turns,
     typename InterruptPolicy
 >
 inline void get_turns(Geometry const& geometry,
             Turns& turns, InterruptPolicy& interrupt_policy)
 {
-    concept::check<Geometry>();
+    concept::check<Geometry const>();
 
     typedef typename strategy_intersection
         <
