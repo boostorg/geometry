@@ -1,0 +1,168 @@
+Notes for Bruno / documentation
+
+1) BOX CONCEPT
+
+concepts/box_traits.hpp
+a) static ints min_corner/max_corner to select min/max corner
+b) namespace traits let user define:
+	-> traits::box_point<B>::type LATERON made generic, this is geometry::point_type<B>::type for everything
+	-> traits::box_access<B>::get and set (LATERON RENAMED TO index_access AND GOT MORE TEMPLATE PARAMETERS)
+   Note that these concepts are NOT worked out anymore for our geometries
+   They are empty and should be specialized by the user. The
+   specialization of the predeclared box is in geometries/box.hpp
+c) namespace support to use:
+	support::box_point<B>::type for the type of the point of the box
+	support::box_coordinate<B>::type for the coordinate type, double etc. 
+	
+	LATERON CHANGED TO GET IT CONSISTENT (and removed support prefix):
+	point_type<B>::type for the type of the point of the box (or any geometry)
+	coordinate_type<B>::type for the coordinate type, double etc. of any geometry
+	
+4) bget/bset like get/set for point point, but here for box (cannot override, GCC complains, might be with enable_if)
+	-> lateron renamed to get_indexed/set_indexed to harmonize with segment
+
+Note on concept compared with point:
+- it is smaller because most things are already in point
+- the default traits classes are empty, propose to do that in point also
+- I decided to not give directly access to the points of the box. Because users might
+  have a box defined like this: struct box { double left,right,top,bottom; }; they have no point
+  at all.
+  However, they still should define a "point type", with meta-functions, that would be the type that fits with the box.
+  It also defines the coordinate system and dimensions.
+  
+	
+Furthermore:
+-> removed init enumerations and constructors
+-> added instead of constructor a "init_inverse" utility LATERON RENAMED TO make_inverse and assign_inverse
+	
+
+2) POINT CONCEPT
+didn't change the concept but:
+-> removed in the source code everything using constructor with two values
+-> removed the initialization
+-> points should still have a default constructor, there is nothing to do about that. No problem I think
+-> added instead of the constructor a "make" object generator set
+
+changed the concept files a bit:
+-> moved usages of our points (coordinate_type etc) to point.hpp
+   so specialization is now required for custom point
+    -> THIS INVALIDATES ONE OF THE WELL FORM POINTS!
+    -> THIS REQUIRES USERS TO ALWAYS DEFINE 5 TRAIT METAFUNCTIONS
+    -> THEREFORE WE MIGHT ADD A MACRO (OR A FEW MACRO'S) TO REGISTER A CUSTOM POINT
+
+-> moved folder "concept/adapted" to "geometries/adapted" because, actually, it implements the concepts but it does not
+   define the concepts
+
+   
+SUGGESTIONS / CONSIDERATIONS:
+-> I wouldn't be against merging the files coordinate.hpp, dimension.hpp, system.hpp and access.hpp to one file
+   "point_traits.hpp" (or "point_meta.hpp") to have the point concept defined in one place.
+   Like with box.
+   I ALREADY DID THIS.
+   
+-> An idea would be that "*_concept.hpp" is renamed to "*_concept_check.hpp" and "*_traits.hpp" renamed to "*_concept.hpp"
+   because that last is what actually defines the concept, that first checks the concept.
+   However, the checker hpp must include the definition hpp, and all sources should check, so like now they include
+   "*_concept.hpp" and that is OK.
+   SO THIS SUGGESTION IS REDRAWN (?)
+   Still find it a bit unclear / confusing where is really the concept defined. In the traits? In the concept? In the dispatch?
+   
+-> I wondered why the get function didn't return a const ref. But I understand. The value inside the geometry
+   object might be calculated (e.g. a planet, in time). So it has to return the value. 
+   I first did change it but later on reverted it.
+   SO THIS SUGGESTION IS NOT VALID
+   
+   
+QUESTIONS:
+-> can ConstPoint be baseclass and Point derived such that it only additionally checks write access?
+   Or, maybe better that Point has a BOOST_CONCEPT_ASSERT from ConstPoint somewhere
+   IF yes, same for box
+   PROBABLY NOT
+   
+-> name of a 2 or 3D (or ND) circle: this is nearly impossible. Wikipedia gives "ball"  (meaning only the 
+   interior), n-sphere, hypersphere (>3d). n-sphere was mentioned on the list (e.g. by Bruno), there were objections
+   I combined all and come up with "sphercle" as appropriate :-)
+   However, didn't commit that, too funny. Probably nsphere is the most appropriate. So that's how it is now...
+   
+   Objections to n-sphere are no problem as we still define a typedef "circle" and "sphere" for the 2D, 3D cases
+   
+   
+   
+3) CONCEPTS IN GENERAL
+We had the get/set functionality. It has proved very useful.
+I made a bget/bset to set bounds of a box in a similar way.
+THIS IS NOW CHANGED TO get_indexed/set_indexed to set by index of a box/segment/(n-sphere?).
+
+However, it can and should be slightly more generic.
+
+How to set the center of the circle? set_center? (later) NO, THIS IS NOW ALSO GET/SET, see below
+
+We had also the generic "support::coordinate<P>::type" function (and dimension). It would be useful if the same
+function could be used for all geometries.
+
+So I added one other level of indirection, by using again tag  dispatching. I also decided to remove the namespace "support",
+because it is functionality even for the end user (e.g. getting the dimension of a geometry). It is generic functionality,
+just like "distance".
+
+
+So it is now, sample with coordinate type:
+
+1) one generic "coordinate_type<G>::type" metafunction (typedef within a struct)
+2) forwarding its call (using remove_const) to a core_dispatch::coordinate_type<tag, G>::type metafunction. 
+(That one should live in namespace core_dispatch. The reason for that is that functionality within "dispatch", such as
+distance implementations, often states "coordinate_type<G>::type" and there 1) is wanted, not 2)
+3) per geometry the core_dispatch set is specialized, forwarding its call to "traits::coordinate_type<G>" to be able
+to specialize user defined geometries
+4) the "traits::coordinate_type<G>" meta function will probably call the geometry::coordinate_type type using a typedef,
+but that is just how it is implemented. Custom types can also define it as double or so.
+
+This system is applied for the next meta-functions, for ALL geometries:
+- point_type<G>::type (even point has it, defining itself, the rest of course defines the used point)
+- coordinate_type<G>::type
+- dimension<G>::value
+- coordinate_system<G>::type for coordinate system
+
+This system is also applied for the next meta-functions, for SOME geometries:
+access<G>::get and access<G>::set functions to get/set values (only applicable for point and n-sphere)
+indexed_access<G>::get and ::set functions to get/set boundary values (applicable for box, maybe sphere, segment)
+   (for segment the name "bound" was not convenient. There are min_corner/max_corner consts)
+   
+radius_access<G>::get and ::set functions to get/set radius of an n-sphere, I made this templated by dimension also
+   to enable ellipses to get a radius per dimension. The n-sphere asserts that it is zero.
+radius_type<G>::get and ::set to define the type of the radius of an n-sphere (lateron ellipse)
+
+
+Note that this system is convenient, also e.g. for the OGC specifications where "dimension" can be asked to any geometry. Dimension
+is just for convenience, it just using 
+
+
+4) PLACE OF CONCEPTS FOLDER
+core is a new folder, containing things earlier in concepts. I found the name concepts a little inappropriate because it also
+contains functions as "get", "set", etc, things to really use. There is now:
+/geometry/core
+/geometry/concepts
+/geometry/dispatch
+
+It still might be changed a littlebit, adding a "traits" folder would be more consistent.
+
+
+5) DISTANCE RESULT
+changed to template, see mail Phil Endecott with suggestions
+
+6) ALGORITHMS
+added generic:
+"assign" to assign values, various overloads
+"make", idem but returning the geometry
+"transform" to transform coordinate systems
+"convert" to convert between geometry types, e.g., a BOX (2 corners) -> RING (5 points)
+"parse" to assign string-ed values, this was first in projections -> WILL BE EXTENDED
+"buffer" is the old "grow" with a value -> FOR FUTURE EXTENSION
+"selected" to return if an object is inside or close to a specified point value
+changed:
+"centroid" has now two versions, one returning centroid
+"envelope" idem
+
+
+
+7) STRATEGIES
+they are now organized per coordinate system
