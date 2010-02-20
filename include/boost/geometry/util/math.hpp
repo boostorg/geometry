@@ -80,7 +80,7 @@ inline bool equals(T1 const& a, T2 const& b)
 
 
 // TODO: The idea is to replace "double const globals" with inline
-// template functions, so code/data is generated if not necessary.
+// template functions, so code/data is not generated if not necessary.
 // --mloskot
 //template <typename T>
 //inline T pi()
