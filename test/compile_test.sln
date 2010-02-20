@@ -1,0 +1,29 @@
+
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compile_test", "compile_test.vcproj", "{618D4B05-A06E-443B-87C0-94964CEA7164}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B3B37654-5AB4-49F3-A1D3-DFDE73EA5E1A} = {B3B37654-5AB4-49F3-A1D3-DFDE73EA5E1A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ggl_headers", "ggl_headers.vcproj", "{B3B37654-5AB4-49F3-A1D3-DFDE73EA5E1A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{618D4B05-A06E-443B-87C0-94964CEA7164}.Debug|Win32.ActiveCfg = Debug|Win32
+		{618D4B05-A06E-443B-87C0-94964CEA7164}.Debug|Win32.Build.0 = Debug|Win32
+		{618D4B05-A06E-443B-87C0-94964CEA7164}.Release|Win32.ActiveCfg = Release|Win32
+		{618D4B05-A06E-443B-87C0-94964CEA7164}.Release|Win32.Build.0 = Release|Win32
+		{B3B37654-5AB4-49F3-A1D3-DFDE73EA5E1A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B3B37654-5AB4-49F3-A1D3-DFDE73EA5E1A}.Debug|Win32.Build.0 = Debug|Win32
+		{B3B37654-5AB4-49F3-A1D3-DFDE73EA5E1A}.Release|Win32.ActiveCfg = Release|Win32
+		{B3B37654-5AB4-49F3-A1D3-DFDE73EA5E1A}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

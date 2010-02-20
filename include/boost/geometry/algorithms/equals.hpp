@@ -91,18 +91,28 @@ struct box_box<Box1, Box2, DimensionCount, DimensionCount>
     }
 };
 
-struct equals_interrupt_policy
+class equals_interrupt_policy
 {
-    static bool const enabled = true;
 
     // As soon as a turn is detected, this flag is set to true
     // and the process of getting turns (intersection points)
     // is interrupted
     bool turns_inside_or_outside;
+    bool has_collinear;
+
+
+public:
+    static bool const enabled = true;
 
     inline equals_interrupt_policy()
         : turns_inside_or_outside(false)
+        , has_collinear(false)
     {}
+
+    bool equals() const
+    {
+        return has_collinear && ! turns_inside_or_outside;
+    }
 
     template <typename Range>
     inline bool apply(Range const& range)
@@ -112,30 +122,36 @@ struct equals_interrupt_policy
             it != boost::end(range);
             ++it)
         {
-            if (it->method == detail::overlay::method_collinear
-                || it->method == detail::overlay::method_equal
-                )
+            if (! it->ignore)
             {
-                typedef typename boost::range_value<Range>::type turn_type;
-                // If it is not such that both turns are collinear, the rings are not equal
-                for (typename boost::range_iterator
-                        <
-                            typename turn_type::container_type const
-                        >::type oit = boost::begin(it->operations);
-                    oit != boost::end(it->operations);
-                    oit++)
+                if (it->method == detail::overlay::method_collinear
+                    || it->method == detail::overlay::method_equal)
                 {
-                    if (oit->operation != detail::overlay::operation_continue)
+                    typedef typename boost::range_value<Range>::type turn_type;
+                    // If it is not such that both turns are collinear, the rings are not equal
+                    for (typename boost::range_iterator
+                            <
+                                typename turn_type::container_type const
+                            >::type oit = boost::begin(it->operations);
+                        oit != boost::end(it->operations);
+                        oit++)
                     {
-                        turns_inside_or_outside = true;
-                        return true;
+                        if (oit->operation != detail::overlay::operation_continue)
+                        {
+                            turns_inside_or_outside = true;
+                            return true;
+                        }
+                        else
+                        {
+                            has_collinear = true;
+                        }
                     }
                 }
-            }
-            else
-            {
-                turns_inside_or_outside = true;
-                return true;
+                else
+                {
+                    turns_inside_or_outside = true;
+                    return true;
+                }
             }
         }
         // It is not yet known, so don't interrupt
@@ -181,8 +197,7 @@ struct ring_ring
                 detail::overlay::assign_null_policy
             >(ring1, ring2, turns, policy);
 
-        return turns.size() > 0
-            && ! policy.turns_inside_or_outside;
+        return policy.equals();
     }
 };
 
