@@ -1,0 +1,26 @@
+# test/geometries/Jamfile.v2 
+#
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite ggl-geometries
+    :
+    [ run box.cpp ]
+    [ compile-fail custom_linestring.cpp
+        : # requirements
+        <define>TEST_FAIL_CLEAR
+        : # target name
+        custom_linestring_test_fail_clear
+    ]
+    [ compile-fail custom_linestring.cpp 
+        : # requirements
+        <define>TEST_FAIL_APPEND
+        : # target name
+        custom_linestring_test_fail_append
+    ]
+    [ run custom_linestring.cpp ]
+    [ run segment.cpp ]
+    ;
