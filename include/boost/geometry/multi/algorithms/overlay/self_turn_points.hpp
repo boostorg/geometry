@@ -29,20 +29,22 @@ template
     typename MultiPolygon,
     typename IntersectionPoints,
     typename IntersectionStrategy,
-    typename AssignPolicy
+    typename AssignPolicy,
+    typename InterruptPolicy
 >
 struct self_get_turn_points
     <
         multi_polygon_tag, true, MultiPolygon,
         IntersectionPoints, IntersectionStrategy,
-        AssignPolicy
+        AssignPolicy, InterruptPolicy
     >
     : detail::self_get_turn_points::get_turns
         <
             MultiPolygon,
             IntersectionPoints,
             IntersectionStrategy,
-            AssignPolicy
+            AssignPolicy,
+            InterruptPolicy
         >
 {};
 

@@ -14,6 +14,7 @@
 #include <boost/geometry/multi/core/geometry_id.hpp>
 #include <boost/geometry/multi/core/is_multi.hpp>
 #include <boost/geometry/multi/core/interior_rings.hpp>
+#include <boost/geometry/multi/core/num_geometries.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 #include <boost/geometry/multi/core/ring_type.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
