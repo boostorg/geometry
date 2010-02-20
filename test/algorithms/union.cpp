@@ -232,7 +232,10 @@ void test_all()
 #if defined(_MSC_VER)
             tn == std::string("f") ? 71 : 72,
 #else
-            tn == std::string("f") ? 71 : tn == std::string("e") ? 75 : 70,
+            tn == std::string("f") ? 71 : 
+                tn == std::string("e") ? 75 : 
+                    tn == std::string("d") ? 72 : 
+                        70,
 #endif
             313.3603646,
             0.1);
