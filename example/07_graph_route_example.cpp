@@ -31,7 +31,7 @@
     #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 
     // For output:
-    #include <boost/geometry/extensions/io/svg/write_svg.hpp>
+    #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
     // For distance-calculations over the Earth:
     #include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
@@ -79,18 +79,6 @@ void read_wkt(std::string const& filename, std::vector<Tuple>& tuples, Box& box)
     }
 }
 
-// Boilerplate code to initialize the SVG XML.
-// Note that this is (on purpose) not part of the library but of this sample.
-// GGL itself only streams small pieces of SVG, in any coordinate system
-void svg_header(std::ofstream& stream)
-{
-    stream << "<?xml version=\"1.0\" standalone=\"no\"?>" << std::endl;
-    stream << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"" << std::endl;
-    stream << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">" << std::endl;
-
-    stream << "<svg width=\"100%\" height=\"100%\" version=\"1.1\"" << std::endl;
-    stream << "xmlns=\"http://www.w3.org/2000/svg\">" << std::endl;
-}
 
 
 // Code to define properties for Boost Graph's
@@ -361,40 +349,32 @@ int main()
     }
 
     // Create the SVG
-    typedef boost::geometry::point_xy<int> svg_point_type;
     std::ofstream stream("routes.svg");
-    svg_header(stream);
-
-    boost::geometry::strategy::transform::map_transformer
-        <
-            point_type,
-            svg_point_type, true, true
-        > matrix(box, 1000, 800);
+    boost::geometry::svg_mapper<point_type> mapper(stream, 600, 600);
 
     // Map roads
     BOOST_FOREACH(road_type const& road, roads)
     {
-        boost::geometry::linestring<svg_point_type> line;
-        boost::geometry::transform(road.get<0>(), line, matrix);
-        stream << boost::geometry::svg(line, "stroke:rgb(128,128,128);stroke-width:1") << std::endl;
+        mapper.add(road.get<0>());
     }
 
-    // Map the calculated route as thicker green transparent markation
+    BOOST_FOREACH(road_type const& road, roads)
     {
-        boost::geometry::linestring<svg_point_type> line;
-        boost::geometry::transform(route, line, matrix);
-        stream << boost::geometry::svg(line, "stroke:rgb(0, 255, 0);stroke-width:6;opacity:0.5") << std::endl;
+        mapper.map(road.get<0>(), 
+                "stroke:rgb(128,128,128);stroke-width:1");
     }
+
+    mapper.map(route, 
+            "stroke:rgb(0, 255, 0);stroke-width:6;opacity:0.5");
 
     // Map cities
     BOOST_FOREACH(city_type const& city, cities)
     {
-        svg_point_type point;
-        boost::geometry::transform(city.get<0>(), point, matrix);
-        stream << boost::geometry::svg(point, "fill:rgb(255,255,0);stroke:rgb(0,0,0);stroke-width:1") << std::endl;
+        mapper.map(city.get<0>(), 
+                "fill:rgb(255,255,0);stroke:rgb(0,0,0);stroke-width:1");
+        mapper.text(city.get<0>(), city.get<1>(), 
+                "fill:rgb(0,0,0);font-family:Arial;font-size:10px", 5, 5);
     }
-
-    stream << "</svg>" << std::endl;
 
     return 0;
 }
