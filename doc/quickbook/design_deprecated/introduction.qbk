@@ -1,0 +1,45 @@
+[/==============================================================================
+    Copyright (c) 1995-2009 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+    Copyright (c) 2008-2009 Bruno Lalande, Paris, France.
+    Copyright (c) 2009 Mateusz Loskot (mateusz@loskot.net)
+
+    Use, modification and distribution is subject to the Boost Software License,
+    Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+===============================================================================/]
+
+[section Introduction]
+
+Suppose you need to write C++ program to calculate distance between two points.
+You might define a type of point:
+
+    struct mypoint
+    {
+        double x, y;
+    };
+
+and function that defines algorithm calculating distance between two points:
+
+    double distance(mypoint const& a, mypoint const& b)
+    {
+        double dx = a.x - b.x;
+        double dy = a.y - b.y;
+        return sqrt(dx * dx + dy * dy);
+    }
+
+Quite simple, and it is usable, but not generic. For a library it has to be
+designed way further. The design above can only be used for 2D points,
+for the type `struct mypoint` (and no other type), in a Cartesian coordinate system.
+
+A generic library should be able to calculate the distance:
+
+* for any type of point, not on just this `struct mypoint`
+* in more than two dimensions
+* for other coordinate systems, e.g. over the Earth or on a sphere
+* between a point and a line or between other geometry combinations
+* in higher precision than `double`
+* avoiding the square root: often we don’t want to do that because it is a relatively expensive function, and for comparing distances it is not necessary.
+
+In this page we will make the design step by step more generic.
+
+[endsect]

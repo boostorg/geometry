@@ -1,0 +1,89 @@
+[/==============================================================================
+    Copyright (c) 1995-2010 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+    Copyright (c) 2008-2010 Bruno Lalande, Paris, France.
+    Copyright (c) 2009-2010 Mateusz Loskot (mateusz@loskot.net), London, UK
+
+    Use, modification and distribution is subject to the Boost Software License,
+    Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+===============================================================================/]
+
+[section area]
+
+['TODO: type and function names to be inter-linked --mloskot]
+
+[heading Description]
+
+Calculate area of a geometry.
+
+The area algorithm calculates the surface area of all geometries having a surface, namely
+box, polygon, ring, multipolygon. The units are the square of the units used for the points
+defining the surface. If subject geometry is defined in meters, then area is calculated
+in square meters.
+
+The area calculation can be done in all three common coordinate systems, Cartesian, Spherical
+and Geographic as well.
+
+[heading Synopsis]
+
+    namespace boost { namespace geometry {
+
+        template<typename Geometry>
+        typename area_result<Geometry>::type area(Geometry const &geometry)
+
+        template<typename Geometry, typename Strategy>
+        Strategy::return_type area(Geometry const &geometry, Strategy const &strategy)
+
+        template<typename Geometry>
+        typename area_result<Geometry>::type area(Geometry const &geometry)
+    }}
+
+[table Template Parameters
+    [[Parameter] [Requirement] [Description]]
+    [[`Geometry`] [Models of one of geometry __concepts__] []]
+    [[`Strategy`] [Models of AreaStrategy] []]
+]
+
+[table Parameters
+    [[Parameter] [Requirement] [Description]]
+    [[`geometry`] [Shall form a valid geometry]
+        [Polygon should be closed and according to specified orientation (clockwise or counter-clockwise)]]
+    [[`strategy`] [['TODO]]
+        [Specifies algorithm of area calculation, especially useful for spherical areas where number
+        of approaches are possible]]
+]
+
+[table Expression Semantics
+    [[Expression] [Return Type] [Description]]
+    [[__area__(geometry);] [`area_result<Geometry>::type`]
+        [Calculates area of polygon, ring, box using default area strategy provided for __wiki_cs_cartesian__ and __wiki_cs_spherical__]]
+    [[__area__(geometry,strategy);] [`Strategy::return_type`]
+        [Calculates area of polygon, ring, box using specified area strategy]]
+]
+
+[heading Complexity]
+
+[table
+    [[Notation] [Name] [Notes]]
+    [[`O(n)`] [__wiki_complex_linear__] []]
+]
+
+Benchmark example: calculation of `2776 * 1000` areas done in 0.11 seconds (see [@http://trac.osgeo.org/ggl/wiki/Performance Performance] earticle on the Wiki).
+
+[heading Header]
+
+    #include <boost/geometry/algorithms/area.hpp>
+
+[heading  Example]
+
+    using namespace boost::geometry;
+    polygon<boost::geometry::point_xy<double> > poly;
+    read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
+    std::cout << "Polygon area is " << area(poly) << " square units" << std::endl;
+
+    // Other coordinate system, spherical or geographic (extension)
+    polygon<point<float, 2, cs::spherical<degree> > > sph_poly;
+    read_wkt("POLYGON((0 0,0 45,45 0,0 0))", sph_poly);
+    std::cout << "Area is " << area(sph_poly) << " on unit sphere " << std::endl;
+
+[endsect] [/ end of section area]

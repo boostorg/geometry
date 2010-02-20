@@ -1,0 +1,4 @@
+Content of this document has been moved to Wiki:
+
+http://trac.osgeo.org/ggl/wiki/Developer/Guidelines
+http://trac.osgeo.org/ggl/wiki/Developer/UnitTests

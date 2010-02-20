@@ -1,0 +1,182 @@
+[/==============================================================================
+    Copyright (c) 1995-2010 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+    Copyright (c) 2008-2010 Bruno Lalande, Paris, France.
+    Copyright (c) 2009-2010 Mateusz Loskot (mateusz@loskot.net), London, UK
+
+    Use, modification and distribution is subject to the Boost Software License,
+    Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+===============================================================================/]
+
+[article Geometry
+    [quickbook 1.4]
+    [version 1.0]
+    [copyright 2009 Barend Gehrels, Bruno Lalande, Mateusz Loskot]
+    [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz]]
+    [purpose Documentation of Boost.Geometry library]
+    [license
+        Distributed under the Boost Software License, Version 1.0.
+        (See accompanying file LICENSE_1_0.txt or copy at
+        [@http://www.boost.org/LICENSE_1_0.txt])
+    ]
+]
+
+[/ Links macros ///////////////////////////////////////////////////////////////]
+
+[def __ggl__                [@http://trac.osgeo.org/ggl/ Generic Geometry Library]]
+[def __ggl_short__          [@http://trac.osgeo.org/ggl/ GGL]]
+[def __stl__                [@http://www.sgi.com/tech/stl/ STL]]
+[def __boost__              [@http://www.boost.org/ Boost]]
+[def __boost_gil__          [@boost:/libs/gil/index.html Boost.GIL]]
+[def __gnu_gmp__            [@http://gmplib.org/ GMP]]
+[def __ogc__                [@http://www.opengeospatial.org/ OGC]]
+
+[/ Sections macros ////////////////////////////////////////////////////////////]
+
+    [/ TODO]
+
+[/ Images macros //////////////////////////////////////////////////////////////]
+
+[def __img_quickstart_output__          [$./images/quickstart_output.png]]
+
+[/ Content starts here ////////////////////////////////////////////////////////]
+
+This is the documentation of the newest version of __ggl__ (current Subversion trunk).
+
+[/ TODO: This is proposal of G]
+
+[section Introduction]
+[endsect]
+
+[section Tutorial]
+[section Quick Start]
+[endsect]
+[section Examples]
+[endsect]
+[endsect] [/ end of section Examples]
+
+[section Library Overview]
+[section Design Rationale]
+[endsect]
+[section Strategy Rationale]
+[endsect]
+[section Spatial set-theoretic operations]
+[endsect]
+[section Robustness]
+[endsect]
+[endsect] [/ end of section Library Overview]
+
+[section Reference]
+
+[section Geometries]
+[section Concepts]
+[endsect] [/ end of section Concepts]
+[section Provided Geometries] [/TOOD better name? --mloskot]
+[endsect] [/ end of section Provided Geometries]
+[section Adaption and Registration]
+[endsect] [/ end of section Adaption and Registration]
+[endsect] [/ end of section Geometries]
+
+[section Coordinate Systems]
+[endsect] [/ end of section Coordinate Systems]
+
+[section Algorithms]
+
+[section area]
+[section Formal description] [/TOOD Theory as better name? --mloskot]
+[endsect]
+[section Parameters]
+[endsect]
+[section Complexity]
+[endsect]
+[section Example]
+[endsect]
+[section Notes]
+[endsect]
+[endsect] [/ end of section area]
+
+[section distance]
+[section Formal description] [/TOOD Theory as better name? --mloskot]
+[endsect]
+[section Parameters]
+[endsect]
+[section Complexity]
+[endsect]
+[section Example]
+[endsect]
+[section Notes]
+[endsect]
+[endsect] [/ end of section disance]
+
+[endsect] [/ end of section Algorithms]
+
+[section Strategies and Policies]
+[endsect] [/ end of Strategies and Policies]
+
+[section Iterators]
+[endsect] [/ end of Iterators]
+
+[section Utilities]
+[endsect] [/ end of Utilities]
+
+[endsect] [/ end of section Reference]
+
+[section Extensions]
+
+[section I/O]
+[section DSV]
+[endsect] [/ end of DSV]
+[section SVG]
+[endsect] [/ end of SVG]
+[endsect] [/ end of I/O]
+
+[section Spatial Index]
+[section R-tree]
+[endsect] [/ end of R-tree]
+[endsect] [/ end of Spatial Index]
+
+[section GIS]   
+[section I/O]
+[endsect] [/ end of I/O]
+[section Projections]
+[endsect] [/ end of Projections]
+[endsect] [/ end of GIS]
+
+[endsect] [/ end of section Extensions]
+
+[section Miscellaneous]
+
+[section Release Notes] [/TODO: current status]
+[endsect] [/ end of ]
+
+[section Compilation] [/TOOD Was proposed as relations --mloskot]
+[section Supported Compilers]
+[endsect] [/ end of ]
+[section Hints]
+[endsect] [/ end of ]
+[section Known Problems] [/TODO: Was proposed as issues --mloskot]
+[endsect] [/ end of ]
+[endsect] [/ end of Compilation]
+
+[section Relations]
+[section Boost C++ Libraries]
+[endsect] [/ end of Boost]
+[section C++ Standard Library]
+[endsect] [/ end of C++Std]
+[section OGC] [/TODO: matrix on Wiki]
+[endsect] [/ end of OGC]
+[endsect] [/ end of Affiliations]
+
+[section Performance]
+[endsect] [/ end of Performance]
+
+[section Who uses Boost.Geometry]
+[endsect] [/ end of Who Uses]
+
+[section Future Work] [/TODO: Roadmap? --mloskot]
+[endsect] [/ end of ]
+
+[section Acknowledgments]
+[endsect] [/ end of Acknowledgments]
+
+[endsect] [/ end of Miscellaneous]
