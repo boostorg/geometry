@@ -15,7 +15,7 @@
 #define HAVE_MATRIX_AS_STRING
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 

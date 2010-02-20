@@ -11,7 +11,7 @@
 #include <sstream>
 
 #include <boost/mpl/if.hpp>
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 
 #include <boost/geometry/algorithms/distance.hpp>

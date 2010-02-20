@@ -7,7 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 
@@ -26,7 +26,7 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 template <typename IntersectionPoints>
-static int check(IntersectionPoints const& is, 
+static int check(IntersectionPoints const& is,
                 std::size_t index, double expected_x, double expected_y)
 {
     namespace bg = boost::geometry;
@@ -45,7 +45,7 @@ static int check(IntersectionPoints const& is,
 
 template <typename P>
 static void test_segment_intersection(std::string const& case_id,
-                int x1, int y1, int x2, int y2, 
+                int x1, int y1, int x2, int y2,
                 int x3, int y3, int x4, int y4,
                 char expected_how, bool expected_opposite,
                 int expected_arrival1, int expected_arrival2,
@@ -84,17 +84,17 @@ static void test_segment_intersection(std::string const& case_id,
         >::apply(s12, s34);
 
     // Get just a character for Left/Right/intersects/etc, purpose is more for debugging
-    bg::policies::relate::direction_type dir 
+    bg::policies::relate::direction_type dir
         = bg::strategy::intersection::relate_cartesian_segments
         <
             bg::policies::relate::segments_direction
                 <
-                    segment_type, 
+                    segment_type,
                     segment_type
                 >
         >::apply(s12, s34);
 
-    int expected_count = 
+    int expected_count =
         check(is, 0, expected_x1, expected_y1)
         + check(is, 1, expected_x2, expected_y2);
 
@@ -112,7 +112,7 @@ void test_all()
     // Collinear - non opposite
 
     //       a1---------->a2
-    // b1--->b2      
+    // b1--->b2
     test_segment_intersection<P>("n1",
         2, 0, 6, 0,
         0, 0, 2, 0,
@@ -120,7 +120,7 @@ void test_all()
         2, 0);
 
     //       a1---------->a2
-    //    b1--->b2      
+    //    b1--->b2
     test_segment_intersection<P>("n2",
         2, 0, 6, 0,
         1, 0, 3, 0,
@@ -128,7 +128,7 @@ void test_all()
         2, 0, 3, 0);
 
     //       a1---------->a2
-    //       b1--->b2      
+    //       b1--->b2
     test_segment_intersection<P>("n3",
         2, 0, 6, 0,
         2, 0, 4, 0,
@@ -136,15 +136,15 @@ void test_all()
         2, 0, 4, 0);
 
     //       a1---------->a2
-    //          b1--->b2      
+    //          b1--->b2
     test_segment_intersection<P>("n4",
         2, 0, 6, 0,
-        3, 0, 5, 0, 
+        3, 0, 5, 0,
         'c', false, -1, 1,
         3, 0, 5, 0);
 
     //       a1---------->a2
-    //              b1--->b2      
+    //              b1--->b2
     test_segment_intersection<P>("n5",
         2, 0, 6, 0,
         4, 0, 6, 0,
@@ -152,7 +152,7 @@ void test_all()
         4, 0, 6, 0);
 
     //       a1---------->a2
-    //                 b1--->b2      
+    //                 b1--->b2
     test_segment_intersection<P>("n6",
         2, 0, 6, 0,
         5, 0, 7, 0,
@@ -160,7 +160,7 @@ void test_all()
         5, 0, 6, 0);
 
     //       a1---------->a2
-    //                    b1--->b2      
+    //                    b1--->b2
     test_segment_intersection<P>("n7",
         2, 0, 6, 0,
         6, 0, 8, 0,
@@ -169,7 +169,7 @@ void test_all()
 
     // Collinear - opposite
     //       a1---------->a2
-    // b2<---b1      
+    // b2<---b1
     test_segment_intersection<P>("o1",
         2, 0, 6, 0,
         2, 0, 0, 0,
@@ -177,7 +177,7 @@ void test_all()
         2, 0);
 
     //       a1---------->a2
-    //    b2<---b1      
+    //    b2<---b1
     test_segment_intersection<P>("o2",
         2, 0, 6, 0,
         3, 0, 1, 0,
@@ -185,7 +185,7 @@ void test_all()
         2, 0, 3, 0);
 
     //       a1---------->a2
-    //       b2<---b1      
+    //       b2<---b1
     test_segment_intersection<P>("o3",
         2, 0, 6, 0,
         4, 0, 2, 0,
@@ -193,7 +193,7 @@ void test_all()
         2, 0, 4, 0);
 
     //       a1---------->a2
-    //           b2<---b1      
+    //           b2<---b1
     test_segment_intersection<P>("o4",
         2, 0, 6, 0,
         5, 0, 3, 0,
@@ -201,7 +201,7 @@ void test_all()
         3, 0, 5, 0);
 
     //       a1---------->a2
-    //              b2<---b1      
+    //              b2<---b1
     test_segment_intersection<P>("o5",
         2, 0, 6, 0,
         6, 0, 4, 0,
@@ -209,7 +209,7 @@ void test_all()
         4, 0, 6, 0);
 
     //       a1---------->a2
-    //                b2<---b1      
+    //                b2<---b1
     test_segment_intersection<P>("o6",
         2, 0, 6, 0,
         7, 0, 5, 0,
@@ -217,7 +217,7 @@ void test_all()
         5, 0, 6, 0);
 
     //       a1---------->a2
-    //                    b2<---b1      
+    //                    b2<---b1
     test_segment_intersection<P>("o7",
         2, 0, 6, 0,
         8, 0, 6, 0,
@@ -225,7 +225,7 @@ void test_all()
         6, 0);
 
     //   a1---------->a2
-    //   b1---------->b2      
+    //   b1---------->b2
     test_segment_intersection<P>("e1",
         2, 0, 6, 0,
         2, 0, 6, 0,
@@ -233,7 +233,7 @@ void test_all()
         2, 0, 6, 0);
 
     //   a1---------->a2
-    //   b2<----------b1      
+    //   b2<----------b1
     test_segment_intersection<P>("e1",
         2, 0, 6, 0,
         6, 0, 2, 0,

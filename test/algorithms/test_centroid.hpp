@@ -10,7 +10,7 @@
 
 // Test-functionality, shared between single and multi tests
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>

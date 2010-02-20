@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/strategies/strategies.hpp>

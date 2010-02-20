@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <string>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 
 #include <boost/geometry/algorithms/intersection.hpp>
@@ -118,14 +118,14 @@ void test_self_overlay(std::string const& id, T const& expected,
 
     std::string caseid = id;
 
-//#ifdef GGL_DEBUG_INTERSECTION
+//#ifdef GEOMETRY_DEBUG_INTERSECTION
     std::cout << std::endl << std::endl << "# " << caseid << std::endl;
 //#endif
     test_self_intersection_points::apply(caseid, expected, geometry, precision);
 }
 
 
-#if ! defined(GGL_TEST_MULTI)
+#if ! defined(GEOMETRY_TEST_MULTI)
 
 template <typename P>
 void test_self_all()
@@ -225,7 +225,7 @@ void test_self_all()
 
 
 
-#if ! defined(GGL_TEST_MULTI)
+#if ! defined(GEOMETRY_TEST_MULTI)
 int test_main(int, char* [])
 {
     test_self_all<boost::geometry::point_xy<double> >();

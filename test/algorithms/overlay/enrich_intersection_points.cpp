@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
 
@@ -18,7 +18,7 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#define GGL_TEST_OVERLAY_NOT_REVERSED
+#define GEOMETRY_TEST_OVERLAY_NOT_REVERSED
 
 #include <overlay_common.hpp>
 

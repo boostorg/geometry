@@ -11,7 +11,7 @@
 #pragma warning( disable : 4267 )
 #endif
 
-//#define GGL_DEBUG_INTERSECTION
+//#define GEOMETRY_DEBUG_INTERSECTION
 
 
 #include <iostream>
@@ -159,7 +159,7 @@ void test_one(std::string const& caseid, std::string const& wkt1, std::string co
 }
 
 
-#if ! defined(GGL_TEST_MULTI)
+#if ! defined(GEOMETRY_TEST_MULTI)
 
 template <typename P>
 void test_traverse_gmp(std::string const& caseid)

@@ -10,7 +10,7 @@
 #include <string>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/convex_hull.hpp>
 

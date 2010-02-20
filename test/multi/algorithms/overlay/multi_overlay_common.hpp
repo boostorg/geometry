@@ -1,5 +1,5 @@
-#ifndef GGL_TEST_MULTI_OVERLAY_COMMON_HPP
-#define GGL_TEST_MULTI_OVERLAY_COMMON_HPP
+#ifndef GEOMETRY_TEST_MULTI_OVERLAY_COMMON_HPP
+#define GEOMETRY_TEST_MULTI_OVERLAY_COMMON_HPP
 
 
 // Boost.Geometry (aka GGL, Generic Geometry Library) test file
@@ -36,4 +36,4 @@ void test_all(std::vector<T> const& expected, double precision = 0.01)
 }
 
 
-#endif // GGL_TEST_MULTI_OVERLAY_COMMON_HPP
+#endif // GEOMETRY_TEST_MULTI_OVERLAY_COMMON_HPP

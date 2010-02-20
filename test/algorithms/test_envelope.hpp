@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_TEST_ENVELOPE_HPP
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/geometries/box.hpp>

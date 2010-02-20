@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 

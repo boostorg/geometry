@@ -14,7 +14,7 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
@@ -65,21 +65,21 @@ static bool test_overlay_p_q(std::string const& caseid, G1 const& p, G2 const& q
     {
         result = false;
         svg = true;
-        
+
         std::cout
             << "type: " << string_from_type<CalculationType>::name()
             << " id: " << caseid
-            << " area i: " << area_i 
+            << " area i: " << area_i
             << " area u: " << area_u
             << " area p: " << area_p
             << " area q: " << area_q
-            << " diff: " << diff 
+            << " diff: " << diff
             << std::endl
             << std::setprecision(20)
             << " p: " << boost::geometry::wkt(p) << std::endl
             << " q: " << boost::geometry::wkt(q) << std::endl
             ;
-            
+
     }
 
 

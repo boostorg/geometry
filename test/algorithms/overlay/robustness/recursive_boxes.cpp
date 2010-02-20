@@ -32,7 +32,7 @@
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 #include <test_overlay_p_q.hpp>
 
 template <typename Polygon, typename Generator>

@@ -9,7 +9,7 @@
 #include <string>
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/parse.hpp>
 #include <boost/geometry/geometries/point.hpp>

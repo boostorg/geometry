@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/arithmetic/cross_product.hpp>
 
@@ -40,7 +40,7 @@ void test_3d()
     P p2;
     boost::geometry::assign(p2, 45, 70, 20);
     P c = boost::geometry::cross_product(p1, p2);
-    
+
     typedef typename boost::geometry::coordinate_type<P>::type scalar_type;
     BOOST_CHECK_EQUAL(boost::geometry::get<0>(c), scalar_type(-100));
     BOOST_CHECK_EQUAL(boost::geometry::get<1>(c), scalar_type(50));

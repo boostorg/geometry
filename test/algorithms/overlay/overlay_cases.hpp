@@ -210,12 +210,12 @@ static std::string case_47[2] = {
 
 // 50, collinear opposite
 static std::string case_50[2] = {
-        "POLYGON((0 0,0 3,2 3,4 3,4 0,0 0))", 
+        "POLYGON((0 0,0 3,2 3,4 3,4 0,0 0))",
         "POLYGON((0 3,0 5,5 5,5 0,4 0,4 3,2 3,0 3))" };
 
 // 51, fit
 static std::string case_51[2] = {
-        "POLYGON((0 0,0 5,5 5,5 0,0 0),(4 1,3 4,1 2,4 1))", 
+        "POLYGON((0 0,0 5,5 5,5 0,0 0),(4 1,3 4,1 2,4 1))",
         "POLYGON((1 2,3 4,4 1,1 2))" };
 
 // 52, partially equal, touching each other
@@ -223,28 +223,28 @@ static std::string case_52[2] = {
         "POLYGON((0 0,1 4,3 1,4 4,1 4,5 5,5 0,0 0))",
         "POLYGON((0 0,1 4,3 1,4 4,1 4,5 5,4 1,0 0))" };
 
-// 53, wrapping a box, self-touching 
+// 53, wrapping a box, self-touching
 static std::string case_53[3] = {
         "POLYGON((2 2,2 3,3 3,3 2,2 2))",
         // a: self-tangent ext. ring, ST_IsValid=false
-        "POLYGON((0 2,0 5,5 5,5 0,2 0,2 2,3 2,3 1,4 1,4 4,1 4,1 3,2 3,2 2,0 2))", 
+        "POLYGON((0 2,0 5,5 5,5 0,2 0,2 2,3 2,3 1,4 1,4 4,1 4,1 3,2 3,2 2,0 2))",
         // b: tangent ext/int ring, ST_IsValid=true
-        "POLYGON((0 2,0 5,5 5,5 0,2 0,2 2,0 2),(1 3,2 3,2 2,3 2,3 1,4 1,4 4,1 4,1 3))" 
+        "POLYGON((0 2,0 5,5 5,5 0,2 0,2 2,0 2),(1 3,2 3,2 2,3 2,3 1,4 1,4 4,1 4,1 3))"
     };
 
 static std::string case_54[4] = {
         // a: self-tangent ext. ring
-        "POLYGON((2 2,2 3,4 3,4 0,1 0,1 2,2 2,2 1,3 1,3 2,2 2))", 
+        "POLYGON((2 2,2 3,4 3,4 0,1 0,1 2,2 2,2 1,3 1,3 2,2 2))",
         // b: tangent ext/int ring
-        "POLYGON((2 2,2 3,4 3,4 0,1 0,1 2,2 2),(2 1,3 1,3 2,2 2,2 1))", 
+        "POLYGON((2 2,2 3,4 3,4 0,1 0,1 2,2 2),(2 1,3 1,3 2,2 2,2 1))",
         case_53[1],
         case_53[2]
         // other like in case53
     };
 
 static std::string case_55[2] = {
-        "POLYGON((2 2,3 3,4 3,4 0,1 0,1 1,2 2),(2 1,3 1,3 2,2 2,2 1))", 
-        "POLYGON((0 2,0 5,5 5,5 0,2 0,2 2,0 2),(1 3,2 2,3 1,4 1,4 4,1 4,1 3))" 
+        "POLYGON((2 2,3 3,4 3,4 0,1 0,1 1,2 2),(2 1,3 1,3 2,2 2,2 1))",
+        "POLYGON((0 2,0 5,5 5,5 0,2 0,2 2,0 2),(1 3,2 2,3 1,4 1,4 4,1 4,1 3))"
     };
 
 
@@ -319,4 +319,4 @@ static std::string isovist[2] =
     };
 */
 
-#endif // GGL_TEST_OVERLAY_CASES_HPP
+#endif // GEOMETRY_TEST_OVERLAY_CASES_HPP

@@ -14,7 +14,7 @@
 
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/projection.hpp>

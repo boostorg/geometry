@@ -9,7 +9,7 @@
 
 #include <sstream>
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/util/write_dsv.hpp>
 
@@ -33,7 +33,7 @@ void test_dsv(std::string const& wkt, std::string const& dsv)
 }
 
 
-#ifndef GGL_TEST_MULTI
+#ifndef GEOMETRY_TEST_MULTI
 template <typename T>
 void test_all()
 {

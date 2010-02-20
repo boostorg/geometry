@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_TEST_OVERLAPS_HPP
 
 
-#include <ggl_test_common.hpp>
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
