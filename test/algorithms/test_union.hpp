@@ -34,8 +34,8 @@
 
 template <typename OutputType, typename G1, typename G2>
 void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
-        int expected_count, int expected_hole_count,
-        int expected_point_count, double expected_area,
+        std::size_t expected_count, std::size_t expected_hole_count,
+        std::size_t expected_point_count, double expected_area,
         double percentage)
 {
     typedef typename boost::geometry::coordinate_type<G1>::type coordinate_type;
@@ -43,8 +43,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     boost::geometry::union_inserter<OutputType>(g1, g2, std::back_inserter(clip));
 
     double area = 0;
-    int n = 0;
-    int holes = 0;
+    std::size_t n = 0;
+    std::size_t holes = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end(); ++it)
     {
@@ -108,8 +108,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 template <typename OutputType, typename G1, typename G2>
 void test_one(std::string const& caseid, std::string const& wkt1, std::string const& wkt2,
-        int expected_count, int expected_hole_count,
-        int expected_point_count, double expected_area,
+        std::size_t expected_count, std::size_t expected_hole_count,
+        std::size_t expected_point_count, double expected_area,
         double percentage = 0.001)
 {
     G1 g1;

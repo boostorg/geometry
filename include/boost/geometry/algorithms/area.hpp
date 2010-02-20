@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_AREA_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_AREA_HPP
 
+#include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
@@ -108,6 +109,10 @@ struct ring_area<Ring, clockwise, Strategy>
     static inline type apply(Ring const& ring, Strategy const& strategy)
     {
         assert_dimension<Ring, 2>();
+
+        // Ignore warning (because using static method sometimes) on strategy
+        boost::ignore_unused_variable_warning(strategy);
+
 
         // A closed linear_ring has at least four points,
         // if not, there is no (zero) area

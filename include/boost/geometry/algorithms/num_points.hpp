@@ -39,7 +39,7 @@ struct range_count
 template <typename Geometry, std::size_t D>
 struct other_count
 {
-    static inline std::size_t apply(Geometry const& geometry)
+    static inline std::size_t apply(Geometry const& )
     {
         return D;
     }
