@@ -30,6 +30,7 @@ private :
     static const int STARTED = 1;
     static const int VISITED = 2;
     static const int FINISHED = 3;
+    static const int REJECTED = 4;
 
     int visit_code;
 
@@ -38,14 +39,25 @@ public:
         : visit_code(0)
     {}
 
-    inline void set_none() { visit_code = NONE; }
     inline void set_visited() { visit_code = VISITED; }
     inline void set_started() { visit_code = STARTED; }
     inline void set_finished() { visit_code = FINISHED; }
+    inline void set_rejected() { visit_code = REJECTED; }
 
     inline bool none() const { return visit_code == NONE; }
     inline bool visited() const { return visit_code == VISITED; }
     inline bool started() const { return visit_code == STARTED; }
+    inline bool finished() const { return visit_code == FINISHED; }
+    inline bool rejected() const { return visit_code == REJECTED; }
+
+    inline void clear()
+    {
+        if (! rejected())
+        {
+            visit_code = NONE;
+        }
+    }
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
     friend std::ostream& operator<<(std::ostream &os, visit_info const& v)
