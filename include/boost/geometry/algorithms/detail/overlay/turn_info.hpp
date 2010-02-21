@@ -86,14 +86,12 @@ struct turn_info
     Point point;
     method_type method;
     bool ignore;
-    bool rejected;
 
     Container operations;
 
     turn_info()
         : method(method_none)
         , ignore(false)
-        , rejected(false)
     {}
 
 };

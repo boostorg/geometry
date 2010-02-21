@@ -53,7 +53,7 @@ inline void clear_visit_info(Turns& turns)
             op_it != boost::end(it->operations);
             ++op_it)
         {
-            op_it->visited.set_none();
+            op_it->visited.clear();
         }
     }
 }
@@ -185,12 +185,14 @@ template
 <
     typename Rings,
     typename Turns,
+    typename Operation,
     typename Geometry1,
     typename Geometry2
 >
 inline void backtrack(std::size_t size_at_start, bool& fail,
             Rings& rings, typename boost::range_value<Rings>::type& ring,
-            Turns& turns, typename boost::range_value<Turns>::type& turn,
+            Turns& turns, Operation& operation,
+
 #ifdef BOOST_GEOMETRY_OVERLAY_REPORT_WKT
             std::string const& reason,
             Geometry1 const& geometry1,
@@ -209,8 +211,8 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
     ring.clear();
 
     // Reject this as a starting point
-    turn.rejected = true;
-
+    operation.visited.set_rejected();
+    
     // And clear all visit info
     clear_visit_info(turns);
 
@@ -266,10 +268,11 @@ inline void traverse(Geometry1 const& geometry1,
             if (! it->ignore)
             {
                 for (turn_operation_iterator_type iit = boost::begin(it->operations);
-                    ! fail && ! it->rejected && iit != boost::end(it->operations);
+                    ! fail && iit != boost::end(it->operations);
                     ++iit)
                 {
                     if (iit->visited.none()
+                        && ! iit->visited.rejected()
                         && (iit->operation == operation
                             || iit->operation == detail::overlay::operation_continue)
                         )
@@ -297,7 +300,7 @@ inline void traverse(Geometry1 const& geometry1,
                         {
                             detail::overlay::backtrack(
                                 size_at_start, fail,
-                                rings, current_output, turns, *it,
+                                rings, current_output, turns, *iit,
                                 "Dead end at start",
                                 geometry1, geometry2);
                         }
@@ -316,7 +319,7 @@ inline void traverse(Geometry1 const& geometry1,
                                     // This makes it suspicious for endless loops
                                     detail::overlay::backtrack(
                                         size_at_start, fail,
-                                        rings,  current_output, turns, *it,
+                                        rings,  current_output, turns, *iit,
                                         "Visit again",
                                         geometry1, geometry2);
                                 }
@@ -350,7 +353,7 @@ inline void traverse(Geometry1 const& geometry1,
                                         // Might occur in polygons with spikes
                                         detail::overlay::backtrack(
                                             size_at_start, fail,
-                                            rings,  current_output, turns, *it,
+                                            rings,  current_output, turns, *iit,
                                             "Dead end",
                                             geometry1, geometry2);
                                     }
@@ -361,7 +364,7 @@ inline void traverse(Geometry1 const& geometry1,
                                         // than intersection points.
                                         detail::overlay::backtrack(
                                             size_at_start, fail,
-                                            rings,  current_output, turns, *it,
+                                            rings,  current_output, turns, *iit,
                                             "Endless loop",
                                             geometry1, geometry2);
                                     }

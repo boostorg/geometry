@@ -44,6 +44,17 @@ inline char operation_char(detail::overlay::operation_type const& operation)
     }
 }
 
+inline char visited_char(detail::overlay::visit_info const& v)
+{
+    if (v.rejected()) return 'R';
+    if (v.started()) return 's';
+    if (v.visited()) return 'v';
+    if (v.none()) return '-';
+    if (v.finished()) return 'f';
+    return '?';
+}
+
+
 
 }} // namespace boost::geometry
 
