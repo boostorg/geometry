@@ -73,7 +73,7 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
         filename << "assemble_" << id << ".svg";
         std::ofstream svg(filename.str().c_str());
 
-        svg_mapper<typename boost::geometry::point_type<Geometry>::type> mapper(svg, 500, 500);
+        bg::svg_mapper<typename bg::point_type<Geometry>::type> mapper(svg, 500, 500);
         mapper.add(p);
         mapper.add(q);
         mapper.map(p, "fill-opacity:0.6;stroke-opacity:0.9;fill:rgb(0,0,255);stroke:rgb(0,0,255);stroke-width:2");

@@ -93,7 +93,7 @@ static bool test_overlay_p_q(std::string const& caseid, G1 const& p, G2 const& q
 
         std::ofstream svg(filename.str().c_str());
 
-        svg_mapper<point_type> mapper(svg, 500, 500);
+        boost::geometry::svg_mapper<point_type> mapper(svg, 500, 500);
 
         mapper.add(p);
         mapper.add(q);

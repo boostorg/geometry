@@ -54,36 +54,36 @@
 template <typename OutputType, typename G1, typename G2>
 void test_traverse(std::string const& caseid, G1 const& g1, G2 const& g2)
 {
-
-    typedef boost::geometry::detail::intersection::intersection_point
-        <typename boost::geometry::point_type<G2>::type> ip;
+    namespace bg = boost::geometry;
+    typedef bg::detail::intersection::intersection_point
+        <typename bg::point_type<G2>::type> ip;
     typedef typename boost::range_const_iterator<std::vector<ip> >::type iterator;
     typedef std::vector<ip> ip_vector;
     ip_vector ips;
 
-    typedef typename boost::geometry::strategy_side
+    typedef typename bg::strategy_side
             <
-                typename boost::geometry::cs_tag<G1>::type
+                typename bg::cs_tag<G1>::type
             >::type strategy_type;
 
 
     typedef bg::detail::overlay::traversal_turn_info
         <
-            typename boost::geometry::point_type<G2>::type
+            typename bg::point_type<G2>::type
         > turn_info;
     typedef typename boost::range_iterator<const std::vector<turn_info> >::type iterator;
     std::vector<turn_info> ips;
 
     bg::get_turns<bg::detail::overlay::calculate_distance_policy>(g1, g2, ips);
-    boost::geometry::enrich_intersection_points(ips, g1, g2, strategy_type());
+    bg::enrich_intersection_points(ips, g1, g2, strategy_type());
 
-    typedef boost::geometry::linear_ring<typename boost::geometry::point_type<G2>::type> ring_type;
+    typedef bg::linear_ring<typename bg::point_type<G2>::type> ring_type;
     typedef std::vector<ring_type> out_vector;
     out_vector v;
 
 
 
-    boost::geometry::traverse
+    bg::traverse
         <
             strategy_type,
             ring_type
@@ -102,14 +102,12 @@ void test_traverse(std::string const& caseid, G1 const& g1, G2 const& g2)
         std::ofstream svg(filename.str().c_str());
 
         // Trick to have this always LongDouble
-        //typedef boost::geometry::point_xy<long double> P;
-        typedef typename boost::geometry::point_type<G1>::type P;
-        //typename boost::geometry::replace_point_type<G1, P>::type rg1;
-        //typename boost::geometry::replace_point_type<G2, P>::type rg2;
+        //typedef bg::point_xy<long double> P;
+        typedef typename bg::point_type<G1>::type P;
+        //typename bg::replace_point_type<G1, P>::type rg1;
+        //typename bg::replace_point_type<G2, P>::type rg2;
 
-
-
-        svg_mapper<P> mapper(svg, 1000, 800);
+        bg::svg_mapper<P> mapper(svg, 1000, 800);
 
         mapper.add(g1);
         mapper.add(g2);
@@ -128,8 +126,8 @@ void test_traverse(std::string const& caseid, G1 const& g1, G2 const& g2)
             mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.9;"
                 "fill:rgb(255,0,0);stroke:rgb(255,0,0);stroke-width:5");
 
-            std::cout << boost::geometry::wkt(*it) << std::endl;
-            std::cout << boost::geometry::area(*it) << std::endl;
+            std::cout << bg::wkt(*it) << std::endl;
+            std::cout << bg::area(*it) << std::endl;
         }
 
         // IP's in orange
@@ -145,15 +143,16 @@ void test_traverse(std::string const& caseid, G1 const& g1, G2 const& g2)
 template <typename OutputType, typename G1, typename G2>
 void test_one(std::string const& caseid, std::string const& wkt1, std::string const& wkt2)
 {
+    namespace bg = boost::geometry;
     G1 g1;
-    boost::geometry::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt1, g1);
 
     G2 g2;
-    boost::geometry::read_wkt(wkt2, g2);
+    bg::read_wkt(wkt2, g2);
 
-    boost::geometry::correct(g1);
-    boost::geometry::correct(g2);
-    std::cout << "area1 " << boost::geometry::area(g1) << " "  << " area2: "  << boost::geometry::area(g2) << std::endl;
+    bg::correct(g1);
+    bg::correct(g2);
+    std::cout << "area1 " << bg::area(g1) << " "  << " area2: "  << bg::area(g2) << std::endl;
 
     test_traverse<OutputType>(caseid, g1, g2);
 }
@@ -164,8 +163,9 @@ void test_one(std::string const& caseid, std::string const& wkt1, std::string co
 template <typename P>
 void test_traverse_gmp(std::string const& caseid)
 {
-    typedef boost::geometry::polygon<P> polygon;
-    std::cout << typeid(typename boost::geometry::coordinate_type<P>::type).name() << std::endl;
+    namespace bg = boost::geometry;
+    typedef bg::polygon<P> polygon;
+    std::cout << typeid(typename bg::coordinate_type<P>::type).name() << std::endl;
     std::cout << std::setprecision(30) << std::numeric_limits<float>::epsilon() << std::endl;
     std::cout << std::setprecision(30) << std::numeric_limits<double>::epsilon() << std::endl;
     std::cout << std::setprecision(30) << std::numeric_limits<long double>::epsilon() << std::endl;
@@ -188,26 +188,27 @@ void test_traverse_gmp(std::string const& caseid)
 
 int main(int argc, char** argv)
 {
+    namespace bg = boost::geometry;
     int mode = (argc > 1) ? atol(argv[1]) : 1;
     switch(mode)
     {
         case 1 :
-            test_traverse_gmp<boost::geometry::point_xy<float> >("float");
+            test_traverse_gmp<bg::point_xy<float> >("float");
             break;
         case 2 :
-            test_traverse_gmp<boost::geometry::point_xy<double> >("double");
+            test_traverse_gmp<bg::point_xy<double> >("double");
             break;
         case 3 :
-            test_traverse_gmp<boost::geometry::point_xy<long double> >("long double");
+            test_traverse_gmp<bg::point_xy<long double> >("long double");
             break;
         case 4 :
             #if defined(HAVE_GMP)
-                test_traverse_gmp<boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> >("gmp");
+                test_traverse_gmp<bg::point_xy<boost::numeric_adaptor::gmp_value_type> >("gmp");
             #endif
             break;
         case 5 :
             #if defined(HAVE_CLN)
-                test_traverse_gmp<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >("cln");
+                test_traverse_gmp<bg::point_xy<boost::numeric_adaptor::cln_value_type> >("cln");
             #endif
 
             break;

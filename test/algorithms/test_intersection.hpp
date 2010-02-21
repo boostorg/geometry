@@ -36,7 +36,7 @@
 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
 double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
-        int expected_count = 0, int expected_point_count = 0,
+        std::size_t expected_count = 0, std::size_t expected_point_count = 0,
         double expected_length_or_area = 0,
         double percentage = 0.0001,
         bool make_unique = true)
@@ -97,7 +97,7 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
     if (expected_point_count > 0)
     {
-        BOOST_CHECK_MESSAGE(int(n) == expected_point_count,
+        BOOST_CHECK_MESSAGE(n == expected_point_count,
                 "intersection: " << caseid
                 << " #points expected: " << expected_point_count
                 << " detected: " << n
@@ -107,7 +107,7 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     if (expected_count > 0)
     {
-        BOOST_CHECK_MESSAGE(int(clip.size()) == expected_count,
+        BOOST_CHECK_MESSAGE(clip.size() == expected_count,
                 "intersection: " << caseid
                 << " #outputs expected: " << expected_count
                 << " detected: " << clip.size()
@@ -130,7 +130,7 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 
         std::ofstream svg(filename.str().c_str());
 
-        svg_mapper<point_type> mapper(svg, 500, 500);
+        boost::geometry::svg_mapper<point_type> mapper(svg, 500, 500);
 
         mapper.add(g1);
         mapper.add(g2);
@@ -153,7 +153,7 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 template <typename OutputType, typename G1, typename G2>
 double test_one(std::string const& caseid, std::string const& wkt1, std::string const& wkt2,
-        int expected_count = 0, int expected_point_count = 0,
+        std::size_t expected_count = 0, std::size_t expected_point_count = 0,
         double expected_length_or_area = 0,
         double percentage = 0.0001,
         bool make_unique = true)

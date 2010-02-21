@@ -78,7 +78,7 @@ struct test_enrich_intersection_points
 
             std::ofstream svg(filename.str().c_str());
 
-            svg_mapper<typename boost::geometry::point_type<G2>::type> mapper(svg, 500, 500);
+            boost::geometry::svg_mapper<typename boost::geometry::point_type<G2>::type> mapper(svg, 500, 500);
             mapper.add(g1);
             mapper.add(g2);
 

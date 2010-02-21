@@ -98,7 +98,7 @@ struct test_get_turns
 
             std::ofstream svg(filename.str().c_str());
 
-            svg_mapper<typename bg::point_type<G2>::type> mapper(svg, 500, 500);
+            bg::svg_mapper<typename bg::point_type<G2>::type> mapper(svg, 500, 500);
             mapper.add(g1);
             mapper.add(g2);
 
@@ -246,6 +246,10 @@ void test_all()
     test_overlay<polygon, polygon, test_get_turns,  Tuple>("54ab", boost::make_tuple(13, 0.0, 0.0), case_54[0], case_54[3]);
     test_overlay<polygon, polygon, test_get_turns,  Tuple>("54ba", boost::make_tuple(13, 0.0, 0.0), case_54[1], case_54[2]);
     test_overlay<polygon, polygon, test_get_turns,  Tuple>("54bb", boost::make_tuple(13, 0.0, 0.0), case_54[1], case_54[3]);
+
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("55", boost::make_tuple(10, 0.0, 0.0), case_55[0], case_55[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("56", boost::make_tuple(8, 0.0, 0.0), case_56[0], case_56[1]);
+
 
     // other
     test_overlay<polygon, polygon, test_get_turns,  Tuple>("many_situations", boost::make_tuple(31, 11.625, 13.875), case_many_situations[0], case_many_situations[1]);

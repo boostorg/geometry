@@ -48,7 +48,7 @@ struct test_self_intersection_points
         ///boost::geometry::get_intersection_points(geometry, turns);
 
         bg::detail::get_turns::no_interrupt_policy policy;
-        boost::geometry::get_turns
+        bg::get_turns
             <
                 bg::detail::overlay::assign_null_policy
             >(geometry, turns, policy);
@@ -57,8 +57,8 @@ struct test_self_intersection_points
         double x = 0, y = 0;
         BOOST_FOREACH(turn_info const& turn, turns)
         {
-            x += boost::geometry::get<0>(turn.point);
-            y += boost::geometry::get<1>(turn.point);
+            x += bg::get<0>(turn.point);
+            y += bg::get<1>(turn.point);
         }
         int n = boost::size(turns);
         if (n > 0)
@@ -78,7 +78,7 @@ struct test_self_intersection_points
 
         if (n > 0)
         {
-            BOOST_CHECK_EQUAL(boost::geometry::intersects(geometry), true);
+            BOOST_CHECK_EQUAL(bg::intersects(geometry), true);
         }
 
 
@@ -89,7 +89,7 @@ struct test_self_intersection_points
 
             std::ofstream svg(filename.str().c_str());
 
-            svg_mapper<typename boost::geometry::point_type<Geometry>::type> mapper(svg, 500, 500);
+            bg::svg_mapper<typename bg::point_type<Geometry>::type> mapper(svg, 500, 500);
             mapper.add(geometry);
 
             mapper.map(geometry, "fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:1");
