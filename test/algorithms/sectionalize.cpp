@@ -21,7 +21,7 @@
 #include <test_common/test_point.hpp>
 
 template <int DimensionCount, typename G>
-void test_sectionalize(G const& g, int section_count,
+void test_sectionalize(G const& g, std::size_t section_count,
         std::string const& index_check, std::string const& dir_check,
         bool sort = false)
 {
@@ -93,8 +93,8 @@ void test_sectionalize(G const& g, int section_count,
 
 template <typename G>
 void test_sectionalize(std::string const& wkt,
-        int count2, std::string const& s2, std::string const d2,
-        int count1, std::string const& s1, std::string const d1,
+        std::size_t count2, std::string const& s2, std::string const d2,
+        std::size_t count1, std::string const& s1, std::string const d1,
         bool sort = false)
 {
     G g;

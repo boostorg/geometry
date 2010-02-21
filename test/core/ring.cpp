@@ -28,9 +28,9 @@
 
 template <typename P>
 void test_ring(std::string const& wkt,
-    int expected_main_count,
-    int expected_interior_ring_count,
-    int expected_first_interior_count)
+    std::size_t expected_main_count,
+    std::size_t expected_interior_ring_count,
+    std::size_t expected_first_interior_count)
 {
     typedef boost::geometry::polygon<P> the_polygon;
     typedef typename boost::geometry::ring_type<the_polygon>::type the_ring;
