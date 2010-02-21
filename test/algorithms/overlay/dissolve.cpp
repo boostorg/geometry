@@ -45,7 +45,7 @@ inline void test_dissolve(std::string const& id,
         filename << "dissolve_" << id << ".svg";
         std::ofstream svg(filename.str().c_str());
 
-        svg_mapper<typename boost::geometry::point_type<Geometry>::type> mapper(svg, 500, 500);
+        bg::svg_mapper<typename bg::point_type<Geometry>::type> mapper(svg, 500, 500);
         mapper.add(geometry);
         mapper.map(geometry, "fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:1");
         BOOST_FOREACH(Geometry const& geometry, out)

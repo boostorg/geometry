@@ -135,7 +135,7 @@ struct test_traverse
 
             std::ofstream svg(filename.str().c_str());
 
-            svg_mapper<typename bg::point_type<G2>::type> mapper(svg, 500, 500);
+            bg::svg_mapper<typename bg::point_type<G2>::type> mapper(svg, 500, 500);
             mapper.add(g1);
             mapper.add(g2);
 
@@ -352,6 +352,8 @@ void test_all()
 
     // 55-60
     test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("55", boost::make_tuple(1, 2), case_55[0], case_55[1]);
+    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("56", boost::make_tuple(2, 6), case_56[0], case_56[1]);
+    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("57", boost::make_tuple(2, 1.489899), case_57[0], case_57[1]);
 
 
     // other
@@ -456,7 +458,9 @@ void test_all()
     // 55-60
     // 55 is going wrong!
     // TODO: implement "node" behaviour which merges nodes
-    //test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("55", boost::make_tuple(3, 18), case_55[0], case_55[1]);
+    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("55", boost::make_tuple(3, 18), case_55[0], case_55[1]);
+    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("56", boost::make_tuple(3, 18), case_56[0], case_56[1]);
+    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("57", boost::make_tuple(2, 15.510101), case_57[0], case_57[1]);
 
     // other
     test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("collinear_overlaps",

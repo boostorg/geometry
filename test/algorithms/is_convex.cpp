@@ -44,6 +44,8 @@ void test_geometry(std::string const& wkt,
             typename boost::geometry::cs_tag<P>::type
         >::type side;
 
+    boost::ignore_unused_variable_warning(side);
+
     typedef typename boost::geometry::range_type<Geometry>::type range_type;
     typedef typename boost::range_const_iterator<range_type>::type iterator;
 

@@ -104,7 +104,7 @@ void test_with_point(std::string const& caseid,
 
         std::ofstream svg(filename.str().c_str());
 
-        svg_mapper<P> mapper(svg, 500, 500);
+        bg::svg_mapper<P> mapper(svg, 500, 500);
         mapper.add(bg::make<P>(0, 0));
         mapper.add(bg::make<P>(10, 10));
 

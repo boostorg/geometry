@@ -90,7 +90,10 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
         std::ofstream svg(filename.str().c_str());
 
-        svg_mapper<typename boost::geometry::point_type<G2>::type> mapper(svg, 500, 500);
+        boost::geometry::svg_mapper
+            <
+                typename boost::geometry::point_type<G2>::type
+            > mapper(svg, 500, 500);
         mapper.add(g1);
         mapper.add(g2);
 
