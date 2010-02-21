@@ -23,7 +23,7 @@
 #include <deque>
 
 
-template <typename G, std::size_t Expected>
+template <typename G, int Expected>
 void test_geometry()
 {
     BOOST_CHECK_EQUAL(boost::geometry::geometry_id<G>::type::value, Expected);
