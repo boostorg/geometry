@@ -12,6 +12,7 @@
 ['TODO: full reference starts here...]
 
 [include geometries.qbk]
+[xinclude access_reference.xml]
 [include cs.qbk]
 [include algorithms.qbk]
 [include arithmetic.qbk]
