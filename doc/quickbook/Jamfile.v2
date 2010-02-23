@@ -37,7 +37,7 @@ run_doxygen access_reference
   :
     [ glob $(here)/../../../../boost/geometry/core/access.hpp ]
   :
-    "Access Reference"
+    "Access"
   ;
 
 xml geometry
