@@ -10,6 +10,9 @@
 
 #include <cstdio>
 
+#include <vector>
+#include <boost/algorithm/string/split.hpp>
+
 //#include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
@@ -233,16 +236,38 @@ public :
 
     template <typename Point>
     void text(Point const& point, std::string const& s, std::string const& style,
-            int offset_x = 0, int offset_y = 0)
+            int offset_x = 0, int offset_y = 0, int lineheight = 10)
     {
         init_matrix();
         boost::geometry::point_xy<int> p;
         boost::geometry::transform(point, p, *matrix);
-        stream << "<text x=\"" << boost::geometry::get<0>(p) + offset_x
-            << "\" y=\"" << boost::geometry::get<1>(p) + offset_y
-            << "\" style=\"" << style << "\">"
-            << s << "</text>";
+        stream 
+            << "<text style=\"" << style << "\""
+            << " x=\"" << boost::geometry::get<0>(p) + offset_x << "\""
+            << " y=\"" << boost::geometry::get<1>(p) + offset_y << "\""
+            << ">";
+        if (s.find("\n") == std::string::npos)
+        {
+             stream  << s;
+        }
+        else
+        {
+            // Multi-line modus
 
+            std::vector<std::string> splitted;
+            boost::split(splitted, s, boost::is_any_of("\n"));
+            for (std::vector<std::string>::const_iterator it
+                = splitted.begin();
+                it != splitted.end(); 
+                ++it, offset_y += lineheight)
+            {
+                 stream 
+                    << "<tspan x=\"" << boost::geometry::get<0>(p) + offset_x << "\""
+                    << " y=\"" << boost::geometry::get<1>(p) + offset_y << "\""
+                    << ">" << *it << "</tspan>";
+            }
+        }
+        stream << "</text>" << std::endl;
     }
 
 };

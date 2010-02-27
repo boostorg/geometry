@@ -30,7 +30,7 @@
 // Temporary, comparing sorting, this can be removed in the end
 //#define BOOST_GEOMETRY_USE_FLEX_SORT
 //#define BOOST_GEOMETRY_USE_FLEX_SORT2
-#if defined(GGL_USE_FLEX_SORT)
+#if defined(BOOST_GEOMETRY_USE_FLEX_SORT)
 #  include <boost/algorithm/sorting/flex_sort.hpp>
 #endif
 

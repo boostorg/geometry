@@ -32,39 +32,46 @@ private :
     static const int FINISHED = 3;
     static const int REJECTED = 4;
 
-    int visit_code;
+    int m_visit_code;
+    bool m_rejected;
 
 public:
     inline visit_info()
-        : visit_code(0)
+        : m_visit_code(0)
+        , m_rejected(false)
     {}
 
-    inline void set_visited() { visit_code = VISITED; }
-    inline void set_started() { visit_code = STARTED; }
-    inline void set_finished() { visit_code = FINISHED; }
-    inline void set_rejected() { visit_code = REJECTED; }
+    inline void set_visited() { m_visit_code = VISITED; }
+    inline void set_started() { m_visit_code = STARTED; }
+    inline void set_finished() { m_visit_code = FINISHED; }
+    inline void set_rejected()
+    {
+        m_visit_code = REJECTED;
+        m_rejected = true;
+    }
 
-    inline bool none() const { return visit_code == NONE; }
-    inline bool visited() const { return visit_code == VISITED; }
-    inline bool started() const { return visit_code == STARTED; }
-    inline bool finished() const { return visit_code == FINISHED; }
-    inline bool rejected() const { return visit_code == REJECTED; }
+    inline bool none() const { return m_visit_code == NONE; }
+    inline bool visited() const { return m_visit_code == VISITED; }
+    inline bool started() const { return m_visit_code == STARTED; }
+    inline bool finished() const { return m_visit_code == FINISHED; }
+    inline bool rejected() const { return m_rejected; }
 
     inline void clear()
     {
         if (! rejected())
         {
-            visit_code = NONE;
+            m_visit_code = NONE;
         }
     }
+
 
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
     friend std::ostream& operator<<(std::ostream &os, visit_info const& v)
     {
-        if (v.visit_code != 0)
+        if (v.m_visit_code != 0)
         {
-            os << " VIS: " << int(v.visit_code);
+            os << " VIS: " << int(v.m_visit_code);
         }
         return os;
     }
