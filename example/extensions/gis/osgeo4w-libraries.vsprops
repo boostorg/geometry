@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="osgeo4w-libraries"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(OSGEO4W_HOME)/include"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="shapelib_i.lib gd.lib"
+		AdditionalLibraryDirectories="$(OSGEO4W_HOME)/lib"
+	/>
+	<UserMacro
+		Name="OSGEO4W_HOME"
+		Value="C:\OSGeo4W"
+	/>
+</VisualStudioPropertySheet>

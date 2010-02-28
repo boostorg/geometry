@@ -271,6 +271,10 @@ void test_all()
 
     // line-line
     test_overlay<linestring, linestring, test_get_turns,  Tuple>("lineline1", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[0], line_line1[1]);
+
+    // line-polygon
+    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly1", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[0], case_1[1]);
+    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly2", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[1], case_1[0]);
 }
 
 
