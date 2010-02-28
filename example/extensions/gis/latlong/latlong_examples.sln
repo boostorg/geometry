@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "point_ll_example", "point_ll_example.vcproj", "{EE76F202-C916-4432-9629-E043098742E0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "distance_example", "distance_example.vcproj", "{1D50082A-6BE8-493D-80F5-45CBB46CC593}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE76F202-C916-4432-9629-E043098742E0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EE76F202-C916-4432-9629-E043098742E0}.Debug|Win32.Build.0 = Debug|Win32
+		{EE76F202-C916-4432-9629-E043098742E0}.Release|Win32.ActiveCfg = Release|Win32
+		{EE76F202-C916-4432-9629-E043098742E0}.Release|Win32.Build.0 = Release|Win32
+		{1D50082A-6BE8-493D-80F5-45CBB46CC593}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1D50082A-6BE8-493D-80F5-45CBB46CC593}.Debug|Win32.Build.0 = Debug|Win32
+		{1D50082A-6BE8-493D-80F5-45CBB46CC593}.Release|Win32.ActiveCfg = Release|Win32
+		{1D50082A-6BE8-493D-80F5-45CBB46CC593}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

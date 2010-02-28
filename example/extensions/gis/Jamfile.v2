@@ -1,0 +1,61 @@
+# example/extensions/gis/Jamfile.v2 controls building of GGL examples for GIS
+#
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+import os ;
+
+# Setting Shapelib and libgd paths
+# Below, example paths point to Shapelib installation by OSGeo4W package
+# available at http://trac.osgeo.org/osgeo4w
+switch [ os.name ]
+{
+    case NT :
+    {
+        lib shp : : <file>C:/OSGeo4W/lib/shapelib_i.lib ;
+        LIBSHP_INCLUDE = <include>C:/OSGeo4W/include ;
+
+        lib gd : : <file>C:/OSGeo4W/lib/gd.lib ;
+        LIBGD_INCLUDE = <include>C:/OSGeo4W/include/gd ;
+    }
+    case * :
+    {
+        lib shp : :
+            <name>shp
+            <search>/usr/lib
+            <search>/usr/local/lib ;
+
+        lib gd : :
+            <name>gd
+            <search>/usr/lib
+            <search>/usr/local/lib ;
+    }
+}
+
+project ggl-example-extensions-gis
+    :
+    requirements
+        <include>.
+        <include>../../../../../boost
+        <toolset>gcc:<cxxflags>-pedantic
+    ;
+
+exe x01_shapelib_example 
+    : # sources and dependencies
+    x01_shapelib_example.cpp shp
+    : # requirements
+    $(LIBSHP_INCLUDE)
+    ;
+
+exe x02_gd_example 
+    : # sources and dependencies
+    x02_gd_example.cpp gd shp
+    : # requirements
+    $(LIBGD_INCLUDE)
+    $(LIBSHP_INCLUDE)
+    ;
+
+build-project latlong ;
+build-project projections ;

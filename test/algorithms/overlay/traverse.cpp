@@ -176,71 +176,45 @@ struct test_traverse
                             );
                     std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
 
+                    std::ostringstream out;
+                    out << index
+                        << ": " << bg::operation_char(turn.operations[0].operation)
+                        << " " << bg::operation_char(turn.operations[1].operation)
+                        << " (" << bg::method_char(turn.method) << ")"
+                        << (turn.ignore ? " (ignore) " : " ")
+                        << std::endl 
+                        
+                        << "ip: " << turn.operations[0].enriched.travels_to_ip_index
+                        << "/"  << turn.operations[1].enriched.travels_to_ip_index;
+
+                    if (turn.operations[0].enriched.next_ip_index != -1
+                        || turn.operations[1].enriched.next_ip_index != -1)
                     {
-                        std::ostringstream out;
-                        out << index
-                            << ": " << bg::operation_char(turn.operations[0].operation)
-                            << " " << bg::operation_char(turn.operations[1].operation)
-                            << " (" << bg::method_char(turn.method) << ")"
-                            << (turn.ignore ? " (ignore) " : " ")
+                        out << " [" << turn.operations[0].enriched.next_ip_index
+                            << "/"  << turn.operations[1].enriched.next_ip_index
+                            << "]"
                             ;
-
-                        offsets[p] += lineheight;
-                        int offset = offsets[p];
-                        mapper.text(turn.point, out.str(), style, margin, offset);
                     }
-
-                    {
-                        std::ostringstream out;
-                        out << "ip: " << turn.operations[0].enriched.travels_to_ip_index
-                            << "/"  << turn.operations[1].enriched.travels_to_ip_index;
-                        if (turn.operations[0].enriched.next_ip_index != -1
-                            || turn.operations[1].enriched.next_ip_index != -1)
-                        {
-                            out << " [" << turn.operations[0].enriched.next_ip_index
-                                << "/"  << turn.operations[1].enriched.next_ip_index
-                                << "]"
-                                ;
-                        }
-
-                        offsets[p] += lineheight;
-                        int offset = offsets[p];
-                        mapper.text(turn.point, out.str(), style, margin, offset);
-                    }
+                    out << std::endl;
 
 
-                    {
-                        std::ostringstream out;
-                        out << "vx:" << turn.operations[0].enriched.travels_to_vertex_index
-                            << "/"  << turn.operations[1].enriched.travels_to_vertex_index;
+                    out
+                        << "vx:" << turn.operations[0].enriched.travels_to_vertex_index
+                        << "/"  << turn.operations[1].enriched.travels_to_vertex_index
+                        << std::endl
 
-                        offsets[p] += lineheight;
-                        int offset = offsets[p];
-                        mapper.text(turn.point, out.str(), style, margin, offset);
-                    }
+                        << std::setprecision(3)
+                        << "dist: " << turn.operations[0].enriched.distance
+                        << " / "  << turn.operations[1].enriched.distance
+                        << std::endl
 
-                    {
-                        std::ostringstream out;
-                        out << std::setprecision(3)
-                            << "dist: " << turn.operations[0].enriched.distance
-                            << " / "  << turn.operations[1].enriched.distance;
+                        << "vis: " << bg::visited_char(turn.operations[0].visited)
+                        << " / "  << bg::visited_char(turn.operations[1].visited);
 
-                        offsets[p] += lineheight;
-                        int offset = offsets[p];
-                        mapper.text(turn.point, out.str(), style, margin, offset);
-                    }
-
-                    {
-                        std::ostringstream out;
-                        out << std::setprecision(3)
-                            << "vis: " << bg::visited_char(turn.operations[0].visited)
-                            << " / "  << bg::visited_char(turn.operations[1].visited);
-
-                        offsets[p] += lineheight;
-                        int offset = offsets[p];
-                        mapper.text(turn.point, out.str(), style, margin, offset);
-                    }
-
+                    offsets[p] += lineheight;
+                    int offset = offsets[p];
+                    offsets[p] += lineheight * 5;
+                    mapper.text(turn.point, out.str(), style, margin, offset, lineheight);
                 }
                 index++;
             }
@@ -289,8 +263,10 @@ void test_all()
 
     return;
     */
-    //test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("57", boost::make_tuple(2, 1.489899), case_57[0], case_57[1]);
-    //return;
+    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("49b", boost::make_tuple(1, 15), case_49[0], case_49[1]);
+    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("55c", boost::make_tuple(3, 18), case_55[0], case_55[1]);
+    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("55c", boost::make_tuple(1, 2), case_55[0], case_55[1]);
+    return;
 
 
     // 1-6
