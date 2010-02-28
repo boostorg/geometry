@@ -654,6 +654,8 @@ private:
 namespace dispatch
 {
 
+// Because this is "detail" method, and most implementations will use "generic", 
+// we take the freedom to derive it from "generic".
 template
 <
     typename GeometryTag1, typename GeometryTag2,
@@ -665,8 +667,15 @@ template
     typename InterruptPolicy
 >
 struct get_turns
-{
-};
+    : detail::get_turns::get_turns_generic
+        <
+            Geometry1,
+            Geometry2,
+            Turns,
+            IntersectionStrategy,
+            AssignPolicy, InterruptPolicy
+        >
+{};
 
 
 template
@@ -775,111 +784,6 @@ struct get_turns
     }
 };
 
-
-template
-<
-    typename Ring1,
-    typename Ring2,
-    typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
-    typename InterruptPolicy
->
-struct get_turns
-    <
-        ring_tag, ring_tag, false, false,
-        Ring1, Ring2,
-        Turns, IntersectionStrategy,
-        AssignPolicy, InterruptPolicy
-    >
-    : detail::get_turns::get_turns_generic
-        <
-            Ring1,
-            Ring2,
-            Turns,
-            IntersectionStrategy,
-            AssignPolicy, InterruptPolicy
-        >
-{};
-
-
-template
-<
-    typename Polygon1,
-    typename Polygon2,
-    typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
-    typename InterruptPolicy
->
-struct get_turns
-    <
-        polygon_tag, polygon_tag, false, false,
-        Polygon1, Polygon2,
-        Turns, IntersectionStrategy,
-        AssignPolicy, InterruptPolicy
-    >
-    : detail::get_turns::get_turns_generic
-        <
-            Polygon1,
-            Polygon2,
-            Turns,
-            IntersectionStrategy,
-            AssignPolicy, InterruptPolicy
-        >
-{};
-
-template
-<
-    typename Polygon,
-    typename Ring,
-    typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
-    typename InterruptPolicy
->
-struct get_turns
-    <
-        polygon_tag, ring_tag, false, false,
-        Polygon, Ring,
-        Turns, IntersectionStrategy,
-        AssignPolicy, InterruptPolicy
-    >
-    : detail::get_turns::get_turns_generic
-        <
-            Polygon,
-            Ring,
-            Turns,
-            IntersectionStrategy,
-            AssignPolicy, InterruptPolicy
-        >
-{};
-
-template
-<
-    typename LineString1,
-    typename LineString2,
-    typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
-    typename InterruptPolicy
->
-struct get_turns
-    <
-        linestring_tag, linestring_tag, false, false,
-        LineString1, LineString2,
-        Turns, IntersectionStrategy,
-        AssignPolicy, InterruptPolicy
-    >
-    : detail::get_turns::get_turns_generic
-        <
-            LineString1,
-            LineString2,
-            Turns,
-            IntersectionStrategy,
-            AssignPolicy, InterruptPolicy
-        >
-{};
 
 template
 <

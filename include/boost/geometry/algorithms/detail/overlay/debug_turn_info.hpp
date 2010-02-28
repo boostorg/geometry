@@ -9,6 +9,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_DEBUG_TURN_INFO_HPP
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/visit_info.hpp>
 
 
 namespace boost { namespace geometry

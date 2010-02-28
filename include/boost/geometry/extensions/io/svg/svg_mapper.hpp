@@ -12,6 +12,8 @@
 
 #include <vector>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 
 //#include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
