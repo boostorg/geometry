@@ -244,19 +244,12 @@ struct signature_getset_index_dimension {};
 
 // Note the comments below tell Doxygen to create one function with doc for both
 
-/*!
-\brief
-- get coordinate value of a Point ( / Sphere)
-\ingroup access
-\return coordinate value
-\tparam Index index
-- for Point: don't specify
-- for Box: min_corner or max_corner
-- for Segment: 0 / 1
-\tparam Dimension dimension
-\tparam Geometry geometry
-\param geometry geometry to get coordinate value from
-*/
+/// @brief get coordinate value of a Point ( / Sphere)
+/// @ingroup access
+/// @tparam Dimension dimension
+/// @tparam Geometry geometry
+/// @param geometry geometry to query coordinate value from
+/// @return coordinate value
 template <std::size_t Dimension, typename Geometry>
 inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -280,19 +273,12 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 }
 
 
-/*!
-\brief
-- set coordinate value of a Point ( / Sphere)
-\ingroup access
-\tparam Index index
-- for Point: don't specify
-- for Box: min_corner or max_corner
-- for Segment: 0 / 1
-\tparam Dimension dimension
-\tparam Geometry geometry
-\param geometry geometry to assign coordinate to
-\param value coordinate value to assign
-*/
+/// @brief set coordinate value of a Point ( / Sphere)
+/// @tparam Dimension dimension
+/// @tparam Geometry geometry
+/// @param geometry geometry to assign coordinate to
+/// @param value coordinate value to assign
+/// @ingroup access
 template <std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
         , typename coordinate_type<Geometry>::type const& value
@@ -318,11 +304,16 @@ inline void set(Geometry& geometry
 
 // Note: doxygen needs a construct to distinguish get/set (like the gcc compiler)
 
-/*!
-\brief
-- get coordinate value of a Box / Segment
-\ingroup access
-*/
+/// @brief get coordinate value of a Box / Segment
+/// @tparam Index 
+/// - for Point: do not specify
+/// - for Box: min_corner or max_corner
+/// - for Segment: 0 / 1
+/// @tparam Dimension dimension
+/// @tparam Geometry geometry
+/// @param geometry geometry to query coordinate value from
+/// @return coordinate value
+/// @ingroup access
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -346,11 +337,16 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
     return coord_access_type::get(geometry);
 }
 
-/*!
-\brief
-- set coordinate value of a Box / Segment
-\ingroup access
-*/
+/// @brief set coordinate value of a Box / Segment
+/// @tparam Index 
+/// - for Point: do not specify
+/// - for Box: min_corner or max_corner
+/// - for Segment: 0 / 1
+/// @tparam Dimension dimension
+/// @tparam Geometry geometry
+/// @param geometry geometry to assign coordinate to
+/// @param value coordinate value to assign
+/// @ingroup access
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
         , typename coordinate_type<Geometry>::type const& value
