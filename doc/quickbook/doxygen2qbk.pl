@@ -7,7 +7,7 @@
 
 use strict;
 
-system("doxygen reference.dox");
+system("doxygen reference.doxygen");
 chdir("xml");
 system("xsltproc combine.xslt index.xml > all.xml");
 chdir("..");
