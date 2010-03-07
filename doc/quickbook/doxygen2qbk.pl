@@ -11,12 +11,7 @@ system("doxygen reference.doxygen");
 chdir("xml");
 system("xsltproc combine.xslt index.xml > all.xml");
 chdir("..");
-system("xsltproc reference.xsl xml/all.xml > reference2.qbk");
+system("xsltproc reference.xsl xml/all.xml > reference.qbk");
 #system("rm -rf xml");
 
-#system("doxygen tutorial.dox");
-#chdir("xml");
-#system("xsltproc combine.xslt index.xml > all.xml");
-#chdir("..");
-#system("xsltproc tutorial.xsl xml/all.xml > tutorial.qbk");
 #system("rm -rf xml reference.tags");
