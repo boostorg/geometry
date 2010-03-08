@@ -50,7 +50,7 @@ inline bool point_in_circle(P const& p, C const& c)
 
     P const center = geometry::make<P>(get<0>(c), get<1>(c));
     strategy_type distance;
-    return_type const r = distance(p, center);
+    return_type const r = geometry::distance(p, center);
     return_type const rad = make_distance_result<return_type>(get_radius<0>(c));
 
     return r < rad;
@@ -134,8 +134,8 @@ namespace dispatch
 {
 
 
-template <typename P, typename Circle>
-struct within<point_tag, nsphere_tag, P, Circle>
+template <typename P, typename Circle, typename Strategy>
+struct within<point_tag, nsphere_tag, P, Circle, Strategy>
 {
     static inline bool apply(P const& p, Circle const& c)
     {
@@ -143,8 +143,8 @@ struct within<point_tag, nsphere_tag, P, Circle>
     }
 };
 
-template <typename Box, typename Circle>
-struct within<box_tag, nsphere_tag, Box, Circle>
+template <typename Box, typename Circle, typename Strategy>
+struct within<box_tag, nsphere_tag, Box, Circle, Strategy>
 {
     static inline bool apply(Box const& b, Circle const& c)
     {
@@ -152,8 +152,8 @@ struct within<box_tag, nsphere_tag, Box, Circle>
     }
 };
 
-template <typename Linestring, typename Circle>
-struct within<linestring_tag, nsphere_tag, Linestring, Circle>
+template <typename Linestring, typename Circle, typename Strategy>
+struct within<linestring_tag, nsphere_tag, Linestring, Circle, Strategy>
 {
     static inline bool apply(Linestring const& ln, Circle const& c)
     {
@@ -161,8 +161,8 @@ struct within<linestring_tag, nsphere_tag, Linestring, Circle>
     }
 };
 
-template <typename Ring, typename Circle>
-struct within<ring_tag, nsphere_tag, Ring, Circle>
+template <typename Ring, typename Circle, typename Strategy>
+struct within<ring_tag, nsphere_tag, Ring, Circle, Strategy>
 {
     static inline bool apply(Ring const& r, Circle const& c)
     {
@@ -170,8 +170,8 @@ struct within<ring_tag, nsphere_tag, Ring, Circle>
     }
 };
 
-template <typename Polygon, typename Circle>
-struct within<polygon_tag, nsphere_tag, Polygon, Circle>
+template <typename Polygon, typename Circle, typename Strategy>
+struct within<polygon_tag, nsphere_tag, Polygon, Circle, Strategy>
 {
     static inline bool apply(Polygon const& poly, Circle const& c)
     {
@@ -179,8 +179,8 @@ struct within<polygon_tag, nsphere_tag, Polygon, Circle>
     }
 };
 
-template <typename M, typename C>
-struct within<multi_polygon_tag, nsphere_tag, M, C>
+template <typename M, typename C, typename Strategy>
+struct within<multi_polygon_tag, nsphere_tag, M, C, Strategy>
 {
     static inline bool apply(const M& m, const C& c)
     {
