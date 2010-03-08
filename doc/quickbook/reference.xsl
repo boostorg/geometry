@@ -1216,7 +1216,7 @@ NAMESPACE-MEMBERDEF:
 
 <!--
     GROUP 1
--->]
+-->
 <xsl:choose>
   <xsl:when test="count(/doxygen/compounddef[@kind='group' and compoundname=$name]) &gt; 0">
     <xsl:for-each select="/doxygen/compounddef[@kind='group' and compoundname=$name]">
@@ -1246,7 +1246,7 @@ NAMESPACE-MEMBERDEF:
 
 <!--
     GROUP 2
--->]
+-->
 <xsl:for-each select="/doxygen/compounddef[@kind='group' and compoundname=$name]">
   <xsl:apply-templates select="detaileddescription" mode="markup"/>
 </xsl:for-each>
