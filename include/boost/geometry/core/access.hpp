@@ -20,14 +20,14 @@
 /// it if they are used to the standard library
 /// @li use the functionality provided in this geometry library. These are
 /// the functions in this module.
-/// 
+///
 /// The library provides the following functions to edit geometries:
 /// @li set to set one coordinate value
 /// @li assign to set two or more coordinate values
 /// @li make to construct and return geometries with specified coordinates.
 /// @li append to append one or more points to a geometry
 /// @li clear to remove all points from a geometry
-/// 
+///
 /// For getting coordinates it is similar:
 /// @li get to get a coordinate value
 /// @li or use the standard library
@@ -43,7 +43,8 @@
 #include <boost/geometry/core/tag.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 /// Index of minimum corner of the box.
 const int min_corner = 0;
@@ -51,7 +52,8 @@ const int min_corner = 0;
 /// Index of maximum corner of the box.
 const int max_corner = 1;
 
-namespace traits {
+namespace traits
+{
 
 /// @brief Traits class which gives access (get,set) to points.
 /// @ingroup traits
@@ -305,7 +307,7 @@ inline void set(Geometry& geometry
 // Note: doxygen needs a construct to distinguish get/set (like the gcc compiler)
 
 /// @brief get coordinate value of a Box / Segment
-/// @tparam Index 
+/// @tparam Index
 /// - for Point: do not specify
 /// - for Box: min_corner or max_corner
 /// - for Segment: 0 / 1
@@ -338,7 +340,7 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 }
 
 /// @brief set coordinate value of a Box / Segment
-/// @tparam Index 
+/// @tparam Index
 /// - for Point: do not specify
 /// - for Box: min_corner or max_corner
 /// - for Segment: 0 / 1
