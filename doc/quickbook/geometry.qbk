@@ -8,7 +8,7 @@
     http://www.boost.org/LICENSE_1_0.txt)
 ===============================================================================/]
 
-[article Geometry
+[article Boost.Geometry
     [quickbook 1.4]
     [version 1.0]
     [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz]]
@@ -24,8 +24,9 @@
     [category geometry]
 ]
 
-[/ External link macros ///////////////////////////////////////////////////////]
+[/  MACROS ////////////////////////////////////////////////////////////////////////////////////////]
 
+[/ External link macros ///////////////////////////////////////////////////////////////////////////]
 [def __ggl__                [@http://trac.osgeo.org/ggl/ Generic Geometry Library]]
 [def __ogc__                [@http://www.opengeospatial.org/ OGC]]
 [def __cln__                [@http://www.ginac.de/CLN/ CLN]]
@@ -38,7 +39,6 @@
 [def __msvs_express__       [@http://msdn.microsoft.com/express/ Microsoft Visual Studio Express]]
 [def __geodan__             [@http://www.geodan.com/ Geodan]]
 [def __mloskot__            [@http://mateusz.loskot.net/ Mateusz Loskot]]
-
 [/ Boost general]
 [def __boost__              [@http://www.boost.org/ Boost]]
 [def __boost_cpp_lib__      [@http://www.boost.org/ Boost C++ Libraries]]
@@ -66,7 +66,6 @@
 [def __boost_tokenizer__    [@http://www.boost.org/libs/tokenizer/ Boost Tokenizer]]
 [def __boost_tuple__        [@http://www.boost.org/libs/tuple/ Boost Tuple]]
 [def __boost_ublas__        [@http://www.boost.org/libs/numeric/ublas/ Boost uBLAS]]
-
 [/ Wikipedia]
 [def __wiki_cs_cartesian__     [@http://en.wikipedia.org/wiki/Cartesian_coordinate_system Cartesian coordinate system]]
 [def __wiki_cs_spherical__     [@http://en.wikipedia.org/wiki/Spherical_coordinate_system Spherical coordinate system]]
@@ -79,14 +78,12 @@
 [def __wiki_std__              [@http://en.wikipedia.org/wiki/C%2B%2B_Standard_Library C++ Standard Library]]
 [def __wiki_weiler_atherton__  [@http://en.wikipedia.org/wiki/Weiler-Atherton_clipping_algorithm Weiler-Atherton clipping algorithm]]
 [def __wiki_complex_linear__   [@http://en.wikipedia.org/wiki/Linear_time#Linear_time Linear time]]
-
-[/ Images macros //////////////////////////////////////////////////////////////]
+[/ Images macros //////////////////////////////////////////////////////////////////////////////////]
 [def __img_quickstart_output__          [$./images/quickstart_output.png]]
 [def __img_set_a_ac__                   [$./images/set_a_ac.png]]
 [def __img_set_adapt_turns__            [$./images/set_adapt_turns.png]]
 [def __img_set_int_right_union_left__   [$./images/set_int_right_union_left.png]]
-
-[/ Internal link macros ///////////////////////////////////////////////////////]
+[/ Internal link macros ///////////////////////////////////////////////////////////////////////////]
 [/ Concepts and models]
 [def __concepts__               [link geometry.reference.geometries.concepts concepts]]
 [def __concept_point__          [link geometry.reference.geometries.concepts.point Point]]
@@ -97,23 +94,23 @@
 [def __area__                   [link geometry.reference.algorithms.area area]]
 [def __distance__               [link geometry.reference.algorithms.distance distance]]
 [def __add_point__              [link geometry.reference.arithmetic.add_point add_point]]
-
-[/ Character and entities macrods /////////////////////////////////////////////]
-
+[/ Character and entities macrods /////////////////////////////////////////////////////////////////]
 [def __set_complement__      c]
 [def __set_difference__     \\]
 [def __set_symdifference__   ∆] [/ &#8710;]
 [def __set_intersect__       ∩] [/ &#8745;]
 [def __set_union__           ∪] [/ &#8746;]
 
-[/ Content starts here ////////////////////////////////////////////////////////]
+[/  TEMPLATES /////////////////////////////////////////////////////////////////////////////////////]
+
+[template mdash[] '''&mdash; ''']
+[template indexterm1[term1] '''<indexterm><primary>'''[term1]'''</primary></indexterm>''']
+[template indexterm2[term1 term2] '''<indexterm><primary>'''[term1]'''</primary><secondary>'''[term2]'''</secondary></indexterm>''']
+
+[/ Content starts here ////////////////////////////////////////////////////////////////////////////]
 
 This is the documentation of the newest version of __ggl__ (current Subversion trunk).
 
-[include introduction.qbk]
-[include tutorial.qbk]
-[include overview.qbk]
+[link boost_geometry.reference Reference]
+
 [include reference.qbk]
-[include extensions.qbk]
-[include misc.qbk]
-[include references.qbk]
