@@ -14,37 +14,10 @@ using doxygen ;
 path-constant here : . ;
 path-constant images_location : html ;
 
-rule run_doxygen ( target : files * : name )
-{
-    doxygen $(target)
-      :
-        $(files)
-      :
-        <doxygen:param>EXTRACT_ALL=YES
-        <doxygen:param>EXPAND_ONLY_PREDEF=YES
-        <doxygen:param>HIDE_UNDOC_MEMBERS=NO
-        <doxygen:param>EXTRACT_PRIVATE=NO
-        <doxygen:param>ENABLE_PREPROCESSING=YES
-        <doxygen:param>MACRO_EXPANSION=YES
-        $(expand)
-        <doxygen:param>SEARCH_INCLUDES=NO
-        <reftitle>$(name)
-    ;
-
-}
-
-run_doxygen access_reference
-  :
-    [ glob $(here)/../../../../boost/geometry/core/access.hpp ]
-  :
-    "Access"
-  ;
-
 xml geometry
     :
         geometry.qbk
     :
-        <dependency>access_reference
     ;
 
 boostbook standalone
