@@ -1,0 +1,8348 @@
+[/
+ / Copyright (c) 2010 Mateusz Loskot (mateusz at loskot dot net
+ / Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+ /
+ / Distributed under the Boost Software License, Version 1.0. (See accompanying
+ / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ /]
+
+[section:reference Reference]
+
+[xinclude quickref.xml]
+
+[include geometry_concepts.qbk]
+
+
+
+[section:add_point add_point]
+
+[indexterm1 add_point] 
+Adds a point to another. 
+
+
+  template<
+      typename Point1 ,
+      typename Point2 >
+  void add_point(
+      Point1 & p1,
+      Point2 const & p2);
+
+
+The coordinates of the second point will be added to those of the first point. The second point is not modified. 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p1][first point ]]
+
+[[p2][second point ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/arithmetic.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:add_value add_value]
+
+[indexterm1 add_value] 
+Adds a value to each coordinate of a point. 
+
+
+  template<
+      typename Point >
+  void add_value(
+      Point & p,
+      typename detail::param< Point >::type value);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p][point ]]
+
+[[value][value to add ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/arithmetic.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:append append]
+
+[indexterm1 append] 
+Appends one or more points to a linestring, ring, polygon, multi. 
+
+
+  template<
+      typename Geometry ,
+      typename RoP >
+  void append(
+      Geometry & geometry,
+      RoP const & range_or_point,
+      int ring_index = -1,
+      int multi_index = 0);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][a [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[range_or_point][the point or range to add ]]
+
+[[ring_index][the index of the ring in case of a polygon: exterior ring (-1, the default) or interior ring index ]]
+
+[[multi_index][reserved for multi polygons ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/append.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:area area]
+
+[indexterm1 area] 
+      
+  template<
+      typename Geometry >
+  area_result< Geometry >::type ``[link boost_geometry.reference.area.overload1 area]``(
+      Geometry const & geometry);
+  ``  [''''&raquo;''' [link boost_geometry.reference.area.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Strategy >
+  Strategy::return_type ``[link boost_geometry.reference.area.overload2 area]``(
+      Geometry const & geometry,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.area.overload2 more...]]``
+
+
+[heading Performance]
+  
+2776 * 1000 area calculations are done in 0.11 seconds (http://trac.osgeo.org/ggl/wiki/Performance#Area1)
+
+
+[heading Coordinate systems and strategies]
+  
+Area calculation can be done in Cartesian and in spherical/geographic coordinate systems.
+
+
+[heading Geometries]
+  
+The area algorithm calculates the surface area of all geometries having a surface: box, polygon, multi\_polygon. The units are the square of the units used for the points defining the surface. If the polygon is defined in meters, the area is in square meters.
+
+
+[heading Example:]
+  
+Example showing area calculation of polygons built  
+
+
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/area.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 area (1 of 2 overloads)]
+
+
+Calculate area of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  area_result< Geometry >::type area(
+      Geometry const & geometry);
+
+
+The function area returns the area of a polygon, ring, box using the default area-calculation [link boost_geometry.reference.strategy `strategy`]. Strategies are provided for cartesian and spherical coordinate systems The geometries should correct, polygons should be closed and according to the specified orientation (clockwise/counter clockwise) 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][a [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+the area 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 area (2 of 2 overloads)]
+
+
+Calculate area of a [link boost_geometry.reference.boost__geometry `boost::geometry`] using a specified [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Strategy >
+  Strategy::return_type area(
+      Geometry const & geometry,
+      Strategy const & strategy);
+
+
+This version of area calculation takes a [link boost_geometry.reference.strategy `strategy`] 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][a [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[strategy][the [link boost_geometry.reference.strategy `strategy`] to calculate area. Especially for spherical areas there are some approaches. ]]
+
+]
+
+
+[heading Return Value]
+      
+the area 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:assert_dimension assert_dimension]
+
+[indexterm1 assert_dimension] 
+assert\_dimension, enables compile-time checking if coordinate dimensions are as expected 
+
+
+  template<
+      typename G ,
+      int ``[link boost_geometry.reference.D D]``>
+  void assert_dimension();
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_dimension.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:assert_dimension_equal assert_dimension_equal]
+
+[indexterm1 assert_dimension_equal] 
+assert\_dimension\_equal, enables compile-time checking if coordinate dimensions of two geometries are equal 
+
+
+  template<
+      typename G1 ,
+      typename G2 >
+  void assert_dimension_equal();
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_dimension.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:assert_dimension_greater_equal assert_dimension_greater_equal]
+
+[indexterm1 assert_dimension_greater_equal] 
+
+  template<
+      typename G ,
+      int ``[link boost_geometry.reference.D D]``>
+  void assert_dimension_greater_equal();
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_dimension.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:assert_dimension_less_equal assert_dimension_less_equal]
+
+[indexterm1 assert_dimension_less_equal] 
+assert\_dimension, enables compile-time checking if coordinate dimensions are as expected 
+
+
+  template<
+      typename G ,
+      int ``[link boost_geometry.reference.D D]``>
+  void assert_dimension_less_equal();
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_dimension.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:assign assign]
+
+[indexterm1 assign] 
+assign two values to a 2D point 
+
+    
+  template<
+      typename Geometry ,
+      typename Type >
+  void ``[link boost_geometry.reference.assign.overload1 assign]``(
+      Geometry & geometry,
+      Type const & c1,
+      Type const & c2);
+  ``  [''''&raquo;''' [link boost_geometry.reference.assign.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Type >
+  void ``[link boost_geometry.reference.assign.overload2 assign]``(
+      Geometry & geometry,
+      Type const & c1,
+      Type const & c2,
+      Type const & c3);
+  ``  [''''&raquo;''' [link boost_geometry.reference.assign.overload2 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Type >
+  void ``[link boost_geometry.reference.assign.overload3 assign]``(
+      Geometry & geometry,
+      Type const & c1,
+      Type const & c2,
+      Type const & c3,
+      Type const & c4);
+  ``  [''''&raquo;''' [link boost_geometry.reference.assign.overload3 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Range >
+  void ``[link boost_geometry.reference.assign.overload4 assign]``(
+      Geometry & geometry,
+      Range const & range);
+  ``  [''''&raquo;''' [link boost_geometry.reference.assign.overload4 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/assign.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 assign (1 of 4 overloads)]
+
+
+assign two values to a 2D point 
+
+
+  template<
+      typename Geometry ,
+      typename Type >
+  void assign(
+      Geometry & geometry,
+      Type const & c1,
+      Type const & c2);
+
+
+
+[endsect]
+
+
+
+[section:overload2 assign (2 of 4 overloads)]
+
+
+assign three values to a 3D point [or the center + radius to a circle] 
+
+
+  template<
+      typename Geometry ,
+      typename Type >
+  void assign(
+      Geometry & geometry,
+      Type const & c1,
+      Type const & c2,
+      Type const & c3);
+
+
+
+[endsect]
+
+
+
+[section:overload3 assign (3 of 4 overloads)]
+
+
+assign center + radius to a sphere [for extension] 
+
+
+  template<
+      typename Geometry ,
+      typename Type >
+  void assign(
+      Geometry & geometry,
+      Type const & c1,
+      Type const & c2,
+      Type const & c3,
+      Type const & c4);
+
+
+
+[endsect]
+
+
+
+[section:overload4 assign (4 of 4 overloads)]
+
+
+assign a range of points to a linestring, ring or polygon 
+
+
+  template<
+      typename Geometry ,
+      typename Range >
+  void assign(
+      Geometry & geometry,
+      Range const & range);
+
+
+
+[heading Remarks]
+      
+The point-type of the range might be different from the point-type of the [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:assign_box_corners assign_box_corners]
+
+[indexterm1 assign_box_corners] 
+Assign the 4 points of a 2D box. 
+
+
+  template<
+      typename Box ,
+      typename Point >
+  void assign_box_corners(
+      Box const & box,
+      Point & lower_left,
+      Point & lower_right,
+      Point & upper_left,
+      Point & upper_right);
+
+
+
+[heading Remarks]
+      
+The order is crucial. Most logical is LOWER, UPPER and sub-order LEFT, RIGHT so this is how it is implemented. 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/assign.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:assign_inverse assign_inverse]
+
+[indexterm1 assign_inverse] 
+assign to a box inverse infinite 
+
+
+  template<
+      typename Geometry >
+  void assign_inverse(
+      Geometry & geometry);
+
+
+The assign\_inverse function initialize a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small. This is a convenient `starting` point to collect the minimum bounding box of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/assign.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:assign_point_from_index assign_point_from_index]
+
+[indexterm1 assign_point_from_index] 
+Assign a point with a point of a box or segment. 
+
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Index Index]``,
+      typename Point ,
+      typename Geometry >
+  void assign_point_from_index(
+      Geometry const & geometry,
+      Point & point);
+
+
+
+
+[variablelist
+  
+[[Index][indicates which box-corner, min\_corner (0) or max\_corner (1) or which point of segment (0/1) ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/assign.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:assign_point_to_index assign_point_to_index]
+
+[indexterm1 assign_point_to_index] 
+Assign a box or segment with the value of a point. 
+
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Index Index]``,
+      typename Geometry ,
+      typename Point >
+  void assign_point_to_index(
+      Point const & point,
+      Geometry & geometry);
+
+
+
+
+[variablelist
+  
+[[Index][indicates which box-corner, min\_corner (0) or max\_corner (1) or which point of segment (0/1) ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/assign.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:assign_zero assign_zero]
+
+[indexterm1 assign_zero] 
+assign zero values to a box, point 
+
+
+  template<
+      typename Geometry >
+  void assign_zero(
+      Geometry & geometry);
+
+
+The assign\_zero function initializes a 2D or 3D point or box with coordinates of zero 
+
+[variablelist
+  
+[[Geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/assign.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:box_tag box_tag]
+
+
+Convenience 2D or 3D box (mbr) identifying [link boost_geometry.reference.tag `tag`]. 
+
+
+  struct box_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:buffer buffer]
+
+[indexterm1 buffer] 
+Calculate buffer (= new [link boost_geometry.reference.boost__geometry `boost::geometry`]) around specified distance of [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Input ,
+      typename Output ,
+      typename T >
+  void buffer(
+      Input const & geometry_in,
+      Output & geometry_out,
+      T const & distance,
+      T const & chord_length = -1);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry_in][input [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[distance][the distance used in buffer ]]
+
+[[chord_length][length of the chord's in the generated arcs around points or bends ]]
+
+[[geometry_out][buffered [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Remarks]
+      
+Currently only implemented for box, the trivial case, but still useful 
+
+
+[heading Use case:]
+  
+BOX + distance -> BOX: it is allowed that "geometry\_out" the same object as "geometry\_in" 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/buffer.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:cartesian_tag cartesian_tag]
+
+
+Tag indicating Cartesian coordinate system family (cartesian,epsg). 
+
+
+  struct cartesian_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:centroid centroid]
+
+[indexterm1 centroid] 
+      
+  template<
+      typename Geometry ,
+      typename Point ,
+      typename Strategy >
+  void ``[link boost_geometry.reference.centroid.overload1 centroid]``(
+      Geometry const & geometry,
+      Point & c,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.centroid.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Point >
+  void ``[link boost_geometry.reference.centroid.overload2 centroid]``(
+      Geometry const & geometry,
+      Point & c);
+  ``  [''''&raquo;''' [link boost_geometry.reference.centroid.overload2 more...]]``
+
+
+[heading Source descriptions:]
+  
+
+* OGC description: The mathematical centroid for this Surface as a Point. The result is not guaranteed to be on this Surface.
+
+* From Wikipedia: Informally, it is the "average" of all points 
+
+
+
+
+
+[heading Remarks]
+      
+Polygon should be closed, and can be orientated either way 
+
+The "centroid" functions are taking a non const reference to the centroid. The "make\_centroid" functions return the centroid, the type has to be specified. 
+
+Both of them have an overloaded version where a centroid calculation strategy can be specified 
+
+
+[heading Exceptions]
+    
+
+[variablelist
+  
+[[centroid_exception][if calculation is not successful, e.g. because polygon didn't contain points]]
+
+]
+
+
+[heading Example:]
+  
+Example showing centroid calculation  
+
+
+
+
+
+
+[heading Performance]
+  
+2776 * 1000 centroid calculations are done in 0.16 seconds (http://trac.osgeo.org/ggl/wiki/Performance#Centroid1)
+
+
+[heading Geometries:]
+  
+
+* RING: 
+
+
+* BOX: the centroid of a 2D or 3D box is the center of the box
+
+* POLYGON 
+
+
+* POINT: the point is the centroid
+
+* LINESTRING: the average of the centers of its segments
+
+* MULTIPOINT: the average of the points 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/centroid.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 centroid (1 of 2 overloads)]
+
+
+Calculate centroid using a specified [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Point ,
+      typename Strategy >
+  void centroid(
+      Geometry const & geometry,
+      Point & c,
+      Strategy const & strategy);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to calculate centroid from ]]
+
+[[c][reference to point which will contain the centroid ]]
+
+[[strategy][Calculation [link boost_geometry.reference.strategy `strategy`] for centroid ]]
+
+]
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 centroid (2 of 2 overloads)]
+
+
+Calculate centroid. 
+
+
+  template<
+      typename Geometry ,
+      typename Point >
+  void centroid(
+      Geometry const & geometry,
+      Point & c);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][a [link boost_geometry.reference.boost__geometry `boost::geometry`] (e.g. closed ring or polygon) ]]
+
+[[c][reference to point which will contain the centroid ]]
+
+]
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:centroid_exception centroid_exception]
+
+
+
+  class centroid_exception :    public exception
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.centroid_exception.centroid_exception [*centroid_exception]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.centroid_exception.what [*what]]]
+    []
+  ]
+  
+]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/centroid.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:centroid_exception centroid_exception::centroid_exception]
+
+[indexterm2 centroid_exception..centroid_exception] 
+
+  centroid_exception();
+
+
+
+[endsect]
+
+
+
+[section:what centroid_exception::what]
+
+[indexterm2 what..centroid_exception] 
+
+  char const * what() const;
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+
+[section:clear clear]
+
+[indexterm1 clear] 
+Clears a linestring, linear ring or polygon (exterior+interiors) or multi*. 
+
+
+  template<
+      typename Geometry >
+  void clear(
+      Geometry & geometry);
+
+
+Generic function to clear a [link boost_geometry.reference.boost__geometry `boost::geometry`]
+
+
+[heading Remarks]
+      
+points and boxes cannot be cleared, instead they can be set to zero by "assign\_zero" 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/clear.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:combine combine]
+
+[indexterm1 combine] 
+Combines a box with another [link boost_geometry.reference.boost__geometry `boost::geometry`] (box, point). 
+
+
+  template<
+      typename Box ,
+      typename Geometry >
+  void combine(
+      Box & box,
+      Geometry const & geometry);
+
+
+
+
+[variablelist
+  
+[[Box][type of the box ]]
+
+[[Geometry][of second [link boost_geometry.reference.boost__geometry `boost::geometry`], to be combined with the box ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[box][box to combine another [link boost_geometry.reference.boost__geometry `boost::geometry`] with, might be changed ]]
+
+[[geometry][other [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/combine.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:convert convert]
+
+[indexterm1 convert] 
+Converts one [link boost_geometry.reference.boost__geometry `boost::geometry`] to another [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  void convert(
+      Geometry1 const & geometry1,
+      Geometry2 & geometry2);
+
+
+The convert algorithm converts one [link boost_geometry.reference.boost__geometry `boost::geometry`], e.g. a BOX, to another [link boost_geometry.reference.boost__geometry `boost::geometry`], e.g. a RING. This only if it is possible and applicable.
+
+
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] (source) ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] (target) ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/convert.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:convex_hull convex_hull]
+
+[indexterm1 convex_hull] 
+      
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  void ``[link boost_geometry.reference.convex_hull.overload1 convex_hull]``(
+      Geometry1 const & geometry,
+      Geometry2 & out,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.convex_hull.overload1 more...]]``
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  void ``[link boost_geometry.reference.convex_hull.overload2 convex_hull]``(
+      Geometry1 const & geometry,
+      Geometry2 & out);
+  ``  [''''&raquo;''' [link boost_geometry.reference.convex_hull.overload2 more...]]``
+
+
+[heading Source descriptions:]
+  
+
+* OGC description: Returns a geometric object that represents the convex hull of this geometric object. Convex hulls, being dependent on straight lines, can be accurately represented in linear interpolations for any geometry restricted to linear interpolations. 
+
+
+
+
+
+[heading Performance]
+  
+2776 counties of US are "hulled" in 0.9 seconds (http://trac.osgeo.org/ggl/wiki/Performance#Convexhull1)
+
+
+[heading Remarks]
+      
+The convex hull is always a ring, holes are not possible. Therefore it is can also be used in combination with an output iterator.
+
+
+[heading Geometries supported:]
+  
+In the images below the convex hull is painted in red.
+
+
+* point: will not compile
+
+
+
+
+* linestring: 
+
+
+
+
+* polygon: will deliver a polygon without holes 
+
+
+
+
+
+* multi_point: 
+
+
+
+
+
+* multi_linestring: 
+
+
+
+
+* multi_polygon: 
+
+
+
+
+[heading Output geometries supported:]
+  
+
+
+
+* polygon 
+
+
+
+
+* ring 
+
+
+
+
+* inserter version (with output iterator) can output to any array supporting points of same type as the input geometry type 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/convex_hull.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 convex_hull (1 of 2 overloads)]
+
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  void convex_hull(
+      Geometry1 const & geometry,
+      Geometry2 & out,
+      Strategy const & strategy);
+
+
+
+[endsect]
+
+
+
+[section:overload2 convex_hull (2 of 2 overloads)]
+
+
+Calculate the convex hull of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  void convex_hull(
+      Geometry1 const & geometry,
+      Geometry2 & out);
+
+
+
+
+[variablelist
+  
+[[Geometry1][the input [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2:][the output [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to calculate convex hull from ]]
+
+[[out][a [link boost_geometry.reference.boost__geometry `boost::geometry`] receiving points of the convex hull ]]
+
+]
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:convex_hull_inserter convex_hull_inserter]
+
+[indexterm1 convex_hull_inserter] 
+    
+  template<
+      typename Geometry ,
+      typename OutputIterator ,
+      typename Strategy >
+  OutputIterator ``[link boost_geometry.reference.convex_hull_inserter.overload1 convex_hull_inserter]``(
+      Geometry const & geometry,
+      OutputIterator out,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.convex_hull_inserter.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename OutputIterator >
+  OutputIterator ``[link boost_geometry.reference.convex_hull_inserter.overload2 convex_hull_inserter]``(
+      Geometry const & geometry,
+      OutputIterator out);
+  ``  [''''&raquo;''' [link boost_geometry.reference.convex_hull_inserter.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/convex_hull.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 convex_hull_inserter (1 of 2 overloads)]
+
+
+
+  template<
+      typename Geometry ,
+      typename OutputIterator ,
+      typename Strategy >
+  OutputIterator convex_hull_inserter(
+      Geometry const & geometry,
+      OutputIterator out,
+      Strategy const & strategy);
+
+
+
+[endsect]
+
+
+
+[section:overload2 convex_hull_inserter (2 of 2 overloads)]
+
+
+Calculate the convex hull of a [link boost_geometry.reference.boost__geometry `boost::geometry`], output-iterator version. 
+
+
+  template<
+      typename Geometry ,
+      typename OutputIterator >
+  OutputIterator convex_hull_inserter(
+      Geometry const & geometry,
+      OutputIterator out);
+
+
+
+
+[variablelist
+  
+[[Geometry][the input [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[OutputIterator:][an output-iterator ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to calculate convex hull from ]]
+
+[[out][an output iterator outputing points of the convex hull ]]
+
+]
+
+
+[heading Remarks]
+      
+This overloaded version outputs to an output iterator. In this case, nothing is known about its point-type or about its clockwise order. Therefore, the input point-type and order are copied 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:coordinate_system coordinate_system]
+
+
+Meta-function which defines coordinate system for any [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename G >
+  struct coordinate_system
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.coordinate_system.ncg [*ncg]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.coordinate_system.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_system.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:ncg coordinate_system::ncg]
+
+[indexterm2 ncg..coordinate_system] 
+
+  typedef boost::remove_const< G >::type ncg;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_system.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:type coordinate_system::type]
+
+[indexterm2 type..coordinate_system] 
+
+  typedef core_dispatch::coordinate_system< typename tag< G >::type, ncg >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+All geometries tell their [link boost_geometry.reference.boost__geometry `boost::geometry`] type (point, linestring, polygon, etc) by implementing a [link boost_geometry.reference.tag `tag`] [link boost_geometry.reference.traits `traits`] class. This meta-function uses that [link boost_geometry.reference.traits `traits`] class to retrieve the [link boost_geometry.reference.tag `tag`]. If the input type is not a [link boost_geometry.reference.boost__geometry `boost::geometry`] at all, a [link boost_geometry.reference.geometry_not_recognized_tag `geometry_not_recognized_tag`] will be returned. 
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_system.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:coordinate_type coordinate_type]
+
+
+Meta-function which defines coordinate type (int, float, double, etc) of any [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename ``[link boost_geometry.reference.G G]``>
+  struct coordinate_type
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.coordinate_type.ncg [*ncg]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:ncg coordinate_type::ncg]
+
+[indexterm2 ncg..coordinate_type] 
+
+  typedef boost::remove_const< G >::type ncg;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:type coordinate_type::type]
+
+[indexterm2 type..coordinate_type] 
+
+  typedef core_dispatch::coordinate_type< typename tag< G >::type, ncg >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+All geometries tell their [link boost_geometry.reference.boost__geometry `boost::geometry`] type (point, linestring, polygon, etc) by implementing a [link boost_geometry.reference.tag `tag`] [link boost_geometry.reference.traits `traits`] class. This meta-function uses that [link boost_geometry.reference.traits `traits`] class to retrieve the [link boost_geometry.reference.tag `tag`]. If the input type is not a [link boost_geometry.reference.boost__geometry `boost::geometry`] at all, a [link boost_geometry.reference.geometry_not_recognized_tag `geometry_not_recognized_tag`] will be returned. 
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:copy_segment_point copy_segment_point]
+
+[indexterm1 copy_segment_point] 
+Helper function, copies a point from a segment. 
+
+    
+  template<
+      typename Geometry ,
+      typename SegmentIdentifier ,
+      typename PointOut >
+  bool ``[link boost_geometry.reference.copy_segment_point.overload1 copy_segment_point]``(
+      Geometry const & geometry,
+      SegmentIdentifier const & seg_id,
+      bool second,
+      PointOut & point_out);
+  ``  [''''&raquo;''' [link boost_geometry.reference.copy_segment_point.overload1 more...]]``
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename SegmentIdentifier ,
+      typename PointOut >
+  bool ``[link boost_geometry.reference.copy_segment_point.overload2 copy_segment_point]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      SegmentIdentifier const & seg_id,
+      bool second,
+      PointOut & point_out);
+  ``  [''''&raquo;''' [link boost_geometry.reference.copy_segment_point.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlay/copy_segment_point.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 copy_segment_point (1 of 2 overloads)]
+
+
+Helper function, copies a point from a segment. 
+
+
+  template<
+      typename Geometry ,
+      typename SegmentIdentifier ,
+      typename PointOut >
+  bool copy_segment_point(
+      Geometry const & geometry,
+      SegmentIdentifier const & seg_id,
+      bool second,
+      PointOut & point_out);
+
+
+
+[endsect]
+
+
+
+[section:overload2 copy_segment_point (2 of 2 overloads)]
+
+
+Helper function, to avoid the same construct several times, copies a point, based on a source-index and two geometries. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename SegmentIdentifier ,
+      typename PointOut >
+  bool copy_segment_point(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      SegmentIdentifier const & seg_id,
+      bool second,
+      PointOut & point_out);
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:copy_segment_points copy_segment_points]
+
+[indexterm1 copy_segment_points] 
+Helper function, to avoid the same construct several times, copies a point, based on a source-index and two geometries. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename SegmentIdentifier ,
+      typename PointOut >
+  bool copy_segment_points(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      SegmentIdentifier const & seg_id,
+      PointOut & point1,
+      PointOut & point2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlay/copy_segment_point.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:copy_segments copy_segments]
+
+[indexterm1 copy_segments] 
+Traverses through intersection points / geometries. 
+
+
+  template<
+      typename Geometry ,
+      typename SegmentIdentifier ,
+      typename RangeOut >
+  void copy_segments(
+      Geometry const & geometry,
+      SegmentIdentifier const & seg_id,
+      int to_index,
+      RangeOut & range_out);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlay/copy_segments.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:correct correct]
+
+[indexterm1 correct] 
+
+  template<
+      typename Geometry >
+  void correct(
+      Geometry & geometry);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/correct.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:cross_product cross_product]
+
+[indexterm1 cross_product] 
+Computes the cross product of two vector. 
+
+
+  template<
+      typename P1 ,
+      typename P2 >
+  P1 cross_product(
+      P1 const & p1,
+      P2 const & p2);
+
+
+Both vectors shall be of the same type. This type also determines type of result vector.
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p1][first vector ]]
+
+[[p2][second vector ]]
+
+]
+
+
+[heading Return Value]
+      
+the cross product vector 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/cross_product.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:cs__cartesian cs::cartesian]
+
+
+Cartesian coordinate system. 
+
+
+  struct cartesian
+Defines the Cartesian or rectangular coordinate system where points are defined in 2 or 3 (or more) dimensions and usually (but not always) known as x,y,z 
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:cs__geographic cs::geographic]
+
+
+Geographic coordinate system, in [link boost_geometry.reference.degree `degree`] or in [link boost_geometry.reference.radian `radian`]. 
+
+
+  template<
+      typename DegreeOrRadian >
+  struct geographic
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.cs__geographic.units [*units]]]
+    []
+  
+  ]
+
+]
+
+Defines the [link boost_geometry.reference.cs__geographic `cs::geographic`] coordinate system where points are defined in two angles and usually known as lat,long or lo,la or phi,lambda 
+
+[heading Remarks]
+      
+might be moved to extensions/gis/geographic 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:units cs::geographic::units]
+
+[indexterm2 units..cs::geographic] 
+
+  typedef DegreeOrRadian units;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:cs__polar cs::polar]
+
+
+Polar coordinate system. 
+
+
+  template<
+      typename DegreeOrRadian >
+  struct polar
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.cs__polar.units [*units]]]
+    []
+  
+  ]
+
+]
+
+Defines the [link boost_geometry.reference.cs__polar `cs::polar`] coordinate system "in which each point
+        on a plane is determined by an angle and a distance" 
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:units cs::polar::units]
+
+[indexterm2 units..cs::polar] 
+
+  typedef DegreeOrRadian units;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:cs__spherical cs::spherical]
+
+
+Spherical coordinate system, in [link boost_geometry.reference.degree `degree`] or in [link boost_geometry.reference.radian `radian`]. 
+
+
+  template<
+      typename DegreeOrRadian >
+  struct spherical
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.cs__spherical.units [*units]]]
+    []
+  
+  ]
+
+]
+
+Defines the [link boost_geometry.reference.cs__spherical `cs::spherical`] coordinate system where points are defined in two angles and an optional radius usually known as r, theta, phi 
+[heading Coordinates:]
+  
+
+* coordinate 0: 0 <= phi < 2pi is the angle between the positive x-axis and the line from the origin to the P projected onto the xy-plane.
+
+* coordinate 1: 0 <= theta <= pi is the angle between the positive z-axis and the line formed between the origin and P.
+
+* coordinate 2 (if specified): r >= 0 is the distance from the origin to a given point P.
+
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:units cs::spherical::units]
+
+[indexterm2 units..cs::spherical] 
+
+  typedef DegreeOrRadian units;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:cs_tag cs_tag]
+
+
+Meta-function returning coordinate system [link boost_geometry.reference.tag `tag`] ([link boost_geometry.reference.cs `cs`] family) of any [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename G >
+  struct cs_tag
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.cs_tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type cs_tag::type]
+
+[indexterm2 type..cs_tag] 
+
+  typedef traits::cs_tag< typename geometry::coordinate_system< G >::type >::type type;
+
+
+[heading Typedef Description]
+    
+
+
+[variablelist
+  
+[[CoordinateSystem][coordinate system ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:degree degree]
+
+
+Unit of plane angle: Degrees. 
+
+
+  class degree
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:difference difference]
+
+[indexterm1 difference] 
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Collection >
+  void difference(
+      Geometry1 const & geometry1,
+      Geometry2 geometry2,
+      Collection & output_collection);
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to make difference ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/difference.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:dimension dimension]
+
+
+Meta-function which defines coordinate dimensions, i.e. the number of axes of any [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename G >
+  struct dimension
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_dimension.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:disjoint disjoint]
+
+[indexterm1 disjoint] 
+Calculate if two geometries are disjoint. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool disjoint(
+      const Geometry1 & geometry1,
+      const Geometry2 & geometry2);
+
+
+
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+true if disjoint, else false 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/disjoint.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:dissolve dissolve]
+
+[indexterm1 dissolve] 
+Removes self intersections from a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry ,
+      typename OutputIterator >
+  OutputIterator dissolve(
+      Geometry const & geometry,
+      OutputIterator output);
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[OutputIterator][type of intersection container (e.g. vector of "intersection/turn point"'s) ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[output][container which will contain intersection points ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/dissolve.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:distance distance]
+
+[indexterm1 distance] 
+      
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  Strategy::return_type ``[link boost_geometry.reference.distance.overload1 distance]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.distance.overload1 more...]]``
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  distance_result< Geometry1, Geometry2 >::type ``[link boost_geometry.reference.distance.overload2 distance]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2);
+  ``  [''''&raquo;''' [link boost_geometry.reference.distance.overload2 more...]]``
+
+The distance algorithm returns the distance between two geometries. 
+[heading Coordinate systems and strategies:]
+  
+With help of strategies the distance function returns the appropriate distance. If the input is in cartesian coordinates, the Euclidian distance (Pythagoras) is calculated. If the input is in spherical coordinates (either degree or radian), the distance over the sphere is returned. If the input is in geographic coordinates, distance is calculated over the globe and returned in meters.
+
+
+[heading Distance result:]
+  
+Depending on calculation type the distance result is either a structure, convertable to a double, or a double value. In case of Pythagoras it makes sense to not draw the square root in the strategy itself. Taking a square root is relative expensive and is not necessary when comparing distances.
+
+
+[heading Geometries:]
+  
+Currently implemented, for both cartesian and spherical/geographic:
+* POINT - POINT
+
+* POINT - SEGMENT and v.v.
+
+* POINT - LINESTRING and v.v.
+
+
+
+Not yet implemented:
+* POINT - RING etc, note that it will return a zero if the point is anywhere within the ring
+
+
+
+
+[heading Example:]
+  
+Example showing distance calculation of two points, in xy and in latlong coordinates  
+
+
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/distance.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 distance (1 of 2 overloads)]
+
+
+Calculate distance between two geometries with a specified [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  Strategy::return_type distance(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      Strategy const & strategy);
+
+
+
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[S][point-point-distance [link boost_geometry.reference.strategy `strategy`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[strategy][[link boost_geometry.reference.strategy `strategy`] to calculate distance between two points ]]
+
+]
+
+
+[heading Return Value]
+      
+the distance (either a double or a distance\_result, (convertable to double)) 
+
+
+[heading Remarks]
+      
+The [link boost_geometry.reference.strategy `strategy`] can be a point-point [link boost_geometry.reference.strategy `strategy`]. In case of distance point-line/point-polygon it may also be a point-segment [link boost_geometry.reference.strategy `strategy`]. 
+
+
+[heading Example:]
+  
+Example showing distance calculation of two lat long points, using the accurate Vincenty approximation  
+
+
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 distance (2 of 2 overloads)]
+
+
+Calculate distance between two geometries. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  distance_result< Geometry1, Geometry2 >::type distance(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2);
+
+
+The default [link boost_geometry.reference.strategy `strategy`] is used, belonging to the corresponding coordinate system of the geometries 
+
+[variablelist
+  
+[[G1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[G2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+the distance (either a double or a distance result, convertable to double) 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:divide_point divide_point]
+
+[indexterm1 divide_point] 
+Divides a point by another. 
+
+
+  template<
+      typename Point1 ,
+      typename Point2 >
+  void divide_point(
+      Point1 & p1,
+      Point2 const & p2);
+
+
+The coordinates of the second point will be divided by those of the first point. The second point is not modified. 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p1][first point ]]
+
+[[p2][second point ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/arithmetic.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:divide_value divide_value]
+
+[indexterm1 divide_value] 
+Divides each coordinate of a point by a value. 
+
+
+  template<
+      typename Point >
+  void divide_value(
+      Point & p,
+      typename detail::param< Point >::type value);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p][point ]]
+
+[[value][value to divide by ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/arithmetic.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:dot_product dot_product]
+
+[indexterm1 dot_product] 
+Computes the dot product (or scalar product) of 2 vectors (points). 
+
+
+  template<
+      typename P1 ,
+      typename P2 >
+  select_coordinate_type< P1, P2 >::type dot_product(
+      P1 const & p1,
+      P2 const & p2);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p1][first point ]]
+
+[[p2][second point ]]
+
+]
+
+
+[heading Return Value]
+      
+the dot product 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/dot_product.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:enrich_intersection_points enrich_intersection_points]
+
+[indexterm1 enrich_intersection_points] 
+All intersection points are enriched with successor information. 
+
+
+  template<
+      typename TurnPoints ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  void enrich_intersection_points(
+      TurnPoints & turn_points,
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      Strategy const & strategy);
+
+
+
+
+[variablelist
+  
+[[TurnPoints][type of intersection container (e.g. vector of "intersection/turn point"'s) ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[turn_points][container containing intersectionpoints ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlay/enrich_intersection_points.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:envelope envelope]
+
+[indexterm1 envelope] 
+Calculate envelope of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Box >
+  void envelope(
+      Geometry const & geometry,
+      Box & mbr);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[mbr][the box receiving the envelope ]]
+
+]
+
+
+[heading Example:]
+  
+Example showing envelope calculation, using point\_ll latlong points  
+
+
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/envelope.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:equals equals]
+
+[indexterm1 equals] 
+Detect if two geometries are spatially equal. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool equals(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2);
+
+
+
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+true if geometries are spatially equal, else false 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/equals.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:exception exception]
+
+
+Base [link boost_geometry.reference.exception `exception`] class for GGL. 
+
+
+  struct exception
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/exception.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:exterior_ring exterior_ring]
+
+[indexterm1 exterior_ring] 
+Function to get the exterior\_ring ring of a polygon. 
+
+    
+  template<
+      typename Polygon >
+  ring_type< Polygon >::type & ``[link boost_geometry.reference.exterior_ring.overload1 exterior_ring]``(
+      Polygon & polygon);
+  ``  [''''&raquo;''' [link boost_geometry.reference.exterior_ring.overload1 more...]]``
+
+  template<
+      typename Polygon >
+  const ring_type< Polygon >::type & ``[link boost_geometry.reference.exterior_ring.overload2 exterior_ring]``(
+      Polygon const & polygon);
+  ``  [''''&raquo;''' [link boost_geometry.reference.exterior_ring.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/exterior_ring.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 exterior_ring (1 of 2 overloads)]
+
+
+Function to get the exterior\_ring ring of a polygon. 
+
+
+  template<
+      typename Polygon >
+  ring_type< Polygon >::type & exterior_ring(
+      Polygon & polygon);
+
+
+
+[heading Remarks]
+      
+OGC compliance: instead of ExteriorRing 
+
+
+
+[variablelist
+  
+[[P][polygon type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[polygon][the polygon to get the exterior ring from ]]
+
+]
+
+
+[heading Return Value]
+      
+a reference to the exterior ring 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 exterior_ring (2 of 2 overloads)]
+
+
+Function to get the exterior ring of a polygon (const version). 
+
+
+  template<
+      typename Polygon >
+  const ring_type< Polygon >::type & exterior_ring(
+      Polygon const & polygon);
+
+
+
+[heading Remarks]
+      
+OGC compliance: instead of ExteriorRing 
+
+
+
+[variablelist
+  
+[[Polygon][polygon type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[polygon][the polygon to get the exterior ring from ]]
+
+]
+
+
+[heading Return Value]
+      
+a const reference to the exterior ring 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:for_each_point for_each_point]
+
+[indexterm1 for_each_point] 
+Calls functor for [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+    
+  template<
+      typename Geometry ,
+      typename Functor >
+  Functor ``[link boost_geometry.reference.for_each_point.overload1 for_each_point]``(
+      Geometry const & geometry,
+      Functor f);
+  ``  [''''&raquo;''' [link boost_geometry.reference.for_each_point.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Functor >
+  Functor ``[link boost_geometry.reference.for_each_point.overload2 for_each_point]``(
+      Geometry & geometry,
+      Functor f);
+  ``  [''''&raquo;''' [link boost_geometry.reference.for_each_point.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/for_each.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 for_each_point (1 of 2 overloads)]
+
+
+Calls functor for [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Functor >
+  Functor for_each_point(
+      Geometry const & geometry,
+      Functor f);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to loop through ]]
+
+[[f][functor to use]]
+
+]
+
+Calls the functor the specified const [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+[endsect]
+
+
+
+[section:overload2 for_each_point (2 of 2 overloads)]
+
+
+Calls functor for [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Functor >
+  Functor for_each_point(
+      Geometry & geometry,
+      Functor f);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to loop through ]]
+
+[[f][functor to use]]
+
+]
+
+Calls the functor for the specified [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+[endsect]
+
+
+[endsect]
+
+[section:for_each_segment for_each_segment]
+
+[indexterm1 for_each_segment] 
+Calls functor for segments on linestrings, rings, polygons, ... 
+
+    
+  template<
+      typename Geometry ,
+      typename Functor >
+  Functor ``[link boost_geometry.reference.for_each_segment.overload1 for_each_segment]``(
+      Geometry const & geometry,
+      Functor f);
+  ``  [''''&raquo;''' [link boost_geometry.reference.for_each_segment.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Functor >
+  Functor ``[link boost_geometry.reference.for_each_segment.overload2 for_each_segment]``(
+      Geometry & geometry,
+      Functor f);
+  ``  [''''&raquo;''' [link boost_geometry.reference.for_each_segment.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/for_each.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 for_each_segment (1 of 2 overloads)]
+
+
+Calls functor for segments on linestrings, rings, polygons, ... 
+
+
+  template<
+      typename Geometry ,
+      typename Functor >
+  Functor for_each_segment(
+      Geometry const & geometry,
+      Functor f);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to loop through ]]
+
+[[f][functor to use]]
+
+]
+
+Calls the functor all const segments of the specified const [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+[endsect]
+
+
+
+[section:overload2 for_each_segment (2 of 2 overloads)]
+
+
+Calls functor for segments on linestrings, rings, polygons, ... 
+
+
+  template<
+      typename Geometry ,
+      typename Functor >
+  Functor for_each_segment(
+      Geometry & geometry,
+      Functor f);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to loop through ]]
+
+[[f][functor to use]]
+
+]
+
+Calls the functor all segments of the specified [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+[endsect]
+
+
+[endsect]
+
+[section:geographic_tag geographic_tag]
+
+
+Tag indicating Geographic coordinate system family (geographic). 
+
+
+  struct geographic_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:geometry_id geometry_id]
+
+
+Meta-function the id for a [link boost_geometry.reference.boost__geometry `boost::geometry`] type. 
+
+
+  template<
+      typename Geometry >
+  struct geometry_id
+
+[heading Remarks]
+      
+Used for e.g. reverse meta-function 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/geometry_id.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:geometry_not_recognized_tag geometry_not_recognized_tag]
+
+
+"default" [link boost_geometry.reference.tag `tag`] 
+
+
+  struct geometry_not_recognized_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:get get]
+
+[indexterm1 get] 
+get coordinate value of a Point ( / Sphere) 
+
+    
+  template<
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  coordinate_type< Geometry >::type ``[link boost_geometry.reference.get.overload1 get]``(
+      Geometry const & geometry);
+  ``  [''''&raquo;''' [link boost_geometry.reference.get.overload1 more...]]``
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Index Index]``,
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  coordinate_type< Geometry >::type ``[link boost_geometry.reference.get.overload2 get]``(
+      Geometry const & geometry);
+  ``  [''''&raquo;''' [link boost_geometry.reference.get.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 get (1 of 2 overloads)]
+
+
+get coordinate value of a Point ( / Sphere) 
+
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  coordinate_type< Geometry >::type get(
+      Geometry const & geometry);
+
+
+
+
+[variablelist
+  
+[[Dimension][[link boost_geometry.reference.dimension `dimension`] ]]
+
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to query coordinate value from ]]
+
+]
+
+
+[heading Return Value]
+      
+coordinate value 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 get (2 of 2 overloads)]
+
+
+get coordinate value of a Box / Segment 
+
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Index Index]``,
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  coordinate_type< Geometry >::type get(
+      Geometry const & geometry);
+
+
+
+
+[variablelist
+  
+[[Index][for Point: do not specifyfor Box: min\_corner or max\_cornerfor Segment: 0 / 1 
+]]
+
+[[Dimension][[link boost_geometry.reference.dimension `dimension`] ]]
+
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to query coordinate value from ]]
+
+]
+
+
+[heading Return Value]
+      
+coordinate value 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:get_as_radian get_as_radian]
+
+[indexterm1 get_as_radian] 
+get coordinate value of a point, result is in Radian 
+
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  coordinate_type< Geometry >::type get_as_radian(
+      const Geometry & geometry);
+
+
+Result is in Radian, even if source coordinate system is in Degrees 
+[heading Return Value]
+      
+coordinate value
+
+
+
+[variablelist
+  
+[[Dimension][[link boost_geometry.reference.dimension `dimension`] ]]
+
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to get coordinate value from ]]
+
+]
+
+
+[heading Remarks]
+      
+Only applicable to coordinate systems templatized by units, e.g. spherical or geographic coordinate systems 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/radian_access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:get_section get_section]
+
+[indexterm1 get_section] 
+Get iterators for a specified [link boost_geometry.reference.section `section`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Section >
+  void get_section(
+      Geometry const & geometry,
+      Section const & section,
+      typename boost::range_const_iterator< typename geometry::range_type< Geometry >::type >::type & begin,
+      typename boost::range_const_iterator< typename geometry::range_type< Geometry >::type >::type & end);
+
+
+
+
+[variablelist
+  
+[[Geometry][type ]]
+
+[[Section][type of [link boost_geometry.reference.section `section`] to get from ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] which might be located in the neighborhood ]]
+
+[[section][structure with [link boost_geometry.reference.section `section`] ]]
+
+[[begin][begin-iterator (const iterator over points of [link boost_geometry.reference.section `section`]) ]]
+
+[[end][end-iterator (const iterator over points of [link boost_geometry.reference.section `section`]) ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/get_section.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:get_turns get_turns]
+
+[indexterm1 get_turns] 
+Calculate intersection points of two geometries. 
+
+    
+  template<
+      typename AssignPolicy ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Turns ,
+      typename InterruptPolicy >
+  void ``[link boost_geometry.reference.get_turns.overload1 get_turns]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      Turns & turns,
+      InterruptPolicy & interrupt_policy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.get_turns.overload1 more...]]``
+
+  template<
+      typename AssignPolicy ,
+      typename Geometry ,
+      typename Turns ,
+      typename InterruptPolicy >
+  void ``[link boost_geometry.reference.get_turns.overload2 get_turns]``(
+      Geometry const & geometry,
+      Turns & turns,
+      InterruptPolicy & interrupt_policy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.get_turns.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlay/get_turns.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 get_turns (1 of 2 overloads)]
+
+
+Calculate intersection points of two geometries. 
+
+
+  template<
+      typename AssignPolicy ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Turns ,
+      typename InterruptPolicy >
+  void get_turns(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      Turns & turns,
+      InterruptPolicy & interrupt_policy);
+
+
+
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Turns][type of turn-container (e.g. vector of "intersection/turn point"'s) ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[turns][container which will contain intersection points ]]
+
+]
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 get_turns (2 of 2 overloads)]
+
+
+Calculate self intersections of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename AssignPolicy ,
+      typename Geometry ,
+      typename Turns ,
+      typename InterruptPolicy >
+  void get_turns(
+      Geometry const & geometry,
+      Turns & turns,
+      InterruptPolicy & interrupt_policy);
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Turns][type of intersection container (e.g. vector of "intersection/turn point"'s) ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[turns][container which will contain intersection points ]]
+
+]
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:interior_rings interior_rings]
+
+[indexterm1 interior_rings] 
+Function to get the interior rings of a polygon (non const version). 
+
+    
+  template<
+      typename Polygon >
+  interior_type< Polygon >::type & ``[link boost_geometry.reference.interior_rings.overload1 interior_rings]``(
+      Polygon & polygon);
+  ``  [''''&raquo;''' [link boost_geometry.reference.interior_rings.overload1 more...]]``
+
+  template<
+      typename Polygon >
+  const interior_type< Polygon >::type & ``[link boost_geometry.reference.interior_rings.overload2 interior_rings]``(
+      Polygon const & polygon);
+  ``  [''''&raquo;''' [link boost_geometry.reference.interior_rings.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/interior_rings.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 interior_rings (1 of 2 overloads)]
+
+
+Function to get the interior rings of a polygon (non const version). 
+
+
+  template<
+      typename Polygon >
+  interior_type< Polygon >::type & interior_rings(
+      Polygon & polygon);
+
+
+
+[heading Remarks]
+      
+OGC compliance: instead of InteriorRingN 
+
+
+
+[variablelist
+  
+[[P][polygon type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[polygon][the polygon to get the interior rings from ]]
+
+]
+
+
+[heading Return Value]
+      
+a reference to the interior rings 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 interior_rings (2 of 2 overloads)]
+
+
+Function to get the interior rings of a polygon (const version). 
+
+
+  template<
+      typename Polygon >
+  const interior_type< Polygon >::type & interior_rings(
+      Polygon const & polygon);
+
+
+
+[heading Remarks]
+      
+OGC compliance: instead of InteriorRingN 
+
+
+
+[variablelist
+  
+[[P][polygon type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[polygon][the polygon to get the interior rings from ]]
+
+]
+
+
+[heading Return Value]
+      
+a const reference to the interior rings 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:interior_type interior_type]
+
+
+Meta-function defining container type of inner rings of (multi)polygon geometriy. 
+
+
+  template<
+      typename Geometry >
+  struct interior_type
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.interior_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+the interior rings should be organized as a container (std::vector, std::deque, boost::array) with `boost` range support. This meta function defines the type of that container. 
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/interior_rings.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type interior_type::type]
+
+[indexterm2 type..interior_type] 
+
+  typedef core_dispatch::interior_type< typename tag< Geometry >::type, Geometry >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+All geometries tell their [link boost_geometry.reference.boost__geometry `boost::geometry`] type (point, linestring, polygon, etc) by implementing a [link boost_geometry.reference.tag `tag`] [link boost_geometry.reference.traits `traits`] class. This meta-function uses that [link boost_geometry.reference.traits `traits`] class to retrieve the [link boost_geometry.reference.tag `tag`]. If the input type is not a [link boost_geometry.reference.boost__geometry `boost::geometry`] at all, a [link boost_geometry.reference.geometry_not_recognized_tag `geometry_not_recognized_tag`] will be returned. 
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/interior_rings.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+
+[section:intersection intersection]
+
+[indexterm1 intersection] 
+Intersects two geometries. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Collection >
+  void intersection(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      Collection & output_collection);
+
+
+The two input geometries are intersected and the resulting linestring(s), ring(s) or polygon(s) are added to the specified collection. 
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Collection][collection of rings, polygons (e.g. a vector<polygon> or a multi\_polygon) ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[output_collection][the collection ]]
+
+]
+
+
+[heading Return Value]
+      
+true if successful 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/intersection.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:intersection_inserter intersection_inserter]
+
+[indexterm1 intersection_inserter] 
+Intersects two geometries. 
+
+    
+  template<
+      typename GeometryOut ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename OutputIterator ,
+      typename Strategy >
+  OutputIterator ``[link boost_geometry.reference.intersection_inserter.overload1 intersection_inserter]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      OutputIterator out,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.intersection_inserter.overload1 more...]]``
+
+  template<
+      typename GeometryOut ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename OutputIterator >
+  OutputIterator ``[link boost_geometry.reference.intersection_inserter.overload2 intersection_inserter]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      OutputIterator out);
+  ``  [''''&raquo;''' [link boost_geometry.reference.intersection_inserter.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/intersection.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 intersection_inserter (1 of 2 overloads)]
+
+
+Intersects two geometries. 
+
+
+  template<
+      typename GeometryOut ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename OutputIterator ,
+      typename Strategy >
+  OutputIterator intersection_inserter(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      OutputIterator out,
+      Strategy const & strategy);
+
+
+The two input geometries are intersected and the resulting linestring(s), ring(s) or polygon(s) are sent to the specified output operator. 
+
+[variablelist
+  
+[[GeometryOut][output [link boost_geometry.reference.boost__geometry `boost::geometry`] type, must be specified ]]
+
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[OutputIterator][output iterator ]]
+
+[[Strategy][compound [link boost_geometry.reference.strategy `strategy`] for intersection ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[out][the output iterator, outputting linestrings or polygons ]]
+
+[[strategy][the [link boost_geometry.reference.strategy `strategy`] ]]
+
+]
+
+
+[heading Return Value]
+      
+the output iterator 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 intersection_inserter (2 of 2 overloads)]
+
+
+Intersects two geometries. 
+
+
+  template<
+      typename GeometryOut ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename OutputIterator >
+  OutputIterator intersection_inserter(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      OutputIterator out);
+
+
+The two input geometries are intersected and the resulting linestring(s), ring(s) or polygon(s) are sent to the specified output operator. 
+
+[variablelist
+  
+[[GeometryOut][output [link boost_geometry.reference.boost__geometry `boost::geometry`] type, must be specified ]]
+
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[OutputIterator][output iterator ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[out][the output iterator, outputting linestrings or polygons ]]
+
+]
+
+
+[heading Return Value]
+      
+the output iterator 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:intersects intersects]
+
+[indexterm1 intersects] 
+      
+  template<
+      typename Geometry >
+  bool ``[link boost_geometry.reference.intersects.overload1 intersects]``(
+      Geometry const & geometry);
+  ``  [''''&raquo;''' [link boost_geometry.reference.intersects.overload1 more...]]``
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool ``[link boost_geometry.reference.intersects.overload2 intersects]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2);
+  ``  [''''&raquo;''' [link boost_geometry.reference.intersects.overload2 more...]]``
+
+
+[heading Source descriptions:]
+  
+
+* OGC description: Returns 1 (TRUE) if this geometric object spatially intersects anotherGeometry.
+
+* OGC: a.Intersects(b) <=> ! a.Disjoint(b) 
+
+
+
+
+[heading Remarks]
+      
+There are two overloaded versions:
+* with one geometry, detecting self-intersections
+
+* with two geometries, deferring to disjoint, returning !disjoint
+
+
+
+
+[heading Geometries:]
+  
+
+* ring 
+
+* polygon 
+
+* for two geometries: same is disjoint
+
+
+
+
+[heading Remarks]
+      
+if one geometry is completely within another geometry, it "intersects" 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/intersects.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 intersects (1 of 2 overloads)]
+
+
+Determine if there is at least one intersection (crossing or self-tangency). 
+
+
+  template<
+      typename Geometry >
+  bool intersects(
+      Geometry const & geometry);
+
+
+
+[heading Remarks]
+      
+This function can be called for one [link boost_geometry.reference.boost__geometry `boost::geometry`] (self-intersection) and also for two geometries (intersection)
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+true if there are intersections, else false 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 intersects (2 of 2 overloads)]
+
+
+Determine if there is at least one intersection. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool intersects(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2);
+
+
+
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+true if there are intersection(s), else false 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:is_linear is_linear]
+
+
+Meta-function defining "true" for linear types (linestring,ring), "false" for non-linear typse. 
+
+
+  template<
+      typename Geometry >
+  struct is_linear
+
+[heading Remarks]
+      
+Used for [link boost_geometry.reference.tag `tag`] dispatching and meta-function finetuning 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/is_linear.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:is_multi is_multi]
+
+
+Meta-function defining "true" for multi geometries (multi\_point, etc). 
+
+
+  template<
+      typename Geometry >
+  struct is_multi
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/is_multi.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:is_radian is_radian]
+
+
+Meta-function to verify if a coordinate system is [link boost_geometry.reference.radian `radian`]. 
+
+
+  template<
+      typename CoordinateSystem >
+  struct is_radian
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:length length]
+
+[indexterm1 length] 
+      
+  template<
+      typename Geometry >
+  length_result< Geometry >::type ``[link boost_geometry.reference.length.overload1 length]``(
+      Geometry const & geometry);
+  ``  [''''&raquo;''' [link boost_geometry.reference.length.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Strategy >
+  length_result< Geometry >::type ``[link boost_geometry.reference.length.overload2 length]``(
+      Geometry const & geometry,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.length.overload2 more...]]``
+
+The length algorithm is implemented for the linestring and the multi\_linestring geometry and results in the length of the linestring. If the points of a linestring have coordinates expressed in kilometers, the length of the line is expressed in kilometers as well. 
+[heading Example:]
+  
+Example showing length calculation  
+
+
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/length.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 length (1 of 2 overloads)]
+
+
+Calculate length of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  length_result< Geometry >::type length(
+      Geometry const & geometry);
+
+
+The function length returns the length of a [link boost_geometry.reference.boost__geometry `boost::geometry`], using the default distance-calculation-strategy 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`], being a geometry::linestring, vector, iterator pair, or any other `boost` compatible range ]]
+
+]
+
+
+[heading Return Value]
+      
+the length Example showing length calculation on a vector  
+
+
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 length (2 of 2 overloads)]
+
+
+Calculate length of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Strategy >
+  length_result< Geometry >::type length(
+      Geometry const & geometry,
+      Strategy const & strategy);
+
+
+The function length returns the length of a [link boost_geometry.reference.boost__geometry `boost::geometry`], using specified [link boost_geometry.reference.strategy `strategy`] 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`], being a geometry::linestring, vector, iterator pair, or any other `boost` compatible range ]]
+
+[[strategy][[link boost_geometry.reference.strategy `strategy`] to be used for distance calculations. ]]
+
+]
+
+
+[heading Return Value]
+      
+the length 
+
+
+[heading Example:]
+  
+Example showing length calculation using iterators and the Vincenty [link boost_geometry.reference.strategy `strategy`]  
+
+
+
+
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:linestring_tag linestring_tag]
+
+
+OGC Linestring identifying [link boost_geometry.reference.tag `tag`]. 
+
+
+  struct linestring_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:make make]
+
+[indexterm1 make] 
+Make a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+    
+  template<
+      typename Geometry ,
+      typename T >
+  Geometry ``[link boost_geometry.reference.make.overload1 make]``(
+      T const & c1,
+      T const & c2);
+  ``  [''''&raquo;''' [link boost_geometry.reference.make.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename T >
+  Geometry ``[link boost_geometry.reference.make.overload2 make]``(
+      T const & c1,
+      T const & c2,
+      T const & c3);
+  ``  [''''&raquo;''' [link boost_geometry.reference.make.overload2 more...]]``
+
+  template<
+      typename Geometry ,
+      typename T >
+  Geometry ``[link boost_geometry.reference.make.overload3 make]``(
+      T const & c1,
+      T const & c2,
+      T const & c3,
+      T const & c4);
+  ``  [''''&raquo;''' [link boost_geometry.reference.make.overload3 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Range >
+  Geometry ``[link boost_geometry.reference.make.overload4 make]``(
+      Range const & range);
+  ``  [''''&raquo;''' [link boost_geometry.reference.make.overload4 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/make.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 make (1 of 4 overloads)]
+
+
+Make a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry ,
+      typename T >
+  Geometry make(
+      T const & c1,
+      T const & c2);
+
+
+the Generic Geometry Library uses concepts for all its geometries. Therefore it does not rely on constructors. The "make" functions are object generators creating geometries. There are overloads with two, three, four or six values, which are implemented depending on the [link boost_geometry.reference.boost__geometry `boost::geometry`] specified. 
+[heading Remarks]
+      
+It does not work with array-point types, like int[2] 
+
+
+
+[variablelist
+  
+[[G][the [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[T][the coordinate type ]]
+
+]
+
+
+[heading Return Value]
+      
+the [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 make (2 of 4 overloads)]
+
+
+Make a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry ,
+      typename T >
+  Geometry make(
+      T const & c1,
+      T const & c2,
+      T const & c3);
+
+
+
+[heading Return Value]
+      
+a 3D point 
+
+
+
+
+[endsect]
+
+
+
+[section:overload3 make (3 of 4 overloads)]
+
+
+
+  template<
+      typename Geometry ,
+      typename T >
+  Geometry make(
+      T const & c1,
+      T const & c2,
+      T const & c3,
+      T const & c4);
+
+
+
+[endsect]
+
+
+
+[section:overload4 make (4 of 4 overloads)]
+
+
+
+  template<
+      typename Geometry ,
+      typename Range >
+  Geometry make(
+      Range const & range);
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:make_buffer make_buffer]
+
+[indexterm1 make_buffer] 
+Calculate and return buffer (= new [link boost_geometry.reference.boost__geometry `boost::geometry`]) around specified distance of [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Output ,
+      typename Input ,
+      typename T >
+  Output make_buffer(
+      Input const & geometry,
+      T const & distance,
+      T const & chord_length = -1);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][input [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[distance][the distance used in buffer ]]
+
+[[chord_length][length of the chord's in the generated arcs around points or bends ]]
+
+]
+
+
+[heading Return Value]
+      
+the buffered [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+[heading Remarks]
+      
+See also: buffer 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/buffer.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:make_centroid make_centroid]
+
+[indexterm1 make_centroid] 
+Calculate and return centroid. 
+
+    
+  template<
+      typename Point ,
+      typename Geometry >
+  Point ``[link boost_geometry.reference.make_centroid.overload1 make_centroid]``(
+      Geometry const & geometry);
+  ``  [''''&raquo;''' [link boost_geometry.reference.make_centroid.overload1 more...]]``
+
+  template<
+      typename Point ,
+      typename Geometry ,
+      typename Strategy >
+  Point ``[link boost_geometry.reference.make_centroid.overload2 make_centroid]``(
+      Geometry const & geometry,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.make_centroid.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/centroid.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 make_centroid (1 of 2 overloads)]
+
+
+Calculate and return centroid. 
+
+
+  template<
+      typename Point ,
+      typename Geometry >
+  Point make_centroid(
+      Geometry const & geometry);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to calculate centroid from ]]
+
+]
+
+
+[heading Return Value]
+      
+the centroid 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 make_centroid (2 of 2 overloads)]
+
+
+Calculate and return centroid, using a specified [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Point ,
+      typename Geometry ,
+      typename Strategy >
+  Point make_centroid(
+      Geometry const & geometry,
+      Strategy const & strategy);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to calculate centroid from ]]
+
+[[strategy][Calculation [link boost_geometry.reference.strategy `strategy`] for centroid ]]
+
+]
+
+
+[heading Return Value]
+      
+the centroid 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:make_envelope make_envelope]
+
+[indexterm1 make_envelope] 
+Calculate and return envelope of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Box ,
+      typename Geometry >
+  Box make_envelope(
+      Geometry const & geometry);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/envelope.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:make_inverse make_inverse]
+
+[indexterm1 make_inverse] 
+Create a box with inverse infinite coordinates. 
+
+
+  template<
+      typename Geometry >
+  Geometry make_inverse();
+
+
+The make\_inverse function initialize a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small 
+
+[variablelist
+  
+[[Geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Return Value]
+      
+the box 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/make.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:make_zero make_zero]
+
+[indexterm1 make_zero] 
+Create a [link boost_geometry.reference.boost__geometry `boost::geometry`] with "zero" coordinates. 
+
+
+  template<
+      typename Geometry >
+  Geometry make_zero();
+
+
+The make\_zero function initializes a 2D or 3D point or box with coordinates of zero 
+
+[variablelist
+  
+[[Geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Return Value]
+      
+the [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/make.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:max_corner max_corner]
+
+[indexterm1 max_corner] 
+Index of maximum corner of the box. 
+
+
+  const int max_corner = 1;
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:min_corner min_corner]
+
+[indexterm1 min_corner] 
+Index of minimum corner of the box. 
+
+
+  const int min_corner = 0;
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:multiply_point multiply_point]
+
+[indexterm1 multiply_point] 
+Multiplies a point by another. 
+
+
+  template<
+      typename Point1 ,
+      typename Point2 >
+  void multiply_point(
+      Point1 & p1,
+      Point2 const & p2);
+
+
+The coordinates of the second point will be multiplied by those of the first point. The second point is not modified. 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p1][first point ]]
+
+[[p2][second point ]]
+
+]
+
+
+[heading Remarks]
+      
+This is *not* a dot, cross or wedge product. It is a mere field-by-field multiplication. 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/arithmetic.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:multiply_value multiply_value]
+
+[indexterm1 multiply_value] 
+Multiplies each coordinate of a point by a value. 
+
+
+  template<
+      typename Point >
+  void multiply_value(
+      Point & p,
+      typename detail::param< Point >::type value);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p][point ]]
+
+[[value][value to multiply by ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/arithmetic.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:num_geometries num_geometries]
+
+[indexterm1 num_geometries] 
+Function to get the number of geometries of a composite [link boost_geometry.reference.boost__geometry `boost::geometry`]. For a single [link boost_geometry.reference.boost__geometry `boost::geometry`] it is always 0 (also for a polygon with holes). 
+
+
+  template<
+      typename Geometry >
+  std::size_t num_geometries(
+      Geometry const & geometry);
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the polygon or other [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+the number of interior rings of the [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/num_geometries.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:num_interior_rings num_interior_rings]
+
+[indexterm1 num_interior_rings] 
+Function to get the number of interior rings of a polygon. 
+
+
+  template<
+      typename Geometry >
+  std::size_t num_interior_rings(
+      Geometry const & geometry);
+
+
+
+[heading Remarks]
+      
+Defined by OGC as "numInteriorRing". To be consistent with "numPoints" letter "s" is appended 
+
+Can be used for any [link boost_geometry.reference.boost__geometry `boost::geometry`], returning 0 for geometries not having interior rings 
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the polygon or other [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+the number of interior rings of the [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/interior_rings.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:num_points num_points]
+
+[indexterm1 num_points] 
+get number of points 
+
+
+  template<
+      typename Geometry >
+  std::size_t num_points(
+      Geometry const & geometry);
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to get number of points from ]]
+
+]
+
+
+[heading Return Value]
+      
+number of points 
+
+
+[heading Remarks]
+      
+For linestrings/rings also boost::size or .size() could be used, however, for polygons this is less obvious. So this function is provided. Besides that it is described by OGC (numPoints) 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/num_points.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:order_selector order_selector]
+
+[indexterm1 order_selector] 
+
+  enum order_selector
+
+[indexterm2 clockwise..order_selector]
+[indexterm2 counterclockwise..order_selector]
+[indexterm2 order_undetermined..order_selector]
+
+[heading Values]
+[variablelist
+
+  [
+    [clockwise]
+    []
+  ]
+
+  [
+    [counterclockwise]
+    []
+  ]
+
+  [
+    [order_undetermined]
+    []
+  ]
+
+]
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/point_order.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:overlaps overlaps]
+
+[indexterm1 overlaps] 
+Determines overlap between two geometries. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool overlaps(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2);
+
+
+
+[heading Return Value]
+      
+true if there is overlap 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlaps.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:parse parse]
+
+[indexterm1 parse] 
+      
+  template<
+      typename Geometry >
+  void ``[link boost_geometry.reference.parse.overload1 parse]``(
+      Geometry & geometry,
+      std::string const & c1,
+      std::string const & c2);
+  ``  [''''&raquo;''' [link boost_geometry.reference.parse.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename S >
+  void ``[link boost_geometry.reference.parse.overload2 parse]``(
+      Geometry & geometry,
+      std::string const & c1,
+      std::string const & c2,
+      S const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.parse.overload2 more...]]``
+
+  template<
+      typename Geometry >
+  Geometry ``[link boost_geometry.reference.parse.overload3 parse]``(
+      std::string const & c1,
+      std::string const & c2);
+  ``  [''''&raquo;''' [link boost_geometry.reference.parse.overload3 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/parse.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 parse (1 of 3 overloads)]
+
+
+parse two strings to a spherical/geographic point, using W/E/N/S 
+
+
+  template<
+      typename Geometry >
+  void parse(
+      Geometry & geometry,
+      std::string const & c1,
+      std::string const & c2);
+
+
+
+[endsect]
+
+
+
+[section:overload2 parse (2 of 3 overloads)]
+
+
+parse two strings to a spherical/geographic point, using a specified [link boost_geometry.reference.strategy `strategy`] 
+
+
+  template<
+      typename Geometry ,
+      typename S >
+  void parse(
+      Geometry & geometry,
+      std::string const & c1,
+      std::string const & c2,
+      S const & strategy);
+
+
+user can use N/E/S/O or N/O/Z/W or other formats 
+
+
+[endsect]
+
+
+
+[section:overload3 parse (3 of 3 overloads)]
+
+
+
+  template<
+      typename Geometry >
+  Geometry parse(
+      std::string const & c1,
+      std::string const & c2);
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:perimeter perimeter]
+
+[indexterm1 perimeter] 
+      
+  template<
+      typename Geometry >
+  length_result< Geometry >::type ``[link boost_geometry.reference.perimeter.overload1 perimeter]``(
+      Geometry const & geometry);
+  ``  [''''&raquo;''' [link boost_geometry.reference.perimeter.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename Strategy >
+  length_result< Geometry >::type ``[link boost_geometry.reference.perimeter.overload2 perimeter]``(
+      Geometry const & geometry,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.perimeter.overload2 more...]]``
+
+
+[heading Geometries:]
+  
+
+* polygon 
+
+* box 
+
+* linear_ring 
+
+* multi_polygon 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/perimeter.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 perimeter (1 of 2 overloads)]
+
+
+Calculate perimeter of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  length_result< Geometry >::type perimeter(
+      Geometry const & geometry);
+
+
+The function perimeter returns the perimeter of a [link boost_geometry.reference.boost__geometry `boost::geometry`], using the default distance-calculation-strategy 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`], be it a geometry::ring, vector, iterator pair, or any other `boost` compatible range ]]
+
+]
+
+
+[heading Return Value]
+      
+the perimeter 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 perimeter (2 of 2 overloads)]
+
+
+Calculate perimeter of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Strategy >
+  length_result< Geometry >::type perimeter(
+      Geometry const & geometry,
+      Strategy const & strategy);
+
+
+The function perimeter returns the perimeter of a [link boost_geometry.reference.boost__geometry `boost::geometry`], using specified [link boost_geometry.reference.strategy `strategy`] 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`], be it a geometry::ring, vector, iterator pair, or any other `boost` compatible range ]]
+
+[[strategy][[link boost_geometry.reference.strategy `strategy`] to be used for distance calculations. ]]
+
+]
+
+
+[heading Return Value]
+      
+the perimeter 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:point_order point_order]
+
+
+Meta-function which defines point type of any [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  struct point_order
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.point_order.ncg [*ncg]]]
+    []
+  
+  ]
+
+]
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.point_order.value [*value]]]
+    []
+  ]
+
+]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/point_order.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:ncg point_order::ncg]
+
+[indexterm2 ncg..point_order] 
+
+  typedef boost::remove_const< Geometry >::type ncg;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/point_order.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:value point_order::value]
+
+[indexterm2 value..point_order] 
+
+  static const order_selector value = core_dispatch::point_order
+        <
+            typename tag<Geometry>::type,
+            ncg
+        >::value;
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:point_tag point_tag]
+
+
+OGC Point identifying [link boost_geometry.reference.tag `tag`]. 
+
+
+  struct point_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:point_type point_type]
+
+
+Meta-function which defines point type of any [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  struct point_type
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.point_type.ncg [*ncg]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.point_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/point_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:ncg point_type::ncg]
+
+[indexterm2 ncg..point_type] 
+
+  typedef boost::remove_const< Geometry >::type ncg;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/point_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:type point_type::type]
+
+[indexterm2 type..point_type] 
+
+  typedef core_dispatch::point_type< typename tag< Geometry >::type, ncg >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+All geometries tell their [link boost_geometry.reference.boost__geometry `boost::geometry`] type (point, linestring, polygon, etc) by implementing a [link boost_geometry.reference.tag `tag`] [link boost_geometry.reference.traits `traits`] class. This meta-function uses that [link boost_geometry.reference.traits `traits`] class to retrieve the [link boost_geometry.reference.tag `tag`]. If the input type is not a [link boost_geometry.reference.boost__geometry `boost::geometry`] at all, a [link boost_geometry.reference.geometry_not_recognized_tag `geometry_not_recognized_tag`] will be returned. 
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/point_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:polygon_tag polygon_tag]
+
+
+OGC Polygon identifying [link boost_geometry.reference.tag `tag`]. 
+
+
+  struct polygon_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:radian radian]
+
+
+Unit of plane angle: Radians. 
+
+
+  class radian
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:replace_point_type replace_point_type]
+
+
+
+  template<
+      typename Geometry ,
+      typename NewPointType >
+  struct replace_point_type
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/replace_point_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:reverse reverse]
+
+[indexterm1 reverse] 
+
+  template<
+      typename Geometry >
+  void reverse(
+      Geometry & geometry);
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to make reverse ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/reverse.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:reverse_dispatch reverse_dispatch]
+
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  struct reverse_dispatch
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/reverse_dispatch.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:ring_tag ring_tag]
+
+
+Convenience (linear) ring identifying [link boost_geometry.reference.tag `tag`]. 
+
+
+  struct ring_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:ring_type ring_type]
+
+
+Meta-function which defines ring type of (multi)polygon [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  struct ring_type
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.ring_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+a polygon contains one exterior ring and zero or more interior rings (holes). This meta function retrieves the type of the rings 
+[heading Remarks]
+      
+Exterior ring and interior rings must have the same ring-type. 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/ring_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type ring_type::type]
+
+[indexterm2 type..ring_type] 
+
+  typedef core_dispatch::ring_type< typename tag< Geometry >::type, Geometry >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+All geometries tell their [link boost_geometry.reference.boost__geometry `boost::geometry`] type (point, linestring, polygon, etc) by implementing a [link boost_geometry.reference.tag `tag`] [link boost_geometry.reference.traits `traits`] class. This meta-function uses that [link boost_geometry.reference.traits `traits`] class to retrieve the [link boost_geometry.reference.tag `tag`]. If the input type is not a [link boost_geometry.reference.boost__geometry `boost::geometry`] at all, a [link boost_geometry.reference.geometry_not_recognized_tag `geometry_not_recognized_tag`] will be returned. 
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/ring_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:section section]
+
+
+Structure containing [link boost_geometry.reference.section `section`] information. 
+
+
+  template<
+      typename Box ,
+      std::size_t ``[link boost_geometry.reference.DimensionCount DimensionCount]``>
+  struct section
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.section.box_type [*box_type]]]
+    []
+  
+  ]
+
+]
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.section.section [*section]]]
+    []
+  ]
+  
+]
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.section.begin_index [*begin_index]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.bounding_box [*bounding_box]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.count [*count]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.directions [*directions]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.duplicate [*duplicate]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.end_index [*end_index]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.id [*id]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.multi_index [*multi_index]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.non_duplicate_index [*non_duplicate_index]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.range_count [*range_count]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.section.ring_index [*ring_index]]]
+    []
+  ]
+
+]
+
+Section information consists of a bounding box, direction information (if it is increasing or decreasing, per [link boost_geometry.reference.dimension `dimension`]), index information (begin-end, ring, multi) and the number of segments in this [link boost_geometry.reference.section `section`]
+
+
+
+[variablelist
+  
+[[Box][box-type ]]
+
+[[DimensionCount][number of dimensions for this [link boost_geometry.reference.section `section`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/sectionalize.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:begin_index section::begin_index]
+
+[indexterm2 begin_index..section] 
+
+  int begin_index;
+
+
+
+[endsect]
+
+
+
+[section:bounding_box section::bounding_box]
+
+[indexterm2 bounding_box..section] 
+
+  Box bounding_box;
+
+
+
+[endsect]
+
+
+
+[section:box_type section::box_type]
+
+[indexterm2 box_type..section] 
+
+  typedef Box box_type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/sectionalize.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:count section::count]
+
+[indexterm2 count..section] 
+
+  std::size_t count;
+
+
+
+[endsect]
+
+
+
+[section:directions section::directions]
+
+[indexterm2 directions..section] 
+
+  int directions;
+
+
+
+[endsect]
+
+
+
+[section:duplicate section::duplicate]
+
+[indexterm2 duplicate..section] 
+
+  bool duplicate;
+
+
+
+[endsect]
+
+
+
+[section:end_index section::end_index]
+
+[indexterm2 end_index..section] 
+
+  int end_index;
+
+
+
+[endsect]
+
+
+
+[section:id section::id]
+
+[indexterm2 id..section] 
+
+  int id;
+
+
+
+[endsect]
+
+
+
+[section:multi_index section::multi_index]
+
+[indexterm2 multi_index..section] 
+
+  int multi_index;
+
+
+
+[endsect]
+
+
+
+[section:non_duplicate_index section::non_duplicate_index]
+
+[indexterm2 non_duplicate_index..section] 
+
+  int non_duplicate_index;
+
+
+
+[endsect]
+
+
+
+[section:range_count section::range_count]
+
+[indexterm2 range_count..section] 
+
+  std::size_t range_count;
+
+
+
+[endsect]
+
+
+
+[section:ring_index section::ring_index]
+
+[indexterm2 ring_index..section] 
+
+  int ring_index;
+
+
+
+[endsect]
+
+
+
+[section:section section::section]
+
+[indexterm2 section..section] 
+
+  section();
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+
+[section:sectionalize sectionalize]
+
+[indexterm1 sectionalize] 
+Split a [link boost_geometry.reference.boost__geometry `boost::geometry`] into monotonic [link boost_geometry.reference.sections `sections`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Sections >
+  void sectionalize(
+      Geometry const & geometry,
+      Sections & sections);
+
+
+
+
+[variablelist
+  
+[[Geometry][type of [link boost_geometry.reference.boost__geometry `boost::geometry`] to check ]]
+
+[[Sections][type of [link boost_geometry.reference.sections `sections`] to create ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to create [link boost_geometry.reference.sections `sections`] from ]]
+
+[[sections][structure with [link boost_geometry.reference.sections `sections`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/sectionalize.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:sections sections]
+
+
+Structure containing a collection of [link boost_geometry.reference.sections `sections`]. 
+
+
+  template<
+      typename Box ,
+      std::size_t ``[link boost_geometry.reference.DimensionCount DimensionCount]``>
+  struct sections
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.sections.box_type [*box_type]]]
+    []
+  
+  ]
+
+]
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.sections.value [*value]]]
+    []
+  ]
+
+]
+
+
+[heading Remarks]
+      
+Derived from a vector, proves to be faster than of deque 
+
+vector might be templated in the future 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/sectionalize.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:box_type sections::box_type]
+
+[indexterm2 box_type..sections] 
+
+  typedef Box box_type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/sectionalize.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:value sections::value]
+
+[indexterm2 value..sections] 
+
+  static const std::size_t value = DimensionCount;
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:segment_identifier segment_identifier]
+
+
+
+  struct segment_identifier
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment_identifier.operator_lt_ [*operator<]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.segment_identifier.operator_eq__eq_ [*operator==]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.segment_identifier.segment_identifier [*segment_identifier]]]
+    []
+  ]
+  
+]
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment_identifier.multi_index [*multi_index]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.segment_identifier.ring_index [*ring_index]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.segment_identifier.segment_index [*segment_index]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.segment_identifier.source_index [*source_index]]]
+    []
+  ]
+
+]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlay/segment_identifier.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:multi_index segment_identifier::multi_index]
+
+[indexterm2 multi_index..segment_identifier] 
+
+  int multi_index;
+
+
+
+[endsect]
+
+
+
+[section:operator_lt_ segment_identifier::operator<]
+
+[indexterm2 operator<..segment_identifier] 
+
+  bool operator<(
+      segment_identifier const & other) const;
+
+
+
+[endsect]
+
+
+
+[section:operator_eq__eq_ segment_identifier::operator==]
+
+[indexterm2 operator==..segment_identifier] 
+
+  bool operator==(
+      segment_identifier const & other) const;
+
+
+
+[endsect]
+
+
+
+[section:ring_index segment_identifier::ring_index]
+
+[indexterm2 ring_index..segment_identifier] 
+
+  int ring_index;
+
+
+
+[endsect]
+
+
+[section:segment_identifier segment_identifier::segment_identifier]
+
+[indexterm2 segment_identifier..segment_identifier] 
+
+  ``[link boost_geometry.reference.segment_identifier.segment_identifier.overload1 segment_identifier]``();
+  ``  [''''&raquo;''' [link boost_geometry.reference.segment_identifier.segment_identifier.overload1 more...]]``
+
+  ``[link boost_geometry.reference.segment_identifier.segment_identifier.overload2 segment_identifier]``(
+      int src,
+      int mul,
+      int rin,
+      int seg);
+  ``  [''''&raquo;''' [link boost_geometry.reference.segment_identifier.segment_identifier.overload2 more...]]``
+
+
+[section:overload1 segment_identifier::segment_identifier (1 of 2 overloads)]
+
+
+
+  segment_identifier();
+
+
+
+[endsect]
+
+
+
+[section:overload2 segment_identifier::segment_identifier (2 of 2 overloads)]
+
+
+
+  segment_identifier(
+      int src,
+      int mul,
+      int rin,
+      int seg);
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:segment_index segment_identifier::segment_index]
+
+[indexterm2 segment_index..segment_identifier] 
+
+  int segment_index;
+
+
+
+[endsect]
+
+
+
+[section:source_index segment_identifier::source_index]
+
+[indexterm2 source_index..segment_identifier] 
+
+  int source_index;
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:segment_tag segment_tag]
+
+
+Convenience segment (2-points) identifying [link boost_geometry.reference.tag `tag`]. 
+
+
+  struct segment_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:set set]
+
+[indexterm1 set] 
+set coordinate value of a Point ( / Sphere) 
+
+    
+  template<
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  void ``[link boost_geometry.reference.set.overload1 set]``(
+      Geometry & geometry,
+      typename coordinate_type< Geometry >::type const & value);
+  ``  [''''&raquo;''' [link boost_geometry.reference.set.overload1 more...]]``
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Index Index]``,
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  void ``[link boost_geometry.reference.set.overload2 set]``(
+      Geometry & geometry,
+      typename coordinate_type< Geometry >::type const & value);
+  ``  [''''&raquo;''' [link boost_geometry.reference.set.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 set (1 of 2 overloads)]
+
+
+set coordinate value of a Point ( / Sphere) 
+
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  void set(
+      Geometry & geometry,
+      typename coordinate_type< Geometry >::type const & value);
+
+
+
+
+[variablelist
+  
+[[Dimension][[link boost_geometry.reference.dimension `dimension`] ]]
+
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to assign coordinate to ]]
+
+[[value][coordinate value to assign ]]
+
+]
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 set (2 of 2 overloads)]
+
+
+set coordinate value of a Box / Segment 
+
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Index Index]``,
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  void set(
+      Geometry & geometry,
+      typename coordinate_type< Geometry >::type const & value);
+
+
+
+
+[variablelist
+  
+[[Index][for Point: do not specifyfor Box: min\_corner or max\_cornerfor Segment: 0 / 1 
+]]
+
+[[Dimension][[link boost_geometry.reference.dimension `dimension`] ]]
+
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to assign coordinate to ]]
+
+[[value][coordinate value to assign ]]
+
+]
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:set_from_radian set_from_radian]
+
+[indexterm1 set_from_radian] 
+set coordinate value (in [link boost_geometry.reference.radian `radian`]) to a point 
+
+
+  template<
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``,
+      typename Geometry >
+  void set_from_radian(
+      Geometry & geometry,
+      const typename coordinate_type< Geometry >::type & radians);
+
+
+Coordinate value will be set correctly, if coordinate system of point is in Degree, Radian value will be converted to Degree
+
+
+
+[variablelist
+  
+[[Dimension][[link boost_geometry.reference.dimension `dimension`] ]]
+
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to assign coordinate to ]]
+
+[[radians][coordinate value to assign ]]
+
+]
+
+
+[heading Remarks]
+      
+Only applicable to coordinate systems templatized by units, e.g. spherical or geographic coordinate systems 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/radian_access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:simplify simplify]
+
+[indexterm1 simplify] 
+      
+  template<
+      typename Geometry ,
+      typename Strategy >
+  void ``[link boost_geometry.reference.simplify.overload1 simplify]``(
+      Geometry const & geometry,
+      Geometry & out,
+      double max_distance,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.simplify.overload1 more...]]``
+
+  template<
+      typename Geometry >
+  void ``[link boost_geometry.reference.simplify.overload2 simplify]``(
+      Geometry const & geometry,
+      Geometry & out,
+      double max_distance);
+  ``  [''''&raquo;''' [link boost_geometry.reference.simplify.overload2 more...]]``
+
+
+[heading Source description:]
+  
+
+* Wikipedia: given a 'curve' composed of line segments to find a curve not too dissimilar but that has fewer points
+
+
+
+
+
+[heading Performance]
+  
+
+* Performance is measured on simplification of a collection of rings, such that 10% of the points is kept.
+
+* 2776 counties of US are simplified in 0.7 seconds (http://trac.osgeo.org/ggl/wiki/Performance#Simplify1)
+
+
+
+
+[heading Geometries]
+  
+
+* linestring: 
+ This US Road originally contained 34 points, the simplified version contains 7 points
+
+
+
+
+* polygon: 
+ This country (Belgium) originally contained 55 points, the simplified version contains 24 points
+
+
+
+
+[heading Remarks]
+      
+simplifying a valid simple polygon (which never intersects itself) might result in an invalid polygon, where the simplified rings intersect themselves or one of the other outer or inner rings. Efficient simplification of a ring/polygon is still an "Open Problem" (http://maven.smith.edu/~orourke/TOPP/P24.html#Problem.24)
+
+
+* multi_linestring 
+
+* multi_polygon 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/simplify.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 simplify (1 of 2 overloads)]
+
+
+Simplify a [link boost_geometry.reference.boost__geometry `boost::geometry`] using a specified [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Geometry ,
+      typename Strategy >
+  void simplify(
+      Geometry const & geometry,
+      Geometry & out,
+      double max_distance,
+      Strategy const & strategy);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][input [link boost_geometry.reference.boost__geometry `boost::geometry`], to be simplified ]]
+
+[[out][output [link boost_geometry.reference.boost__geometry `boost::geometry`], simplified version of the input [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[max_distance][distance (in units of input coordinates) of a vertex to other segments to be removed ]]
+
+[[strategy][simplify [link boost_geometry.reference.strategy `strategy`] to be used for simplification, might include point-distance [link boost_geometry.reference.strategy `strategy`] ]]
+
+]
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 simplify (2 of 2 overloads)]
+
+
+Simplify a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  void simplify(
+      Geometry const & geometry,
+      Geometry & out,
+      double max_distance);
+
+
+
+[heading Remarks]
+      
+This version of simplify simplifies a [link boost_geometry.reference.boost__geometry `boost::geometry`] using the default [link boost_geometry.reference.strategy `strategy`] (Douglas Peucker), 
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][input [link boost_geometry.reference.boost__geometry `boost::geometry`], to be simplified ]]
+
+[[out][output [link boost_geometry.reference.boost__geometry `boost::geometry`], simplified version of the input [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[max_distance][distance (in units of input coordinates) of a vertex to other segments to be removed ]]
+
+]
+
+
+[heading Example:]
+  
+The simplify algorithm can be used as following:  
+
+
+
+
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:simplify_inserter simplify_inserter]
+
+[indexterm1 simplify_inserter] 
+Simplify a [link boost_geometry.reference.boost__geometry `boost::geometry`], using an output iterator and a specified [link boost_geometry.reference.strategy `strategy`]. 
+
+    
+  template<
+      typename Geometry ,
+      typename OutputIterator ,
+      typename Strategy >
+  void ``[link boost_geometry.reference.simplify_inserter.overload1 simplify_inserter]``(
+      Geometry const & geometry,
+      OutputIterator out,
+      double max_distance,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.simplify_inserter.overload1 more...]]``
+
+  template<
+      typename Geometry ,
+      typename OutputIterator >
+  void ``[link boost_geometry.reference.simplify_inserter.overload2 simplify_inserter]``(
+      Geometry const & geometry,
+      OutputIterator out,
+      double max_distance);
+  ``  [''''&raquo;''' [link boost_geometry.reference.simplify_inserter.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/simplify.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 simplify_inserter (1 of 2 overloads)]
+
+
+Simplify a [link boost_geometry.reference.boost__geometry `boost::geometry`], using an output iterator and a specified [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Geometry ,
+      typename OutputIterator ,
+      typename Strategy >
+  void simplify_inserter(
+      Geometry const & geometry,
+      OutputIterator out,
+      double max_distance,
+      Strategy const & strategy);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][input [link boost_geometry.reference.boost__geometry `boost::geometry`], to be simplified ]]
+
+[[out][output iterator, outputs all simplified points ]]
+
+[[max_distance][distance (in units of input coordinates) of a vertex to other segments to be removed ]]
+
+[[strategy][simplify [link boost_geometry.reference.strategy `strategy`] to be used for simplification, might include point-distance [link boost_geometry.reference.strategy `strategy`] ]]
+
+]
+
+
+[heading Example:]
+  
+simplify\_inserter with [link boost_geometry.reference.strategy `strategy`] is used as following:  
+
+
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 simplify_inserter (2 of 2 overloads)]
+
+
+Simplify a [link boost_geometry.reference.boost__geometry `boost::geometry`], using an output iterator. 
+
+
+  template<
+      typename Geometry ,
+      typename OutputIterator >
+  void simplify_inserter(
+      Geometry const & geometry,
+      OutputIterator out,
+      double max_distance);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][input [link boost_geometry.reference.boost__geometry `boost::geometry`], to be simplified ]]
+
+[[out][output iterator, outputs all simplified points ]]
+
+[[max_distance][distance (in units of input coordinates) of a vertex to other segments to be removed ]]
+
+]
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:spherical_tag spherical_tag]
+
+
+Tag indicating Spherical coordinate system family (spherical,celestial,...). 
+
+
+  struct spherical_tag
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tags.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:strategy__intersection__liang_barsky strategy::intersection::liang_barsky]
+
+
+Strategy: line clipping algorithm after Liang Barsky. 
+
+
+  template<
+      typename Box ,
+      typename Point >
+  class liang_barsky
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.strategy__intersection__liang_barsky.apply [*apply]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.strategy__intersection__liang_barsky.clip_segment [*clip_segment]]]
+    []
+  ]
+  
+]
+
+The Liang-Barsky line clipping algorithm clips a line with a clipping box. It is slightly adapted in the sense that it returns which points are clipped 
+
+[variablelist
+  
+[[B][input box type of clipping box ]]
+
+[[P][input/output point-type of segments to be clipped ]]
+
+]
+
+
+[heading Remarks]
+      
+The algorithm is currently only implemented for 2D Cartesian points 
+
+Though it is implemented in namespace [link boost_geometry.reference.strategy `strategy`], and theoretically another [link boost_geometry.reference.strategy `strategy`] could be used, it is not (yet) updated to the general [link boost_geometry.reference.strategy `strategy`] concepts, and not (yet) splitted into a file in folder strategies 
+
+
+Barend Gehrels, and the following recourses
+* A tutorial: http://www.skytopia.com/project/articles/compsci/clipping.html
+
+* a German applet (link broken): http://ls7-www.cs.uni-dortmund.de/students/projectgroups/acit/lineclip.shtml 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlay/clip_linestring.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:apply strategy::intersection::liang_barsky::apply]
+
+[indexterm2 apply..strategy::intersection::liang_barsky] 
+
+  template<
+      typename Linestring ,
+      typename OutputIterator >
+  void apply(
+      Linestring & line_out,
+      OutputIterator out) const;
+
+
+
+[endsect]
+
+
+
+[section:clip_segment strategy::intersection::liang_barsky::clip_segment]
+
+[indexterm2 clip_segment..strategy::intersection::liang_barsky] 
+
+  bool clip_segment(
+      Box const & b,
+      segment_type & s,
+      bool & sp1_clipped,
+      bool & sp2_clipped) const;
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+
+[section:subtract_point subtract_point]
+
+[indexterm1 subtract_point] 
+Subtracts a point to another. 
+
+
+  template<
+      typename Point1 ,
+      typename Point2 >
+  void subtract_point(
+      Point1 & p1,
+      Point2 const & p2);
+
+
+The coordinates of the second point will be subtracted to those of the first point. The second point is not modified. 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p1][first point ]]
+
+[[p2][second point ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/arithmetic.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:subtract_value subtract_value]
+
+[indexterm1 subtract_value] 
+Subtracts a value to each coordinate of a point. 
+
+
+  template<
+      typename Point >
+  void subtract_value(
+      Point & p,
+      typename detail::param< Point >::type value);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[p][point ]]
+
+[[value][value to subtract ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/arithmetic/arithmetic.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:sym_difference sym_difference]
+
+[indexterm1 sym_difference] 
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Collection >
+  void sym_difference(
+      Geometry1 geometry1,
+      Geometry2 geometry2,
+      Collection & output_collection);
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to make symmetric difference ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/sym_difference.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:tag tag]
+
+
+Meta-function to get the [link boost_geometry.reference.tag `tag`] of any [link boost_geometry.reference.boost__geometry `boost::geometry`] type. 
+
+
+  template<
+      typename Geometry >
+  struct tag
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+All geometries tell their [link boost_geometry.reference.boost__geometry `boost::geometry`] type (point, linestring, polygon, etc) by implementing a [link boost_geometry.reference.tag `tag`] [link boost_geometry.reference.traits `traits`] class. This meta-function uses that [link boost_geometry.reference.traits `traits`] class to retrieve the [link boost_geometry.reference.tag `tag`]. If the input type is not a [link boost_geometry.reference.boost__geometry `boost::geometry`] at all, a [link boost_geometry.reference.geometry_not_recognized_tag `geometry_not_recognized_tag`] will be returned. 
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tag.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type tag::type]
+
+[indexterm2 type..tag] 
+
+  typedef traits::tag< typename boost::remove_const< Geometry >::type >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.traits__tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+All geometries should implement a `traits::tag<G>::type` metafunction to indicate their own [link boost_geometry.reference.boost__geometry `boost::geometry`] type.
+
+
+[heading Geometries:]
+  
+
+* all geometries 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* typedef XXX_tag type; (point_tag, box_tag, ...) 
+
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tag.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:topological_dimension topological_dimension]
+
+
+Meta-function returning the topological [link boost_geometry.reference.dimension `dimension`] of a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  struct topological_dimension
+The topological [link boost_geometry.reference.dimension `dimension`] defines a point as 0-dimensional, a linestring as 1-dimensional, and a ring or polygon as 2-dimensional. 
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/topological_dimension.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__access traits::access]
+
+
+Traits class which gives [link boost_geometry.reference.traits__access `traits::access`] (get,set) to points. 
+
+
+  template<
+      typename Geometry ,
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``>
+  struct access
+
+[heading Geometries:]
+  
+
+* point 
+
+
+
+
+[heading Specializations should provide, per Dimension]
+  
+
+* static inline T get(const G&) 
+
+* static inline void set(G&, T const&) 
+
+
+
+
+
+[variablelist
+  
+[[Geometry][geometry-type ]]
+
+[[Dimension][[link boost_geometry.reference.traits__dimension `traits::dimension`] to [link boost_geometry.reference.traits__access `traits::access`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__append_point traits::append_point]
+
+
+Traits class, optional, might be implemented to append a point. 
+
+
+  template<
+      typename Geometry ,
+      typename Point >
+  struct append_point
+If a [link boost_geometry.reference.boost__geometry `boost::geometry`] type should not use the std "push\_back" then it can specialize the "use\_std" [link boost_geometry.reference.traits `traits`] class to false, it should then implement (a.o.) [link boost_geometry.reference.traits__append_point `traits::append_point`]
+
+
+[heading Geometries:]
+  
+
+* linestring
+
+* linear_ring 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* apply 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__clear traits::clear]
+
+
+Traits class, optional, might be implemented to [link boost_geometry.reference.traits__clear `traits::clear`] a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry >
+  struct clear
+If a [link boost_geometry.reference.boost__geometry `boost::geometry`] type should not use the std ".clear()" then it can specialize the "use\_std" [link boost_geometry.reference.traits `traits`] class to false, it should then implement (a.o.) [link boost_geometry.reference.traits__clear `traits::clear`]
+
+
+[heading Geometries:]
+  
+
+* linestring
+
+* linear_ring 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* apply 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__coordinate_system traits::coordinate_system]
+
+
+Traits class defining the coordinate system of a point, important for [link boost_geometry.reference.strategy `strategy`] selection. 
+
+
+  template<
+      typename P >
+  struct coordinate_system
+
+[heading Geometries:]
+  
+
+* point 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* typedef CS type; (cs::cartesian, cs::spherical, etc) 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_system.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__coordinate_type traits::coordinate_type]
+
+
+Traits class which indicate the coordinate type (double,float,...) of a point. 
+
+
+  template<
+      typename P >
+  struct coordinate_type
+
+[heading Geometries:]
+  
+
+* point 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* typedef T type; (double,float,int,etc) 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__cs_tag traits::cs_tag]
+
+
+Traits class defining coordinate system [link boost_geometry.reference.traits__tag `traits::tag`], bound to coordinate system. 
+
+
+  template<
+      typename CoordinateSystem >
+  struct cs_tag
+
+
+[variablelist
+  
+[[CoordinateSystem][coordinate system ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/cs.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__dimension traits::dimension]
+
+
+Traits class indicating the number of dimensions of a point. 
+
+
+  template<
+      typename P >
+  struct dimension
+
+[heading Geometries:]
+  
+
+* point 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* value (should be derived from boost::mpl::int_<D> 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/coordinate_dimension.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__exterior_ring traits::exterior_ring]
+
+
+Traits class defining [link boost_geometry.reference.traits__access `traits::access`] to [link boost_geometry.reference.traits__exterior_ring `traits::exterior_ring`] of a polygon. 
+
+
+  template<
+      typename Polygon >
+  struct exterior_ring
+Should define const and non const [link boost_geometry.reference.traits__access `traits::access`]
+
+
+
+[variablelist
+  
+[[Polygon][the polygon type ]]
+
+]
+
+
+[heading Geometries:]
+  
+
+* polygon 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* static inline RING& get(POLY& )
+
+* static inline const RING& get(const POLY& ) 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/exterior_ring.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__indexed_access traits::indexed_access]
+
+
+Traits class defining "get" and "set" to get and set point coordinate values. 
+
+
+  template<
+      typename Geometry ,
+      std::size_t ``[link boost_geometry.reference.Index Index]``,
+      std::size_t ``[link boost_geometry.reference.Dimension Dimension]``>
+  struct indexed_access
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] (box, segment) ]]
+
+[[Index][index (min\_corner/max\_corner for box, 0/1 for segment) ]]
+
+[[Dimension][[link boost_geometry.reference.traits__dimension `traits::dimension`] ]]
+
+]
+
+
+[heading Geometries:]
+  
+
+* box
+
+* segment 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* static inline T get(const G&)
+
+* static inline void set(G&, T const&) 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__interior_rings traits::interior_rings]
+
+
+Traits class defining [link boost_geometry.reference.traits__access `traits::access`] to [link boost_geometry.reference.traits__interior_rings `traits::interior_rings`] of a polygon. 
+
+
+  template<
+      typename Geometry >
+  struct interior_rings
+defines [link boost_geometry.reference.traits__access `traits::access`] (const and non const) to interior ring
+
+
+[heading Geometries:]
+  
+
+* polygon 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* static inline INTERIOR& get(POLY&)
+
+* static inline const INTERIOR& get(const POLY&) 
+
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/interior_rings.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__interior_type traits::interior_type]
+
+
+Traits class indicating interior container type of a polygon. 
+
+
+  template<
+      typename Geometry >
+  struct interior_type
+defines inner container type, so the container containing the interior rings
+
+
+[heading Geometries:]
+  
+
+* polygon 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* typedef X type ( e.g. std::vector<myring<P>> ) 
+
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/interior_rings.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__point_order traits::point_order]
+
+
+Traits class indicating the order of contained points within a ring or (multi)polygon, clockwise, counter clockwise or not known. 
+
+
+  template<
+      typename G >
+  struct point_order
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.traits__point_order.value [*value]]]
+    []
+  ]
+
+]
+
+
+[heading Geometries:]
+  
+
+* ring
+
+* polygon
+
+* multi polygon 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* typedef P type (where P should fulfil the Point concept) 
+
+
+
+
+
+[variablelist
+  
+[[G][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/point_order.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:value traits::point_order::value]
+
+[indexterm2 value..traits::point_order] 
+
+  static const order_selector value = clockwise;
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:traits__point_type traits::point_type]
+
+
+Traits class indicating the type of contained points. 
+
+
+  template<
+      typename G >
+  struct point_type
+
+[heading Geometries:]
+  
+
+* all geometries except point 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* typedef P type (where P should fulfil the Point concept) 
+
+
+
+
+
+[variablelist
+  
+[[G][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/point_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__ring_type traits::ring_type]
+
+
+Traits class to indicate ring-type of a polygon's exterior ring/interior rings. 
+
+
+  template<
+      typename Geometry >
+  struct ring_type
+
+[heading Geometries:]
+  
+
+* polygon 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* typedef XXX type ( e.g. linear_ring
+
+
+
+) 
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/ring_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:traits__tag traits::tag]
+
+
+Traits class to attach a [link boost_geometry.reference.traits__tag `traits::tag`] to a [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename ``[link boost_geometry.reference.Geometry Geometry]``>
+  struct tag
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.traits__tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+All geometries should implement a `traits::tag<G>::type` metafunction to indicate their own [link boost_geometry.reference.boost__geometry `boost::geometry`] type.
+
+
+[heading Geometries:]
+  
+
+* all geometries 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* typedef XXX_tag type; (point_tag, box_tag, ...) 
+
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tag.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type traits::tag::type]
+
+[indexterm2 type..traits::tag] 
+
+  typedef geometry_not_recognized_tag type;
+
+
+[heading Typedef Description]
+    
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/tag.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:traits__use_std traits::use_std]
+
+
+Traits class, optional, indicating that the std-library should be used. 
+
+
+  template<
+      typename Geometry >
+  struct use_std
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.traits__use_std.value [*value]]]
+    []
+  ]
+
+]
+
+The default [link boost_geometry.reference.boost__geometry `boost::geometry`] (linestring, ring, multi*) follow std:: for its modifying operations (push\_back, [link boost_geometry.reference.traits__clear `traits::clear`], size, resize, reserve, etc) If they NOT follow the std:: library they should specialize this [link boost_geometry.reference.traits `traits`] class
+
+
+[heading Geometries:]
+  
+
+* linestring
+
+* linear_ring 
+
+
+
+
+[heading Specializations should provide:]
+  
+
+* value (defaults to true) 
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/core/access.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:value traits::use_std::value]
+
+[indexterm2 value..traits::use_std] 
+
+  static const bool value = true;
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:transform transform]
+
+[indexterm1 transform] 
+Transforms from one geometry to another geometry, optionally using a strategy. 
+
+      
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  bool ``[link boost_geometry.reference.transform.overload1 transform]``(
+      Geometry1 const & geometry1,
+      Geometry2 & geometry2,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.transform.overload1 more...]]``
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool ``[link boost_geometry.reference.transform.overload2 transform]``(
+      Geometry1 const & geometry1,
+      Geometry2 & geometry2);
+  ``  [''''&raquo;''' [link boost_geometry.reference.transform.overload2 more...]]``
+
+The transform algorithm automatically transforms from one coordinate system to another coordinate system. If the coordinate system of both geometries are the same, the geometry is copied. All point(s of the geometry) are transformed.
+
+There is a version without a strategy, transforming automatically, and there is a version with a strategy.
+
+This function has a lot of appliances, for example
+* transform from spherical coordinates to cartesian coordinates, and back
+
+* transform from geographic coordinates to cartesian coordinates (projections) and back
+
+* transform from degree to radian, and back
+
+* transform from and to cartesian coordinates (mapping, translations, etc)
+
+
+
+The automatic transformations look to the coordinate system family, and dimensions, of the point type and by this apply the strategy (internally bounded by traits classes).
+
+
+[heading Examples:]
+  
+The example below shows automatic transformations to go from one coordinate system to another one:  
+
+
+
+
+
+The next example takes another approach and transforms from Cartesian to Cartesian: 
+
+
+
+
+
+
+[heading Remarks]
+      
+Not every possibility is yet worked out, e.g. polar coordinate system is ignored until now 
+
+This "transform" is broader then geodetic datum transformations, those are currently not worked out 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/transform.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 transform (1 of 2 overloads)]
+
+
+Transforms from one [link boost_geometry.reference.boost__geometry `boost::geometry`] to another [link boost_geometry.reference.boost__geometry `boost::geometry`] using a [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  bool transform(
+      Geometry1 const & geometry1,
+      Geometry2 & geometry2,
+      Strategy const & strategy);
+
+
+
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Strategy][[link boost_geometry.reference.strategy `strategy`] ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[strategy][the [link boost_geometry.reference.strategy `strategy`] to be used for transformation ]]
+
+]
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 transform (2 of 2 overloads)]
+
+
+Transforms from one [link boost_geometry.reference.boost__geometry `boost::geometry`] to another [link boost_geometry.reference.boost__geometry `boost::geometry`] using a [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool transform(
+      Geometry1 const & geometry1,
+      Geometry2 & geometry2);
+
+
+
+
+[variablelist
+  
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+true if the transformation could be done 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:traverse traverse]
+
+[indexterm1 traverse] 
+Traverses through intersection points / geometries. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Turns ,
+      typename Rings >
+  void traverse(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      detail::overlay::operation_type operation,
+      Turns & turns,
+      Rings & rings);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/overlay/traverse.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:union_inserter union_inserter]
+
+[indexterm1 union_inserter] 
+Combines two geometries which each other. 
+
+    
+  template<
+      typename GeometryOut ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename OutputIterator ,
+      typename Strategy >
+  OutputIterator ``[link boost_geometry.reference.union_inserter.overload1 union_inserter]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      OutputIterator out,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.union_inserter.overload1 more...]]``
+
+  template<
+      typename GeometryOut ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename OutputIterator >
+  OutputIterator ``[link boost_geometry.reference.union_inserter.overload2 union_inserter]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      OutputIterator out);
+  ``  [''''&raquo;''' [link boost_geometry.reference.union_inserter.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/union.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 union_inserter (1 of 2 overloads)]
+
+
+Combines two geometries which each other. 
+
+
+  template<
+      typename GeometryOut ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename OutputIterator ,
+      typename Strategy >
+  OutputIterator union_inserter(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      OutputIterator out,
+      Strategy const & strategy);
+
+
+
+
+[variablelist
+  
+[[GeometryOut][output [link boost_geometry.reference.boost__geometry `boost::geometry`] type, must be specified ]]
+
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[OutputIterator][output iterator ]]
+
+[[Strategy][compound [link boost_geometry.reference.strategy `strategy`] for intersection ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[out][the output iterator, outputting polygons ]]
+
+[[strategy][the [link boost_geometry.reference.strategy `strategy`] ]]
+
+]
+
+
+[heading Return Value]
+      
+the output iterator 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 union_inserter (2 of 2 overloads)]
+
+
+Combines two geometries which each other. 
+
+
+  template<
+      typename GeometryOut ,
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename OutputIterator >
+  OutputIterator union_inserter(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      OutputIterator out);
+
+
+
+
+[variablelist
+  
+[[GeometryOut][output [link boost_geometry.reference.boost__geometry `boost::geometry`] type, must be specified ]]
+
+[[Geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[Geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+[[OutputIterator][output iterator ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[out][the output iterator, outputting polygons ]]
+
+]
+
+
+[heading Return Value]
+      
+the output iterator 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:unique unique]
+
+[indexterm1 unique] 
+
+  template<
+      typename Geometry >
+  void unique(
+      Geometry & geometry);
+
+
+
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] type ]]
+
+]
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry][the [link boost_geometry.reference.boost__geometry `boost::geometry`] to make unique ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/unique.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:within within]
+
+[indexterm1 within] 
+      
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool ``[link boost_geometry.reference.within.overload1 within]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2);
+  ``  [''''&raquo;''' [link boost_geometry.reference.within.overload1 more...]]``
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  bool ``[link boost_geometry.reference.within.overload2 within]``(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      Strategy const & strategy);
+  ``  [''''&raquo;''' [link boost_geometry.reference.within.overload2 more...]]``
+
+
+[heading Source descriptions:]
+  
+
+* OGC: Returns 1 (TRUE) if this geometric object is "spatially within" another Geometry.
+
+
+
+
+[heading Performance]
+  
+
+* 2776 within determinations using bounding box and polygon are done in 0.05 seconds (http://trac.osgeo.org/ggl/wiki/Performance#Within1)
+
+* note that using another strategy the performance can be increased:winding : 0.093 sfranklin : 0.062 sCrossings-multiply : 0.047 s
+
+
+* but note also that the last two do not detect point-on-border cases
+
+
+
+
+[heading Geometries:]
+  
+
+* point + polygon: The well-known point-in-polygon, returning true if a point falls within a polygon (and not within one of its holes) 
+
+
+* point + ring: returns true if point is completely within a ring 
+
+
+* point + box 
+
+* box + box 
+
+
+
+
+[heading Example:]
+  
+The within algorithm is used as following:  
+
+
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/algorithms/within.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 within (1 of 2 overloads)]
+
+
+Within, examine if a [link boost_geometry.reference.boost__geometry `boost::geometry`] is within another [link boost_geometry.reference.boost__geometry `boost::geometry`]. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 >
+  bool within(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][[link boost_geometry.reference.boost__geometry `boost::geometry`] which might be within the second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][[link boost_geometry.reference.boost__geometry `boost::geometry`] which might contain the first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+[heading Return Value]
+      
+true if geometry1 is completely contained within geometry2, else false 
+
+
+[heading Remarks]
+      
+The default [link boost_geometry.reference.strategy `strategy`] is used for within detection 
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 within (2 of 2 overloads)]
+
+
+Within, examine if a [link boost_geometry.reference.boost__geometry `boost::geometry`] is within another [link boost_geometry.reference.boost__geometry `boost::geometry`], using a specified [link boost_geometry.reference.strategy `strategy`]. 
+
+
+  template<
+      typename Geometry1 ,
+      typename Geometry2 ,
+      typename Strategy >
+  bool within(
+      Geometry1 const & geometry1,
+      Geometry2 const & geometry2,
+      Strategy const & strategy);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[geometry1][[link boost_geometry.reference.boost__geometry `boost::geometry`] which might be within the second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[geometry2][[link boost_geometry.reference.boost__geometry `boost::geometry`] which might contain the first [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+[[strategy][[link boost_geometry.reference.strategy `strategy`] to be used ]]
+
+]
+
+
+[heading Return Value]
+      
+true if geometry1 is completely contained within geometry2, else false 
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[endsect]
