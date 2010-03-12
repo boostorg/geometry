@@ -19,7 +19,7 @@
 </xsl:variable>
 
 
-<!--
+<!-- ### doxygen ##################################################################################
   Loop over all top-level documentation elements (i.e. classes, functions,
   variables and typedefs at namespace scope). The elements are sorted by name.
   Anything in a "detail" namespace or "dispatch" namespace is skipped.
@@ -37,6 +37,8 @@
 
 [xinclude quickref.xml]
 
+[include geometry_concepts.qbk]
+
 </xsl:text>
 
   <xsl:for-each select="
@@ -48,29 +50,17 @@
 
     <xsl:choose>
       <xsl:when test="@kind='class' or @kind='struct'">
-        
-COMPOUNDNAME=<xsl:value-of select="compoundname" />
-
         <xsl:if test="
             contains(compoundname, 'geometry::') and
             not(contains(compoundname, '::detail')) and
             not(contains(compoundname, '::dispatch'))">
-
-CLASS:
-
           <xsl:call-template name="class"/>
         </xsl:if>
       </xsl:when>
       <xsl:otherwise>
-
-COMPOUNDNAME=<xsl:value-of select="../../compoundname" />
-
         <xsl:if test="
             contains(ancestor::*/*/compoundname, 'geometry::') and
             not(contains(ancestor::*/compoundname, '::detail'))">
-
-NAMESPACE-MEMBERDEF:
-
           <xsl:call-template name="namespace-memberdef"/>
         </xsl:if>
       </xsl:otherwise>
@@ -80,11 +70,10 @@ NAMESPACE-MEMBERDEF:
   <xsl:value-of select="$newline"/>
   <xsl:text>[endsect]</xsl:text>
 
-</xsl:template>
+</xsl:template> <!-- ### doxygen ############################################################### -->
 
 
-<!--========== Utilities ==========-->
-
+<!-- ### UTILITIES ############################################################################# -->
 <xsl:template name="strip-geometry-ns">
   <xsl:param name="name"/>
   <xsl:choose>
@@ -96,7 +85,6 @@ NAMESPACE-MEMBERDEF:
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
-
 
 <xsl:template name="strip-ns">
   <xsl:param name="name"/>
@@ -123,7 +111,6 @@ NAMESPACE-MEMBERDEF:
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
-
 
 <xsl:template name="make-id">
   <xsl:param name="name"/>
@@ -182,8 +169,7 @@ NAMESPACE-MEMBERDEF:
   </xsl:choose>
 </xsl:template>
 
-
-<!--========== Markup ==========-->
+<!-- ### MARKUP ################################################################################ -->
 
 <xsl:template match="para" mode="markup">
 <xsl:text>
@@ -193,7 +179,7 @@ NAMESPACE-MEMBERDEF:
 
 
 <xsl:template match="para" mode="markup-nested">
-<xsl:apply-templates mode="markup-nested"/>
+    <xsl:apply-templates mode="markup-nested"/>
 </xsl:template>
 
 
@@ -538,10 +524,7 @@ NAMESPACE-MEMBERDEF:
   <xsl:value-of select="$newline"/>
 </xsl:template>
 
-
-
-<!--========== Class ==========-->
-
+<!-- ### class ################################################################################# -->
 <xsl:template name="class">
   <xsl:variable name="class-name">
     <xsl:call-template name="strip-geometry-ns">
@@ -559,13 +542,9 @@ NAMESPACE-MEMBERDEF:
     </xsl:call-template>
   </xsl:variable>
   <xsl:variable name="class-file" select="location/@file"/>
-
-  CLASS-NAME=<xsl:value-of select="$class-name"/>
-  CLASS-ID=<xsl:value-of select="$class-id"/>
-  CLASS-FILE=<xsl:value-of select="location/@file"/>
-
 [section:<xsl:value-of select="$class-id"/><xsl:text> </xsl:text><xsl:value-of select="$class-name"/>]
 
+<!-- [heading Class Brief] -->
 <xsl:apply-templates select="briefdescription" mode="markup"/><xsl:text>
 
 </xsl:text>
@@ -593,6 +572,7 @@ NAMESPACE-MEMBERDEF:
   <xsl:with-param name="class-id" select="$class-id"/>
 </xsl:call-template>
 
+<!-- [heading Class Description] -->
 <xsl:apply-templates select="detaileddescription" mode="markup"/>
 
 <xsl:call-template name="header-requirements">
@@ -606,9 +586,10 @@ NAMESPACE-MEMBERDEF:
 </xsl:call-template>
 
 [endsect]
-</xsl:template>
+</xsl:template> <!-- ### class ################################################################# -->
 
 
+<!-- ### class-tables ########################################################################## -->
 <xsl:template name="class-tables">
 <xsl:param name="class-name"/>
 <xsl:param name="class-id"/>
@@ -616,7 +597,8 @@ NAMESPACE-MEMBERDEF:
     count(
       sectiondef[@kind='public-type'] |
       innerclass[@prot='public']) &gt; 0">
-[heading Types]
+
+[heading Public Types]
 [table
   [[Name][Description]]
 <xsl:for-each select="
@@ -658,7 +640,7 @@ NAMESPACE-MEMBERDEF:
 </xsl:if>
 
 <xsl:if test="count(sectiondef[@kind='public-func' or @kind='public-static-func']) > 0">
-[heading Member Functions]
+[heading Public Member Functions]
 [table
   [[Name][Description]]
 <xsl:for-each select="sectiondef[@kind='public-func' or @kind='public-static-func']/memberdef" mode="class-table">
@@ -754,7 +736,7 @@ NAMESPACE-MEMBERDEF:
 </xsl:if>
 
 <xsl:if test="count(sectiondef[@kind='public-attrib' or @kind='public-static-attrib']) > 0">
-[heading Data Members]
+[heading Public Data Members]
 [table
   [[Name][Description]]
 <xsl:for-each select="sectiondef[@kind='public-attrib' or @kind='public-static-attrib']/memberdef" mode="class-table">
@@ -879,7 +861,7 @@ NAMESPACE-MEMBERDEF:
 ]
 </xsl:if>
 
-</xsl:template>
+</xsl:template> <!-- ### class-tables ########################################################## -->
 
 
 <xsl:template name="class-members">
@@ -894,9 +876,7 @@ NAMESPACE-MEMBERDEF:
 </xsl:apply-templates>
 </xsl:template>
 
-
-<!-- Class detail -->
-
+<!-- ### class-detail ########################################################################## -->
 <xsl:template match="memberdef" mode="class-detail">
   <xsl:param name="class-name"/>
   <xsl:param name="class-id"/>
@@ -933,6 +913,7 @@ NAMESPACE-MEMBERDEF:
 <xsl:value-of select="$class-name"/>
 <xsl:text>] </xsl:text>
 
+<!-- [heading Class Detail Brief] -->
 <xsl:apply-templates select="briefdescription" mode="markup"/><xsl:text>
 </xsl:text>
 
@@ -1024,9 +1005,10 @@ NAMESPACE-MEMBERDEF:
 <xsl:if test="$overload-count &gt; 1 and $overload-position = $overload-count">
 [endsect]
 </xsl:if>
-</xsl:template>
+</xsl:template> <!-- ### class-detail ########################################################## -->
 
 
+<!-- ### typedef ############################################################################### -->
 <xsl:template name="typedef">
 <xsl:param name="class-name"/>
 <xsl:text>
@@ -1055,10 +1037,11 @@ NAMESPACE-MEMBERDEF:
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+[heading Typedef Description]
     <xsl:apply-templates select="detaileddescription" mode="markup"/>
   </xsl:for-each>
 </xsl:if>
-</xsl:template>
+</xsl:template> <!-- ### typedef ############################################################### -->
 
 
 <xsl:template name="variable">
@@ -1070,6 +1053,7 @@ NAMESPACE-MEMBERDEF:
 </xsl:template>
 
 
+<!-- ### enum ################################################################################## -->
 <xsl:template name="enum">
 <xsl:param name="enum-name"/>
   enum <xsl:value-of select="name"/><xsl:text>
@@ -1093,7 +1077,7 @@ NAMESPACE-MEMBERDEF:
 </xsl:for-each>
 ]
 </xsl:if>
-</xsl:template>
+</xsl:template> <!-- ### enum ################################################################## -->
 
 
 <xsl:template name="function">
@@ -1111,6 +1095,7 @@ NAMESPACE-MEMBERDEF:
 </xsl:template>
 
 
+<!-- ### class-detail-template ################################################################# -->
 <xsl:template match="param" mode="class-detail-template">
 <xsl:text>
       </xsl:text><xsl:value-of select="type"/><xsl:text> </xsl:text>
@@ -1144,9 +1129,10 @@ NAMESPACE-MEMBERDEF:
       </xsl:choose>
       <xsl:if test="count(defval) > 0"> = <xsl:value-of
         select="defval"/></xsl:if><xsl:if test="not(position() = last())">,</xsl:if>
-</xsl:template>
+</xsl:template> <!-- ### class-detail-template ################################################# -->
 
 
+<!-- ### class-detail ########################################################################## -->
 <xsl:template match="param" mode="class-detail">
 <xsl:text>
       </xsl:text>
@@ -1166,14 +1152,13 @@ NAMESPACE-MEMBERDEF:
   </xsl:choose>
   <xsl:if test="count(defval) > 0"> = <xsl:value-of select="defval"/></xsl:if>
   <xsl:if test="not(position() = last())">,</xsl:if>
-</xsl:template>
+</xsl:template> <!-- ### class-detail ########################################################## -->
 
 
 <xsl:template match="*" mode="class-detail"/>
 
 
-<!--========== Namespace ==========-->
-
+<!-- ###### namespace-memberdef ################################################################ -->
 <xsl:template name="namespace-memberdef">
   <xsl:variable name="name">
     <xsl:call-template name="strip-geometry-ns">
@@ -1204,9 +1189,6 @@ NAMESPACE-MEMBERDEF:
     </xsl:for-each>
   </xsl:variable>
 
-  MEMBERDEF-NAME=<xsl:value-of select="$name"/>
-  MEMBERDEF-ID=<xsl:value-of select="$id"/>
-
 <xsl:if test="$overload-count &gt; 1 and $overload-position = 1">
 [section:<xsl:value-of select="$id"/><xsl:text> </xsl:text><xsl:value-of select="$name"/>]
 
@@ -1214,9 +1196,8 @@ NAMESPACE-MEMBERDEF:
 <xsl:value-of select="$name"/>
 <xsl:text>] </xsl:text>
 
-<!--
-    GROUP 1
--->
+
+<!-- ###### Brief description of group ###### -->
 <xsl:choose>
   <xsl:when test="count(/doxygen/compounddef[@kind='group' and compoundname=$name]) &gt; 0">
     <xsl:for-each select="/doxygen/compounddef[@kind='group' and compoundname=$name]">
@@ -1244,9 +1225,7 @@ NAMESPACE-MEMBERDEF:
 </xsl:text>
 </xsl:for-each>
 
-<!--
-    GROUP 2
--->
+<!-- ###### Detailed description of group ###### -->
 <xsl:for-each select="/doxygen/compounddef[@kind='group' and compoundname=$name]">
   <xsl:apply-templates select="detaileddescription" mode="markup"/>
 </xsl:for-each>
@@ -1269,6 +1248,7 @@ NAMESPACE-MEMBERDEF:
   <xsl:text>] </xsl:text>
 </xsl:if>
 
+<!-- [heading NS Member Brief] -->
 <xsl:apply-templates select="briefdescription" mode="markup"/><xsl:text>
 </xsl:text>
 
@@ -1292,7 +1272,10 @@ NAMESPACE-MEMBERDEF:
   </xsl:choose>
 
 <xsl:text>
-</xsl:text><xsl:apply-templates select="detaileddescription" mode="markup"/>
+</xsl:text>
+
+<!-- [heading NS Member Description] -->
+<xsl:apply-templates select="detaileddescription" mode="markup"/>
 
 <xsl:if test="$overload-count = 1">
   <xsl:call-template name="header-requirements">
@@ -1305,6 +1288,7 @@ NAMESPACE-MEMBERDEF:
 <xsl:if test="$overload-count &gt; 1 and $overload-position = $overload-count">
 [endsect]
 </xsl:if>
-</xsl:template>
+</xsl:template> <!-- ###### namespace-memberdef ################################################ -->
+
 
 </xsl:stylesheet>
