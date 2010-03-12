@@ -68,10 +68,14 @@ WARN_LOGFILE           = ./doxygen.log
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = ./../../../../boost/geometry/core \
-                         ./../../../../boost/geometry/arithmetic \
-                         ./../../../../boost/geometry/algorithms \
-                         ./../../../../boost/geometry/algorithms/overlay
+INPUT                  = \
+    ./../../../../boost/geometry/geometries/concepts \
+    ./../../../../boost/geometry/geometries \
+    ./../../../../boost/geometry/geometries/adapted \
+    ./../../../../boost/geometry/core \
+    ./../../../../boost/geometry/arithmetic \
+    ./../../../../boost/geometry/algorithms \
+    ./../../../../boost/geometry/algorithms/overlay
 
 FILE_PATTERNS          = *.hpp
 RECURSIVE              = NO
