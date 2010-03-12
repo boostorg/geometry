@@ -8,7 +8,7 @@
     http://www.boost.org/LICENSE_1_0.txt)
 ===============================================================================/]
 
-[section:concepts Geometry Concepts]
+[section:Geometry Geometry Concepts]
 
 [:['["A concept is a set of requirements consisting of valid expressions,
 associated types, invariants, and complexity guarantees]]
@@ -85,7 +85,7 @@ respectively.
 [/Explanation of the terms included only next to the Point concept below to
   help to diest concepts presentation full definitions at
   http://www.sgi.com/tech/stl/doc_introduction.html]
-[section Point]
+[section:Point Point]
 
 [/Description - A summary of the concept's purpose.]
 [heading Description]
@@ -162,7 +162,7 @@ DefaultConstructible, CopyConstructible, Assignable.
 
 [endsect] [/ end of section Concept Point]
 
-[section ConstPoint]
+[section:ConstPoint ConstPoint]
 
 [heading Description]
 
