@@ -6,14 +6,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
 #ifndef BOOST_GEOMETRY_GEOMETRIES_REGISTER_POINT_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_REGISTER_POINT_HPP
 
-
-
-// This file implements a "macro party",
-// for registration of custom geometry types
+/**
+ * @file point.hpp
+ * @brief Macros for registration of custom point geometry types.
+ * This file implements a "macro party" for registration of custom geometry types.
+ */
 
 #ifndef DOXYGEN_NO_SPECIALIZATIONS
 
@@ -75,7 +75,6 @@
     };
 
 
-
 #define BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESS_2D(Point, CoordinateType, Get0, Get1, Set0, Set1) \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESSOR(Point, 0, CoordinateType, Get0, Set0) \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESSOR(Point, 1, CoordinateType, Get1, Set1)
@@ -98,8 +97,7 @@
 #endif // DOXYGEN_NO_SPECIALIZATIONS
 
 
-
-// Library user macro to register a custom 2D point
+/// @brief Library user macro to register a custom 2D point
 #define BOOST_GEOMETRY_REGISTER_POINT_2D(Point, CoordinateType, CoordinateSystem, Field0, Field1) \
 namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_TRAITS(Point, 2, CoordinateType, CoordinateSystem) \
@@ -107,7 +105,7 @@ namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESS_2D(Point, CoordinateType, Field0, Field1, Field0, Field1) \
 }}}
 
-// Library user macro to register a custom 3D point
+/// @brief Library user macro to register a custom 3D point
 #define BOOST_GEOMETRY_REGISTER_POINT_3D(Point, CoordinateType, CoordinateSystem, Field0, Field1, Field2) \
 namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_TRAITS(Point, 3, CoordinateType, CoordinateSystem) \
@@ -115,9 +113,7 @@ namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESS_3D(Point, CoordinateType, Field0, Field1, Field2, Field0, Field1, Field2) \
 }}}
 
-
-
-// Library user macro to register a custom 2D point (CONST version)
+/// @brief Library user macro to register a custom 2D point (CONST version)
 #define BOOST_GEOMETRY_REGISTER_POINT_2D_CONST(Point, CoordinateType, CoordinateSystem, Field0, Field1) \
 namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_TRAITS(Point, 2, CoordinateType, CoordinateSystem) \
@@ -125,7 +121,7 @@ namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESS_CONST_2D(Point, CoordinateType, Field0, Field1) \
 }}}
 
-// Library user macro to register a custom 3D point (CONST version)
+/// @brief Library user macro to register a custom 3D point (CONST version)
 #define BOOST_GEOMETRY_REGISTER_POINT_3D_CONST(Point, CoordinateType, CoordinateSystem, Field0, Field1, Field2) \
 namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_TRAITS(Point, 3, CoordinateType, CoordinateSystem) \
@@ -133,8 +129,7 @@ namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESS_CONST_3D(Point, CoordinateType, Field0, Field1, Field2) \
 }}}
 
-
-// Library user macro to register a custom 2D point (having separate get/set methods)
+/// @brief Library user macro to register a custom 2D point (having separate get/set methods)
 #define BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(Point, CoordinateType, CoordinateSystem, Get0, Get1, Set0, Set1) \
 namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_TRAITS(Point, 2, CoordinateType, CoordinateSystem) \
@@ -143,8 +138,7 @@ namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESSOR_GET_SET(Point, 1, CoordinateType, Get1, Set1) \
 }}}
 
-
-// Library user macro to register a custom 3D point (having separate get/set methods)
+/// @brief Library user macro to register a custom 3D point (having separate get/set methods)
 #define BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET(Point, CoordinateType, CoordinateSystem, Get0, Get1, Get2, Set0, Set1, Set2) \
 namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_TRAITS(Point, 3, CoordinateType, CoordinateSystem) \
@@ -153,6 +147,5 @@ namespace boost { namespace geometry { namespace traits {  \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESSOR_GET_SET(Point, 1, CoordinateType, Get1, Set1) \
     BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESSOR_GET_SET(Point, 2, CoordinateType, Get2, Set2) \
 }}}
-
 
 #endif // BOOST_GEOMETRY_GEOMETRIES_REGISTER_POINT_HPP
