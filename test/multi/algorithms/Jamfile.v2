@@ -18,6 +18,8 @@ test-suite ggl-multi-algorithms
     [ run multi_intersection.cpp ]
     [ run multi_length.cpp ]
     [ run multi_perimeter.cpp ]
+    [ run multi_reverse.cpp ]
     [ run multi_simplify.cpp ]
     [ run multi_union.cpp ]
+    [ run multi_unique.cpp ]
     ;
