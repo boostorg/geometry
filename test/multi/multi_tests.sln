@@ -28,6 +28,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_union", "algorithms\m
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_equals", "algorithms\multi_equals.vcproj", "{AA0EFD64-E034-421A-BD4A-E5A336D95C30}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_reverse", "algorithms\multi_reverse.vcproj", "{698BE05D-43E2-4BF5-B7FD-48BE3EE7BC21}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_unique", "algorithms\multi_unique.vcproj", "{71879D37-84A8-4949-8CDB-212982F81D80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -90,6 +94,14 @@ Global
 		{AA0EFD64-E034-421A-BD4A-E5A336D95C30}.Debug|Win32.Build.0 = Debug|Win32
 		{AA0EFD64-E034-421A-BD4A-E5A336D95C30}.Release|Win32.ActiveCfg = Release|Win32
 		{AA0EFD64-E034-421A-BD4A-E5A336D95C30}.Release|Win32.Build.0 = Release|Win32
+		{698BE05D-43E2-4BF5-B7FD-48BE3EE7BC21}.Debug|Win32.ActiveCfg = Debug|Win32
+		{698BE05D-43E2-4BF5-B7FD-48BE3EE7BC21}.Debug|Win32.Build.0 = Debug|Win32
+		{698BE05D-43E2-4BF5-B7FD-48BE3EE7BC21}.Release|Win32.ActiveCfg = Release|Win32
+		{698BE05D-43E2-4BF5-B7FD-48BE3EE7BC21}.Release|Win32.Build.0 = Release|Win32
+		{71879D37-84A8-4949-8CDB-212982F81D80}.Debug|Win32.ActiveCfg = Debug|Win32
+		{71879D37-84A8-4949-8CDB-212982F81D80}.Debug|Win32.Build.0 = Debug|Win32
+		{71879D37-84A8-4949-8CDB-212982F81D80}.Release|Win32.ActiveCfg = Release|Win32
+		{71879D37-84A8-4949-8CDB-212982F81D80}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
