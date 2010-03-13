@@ -52,6 +52,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "equals", "equals.vcproj", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "difference", "difference.vcproj", "{4EBFC27A-75C9-43A1-8DDA-AFEB45C564DC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unique", "unique.vcproj", "{104D31F9-49BA-4A1A-B84F-0A3AEE3C4DB2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reverse", "reverse.vcproj", "{14B5DFC5-D511-4D8C-A231-EE90A05687E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -162,6 +166,14 @@ Global
 		{4EBFC27A-75C9-43A1-8DDA-AFEB45C564DC}.Debug|Win32.Build.0 = Debug|Win32
 		{4EBFC27A-75C9-43A1-8DDA-AFEB45C564DC}.Release|Win32.ActiveCfg = Release|Win32
 		{4EBFC27A-75C9-43A1-8DDA-AFEB45C564DC}.Release|Win32.Build.0 = Release|Win32
+		{104D31F9-49BA-4A1A-B84F-0A3AEE3C4DB2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{104D31F9-49BA-4A1A-B84F-0A3AEE3C4DB2}.Debug|Win32.Build.0 = Debug|Win32
+		{104D31F9-49BA-4A1A-B84F-0A3AEE3C4DB2}.Release|Win32.ActiveCfg = Release|Win32
+		{104D31F9-49BA-4A1A-B84F-0A3AEE3C4DB2}.Release|Win32.Build.0 = Release|Win32
+		{14B5DFC5-D511-4D8C-A231-EE90A05687E1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{14B5DFC5-D511-4D8C-A231-EE90A05687E1}.Debug|Win32.Build.0 = Debug|Win32
+		{14B5DFC5-D511-4D8C-A231-EE90A05687E1}.Release|Win32.ActiveCfg = Release|Win32
+		{14B5DFC5-D511-4D8C-A231-EE90A05687E1}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
