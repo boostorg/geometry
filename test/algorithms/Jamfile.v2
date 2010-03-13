@@ -27,9 +27,11 @@ test-suite ggl-algorithms
     [ run make.cpp ]
     [ run overlaps.cpp ]
     [ run perimeter.cpp ]
+    [ run reverse.cpp ]
     [ run sectionalize.cpp ]
     [ run simplify.cpp ]
     [ run transform.cpp ]
     [ run union.cpp ]
+    [ run unique.cpp ]
     [ run within.cpp ]
     ;
