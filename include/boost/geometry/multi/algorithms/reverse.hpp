@@ -8,7 +8,7 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_REVERSE_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_REVERSE_HPP
 
-#include <boost/range/functions.hpp>
+
 #include <boost/range/metafunctions.hpp>
 
 
