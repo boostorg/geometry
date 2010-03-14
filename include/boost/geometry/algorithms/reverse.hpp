@@ -73,10 +73,8 @@ struct polygon_reverse
 };
 
 
-
 }} // namespace detail::reverse
 #endif // DOXYGEN_NO_DETAIL
-
 
 
 #ifndef DOXYGEN_NO_DISPATCH

@@ -55,7 +55,7 @@ struct polygon_clear
 template <typename Geometry>
 struct no_action
 {
-    static inline void apply(Geometry& geometry)
+    static inline void apply(Geometry& )
     {
     }
 };

@@ -18,10 +18,12 @@
 
 #include <boost/geometry/strategies/transform/matrix_transformers.hpp>
 
+
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace transform {
+namespace strategy { namespace transform 
+{
 
 /*!
     \brief Transformation strategy to do an inverse ransformation in Cartesian system
@@ -35,10 +37,11 @@ struct inverse_transformer
 {
     typedef typename select_coordinate_type<P1, P2>::type T;
 
-    template <typename MatrixType>
-    inline inverse_transformer(const MatrixType& input)
+    template <typename Transformer>
+    inline inverse_transformer(Transformer const& input)
     {
-        typedef boost::numeric::ublas::matrix<double> matrix_type;
+        typedef boost::numeric::ublas::matrix<T> matrix_type;
+
         // create a working copy of the input
         matrix_type copy(input.matrix());
 
@@ -57,7 +60,6 @@ struct inverse_transformer
             boost::numeric::ublas::lu_substitute(copy, pm, this->m_matrix);
         }
     }
-
 
 };
 

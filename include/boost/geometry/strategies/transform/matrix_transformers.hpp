@@ -24,9 +24,12 @@
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
-namespace boost { namespace geometry {
 
-namespace strategy { namespace transform {
+namespace boost { namespace geometry 
+{
+
+namespace strategy { namespace transform 
+{
 
 /*!
     \brief Affine transformation strategy in Cartesian system.

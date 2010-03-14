@@ -23,10 +23,12 @@
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry 
+{
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace distance {
+namespace detail { namespace distance 
+{
 
 
 template<typename Geometry, typename MultiGeometry, typename Strategy>
