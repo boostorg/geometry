@@ -23,7 +23,7 @@
 #include <boost/geometry/algorithms/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/overlay/assemble.hpp>
 
-#include <boost/geometry/strategies/area_result.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -37,9 +37,10 @@ namespace detail { namespace dissolve
 {
 
 
-template <typename Geometry, typename OutputIterator>
-struct dissolve_region
+template <typename Geometry, typename GeometryOut>
+struct dissolve_ring_or_polygon
 {
+	template <typename OutputIterator>
     static inline OutputIterator apply(Geometry const& geometry,
                 OutputIterator out)
     {
@@ -56,32 +57,43 @@ struct dissolve_region
                 detail::overlay::calculate_distance_policy
             >(geometry, turns, policy);
 
+		// The dissolve process is not necessary if there are no turns at all
 
-        typedef typename ring_type<Geometry>::type ring_type;
-        typedef std::vector<ring_type> out_vector;
-        out_vector rings;
+		if (boost::size(turns) > 0)
+		{
+			typedef typename ring_type<Geometry>::type ring_type;
+			typedef std::vector<ring_type> out_vector;
+			out_vector rings;
 
-        // Enrich the turns
-        typedef typename strategy_side
-        <
-            typename cs_tag<Geometry>::type
-        >::type side_strategy_type;
+			// Enrich the turns
+			typedef typename strategy_side
+			<
+				typename cs_tag<Geometry>::type
+			>::type side_strategy_type;
 
-        enrich_intersection_points(turns, geometry, geometry,
-                    side_strategy_type());
+			enrich_intersection_points(turns, geometry, geometry,
+						side_strategy_type());
 
 
-        // Traverse the polygons twice in two different directions
-        traverse(geometry, geometry, detail::overlay::operation_union,
-                        turns, rings);
+			// Traverse the polygons twice in two different directions
+			traverse(geometry, geometry, detail::overlay::operation_union,
+							turns, rings);
 
-        clear_visit_info(turns);
+			clear_visit_info(turns);
 
-        traverse(geometry, geometry, detail::overlay::operation_intersection,
-                        turns, rings);
+			traverse(geometry, geometry, detail::overlay::operation_intersection,
+							turns, rings);
 
-        return detail::overlay::assemble<Geometry>(rings, turns,
-                        geometry, geometry, 1, true, out);
+			return detail::overlay::assemble<GeometryOut>(rings, turns,
+							geometry, geometry, 1, true, out);
+		}
+		else
+		{
+			GeometryOut g;
+			geometry::convert(geometry, g);
+			*out++ = g;
+			return out;
+		}
     }
 };
 
@@ -97,41 +109,24 @@ namespace dispatch
 
 template
 <
-    typename GeometryTag,
-    typename Geometry,
-    typename OutputIterator
+	typename GeometryTag, 
+	typename GeometryOutTag, 
+	typename Geometry, 
+	typename GeometryOut
 >
 struct dissolve
 {};
 
 
-template
-<
-    typename Polygon,
-    typename OutputIterator
->
-struct dissolve
-    <
-        polygon_tag,
-        Polygon,
-        OutputIterator
-    >
-    : detail::dissolve::dissolve_region<Polygon, OutputIterator>
+template<typename Polygon, typename PolygonOut>
+struct dissolve<polygon_tag, polygon_tag, Polygon, PolygonOut>
+    : detail::dissolve::dissolve_ring_or_polygon<Polygon, PolygonOut>
 {};
 
 
-template
-<
-    typename Ring,
-    typename OutputIterator
->
-struct dissolve
-    <
-        ring_tag,
-        Ring,
-        OutputIterator
-    >
-    : detail::dissolve::dissolve_region<Ring, OutputIterator>
+template<typename Ring, typename RingOut>
+struct dissolve<ring_tag, ring_tag, Ring, RingOut>
+    : detail::dissolve::dissolve_ring_or_polygon<Ring, RingOut>
 {};
 
 
@@ -147,25 +142,57 @@ struct dissolve
     \tparam OutputIterator type of intersection container
         (e.g. vector of "intersection/turn point"'s)
     \param geometry first geometry
-    \param output container which will contain intersection points
+    \param output container which will contain dissolved geometry
  */
 template
 <
+    typename GeometryOut,
     typename Geometry,
     typename OutputIterator
 >
-inline OutputIterator dissolve(Geometry const& geometry, OutputIterator output)
+inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator out)
 {
     concept::check<Geometry const>();
-
+    concept::check<GeometryOut>();
 
     return dispatch::dissolve
     <
         typename tag<Geometry>::type,
+		typename tag<GeometryOut>::type,
         Geometry,
-        OutputIterator
-    >::apply(geometry, output);
+		GeometryOut
+    >::apply(geometry, out);
 }
+
+
+template
+<
+    typename Geometry,
+    typename GeometryOut
+>
+inline void dissolve(Geometry const& geometry, GeometryOut& out)
+{
+    concept::check<Geometry const>();
+    concept::check<GeometryOut>();
+
+	std::vector<GeometryOut> v;
+    dispatch::dissolve
+    <
+        typename tag<Geometry>::type,
+		typename tag<GeometryOut>::type,
+        Geometry,
+		GeometryOut
+	>::apply(geometry, std::back_inserter(v));
+	if (boost::size(v) > 0)
+	{
+		out = v.front();
+	}
+	else
+	{
+		out = geometry;
+	}
+}
+
 
 
 }} // namespace boost::geometry
