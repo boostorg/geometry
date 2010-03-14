@@ -75,7 +75,13 @@ INPUT                  = \
     ./../../../../boost/geometry/core \
     ./../../../../boost/geometry/arithmetic \
     ./../../../../boost/geometry/algorithms \
-    ./../../../../boost/geometry/algorithms/overlay
+    ./../../../../boost/geometry/algorithms/overlay \
+    ./../../../../boost/geometry/strategies \
+    ./../../../../boost/geometry/strategies/agnostic \
+    ./../../../../boost/geometry/strategies/cartesian \
+    ./../../../../boost/geometry/strategies/concepts \
+    ./../../../../boost/geometry/strategies/spherical \
+    ./../../../../boost/geometry/strategies/transform
 
 FILE_PATTERNS          = *.hpp
 RECURSIVE              = NO
