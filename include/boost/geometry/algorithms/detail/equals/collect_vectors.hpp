@@ -35,18 +35,18 @@ namespace boost { namespace geometry
 template <typename T>
 struct collected_vector
 {
-	typedef T type;
+    typedef T type;
 
-	collected_vector()
-	{}
+    collected_vector()
+    {}
 
-	collected_vector(T const& px, T const& py,
-			T const& pdx, T const& pdy)
-		: x(px)
-		, y(py)
-		, dx(pdx)
-		, dy(pdy)
-	{}
+    collected_vector(T const& px, T const& py,
+            T const& pdx, T const& pdy)
+        : x(px)
+        , y(py)
+        , dx(pdx)
+        , dy(pdy)
+    {}
 
     T x, y;
     T dx, dy;
@@ -92,8 +92,8 @@ namespace detail { namespace collect_vectors
 template <typename Range, typename Collection>
 struct range_collect_vectors
 {
-	typedef typename boost::range_value<Collection>::type item_type;
-	typedef typename item_type::type calculation_type;
+    typedef typename boost::range_value<Collection>::type item_type;
+    typedef typename item_type::type calculation_type;
 
     static inline void apply(Collection& collection, Range const& range)
     {
@@ -120,8 +120,8 @@ struct range_collect_vectors
 
             // Normalize the vector -> this results in points+direction
             // and is comparible between geometries
-			calculation_type magnitude = sqrt(
-				boost::numeric_cast<calculation_type>(v.dx * v.dx + v.dy * v.dy));
+            calculation_type magnitude = sqrt(
+                boost::numeric_cast<calculation_type>(v.dx * v.dx + v.dy * v.dy));
 
             // Avoid non-duplicate points (AND division by zero)
             if (magnitude > 0)
@@ -145,24 +145,24 @@ struct range_collect_vectors
 template <typename Box, typename Collection>
 struct box_collect_vectors
 {
-	// Calculate on coordinate type, but if it is integer,
-	// then use double
-	typedef typename boost::range_value<Collection>::type item_type;
-	typedef typename item_type::type calculation_type;
+    // Calculate on coordinate type, but if it is integer,
+    // then use double
+    typedef typename boost::range_value<Collection>::type item_type;
+    typedef typename item_type::type calculation_type;
 
     static inline void apply(Collection& collection, Box const& box)
     {
-		typename point_type<Box>::type lower_left, lower_right,
-				upper_left, upper_right;
-		assign_box_corners(box, lower_left, lower_right,
-				upper_left, upper_right);
+        typename point_type<Box>::type lower_left, lower_right,
+                upper_left, upper_right;
+        assign_box_corners(box, lower_left, lower_right,
+                upper_left, upper_right);
 
         typedef typename boost::range_value<Collection>::type item;
 
-		collection.push_back(item(get<0>(lower_left), get<1>(lower_left), 0, 1));
-		collection.push_back(item(get<0>(upper_left), get<1>(upper_left), 1, 0));
-		collection.push_back(item(get<0>(upper_right), get<1>(upper_right), 0, -1));
-		collection.push_back(item(get<0>(lower_right), get<1>(lower_right), -1, 0));
+        collection.push_back(item(get<0>(lower_left), get<1>(lower_left), 0, 1));
+        collection.push_back(item(get<0>(upper_left), get<1>(upper_left), 1, 0));
+        collection.push_back(item(get<0>(upper_right), get<1>(upper_right), 0, -1));
+        collection.push_back(item(get<0>(lower_right), get<1>(lower_right), -1, 0));
     }
 };
 
