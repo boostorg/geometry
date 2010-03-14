@@ -49,6 +49,8 @@ for std:: library compatibility.
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_coordinate_type.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/collect_vectors.hpp>
 
@@ -57,7 +59,7 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace equals 
+namespace detail { namespace equals
 {
 
 
@@ -93,25 +95,25 @@ struct box_box<Box1, Box2, DimensionCount, DimensionCount>
 
 struct area_check
 {
-	template <typename Geometry1, typename Geometry2>
+    template <typename Geometry1, typename Geometry2>
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-		return geometry::math::equals(
-				geometry::area(geometry1),
-				geometry::area(geometry1));
-	}
+        return geometry::math::equals(
+                geometry::area(geometry1),
+                geometry::area(geometry1));
+    }
 };
 
 
 struct length_check
 {
-	template <typename Geometry1, typename Geometry2>
+    template <typename Geometry1, typename Geometry2>
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-		return geometry::math::equals(
-				geometry::length(geometry1),
-				geometry::length(geometry1));
-	}
+        return geometry::math::equals(
+                geometry::length(geometry1),
+                geometry::length(geometry1));
+    }
 };
 
 
@@ -120,39 +122,39 @@ struct equals_by_collection
 {
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-		if (! TrivialCheck::apply(geometry1, geometry2))
-		{
-			return false;
-		}
+        if (! TrivialCheck::apply(geometry1, geometry2))
+        {
+            return false;
+        }
 
-		typedef typename geometry::select_most_precise
-			<
-				typedef select_coordinate_type
-					<
-						Geometry1, Geometry2
-					>::type,
-				double
-			>::type calculation_type;
+        typedef typename geometry::select_most_precise
+            <
+                typename select_coordinate_type
+                    <
+                        Geometry1, Geometry2
+                    >::type,
+                double
+            >::type calculation_type;
 
-		typedef std::vector<collected_vector<calculation_type> > v;
-		v c1, c2;
+        typedef std::vector<collected_vector<calculation_type> > v;
+        v c1, c2;
 
-		geometry::collect_vectors(c1, geometry1);
-		geometry::collect_vectors(c2, geometry2);
+        geometry::collect_vectors(c1, geometry1);
+        geometry::collect_vectors(c2, geometry2);
 
-		if (boost::size(c1) != boost::size(c2))
-		{
-			return false;
-		}
+        if (boost::size(c1) != boost::size(c2))
+        {
+            return false;
+        }
 
-		// Check where direction is NOT changing
+        // Check where direction is NOT changing
 
-		std::sort(c1.begin(), c1.end());
-		std::sort(c2.begin(), c2.end());
+        std::sort(c1.begin(), c1.end());
+        std::sort(c2.begin(), c2.end());
 
-		// Just check if these vectors are equal.
-		return c1.size() == c2.size() 
-			&& std::equal(c1.begin(), c1.end(), c2.begin());
+        // Just check if these vectors are equal.
+        return c1.size() == c2.size()
+            && std::equal(c1.begin(), c1.end(), c2.begin());
 
     }
 };
@@ -198,60 +200,60 @@ struct equals<box_tag, box_tag, false, false, Box1, Box2, DimensionCount>
 template <typename Ring1, typename Ring2>
 struct equals<ring_tag, ring_tag, false, false, Ring1, Ring2, 2>
     : detail::equals::equals_by_collection
-		<
-			Ring1, Ring2, 
-			detail::equals::area_check
-		>
+        <
+            Ring1, Ring2,
+            detail::equals::area_check
+        >
 {};
 
 
 template <typename Polygon1, typename Polygon2>
 struct equals<polygon_tag, polygon_tag, false, false, Polygon1, Polygon2, 2>
     : detail::equals::equals_by_collection
-		<
-			Polygon1, Polygon2,
-			detail::equals::area_check
-		>
+        <
+            Polygon1, Polygon2,
+            detail::equals::area_check
+        >
 {};
 
 
 template <typename LineString1, typename LineString2>
 struct equals<linestring_tag, linestring_tag, false, false, LineString1, LineString2, 2>
     : detail::equals::equals_by_collection
-		<
-			LineString1, LineString2,
-			detail::equals::length_check
-		>
+        <
+            LineString1, LineString2,
+            detail::equals::length_check
+        >
 {};
 
 
 template <typename Polygon, typename Ring>
 struct equals<polygon_tag, ring_tag, false, false, Polygon, Ring, 2>
     : detail::equals::equals_by_collection
-		<
-			Polygon, Ring,
-			detail::equals::area_check
-		>
+        <
+            Polygon, Ring,
+            detail::equals::area_check
+        >
 {};
 
 
 template <typename Ring, typename Box>
 struct equals<ring_tag, box_tag, false, false, Ring, Box, 2>
     : detail::equals::equals_by_collection
-		<
-			Ring, Box,
-			detail::equals::area_check
-		>
+        <
+            Ring, Box,
+            detail::equals::area_check
+        >
 {};
 
 
 template <typename Polygon, typename Box>
 struct equals<polygon_tag, box_tag, false, false, Polygon, Box, 2>
     : detail::equals::equals_by_collection
-		<
-			Polygon, Box,
-			detail::equals::area_check
-		>
+        <
+            Polygon, Box,
+            detail::equals::area_check
+        >
 {};
 
 
