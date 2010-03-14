@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="dissolve"
 	ProjectGUID="{206F83D5-17F9-4856-A1DE-82301DB94439}"
 	RootNamespace="dissolve"
@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\dissolve"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;../../../../..;../.."
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;TEST_WITH_SVG"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -96,7 +96,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\dissolve"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -117,7 +117,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".;../../../../..;../.."
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
