@@ -503,6 +503,7 @@
 <xsl:template name="header-requirements">
   <xsl:param name="file"/>
   <xsl:value-of select="$newline"/>
+
   <xsl:text>[heading Requirements]</xsl:text>
   <xsl:value-of select="$newline"/>
   <xsl:value-of select="$newline"/>
@@ -549,6 +550,7 @@
 
 </xsl:text>
 
+[heading Synopsis]
 <xsl:apply-templates select="templateparamlist" mode="class-detail"/>
 <xsl:text>  </xsl:text>
 <xsl:value-of select="@kind"/>
@@ -567,17 +569,20 @@
 </xsl:for-each>
 <xsl:text></xsl:text>
 
+    
 <xsl:call-template name="class-tables">
   <xsl:with-param name="class-name" select="$class-name"/>
   <xsl:with-param name="class-id" select="$class-id"/>
 </xsl:call-template>
 
-<!-- [heading Class Description] -->
+[heading Description]
 <xsl:apply-templates select="detaileddescription" mode="markup"/>
+
 
 <xsl:call-template name="header-requirements">
   <xsl:with-param name="file" select="$class-file"/>
 </xsl:call-template>
+
 
 <xsl:call-template name="class-members">
   <xsl:with-param name="class-name" select="$class-name"/>
@@ -593,10 +598,7 @@
 <xsl:template name="class-tables">
 <xsl:param name="class-name"/>
 <xsl:param name="class-id"/>
-<xsl:if test="
-    count(
-      sectiondef[@kind='public-type'] |
-      innerclass[@prot='public']) &gt; 0">
+<xsl:if test="count(sectiondef[@kind='public-type'] | innerclass[@prot='public']) &gt; 0">
 
 [heading Public Types]
 [table
@@ -640,6 +642,7 @@
 </xsl:if>
 
 <xsl:if test="count(sectiondef[@kind='public-func' or @kind='public-static-func']) > 0">
+
 [heading Public Member Functions]
 [table
   [[Name][Description]]
@@ -688,6 +691,7 @@
 </xsl:if>
 
 <xsl:if test="count(sectiondef[@kind='protected-func' or @kind='protected-static-func']) > 0">
+
 [heading Protected Member Functions]
 [table
   [[Name][Description]]
@@ -736,6 +740,7 @@
 </xsl:if>
 
 <xsl:if test="count(sectiondef[@kind='public-attrib' or @kind='public-static-attrib']) > 0">
+
 [heading Public Data Members]
 [table
   [[Name][Description]]
@@ -994,6 +999,7 @@
 <xsl:text>
 </xsl:text><xsl:apply-templates select="detaileddescription" mode="markup"/>
 
+
 <xsl:if test="@kind='typedef' or @kind='friend'">
   <xsl:call-template name="header-requirements">
     <xsl:with-param name="file" select="$class-file"/>
@@ -1230,6 +1236,7 @@
   <xsl:apply-templates select="detaileddescription" mode="markup"/>
 </xsl:for-each>
 
+
 <xsl:call-template name="header-requirements">
   <xsl:with-param name="file" select="location/@file"/>
 </xsl:call-template>
@@ -1276,6 +1283,7 @@
 
 <!-- [heading NS Member Description] -->
 <xsl:apply-templates select="detaileddescription" mode="markup"/>
+
 
 <xsl:if test="$overload-count = 1">
   <xsl:call-template name="header-requirements">

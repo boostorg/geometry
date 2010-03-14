@@ -362,8 +362,41 @@
  </tbody>
 </tgroup>
 
+<!-- ###### STRATEGY CONCEPTS ################################################################## -->
+<tgroup cols="2">
+ <colspec colname="a"/>
+ <colspec colname="b"/>
+  <thead>
+  <row>
+   <entry valign="center" namest="a" nameend="b">
+    <bridgehead renderas="sect2">Strategy Concepts</bridgehead>
+   </entry>
+  </row>
+ </thead>
+ <tbody>
+  <row>
+   <entry valign="top">
+    <simplelist type="vert" columns="1">
+    <member><link linkend="boost_geometry.reference.concept__AreaStrategy">boost::geometry::concept::AreaStrategy</link></member>
+    <member><link linkend="boost_geometry.reference.concept__CentroidStrategy">boost::geometry::concept::CentroidStrategy</link></member>
+    <member><link linkend="boost_geometry.reference.concept__ConvexHullStrategy">boost::geometry::concept::ConvexHullStrategy</link></member>
+    <member><link linkend="boost_geometry.reference.concept__PointDistanceStrategy">boost::geometry::concept::PointDistanceStrategy</link></member>
+    <member><link linkend="boost_geometry.reference.concept__PointSegmentDistanceStrategy">boost::geometry::concept::PointSegmentDistanceStrategy</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <simplelist type="vert" columns="1">
+    <member><link linkend="boost_geometry.reference.concept__SegmentIntersectStrategy">boost::geometry::concept::SegmentIntersectStrategy</link></member>
+    <member><link linkend="boost_geometry.reference.concept__SimplifyStrategy">boost::geometry::concept::SimplifyStrategy</link></member>
+    <member><link linkend="boost_geometry.reference.concept__WithinStrategy">boost::geometry::concept::WithinStrategy</link></member>
+    </simplelist>
+   </entry>
+   </row>
+ </tbody>
+</tgroup>
+
 <!-- ###### STRATEGIES ######################################################################### -->
-<tgroup cols="4">
+<tgroup cols="3">
  <colspec colname="a"/>
  <colspec colname="b"/>
  <colspec colname="c"/>
@@ -379,6 +412,8 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Area</bridgehead>
     <simplelist type="vert" columns="1">
+    <member><link linkend="boost_geometry.reference.strategy_area">boost::geometry::strategy_area</link></member>
+    
      <member><link linkend="boost_geometry.reference.strategy_area">boost::geometry::strategy_area</link></member>
      <member><link linkend="boost_geometry.reference.area_result">boost::geometry::area_result</link></member>
      <member><link linkend="boost_geometry.reference.strategy__area__by_triangles">boost::geometry::strategy::area::by_triangles</link></member>
