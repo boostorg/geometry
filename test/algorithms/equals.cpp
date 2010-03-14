@@ -16,6 +16,7 @@ void test_all()
     typedef boost::geometry::box<P> box;
     typedef boost::geometry::linear_ring<P> ring;
     typedef boost::geometry::polygon<P> polygon;
+    typedef boost::geometry::linestring<P> linestring;
 
 
     test_geometry<P, P>("p1", "POINT(1 1)", "POINT(1 1)", true);
@@ -28,8 +29,11 @@ void test_all()
 
     // Completely equal
     test_geometry<ring, ring>("poly_eq", case_p1, case_p1, true);
+
     // Shifted
     test_geometry<ring, ring>("poly_sh", "POLYGON((2 2,0 0,0 2,2 2))", case_p1, true);
+    test_geometry<polygon, polygon>("poly_sh2", case_p1, "POLYGON((0 2,2 2,0 0,0 2))", true);
+
     // Extra coordinate
     test_geometry<ring, ring>("poly_extra", case_p1, "POLYGON((0 0,0 2,2 2,1 1,0 0))", true);
     // Degenerate points
@@ -42,9 +46,6 @@ void test_all()
 
     // Unequal (but same area)
     test_geometry<ring, ring>("poly_uneq", case_p1, "POLYGON((1 1,1 3,3 3,1 1))", false);
-
-    // Polygons, exterior rings equal (shifted)
-    test_geometry<polygon, polygon>("poly_sh2", case_p1, "POLYGON((0 2,2 2,0 0,0 2))", true);
 
     // One having hole
     test_geometry<polygon, polygon>("poly_hole", "POLYGON((0 0,0 4,4 4,0 0))", "POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1))", false);
@@ -73,7 +74,19 @@ void test_all()
     test_geometry<polygon, ring>("poly_sh2_pr", case_p1, case_p1, true);
     test_geometry<ring, polygon>("poly_sh2_rp", case_p1, case_p1, true);
 
-    // Todo: ring/box, poly/box
+    // box/ring/poly
+    test_geometry<box, ring>("boxring1", "BOX(1 1,2 2)", "POLYGON((1 1,1 2,2 2,2 1,1 1))", true);
+    test_geometry<ring, box>("boxring2", "POLYGON((1 1,1 2,2 2,2 1,1 1))", "BOX(1 1,2 2)", true);
+    test_geometry<box, polygon>("boxpoly1", "BOX(1 1,2 2)", "POLYGON((1 1,1 2,2 2,2 1,1 1))", true);
+    test_geometry<polygon, box>("boxpoly2", "POLYGON((1 1,1 2,2 2,2 1,1 1))", "BOX(1 1,2 2)", true);
+
+    test_geometry<polygon, box>("boxpoly2", "POLYGON((1 1,1 2,2 2,2 1,1 1))", "BOX(1 1,2 3)", false);
+
+	// linestring/linestring
+	// simplex
+    test_geometry<linestring, linestring>("ls1", "LINESTRING(1 1,2 2)", "LINESTRING(1 1,2 2)", true);
+    test_geometry<linestring, linestring>("ls1", "LINESTRING(1 1,2 2)", "LINESTRING(2 2,1 1)", true);
+
 }
 
 
@@ -81,7 +94,7 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    //test_all<boost::geometry::point_xy<int> >();
+    test_all<boost::geometry::point_xy<int> >();
     test_all<boost::geometry::point_xy<double> >();
 
 #if defined(HAVE_CLN)
