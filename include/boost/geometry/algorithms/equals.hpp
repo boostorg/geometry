@@ -38,20 +38,19 @@ for std:: library compatibility.
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/is_multi.hpp>
-#include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
+
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/not.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
-
+// For trivial checks
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/geometry/algorithms/detail/equals/collect_vectors.hpp>
 
 
 namespace boost { namespace geometry
@@ -91,257 +90,70 @@ struct box_box<Box1, Box2, DimensionCount, DimensionCount>
     }
 };
 
-class equals_interrupt_policy
+
+struct area_check
 {
-
-    // As soon as a turn is detected, this flag is set to true
-    // and the process of getting turns (intersection points)
-    // is interrupted
-    bool turns_inside_or_outside;
-    bool has_collinear;
-
-
-public:
-    static bool const enabled = true;
-
-    inline equals_interrupt_policy()
-        : turns_inside_or_outside(false)
-        , has_collinear(false)
-    {}
-
-    bool equals() const
+	template <typename Geometry1, typename Geometry2>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        return has_collinear && ! turns_inside_or_outside;
-    }
-
-    template <typename Range>
-    inline bool apply(Range const& range)
-    {
-        for (typename boost::range_iterator<Range const>::type
-            it = boost::begin(range);
-            it != boost::end(range);
-            ++it)
-        {
-            if (! it->ignore)
-            {
-                if (it->method == detail::overlay::method_collinear
-                    || it->method == detail::overlay::method_equal)
-                {
-                    typedef typename boost::range_value<Range>::type turn_type;
-                    // If it is not such that both turns are collinear, the rings are not equal
-                    for (typename boost::range_iterator
-                            <
-                                typename turn_type::container_type const
-                            >::type oit = boost::begin(it->operations);
-                        oit != boost::end(it->operations);
-                        oit++)
-                    {
-                        if (oit->operation != detail::overlay::operation_continue)
-                        {
-                            turns_inside_or_outside = true;
-                            return true;
-                        }
-                        else
-                        {
-                            has_collinear = true;
-                        }
-                    }
-                }
-                else
-                {
-                    turns_inside_or_outside = true;
-                    return true;
-                }
-            }
-        }
-        // It is not yet known, so don't interrupt
-        return false;
-    }
-
+		return geometry::math::equals(
+				geometry::area(geometry1),
+				geometry::area(geometry1));
+	}
 };
 
 
-
-template <typename Ring1, typename Ring2>
-struct ring_ring
+struct length_check
 {
-
-
-    static inline bool apply(Ring1 const& ring1, Ring2 const& ring2, bool check_area = true)
+	template <typename Geometry1, typename Geometry2>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        // Note: this implementation makes use of getting interections (turns)
-        // and merge them. If all IP's disappear, the ring should be the same
-        // (because merging removes collinear or non-collinear
-        // IP's following the same path)
-
-        // However, this implementation should be re-done using
-        // a linear time algorithm (getting left-most points of both
-        // and follow them using circular iterator and distance/side)
-
-        // obvious check, area's should be the same.
-        if (check_area && geometry::area(ring1) != geometry::area(ring2))
-        {
-            return false;
-        }
-        // We could check more (perimeter,centroid,envelope)
-        // For now we go directly to intersection points
-
-        typedef typename geometry::point_type<Ring1>::type point_type;
-        typedef detail::overlay::traversal_turn_info<point_type> turn_info;
-        std::vector<turn_info> turns;
-
-        equals_interrupt_policy policy;
-
-        boost::geometry::get_turns
-            <
-                detail::overlay::assign_null_policy
-            >(ring1, ring2, turns, policy);
-
-        return policy.equals();
-    }
+		return geometry::math::equals(
+				geometry::length(geometry1),
+				geometry::length(geometry1));
+	}
 };
 
 
-template <typename T>
-struct equal_sortable
+template <typename Geometry1, typename Geometry2, typename TrivialCheck>
+struct equals_by_collection
 {
-    int index;
-    T area;
-    bool counterpart_found;
-    inline equal_sortable(int i, T const& a)
-        : index(i)
-        , area(a)
-        , counterpart_found(false)
-    {}
-
-    inline bool operator<(equal_sortable<T> const& other) const
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        return area < other.area;
-    }
-};
+		if (! TrivialCheck::apply(geometry1, geometry2))
+		{
+			return false;
+		}
 
+		typedef typename geometry::select_most_precise
+			<
+				typedef select_coordinate_type
+					<
+						Geometry1, Geometry2
+					>::type,
+				double
+			>::type calculation_type;
 
-template <typename Range, typename Collection>
-inline void fill_equal_sortable(Range const& range,
-            Collection& v)
-{
-    typedef typename boost::range_value<Collection>::type item_type;
-    int i = 0;
-    for (typename boost::range_iterator<Range const>::type
-            it = boost::begin(range);
-         it != boost::end(range);
-         ++it, ++i)
-    {
-        v.push_back(item_type(i, geometry::area(*it)));
-    }
-    std::sort(v.begin(), v.end());
-    /***
-    for (typename std::vector<sortable>::iterator it = v.begin();
-        it != v.end();
-        ++it)
-    {
-        std::cout << "Ring: " << it->index << " area: " << it->area << std::endl;
-    }
-    ***/
-}
+		typedef std::vector<collected_vector<calculation_type> > v;
+		v c1, c2;
 
+		geometry::collect_vectors(c1, geometry1);
+		geometry::collect_vectors(c2, geometry2);
 
-template
-<
-    typename Policy,
-    typename Range1,
-    typename Range2
->
-inline bool range_range(Range1 const& range1, Range2 const& range2)
-{
-    typedef typename boost::range_value<Range1>::type geometry1;
-    // Check interior rings -> first sort them on area ,
-    // for performance reasons (area is not re-calculated in ring-compare)
-    typedef std::vector
-        <
-            equal_sortable<typename geometry::area_result<geometry1>::type>
-        > collection;
+		if (boost::size(c1) != boost::size(c2))
+		{
+			return false;
+		}
 
-    collection sorted1, sorted2;
+		// Check where direction is NOT changing
 
-    fill_equal_sortable(range1, sorted1);
-    fill_equal_sortable(range2, sorted2);
+		std::sort(c1.begin(), c1.end());
+		std::sort(c2.begin(), c2.end());
 
-    typedef typename boost::range_iterator<collection>::type iterator;
+		// Just check if these vectors are equal.
+		return c1.size() == c2.size() 
+			&& std::equal(c1.begin(), c1.end(), c2.begin());
 
-    // Compare all items (e.g. rings having equal area)
-    for (iterator it1 = sorted1.begin(); it1 != sorted1.end(); ++it1)
-    {
-        for (iterator it2 = sorted2.begin();
-            ! it1->counterpart_found
-                && it2 != sorted2.end()
-                && it2->area <= it1->area; //+epsilon
-            ++it2)
-        {
-            if (! it2->counterpart_found
-                && geometry::math::equals(it1->area, it2->area))
-            {
-                // Call policy, without checking area
-                if (Policy::apply(range1[it1->index], range2[it2->index], false))
-                {
-                    it1->counterpart_found = true;
-                    it2->counterpart_found = true;
-                }
-            }
-        }
-
-        if (! it1->counterpart_found)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-
-template <typename Polygon1, typename Polygon2>
-struct polygon_polygon
-{
-    static inline bool apply(Polygon1 const& polygon1, Polygon2 const& polygon2,
-                    bool compare_area = false)
-    {
-        // Check number of rings (area check is done in exterior ring check)
-        if (geometry::num_interior_rings(polygon1) != geometry::num_interior_rings(polygon2))
-        {
-            return false;
-        }
-
-        typedef typename geometry::ring_type<Polygon1>::type ring_type1;
-        typedef typename geometry::ring_type<Polygon2>::type ring_type2;
-        typedef ring_ring<ring_type1, ring_type2> compare;
-
-        // Check exterior ring
-        if (! compare::apply(exterior_ring(polygon1), exterior_ring(polygon2)))
-        {
-            return false;
-        }
-
-        return range_range<compare>(
-                interior_rings(polygon1),
-                interior_rings(polygon2));
-
-    }
-};
-
-
-template <typename Polygon, typename Ring>
-struct polygon_ring
-{
-    static inline bool apply(Polygon const& polygon, Ring const& ring)
-    {
-        // A polygon can be equal to a ring if there are no interior rings
-        return boost::size(interior_rings(polygon)) == 0
-            ? ring_ring
-                <
-                    typename geometry::ring_type<Polygon>::type,
-                    Ring
-                >::apply(exterior_ring(polygon), ring)
-            : false;
     }
 };
 
@@ -385,19 +197,61 @@ struct equals<box_tag, box_tag, false, false, Box1, Box2, DimensionCount>
 
 template <typename Ring1, typename Ring2>
 struct equals<ring_tag, ring_tag, false, false, Ring1, Ring2, 2>
-    : detail::equals::ring_ring<Ring1, Ring2>
+    : detail::equals::equals_by_collection
+		<
+			Ring1, Ring2, 
+			detail::equals::area_check
+		>
 {};
 
 
 template <typename Polygon1, typename Polygon2>
 struct equals<polygon_tag, polygon_tag, false, false, Polygon1, Polygon2, 2>
-    : detail::equals::polygon_polygon<Polygon1, Polygon2>
+    : detail::equals::equals_by_collection
+		<
+			Polygon1, Polygon2,
+			detail::equals::area_check
+		>
+{};
+
+
+template <typename LineString1, typename LineString2>
+struct equals<linestring_tag, linestring_tag, false, false, LineString1, LineString2, 2>
+    : detail::equals::equals_by_collection
+		<
+			LineString1, LineString2,
+			detail::equals::length_check
+		>
 {};
 
 
 template <typename Polygon, typename Ring>
 struct equals<polygon_tag, ring_tag, false, false, Polygon, Ring, 2>
-    : detail::equals::polygon_ring<Polygon, Ring>
+    : detail::equals::equals_by_collection
+		<
+			Polygon, Ring,
+			detail::equals::area_check
+		>
+{};
+
+
+template <typename Ring, typename Box>
+struct equals<ring_tag, box_tag, false, false, Ring, Box, 2>
+    : detail::equals::equals_by_collection
+		<
+			Ring, Box,
+			detail::equals::area_check
+		>
+{};
+
+
+template <typename Polygon, typename Box>
+struct equals<polygon_tag, box_tag, false, false, Polygon, Box, 2>
+    : detail::equals::equals_by_collection
+		<
+			Polygon, Box,
+			detail::equals::area_check
+		>
 {};
 
 
