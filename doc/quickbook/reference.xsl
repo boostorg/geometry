@@ -413,6 +413,20 @@
         <xsl:with-param name="text" select="substring-after($text, '_')"/>
       </xsl:call-template>
     </xsl:when>
+    <xsl:when test="contains($text, '[')">
+      <xsl:value-of select="substring-before($text, '[')"/>
+      <xsl:text>\[</xsl:text>
+      <xsl:call-template name="escape-text">
+        <xsl:with-param name="text" select="substring-after($text, '[')"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:when test="contains($text, ']')">
+      <xsl:value-of select="substring-before($text, ']')"/>
+      <xsl:text>\]</xsl:text>
+      <xsl:call-template name="escape-text">
+        <xsl:with-param name="text" select="substring-after($text, ']')"/>
+      </xsl:call-template>
+    </xsl:when>
     <xsl:otherwise>
       <xsl:value-of select="$text"/>
     </xsl:otherwise>
@@ -673,13 +687,18 @@
   [
     [[link boost_geometry.reference.<xsl:value-of select="$class-id"/>.<xsl:value-of select="$id"/>
       <xsl:text> </xsl:text>[*<xsl:value-of select="$name"/><xsl:text>]]]
-    [</xsl:text><xsl:value-of select="briefdescription"/>
+    [</xsl:text>
+     <xsl:call-template name="escape-text">
+        <xsl:with-param name="text" select="briefdescription"/>
+    </xsl:call-template>
   </xsl:if>
   <xsl:if test="not($overload-position = 1) and not(briefdescription = preceding-sibling::*/briefdescription)">
     <xsl:value-of select="$newline"/>
     <xsl:value-of select="$newline"/>
     <xsl:text>     </xsl:text>
-    <xsl:value-of select="briefdescription"/>
+      <xsl:call-template name="escape-text">
+        <xsl:with-param name="text" select="briefdescription"/>
+      </xsl:call-template>
   </xsl:if>
   <xsl:if test="$overload-position = $overload-count">
   <xsl:text>]
