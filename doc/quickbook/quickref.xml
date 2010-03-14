@@ -189,62 +189,6 @@
  </tbody>
 </tgroup>
 
-<!-- ###### ARITHMETIC ######################################################################### -->
-<tgroup cols="4">
- <colspec colname="a"/>
- <colspec colname="b"/>
- <colspec colname="c"/>
- <colspec colname="d"/>
- <thead>
-  <row>
-   <entry valign="center" namest="a" nameend="d">
-    <bridgehead renderas="sect2">Arithmetic</bridgehead>
-   </entry>
-  </row>
- </thead>
- <tbody>
-  <row>
-   <entry valign="top">
-    <bridgehead renderas="sect3">Add</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="boost_geometry.reference.add_point">boost::geometry::add_point</link></member>
-     <member><link linkend="boost_geometry.reference.add_value">boost::geometry::add_value</link></member>
-    </simplelist>
-   </entry>
-   <entry valign="top">
-    <bridgehead renderas="sect3">Substract</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="boost_geometry.reference.subtract_point">boost::geometry::subtract_point</link></member>
-     <member><link linkend="boost_geometry.reference.subtract_value">boost::geometry::subtract_value</link></member>
-    </simplelist>
-   </entry>
-   <entry valign="top">
-    <bridgehead renderas="sect3">Multiply</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="boost_geometry.reference.multiply_point">boost::geometry::multiply_point</link></member>
-     <member><link linkend="boost_geometry.reference.multiply_value">boost::geometry::multiply_value</link></member>
-    </simplelist>
-   </entry>
-   <entry valign="top">
-    <bridgehead renderas="sect3">Divide</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="boost_geometry.reference.divide_point">boost::geometry::divide_point</link></member>
-     <member><link linkend="boost_geometry.reference.divide_value">boost::geometry::divide_value</link></member>
-    </simplelist>
-   </entry>
-  </row>
-  <row>
-   <entry valign="center" namest="a" nameend="d">
-    <bridgehead renderas="sect3">Products</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="boost_geometry.reference.cross_product">boost::geometry::cross_product</link></member>
-     <member><link linkend="boost_geometry.reference.dot_product">boost::geometry::dot_product</link></member>
-    </simplelist>
-   </entry>
-  </row>
- </tbody>
-</tgroup>
-
 <!-- ###### ALGORITHMS ######################################################################### -->
 <tgroup cols="3">
  <colspec colname="a"/>
@@ -273,6 +217,7 @@
      <member><link linkend="boost_geometry.reference.intersects">boost::geometry::intersects</link></member>
      <member><link linkend="boost_geometry.reference.overlaps">boost::geometry::overlaps</link></member>
      <member><link linkend="boost_geometry.reference.selected">boost::geometry::selected</link></member>
+     <member><link linkend="boost_geometry.reference.within">boost::geometry::within</link></member>
      </simplelist>
    </entry>
    <entry valign="top">
@@ -348,7 +293,7 @@
      <member><link linkend="boost_geometry.reference.envelope">boost::geometry::envelope</link></member>
      <member><link linkend="boost_geometry.reference.make_envelope">boost::geometry::make_envelope</link></member>
     </simplelist>
-    <bridgehead renderas="sect3">For</bridgehead>
+    <bridgehead renderas="sect3">for_each</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="boost_geometry.reference.for_each_point">boost::geometry::for_each_point</link></member>
      <member><link linkend="boost_geometry.reference.for_each_segment">boost::geometry::for_each_segment</link></member>
@@ -408,13 +353,207 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="boost_geometry.reference.unique">boost::geometry::unique</link></member>
     </simplelist>    
-    <bridgehead renderas="sect3">Within</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="boost_geometry.reference.within">boost::geometry::within</link></member>
-    </simplelist>
     <bridgehead renderas="sect3">Miscellaneous Utilities</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="boost_geometry.reference.parse">boost::geometry::parse</link></member>
+    </simplelist>
+   </entry>
+  </row>
+ </tbody>
+</tgroup>
+
+<!-- ###### STRATEGIES ######################################################################### -->
+<tgroup cols="4">
+ <colspec colname="a"/>
+ <colspec colname="b"/>
+ <colspec colname="c"/>
+  <thead>
+  <row>
+   <entry valign="center" namest="a" nameend="c">
+    <bridgehead renderas="sect2">Strategies</bridgehead>
+   </entry>
+  </row>
+ </thead>
+ <tbody>
+  <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Area</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy_area">boost::geometry::strategy_area</link></member>
+     <member><link linkend="boost_geometry.reference.area_result">boost::geometry::area_result</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__area__by_triangles">boost::geometry::strategy::area::by_triangles</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__area__huiller">boost::geometry::strategy::area::huiller</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Buffer</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy__buffer__join_miter">boost::geometry::strategy::buffer::join_miter</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__buffer__join_bevel">boost::geometry::strategy::buffer::join_bevel</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__buffer__join_round">boost::geometry::strategy::buffer::join_round</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Centroid</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy_centroid">boost::geometry::strategy_centroid</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__centroid___bashein_detmer">boost::geometry::strategy::centroid_::bashein_detmer</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__centroid___centroid_average">boost::geometry::strategy::centroid_::centroid_average</link></member>
+    </simplelist>
+   </entry>
+  </row>
+  <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Compare</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy_compare">boost::geometry::strategy_compare</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__compare__default_strategy">boost::geometry::strategy::compare::default_strategy</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__compare__circular_comparator">boost::geometry::strategy::compare::circular_comparator</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Convex Hull</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy_convex_hull">boost::geometry::strategy_convex_hull</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__convex_hull__graham_andrew">boost::geometry::strategy::convex_hull::graham_andrew</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Distance</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy_distance">boost::geometry::strategy_distance</link></member>
+     <member><link linkend="boost_geometry.reference.strategy_distance_segment">boost::geometry::strategy_distance_segment</link></member>
+     <member><link linkend="boost_geometry.reference.cartesian_distance">boost::geometry::cartesian_distance</link></member>
+     <member><link linkend="boost_geometry.reference.distance_result">boost::geometry::distance_result</link></member>
+     <member><link linkend="boost_geometry.reference.make_distance_result">boost::geometry::make_distance_result</link></member>
+     <member><link linkend="boost_geometry.reference.close_to_zero">boost::geometry::close_to_zero</link></member>
+     <member><link linkend="boost_geometry.reference.fuzzy_equals">boost::geometry::fuzzy_equals</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__distance__projected_point">boost::geometry::strategy::distance::projected_point</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__distance__pythagoras">boost::geometry::strategy::distance::pythagoras</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__distance__cross_track">boost::geometry::strategy::distance::cross_track</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__distance__haversine">boost::geometry::strategy::distance::haversine</link></member>
+    </simplelist>
+   </entry>
+  </row>
+  <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Intersection</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.de9im">boost::geometry::de9im</link></member>
+     <member><link linkend="boost_geometry.reference.de9im_segment">boost::geometry::de9im_segment</link></member>
+     <member><link linkend="boost_geometry.reference.segment_intersection_points">boost::geometry::segment_intersection_points</link></member>
+     <member><link linkend="boost_geometry.reference.strategy_intersection">boost::geometry::strategy_intersection</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__intersection__liang_barsky">boost::geometry::strategy::intersection::liang_barsky</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__intersection__relate_cartesian_segments">boost::geometry::strategy::intersection::relate_cartesian_segments</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__intersection__relate_cartesian_segments">boost::geometry::strategy::intersection::relate_cartesian_segments</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Side</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy_side">boost::geometry::strategy_side</link></member>
+     <member><link linkend="boost_geometry.reference.side_info">boost::geometry::side_info</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__side__course">boost::geometry::strategy::side::course</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__side__side_by_triangle">boost::geometry::strategy::side::side_by_triangle</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__side__side_by_cross_track">boost::geometry::strategy::side::side_by_cross_track</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Simplify</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy__simplify__douglas_peucker">boost::geometry::strategy::simplify::douglas_peucker</link></member>
+    </simplelist>
+   </entry>
+  </row>
+  <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Transform</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy_transform">boost::geometry::strategy_transform</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__copy_direct">boost::geometry::strategy::copy_direct</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__copy_per_coordinate">boost::geometry::strategy::copy_per_coordinate</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__degree_radian_vv">boost::geometry::strategy::degree_radian_vv</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__degree_radian_vv_3">boost::geometry::strategy::degree_radian_vv_3</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__from_spherical_2_to_cartesian_3">boost::geometry::strategy::from_spherical_2_to_cartesian_3</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__from_spherical_3_to_cartesian_3">boost::geometry::strategy::from_spherical_3_to_cartesian_3</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__from_cartesian_3_to_spherical_2">boost::geometry::strategy::from_cartesian_3_to_spherical_2</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__from_cartesian_3_to_spherical_3">boost::geometry::strategy::from_cartesian_3_to_spherical_3</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__inverse_transformer">boost::geometry::strategy::inverse_transformer</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__map_transformer">boost::geometry::strategy::map_transformer</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__ublas_transformer">boost::geometry::strategy::ublas_transformer</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__translate_transformer">boost::geometry::strategy::translate_transformer</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__scale_transformer">boost::geometry::strategy::scale_transformer</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__transform__rotate_transformer">boost::geometry::strategy::rotate_transformer</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Within</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy__within__winding">boost::geometry::strategy::winding</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__within__crossings_multiply">boost::geometry::strategy::crossings_multiply</link></member>
+     <member><link linkend="boost_geometry.reference.strategy__within__franklin">boost::geometry::strategy::franklin</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Miscellaneous Utilities</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.strategy__not_implemented">boost::geometry::strategy::not_implemented</link></member>
+    </simplelist>
+   </entry>
+  </row>
+ </tbody>
+</tgroup>
+
+<!-- ###### ARITHMETIC ######################################################################### -->
+<tgroup cols="4">
+ <colspec colname="a"/>
+ <colspec colname="b"/>
+ <colspec colname="c"/>
+ <colspec colname="d"/>
+ <thead>
+  <row>
+   <entry valign="center" namest="a" nameend="d">
+    <bridgehead renderas="sect2">Arithmetic</bridgehead>
+   </entry>
+  </row>
+ </thead>
+ <tbody>
+  <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Add</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.add_point">boost::geometry::add_point</link></member>
+     <member><link linkend="boost_geometry.reference.add_value">boost::geometry::add_value</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Substract</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.subtract_point">boost::geometry::subtract_point</link></member>
+     <member><link linkend="boost_geometry.reference.subtract_value">boost::geometry::subtract_value</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Multiply</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.multiply_point">boost::geometry::multiply_point</link></member>
+     <member><link linkend="boost_geometry.reference.multiply_value">boost::geometry::multiply_value</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Divide</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.divide_point">boost::geometry::divide_point</link></member>
+     <member><link linkend="boost_geometry.reference.divide_value">boost::geometry::divide_value</link></member>
+    </simplelist>
+   </entry>
+  </row>
+  <row>
+   <entry valign="center" namest="a" nameend="d">
+    <bridgehead renderas="sect3">Products</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="boost_geometry.reference.cross_product">boost::geometry::cross_product</link></member>
+     <member><link linkend="boost_geometry.reference.dot_product">boost::geometry::dot_product</link></member>
     </simplelist>
    </entry>
   </row>
