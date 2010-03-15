@@ -173,7 +173,7 @@ inline void svg_map(std::ostream& stream,
 }
 
 
-template <typename P>
+template <typename P, bool SameScale = true>
 class svg_mapper
 {
     typedef boost::geometry::strategy::transform::map_transformer
@@ -181,7 +181,7 @@ class svg_mapper
             P,
             boost::geometry::point_xy<int>,
             true,
-            true
+            SameScale
         > transformer_type;
 
     boost::geometry::box<P> bbox;

@@ -23,6 +23,10 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/side.hpp>
 
+#include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/perimeter.hpp>
+
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
 /*
@@ -33,7 +37,7 @@ Ring (having 8 vertices, including closing vertex)
 |      +--+
 |      |  ^this "spike" is removed, can be located outside/inside the ring
 +------+
-(the actualy determination if it is removed is done by a strategy, TODO)
+(the actualy determination if it is removed is done by a strategy)
 
 */
 
@@ -56,7 +60,6 @@ struct range_remove_spikes
     >::type side_strategy_type;
 
     typedef typename coordinate_type<Range>::type coordinate_type;
-
 
 
     static inline void apply(Range& range, Policy const& policy)
@@ -83,7 +86,7 @@ struct range_remove_spikes
         std::deque<std::size_t> vertices;
         for (std::size_t i = 0;
             i < n;
-            ++i, ++prev, ++it, ++next)
+            ++i, ++it, ++next)
         {
             if (policy(*prev, *it, *next))
             {
@@ -94,6 +97,10 @@ struct range_remove_spikes
                     vertices.push_front(0);
                     close = true;
                 }
+            }
+            else
+            {
+                prev = it;
             }
         }
         for (std::deque<std::size_t>::reverse_iterator rit = vertices.rbegin();
@@ -287,13 +294,73 @@ struct remove_elongated_spikes
                 */
 
                 return remove;
-
             }
         }
         return false;
     }
 };
 
+
+template <typename Point>
+struct remove_by_normalized
+{
+    typedef typename coordinate_type<Point>::type coordinate_type;
+    coordinate_type m_zero;
+
+    inline remove_by_normalized()
+            : m_zero(coordinate_type())
+    {}
+
+    inline bool operator()(Point const& prev,
+                Point const& current, Point const& next) const
+    {
+        coordinate_type x1 = get<0>(prev);
+        coordinate_type y1 = get<1>(prev);
+        coordinate_type x2 = get<0>(current);
+        coordinate_type y2 = get<1>(current);
+
+        coordinate_type dx1 = x2 - x1;
+        coordinate_type dy1 = y2 - y1;
+
+        // Duplicate points (can be created by removing spikes)
+        // can be removed as well. (Can be seen as a spike without length)
+        if (geometry::math::equals(dx1, 0) && geometry::math::equals(dy1, 0))
+        {
+            return true;
+        }
+
+        coordinate_type dx2 = get<0>(next) - x2;
+        coordinate_type dy2 = get<1>(next) - y2;
+
+        // If middle point is duplicate with next, also.
+        if (geometry::math::equals(dx2, 0) && geometry::math::equals(dy2, 0))
+        {
+            return true;
+        }
+
+        // Normalize the vectors -> this results in points+direction
+        // and is comparible between geometries
+        coordinate_type magnitude1 = sqrt(dx1 * dx1 + dy1 * dy1);
+        coordinate_type magnitude2 = sqrt(dx2 * dx2 + dy2 * dy2);
+
+        if (magnitude1 > m_zero && magnitude2 > m_zero)
+        {
+            dx1 /= magnitude1;
+            dy1 /= magnitude1;
+            dx2 /= magnitude2;
+            dy2 /= magnitude2;
+
+            // If the directions are opposite, it can be removed
+            //if (geometry::math::equals(dx1, -dx2) && geometry::math::equals(dy1, -dy2))
+            coordinate_type small(1e-7);
+            if (abs(dx1 + dx2) < small && abs(dy1 + dy2) < small)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+};
 
 
 }} // namespace boost::geometry
