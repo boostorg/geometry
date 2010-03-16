@@ -11,6 +11,9 @@
 
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/algorithms/dissolve.hpp>
+#include <boost/geometry/algorithms/union.hpp>
+
+#include <boost/geometry/multi/algorithms/union.hpp>
 
 
 namespace boost { namespace geometry
