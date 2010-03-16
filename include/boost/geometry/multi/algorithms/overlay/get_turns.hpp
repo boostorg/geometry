@@ -10,12 +10,14 @@
 
 #include <boost/geometry/multi/core/is_multi.hpp>
 
+#include <boost/geometry/algorithms/overlay/get_turns.hpp>
+
 #include <boost/geometry/multi/algorithms/distance.hpp>
-#include <boost/geometry/multi/algorithms/get_section.hpp>
-#include <boost/geometry/multi/algorithms/sectionalize.hpp>
 #include <boost/geometry/multi/iterators/range_type.hpp>
 
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
+#include <boost/geometry/multi/algorithms/detail/sections/get_section.hpp>
+#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
+
 
 
 namespace boost { namespace geometry

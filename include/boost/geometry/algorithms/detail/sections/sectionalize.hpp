@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_SECTIONALIZE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_SECTIONALIZE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
 
 #include <cstddef>
 #include <vector>
@@ -109,7 +109,7 @@ struct sections : std::vector<section<Box, DimensionCount> >
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace sectionalize 
+namespace detail { namespace sectionalize
 {
 
 template <typename Segment, std::size_t Dimension, std::size_t DimensionCount>
@@ -263,8 +263,8 @@ struct sectionalize_part
     typedef typename boost::range_iterator<Range const>::type iterator_type;
 
     static inline void apply(Sections& sections, section_type& section,
-                std::size_t& index, int& ndi, 
-                Range const& range, 
+                std::size_t& index, int& ndi,
+                Range const& range,
                 int ring_index = -1, int multi_index = -1)
     {
 
@@ -403,7 +403,7 @@ struct sectionalize_range
             <
                 Range, Point, Sections,
                 DimensionCount, MaxCount
-            >::apply(sections, section, index, ndi, 
+            >::apply(sections, section, index, ndi,
                         range, ring_index, multi_index);
 
         // Add last section if applicable
@@ -629,4 +629,4 @@ inline void sectionalize(Geometry const& geometry, Sections& sections)
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_SECTIONALIZE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP

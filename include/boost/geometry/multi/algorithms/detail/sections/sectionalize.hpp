@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_SECTIONALIZE_HPP
-#define BOOST_GEOMETRY_MULTI_ALGORITHMS_SECTIONALIZE_HPP
+#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
+#define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
 
 #include <cstddef>
 #include <vector>
@@ -16,8 +16,7 @@
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 
-#include <boost/geometry/algorithms/sectionalize.hpp>
-
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 
 namespace boost { namespace geometry
@@ -25,7 +24,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace sectionalize {
+namespace detail { namespace sectionalize
+{
 
 
 template <typename MultiGeometry, typename Sections, std::size_t DimensionCount, typename Policy>
@@ -43,8 +43,6 @@ struct sectionalize_multi
         }
     }
 };
-
-
 
 
 }} // namespace detail::sectionalize
@@ -79,8 +77,7 @@ struct sectionalize<multi_polygon_tag, MultiPolygon, Sections, DimensionCount, M
 #endif
 
 
-
-
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_SECTIONALIZE_HPP
+
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
