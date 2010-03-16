@@ -41,6 +41,7 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/convex_hull.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/dissolve.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
@@ -50,12 +51,15 @@
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
-#include <boost/geometry/algorithms/sectionalize.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/algorithms/within.hpp>
+
+#include <boost/geometry/algorithms/detail/sections/get_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
+
 
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>

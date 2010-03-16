@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_GET_SECTION_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_GET_SECTION_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_GET_SECTION_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_GET_SECTION_HPP
 
 
 #include <boost/range/functions.hpp>
@@ -113,4 +113,4 @@ inline void get_section(Geometry const& geometry, Section const& section,
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_GET_SECTION_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_GET_SECTION_HPP

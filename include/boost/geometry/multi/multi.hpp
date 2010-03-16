@@ -30,12 +30,10 @@
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/equals.hpp>
 #include <boost/geometry/multi/algorithms/for_each.hpp>
-#include <boost/geometry/multi/algorithms/get_section.hpp>
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 #include <boost/geometry/multi/algorithms/length.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/perimeter.hpp>
-#include <boost/geometry/multi/algorithms/sectionalize.hpp>
 #include <boost/geometry/multi/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/transform.hpp>
 #include <boost/geometry/multi/algorithms/union.hpp>
@@ -44,9 +42,12 @@
 
 #include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
+
+#include <boost/geometry/multi/algorithms/detail/sections/get_section.hpp>
+#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
+
 #include <boost/geometry/multi/algorithms/overlay/copy_segments.hpp>
 #include <boost/geometry/multi/algorithms/overlay/self_turn_points.hpp>
-
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>

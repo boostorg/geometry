@@ -50,8 +50,8 @@
 
 #include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
-#include <boost/geometry/algorithms/sectionalize.hpp>
-#include <boost/geometry/algorithms/get_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
+#include <boost/geometry/algorithms/detail/sections/get_section.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
@@ -654,7 +654,7 @@ private:
 namespace dispatch
 {
 
-// Because this is "detail" method, and most implementations will use "generic", 
+// Because this is "detail" method, and most implementations will use "generic",
 // we take the freedom to derive it from "generic".
 template
 <
