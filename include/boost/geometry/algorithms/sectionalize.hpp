@@ -74,7 +74,6 @@ struct section
     bool duplicate;
     int non_duplicate_index;
 
-
     inline section()
         : id(-1)
         , ring_index(-99)
@@ -110,7 +109,8 @@ struct sections : std::vector<section<Box, DimensionCount> >
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace sectionalize {
+namespace detail { namespace sectionalize 
+{
 
 template <typename Segment, std::size_t Dimension, std::size_t DimensionCount>
 struct get_direction_loop
@@ -247,6 +247,123 @@ struct assign_loop<T, DimensionCount, DimensionCount>
     }
 };
 
+/// @brief Helper class to create sections of a part of a range, on the fly
+template
+<
+    typename Range,
+    typename Point,
+    typename Sections,
+    std::size_t DimensionCount,
+    std::size_t MaxCount
+>
+struct sectionalize_part
+{
+    typedef geometry::segment<Point const> segment_type;
+    typedef typename boost::range_value<Sections>::type section_type;
+    typedef typename boost::range_iterator<Range const>::type iterator_type;
+
+    static inline void apply(Sections& sections, section_type& section,
+                std::size_t& index, int& ndi, 
+                Range const& range, 
+                int ring_index = -1, int multi_index = -1)
+    {
+
+        std::size_t const n = boost::size(range);
+        if (n <= index + 1)
+        {
+            // Zero points, or only one point
+            // -> no section can be generated
+            return;
+        }
+
+        if (index == 0)
+        {
+            ndi = 0;
+        }
+
+        iterator_type it = boost::begin(range);
+        it += index;
+
+        for(iterator_type previous = it++;
+            it != boost::end(range);
+            previous = it++, index++)
+        {
+            segment_type segment(*previous, *it);
+
+            int direction_classes[DimensionCount] = {0};
+            get_direction_loop
+                <
+                    segment_type, 0, DimensionCount
+                >::apply(segment, direction_classes);
+
+            // if "dir" == 0 for all point-dimensions, it is duplicate.
+            // Those sections might be omitted, if wished, lateron
+            bool duplicate = false;
+
+            if (direction_classes[0] == 0)
+            {
+                // Recheck because ALL dimensions should be checked,
+                // not only first one.
+                // (DimensionCount might be < dimension<P>::value)
+                if (check_duplicate_loop
+                    <
+                        segment_type, 0, geometry::dimension<Point>::type::value
+                    >::apply(segment)
+                    )
+                {
+                    duplicate = true;
+
+                    // Change direction-info to force new section
+                    // Note that wo consecutive duplicate segments will generate
+                    // only one duplicate-section.
+                    // Actual value is not important as long as it is not -1,0,1
+                    assign_loop
+                    <
+                        int, 0, DimensionCount
+                    >::apply(direction_classes, -99);
+                }
+            }
+
+            if (section.count > 0
+                && (!compare_loop
+                        <
+                            int, 0, DimensionCount
+                        >::apply(direction_classes, section.directions)
+                    || section.count > MaxCount
+                    )
+                )
+            {
+                sections.push_back(section);
+                section = section_type();
+            }
+
+            if (section.count == 0)
+            {
+                section.begin_index = index;
+                section.ring_index = ring_index;
+                section.multi_index = multi_index;
+                section.duplicate = duplicate;
+                section.non_duplicate_index = ndi;
+                section.range_count = boost::size(range);
+
+                copy_loop
+                    <
+                        int, 0, DimensionCount
+                    >::apply(direction_classes, section.directions);
+                geometry::combine(section.bounding_box, *previous);
+            }
+
+            geometry::combine(section.bounding_box, *it);
+            section.end_index = index + 1;
+            section.count++;
+            if (! duplicate)
+            {
+                ndi++;
+            }
+        }
+    }
+};
+
 
 template
 <
@@ -276,94 +393,20 @@ struct sectionalize_range
             return;
         }
 
-        int i = 0;
+        std::size_t index = 0;
         int ndi = 0; // non duplicate index
 
-        typedef typename boost::range_value<Sections>::type sections_range_type;
-        sections_range_type section;
+        typedef typename boost::range_value<Sections>::type section_type;
+        section_type section;
 
-        typedef typename boost::range_const_iterator<Range>::type iterator_type;
-        iterator_type it = boost::begin(range);
+        sectionalize_part
+            <
+                Range, Point, Sections,
+                DimensionCount, MaxCount
+            >::apply(sections, section, index, ndi, 
+                        range, ring_index, multi_index);
 
-        for(iterator_type previous = it++;
-            it != boost::end(range);
-            previous = it++, i++)
-        {
-            segment_type s(*previous, *it);
-
-            int direction_classes[DimensionCount] = {0};
-            get_direction_loop
-                <
-                    segment_type, 0, DimensionCount
-                >::apply(s, direction_classes);
-
-            // if "dir" == 0 for all point-dimensions, it is duplicate.
-            // Those sections might be omitted, if wished, lateron
-            bool check_duplicate = true; //?
-            bool duplicate = false;
-
-            if (check_duplicate && direction_classes[0] == 0)
-            {
-                // Recheck because all dimensions should be checked,
-                // not only first one,
-                // Note that DimensionCount might be < dimension<P>::value
-                if (check_duplicate_loop
-                    <
-                        segment_type, 0, geometry::dimension<Point>::type::value
-                    >::apply(s)
-                    )
-                {
-                    duplicate = true;
-
-                    // Change direction-info to force new section
-                    // Note that wo consecutive duplicate segments will generate
-                    // only one duplicate-section.
-                    // Actual value is not important as long as it is not -1,0,1
-                    assign_loop
-                    <
-                        int, 0, DimensionCount
-                    >::apply(direction_classes, -99);
-                }
-            }
-
-            if (section.count > 0
-                && (!compare_loop
-                        <
-                            int, 0, DimensionCount
-                        >::apply(direction_classes, section.directions)
-                    || section.count > MaxCount
-                    )
-                )
-            {
-                sections.push_back(section);
-                section = sections_range_type();
-            }
-
-            if (section.count == 0)
-            {
-                section.begin_index = i;
-                section.ring_index = ring_index;
-                section.multi_index = multi_index;
-                section.duplicate = duplicate;
-                section.non_duplicate_index = ndi;
-                section.range_count = boost::size(range);
-
-                copy_loop
-                    <
-                        int, 0, DimensionCount
-                    >::apply(direction_classes, section.directions);
-                geometry::combine(section.bounding_box, *previous);
-            }
-
-            geometry::combine(section.bounding_box, *it);
-            section.end_index = i + 1;
-            section.count++;
-            if (! duplicate)
-            {
-                ndi++;
-            }
-        }
-
+        // Add last section if applicable
         if (section.count > 0)
         {
             sections.push_back(section);
@@ -390,9 +433,9 @@ struct sectionalize_polygon
                 ring_type, point_type, Sections, DimensionCount, MaxCount
             > sectionalizer_type;
 
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-            typename interior_type<Polygon>::type
+                typename interior_type<Polygon>::type const
             >::type iterator_type;
 
         sectionalizer_type::apply(exterior_ring(poly), sections, -1, multi_index);
@@ -583,9 +626,7 @@ inline void sectionalize(Geometry const& geometry, Sections& sections)
 }
 
 
-
-
-
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_SECTIONALIZE_HPP
