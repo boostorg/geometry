@@ -15,58 +15,9 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 
+
 namespace boost { namespace geometry
 {
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace equals {
-
-
-template <typename MultiPolygon1, typename MultiPolygon2>
-struct multi_polygon_twice
-{
-    static inline bool apply(MultiPolygon1 const& multi1,
-                MultiPolygon2 const& multi2)
-    {
-        if (boost::size(multi1) != boost::size(multi2))
-        {
-            return false;
-        }
-
-        typedef polygon_polygon
-            <
-                typename boost::range_value<MultiPolygon1>::type,
-                typename boost::range_value<MultiPolygon2>::type
-            > compare;
-
-        return range_range<compare>(multi1, multi2);
-    }
-};
-
-template <typename Polygon, typename MultiPolygon>
-struct single_eq_multi_polygon
-{
-    static inline bool apply(Polygon const& polygon,
-                MultiPolygon const& multi)
-    {
-        if (boost::size(multi) != 1)
-        {
-            return false;
-        }
-
-        return polygon_polygon
-            <
-                Polygon,
-                typename boost::range_value<MultiPolygon>::type
-            >::apply(polygon, multi.front());
-    }
-};
-
-
-
-}} // namespace detail::equals
-#endif // DOXYGEN_NO_DETAIL
-
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
@@ -81,13 +32,12 @@ struct equals
         MultiPolygon1, MultiPolygon2,
         2
     >
-    : detail::equals::multi_polygon_twice
+    : detail::equals::equals_by_collection
         <
-            MultiPolygon1,
-            MultiPolygon2
+            MultiPolygon1, MultiPolygon2,
+            detail::equals::area_check
         >
 {};
-
 
 
 template <typename Polygon, typename MultiPolygon>
@@ -98,10 +48,10 @@ struct equals
         Polygon, MultiPolygon,
         2
     >
-    : detail::equals::single_eq_multi_polygon
+    : detail::equals::equals_by_collection
         <
-            Polygon,
-            MultiPolygon
+            Polygon, MultiPolygon,
+            detail::equals::area_check
         >
 {};
 
@@ -110,8 +60,8 @@ struct equals
 #endif // DOXYGEN_NO_DISPATCH
 
 
-
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_EQUALS_HPP
 
