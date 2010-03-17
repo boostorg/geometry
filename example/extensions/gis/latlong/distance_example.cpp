@@ -84,13 +84,16 @@ int main()
     double dr = distance(h_rd, ar_xy);
     std::cout << "in RD: " << 0.001 * dr << std::endl;
 
-    dr = distance(h, segment_ll_deg(a, r));
+    // Temporary fix: multiply with Earth Radius. This will be refactored.
+    double const er = 6378137.0;
+
+    dr = er * distance(h, segment_ll_deg(a, r));
     std::cout << "in LL: " << 0.001 * dr << std::endl;
 
     std::cout << std::endl << "Rotterdam - line Amsterdam,the Hague" << std::endl;
     dr = distance(r_rd, segment_2d(a_rd, h_rd));
     std::cout << "in RD: " << 0.001 * dr << std::endl;
-    dr = distance(r, segment_ll_deg(a, h));
+    dr = er * distance(r, segment_ll_deg(a, h));
     std::cout << "in LL: " << 0.001 * dr << std::endl;
     std::cout << std::endl;
 
