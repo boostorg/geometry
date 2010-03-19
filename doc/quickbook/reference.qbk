@@ -13,6 +13,84 @@
 [include geometry_concepts.qbk]
 
 
+[section:add_const_if_c add_const_if_c]
+
+
+Meta-function to define a const or non const type. 
+
+
+
+
+[heading Synopsis]
+  template<
+      bool ``[link boost_geometry.reference.IsConst IsConst]``,
+      typename Type >
+  struct add_const_if_c
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.add_const_if_c.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Description]
+
+If the boolean template parameter is true, the type parameter will be defined as const, otherwise it will be defined as it was. This meta-function is used to have one implementation for both const and non const references 
+
+[heading Remarks]
+      
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+Used in a.o. for\_each, interior\_rings, exterior\_ring 
+
+
+[heading Example]
+  
+
+
+          void foo(typename add_const_if_c<IsConst, Point>::type& point)
+
+
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/add_const_if_c.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type add_const_if_c::type]
+
+[indexterm2 type..add_const_if_c] 
+
+  typedef boost::mpl::if_c< IsConst, const Type, Type >::type type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/add_const_if_c.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
 
 [section:add_point add_point]
 
@@ -209,6 +287,7 @@ The function area returns the area of a [link boost_geometry.reference.polygon `
 ]
 
 
+
 [heading Return Value]
       
 the area 
@@ -245,6 +324,7 @@ This version of area calculation takes a [link boost_geometry.reference.strategy
 [[strategy][the [link boost_geometry.reference.strategy `strategy`] to calculate area. Especially for spherical areas there are some approaches. ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -301,6 +381,7 @@ Meta-function defining return type of area function.
 
 
 [heading Description]
+
 
 
 [heading Remarks]
@@ -422,6 +503,74 @@ The [link boost_geometry.reference.strategy `strategy`] defines the return-type 
 
 [endsect]
 
+
+
+[endsect]
+
+[section:as_range as_range]
+
+[indexterm1 as_range] 
+Function getting either the range (ring, [link boost_geometry.reference.linestring `linestring`]) itself or the outer ring ([link boost_geometry.reference.polygon `polygon`]). 
+
+    
+  template<
+      typename Range ,
+      typename Geometry >
+  Range & ``[link boost_geometry.reference.as_range.overload1 as_range]``(
+      Geometry & input);
+  ``  [''''&raquo;''' [link boost_geometry.reference.as_range.overload1 more...]]``
+
+  template<
+      typename Range ,
+      typename Geometry >
+  Range const & ``[link boost_geometry.reference.as_range.overload2 as_range]``(
+      Geometry const & input);
+  ``  [''''&raquo;''' [link boost_geometry.reference.as_range.overload2 more...]]``
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/as_range.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:overload1 as_range (1 of 2 overloads)]
+
+
+Function getting either the range (ring, [link boost_geometry.reference.linestring `linestring`]) itself or the outer ring ([link boost_geometry.reference.polygon `polygon`]). 
+
+
+  template<
+      typename Range ,
+      typename Geometry >
+  Range & as_range(
+      Geometry & input);
+
+
+Utility to handle polygon's outer ring as a range 
+
+
+[endsect]
+
+
+
+[section:overload2 as_range (2 of 2 overloads)]
+
+
+Function getting either the range (ring, [link boost_geometry.reference.linestring `linestring`]) itself or the outer ring ([link boost_geometry.reference.polygon `polygon`]), const version. 
+
+
+  template<
+      typename Range ,
+      typename Geometry >
+  Range const & as_range(
+      Geometry const & input);
+
+
+Utility to handle polygon's outer ring as a range 
+
+
+[endsect]
 
 
 [endsect]
@@ -590,7 +739,7 @@ assign two values to a 2D [link boost_geometry.reference.point `point`]
 [section:overload2 assign (2 of 4 overloads)]
 
 
-assign three values to a 3D [link boost_geometry.reference.point `point`] [or the center + radius to a circle] 
+assign three values to a 3D [link boost_geometry.reference.point `point`] \[or the center + radius to a circle\] 
 
 
   template<
@@ -611,7 +760,7 @@ assign three values to a 3D [link boost_geometry.reference.point `point`] [or th
 [section:overload3 assign (3 of 4 overloads)]
 
 
-assign center + radius to a sphere [for extension] 
+assign center + radius to a sphere \[for extension\] 
 
 
   template<
@@ -645,6 +794,7 @@ assign a range of points to a [link boost_geometry.reference.linestring `linestr
 
 
 
+
 [heading Remarks]
       
 The point-type of the range might be different from the point-type of the [link boost_geometry.reference.boost__geometry `boost::geometry`] 
@@ -673,6 +823,7 @@ Assign the 4 points of a 2D [link boost_geometry.reference.box `box`].
       Point & lower_right,
       Point & upper_left,
       Point & upper_right);
+
 
 
 
@@ -862,6 +1013,7 @@ Class [link boost_geometry.reference.box `box`]: defines a [link boost_geometry.
 [heading Description]
 
 Box is always described by a `min_corner()` and a `max_corner()` [link boost_geometry.reference.point `point`]. If another rectangle is used, use [link boost_geometry.reference.linear_ring `linear_ring`] or [link boost_geometry.reference.polygon `polygon`]. 
+
 [heading Remarks]
       
 Boxes are for selections and for calculating the envelope of geometries. Not all algorithms are implemented for [link boost_geometry.reference.box `box`]. Boxes are also used in Spatial Indexes. 
@@ -1038,6 +1190,7 @@ Constructor taking the minimum corner [link boost_geometry.reference.point `poin
 [heading Typedef Description]
     
 Box is always described by a `min_corner()` and a `max_corner()` [link boost_geometry.reference.point `point`]. If another rectangle is used, use [link boost_geometry.reference.linear_ring `linear_ring`] or [link boost_geometry.reference.polygon `polygon`]. 
+
 [heading Remarks]
       
 Boxes are for selections and for calculating the envelope of geometries. Not all algorithms are implemented for [link boost_geometry.reference.box `box`]. Boxes are also used in Spatial Indexes. 
@@ -1098,6 +1251,7 @@ Boxes are for selections and for calculating the envelope of geometries. Not all
 [heading Typedef Description]
     
 Box is always described by a `min_corner()` and a `max_corner()` [link boost_geometry.reference.point `point`]. If another rectangle is used, use [link boost_geometry.reference.linear_ring `linear_ring`] or [link boost_geometry.reference.polygon `polygon`]. 
+
 [heading Remarks]
       
 Boxes are for selections and for calculating the envelope of geometries. Not all algorithms are implemented for [link boost_geometry.reference.box `box`]. Boxes are also used in Spatial Indexes. 
@@ -1180,6 +1334,7 @@ Calculate buffer (= new [link boost_geometry.reference.boost__geometry `boost::g
 ]
 
 
+
 [heading Remarks]
       
 Currently only implemented for [link boost_geometry.reference.box `box`], the trivial case, but still useful 
@@ -1245,7 +1400,7 @@ Encapsulate the results of distance calculation.
   
   [
     [[link boost_geometry.reference.cartesian_distance.squared_value [*squared_value]]]
-    [The "squared_value" method returns the internal squared value. ]
+    [The "squared\_value" method returns the internal squared value. ]
   ]
   
   [
@@ -1270,6 +1425,7 @@ Encapsulate the results of distance calculation.
 [heading Description]
 
 Distance calculation for xy points or xyz points is done by taking the square root. However, for distance comparison drawing the square root is not necessary. Therefore the distance strategies are allowed to return the squares of the distance. This structure contains the distance, and a boolean to indicate if it is squared. It has an automatic conversion to a double value, which does the square root if necessary. 
+
 [heading Remarks]
       
 Thanks to Phil Endecott for his suggestion to change the pair to the double-convertable http://article.gmane.org/gmane.comp.lib.boost.devel/172709/match=greatcircle\_distance 
@@ -1455,6 +1611,7 @@ Tag indicating Cartesian coordinate system family (cartesian,epsg).
 * OGC description: The mathematical centroid for this Surface as a Point. The result is not guaranteed to be on this Surface.
 
 * From Wikipedia: Informally, it is the "average" of all points 
+
 
 
 
@@ -1653,6 +1810,116 @@ Calculate centroid.
 
 [endsect]
 
+[section:circular_iterator circular_iterator]
+
+
+Iterator which goes circular through a range, `starting` at a [link boost_geometry.reference.point `point`], ending at that [link boost_geometry.reference.point `point`]. 
+
+
+
+
+[heading Synopsis]
+  template<
+      typename Iterator >
+  struct circular_iterator
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.circular_iterator.circular_iterator [*circular_iterator]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.circular_iterator.moveto [*moveto]]]
+    [Navigate to a certain position, should be in \[start .. end\], it at end it will circle again. ]
+  ]
+  
+]
+
+
+[heading Description]
+
+
+
+[variablelist
+  
+[[Iterator][iterator on which this class is based on ]]
+
+]
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/circular_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+[section:circular_iterator circular_iterator::circular_iterator]
+
+[indexterm2 circular_iterator..circular_iterator] 
+
+  explicit ``[link boost_geometry.reference.circular_iterator.circular_iterator.overload1 circular_iterator]``(
+      Iterator begin,
+      Iterator end,
+      Iterator start);
+  ``  [''''&raquo;''' [link boost_geometry.reference.circular_iterator.circular_iterator.overload1 more...]]``
+
+  explicit ``[link boost_geometry.reference.circular_iterator.circular_iterator.overload2 circular_iterator]``(
+      Iterator end);
+  ``  [''''&raquo;''' [link boost_geometry.reference.circular_iterator.circular_iterator.overload2 more...]]``
+
+
+[section:overload1 circular_iterator::circular_iterator (1 of 2 overloads)]
+
+
+
+  circular_iterator(
+      Iterator begin,
+      Iterator end,
+      Iterator start);
+
+
+
+[endsect]
+
+
+
+[section:overload2 circular_iterator::circular_iterator (2 of 2 overloads)]
+
+
+
+  circular_iterator(
+      Iterator end);
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:moveto circular_iterator::moveto]
+
+[indexterm2 moveto..circular_iterator] 
+Navigate to a certain position, should be in \[start .. end\], it at end it will circle again. 
+
+
+  void moveto(
+      Iterator it);
+
+
+
+[endsect]
+
+
+
+[endsect]
+
 
 [section:clear clear]
 
@@ -1667,6 +1934,7 @@ Clears a [link boost_geometry.reference.linestring `linestring`], linear ring or
 
 
 Generic function to clear a [link boost_geometry.reference.boost__geometry `boost::geometry`]
+
 
 
 [heading Remarks]
@@ -2075,6 +2343,7 @@ The [link boost_geometry.reference.linestring `linestring`] [link boost_geometry
 
 
 
+
 [heading Remarks]
       
 to fulfil the concepts, no [link boost_geometry.reference.traits `traits`] class has to be specialized to define the [link boost_geometry.reference.point `point`] type. The [link boost_geometry.reference.point `point`] type is taken using boost::range\_value<X>::type
@@ -2093,6 +2362,7 @@ Suppose that the following [link boost_geometry.reference.linestring `linestring
 
 
 It can then be adapted to the [link boost_geometry.reference.concept `concept`] as following:  
+
 
 
 
@@ -2282,6 +2552,7 @@ The [link boost_geometry.reference.polygon `polygon`] [link boost_geometry.refer
 
 
 
+
 [heading Remarks]
       
 to fulfil the concepts, no [link boost_geometry.reference.traits `traits`] class has to be specialized to define the [link boost_geometry.reference.point `point`] type. The [link boost_geometry.reference.point `point`] type is automatically defined as typename range\_value<typename `ring_type<P>::type`>type 
@@ -2329,6 +2600,7 @@ The ring [link boost_geometry.reference.concept `concept`] is defined as followi
 
 
 
+
 [heading Remarks]
       
 to fulfil the concepts, no [link boost_geometry.reference.traits `traits`] class has to be specialized to define the [link boost_geometry.reference.point `point`] type. The [link boost_geometry.reference.point `point`] type is taken using boost::range\_value<X>::type 
@@ -2365,6 +2637,7 @@ Formal definition: The [link boost_geometry.reference.segment `segment`] [link b
 * there must be a specialization of traits::point_type to define the underlying point type (even if it does not consist of points, it should define this type, to indicate the points it can work with)
 
 * there must be a specialization of traits::indexed_access, per index and per dimension, with two functions:get to get a coordinate valueset to set a coordinate value (this one is not checked for ConstSegment)
+
 
 
 
@@ -2590,6 +2863,7 @@ The convert algorithm converts one [link boost_geometry.reference.boost__geometr
 2776 counties of US are "hulled" in 0.9 seconds (http://trac.osgeo.org/ggl/wiki/Performance#Convexhull1)
 
 
+
 [heading Remarks]
       
 The convex hull is always a ring, holes are not possible. Therefore it is can also be used in combination with an output iterator.
@@ -2804,6 +3078,7 @@ Calculate the convex hull of a [link boost_geometry.reference.boost__geometry `b
 [[out][an output iterator outputing points of the convex hull ]]
 
 ]
+
 
 
 [heading Remarks]
@@ -3036,6 +3311,51 @@ All geometries tell their [link boost_geometry.reference.boost__geometry `boost:
 
 [endsect]
 
+
+[section:copy_coordinates copy_coordinates]
+
+[indexterm1 copy_coordinates] 
+Copies coordinates from source to destination [link boost_geometry.reference.point `point`]. 
+
+
+  template<
+      typename Src ,
+      typename Dst >
+  void copy_coordinates(
+      Src const & source,
+      Dst & dest);
+
+
+The function copy\_coordinates copies coordinates from one [link boost_geometry.reference.point `point`] to another [link boost_geometry.reference.point `point`]. Source [link boost_geometry.reference.point `point`] and destination [link boost_geometry.reference.point `point`] might be of different types. 
+[heading Parameters]
+    
+
+[variablelist
+  
+[[source][Source [link boost_geometry.reference.point `point`] ]]
+
+[[dest][Destination [link boost_geometry.reference.point `point`] ]]
+
+]
+
+
+
+[heading Remarks]
+      
+If destination type differs from source type, they must have the same coordinate count 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/copy.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
 [section:copy_segment_point copy_segment_point]
 
 [indexterm1 copy_segment_point] 
@@ -3229,6 +3549,7 @@ Both vectors shall be of the same type. This type also determines type of result
 ]
 
 
+
 [heading Return Value]
       
 the cross product vector 
@@ -3300,6 +3621,7 @@ Geographic coordinate system, in [link boost_geometry.reference.degree `degree`]
 [heading Description]
 
 Defines the [link boost_geometry.reference.cs__geographic `cs::geographic`] coordinate system where points are defined in two angles and usually known as lat,long or lo,la or phi,lambda 
+
 
 [heading Remarks]
       
@@ -4639,6 +4961,7 @@ Calculate if two geometries are disjoint.
 ]
 
 
+
 [heading Return Value]
       
 true if disjoint, else false 
@@ -4814,9 +5137,11 @@ Calculate distance between two geometries with a specified [link boost_geometry.
 ]
 
 
+
 [heading Return Value]
       
 the distance (either a double or a [link boost_geometry.reference.distance_result `distance_result`], (convertable to double)) 
+
 
 
 [heading Remarks]
@@ -4874,6 +5199,7 @@ The default [link boost_geometry.reference.strategy `strategy`] is used, belongi
 [[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -5219,6 +5545,7 @@ Computes the dot product (or scalar product) of 2 vectors (points).
 ]
 
 
+
 [heading Return Value]
       
 the dot product 
@@ -5228,6 +5555,46 @@ the dot product
 [heading Requirements]
 
 [*Header: ][^boost/geometry/arithmetic/dot_product.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:dsv dsv]
+
+[indexterm1 dsv] 
+Main DSV-streaming function. 
+
+
+  template<
+      typename Geometry >
+  detail::dsv::dsv_manipulator< Geometry > dsv(
+      Geometry const & geometry,
+      std::string const & coordinate_separator = ", ",
+      std::string const & point_open = "(",
+      std::string const & point_close = ")",
+      std::string const & point_separator = ", ",
+      std::string const & list_open = "(",
+      std::string const & list_close = ")",
+      std::string const & list_separator = ", ");
+
+
+DSV stands for Delimiter Separated Values. Geometries can be streamed as DSV. There are defaults for all separators. 
+
+[heading Remarks]
+      
+Useful for examples and testing purposes 
+
+With this function GeoJSON objects can be created, using the right delimiters 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/write_dsv.hpp]
 
 [*Convenience header: ][^boost/geometry.hpp]
 
@@ -5370,6 +5737,7 @@ Detect if two geometries are spatially equal.
 ]
 
 
+
 [heading Return Value]
       
 true if geometries are spatially equal, else false 
@@ -5385,6 +5753,128 @@ true if geometries are spatially equal, else false
 
 [endsect]
 
+
+[section:ever_circling_iterator ever_circling_iterator]
+
+
+Iterator which ever circles through a range. 
+
+
+
+
+[heading Synopsis]
+  template<
+      typename Iterator >
+  struct ever_circling_iterator
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.ever_circling_iterator.ever_circling_iterator [*ever_circling_iterator]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.ever_circling_iterator.moveto [*moveto]]]
+    [Navigate to a certain position, should be in \[start .. end\], it at end it will circle again. ]
+  ]
+  
+]
+
+
+[heading Description]
+
+
+
+[variablelist
+  
+[[Iterator][iterator on which this class is based on]]
+
+]
+
+If the iterator arrives at range.end() it restarts from the beginning. So it has to be stopped in another way. Don't call for(....; it++) because it will turn in an endless loop 
+
+[heading Remarks]
+      
+Name inspired on David Bowie's "Chant Of The Ever Circling Skeletal Family" 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/ever_circling_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+[section:ever_circling_iterator ever_circling_iterator::ever_circling_iterator]
+
+[indexterm2 ever_circling_iterator..ever_circling_iterator] 
+
+  explicit ``[link boost_geometry.reference.ever_circling_iterator.ever_circling_iterator.overload1 ever_circling_iterator]``(
+      Iterator begin,
+      Iterator end,
+      bool skip_first = false);
+  ``  [''''&raquo;''' [link boost_geometry.reference.ever_circling_iterator.ever_circling_iterator.overload1 more...]]``
+
+  explicit ``[link boost_geometry.reference.ever_circling_iterator.ever_circling_iterator.overload2 ever_circling_iterator]``(
+      Iterator begin,
+      Iterator end,
+      Iterator start,
+      bool skip_first = false);
+  ``  [''''&raquo;''' [link boost_geometry.reference.ever_circling_iterator.ever_circling_iterator.overload2 more...]]``
+
+
+[section:overload1 ever_circling_iterator::ever_circling_iterator (1 of 2 overloads)]
+
+
+
+  ever_circling_iterator(
+      Iterator begin,
+      Iterator end,
+      bool skip_first = false);
+
+
+
+[endsect]
+
+
+
+[section:overload2 ever_circling_iterator::ever_circling_iterator (2 of 2 overloads)]
+
+
+
+  ever_circling_iterator(
+      Iterator begin,
+      Iterator end,
+      Iterator start,
+      bool skip_first = false);
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:moveto ever_circling_iterator::moveto]
+
+[indexterm2 moveto..ever_circling_iterator] 
+Navigate to a certain position, should be in \[start .. end\], it at end it will circle again. 
+
+
+  void moveto(
+      Iterator it);
+
+
+
+[endsect]
+
+
+
+[endsect]
 
 [section:exception exception]
 
@@ -5446,6 +5936,7 @@ Function to get the exterior\_ring ring of a [link boost_geometry.reference.poly
 
 
 
+
 [heading Remarks]
       
 OGC compliance: instead of ExteriorRing 
@@ -5467,6 +5958,7 @@ OGC compliance: instead of ExteriorRing
 [[polygon][the [link boost_geometry.reference.polygon `polygon`] to get the exterior ring from ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -5493,6 +5985,7 @@ Function to get the exterior ring of a [link boost_geometry.reference.polygon `p
 
 
 
+
 [heading Remarks]
       
 OGC compliance: instead of ExteriorRing 
@@ -5516,6 +6009,7 @@ OGC compliance: instead of ExteriorRing
 ]
 
 
+
 [heading Return Value]
       
 a const reference to the exterior ring 
@@ -5527,6 +6021,29 @@ a const reference to the exterior ring
 
 
 [endsect]
+
+
+[section:for_each_coordinate for_each_coordinate]
+
+[indexterm1 for_each_coordinate] 
+
+  template<
+      typename Point ,
+      typename Op >
+  void for_each_coordinate(
+      Point & point,
+      Op operation);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/for_each_coordinate.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
 
 [section:for_each_point for_each_point]
 
@@ -5623,6 +6140,29 @@ Calls the functor for the specified [link boost_geometry.reference.boost__geomet
 
 
 [endsect]
+
+
+[section:for_each_range for_each_range]
+
+[indexterm1 for_each_range] 
+
+  template<
+      typename Geometry ,
+      typename Actor >
+  void for_each_range(
+      Geometry const & geometry,
+      Actor & actor);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/for_each_range.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
 
 [section:for_each_segment for_each_segment]
 
@@ -5780,6 +6320,7 @@ Meta-function the id for a [link boost_geometry.reference.boost__geometry `boost
 [heading Description]
 
 
+
 [heading Remarks]
       
 Used for e.g. reverse meta-function 
@@ -5879,6 +6420,7 @@ get coordinate value of a Point ( / Sphere)
 ]
 
 
+
 [heading Return Value]
       
 coordinate value 
@@ -5928,6 +6470,7 @@ get coordinate value of a Box / Segment
 ]
 
 
+
 [heading Return Value]
       
 coordinate value 
@@ -5955,6 +6498,7 @@ get coordinate value of a [link boost_geometry.reference.point `point`], result 
 
 
 Result is in Radian, even if source coordinate system is in Degrees 
+
 [heading Return Value]
       
 coordinate value
@@ -5978,6 +6522,7 @@ coordinate value
 [[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] to get coordinate value from ]]
 
 ]
+
 
 
 [heading Remarks]
@@ -6225,6 +6770,7 @@ Function to get the interior rings of a [link boost_geometry.reference.polygon `
 
 
 
+
 [heading Remarks]
       
 OGC compliance: instead of InteriorRingN 
@@ -6246,6 +6792,7 @@ OGC compliance: instead of InteriorRingN
 [[polygon][the [link boost_geometry.reference.polygon `polygon`] to get the interior rings from ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -6272,6 +6819,7 @@ Function to get the interior rings of a [link boost_geometry.reference.polygon `
 
 
 
+
 [heading Remarks]
       
 OGC compliance: instead of InteriorRingN 
@@ -6293,6 +6841,7 @@ OGC compliance: instead of InteriorRingN
 [[polygon][the [link boost_geometry.reference.polygon `polygon`] to get the interior rings from ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -6436,6 +6985,7 @@ The two input geometries are intersected and the resulting linestring(s), ring(s
 ]
 
 
+
 [heading Return Value]
       
 true if successful 
@@ -6541,6 +7091,7 @@ The two input geometries are intersected and the resulting linestring(s), ring(s
 ]
 
 
+
 [heading Return Value]
       
 the output iterator 
@@ -6598,6 +7149,7 @@ The two input geometries are intersected and the resulting linestring(s), ring(s
 ]
 
 
+
 [heading Return Value]
       
 the output iterator 
@@ -6639,6 +7191,7 @@ the output iterator
 
 
 
+
 [heading Remarks]
       
 There are two overloaded versions:
@@ -6657,6 +7210,7 @@ There are two overloaded versions:
 * polygon 
 
 * for two geometries: same is disjoint
+
 
 
 
@@ -6687,6 +7241,7 @@ Determine if there is at least one intersection (crossing or self-tangency).
 
 
 
+
 [heading Remarks]
       
 This function can be called for one [link boost_geometry.reference.boost__geometry `boost::geometry`] (self-intersection) and also for two geometries (intersection)
@@ -6708,6 +7263,7 @@ This function can be called for one [link boost_geometry.reference.boost__geomet
 [[geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -6758,6 +7314,7 @@ Determine if there is at least one intersection.
 ]
 
 
+
 [heading Return Value]
       
 true if there are intersection(s), else false 
@@ -6784,6 +7341,7 @@ Meta-function defining "true" for linear types ([link boost_geometry.reference.l
   struct is_linear
 
 [heading Description]
+
 
 
 [heading Remarks]
@@ -6908,6 +7466,7 @@ The function length returns the length of a [link boost_geometry.reference.boost
 ]
 
 
+
 [heading Return Value]
       
 the length Example showing length calculation on a vector  
@@ -6948,6 +7507,7 @@ The function length returns the length of a [link boost_geometry.reference.boost
 [[strategy][[link boost_geometry.reference.strategy `strategy`] to be used for distance calculations. ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -7001,6 +7561,7 @@ Meta-function defining return type of length function.
 [heading Description]
 
 
+
 [heading Remarks]
       
 Length of a line of integer coordinates can be double. So we take at least a double. If Big Number types are used, we take that type. 
@@ -7028,22 +7589,51 @@ Length of a line of integer coordinates can be double. So we take at least a dou
 
   [
 
-    [[link boost_geometry.reference.coordinate_type.ncg [*ncg]]]
-    []
-  
-  ]
-
-  [
-
-    [[link boost_geometry.reference.coordinate_type.type [*type]]]
+    [[link boost_geometry.reference.select_most_precise.type [*type]]]
     []
   
   ]
 
 ]
 
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.both_same [*both_same]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.one_not_fundamental [*one_not_fundamental]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.second_larger [*second_larger]]]
+    []
+  ]
+
+]
+
 [heading Typedef Description]
     
+[link boost_geometry.reference.select_most_precise `select_most_precise`] classes, compares two types on compile time. For example, if an addition must be done with a double and an integer, the result must be a double. If both types are integer, the result can be an integer. 
+
+[heading Remarks]
+      
+It is different from the "promote" class, already in `boost`. That class promotes e.g. a (one) float to a double. This class selects a type from two types. It takes the most accurate, but does not promote afterwards. 
+
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+If the input is a non-fundamental type, it might be a calculation type such as a GMP-value or another high precision value. Therefore, if one is non-fundamental, that one is chosen. 
+
+If both types are non-fundamental, the result is indeterminate and currently the first one is chosen. 
+
+
+
 
 [heading Requirements]
 
@@ -7296,9 +7886,10 @@ Make a [link boost_geometry.reference.boost__geometry `boost::geometry`].
 
 
 the Generic Geometry Library uses concepts for all its geometries. Therefore it does not rely on constructors. The "make" functions are object generators creating geometries. There are overloads with two, three, four or six values, which are implemented depending on the [link boost_geometry.reference.boost__geometry `boost::geometry`] specified. 
+
 [heading Remarks]
       
-It does not work with array-point types, like int[2] 
+It does not work with array-point types, like int\[2\] 
 
 
 
@@ -7309,6 +7900,7 @@ It does not work with array-point types, like int[2]
 [[T][the coordinate type ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -7335,6 +7927,7 @@ Make a [link boost_geometry.reference.boost__geometry `boost::geometry`].
       T const & c1,
       T const & c2,
       T const & c3);
+
 
 
 
@@ -7417,9 +8010,11 @@ Calculate and return buffer (= new [link boost_geometry.reference.boost__geometr
 ]
 
 
+
 [heading Return Value]
       
 the buffered [link boost_geometry.reference.boost__geometry `boost::geometry`] 
+
 
 
 [heading Remarks]
@@ -7491,6 +8086,7 @@ Calculate and return centroid.
 ]
 
 
+
 [heading Return Value]
       
 the centroid 
@@ -7528,6 +8124,7 @@ Calculate and return centroid, using a specified [link boost_geometry.reference.
 [[strategy][Calculation [link boost_geometry.reference.strategy `strategy`] for centroid ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -7575,6 +8172,7 @@ If distance results have to be compared to a certain value it makes sense to use
 [[value][the distance to compare with ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -7650,6 +8248,7 @@ The make\_inverse function initialize a 2D or 3D [link boost_geometry.reference.
 ]
 
 
+
 [heading Return Value]
       
 the [link boost_geometry.reference.box `box`] 
@@ -7659,6 +8258,27 @@ the [link boost_geometry.reference.box `box`]
 [heading Requirements]
 
 [*Header: ][^boost/geometry/algorithms/make.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:make_segment_iterator make_segment_iterator]
+
+[indexterm1 make_segment_iterator] 
+
+  template<
+      typename C >
+  segment_iterator< typename C::iterator, typename C::value_type > make_segment_iterator(
+      C & c);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
 
 [*Convenience header: ][^boost/geometry.hpp]
 
@@ -7687,6 +8307,7 @@ The make\_zero function initializes a 2D or 3D [link boost_geometry.reference.po
 ]
 
 
+
 [heading Return Value]
       
 the [link boost_geometry.reference.boost__geometry `boost::geometry`] 
@@ -7696,6 +8317,201 @@ the [link boost_geometry.reference.boost__geometry `boost::geometry`]
 [heading Requirements]
 
 [*Header: ][^boost/geometry/algorithms/make.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:math__d2r math::d2r]
+
+[indexterm1 math::d2r] 
+
+  double const d2r =pi / 180.0;
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/math.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:math__equals math::equals]
+
+[indexterm1 math::equals] 
+returns true if both arguments are equal. 
+
+
+  template<
+      typename T1 ,
+      typename T2 >
+  bool equals(
+      T1 const & a,
+      T2 const & b);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[a][first argument ]]
+
+[[b][second argument ]]
+
+]
+
+
+
+[heading Return Value]
+      
+true if a == b 
+
+
+
+[heading Remarks]
+      
+If both a and b are of an integral type, comparison is done by ==. If one of the types is floating [link boost_geometry.reference.point `point`], comparison is done by abs and comparing with epsilon. If one of the types is non-fundamental, it might be a high-precision number and comparison is done using the == operator of that class. 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/math.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:math__hav math::hav]
+
+[indexterm1 math::hav] 
+Calculates the haversine of an angle. 
+
+
+  template<
+      typename T >
+  T hav(
+      T const & theta);
+
+
+
+
+[heading Remarks]
+      
+See http://en.wikipedia.org/wiki/Haversine\_formula haversin(alpha) = sin2(alpha/2) 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/math.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:math__pi math::pi]
+
+[indexterm1 math::pi] 
+
+  double const pi = boost::math::constants::pi<double>();
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/math.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:math__r2d math::r2d]
+
+[indexterm1 math::r2d] 
+
+  double const r2d = 1.0 / d2r;
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/math.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:math__sqr math::sqr]
+
+[indexterm1 math::sqr] 
+Short utility to return the square. 
+
+
+  template<
+      typename T >
+  T sqr(
+      T const & value);
+
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[value][Value to calculate the square from ]]
+
+]
+
+
+
+[heading Return Value]
+      
+The squared value 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/math.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:math__two_pi math::two_pi]
+
+[indexterm1 math::two_pi] 
+
+  double const two_pi = 2.0 * pi;
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/math.hpp]
 
 [*Convenience header: ][^boost/geometry.hpp]
 
@@ -7769,6 +8585,7 @@ The coordinates of the second [link boost_geometry.reference.point `point`] will
 [[p2][second [link boost_geometry.reference.point `point`] ]]
 
 ]
+
 
 
 [heading Remarks]
@@ -7857,6 +8674,7 @@ Function to get the number of geometries of a composite [link boost_geometry.ref
 ]
 
 
+
 [heading Return Value]
       
 the number of interior rings of the [link boost_geometry.reference.boost__geometry `boost::geometry`] 
@@ -7887,6 +8705,7 @@ Function to get the number of interior rings of a [link boost_geometry.reference
 
 
 
+
 [heading Remarks]
       
 Defined by OGC as "numInteriorRing". To be consistent with "numPoints" letter "s" is appended 
@@ -7910,6 +8729,7 @@ Can be used for any [link boost_geometry.reference.boost__geometry `boost::geome
 [[geometry][the [link boost_geometry.reference.polygon `polygon`] or other [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -7960,9 +8780,11 @@ get number of points
 ]
 
 
+
 [heading Return Value]
       
 number of points 
+
 
 
 [heading Remarks]
@@ -7974,6 +8796,166 @@ For linestrings/rings also boost::size or .size() could be used, however, for po
 [heading Requirements]
 
 [*Header: ][^boost/geometry/algorithms/num_points.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:one_section_segment_iterator one_section_segment_iterator]
+
+
+
+
+
+[heading Synopsis]
+  template<
+      typename G ,
+      typename SEC ,
+      typename B ,
+      size_t ``[link boost_geometry.reference.D D]``>
+  struct one_section_segment_iterator
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.one_section_segment_iterator.normal_iterator [*normal_iterator]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.one_section_segment_iterator.one_section_segment_iterator [*one_section_segment_iterator]]]
+    []
+  ]
+  
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/section_iterators.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:normal_iterator one_section_segment_iterator::normal_iterator]
+
+[indexterm2 normal_iterator..one_section_segment_iterator] 
+
+  typedef boost::range_const_iterator< G >::type normal_iterator;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/section_iterators.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:one_section_segment_iterator one_section_segment_iterator::one_section_segment_iterator]
+
+[indexterm2 one_section_segment_iterator..one_section_segment_iterator] 
+
+  ``[link boost_geometry.reference.one_section_segment_iterator.one_section_segment_iterator.overload1 one_section_segment_iterator]``(
+      const G & ring,
+      const SEC & section,
+      const B & box);
+  ``  [''''&raquo;''' [link boost_geometry.reference.one_section_segment_iterator.one_section_segment_iterator.overload1 more...]]``
+
+  ``[link boost_geometry.reference.one_section_segment_iterator.one_section_segment_iterator.overload2 one_section_segment_iterator]``(
+      normal_iterator end);
+  ``  [''''&raquo;''' [link boost_geometry.reference.one_section_segment_iterator.one_section_segment_iterator.overload2 more...]]``
+
+
+[section:overload1 one_section_segment_iterator::one_section_segment_iterator (1 of 2 overloads)]
+
+
+
+  one_section_segment_iterator(
+      const G & ring,
+      const SEC & section,
+      const B & box);
+
+
+
+[endsect]
+
+
+
+[section:overload2 one_section_segment_iterator::one_section_segment_iterator (2 of 2 overloads)]
+
+
+
+  one_section_segment_iterator(
+      normal_iterator end);
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:operator_not__eq_ operator!=]
+
+[indexterm1 operator!=] 
+
+  template<
+      typename Base ,
+      typename Point >
+  bool operator!=(
+      segment_iterator< Base, Point > const & lhs,
+      segment_iterator< Base, Point > const & rhs);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_eq__eq_ operator==]
+
+[indexterm1 operator==] 
+
+  template<
+      typename Base ,
+      typename Point >
+  bool operator==(
+      segment_iterator< Base, Point > const & lhs,
+      segment_iterator< Base, Point > const & rhs);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
 
 [*Convenience header: ][^boost/geometry.hpp]
 
@@ -8036,6 +9018,7 @@ Determines overlap between two geometries.
   bool overlaps(
       Geometry1 const & geometry1,
       Geometry2 const & geometry2);
+
 
 
 
@@ -8214,6 +9197,7 @@ The function perimeter returns the perimeter of a [link boost_geometry.reference
 ]
 
 
+
 [heading Return Value]
       
 the perimeter 
@@ -8250,6 +9234,7 @@ The function perimeter returns the perimeter of a [link boost_geometry.reference
 [[strategy][[link boost_geometry.reference.strategy `strategy`] to be used for distance calculations. ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -9248,6 +10233,2305 @@ Set y-value.
 
 [endsect]
 
+[section:policies__relate__direction_type policies::relate::direction_type]
+
+
+
+
+
+[heading Synopsis]
+  struct direction_type
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.direction_type [*direction_type]]]
+    []
+  ]
+  
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.arrival [*arrival]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.dir_a [*dir_a]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.dir_b [*dir_b]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.how [*how]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.how_a [*how_a]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.how_b [*how_b]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.opposite [*opposite]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.sides [*sides]]]
+    []
+  ]
+
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/direction.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:arrival policies::relate::direction_type::arrival]
+
+[indexterm2 arrival..policies::relate::direction_type] 
+
+  int arrival;
+
+
+
+[endsect]
+
+
+
+[section:dir_a policies::relate::direction_type::dir_a]
+
+[indexterm2 dir_a..policies::relate::direction_type] 
+
+  int dir_a;
+
+
+
+[endsect]
+
+
+
+[section:dir_b policies::relate::direction_type::dir_b]
+
+[indexterm2 dir_b..policies::relate::direction_type] 
+
+  int dir_b;
+
+
+
+[endsect]
+
+
+[section:direction_type policies::relate::direction_type::direction_type]
+
+[indexterm2 direction_type..policies::relate::direction_type] 
+
+  ``[link boost_geometry.reference.policies__relate__direction_type.direction_type.overload1 direction_type]``(
+      side_info const & s,
+      char h,
+      int ha,
+      int hb,
+      int da = 0,
+      int db = 0,
+      bool op = false);
+  ``  [''''&raquo;''' [link boost_geometry.reference.policies__relate__direction_type.direction_type.overload1 more...]]``
+
+  ``[link boost_geometry.reference.policies__relate__direction_type.direction_type.overload2 direction_type]``(
+      char h,
+      bool op,
+      int ha = 0,
+      int hb = 0);
+  ``  [''''&raquo;''' [link boost_geometry.reference.policies__relate__direction_type.direction_type.overload2 more...]]``
+
+
+[section:overload1 policies::relate::direction_type::direction_type (1 of 2 overloads)]
+
+
+
+  direction_type(
+      side_info const & s,
+      char h,
+      int ha,
+      int hb,
+      int da = 0,
+      int db = 0,
+      bool op = false);
+
+
+
+[endsect]
+
+
+
+[section:overload2 policies::relate::direction_type::direction_type (2 of 2 overloads)]
+
+
+
+  direction_type(
+      char h,
+      bool op,
+      int ha = 0,
+      int hb = 0);
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:how policies::relate::direction_type::how]
+
+[indexterm2 how..policies::relate::direction_type] 
+
+  char how;
+
+
+
+[endsect]
+
+
+
+[section:how_a policies::relate::direction_type::how_a]
+
+[indexterm2 how_a..policies::relate::direction_type] 
+
+  int how_a;
+
+
+
+[endsect]
+
+
+
+[section:how_b policies::relate::direction_type::how_b]
+
+[indexterm2 how_b..policies::relate::direction_type] 
+
+  int how_b;
+
+
+
+[endsect]
+
+
+
+[section:opposite policies::relate::direction_type::opposite]
+
+[indexterm2 opposite..policies::relate::direction_type] 
+
+  bool opposite;
+
+
+
+[endsect]
+
+
+
+[section:sides policies::relate::direction_type::sides]
+
+[indexterm2 sides..policies::relate::direction_type] 
+
+  side_info sides;
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:policies__relate__segments_de9im policies::relate::segments_de9im]
+
+
+
+
+
+[heading Synopsis]
+  template<
+      typename S1 ,
+      typename S2 >
+  struct segments_de9im
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_de9im.coordinate_type [*coordinate_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_de9im.return_type [*return_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_de9im.segment_type1 [*segment_type1]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_de9im.segment_type2 [*segment_type2]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.collinear_a_in_b [*collinear_a_in_b]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.collinear_b_in_a [*collinear_b_in_a]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.collinear_disjoint [*collinear_disjoint]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.collinear_interior_boundary_intersect [*collinear_interior_boundary_intersect]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.collinear_overlaps [*collinear_overlaps]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.collinear_touch [*collinear_touch]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.degenerate [*degenerate]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.parallel [*parallel]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.rays_intersect [*rays_intersect]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_de9im.segment_equal [*segment_equal]]]
+    []
+  ]
+  
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/de9im.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:collinear_a_in_b policies::relate::segments_de9im::collinear_a_in_b]
+
+[indexterm2 collinear_a_in_b..policies::relate::segments_de9im] 
+
+  static return_type collinear_a_in_b(
+      S1 const & s,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_b_in_a policies::relate::segments_de9im::collinear_b_in_a]
+
+[indexterm2 collinear_b_in_a..policies::relate::segments_de9im] 
+
+  static return_type collinear_b_in_a(
+      const S2 & s,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_disjoint policies::relate::segments_de9im::collinear_disjoint]
+
+[indexterm2 collinear_disjoint..policies::relate::segments_de9im] 
+
+  static return_type collinear_disjoint();
+
+
+
+[endsect]
+
+
+
+[section:collinear_interior_boundary_intersect policies::relate::segments_de9im::collinear_interior_boundary_intersect]
+
+[indexterm2 collinear_interior_boundary_intersect..policies::relate::segments_de9im] 
+
+  template<
+      typename S >
+  static return_type collinear_interior_boundary_intersect(
+      S const & s,
+      bool a_within_b,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_overlaps policies::relate::segments_de9im::collinear_overlaps]
+
+[indexterm2 collinear_overlaps..policies::relate::segments_de9im] 
+
+  static return_type collinear_overlaps(
+      coordinate_type const & x1,
+      coordinate_type const & y1,
+      coordinate_type const & x2,
+      coordinate_type const & y2,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_touch policies::relate::segments_de9im::collinear_touch]
+
+[indexterm2 collinear_touch..policies::relate::segments_de9im] 
+
+  static return_type collinear_touch(
+      coordinate_type const & x,
+      coordinate_type const & y,
+      bool opposite,
+      char );
+
+
+
+[endsect]
+
+
+
+[section:coordinate_type policies::relate::segments_de9im::coordinate_type]
+
+[indexterm2 coordinate_type..policies::relate::segments_de9im] 
+
+  typedef select_coordinate_type< S1, S2 >::type coordinate_type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/de9im.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:degenerate policies::relate::segments_de9im::degenerate]
+
+[indexterm2 degenerate..policies::relate::segments_de9im] 
+
+  static return_type degenerate(
+      S1 const & segment,
+      bool a_degenerate);
+
+
+
+[endsect]
+
+
+
+[section:parallel policies::relate::segments_de9im::parallel]
+
+[indexterm2 parallel..policies::relate::segments_de9im] 
+
+  static return_type parallel();
+
+
+
+[endsect]
+
+
+
+[section:rays_intersect policies::relate::segments_de9im::rays_intersect]
+
+[indexterm2 rays_intersect..policies::relate::segments_de9im] 
+
+  static return_type rays_intersect(
+      bool on_segment,
+      double ra,
+      double rb,
+      coordinate_type const & dx1,
+      coordinate_type const & dy1,
+      coordinate_type const & dx2,
+      coordinate_type const & dy2,
+      coordinate_type const & wx,
+      coordinate_type const & wy,
+      S1 const & s1,
+      S2 const & s2);
+
+
+
+[endsect]
+
+
+
+[section:return_type policies::relate::segments_de9im::return_type]
+
+[indexterm2 return_type..policies::relate::segments_de9im] 
+
+  typedef de9im_segment return_type;
+
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.as_char [*as_char]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.contains [*contains]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.crosses [*crosses]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.de9im_segment [*de9im_segment]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.disjoint [*disjoint]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.equals [*equals]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.intersects [*intersects]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.overlaps [*overlaps]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.touches [*touches]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.de9im_segment.within [*within]]]
+    []
+  ]
+  
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.bb [*bb]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.be [*be]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.bi [*bi]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.collinear [*collinear]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.degenerate [*degenerate]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.eb [*eb]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.ee [*ee]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.ei [*ei]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.ib [*ib]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.ie [*ie]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.ii [*ii]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.opposite [*opposite]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.parallel [*parallel]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.ra [*ra]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.de9im_segment.rb [*rb]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/de9im.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segment_equal policies::relate::segments_de9im::segment_equal]
+
+[indexterm2 segment_equal..policies::relate::segments_de9im] 
+
+  static return_type segment_equal(
+      S1 const & s,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:segment_type1 policies::relate::segments_de9im::segment_type1]
+
+[indexterm2 segment_type1..policies::relate::segments_de9im] 
+
+  typedef S1 segment_type1;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/de9im.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segment_type2 policies::relate::segments_de9im::segment_type2]
+
+[indexterm2 segment_type2..policies::relate::segments_de9im] 
+
+  typedef S2 segment_type2;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/de9im.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:policies__relate__segments_direction policies::relate::segments_direction]
+
+
+
+
+
+[heading Synopsis]
+  template<
+      typename S1 ,
+      typename S2 ,
+      typename CalculationType  = void>
+  struct segments_direction
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_direction.coordinate_type [*coordinate_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_direction.return_type [*return_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_direction.rtype [*rtype]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_direction.segment_type1 [*segment_type1]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_direction.segment_type2 [*segment_type2]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.collinear_a_in_b [*collinear_a_in_b]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.collinear_b_in_a [*collinear_b_in_a]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.collinear_disjoint [*collinear_disjoint]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.collinear_interior_boundary_intersect [*collinear_interior_boundary_intersect]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.collinear_overlaps [*collinear_overlaps]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.collinear_touch [*collinear_touch]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.degenerate [*degenerate]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.disjoint [*disjoint]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.error [*error]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.parallel [*parallel]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.segment_equal [*segment_equal]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_direction.segments_intersect [*segments_intersect]]]
+    []
+  ]
+  
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/direction.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:collinear_a_in_b policies::relate::segments_direction::collinear_a_in_b]
+
+[indexterm2 collinear_a_in_b..policies::relate::segments_direction] 
+
+  static return_type collinear_a_in_b(
+      S1 const & ,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_b_in_a policies::relate::segments_direction::collinear_b_in_a]
+
+[indexterm2 collinear_b_in_a..policies::relate::segments_direction] 
+
+  static return_type collinear_b_in_a(
+      S2 const & ,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_disjoint policies::relate::segments_direction::collinear_disjoint]
+
+[indexterm2 collinear_disjoint..policies::relate::segments_direction] 
+
+  static return_type collinear_disjoint();
+
+
+
+[endsect]
+
+
+
+[section:collinear_interior_boundary_intersect policies::relate::segments_direction::collinear_interior_boundary_intersect]
+
+[indexterm2 collinear_interior_boundary_intersect..policies::relate::segments_direction] 
+
+  template<
+      typename S >
+  static return_type collinear_interior_boundary_intersect(
+      S const & ,
+      bool ,
+      int arrival_a,
+      int arrival_b,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_overlaps policies::relate::segments_direction::collinear_overlaps]
+
+[indexterm2 collinear_overlaps..policies::relate::segments_direction] 
+
+  static return_type collinear_overlaps(
+      coordinate_type const & ,
+      coordinate_type const & ,
+      coordinate_type const & ,
+      coordinate_type const & ,
+      int arrival_a,
+      int arrival_b,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_touch policies::relate::segments_direction::collinear_touch]
+
+[indexterm2 collinear_touch..policies::relate::segments_direction] 
+
+  static return_type collinear_touch(
+      coordinate_type const & ,
+      coordinate_type const & ,
+      int arrival_a,
+      int arrival_b);
+
+
+
+[endsect]
+
+
+
+[section:coordinate_type policies::relate::segments_direction::coordinate_type]
+
+[indexterm2 coordinate_type..policies::relate::segments_direction] 
+
+  typedef select_calculation_type< S1, S2, CalculationType >::type coordinate_type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_calculation_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+Based on two input [link boost_geometry.reference.boost__geometry `boost::geometry`] types, and an input calculation type, (which defaults to void in the calling function), this meta-function selects the most appropriate:
+* if calculation type is specified, that one is used,
+
+* if it is void, the most precise of the two points is used 
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/direction.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:degenerate policies::relate::segments_direction::degenerate]
+
+[indexterm2 degenerate..policies::relate::segments_direction] 
+
+  static return_type degenerate(
+      S1 const & ,
+      bool );
+
+
+
+[endsect]
+
+
+
+[section:disjoint policies::relate::segments_direction::disjoint]
+
+[indexterm2 disjoint..policies::relate::segments_direction] 
+
+  static return_type disjoint();
+
+
+
+[endsect]
+
+
+
+[section:error policies::relate::segments_direction::error]
+
+[indexterm2 error..policies::relate::segments_direction] 
+
+  static return_type error(
+      std::string const & msg);
+
+
+
+[endsect]
+
+
+
+[section:parallel policies::relate::segments_direction::parallel]
+
+[indexterm2 parallel..policies::relate::segments_direction] 
+
+  static return_type parallel();
+
+
+
+[endsect]
+
+
+
+[section:return_type policies::relate::segments_direction::return_type]
+
+[indexterm2 return_type..policies::relate::segments_direction] 
+
+  typedef direction_type return_type;
+
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.direction_type [*direction_type]]]
+    []
+  ]
+  
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.arrival [*arrival]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.dir_a [*dir_a]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.dir_b [*dir_b]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.how [*how]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.how_a [*how_a]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.how_b [*how_b]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.opposite [*opposite]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.policies__relate__direction_type.sides [*sides]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/direction.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:rtype policies::relate::segments_direction::rtype]
+
+[indexterm2 rtype..policies::relate::segments_direction] 
+
+  typedef select_most_precise< coordinate_type, double >::type rtype;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_most_precise.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.both_same [*both_same]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.one_not_fundamental [*one_not_fundamental]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.second_larger [*second_larger]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+[link boost_geometry.reference.select_most_precise `select_most_precise`] classes, compares two types on compile time. For example, if an addition must be done with a double and an integer, the result must be a double. If both types are integer, the result can be an integer. 
+
+[heading Remarks]
+      
+It is different from the "promote" class, already in `boost`. That class promotes e.g. a (one) float to a double. This class selects a type from two types. It takes the most accurate, but does not promote afterwards. 
+
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+If the input is a non-fundamental type, it might be a calculation type such as a GMP-value or another high precision value. Therefore, if one is non-fundamental, that one is chosen. 
+
+If both types are non-fundamental, the result is indeterminate and currently the first one is chosen. 
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/direction.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segment_equal policies::relate::segments_direction::segment_equal]
+
+[indexterm2 segment_equal..policies::relate::segments_direction] 
+
+  static return_type segment_equal(
+      S1 const & ,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:segment_type1 policies::relate::segments_direction::segment_type1]
+
+[indexterm2 segment_type1..policies::relate::segments_direction] 
+
+  typedef S1 segment_type1;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/direction.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segment_type2 policies::relate::segments_direction::segment_type2]
+
+[indexterm2 segment_type2..policies::relate::segments_direction] 
+
+  typedef S2 segment_type2;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/direction.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segments_intersect policies::relate::segments_direction::segments_intersect]
+
+[indexterm2 segments_intersect..policies::relate::segments_direction] 
+
+  static return_type segments_intersect(
+      side_info const & sides,
+      coordinate_type const & dx1,
+      coordinate_type const & dy1,
+      coordinate_type const & dx2,
+      coordinate_type const & dy2,
+      S1 const & s1,
+      S2 const & s2);
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:policies__relate__segments_intersection_points policies::relate::segments_intersection_points]
+
+
+
+
+
+[heading Synopsis]
+  template<
+      typename S1 ,
+      typename S2 ,
+      typename ReturnType ,
+      typename CalculationType  = void>
+  struct segments_intersection_points
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.coordinate_type [*coordinate_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.promoted_type [*promoted_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.return_type [*return_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.segment_type1 [*segment_type1]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.segment_type2 [*segment_type2]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.collinear_a_in_b [*collinear_a_in_b]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.collinear_b_in_a [*collinear_b_in_a]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.collinear_disjoint [*collinear_disjoint]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.collinear_inside [*collinear_inside]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.collinear_interior_boundary_intersect [*collinear_interior_boundary_intersect]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.collinear_overlaps [*collinear_overlaps]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.collinear_touch [*collinear_touch]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.cross [*cross]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.degenerate [*degenerate]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.disjoint [*disjoint]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.error [*error]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.parallel [*parallel]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.rico [*rico]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.segment_equal [*segment_equal]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_intersection_points.segments_intersect [*segments_intersect]]]
+    []
+  ]
+  
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/intersection_points_slope.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:collinear_a_in_b policies::relate::segments_intersection_points::collinear_a_in_b]
+
+[indexterm2 collinear_a_in_b..policies::relate::segments_intersection_points] 
+
+  static return_type collinear_a_in_b(
+      S1 const & s,
+      bool );
+
+
+
+[endsect]
+
+
+
+[section:collinear_b_in_a policies::relate::segments_intersection_points::collinear_b_in_a]
+
+[indexterm2 collinear_b_in_a..policies::relate::segments_intersection_points] 
+
+  static return_type collinear_b_in_a(
+      S2 const & s,
+      bool );
+
+
+
+[endsect]
+
+
+
+[section:collinear_disjoint policies::relate::segments_intersection_points::collinear_disjoint]
+
+[indexterm2 collinear_disjoint..policies::relate::segments_intersection_points] 
+
+  static return_type collinear_disjoint();
+
+
+
+[endsect]
+
+
+
+[section:collinear_inside policies::relate::segments_intersection_points::collinear_inside]
+
+[indexterm2 collinear_inside..policies::relate::segments_intersection_points] 
+
+  template<
+      typename S >
+  static return_type collinear_inside(
+      S const & s);
+
+
+
+[endsect]
+
+
+
+[section:collinear_interior_boundary_intersect policies::relate::segments_intersection_points::collinear_interior_boundary_intersect]
+
+[indexterm2 collinear_interior_boundary_intersect..policies::relate::segments_intersection_points] 
+
+  template<
+      typename S >
+  static return_type collinear_interior_boundary_intersect(
+      S const & s,
+      bool ,
+      bool );
+
+
+
+[endsect]
+
+
+
+[section:collinear_overlaps policies::relate::segments_intersection_points::collinear_overlaps]
+
+[indexterm2 collinear_overlaps..policies::relate::segments_intersection_points] 
+
+  static return_type collinear_overlaps(
+      coordinate_type const & x1,
+      coordinate_type const & y1,
+      coordinate_type const & x2,
+      coordinate_type const & y2,
+      bool );
+
+
+
+[endsect]
+
+
+
+[section:collinear_touch policies::relate::segments_intersection_points::collinear_touch]
+
+[indexterm2 collinear_touch..policies::relate::segments_intersection_points] 
+
+  static return_type collinear_touch(
+      coordinate_type const & x,
+      coordinate_type const & y,
+      bool ,
+      char );
+
+
+
+[endsect]
+
+
+
+[section:coordinate_type policies::relate::segments_intersection_points::coordinate_type]
+
+[indexterm2 coordinate_type..policies::relate::segments_intersection_points] 
+
+  typedef select_calculation_type< S1, S2, CalculationType >::type coordinate_type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_calculation_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+Based on two input [link boost_geometry.reference.boost__geometry `boost::geometry`] types, and an input calculation type, (which defaults to void in the calling function), this meta-function selects the most appropriate:
+* if calculation type is specified, that one is used,
+
+* if it is void, the most precise of the two points is used 
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/intersection_points_slope.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:cross policies::relate::segments_intersection_points::cross]
+
+[indexterm2 cross..policies::relate::segments_intersection_points] 
+
+  static return_type cross(
+      S1 const & s1,
+      S2 const & s2);
+
+
+
+[endsect]
+
+
+
+[section:degenerate policies::relate::segments_intersection_points::degenerate]
+
+[indexterm2 degenerate..policies::relate::segments_intersection_points] 
+
+  static return_type degenerate(
+      S1 const & s,
+      bool );
+
+
+
+[endsect]
+
+
+
+[section:disjoint policies::relate::segments_intersection_points::disjoint]
+
+[indexterm2 disjoint..policies::relate::segments_intersection_points] 
+
+  static return_type disjoint();
+
+
+
+[endsect]
+
+
+
+[section:error policies::relate::segments_intersection_points::error]
+
+[indexterm2 error..policies::relate::segments_intersection_points] 
+
+  static return_type error(
+      std::string const & msg);
+
+
+
+[endsect]
+
+
+
+[section:parallel policies::relate::segments_intersection_points::parallel]
+
+[indexterm2 parallel..policies::relate::segments_intersection_points] 
+
+  static return_type parallel();
+
+
+
+[endsect]
+
+
+
+[section:promoted_type policies::relate::segments_intersection_points::promoted_type]
+
+[indexterm2 promoted_type..policies::relate::segments_intersection_points] 
+
+  typedef select_most_precise< coordinate_type, double >::type promoted_type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_most_precise.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.both_same [*both_same]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.one_not_fundamental [*one_not_fundamental]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.second_larger [*second_larger]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+[link boost_geometry.reference.select_most_precise `select_most_precise`] classes, compares two types on compile time. For example, if an addition must be done with a double and an integer, the result must be a double. If both types are integer, the result can be an integer. 
+
+[heading Remarks]
+      
+It is different from the "promote" class, already in `boost`. That class promotes e.g. a (one) float to a double. This class selects a type from two types. It takes the most accurate, but does not promote afterwards. 
+
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+If the input is a non-fundamental type, it might be a calculation type such as a GMP-value or another high precision value. Therefore, if one is non-fundamental, that one is chosen. 
+
+If both types are non-fundamental, the result is indeterminate and currently the first one is chosen. 
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/intersection_points_slope.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:return_type policies::relate::segments_intersection_points::return_type]
+
+[indexterm2 return_type..policies::relate::segments_intersection_points] 
+
+  typedef ReturnType return_type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/intersection_points_slope.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:rico policies::relate::segments_intersection_points::rico]
+
+[indexterm2 rico..policies::relate::segments_intersection_points] 
+
+  template<
+      int ``[link boost_geometry.reference.Dimension Dimension]``>
+  static return_type rico(
+      coordinate_type const & dm1,
+      coordinate_type const & dn1,
+      coordinate_type const & dm2,
+      coordinate_type const & dn2,
+      S1 const & s1,
+      S2 const & s2);
+
+
+
+[endsect]
+
+
+
+[section:segment_equal policies::relate::segments_intersection_points::segment_equal]
+
+[indexterm2 segment_equal..policies::relate::segments_intersection_points] 
+
+  static return_type segment_equal(
+      S1 const & s,
+      bool );
+
+
+
+[endsect]
+
+
+
+[section:segment_type1 policies::relate::segments_intersection_points::segment_type1]
+
+[indexterm2 segment_type1..policies::relate::segments_intersection_points] 
+
+  typedef S1 segment_type1;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/intersection_points_slope.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segment_type2 policies::relate::segments_intersection_points::segment_type2]
+
+[indexterm2 segment_type2..policies::relate::segments_intersection_points] 
+
+  typedef S2 segment_type2;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/intersection_points_slope.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segments_intersect policies::relate::segments_intersection_points::segments_intersect]
+
+[indexterm2 segments_intersect..policies::relate::segments_intersection_points] 
+
+  static return_type segments_intersect(
+      side_info const & sides,
+      coordinate_type const & dx1,
+      coordinate_type const & dy1,
+      coordinate_type const & dx2,
+      coordinate_type const & dy2,
+      S1 const & s1,
+      S2 const & s2);
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:policies__relate__segments_tupled policies::relate::segments_tupled]
+
+
+
+
+
+[heading Synopsis]
+  template<
+      typename Policy1 ,
+      typename Policy2 ,
+      typename CalculationType  = void>
+  struct segments_tupled
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_tupled.coordinate_type [*coordinate_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_tupled.return_type [*return_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_tupled.rtype [*rtype]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_tupled.segment_type1 [*segment_type1]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.policies__relate__segments_tupled.segment_type2 [*segment_type2]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.collinear_a_in_b [*collinear_a_in_b]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.collinear_b_in_a [*collinear_b_in_a]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.collinear_disjoint [*collinear_disjoint]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.collinear_interior_boundary_intersect [*collinear_interior_boundary_intersect]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.collinear_overlaps [*collinear_overlaps]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.collinear_touch [*collinear_touch]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.degenerate [*degenerate]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.disjoint [*disjoint]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.error [*error]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.parallel [*parallel]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.segment_equal [*segment_equal]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.policies__relate__segments_tupled.segments_intersect [*segments_intersect]]]
+    []
+  ]
+  
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/tupled.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:collinear_a_in_b policies::relate::segments_tupled::collinear_a_in_b]
+
+[indexterm2 collinear_a_in_b..policies::relate::segments_tupled] 
+
+  static return_type collinear_a_in_b(
+      segment_type1 const & segment,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_b_in_a policies::relate::segments_tupled::collinear_b_in_a]
+
+[indexterm2 collinear_b_in_a..policies::relate::segments_tupled] 
+
+  static return_type collinear_b_in_a(
+      segment_type2 const & segment,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_disjoint policies::relate::segments_tupled::collinear_disjoint]
+
+[indexterm2 collinear_disjoint..policies::relate::segments_tupled] 
+
+  static return_type collinear_disjoint();
+
+
+
+[endsect]
+
+
+
+[section:collinear_interior_boundary_intersect policies::relate::segments_tupled::collinear_interior_boundary_intersect]
+
+[indexterm2 collinear_interior_boundary_intersect..policies::relate::segments_tupled] 
+
+  template<
+      typename S >
+  static return_type collinear_interior_boundary_intersect(
+      S const & segment,
+      bool a_within_b,
+      int arrival_a,
+      int arrival_b,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_overlaps policies::relate::segments_tupled::collinear_overlaps]
+
+[indexterm2 collinear_overlaps..policies::relate::segments_tupled] 
+
+  static return_type collinear_overlaps(
+      coordinate_type const & x1,
+      coordinate_type const & y1,
+      coordinate_type const & x2,
+      coordinate_type const & y2,
+      int arrival_a,
+      int arrival_b,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:collinear_touch policies::relate::segments_tupled::collinear_touch]
+
+[indexterm2 collinear_touch..policies::relate::segments_tupled] 
+
+  static return_type collinear_touch(
+      coordinate_type const & x,
+      coordinate_type const & y,
+      int arrival_a,
+      int arrival_b);
+
+
+
+[endsect]
+
+
+
+[section:coordinate_type policies::relate::segments_tupled::coordinate_type]
+
+[indexterm2 coordinate_type..policies::relate::segments_tupled] 
+
+  typedef select_calculation_type< segment_type1, segment_type2, CalculationType >::type coordinate_type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_calculation_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+Based on two input [link boost_geometry.reference.boost__geometry `boost::geometry`] types, and an input calculation type, (which defaults to void in the calling function), this meta-function selects the most appropriate:
+* if calculation type is specified, that one is used,
+
+* if it is void, the most precise of the two points is used 
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/tupled.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:degenerate policies::relate::segments_tupled::degenerate]
+
+[indexterm2 degenerate..policies::relate::segments_tupled] 
+
+  static return_type degenerate(
+      segment_type1 const & segment,
+      bool a_degenerate);
+
+
+
+[endsect]
+
+
+
+[section:disjoint policies::relate::segments_tupled::disjoint]
+
+[indexterm2 disjoint..policies::relate::segments_tupled] 
+
+  static return_type disjoint();
+
+
+
+[endsect]
+
+
+
+[section:error policies::relate::segments_tupled::error]
+
+[indexterm2 error..policies::relate::segments_tupled] 
+
+  static return_type error(
+      std::string const & msg);
+
+
+
+[endsect]
+
+
+
+[section:parallel policies::relate::segments_tupled::parallel]
+
+[indexterm2 parallel..policies::relate::segments_tupled] 
+
+  static return_type parallel();
+
+
+
+[endsect]
+
+
+
+[section:return_type policies::relate::segments_tupled::return_type]
+
+[indexterm2 return_type..policies::relate::segments_tupled] 
+
+  typedef boost::tuple< typename Policy1::return_type, typename Policy2::return_type > return_type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/tupled.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:rtype policies::relate::segments_tupled::rtype]
+
+[indexterm2 rtype..policies::relate::segments_tupled] 
+
+  typedef select_most_precise< coordinate_type, double >::type rtype;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_most_precise.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.both_same [*both_same]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.one_not_fundamental [*one_not_fundamental]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.second_larger [*second_larger]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+[link boost_geometry.reference.select_most_precise `select_most_precise`] classes, compares two types on compile time. For example, if an addition must be done with a double and an integer, the result must be a double. If both types are integer, the result can be an integer. 
+
+[heading Remarks]
+      
+It is different from the "promote" class, already in `boost`. That class promotes e.g. a (one) float to a double. This class selects a type from two types. It takes the most accurate, but does not promote afterwards. 
+
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+If the input is a non-fundamental type, it might be a calculation type such as a GMP-value or another high precision value. Therefore, if one is non-fundamental, that one is chosen. 
+
+If both types are non-fundamental, the result is indeterminate and currently the first one is chosen. 
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/tupled.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segment_equal policies::relate::segments_tupled::segment_equal]
+
+[indexterm2 segment_equal..policies::relate::segments_tupled] 
+
+  static return_type segment_equal(
+      segment_type1 const & s,
+      bool opposite);
+
+
+
+[endsect]
+
+
+
+[section:segment_type1 policies::relate::segments_tupled::segment_type1]
+
+[indexterm2 segment_type1..policies::relate::segments_tupled] 
+
+  typedef Policy1::segment_type1 segment_type1;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/tupled.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segment_type2 policies::relate::segments_tupled::segment_type2]
+
+[indexterm2 segment_type2..policies::relate::segments_tupled] 
+
+  typedef Policy1::segment_type2 segment_type2;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/policies/relate/tupled.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:segments_intersect policies::relate::segments_tupled::segments_intersect]
+
+[indexterm2 segments_intersect..policies::relate::segments_tupled] 
+
+  static return_type segments_intersect(
+      side_info const & sides,
+      coordinate_type const & dx1,
+      coordinate_type const & dy1,
+      coordinate_type const & dx2,
+      coordinate_type const & dy2,
+      segment_type1 const & s1,
+      segment_type2 const & s2);
+
+
+
+[endsect]
+
+
+
+[endsect]
+
 [section:polygon polygon]
 
 
@@ -9335,6 +12619,7 @@ The [link boost_geometry.reference.polygon `polygon`] contains an outer ring and
 [[RingAlloc][container-allocator-type ]]
 
 ]
+
 
 
 [heading Remarks]
@@ -9606,6 +12891,7 @@ Utility method, clears outer and inner rings.
 ]
 
 
+
 [heading Remarks]
       
 The container collecting the points in the rings can be different from the container collecting the inner rings. They all default to vector. 
@@ -9702,6 +12988,7 @@ The container collecting the points in the rings can be different from the conta
 ]
 
 
+
 [heading Remarks]
       
 The container collecting the points in the rings can be different from the container collecting the inner rings. They all default to vector. 
@@ -9759,6 +13046,168 @@ Unit of plane angle: Radians.
 [*Header: ][^boost/geometry/core/cs.hpp]
 
 [*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:range_iterator_const_if_c range_iterator_const_if_c]
+
+
+Meta-function to define a const or non const `boost` range iterator. 
+
+
+
+
+[heading Synopsis]
+  template<
+      bool ``[link boost_geometry.reference.IsConst IsConst]``,
+      typename Range >
+  struct range_iterator_const_if_c
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.range_iterator_const_if_c.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Description]
+
+Is used to have one implementation for both const and non const range iterators 
+
+[heading Remarks]
+      
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+Used in for\_each 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/range_iterator_const_if_c.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type range_iterator_const_if_c::type]
+
+[indexterm2 type..range_iterator_const_if_c] 
+
+  typedef boost::mpl::if_c< IsConst, typename boost::range_const_iterator< Range >::type, typename boost::range_iterator< Range >::type >::type type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/range_iterator_const_if_c.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:range_type range_type]
+
+
+Meta-function defining a type which is a boost-range. 
+
+
+
+
+[heading Synopsis]
+  template<
+      typename Geometry >
+  struct range_type
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.range_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Description]
+
+
+* For linestrings and rings, it defines the type itself.
+
+* For polygons it defines the ring type.
+
+* For multi-points, it defines the type itself
+
+* For multi-polygons and multi-linestrings, it defines the single-version (so in the end the linestring and ring-type-of-multi-polygon) 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/range_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type range_type::type]
+
+[indexterm2 type..range_type] 
+
+  typedef dispatch::range_type< typename tag< Geometry >::type, Geometry >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.tag.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+All geometries tell their [link boost_geometry.reference.boost__geometry `boost::geometry`] type ([link boost_geometry.reference.point `point`], [link boost_geometry.reference.linestring `linestring`], [link boost_geometry.reference.polygon `polygon`], etc) by implementing a [link boost_geometry.reference.tag `tag`] [link boost_geometry.reference.traits `traits`] class. This meta-function uses that [link boost_geometry.reference.traits `traits`] class to retrieve the [link boost_geometry.reference.tag `tag`]. If the input type is not a [link boost_geometry.reference.boost__geometry `boost::geometry`] at all, a [link boost_geometry.reference.geometry_not_recognized_tag `geometry_not_recognized_tag`] will be returned. 
+
+[variablelist
+  
+[[Geometry][[link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/range_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
 
 
 [endsect]
@@ -9972,6 +13421,7 @@ Meta-function which defines ring type of (multi)[link boost_geometry.reference.p
 [heading Description]
 
 a [link boost_geometry.reference.polygon `polygon`] contains one exterior ring and zero or more interior rings (holes). This meta function retrieves the type of the rings 
+
 [heading Remarks]
       
 Exterior ring and interior rings must have the same ring-type. 
@@ -10322,6 +13772,58 @@ Section information consists of a bounding [link boost_geometry.reference.box `b
 
 [endsect]
 
+[section:section_iterator section_iterator]
+
+
+
+
+
+[heading Synopsis]
+  template<
+      typename G ,
+      typename S ,
+      typename B ,
+      size_t ``[link boost_geometry.reference.D D]``>
+  struct section_iterator
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.section_iterator.section_iterator [*section_iterator]]]
+    []
+  ]
+  
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/section_iterators.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:section_iterator section_iterator::section_iterator]
+
+[indexterm2 section_iterator..section_iterator] 
+
+  section_iterator(
+      const G & ring,
+      const S & sections,
+      const B & box);
+
+
+
+[endsect]
+
+
+
+[endsect]
+
 
 [section:sectionalize sectionalize]
 
@@ -10414,6 +13916,7 @@ Structure containing a collection of [link boost_geometry.reference.sections `se
 [heading Description]
 
 
+
 [heading Remarks]
       
 Derived from a vector, proves to be faster than of deque 
@@ -10472,7 +13975,7 @@ Class [link boost_geometry.reference.segment `segment`]: small class containing 
 
 [heading Synopsis]
   template<
-      typename ConstOrNonConstPoint >
+      typename ``[link boost_geometry.reference.ConstOrNonConstPoint ConstOrNonConstPoint]``>
   class segment
 
 [heading Public Member Functions]
@@ -10507,6 +14010,7 @@ Class [link boost_geometry.reference.segment `segment`]: small class containing 
 [heading Description]
 
 From Wikipedia: In [link boost_geometry.reference.boost__geometry `boost::geometry`], a line [link boost_geometry.reference.segment `segment`] is a part of a line that is bounded by two distinct end points, and contains every [link boost_geometry.reference.point `point`] on the line between its end points. 
+
 [heading Remarks]
       
 The structure is like std::pair, and can often be used interchangeable. Difference is that it refers to points, does not have points. 
@@ -10614,6 +14118,7 @@ We cannot derive from std::pair<P&, P&> because of reference assignments.
 [heading Typedef Description]
     
 From Wikipedia: In [link boost_geometry.reference.boost__geometry `boost::geometry`], a line [link boost_geometry.reference.segment `segment`] is a part of a line that is bounded by two distinct end points, and contains every [link boost_geometry.reference.point `point`] on the line between its end points. 
+
 [heading Remarks]
       
 The structure is like std::pair, and can often be used interchangeable. Difference is that it refers to points, does not have points. 
@@ -10952,6 +14457,551 @@ We cannot derive from std::pair<P&, P&> because of reference assignments.
 
 [endsect]
 
+[section:segment_iterator segment_iterator]
+
+
+
+
+
+[heading Synopsis]
+  template<
+      typename Base ,
+      typename Point >
+  struct segment_iterator
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.segment_iterator.base_type [*base_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.segment_iterator.difference_type [*difference_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.segment_iterator.iterator_category [*iterator_category]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.segment_iterator.point_type [*point_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.segment_iterator.pointer [*pointer]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.segment_iterator.reference [*reference]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.segment_iterator.segment_type [*segment_type]]]
+    []
+  
+  ]
+
+  [
+
+    [[link boost_geometry.reference.segment_iterator.value_type [*value_type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment_iterator.base [*base]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.segment_iterator.operator* [*operator*]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.segment_iterator.operator_plus__plus_ [*operator++]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.segment_iterator.operator-_gt_ [*operator->]]]
+    []
+  ]
+  
+  [
+    [[link boost_geometry.reference.segment_iterator.segment_iterator [*segment_iterator]]]
+    []
+  ]
+  
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:base segment_iterator::base]
+
+[indexterm2 base..segment_iterator] 
+
+  Base const & base() const;
+
+
+
+[endsect]
+
+
+
+[section:base_type segment_iterator::base_type]
+
+[indexterm2 base_type..segment_iterator] 
+
+  typedef Base base_type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:difference_type segment_iterator::difference_type]
+
+[indexterm2 difference_type..segment_iterator] 
+
+  typedef std::iterator_traits< Base >::difference_type difference_type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:iterator_category segment_iterator::iterator_category]
+
+[indexterm2 iterator_category..segment_iterator] 
+
+  typedef std::input_iterator_tag iterator_category;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:operator* segment_iterator::operator*]
+
+[indexterm2 operator*..segment_iterator] 
+
+  reference operator*();
+
+
+
+[endsect]
+
+
+[section:operator_plus__plus_ segment_iterator::operator++]
+
+[indexterm2 operator++..segment_iterator] 
+
+  segment_iterator & ``[link boost_geometry.reference.segment_iterator.operator_plus__plus_.overload1 operator++]``();
+  ``  [''''&raquo;''' [link boost_geometry.reference.segment_iterator.operator_plus__plus_.overload1 more...]]``
+
+  segment_iterator ``[link boost_geometry.reference.segment_iterator.operator_plus__plus_.overload2 operator++]``(
+      int );
+  ``  [''''&raquo;''' [link boost_geometry.reference.segment_iterator.operator_plus__plus_.overload2 more...]]``
+
+
+[section:overload1 segment_iterator::operator++ (1 of 2 overloads)]
+
+
+
+  segment_iterator & operator++();
+
+
+
+[endsect]
+
+
+
+[section:overload2 segment_iterator::operator++ (2 of 2 overloads)]
+
+
+
+  segment_iterator operator++(
+      int );
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:operator-_gt_ segment_iterator::operator->]
+
+[indexterm2 operator->..segment_iterator] 
+
+  pointer operator->();
+
+
+
+[endsect]
+
+
+
+[section:point_type segment_iterator::point_type]
+
+[indexterm2 point_type..segment_iterator] 
+
+  typedef Point point_type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:pointer segment_iterator::pointer]
+
+[indexterm2 pointer..segment_iterator] 
+
+  typedef segment_type * pointer;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:reference segment_iterator::reference]
+
+[indexterm2 reference..segment_iterator] 
+
+  typedef segment_type & reference;
+
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment.segment [*segment]]]
+    []
+  ]
+  
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment.first [*first]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.segment.second [*second]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+From Wikipedia: In [link boost_geometry.reference.boost__geometry `boost::geometry`], a line [link boost_geometry.reference.segment `segment`] is a part of a line that is bounded by two distinct end points, and contains every [link boost_geometry.reference.point `point`] on the line between its end points. 
+
+[heading Remarks]
+      
+The structure is like std::pair, and can often be used interchangeable. Difference is that it refers to points, does not have points. 
+
+Like std::pair, points are public available. 
+
+type is const or non const, so geometry::segment<P> or geometry::segment<const P> 
+
+We cannot derive from std::pair<P&, P&> because of reference assignments. 
+
+
+
+[variablelist
+  
+[[ConstOrNonConstPoint][[link boost_geometry.reference.point `point`] type of the [link boost_geometry.reference.segment `segment`], maybe a [link boost_geometry.reference.point `point`] or a const [link boost_geometry.reference.point `point`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+[section:segment_iterator segment_iterator::segment_iterator]
+
+[indexterm2 segment_iterator..segment_iterator] 
+
+  explicit ``[link boost_geometry.reference.segment_iterator.segment_iterator.overload1 segment_iterator]``(
+      Base const & end);
+  ``  [''''&raquo;''' [link boost_geometry.reference.segment_iterator.segment_iterator.overload1 more...]]``
+
+  ``[link boost_geometry.reference.segment_iterator.segment_iterator.overload2 segment_iterator]``(
+      Base const & it,
+      Base const & end);
+  ``  [''''&raquo;''' [link boost_geometry.reference.segment_iterator.segment_iterator.overload2 more...]]``
+
+
+[section:overload1 segment_iterator::segment_iterator (1 of 2 overloads)]
+
+
+
+  segment_iterator(
+      Base const & end);
+
+
+
+[endsect]
+
+
+
+[section:overload2 segment_iterator::segment_iterator (2 of 2 overloads)]
+
+
+
+  segment_iterator(
+      Base const & it,
+      Base const & end);
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:segment_type segment_iterator::segment_type]
+
+[indexterm2 segment_type..segment_iterator] 
+
+  typedef geometry::segment< Point > segment_type;
+
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment.segment [*segment]]]
+    []
+  ]
+  
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment.first [*first]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.segment.second [*second]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+From Wikipedia: In [link boost_geometry.reference.boost__geometry `boost::geometry`], a line [link boost_geometry.reference.segment `segment`] is a part of a line that is bounded by two distinct end points, and contains every [link boost_geometry.reference.point `point`] on the line between its end points. 
+
+[heading Remarks]
+      
+The structure is like std::pair, and can often be used interchangeable. Difference is that it refers to points, does not have points. 
+
+Like std::pair, points are public available. 
+
+type is const or non const, so geometry::segment<P> or geometry::segment<const P> 
+
+We cannot derive from std::pair<P&, P&> because of reference assignments. 
+
+
+
+[variablelist
+  
+[[ConstOrNonConstPoint][[link boost_geometry.reference.point `point`] type of the [link boost_geometry.reference.segment `segment`], maybe a [link boost_geometry.reference.point `point`] or a const [link boost_geometry.reference.point `point`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[section:value_type segment_iterator::value_type]
+
+[indexterm2 value_type..segment_iterator] 
+
+  typedef segment_type value_type;
+
+
+
+[heading Public Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment.segment [*segment]]]
+    []
+  ]
+  
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.segment.first [*first]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.segment.second [*second]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+From Wikipedia: In [link boost_geometry.reference.boost__geometry `boost::geometry`], a line [link boost_geometry.reference.segment `segment`] is a part of a line that is bounded by two distinct end points, and contains every [link boost_geometry.reference.point `point`] on the line between its end points. 
+
+[heading Remarks]
+      
+The structure is like std::pair, and can often be used interchangeable. Difference is that it refers to points, does not have points. 
+
+Like std::pair, points are public available. 
+
+type is const or non const, so geometry::segment<P> or geometry::segment<const P> 
+
+We cannot derive from std::pair<P&, P&> because of reference assignments. 
+
+
+
+[variablelist
+  
+[[ConstOrNonConstPoint][[link boost_geometry.reference.point `point`] type of the [link boost_geometry.reference.segment `segment`], maybe a [link boost_geometry.reference.point `point`] or a const [link boost_geometry.reference.point `point`] ]]
+
+]
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/iterators/segment_iterator.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
 [section:segment_tag segment_tag]
 
 
@@ -10970,6 +15020,332 @@ Convenience [link boost_geometry.reference.segment `segment`] (2-points) identif
 [*Header: ][^boost/geometry/core/tags.hpp]
 
 [*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+[section:select_calculation_type select_calculation_type]
+
+
+Meta-function selecting the "calculation" type. 
+
+
+
+
+[heading Synopsis]
+  template<
+      typename ``[link boost_geometry.reference.Geometry1 Geometry1]``,
+      typename ``[link boost_geometry.reference.Geometry2 Geometry2]``,
+      typename ``[link boost_geometry.reference.CalculationType CalculationType]``>
+  struct select_calculation_type
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_calculation_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Description]
+
+Based on two input [link boost_geometry.reference.boost__geometry `boost::geometry`] types, and an input calculation type, (which defaults to void in the calling function), this meta-function selects the most appropriate:
+* if calculation type is specified, that one is used,
+
+* if it is void, the most precise of the two points is used 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/select_calculation_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type select_calculation_type::type]
+
+[indexterm2 type..select_calculation_type] 
+
+  typedef boost::mpl::if_c< boost::is_void< CalculationType >::type::value, typename select_coordinate_type< Geometry1, Geometry2 >::type, CalculationType >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/select_calculation_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:select_coordinate_type select_coordinate_type]
+
+
+Meta-function selecting the most precise coordinate type of two geometries. 
+
+
+
+
+[heading Synopsis]
+  template<
+      typename T1,
+      typename ``[link boost_geometry.reference.T2 T2]``>
+  struct select_coordinate_type
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Description]
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/select_coordinate_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:type select_coordinate_type::type]
+
+[indexterm2 type..select_coordinate_type] 
+
+  typedef select_most_precise< typename coordinate_type< T1 >::type, typename coordinate_type< T2 >::type >::type type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_most_precise.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.both_same [*both_same]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.one_not_fundamental [*one_not_fundamental]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.second_larger [*second_larger]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+[link boost_geometry.reference.select_most_precise `select_most_precise`] classes, compares two types on compile time. For example, if an addition must be done with a double and an integer, the result must be a double. If both types are integer, the result can be an integer. 
+
+[heading Remarks]
+      
+It is different from the "promote" class, already in `boost`. That class promotes e.g. a (one) float to a double. This class selects a type from two types. It takes the most accurate, but does not promote afterwards. 
+
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+If the input is a non-fundamental type, it might be a calculation type such as a GMP-value or another high precision value. Therefore, if one is non-fundamental, that one is chosen. 
+
+If both types are non-fundamental, the result is indeterminate and currently the first one is chosen. 
+
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/select_coordinate_type.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:select_most_precise select_most_precise]
+
+
+Meta-function to select, of two types, the most accurate type for calculations. 
+
+
+
+
+[heading Synopsis]
+  template<
+      typename T1,
+      typename ``[link boost_geometry.reference.T2 T2]``>
+  struct select_most_precise
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_most_precise.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.both_same [*both_same]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.one_not_fundamental [*one_not_fundamental]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.second_larger [*second_larger]]]
+    []
+  ]
+
+]
+
+
+[heading Description]
+
+[link boost_geometry.reference.select_most_precise `select_most_precise`] classes, compares two types on compile time. For example, if an addition must be done with a double and an integer, the result must be a double. If both types are integer, the result can be an integer. 
+
+[heading Remarks]
+      
+It is different from the "promote" class, already in `boost`. That class promotes e.g. a (one) float to a double. This class selects a type from two types. It takes the most accurate, but does not promote afterwards. 
+
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+If the input is a non-fundamental type, it might be a calculation type such as a GMP-value or another high precision value. Therefore, if one is non-fundamental, that one is chosen. 
+
+If both types are non-fundamental, the result is indeterminate and currently the first one is chosen. 
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/select_most_precise.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[section:both_same select_most_precise::both_same]
+
+[indexterm2 both_same..select_most_precise] 
+
+  static const bool both_same =
+        boost::is_floating_point<T1>::type::value
+        == boost::is_floating_point<T2>::type::value;
+
+
+
+[endsect]
+
+
+
+[section:one_not_fundamental select_most_precise::one_not_fundamental]
+
+[indexterm2 one_not_fundamental..select_most_precise] 
+
+  static const bool one_not_fundamental = !
+        (boost::is_fundamental<T1>::type::value
+          && boost::is_fundamental<T2>::type::value);
+
+
+
+[endsect]
+
+
+
+[section:second_larger select_most_precise::second_larger]
+
+[indexterm2 second_larger..select_most_precise] 
+
+  static const bool second_larger = sizeof(T2) > sizeof(T1);
+
+
+
+[endsect]
+
+
+
+[section:type select_most_precise::type]
+
+[indexterm2 type..select_most_precise] 
+
+  typedef boost::mpl::if_c< one_not_fundamental, typename detail::select_most_precise::select_non_fundamental< boost::is_fundamental< T1 >::type::value, boost::is_fundamental< T2 >::type::value, T1, T2 >::type, typename boost::mpl::if_c< both_same, typename detail::select_most_precise::select_largest< second_larger, T1, T2 >::type, typename detail::select_most_precise::select_floating_point< boost::is_floating_point< T1 >::type::value, boost::is_floating_point< T2 >::type::value, T1, T2 >::type >::type >::type type;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/geometry/util/select_most_precise.hpp]
+
+[*Convenience header: ][^boost/geometry.hpp]
+
+
+[endsect]
+
 
 
 [endsect]
@@ -11133,6 +15509,7 @@ Coordinate value will be set correctly, if coordinate system of [link boost_geom
 [[radians][coordinate value to assign ]]
 
 ]
+
 
 
 [heading Remarks]
@@ -11369,6 +15746,7 @@ Class [link boost_geometry.reference.side_info `side_info`]: small class wrappin
 
 
 
+
 [heading Remarks]
       
 simplifying a valid simple polygon (which never intersects itself) might result in an invalid polygon, where the simplified rings intersect themselves or one of the other outer or inner rings. Efficient simplification of a ring/polygon is still an "Open Problem" (http://maven.smith.edu/~orourke/TOPP/P24.html#Problem.24)
@@ -11438,6 +15816,7 @@ Simplify a [link boost_geometry.reference.boost__geometry `boost::geometry`].
       Geometry const & geometry,
       Geometry & out,
       double max_distance);
+
 
 
 
@@ -11737,22 +16116,51 @@ Calculates [link boost_geometry.reference.strategy__area `strategy::area`] using
 
   [
 
-    [[link boost_geometry.reference.coordinate_type.ncg [*ncg]]]
-    []
-  
-  ]
-
-  [
-
-    [[link boost_geometry.reference.coordinate_type.type [*type]]]
+    [[link boost_geometry.reference.select_most_precise.type [*type]]]
     []
   
   ]
 
 ]
 
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.both_same [*both_same]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.one_not_fundamental [*one_not_fundamental]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.second_larger [*second_larger]]]
+    []
+  ]
+
+]
+
 [heading Typedef Description]
     
+[link boost_geometry.reference.select_most_precise `select_most_precise`] classes, compares two types on compile time. For example, if an addition must be done with a double and an integer, the result must be a double. If both types are integer, the result can be an integer. 
+
+[heading Remarks]
+      
+It is different from the "promote" class, already in `boost`. That class promotes e.g. a (one) float to a double. This class selects a type from two types. It takes the most accurate, but does not promote afterwards. 
+
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+If the input is a non-fundamental type, it might be a calculation type such as a GMP-value or another high precision value. Therefore, if one is non-fundamental, that one is chosen. 
+
+If both types are non-fundamental, the result is indeterminate and currently the first one is chosen. 
+
+
+
 
 [heading Requirements]
 
@@ -11964,6 +16372,7 @@ Barend Gehrels. Adapted from:
 * http://www.soe.ucsc.edu/~pang/160/f98/Gems/GemsIV/sph_poly.c
 
 * http://williams.best.vwh.net/avform.htm 
+
 
 
 
@@ -13027,6 +17436,7 @@ Graham scan [link boost_geometry.reference.strategy `strategy`] to calculate con
 [heading Description]
 
 
+
 [heading Remarks]
       
 Completely reworked version inspired on the sources listed below 
@@ -13473,6 +17883,7 @@ Adapted from: http://williams.best.vwh.net/avform.htm
 
 
 
+
 [heading Remarks]
       
 It says: [*The great circle distance d between two points with coordinates {lat1,lon1} and {lat2,lon2} is given by: d=acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon1-lon2)) A mathematically equivalent formula, which is less subject to rounding error for short distances is: d=2*asin(sqrt((sin((lat1-lat2)/2))^2 + cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2)) ] 
@@ -13698,6 +18109,22 @@ Adapted from: http://geometryalgorithms.com/Archive/algorithm\_0102/algorithm\_0
 
 
 
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+
 [heading Requirements]
 
 [*Header: ][^boost/geometry/strategies/cartesian/distance_projected_point.hpp]
@@ -13786,7 +18213,7 @@ Adapted from: http://geometryalgorithms.com/Archive/algorithm\_0102/algorithm\_0
   
   [
     [[link boost_geometry.reference.cartesian_distance.squared_value [*squared_value]]]
-    [The "squared_value" method returns the internal squared value. ]
+    [The "squared\_value" method returns the internal squared value. ]
   ]
   
   [
@@ -13810,6 +18237,7 @@ Adapted from: http://geometryalgorithms.com/Archive/algorithm\_0102/algorithm\_0
 [heading Typedef Description]
     
 Distance calculation for xy points or xyz points is done by taking the square root. However, for distance comparison drawing the square root is not necessary. Therefore the distance strategies are allowed to return the squares of the distance. This structure contains the distance, and a boolean to indicate if it is squared. It has an automatic conversion to a double value, which does the square root if necessary. 
+
 [heading Remarks]
       
 Thanks to Phil Endecott for his suggestion to change the pair to the double-convertable http://article.gmane.org/gmane.comp.lib.boost.devel/172709/match=greatcircle\_distance 
@@ -13962,6 +18390,29 @@ Strategy for [link boost_geometry.reference.strategy__distance `strategy::distan
 
 
 
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_calculation_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+Based on two input [link boost_geometry.reference.boost__geometry `boost::geometry`] types, and an input calculation type, (which defaults to void in the calling function), this meta-function selects the most appropriate:
+* if calculation type is specified, that one is used,
+
+* if it is void, the most precise of the two points is used 
+
+
+
+
 [heading Requirements]
 
 [*Header: ][^boost/geometry/strategies/cartesian/distance_pythagoras.hpp]
@@ -14031,7 +18482,7 @@ Strategy for [link boost_geometry.reference.strategy__distance `strategy::distan
   
   [
     [[link boost_geometry.reference.cartesian_distance.squared_value [*squared_value]]]
-    [The "squared_value" method returns the internal squared value. ]
+    [The "squared\_value" method returns the internal squared value. ]
   ]
   
   [
@@ -14055,6 +18506,7 @@ Strategy for [link boost_geometry.reference.strategy__distance `strategy::distan
 [heading Typedef Description]
     
 Distance calculation for xy points or xyz points is done by taking the square root. However, for distance comparison drawing the square root is not necessary. Therefore the distance strategies are allowed to return the squares of the distance. This structure contains the distance, and a boolean to indicate if it is squared. It has an automatic conversion to a double value, which does the square root if necessary. 
+
 [heading Remarks]
       
 Thanks to Phil Endecott for his suggestion to change the pair to the double-convertable http://article.gmane.org/gmane.comp.lib.boost.devel/172709/match=greatcircle\_distance 
@@ -14136,6 +18588,7 @@ The Liang-Barsky line clipping algorithm clips a line with a clipping [link boos
 [[P][input/output point-type of segments to be clipped ]]
 
 ]
+
 
 
 [heading Remarks]
@@ -14377,6 +18830,29 @@ Relate segments a and b.
 [indexterm2 coordinate_type..strategy::intersection::relate_cartesian_segments] 
 
   typedef select_calculation_type< segment_type1, segment_type2, CalculationType >::type coordinate_type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_calculation_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+Based on two input [link boost_geometry.reference.boost__geometry `boost::geometry`] types, and an input calculation type, (which defaults to void in the calling function), this meta-function selects the most appropriate:
+* if calculation type is specified, that one is used,
+
+* if it is void, the most precise of the two points is used 
+
 
 
 
@@ -14656,6 +19132,7 @@ The [link boost_geometry.reference.strategy__simplify__douglas_peucker `strategy
 [[PointDistanceStrategy][point-segment [link boost_geometry.reference.strategy__distance `strategy::distance`] [link boost_geometry.reference.strategy `strategy`] to be used ]]
 
 ]
+
 
 
 [heading Remarks]
@@ -14995,6 +19472,7 @@ on Unit sphere
 ]
 
 
+
 [heading Remarks]
       
 If x,y,z [link boost_geometry.reference.point `point`] is not lying on unit sphere, transformation will return false 
@@ -15284,6 +19762,22 @@ Transformation [link boost_geometry.reference.strategy `strategy`] to do an inve
 
 
 
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+
 [heading Requirements]
 
 [*Header: ][^boost/geometry/strategies/transform/inverse_transformer.hpp]
@@ -15412,6 +19906,22 @@ Transformation [link boost_geometry.reference.strategy `strategy`] to do map fro
   typedef select_coordinate_type< P1, P2 >::type T;
 
 
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
 
 [heading Requirements]
 
@@ -15549,6 +20059,7 @@ Rotate rotates a [link boost_geometry.reference.boost__geometry `boost::geometry
 ]
 
 
+
 [heading Remarks]
       
 A single angle is needed to specify a rotation in 2D. Not yet in 3D, the 3D version requires special things to allow for rotation around X, Y, Z or arbitrary axis. 
@@ -15567,6 +20078,58 @@ A single angle is needed to specify a rotation in 2D. Not yet in 3D, the 3D vers
 [indexterm2 angle_type..strategy::transform::rotate_transformer] 
 
   typedef select_most_precise< typename select_coordinate_type< P1, P2 >::type, double >::type angle_type;
+
+
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_most_precise.type [*type]]]
+    []
+  
+  ]
+
+]
+
+
+[heading Public Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.both_same [*both_same]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.one_not_fundamental [*one_not_fundamental]]]
+    []
+  ]
+
+  [
+    [[link boost_geometry.reference.select_most_precise.second_larger [*second_larger]]]
+    []
+  ]
+
+]
+
+[heading Typedef Description]
+    
+[link boost_geometry.reference.select_most_precise `select_most_precise`] classes, compares two types on compile time. For example, if an addition must be done with a double and an integer, the result must be a double. If both types are integer, the result can be an integer. 
+
+[heading Remarks]
+      
+It is different from the "promote" class, already in `boost`. That class promotes e.g. a (one) float to a double. This class selects a type from two types. It takes the most accurate, but does not promote afterwards. 
+
+This [link boost_geometry.reference.traits `traits`] class is completely independant from GGL and might be a separate addition to Boost 
+
+If the input is a non-fundamental type, it might be a calculation type such as a GMP-value or another high precision value. Therefore, if one is non-fundamental, that one is chosen. 
+
+If both types are non-fundamental, the result is indeterminate and currently the first one is chosen. 
+
 
 
 
@@ -15732,6 +20295,22 @@ Scale scales a [link boost_geometry.reference.boost__geometry `boost::geometry`]
   typedef select_coordinate_type< P1, P2 >::type coordinate_type;
 
 
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
 
 [heading Requirements]
 
@@ -15912,6 +20491,22 @@ Scale scales a [link boost_geometry.reference.boost__geometry `boost::geometry`]
   typedef select_coordinate_type< P1, P2 >::type coordinate_type;
 
 
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
 
 [heading Requirements]
 
@@ -16137,6 +20732,22 @@ Translate moves a [link boost_geometry.reference.boost__geometry `boost::geometr
 
 
 
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
+
 [heading Requirements]
 
 [*Header: ][^boost/geometry/strategies/transform/matrix_transformers.hpp]
@@ -16287,6 +20898,22 @@ Translate moves a [link boost_geometry.reference.boost__geometry `boost::geometr
   typedef select_coordinate_type< P1, P2 >::type coordinate_type;
 
 
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
 
 [heading Requirements]
 
@@ -16654,6 +21281,22 @@ The [link boost_geometry.reference.strategy `strategy`] serves as a generic defi
   typedef select_coordinate_type< P1, P2 >::type coordinate_type;
 
 
+
+[heading Public Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_geometry.reference.select_coordinate_type.type [*type]]]
+    []
+  
+  ]
+
+]
+
+[heading Typedef Description]
+    
 
 [heading Requirements]
 
@@ -17027,6 +21670,7 @@ Within detection using cross counting,.
 
 
 
+
 [heading Remarks]
       
 Does NOT work correctly for [link boost_geometry.reference.point `point`] ON border 
@@ -17256,9 +21900,11 @@ Barend and Maarten, 1995
 Revised for templatized library, Barend Gehrels, 2007 
 
 
+
 [heading Return Value]
       
 true if [link boost_geometry.reference.point `point`] is in ring, works for closed rings in both directions 
+
 
 
 [heading Remarks]
@@ -17498,6 +22144,7 @@ Within detection using [link boost_geometry.reference.strategy__within__winding 
 
 
 Barend Gehrels 
+
 
 
 [heading Remarks]
@@ -20034,6 +24681,7 @@ The next example takes another approach and transforms from Cartesian to Cartesi
 
 
 
+
 [heading Remarks]
       
 Not every possibility is yet worked out, e.g. polar coordinate system is ignored until now 
@@ -20133,6 +24781,7 @@ Transforms from one [link boost_geometry.reference.boost__geometry `boost::geome
 [[geometry2][second [link boost_geometry.reference.boost__geometry `boost::geometry`] ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -20266,6 +24915,7 @@ Combines two geometries which each other.
 ]
 
 
+
 [heading Return Value]
       
 the output iterator 
@@ -20321,6 +24971,7 @@ Combines two geometries which each other.
 [[out][the output iterator, outputting polygons ]]
 
 ]
+
 
 
 [heading Return Value]
@@ -20480,9 +25131,11 @@ Within, examine if a [link boost_geometry.reference.boost__geometry `boost::geom
 ]
 
 
+
 [heading Return Value]
       
 true if geometry1 is completely contained within geometry2, else false 
+
 
 
 [heading Remarks]
@@ -20525,6 +25178,7 @@ Within, examine if a [link boost_geometry.reference.boost__geometry `boost::geom
 [[strategy][[link boost_geometry.reference.strategy `strategy`] to be used ]]
 
 ]
+
 
 
 [heading Return Value]
