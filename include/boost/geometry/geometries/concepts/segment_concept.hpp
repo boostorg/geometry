@@ -26,9 +26,9 @@ namespace boost { namespace geometry { namespace concept {
 
 
 /*!
-\brief segment concept
+\brief Segment concept.
 \ingroup concepts
-\par Formal definition:
+\details Formal definition:
 The segment concept is defined as following:
 - there must be a specialization of traits::tag defining segment_tag as type
 - there must be a specialization of traits::point_type to define the
@@ -82,7 +82,7 @@ public :
 
 
 /*!
-\brief Segment concept (const version)
+\brief Segment concept (const version).
 \ingroup const_concepts
 \details The ConstSegment concept verifies the same as the Segment concept,
 but does not verify write access.
