@@ -69,19 +69,25 @@ WARN_LOGFILE           = ./doxygen.log
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = \
-    ./../../../../boost/geometry/geometries/concepts \
-    ./../../../../boost/geometry/geometries \
-    ./../../../../boost/geometry/geometries/adapted \
-    ./../../../../boost/geometry/core \
-    ./../../../../boost/geometry/arithmetic \
     ./../../../../boost/geometry/algorithms \
     ./../../../../boost/geometry/algorithms/overlay \
+    ./../../../../boost/geometry/arithmetic \
+    ./../../../../boost/geometry/core \
+    ./../../../../boost/geometry/geometries \
+    ./../../../../boost/geometry/geometries/adapted \
+    ./../../../../boost/geometry/geometries/concepts \
+    ./../../../../boost/geometry/iterators \
     ./../../../../boost/geometry/strategies \
     ./../../../../boost/geometry/strategies/agnostic \
     ./../../../../boost/geometry/strategies/cartesian \
     ./../../../../boost/geometry/strategies/concepts \
     ./../../../../boost/geometry/strategies/spherical \
-    ./../../../../boost/geometry/strategies/transform
+    ./../../../../boost/geometry/strategies/transform \
+    ./../../../../boost/geometry/util \
+    ./../../../../boost/geometry/policies/relate/de9im.hpp \
+    ./../../../../boost/geometry/policies/relate/direction.hpp \
+    ./../../../../boost/geometry/policies/relate/tupled.hpp \
+    ./../../../../boost/geometry/policies/relate/intersection_points_slope.hpp
 
 FILE_PATTERNS          = *.hpp
 RECURSIVE              = NO
