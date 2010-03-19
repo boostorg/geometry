@@ -296,12 +296,14 @@
 <xsl:template match="simplesect" mode="markup">
   <xsl:choose>
     <xsl:when test="@kind='return'">
+
 [heading Return Value]
       <xsl:apply-templates mode="markup"/>
     </xsl:when>
     <xsl:when test="@kind='see'">
     </xsl:when>
     <xsl:when test="@kind='note'">
+
 [heading Remarks]
       <xsl:apply-templates mode="markup"/>
     </xsl:when>
