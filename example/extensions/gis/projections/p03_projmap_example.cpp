@@ -130,7 +130,7 @@ int main(int argc, char** argv)
         // Note, file location: trunk/libs/geometry/example/data
         // update path below if necessary
         read_wkt_and_project_and_write_svg(
-            "data/world.wkt",
+            "../../../data/world.wkt",
             "+proj=moll +ellps=clrk66",
             "world.svg");
     }
