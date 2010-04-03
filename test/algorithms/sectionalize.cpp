@@ -21,17 +21,53 @@
 
 #include <test_common/test_point.hpp>
 
+
+namespace bg = boost::geometry;
+
+
+template <int DimensionCount, typename Geometry>
+void test_sectionalize_part()
+{
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef bg::box<point_type> box_type;
+
+    typedef bg::sections<box_type, DimensionCount> sections_type;
+    typedef typename boost::range_value<sections_type>::type section_type;
+
+    typedef bg::detail::sectionalize::sectionalize_part
+        <
+            Geometry, point_type, sections_type, 1, 10
+        > sectionalize_part;
+
+    sections_type sections;
+    section_type section;
+
+
+    Geometry geometry;
+    geometry.push_back(bg::make<point_type>(1, 1));
+
+    int index = 0;
+    int ndi = 0;
+    sectionalize_part::apply(sections, section, index, ndi, geometry);
+    // There should not yet be anything generated, because it is only ONE point
+    
+    geometry.push_back(bg::make<point_type>(2, 2));
+    sectionalize_part::apply(sections, section, index, ndi, geometry);
+
+}
+
+
 template <int DimensionCount, typename G>
 void test_sectionalize(G const& g, std::size_t section_count,
         std::string const& index_check, std::string const& dir_check,
         bool sort = false)
 {
-    typedef typename boost::geometry::point_type<G>::type point;
-    typedef boost::geometry::box<point> box;
-    typedef boost::geometry::sections<box, DimensionCount> sections;
+    typedef typename bg::point_type<G>::type point;
+    typedef bg::box<point> box;
+    typedef bg::sections<box, DimensionCount> sections;
 
     sections s;
-    boost::geometry::sectionalize(g, s);
+    bg::sectionalize(g, s);
 
     BOOST_CHECK_EQUAL(s.size(), section_count);
 
@@ -65,8 +101,8 @@ void test_sectionalize(G const& g, std::size_t section_count,
         }
 
         out_sections << s[i].begin_index << ".." << s[i].end_index;
-        out_boxes << boost::geometry::get<0,0>(b) << " " << boost::geometry::get<0,1>(b)
-            << ".." << boost::geometry::get<1,0>(b) << " " << boost::geometry::get<1,1>(b);
+        out_boxes << bg::get<0,0>(b) << " " << bg::get<0,1>(b)
+            << ".." << bg::get<1,0>(b) << " " << bg::get<1,1>(b);
         for (int d = 0; d < DimensionCount; d++)
         {
             out_dirs << (d == 0 ? "" : " ");
@@ -92,7 +128,7 @@ void test_sectionalize(G const& g, std::size_t section_count,
     {
         if (out_sections.str().length() < 80)
         {
-            std::cout << std::endl << boost::geometry::wkt(g) << std::endl;
+            std::cout << std::endl << bg::wkt(g) << std::endl;
             std::cout << out_sections.str() << std::endl;
             //std::cout << out_boxes.str() << std::endl;
         }
@@ -107,7 +143,7 @@ void test_sectionalize(std::string const& wkt,
         bool sort = false)
 {
     G g;
-    boost::geometry::read_wkt(wkt, g);
+    bg::read_wkt(wkt, g);
     test_sectionalize<2>(g, count2, s2, d2, sort);
     test_sectionalize<1>(g, count1, s1, d1, sort);
 }
@@ -115,57 +151,59 @@ void test_sectionalize(std::string const& wkt,
 template <typename P>
 void test_all()
 {
-    test_sectionalize<boost::geometry::linestring<P> >(
+    test_sectionalize_part<1, bg::linestring<P> >();
+
+    test_sectionalize<bg::linestring<P> >(
         "LINESTRING(1 1,2 2,3 0,5 0,5 8)",
         4, "0..1|1..2|2..3|3..4", "+ +|+ -|+ .|. +",
         2, "0..3|3..4", "+|.");
 
-    test_sectionalize<boost::geometry::polygon<P> >(
+    test_sectionalize<bg::polygon<P> >(
         "POLYGON((0 0,0 7,4 2,2 0,0 0))",
         4, "0..1|1..2|2..3|3..4", ". +|+ -|- -|- .",
         //            .   +   -   -   -> 3 sections
         3, "0..1|1..2|2..4", ".|+|-");
 
-    test_sectionalize<boost::geometry::polygon<P> >
+    test_sectionalize<bg::polygon<P> >
         ("polygon((2.0 1.3, 2.4 1.7, 2.8 1.8, 3.4 1.2, 3.7 1.6,3.4 2.0, 4.1 3.0, 5.3 2.6, 5.4 1.2, 4.9 0.8, 2.9 0.7,2.0 1.3))",
         8, "0..2|2..3|3..4|4..5|5..6|6..8|8..10|10..11", "+ +|+ -|+ +|- +|+ +|+ -|- -|- +",
         4, "0..4|4..5|5..8|8..11", "+|-|+|-");
 
 
-    test_sectionalize<boost::geometry::polygon<P> >(
+    test_sectionalize<bg::polygon<P> >(
         "POLYGON((3 1,2 2,1 3,2 4,3 5,4 4,5 3,4 2,3 1))",
         4, "0..2|2..4|4..6|6..8", "- +|+ +|+ -|- -",
         //        -   -   -   +   +   +   +   -   - -> 3 sections
         3, "0..2|2..6|6..8", "-|+|-");
 
     // With holes
-    test_sectionalize<boost::geometry::polygon<P> >(
+    test_sectionalize<bg::polygon<P> >(
         "POLYGON((3 1,2 2,1 3,2 4,3 5,4 4,5 3,4 2,3 1), (3 2,2 2,3 4,3 2))",
         7, "0..2|2..4|4..6|6..8|0..1|1..2|2..3", "- +|+ +|+ -|- -|- .|+ +|. -",
         //        -   -   -   +   +   +   +   -   -          -   +   . -> 6 sections
         6, "0..2|2..6|6..8|0..1|1..2|2..3", "-|+|-|-|+|.");
 
     // With duplicates
-    test_sectionalize<boost::geometry::linestring<P> >(
+    test_sectionalize<bg::linestring<P> >(
         "LINESTRING(1 1,2 2,3 0,3 0,5 0,5 8)",
         5, "0..1|1..2|2..3|3..4|4..5", "+ +|+ -|DUP DUP|+ .|. +",
         4, "0..2|2..3|3..4|4..5", "+|DUP|+|.");
     // With two subsequent duplicate segments
-    test_sectionalize<boost::geometry::linestring<P> >(
+    test_sectionalize<bg::linestring<P> >(
         "LINESTRING(1 1,2 2,3 0,3 0,3 0,5 0,5 0,5 0,5 0,5 8)",
         6, "0..1|1..2|2..4|4..5|5..8|8..9", "+ +|+ -|DUP DUP|+ .|DUP DUP|. +",
         5, "0..2|2..4|4..5|5..8|8..9", "+|DUP|+|DUP|.");
 
 
-    typedef boost::geometry::box<P> B;
-    test_sectionalize<2, B>(boost::geometry::make<B>(0,0,4,4),
+    typedef bg::box<P> B;
+    test_sectionalize<2, B>(bg::make<B>(0,0,4,4),
             4, "0..1|1..2|2..3|3..4", ". +|+ .|. -|- .");
-    test_sectionalize<1, B>(boost::geometry::make<B>(0,0,4,4),
+    test_sectionalize<1, B>(bg::make<B>(0,0,4,4),
             4, "0..1|1..2|2..3|3..4", ".|+|.|-");
 
     return;
     // Buffer-case
-    test_sectionalize<boost::geometry::polygon<P> >(
+    test_sectionalize<bg::polygon<P> >(
     "POLYGON((-1.1713 0.937043,2.8287 5.93704,2.90334 6.02339,2.98433 6.10382,2.98433 6.10382,3.07121 6.17786,3.16346 6.24507,3.16346 6.24507,3.16346 6.24507,3.26056 6.30508,3.36193 6.35752,3.36193 6.35752,3.46701 6.40211,3.57517 6.43858,3.57517 6.43858,3.57517 6.43858,3.57517 6.43858,3.68579 6.46672,3.79822 6.48637,3.79822 6.48637,3.91183 6.49741,4.02595 6.49978,4.02595 6.49978,4.02595 6.49978,4.13991 6.49346,4.25307 6.4785,4.25307 6.4785,4.36476 6.45497,4.47434 6.42302,4.47434 6.42302,4.47434 6.42302,4.47434 6.42302,7.47434 5.42302,6.84189 3.52566,4.39043 4.68765,0.390434 -0.312348,-1.1713 0.937043))",
         8, "0..2|2..3|3..4|4..5|5..6|6..8|8..10|10..11", "+ +|+ -|+ +|- +|+ +|+ -|- -|- +",
         4, "0..4|4..5|5..8|8..11", "+|-|+|-");
@@ -173,7 +211,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    //test_all<boost::geometry::point_xy<float> >();
+    //test_all<bg::point_xy<float> >();
     test_all<boost::geometry::point_xy<double> >();
 
     return 0;
