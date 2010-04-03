@@ -15,6 +15,9 @@
 
 #include <boost/geometry/extensions/io/svg/write_svg_multi.hpp>
 
+namespace boost { namespace geometry
+{
+
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
@@ -39,6 +42,8 @@ struct svg_map<boost::geometry::multi_polygon_tag, true, MultiPolygon>
 } // namespace dispatch
 #endif
 
+
+}} // namespace boost::geometry
 
 
 #endif // GEOMETRY_TEST_MULTI_UTIL_SVG_MAPPER_HPP

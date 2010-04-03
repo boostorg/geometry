@@ -1,0 +1,25 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "polygon_buffer", "polygon_buffer.vcproj", "{42B6DE98-66F0-46CB-8A4C-54EB6030F07B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "linestring_buffer", "linestring_buffer.vcproj", "{02387445-E879-49F4-8264-C7CF9C6B8B9D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42B6DE98-66F0-46CB-8A4C-54EB6030F07B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{42B6DE98-66F0-46CB-8A4C-54EB6030F07B}.Debug|Win32.Build.0 = Debug|Win32
+		{42B6DE98-66F0-46CB-8A4C-54EB6030F07B}.Release|Win32.ActiveCfg = Release|Win32
+		{42B6DE98-66F0-46CB-8A4C-54EB6030F07B}.Release|Win32.Build.0 = Release|Win32
+		{02387445-E879-49F4-8264-C7CF9C6B8B9D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{02387445-E879-49F4-8264-C7CF9C6B8B9D}.Debug|Win32.Build.0 = Debug|Win32
+		{02387445-E879-49F4-8264-C7CF9C6B8B9D}.Release|Win32.ActiveCfg = Release|Win32
+		{02387445-E879-49F4-8264-C7CF9C6B8B9D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
