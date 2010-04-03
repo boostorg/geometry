@@ -17,7 +17,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace svg {
+namespace detail { namespace svg
+{
 
 
 template <typename MultiGeometry, typename Policy>
@@ -46,7 +47,8 @@ struct svg_multi
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 
 template <typename MultiPolygon>
@@ -67,7 +69,7 @@ struct svg<multi_polygon_tag, MultiPolygon>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_IO_SVG_WRITE_SVG_MULTI_HPP

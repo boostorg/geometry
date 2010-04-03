@@ -188,6 +188,37 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
 }
 
 
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename Collection
+>
+inline void union_(Geometry1 const& geometry1,
+            Geometry2 const& geometry2,
+            Collection& output_collection)
+{
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
+
+    typedef typename boost::range_value<Collection>::type geometry_out;
+    concept::check<geometry_out>();
+
+    typedef strategy_intersection
+        <
+            typename cs_tag<geometry_out>::type,
+            Geometry1,
+            Geometry2,
+            typename geometry::point_type<geometry_out>::type
+        > strategy;
+
+
+    union_inserter<geometry_out>(geometry1, geometry2,
+                std::back_inserter(output_collection),
+                strategy());
+}
+
+
 }} // namespace boost::geometry
 
 

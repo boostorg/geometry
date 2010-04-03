@@ -29,7 +29,32 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace disjoint {
+namespace detail { namespace disjoint
+{
+
+
+struct disjoint_interrupt_policy
+{
+    static bool const enabled = true;
+    bool has_intersections;
+
+    inline disjoint_interrupt_policy()
+        : has_intersections(false)
+    {}
+
+    template <typename Range>
+    inline bool apply(Range const& range)
+    {
+        // If there is any IP in the range, it is NOT disjoint
+        if (boost::size(range) > 0)
+        {
+            has_intersections = true;
+            return true;
+        }
+        return false;
+    }
+};
+
 
 
 template
@@ -166,14 +191,13 @@ inline bool disjoint_point_point(Point1 const& point1, Point2 const& point2)
 }
 
 
-
-
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace equals {
+namespace detail { namespace equals
+{
 
 /*!
     \brief Internal utility function to detect of points are disjoint

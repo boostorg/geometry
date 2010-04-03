@@ -44,7 +44,6 @@ struct ring_type
 } // namespace traits
 
 
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace core_dispatch
 {
@@ -55,6 +54,13 @@ struct ring_type
 {};
 
 
+template <typename Ring>
+struct ring_type<ring_tag, Ring>
+{
+    typedef Ring type;
+};
+
+
 template <typename Polygon>
 struct ring_type<polygon_tag, Polygon>
 {
@@ -62,7 +68,6 @@ struct ring_type<polygon_tag, Polygon>
         <
             typename boost::remove_const<Polygon>::type
         >::type type;
-
 };
 
 

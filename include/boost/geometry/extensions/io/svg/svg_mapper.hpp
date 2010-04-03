@@ -11,11 +11,13 @@
 #include <cstdio>
 
 #include <vector>
+
+#include <boost/scoped_ptr.hpp>
+#include <boost/noncopyable.hpp>
+
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
-
-//#include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -40,7 +42,6 @@ namespace boost { namespace geometry
 {
 
 
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
@@ -59,9 +60,9 @@ struct svg_map<boost::geometry::point_tag, false, Point>
                     std::string const& style, int size,
                     Point const& point, TransformStrategy const& strategy)
     {
-        boost::geometry::point_xy<int> p;
-        boost::geometry::transform(point, p, strategy);
-        stream << boost::geometry::svg(p, style, size) << std::endl;
+        boost::geometry::point_xy<int> ipoint;
+        boost::geometry::transform(point, ipoint, strategy);
+        stream << boost::geometry::svg(ipoint, style, size) << std::endl;
     }
 };
 
@@ -73,13 +74,6 @@ struct svg_map<boost::geometry::box_tag, false, Box>
                     std::string const& style, int size,
                     Box const& box, TransformStrategy const& strategy)
     {
-
-        typename boost::geometry::point_type<Box>::type p1, p2;
-        boost::geometry::set<0>(p1, boost::geometry::get<boost::geometry::min_corner, 0>(box));
-        boost::geometry::set<1>(p1, boost::geometry::get<boost::geometry::min_corner, 1>(box));
-        boost::geometry::set<0>(p2, boost::geometry::get<boost::geometry::max_corner, 0>(box));
-        boost::geometry::set<1>(p2, boost::geometry::get<boost::geometry::max_corner, 1>(box));
-
         boost::geometry::box<boost::geometry::point_xy<int> > ibox;
         boost::geometry::transform(box, ibox, strategy);
 
@@ -109,6 +103,7 @@ struct svg_map<boost::geometry::ring_tag, false, Ring>
     : svg_map_range<Ring, boost::geometry::linear_ring<boost::geometry::point_xy<int> > >
 {};
 
+
 template <typename Linestring>
 struct svg_map<boost::geometry::linestring_tag, false, Linestring>
     : svg_map_range<Linestring, boost::geometry::linestring<boost::geometry::point_xy<int> > >
@@ -129,6 +124,7 @@ struct svg_map<boost::geometry::polygon_tag, false, Polygon>
     }
 };
 
+
 template <typename Tag, typename Multi>
 struct svg_map<Tag, true, Multi>
 {
@@ -137,7 +133,7 @@ struct svg_map<Tag, true, Multi>
                     std::string const& style, int size,
                     Multi const& multi, TransformStrategy const& strategy)
     {
-        for (typename boost::range_const_iterator<Multi>::type it
+        for (typename boost::range_iterator<Multi const>::type it
             = boost::begin(multi);
             it != boost::end(multi);
             ++it)
@@ -153,10 +149,8 @@ struct svg_map<Tag, true, Multi>
 };
 
 
-
 } // namespace dispatch
 #endif
-
 
 
 template <typename Geometry, typename TransformStrategy>
@@ -173,51 +167,55 @@ inline void svg_map(std::ostream& stream,
 }
 
 
-template <typename P, bool SameScale = true>
-class svg_mapper
+template <typename Point, bool SameScale = true>
+class svg_mapper : boost::noncopyable
 {
+    typedef boost::geometry::point_xy<int> map_point_type;
     typedef boost::geometry::strategy::transform::map_transformer
         <
-            P,
-            boost::geometry::point_xy<int>,
+            Point,
+            map_point_type,
             true,
             SameScale
         > transformer_type;
 
-    boost::geometry::box<P> bbox;
-    transformer_type* matrix;
-    std::ostream& stream;
-    int width, height;
+    boost::geometry::box<Point> m_bounding_box;
+    boost::scoped_ptr<transformer_type> m_matrix;
+    std::ostream& m_stream;
+    int m_width, m_height;
 
     void init_matrix()
     {
-        if (! matrix)
+        if (! m_matrix)
         {
-            matrix = new transformer_type(bbox, width, height);
+            m_matrix.reset(new transformer_type(m_bounding_box, 
+                            m_width, m_height));
 
-            stream << "<?xml version=\"1.0\" standalone=\"no\"?>" << std::endl;
-            stream << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"" << std::endl;
-            stream << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">" << std::endl;
-
-            stream << "<svg width=\"100%\" height=\"100%\" version=\"1.1\"" << std::endl;
-            stream << "xmlns=\"http://www.w3.org/2000/svg\">" << std::endl;
+            m_stream << "<?xml version=\"1.0\" standalone=\"no\"?>" 
+                << std::endl
+                << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"" 
+                << std::endl
+                << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">" 
+                << std::endl
+                << "<svg width=\"100%\" height=\"100%\" version=\"1.1\"" 
+                << std::endl
+                << "xmlns=\"http://www.w3.org/2000/svg\">" 
+                << std::endl;
         }
     }
 
 public :
     svg_mapper(std::ostream& s, int w, int h)
-        : matrix(NULL)
-        , stream(s)
-        , width(w)
-        , height(h)
+        : m_stream(s)
+        , m_width(w)
+        , m_height(h)
     {
-        boost::geometry::assign_inverse(bbox);
+        boost::geometry::assign_inverse(m_bounding_box);
     }
 
     virtual ~svg_mapper()
     {
-        stream << "</svg>" << std::endl;
-        if (matrix) delete matrix;
+        m_stream << "</svg>" << std::endl;
     }
 
     template <typename Geometry>
@@ -225,32 +223,38 @@ public :
     {
         if (boost::geometry::num_points(geometry) > 0)
         {
-            boost::geometry::combine(bbox, boost::geometry::make_envelope<boost::geometry::box<P> >(geometry));
+            boost::geometry::combine(m_bounding_box, 
+                boost::geometry::make_envelope
+                    <
+                        boost::geometry::box<Point> 
+                    >(geometry));
         }
     }
 
     template <typename Geometry>
-    void map(Geometry const& geometry, std::string const& style, int size = -1)
+    void map(Geometry const& geometry, std::string const& style, 
+                int size = -1)
     {
         init_matrix();
-        svg_map(stream, style, size, geometry, *matrix);
+        svg_map(m_stream, style, size, geometry, *m_matrix);
     }
 
-    template <typename Point>
-    void text(Point const& point, std::string const& s, std::string const& style,
-            int offset_x = 0, int offset_y = 0, int lineheight = 10)
+    template <typename TextPoint>
+    void text(TextPoint const& point, std::string const& s, 
+                std::string const& style,
+                int offset_x = 0, int offset_y = 0, int lineheight = 10)
     {
         init_matrix();
-        boost::geometry::point_xy<int> p;
-        boost::geometry::transform(point, p, *matrix);
-        stream 
+        map_point_type map_point;
+        boost::geometry::transform(point, map_point, *m_matrix);
+        m_stream 
             << "<text style=\"" << style << "\""
-            << " x=\"" << boost::geometry::get<0>(p) + offset_x << "\""
-            << " y=\"" << boost::geometry::get<1>(p) + offset_y << "\""
+            << " x=\"" << boost::geometry::get<0>(map_point) + offset_x << "\""
+            << " y=\"" << boost::geometry::get<1>(map_point) + offset_y << "\""
             << ">";
         if (s.find("\n") == std::string::npos)
         {
-             stream  << s;
+             m_stream  << s;
         }
         else
         {
@@ -263,17 +267,20 @@ public :
                 it != splitted.end(); 
                 ++it, offset_y += lineheight)
             {
-                 stream 
-                    << "<tspan x=\"" << boost::geometry::get<0>(p) + offset_x << "\""
-                    << " y=\"" << boost::geometry::get<1>(p) + offset_y << "\""
+                 m_stream 
+                    << "<tspan x=\"" << boost::geometry::get<0>(map_point) + offset_x 
+                    << "\"" 
+                    << " y=\"" << boost::geometry::get<1>(map_point) + offset_y 
+                    << "\""
                     << ">" << *it << "</tspan>";
             }
         }
-        stream << "</text>" << std::endl;
+        m_stream << "</text>" << std::endl;
     }
-
 };
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_IO_SVG_MAPPER_HPP
