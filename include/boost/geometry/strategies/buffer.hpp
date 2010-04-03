@@ -140,7 +140,7 @@ struct join_miter
             coordinate_type dy = get<1>(ip) - get<1>(vertex);
 
             coordinate_type length = sqrt(dx * dx + dy * dy);
-            coordinate_type max = 10 * abs(buffer_distance);
+            coordinate_type max = 10.0 * std::abs(buffer_distance);
 
             if (length > max)
             {

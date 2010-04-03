@@ -45,7 +45,7 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay 
+namespace detail { namespace overlay
 {
 
 
@@ -443,7 +443,7 @@ std::cout << item1.ring_id << " area: " << item1.area << std::endl;
             {
                 item_type& item2 = *it2;
                 if (geometry::within(item2.point, item1.box)
-                    && abs(item2.area) < abs(item1.area)
+                    && std::abs(item2.area) < std::abs(item1.area)
                     && contains(item1, item2, geometry1, geometry2, collection)
                     )
                 {
