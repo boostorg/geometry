@@ -12,6 +12,7 @@
 #include <ostream>
 #include <string>
 
+#include <boost/config.hpp>
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 
@@ -28,8 +29,10 @@
 namespace boost { namespace geometry
 {
 
+
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace svg {
+namespace detail { namespace svg
+{
 
 
 template <typename Point>
@@ -39,8 +42,8 @@ struct svg_point
     static inline void apply(std::basic_ostream<Char, Traits>& os,
                 Point const& p, std::string const& style, int size)
     {
-        os << "<circle cx=\"" << p.x()
-            << "\" cy=\"" << p.y()
+        os << "<circle cx=\"" << geometry::get<0>(p)
+            << "\" cy=\"" << geometry::get<1>(p)
             << "\" r=\"" << (size < 0 ? 5 : size)
             << "\" style=\"" << style << "\"/>";
     }
@@ -54,16 +57,19 @@ struct svg_box
     static inline void apply(std::basic_ostream<Char, Traits>& os,
                 Box const& box, std::string const& style, int size)
     {
-        typedef typename coordinate_type<Box>::type coord_type;
-        coord_type x = geometry::get<geometry::min_corner, 0>(box);
-        coord_type y = geometry::get<geometry::min_corner, 1>(box);
-        coord_type width = std::abs(geometry::get<geometry::max_corner, 0>(box) - x);
-        coord_type height = std::abs(geometry::get<geometry::max_corner, 1>(box) - y);
+        // Prevent invisible boxes, making them >=1, using "max"
+        BOOST_USING_STD_MAX();
 
-        os << "<rect x=\"" << static_cast<int>(x)
-           << "\" y=\"" << static_cast<int>(y)
-           << "\" width=\"" << static_cast<int>(width)
-           << "\" height=\"" << static_cast<int>(height)
+        typedef typename coordinate_type<Box>::type ct;
+        ct x = geometry::get<geometry::min_corner, 0>(box);
+        ct y = geometry::get<geometry::min_corner, 1>(box);
+        ct width = max BOOST_PREVENT_MACRO_SUBSTITUTION(1,
+                    geometry::get<geometry::max_corner, 0>(box) - x);
+        ct height = max BOOST_PREVENT_MACRO_SUBSTITUTION (1,
+                    geometry::get<geometry::max_corner, 1>(box) - y);
+
+        os << "<rect x=\"" << x << "\" y=\"" << y
+           << "\" width=\"" << width << "\" height=\"" << height
            << "\" style=\"" << style << "\"/>";
     }
 };
@@ -90,7 +96,10 @@ struct svg_range
             it != boost::end(range);
             ++it, first = false)
         {
-            os << (first ? "" : " " ) << it->x() << "," << it->y();
+            os << (first ? "" : " " )
+                << geometry::get<0>(*it)
+                << ","
+                << geometry::get<1>(*it);
         }
         os << "\" style=\"" << style << Policy::style() << "\"/>";
     }
@@ -116,7 +125,10 @@ struct svg_poly
             it != boost::end(ring);
             ++it, first = false)
         {
-            os << (first ? "M" : " L") << " " << it->x() << "," << it->y();
+            os << (first ? "M" : " L") << " "
+                << geometry::get<0>(*it)
+                << ","
+                << geometry::get<1>(*it);
         }
 
         // Inner rings:
@@ -134,7 +146,10 @@ struct svg_poly
                     it != boost::end(*rit);
                     ++it, first = false)
                 {
-                    os << (first ? "M" : " L") << " " << it->x() << "," << it->y();
+                    os << (first ? "M" : " L") << " "
+                        << geometry::get<0>(*it)
+                        << ","
+                        << geometry::get<1>(*it);
                 }
             }
         }
@@ -165,7 +180,8 @@ struct prefix_ring
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 /*!
 \brief Dispatching base struct for SVG streaming, specialized below per geometry type

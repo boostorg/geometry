@@ -611,14 +611,14 @@ inline OutputIterator add_all_rings(Container& container,
 template
 <
     typename GeometryOut,
-    typename Rings, typename Turns,
+    typename Rings, typename Map,
     typename Geometry1, typename Geometry2,
     typename OutputIterator
 >
-inline OutputIterator assemble(Rings const& rings, Turns& turn_points,
+inline OutputIterator assemble(Rings const& rings, Map const& map,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            int direction, bool dissolve,
+            int direction, bool dissolve, bool splitted,
             OutputIterator out)
 {
         typedef typename geometry::tag<Geometry1>::type tag1;
@@ -632,23 +632,22 @@ inline OutputIterator assemble(Rings const& rings, Turns& turn_points,
 std::cout << "assemble" << std::endl;
 #endif
 
-        // Map intersection-points per ring-identifier to <count>
-        std::map<ring_identifier, int> map;
-        map_turns(map, turn_points);
-
         typedef std::vector
             <
                 ring_properties<point_type>
             > ring_properties_container_type;
         ring_properties_container_type ring_properties_container;
 
-        add_to_containment
-            <
-                tag1,
-                Geometry1
-            >::apply(ring_properties_container,
-                        ring_identifier(0, -1,-1), geometry1,
-                        map, dissolve);
+        if (! splitted)
+        {
+            add_to_containment
+                <
+                    tag1,
+                    Geometry1
+                >::apply(ring_properties_container,
+                            ring_identifier(0, -1,-1), geometry1,
+                            map, dissolve);
+        }
         if (! dissolve)
         {
             add_to_containment
@@ -775,9 +774,6 @@ struct overlay
         // for multi-polygon, it is also the type of the ring.
         typedef typename geometry::range_type<GeometryOut>::type ring_type;
 
-        container_type turn_points;
-        std::vector<ring_type> rings;
-
         // If one input is empty, output the other one for a union.
         // For an intersection, the intersection is empty.
         if (geometry::num_points(geometry1) == 0
@@ -785,11 +781,15 @@ struct overlay
         {
             if (Direction == 1)
             {
-                return assemble<GeometryOut>(rings, turn_points,
-                                geometry1, geometry2, Direction, false, out);
+                std::map<ring_identifier, int> map;
+                std::vector<ring_type> rings;
+                return assemble<GeometryOut>(rings, map,
+                                geometry1, geometry2, Direction, false, false, out);
             }
             return out;
         }
+
+        container_type turn_points;
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "get turns" << std::endl;
@@ -810,6 +810,7 @@ std::cout << "enrich" << std::endl;
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;
 #endif
+        std::vector<ring_type> rings;
         geometry::traverse(geometry1, geometry2,
                 Direction == -1
                     ? boost::geometry::detail::overlay::operation_intersection
@@ -817,8 +818,10 @@ std::cout << "traverse" << std::endl;
                     ,
                 turn_points, rings);
 
-        return assemble<GeometryOut>(rings, turn_points,
-                        geometry1, geometry2, Direction, false, out);
+        std::map<ring_identifier, int> map;
+        map_turns(map, turn_points);
+        return assemble<GeometryOut>(rings, map,
+                        geometry1, geometry2, Direction, false, false, out);
     }
 };
 

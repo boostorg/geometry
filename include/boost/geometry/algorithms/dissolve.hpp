@@ -84,8 +84,10 @@ struct dissolve_ring_or_polygon
             traverse(geometry, geometry, detail::overlay::operation_intersection,
                             turns, rings);
 
-            return detail::overlay::assemble<GeometryOut>(rings, turns,
-                            geometry, geometry, 1, true, out);
+            std::map<ring_identifier, int> map;
+            map_turns(map, turns);
+            return detail::overlay::assemble<GeometryOut>(rings, map,
+                            geometry, geometry, 1, true, false, out);
         }
         else
         {

@@ -22,6 +22,8 @@
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #endif
 
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
@@ -181,6 +183,7 @@ inline bool select_next_ip(operation_type operation,
 }
 
 
+
 template
 <
     typename Rings,
@@ -198,7 +201,7 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2
 #else
-            std::string const& ,
+            std::string const& reason,
             Geometry1 const& ,
             Geometry2 const& 
 #endif
@@ -215,6 +218,24 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
     
     // And clear all visit info
     clear_visit_info(turns);
+
+    /***
+    int c = 0;
+    for (int i = 0; i < turns.size(); i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            if (turns[i].operations[j].visited.rejected())
+            {
+                c++;
+            }
+        }
+    }
+    std::cout << "BACKTRACK (" << reason << " )" 
+        << " " << c << " of " << turns.size() << " rejected"
+        << std::endl;
+    ***/
+
 
 
 #ifdef BOOST_GEOMETRY_OVERLAY_REPORT_WKT

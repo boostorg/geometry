@@ -15,10 +15,13 @@
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/side.hpp>
 
+#include <boost/geometry/strategies/buffer_side.hpp>
 
 
 namespace boost { namespace geometry
 {
+
+
 
 
 namespace strategy { namespace buffer
@@ -26,17 +29,16 @@ namespace strategy { namespace buffer
 
 
 
-
 /*
 
    A Buffer-join strategy gets 4 input points.
-   On the two consecutive segments s1 and s2 (combined by vertex v):
+   On the two consecutive segments s1 and s2 (joining at vertex v):
 
-   There are two points perpendicular to the segments (p1,p2),
-   crossing each other in interesction point x.
+   The lines from parallel at s1, s2 (at buffer-distance) end/start
+   in two points perpendicular to the segments: p1 and p2.
+   These parallel lines interesct in point ip
 
-
-              (s2)
+             (s2)
               |
               |
               ^
@@ -44,37 +46,69 @@ namespace strategy { namespace buffer
         (p2)  |(v)
         *     +----<--- (s1)
 
-        x(i)  *(p1)
+        x(ip) *(p1)
 
 
     So, in clockwise order:
         v : vertex point
         p1: perpendicular on left side of segment1<1> (perp1)
-        i : intersection point (ip)
+        ip: intersection point
         p2: perpendicular on left side of segment2<0> (perp2)
 */
+
+
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+template
+<
+    typename PointIn, typename Mapper
+>
+struct join_mapper
+{
+    Mapper const& m_mapper;
+    join_mapper(Mapper const& mapper)
+        : m_mapper(mapper)
+    {}
+
+    template <typename Ring>
+    inline void map(PointIn const& ip, PointIn const& vertex,
+                PointIn const& perp1, PointIn const& perp2) const
+    {
+        Ring corner;
+        corner.push_back(vertex);
+        corner.push_back(perp1);
+        corner.push_back(ip);
+        corner.push_back(perp2);
+        corner.push_back(vertex);
+
+        const_cast<Mapper&>(m_mapper).map(corner,
+            "opacity:0.4;fill:rgb(255,0,0);stroke:rgb(0,0,0);stroke-width:1");
+    }
+};
+#endif
+
+
+
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+// Forget this, it will go
+template<typename PointIn, typename PointOut, typename Mapper>
+struct join_miter : public join_mapper<PointIn, Mapper>
+{
+    join_miter(Mapper const& mapper) : join_mapper(mapper) {}
+#else
 
 
 template
 <
     typename PointIn,
     typename PointOut
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    , typename Mapper
-#endif
 >
 struct join_miter
 {
+
+#endif
     typedef typename strategy_side<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointIn>::type coordinate_type;
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    Mapper const& m_mapper;
-
-    join_miter(Mapper const& mapper)
-        : m_mapper(mapper)
-    {}
-#endif
 
     template <typename Ring>
     inline void apply(PointIn const& ip, PointIn const& vertex,
@@ -84,13 +118,18 @@ struct join_miter
     {
         int signum = buffer_distance > 0 ? 1 : buffer_distance < 0 ? -1 : 0;
 
-        // If it is concave (corner to left), add helper-line
         if (side::apply(perp1, ip, perp2) == signum)
         {
+            // If it is concave (corner to left), add helper-line
+            // The helper-line IS essential for buffering holes. Without,
+            // holes might be generated, while they should NOT be there.
+            // DOES NOT WORK ALWAYS buffered.push_back(ip);
+            // We might consider to make it optional (because more efficient)
+            //buffered.push_back(ip);
             buffered.push_back(perp1);
             buffered.push_back(perp2);
-            // Note, because perp1 crosses perp2 at IP, it is not necessary to
-            // include also IP
+            // Because perp1 crosses perp2 at IP, it is not necessary to
+            // include IP
         }
         else
         {
@@ -110,50 +149,41 @@ struct join_miter
                 set<0>(p, get<0>(vertex) + dx * prop);
                 set<1>(p, get<1>(vertex) + dy * prop);
 
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER
                 std::cout << length << std::endl;
+#endif
             }
 
-
             buffered.push_back(p);
-        }
-
-
-        // Map it
-        {
-            Ring corner;
-            corner.push_back(vertex);
-            corner.push_back(perp1);
-            corner.push_back(ip);
-            corner.push_back(perp2);
-            corner.push_back(vertex);
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            const_cast<Mapper&>(m_mapper).map(corner,
-                "opacity:0.4;fill:rgb(255,0,0);stroke:rgb(0,0,0);stroke-width:1");
+            map<Ring>(ip, vertex, perp1, perp2);
 #endif
         }
+
+
     }
 };
+
+
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+// Forget this, it will go
+template<typename PointIn, typename PointOut, typename Mapper>
+struct join_bevel : public join_mapper<PointIn, Mapper>
+{
+    join_bevel(Mapper const& mapper) : join_mapper(mapper) {}
+#else
 
 
 template
 <
     typename PointIn,
     typename PointOut
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    , typename Mapper
-#endif
 >
 struct join_bevel
 {
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    Mapper const& m_mapper;
-
-    join_bevel(Mapper const& mapper)
-        : m_mapper(mapper)
-    {}
 #endif
+
 
     template <typename Ring>
     inline void apply(PointIn const& ip, PointIn const& vertex,
@@ -164,47 +194,39 @@ struct join_bevel
         buffered.push_back(perp1);
         buffered.push_back(perp2);
 
-        // Map it
-        {
-            Ring corner;
-            corner.push_back(vertex);
-            corner.push_back(perp1);
-            corner.push_back(perp2);
-            corner.push_back(vertex);
-
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            const_cast<Mapper&>(m_mapper).map(corner,
-                    "opacity:0.4;fill:rgb(255,0,0);stroke:rgb(0,0,0);stroke-width:1");
+            map<Ring>(ip, vertex, perp1, perp2);
 #endif
-        }
     }
 };
+
+
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+// Forget this, it will go
+template<typename PointIn, typename PointOut, typename Mapper>
+struct join_round : public join_mapper<PointIn, Mapper>
+{
+    join_round(Mapper const& mapper, int max_level = 4)
+        : join_mapper(mapper)
+        , m_max_level(max_level)
+    {}
+#else
 
 
 template
 <
     typename PointIn,
     typename PointOut
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    , typename Mapper
-#endif
 >
 struct join_round
 {
-    int m_max_level;
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    Mapper const& m_mapper;
-
-    join_round(Mapper const& mapper, int max_level = 4)
-        : m_mapper(mapper)
-        , m_max_level(max_level)
-    {}
-#endif
-
     inline join_round(int max_level = 4)
         : m_max_level(max_level)
     {}
+#endif
+
+    typedef typename strategy_side<typename cs_tag<PointIn>::type>::type side;
+    int m_max_level;
 
 
     template <typename Ring>
@@ -250,54 +272,78 @@ struct join_round
                 double buffer_distance,
                 Ring& buffered) const
     {
-        // Generate 'vectors'
-        double vpx = get<0>(perp1) - get<0>(vertex);
-        double vpy = get<1>(perp1) - get<1>(vertex);
+        int signum = buffer_distance > 0 ? 1 : buffer_distance < 0 ? -1 : 0;
 
-        double vix = (get<0>(ip) - get<0>(vertex));
-        double viy = (get<1>(ip) - get<1>(vertex));
-
-        double length_i = sqrt(vix * vix + viy * viy);
-
-        double prop = buffer_distance / length_i;
-
-        PointIn bp;
-        set<0>(bp, get<0>(vertex) + vix * prop);
-        set<1>(bp, get<1>(vertex) + viy * prop);
-
-        if (m_max_level <= 1)
+        if (side::apply(perp1, ip, perp2) == signum)
         {
+            // If it is concave (corner to left), add helper-line
             buffered.push_back(perp1);
-            if (m_max_level == 1)
-            {
-                buffered.push_back(bp);
-            }
             buffered.push_back(perp2);
         }
         else
         {
-            buffered.push_back(perp1);
-            mid_points(vertex, perp1, bp, buffer_distance, buffered);
-            mid_points(vertex, bp, perp2, buffer_distance, buffered);
-        }
+            // Generate 'vectors'
+            double vix = (get<0>(ip) - get<0>(vertex));
+            double viy = (get<1>(ip) - get<1>(vertex));
 
+            double length_i = sqrt(vix * vix + viy * viy);
 
-        // Map it
-        {
-            Ring corner;
-            corner.push_back(vertex);
-            corner.push_back(perp1);
-            corner.push_back(bp);
-            corner.push_back(perp2);
-            corner.push_back(vertex);
+            double prop = buffer_distance / length_i;
+
+            PointIn bp;
+            set<0>(bp, get<0>(vertex) + vix * prop);
+            set<1>(bp, get<1>(vertex) + viy * prop);
+
+            if (m_max_level <= 1)
+            {
+                buffered.push_back(perp1);
+                if (m_max_level == 1)
+                {
+                    buffered.push_back(bp);
+                }
+                buffered.push_back(perp2);
+            }
+            else
+            {
+                buffered.push_back(perp1);
+                mid_points(vertex, perp1, bp, buffer_distance, buffered);
+                mid_points(vertex, bp, perp2, buffer_distance, buffered);
+            }
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            const_cast<Mapper&>(m_mapper).map(corner,
-                    "opacity:0.4;fill:rgb(255,0,0);stroke:rgb(0,0,0);stroke-width:1");
+            map<Ring>(bp, vertex, perp1, perp2);
 #endif
         }
     }
 };
+
+
+
+template
+<
+    typename CoordinateType
+>
+class distance_assymetric
+{
+public :
+    distance_assymetric(CoordinateType const& left,
+                CoordinateType const& right)
+        : m_left(left)
+        , m_right(right)
+    {}
+
+    template <typename Point>
+    inline CoordinateType apply(Point const& , Point const& ,
+                buffer_side_selector side)  const
+    {
+        return side == buffer_side_left ? m_left : m_right;
+    }
+
+private :
+    CoordinateType m_left;
+    CoordinateType m_right;
+};
+
 
 }} // namespace strategy::buffer
 
