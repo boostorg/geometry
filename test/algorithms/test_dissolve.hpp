@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/dissolve.hpp>
 
 // To check results
+#include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
@@ -32,28 +33,33 @@
 
 
 
-template <typename Geometry>
+template <typename GeometryOut, typename Geometry>
 void test_dissolve(std::string const& caseid, Geometry const& geometry,
         std::size_t expected_hole_count, std::size_t expected_point_count,
-        double expected_area, double percentage)
+        double expected_length_or_area, double percentage)
 {
 	namespace bg = boost::geometry;
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
 
-	std::vector<Geometry> dissolved_vector;
-	bg::dissolve_inserter<Geometry>(geometry, std::back_inserter(dissolved_vector));
+    static const bool is_line = bg::geometry_id<GeometryOut>::type::value == 2;
 
-	typename bg::area_result<Geometry>::type area = 0;
-	std::size_t holes = 0;
+	std::vector<GeometryOut> dissolved_vector;
+	bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved_vector));
+
+	typename bg::area_result<Geometry>::type length_or_area = 0;
+	//std::size_t holes = 0;
 	std::size_t count = 0;
 
-	BOOST_FOREACH(Geometry& dissolved, dissolved_vector)
+	BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
 	{
 	    bg::unique(dissolved);
 
-		area += bg::area(dissolved);
-		holes += boost::geometry::num_interior_rings(dissolved);
-		count += boost::geometry::num_points(dissolved);
+
+		length_or_area += 
+            is_line ? bg::length(dissolved) : bg::area(dissolved);
+
+		//holes += bg::num_interior_rings(dissolved);
+		count += bg::num_points(dissolved);
 	}
 
     BOOST_CHECK_MESSAGE(count == expected_point_count,
@@ -64,12 +70,12 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
             );
 
 
-    BOOST_CHECK_EQUAL(holes, expected_hole_count);
-    BOOST_CHECK_CLOSE(area, expected_area, percentage);
+    //BOOST_CHECK_EQUAL(holes, expected_hole_count);
+    BOOST_CHECK_CLOSE(length_or_area, expected_length_or_area, percentage);
 
 	// Compile check, it should also compile inplace, outputting to the same geometry
 	{
-		Geometry dissolved;
+		std::vector<GeometryOut> dissolved;
 		bg::dissolve(geometry, dissolved);
 	}
 
@@ -84,14 +90,14 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
         std::ofstream svg(filename.str().c_str());
 
-        boost::geometry::svg_mapper
+        bg::svg_mapper
             <
-                typename boost::geometry::point_type<Geometry>::type
+                typename bg::point_type<Geometry>::type
             > mapper(svg, 500, 500);
         mapper.add(geometry);
 
         mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
-		BOOST_FOREACH(Geometry& dissolved, dissolved_vector)
+		BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
 		{
 		   mapper.map(dissolved, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
 	    }
@@ -100,17 +106,46 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 }
 
 
-template <typename Geometry>
+template <typename Geometry, typename GeometryOut>
 void test_one(std::string const& caseid, std::string const& wkt,
         std::size_t expected_hole_count, std::size_t expected_point_count,
-        double expected_area, double percentage = 0.001)
+        double expected_length_or_area, double percentage = 0.001)
 {
     Geometry geometry;
     boost::geometry::read_wkt(wkt, geometry);
 
-    test_dissolve(caseid, geometry,
+    test_dissolve<GeometryOut>(caseid, geometry,
         expected_hole_count, expected_point_count,
-        expected_area, percentage);
+        expected_length_or_area, percentage);
+
+#ifdef BOOST_GEOMETRY_TEST_MULTI_PERMUTATIONS
+    // Test different combinations of a multi-polygon
+
+    int n = geometry.size();
+
+    // test them in all orders
+    std::vector<int> indices;
+    for (int i = 0; i < n; i++)
+    {
+        indices.push_back(i);
+    }
+    int permutation = 0;
+    do
+    {
+        std::ostringstream out;
+        out << caseid;
+        Geometry geometry2;
+        for (int i = 0; i < n; i++)
+        {
+            int index = indices[i];
+            out << "_" << index;
+            geometry2.push_back(geometry[index]);
+        }
+        test_dissolve<GeometryOut>(out.str(), geometry2, expected_hole_count,
+                expected_point_count, expected_length_or_area, percentage);
+    } while (std::next_permutation(indices.begin(), indices.end()));
+#endif
+
 }
 
 
