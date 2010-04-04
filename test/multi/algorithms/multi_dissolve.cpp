@@ -78,6 +78,12 @@ void test_all()
     test_one<multi_linestring, linestring>("ls_simplex_two",
         "MULTILINESTRING((0 0,1 1),(1 1,2 2),(3 3,4 4),(4 4,5 5))",
         0, 6, 4 * std::sqrt(2.0));
+
+    // Linestrings forming a ring
+    test_one<multi_linestring, linestring>("ls_simplex_ring",
+        "MULTILINESTRING((0 0,0 1),(1 1,1 0),(0 1,1 1),(1 0,0 0))",
+        0, 5, 4.0);
+
 }
 
 
