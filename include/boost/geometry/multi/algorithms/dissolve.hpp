@@ -108,19 +108,27 @@ struct dissolve_multi_linestring
     }
 
     static inline map_iterator_type find_start(map_type const& map,
-            std::map<int, bool>& included)
+            std::map<int, bool>& included, int expected_count = 1)
     {
         for (map_iterator_type it = map.begin();
             it != map.end();
             ++it)
         {
             int count = map.count(it->first);
-            if (count == 1 && ! included[it->second.index])
+            if (count == expected_count && ! included[it->second.index])
             {
                 included[it->second.index] = true;
                 return it;
             }
         }
+
+        // Not found with one point, try one with two points
+        // to find rings
+        if (expected_count == 1)
+        {
+            return find_start(map, included, 2);
+        }
+
         return map.end();
     }
 
