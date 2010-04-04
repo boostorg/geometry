@@ -170,29 +170,23 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator
 template
 <
     typename Geometry,
-    typename GeometryOut
+    typename Collection
 >
-inline void dissolve(Geometry const& geometry, GeometryOut& out)
+inline void dissolve(Geometry const& geometry, Collection& output_collection)
 {
     concept::check<Geometry const>();
-    concept::check<GeometryOut>();
 
-    std::vector<GeometryOut> v;
+    typedef typename boost::range_value<Collection>::type geometry_out;
+
+    concept::check<geometry_out>();
+
     dispatch::dissolve
     <
         typename tag<Geometry>::type,
-        typename tag<GeometryOut>::type,
+        typename tag<geometry_out>::type,
         Geometry,
-        GeometryOut
-    >::apply(geometry, std::back_inserter(v));
-    if (boost::size(v) > 0)
-    {
-        out = v.front();
-    }
-    else
-    {
-        out = geometry;
-    }
+        geometry_out
+    >::apply(geometry, std::back_inserter(output_collection));
 }
 
 

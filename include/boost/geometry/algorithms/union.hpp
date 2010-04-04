@@ -188,6 +188,18 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
 }
 
 
+/*!
+    \brief Combines two geometries which each other
+    \ingroup union
+    \tparam Geometry1 first geometry type
+    \tparam Geometry2 second geometry type
+    \tparam Collection output collection, either a multi-geometry, 
+        or a std::vector<Geometry> / std::deque<Geometry> etc
+    \param geometry1 first geometry
+    \param geometry2 second geometry
+    \param output_collection, the output collection
+    \note Called union_ because union is a reserved word.
+*/
 template
 <
     typename Geometry1,
@@ -211,7 +223,6 @@ inline void union_(Geometry1 const& geometry1,
             Geometry2,
             typename geometry::point_type<geometry_out>::type
         > strategy;
-
 
     union_inserter<geometry_out>(geometry1, geometry2,
                 std::back_inserter(output_collection),

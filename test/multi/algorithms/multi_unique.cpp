@@ -24,7 +24,7 @@
 template <typename P>
 void test_all()
 {
-	// Multi point, should happen nothing, even if there are duplicate points
+    // Multi point, should happen nothing, even if there are duplicate points
     test_geometry<boost::geometry::multi_point<P> >(
         "MULTIPOINT((0 0),(0 0),(1 1))",
         "MULTIPOINT((0 0),(0 0),(1 1))");
@@ -38,7 +38,7 @@ void test_all()
         "MULTIPOLYGON(((0 0,0 1,1 1,1 1,1 1,1 0,0 0,0 0)))",
         "MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)))");
 
-	// With holes
+    // With holes
     test_geometry<mp>(
         "MULTIPOLYGON(((0 0,0 10,10 10,10 10,10 10,10 0,0 0,0 0)))",
         "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))");

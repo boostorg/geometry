@@ -15,22 +15,22 @@
 template <typename Point>
 void test_all()
 {
-	// Simplex
+    // Simplex
     test_geometry<boost::geometry::linestring<Point> >(
         "LINESTRING(0 0,1 1)",
         "LINESTRING(1 1,0 0)");
 
-	// Three points, middle should stay the same
+    // Three points, middle should stay the same
     test_geometry<boost::geometry::linestring<Point> >(
         "LINESTRING(0 0,1 1,2 2)",
         "LINESTRING(2 2,1 1,0 0)");
 
-	// Four points
+    // Four points
     test_geometry<boost::geometry::linestring<Point> >(
         "LINESTRING(0 0,1 1,2 2,3 3)",
         "LINESTRING(3 3,2 2,1 1,0 0)");
 
-	// Polygon with holes
+    // Polygon with holes
     test_geometry<boost::geometry::polygon<Point> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0),(7 3,7 6,1 6,1 3,4 3,7 3))",
         "POLYGON((4 0,2 1,0 2,0 7,4 9,8 7,8 2,4 0),(7 3,4 3,1 3,1 6,7 6,7 3))");

@@ -26,19 +26,20 @@ void test_all()
         "LINESTRING(0 0,0 0,1 1)",
         "LINESTRING(0 0,1 1)");
 
-	// Consecutive points
+    // Consecutive points
     test_geometry<boost::geometry::linestring<Point> >(
         "LINESTRING(0 0,0 0,0 0,0 0,1 1,1 1,1 1)",
         "LINESTRING(0 0,1 1)");
 
-	// Other types
+    // Other types
     test_geometry<boost::geometry::linear_ring<Point> >(
         "POLYGON((0 0,0 1,1 1,1 1,1 1,1 0,0 0,0 0))",
         "POLYGON((0 0,0 1,1 1,1 0,0 0))");
 
+    // With holes
     test_geometry<boost::geometry::polygon<Point> >(
-        "POLYGON((0 0,0 1,1 1,1 1,1 1,1 0,0 0,0 0))",
-        "POLYGON((0 0,0 1,1 1,1 0,0 0))");
+        "POLYGON((0 0,0 10,10 10,10 10,10 10,10 0,0 0,0 0))",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0))");
 }
 
 

@@ -40,7 +40,7 @@ void test_all()
     test_geometry<ring, ring>("poly_degenerate", "POLYGON((0 0,0 2,2 2,2 2,0 0))", "POLYGON((0 0,0 2,0 2,2 2,0 0))", true);
 
     // Two different bends, same area, unequal
-    test_geometry<ring, ring>("poly_bends", 
+    test_geometry<ring, ring>("poly_bends",
         "POLYGON((4 0,5 3,8 4,7 7,4 8,0 4,4 0))",
         "POLYGON((4 0,7 1,8 4,5 5,4 8,0 4,4 0))", false);
 
@@ -51,22 +51,22 @@ void test_all()
     test_geometry<polygon, polygon>("poly_hole", "POLYGON((0 0,0 4,4 4,0 0))", "POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1))", false);
 
     // Both having holes
-    test_geometry<polygon, polygon>("poly_holes", 
+    test_geometry<polygon, polygon>("poly_holes",
             "POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1))",
             "POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1))", true);
 
     // Both having holes, outer equal, inner not equal
-    test_geometry<polygon, polygon>("poly_uneq_holes", 
+    test_geometry<polygon, polygon>("poly_uneq_holes",
             "POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1))",
             "POLYGON((0 0,0 4,4 4,0 0),(2 2,3 2,3 3,2 3,2 2))", false);
 
     // Both having 2 holes, equal but in different order
-    test_geometry<polygon, polygon>("poly_holes_diff_order", 
+    test_geometry<polygon, polygon>("poly_holes_diff_order",
             "POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1),(2 2,3 2,3 3,2 3,2 2))",
             "POLYGON((0 0,0 4,4 4,0 0),(2 2,3 2,3 3,2 3,2 2),(1 1,2 1,2 2,1 2,1 1))", true);
 
     // Both having 3 holes, equal but in different order
-    test_geometry<polygon, polygon>("poly_holes_diff_order_3", 
+    test_geometry<polygon, polygon>("poly_holes_diff_order_3",
             "POLYGON((0 0,0 10,10 10,0 0),(1 1,2 1,2 2,1 2,1 1),(4 1,5 1,5 2,4 2,4 1),(2 2,3 2,3 3,2 3,2 2))",
             "POLYGON((0 0,0 10,10 10,0 0),(4 1,5 1,5 2,4 2,4 1),(2 2,3 2,3 3,2 3,2 2),(1 1,2 1,2 2,1 2,1 1))", true);
 
@@ -82,8 +82,8 @@ void test_all()
 
     test_geometry<polygon, box>("boxpoly2", "POLYGON((1 1,1 2,2 2,2 1,1 1))", "BOX(1 1,2 3)", false);
 
-	// linestring/linestring
-	// simplex
+    // linestring/linestring
+    // simplex
     test_geometry<linestring, linestring>("ls1", "LINESTRING(1 1,2 2)", "LINESTRING(1 1,2 2)", true);
     test_geometry<linestring, linestring>("ls1", "LINESTRING(1 1,2 2)", "LINESTRING(2 2,1 1)", true);
 

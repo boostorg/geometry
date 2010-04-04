@@ -24,7 +24,7 @@
 template <typename P>
 void test_all()
 {
-	// Multi point, should happen nothing.
+    // Multi point, should happen nothing.
     test_geometry<boost::geometry::multi_point<P> >(
         "MULTIPOINT((0 0),(1 1))",
         "MULTIPOINT((0 0),(1 1))");
