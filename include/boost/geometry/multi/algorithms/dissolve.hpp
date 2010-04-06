@@ -49,12 +49,16 @@ struct dissolve_multi
         }
 
         // Step 2: remove mutual overlap
-        std::vector<GeometryOut> step2; // TODO avoid this, output to "out", if possible
-        detail::dissolver::dissolver_generic<detail::dissolver::plusmin_policy>::apply(step1, step2);
-        BOOST_FOREACH(GeometryOut const& g, step2)
         {
-            *out++ = g;
+            std::vector<GeometryOut> step2; // TODO avoid this, output to "out", if possible
+            detail::dissolver::dissolver_generic<detail::dissolver::plusmin_policy>::apply(step1, step2);
+            for (std::vector<GeometryOut>::const_iterator it = step2.begin();
+                it != step2.end(); ++it)
+            {
+                *out++ = *it;
+            }
         }
+
         return out;
     }
 };
