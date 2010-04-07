@@ -8,6 +8,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SPLIT_RINGS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SPLIT_RINGS_HPP
 
+
+//#include <boost/foreach.hpp>
+
 #include <boost/geometry/algorithms/overlay/get_turns.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
@@ -59,6 +62,9 @@ struct split_range
 
   --> we use id1+1
 
+  After that, we need to update all indices AFTER IP. 
+  We removed two vertices here (4-2), and added one (the IP)
+
 */
     static inline void apply(Range& range, Range& output
         , segment_identifier const& id1
@@ -93,7 +99,7 @@ struct split_range
 };
 
 
-template <typename Polygon>
+/*template <typename Polygon>
 struct split_polygon
 {
     typedef typename geometry::ring_type<Polygon>::type ring_type;
@@ -114,7 +120,7 @@ struct split_polygon
             split_range<ring_type>::apply(ring, splitted, id1, id2, point);
         }
     }
-};
+};*/
 
 
 template <typename Tag, typename Geometry>
@@ -127,9 +133,13 @@ struct split<ring_tag, Ring> : split_range<Ring>
 {};
 
 
-template <typename Polygon>
-struct split<polygon_tag, Polygon> : split_polygon<Polygon>
-{};
+//template <typename Polygon>
+//struct split<polygon_tag, Polygon> : split_polygon<Polygon>
+//{};
+
+
+
+
 
 
 template <typename Tag, typename RingCollection, typename Geometry>
@@ -188,6 +198,73 @@ std::cout << geometry::wkt(*it)
 };
 
 
+/// Sorts vector of turns (results from get_turns)
+template <typename Turn>
+struct sorter
+{
+    inline bool operator()(Turn const& left, Turn const& right) const
+    {
+        if (left.count_between != right.count_between)
+        {
+            return left.count_between < right.count_between;
+        }
+
+        if (left.operations[0].seg_id.segment_index 
+                == right.operations[0].seg_id.segment_index)
+        {
+            return left.operations[0].distance < right.operations[0].distance;
+        }
+        return left.operations[0].seg_id.segment_index
+                    < right.operations[0].seg_id.segment_index;
+    }
+};
+
+/// Turn operation with additional distance field
+template <typename P>
+struct split_turn_operation : public detail::overlay::turn_operation
+{
+   inline split_turn_operation()
+        : detail::overlay::turn_operation()
+        , distance(geometry::make_distance_result<distance_type>(0))
+    {}
+
+    typedef typename distance_result<P, P>::type distance_type;
+    distance_type distance; // distance-measurement from segment.first to IP
+};
+
+
+/// Turn information with distance fields, plus "count_between"  field
+template <typename P>
+struct split_turn_info : detail::overlay::turn_info
+            <
+                P, split_turn_operation<P>
+            > 
+{
+    //std::string history;
+    int count_between; // counts number of segments between ring in intersection
+
+    split_turn_info()
+        : count_between(0)
+    {}
+};
+
+
+/// Policy to calculate distance
+struct split_calculate_distance_policy
+{
+    template <typename Point1, typename Point2, typename Info>
+    static inline void apply(Info& info, Point1 const& p1, Point2 const& p2)
+    {
+        info.operations[0].distance
+                    = boost::geometry::distance(info.point, p1);
+        info.operations[1].distance
+                    = boost::geometry::distance(info.point, p2);
+    }
+
+};
+
+
+
 template <typename Range, typename RingCollection>
 class range_split_rings
 {
@@ -196,27 +273,6 @@ class range_split_rings
 
     typedef typename geometry::ring_type<Range>::type ring_type;
 
-    // create sections in one dimension
-    typedef box<point_type> box_type;
-    typedef sections<box_type, 1> sections_type;
-    typedef typename sections_type::value_type section_type;
-
-    typedef typename boost::range_reverse_iterator<sections_type const>::type
-        section_iterator;
-
-    typedef typename boost::range_iterator
-        <
-            typename geometry::range_type<Range>::type const
-        >::type iterator_type;
-
-    typedef typename boost::range_reverse_iterator
-        <
-            typename geometry::range_type<Range>::type const
-        >::type reverse_iterator_type;
-
-    // for getting intersection points
-    typedef detail::overlay::turn_info<point_type> turn_info;
-    typedef std::vector<turn_info> turns_type;
 
     typedef typename strategy_intersection
         <
@@ -228,108 +284,185 @@ class range_split_rings
 
 
 
-    static inline bool call(Range& range, RingCollection& ring_collection, int trial)
+
+    /*
+    template <typename Turns>
+    static void report(Turns const& turns, std::string const& header)
     {
-        sections_type sections;
-        geometry::sectionalize(range, sections);
-
-        // One section or less, there can be no intersection points.
-        if (boost::size(sections) <= 1)
+        if (turns.empty())
         {
-            // assign output
-            return false;
+            return;
         }
-
-        turns_type turns;
-
-        // Outer loop iterates over segments
-        iterator_type it1 = boost::begin(range);
-
-        /*if (trial % 10 == 0)
+        std::cout << header << std::endl;
+        BOOST_FOREACH(typename boost::range_value<Turns>::type const& turn, turns)
         {
-            std::cout << "trial " << trial << std::endl;
-        }*/
+            std::cout 
+                << "I at " << turn.operations[0].seg_id.segment_index 
+                << "/" << turn.operations[1].seg_id.segment_index
+                << " (" << turn.count_between
+                << ") " << turn.operations[0].distance
+                << "/" << turn.operations[1].distance
+                << " " << geometry::wkt(turn.point) << std::endl;
+        }
+    }
+    */
 
-        int index1 = 0;
-        for (iterator_type prev1 = it1++;
-            it1 != boost::end(range);
-            prev1 = it1++, index1++)
+    template <typename Operation>
+    static bool adapt(Operation& op, Operation const& first, Operation const& second)
+    {
+        if (first.seg_id.segment_index > second.seg_id.segment_index)
         {
-            geometry::segment<point_type const> segment1(*prev1, *it1);
-            box_type segment_box = geometry::make_envelope<box_type>(segment1);
-
-            // Inner loop iterates reversely over sections
-            for (section_iterator sit = boost::rbegin(sections);
-                sit != boost::rend(sections);
-                sit++)
+            return adapt(op, second, first);
+        }
+        if (op.seg_id.segment_index > first.seg_id.segment_index
+            || 
+            (op.seg_id.segment_index == first.seg_id.segment_index
+                && op.distance > first.distance
+            )
+            )
+        {
+            if (op.seg_id.segment_index < second.seg_id.segment_index
+                //|| segment.segment_index == second &&
+                )
             {
-                if (! detail::disjoint::disjoint_box_box(segment_box, sit->bounding_box))
-                {
-                    // Calculate the reverse and not-reverse index
-                    // Suppose section is [0..2] [begin_index..end_index] and range.size() = 6
-                    // we want to have 1-2 and then 0-1
-                    // -> rbegin=5, we want to have [rbegin+3..rbegin+5]
-                    int index2 = sit->end_index - 1;
-                    std::size_t count = 0;
-
-
-                    // Iterate (reversely) over segments within section
-                    for (iterator_type it2 = boost::begin(range) + index2 + 1;
-                        count < sit->count;
-                        it2--, index2--, count++)
-                    {
-                        iterator_type prev2 = it2 - 1;
-                        // Do not check adjacent segments
-                        bool skip = index2 + 1 >= index1
-                            || (index2 == 0 && index1 >= int(sit->range_count) - 2);
-                        if (! skip)
-                        {
-                            geometry::segment<point_type const> segment2(*prev2, *it2);
-
-                            typename strategy::return_type result
-                                = strategy::apply(segment1, segment2);
-
-                            if (result.get<0>().count > 0)
-                            {
-                                ring_type copy = range;
-                                ring_type splitted;
-
-                                // Insert the intersection point.
-                                // Split off the sub-ring
-                                split<ring_tag, Range>::apply(range, splitted,
-                                        segment_identifier(-1, -1, -1, index2),
-                                        segment_identifier(-1, -1, -1, index1),
-                                        result.get<0>().intersections[0]);
-
-                                ring_collection.push_back(splitted);
-
-#ifdef BOOST_GEOMETRY_DEBUG_SPLIT_RINGS
-                                if (geometry::intersects(splitted))
-                                {
-                                    std::cout << geometry::wkt(copy) << std::endl;
-                                    std::cout << geometry::wkt(splitted) << std::endl;
-                                    std::cout << "not OK " << trial << std::endl;
-                                }
-
-
-if (geometry::area(splitted) > 0)
-{
-std::cout << geometry::wkt(splitted)
-        << " ; " << geometry::area(splitted)
-        << " " << splitted.size()
-        << " at " << geometry::wkt(result.get<0>().intersections[0])
-        << std::endl;
-}
-#endif
-
-                                return true;
-                            }
-                        }
-                    }
-               }
+                // mark for deletion
+                op.seg_id.segment_index = -1;
+                return true;
+            }
+            else
+            {
+                op.seg_id.segment_index -= (second.seg_id.segment_index - first.seg_id.segment_index - 1);
             }
         }
         return false;
+    }
+
+
+
+
+
+    static void call(Range range, RingCollection& ring_collection)
+    {
+        typedef split_turn_info<point_type> turn_info;
+
+        typedef std::deque<turn_info> turns_type;
+        turns_type turns;
+
+        detail::get_turns::no_interrupt_policy policy;
+        geometry::get_turns
+            <
+                split_calculate_distance_policy
+            >(range, turns, policy);
+
+        //report(turns, "intersected");
+
+        // Make operations[0].seg_id always the smallest, to sort properly
+        // Also calculate the number of segments in between
+        for (typename boost::range_iterator<turns_type>::type 
+            it = boost::begin(turns);
+            it != boost::end(turns); 
+            ++it)
+        {
+            turn_info& turn = *it;
+            if (turn.operations[0].seg_id.segment_index > turn.operations[1].seg_id.segment_index)
+            {
+                std::swap(turn.operations[0], turn.operations[1]);
+            }
+            // ...[1] > ...[0]
+            // check count
+            int const between1 = turn.operations[1].seg_id.segment_index
+                - turn.operations[0].seg_id.segment_index;
+            /*
+            NOTE: if we would use between2 here, we have to adapt other code as well,
+                    such as adaption of the indexes; splitting of the range, etc.
+            int between2 = boost::size(range) + turn.operations[0].seg_id.segment_index
+                    - turn.operations[1].seg_id.segment_index;
+            turn.count_between = (std::min)(between1, between2);
+            */
+
+            turn.count_between = between1; 
+        }
+        //report(turns, "swapped");
+
+        std::sort(turns.begin(), turns.end(), sorter<turn_info>());
+        //report(turns, "sorted");
+    
+
+        while(turns.size() > 0)
+        {
+            // Process first turn
+            turn_info const& turn = turns.front();
+
+            split_turn_operation<point_type> const& first_op = turn.operations[0];
+            split_turn_operation<point_type> const& second_op = turn.operations[1];
+            bool do_split = first_op.seg_id.segment_index >= 0 
+                    && second_op.seg_id.segment_index >= 0;
+
+            if (do_split)
+            {
+
+                ring_type copy = range; // TEMP, for check
+                ring_type splitted;
+                split<ring_tag, Range>::apply(range, splitted,
+                        turn.operations[0].seg_id, turn.operations[1].seg_id,
+                        turn.point);
+                ring_collection.push_back(splitted);
+
+                // BEGIN TEMP CHECK
+                {
+                    std::deque<turn_info> splitted_turns;
+                    geometry::get_turns
+                        <
+                            split_calculate_distance_policy
+                        >(splitted, splitted_turns, detail::get_turns::no_interrupt_policy());
+
+
+                    if (splitted_turns.size() > 0)
+                    {
+                        std::cout << "not OK! " << splitted_turns.size() << std::endl;
+                        //std::cout << "       " << geometry::wkt(copy) << std::endl;
+                        //std::cout << "       " << geometry::wkt(splitted) << std::endl;
+                        //report(splitted_turns, "NOT OK");
+                        //std::cout << std::endl;
+                    }
+                }
+                // END TEMP
+
+            }
+
+            turns.pop_front();
+
+
+            if (do_split)
+            {
+                for (typename boost::range_iterator<turns_type>::type 
+                    rest = boost::begin(turns);
+                    rest != boost::end(turns); 
+                    ++rest)
+                {
+                    //turn_info copy = turn;
+                    if (adapt(rest->operations[0], first_op, second_op)
+                        || adapt(rest->operations[1], first_op, second_op))
+                    {
+                        /**
+                        std::cout << " ADAPTED " 
+                            << copy.operations[0].seg_id.segment_index << "/" << copy.operations[1].seg_id.segment_index
+                            << " "
+                            << geometry::wkt(copy.point) << std::endl;
+                        **/
+                    }
+                }
+            }
+            while(turns.size() > 0 
+                && (turns.front().operations[0].seg_id.segment_index < 0
+                    || turns.front().operations[1].seg_id.segment_index < 0))
+            {
+                turns.pop_front();
+            }
+        }
+
+        // Add the (possibly untouched) input range
+        insert_rings<ring_tag, RingCollection, Range>::apply(ring_collection, range);
     }
 
 
@@ -337,14 +470,7 @@ public :
     // Copy by value of range is intentional, copy is modified here
     static inline void apply(Range range, RingCollection& ring_collection)
     {
-        int trial = 1;
-        while(call(range, ring_collection, trial++))
-        {
-            // no operation is intentional
-        }
-
-        // Add the (possibly untouched) input range
-        insert_rings<tag, RingCollection, Range>::apply(ring_collection, range);
+        call(range, ring_collection);
     }
 };
 
