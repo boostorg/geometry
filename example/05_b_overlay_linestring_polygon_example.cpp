@@ -54,8 +54,8 @@ int main(void)
     // Calculate intersection points (turn points)
     typedef bg::detail::overlay::turn_info<bg::point_2d> turn_info;
     std::vector<turn_info> turns;
-    bg::get_turns<bg::detail::overlay::assign_null_policy>(ls, p, 
-            turns, bg::detail::get_turns::no_interrupt_policy());
+    bg::detail::get_turns::no_interrupt_policy policy;
+    bg::get_turns<bg::detail::overlay::assign_null_policy>(ls, p, turns, policy);
 
     std::cout << "Intersection of linestring/polygon" << std::endl;
     BOOST_FOREACH(turn_info const& turn, turns)
