@@ -52,7 +52,7 @@ struct dissolve_multi
         {
             std::vector<GeometryOut> step2; // TODO avoid this, output to "out", if possible
             detail::dissolver::dissolver_generic<detail::dissolver::plusmin_policy>::apply(step1, step2);
-            for (std::vector<GeometryOut>::const_iterator it = step2.begin();
+            for (typename std::vector<GeometryOut>::const_iterator it = step2.begin();
                 it != step2.end(); ++it)
             {
                 *out++ = *it;
