@@ -29,6 +29,7 @@ for std:: library compatibility.
 
 #include <cstddef>
 #include <deque>
+#include <vector>
 
 #include <boost/mpl/if.hpp>
 #include <boost/static_assert.hpp>
