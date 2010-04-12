@@ -180,7 +180,8 @@ public :
 
     static inline bool result(sums const& state, Point& centroid)
     {
-        if (state.count > 0 && state.sum_a2 != 0)
+        calculation_type const zero = calculation_type();
+        if (state.count > 0 && state.sum_a2 != zero)
         {
             calculation_type const v3 = 3;
             calculation_type const a3 = v3 * state.sum_a2;
