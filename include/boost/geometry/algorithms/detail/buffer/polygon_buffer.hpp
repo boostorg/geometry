@@ -35,20 +35,20 @@ namespace detail { namespace buffer
 template <typename RingInput, typename RingOutput, typename JoinStrategy>
 struct ring_buffer
 {
-
+    typedef typename point_type<RingOutput>::type output_point_type;
+    typedef typename coordinate_type<output_point_type>::type coordinate_type;
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     template <typename Mapper>
 #endif
     static inline void apply(RingInput const& ring, RingOutput& buffered,
-            double distance, // TODO: change coordinate type
+            coordinate_type distance, 
             JoinStrategy const& join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper
 #endif
             )
     {
-        typedef typename point_type<RingOutput>::type output_point_type;
         typedef segment<output_point_type const> segment_type;
         typedef typename boost::range_iterator
             <
@@ -72,7 +72,6 @@ struct ring_buffer
                 bool skip = false;
 
                 // Generate a block along (int most cases to the left of) the segment
-                typedef typename coordinate_type<output_point_type>::type coordinate_type;
 
                 // Simulate a vector d (dx,dy)
                 coordinate_type dx = get<0>(*it) - get<0>(*prev);
@@ -185,7 +184,8 @@ struct polygon_buffer
     template <typename Mapper>
 #endif
     static inline void apply(PolygonInput const& polygon, PolygonOutput& buffered,
-            double distance, JoinStrategy const& join_strategy
+            typename coordinate_type<PolygonOutput>::type distance, 
+            JoinStrategy const& join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper
 #endif
