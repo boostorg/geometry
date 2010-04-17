@@ -17,7 +17,7 @@
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/extensions/io/svg/write_svg_multi.hpp>
 
-#include <test_util/svg_mapper.hpp>
+#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
 
 static const int wkt_countries_count = 1;
@@ -90,7 +90,7 @@ void svg_simplify_road()
     typedef boost::geometry::point_xy<double> point_type;
 
     std::ofstream svg("simplify_road.svg");
-    svg_mapper<point_type> mapper(svg, 300, 300);
+    boost::geometry::svg_mapper<point_type> mapper(svg, 300, 300);
 
     boost::geometry::linestring<point_type> original[n], simplified[n];
 
@@ -122,7 +122,7 @@ void svg_simplify_country()
     typedef boost::geometry::point_xy<double> point_type;
 
     std::ofstream svg("simplify_country.svg");
-    svg_mapper<point_type> mapper(svg, 300, 300);
+    boost::geometry::svg_mapper<point_type> mapper(svg, 300, 300);
 
     boost::geometry::multi_polygon<boost::geometry::polygon<point_type> > original[wkt_countries_count]
         , simplified[wkt_countries_count];
@@ -153,7 +153,7 @@ void svg_convex_hull_country()
     typedef boost::geometry::point_xy<double> point_type;
 
     std::ofstream svg("convex_hull_country.svg");
-    svg_mapper<point_type> mapper(svg, 300, 300);
+    boost::geometry::svg_mapper<point_type> mapper(svg, 300, 300);
 
     boost::geometry::multi_polygon<boost::geometry::polygon<point_type> > original[wkt_countries_count];
     boost::geometry::linear_ring<point_type> hull[wkt_countries_count];
@@ -186,7 +186,7 @@ void svg_convex_hull_cities()
     typedef boost::geometry::point_xy<double> point_type;
 
     std::ofstream svg("convex_hull_cities.svg");
-    svg_mapper<point_type> mapper(svg, 300, 300);
+    boost::geometry::svg_mapper<point_type> mapper(svg, 300, 300);
 
     boost::geometry::multi_point<point_type> original[wkt_cities_count];
 
@@ -238,7 +238,7 @@ void svg_intersection_roads()
 
     // create map
     std::ofstream svg("intersection_roads.svg");
-    svg_mapper<point_type> mapper(svg, 500, 500);
+    boost::geometry::svg_mapper<point_type> mapper(svg, 500, 500);
 
     mapper.add(bbox);
 
@@ -290,7 +290,7 @@ void svg_intersection_countries()
 
     // create map
     std::ofstream svg("intersection_countries.svg");
-    svg_mapper<point_type> mapper(svg, 800, 800);
+    boost::geometry::svg_mapper<point_type> mapper(svg, 800, 800);
 
     mapper.add(bbox);
 
