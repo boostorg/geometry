@@ -23,8 +23,8 @@ namespace boost { namespace geometry
     \ingroup utility
     \details Is used to have one implementation for both const and non const
         range iterators
-    \note This traits class is completely independant from GGL and might be a
-        separate addition to Boost
+    \note This traits class is completely independant from Boost.Geometry and
+        might be a separate addition to Boost
     \note Used in for_each
 */
 template <bool IsConst, typename Range>
