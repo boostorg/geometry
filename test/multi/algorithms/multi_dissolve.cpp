@@ -58,32 +58,6 @@ void test_all()
         "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)),((3 1,5 4,8 4,3 1)))",
         1, 18, 19.5206);
 
-    // Linestrings
-    typedef bg::linestring<P> linestring;
-    typedef bg::multi_linestring<linestring> multi_linestring;
-
-    test_one<multi_linestring, linestring>("ls_simplex",
-        "MULTILINESTRING((0 0,1 1),(1 1,2 2))",
-        0, 3, 2 * std::sqrt(2.0));
-    
-    // Opposites, forming one line
-    test_one<multi_linestring, linestring>("ls_simplex_opposite_to",
-        "MULTILINESTRING((0 0,1 1),(2 2,1 1))",
-        0, 3, 2 * std::sqrt(2.0));
-    test_one<multi_linestring, linestring>("ls_simplex_opposite_from",
-        "MULTILINESTRING((1 1,0 0),(1 1,2 2))",
-        0, 3, 2 * std::sqrt(2.0));
-
-    // Two output linestrings
-    test_one<multi_linestring, linestring>("ls_simplex_two",
-        "MULTILINESTRING((0 0,1 1),(1 1,2 2),(3 3,4 4),(4 4,5 5))",
-        0, 6, 4 * std::sqrt(2.0));
-
-    // Linestrings forming a ring
-    test_one<multi_linestring, linestring>("ls_simplex_ring",
-        "MULTILINESTRING((0 0,0 1),(1 1,1 0),(0 1,1 1),(1 0,0 0))",
-        0, 5, 4.0);
-
 }
 
 
