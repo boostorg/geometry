@@ -20,6 +20,7 @@ with the opposite interior faces.
 
 */
 
+#include <cstddef>
 
 #include <boost/geometry/core/access.hpp>
 

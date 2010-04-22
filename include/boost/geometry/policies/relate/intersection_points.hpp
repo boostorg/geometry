@@ -9,7 +9,9 @@
 #ifndef BOOST_GEOMETRY_GEOMETRY_POLICIES_RELATE_INTERSECTION_POINTS_HPP
 #define BOOST_GEOMETRY_GEOMETRY_POLICIES_RELATE_INTERSECTION_POINTS_HPP
 
+
 #include <algorithm>
+#include <string>
 
 #include <boost/concept_check.hpp>
 #include <boost/numeric/conversion/cast.hpp>

@@ -9,6 +9,8 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DISSOLVE_HPP
 
 
+#include <vector>
+
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 

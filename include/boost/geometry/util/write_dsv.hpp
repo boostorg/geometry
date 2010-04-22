@@ -8,6 +8,8 @@
 #ifndef BOOST_GEOMETRY_UTIL_WRITE_DSV_HPP
 #define BOOST_GEOMETRY_UTIL_WRITE_DSV_HPP
 
+
+#include <cstddef>
 #include <ostream>
 #include <string>
 

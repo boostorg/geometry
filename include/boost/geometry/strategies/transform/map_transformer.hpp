@@ -10,6 +10,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_TRANSFORM_MAP_TRANSFORMER_HPP
 
 
+#include <cstddef>
+
 #include <boost/geometry/strategies/transform/matrix_transformers.hpp>
 
 

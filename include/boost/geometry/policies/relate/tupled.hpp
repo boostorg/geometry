@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_GEOMETRY_POLICIES_RELATE_TUPLED_HPP
 #define BOOST_GEOMETRY_GEOMETRY_POLICIES_RELATE_TUPLED_HPP
 
+
+#include <string>
+
 #include <boost/tuple/tuple.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -52,9 +55,9 @@ struct segments_tupled
     {
         return boost::make_tuple
             (
-                Policy1::segments_intersect(sides, 
+                Policy1::segments_intersect(sides,
                     dx1, dy1, dx2, dy2, s1, s2),
-                Policy2::segments_intersect(sides, 
+                Policy2::segments_intersect(sides,
                     dx1, dy1, dx2, dy2, s1, s2)
             );
     }
@@ -71,7 +74,7 @@ struct segments_tupled
 
     template <typename S>
     static inline return_type collinear_interior_boundary_intersect(S const& segment,
-                bool a_within_b, 
+                bool a_within_b,
                 int arrival_a, int arrival_b, bool opposite)
     {
         return boost::make_tuple

@@ -8,6 +8,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_INTERSECTING_INSERTER_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_INTERSECTING_INSERTER_HPP
 
+
+#include <cstddef>
+
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 

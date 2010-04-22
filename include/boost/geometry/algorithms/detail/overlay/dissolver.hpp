@@ -9,6 +9,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_DISSOLVER_HPP
 
 
+#include <deque>
+#include <vector>
+
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/point_type.hpp>

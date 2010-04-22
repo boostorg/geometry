@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_ADAPTED_TUPLE_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_ADAPTED_TUPLE_HPP
 
+
+#include <cstddef>
+
 #include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>

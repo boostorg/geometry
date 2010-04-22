@@ -9,7 +9,10 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_AGNOSTIC_SIMPLIFY_DOUGLAS_PEUCKER_HPP
 #define BOOST_GEOMETRY_STRATEGY_AGNOSTIC_SIMPLIFY_DOUGLAS_PEUCKER_HPP
 
+
+#include <cstddef>
 #include <vector>
+
 #include <boost/range/functions.hpp>
 
 #include <boost/geometry/core/cs.hpp>

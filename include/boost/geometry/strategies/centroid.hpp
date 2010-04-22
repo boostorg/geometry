@@ -10,6 +10,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_CENTROID_HPP
 
 
+#include <cstddef>
+
 #include <boost/geometry/strategies/tags.hpp>
 
 
