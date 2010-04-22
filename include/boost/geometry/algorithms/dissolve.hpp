@@ -9,6 +9,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DISSOLVE_HPP
 
 
+#include <map>
+#include <vector>
+
 #include <boost/geometry/algorithms/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/overlay/self_turn_points.hpp>
 
@@ -147,7 +150,7 @@ struct dissolve<ring_tag, ring_tag, Ring, RingOut>
     \param output container which will contain dissolved geometry
     \note Currently dissolve with a (multi)linestring does NOT remove internal
         overlap, it only tries to connect multiple line end-points.
-        TODO: we should change this behaviour and add a separate "connect" 
+        TODO: we should change this behaviour and add a separate "connect"
         algorithm, and let dissolve work like polygon.
  */
 template

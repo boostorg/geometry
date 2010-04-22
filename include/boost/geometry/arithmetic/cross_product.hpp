@@ -8,6 +8,9 @@
 #ifndef BOOST_GEOMETRY_ARITHMETIC_CROSS_PRODUCT_HPP
 #define BOOST_GEOMETRY_ARITHMETIC_CROSS_PRODUCT_HPP
 
+
+#include <cstddef>
+
 #include <boost/concept/requires.hpp>
 
 #include <boost/geometry/core/access.hpp>

@@ -13,6 +13,9 @@
 #include <string>
 #endif
 
+#include <cstddef>
+
+
 namespace boost { namespace geometry
 {
 

@@ -8,7 +8,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_OVERLAY_ASSEMBLE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_OVERLAY_ASSEMBLE_HPP
 
+
 #include <deque>
+#include <map>
 #include <vector>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>

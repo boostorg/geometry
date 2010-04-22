@@ -10,6 +10,8 @@
 #define BOOST_GEOMETRY_MULTI_CORE_NUM_GEOMETRIES_HPP
 
 
+#include <cstddef>
+
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 

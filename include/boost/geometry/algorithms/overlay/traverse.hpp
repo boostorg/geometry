@@ -8,6 +8,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_OVERLAY_TRAVERSE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_OVERLAY_TRAVERSE_HPP
 
+
+#include <cstddef>
+
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 
@@ -19,6 +22,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT)
+#include <string>
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #endif
 
@@ -203,7 +207,7 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
 #else
             std::string const& reason,
             Geometry1 const& ,
-            Geometry2 const& 
+            Geometry2 const&
 #endif
             )
 {
@@ -215,7 +219,7 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
 
     // Reject this as a starting point
     operation.visited.set_rejected();
-    
+
     // And clear all visit info
     clear_visit_info(turns);
 
@@ -231,7 +235,7 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
             }
         }
     }
-    std::cout << "BACKTRACK (" << reason << " )" 
+    std::cout << "BACKTRACK (" << reason << " )"
         << " " << c << " of " << turns.size() << " rejected"
         << std::endl;
     ***/
@@ -316,7 +320,7 @@ inline void traverse(Geometry1 const& geometry1,
                                         operation,
                                         *current,
                                         current_seg_id,
-                                        
+
                                         current_iit))
                         {
                             detail::overlay::backtrack(
@@ -366,7 +370,7 @@ inline void traverse(Geometry1 const& geometry1,
                                                 operation,
                                                 *current,
                                                 current_seg_id,
-                                                
+
                                                 current_iit))
                                     {
                                         // Should not occur in valid (non-self-intersecting) polygons

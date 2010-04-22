@@ -19,6 +19,8 @@
 #define BOOST_GEOMETRY_ADAPTED_STD_RANGE_TAG_DEFINED
 
 
+#include <cstddef>
+
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tag.hpp>

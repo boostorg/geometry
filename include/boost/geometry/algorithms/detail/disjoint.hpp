@@ -13,6 +13,7 @@
 // is partly implemented in a separate file, to avoid circular references
 // disjoint -> get_turns -> disjoint
 
+#include <cstddef>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>

@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_TRANSFORM_MATRIX_TRANSFORMERS_HPP
 #define BOOST_GEOMETRY_STRATEGIES_TRANSFORM_MATRIX_TRANSFORMERS_HPP
 
+
+#include <cstddef>
+
 // Remove the ublas checking, otherwise the inverse might fail
 // (while nothing seems to be wrong)
 #define BOOST_UBLAS_TYPE_CHECK 0
@@ -25,10 +28,10 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 
 
-namespace boost { namespace geometry 
+namespace boost { namespace geometry
 {
 
-namespace strategy { namespace transform 
+namespace strategy { namespace transform
 {
 
 /*!

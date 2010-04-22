@@ -11,6 +11,8 @@
 #define BOOST_GEOMETRY_CORE_REVERSE_DISPATCH_HPP
 
 
+#include <cstddef>
+
 #include <boost/type_traits.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/greater.hpp>

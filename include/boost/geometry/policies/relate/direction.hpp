@@ -9,6 +9,10 @@
 #ifndef BOOST_GEOMETRY_GEOMETRY_POLICIES_RELATE_DIRECTION_HPP
 #define BOOST_GEOMETRY_GEOMETRY_POLICIES_RELATE_DIRECTION_HPP
 
+
+#include <cstddef>
+#include <string>
+
 #include <boost/concept_check.hpp>
 
 #include <boost/geometry/strategies/side_info.hpp>
@@ -175,7 +179,7 @@ struct segments_direction
     }
 
     template <typename S>
-    static inline return_type collinear_interior_boundary_intersect(S const& , bool, 
+    static inline return_type collinear_interior_boundary_intersect(S const& , bool,
                     int arrival_a, int arrival_b, bool opposite)
     {
         return_type r('c', opposite);

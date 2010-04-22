@@ -10,6 +10,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_INTERSECTION_HPP
 
 
+#include <cstddef>
+
+
 #include <boost/mpl/if.hpp>
 
 #include <boost/geometry/core/reverse_dispatch.hpp>

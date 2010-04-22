@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_ARITHMETIC_DOT_PRODUCT_HPP
 #define BOOST_GEOMETRY_ARITHMETIC_DOT_PRODUCT_HPP
 
+
+#include <cstddef>
+
 #include <boost/concept/requires.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>

@@ -8,7 +8,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_SEGMENTING_BUFFER_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_SEGMENTING_BUFFER_HPP
 
+
 #include <cstddef>
+#include <vector>
 
 #include <boost/foreach.hpp>
 #include <boost/numeric/conversion/cast.hpp>

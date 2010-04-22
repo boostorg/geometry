@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP
 
+
+#include <vector>
+
 #include <boost/assert.hpp>
 
 #include <boost/geometry/core/tags.hpp>

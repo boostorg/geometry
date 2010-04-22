@@ -43,6 +43,9 @@ a free function operating on different point types or even different geometry
 types (a linestring can be spatially equal to a multi-linestring).
 */
 
+
+#include <cstddef>
+
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/util/math.hpp>
 

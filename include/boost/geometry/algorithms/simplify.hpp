@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_SIMPLIFY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_SIMPLIFY_HPP
 
+
+#include <cstddef>
+
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 

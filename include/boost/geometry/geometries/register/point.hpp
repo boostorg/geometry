@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_REGISTER_POINT_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_REGISTER_POINT_HPP
 
+
+#include <cstddef>
+
 /**
  * @file point.hpp
  * @brief Macros for registration of custom point geometry types.
