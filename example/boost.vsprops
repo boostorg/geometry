@@ -7,7 +7,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="$(BOOST_ROOT);..\..\.."
-		WarningLevel="3"
+		PreprocessorDefinitions="_SCL_SECURE_NO_WARNINGS"
 	/>
 	<Tool
 		Name="VCLinkerTool"
@@ -15,6 +15,6 @@
 	/>
 	<UserMacro
 		Name="BOOST_ROOT"
-		Value="C:\Program Files\boost\boost_1_41_0"
+		Value="C:\Program Files\boost\boost_1_42_0"
 	/>
 </VisualStudioPropertySheet>

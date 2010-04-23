@@ -43,13 +43,13 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				MinimalRebuild="true"
+				
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -63,7 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="gmp.lib"
-				LinkIncremental="2"
+				\
 				AdditionalLibraryDirectories="&quot;C:\gmp\gmp-dynamic&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -122,11 +122,11 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				RuntimeLibrary="2"
+				
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -140,7 +140,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="gmp.lib"
-				LinkIncremental="2"
+				\
 				AdditionalLibraryDirectories="&quot;C:\gmp\gmp-dynamic&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
