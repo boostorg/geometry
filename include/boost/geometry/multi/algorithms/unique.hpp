@@ -9,8 +9,7 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_UNIQUE_HPP
 
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/multi/core/tags.hpp>

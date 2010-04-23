@@ -39,7 +39,7 @@
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/range/functions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/pj_datum_set.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_datums.hpp>

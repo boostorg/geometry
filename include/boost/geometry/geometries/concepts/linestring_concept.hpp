@@ -24,7 +24,8 @@
 #include <boost/geometry/geometries/concepts/detail/check_append.hpp>
 
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!
@@ -44,7 +45,7 @@ The linestring concept is defined as following:
      to add a point to a linestring
 
 \note to fulfil the concepts, no traits class has to be specialized to
-define the point type. The point type is taken using boost::range_value<X>::type
+define the point type.
 
 \par Example:
 

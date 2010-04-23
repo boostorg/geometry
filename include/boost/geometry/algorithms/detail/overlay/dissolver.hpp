@@ -12,6 +12,8 @@
 #include <deque>
 #include <vector>
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/point_type.hpp>

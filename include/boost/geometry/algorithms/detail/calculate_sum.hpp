@@ -8,6 +8,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CALCULATE_SUM_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CALCULATE_SUM_HPP
 
+
+#include <boost/range.hpp>
+
 namespace boost { namespace geometry
 {
 

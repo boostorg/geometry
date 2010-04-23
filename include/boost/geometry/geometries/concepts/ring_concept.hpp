@@ -41,7 +41,7 @@ The ring concept is defined as following:
   This is the same as the for the concept Linestring, and described there.
 
 \note to fulfil the concepts, no traits class has to be specialized to
-define the point type. The point type is taken using boost::range_value<X>::type
+define the point type.
 */
 template <typename Geometry>
 class Ring

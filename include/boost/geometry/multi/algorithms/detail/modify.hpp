@@ -9,8 +9,7 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_MODIFY_HPP
 
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 
 namespace boost { namespace geometry

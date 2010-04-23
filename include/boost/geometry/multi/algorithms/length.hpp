@@ -8,9 +8,13 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_LENGTH_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_LENGTH_HPP
 
+
+#include <boost/range/metafunctions.hpp>
+
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
+
 
 namespace boost { namespace geometry
 {

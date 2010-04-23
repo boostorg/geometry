@@ -9,8 +9,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
+
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/algorithms/combine.hpp>

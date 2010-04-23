@@ -11,6 +11,9 @@
 
 #include <vector>
 
+#include <boost/range/metafunctions.hpp>
+
+
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 

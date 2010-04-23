@@ -9,8 +9,7 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_OVERLAY_COPY_SEGMENT_POINT_HPP
 
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/algorithms/overlay/copy_segment_point.hpp>

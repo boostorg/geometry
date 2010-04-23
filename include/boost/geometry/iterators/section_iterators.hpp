@@ -11,6 +11,8 @@
 
 #include <iterator>
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/iterators/base.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>

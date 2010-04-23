@@ -11,8 +11,7 @@
 
 
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/is_multi.hpp>
@@ -23,11 +22,11 @@
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 
-namespace boost { namespace geometry 
+namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace distance 
+namespace detail { namespace distance
 {
 
 

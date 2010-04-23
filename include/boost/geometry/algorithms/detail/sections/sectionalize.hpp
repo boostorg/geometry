@@ -14,8 +14,7 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/combine.hpp>
@@ -62,7 +61,7 @@ struct section
     typedef Box box_type;
 
     // unique ID used in get_turns to mark section-pairs already handled.
-    int id; 
+    int id;
 
     int directions[DimensionCount];
     int ring_index;
@@ -493,7 +492,7 @@ struct sectionalize_box
 template <typename Sections>
 inline void set_section_unique_ids(Sections& sections)
 {
-    // Set ID's. 
+    // Set ID's.
     int index = 0;
     for (typename boost::range_iterator<Sections>::type it = boost::begin(sections);
         it != boost::end(sections);

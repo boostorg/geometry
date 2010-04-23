@@ -9,8 +9,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_APPEND_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_APPEND_HPP
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
+
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>

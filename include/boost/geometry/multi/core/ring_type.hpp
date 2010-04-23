@@ -17,7 +17,6 @@
 #include <boost/geometry/multi/core/tags.hpp>
 
 
-
 namespace boost { namespace geometry
 {
 

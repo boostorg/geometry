@@ -10,6 +10,8 @@
 #define BOOST_GEOMETRY_MULTI_UTIL_FOR_EACH_RANGE_HPP
 
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/util/for_each_range.hpp>
 #include <boost/geometry/util/range_iterator_const_if_c.hpp>
 
@@ -21,7 +23,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace for_each {
+namespace detail { namespace for_each
+{
 
 
 template <typename Multi, typename Actor, bool IsConst>

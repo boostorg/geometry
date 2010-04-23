@@ -10,9 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_GET_SECTION_HPP
 
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
-
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>

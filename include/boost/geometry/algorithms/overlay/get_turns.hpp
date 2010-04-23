@@ -13,8 +13,8 @@
 #include <map>
 
 #include <boost/mpl/if.hpp>
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
+
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/remove_const.hpp>
 

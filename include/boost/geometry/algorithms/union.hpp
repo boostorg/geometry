@@ -12,6 +12,8 @@
 
 #include <boost/mpl/if.hpp>
 
+#include <boost/range/metafunctions.hpp>
+
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -193,7 +195,7 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
     \ingroup union
     \tparam Geometry1 first geometry type
     \tparam Geometry2 second geometry type
-    \tparam Collection output collection, either a multi-geometry, 
+    \tparam Collection output collection, either a multi-geometry,
         or a std::vector<Geometry> / std::deque<Geometry> etc
     \param geometry1 first geometry
     \param geometry2 second geometry

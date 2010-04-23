@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 

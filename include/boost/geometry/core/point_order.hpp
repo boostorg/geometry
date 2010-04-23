@@ -8,20 +8,22 @@
 #ifndef BOOST_GEOMETRY_CORE_POINT_ORDER_HPP
 #define BOOST_GEOMETRY_CORE_POINT_ORDER_HPP
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+
+#include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 enum order_selector { clockwise = 1, counterclockwise = 2, order_undetermined = 0 };
 
-namespace traits {
+namespace traits
+{
 
 /*!
     \brief Traits class indicating the order of contained points within a

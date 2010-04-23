@@ -24,7 +24,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace num_points {
+namespace detail { namespace num_points
+{
 
 
 template <typename Range>

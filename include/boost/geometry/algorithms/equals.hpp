@@ -33,8 +33,7 @@ for std:: library compatibility.
 
 #include <boost/mpl/if.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>

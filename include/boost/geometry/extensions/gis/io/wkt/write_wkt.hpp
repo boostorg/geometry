@@ -12,8 +12,8 @@
 #include <string>
 
 #include <boost/concept/assert.hpp>
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
+
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>

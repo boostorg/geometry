@@ -11,6 +11,8 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_NUM_POINTS_HPP
 
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 

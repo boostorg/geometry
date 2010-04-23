@@ -9,18 +9,18 @@
 #ifndef BOOST_GEOMETRY_CORE_POINT_TYPE_HPP
 #define BOOST_GEOMETRY_CORE_POINT_TYPE_HPP
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+
+#include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-namespace boost { namespace geometry 
+namespace boost { namespace geometry
 {
 
-namespace traits 
+namespace traits
 {
 
 /*!
@@ -104,7 +104,7 @@ struct point_type
     typedef typename boost::remove_const<Geometry>::type ncg;
     typedef typename core_dispatch::point_type
         <
-            typename tag<Geometry>::type, 
+            typename tag<Geometry>::type,
             ncg
         >::type type;
 };

@@ -13,7 +13,6 @@
 
 #include <boost/range/metafunctions.hpp>
 
-
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 

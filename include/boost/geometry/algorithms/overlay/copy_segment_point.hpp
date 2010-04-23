@@ -10,6 +10,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_OVERLAY_COPY_SEGMENT_POINT_HPP
 
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>

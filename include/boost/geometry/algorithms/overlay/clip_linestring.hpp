@@ -9,8 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_OVERLAY_CLIP_LINESTRING_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_OVERLAY_CLIP_LINESTRING_HPP
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
@@ -21,7 +20,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace intersection {
+namespace strategy { namespace intersection
+{
 
 /*!
     \brief Strategy: line clipping algorithm after Liang Barsky

@@ -19,6 +19,7 @@ after the standard library
 
 #include <algorithm>
 
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -36,7 +37,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace for_each {
+namespace detail { namespace for_each
+{
 
 
 template <typename Point, typename Functor, bool IsConst>
