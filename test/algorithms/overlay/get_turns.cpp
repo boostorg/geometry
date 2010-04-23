@@ -275,13 +275,26 @@ void test_all()
     // line-polygon
     test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly1", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[0], case_1[1]);
     test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly2", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[1], case_1[0]);
+    test_overlay<polygon, linestring, test_get_turns,  Tuple>("poly_line", boost::make_tuple(3, 1.6190476, 3.4761905), case_1[1], line_line1[0]);
 }
+
+
+template <typename T>
+void test_ccw()
+{
+    typedef boost::geometry::point<T, 2, boost::geometry::cs::cartesian> P;
+    typedef boost::geometry::polygon<P, std::vector, std::vector, false> polygon;
+    typedef boost::tuple<int, double, double> Tuple;
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("1", boost::make_tuple(6, 2.2547802, 3.0358056), case_1[0], case_1[1]);
+}
+
 
 
 int test_main(int, char* [])
 {
-    //test_all<float>();
+    test_all<float>();
     test_all<double>();
+    //test_ccw<double>();
     //test_all<tt>();
 
 #if ! defined(_MSC_VER)
