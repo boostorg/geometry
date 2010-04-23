@@ -22,11 +22,13 @@
 #include <boost/geometry/util/math.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail {
+namespace detail
+{
 
 template<std::size_t Dimension, typename Geometry>
 struct degree_radian_converter

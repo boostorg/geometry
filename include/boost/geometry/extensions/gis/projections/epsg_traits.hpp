@@ -13,7 +13,8 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projection
+{
 
 /*!
     \brief EPSG traits
@@ -34,7 +35,9 @@ struct epsg_traits
     // - function par to get parameters
 };
 
+
 }}} // namespace boost::geometry::projection
+
 
 #endif
 

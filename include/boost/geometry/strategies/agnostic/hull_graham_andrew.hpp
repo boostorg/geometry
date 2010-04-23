@@ -36,7 +36,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace convex_hull {
+namespace strategy { namespace convex_hull
+{
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail

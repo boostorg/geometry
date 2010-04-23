@@ -26,7 +26,8 @@ namespace boost { namespace geometry
 {
 
 
-namespace policies { namespace relate {
+namespace policies { namespace relate
+{
 
 struct direction_type
 {

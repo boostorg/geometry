@@ -11,7 +11,8 @@
 
 #include <cmath>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projection
+{
 
 // Functions to resolve ambiguity when compiling with coordinates of different types
 /*inline double atan2(double a, double b)

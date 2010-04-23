@@ -18,7 +18,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace area {
+namespace strategy { namespace area
+{
 
 
 

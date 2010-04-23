@@ -20,9 +20,11 @@
 #include <boost/geometry/util/add_const_if_c.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
-namespace traits {
+namespace traits
+{
 
 
 /*!

@@ -23,7 +23,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace copy_segments {
+namespace detail { namespace copy_segments
+{
 
 
 template
@@ -58,7 +59,8 @@ struct copy_segments_multi
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 
 template

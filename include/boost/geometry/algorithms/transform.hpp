@@ -65,7 +65,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace transform {
+namespace detail { namespace transform
+{
 
 template <typename Point1, typename Point2, typename Strategy>
 struct transform_point

@@ -10,6 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CENTROID_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CENTROID_HPP
 
+
 #include <cstddef>
 
 #include <boost/range.hpp>
@@ -67,6 +68,7 @@ Example showing centroid calculation
 namespace boost { namespace geometry
 {
 
+
 class centroid_exception : public geometry::exception
 {
 public:
@@ -79,8 +81,10 @@ public:
     }
 };
 
+
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace centroid {
+namespace detail { namespace centroid
+{
 
 template<typename Point, typename PointCentroid, typename Strategy>
 struct centroid_point
@@ -122,6 +126,7 @@ struct centroid_box_calculator
     }
 };
 
+
 template<typename Box, typename Point, std::size_t DimensionCount>
 struct centroid_box_calculator<Box, Point, DimensionCount, DimensionCount>
 {
@@ -129,6 +134,7 @@ struct centroid_box_calculator<Box, Point, DimensionCount, DimensionCount>
     {
     }
 };
+
 
 template<typename Box, typename Point, typename Strategy>
 struct centroid_box
@@ -143,6 +149,7 @@ struct centroid_box
             >::apply(box, centroid);
     }
 };
+
 
 // There is one thing where centroid is different from e.g. within.
 // If the ring has only one point, it might make sense that
@@ -462,6 +469,8 @@ inline Point make_centroid(Geometry const& geometry, Strategy const& strategy)
     return c;
 }
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_CENTROID_HPP

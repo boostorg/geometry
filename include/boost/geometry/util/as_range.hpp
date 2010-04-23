@@ -20,7 +20,8 @@
 #include <boost/geometry/util/add_const_if_c.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DISPATCH

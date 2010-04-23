@@ -71,11 +71,13 @@ are considered as ranges of respectively points, linestrings and polygons.
 #include <boost/geometry/geometries/concepts/ring_concept.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace concept_check {
+namespace detail { namespace concept_check
+{
 
 template <typename Concept>
 class check
@@ -152,11 +154,13 @@ struct check<box_tag, Geometry, false>
 
 
 
-namespace concept {
+namespace concept
+{
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail {
+namespace detail
+{
 
 
 template <typename Geometry, bool IsConst>

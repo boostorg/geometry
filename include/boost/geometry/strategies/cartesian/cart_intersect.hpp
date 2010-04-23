@@ -25,11 +25,13 @@
 
 #include <boost/geometry/strategies/side_info.hpp>
 
+
 namespace boost { namespace geometry
 {
 
 
-namespace strategy { namespace intersection {
+namespace strategy { namespace intersection
+{
 
 
 #ifndef DOXYGEN_NO_DETAIL

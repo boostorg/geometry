@@ -13,7 +13,8 @@
 #include <boost/concept_check.hpp>
 
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!

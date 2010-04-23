@@ -13,9 +13,12 @@
 
 #include <boost/geometry/core/point_type.hpp>
 
-namespace boost { namespace geometry {
 
-namespace traits {
+namespace boost { namespace geometry
+{
+
+namespace traits
+{
 
 /*!
     \brief Traits class which indicate the coordinate type (double,float,...) of a point

@@ -16,7 +16,8 @@
 #include <boost/geometry/core/access.hpp>
 
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail

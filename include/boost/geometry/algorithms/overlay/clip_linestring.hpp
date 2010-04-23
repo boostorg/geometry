@@ -139,7 +139,8 @@ public:
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace intersection {
+namespace detail { namespace intersection
+{
 
 /*!
     \brief Clips a linestring with a box

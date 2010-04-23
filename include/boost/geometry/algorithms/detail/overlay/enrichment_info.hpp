@@ -17,13 +17,14 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay {
+namespace detail { namespace overlay
+{
 
 
 /*!
     \brief Keeps info to enrich intersection info (per source)
-    \details Class to keep information necessary for traversal phase (a phase 
-        of the overlay process). The information is gathered during the 
+    \details Class to keep information necessary for traversal phase (a phase
+        of the overlay process). The information is gathered during the
         enrichment phase
  */
 template<typename P>

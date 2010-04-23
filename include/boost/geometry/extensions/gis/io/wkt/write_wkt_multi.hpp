@@ -20,7 +20,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace wkt {
+namespace detail { namespace wkt
+{
 
 
 template <typename Multi, typename StreamPolicy, typename PrefixPolicy>
@@ -55,7 +56,8 @@ struct wkt_multi
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 
 template <typename Multi>

@@ -23,7 +23,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace centroid_ {
+namespace strategy { namespace centroid_
+{
 
 
 template

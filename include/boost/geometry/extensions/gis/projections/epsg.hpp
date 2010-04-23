@@ -19,6 +19,8 @@
 
 namespace boost { namespace geometry { namespace projection
 {
+
+
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail
 {

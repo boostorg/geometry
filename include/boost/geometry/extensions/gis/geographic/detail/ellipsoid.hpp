@@ -10,7 +10,8 @@
 #define BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_DETAIL_ELLIPSOID_HPP
 
 
-namespace boost { namespace geometry { namespace detail {
+namespace boost { namespace geometry { namespace detail
+{
 
 
 /*!

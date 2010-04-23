@@ -18,7 +18,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail {
+namespace detail
+{
 
 template <typename MultiGeometry, typename Predicate, typename Policy>
 struct multi_modify_with_predicate

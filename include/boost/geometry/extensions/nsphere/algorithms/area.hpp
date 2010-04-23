@@ -20,7 +20,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace area {
+namespace detail { namespace area
+{
 
 template<typename C, typename S>
 struct circle_area
@@ -55,7 +56,8 @@ struct circle_area
 #endif // DOXYGEN_NO_DETAIL
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 
 template <typename Geometry, order_selector Order, typename Strategy>

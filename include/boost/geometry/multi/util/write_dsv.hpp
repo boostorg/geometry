@@ -17,7 +17,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace dsv {
+namespace detail { namespace dsv
+{
 
 
 template <typename MultiGeometry>
@@ -52,7 +53,8 @@ struct dsv_multi
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 
 template <typename Tag, typename Geometry>

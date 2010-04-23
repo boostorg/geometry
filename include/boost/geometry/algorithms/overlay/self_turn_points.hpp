@@ -28,7 +28,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace self_get_turn_points {
+namespace detail { namespace self_get_turn_points
+{
 
 template
 <

@@ -23,7 +23,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace copy {
+namespace detail { namespace copy
+{
 
 template <typename Src, typename Dst, std::size_t D, std::size_t N>
 struct copy_coordinates

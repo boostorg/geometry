@@ -9,8 +9,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CORRECT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CORRECT_HPP
 
-#include <cstddef>
+
 #include <algorithm>
+#include <cstddef>
 #include <functional>
 
 #include <boost/range.hpp>
@@ -30,7 +31,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace correct {
+namespace detail { namespace correct
+{
 
 
 template <typename Box, std::size_t Dimension, std::size_t DimensionCount>
@@ -188,6 +190,8 @@ inline void correct(Geometry& geometry)
     dispatch::correct<typename tag<Geometry>::type, Geometry>::apply(geometry);
 }
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_CORRECT_HPP

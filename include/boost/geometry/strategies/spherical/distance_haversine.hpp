@@ -23,7 +23,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace distance {
+namespace strategy { namespace distance
+{
 
 /*!
     \brief Distance calculation for spherical coordinates

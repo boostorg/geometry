@@ -23,9 +23,11 @@
 
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
-namespace strategy { namespace distance {
+namespace strategy { namespace distance
+{
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail

@@ -21,8 +21,8 @@
 #include <boost/geometry/core/point_type.hpp>
 
 
-
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!

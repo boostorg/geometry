@@ -19,7 +19,8 @@
 #include <boost/geometry/geometries/concepts/linestring_concept.hpp>
 
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!

@@ -10,8 +10,9 @@
 
 #define BOOST_GEOMETRY_CHECK_SPLIT_RINGS
 
-//#include <boost/foreach.hpp>
+
 #include <deque>
+#include <string>
 
 #include <boost/range.hpp>
 
@@ -71,7 +72,7 @@ struct split_range
 
   --> we use id1+1
 
-  After that, we need to update all indices AFTER IP. 
+  After that, we need to update all indices AFTER IP.
   We removed two vertices here (4-2), and added one (the IP)
 
 */
@@ -218,7 +219,7 @@ struct sorter
             return left.count_between < right.count_between;
         }
 
-        if (left.operations[0].seg_id.segment_index 
+        if (left.operations[0].seg_id.segment_index
                 == right.operations[0].seg_id.segment_index)
         {
             return left.operations[0].distance < right.operations[0].distance;
@@ -247,7 +248,7 @@ template <typename P>
 struct split_turn_info : detail::overlay::turn_info
             <
                 P, split_turn_operation<P>
-            > 
+            >
 {
     //std::string history;
     int count_between; // counts number of segments between ring in intersection
@@ -305,8 +306,8 @@ class range_split_rings
         std::cout << header << std::endl;
         BOOST_FOREACH(typename boost::range_value<Turns>::type const& turn, turns)
         {
-            std::cout 
-                << "I at " << turn.operations[0].seg_id.segment_index 
+            std::cout
+                << "I at " << turn.operations[0].seg_id.segment_index
                 << "/" << turn.operations[1].seg_id.segment_index
                 << " (" << turn.count_between
                 << ") " << turn.operations[0].distance
@@ -329,7 +330,7 @@ class range_split_rings
             )
         {
             if (op.seg_id.segment_index < second.seg_id.segment_index
-                || (op.seg_id.segment_index == second.seg_id.segment_index 
+                || (op.seg_id.segment_index == second.seg_id.segment_index
                     && op.distance < second.distance)
                 )
             {
@@ -366,9 +367,9 @@ class range_split_rings
 
         // Make operations[0].seg_id always the smallest, to sort properly
         // Also calculate the number of segments in between
-        for (typename boost::range_iterator<turns_type>::type 
+        for (typename boost::range_iterator<turns_type>::type
             it = boost::begin(turns);
-            it != boost::end(turns); 
+            it != boost::end(turns);
             ++it)
         {
             turn_info& turn = *it;
@@ -388,13 +389,13 @@ class range_split_rings
             turn.count_between = (std::min)(between1, between2);
             */
 
-            turn.count_between = between1; 
+            turn.count_between = between1;
         }
         //report(turns, "swapped");
 
         std::sort(turns.begin(), turns.end(), sorter<turn_info>());
         //report(turns, "sorted");
-    
+
 
         while(turns.size() > 0)
         {
@@ -403,7 +404,7 @@ class range_split_rings
 
             split_turn_operation<point_type> const& first_op = turn.operations[0];
             split_turn_operation<point_type> const& second_op = turn.operations[1];
-            bool do_split = first_op.seg_id.segment_index >= 0 
+            bool do_split = first_op.seg_id.segment_index >= 0
                     && second_op.seg_id.segment_index >= 0;
 
             if (do_split)
@@ -422,8 +423,8 @@ class range_split_rings
                     geometry::get_turns
                         <
                             split_calculate_distance_policy
-                        >(ring_collection.back(), 
-                            splitted_turns, 
+                        >(ring_collection.back(),
+                            splitted_turns,
                             detail::get_turns::no_interrupt_policy());
 
                     if (splitted_turns.size() > 0)
@@ -444,9 +445,9 @@ class range_split_rings
 
             if (do_split)
             {
-                for (typename boost::range_iterator<turns_type>::type 
+                for (typename boost::range_iterator<turns_type>::type
                     rest = boost::begin(turns);
-                    rest != boost::end(turns); 
+                    rest != boost::end(turns);
                     ++rest)
                 {
                     //turn_info copy = turn;
@@ -454,7 +455,7 @@ class range_split_rings
                         || adapt(rest->operations[1], first_op, second_op))
                     {
                         /**
-                        std::cout << " ADAPTED " 
+                        std::cout << " ADAPTED "
                             << copy.operations[0].seg_id.segment_index << "/" << copy.operations[1].seg_id.segment_index
                             << " "
                             << geometry::wkt(copy.point) << std::endl;
@@ -462,7 +463,7 @@ class range_split_rings
                     }
                 }
             }
-            while(turns.size() > 0 
+            while(turns.size() > 0
                 && (turns.front().operations[0].seg_id.segment_index < 0
                     || turns.front().operations[1].seg_id.segment_index < 0))
             {

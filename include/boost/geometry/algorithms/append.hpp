@@ -26,7 +26,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace append {
+namespace detail { namespace append
+{
 
 template <typename Geometry, typename Point, bool UseStd>
 struct append_point {};

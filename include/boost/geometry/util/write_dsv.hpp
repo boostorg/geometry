@@ -26,13 +26,12 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
-
-
 namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace dsv {
+namespace detail { namespace dsv
+{
 
 
 struct dsv_settings
@@ -269,7 +268,8 @@ struct dsv_indexed
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 template <typename Tag, bool IsMulti, typename Geometry>
 struct dsv {};
@@ -315,8 +315,8 @@ struct dsv<polygon_tag, false, Polygon>
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace dsv {
-
+namespace detail { namespace dsv
+{
 
 
 // FIXME: This class is not copyable/assignable but it is used as such --mloskot
@@ -351,6 +351,7 @@ private:
     dsv_settings m_settings;
 };
 
+
 }} // namespace detail::dsv
 #endif // DOXYGEN_NO_DETAIL
 
@@ -384,7 +385,7 @@ inline detail::dsv::dsv_manipulator<Geometry> dsv(Geometry const& geometry
 }
 
 
-
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_UTIL_WRITE_DSV_HPP

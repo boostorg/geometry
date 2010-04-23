@@ -15,7 +15,9 @@
 
 #include <boost/geometry/iterators/range_type.hpp>
 
-namespace boost { namespace geometry {
+
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch

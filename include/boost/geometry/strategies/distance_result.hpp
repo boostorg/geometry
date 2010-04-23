@@ -24,7 +24,8 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 /*!
     \brief Encapsulate the results of distance calculation

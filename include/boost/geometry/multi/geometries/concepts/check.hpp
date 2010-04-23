@@ -21,7 +21,8 @@
 #include <boost/geometry/multi/geometries/concepts/multi_polygon_concept.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 

@@ -28,7 +28,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace remove_holes_if {
+namespace detail { namespace remove_holes_if
+{
 
 
 template<typename Polygon, typename Predicate>
@@ -53,7 +54,8 @@ struct polygon_remove_holes_if
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 // Default implementation does nothing
 template <typename Tag, typename Geometry, typename Predicate>

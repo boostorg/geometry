@@ -15,7 +15,8 @@
 #include <boost/mpl/if.hpp>
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace boost { namespace geometry { namespace detail { namespace iterators {
+namespace boost { namespace geometry { namespace detail { namespace iterators
+{
 
 template <typename T, typename Iterator>
 struct iterator_base :

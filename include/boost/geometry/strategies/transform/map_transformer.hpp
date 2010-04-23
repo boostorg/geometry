@@ -18,7 +18,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace transform {
+namespace strategy { namespace transform
+{
 
 /*!
     \brief Transformation strategy to do map from one to another Cartesian system
@@ -145,8 +146,8 @@ struct map_transformer
         }
 };
 
-}} // namespace strategy::transform
 
+}} // namespace strategy::transform
 
 
 }} // namespace boost::geometry

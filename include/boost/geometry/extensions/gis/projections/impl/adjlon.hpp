@@ -39,9 +39,11 @@
 
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projection
+{
 
-namespace detail {
+namespace detail
+{
 
 /* reduce argument to range +/- PI */
 inline double adjlon (double lon)
