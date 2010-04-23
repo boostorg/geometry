@@ -11,6 +11,7 @@
 
 #include <boost/concept/requires.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
+#include <boost/geometry/util/add_const_if_c.hpp>
 
 namespace boost { namespace geometry
 {
@@ -19,28 +20,39 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-template <typename Point, int Dimension, int DimensionCount>
+template <typename Point, int Dimension, int DimensionCount, bool IsConst>
 struct coordinates_scanner
 {
     template <typename Op>
-    static inline void apply(Point& point, Op operation)
+    static inline Op apply(typename add_const_if_c
+        <
+            IsConst, 
+            Point
+        >::type& point, Op operation)
     {
         operation.template apply<Point, Dimension>(point);
-        coordinates_scanner
+        return coordinates_scanner
             <
                 Point,
                 Dimension+1,
-                DimensionCount
+                DimensionCount,
+                IsConst
             >::apply(point, operation);
     }
 };
 
-template <typename Point, int DimensionCount>
-struct coordinates_scanner<Point, DimensionCount, DimensionCount>
+template <typename Point, int DimensionCount, bool IsConst>
+struct coordinates_scanner<Point, DimensionCount, DimensionCount, IsConst>
 {
     template <typename Op>
-    static inline void apply(Point&, Op)
-    {}
+    static inline Op apply(typename add_const_if_c
+        <
+            IsConst, 
+            Point
+        >::type& point, Op operation)
+    {
+        return operation;
+    }
 };
 
 } // namespace detail
@@ -53,10 +65,23 @@ inline void for_each_coordinate(Point& point, Op operation)
 
     typedef typename detail::coordinates_scanner
         <
-            Point, 0, dimension<Point>::type::value
+            Point, 0, dimension<Point>::type::value, false
         > scanner;
 
     scanner::apply(point, operation);
+}
+
+template <typename Point, typename Op>
+inline Op for_each_coordinate(Point const& point, Op operation)
+{
+    BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point>) );
+
+    typedef typename detail::coordinates_scanner
+        <
+            Point, 0, dimension<Point>::type::value, true
+        > scanner;
+
+    return scanner::apply(point, operation);
 }
 
 }} // namespace boost::geometry

@@ -96,10 +96,8 @@ class get_turns_in_sections
 public :
     // Returns true if terminated, false if interrupted
     static inline bool apply(
-            int source_id1, Geometry1 const& geometry1,
-                    Section1 const& sec1,
-            int source_id2, Geometry2 const& geometry2,
-                    Section2 const& sec2,
+            int source_id1, Geometry1 const& geometry1, Section1 const& sec1,
+            int source_id2, Geometry2 const& geometry2, Section2 const& sec2,
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {

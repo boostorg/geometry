@@ -229,13 +229,15 @@ public :
 template <typename CombinePolicy>
 struct dissolver_generic
 {
+
+
     // Small structure to access elements by index;
     // this avoids copying or accessing elements by address (pointer)
     template <typename Box>
-    struct dissolve_helper
+    struct dissolve_helper 
     {
         int source; // 0,1
-        int index;
+        int index; // index in the original array
         bool dissolved;
         Box box;
         double area;
@@ -269,107 +271,183 @@ struct dissolver_generic
         typename HelperVector
     >
     static inline void init_helper(Vector const& v, HelperVector& helper,
-        int begin_index = 0, int source = 0)
+        int index = 0, int source = 0)
     {
         typedef typename boost::range_value<Vector>::type value_type;
         typedef typename geometry::point_type<value_type>::type point_type;
         typedef geometry::box<point_type> box_type;
-        int index = begin_index;
-        for(typename boost::range_iterator<Vector const>::type it
-            = boost::begin(v);
+        for(typename boost::range_iterator<Vector const>::type 
+            it = boost::begin(v);
             it != boost::end(v);
             ++it, ++index)
         {
-            box_type box = geometry::make_envelope<box_type>(*it);
-            helper.push_back(dissolve_helper<box_type>(index, box, geometry::area(*it), source));
+            helper.push_back(dissolve_helper<box_type>(index, 
+                    geometry::make_envelope<box_type>(*it), 
+                    geometry::area(*it), 
+                    source));
         }
     }
 
     template
     <
+        typename Element,
         typename Geometry1, typename Geometry2,
         typename OutputCollection
     >
-    static inline bool call_policy(Geometry1 const& geometry1, Geometry2 const& geometry2
+    static inline bool call_policy(
+            Element const& element1, Element const& element2,
+            Geometry1 const& geometry1, Geometry2 const& geometry2
                 , OutputCollection& output_collection)
     {
-        return
-            ! geometry::disjoint(geometry1, geometry2)
-            && CombinePolicy::apply(geometry1, geometry2,
-                        output_collection);
+        if (! geometry::disjoint(geometry1, geometry2))
+        {
+            /*std::cout << "Process " << element1.source << "/" << element1.index
+                << " and " << element2.source << "/" << element2.index 
+                << "  (" << element2.dissolved << "," << element2.dissolved << ")"
+                << std::endl;
+            */
+            return CombinePolicy::apply(geometry1, geometry2,
+                            output_collection);
+        }
+        return false;
     }
 
 
     template
     <
+        int Dimension,
         typename HelperVector,
+        typename IndexVector,
         typename InputRange,
-        typename OutputCollection
+        typename OutputCollection,
+        typename Box
     >
-    static inline bool process(HelperVector& helper_vector
+    static inline bool divide_and_conquer(HelperVector& helper_vector
+                , IndexVector& index_vector
                 , InputRange const& input_range
                 , OutputCollection& output_collection
+                , Box const& total_box
+                , bool& changed
+                , int iteration = 0
                 )
     {
-        typedef typename boost::range_value<OutputCollection>::type output_type;
+        //std::cout << "divide_and_conquer " << iteration << std::endl;
+        typedef geometry::coordinate_type<Box>::type coordinate_type;
+        typedef typename boost::range_value<HelperVector>::type helper_type;
+        typedef typename boost::range_iterator<IndexVector const>::type iterator_type;
+
+        //if (boost::size(index_vector) >= 16 && iteration < 100)
+        // Not yet using divide and conquer
+        if (false)
+        {
+            // 1: separate box into 2 (either horizontally or vertically)
+            Box lower_box = total_box, upper_box = total_box;
+            coordinate_type two = 2.0;
+            coordinate_type mid
+                = (geometry::get<min_corner, Dimension>(total_box)
+                    + geometry::get<max_corner, Dimension>(total_box)) / two;
+
+            geometry::set<max_corner, Dimension>(lower_box, mid);
+            geometry::set<min_corner, Dimension>(upper_box, mid);
+
+            // 2: divide indices into two sublists
+            IndexVector lower_list, upper_list;
+            for(iterator_type it = boost::begin(index_vector);
+                it != boost::end(index_vector);
+                ++it)
+            {
+                helper_type const& element = helper_vector[*it];
+                if (! geometry::disjoint(lower_box, element.box))
+                {
+                    lower_list.push_back(*it);
+                }
+                if (! geometry::disjoint(upper_box, element.box))
+                {
+                    upper_list.push_back(*it);
+                }
+            }
+
+            //std::cout << lower_list.size() << ", " << upper_list.size()<< std::endl;
+
+            // 3: recursively call function (possibly divide in other dimension)
+            divide_and_conquer<1 - Dimension>(helper_vector,
+                lower_list, input_range, output_collection, lower_box, changed, iteration + 1);
+            divide_and_conquer<1 - Dimension>(helper_vector,
+                upper_list, input_range, output_collection, upper_box, changed, iteration + 1);
+            return changed;
+        }
+
+        // There are less then 16 elements, handle them quadraticly
 
         int n = boost::size(output_collection);
-        bool changed = false;
 
-        typedef typename boost::range_iterator<HelperVector>::type iterator_type;
-        for(iterator_type it1 = boost::begin(helper_vector);
-            it1 != boost::end(helper_vector);
+        for(iterator_type it1 = boost::begin(index_vector);
+            it1 != boost::end(index_vector);
             ++it1)
         {
+            helper_type& element1 = helper_vector[*it1];
+
             bool unioned = false;
-            for(iterator_type it2 = boost::begin(helper_vector);
+            for(iterator_type it2 = boost::begin(index_vector);
                 ! unioned && it2 != it1;
                 ++it2)
             {
+                helper_type& element2 = helper_vector[*it2];
+
                 // If they are NOT disjoint, union them
-                if (! it1->dissolved
-                    && ! it2->dissolved
-                    && ! geometry::disjoint(it1->box, it2->box))
+                if (! element1.dissolved
+                    && ! element2.dissolved
+                    && ! geometry::disjoint(element1.box, element2.box))
                 {
                     // Runtime type check here...
-                    if ((it1->source == 0 && it2->source == 0
+                    if ((element1.source == 0 && element2.source == 0
                         && call_policy
                             (
-                                get_geometry::apply(input_range, it1->index),
-                                get_geometry::apply(input_range, it2->index),
+                                element1, element2,
+                                get_geometry::apply(input_range, element1.index),
+                                get_geometry::apply(input_range, element2.index),
                                 output_collection
                             )
                         )
-                        || (it1->source == 0 && it2->source == 1
+                        || (element1.source == 0 && element2.source == 1
                         && call_policy
                             (
-                                get_geometry::apply(input_range, it1->index),
-                                get_geometry::apply(output_collection, it2->index),
+                                element1, element2,
+                                get_geometry::apply(input_range, element1.index),
+                                get_geometry::apply(output_collection, element2.index),
                                 output_collection
                             )
                         )
-                        || (it1->source == 1 && it2->source == 0
+                        || (element1.source == 1 && element2.source == 0
                         && call_policy
                             (
-                                get_geometry::apply(output_collection, it1->index),
-                                get_geometry::apply(input_range, it2->index),
+                                element1, element2,
+                                get_geometry::apply(output_collection, element1.index),
+                                get_geometry::apply(input_range, element2.index),
                                 output_collection
                             )
                         )
-                        || (it1->source == 1 && it2->source == 1
+                        || (element1.source == 1 && element2.source == 1
                         && call_policy
                             (
-                                get_geometry::apply(output_collection, it1->index),
-                                get_geometry::apply(output_collection, it2->index),
+                                element1, element2,
+                                get_geometry::apply(output_collection, element1.index),
+                                get_geometry::apply(output_collection, element2.index),
                                 output_collection
                             )
                         )
                         )
                     {
                         changed = true;
-                        it1->dissolved = true;
-                        it2->dissolved = true;
+                        element1.dissolved = true;
+                        element2.dissolved = true;
+
                         unioned = true;
+/*std::cout << "Assign " << element1.source << "/" << element1.index
+<< " and " << element2.source << "/" << element2.index 
+<< "  (" << element2.dissolved << "," << element2.dissolved << ")"
+<< std::endl;
+*/
                     }
                 }
             }
@@ -380,6 +458,12 @@ struct dissolver_generic
             boost::end(output_collection)), helper_vector, n, 1);
 
         return changed;
+    }
+
+    template <typename T>
+    static inline bool helper_dissolved(T const& t)
+    {
+      return t.dissolved;
     }
 
 
@@ -397,14 +481,70 @@ struct dissolver_generic
 
         typedef typename geometry::point_type<output_type>::type point_type;
         typedef geometry::box<point_type> box_type;
-        typedef std::vector<dissolve_helper<box_type> > helper_vector_type;
+        typedef dissolve_helper<box_type> dissolve_helper_type;
+        typedef std::vector<dissolve_helper_type> helper_vector_type;
+
+        // Vector with indices to both input_range (source 0) and output_collection (source 1)
         helper_vector_type helper_vector;
+
+        // Vector with indices to helper-vector, for divide and conquer
+        std::vector<int> index_vector;
+
+
         init_helper(input_range, helper_vector);
+
+        // Fill intrusive list with copies, and determine bounding box
+        box_type total_box;
+        geometry::assign_inverse(total_box);
+        int index = 0;
+        for(typename boost::range_iterator<helper_vector_type const>::type 
+            it = boost::begin(helper_vector);
+            it != boost::end(helper_vector);
+            ++it, ++index)
+        {
+            index_vector.push_back(index);
+            geometry::combine(total_box, it->box);
+        }
 
         std::vector<output_type> unioned_collection;
 
-        while(process(helper_vector, input_range, unioned_collection))
+        int size = 0, previous_size = 0;
+        int n = 0;
+
+        bool changed = false;
+        while(divide_and_conquer<1>
+            (helper_vector, index_vector, input_range, unioned_collection, total_box, changed) && n < 5)
         {
+            // Remove everything which is already dissolved.
+            helper_vector.erase
+                (
+                    std::remove_if
+                        (
+                            helper_vector.begin(), 
+                            helper_vector.end(), 
+                            helper_dissolved<dissolve_helper_type> 
+                        ),
+                    helper_vector.end()
+                );
+
+            previous_size = size;
+            size = helper_vector.size();
+            n = previous_size == size ? n + 1 : 0;
+
+            // Re-initialize the list
+            index_vector.clear();
+            int index = 0;
+            for(typename boost::range_iterator<helper_vector_type const>::type 
+                it = boost::begin(helper_vector);
+                it != boost::end(helper_vector);
+                ++it, ++index)
+            {
+                index_vector.push_back(index);
+            }
+            
+            changed = false;
+
+            //std::cout << " " << size;
         }
 
         // Add input+output to real output
