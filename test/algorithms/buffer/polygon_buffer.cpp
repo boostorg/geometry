@@ -35,6 +35,16 @@ static std::string const church
 static std::string const flower
     = "POLYGON ((1 0,1 10,9 10,9 0,4.99 0,4.99 5.5,4.5 6,5 6.5,5.5 6,5.01 5.5,5.01 0.01,5.25 0.01,5.25 5,6 3,8 5,6 6,8 7,6 9,5 7,4 9,2 7,4 6,2 5,4 3,4.75 5,4.75 0,1 0))";
 
+static std::string const saw
+	= "POLYGON((1 3,1 8,1.5 6,5 8,5.5 6,9 8,9.5 6,13 8,13 3,1 3))";
+
+static std::string const bowl
+	= "POLYGON((1 2,1 7,2 7,3 5,5 4,7 5,8 7,9 7,9 2,1 2))";
+
+
+static std::string const county1
+	= "POLYGON((-111.700 41.200 ,-111.681388 41.181739 ,-111.682453 41.181506 ,-111.684052 41.180804 ,-111.685295 41.180538 ,-111.686318 41.180776 ,-111.687517 41.181416 ,-111.688982 41.181520 ,-111.690670 41.181523 ,-111.692135 41.181460 ,-111.693646 41.182034 ,-111.695156 41.182204 ,-111.696489 41.182274 ,-111.697775 41.182075 ,-111.698974 41.181539 ,-111.700485 41.182348 ,-111.701374 41.182955 ,-111.700 41.200))";
+
 template <typename P>
 void test_all()
 {
@@ -42,6 +52,8 @@ void test_all()
     namespace buf = boost::geometry::strategy::buffer;
 
     typedef bg::polygon<P> polygon_type;
+
+    goto debug;
 
     test_one<polygon_type, buf::join_miter, polygon_type>("L", letter_L, 'm', 14, 0.5);
     test_one<polygon_type, buf::join_round, polygon_type>("L", letter_L, 'r', 13.7254516100806, 0.5);
@@ -93,10 +105,50 @@ void test_all()
     test_one<polygon_type, buf::join_miter, polygon_type>("snake6", snake, 'm', 75.44, 0.6);
     test_one<polygon_type, buf::join_miter, polygon_type>("snake16", snake, 'm', 114.24, 1.6);
 
+    //return;
+
+
     test_one<polygon_type, buf::join_round, polygon_type>("flower1", flower, 'r', 67.48584413272776, 0.1);
-    test_one<polygon_type, buf::join_miter, polygon_type>("flower1", flower, 'm', 67.613949189084963, 0.1);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower4", flower, 'r', 87.665381352300471, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower25", flower, 'm', 78.225583936485492, 0.25);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower30", flower, 'm', 81.492494146177947, 0.30);
+    //test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower4", flower, 'm', 87.8306529577, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower45", flower, 'm', 90.901901559536029, 0.45);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower50", flower, 'm', 93.907929625415662, 0.50);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower55", flower, 'm', 96.848737155342079, 0.55);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower60", flower, 'm', 99.724324149315279, 0.60);
+
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower1", flower, 'm', 67.613949189084963, 0.1);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower25", flower, 'r', 78.0709684961456, 0.25);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower30", flower, 'r', 81.3528270913593, 0.30);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower35", flower, 'r', 84.5467340913191, 0.35);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower4", flower, 'r', 87.6653813523005, 0.4);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower45", flower, 'r', 90.7092077149493, 0.45);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower50", flower, 'r', 93.6802057531291, 0.50);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower55", flower, 'r', 96.5796252237181, 0.55);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower60", flower, 'r', 99.4081550761828, 0.60);
+
+    //test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
+
+debug:
+    for (int i = 1; i < 12; i++)
+    {
+        std::ostringstream out;
+        out << "saw_" << i;
+        test_one<polygon_type, buf::join_round, polygon_type>(out.str(), saw, 'r', 99.4081550761828, double(i) / 2.0);
+        test_one<polygon_type, buf::join_miter, polygon_type>(out.  str(), saw, 'm', 99.4081550761828, double(i) / 2.0);
+    }
+    for (int i = 1; i < 12; i++)
+    {
+        std::ostringstream out;
+        out << "bowl_" << i;
+        test_one<polygon_type, buf::join_round, polygon_type>(out.str(), bowl, 'r', 99.4081550761828, double(i) / 2.0);
+        test_one<polygon_type, buf::join_miter, polygon_type>(out.  str(), bowl, 'm', 99.4081550761828, double(i) / 2.0);
+    }
+    test_one<polygon_type, buf::join_round, polygon_type>("county1", county1, 'r', 99.4081550761828, 0.01);
+    test_one<polygon_type, buf::join_miter, polygon_type>("county1", county1, 'm', 99.4081550761828, 0.01);
+
+
 
     return;
 
@@ -169,10 +221,16 @@ void test_all()
 
 }
 
+
+#ifdef HAVE_TTMATH
+#include <ttmath_stub.hpp>
+#endif
+
 int test_main(int, char* [])
 {
     namespace bg = boost::geometry;
     test_all<bg::point<double, 2, bg::cs::cartesian> >();
+    //test_all<bg::point<tt, 2, bg::cs::cartesian> >();
 
     return 0;
 }

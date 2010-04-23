@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "remove_spikes", "remove_spi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "connect", "connect.vcproj", "{D502500F-AF66-4F24-8735-09DF8A7DF6AA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "offset", "offset.vcproj", "{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -37,6 +39,10 @@ Global
 		{D502500F-AF66-4F24-8735-09DF8A7DF6AA}.Debug|Win32.Build.0 = Debug|Win32
 		{D502500F-AF66-4F24-8735-09DF8A7DF6AA}.Release|Win32.ActiveCfg = Release|Win32
 		{D502500F-AF66-4F24-8735-09DF8A7DF6AA}.Release|Win32.Build.0 = Release|Win32
+		{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}.Debug|Win32.Build.0 = Debug|Win32
+		{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}.Release|Win32.ActiveCfg = Release|Win32
+		{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

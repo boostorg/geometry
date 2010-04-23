@@ -258,10 +258,24 @@ void test_pointer_version()
 }
 
 
+
+template <typename P>
+void test_ccw()
+{
+    typedef boost::geometry::polygon<P, std::vector, std::vector, true> polygon;
+
+    test_one<polygon, polygon, polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 7, 5.47363293);
+}
+
+
 int test_main(int, char* [])
 {
     test_all<boost::geometry::point_xy<float> >();
     test_all<boost::geometry::point_xy<double> >();
+
+    //test_ccw<boost::geometry::point_xy<double> >();
 
 
 #if defined(HAVE_CLN)

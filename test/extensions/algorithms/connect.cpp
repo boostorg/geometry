@@ -45,11 +45,11 @@ void test_connect(std::string const& caseid, Geometry const& geometry,
 	typename bg::length_result<Geometry>::type length = 0;
 	std::size_t count = 0;
 
-	BOOST_FOREACH(GeometryOut& dissolved, connected_vector)
+	BOOST_FOREACH(GeometryOut& connected, connected_vector)
 	{
-	    bg::unique(dissolved);
-		length += bg::length(dissolved);
-		count += bg::num_points(dissolved);
+	    bg::unique(connected);
+		length += bg::length(connected);
+		count += bg::num_points(connected);
 	}
 
     BOOST_CHECK_MESSAGE(count == expected_point_count,
@@ -81,9 +81,9 @@ void test_connect(std::string const& caseid, Geometry const& geometry,
         mapper.add(geometry);
 
         mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
-		BOOST_FOREACH(GeometryOut& dissolved, connected_vector)
+		BOOST_FOREACH(GeometryOut& connected, connected_vector)
 		{
-		   mapper.map(dissolved, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
+		   mapper.map(connected, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
 	    }
 	}
 #endif
