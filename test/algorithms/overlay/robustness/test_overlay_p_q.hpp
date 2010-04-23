@@ -24,14 +24,14 @@ static bool test_overlay_p_q(std::string const& caseid, G1 const& p, G2 const& q
 
     typedef typename boost::geometry::coordinate_type<G1>::type coordinate_type;
     typedef typename boost::geometry::point_type<G1>::type point_type;
-    typedef boost::geometry::detail::intersection::intersection_point<point_type> ip_type;
+    typedef boost::geometry::detail::overlay::turn_info<point_type> turn_type;
 
     typedef boost::geometry::strategy_intersection
         <
             typename boost::geometry::cs_tag<point_type>::type,
             G1,
             G2,
-            ip_type,
+            turn_type,
             CalculationType
         > strategy;
 

@@ -175,6 +175,19 @@ void test_all()
 
 
 
+    test_one<polygon, polygon, polygon>(
+            "polygon_pseudo_line", 
+            "POLYGON((0 0,0 4,4 4,4 0,0 0))", 
+            "POLYGON((2 -2,2 -1,2 6,2 -2))", 
+            5, 22, 1.1901714);
+
+    test_one<polygon, polygon, polygon>(
+            "reverse", 
+            "POLYGON((0 0,4 0,4 4,0 4,0 0))", 
+            "POLYGON((2 2,2 3,6 3,6 2,2 2))", 
+            5, 22, 1.190171);
+
+
     return;
 
 
