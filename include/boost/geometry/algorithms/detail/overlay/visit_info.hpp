@@ -18,7 +18,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay {
+namespace detail { namespace overlay
+{
 
 
 #if ! defined(BOOST_GEOMETRY_USE_MSM)

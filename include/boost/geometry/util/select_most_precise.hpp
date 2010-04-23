@@ -18,7 +18,8 @@ namespace boost { namespace geometry
 
 #ifndef DOXYGEN_NO_DETAIL
 
-namespace detail { namespace select_most_precise {
+namespace detail { namespace select_most_precise
+{
 
 
 // At least one of the types is non-fundamental. Take that one.

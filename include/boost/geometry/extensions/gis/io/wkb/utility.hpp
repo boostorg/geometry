@@ -15,7 +15,8 @@
 
 #include <boost/cstdint.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 // TODO: Waiting for errors handling design, eventually return bool
 // may be replaced to throw exception.
@@ -83,6 +84,7 @@ bool wkb2hex(Iterator begin, Iterator end, std::string& hex)
     // because begin/end always are random access iterators.
     return hex.size() == (2 * std::distance(begin, end));
 }
+
 
 }} // namespace boost::geometry
 

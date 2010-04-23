@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP
 
+
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -22,7 +23,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace clear {
+namespace detail { namespace clear
+{
 
 template <typename Geometry>
 struct use_std_clear
@@ -136,6 +138,8 @@ inline void clear(Geometry& geometry)
         >::apply(geometry);
 }
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP

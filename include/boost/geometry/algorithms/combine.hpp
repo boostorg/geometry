@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_COMBINE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_COMBINE_HPP
 
+
 #include <cstddef>
 
 #include <boost/numeric/conversion/cast.hpp>
@@ -36,7 +37,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace combine {
+namespace detail { namespace combine
+{
 
 
 template

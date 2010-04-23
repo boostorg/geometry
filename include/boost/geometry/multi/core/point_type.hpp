@@ -18,7 +18,8 @@
 
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace core_dispatch
@@ -48,11 +49,11 @@ struct point_type<multi_polygon_tag, MultiPolygon>
 };
 
 
-
-
 }
 #endif
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_MULTI_CORE_POINT_TYPE_HPP

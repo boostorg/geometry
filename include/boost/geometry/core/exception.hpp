@@ -11,7 +11,8 @@
 
 #include <exception>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 /*!
 \brief Base exception class for GGL

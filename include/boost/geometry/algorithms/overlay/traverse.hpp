@@ -13,32 +13,28 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/overlay/copy_segments.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
-
-#include <boost/geometry/algorithms/overlay/copy_segments.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+
 #if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT)
-#include <string>
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#  include <string>
+#  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#  include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #endif
 
-#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-
-
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 
 namespace boost { namespace geometry
 {
 
 
-
-
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay {
+namespace detail { namespace overlay
+{
 
 
 template <typename Turns>

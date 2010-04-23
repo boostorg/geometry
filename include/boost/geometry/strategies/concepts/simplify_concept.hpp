@@ -16,7 +16,8 @@
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!

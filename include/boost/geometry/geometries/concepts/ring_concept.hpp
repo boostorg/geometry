@@ -24,7 +24,8 @@
 #include <boost/geometry/geometries/concepts/detail/check_append.hpp>
 
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!

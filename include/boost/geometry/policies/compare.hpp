@@ -49,12 +49,14 @@ types (a linestring can be spatially equal to a multi-linestring).
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/util/math.hpp>
 
+
 namespace boost { namespace geometry
 {
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace compare {
+namespace detail { namespace compare
+{
 
 
 template
@@ -269,5 +271,6 @@ struct equal_to
 
 
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_POLICIES_COMPARE_HPP

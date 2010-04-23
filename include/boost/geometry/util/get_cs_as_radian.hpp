@@ -14,10 +14,12 @@
 
 #include <boost/geometry/core/cs.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail {
+namespace detail
+{
 
     /*!
         \brief Small meta-function defining the specified coordinate system,
@@ -42,8 +44,7 @@ namespace detail {
 #endif
 
 
-
-
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_UTIL_GET_CS_AS_RADIAN_HPP

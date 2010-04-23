@@ -67,7 +67,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace simplify {
+namespace detail { namespace simplify
+{
 
 template<typename Range, typename Strategy>
 struct simplify_range_inserter

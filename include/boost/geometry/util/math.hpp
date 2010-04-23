@@ -21,7 +21,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace math {
+namespace detail { namespace math
+{
 
 
 template <typename T, bool Floating>

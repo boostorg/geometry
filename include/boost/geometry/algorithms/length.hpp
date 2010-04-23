@@ -47,7 +47,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace length {
+namespace detail { namespace length
+{
 
 
 template<typename Segment, typename Strategy>

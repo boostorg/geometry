@@ -17,9 +17,10 @@
 
 
 namespace boost { namespace geometry
-
 {
-namespace strategy { namespace area {
+
+namespace strategy { namespace area
+{
 
 /*!
     \brief Strategy functor for area calculation on point_xy points

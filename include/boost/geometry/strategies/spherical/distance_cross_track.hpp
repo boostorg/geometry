@@ -28,7 +28,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace distance {
+namespace strategy { namespace distance
+{
 
 /*!
     \brief Strategy functor for distance point to segment calculation

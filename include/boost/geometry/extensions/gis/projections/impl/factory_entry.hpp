@@ -13,9 +13,11 @@
 
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projection
+{
 
-namespace detail {
+namespace detail
+{
 
 template <typename LL, typename XY, typename P>
 class factory_entry

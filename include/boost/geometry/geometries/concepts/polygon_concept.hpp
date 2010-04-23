@@ -21,7 +21,9 @@
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/concepts/ring_concept.hpp>
 
-namespace boost { namespace geometry { namespace concept {
+
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!

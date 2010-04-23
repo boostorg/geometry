@@ -12,12 +12,18 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/strategies/compare.hpp>
 
-namespace boost { namespace geometry {
 
-namespace strategy { namespace compare {
+namespace boost { namespace geometry
+{
+
+
+namespace strategy { namespace compare
+{
+
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail {
+namespace detail
+{
 
 template <typename Units>
 struct shift

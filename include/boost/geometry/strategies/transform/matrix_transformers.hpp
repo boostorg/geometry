@@ -310,12 +310,14 @@ struct scale_transformer<P1, P2, 3, 3> : ublas_transformer<P1, P2, 3, 3>
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail {
+namespace detail
+{
+
 
 template <typename DegreeOrRadian>
 struct as_radian
-{
-};
+{};
+
 
 template <>
 struct as_radian<radian>
@@ -363,6 +365,7 @@ struct rad_rotate_transformer
     {}
 };
 
+
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
@@ -398,8 +401,11 @@ struct rotate_transformer : detail::rad_rotate_transformer<P1, P2>
     {}
 };
 
+
 }} // namespace strategy::transform
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_STRATEGIES_TRANSFORM_MATRIX_TRANSFORMERS_HPP

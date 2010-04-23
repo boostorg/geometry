@@ -21,7 +21,8 @@
 #include <boost/geometry/multi/core/tags.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -38,7 +39,6 @@ struct geometry_id<multi_linestring_tag> : boost::mpl::int_<5> {};
 
 template <>
 struct geometry_id<multi_polygon_tag>    : boost::mpl::int_<6> {};
-
 
 
 } // namespace core_dispatch

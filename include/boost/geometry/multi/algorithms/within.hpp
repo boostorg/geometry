@@ -19,7 +19,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace within {
+namespace detail { namespace within
+{
 
 
 template
@@ -50,8 +51,10 @@ struct geometry_in_multi
     }
 };
 
+
 }} // namespace detail::within
 #endif // DOXYGEN_NO_DETAIL
+
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch

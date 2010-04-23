@@ -25,7 +25,8 @@ namespace boost { namespace geometry
 
 #ifndef DOXYGEN_NO_DETAIL
 
-namespace detail { namespace envelope {
+namespace detail { namespace envelope
+{
 
 
 template<typename MultiLinestring, typename Box>
@@ -103,8 +104,6 @@ struct envelope<multi_polygon_tag, box_tag, Multi, Box, StrategyLess, StrategyGr
 
 } // namespace dispatch
 #endif
-
-
 
 
 }} // namespace boost::geometry

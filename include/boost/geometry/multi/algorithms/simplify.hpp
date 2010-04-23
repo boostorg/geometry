@@ -23,7 +23,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace simplify {
+namespace detail { namespace simplify
+{
 
 template<typename MultiGeometry, typename Strategy, typename Policy>
 struct simplify_multi

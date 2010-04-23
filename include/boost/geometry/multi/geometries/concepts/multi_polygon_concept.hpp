@@ -18,7 +18,8 @@
 #include <boost/geometry/geometries/concepts/polygon_concept.hpp>
 
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!
@@ -72,6 +73,7 @@ public :
     }
 #endif
 };
+
 
 }}} // namespace boost::geometry::concept
 

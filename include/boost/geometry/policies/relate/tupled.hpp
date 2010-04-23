@@ -20,7 +20,8 @@
 namespace boost { namespace geometry
 {
 
-namespace policies { namespace relate {
+namespace policies { namespace relate
+{
 
 
 // "tupled" to return intersection results together.

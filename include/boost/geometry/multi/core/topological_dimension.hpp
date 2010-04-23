@@ -18,7 +18,8 @@
 #include <boost/geometry/multi/core/tags.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace core_dispatch
@@ -38,6 +39,7 @@ struct top_dim<multi_polygon_tag> : boost::mpl::int_<2> {};
 
 } // namespace core_dispatch
 #endif
+
 
 }} // namespace boost::geometry
 

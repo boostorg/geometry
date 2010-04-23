@@ -18,7 +18,8 @@
 namespace boost { namespace geometry
 {
 
-namespace policies { namespace relate {
+namespace policies { namespace relate
+{
 
 
 template <typename S1, typename S2>

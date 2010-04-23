@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CONVERT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CONVERT_HPP
 
+
 #include <cstddef>
 
 #include <boost/numeric/conversion/cast.hpp>
@@ -38,7 +39,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace convert {
+namespace detail { namespace convert
+{
 
 template
 <
@@ -266,6 +268,8 @@ inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
         >::apply(geometry1, geometry2);
 }
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_CONVERT_HPP

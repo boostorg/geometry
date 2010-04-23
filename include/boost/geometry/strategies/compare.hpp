@@ -94,7 +94,8 @@ struct strategy_compare<Tag, 0, Point, CoordinateSystem, Dimension>
 #endif
 
 
-namespace strategy { namespace compare {
+namespace strategy { namespace compare
+{
 
 
 /*!
@@ -108,7 +109,8 @@ struct default_strategy {};
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail {
+namespace detail
+{
 
 template <typename Type>
 struct is_default : boost::false_type
@@ -159,5 +161,6 @@ struct select_strategy
 
 
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_STRATEGIES_COMPARE_HPP

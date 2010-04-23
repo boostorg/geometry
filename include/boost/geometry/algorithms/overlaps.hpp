@@ -30,7 +30,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlaps {
+namespace detail { namespace overlaps
+{
 
 template
 <

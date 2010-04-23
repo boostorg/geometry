@@ -20,7 +20,8 @@
 #include <boost/geometry/core/geometry_id.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DETAIL

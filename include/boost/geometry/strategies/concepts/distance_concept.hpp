@@ -17,7 +17,8 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!
@@ -132,7 +133,7 @@ struct PointSegmentDistanceStrategy
 };
 
 
-
 }}} // namespace boost::geometry::concept
+
 
 #endif // BOOST_GEOMETRY_STRATEGIES_CONCEPTS_DISTANCE_CONCEPT_HPP

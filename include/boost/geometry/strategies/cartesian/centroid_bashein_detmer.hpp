@@ -27,7 +27,8 @@ namespace boost { namespace geometry
 // Note: when calling the namespace "centroid", it sometimes,
 // somehow, in gcc, gives compilation problems (confusion with function centroid).
 
-namespace strategy { namespace centroid_ {
+namespace strategy { namespace centroid_
+{
 
 
 

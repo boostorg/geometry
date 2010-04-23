@@ -8,6 +8,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TURN_INFO_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TURN_INFO_HPP
 
+
 #include <boost/array.hpp>
 
 #include <boost/geometry/algorithms/overlay/segment_identifier.hpp>
@@ -16,7 +17,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay {
+namespace detail { namespace overlay
+{
 
 
 enum operation_type

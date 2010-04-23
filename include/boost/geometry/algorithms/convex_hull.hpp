@@ -70,10 +70,12 @@ In the images below the convex hull is painted in red.
     points of same type as the input geometry type
 
 */
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace convex_hull {
+namespace detail { namespace convex_hull
+{
 
 template
 <
@@ -275,5 +277,6 @@ inline OutputIterator convex_hull_inserter(Geometry const& geometry,
 
 
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_HPP

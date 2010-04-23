@@ -37,9 +37,11 @@
 
 #include <cmath>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projection
+{
 
-namespace detail {
+namespace detail
+{
 
 namespace aasincos
 {
@@ -90,7 +92,11 @@ inline double aatan2(double n, double d)
     return ((std::fabs(n) < aasincos::ATOL && std::fabs(d) < aasincos::ATOL) ? 0.0 : std::atan2(n, d));
 }
 
+
 } // namespace detail
+
+
 }}} // namespace boost::geometry::projection
+
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_AASINCOS_HPP

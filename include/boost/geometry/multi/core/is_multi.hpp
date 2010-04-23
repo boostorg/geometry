@@ -18,7 +18,8 @@
 #include <boost/geometry/multi/core/tags.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -39,8 +40,6 @@ struct is_multi<multi_polygon_tag> : boost::true_type {};
 
 } // namespace core_dispatch
 #endif
-
-
 
 
 }} // namespace boost::geometry

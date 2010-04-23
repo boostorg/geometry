@@ -15,9 +15,10 @@
 
 
 namespace boost { namespace geometry
-
 {
-namespace strategy { namespace within {
+
+namespace strategy { namespace within
+{
 
 /*!
     \brief Within detection using cross counting

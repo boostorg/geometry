@@ -30,7 +30,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace simplify {
+namespace strategy { namespace simplify
+{
 
 
 #ifndef DOXYGEN_NO_DETAIL

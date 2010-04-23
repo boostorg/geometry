@@ -21,7 +21,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace num_points {
+namespace detail { namespace num_points
+{
 
 
 template <typename MultiGeometry>
@@ -54,7 +55,8 @@ struct multi_count
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 
 template <typename Geometry>

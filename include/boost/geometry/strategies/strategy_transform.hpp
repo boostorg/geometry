@@ -26,7 +26,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace transform {
+namespace strategy { namespace transform
+{
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail

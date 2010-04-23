@@ -61,7 +61,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace area {
+namespace detail { namespace area
+{
 
 template<typename Box, typename Strategy>
 struct box_area
@@ -155,7 +156,8 @@ struct ring_area<Ring, counterclockwise, Strategy>
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 template
 <

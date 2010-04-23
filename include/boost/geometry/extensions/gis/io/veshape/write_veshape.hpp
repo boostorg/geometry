@@ -33,7 +33,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace veshape {
+namespace detail { namespace veshape
+{
 
 
 // Define the coordinate streamer, specialized for either 2 or 3 dimensions.
@@ -193,7 +194,8 @@ struct veshape_poly
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 /*!
 \brief Dispatching base struct for VEShape streaming, specialized below per geometry type

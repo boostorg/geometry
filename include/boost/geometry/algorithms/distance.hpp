@@ -60,7 +60,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace distance {
+namespace detail { namespace distance
+{
 
 template <typename P1, typename P2, typename Strategy>
 struct point_to_point

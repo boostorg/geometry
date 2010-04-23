@@ -6,7 +6,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
 #ifndef BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_SEGMENT_CONCEPT_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_SEGMENT_CONCEPT_HPP
 
@@ -15,14 +14,12 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
-
-
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 
-
-namespace boost { namespace geometry { namespace concept {
+namespace boost { namespace geometry { namespace concept
+{
 
 
 /*!

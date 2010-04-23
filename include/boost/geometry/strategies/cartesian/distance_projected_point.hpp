@@ -32,9 +32,13 @@
 // Helper geometry
 #include <boost/geometry/geometries/segment.hpp>
 
-namespace boost { namespace geometry {
 
-namespace strategy { namespace distance {
+namespace boost { namespace geometry
+{
+
+
+namespace strategy { namespace distance
+{
 
 
 
@@ -160,7 +164,6 @@ struct strategy_tag<strategy::distance::projected_point<Point, PointOfSegment, P
 {
     typedef strategy_tag_distance_point_segment type;
 };
-
 
 
 }} // namespace boost::geometry

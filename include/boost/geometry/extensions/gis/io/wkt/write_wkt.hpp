@@ -37,7 +37,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace wkt {
+namespace detail { namespace wkt
+{
 
 template <typename P, int I, int Count>
 struct stream_coordinate
@@ -217,7 +218,8 @@ struct wkt_box
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 template <typename Tag, typename Geometry>
 struct wkt {};

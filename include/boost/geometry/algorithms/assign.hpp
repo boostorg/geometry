@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_ASSIGN_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_ASSIGN_HPP
 
+
 #include <cstddef>
 
 #include <boost/concept/requires.hpp>
@@ -35,7 +36,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace assign {
+namespace detail { namespace assign
+{
 
 template <typename CoordinateType>
 struct assign_operation
@@ -527,5 +529,6 @@ inline void assign_point_from_index(Geometry const& geometry, Point& point)
 
 
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_ASSIGN_HPP
