@@ -78,7 +78,8 @@ struct join_round2
 
         coordinate_type between_length = sqrt(v_x * v_x + v_y * v_y);
 
-        coordinate_type prop = buffer_distance / between_length;
+        coordinate_type const positive_buffer_distance = std::abs(buffer_distance);
+        coordinate_type prop = positive_buffer_distance / between_length;
 
         PointOut mid_point;
         set<0>(mid_point, get<0>(vertex) + v_x * prop);
@@ -90,7 +91,7 @@ struct join_round2
             // using vector maths
             vector_type v = create_vector<vector_type>(perpendicular, vertex);
             vector_type w = create_vector<vector_type>(mid_point, vertex);
-            
+
             coordinate_type c1 = dot_product(w, v);
             if (c1 > 0)
             {
@@ -99,7 +100,7 @@ struct join_round2
                 {
                     coordinate_type b = c1 / c2;
 
-                    PointOut projected_point; 
+                    PointOut projected_point;
 
                     multiply_value(v, b);
                     copy_coordinates(vertex, projected_point);
@@ -118,12 +119,12 @@ struct join_round2
 
         if (level < m_max_level)
         {
-            mid_points(vertex, perpendicular, p1, mid_point, buffer_distance, max_distance, out, level + 1);
+            mid_points(vertex, perpendicular, p1, mid_point, positive_buffer_distance, max_distance, out, level + 1);
         }
         *out++ = mid_point;
         if (level < m_max_level)
         {
-            mid_points(vertex, perpendicular, mid_point, p2, buffer_distance, max_distance, out, level + 1);
+            mid_points(vertex, perpendicular, mid_point, p2, positive_buffer_distance, max_distance, out, level + 1);
         }
     }
 
@@ -145,7 +146,7 @@ struct join_round2
 template<typename PointOut>
 struct join_none
 {
-    template <typename OutputIterator, typename Point, typename Point2, 
+    template <typename OutputIterator, typename Point, typename Point2,
         typename DistanceType>
     inline OutputIterator apply(Point const& ,
                 Point2 const& ,

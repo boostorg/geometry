@@ -18,6 +18,9 @@
 #include <boost/geometry/strategies/buffer_side.hpp>
 
 
+#define BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
+
+
 namespace boost { namespace geometry
 {
 
@@ -113,23 +116,32 @@ struct join_miter
     template <typename Ring>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
-                double buffer_distance,
+                coordinate_type const& buffer_distance,
                 Ring& buffered) const
     {
-        int signum = buffer_distance > 0 ? 1 : buffer_distance < 0 ? -1 : 0;
+        coordinate_type zero = 0;
+        int signum = buffer_distance > zero
+            ? 1 
+            : buffer_distance < zero 
+                ? -1 
+                : 0;
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
-            // If it is concave (corner to left), add helper-line
+
+#ifdef BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
+            // Because perp1 crosses perp2 at IP, it is not necessary to
+            // include IP
+            buffered.push_back(ip);
+#else
+            // If it is concave (corner to left), add helperline
             // The helper-line IS essential for buffering holes. Without,
             // holes might be generated, while they should NOT be there.
             // DOES NOT WORK ALWAYS buffered.push_back(ip);
             // We might consider to make it optional (because more efficient)
-            //buffered.push_back(ip);
             buffered.push_back(perp1);
             buffered.push_back(perp2);
-            // Because perp1 crosses perp2 at IP, it is not necessary to
-            // include IP
+#endif
         }
         else
         {
@@ -140,11 +152,17 @@ struct join_miter
             coordinate_type dy = get<1>(ip) - get<1>(vertex);
 
             coordinate_type length = sqrt(dx * dx + dy * dy);
-            coordinate_type max = 10.0 * std::abs(buffer_distance);
+
+            // TODO: make max-mitre-limit flexible
+            coordinate_type ten = 10.0;
+            coordinate_type zero_seven = 0.7;
+
+            coordinate_type max = ten * std::abs(buffer_distance);
 
             if (length > max)
             {
-                coordinate_type prop = 0.7 * buffer_distance;
+
+                coordinate_type prop = zero_seven * buffer_distance;
                 prop /= length;
                 set<0>(p, get<0>(vertex) + dx * prop);
                 set<1>(p, get<1>(vertex) + dy * prop);
@@ -188,7 +206,7 @@ struct join_bevel
     template <typename Ring>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
-                double buffer_distance,
+                coordinate_type const& buffer_distance,
                 Ring& buffered) const
     {
         buffered.push_back(perp1);
@@ -226,31 +244,32 @@ struct join_round
 #endif
 
     typedef typename strategy_side<typename cs_tag<PointIn>::type>::type side;
+    typedef typename coordinate_type<PointOut>::type coordinate_type;
     int m_max_level;
 
 
     template <typename Ring>
     inline void mid_points(PointIn const& vertex,
                 PointIn const& p1, PointIn const& p2,
-                double buffer_distance,
+                coordinate_type const& buffer_distance,
                 Ring& buffered,
                 int level = 1) const
     {
         // Generate 'vectors'
-        double vp1_x = get<0>(p1) - get<0>(vertex);
-        double vp1_y = get<1>(p1) - get<1>(vertex);
+        coordinate_type vp1_x = get<0>(p1) - get<0>(vertex);
+        coordinate_type vp1_y = get<1>(p1) - get<1>(vertex);
 
-        double vp2_x = (get<0>(p2) - get<0>(vertex));
-        double vp2_y = (get<1>(p2) - get<1>(vertex));
+        coordinate_type vp2_x = (get<0>(p2) - get<0>(vertex));
+        coordinate_type vp2_y = (get<1>(p2) - get<1>(vertex));
 
         // Average them to generate vector in between
-        double two = 2;
-        double v_x = (vp1_x + vp2_x) / two;
-        double v_y = (vp1_y + vp2_y) / two;
+        coordinate_type two = 2;
+        coordinate_type v_x = (vp1_x + vp2_x) / two;
+        coordinate_type v_y = (vp1_y + vp2_y) / two;
 
-        double length2 = sqrt(v_x * v_x + v_y * v_y);
+        coordinate_type length2 = sqrt(v_x * v_x + v_y * v_y);
 
-        double prop = buffer_distance / length2;
+        coordinate_type prop = buffer_distance / length2;
 
         PointIn mid_point;
         set<0>(mid_point, get<0>(vertex) + v_x * prop);
@@ -259,36 +278,50 @@ struct join_round
         if (level < m_max_level)
         {
             mid_points(vertex, p1, mid_point, buffer_distance, buffered, level + 1);
+        }
+        buffered.push_back(mid_point);
+        if (level < m_max_level)
+        {
             mid_points(vertex, mid_point, p2, buffer_distance, buffered, level + 1);
         }
 
-        buffered.push_back(p2);
     }
 
 
     template <typename Ring>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
-                double buffer_distance,
+                coordinate_type const& buffer_distance,
                 Ring& buffered) const
     {
-        int signum = buffer_distance > 0 ? 1 : buffer_distance < 0 ? -1 : 0;
+        coordinate_type zero = 0;
+        int signum = buffer_distance > zero
+            ? 1
+            : buffer_distance < zero 
+                ? -1 
+                : 0;
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
-            // If it is concave (corner to left), add helper-line
+#ifdef BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
+            buffered.push_back(ip);
+#else
+            // If it is concave (corner to left), add helperline
             buffered.push_back(perp1);
             buffered.push_back(perp2);
+#endif
         }
         else
         {
             // Generate 'vectors'
-            double vix = (get<0>(ip) - get<0>(vertex));
-            double viy = (get<1>(ip) - get<1>(vertex));
+            coordinate_type vix = (get<0>(ip) - get<0>(vertex));
+            coordinate_type viy = (get<1>(ip) - get<1>(vertex));
 
-            double length_i = sqrt(vix * vix + viy * viy);
+            coordinate_type length_i = sqrt(vix * vix + viy * viy);
 
-            double prop = buffer_distance / length_i;
+
+            coordinate_type const bd = std::abs(buffer_distance);
+            coordinate_type prop = bd / length_i;
 
             PointIn bp;
             set<0>(bp, get<0>(vertex) + vix * prop);
@@ -306,8 +339,9 @@ struct join_round
             else
             {
                 buffered.push_back(perp1);
-                mid_points(vertex, perp1, bp, buffer_distance, buffered);
-                mid_points(vertex, bp, perp2, buffer_distance, buffered);
+                mid_points(vertex, perp1, bp, bd, buffered);
+                mid_points(vertex, bp, perp2, bd, buffered);
+                buffered.push_back(perp2);
             }
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER

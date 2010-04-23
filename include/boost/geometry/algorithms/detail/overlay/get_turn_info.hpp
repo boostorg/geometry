@@ -372,7 +372,16 @@ struct touch : public base_turn_handler
             return;
         }
 
-        std::cout << "Not yet handled" << std::endl;
+        // Normally a robustness issue.
+        std::cout << "Not yet handled" << std::endl
+            << "pi " << get<0>(pi) << " , " << get<1>(pi)
+            << " pj " << get<0>(pj) << " , " << get<1>(pj)
+            << " pk " << get<0>(pk) << " , " << get<1>(pk)
+            << std::endl
+            << "qi " << get<0>(qi) << " , " << get<1>(qi)
+            << " qj " << get<0>(qj) << " , " << get<1>(qj)
+            << " qk " << get<0>(qk) << " , " << get<1>(qk)
+            << std::endl;
     }
 };
 
