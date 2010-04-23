@@ -234,7 +234,7 @@ struct dissolver_generic
     // Small structure to access elements by index;
     // this avoids copying or accessing elements by address (pointer)
     template <typename Box>
-    struct dissolve_helper 
+    struct dissolve_helper
     {
         int source; // 0,1
         int index; // index in the original array
@@ -276,14 +276,14 @@ struct dissolver_generic
         typedef typename boost::range_value<Vector>::type value_type;
         typedef typename geometry::point_type<value_type>::type point_type;
         typedef geometry::box<point_type> box_type;
-        for(typename boost::range_iterator<Vector const>::type 
+        for(typename boost::range_iterator<Vector const>::type
             it = boost::begin(v);
             it != boost::end(v);
             ++it, ++index)
         {
-            helper.push_back(dissolve_helper<box_type>(index, 
-                    geometry::make_envelope<box_type>(*it), 
-                    geometry::area(*it), 
+            helper.push_back(dissolve_helper<box_type>(index,
+                    geometry::make_envelope<box_type>(*it),
+                    geometry::area(*it),
                     source));
         }
     }
@@ -302,7 +302,7 @@ struct dissolver_generic
         if (! geometry::disjoint(geometry1, geometry2))
         {
             /*std::cout << "Process " << element1.source << "/" << element1.index
-                << " and " << element2.source << "/" << element2.index 
+                << " and " << element2.source << "/" << element2.index
                 << "  (" << element2.dissolved << "," << element2.dissolved << ")"
                 << std::endl;
             */
@@ -332,7 +332,7 @@ struct dissolver_generic
                 )
     {
         //std::cout << "divide_and_conquer " << iteration << std::endl;
-        typedef geometry::coordinate_type<Box>::type coordinate_type;
+        typedef typename geometry::coordinate_type<Box>::type coordinate_type;
         typedef typename boost::range_value<HelperVector>::type helper_type;
         typedef typename boost::range_iterator<IndexVector const>::type iterator_type;
 
@@ -444,7 +444,7 @@ struct dissolver_generic
 
                         unioned = true;
 /*std::cout << "Assign " << element1.source << "/" << element1.index
-<< " and " << element2.source << "/" << element2.index 
+<< " and " << element2.source << "/" << element2.index
 << "  (" << element2.dissolved << "," << element2.dissolved << ")"
 << std::endl;
 */
@@ -497,7 +497,7 @@ struct dissolver_generic
         box_type total_box;
         geometry::assign_inverse(total_box);
         int index = 0;
-        for(typename boost::range_iterator<helper_vector_type const>::type 
+        for(typename boost::range_iterator<helper_vector_type const>::type
             it = boost::begin(helper_vector);
             it != boost::end(helper_vector);
             ++it, ++index)
@@ -520,9 +520,9 @@ struct dissolver_generic
                 (
                     std::remove_if
                         (
-                            helper_vector.begin(), 
-                            helper_vector.end(), 
-                            helper_dissolved<dissolve_helper_type> 
+                            helper_vector.begin(),
+                            helper_vector.end(),
+                            helper_dissolved<dissolve_helper_type>
                         ),
                     helper_vector.end()
                 );
@@ -534,14 +534,14 @@ struct dissolver_generic
             // Re-initialize the list
             index_vector.clear();
             int index = 0;
-            for(typename boost::range_iterator<helper_vector_type const>::type 
+            for(typename boost::range_iterator<helper_vector_type const>::type
                 it = boost::begin(helper_vector);
                 it != boost::end(helper_vector);
                 ++it, ++index)
             {
                 index_vector.push_back(index);
             }
-            
+
             changed = false;
 
             //std::cout << " " << size;
