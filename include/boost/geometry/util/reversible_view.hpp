@@ -8,8 +8,8 @@
 #ifndef BOOST_GEOMETRY_UTIL_REVERSIBLE_VIEW_HPP
 #define BOOST_GEOMETRY_UTIL_REVERSIBLE_VIEW_HPP
 
-#include <boost/type_traits.hpp>
-#include <boost/type_traits/remove_const.hpp>
+
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>

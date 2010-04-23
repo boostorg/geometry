@@ -13,6 +13,8 @@
 //#include <boost/foreach.hpp>
 #include <deque>
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/algorithms/overlay/get_turns.hpp>
 
 #include <boost/geometry/core/point_type.hpp>

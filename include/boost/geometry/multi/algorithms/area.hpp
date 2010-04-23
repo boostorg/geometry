@@ -9,11 +9,16 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_AREA_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_AREA_HPP
 
+
+#include <boost/range/metafunctions.hpp>
+
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
 
-namespace boost { namespace geometry {
+
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DISPATCH

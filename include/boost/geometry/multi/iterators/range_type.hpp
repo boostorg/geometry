@@ -9,8 +9,7 @@
 #define BOOST_GEOMETRY_MULTI_ITERATORS_RANGE_TYPE_HPP
 
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/is_multi.hpp>
 

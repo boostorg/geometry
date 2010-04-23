@@ -46,8 +46,7 @@ The within algorithm is used as following:
 
 #include <cstddef>
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
 

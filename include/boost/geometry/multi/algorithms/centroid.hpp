@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_CENTROID_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_CENTROID_HPP
 
+
+#include <boost/range.hpp>
+
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
@@ -16,11 +19,13 @@
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace centroid {
+namespace detail { namespace centroid
+{
 
 
 /*!

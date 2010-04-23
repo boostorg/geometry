@@ -8,8 +8,7 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_POINT_ON_BORDER_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_POINT_ON_BORDER_HPP
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>

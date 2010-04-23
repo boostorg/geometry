@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_PERIMETER_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_PERIMETER_HPP
 
+
+#include <boost/range/metafunctions.hpp>
+
 #include <boost/geometry/algorithms/perimeter.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>

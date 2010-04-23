@@ -8,7 +8,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHM_REMOVE_WITHIN_DISTANCE_HPP
 #define BOOST_GEOMETRY_ALGORITHM_REMOVE_WITHIN_DISTANCE_HPP
 
+
 #include <algorithm>
+
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
@@ -100,8 +103,8 @@ struct polygon_remove_false_rings
 
 
 template<typename Collection, typename Geometry, typename T>
-inline void collection_remove_within_distance(Collection& dissolved, 
-            Geometry const& input, 
+inline void collection_remove_within_distance(Collection& dissolved,
+            Geometry const& input,
             T const& distance)
 {
     typedef typename boost::range_value<Collection>::type polygon_type;

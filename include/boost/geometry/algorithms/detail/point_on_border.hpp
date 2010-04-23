@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-#include <boost/range/functions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>

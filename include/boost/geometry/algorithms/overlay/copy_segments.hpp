@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <boost/assert.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 

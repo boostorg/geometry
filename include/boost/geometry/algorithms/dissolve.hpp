@@ -12,6 +12,8 @@
 #include <map>
 #include <vector>
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/algorithms/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/overlay/self_turn_points.hpp>
 

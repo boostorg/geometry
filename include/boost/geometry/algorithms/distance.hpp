@@ -10,8 +10,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DISTANCE_HPP
 
 #include <boost/mpl/if.hpp>
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
+
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/cs.hpp>
@@ -148,7 +148,7 @@ struct point_to_ring
 {
     typedef std::pair<typename PPStrategy::return_type, bool> distance_containment;
 
-    static inline distance_containment apply(Point const& point, 
+    static inline distance_containment apply(Point const& point,
                 Ring const& ring,
                 PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
     {
@@ -160,7 +160,7 @@ struct point_to_ring
                         Ring,
                         PPStrategy,
                         PSStrategy
-                    >::apply(point, ring, pp_strategy, ps_strategy), 
+                    >::apply(point, ring, pp_strategy, ps_strategy),
                 geometry::within(point, ring)
             );
     }
@@ -174,7 +174,7 @@ struct point_to_polygon
     typedef typename PPStrategy::return_type return_type;
     typedef std::pair<typename PPStrategy::return_type, bool> distance_containment;
 
-    static inline distance_containment apply(Point const& point, 
+    static inline distance_containment apply(Point const& point,
                 Polygon const& polygon,
                 PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
     {
@@ -187,7 +187,7 @@ struct point_to_polygon
                 PSStrategy
             > per_ring;
 
-        distance_containment dc = per_ring::apply(point, 
+        distance_containment dc = per_ring::apply(point,
                         exterior_ring(polygon), pp_strategy, ps_strategy);
 
         for (typename boost::range_const_iterator
@@ -197,7 +197,7 @@ struct point_to_polygon
              it != boost::end(interior_rings(polygon));
              ++it)
         {
-            distance_containment dcr = per_ring::apply(point, 
+            distance_containment dcr = per_ring::apply(point,
                             *it, pp_strategy, ps_strategy);
             if (dcr.first < dc.first)
             {

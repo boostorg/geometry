@@ -9,8 +9,7 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_TRANSFORM_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_TRANSFORM_HPP
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/transform.hpp>
 

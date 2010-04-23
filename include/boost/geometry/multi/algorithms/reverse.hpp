@@ -11,7 +11,6 @@
 
 #include <boost/range/metafunctions.hpp>
 
-
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/multi/algorithms/detail/modify.hpp>
 

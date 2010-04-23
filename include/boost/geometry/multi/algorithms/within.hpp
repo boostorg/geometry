@@ -10,8 +10,7 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_WITHIN_HPP
 
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/multi/core/tags.hpp>

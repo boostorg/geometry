@@ -11,8 +11,7 @@
 
 #include <iterator>
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>

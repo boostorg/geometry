@@ -12,8 +12,7 @@
 #include <cmath>
 #include <cstddef>
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 

@@ -13,6 +13,9 @@
 #include <map>
 #include <vector>
 
+#include <boost/range.hpp>
+
+
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>

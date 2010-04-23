@@ -12,8 +12,7 @@
 #include <cstddef>
 
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/assign.hpp>

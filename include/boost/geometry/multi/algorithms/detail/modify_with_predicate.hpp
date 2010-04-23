@@ -10,11 +10,11 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_MODIFY_WITH_PREDICATE_HPP
 
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DETAIL

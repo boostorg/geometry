@@ -15,6 +15,8 @@
 
 #include <cstddef>
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/is_multi.hpp>

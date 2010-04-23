@@ -10,13 +10,10 @@
 
 
 #include <boost/assert.hpp>
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/algorithms/detail/sections/get_full_section.hpp>
-
-
 
 
 namespace boost { namespace geometry

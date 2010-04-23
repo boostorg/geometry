@@ -12,8 +12,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 

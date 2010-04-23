@@ -31,8 +31,8 @@
 
 
 #include <boost/mpl/if.hpp>
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
+
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/access.hpp>

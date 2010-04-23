@@ -12,8 +12,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 
@@ -42,7 +41,7 @@ struct ring_buffer
     template <typename Mapper>
 #endif
     static inline void apply(RingInput const& ring, RingOutput& buffered,
-            coordinate_type distance, 
+            coordinate_type distance,
             JoinStrategy const& join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper
@@ -184,7 +183,7 @@ struct polygon_buffer
     template <typename Mapper>
 #endif
     static inline void apply(PolygonInput const& polygon, PolygonOutput& buffered,
-            typename coordinate_type<PolygonOutput>::type distance, 
+            typename coordinate_type<PolygonOutput>::type distance,
             JoinStrategy const& join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper

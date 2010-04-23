@@ -9,6 +9,8 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_FOR_EACH_HPP
 
 
+#include <boost/range.hpp>
+
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/is_multi.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
@@ -23,7 +25,8 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace for_each {
+namespace detail { namespace for_each
+{
 
 // Implementation of multi, for both point and segment,
 // just calling the single version.

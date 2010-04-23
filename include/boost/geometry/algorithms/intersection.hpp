@@ -12,8 +12,9 @@
 
 #include <cstddef>
 
-
 #include <boost/mpl/if.hpp>
+#include <boost/range/metafunctions.hpp>
+
 
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>

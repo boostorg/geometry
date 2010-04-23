@@ -15,7 +15,6 @@
 #include <boost/range/concepts.hpp>
 #include <boost/range/metafunctions.hpp>
 
-
 #include <boost/geometry/geometries/concepts/polygon_concept.hpp>
 
 
