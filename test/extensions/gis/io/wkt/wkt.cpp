@@ -124,7 +124,7 @@ void test_all()
     test_wkt<P >("POINT(1 2)", 1);
     test_wkt<linestring<P> >("LINESTRING(1 1,2 2,3 3)", 3, 2 * sqrt(2.0));
     test_wkt<polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0)"
-            ",(1 1,1 2,2 2,2 1,1 1),(1 1,1 2,2 2,2 1,1 1))", 15, 0, 14, 24);
+            ",(1 1,1 2,2 2,2 1,1 1),(1 1,1 2,2 2,2 1,1 1))", 15, 0, 18, 24);
 
     // Non OGC: a box defined by a polygon
     //test_wkt<box<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 4, 0, 1, 4);

@@ -7,6 +7,9 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
+
 #include <boost/geometry/extensions/nsphere/algorithms/area.hpp>
 #include <boost/geometry/extensions/nsphere/geometries/nsphere.hpp>
 

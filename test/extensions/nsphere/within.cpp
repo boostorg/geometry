@@ -10,6 +10,7 @@
 #include <boost/geometry/extensions/nsphere/nsphere.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 

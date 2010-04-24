@@ -173,6 +173,7 @@ void test_all()
         intersect_exterior_and_interiors_winded[0], intersect_exterior_and_interiors_winded[1],
         1, 14, 25.2166667);
 
+    return;
 
 
     test_one<polygon, polygon, polygon>(
@@ -188,7 +189,6 @@ void test_all()
             5, 22, 1.190171);
 
 
-    return;
 
 
     /*

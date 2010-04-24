@@ -5,13 +5,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#if defined(_MSC_VER)
-// We deliberately mix float/double's here so turn off warnings
-#pragma warning( disable : 4244 )
-#pragma warning( disable : 4305 )
-#endif // defined(_MSC_VER)
-
-
 
 #include <geometry_test_common.hpp>
 
