@@ -117,7 +117,7 @@ template <typename Input, typename Output, typename T>
 inline void buffer(Input const& geometry_in, Output& geometry_out,
             T const& distance, T const& chord_length = -1)
 {
-    concept::check<const Input>();
+    concept::check<Input const>();
     concept::check<Output>();
 
     dispatch::buffer
@@ -142,7 +142,7 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 template <typename Output, typename Input, typename T>
 Output make_buffer(Input const& geometry, T const& distance, T const& chord_length = -1)
 {
-    concept::check<const Input>();
+    concept::check<Input const>();
     concept::check<Output>();
 
     Output geometry_out;

@@ -312,8 +312,8 @@ struct within<point_tag, polygon_tag, Point, Polygon, Strategy>
 template<typename Geometry1, typename Geometry2>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    concept::check<const Geometry1>();
-    concept::check<const Geometry2>();
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
 
     typedef typename point_type<Geometry1>::type point_type1;
     typedef typename point_type<Geometry2>::type point_type2;
@@ -354,8 +354,8 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,
     // Because for point-in-box, it makes no sense to specify one.
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
 
-    concept::check<const Geometry1>();
-    concept::check<const Geometry2>();
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
 
     return dispatch::within
         <

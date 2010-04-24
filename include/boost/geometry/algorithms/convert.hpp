@@ -256,7 +256,7 @@ struct convert<polygon_tag, ring_tag, Dimensions, Polygon, Ring>
 template <typename Geometry1, typename Geometry2>
 inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
 {
-    concept::check_concepts_and_equal_dimensions<const Geometry1, Geometry2>();
+    concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2>();
 
     dispatch::convert
         <

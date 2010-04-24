@@ -344,7 +344,7 @@ Small example showing how to use the wkt helper function
 template <typename Geometry>
 inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     return wkt_manipulator<Geometry>(geometry);
 }
@@ -354,7 +354,7 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 template <typename Geometry>
 inline wkt_manipulator<Geometry> make_wkt(Geometry const& geometry)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     return wkt_manipulator<Geometry>(geometry);
 }

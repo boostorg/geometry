@@ -123,7 +123,7 @@ inline void get_full_section(Geometry const& geometry, Section const& section,
             typename geometry::range_type<Geometry>::type const
         >::type& end)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     typedef typename boost::range_iterator
         <

@@ -24,7 +24,8 @@
 
 #include <boost/geometry/extensions/index/rtree/rtree_node.hpp>
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index
+{
 
 template <typename Box, typename Value >
 class rtree_leaf : public rtree_node<Box, Value>
@@ -55,7 +56,7 @@ public:
      *        If exact_match is true only return the elements having as
      *        key the 'box'. Otherwise return everything inside 'box'.
      */
-    virtual void find(Box const& box, std::deque<Value>& result, const bool exact_match)
+    virtual void find(Box const& box, std::deque<Value>& result, bool const exact_match)
     {
         for (typename leaf_map::const_iterator it = m_nodes.begin();
              it != m_nodes.end(); ++it)
@@ -185,7 +186,7 @@ public:
     /**
      * \brief Remove value in this leaf
      */
-    virtual void remove(const Value &v)
+    virtual void remove(Value const& v)
     {
         for (typename leaf_map::iterator it = m_nodes.begin();
              it != m_nodes.end(); ++it)

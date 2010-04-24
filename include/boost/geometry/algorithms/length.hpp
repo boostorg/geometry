@@ -154,7 +154,7 @@ template<typename Geometry>
 inline typename length_result<Geometry>::type length(
         Geometry const& geometry)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     typedef typename point_type<Geometry>::type point_type;
     typedef typename cs_tag<point_type>::type cs_tag;
@@ -196,7 +196,7 @@ template<typename Geometry, typename Strategy>
 inline typename length_result<Geometry>::type length(
         Geometry const& geometry, Strategy const& strategy)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     return dispatch::length
         <

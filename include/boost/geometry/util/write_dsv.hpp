@@ -376,7 +376,7 @@ inline detail::dsv::dsv_manipulator<Geometry> dsv(Geometry const& geometry
     , std::string const& list_separator = ", "
     )
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     return detail::dsv::dsv_manipulator<Geometry>(geometry,
         detail::dsv::dsv_settings(coordinate_separator,

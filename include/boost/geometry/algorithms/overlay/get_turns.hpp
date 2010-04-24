@@ -220,8 +220,8 @@ public :
 private :
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
-    typedef typename geometry::segment<const point1_type> segment1_type;
-    typedef typename geometry::segment<const point2_type> segment2_type;
+    typedef typename geometry::segment<point1_type const> segment1_type;
+    typedef typename geometry::segment<point2_type const> segment2_type;
 
 
     template <size_t Dim, typename Point, typename Box>
@@ -306,7 +306,7 @@ class get_turns_generic
     template <typename Box, typename Sections>
     static inline void add_sections(Box& box, Sections const& sections)
     {
-        for (typename boost::range_iterator<const Sections>::type
+        for (typename boost::range_iterator<Sections const>::type
                     it = sections.begin();
             it != sections.end();
             ++it)
@@ -319,7 +319,7 @@ class get_turns_generic
     static inline void get_sections(Sections const& sections,
             Box const& box, Sections& selection)
     {
-        for (typename boost::range_iterator<const Sections>::type
+        for (typename boost::range_iterator<Sections const>::type
                     it = sections.begin();
             it != sections.end();
             ++it)
@@ -838,7 +838,7 @@ inline void get_turns(Geometry1 const& geometry1,
             Turns& turns,
             InterruptPolicy& interrupt_policy)
 {
-    concept::check_concepts_and_equal_dimensions<const Geometry1, const Geometry2>();
+    concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
     typedef typename strategy_intersection
         <

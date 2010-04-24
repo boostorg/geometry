@@ -61,7 +61,7 @@ struct dms_result
 
     public :
 
-        explicit dms_result(const T& v, axis_selector ax)
+        explicit dms_result(T const& v, axis_selector ax)
             : m_angle(v)
             , m_axis(ax)
         {}

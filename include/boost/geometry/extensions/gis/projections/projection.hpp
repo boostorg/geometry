@@ -36,10 +36,10 @@ class projection
 
     public :
         /// Forward projection, from Latitude-Longitude to Cartesian
-        virtual bool forward(const LL& lp, XY& xy) const = 0;
+        virtual bool forward(LL const& lp, XY& xy) const = 0;
 
         /// Inverse projection, from Cartesian to Latitude-Longitude
-        virtual bool inverse(const XY& xy, LL& lp) const = 0;
+        virtual bool inverse(XY const& xy, LL& lp) const = 0;
 
         /// Forward projection using lon / lat and x / y separately
         virtual void fwd(LL_T& lp_lon, LL_T& lp_lat, XY_T& xy_x, XY_T& xy_y) const = 0;

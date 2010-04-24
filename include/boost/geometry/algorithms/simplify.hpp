@@ -358,7 +358,7 @@ template<typename Geometry, typename OutputIterator, typename Strategy>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
                               double max_distance, Strategy const& strategy)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
     BOOST_CONCEPT_ASSERT( (geometry::concept::SimplifyStrategy<Strategy>) );
 
     dispatch::simplify_inserter
@@ -384,7 +384,7 @@ inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
     typedef typename point_type<Geometry>::type point_type;
 
     // Concept: output point type = point type of input geometry
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
     concept::check<point_type>();
 
     typedef typename cs_tag<point_type>::type cs_tag;

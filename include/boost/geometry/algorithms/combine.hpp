@@ -283,7 +283,7 @@ inline void combine(Box& box, Geometry const& geometry,
             StrategyLess const& strategy_less,
             StrategyGreater const& strategy_greater)
 {
-    concept::check_concepts_and_equal_dimensions<Box, const Geometry>();
+    concept::check_concepts_and_equal_dimensions<Box, Geometry const>();
 
     dispatch::combine
         <
@@ -307,7 +307,7 @@ inline void combine(Box& box, Geometry const& geometry,
 template <typename Box, typename Geometry>
 inline void combine(Box& box, Geometry const& geometry)
 {
-    concept::check_concepts_and_equal_dimensions<Box, const Geometry>();
+    concept::check_concepts_and_equal_dimensions<Box, Geometry const>();
 
     dispatch::combine
         <

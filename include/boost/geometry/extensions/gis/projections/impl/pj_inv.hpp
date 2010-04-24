@@ -41,9 +41,11 @@
 
 /* general inverse projection */
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projection
+{
 
-namespace detail {
+namespace detail
+{
 
 namespace inv
 {
@@ -52,7 +54,7 @@ namespace inv
 
  /* inverse projection entry */
 template <typename PRJ, typename LL, typename XY, typename PAR>
-void pj_inv(const PRJ& prj, const PAR& par, const XY& xy, LL& ll)
+void pj_inv(PRJ const& prj, PAR const& par, XY const& xy, LL& ll)
 {
     /* can't do as much preliminary checking as with forward */
     /* descale and de-offset */

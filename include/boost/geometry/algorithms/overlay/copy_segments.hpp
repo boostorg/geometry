@@ -209,7 +209,7 @@ inline void copy_segments(Geometry const& geometry,
             SegmentIdentifier const& seg_id, int to_index,
             RangeOut& range_out)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     dispatch::copy_segments
         <

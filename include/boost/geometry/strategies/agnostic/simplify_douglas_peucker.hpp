@@ -126,7 +126,7 @@ class douglas_peucker
 
 
         // Find most distance point, compare to the current segment
-        //geometry::segment<const Point> s(begin->p, last->p);
+        //geometry::segment<Point const> s(begin->p, last->p);
         return_type md(-1.0); // any value < 0
         iterator_type candidate;
         for(iterator_type it = begin + 1; it != last; ++it)

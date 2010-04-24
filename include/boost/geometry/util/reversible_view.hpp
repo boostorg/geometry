@@ -52,7 +52,7 @@ struct reversible_view<Range, iterate_forward> : detail::reversible_base_view<Ra
         : reversible_base_view(r)
     {}
 
-    typedef typename boost::range_iterator<const Range>::type const_iterator;
+    typedef typename boost::range_iterator<Range const>::type const_iterator;
     typedef typename boost::range_iterator<Range>::type iterator;
 
     const_iterator begin() const { return boost::begin(m_range); }

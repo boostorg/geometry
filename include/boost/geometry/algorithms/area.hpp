@@ -224,7 +224,7 @@ struct area<polygon_tag, Polygon, Order, Strategy>
 template <typename Geometry>
 inline typename area_result<Geometry>::type area(Geometry const& geometry)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     typedef typename area_result<Geometry>::strategy_type strategy_type;
 
@@ -250,7 +250,7 @@ template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(
         Geometry const& geometry, Strategy const& strategy)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     return dispatch::area
         <

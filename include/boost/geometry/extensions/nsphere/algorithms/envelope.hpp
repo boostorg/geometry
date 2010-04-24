@@ -47,9 +47,23 @@ namespace dispatch
 {
 
 
-template <typename Nsphere, typename Box, typename Strategy>
-struct envelope<nsphere_tag, box_tag, Nsphere, Box, Strategy>
-    : detail::envelope::envelope_nsphere<Nsphere, Box, Strategy>
+template 
+<
+    typename Nsphere, 
+    typename Box, 
+    typename StrategyLess, typename StrategyGreater
+>
+struct envelope
+    <
+        nsphere_tag, box_tag, 
+        Nsphere, Box, 
+        StrategyLess, StrategyGreater
+    >
+    : detail::envelope::envelope_nsphere
+        <
+            Nsphere, Box, 
+            StrategyLess
+        >
 {};
 
 

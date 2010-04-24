@@ -394,7 +394,7 @@ inline void centroid(Geometry const& geometry, Point& c,
 {
     //BOOST_CONCEPT_ASSERT( (geometry::concept::CentroidStrategy<Strategy>) );
 
-    concept::check_concepts_and_equal_dimensions<Point, const Geometry>();
+    concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
 
     typedef typename point_type<Geometry>::type point_type;
 
@@ -419,7 +419,7 @@ inline void centroid(Geometry const& geometry, Point& c,
 template<typename Geometry, typename Point>
 inline void centroid(Geometry const& geometry, Point& c)
 {
-    concept::check_concepts_and_equal_dimensions<Point, const Geometry>();
+    concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
 
     typedef typename strategy_centroid
         <
@@ -443,7 +443,7 @@ inline void centroid(Geometry const& geometry, Point& c)
 template<typename Point, typename Geometry>
 inline Point make_centroid(Geometry const& geometry)
 {
-    concept::check_concepts_and_equal_dimensions<Point, const Geometry>();
+    concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
 
     Point c;
     centroid(geometry, c);
@@ -462,7 +462,7 @@ inline Point make_centroid(Geometry const& geometry, Strategy const& strategy)
 {
     //BOOST_CONCEPT_ASSERT( (geometry::concept::CentroidStrategy<Strategy>) );
 
-    concept::check_concepts_and_equal_dimensions<Point, const Geometry>();
+    concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
 
     Point c;
     centroid(geometry, c, strategy);

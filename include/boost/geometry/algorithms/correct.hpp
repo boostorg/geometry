@@ -185,7 +185,7 @@ struct correct<polygon_tag, Polygon>
 template <typename Geometry>
 inline void correct(Geometry& geometry)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     dispatch::correct<typename tag<Geometry>::type, Geometry>::apply(geometry);
 }

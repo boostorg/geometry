@@ -25,7 +25,7 @@ class factory_entry
 public:
 
     virtual ~factory_entry() {}
-    virtual projection<LL, XY>* create_new(const P& par) const = 0;
+    virtual projection<LL, XY>* create_new(P const& par) const = 0;
 };
 
 template <typename LL, typename XY, typename P>
@@ -34,7 +34,7 @@ class base_factory
 public:
 
     virtual ~base_factory() {}
-    virtual void add_to_factory(const std::string& name, factory_entry<LL, XY, P>* sub) = 0;
+    virtual void add_to_factory(std::string const& name, factory_entry<LL, XY, P>* sub) = 0;
 };
 
 } // namespace detail

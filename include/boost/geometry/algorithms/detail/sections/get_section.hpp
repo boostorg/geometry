@@ -96,7 +96,7 @@ inline void get_section(Geometry const& geometry, Section const& section,
             typename geometry::range_type<Geometry>::type
         >::type& end)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     dispatch::get_section
         <

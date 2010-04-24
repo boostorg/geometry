@@ -189,7 +189,7 @@ namespace dispatch
 The static method should have the signature:
 
 template <typename Char, typename Traits>
-static inline void apply(std::basic_ostream<Char, Traits>& os, const G& geometry)
+static inline void apply(std::basic_ostream<Char, Traits>& os, G const& geometry)
 */
 template <typename GeometryTag, typename Geometry>
 struct svg {};
@@ -257,7 +257,7 @@ private:
 template <typename Geometry>
 inline svg_manipulator<Geometry> svg(Geometry const& t, std::string const& style, int size = -1)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     return svg_manipulator<Geometry>(t, style, size);
 }

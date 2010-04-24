@@ -21,9 +21,11 @@
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
-namespace traits {
+namespace traits
+{
 
 /*!
     \brief Traits class to get/set radius of a circle/sphere/(ellipse)
@@ -38,8 +40,8 @@ namespace traits {
         - n-sphere (circle,sphere)
         - upcoming ellipse
     \par Specializations should provide:
-        - inline static T get(const G& geometry)
-        - inline static void set(G& geometry, const T& radius)
+        - inline static T get(G const& geometry)
+        - inline static void set(G& geometry, T const& radius)
     \ingroup traits
 */
 template <typename G, typename T, std::size_t D>
@@ -77,8 +79,8 @@ struct radius_type
 template <typename Tag, typename G, typename T, std::size_t D>
 struct radius_access
 {
-    //static inline T get(const G& ) {}
-    //static inline void set(G& g, const T& value) {}
+    //static inline T get(G const& ) {}
+    //static inline void set(G& g, T const& value) {}
 };
 
 template <typename S>
@@ -91,11 +93,11 @@ template <typename S, typename T, std::size_t D>
 struct radius_access<nsphere_tag, S, T, D>
 {
     BOOST_STATIC_ASSERT((D == 0));
-    static inline T get(const S& s)
+    static inline T get(S const& s)
     {
         return traits::radius_access<S, T, D>::get(s);
     }
-    static inline void set(S& s, const T& radius)
+    static inline void set(S& s, T const& radius)
     {
         traits::radius_access<S, T, D>::set(s, radius);
     }
@@ -121,7 +123,7 @@ struct radius_type
         for ellipsoid one of the 3 equatorial radii
 */
 template <std::size_t I, typename G>
-inline typename radius_type<G>::type get_radius(const G& geometry)
+inline typename radius_type<G>::type get_radius(G const& geometry)
 {
     typedef typename boost::remove_const<G>::type rconst;
 
@@ -138,7 +140,7 @@ inline typename radius_type<G>::type get_radius(const G& geometry)
     \param radius the radius to set
 */
 template <std::size_t I, typename G>
-inline void set_radius(G& geometry, const typename radius_type<G>::type& radius)
+inline void set_radius(G& geometry, typename radius_type<G>::type const& radius)
 {
     typedef typename boost::remove_const<G>::type rconst;
 

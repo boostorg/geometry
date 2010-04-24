@@ -50,7 +50,7 @@ namespace detail {
 
 
 /* create pvalue list entry */
-inline pvalue pj_mkparam(const std::string& str)
+inline pvalue pj_mkparam(std::string const& str)
 {
     std::string name = str;
     std::string value;
@@ -89,7 +89,7 @@ inline pvalue pj_mkparam(const std::string& str)
 /*                                                                      */
 /************************************************************************/
 
-inline pvalue pj_param(const std::vector<pvalue>& pl, std::string opt)
+inline pvalue pj_param(std::vector<pvalue> const& pl, std::string opt)
 {
     char type = opt[0];
     opt.erase(opt.begin());
