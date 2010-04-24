@@ -13,7 +13,7 @@ project
         <warnings>all
         <toolset>intel:<warnings>on
         <toolset>gcc:<cxxflags>"-pedantic -Wall -Wstrict-aliasing -fstrict-aliasing -Wno-long-long"
-        <toolset>msvc:<cxxflags>/W4
         <include>../..
         <include>.
+        <include>/boost//headers
     ;

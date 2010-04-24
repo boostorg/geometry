@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="x04_wxwidgets_world_mapper"
 	ProjectGUID="{DD1D469B-29A8-4873-A596-9CCCB24F54FA}"
 	TargetFrameworkVersion="131072"
@@ -44,10 +44,11 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;c:\software\libraries\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;c:\software\libraries\wxWidgets-2.8.10\include&quot;;..\..\.."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="1"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -64,7 +65,6 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib gdiplus.lib"
-				
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\software\libraries\wxWidgets-2.8.10\lib\vc_lib"
 				IgnoreDefaultLibraryNames=""
@@ -129,7 +129,7 @@
 				AdditionalIncludeDirectories="&quot;c:\software\libraries\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;c:\software\libraries\wxWidgets-2.8.10\include&quot;;..\..\.."
 				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH"
 				StringPooling="true"
-				
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=""
@@ -151,7 +151,6 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib gdiplus.lib"
-				
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\software\libraries\wxWidgets-2.8.10\lib\vc_lib"
 				ProgramDatabaseFile=""
