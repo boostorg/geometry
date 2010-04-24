@@ -39,7 +39,6 @@
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/dissolver.hpp>
-#include <boost/geometry/algorithms/detail/buffer/remove_within_distance.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -47,12 +46,15 @@
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/dissolve.hpp>
-#include <boost/geometry/algorithms/buffer.hpp>
-#include <boost/geometry/algorithms/detail/buffer/linestring_buffer.hpp>
-#include <boost/geometry/algorithms/detail/buffer/polygon_buffer.hpp>
-#include <boost/geometry/algorithms/detail/buffer/unioning_buffer.hpp>
-#include <boost/geometry/algorithms/detail/buffer/segmenting_buffer.hpp>
 #include <boost/geometry/algorithms/detail/overlay/split_rings.hpp>
+
+#include <boost/geometry/algorithms/buffer.hpp>
+
+#include <boost/geometry/extensions/algorithms/buffer/remove_within_distance.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/linestring_buffer.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/polygon_buffer.hpp>
+//#include <boost/geometry/extensions/algorithms/buffer/unioning_buffer.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/segmenting_buffer.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
 
@@ -221,7 +223,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
 
 #if defined(BOOST_GEOMETRY_TEST_BUFFER_POLYGON)
-
+/*
 	    bg::detail::buffer::unioning_buffer(geometry, sections_buffered_unioned,
 			    distance(distance_left, distance_left / 2.0)
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
@@ -230,7 +232,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                             , join_strategy()
 #endif
                 );
-
+*/
 
         Geometry buffered_step1;
         bg::detail::buffer::polygon_buffer
@@ -370,7 +372,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
     //std::cout << caseid << std::endl;
     if (join == 'm')
     {
-        return;
+        //return;
     }
 
 
