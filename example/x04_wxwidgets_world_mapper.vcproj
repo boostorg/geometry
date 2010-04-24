@@ -19,7 +19,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\x04_wxwidgets_world_mapper"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			InheritedPropertySheets=".\boost.vsprops;.\wxwidgets.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -42,9 +42,9 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHsc "
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;c:\software\libraries\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;c:\software\libraries\wxWidgets-2.8.10\include&quot;;..\..\.."
-				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH"
-				RuntimeLibrary="2"
+				AdditionalIncludeDirectories="..\..\.."
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;__WXDEBUG__"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -66,7 +66,6 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib gdiplus.lib"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="c:\software\libraries\wxWidgets-2.8.10\lib\vc_lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -102,7 +101,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\x04_wxwidgets_world_mapper"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			InheritedPropertySheets=".\boost.vsprops;.\wxwidgets.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -126,8 +125,8 @@
 				AdditionalOptions="/EHsc "
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;c:\software\libraries\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;c:\software\libraries\wxWidgets-2.8.10\include&quot;;..\..\.."
-				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH"
+				AdditionalIncludeDirectories="..\..\.."
+				PreprocessorDefinitions="WIN32;_WINDOWS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -152,7 +151,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib odbc32.lib gdiplus.lib"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="c:\software\libraries\wxWidgets-2.8.10\lib\vc_lib"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile=""
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -207,6 +206,10 @@
 					PreprocessorDefinitions=""
 				/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\x04_wxwidgets_world_mapper_readme.txt"
+			>
 		</File>
 	</Files>
 	<Globals>
