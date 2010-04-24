@@ -14,8 +14,8 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
-#include <boost/geometry/algorithms/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -24,9 +24,9 @@
 
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
-#include <boost/geometry/algorithms/overlay/enrich_intersection_points.hpp>
-#include <boost/geometry/algorithms/overlay/traverse.hpp>
-#include <boost/geometry/algorithms/overlay/assemble.hpp>
+#include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 

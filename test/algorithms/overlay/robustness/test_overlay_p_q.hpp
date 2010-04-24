@@ -11,8 +11,16 @@
 #include <fstream>
 #include <iomanip>
 
+// For mixing int/float
+#if defined(_MSC_VER)
+#pragma warning( disable : 4244 )
+#pragma warning( disable : 4267 )
+#endif
+
+
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
 #include <geometry_test_common.hpp>
 

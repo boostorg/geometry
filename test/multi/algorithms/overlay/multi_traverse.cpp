@@ -14,9 +14,9 @@
 #include <boost/geometry/multi/core/ring_type.hpp>
 
 #include <boost/geometry/multi/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/overlay/get_turns.hpp>
-#include <boost/geometry/multi/algorithms/overlay/copy_segments.hpp>
-#include <boost/geometry/multi/algorithms/overlay/copy_segment_point.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/get_full_section.hpp>
 
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
@@ -72,7 +72,7 @@ void test_all()
         test_traverse<ov::operation_union>,  Tuple>
         (
             "recursive_box1", boost::make_tuple(1, 14.58),
-            "MULTIPOLYGON(((3 9,3 10,4 10,4 9,3 9)),((1 1,1 2,2 2,2 1,1 1)),((7 8,7 9,8 9,8 8,7 8)),((8 0,8 1,9 1,9 0,8 0)))", 
+            "MULTIPOLYGON(((3 9,3 10,4 10,4 9,3 9)),((1 1,1 2,2 2,2 1,1 1)),((7 8,7 9,8 9,8 8,7 8)),((8 0,8 1,9 1,9 0,8 0)))",
             "MULTIPOLYGON(((0 1,0 2,1 2,1 1,0 1)),((7 5,7 6,8 6,8 5,7 5)),((1 1,1 1,2 1,2 1,2 0,2 0,1 0,1 0,1 0,1 1)))"
         );
     ***/

@@ -10,7 +10,7 @@
 
 
 #include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/multi/algorithms/overlay/assemble.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/assemble.hpp>
 
 
 namespace boost { namespace geometry

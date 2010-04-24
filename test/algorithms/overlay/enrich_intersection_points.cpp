@@ -12,9 +12,9 @@
 
 #include <boost/geometry/algorithms/intersection.hpp>
 
-//#include <boost/geometry/algorithms/overlay/get_intersection_points.hpp>
-//#include <boost/geometry/algorithms/overlay/merge_intersection_points.hpp>
-#include <boost/geometry/algorithms/overlay/enrich_intersection_points.hpp>
+//#include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
+//#include <boost/geometry/algorithms/detail/overlay/merge_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 

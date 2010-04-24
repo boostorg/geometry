@@ -83,7 +83,7 @@ static std::string intersect_holes_new_ring[2] =
     {"POLYGON((4 4,4 16,16 16,16 4,4 4),(7 6,14 10,7 14,11 10,7 6))",
     "POLYGON((2 2,2 18,18 18,18 2,2 2),(13 6,9 10,13 14,6 10,13 6))"};
 
-// case 2102 from "algorithms/overlay/robustness/assemble.hpp"
+// case 2102 from "algorithms/detail/overlay/robustness/assemble.hpp"
 static std::string intersect_exterior_and_interiors_winded[2] =
     {"POLYGON((2 0.5,0.5 2,0.5 8,2 9.5,6 9.5,8.5 8,8.5 2,7 0.5,2 0.5),(2 2,7 2,7 8,2 8,2 2))",
     "POLYGON((1 1,1 9,8 9,8 1,1 1),(4 4,5 4,5 5,4 5,4 4))"};

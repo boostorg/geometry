@@ -10,6 +10,13 @@
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
+// For mixing int/float
+#if defined(_MSC_VER)
+#pragma warning( disable : 4267 )
+#endif
+
+
+
 #include <algorithms/test_intersection.hpp>
 #include <algorithms/test_overlay.hpp>
 
@@ -25,6 +32,7 @@
 #if defined(HAVE_CLN) && defined(HAVE_GMP)
 #undef HAVE_GMP
 #endif
+
 
 
 

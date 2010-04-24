@@ -42,7 +42,7 @@
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>

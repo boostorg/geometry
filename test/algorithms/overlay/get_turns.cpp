@@ -16,7 +16,7 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 

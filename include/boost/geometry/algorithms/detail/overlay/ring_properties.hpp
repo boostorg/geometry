@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALG_DET_OV_RING_PROPERTIES_HPP
-#define BOOST_GEOMETRY_ALG_DET_OV_RING_PROPERTIES_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_RING_PROPERTIES_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_RING_PROPERTIES_HPP
 
 
 #include <boost/geometry/algorithms/area.hpp>
@@ -224,8 +224,7 @@ public :
 };
 
 
-
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALG_DET_OV_RING_PROPERTIES_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_RING_PROPERTIES_HPP

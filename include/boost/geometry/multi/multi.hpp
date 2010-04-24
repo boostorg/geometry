@@ -46,8 +46,8 @@
 #include <boost/geometry/multi/algorithms/detail/sections/get_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 
-#include <boost/geometry/multi/algorithms/overlay/copy_segments.hpp>
-#include <boost/geometry/multi/algorithms/overlay/self_turn_points.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>

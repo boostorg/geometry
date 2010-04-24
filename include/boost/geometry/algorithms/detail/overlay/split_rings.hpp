@@ -16,7 +16,7 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>

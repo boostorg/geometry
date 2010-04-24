@@ -14,11 +14,6 @@
 #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
-// For mixing int/float
-#if defined(_MSC_VER)
-#pragma warning( disable : 4244 )
-#endif
-
 
 #include <boost/timer.hpp>
 #include <boost/lexical_cast.hpp>
@@ -28,14 +23,9 @@
 #include <boost/random/variate_generator.hpp>
 
 
+#include <test_overlay_p_q.hpp>
 
 #include <boost/geometry/geometry.hpp>
-
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
-
-#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
-#include <geometry_test_common.hpp>
-#include <test_overlay_p_q.hpp>
 
 
 struct star_params

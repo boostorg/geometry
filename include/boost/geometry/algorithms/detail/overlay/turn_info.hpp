@@ -11,7 +11,7 @@
 
 #include <boost/array.hpp>
 
-#include <boost/geometry/algorithms/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
 namespace boost { namespace geometry
 {

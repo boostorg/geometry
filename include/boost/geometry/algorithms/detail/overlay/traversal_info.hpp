@@ -12,7 +12,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/visit_info.hpp>
-#include <boost/geometry/algorithms/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
 
 namespace boost { namespace geometry
