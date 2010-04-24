@@ -244,7 +244,7 @@ void HelloWorldCanvas::OnMouseMove(wxMouseEvent &event)
         // Create a string and set it in the status text
         std::ostringstream out;
         out << "Position: " << point.x() << ", " << point.y() << " " << m_focus << " " << previous_focus;
-        m_owner->SetStatusText(out.str().c_str());
+        m_owner->SetStatusText(wxString(out.str().c_str(), wxConvUTF8));
     }
 }
 
