@@ -33,7 +33,7 @@ struct sectionalize_multi
     static inline void apply(MultiGeometry const& multi, Sections& sections)
     {
         int multi_index = 0;
-        for (typename boost::range_const_iterator<MultiGeometry>::type
+        for (typename boost::range_iterator<MultiGeometry const>::type
                     it = boost::begin(multi);
             it != boost::end(multi);
             ++it, ++multi_index)

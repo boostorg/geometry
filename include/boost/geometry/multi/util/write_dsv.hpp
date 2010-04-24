@@ -31,9 +31,9 @@ struct dsv_multi
     {
         os << settings.list_open;
 
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                MultiGeometry
+                MultiGeometry const
             >::type iterator;
         for(iterator it = boost::begin(multi);
             it != boost::end(multi);

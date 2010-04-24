@@ -30,9 +30,9 @@ struct multi_sum
     static inline ReturnType apply(MultiGeometry const& geometry, Strategy const& strategy)
     {
         ReturnType sum = ReturnType();
-        for (typename boost::range_const_iterator
+        for (typename boost::range_iterator
                 <
-                    MultiGeometry
+                    MultiGeometry const
                 >::type it = boost::begin(geometry);
             it != boost::end(geometry);
             ++it)

@@ -36,7 +36,7 @@ struct geometry_in_multi
             MultiGeometry const& multi,
             Strategy const& strategy)
     {
-        for (typename boost::range_const_iterator<MultiGeometry>::type it
+        for (typename boost::range_iterator<MultiGeometry const>::type it
                     = boost::begin(multi);
             it != boost::end(multi);
             ++it)

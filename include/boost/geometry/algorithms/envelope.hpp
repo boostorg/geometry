@@ -80,7 +80,7 @@ struct envelope_combine_one
 template<typename Range, typename Box>
 inline void envelope_range_additional(Range const& range, Box& mbr)
 {
-    typedef typename boost::range_const_iterator<Range>::type iterator_type;
+    typedef typename boost::range_iterator<Range const>::type iterator_type;
 
     for (iterator_type it = boost::begin(range);
         it != boost::end(range);

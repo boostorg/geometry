@@ -45,7 +45,7 @@ namespace detail
 template<typename G, typename S, typename B, size_t D>
 struct section_iterator : public detail::iterators::iterator_base<
                     section_iterator<G, S, B, D>,
-                    typename boost::range_const_iterator<G>::type
+                    typename boost::range_iterator<G const>::type
                 >
 {
     friend class boost::iterator_core_access;
@@ -112,8 +112,8 @@ struct section_iterator : public detail::iterators::iterator_base<
         }
 
 
-        typedef typename boost::range_const_iterator<G>::type IT;
-        typedef typename boost::range_const_iterator<S>::type SIT;
+        typedef typename boost::range_iterator<G const>::type IT;
+        typedef typename boost::range_iterator<S const>::type SIT;
 
         const G& m_ring;
         const S& m_sections;
@@ -129,10 +129,10 @@ struct section_iterator : public detail::iterators::iterator_base<
 template<typename G, typename SEC, typename B, size_t D>
 struct one_section_segment_iterator : public detail::iterators::iterator_base<
                 one_section_segment_iterator<G, SEC, B, D>
-                , typename boost::range_const_iterator<G>::type>
+                , typename boost::range_iterator<G  const>::type>
 {
     friend class boost::iterator_core_access;
-    typedef typename boost::range_const_iterator<G>::type normal_iterator;
+    typedef typename boost::range_iterator<G  const>::type normal_iterator;
 
     inline one_section_segment_iterator(const G& ring, const SEC& section, const B& box)
         : m_box(&box)

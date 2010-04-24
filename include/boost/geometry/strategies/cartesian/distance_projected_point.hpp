@@ -12,7 +12,6 @@
 
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/point_type.hpp>

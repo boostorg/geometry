@@ -12,7 +12,6 @@
 
 
 #include <boost/mpl/int.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
 
 #include <boost/geometry/core/tag.hpp>

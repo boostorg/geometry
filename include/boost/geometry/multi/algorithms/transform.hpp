@@ -33,7 +33,7 @@ struct transform_multi
     {
         multi2.resize(boost::size(multi1));
 
-        typename boost::range_const_iterator<Multi1>::type it1
+        typename boost::range_iterator<Multi1 const>::type it1
                 = boost::begin(multi1);
         typename boost::range_iterator<Multi2>::type it2
                 = boost::begin(multi2);

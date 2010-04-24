@@ -59,8 +59,8 @@ template <typename G>
 struct dimension
     : core_dispatch::dimension
         <
-        typename tag<G>::type,
-        typename boost::remove_const<G>::type
+            typename tag<G>::type,
+            typename boost::remove_const<G>::type
         >
 {};
 
@@ -74,8 +74,8 @@ inline void assert_dimension()
     BOOST_STATIC_ASSERT((
         boost::mpl::equal_to
         <
-        geometry::dimension<G>,
-        boost::mpl::int_<D>
+            geometry::dimension<G>,
+            boost::mpl::int_<D>
         >::type::value
         ));
 }

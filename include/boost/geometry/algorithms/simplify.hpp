@@ -150,9 +150,13 @@ struct simplify_polygon
         typedef typename ring_type<Polygon>::type ring_type;
 
         typedef typename boost::range_iterator
-            <typename interior_type<Polygon>::type>::type iterator_type;
-        typedef typename boost::range_const_iterator
-            <typename interior_type<Polygon>::type>::type const_iterator_type;
+            <
+                typename interior_type<Polygon>::type
+            >::type iterator_type;
+        typedef typename boost::range_iterator
+            <
+                typename interior_type<Polygon>::type const
+            >::type const_iterator_type;
 
         // Note that if there are inner rings, and distance is too large,
         // they might intersect with the outer ring in the output,

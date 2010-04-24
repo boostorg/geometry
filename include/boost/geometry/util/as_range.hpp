@@ -9,8 +9,8 @@
 #ifndef BOOST_GEOMETRY_UTIL_AS_RANGE_HPP
 #define BOOST_GEOMETRY_UTIL_AS_RANGE_HPP
 
+
 #include <boost/type_traits.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/is_multi.hpp>

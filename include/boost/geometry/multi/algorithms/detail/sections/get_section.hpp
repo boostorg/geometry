@@ -31,9 +31,9 @@ namespace dispatch
 template <typename MultiPolygon, typename Section>
 struct get_section<multi_polygon_tag, MultiPolygon, Section>
 {
-    typedef typename boost::range_const_iterator
+    typedef typename boost::range_iterator
         <
-            typename geometry::range_type<MultiPolygon>::type
+            typename geometry::range_type<MultiPolygon>::type const
         >::type iterator_type;
 
     static inline void apply(MultiPolygon const& multi_polygon,

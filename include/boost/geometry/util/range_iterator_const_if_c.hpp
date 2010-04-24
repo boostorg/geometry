@@ -32,7 +32,7 @@ struct range_iterator_const_if_c
     typedef typename boost::mpl::if_c
         <
             IsConst,
-            typename boost::range_const_iterator<Range>::type,
+            typename boost::range_iterator<Range const>::type,
             typename boost::range_iterator<Range>::type
         >::type type;
 };

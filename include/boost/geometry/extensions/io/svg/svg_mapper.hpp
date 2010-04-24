@@ -12,7 +12,9 @@
 
 #include <vector>
 
+
 #include <boost/scoped_ptr.hpp>
+#include <boost/type_traits/remove_const.hpp>
 #include <boost/noncopyable.hpp>
 
 #include <boost/algorithm/string/split.hpp>
@@ -188,18 +190,18 @@ class svg_mapper : boost::noncopyable
     {
         if (! m_matrix)
         {
-            m_matrix.reset(new transformer_type(m_bounding_box, 
+            m_matrix.reset(new transformer_type(m_bounding_box,
                             m_width, m_height));
 
-            m_stream << "<?xml version=\"1.0\" standalone=\"no\"?>" 
+            m_stream << "<?xml version=\"1.0\" standalone=\"no\"?>"
                 << std::endl
-                << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"" 
+                << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\""
                 << std::endl
-                << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">" 
+                << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
                 << std::endl
-                << "<svg width=\"100%\" height=\"100%\" version=\"1.1\"" 
+                << "<svg width=\"100%\" height=\"100%\" version=\"1.1\""
                 << std::endl
-                << "xmlns=\"http://www.w3.org/2000/svg\">" 
+                << "xmlns=\"http://www.w3.org/2000/svg\">"
                 << std::endl;
         }
     }
@@ -223,16 +225,16 @@ public :
     {
         if (boost::geometry::num_points(geometry) > 0)
         {
-            boost::geometry::combine(m_bounding_box, 
+            boost::geometry::combine(m_bounding_box,
                 boost::geometry::make_envelope
                     <
-                        boost::geometry::box<Point> 
+                        boost::geometry::box<Point>
                     >(geometry));
         }
     }
 
     template <typename Geometry>
-    void map(Geometry const& geometry, std::string const& style, 
+    void map(Geometry const& geometry, std::string const& style,
                 int size = -1)
     {
         init_matrix();
@@ -240,14 +242,14 @@ public :
     }
 
     template <typename TextPoint>
-    void text(TextPoint const& point, std::string const& s, 
+    void text(TextPoint const& point, std::string const& s,
                 std::string const& style,
                 int offset_x = 0, int offset_y = 0, int lineheight = 10)
     {
         init_matrix();
         map_point_type map_point;
         boost::geometry::transform(point, map_point, *m_matrix);
-        m_stream 
+        m_stream
             << "<text style=\"" << style << "\""
             << " x=\"" << boost::geometry::get<0>(map_point) + offset_x << "\""
             << " y=\"" << boost::geometry::get<1>(map_point) + offset_y << "\""
@@ -264,13 +266,13 @@ public :
             boost::split(splitted, s, boost::is_any_of("\n"));
             for (std::vector<std::string>::const_iterator it
                 = splitted.begin();
-                it != splitted.end(); 
+                it != splitted.end();
                 ++it, offset_y += lineheight)
             {
-                 m_stream 
-                    << "<tspan x=\"" << boost::geometry::get<0>(map_point) + offset_x 
-                    << "\"" 
-                    << " y=\"" << boost::geometry::get<1>(map_point) + offset_y 
+                 m_stream
+                    << "<tspan x=\"" << boost::geometry::get<0>(map_point) + offset_x
+                    << "\""
+                    << " y=\"" << boost::geometry::get<1>(map_point) + offset_y
                     << "\""
                     << ">" << *it << "</tspan>";
             }

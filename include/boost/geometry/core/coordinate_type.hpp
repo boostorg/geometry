@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_CORE_COORDINATE_TYPE_HPP
 #define BOOST_GEOMETRY_CORE_COORDINATE_TYPE_HPP
 
+
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/point_type.hpp>

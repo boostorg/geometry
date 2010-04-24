@@ -12,8 +12,6 @@
 
 #include <boost/range.hpp>
 
-#include <boost/type_traits/remove_const.hpp>
-
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/is_multi.hpp>
@@ -55,12 +53,12 @@ struct get_turns
         sections_type sec;
         geometry::sectionalize(geometry, sec);
 
-        for (typename boost::range_const_iterator<sections_type>::type
+        for (typename boost::range_iterator<sections_type const>::type
                     it1 = sec.begin();
             it1 != sec.end();
             ++it1)
         {
-            for (typename boost::range_const_iterator<sections_type>::type
+            for (typename boost::range_iterator<sections_type const>::type
                         it2 = sec.begin();
                 it2 != sec.end();
                 ++it2)
@@ -198,13 +196,12 @@ inline void get_turns(Geometry const& geometry,
             typename boost::range_value<Turns>::type
         >::segment_intersection_strategy_type strategy_type;
 
-    typedef typename boost::remove_const<Geometry>::type ncg_type;
 
     dispatch::self_get_turn_points
             <
-                typename tag<ncg_type>::type,
-                is_multi<ncg_type>::type::value,
-                ncg_type,
+                typename tag<Geometry>::type,
+                is_multi<Geometry>::type::value,
+                Geometry,
                 Turns, strategy_type,
                 AssignPolicy, InterruptPolicy
             >::apply(geometry, turns, interrupt_policy);

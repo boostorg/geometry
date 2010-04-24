@@ -136,7 +136,7 @@ struct veshape_range
     template <typename Char, typename Traits>
     static inline void stream(std::basic_ostream<Char, Traits>& os, R const& range)
     {
-        typedef typename boost::range_const_iterator<R>::type iterator;
+        typedef typename boost::range_iterator<R const>::type iterator;
 
         bool first = true;
 

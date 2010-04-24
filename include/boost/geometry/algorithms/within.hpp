@@ -181,7 +181,7 @@ struct point_in_ring
             return false;
         }
 
-        typedef typename boost::range_const_iterator<Ring>::type iterator_type;
+        typedef typename boost::range_iterator<Ring const>::type iterator_type;
 
         typename Strategy::state_type state;
 
@@ -219,9 +219,9 @@ struct point_in_polygon
         if (per_ring::apply(point, exterior_ring(poly), strategy))
         {
 
-            for (typename boost::range_const_iterator
+            for (typename boost::range_iterator
                     <
-                        typename interior_type<Polygon>::type
+                        typename interior_type<Polygon>::type const
                     >::type it = boost::begin(interior_rings(poly));
                  it != boost::end(interior_rings(poly));
                  ++it)

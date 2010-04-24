@@ -31,10 +31,9 @@ struct multi_count
     static inline size_t apply(MultiGeometry const& geometry)
     {
         typedef typename boost::range_value<MultiGeometry>::type geometry_type;
-        typedef typename boost::remove_const<geometry_type>::type ncg;
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                MultiGeometry
+                MultiGeometry const
             >::type iterator_type;
 
         size_t n = 0;
@@ -42,8 +41,12 @@ struct multi_count
             it != boost::end(geometry);
             ++it)
         {
-            n += dispatch::num_points<typename tag<ncg>::type,
-                geometry::is_linear<ncg>::value, ncg>::apply(*it);
+            n += dispatch::num_points
+                <
+                    typename tag<geometry_type>::type,
+                    geometry::is_linear<geometry_type>::value,
+                    geometry_type
+                >::apply(*it);
         }
         return n;
     }

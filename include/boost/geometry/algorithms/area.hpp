@@ -122,7 +122,7 @@ struct ring_area<Ring, clockwise, Strategy>
             return type();
         }
 
-        typedef typename boost::range_const_iterator<Ring>::type iterator_type;
+        typedef typename boost::range_iterator<Ring const>::type iterator_type;
 
         typename Strategy::state_type state;
 

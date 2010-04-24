@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DISTANCE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DISTANCE_HPP
 
+
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
 
@@ -111,7 +112,7 @@ struct point_to_range
         }
 
         // line of one point: return point square_distance
-        typedef typename boost::range_const_iterator<Range>::type iterator_type;
+        typedef typename boost::range_iterator<Range const>::type iterator_type;
         iterator_type it = boost::begin(range);
         iterator_type prev = it++;
         if (it == boost::end(range))
@@ -191,9 +192,9 @@ struct point_to_polygon
         distance_containment dc = per_ring::apply(point,
                         exterior_ring(polygon), pp_strategy, ps_strategy);
 
-        for (typename boost::range_const_iterator
+        for (typename boost::range_iterator
                 <
-                    typename interior_type<Polygon>::type
+                    typename interior_type<Polygon>::type const
                 >::type it = boost::begin(interior_rings(polygon));
              it != boost::end(interior_rings(polygon));
              ++it)
@@ -422,33 +423,30 @@ template <typename Geometry1, typename Geometry2, typename Strategy>
 inline typename Strategy::return_type distance(Geometry1 const& geometry1,
             Geometry2 const& geometry2, Strategy const& strategy)
 {
-    typedef typename boost::remove_const<Geometry1>::type ncg1_type;
-    typedef typename boost::remove_const<Geometry2>::type ncg2_type;
-
     return boost::mpl::if_
         <
             typename geometry::reverse_dispatch<Geometry1, Geometry2>::type,
             dispatch::distance_reversed
                 <
-                    typename tag<ncg1_type>::type,
-                    typename tag<ncg2_type>::type,
-                    ncg1_type,
-                    ncg2_type,
+                    typename tag<Geometry1>::type,
+                    typename tag<Geometry2>::type,
+                    Geometry1,
+                    Geometry2,
                     typename strategy_tag<Strategy>::type,
                     Strategy,
-                    is_multi<ncg1_type>::value,
-                    is_multi<ncg2_type>::value
+                    is_multi<Geometry1>::value,
+                    is_multi<Geometry2>::value
                 >,
                 dispatch::distance
                 <
-                    typename tag<ncg1_type>::type,
-                    typename tag<ncg2_type>::type,
-                    ncg1_type,
-                    ncg2_type,
+                    typename tag<Geometry1>::type,
+                    typename tag<Geometry2>::type,
+                    Geometry1,
+                    Geometry2,
                     typename strategy_tag<Strategy>::type,
                     Strategy,
-                    is_multi<ncg1_type>::value,
-                    is_multi<ncg2_type>::value
+                    is_multi<Geometry1>::value,
+                    is_multi<Geometry2>::value
                 >
         >::type::apply(geometry1, geometry2, strategy);
 }

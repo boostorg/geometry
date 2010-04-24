@@ -33,9 +33,9 @@ namespace dispatch
 template <typename Tag, typename Geometry, typename Section>
 struct get_section
 {
-    typedef typename boost::range_const_iterator
+    typedef typename boost::range_iterator
         <
-            typename geometry::range_type<Geometry>::type
+            typename geometry::range_type<Geometry>::type const
         >::type iterator_type;
 
     static inline void apply(Geometry const& geometry, Section const& section,

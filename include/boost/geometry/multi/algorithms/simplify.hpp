@@ -36,7 +36,7 @@ struct simplify_multi
 
         typename boost::range_iterator<MultiGeometry>::type it_out
                 = boost::begin(out);
-        for (typename boost::range_const_iterator<MultiGeometry>::type it_in
+        for (typename boost::range_iterator<MultiGeometry const>::type it_in
                     = boost::begin(multi);
             it_in != boost::end(multi);
             ++it_in, ++it_out)

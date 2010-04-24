@@ -56,7 +56,7 @@ struct tag
 {
     typedef typename traits::tag
         <
-        typename boost::remove_const<Geometry>::type
+            typename boost::remove_const<Geometry>::type
         >::type type;
 };
 

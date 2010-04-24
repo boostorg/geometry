@@ -35,7 +35,7 @@ struct envelope_multi_linestring
     static inline void apply(MultiLinestring const& mp, Box& mbr)
     {
         assign_inverse(mbr);
-        for (typename boost::range_const_iterator<MultiLinestring>::type
+        for (typename boost::range_iterator<MultiLinestring const>::type
                     it = mp.begin();
             it != mp.end();
             ++it)

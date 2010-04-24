@@ -162,7 +162,7 @@ struct dsv_range
             Range const& range,
             dsv_settings const& settings)
     {
-        typedef typename boost::range_const_iterator<Range>::type iterator_type;
+        typedef typename boost::range_iterator<Range const>::type iterator_type;
 
         bool first = true;
 
@@ -206,9 +206,9 @@ struct dsv_poly
                 dsv_settings const& settings)
     {
         typedef typename ring_type<Polygon>::type ring;
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                typename interior_type<Polygon>::type
+                typename interior_type<Polygon>::type const
             >::type iterator_type;
 
         os << settings.list_open;
