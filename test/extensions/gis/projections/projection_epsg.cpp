@@ -8,7 +8,6 @@
 
 #if defined(_MSC_VER)
 #pragma warning( disable : 4305 ) // truncation double -> float
-#pragma warning( disable : 4244 ) // loss of data
 #endif // defined(_MSC_VER)
 
 

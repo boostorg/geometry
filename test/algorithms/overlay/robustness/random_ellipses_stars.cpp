@@ -14,6 +14,12 @@
 #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
+// For mixing int/float
+#if defined(_MSC_VER)
+#pragma warning( disable : 4244 )
+#endif
+
+
 #include <boost/timer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/linear_congruential.hpp>

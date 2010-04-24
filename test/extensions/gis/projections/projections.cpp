@@ -11,8 +11,6 @@
 
 #if defined(_MSC_VER)
 #pragma warning( disable : 4305 ) // truncation double -> float
-#pragma warning( disable : 4244 ) // loss of data
-#pragma warning( disable : 4996 ) // loss of data
 #endif // defined(_MSC_VER)
 
 
@@ -353,7 +351,7 @@ int test_main(int, char* [])
     //test_all<boost::geometry::point_xy<float> >();
     //test_all<boost::geometry::point_xy<double> >();
 
-    // Leave onlye one here, because this divides compilation time with 6 or 7
+    // Leave only one here, because this divides compilation time with 6 or 7
     test_all<boost::geometry::point_xy<long double> >();
 
     return 0;

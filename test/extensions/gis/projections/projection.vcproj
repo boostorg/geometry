@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\projection"
 			ConfigurationType="1"
-			InheritedPropertySheets="../../../boost.vsprops"
+			InheritedPropertySheets="..\..\..\boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -47,6 +47,7 @@
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -93,7 +94,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\projection"
 			ConfigurationType="1"
-			InheritedPropertySheets="../../../boost.vsprops"
+			InheritedPropertySheets="..\..\..\boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

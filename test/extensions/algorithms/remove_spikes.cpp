@@ -6,12 +6,12 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <iostream>
-#include <iomanip>
 #include <string>
 
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/extensions/algorithms/remove_spikes.hpp>
