@@ -44,7 +44,7 @@ struct copy_segments_ring
             SegmentIdentifier const& seg_id, int to_index,
             RangeOut& current_output)
     {
-        typedef typename boost::range_const_iterator<Ring>::type iterator;
+        typedef typename boost::range_iterator<Ring const>::type iterator;
 
         typedef geometry::ever_circling_iterator<iterator> ec_iterator;
 
@@ -64,11 +64,12 @@ struct copy_segments_ring
         // [2..4] -> 4 - 2 + 1 = 3 -> {2,3,4} -> OK
         // [4..2],size=6 -> 6 - 4 + 2 + 1 = 5 -> {4,5,0,1,2} -> OK
         // [1..1], travel the whole ring round
-        int count = from_index <= to_index
+        typedef typename boost::range_difference<Ring>::type size_type;
+        size_type count = from_index <= to_index
             ? to_index - from_index + 1
             : boost::size(ring) - from_index + to_index + 1;
 
-        for (int i = 0; i < count; ++i, ++it)
+        for (size_type i = 0; i < count; ++i, ++it)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
             std::cout << "  add: ("

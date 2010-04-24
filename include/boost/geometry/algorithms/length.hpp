@@ -81,7 +81,7 @@ struct range_length
     {
         return_type sum = return_type();
 
-        typedef typename boost::range_const_iterator<Range>::type iterator_type;
+        typedef typename boost::range_iterator<Range const>::type iterator_type;
         iterator_type it = boost::begin(range);
         if (it != boost::end(range))
         {

@@ -128,7 +128,7 @@ inline bool transform_range_out(Range const& range,
     OutputIterator out, Strategy const& strategy)
 {
     PointOut point_out;
-    for(typename boost::range_const_iterator<Range>::type
+    for(typename boost::range_iterator<Range const>::type
         it = boost::begin(range);
         it != boost::end(range);
         ++it)
@@ -170,9 +170,9 @@ struct transform_polygon
 
         interior_rings(poly2).resize(num_interior_rings(poly1));
 
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                interior1_type
+                interior1_type const
             >::type iterator1_type;
         typedef typename boost::range_iterator
             <

@@ -12,7 +12,6 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/is_linear.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -52,9 +51,9 @@ struct polygon_count
     static inline std::size_t apply(Polygon const& poly)
     {
         std::size_t n = boost::size(exterior_ring(poly));
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                typename interior_type<Polygon>::type
+                typename interior_type<Polygon>::type const
             >::type iterator;
 
         for (iterator it = boost::begin(interior_rings(poly));
@@ -129,15 +128,13 @@ struct num_points<polygon_tag, false, Geometry>
 template <typename Geometry>
 inline std::size_t num_points(Geometry const& geometry)
 {
-    concept::check<const Geometry>();
-
-    typedef typename boost::remove_const<Geometry>::type ncg_type;
+    concept::check<Geometry const>();
 
     return dispatch::num_points
         <
             typename tag<Geometry>::type,
-            is_linear<ncg_type>::value,
-            ncg_type
+            is_linear<Geometry>::value,
+            Geometry
         >::apply(geometry);
 }
 

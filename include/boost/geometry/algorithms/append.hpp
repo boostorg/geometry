@@ -63,7 +63,7 @@ struct append_range
     static inline void apply(Geometry& geometry, Range const& range,
                 int ring_index, int multi_index)
     {
-        for (typename boost::range_const_iterator<Range>::type
+        for (typename boost::range_iterator<Range const>::type
             it = boost::begin(range);
              it != boost::end(range);
              ++it)

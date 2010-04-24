@@ -18,6 +18,7 @@
 namespace boost { namespace geometry
 {
 
+
 namespace traits
 {
 
@@ -74,6 +75,7 @@ struct coordinate_system
             ncg
         >::type type;
 };
+
 
 }} // namespace boost::geometry
 

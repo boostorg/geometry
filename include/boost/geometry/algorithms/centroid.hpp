@@ -188,7 +188,7 @@ struct centroid_ring_state
     static inline void apply(Ring const& ring,
             Strategy const& strategy, typename Strategy::state_type& state)
     {
-        typedef typename boost::range_const_iterator<Ring>::type iterator_type;
+        typedef typename boost::range_iterator<Ring const>::type iterator_type;
         iterator_type it = boost::begin(ring);
         for (iterator_type previous = it++;
             it != boost::end(ring);
@@ -202,7 +202,7 @@ struct centroid_ring_state
             segment iterator: 1.985 s...
         typedef segment_iterator
             <
-                typename boost::range_const_iterator<Ring>::type,
+                typename boost::range_iterator<Ring const>::type,
                 typename point_type<Ring>::type
             > iterator_type;
 
@@ -249,7 +249,7 @@ struct centroid_linestring
         // - be made dim-agnostic
 
         typedef typename point_type<Linestring>::type point_type;
-        typedef typename boost::range_const_iterator<Linestring>::type point_iterator_type;
+        typedef typename boost::range_iterator<Linestring const>::type point_iterator_type;
         typedef segment_iterator<point_iterator_type, point_type> segment_iterator;
 
         double length = double();
@@ -293,9 +293,9 @@ struct centroid_polygon_state
 
         per_ring::apply(exterior_ring(poly), strategy, state);
 
-        for (typename boost::range_const_iterator
+        for (typename boost::range_iterator
                 <
-                    typename interior_type<Polygon>::type
+                    typename interior_type<Polygon>::type const
                 >::type it = boost::begin(interior_rings(poly));
              it != boost::end(interior_rings(poly));
              ++it)

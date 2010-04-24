@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_HPP
 
 
-#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/is_multi.hpp>

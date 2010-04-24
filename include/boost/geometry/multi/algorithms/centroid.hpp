@@ -77,7 +77,7 @@ struct centroid_multi
 
         typename Strategy::state_type state;
 
-        for (typename boost::range_const_iterator<Multi>::type
+        for (typename boost::range_iterator<Multi const>::type
                 it = boost::begin(multi);
             it != boost::end(multi);
             ++it)

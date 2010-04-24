@@ -114,7 +114,7 @@ struct wkt_range
     static inline void apply(std::basic_ostream<Char, Traits>& os,
                 Range const& range)
     {
-        typedef typename boost::range_const_iterator<Range>::type iterator_type;
+        typedef typename boost::range_iterator<Range const>::type iterator_type;
 
         bool first = true;
 
@@ -167,8 +167,10 @@ struct wkt_poly
                 Polygon const& poly)
     {
         typedef typename ring_type<Polygon>::type ring;
-        typedef typename boost::range_const_iterator<
-                    typename interior_type<Polygon>::type>::type iterator;
+        typedef typename boost::range_iterator
+            <
+                typename interior_type<Polygon>::type const
+            >::type iterator;
 
         os << PrefixPolicy::apply();
         // TODO: check EMPTY here

@@ -82,9 +82,9 @@ struct replace_point_type<polygon_tag, Geometry, NewPointType>
 template <typename Geometry, typename NewPointType>
 struct replace_point_type : core_dispatch::replace_point_type
         <
-        typename tag<Geometry>::type,
-        typename boost::remove_const<Geometry>::type,
-        NewPointType
+            typename tag<Geometry>::type,
+            typename boost::remove_const<Geometry>::type,
+            NewPointType
         >
 {};
 

@@ -90,7 +90,7 @@ inline bool range_in_circle(R const& range, C const& c)
     assert_dimension<R, 2>();
     assert_dimension<C, 2>();
 
-    for (typename boost::range_const_iterator<R>::type it = boost::begin(range);
+    for (typename boost::range_iterator<R const>::type it = boost::begin(range);
          it != boost::end(range); ++it)
     {
         if (! point_in_circle(*it, c))

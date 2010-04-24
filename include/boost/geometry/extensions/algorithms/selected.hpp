@@ -181,7 +181,7 @@ struct close_to_range
         }
 
         typedef typename point_type<R>::type point_type;
-        typedef typename boost::range_const_iterator<R>::type iterator_type;
+        typedef typename boost::range_iterator<R const>::type iterator_type;
 
         iterator_type it = boost::begin(range);
         if (n == 1)

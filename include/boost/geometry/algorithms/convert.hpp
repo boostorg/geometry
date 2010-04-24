@@ -136,7 +136,7 @@ struct convert<ring_tag, ring_tag, Dimensions, Ring1, Ring2>
     static inline void apply(Ring1 const& source, Ring2& destination)
     {
         geometry::clear(destination);
-        for (typename boost::range_const_iterator<Ring1>::type it
+        for (typename boost::range_iterator<Ring1 const>::type it
             = boost::begin(source);
             it != boost::end(source);
             ++it)

@@ -50,7 +50,7 @@ struct distance_single_to_multi
                             >::type
                     >::highest());
 
-        for(typename range_const_iterator<MultiGeometry>::type it = begin(multi);
+        for(typename range_iterator<MultiGeometry const>::type it = begin(multi);
                 it != end(multi);
                 ++it)
         {
@@ -85,7 +85,7 @@ struct distance_multi_to_multi
                             >::type
                     >::highest());
 
-        for(typename range_const_iterator<Multi1>::type it = begin(multi1);
+        for(typename range_iterator<Multi1 const>::type it = begin(multi1);
                 it != end(multi1);
                 ++it)
         {

@@ -173,7 +173,7 @@ OutputIterator clip_linestring_with_box(Box const& b, Linestring const& linestri
 
     OutputLinestring line_out;
 
-    typedef typename boost::range_const_iterator<Linestring>::type iterator_type;
+    typedef typename boost::range_iterator<Linestring const>::type iterator_type;
     iterator_type vertex = boost::begin(linestring);
     for(iterator_type previous = vertex++;
             vertex != boost::end(linestring);

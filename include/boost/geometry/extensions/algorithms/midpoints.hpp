@@ -59,7 +59,7 @@ struct range_midpoints
             bool start_and_end, Iterator out)
     {
         typedef typename point_type<Range>::type point_type;
-        typedef typename boost::range_const_iterator<Range>::type iterator_type;
+        typedef typename boost::range_iterator<Range const>::type iterator_type;
 
         iterator_type it = boost::begin(range);
 

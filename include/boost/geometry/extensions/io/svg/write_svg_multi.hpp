@@ -28,7 +28,7 @@ struct svg_multi
     static inline void apply(std::basic_ostream<Char, Traits>& os,
         MultiGeometry const& multi, std::string const& style, int size)
     {
-        for (typename boost::range_const_iterator<MultiGeometry>::type
+        for (typename boost::range_iterator<MultiGeometry const>::type
                     it = boost::begin(multi);
             it != boost::end(multi);
             ++it)

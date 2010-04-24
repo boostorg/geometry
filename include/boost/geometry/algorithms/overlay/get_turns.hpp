@@ -16,7 +16,6 @@
 #include <boost/range.hpp>
 
 #include <boost/tuple/tuple.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -102,14 +101,14 @@ public :
             InterruptPolicy& interrupt_policy)
     {
 
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                typename geometry::range_type<Geometry1>::type
+                typename geometry::range_type<Geometry1>::type const
             >::type range1_iterator;
 
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                typename geometry::range_type<Geometry2>::type
+                typename geometry::range_type<Geometry2>::type const
             >::type range2_iterator;
 
         int const dir1 = sec1.directions[0];
@@ -341,12 +340,12 @@ class get_turns_generic
             Sections1 const& sec1, Sections2 const& sec2,
             Map& map)
     {
-        for (typename boost::range_const_iterator<Sections1>::type
+        for (typename boost::range_iterator<Sections1 const>::type
                     it1 = sec1.begin();
             it1 != sec1.end();
             ++it1)
         {
-            for (typename boost::range_const_iterator<Sections2>::type
+            for (typename boost::range_iterator<Sections2 const>::type
                         it2 = sec2.begin();
                 it2 != sec2.end();
                 ++it2)
@@ -703,9 +702,9 @@ struct get_turns
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
 
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                typename interior_type<Polygon>::type
+                typename interior_type<Polygon>::type const
             >::type iterator_type;
 
 
@@ -760,9 +759,9 @@ struct get_turns
             int source_id2, Box const& box,
             Turns& turns, InterruptPolicy& interrupt_policy)
     {
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                Ring
+                Ring const
             >::type iterator_type;
 
         typedef detail::get_turns::get_turns_cs

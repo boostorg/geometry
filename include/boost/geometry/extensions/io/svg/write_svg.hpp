@@ -86,7 +86,7 @@ struct svg_range
     static inline void apply(std::basic_ostream<Char, Traits>& os,
         Range const& range, std::string const& style, int size)
     {
-        typedef typename boost::range_const_iterator<Range>::type iterator;
+        typedef typename boost::range_iterator<Range const>::type iterator;
 
         bool first = true;
 
@@ -115,7 +115,7 @@ struct svg_poly
         Polygon const& polygon, std::string const& style, int size)
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
-        typedef typename boost::range_const_iterator<ring_type>::type iterator_type;
+        typedef typename boost::range_iterator<ring_type const>::type iterator_type;
 
         bool first = true;
         os << "<g fill-rule=\"evenodd\"><path d=\"";
@@ -133,9 +133,9 @@ struct svg_poly
 
         // Inner rings:
         {
-            typedef typename boost::range_const_iterator
+            typedef typename boost::range_iterator
                 <
-                    typename geometry::interior_type<Polygon>::type
+                    typename geometry::interior_type<Polygon>::type const
                 >::type ring_iterator_type;
             for (ring_iterator_type rit = boost::begin(interior_rings(polygon));
                  rit != boost::end(interior_rings(polygon));

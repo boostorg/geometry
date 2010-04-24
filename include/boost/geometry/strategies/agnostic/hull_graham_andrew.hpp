@@ -275,9 +275,9 @@ public:
 
         typedef typename range_type<InputGeometry>::type range_type;
 
-        typedef typename boost::range_const_iterator
+        typedef typename boost::range_iterator
             <
-                range_type
+                range_type const
             >::type range_iterator;
 
         detail::get_extremes
