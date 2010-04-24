@@ -53,7 +53,7 @@ typedef boost::geometry::multi_polygon<boost::geometry::polygon_2d> country_type
 // Read an ASCII file containing WKT's
 // ----------------------------------------------------------------------------
 template <typename Geometry, typename Box>
-void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Box& m_box)
+void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Box& box)
 {
     std::ifstream cpp_file(filename.c_str());
     if (cpp_file.is_open())
@@ -68,7 +68,7 @@ void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Bo
                 Geometry geometry;
                 boost::geometry::read_wkt(line, geometry);
                 geometries.push_back(geometry);
-                boost::geometry::combine(m_box, boost::geometry::make_envelope<Box>(geometry));
+                boost::geometry::combine(box, boost::geometry::make_envelope<Box>(geometry));
             }
         }
     }
@@ -82,7 +82,7 @@ void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Bo
 class HelloWorldFrame: public wxFrame
 {
 public:
-    HelloWorldFrame(wxFrame *frame, const wxString& title, const wxPoint& pos, const wxSize& size);
+    HelloWorldFrame(wxFrame *frame, wxString const& title, wxPoint const& pos, wxSize const& size);
 
     void OnCloseWindow(wxCloseEvent& );
     void OnExit(wxCommandEvent& );
@@ -160,7 +160,7 @@ public:
 
 
 // ----------------------------------------------------------------------------
-HelloWorldFrame::HelloWorldFrame(wxFrame *frame, const wxString& title, const wxPoint& pos, const wxSize& size)
+HelloWorldFrame::HelloWorldFrame(wxFrame *frame, wxString const& title, wxPoint const& pos, wxSize const& size)
     : wxFrame(frame, wxID_ANY, title, pos, size, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE )
 {
     CreateStatusBar(2);
