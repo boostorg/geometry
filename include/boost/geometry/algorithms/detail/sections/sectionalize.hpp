@@ -12,8 +12,6 @@
 #include <cstddef>
 #include <vector>
 
-#include <boost/concept_check.hpp>
-
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
@@ -105,7 +103,7 @@ template <typename Box, std::size_t DimensionCount>
 struct sections : std::vector<section<Box, DimensionCount> >
 {
     typedef Box box_type;
-    static const std::size_t value = DimensionCount;
+    static std::size_t const value = DimensionCount;
 };
 
 
@@ -137,18 +135,14 @@ struct get_direction_loop
 template <typename Segment, std::size_t DimensionCount>
 struct get_direction_loop<Segment, DimensionCount, DimensionCount>
 {
-    static inline void apply(Segment const& seg,
-                int directions[DimensionCount])
-    {
-        boost::ignore_unused_variable_warning(seg);
-        boost::ignore_unused_variable_warning(directions);
-    }
+    static inline void apply(Segment const&, int [DimensionCount])
+    {}
 };
 
 template <typename T, std::size_t Dimension, std::size_t DimensionCount>
 struct copy_loop
 {
-    static inline void apply(const T source[DimensionCount],
+    static inline void apply(T const source[DimensionCount],
                 T target[DimensionCount])
     {
         target[Dimension] = source[Dimension];
@@ -159,19 +153,15 @@ struct copy_loop
 template <typename T, std::size_t DimensionCount>
 struct copy_loop<T, DimensionCount, DimensionCount>
 {
-    static inline void apply(const T source[DimensionCount],
-                T target[DimensionCount])
-    {
-        boost::ignore_unused_variable_warning(source);
-        boost::ignore_unused_variable_warning(target);
-    }
+    static inline void apply(T const [DimensionCount], T [DimensionCount])
+    {}
 };
 
 template <typename T, std::size_t Dimension, std::size_t DimensionCount>
 struct compare_loop
 {
-    static inline bool apply(const T source[DimensionCount],
-                const T target[DimensionCount])
+    static inline bool apply(T const source[DimensionCount],
+                T const target[DimensionCount])
     {
         bool const not_equal = target[Dimension] != source[Dimension];
 
@@ -187,11 +177,9 @@ struct compare_loop
 template <typename T, std::size_t DimensionCount>
 struct compare_loop<T, DimensionCount, DimensionCount>
 {
-    static inline bool apply(const T source[DimensionCount],
-                const T target[DimensionCount])
+    static inline bool apply(T const [DimensionCount],
+                T const [DimensionCount])
     {
-        boost::ignore_unused_variable_warning(source);
-        boost::ignore_unused_variable_warning(target);
 
         return true;
     }
@@ -242,9 +230,8 @@ struct assign_loop
 template <typename T, std::size_t DimensionCount>
 struct assign_loop<T, DimensionCount, DimensionCount>
 {
-    static inline void apply(T dims[DimensionCount], int const)
+    static inline void apply(T [DimensionCount], int const)
     {
-        boost::ignore_unused_variable_warning(dims);
     }
 };
 
@@ -375,7 +362,7 @@ struct sectionalize_range
     static inline void apply(Range const& range, Sections& sections,
                 int ring_index = -1, int multi_index = -1)
     {
-        typedef segment<const Point> segment_type;
+        typedef segment<Point const> segment_type;
 
         std::size_t const n = boost::size(range);
         if (n == 0)
@@ -615,7 +602,7 @@ inline void sectionalize(Geometry const& geometry, Sections& sections)
     concept::check<Geometry const>();
 
     // A maximum of 10 segments per section seems to give the fastest results
-    static const std::size_t max_segments_per_section = 10;
+    static std::size_t const max_segments_per_section = 10;
     typedef dispatch::sectionalize
         <
             typename tag<Geometry>::type,

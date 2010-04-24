@@ -43,11 +43,11 @@ struct iterator_base :
         return this->base();
     }
 
-    /*inline bool operator==(const Iterator& other) const
+    /*inline bool operator==(Iterator const& other) const
     {
         return this->base() == other;
     }
-    inline bool operator!=(const Iterator& other) const
+    inline bool operator!=(Iterator const& other) const
     {
         return ! operator==(other);
     }*/

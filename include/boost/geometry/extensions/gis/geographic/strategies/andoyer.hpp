@@ -57,7 +57,7 @@ namespace strategy
                     : m_ellipsoid(f)
                 {}
 
-                inline return_type apply(const P1& p1, const P2& p2) const
+                inline return_type apply(P1 const& p1, P2 const& p2) const
                 {
                     return calc(get_as_radian<0>(p1), get_as_radian<1>(p1),
                                     get_as_radian<0>(p2), get_as_radian<1>(p2));
@@ -69,7 +69,7 @@ namespace strategy
                 typedef typename coordinate_type<P2>::type T2;
                 geometry::detail::ellipsoid m_ellipsoid;
 
-                inline return_type calc(const T1& lon1, const T1& lat1, const T2& lon2, const T2& lat2) const
+                inline return_type calc(T1 const& lon1, T1 const& lat1, T2 const& lon2, T2 const& lat2) const
                 {
                     typedef double calculation_type;
                     calculation_type G = (lat1 - lat2) / 2.0;

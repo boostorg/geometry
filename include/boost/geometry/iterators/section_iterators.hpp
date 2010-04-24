@@ -25,14 +25,14 @@ namespace boost { namespace geometry
 namespace detail
 {
     template <size_t D, typename P, typename B>
-    inline bool exceeding(short int dir, const P& point, const B& box)
+    inline bool exceeding(short int dir, P const& point, B const& box)
     {
         return (dir == 1  && get<D>(point) > get<1, D>(box))
             || (dir == -1 && get<D>(point) < get<0, D>(box));
     }
 
     template <size_t D, typename P, typename B>
-    inline bool preceding(short int dir, const P& point, const B& box)
+    inline bool preceding(short int dir, P const& point, B const& box)
     {
         return (dir == 1  && get<D>(point) < get<0, D>(box))
             || (dir == -1 && get<D>(point) > get<1, D>(box));
@@ -50,7 +50,7 @@ struct section_iterator : public detail::iterators::iterator_base<
 {
     friend class boost::iterator_core_access;
 
-    inline section_iterator(const G& ring, const S& sections, const B& box)
+    inline section_iterator(G const& ring, S const& sections, B const& box)
         : m_ring(ring)
         , m_sections(sections)
         , m_box(box)
@@ -115,9 +115,9 @@ struct section_iterator : public detail::iterators::iterator_base<
         typedef typename boost::range_iterator<G const>::type IT;
         typedef typename boost::range_iterator<S const>::type SIT;
 
-        const G& m_ring;
-        const S& m_sections;
-        const B& m_box;
+        G const& m_ring;
+        S const& m_sections;
+        B const& m_box;
 
         IT m_end;
         SIT m_section_iterator;
@@ -129,12 +129,12 @@ struct section_iterator : public detail::iterators::iterator_base<
 template<typename G, typename SEC, typename B, size_t D>
 struct one_section_segment_iterator : public detail::iterators::iterator_base<
                 one_section_segment_iterator<G, SEC, B, D>
-                , typename boost::range_iterator<G  const>::type>
+                , typename boost::range_iterator<G const>::type>
 {
     friend class boost::iterator_core_access;
-    typedef typename boost::range_iterator<G  const>::type normal_iterator;
+    typedef typename boost::range_iterator<G const>::type normal_iterator;
 
-    inline one_section_segment_iterator(const G& ring, const SEC& section, const B& box)
+    inline one_section_segment_iterator(G const& ring, SEC const& section, B const& box)
         : m_box(&box)
         , m_dir(section.directions[0])
     {
@@ -165,7 +165,7 @@ struct one_section_segment_iterator : public detail::iterators::iterator_base<
         }
 
         // Check if iterator is still in box and if not, go to the next section and advance until it is in box
-        void init(const SEC& section, const G& ring)
+        void init(SEC const& section, G const& ring)
         {
             //this->base_reference();
             m_section_end = boost::begin(ring) + section.end_index + 1;

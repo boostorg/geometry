@@ -88,7 +88,7 @@ inline GAUSS gauss_ini(double e, double phi0, double &chi, double &rc)
 }
 
 template <typename T>
-inline void gauss(const GAUSS& en, T& lam, T& phi)
+inline void gauss(GAUSS const& en, T& lam, T& phi)
 {
     phi = 2.0 * std::atan(en.K * std::pow(std::tan(0.5 * phi + FORTPI), en.C)
           * srat(en.e * std::sin(phi), en.ratexp) ) - HALFPI;
@@ -97,7 +97,7 @@ inline void gauss(const GAUSS& en, T& lam, T& phi)
 }
 
 template <typename T>
-inline void inv_gauss(const GAUSS& en, T& lam, T& phi)
+inline void inv_gauss(GAUSS const& en, T& lam, T& phi)
 {
     lam /= en.C;
     const double num = std::pow(std::tan(0.5 * phi + FORTPI) / en.K, 1.0 / en.C);

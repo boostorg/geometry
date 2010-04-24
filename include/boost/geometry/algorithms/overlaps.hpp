@@ -178,8 +178,8 @@ struct overlaps<box_tag, box_tag, Box1, Box2>
 template <typename Geometry1, typename Geometry2>
 inline bool overlaps(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    concept::check<const Geometry1>();
-    concept::check<const Geometry2>();
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
 
     return dispatch::overlaps
         <

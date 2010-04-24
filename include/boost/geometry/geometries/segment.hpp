@@ -28,7 +28,7 @@ namespace boost { namespace geometry
 \note The structure is like std::pair, and can often be used interchangeable.
 Difference is that it refers to points, does not have points.
 \note Like std::pair, points are public available.
-\note type is const or non const, so geometry::segment<P> or geometry::segment<const P>
+\note type is const or non const, so geometry::segment<P> or geometry::segment<P const>
 \note We cannot derive from std::pair<P&, P&> because of
 reference assignments.
 \tparam ConstOrNonConstPoint point type of the segment, maybe a point or a const point

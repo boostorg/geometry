@@ -49,7 +49,7 @@ struct interior_type
         - polygon
     \par Specializations should provide:
         - static inline INTERIOR& get(POLY&)
-        - static inline const INTERIOR& get(const POLY&)
+        - static inline const INTERIOR& get(POLY const&)
     \tparam Geometry geometry
 */
 template <typename Geometry>

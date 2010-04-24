@@ -53,7 +53,7 @@ namespace forwrd
 
 /* forward projection entry */
 template <typename Prj, typename LL, typename XY, typename P>
-inline void pj_fwd(const Prj& prj, const P& par, const LL& ll, XY& xy)
+inline void pj_fwd(Prj const& prj, P const& par, LL const& ll, XY& xy)
 {
     using namespace detail;
 

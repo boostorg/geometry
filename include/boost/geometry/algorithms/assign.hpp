@@ -475,7 +475,7 @@ inline void assign_box_corners(Box const& box,
         Point& lower_left, Point& lower_right,
         Point& upper_left, Point& upper_right)
 {
-    concept::check<const Box>();
+    concept::check<Box const>();
     concept::check<Point>();
 
     detail::assign::assign_box_2d_corner
@@ -499,7 +499,7 @@ inline void assign_box_corners(Box const& box,
 template <std::size_t Index, typename Geometry, typename Point>
 inline void assign_point_to_index(Point const& point, Geometry& geometry)
 {
-    concept::check<const Point>();
+    concept::check<Point const>();
     concept::check<Geometry>();
 
     detail::assign::assign_point_to_index
@@ -518,7 +518,7 @@ inline void assign_point_to_index(Point const& point, Geometry& geometry)
 template <std::size_t Index, typename Point, typename Geometry>
 inline void assign_point_from_index(Geometry const& geometry, Point& point)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
     concept::check<Point>();
 
     detail::assign::assign_point_from_index

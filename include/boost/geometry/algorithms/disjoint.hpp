@@ -50,7 +50,6 @@
 #include <boost/geometry/util/math.hpp>
 
 
-
 namespace boost { namespace geometry
 {
 
@@ -178,45 +177,43 @@ struct disjoint_reversed
     \return true if disjoint, else false
  */
 template <typename Geometry1, typename Geometry2>
-inline bool disjoint(const Geometry1& geometry1,
-            const Geometry2& geometry2)
+inline bool disjoint(Geometry1 const& geometry1,
+            Geometry2 const& geometry2)
 {
     concept::check_concepts_and_equal_dimensions
         <
-            const Geometry1,
-            const Geometry2
+            Geometry1 const,
+            Geometry2 const
         >();
-
-    typedef typename boost::remove_const<Geometry1>::type ncg1_type;
-    typedef typename boost::remove_const<Geometry2>::type ncg2_type;
 
     return boost::mpl::if_c
         <
             reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::disjoint_reversed
             <
-                typename tag<ncg1_type>::type,
-                typename tag<ncg2_type>::type,
-                ncg1_type,
-                ncg2_type,
-                is_multi<ncg1_type>::type::value,
-                is_multi<ncg2_type>::type::value,
-                dimension<ncg1_type>::type::value
+                typename tag<Geometry1>::type,
+                typename tag<Geometry2>::type,
+                Geometry1,
+                Geometry2,
+                is_multi<Geometry1>::type::value,
+                is_multi<Geometry2>::type::value,
+                dimension<Geometry1>::type::value
             >,
             dispatch::disjoint
             <
-                typename tag<ncg1_type>::type,
-                typename tag<ncg2_type>::type,
-                ncg1_type,
-                ncg2_type,
-                is_multi<ncg1_type>::type::value,
-                is_multi<ncg2_type>::type::value,
-                dimension<ncg1_type>::type::value
+                typename tag<Geometry1>::type,
+                typename tag<Geometry2>::type,
+                Geometry1,
+                Geometry2,
+                is_multi<Geometry1>::type::value,
+                is_multi<Geometry2>::type::value,
+                dimension<Geometry1>::type::value
             >
         >::type::apply(geometry1, geometry2);
 }
 
 
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP

@@ -16,6 +16,7 @@
 #include <boost/geometry/multi/core/tags.hpp>
 
 
+#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -300,22 +301,25 @@ struct remove_elongated_spikes
 
 
 template <typename Point>
-struct remove_by_normalized
+class remove_by_normalized
 {
     typedef typename coordinate_type<Point>::type coordinate_type;
     coordinate_type m_zero;
+    coordinate_type m_limit;
 
-    inline remove_by_normalized()
-            : m_zero(coordinate_type())
+public :
+    inline remove_by_normalized(coordinate_type const& lm = 1.0e-7)
+        : m_zero(coordinate_type())
+        , m_limit(lm)
     {}
 
     inline bool operator()(Point const& prev,
                 Point const& current, Point const& next) const
     {
-        coordinate_type x1 = get<0>(prev);
-        coordinate_type y1 = get<1>(prev);
-        coordinate_type x2 = get<0>(current);
-        coordinate_type y2 = get<1>(current);
+        coordinate_type const x1 = get<0>(prev);
+        coordinate_type const y1 = get<1>(prev);
+        coordinate_type const x2 = get<0>(current);
+        coordinate_type const y2 = get<1>(current);
 
         coordinate_type dx1 = x2 - x1;
         coordinate_type dy1 = y2 - y1;
@@ -338,8 +342,8 @@ struct remove_by_normalized
 
         // Normalize the vectors -> this results in points+direction
         // and is comparible between geometries
-        coordinate_type magnitude1 = sqrt(dx1 * dx1 + dy1 * dy1);
-        coordinate_type magnitude2 = sqrt(dx2 * dx2 + dy2 * dy2);
+        coordinate_type const magnitude1 = std::sqrt(dx1 * dx1 + dy1 * dy1);
+        coordinate_type const magnitude2 = std::sqrt(dx2 * dx2 + dy2 * dy2);
 
         if (magnitude1 > m_zero && magnitude2 > m_zero)
         {
@@ -349,9 +353,8 @@ struct remove_by_normalized
             dy2 /= magnitude2;
 
             // If the directions are opposite, it can be removed
-            //if (geometry::math::equals(dx1, -dx2) && geometry::math::equals(dy1, -dy2))
-            coordinate_type small(1e-7);
-            if (abs(dx1 + dx2) < small && abs(dy1 + dy2) < small)
+            if (std::abs(dx1 + dx2) < m_limit 
+                && std::abs(dy1 + dy2) < m_limit)
             {
                 return true;
             }

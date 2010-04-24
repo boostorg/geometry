@@ -245,7 +245,7 @@ Example showing envelope calculation, using point_ll latlong points
 template<typename Geometry, typename Box>
 inline void envelope(Geometry const& geometry, Box& mbr)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
     concept::check<Box>();
 
     dispatch::envelope
@@ -265,7 +265,7 @@ inline void envelope(Geometry const& geometry, Box& mbr)
 template<typename Box, typename Geometry>
 inline Box make_envelope(Geometry const& geometry)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
     concept::check<Box>();
 
     Box mbr;

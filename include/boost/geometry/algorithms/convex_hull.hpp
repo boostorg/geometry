@@ -225,7 +225,7 @@ inline OutputIterator convex_hull_inserter(Geometry const& geometry,
             OutputIterator out, Strategy const& strategy)
 {
     // Concept: output point type = point type of input geometry
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
     concept::check<typename point_type<Geometry>::type>();
 
     BOOST_CONCEPT_ASSERT( (geometry::concept::ConvexHullStrategy<Strategy>) );
@@ -258,7 +258,7 @@ inline OutputIterator convex_hull_inserter(Geometry const& geometry,
             OutputIterator out)
 {
     // Concept: output point type = point type of input geometry
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
     concept::check<typename point_type<Geometry>::type>();
 
     typedef typename range_type<Geometry>::type range_type;

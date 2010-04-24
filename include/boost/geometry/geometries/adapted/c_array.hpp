@@ -73,7 +73,7 @@ struct dimension<CoordinateType[DimensionCount]>: boost::mpl::int_<DimensionCoun
 template <typename CoordinateType, std::size_t DimensionCount, std::size_t Dimension>
 struct access<CoordinateType[DimensionCount], Dimension>
 {
-    static inline CoordinateType get(const CoordinateType p[DimensionCount])
+    static inline CoordinateType get(CoordinateType const p[DimensionCount])
     {
         return p[Dimension];
     }

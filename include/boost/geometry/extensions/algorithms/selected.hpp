@@ -193,7 +193,7 @@ struct close_to_range
         iterator_type previous = it++;
         while(it != boost::end(range))
         {
-            //typedef segment<const point_type> segment_type;
+            //typedef segment<point_type const> segment_type;
             //segment_type s(*previous, *it);
             if (close_to_segment
                     <
@@ -266,8 +266,8 @@ inline bool selected(Geometry const& geometry,
         Point const& selection_point,
         RadiusType const& search_radius)
 {
-    concept::check<const Geometry>();
-    concept::check<const Point>();
+    concept::check<Geometry const>();
+    concept::check<Point const>();
 
     typedef dispatch::selected
         <

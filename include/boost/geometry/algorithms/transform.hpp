@@ -151,7 +151,7 @@ inline bool transform_range_out(Range const& range,
 template <typename Polygon1, typename Polygon2, typename Strategy>
 struct transform_polygon
 {
-    static inline bool apply(const Polygon1& poly1, Polygon2& poly2,
+    static inline bool apply(Polygon1 const& poly1, Polygon2& poly2,
                 Strategy const& strategy)
     {
         typedef typename interior_type<Polygon1>::type interior1_type;
@@ -296,7 +296,7 @@ template <typename Geometry1, typename Geometry2, typename Strategy>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
             Strategy const& strategy)
 {
-    concept::check<const Geometry1>();
+    concept::check<Geometry1 const>();
     concept::check<Geometry2>();
 
     typedef dispatch::transform
@@ -323,7 +323,7 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
 template <typename Geometry1, typename Geometry2>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2)
 {
-    concept::check<const Geometry1>();
+    concept::check<Geometry1 const>();
     concept::check<Geometry2>();
 
     typename detail::transform::select_strategy<Geometry1, Geometry2>::type strategy;

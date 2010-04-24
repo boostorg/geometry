@@ -270,7 +270,7 @@ struct for_each_segment<polygon_tag, false, Polygon, Functor, IsConst>
 template<typename Geometry, typename Functor>
 inline Functor for_each_point(Geometry const& geometry, Functor f)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     return dispatch::for_each_point
         <
@@ -317,7 +317,7 @@ inline Functor for_each_point(Geometry& geometry, Functor f)
 template<typename Geometry, typename Functor>
 inline Functor for_each_segment(Geometry const& geometry, Functor f)
 {
-    concept::check<const Geometry>();
+    concept::check<Geometry const>();
 
     return dispatch::for_each_segment
         <

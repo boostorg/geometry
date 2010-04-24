@@ -104,7 +104,7 @@ struct point_to_range
     static inline return_type apply(Point const& point, Range const& range,
             PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
     {
-        typedef segment<const typename point_type<Range>::type> segment_type;
+        typedef segment<typename point_type<Range>::type const> segment_type;
 
         if (boost::size(range) == 0)
         {
@@ -261,7 +261,6 @@ struct distance
             Linestring const& linestring,
             Strategy const& strategy)
     {
-        //typedef segment<const > segment_type;
         typedef typename geometry::strategy_distance_segment
                     <
                             typename cs_tag<Point>::type,
@@ -466,8 +465,8 @@ template <typename Geometry1, typename Geometry2>
 inline typename distance_result<Geometry1, Geometry2>::type distance(
                 Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    concept::check<const Geometry1>();
-    concept::check<const Geometry2>();
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
 
     typedef typename point_type<Geometry1>::type point1_type;
     typedef typename point_type<Geometry2>::type point2_type;

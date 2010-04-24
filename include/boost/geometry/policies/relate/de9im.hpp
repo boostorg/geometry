@@ -114,7 +114,7 @@ struct segments_de9im
                 1,  0,  2,
                 true, opposite);
     }
-    static inline return_type collinear_b_in_a(const S2& s, bool opposite)
+    static inline return_type collinear_b_in_a(S2 const& s, bool opposite)
     {
         return de9im_segment(0,0,
                  1,  0,  1,

@@ -36,7 +36,7 @@ namespace traits
         - polygon
     \par Specializations should provide:
         - static inline RING& get(POLY& )
-        - static inline const RING& get(const POLY& )
+        - static inline RING const& get(POLY const& )
 */
 template <typename Polygon>
 struct exterior_ring

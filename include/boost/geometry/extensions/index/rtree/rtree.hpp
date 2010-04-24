@@ -24,7 +24,8 @@
 #include <boost/geometry/extensions/index/rtree/rtree_node.hpp>
 #include <boost/geometry/extensions/index/rtree/rtree_leaf.hpp>
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index
+{
 
 template <typename Box, typename Value >
 class rtree
@@ -629,8 +630,8 @@ private:
      *        pick_seeds algorithm.
      */
     template <std::size_t D, typename T>
-    void find_normalized_separations(const std::vector<Box>& boxes, T &separation,
-        unsigned int &first, unsigned int &second) const
+    void find_normalized_separations(std::vector<Box> const& boxes, T& separation,
+        unsigned int& first, unsigned int& second) const
     {
         if (boxes.size() < 2)
         {

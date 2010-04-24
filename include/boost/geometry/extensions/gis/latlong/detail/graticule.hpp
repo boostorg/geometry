@@ -121,7 +121,7 @@ public:
     }
 
     /// Get degrees, minutes, seconds as a string, separators can be specified optionally
-    inline std::string get_dms(const std::string& ds = " ",
+    inline std::string get_dms(std::string const& ds = " ",
         const std::string& ms = "'",
         const std::string& ss = "\"") const
     {
@@ -189,12 +189,12 @@ public:
     {}
 
     /// Can be constructed with a NORTH dms-class
-    inline explicit latitude(const dms<north,T>& v)
+    inline explicit latitude(dms<north,T> const& v)
         : detail::graticule<T>(v.as_value())
     {}
 
     /// Can be constructed with a SOUTH dms-class
-    inline explicit latitude(const dms<south,T>& v)
+    inline explicit latitude(dms<south,T> const& v)
        : detail::graticule<T>(v.as_value())
    {}
 };
@@ -216,12 +216,12 @@ public:
     {}
 
     /// Can be constructed with a WEST dms-class
-    inline explicit longitude(const dms<west, T>& v)
+    inline explicit longitude(dms<west, T> const& v)
         : detail::graticule<T>(v.as_value())
     {}
 
     /// Can be constructed with an EAST dms-class
-    inline explicit longitude(const dms<east, T>& v)
+    inline explicit longitude(dms<east, T> const& v)
         : detail::graticule<T>(v.as_value())
     {}
 };

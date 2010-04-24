@@ -60,7 +60,7 @@ namespace traits
 /// @par Geometries:
 ///     @li point
 /// @par Specializations should provide, per Dimension
-///     @li static inline T get(const G&)
+///     @li static inline T get(G const&)
 ///     @li static inline void set(G&, T const&)
 /// @tparam Geometry geometry-type
 /// @tparam Dimension dimension to access
@@ -78,7 +78,7 @@ struct access {};
     - box
     - segment
 \par Specializations should provide:
-    - static inline T get(const G&)
+    - static inline T get(G const&)
     - static inline void set(G&, T const&)
 \ingroup traits
 */
@@ -156,7 +156,7 @@ template
 >
 struct access
 {
-    //static inline T get(const G& ) {}
+    //static inline T get(G const&) {}
     //static inline void set(G& g, T const& value) {}
 };
 
@@ -170,7 +170,7 @@ template
 >
 struct indexed_access
 {
-    //static inline T get(const G& ) {}
+    //static inline T get(G const&) {}
     //static inline void set(G& g, T const& value) {}
 };
 

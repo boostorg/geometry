@@ -111,7 +111,7 @@ struct radian_access<1, Geometry, CoordinateSystem<degree> >
         e.g. spherical or geographic coordinate systems
 */
 template <std::size_t Dimension, typename Geometry>
-inline typename coordinate_type<Geometry>::type get_as_radian(const Geometry& geometry)
+inline typename coordinate_type<Geometry>::type get_as_radian(Geometry const& geometry)
 {
     return detail::radian_access<Dimension, Geometry,
             typename coordinate_system<Geometry>::type>::get(geometry);
