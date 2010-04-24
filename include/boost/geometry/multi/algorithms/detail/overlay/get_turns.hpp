@@ -5,19 +5,18 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_GET_TURNS_HPP
-#define BOOST_GEOMETRY_MULTI_ALGORITHMS_GET_TURNS_HPP
+#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
+#define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
 
 #include <boost/geometry/multi/core/is_multi.hpp>
 
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/iterators/range_type.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/sections/get_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
-
 
 
 namespace boost { namespace geometry
@@ -130,4 +129,4 @@ struct get_turns
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_GET_TURNS_HPP
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP

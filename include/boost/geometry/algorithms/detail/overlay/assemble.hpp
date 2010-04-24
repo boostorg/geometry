@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OVERLAY_ASSEMBLE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OVERLAY_ASSEMBLE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSEMBLE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSEMBLE_HPP
 
 
 #include <deque>
@@ -24,9 +24,9 @@
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 
 
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
-#include <boost/geometry/algorithms/overlay/enrich_intersection_points.hpp>
-#include <boost/geometry/algorithms/overlay/traverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 
 
 #include <boost/geometry/algorithms/convert.hpp>
@@ -837,4 +837,4 @@ std::cout << "traverse" << std::endl;
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OVERLAY_ASSEMBLE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSEMBLE_HPP

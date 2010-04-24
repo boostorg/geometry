@@ -10,7 +10,7 @@
 
 
 #ifdef BOOST_GEOMETRY_USE_MSM
-#  include <boost/geometry/algorithms/overlay/msm_state.hpp>
+#  include <boost/geometry/algorithms/detail/overlay/msm_state.hpp>
 #endif
 
 

@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP
 
 
 #include <vector>
@@ -223,4 +223,4 @@ inline void copy_segments(Geometry const& geometry,
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP

@@ -24,7 +24,7 @@
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 
-#include <boost/geometry/algorithms/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>

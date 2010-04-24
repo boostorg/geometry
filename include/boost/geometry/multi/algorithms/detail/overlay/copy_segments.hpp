@@ -6,14 +6,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP
-#define BOOST_GEOMETRY_MULTI_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP
+#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP
+#define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP
 
 
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 
 #include <boost/geometry/multi/core/ring_type.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
@@ -98,4 +98,4 @@ struct copy_segments
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_OVERLAY_COPY_SEGMENTS_HPP
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP

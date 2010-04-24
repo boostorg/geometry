@@ -44,7 +44,7 @@ void test_all()
     /* TODO: erroneous in assemble
     test_one<polygon, polygon, polygon>("fitting",
         fitting[0], fitting[1],
-        1, 0, 21.0, 
+        1, 0, 21.0,
         1, 0, 4.0);
     */
 
@@ -76,24 +76,24 @@ void test_all()
             7, 27, 3.18452380952381);
 
     test_one<polygon, polygon, polygon>(
-            "positive_negative", 
-            "POLYGON((0 0,0 4,4 4,4 0,0 0))", 
-            //"POLYGON((2 2,6 2,6 3,2 3,2 2))", 
-            "POLYGON((2 2,2 3,6 3,6 2,2 2))", 
+            "positive_negative",
+            "POLYGON((0 0,0 4,4 4,4 0,0 0))",
+            //"POLYGON((2 2,6 2,6 3,2 3,2 2))",
+            "POLYGON((2 2,2 3,6 3,6 2,2 2))",
             5, 22, 1.1901714,
             5, 27, 1.6701714);
 
     test_one<polygon, polygon, polygon>(
-            "polygon_pseudo_line", 
-            "POLYGON((0 0,0 4,4 4,4 0,0 0))", 
-            "POLYGON((2 -2,2 -1,2 6,2 -2))", 
+            "polygon_pseudo_line",
+            "POLYGON((0 0,0 4,4 4,4 0,0 0))",
+            "POLYGON((2 -2,2 -1,2 6,2 -2))",
             5, 22, 1.1901714,
             5, 27, 1.6701714);
 
     test_one<polygon, polygon, polygon>(
-            "reverse", 
-            "POLYGON((0 0,4 0,4 4,0 4,0 0))", 
-            "POLYGON((2 2,2 3,6 3,6 2,2 2))", 
+            "reverse",
+            "POLYGON((0 0,4 0,4 4,0 4,0 0))",
+            "POLYGON((2 2,2 3,6 3,6 2,2 2))",
             5, 22, 1.1901714,
             5, 27, 1.6701714);
 

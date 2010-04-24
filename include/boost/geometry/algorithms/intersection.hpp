@@ -18,8 +18,8 @@
 
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/algorithms/overlay/clip_linestring.hpp>
-#include <boost/geometry/algorithms/overlay/assemble.hpp>
+#include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
+#include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
 
 
 

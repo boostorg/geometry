@@ -35,7 +35,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
-#include <boost/geometry/algorithms/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 

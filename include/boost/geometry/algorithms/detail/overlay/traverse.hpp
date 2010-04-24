@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OVERLAY_TRAVERSE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OVERLAY_TRAVERSE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_HPP
 
 
 #include <cstddef>
@@ -14,7 +14,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -408,4 +408,4 @@ inline void traverse(Geometry1 const& geometry1,
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OVERLAY_TRAVERSE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_HPP

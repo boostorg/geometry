@@ -15,8 +15,8 @@
 
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
-//#include <boost/geometry/algorithms/overlay/self_intersection_points.hpp>
-#include <boost/geometry/algorithms/overlay/self_turn_points.hpp>
+//#include <boost/geometry/algorithms/detail/overlay/self_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
