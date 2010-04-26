@@ -18,9 +18,11 @@
 
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
+#include <boost/geometry/geometries/register/ring.hpp>
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/extensions/algorithms/selected.hpp>
@@ -39,11 +41,63 @@
 #include "wx/graphics.h"
 #endif
 
+// wxWidgets draws using wxPoint*
+// So we have to make a wxPoint* array compatible with Boost.Range
+// and with std::back_inserter
+// So we define an iterator pair:
+typedef std::pair<wxPoint*,wxPoint*> wxPointPointerPair;
 
 // Adapt wxWidgets points to Boost.Geometry points such that they can be used 
 // in e.g. transformations (see below)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxPoint, int, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxRealPoint, double, cs::cartesian, x, y)
+
+BOOST_GEOMETRY_REGISTER_RING(wxPointPointerPair);
+
+
+
+// Implement a draft back_insert_iterator for such a pair of pointers
+// It might exist somewhere in Boost yet.
+namespace std
+{
+
+template <>
+class back_insert_iterator<wxPointPointerPair>
+{
+public:
+    explicit back_insert_iterator(wxPointPointerPair& x) 
+        : current(boost::begin(x))
+        , end(boost::end(x))
+    {}
+
+    back_insert_iterator<wxPointPointerPair>&
+                operator=(const wxPoint& value) 
+    { 
+        // Check if not passed beyond
+        if (current != end)
+        {
+    	    *current++ = value;
+        }
+	    return *this;
+    }
+
+    // Boiler-plate
+    back_insert_iterator<wxPointPointerPair>& operator*()     { return *this; }
+    back_insert_iterator<wxPointPointerPair>& operator++()    { return *this; }
+    back_insert_iterator<wxPointPointerPair>& operator++(int) { return *this; }
+
+    typedef wxPointPointerPair  container_type;
+    typedef output_iterator_tag iterator_category;
+    typedef void                value_type;
+    typedef void                difference_type;
+    typedef void                pointer;
+    typedef void                reference;
+
+protected:
+    boost::range_iterator<wxPointPointerPair>::type current, end;
+};
+
+}
 
 
 typedef boost::geometry::multi_polygon<boost::geometry::polygon_2d> country_type;
@@ -304,22 +358,18 @@ void HelloWorldCanvas::DrawCountry(wxDC& dc, country_type const& country)
 
     BOOST_FOREACH(bg::polygon_2d const& poly, country)
     {
-        bg::linear_ring<wxPoint> wx_ring;
-        // Use only outer, holes are (for the moment) ignored
-        bg::transform(poly.outer(), wx_ring, *m_map_transformer);
+        // Use only outer, holes are (for the moment) ignored. This would need
+        // a holey-polygon compatible wx object
 
-        // Todo: avoid converting (use pointer-compatible container)
-        wxPoint* points = new wxPoint[boost::size(wx_ring)];
-        int n = 0;
-        BOOST_FOREACH(wxPoint const& p, wx_ring)
-        {
-            points[n++] = p;
-        }
-        // end todo
+        std::size_t n = boost::size(poly.outer());
 
-        dc.DrawPolygon(n, points);
+        boost::scoped_ptr<wxPoint> points(new wxPoint[n]);
 
-        delete[] points;
+        bg::transform(poly.outer(), 
+                    std::make_pair(points.get(), points.get() + n), 
+                    *m_map_transformer);
+
+        dc.DrawPolygon(n, points.get());
     }
 }
 
