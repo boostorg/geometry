@@ -11,7 +11,7 @@
 
 #include <algorithms/test_intersection.hpp>
 #include <algorithms/test_overlay.hpp>
-#include <multi/algorithms/detail/overlay/multi_overlay_cases.hpp>
+#include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 
