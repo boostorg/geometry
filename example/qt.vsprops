@@ -12,6 +12,8 @@
 	<Tool
 		Name="VCLinkerTool"
 		AdditionalLibraryDirectories="$(QT)\lib"
+		AdditionalDependencies="qtmain.lib QtGui4.lib QtCore4.lib"
+		IgnoreDefaultLibraryNames="msvcrt.lib"
 	/>
 	<UserMacro
 		Name="QT"

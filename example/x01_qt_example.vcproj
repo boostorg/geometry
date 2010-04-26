@@ -47,7 +47,6 @@
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="1"
 			/>
 			<Tool
@@ -61,9 +60,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="qtmain.lib QtGui4.lib QtCore4.lib"
+				
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames="msvcrt.lib"
+				
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -122,7 +121,6 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -135,9 +133,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="qtmain.lib QtGui4.lib QtCore4.lib"
+				
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames="msvcrt.lib"
+				
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
