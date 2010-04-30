@@ -49,7 +49,7 @@ template <typename Range>
 struct reversible_view<Range, iterate_forward> : detail::reversible_base_view<Range>
 {
     reversible_view(Range& r)
-        : reversible_base_view(r)
+        : reversible_base_view<Range>(r)
     {}
 
     typedef typename boost::range_iterator<Range const>::type const_iterator;
@@ -67,7 +67,7 @@ template <typename Range>
 struct reversible_view<Range, iterate_reverse> : detail::reversible_base_view<Range>
 {
     reversible_view(Range& r)
-        : reversible_base_view(r)
+        : reversible_base_view<Range>(r)
     {}
 
     typedef typename boost::range_reverse_iterator<Range const>::type const_iterator;
@@ -79,7 +79,6 @@ struct reversible_view<Range, iterate_reverse> : detail::reversible_base_view<Ra
     iterator begin() { return boost::rbegin(m_range); }
     iterator end() { return boost::rend(m_range); }
 };
-
 
 
 }} // namespace boost::geometry
