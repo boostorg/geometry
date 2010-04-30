@@ -13,7 +13,7 @@
 #include <boost/range/metafunctions.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
