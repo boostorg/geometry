@@ -31,6 +31,9 @@
 #include <boost/geometry/strategies/concepts/area_concept.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/order_as_direction.hpp>
+#include <boost/geometry/util/reversible_view.hpp>
+
 
 /*!
 \defgroup area area: calculate area of a geometry
@@ -84,24 +87,8 @@ struct box_area
 };
 
 
-
-
-/*!
-    \brief Calculate area of a ring, specialized per order
- */
-template
-<
-    typename Ring,
-    order_selector Order,
-    // closing_selector Closed -- for now assuming CLOSED, p(0) == p(n-1)
-    typename Strategy
->
+template<typename Ring, iterate_direction Direction, typename Strategy>
 struct ring_area
-{};
-
-
-template<typename Ring, typename Strategy>
-struct ring_area<Ring, clockwise, Strategy>
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::AreaStrategy<Strategy>) );
 
@@ -114,7 +101,6 @@ struct ring_area<Ring, clockwise, Strategy>
         // Ignore warning (because using static method sometimes) on strategy
         boost::ignore_unused_variable_warning(strategy);
 
-
         // A closed linear_ring has at least four points,
         // if not, there is no (zero) area
         if (boost::size(ring) < 4)
@@ -122,37 +108,30 @@ struct ring_area<Ring, clockwise, Strategy>
             return type();
         }
 
-        typedef typename boost::range_iterator<Ring const>::type iterator_type;
+        typedef reversible_view<Ring const, Direction> view_type;
+        typedef typename boost::range_iterator<view_type const>::type iterator_type;
 
+        view_type view(ring);
         typename Strategy::state_type state;
+        iterator_type it = boost::begin(view);
 
-        iterator_type it = boost::begin(ring);
         for (iterator_type previous = it++;
-            it != boost::end(ring);
+            it != boost::end(view);
             previous = it++)
         {
             strategy.apply(*previous, *it, state);
         }
+
         return strategy.result(state);
-
-    }
-};
-
-template<typename Ring, typename Strategy>
-struct ring_area<Ring, counterclockwise, Strategy>
-{
-    typedef typename Strategy::return_type type;
-    static inline type apply(Ring const& ring, Strategy const& strategy)
-    {
-        // Counter clockwise rings negate the area result
-        return -ring_area<Ring, clockwise, Strategy>::apply(ring, strategy);
     }
 };
 
 
 }} // namespace detail::area
 
+
 #endif // DOXYGEN_NO_DETAIL
+
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -181,12 +160,16 @@ struct area<box_tag, Geometry, Order, Strategy>
 {};
 
 
-// Area of ring currently returns area of closed rings but it might be argued
-// that it is 0.0, because a ring is just a line.
 template <typename Geometry, order_selector Order, typename Strategy>
 struct area<ring_tag, Geometry, Order, Strategy>
-    : detail::area::ring_area<Geometry, Order, Strategy>
+    : detail::area::ring_area
+        <
+            Geometry, 
+            order_as_direction<Order>::value, 
+            Strategy
+        >
 {};
+
 
 template <typename Polygon, order_selector Order, typename Strategy>
 struct area<polygon_tag, Polygon, Order, Strategy>
@@ -198,7 +181,7 @@ struct area<polygon_tag, Polygon, Order, Strategy>
             detail::area::ring_area
                 <
                     typename ring_type<Polygon>::type,
-                    Order,
+                    order_as_direction<Order>::value,
                     Strategy
                 >
         >
@@ -261,6 +244,8 @@ inline typename Strategy::return_type area(
         >::apply(geometry, strategy);
 }
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_AREA_HPP
