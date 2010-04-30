@@ -25,6 +25,7 @@
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/util/order_as_direction.hpp>
 
 
 namespace boost { namespace geometry
@@ -101,7 +102,7 @@ struct correct_ring
     typedef detail::area::ring_area
             <
                 Ring,
-                geometry::point_order<Ring>::value,
+                order_as_direction<geometry::point_order<Ring>::value>::value,
                 strategy_type
             > ring_area_type;
 
