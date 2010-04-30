@@ -22,7 +22,6 @@
 template <typename P>
 void test_all()
 {
-    //test_area_circle<P, double>();
     test_geometry<boost::geometry::box<P> >("POLYGON((0 0,2 2))", 4.0);
     test_geometry<boost::geometry::box<P> >("POLYGON((2 2,0 0))", 4.0);
 
@@ -66,6 +65,15 @@ void test_spherical()
     BOOST_CHECK_CLOSE(area, 2.0 * 2.0 * expected, 0.0001);
 }
 
+template <typename P>
+void test_ccw()
+{
+    typedef boost::geometry::polygon<P, std::vector, std::vector, false> ccw_polygon;
+    // counterclockwise rings (second is wrongly ordered)
+    test_geometry<ccw_polygon>("POLYGON((0 0,0 7,4 2,2 0,0 0))", -16.0);
+    test_geometry<ccw_polygon>("POLYGON((0 0,2 0,4 2,0 7,0 0))", 16.0);
+}
+
 
 int test_main(int, char* [])
 {
@@ -74,6 +82,8 @@ int test_main(int, char* [])
     test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
 
     test_spherical<boost::geometry::point<double, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >();
+
+    test_ccw<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
 
 #if defined(HAVE_CLN)
     test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
