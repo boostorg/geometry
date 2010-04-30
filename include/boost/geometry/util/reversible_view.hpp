@@ -19,24 +19,6 @@
 namespace boost { namespace geometry
 {
 
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-
-template <typename Range>
-struct reversible_base_view
-{
-    Range& m_range;
-    reversible_base_view(Range& r)
-        : m_range(r)
-    {}
-};
-
-}
-#endif
-
-
 enum iterate_direction { iterate_forward, iterate_reverse };
 
 
@@ -47,10 +29,9 @@ struct reversible_view {};
 
 template <typename Range>
 struct reversible_view<Range, iterate_forward>
-    : public detail::reversible_base_view<Range>
 {
     reversible_view(Range& r)
-        : detail::reversible_base_view<Range>(r)
+        : m_range(r)
     {}
 
     typedef typename boost::range_iterator<Range const>::type const_iterator;
@@ -61,15 +42,16 @@ struct reversible_view<Range, iterate_forward>
 
     iterator begin() { return boost::begin(m_range); }
     iterator end() { return boost::end(m_range); }
+private :
+    Range& m_range;
 };
 
 
 template <typename Range>
 struct reversible_view<Range, iterate_reverse>
-    : public detail::reversible_base_view<Range>
 {
     reversible_view(Range& r)
-        : detail::reversible_base_view<Range>(r)
+        : m_range(r)
     {}
 
     typedef typename boost::range_reverse_iterator<Range const>::type const_iterator;
@@ -80,6 +62,8 @@ struct reversible_view<Range, iterate_reverse>
 
     iterator begin() { return boost::rbegin(m_range); }
     iterator end() { return boost::rend(m_range); }
+private :
+    Range& m_range;
 };
 
 
