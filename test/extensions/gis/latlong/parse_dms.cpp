@@ -16,36 +16,36 @@
 
 
 
-void check(const boost::geometry::dms_result& r, double v, int axis)
+void check(boost::geometry::dms_result const& r, double v, int axis)
 {
-    const double d = r;
+    double const d = r;
     BOOST_CHECK_CLOSE(d, v, 0.0001);
     BOOST_CHECK(int(r.axis()) == axis);
 }
 
 template <bool as_radian>
-void test_dms(const std::string& s, double v, int axis)
+void test_dms(std::string const& s, double v, int axis)
 {
     boost::geometry::strategy::dms_parser<as_radian> parser;
     check(parser(s.c_str()), v, axis);
 }
 
 template <bool as_radian>
-void test_dms_french(const std::string& s, double v, int axis)
+void test_dms_french(std::string const& s, double v, int axis)
 {
     boost::geometry::strategy::dms_parser<as_radian, 'N', 'E', 'S', 'O'> parser;
     check(parser(s.c_str()), v, axis);
 }
 
 template <bool as_radian>
-void test_dms_dutch(const std::string& s, double v, int axis)
+void test_dms_dutch(std::string const& s, double v, int axis)
 {
     boost::geometry::strategy::dms_parser<as_radian, 'N', 'O', 'Z', 'W'> parser;
     check(parser(s.c_str()), v, axis);
 }
 
 template <bool as_radian>
-void test_dms_case(const std::string& s, double v, int axis)
+void test_dms_case(std::string const& s, double v, int axis)
 {
     boost::geometry::strategy::dms_parser<as_radian, 'n', 'e', 's', 'w'> parser;
     check(parser(s.c_str()), v, axis);

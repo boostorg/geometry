@@ -32,7 +32,7 @@ namespace strategy { namespace transform
 template
 <
     typename P1, typename P2,
-    bool Mirror, bool SameScale = true,
+    bool Mirror = false, bool SameScale = true,
     std::size_t Dimension1 = dimension<P1>::type::value,
     std::size_t Dimension2 = dimension<P2>::type::value
 >

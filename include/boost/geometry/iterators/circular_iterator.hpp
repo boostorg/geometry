@@ -15,6 +15,7 @@
 
 #include <boost/geometry/iterators/base.hpp>
 
+
 namespace boost { namespace geometry
 {
 
@@ -68,6 +69,27 @@ private:
             check_end();
         }
     }
+    inline void decrement()
+    {
+        if (this->base() != m_end)
+        {
+            // If at begin, go back to end (assumed this is possible...)
+            if (this->base() == m_begin)
+            {
+                this->base_reference() = this->m_end;
+            }
+
+            // Decrement
+            (this->base_reference())--;
+
+            // If really back at start, go to end == end of iteration
+            if (this->base() == m_start)
+            {
+                this->base_reference() = this->m_end;
+            }
+        }
+    }
+
 
     inline void check_end()
     {
@@ -87,6 +109,8 @@ private:
     Iterator m_start;
 };
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ITERATORS_CIRCULAR_ITERATOR_HPP

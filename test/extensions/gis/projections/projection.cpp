@@ -33,7 +33,7 @@ template <typename Prj, typename P1, typename P2>
 void test_one(double lon, double lat,
               typename boost::geometry::coordinate_type<P2>::type x,
               typename boost::geometry::coordinate_type<P2>::type y,
-              const std::string& parameters)
+              std::string const& parameters)
 {
     boost::geometry::projection::parameters par = boost::geometry::projection::detail::pj_init_plus(parameters);
     Prj prj(par);

@@ -29,7 +29,7 @@
 
 
 template <typename Geometry1, typename Geometry2>
-void test_distance(const std::string& wkt1, const std::string& wkt2, double expected)
+void test_distance(std::string const& wkt1, std::string const& wkt2, double expected)
 {
     Geometry1 g1;
     Geometry2 g2;
@@ -41,8 +41,8 @@ void test_distance(const std::string& wkt1, const std::string& wkt2, double expe
 }
 
 template <typename Geometry1, typename Geometry2, typename Strategy>
-void test_distance(const Strategy& strategy, const std::string& wkt1,
-                   const std::string& wkt2, double expected)
+void test_distance(Strategy const& strategy, std::string const& wkt1,
+                   std::string const& wkt2, double expected)
 {
     Geometry1 g1;
     Geometry2 g2;

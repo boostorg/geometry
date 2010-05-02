@@ -26,7 +26,7 @@
 #include <test_common/test_point.hpp>
 
 template <typename G>
-void test_midpoints(const G& g, bool start_and_end)
+void test_midpoints(G const& g, bool start_and_end)
 {
     G processed;
     boost::geometry::midpoints(g, start_and_end, std::back_inserter(processed));
@@ -34,7 +34,7 @@ void test_midpoints(const G& g, bool start_and_end)
 }
 
 template <typename G>
-void test_midpoints(const std::string& wkt)
+void test_midpoints(std::string const& wkt)
 {
     G g;
     boost::geometry::read_wkt(wkt, g);

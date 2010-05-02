@@ -18,7 +18,7 @@
 #include <boost/geometry/geometries/cartesian2d.hpp>
 
 template <typename G>
-void test_geometry(const std::string& wkt)
+void test_geometry(std::string const& wkt)
 {
     G geo;
     boost::geometry::read_wkt(wkt, geo);

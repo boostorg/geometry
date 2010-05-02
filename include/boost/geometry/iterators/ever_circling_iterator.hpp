@@ -56,7 +56,7 @@ struct ever_circling_iterator :
         this->base_reference() = start;
     }
 
-    /// Navigate to a certain position, should be in [start .. end], it at end
+    /// Navigate to a certain position, should be in [start .. end], if at end
     /// it will circle again.
     inline void moveto(Iterator it)
     {
