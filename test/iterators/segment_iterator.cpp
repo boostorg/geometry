@@ -23,7 +23,7 @@
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 
 template <typename C>
-void test_linestring(const std::string& wkt, const std::string& expected)
+void test_linestring(std::string const& wkt, std::string const& expected)
 {
     typedef C point_list;
     typedef typename C::value_type point;

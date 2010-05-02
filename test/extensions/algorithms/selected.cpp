@@ -23,14 +23,14 @@
 #include <test_common/test_point.hpp>
 
 template <typename G, typename P>
-void test_selected(const G& g, const P& point, bool result, double dist)
+void test_selected(G const& g, P const& point, bool result, double dist)
 {
     bool sel = boost::geometry::selected(g, point, dist);
     BOOST_CHECK_EQUAL(sel, result);
 }
 
 template <typename G, typename P>
-void test_selected(const std::string& wkt, const P& point, bool result, double dist)
+void test_selected(std::string const& wkt, P const& point, bool result, double dist)
 {
     G g;
     boost::geometry::read_wkt(wkt, g);

@@ -47,7 +47,7 @@ void test_forward(std::string const& name,
               double lon, double lat,
               typename boost::geometry::coordinate_type<P>::type x,
               typename boost::geometry::coordinate_type<P>::type y,
-              const std::string& parameters)
+              std::string const& parameters)
 {
     typedef typename boost::geometry::coordinate_type<P>::type coord_type;
     typedef boost::geometry::point_ll<coord_type, boost::geometry::cs::geographic<boost::geometry::degree> > lonlat_type;
@@ -75,7 +75,7 @@ void test_inverse(std::string const& name,
               typename boost::geometry::coordinate_type<P>::type x,
               typename boost::geometry::coordinate_type<P>::type y,
               double lon, double lat,
-              const std::string& parameters)
+              std::string const& parameters)
 {
     typedef typename boost::geometry::coordinate_type<P>::type coord_type;
     typedef boost::geometry::point_ll<coord_type, boost::geometry::cs::geographic<boost::geometry::degree> > lonlat_type;
