@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="copy"
-	ProjectGUID="{58B7C340-54BC-4B74-BA10-C289E14B2FFB}"
-	RootNamespace="copy"
+	Name="reversible_closeable"
+	ProjectGUID="{AAA72638-34CD-4A34-8329-984DFC766E24}"
+	RootNamespace="reversible_closeable"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\copy"
+			IntermediateDirectory="$(ConfigurationName)\reversible_closeable"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -46,6 +46,7 @@
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
+				WarningLevel="3"
 				DebugInformationFormat="1"
 			/>
 			<Tool
@@ -91,7 +92,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\copy"
+			IntermediateDirectory="$(ConfigurationName)\reversible_closeable"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -118,6 +119,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
+				WarningLevel="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -165,7 +167,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\copy.cpp"
+			RelativePath=".\reversible_closeable.cpp"
 			>
 		</File>
 	</Files>

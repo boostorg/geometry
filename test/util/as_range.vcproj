@@ -46,6 +46,7 @@
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
