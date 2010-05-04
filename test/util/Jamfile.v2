@@ -12,4 +12,7 @@ test-suite ggl-util
     [ run for_each_coordinate.cpp ]
     [ run select_most_precise.cpp ]
     [ run write_dsv.cpp ]
+    [ run reversible_view.cpp ]
+    [ run closeable_view.cpp ]
+    [ run reversible_closeable.cpp ]
     ;
