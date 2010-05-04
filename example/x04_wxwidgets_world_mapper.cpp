@@ -116,7 +116,6 @@ void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Bo
         {
             std::string line;
             std::getline(cpp_file, line);
-            Geometry geometry;
             if (! line.empty())
             {
                 Geometry geometry;
