@@ -346,7 +346,7 @@ void HelloWorldCanvas::DrawCountries(wxDC& dc)
     if (m_focus != -1)
     {
         dc.SetBrush(m_orange);
-        DrawCountry(dc, m_countries[-1]);
+        DrawCountry(dc, m_countries[m_focus]);
     }
 }
 

@@ -6,7 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="$(WXWIDGETS)\lib\vc_lib\mswd;$(WXWIDGETS)\include;..\..\.."
+		AdditionalIncludeDirectories="$(WXWIDGETS)\lib\vc_lib\mswd;$(WXWIDGETS)\include;$(WXWIDGETS)\include\msvc;"
 		PreprocessorDefinitions="NOPCH;__WXMSW__"
 	/>
 	<Tool
@@ -15,6 +15,6 @@
 	/>
 	<UserMacro
 		Name="WXWIDGETS"
-		Value="c:\software\libraries\wxWidgets-2.8.10"
+		Value="c:\software\libraries\wxWidgets-2.8.11"
 	/>
 </VisualStudioPropertySheet>
