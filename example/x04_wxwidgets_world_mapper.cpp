@@ -18,7 +18,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <boost/scoped_array.hpp>
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
@@ -52,7 +52,8 @@ typedef std::pair<wxPoint*,wxPoint*> wxPointPointerPair;
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxPoint, int, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxRealPoint, double, cs::cartesian, x, y)
 
-BOOST_GEOMETRY_REGISTER_RING(wxPointPointerPair);
+// Done explicitly below to implement "clear"
+//BOOST_GEOMETRY_REGISTER_RING(wxPointPointerPair);
 
 
 
@@ -98,6 +99,31 @@ protected:
 };
 
 }
+
+
+namespace boost { namespace geometry { namespace traits 
+{
+    template <>
+    struct tag< wxPointPointerPair > { typedef ring_tag type; };
+
+    template <>
+    struct use_std< wxPointPointerPair >
+    {
+        static bool const value = false;
+    };
+
+    template <>
+    struct clear< wxPointPointerPair >
+    {
+        static inline void apply(wxPointPointerPair& ls) 
+		{  
+			// Empty on purpose, fixed size, cannot be cleared
+			!!! /*TODO*/ 0;
+		}
+    };
+
+}}} // namespace boost::geometry::traits
+
 
 
 typedef boost::geometry::multi_polygon<boost::geometry::polygon_2d> country_type;
@@ -296,7 +322,7 @@ void HelloWorldCanvas::OnMouseMove(wxMouseEvent &event)
 
         // Create a string and set it in the status text
         std::ostringstream out;
-        out << "Position: " << point.x() << ", " << point.y() << " " << m_focus << " " << previous_focus;
+        out << "Position: " << point.x() << ", " << point.y();
         m_owner->SetStatusText(wxString(out.str().c_str(), wxConvUTF8));
     }
 }
@@ -362,7 +388,7 @@ void HelloWorldCanvas::DrawCountry(wxDC& dc, country_type const& country)
 
         std::size_t n = boost::size(poly.outer());
 
-        boost::scoped_ptr<wxPoint> points(new wxPoint[n]);
+        boost::scoped_array<wxPoint> points(new wxPoint[n]);
 
         bg::transform(poly.outer(), 
                     std::make_pair(points.get(), points.get() + n), 
