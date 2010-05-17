@@ -37,11 +37,11 @@ struct reversible_view<Range, iterate_forward>
     typedef typename boost::range_iterator<Range const>::type const_iterator;
     typedef typename boost::range_iterator<Range>::type iterator;
 
-    const_iterator begin() const { return boost::begin(m_range); }
-    const_iterator end() const { return boost::end(m_range); }
+    const_iterator begin() const { return boost::begin(this->m_range); }
+    const_iterator end() const { return boost::end(this->m_range); }
 
-    iterator begin() { return boost::begin(m_range); }
-    iterator end() { return boost::end(m_range); }
+    iterator begin() { return boost::begin(this->m_range); }
+    iterator end() { return boost::end(this->m_range); }
 private :
     Range& m_range;
 };
@@ -57,11 +57,11 @@ struct reversible_view<Range, iterate_reverse>
     typedef typename boost::range_reverse_iterator<Range const>::type const_iterator;
     typedef typename boost::range_reverse_iterator<Range>::type iterator;
 
-    const_iterator begin() const { return boost::rbegin(m_range); }
-    const_iterator end() const { return boost::rend(m_range); }
+    const_iterator begin() const { return boost::rbegin(this->m_range); }
+    const_iterator end() const { return boost::rend(this->m_range); }
 
-    iterator begin() { return boost::rbegin(m_range); }
-    iterator end() { return boost::rend(m_range); }
+    iterator begin() { return boost::rbegin(this->m_range); }
+    iterator end() { return boost::rend(this->m_range); }
 private :
     Range& m_range;
 };

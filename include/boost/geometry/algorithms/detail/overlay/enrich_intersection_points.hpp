@@ -194,7 +194,7 @@ struct sort_on_segment_and_distance
         segment_identifier const& sr = right.subject.seg_id;
 
         return sl == sr
-            ? compare_distances(left.subject, right.subject)
+            ? this->compare_distances(left.subject, right.subject)
             : sl < sr;
     }
 };
