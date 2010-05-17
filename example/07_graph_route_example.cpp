@@ -82,23 +82,23 @@ void read_wkt(std::string const& filename, std::vector<Tuple>& tuples, Box& box)
 
 
 // Code to define properties for Boost Graph's
-enum vertex_ggl_property_t { vertex_ggl_property };
-enum edge_ggl_property_t { edge_ggl_property };
+enum vertex_bg_property_t { vertex_bg_property };
+enum edge_bg_property_t { edge_bg_property };
 namespace boost
 {
-    BOOST_INSTALL_PROPERTY(vertex, ggl_property);
-    BOOST_INSTALL_PROPERTY(edge, ggl_property);
+    BOOST_INSTALL_PROPERTY(vertex, bg_property);
+    BOOST_INSTALL_PROPERTY(edge, bg_property);
 }
 
 // Define properties for vertex
 template <typename Point>
-struct ggl_vertex_property
+struct bg_vertex_property
 {
-    ggl_vertex_property()
+    bg_vertex_property()
     {
         boost::geometry::assign_zero(location);
     }
-    ggl_vertex_property(Point const& loc)
+    bg_vertex_property(Point const& loc)
     {
         location = loc;
     }
@@ -108,9 +108,9 @@ struct ggl_vertex_property
 
 // Define properties for edge
 template <typename Linestring>
-struct ggl_edge_property
+struct bg_edge_property
 {
-    ggl_edge_property(Linestring const& line)
+    bg_edge_property(Linestring const& line)
         : m_line(line)
     {
         m_length = boost::geometry::length(line);
@@ -145,8 +145,8 @@ inline typename boost::graph_traits<G>::vertex_descriptor find_or_insert(M& map,
             = boost::add_vertex(graph);
 
         // Set the property (= location)
-        boost::put(boost::get(vertex_ggl_property, graph), new_vertex,
-            ggl_vertex_property<typename M::key_type>(key));
+        boost::put(boost::get(vertex_bg_property, graph), new_vertex,
+            bg_vertex_property<typename M::key_type>(key));
 
         // Add to the map, using POINT as key
         map[key] = new_vertex;
@@ -157,7 +157,6 @@ inline typename boost::graph_traits<G>::vertex_descriptor find_or_insert(M& map,
 
 template
 <
-    typename Line,
     typename Graph,
     typename RoadTupleVector,
     typename CityTupleVector
@@ -166,7 +165,9 @@ void add_roads_and_connect_cities(Graph& graph,
             RoadTupleVector const& roads,
             CityTupleVector& cities)
 {
-    typedef typename boost::geometry::point_type<Line>::type point_type;
+    typedef typename boost::range_value<RoadTupleVector>::type road_type;
+    typedef typename boost::tuples::element<0, road_type>::type line_type;
+    typedef typename boost::geometry::point_type<line_type>::type point_type;
 
     typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_type;
 
@@ -177,13 +178,13 @@ void add_roads_and_connect_cities(Graph& graph,
 
 
     // Fill the graph
-    typedef typename boost::range_value<RoadTupleVector>::type road_type;
     BOOST_FOREACH(road_type const& road, roads)
     {
+        line_type const& line = road.template get<0>();
         // Find or add begin/end point of these line
-        vertex_type from = find_or_insert(map, road.get<0>().front(), graph);
-        vertex_type to = find_or_insert(map, road.get<0>().back(), graph);
-        boost::add_edge(from, to, ggl_edge_property<Line>(road.get<0>()), graph);
+        vertex_type from = find_or_insert(map, line.front(), graph);
+        vertex_type to = find_or_insert(map, line.back(), graph);
+        boost::add_edge(from, to, bg_edge_property<line_type>(line), graph);
     }
 
     // Find nearest graph vertex for each city, using the map
@@ -193,12 +194,12 @@ void add_roads_and_connect_cities(Graph& graph,
         double min_distance = 1e300;
         for(typename map_type::const_iterator it = map.begin(); it != map.end(); ++it)
         {
-            double dist = boost::geometry::distance(it->first, city.get<0>());
+            double dist = boost::geometry::distance(it->first, city.template get<0>());
             if (dist < min_distance)
             {
                 min_distance = dist;
                 // Set the vertex
-                city.get<2>() = it->second;
+                city.template get<2>() = it->second;
             }
         }
     }
@@ -218,11 +219,11 @@ inline void add_edge_to_route(Graph const& graph,
     if (opt_edge.second)
     {
         // Get properties of edge and of vertex
-        ggl_edge_property<Route> const& edge_prop =
-            boost::get(boost::get(edge_ggl_property, graph), opt_edge.first);
+        bg_edge_property<Route> const& edge_prop =
+            boost::get(boost::get(edge_bg_property, graph), opt_edge.first);
 
-        ggl_vertex_property<typename boost::geometry::point_type<Route>::type> const& vertex_prop =
-            boost::get(boost::get(vertex_ggl_property, graph), vertex2);
+        bg_vertex_property<typename boost::geometry::point_type<Route>::type> const& vertex_prop =
+            boost::get(boost::get(vertex_bg_property, graph), vertex2);
 
         // Depending on how edge connects to vertex, copy it forward or backward
         if (boost::geometry::equals(edge_prop.line().front(), vertex_prop.location))
@@ -261,7 +262,10 @@ inline void build_route(Graph const& graph,
 int main()
 {
     // Define a point in the Geographic coordinate system
-    typedef boost::geometry::point<double, 2, boost::geometry::cs::geographic<boost::geometry::degree> > point_type;
+    typedef boost::geometry::point
+        <
+            double, 2, boost::geometry::cs::geographic<boost::geometry::degree> 
+        > point_type;
 
     typedef boost::geometry::linestring<point_type> line_type;
 
@@ -269,8 +273,8 @@ int main()
     typedef boost::adjacency_list
         <
             boost::vecS, boost::vecS, boost::undirectedS
-            , boost::property<vertex_ggl_property_t, ggl_vertex_property<point_type> >
-            , boost::property<edge_ggl_property_t, ggl_edge_property<line_type> >
+            , boost::property<vertex_bg_property_t, bg_vertex_property<point_type> >
+            , boost::property<edge_bg_property_t, bg_edge_property<line_type> >
         > graph_type;
 
     typedef boost::graph_traits<graph_type>::vertex_descriptor vertex_type;
@@ -294,7 +298,7 @@ int main()
     graph_type graph;
 
     // Add roads and connect cities
-    add_roads_and_connect_cities<line_type>(graph, roads, cities);
+    add_roads_and_connect_cities(graph, roads, cities);
 
     double const km = 1000.0;
     std::cout << "distances, all in KM" << std::endl
@@ -315,7 +319,7 @@ int main()
         // Call Dijkstra (without named-parameter to be compatible with all VC)
         boost::dijkstra_shortest_paths(graph, city1.get<2>(),
                 &predecessors[0], &costs[0],
-                boost::get(edge_ggl_property, graph),
+                boost::get(edge_bg_property, graph),
                 boost::get(boost::vertex_index, graph),
                 std::less<double>(), std::plus<double>(),
                 (std::numeric_limits<double>::max)(), double(),
