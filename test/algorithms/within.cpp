@@ -77,5 +77,5 @@ int test_main( int , char* [] )
     test_all<boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> >();
 #endif
 
-    return 0;
+        return 0;
 }

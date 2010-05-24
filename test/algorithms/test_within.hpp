@@ -24,13 +24,14 @@ template <typename Geometry1, typename Geometry2>
 void test_geometry(std::string const& wkt1,
         std::string const& wkt2, bool expected)
 {
+    namespace bg = boost::geometry;
     Geometry1 geometry1;
     Geometry2 geometry2;
 
-    boost::geometry::read_wkt(wkt1, geometry1);
-    boost::geometry::read_wkt(wkt2, geometry2);
+    bg::read_wkt(wkt1, geometry1);
+    bg::read_wkt(wkt2, geometry2);
 
-    bool detected = boost::geometry::within(geometry1, geometry2);
+    bool detected = bg::within(geometry1, geometry2);
 
     BOOST_CHECK_MESSAGE(detected == expected,
         "within: " << wkt1
@@ -40,53 +41,68 @@ void test_geometry(std::string const& wkt1,
 }
 
 
-template <typename Point, bool CW>
+template <typename Point, bool Clockwise, bool Closed>
 void test_ordered_ring(std::string const& wkt_point,
         std::string const& wkt_geometry, bool expected, bool on_border)
 {
-    typedef boost::geometry::linear_ring<Point, std::vector, CW> ring_type;
+    namespace bg = boost::geometry;
+    typedef bg::linear_ring<Point, std::vector, Clockwise, Closed> ring_type;
     ring_type ring;
     Point point;
 
-    boost::geometry::read_wkt(wkt_geometry, ring);
-    if (! CW)
+    bg::read_wkt(wkt_geometry, ring);
+    if (! Clockwise)
     {
         std::reverse(boost::begin(ring), boost::end(ring));
     }
-    boost::geometry::read_wkt(wkt_point, point);
+    if (! Closed)
+    {
+        ring.resize(ring.size() - 1);
+    }
 
-    bool detected = boost::geometry::within(point, ring);
+    bg::read_wkt(wkt_point, point);
+
+    bool detected = bg::within(point, ring);
 
     BOOST_CHECK_MESSAGE(detected == expected,
         "within: " << wkt_point
         << " in " << wkt_geometry
         << " -> Expected: " << expected
-        << " detected: " << detected);
+        << " detected: " << detected
+        << " clockwise: " << int(Clockwise)
+        << " closed: " << int(Closed)
+        );
 
     // other strategy (note that this one cannot detect OnBorder
     // (without modifications)
 
-    boost::geometry::strategy::within::franklin<Point> franklin;
-    detected = boost::geometry::within(point, ring, franklin);
+    bg::strategy::within::franklin<Point> franklin;
+    detected = bg::within(point, ring, franklin);
     if (! on_border)
     {
         BOOST_CHECK_MESSAGE(detected == expected,
             "within: " << wkt_point
             << " in " << wkt_geometry
             << " -> Expected: " << expected
-            << " detected: " << detected);
+            << " detected: " << detected
+            << " clockwise: " << int(Clockwise)
+            << " closed: " << int(Closed)
+            );
     }
 
 
-    boost::geometry::strategy::within::crossings_multiply<Point> cm;
-    detected = boost::geometry::within(point, ring, cm);
+    bg::strategy::within::crossings_multiply<Point> cm;
+    detected = bg::within(point, ring, cm);
     if (! on_border)
     {
         BOOST_CHECK_MESSAGE(detected == expected,
             "within: " << wkt_point
             << " in " << wkt_geometry
             << " -> Expected: " << expected
-            << " detected: " << detected);
+            << " detected: " << detected
+            << " clockwise: " << int(Clockwise)
+            << " closed: " << int(Closed)
+            );
     }
 }
 
@@ -95,8 +111,10 @@ void test_ring(std::string const& wkt_point,
         std::string const& wkt_geometry,
         bool expected, bool on_border)
 {
-    test_ordered_ring<Point, true>(wkt_point, wkt_geometry, expected, on_border);
-    test_ordered_ring<Point, false>(wkt_point, wkt_geometry, expected, on_border);
+    test_ordered_ring<Point, true, true>(wkt_point, wkt_geometry, expected, on_border);
+    test_ordered_ring<Point, false, true>(wkt_point, wkt_geometry, expected, on_border);
+    test_ordered_ring<Point, true, false>(wkt_point, wkt_geometry, expected, on_border);
+    test_ordered_ring<Point, false, false>(wkt_point, wkt_geometry, expected, on_border);
     test_geometry<Point, boost::geometry::polygon<Point> >(wkt_point, wkt_geometry, expected);
 }
 

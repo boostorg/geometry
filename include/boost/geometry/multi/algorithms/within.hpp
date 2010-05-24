@@ -71,6 +71,8 @@ struct within<point_tag, multi_polygon_tag, Point, MultiPolygon, Strategy>
                     <
                         Point,
                         typename boost::range_value<MultiPolygon>::type,
+                        order_as_direction<geometry::point_order<MultiPolygon>::value>::value,
+                        geometry::closure<MultiPolygon>::value,
                         Strategy
                     >
         >
