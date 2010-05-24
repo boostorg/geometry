@@ -48,7 +48,7 @@ struct perimeter : detail::calculate_null
 template <typename Geometry, typename Strategy>
 struct perimeter<ring_tag, Geometry, Strategy>
     : detail::length::range_length<Geometry, Strategy, 
-    closure<Geometry>::value == closed>
+    closure<Geometry>::value == open>
 {};
 
 template <typename Polygon, typename Strategy>
@@ -62,7 +62,7 @@ struct perimeter<polygon_tag, Polygon, Strategy>
                 <
                     typename ring_type<Polygon>::type,
                     Strategy,
-					closure<Polygon>::value == closed
+					closure<Polygon>::value == open
                 >
         >
 {};
