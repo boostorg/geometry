@@ -55,11 +55,10 @@ struct closing_iterator
         this->base_reference() = m_end;
     }
 
-    //inline bool equal(closing_iterator const& other) const
-    inline bool operator==(closing_iterator const& other) const
+    inline bool equal(closing_iterator const& other) const
     {
-        return this->base() == other->base() 
-            && this->m_beyond == other->m_beyond;
+        return this->base() == other.base() 
+            && this->m_beyond == other.m_beyond;
     }
 
 
