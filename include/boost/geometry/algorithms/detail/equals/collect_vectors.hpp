@@ -43,10 +43,14 @@ struct collected_vector
         , y(py)
         , dx(pdx)
         , dy(pdy)
+        , dx_0(T())
+        , dy_0(T())
     {}
 
     T x, y;
     T dx, dy;
+    T dx_0, dy_0;
+
     bool collinear;
 
     bool operator<(collected_vector<T> const& other) const
@@ -114,6 +118,8 @@ struct range_collect_vectors
             v.y = get<1>(*prev);
             v.dx = get<0>(*it) - v.x;
             v.dy = get<1>(*it) - v.y;
+            v.dx_0 = v.dx;
+            v.dy_0 = v.dy;
 
             // Normalize the vector -> this results in points+direction
             // and is comparible between geometries

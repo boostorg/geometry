@@ -8,12 +8,13 @@
 
 import testing ;
 
-project ggl-test
+project boost-geometry-test
     :
     requirements
         <include>.
         <toolset>msvc:<asynch-exceptions>on
     ;
+    
 
 build-project core ;
 build-project point_concept ; 

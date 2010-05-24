@@ -6,16 +6,11 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-project ggl-example
-    :
-    requirements
-        <include>../../../boost
-        <toolset>gcc:<cxxflags>-pedantic
+
+project boost-geometry-example 
+    : # requirements
     ;
 
-#
-# Build core examples
-#
 exe 01_point_example : 01_point_example.cpp ;
 exe 02_linestring_example : 02_linestring_example.cpp ;
 exe 03_polygon_example : 03_polygon_example.cpp ;
@@ -32,3 +27,4 @@ exe c04_a_custom_triangle_example : c04_a_custom_triangle_example.cpp ;
 exe c04_b_custom_triangle_example : c04_b_custom_triangle_example.cpp ;
 exe c06_custom_polygon_example : c06_custom_polygon_example.cpp  ;
 exe c07_custom_ring_pointer_example : c07_custom_ring_pointer_example.cpp ;
+# exe c08_custom_non_std_example : c08_custom_non_std_example.cpp ;

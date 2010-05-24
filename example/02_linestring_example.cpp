@@ -38,6 +38,33 @@ struct scale_functor
     }
 };
 
+
+template<typename Point>
+struct round_coordinates
+{
+    typedef typename boost::geometry::coordinate_type<Point>::type coordinate_type;
+    coordinate_type m_factor;
+
+    inline round_coordinates(coordinate_type const& factor)
+        : m_factor(factor)
+    {}
+
+    template <int Dimension>
+    inline void round(Point& p)
+    {
+        coordinate_type c = boost::geometry::get<Dimension>(p) / m_factor;
+        int rounded = c;
+        boost::geometry::set<Dimension>(p, coordinate_type(rounded) * m_factor);
+    }
+
+    inline void operator()(Point& p)
+    {
+        round<0>(p);
+        round<1>(p);
+    }
+};
+
+
 int main(void)
 {
     using namespace boost::geometry;

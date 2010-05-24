@@ -33,7 +33,8 @@ struct length<multi_linestring_tag, MultiLinestring, Strategy>
             detail::length::range_length
                 <
                     typename boost::range_value<MultiLinestring>::type,
-                    Strategy
+                    Strategy,
+					false
                 >
         >
 {};

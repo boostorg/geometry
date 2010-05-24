@@ -25,11 +25,21 @@ void test_all()
             "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,2 1,2 2,1 2,1 1))", 20);
 }
 
+template <typename P>
+void test_open()
+{
+    typedef boost::geometry::polygon<P, std::vector, std::vector, true, false> open_polygon;
+    test_geometry<open_polygon>("POLYGON((0 0,0 1,1 1,1 0))", 4);
+}
+
+
 int test_main(int, char* [])
 {
     //test_all<boost::geometry::point_xy<int> >();
     test_all<boost::geometry::point_xy<float> >();
     test_all<boost::geometry::point_xy<double> >();
+
+    test_open<boost::geometry::point_xy<double> >();
 
 #if defined(HAVE_CLN)
     test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();

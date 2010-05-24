@@ -6,7 +6,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite ggl-algorithms
+test-suite boost-geometry-algorithms
     :
     [ run append.cpp ]
     [ run area.cpp ]

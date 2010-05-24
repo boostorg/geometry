@@ -16,14 +16,13 @@
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
 
-
 #include <boost/geometry/core/cs.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
-
+#include <boost/geometry/util/closeable_view.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/length_result.hpp>
 
@@ -71,7 +70,7 @@ struct segment_length
 \note for_each could be used here, now that point_type is changed by boost
     range iterator
 */
-template<typename Range, typename Strategy>
+template<typename Range, typename Strategy, bool Close>
 struct range_length
 {
     typedef typename length_result<Range>::type return_type;
@@ -79,19 +78,24 @@ struct range_length
     static inline return_type apply(
             Range const& range, Strategy const& strategy)
     {
-        return_type sum = return_type();
+        typedef closeable_view<Range const, Close> view_type;
+        typedef typename boost::range_iterator
+            <
+                view_type const
+            >::type iterator_type;
 
-        typedef typename boost::range_iterator<Range const>::type iterator_type;
-        iterator_type it = boost::begin(range);
-        if (it != boost::end(range))
+        return_type sum = return_type();
+        view_type view(range);
+        iterator_type it = boost::begin(view), end = boost::end(view);
+        if(it != end)
         {
-            iterator_type previous = it++;
-            while(it != boost::end(range))
+            for(iterator_type previous = it++; 
+                    it != end; 
+                    ++previous, ++it)
             {
                 // Add point-point distance using the return type belonging
                 // to strategy
                 sum += strategy.apply(*previous, *it);
-                previous = it++;
             }
         }
 
@@ -99,8 +103,10 @@ struct range_length
     }
 };
 
+
 }} // namespace detail::length
 #endif // DOXYGEN_NO_DETAIL
+
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
@@ -119,7 +125,7 @@ struct length : detail::calculate_null
 
 template <typename Geometry, typename Strategy>
 struct length<linestring_tag, Geometry, Strategy>
-    : detail::length::range_length<Geometry, Strategy>
+    : detail::length::range_length<Geometry, Strategy, false>
 {};
 
 

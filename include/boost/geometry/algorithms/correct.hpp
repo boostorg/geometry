@@ -103,6 +103,7 @@ struct correct_ring
             <
                 Ring,
                 order_as_direction<geometry::point_order<Ring>::value>::value,
+                geometry::closure<Ring>::value,
                 strategy_type
             > ring_area_type;
 

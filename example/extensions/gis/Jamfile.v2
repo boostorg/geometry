@@ -34,7 +34,7 @@ switch [ os.name ]
     }
 }
 
-project ggl-example-extensions-gis
+project boost-geometry-extensions-gis-examples
     :
     requirements
         <include>.

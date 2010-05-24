@@ -21,6 +21,8 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/util/write_dsv.hpp>
+
 
 
 namespace boost { namespace geometry
@@ -31,36 +33,344 @@ namespace boost { namespace geometry
 namespace detail { namespace connect
 {
 
+
+template <typename Point>
+struct node
+{
+    Point point;
+    int index;
+    bool is_from;
+
+    node(int i, bool f, Point const& p) 
+        : index(i)
+        , is_from(f)
+        , point(p)
+    {}
+
+    node() 
+        : index(-1)
+        , is_from(false)
+    {}
+};
+
+template <typename Point>
+struct map_policy
+{
+
+    // Have a map<point, <index,start/end> > such that we can find
+    // the corresponding point on each end. Note that it uses the
+    // default "equals" for the point-type
+    typedef std::map
+        <
+            Point,
+            std::vector<node<Point> >,
+            boost::geometry::less<Point>
+        > map_type;
+
+    typedef typename map_type::const_iterator map_iterator_type;
+    typedef typename std::vector<node<Point> >::const_iterator vector_iterator_type;
+
+    typedef Point point_type;
+    typedef typename distance_result<Point>::type distance_result_type;
+
+
+    map_type map;
+
+
+    inline bool find_start(node<Point>& object,
+            std::map<int, bool>& included, 
+            int expected_count = 1)
+    {
+        for (map_iterator_type it = map.begin();
+            it != map.end();
+            ++it)
+        {
+            if ((expected_count == 1 && boost::size(it->second) == 1)
+                || (expected_count > 1 && boost::size(it->second) > 1))
+            {
+                for (vector_iterator_type vit = it->second.begin();
+                    vit != it->second.end();
+                    ++vit)
+                {
+                    if (! included[vit->index])
+                    {
+                        included[vit->index] = true;
+                        object = *vit;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Not found with one point, try one with two points
+        // to find rings
+        if (expected_count == 1)
+        {
+            return find_start(object, included, 2);
+        }
+
+        return false;
+    }
+
+    inline void add(int index, Point const& p, bool is_from)
+    {
+        map[p].push_back(node<Point>(index, is_from, p));
+    }
+
+
+    template <typename LineString>
+    inline void add(int index, LineString const& ls)
+    {
+        if (boost::size(ls) > 0)
+        {
+            add(index, *boost::begin(ls), true);
+            add(index, *(boost::end(ls) - 1), false);
+        }
+    }
+
+    inline node<Point> find_closest(Point const& p1, std::map<int, bool>& included)
+    {
+        std::vector<node<Point> > const& range = map[p1];
+
+        node<Point> closest;
+
+
+        // Alternatively, we might look for the closest points
+        if (boost::size(range) == 0)
+        {
+            std::cout << "nothing found" << std::endl;
+            return closest;
+        }
+
+        // 2c: for all candidates get closest one
+
+        // TODO: make utility to initalize distance result with large value
+        distance_result_type min_dist
+            = make_distance_result<distance_result_type>(100);
+        for (vector_iterator_type it = boost::begin(range);
+            it != boost::end(range);
+            ++it)
+        {
+            if (! included[it->index])
+            {
+                distance_result_type d = geometry::distance(p1, it->point);
+                if (d < min_dist)
+                {
+                    closest = *it;
+                    min_dist = d;
+
+                    //std::cout << "TO " << geometry::wkt(p2) << std::endl;
+                }
+            }
+        }
+        return closest;
+    }
+
+};
+
+
+template <typename Point>
+struct fuzzy_policy
+{
+
+    // Have a map<point, <index,start/end> > such that we can find
+    // the corresponding point on each end. Note that it uses the
+    // default "equals" for the point-type
+    typedef std::vector
+        <
+            std::pair
+                <
+                    Point,
+                    std::vector<node<Point> >
+                >
+        > map_type;
+
+    typedef typename map_type::const_iterator map_iterator_type;
+    typedef typename std::vector<node<Point> >::const_iterator vector_iterator_type;
+
+    typedef Point point_type;
+    typedef typename distance_result<Point>::type distance_result_type;
+
+
+    map_type map;
+    typename coordinate_type<Point>::type m_limit;
+
+
+    fuzzy_policy(typename coordinate_type<Point>::type limit)
+        : m_limit(limit)
+    {}
+
+    inline bool find_start(node<Point>& object,
+            std::map<int, bool>& included, 
+            int expected_count = 1)
+    {
+        for (map_iterator_type it = map.begin();
+            it != map.end();
+            ++it)
+        {
+            if ((expected_count == 1 && boost::size(it->second) == 1)
+                || (expected_count > 1 && boost::size(it->second) > 1))
+            {
+                for (vector_iterator_type vit = it->second.begin();
+                    vit != it->second.end();
+                    ++vit)
+                {
+                    if (! included[vit->index])
+                    {
+                        included[vit->index] = true;
+                        object = *vit;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Not found with one point, try one with two points
+        // to find rings
+        if (expected_count == 1)
+        {
+            return find_start(object, included, 2);
+        }
+
+        return false;
+    }
+
+    inline typename boost::range_iterator<map_type>::type fuzzy_closest(Point const& p)
+    {
+        typename boost::range_iterator<map_type>::type closest = boost::end(map);
+
+        for (typename boost::range_iterator<map_type>::type it = boost::begin(map);
+            it != boost::end(map);
+            ++it)
+        {
+            distance_result_type d = geometry::distance(p, it->first);
+            if (d < m_limit)
+            {
+                if (closest == boost::end(map))
+                {
+                    closest = it;
+                }
+                else
+                {
+                    distance_result_type dc = geometry::distance(p, closest->first);
+                    if (d < dc)
+                    {
+                        closest = it;
+                    }
+                }
+            }
+        }
+        return closest;
+    }
+
+
+    inline void add(int index, Point const& p, bool is_from)
+    {
+        // Iterate through all points and get the closest one.
+        typename boost::range_iterator<map_type>::type it = fuzzy_closest(p);
+        if (it == map.end())
+        {
+            map.resize(map.size() + 1);
+            map.back().first = p;
+            it = map.end() - 1;
+        }
+        it->second.push_back(node<Point>(index, is_from, p));
+    }
+
+
+    template <typename LineString>
+    inline void add(int index, LineString const& ls)
+    {
+        if (boost::size(ls) > 0)
+        {
+            add(index, *boost::begin(ls), true);
+            add(index, *(boost::end(ls) - 1), false);
+        }
+    }
+
+    inline node<Point> find_closest(Point const& p1, std::map<int, bool>& included)
+    {
+        node<Point> closest;
+
+        typename boost::range_iterator<map_type>::type it = fuzzy_closest(p1);
+        if (it == map.end())
+        {
+            return closest;
+        }
+
+        std::vector<node<Point> > const& range = it->second;
+
+
+
+        // Alternatively, we might look for the closest points
+        if (boost::size(range) == 0)
+        {
+            std::cout << "nothing found" << std::endl;
+            return closest;
+        }
+
+        // 2c: for all candidates get closest one
+
+        // TODO: make utility to initalize distance result with large value
+        distance_result_type min_dist
+            = make_distance_result<distance_result_type>(100);
+        for (vector_iterator_type it = boost::begin(range);
+            it != boost::end(range);
+            ++it)
+        {
+            if (! included[it->index])
+            {
+                distance_result_type d = geometry::distance(p1, it->point);
+                if (d < min_dist)
+                {
+                    closest = *it;
+                    min_dist = d;
+
+                    //std::cout << "TO " << geometry::wkt(p2) << std::endl;
+                }
+            }
+        }
+        return closest;
+    }
+};
+
+template <typename Policy>
+inline void debug(Policy const& policy)
+{
+    std::cout << "MAP" << std::endl;
+    typedef typename Policy::map_type::const_iterator iterator;
+    typedef typename Policy::point_type point_type;
+
+    for (iterator it=policy.map.begin(); it != policy.map.end(); ++it)
+    {
+        std::cout << geometry::dsv(it->first) << " => " ;
+        std::vector<node<point_type> > const& range =it->second;
+        for ( std::vector<node<point_type> >::const_iterator
+            vit = boost::begin(range); vit != boost::end(range); ++vit)
+        {
+            std::cout 
+                << " (" << vit->index 
+                << ", " << (vit->is_from ? "F" : "T")
+                << ")"
+                ;
+        }
+        std::cout << std::endl;
+    }
+}
+
+
+
+
 // Dissolve on multi_linestring tries to create larger linestrings from input,
 // or closed rings.
 
-template <typename Multi, typename GeometryOut>
+template <typename Multi, typename GeometryOut, typename Policy>
 struct connect_multi_linestring
 {
     typedef typename point_type<Multi>::type point_type;
     typedef typename boost::range_iterator<Multi const>::type iterator_type;
     typedef typename boost::range_value<Multi>::type linestring_type;
-    typedef typename distance_result<point_type>::type distance_result_type;
 
-    struct mapped
-    {
-        int index;
-        bool is_from;
-        mapped(int i, bool f) : index(i), is_from(f)
-        {}
-    };
-
-    // Have a map<point, <index,start/end> > such that we can find
-    // the corresponding point on each end. Note that it uses the
-    // default "equals" for the point-type
-    typedef std::multimap
-        <
-            point_type,
-            mapped,
-            boost::geometry::less<point_type>
-        > map_type;
-
-    typedef typename map_type::const_iterator map_iterator_type;
 
     static inline void copy(linestring_type const& ls,
             GeometryOut& target,
@@ -78,40 +388,14 @@ struct connect_multi_linestring
         }
     }
 
-    static inline map_iterator_type find_start(map_type const& map,
-            std::map<int, bool>& included, int expected_count = 1)
-    {
-        for (map_iterator_type it = map.begin();
-            it != map.end();
-            ++it)
-        {
-            typename map_type::size_type count = map.count(it->first);
-            if (count == expected_count && ! included[it->second.index])
-            {
-                included[it->second.index] = true;
-                return it;
-            }
-        }
-
-        // Not found with one point, try one with two points
-        // to find rings
-        if (expected_count == 1)
-        {
-            return find_start(map, included, 2);
-        }
-
-        return map.end();
-    }
 
     template <typename OutputIterator>
-    static inline OutputIterator apply(Multi const& multi, OutputIterator out)
+    static inline OutputIterator apply(Multi const& multi, Policy& policy, OutputIterator out)
     {
         if (boost::size(multi) <= 0)
         {
             return out;
         }
-
-        map_type map;
 
         // 1: fill the map.
         int index = 0;
@@ -119,96 +403,54 @@ struct connect_multi_linestring
             it != boost::end(multi);
             ++it, ++index)
         {
-            linestring_type const& ls = *it;
-            if (boost::size(ls) > 0)
-            {
-                map.insert(std::make_pair(*boost::begin(ls), mapped(index, true)));
-                map.insert(std::make_pair(*(boost::end(ls) - 1), mapped(index, false)));
-            }
+            policy.add(index, *it);
         }
+
+        debug(policy);
 
         std::map<int, bool> included;
 
         // 2: connect the lines
 
         // 2a: start with one having a unique starting point
-        map_iterator_type first = find_start(map, included);
-        bool found = first != map.end();
-        if (! found)
+        node<point_type> starting_point;
+        if (! policy.find_start(starting_point, included))
         {
             return out;
         }
 
-        int current_index = first->second.index;
         GeometryOut current;
-        copy(multi[current_index], current, first->second.is_from);
+        copy(multi[starting_point.index], current, starting_point.is_from);
 
+        bool found = true;
         while(found)
         {
             // 2b: get all candidates, by asking multi-map for range
-            point_type const& p = *(boost::end(current) - 1);
-            std::pair<map_iterator_type, map_iterator_type> range
-                        = map.equal_range(p);
+            point_type const& p1 = *(boost::end(current) - 1);
 
-            // Alternatively, we might look for the closest points
-            if (range.first == map.end())
-            {
-                std::cout << "nothing found" << std::endl;
-            }
+            node<point_type> closest = policy.find_closest(p1, included);
 
-            // 2c: for all candidates get closest one
             found = false;
-            int closest_index = -1;
-            bool from_is_closest = false;
-            // TODO: make utility to initalize distance result with large value
-            distance_result_type min_dist
-                = make_distance_result<distance_result_type>(100);
-            for (map_iterator_type it = range.first;
-                ! found && it != range.second;
-                ++it)
-            {
-                if (it->second.index != current_index
-                    && ! included[it->second.index])
-                {
-                    linestring_type const& ls = multi[it->second.index];
-                    point_type const& p = it->second.is_from
-                        ? *boost::begin(ls)
-                        : *(boost::end(ls) - 1);
 
-                    distance_result_type d = geometry::distance(it->first, p);
-                    if (! found || d < min_dist)
-                    {
-                        closest_index = it->second.index;
-                        from_is_closest = it->second.is_from;
-                        min_dist = d;
-
-                        //std::cout << "TO " << geometry::wkt(p) << std::endl;
-                    }
-                    found = true;
-                }
-            }
             // 2d: if there is a closest one add it
-            if (found && closest_index >= 0)
+            if (closest.index >= 0)
             {
-                current_index = closest_index;
-                included[current_index] = true;
-                copy(multi[current_index], current, from_is_closest);
+                found = true;
+                included[closest.index] = true;
+                copy(multi[closest.index], current, closest.is_from);
             }
-
-            if (! found && (included.size() != boost::size(multi)))
+            else if ((included.size() != boost::size(multi)))
             {
                 // Get one which is NOT found and go again
-                map_iterator_type next = find_start(map, included);
-                found = next != map.end();
-
-                if (found)
+                node<point_type> next;
+                if (policy.find_start(next, included))
                 {
-                    current_index = next->second.index;
+                    found = true;
 
                     *out++ = current;
                     geometry::clear(current);
 
-                    copy(multi[current_index], current, next->second.is_from);
+                    copy(multi[next.index], current, next.is_from);
                 }
             }
         }
@@ -235,15 +477,21 @@ template
     typename GeometryTag,
     typename GeometryOutTag,
     typename Geometry,
-    typename GeometryOut
+    typename GeometryOut,
+    typename Policy
 >
 struct connect
 {};
 
 
-template<typename Multi, typename GeometryOut>
-struct connect<multi_linestring_tag, linestring_tag, Multi, GeometryOut>
-    : detail::connect::connect_multi_linestring<Multi, GeometryOut>
+template<typename Multi, typename GeometryOut, typename Policy>
+struct connect<multi_linestring_tag, linestring_tag, Multi, GeometryOut, Policy>
+    : detail::connect::connect_multi_linestring
+        <
+            Multi, 
+            GeometryOut,
+            Policy
+        >
 {};
 
 
@@ -258,20 +506,57 @@ template
 >
 inline void connect(Geometry const& geometry, Collection& output_collection)
 {
-    concept::check<Geometry const>();
-
     typedef typename boost::range_value<Collection>::type geometry_out;
 
+    concept::check<Geometry const>();
     concept::check<geometry_out>();
+
+    typedef detail::connect::map_policy
+        <
+            typename point_type<Geometry>::type
+        > policy;
 
     dispatch::connect
     <
         typename tag<Geometry>::type,
         typename tag<geometry_out>::type,
         Geometry,
-        geometry_out
-    >::apply(geometry, std::back_inserter(output_collection));
+        geometry_out,
+        policy
+    >::apply(geometry, policy(), std::back_inserter(output_collection));
 }
+
+
+
+template
+<
+    typename Geometry,
+    typename Collection
+>
+inline void connect(Geometry const& geometry, Collection& output_collection, 
+            typename coordinate_type<Geometry>::type const& limit)
+{
+    typedef typename boost::range_value<Collection>::type geometry_out;
+
+    concept::check<Geometry const>();
+    concept::check<geometry_out>();
+
+    typedef detail::connect::fuzzy_policy
+        <
+            typename point_type<Geometry>::type
+        > policy;
+
+
+    dispatch::connect
+    <
+        typename tag<Geometry>::type,
+        typename tag<geometry_out>::type,
+        Geometry,
+        geometry_out,
+        policy
+    >::apply(geometry, policy(limit), std::back_inserter(output_collection));
+}
+
 
 
 }} // namespace boost::geometry
