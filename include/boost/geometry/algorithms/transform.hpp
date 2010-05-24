@@ -220,7 +220,8 @@ struct transform_range
     {
         typedef typename point_type<Range2>::type point_type;
 
-        geometry::clear(range2);
+        // Should NOT be done here!
+        // geometry::clear(range2);
         return transform_range_out<point_type>(range1,
                 std::back_inserter(range2), strategy);
     }

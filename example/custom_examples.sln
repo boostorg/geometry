@@ -18,6 +18,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c07_custom_ring_pointer_exa
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c08_custom_non_std_example", "c08_custom_non_std_example.vcproj", "{C215F131-F021-4155-A96E-BB2D91918A17}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c09_custom_fusion_example", "c09_custom_fusion_example.vcproj", "{DA36AD55-E448-43DE-A974-EA765AE3967A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -60,6 +62,10 @@ Global
 		{C215F131-F021-4155-A96E-BB2D91918A17}.Debug|Win32.Build.0 = Debug|Win32
 		{C215F131-F021-4155-A96E-BB2D91918A17}.Release|Win32.ActiveCfg = Release|Win32
 		{C215F131-F021-4155-A96E-BB2D91918A17}.Release|Win32.Build.0 = Release|Win32
+		{DA36AD55-E448-43DE-A974-EA765AE3967A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DA36AD55-E448-43DE-A974-EA765AE3967A}.Debug|Win32.Build.0 = Debug|Win32
+		{DA36AD55-E448-43DE-A974-EA765AE3967A}.Release|Win32.ActiveCfg = Release|Win32
+		{DA36AD55-E448-43DE-A974-EA765AE3967A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,7 +13,6 @@
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
-#include <boost/geometry/iterators/base.hpp>
 
 
 namespace boost { namespace geometry
@@ -29,15 +28,14 @@ namespace boost { namespace geometry
 */
 template <typename Range>
 struct closing_iterator 
-    : public detail::iterators::iterator_base
-        <
-            closing_iterator<Range>,
-            typename boost::range_iterator<Range>::type,
-            boost::forward_traversal_tag
-        >
+    : public boost::iterator_adaptor
+    <
+        closing_iterator<Range>,
+        typename boost::range_iterator<Range>::type,
+        boost::use_default,
+        boost::forward_traversal_tag
+    >
 {
-    friend class boost::iterator_core_access;
-
     explicit inline closing_iterator(Range& range)
         : m_range(range)
         , m_beyond(false)
@@ -55,14 +53,14 @@ struct closing_iterator
         this->base_reference() = m_end;
     }
 
-    inline bool equal(closing_iterator const& other) const
+private:
+    friend class boost::iterator_core_access;
+
+    inline bool equal(closing_iterator<Range> const& other) const
     {
         return this->base() == other.base() 
             && this->m_beyond == other.m_beyond;
     }
-
-
-private:
 
     inline void increment()
     {

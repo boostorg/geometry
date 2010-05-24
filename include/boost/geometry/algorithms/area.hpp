@@ -31,7 +31,6 @@
 
 #include <boost/geometry/strategies/concepts/area_concept.hpp>
 
-#include <boost/geometry/util/closure_as_bool.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
 #include <boost/geometry/util/closeable_view.hpp>
@@ -122,7 +121,7 @@ struct ring_area
         typedef closeable_view
             <
                 rview_type const,
-                Closure == closed
+                Closure == open // close it if it is open
             > view_type;
         typedef typename boost::range_iterator<view_type const>::type iterator_type;
 

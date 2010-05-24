@@ -43,6 +43,11 @@ void test_2d()
             ",3.7 1.6,3.4 1.2,2.8 1.8,2.4 1.7,2 1.3))",
         4.06923363095238, 1.65055803571429);
 
+    // open / closed
+    test_centroid<boost::geometry::linear_ring<P, std::vector, true, true> >(
+            "POLYGON((1 1,2 2,3 1,2 0,1 1))", 2.0, 1.0);
+    test_centroid<boost::geometry::linear_ring<P, std::vector, true, false> >(
+            "POLYGON((1 1,2 2,3 1,2 0))", 2.0, 1.0);
 
     test_centroid<boost::geometry::box<P> >("POLYGON((1 2,3 4))", 2, 3);
     test_centroid<P>("POINT(3 3)", 3, 3);

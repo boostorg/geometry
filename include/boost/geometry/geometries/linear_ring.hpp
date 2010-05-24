@@ -86,7 +86,29 @@ struct point_order< linear_ring<P, V, true, Closed, A> >
     static const order_selector value = clockwise;
 };
 
+template
+<
+    typename P,
+    template<typename, typename> class V,
+    bool PointOrder,
+    template<typename> class A
+>
+struct closure< linear_ring<P, V, PointOrder, true, A> >
+{
+    static const closure_selector value = closed;
+};
 
+template
+<
+    typename P,
+    template<typename, typename> class V,
+    bool PointOrder,
+    template<typename> class A
+>
+struct closure< linear_ring<P, V, PointOrder, false, A> >
+{
+    static const closure_selector value = open;
+};
 
 
 } // namespace traits
