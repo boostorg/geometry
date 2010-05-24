@@ -103,10 +103,9 @@ template
 <
     typename MultiPolygon,
     typename Point,
-    closure_selector Closure,
     typename Strategy
 >
-struct centroid<multi_polygon_tag, MultiPolygon, Point, Closure, Strategy>
+struct centroid<multi_polygon_tag, MultiPolygon, Point,  Strategy>
     : detail::centroid::centroid_multi
         <
             MultiPolygon,
@@ -115,7 +114,6 @@ struct centroid<multi_polygon_tag, MultiPolygon, Point, Closure, Strategy>
             detail::centroid::centroid_polygon_state
                 <
                     typename boost::range_value<MultiPolygon>::type,
-                    Closure,
                     Strategy
                 >
         >
@@ -126,10 +124,9 @@ template
 <
     typename MultiPoint,
     typename Point,
-    closure_selector Closure,
     typename Strategy
 >
-struct centroid<multi_point_tag, MultiPoint, Point, Closure, Strategy>
+struct centroid<multi_point_tag, MultiPoint, Point,  Strategy>
     : detail::centroid::centroid_multi
         <
             MultiPoint,

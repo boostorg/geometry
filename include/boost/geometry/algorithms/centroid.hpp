@@ -276,16 +276,18 @@ struct centroid_linestring
     \note Because outer ring is clockwise, inners are counter clockwise,
     triangle approach is OK and works for polygons with rings.
 */
-template<typename Polygon, closure_selector Closure, typename Strategy>
+template<typename Polygon, typename Strategy>
 struct centroid_polygon_state
 {
+    typedef typename ring_type<Polygon>::type ring_type;
+
     static inline void apply(Polygon const& poly,
             Strategy const& strategy, typename Strategy::state_type& state)
     {
         typedef centroid_ring_state
             <
-                typename ring_type<Polygon>::type,
-                Closure,
+                ring_type,
+                geometry::closure<ring_type>::value,
                 Strategy
             > per_ring;
 
@@ -303,7 +305,7 @@ struct centroid_polygon_state
     }
 };
 
-template<typename Polygon, typename Point, closure_selector Closure, typename Strategy>
+template<typename Polygon, typename Point, typename Strategy>
 struct centroid_polygon
 {
     static inline void apply(Polygon const& poly, Point& centroid,
@@ -315,7 +317,6 @@ struct centroid_polygon
             centroid_polygon_state
                 <
                     Polygon,
-                    Closure,
                     Strategy
                 >::apply(poly, strategy, state);
             Strategy::result(state, centroid);
@@ -337,7 +338,6 @@ template
     typename Tag,
     typename Geometry,
     typename Point,
-    closure_selector Closure,
     typename Strategy
 >
 struct centroid {};
@@ -346,10 +346,9 @@ template
 <
     typename Geometry,
     typename Point,
-    closure_selector Closure,
     typename Strategy
 >
-struct centroid<point_tag, Geometry, Point, Closure, Strategy>
+struct centroid<point_tag, Geometry, Point, Strategy>
     : detail::centroid::centroid_point<Geometry, Point, Strategy>
 {};
 
@@ -357,26 +356,31 @@ template
 <
     typename Box,
     typename Point,
-    closure_selector Closure,
     typename Strategy
 >
-struct centroid<box_tag, Box, Point, Closure, Strategy>
+struct centroid<box_tag, Box, Point, Strategy>
     : detail::centroid::centroid_box<Box, Point, Strategy>
 {};
 
-template <typename Ring, typename Point, closure_selector Closure, typename Strategy>
-struct centroid<ring_tag, Ring, Point, Closure, Strategy>
-    : detail::centroid::centroid_ring<Ring, Point, Closure, Strategy>
+template <typename Ring, typename Point, typename Strategy>
+struct centroid<ring_tag, Ring, Point, Strategy>
+    : detail::centroid::centroid_ring
+        <
+            Ring, 
+            Point, 
+            geometry::closure<Ring>::value,
+            Strategy
+        >
 {};
 
-template <typename Linestring, typename Point, closure_selector Closure, typename Strategy>
-struct centroid<linestring_tag, Linestring, Point, Closure, Strategy>
+template <typename Linestring, typename Point, typename Strategy>
+struct centroid<linestring_tag, Linestring, Point, Strategy>
     : detail::centroid::centroid_linestring<Linestring, Point, Strategy>
  {};
 
-template <typename Polygon, typename Point, closure_selector Closure, typename Strategy>
-struct centroid<polygon_tag, Polygon, Point, Closure, Strategy>
-    : detail::centroid::centroid_polygon<Polygon, Point, Closure, Strategy>
+template <typename Polygon, typename Point, typename Strategy>
+struct centroid<polygon_tag, Polygon, Point, Strategy>
+    : detail::centroid::centroid_polygon<Polygon, Point, Strategy>
  {};
 
 } // namespace dispatch
@@ -407,7 +411,6 @@ inline void centroid(Geometry const& geometry, Point& c,
             typename tag<Geometry>::type,
             Geometry,
             Point,
-            geometry::closure<Geometry>::value,
             Strategy
         >::apply(geometry, c, strategy);
 }

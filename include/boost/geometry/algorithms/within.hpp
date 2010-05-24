@@ -51,14 +51,18 @@ The within algorithm is used as following:
 #include <boost/geometry/algorithms/make.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/core/cs.hpp>
-
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-
 #include <boost/geometry/strategies/point_in_poly.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
+#include <boost/geometry/util/order_as_direction.hpp>
+#include <boost/geometry/util/closeable_view.hpp>
+#include <boost/geometry/util/reversible_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -168,7 +172,14 @@ struct box_in_box<Box1, Box2, Strategy, DimensionCount, DimensionCount>
 };
 
 
-template<typename Point, typename Ring, typename Strategy>
+template
+<
+    typename Point, 
+    typename Ring, 
+    iterate_direction Direction, 
+    closure_selector Closure,
+    typename Strategy
+>
 struct point_in_ring
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
@@ -181,14 +192,23 @@ struct point_in_ring
             return false;
         }
 
-        typedef typename boost::range_iterator<Ring const>::type iterator_type;
+        typedef reversible_view<Ring const, Direction> rev_view_type;
+        typedef closeable_view
+            <
+                rev_view_type const,
+                Closure == open // close it if it is open
+            > cl_view_type;
+        typedef typename boost::range_iterator<cl_view_type const>::type iterator_type;
 
+        rev_view_type rev_view(ring);
+        cl_view_type view(rev_view);
         typename Strategy::state_type state;
+        iterator_type it = boost::begin(view);
+        iterator_type end = boost::end(view);
 
-        iterator_type it = boost::begin(ring);
         for (iterator_type previous = it++;
-            it != boost::end(ring);
-            previous = it++)
+            it != end;
+            ++previous, ++it)
         {
             if (! strategy.apply(point, *previous, *it, state))
             {
@@ -200,7 +220,14 @@ struct point_in_ring
 };
 
 // Polygon: in exterior ring, and if so, not within interior ring(s)
-template<typename Point, typename Polygon, typename Strategy>
+template
+<
+    typename Point, 
+    typename Polygon, 
+    iterate_direction Direction, 
+    closure_selector Closure,
+    typename Strategy
+>
 struct point_in_polygon
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
@@ -213,6 +240,8 @@ struct point_in_polygon
             <
                 Point,
                 typename ring_type<Polygon>::type,
+                Direction,
+                Closure,
                 Strategy
             > per_ring;
 
@@ -286,13 +315,25 @@ struct within<box_tag, box_tag, Box1, Box2, Strategy>
 template <typename Point, typename Ring, typename Strategy>
 struct within<point_tag, ring_tag, Point, Ring, Strategy>
     : detail::within::point_in_ring
-        <Point, Ring, Strategy>
+        <
+            Point, 
+            Ring, 
+            order_as_direction<geometry::point_order<Ring>::value>::value,
+            geometry::closure<Ring>::value,
+            Strategy
+        >
 {};
 
 template <typename Point, typename Polygon, typename Strategy>
 struct within<point_tag, polygon_tag, Point, Polygon, Strategy>
     : detail::within::point_in_polygon
-        <Point, Polygon, Strategy>
+        <
+            Point, 
+            Polygon, 
+            order_as_direction<geometry::point_order<Polygon>::value>::value,
+            geometry::closure<Polygon>::value,
+            Strategy
+        >
 {};
 
 } // namespace dispatch
