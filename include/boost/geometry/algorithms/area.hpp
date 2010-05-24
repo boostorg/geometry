@@ -15,9 +15,10 @@
 #include <boost/range/metafunctions.hpp>
 
 
-#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -30,8 +31,10 @@
 
 #include <boost/geometry/strategies/concepts/area_concept.hpp>
 
+#include <boost/geometry/util/closure_as_bool.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
+#include <boost/geometry/util/closeable_view.hpp>
 #include <boost/geometry/util/reversible_view.hpp>
 
 
@@ -87,7 +90,13 @@ struct box_area
 };
 
 
-template<typename Ring, iterate_direction Direction, typename Strategy>
+template
+<
+    typename Ring, 
+    iterate_direction Direction, 
+    closure_selector Closure,
+    typename Strategy
+>
 struct ring_area
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::AreaStrategy<Strategy>) );
@@ -108,16 +117,24 @@ struct ring_area
             return type();
         }
 
-        typedef reversible_view<Ring const, Direction> view_type;
+
+        typedef reversible_view<Ring const, Direction> rview_type;
+        typedef closeable_view
+            <
+                rview_type const,
+                Closure == closed
+            > view_type;
         typedef typename boost::range_iterator<view_type const>::type iterator_type;
 
-        view_type view(ring);
+        rview_type rview(ring);
+        view_type view(rview);
         typename Strategy::state_type state;
         iterator_type it = boost::begin(view);
+        iterator_type end = boost::end(view);
 
         for (iterator_type previous = it++;
-            it != boost::end(view);
-            previous = it++)
+            it != end;
+            ++previous, ++it)
         {
             strategy.apply(*previous, *it, state);
         }
@@ -143,6 +160,7 @@ template
     typename Tag,
     typename Geometry,
     order_selector Order,
+    closure_selector Closure,
     typename Strategy
 >
 struct area
@@ -154,25 +172,26 @@ struct area
         > {};
 
 
-template <typename Geometry, order_selector Order, typename Strategy>
-struct area<box_tag, Geometry, Order, Strategy>
+template <typename Geometry, order_selector Order, closure_selector Closure, typename Strategy>
+struct area<box_tag, Geometry, Order, Closure, Strategy>
     : detail::area::box_area<Geometry, Strategy>
 {};
 
 
-template <typename Geometry, order_selector Order, typename Strategy>
-struct area<ring_tag, Geometry, Order, Strategy>
+template <typename Geometry, order_selector Order, closure_selector Closure, typename Strategy>
+struct area<ring_tag, Geometry, Order, Closure, Strategy>
     : detail::area::ring_area
         <
             Geometry, 
             order_as_direction<Order>::value, 
+            Closure, //closure_as_bool<Closure>::value,
             Strategy
         >
 {};
 
 
-template <typename Polygon, order_selector Order, typename Strategy>
-struct area<polygon_tag, Polygon, Order, Strategy>
+template <typename Polygon, order_selector Order, closure_selector Closure, typename Strategy>
+struct area<polygon_tag, Polygon, Order, Closure, Strategy>
     : detail::calculate_polygon_sum
         <
             typename Strategy::return_type,
@@ -182,6 +201,7 @@ struct area<polygon_tag, Polygon, Order, Strategy>
                 <
                     typename ring_type<Polygon>::type,
                     order_as_direction<Order>::value,
+                    Closure, //closure_as_bool<Closure>::value,
                     Strategy
                 >
         >
@@ -216,6 +236,7 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
             typename tag<Geometry>::type,
             Geometry,
             geometry::point_order<Geometry>::value,
+            geometry::closure<Geometry>::value,
             strategy_type
         >::apply(geometry, strategy_type());
 }
@@ -240,6 +261,7 @@ inline typename Strategy::return_type area(
             typename tag<Geometry>::type,
             Geometry,
             geometry::point_order<Geometry>::value,
+            geometry::closure<Geometry>::value,
             Strategy
         >::apply(geometry, strategy);
 }

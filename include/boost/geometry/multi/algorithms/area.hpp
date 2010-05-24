@@ -24,8 +24,8 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-template <typename MultiGeometry, order_selector Order, typename Strategy>
-struct area<multi_polygon_tag, MultiGeometry, Order, Strategy>
+template <typename MultiGeometry, order_selector Order, closure_selector Closure, typename Strategy>
+struct area<multi_polygon_tag, MultiGeometry, Order, Closure, Strategy>
     : detail::multi_sum
         <
             typename Strategy::return_type,
@@ -35,7 +35,7 @@ struct area<multi_polygon_tag, MultiGeometry, Order, Strategy>
                 <
                     polygon_tag,
                     typename boost::range_value<MultiGeometry>::type,
-                    Order,
+                    Order, Closure,
                     Strategy
                 >
     >

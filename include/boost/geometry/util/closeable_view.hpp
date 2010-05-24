@@ -50,7 +50,7 @@ private :
 template <typename Range>
 struct closeable_view<Range, true>
 {
-    closeable_view(Range& r)
+    explicit closeable_view(Range& r)
         : m_range(r)
     {}
 

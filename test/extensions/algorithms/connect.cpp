@@ -12,6 +12,7 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 
+#include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/extensions/algorithms/connect.hpp>
@@ -31,36 +32,46 @@
 #endif
 
 
+
+
 template <typename GeometryOut, typename Geometry>
-void test_connect(std::string const& caseid, Geometry const& geometry,
-        std::size_t expected_point_count,
-        double expected_length, double percentage)
+void test_connect(std::string const& caseid, Geometry const& geometry, 
+        std::size_t expected_count, std::size_t expected_point_count,
+        double expected_length, double limit = -1, double percentage = 0.001)
 {
 	namespace bg = boost::geometry;
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
 
 	std::vector<GeometryOut> connected_vector;
-	bg::connect(geometry, connected_vector);
+    if (limit > 0)
+    {
+	    bg::connect(geometry, connected_vector, limit);
+    }
+    else
+    {
+	    bg::connect(geometry, connected_vector);
+    }
 
 	typename bg::length_result<Geometry>::type length = 0;
-	std::size_t count = 0;
+    std::size_t count = boost::size(connected_vector);
+	std::size_t point_count = 0;
 
 	BOOST_FOREACH(GeometryOut& connected, connected_vector)
 	{
 	    bg::unique(connected);
 		length += bg::length(connected);
-		count += bg::num_points(connected);
+		point_count += bg::num_points(connected);
 	}
 
-    BOOST_CHECK_MESSAGE(count == expected_point_count,
+    BOOST_CHECK_MESSAGE(count == expected_count,
             "connect: " << caseid
-            << " #points expected: " << expected_point_count
+            << " #lines expected: " << expected_count
             << " detected: " << count
             << " type: " << string_from_type<coordinate_type>::name()
             );
 
 
-    //BOOST_CHECK_EQUAL(holes, expected_hole_count);
+    BOOST_CHECK_EQUAL(point_count, expected_point_count);
     BOOST_CHECK_CLOSE(length, expected_length, percentage);
 
 
@@ -80,6 +91,12 @@ void test_connect(std::string const& caseid, Geometry const& geometry,
             > mapper(svg, 500, 500);
         mapper.add(geometry);
 
+        bg::box<typename bg::point_type<Geometry>::type> extent;
+        bg::envelope(geometry, extent);
+        bg::buffer(extent, extent, 0.1);
+        mapper.add(extent);
+
+
         mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
 		BOOST_FOREACH(GeometryOut& connected, connected_vector)
 		{
@@ -92,15 +109,15 @@ void test_connect(std::string const& caseid, Geometry const& geometry,
 
 template <typename Geometry, typename GeometryOut>
 void test_one(std::string const& caseid, std::string const& wkt,
-        std::size_t expected_point_count,
-        double expected_length, double percentage = 0.001)
+        std::size_t expected_count, std::size_t expected_point_count,
+        double expected_length, double limit = -1, double percentage = 0.001)
 {
     Geometry geometry;
     boost::geometry::read_wkt(wkt, geometry);
 
     test_connect<GeometryOut>(caseid, geometry,
-        expected_point_count,
-        expected_length, percentage);
+        expected_count, expected_point_count,
+        expected_length, limit, percentage);
 
 #ifdef BOOST_GEOMETRY_TEST_MULTI_PERMUTATIONS
     // Test different combinations of a multi-polygon
@@ -144,32 +161,45 @@ void test_all()
     typedef bg::linestring<P> linestring;
     typedef bg::multi_linestring<linestring> multi_linestring;
 
+    goto disconnected;
+
     test_one<multi_linestring, linestring>("ls_simplex",
         "MULTILINESTRING((0 0,1 1),(1 1,2 2))",
-        3, 2 * std::sqrt(2.0));
+        1, 3, 2 * std::sqrt(2.0));
     
     // Opposites, forming one line
     test_one<multi_linestring, linestring>("ls_simplex_opposite_to",
         "MULTILINESTRING((0 0,1 1),(2 2,1 1))",
-        3, 2 * std::sqrt(2.0));
+        1, 3, 2 * std::sqrt(2.0));
     test_one<multi_linestring, linestring>("ls_simplex_opposite_from",
         "MULTILINESTRING((1 1,0 0),(1 1,2 2))",
-        3, 2 * std::sqrt(2.0));
+        1, 3, 2 * std::sqrt(2.0));
 
     // Two output linestrings
     test_one<multi_linestring, linestring>("ls_simplex_two",
         "MULTILINESTRING((0 0,1 1),(1 1,2 2),(3 3,4 4),(4 4,5 5))",
-        6, 4 * std::sqrt(2.0));
+        2, 6, 4 * std::sqrt(2.0));
 
     // Linestrings forming a ring
     test_one<multi_linestring, linestring>("ls_simplex_ring",
         "MULTILINESTRING((0 0,0 1),(1 1,1 0),(0 1,1 1),(1 0,0 0))",
-        5, 4.0);
+        1, 5, 4.0);
 
-    // disconnected ring
-    test_one<multi_linestring, linestring>("ls_disconnected_ring",
+    // disconnected rings
+    test_one<multi_linestring, linestring>("ls_disconnected_ring1",
         "MULTILINESTRING((0 0,0 1.01),(1.02 1.03,0.99 0),(0 0.98,1.001 1),(1.01 0,0 0))",
-        5, 4.0);
+        1, 8, 4.137147, 0.5);
+    test_one<multi_linestring, linestring>("ls_disconnected_ring2",
+        "MULTILINESTRING((0 0,0 1.01),(1.02 1.03,0.99 0),(0 0.98,1.001 1),(1.01 0,0 0))",
+        1, 8, 4.137147, 0.1);
+    test_one<multi_linestring, linestring>("ls_disconnected_ring3",
+        "MULTILINESTRING((0 0,0 1.01),(1.02 1.03,0.99 0),(0 0.98,1.001 1),(1.01 0,0 0))",
+        3, 7, 4.05163658, 0.01);
+
+disconnected:
+    test_one<multi_linestring, linestring>("ls_disconnected_ring4",
+        "MULTILINESTRING((0.01 0,0 1.01),(1.02 1.03,0.99 0),(0 0.98,1.001 1),(1.01 0,0.02 0))",
+        1, 8, 4.137147, 0.1);
 }
 
 

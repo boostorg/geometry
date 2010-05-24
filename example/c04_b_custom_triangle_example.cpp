@@ -35,8 +35,8 @@ BOOST_GEOMETRY_REGISTER_RING_TEMPLATIZED(triangle)
 namespace boost { namespace geometry { namespace dispatch {
 
 // Specializations of area dispatch structure, implement algorithm
-template<typename P, typename S>
-struct area<ring_tag, triangle<P>, clockwise, S>
+template<typename P, typename S, closure_selector Closure>
+struct area<ring_tag, triangle<P>, clockwise, Closure, S>
 {
     static inline double apply(triangle<P> const& t, S const&)
     {

@@ -26,6 +26,8 @@
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
 #  include <boost/test/floating_point_comparison.hpp>
 #  include <boost/test/included/test_exec_monitor.hpp>
+//#  include <boost/test/included/prg_exec_monitor.hpp>
+#  include <boost/test/impl/execution_monitor.ipp>
 #endif
 
 

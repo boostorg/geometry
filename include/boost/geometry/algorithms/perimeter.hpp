@@ -11,11 +11,9 @@
 
 
 #include <boost/geometry/core/cs.hpp>
-
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-
 #include <boost/geometry/strategies/length_result.hpp>
-
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
@@ -49,7 +47,8 @@ struct perimeter : detail::calculate_null
 
 template <typename Geometry, typename Strategy>
 struct perimeter<ring_tag, Geometry, Strategy>
-    : detail::length::range_length<Geometry, Strategy>
+    : detail::length::range_length<Geometry, Strategy, 
+    closure<Geometry>::value == closed>
 {};
 
 template <typename Polygon, typename Strategy>
@@ -62,7 +61,8 @@ struct perimeter<polygon_tag, Polygon, Strategy>
             detail::length::range_length
                 <
                     typename ring_type<Polygon>::type,
-                    Strategy
+                    Strategy,
+					closure<Polygon>::value == closed
                 >
         >
 {};

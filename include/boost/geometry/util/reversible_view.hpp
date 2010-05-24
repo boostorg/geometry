@@ -30,7 +30,7 @@ struct reversible_view {};
 template <typename Range>
 struct reversible_view<Range, iterate_forward>
 {
-    reversible_view(Range& r)
+    explicit reversible_view(Range& r)
         : m_range(r)
     {}
 

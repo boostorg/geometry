@@ -14,9 +14,10 @@
 
 #include <boost/concept/assert.hpp>
 
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/core/point_order.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
@@ -35,7 +36,7 @@ template
 <
     typename P,
     template<typename, typename> class V = std::vector,
-    bool ClockWise = true,
+    bool ClockWise = true, bool Closed = true,
     template<typename> class A = std::allocator
 >
 class linear_ring : public V<P, A<P> >
@@ -51,10 +52,10 @@ template
 <
     typename P,
     template<typename, typename> class V,
-    bool ClockWise,
+    bool ClockWise, bool Closed,
     template<typename> class A
 >
-struct tag< linear_ring<P, V, ClockWise, A> >
+struct tag< linear_ring<P, V, ClockWise, Closed, A> >
 {
     typedef ring_tag type;
 };
@@ -64,9 +65,10 @@ template
 <
     typename P,
     template<typename, typename> class V,
+    bool Closed,
     template<typename> class A
 >
-struct point_order< linear_ring<P, V, false, A> >
+struct point_order< linear_ring<P, V, false, Closed, A> >
 {
     static const order_selector value = counterclockwise;
 };
@@ -76,9 +78,10 @@ template
 <
     typename P,
     template<typename, typename> class V,
+    bool Closed,
     template<typename> class A
 >
-struct point_order< linear_ring<P, V, true, A> >
+struct point_order< linear_ring<P, V, true, Closed, A> >
 {
     static const order_selector value = clockwise;
 };
