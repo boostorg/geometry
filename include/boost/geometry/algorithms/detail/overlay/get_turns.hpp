@@ -111,6 +111,12 @@ public :
                 typename geometry::range_type<Geometry2>::type const
             >::type range2_iterator;
 
+        range1_iterator begin_range_1, end_range_1;
+        get_full_section(geometry1, sec1, begin_range_1, end_range_1);
+
+        range2_iterator begin_range_2, end_range_2;
+        get_full_section(geometry2, sec2, begin_range_2, end_range_2);
+
         int const dir1 = sec1.directions[0];
         int const dir2 = sec2.directions[0];
         int index1 = sec1.begin_index;
@@ -122,13 +128,18 @@ public :
                     && sec1.ring_index == sec2.ring_index;
 
         range1_iterator prev1, it1, end1;
-        range1_iterator begin_range_1, end_range_1;
 
-        ever_circling_iterator<range1_iterator> next1
-            = start_at_section(sec1, prev1, it1, end1, begin_range_1, end_range_1,
+        get_start_point_iterator(sec1, prev1, it1, end1, 
                     index1, ndi1, geometry1, dir1, sec2.bounding_box);
 
+        // We need a circular iterator because it might run through the closing point.
+        // One circle is actually enough but this one is just convenient.
+        ever_circling_iterator<range1_iterator> next1(begin_range_1, end_range_1, it1, true);
+        next1++;
+
         // Walk through section and stop if we exceed the other box
+        // section 2:    [--------------]
+        // section 1: |----|---|---|---|---|
         for (prev1 = it1++, next1++;
             it1 != end1 && ! exceeding<0>(dir1, *prev1, sec2.bounding_box);
             prev1 = it1++, index1++, next1++, ndi1++)
@@ -141,11 +152,11 @@ public :
             int ndi2 = sec2.non_duplicate_index;
 
             range2_iterator prev2, it2, end2;
-            range2_iterator begin_range_2, end_range_2;
 
-            ever_circling_iterator<range2_iterator> next2 =
-                    start_at_section(sec2, prev2, it2, end2, begin_range_2, end_range_2,
+            get_start_point_iterator(sec2, prev2, it2, end2, 
                         index2, ndi2, geometry2, dir2, sec1.bounding_box);
+            ever_circling_iterator<range2_iterator> next2(begin_range_2, end_range_2, it2, true);
+            next2++;
 
             for (prev2 = it2++, next2++;
                 it2 != end2 && ! exceeding<0>(dir2, *prev2, sec1.bounding_box);
@@ -264,9 +275,8 @@ private :
     // skips to the begin-point, we loose the index or have to recalculate it)
     // So we mimic it here
     template <typename RangeIterator, typename Section, typename Geometry, typename Box>
-    static inline ever_circling_iterator<RangeIterator> start_at_section(Section & section,
+    static inline RangeIterator get_start_point_iterator(Section & section,
             RangeIterator& it, RangeIterator& prev, RangeIterator& end,
-            RangeIterator& begin_range_it, RangeIterator& end_range_it,
             int& index, int& ndi,
             Geometry const& geometry,
             int dir, Box const& other_bounding_box)
@@ -281,12 +291,7 @@ private :
         {}
         // Go back one step because we want to start completely preceding
         it = prev;
-
-        get_full_section(geometry, section, begin_range_it, end_range_it);
-
-        ever_circling_iterator<RangeIterator> next(begin_range_it, end_range_it, it, true);
-        next++;
-        return next;
+        return it;
     }
 };
 
