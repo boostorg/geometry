@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_EVER_CIRCLING_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_EVER_CIRCLING_ITERATOR_HPP
 
+#include <boost/range.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_categories.hpp>
@@ -86,6 +87,69 @@ private:
 
     Iterator m_begin;
     Iterator m_end;
+    bool m_skip_first;
+};
+
+
+
+template <typename Range>
+class ever_circling_range_iterator
+    : public boost::iterator_adaptor
+        <
+            ever_circling_range_iterator<Range>,
+            typename boost::range_iterator<Range>::type
+        >
+{
+public :
+    typedef typename boost::range_iterator<Range>::type iterator_type;
+
+    explicit inline ever_circling_range_iterator(Range& range,
+            bool skip_first = false)
+      : m_range(range)
+      , m_skip_first(skip_first)
+    {
+        this->base_reference() = boost::begin(m_range);
+    }
+
+    explicit inline ever_circling_range_iterator(Range& range, iterator_type start,
+            bool skip_first = false)
+      : m_range(range)
+      , m_skip_first(skip_first)
+    {
+        this->base_reference() = start;
+    }
+
+    /// Navigate to a certain position, should be in [start .. end], if at end
+    /// it will circle again.
+    inline void moveto(iterator_type it)
+    {
+        this->base_reference() = it;
+        check_end();
+    }
+
+private:
+
+    friend class boost::iterator_core_access;
+
+    inline void increment(bool possibly_skip = true)
+    {
+        (this->base_reference())++;
+        check_end(possibly_skip);
+    }
+
+    inline void check_end(bool possibly_skip = true)
+    {
+        if (this->base_reference() == boost::end(m_range))
+        {
+            this->base_reference() = boost::begin(m_range);
+            if (m_skip_first && possibly_skip)
+            {
+                increment(false);
+            }
+        }
+    }
+
+    Range& m_range;
     bool m_skip_first;
 };
 

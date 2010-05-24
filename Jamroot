@@ -13,4 +13,5 @@ project
         <include>../..
         <toolset>gcc:<cxxflags>"-pedantic -Wall -Wstrict-aliasing -fstrict-aliasing -Wno-long-long"
         <toolset>msvc:<define>_SCL_SECURE_NO_DEPRECATE # For Ublas
+        <dependency>/boost//headers
     ;

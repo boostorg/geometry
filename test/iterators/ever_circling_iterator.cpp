@@ -22,7 +22,7 @@ void test_geometry(std::string const& wkt)
 {
     G geo;
     boost::geometry::read_wkt(wkt, geo);
-    typedef typename boost::range_const_iterator<G>::type iterator_type;
+    typedef typename boost::range_iterator<G const>::type iterator_type;
 
 
     // Run 3 times through the geometry
@@ -64,6 +64,16 @@ void test_geometry(std::string const& wkt)
         BOOST_CHECK_EQUAL(out.str(), "543215432154321");
     }
 
+    // Check the range_iterator-one
+    {
+        std::ostringstream out;
+        boost::geometry::ever_circling_range_iterator<G> it(geo);
+        for (int i = 0; i < n; ++i, ++it)
+        {
+            out << boost::geometry::get<0>(*it);
+        }
+        BOOST_CHECK_EQUAL(out.str(), "123451234512345");
+    }
 }
 
 template <typename P>
