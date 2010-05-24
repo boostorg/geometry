@@ -67,10 +67,10 @@ template <typename P>
 void test_all()
 {
     // Define clockwise and counter clockwise polygon
-    std::string cw_ring =
-            "POLYGON((0 0,0 1,1 1,1 0,0 0))";
-    std::string ccw_ring =
-            "POLYGON((0 0,1 0,1 1,0 1,0 0))";
+    std::string cw_ring       = "POLYGON((0 0,0 1,1 1,1 0,0 0))";
+    std::string ccw_ring      = "POLYGON((0 0,1 0,1 1,0 1,0 0))";
+    std::string cw_open_ring  = "POLYGON((0 0,0 1,1 1,1 0))";
+    std::string ccw_open_ring = "POLYGON((0 0,1 0,1 1,0 1))";
 
     // already cw_ring
     test_geometry<boost::geometry::linear_ring<P> >(cw_ring, cw_ring);
@@ -78,9 +78,23 @@ void test_all()
     // wrong order
     test_geometry<boost::geometry::linear_ring<P> >(ccw_ring, cw_ring);
 
+    // ccw-ring, input ccw-ring, already correct
+    test_geometry<boost::geometry::linear_ring<P, std::vector, false> >(ccw_ring, ccw_ring);
+
+    // ccw-ring, input cw-ring, corrected
+    test_geometry<boost::geometry::linear_ring<P, std::vector, false> >(cw_ring, ccw_ring);
+
+    // open-ring, input ccw-ring, already correct
+    test_geometry<boost::geometry::linear_ring<P, std::vector, true, false> >(cw_open_ring, cw_open_ring);
+
+    // ccw-ring, input cw-ring, corrected
+    test_geometry<boost::geometry::linear_ring<P, std::vector, true, false> >(ccw_open_ring, "POLYGON((0 1,1 1,1 0,0 0))");
+
+
+
     // not closed
     test_geometry<boost::geometry::linear_ring<P> >(
-            "POLYGON((0 0,1 0,1 1,0 1))",
+            ccw_open_ring,
             cw_ring);
 
     // counter clockwise, cw_ring
@@ -99,7 +113,7 @@ void test_all()
             cw_ring);
     // wrong order & not closed
     test_geometry<boost::geometry::polygon<P> >(
-            "POLYGON((0 0,1 0,1 1,0 1))",
+            ccw_open_ring,
             cw_ring);
 
 

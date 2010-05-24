@@ -21,6 +21,30 @@
 
 
 
+void test_minimal()
+{
+    std::vector<int> v;
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
+
+    typedef boost::geometry::closing_iterator
+        <
+            std::vector<int> const
+        > closing_iterator;
+
+
+    closing_iterator it(v);
+    closing_iterator end(v, true);
+
+    std::ostringstream out;
+    for (; it != end; ++it)
+    {
+        out << *it;
+    }
+    BOOST_CHECK_EQUAL(out.str(), "1231");
+}
+
 
 
 
@@ -78,6 +102,7 @@ void test_geometry(std::string const& wkt)
 template <typename P>
 void test_all()
 {
+    test_minimal();
     test_geometry<boost::geometry::linear_ring<P> >("POLYGON((1 1,1 4,4 4,4 1))");
 }
 

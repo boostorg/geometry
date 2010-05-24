@@ -15,16 +15,19 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+
+#include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/segment_iterator.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
+#include <boost/geometry/util/closeable_view.hpp>
 #include <boost/geometry/util/copy.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
@@ -182,41 +185,34 @@ inline bool range_ok(Range const& range, Point& centroid)
 /*!
     \brief Calculate the centroid of a ring.
 */
-template<typename Ring, typename Strategy>
+template<typename Ring, closure_selector Closure, typename Strategy>
 struct centroid_ring_state
 {
     static inline void apply(Ring const& ring,
             Strategy const& strategy, typename Strategy::state_type& state)
     {
-        typedef typename boost::range_iterator<Ring const>::type iterator_type;
-        iterator_type it = boost::begin(ring);
+        typedef closeable_view
+            <
+                Ring const,
+                Closure == open // close it if it is open
+            > view_type;
+
+        typedef typename boost::range_iterator<view_type const>::type iterator_type;
+
+        view_type view(ring);
+        iterator_type it = boost::begin(view);
+        iterator_type end = boost::end(view);
+
         for (iterator_type previous = it++;
-            it != boost::end(ring);
-            previous = it++)
+            it != end;
+            ++previous, ++it)
         {
             Strategy::apply(*previous, *it, state);
         }
-
-        /* using segment_iterator: nice, well looking, but much slower...
-            normal iterator: 0.156 s
-            segment iterator: 1.985 s...
-        typedef segment_iterator
-            <
-                typename boost::range_iterator<Ring const>::type,
-                typename point_type<Ring>::type
-            > iterator_type;
-
-        iterator_type it(boost::begin(ring), boost::end(ring));
-        iterator_type end(boost::end(ring));
-        for(; it != end; ++it)
-        {
-            Strategy::apply(it->first, it->second, state);
-        }
-        */
     }
 };
 
-template<typename Ring, typename Point, typename Strategy>
+template<typename Ring, typename Point, closure_selector Closure, typename Strategy>
 struct centroid_ring
 {
     static inline void apply(Ring const& ring, Point& centroid,
@@ -228,6 +224,7 @@ struct centroid_ring
             centroid_ring_state
                 <
                     Ring,
+                    Closure,
                     Strategy
                 >::apply(ring, strategy, state);
             Strategy::result(state, centroid);
@@ -279,7 +276,7 @@ struct centroid_linestring
     \note Because outer ring is clockwise, inners are counter clockwise,
     triangle approach is OK and works for polygons with rings.
 */
-template<typename Polygon, typename Strategy>
+template<typename Polygon, closure_selector Closure, typename Strategy>
 struct centroid_polygon_state
 {
     static inline void apply(Polygon const& poly,
@@ -288,6 +285,7 @@ struct centroid_polygon_state
         typedef centroid_ring_state
             <
                 typename ring_type<Polygon>::type,
+                Closure,
                 Strategy
             > per_ring;
 
@@ -305,7 +303,7 @@ struct centroid_polygon_state
     }
 };
 
-template<typename Polygon, typename Point, typename Strategy>
+template<typename Polygon, typename Point, closure_selector Closure, typename Strategy>
 struct centroid_polygon
 {
     static inline void apply(Polygon const& poly, Point& centroid,
@@ -317,6 +315,7 @@ struct centroid_polygon
             centroid_polygon_state
                 <
                     Polygon,
+                    Closure,
                     Strategy
                 >::apply(poly, strategy, state);
             Strategy::result(state, centroid);
@@ -338,6 +337,7 @@ template
     typename Tag,
     typename Geometry,
     typename Point,
+    closure_selector Closure,
     typename Strategy
 >
 struct centroid {};
@@ -346,9 +346,10 @@ template
 <
     typename Geometry,
     typename Point,
+    closure_selector Closure,
     typename Strategy
 >
-struct centroid<point_tag, Geometry, Point, Strategy>
+struct centroid<point_tag, Geometry, Point, Closure, Strategy>
     : detail::centroid::centroid_point<Geometry, Point, Strategy>
 {};
 
@@ -356,25 +357,26 @@ template
 <
     typename Box,
     typename Point,
+    closure_selector Closure,
     typename Strategy
 >
-struct centroid<box_tag, Box, Point, Strategy>
+struct centroid<box_tag, Box, Point, Closure, Strategy>
     : detail::centroid::centroid_box<Box, Point, Strategy>
 {};
 
-template <typename Ring, typename Point, typename Strategy>
-struct centroid<ring_tag, Ring, Point, Strategy>
-    : detail::centroid::centroid_ring<Ring, Point, Strategy>
+template <typename Ring, typename Point, closure_selector Closure, typename Strategy>
+struct centroid<ring_tag, Ring, Point, Closure, Strategy>
+    : detail::centroid::centroid_ring<Ring, Point, Closure, Strategy>
 {};
 
-template <typename Linestring, typename Point, typename Strategy>
-struct centroid<linestring_tag, Linestring, Point, Strategy>
+template <typename Linestring, typename Point, closure_selector Closure, typename Strategy>
+struct centroid<linestring_tag, Linestring, Point, Closure, Strategy>
     : detail::centroid::centroid_linestring<Linestring, Point, Strategy>
  {};
 
-template <typename Polygon, typename Point, typename Strategy>
-struct centroid<polygon_tag, Polygon, Point, Strategy>
-    : detail::centroid::centroid_polygon<Polygon, Point, Strategy>
+template <typename Polygon, typename Point, closure_selector Closure, typename Strategy>
+struct centroid<polygon_tag, Polygon, Point, Closure, Strategy>
+    : detail::centroid::centroid_polygon<Polygon, Point, Closure, Strategy>
  {};
 
 } // namespace dispatch
@@ -405,6 +407,7 @@ inline void centroid(Geometry const& geometry, Point& c,
             typename tag<Geometry>::type,
             Geometry,
             Point,
+            geometry::closure<Geometry>::value,
             Strategy
         >::apply(geometry, c, strategy);
 }

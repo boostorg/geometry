@@ -16,6 +16,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -114,11 +115,20 @@ struct correct_ring
         if (boost::size(r) > 2)
         {
             // check if closed, if not, close it
-            if (geometry::disjoint(*boost::begin(r), *(boost::end(r) - 1)))
+            bool const disjoint = geometry::disjoint(*boost::begin(r), *(boost::end(r) - 1));
+            closure_selector s = geometry::closure<Ring>::value;
+
+            if (disjoint && (s == closed))
             {
+                // Close it
                 point_type first;
                 geometry::copy_coordinates(*boost::begin(r), first);
                 *(std::back_inserter(r)++) = first;
+            }
+            if (! disjoint && geometry::closure<Ring>::value != closed)
+            {
+                // Open it, TODO!
+                std::cout << "TODO";
             }
         }
         // Check area
