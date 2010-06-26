@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="07_graph_route_example"
-	ProjectGUID="{47D30DD8-CBB1-4527-811F-F0193E22B317}"
-	RootNamespace="07_graph_route_example"
+	Name="07_b_graph_route_example"
+	ProjectGUID="{940B049A-51AF-48DE-B366-11B42B98E3B3}"
+	RootNamespace="07_b_graph_route_example"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\07_graph_route_example"
+			IntermediateDirectory="$(ConfigurationName)\07_b_graph_route_example"
 			ConfigurationType="1"
 			InheritedPropertySheets=".\boost.vsprops"
 			CharacterSet="1"
@@ -90,7 +90,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\07_graph_route_example"
+			IntermediateDirectory="$(ConfigurationName)\07_b_graph_route_example"
 			ConfigurationType="1"
 			InheritedPropertySheets=".\boost.vsprops"
 			CharacterSet="1"
@@ -162,7 +162,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\07_graph_route_example.cpp"
+			RelativePath=".\07_b_graph_route_example.cpp"
 			>
 		</File>
 	</Files>
