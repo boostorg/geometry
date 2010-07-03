@@ -32,9 +32,9 @@ template <typename Geometry1, typename Geometry2, typename CalculationType>
 struct select_calculation_type
 {
     typedef typename
-        boost::mpl::if_c
+        boost::mpl::if_
         <
-            boost::is_void<CalculationType>::type::value,
+            boost::is_void<CalculationType>,
             typename select_coordinate_type
                 <
                     Geometry1,

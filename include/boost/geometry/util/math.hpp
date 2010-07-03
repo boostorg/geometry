@@ -108,8 +108,8 @@ double const r2d = 1.0 / d2r;
 template <typename T>
 inline T hav(T const& theta)
 {
-    using boost::math::constants::half;
-    T const sn = std::sin(half<T>() * theta);
+    T const half = T(0.5);
+    T const sn = sin(half * theta);
     return sn * sn;
 }
 

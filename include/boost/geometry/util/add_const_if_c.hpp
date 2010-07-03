@@ -37,7 +37,7 @@ struct add_const_if_c
     typedef typename boost::mpl::if_c
         <
             IsConst,
-            const Type,
+            Type const,
             Type
         >::type type;
 };
