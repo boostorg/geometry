@@ -9,6 +9,8 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/concept_check.hpp>
+
 #include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
@@ -20,7 +22,12 @@
 template <typename P1, typename P2>
 void test_andoyer(double lon1, double lat1, double lon2, double lat2, double expected_km)
 {
-    boost::geometry::strategy::distance::andoyer<P1, P2> andoyer;
+    typedef boost::geometry::strategy::distance::andoyer<P1, P2> andoyer_type;
+
+    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::PointDistanceStrategy<andoyer_type>) );
+
+    andoyer_type andoyer;
+
 
     P1 p1, p2;
 

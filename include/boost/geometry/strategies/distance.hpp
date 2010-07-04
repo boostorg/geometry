@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_DISTANCE_HPP
 
 
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
 
@@ -37,15 +38,75 @@ struct strategy_distance
     \tparam CsTag1 tag of coordinate system of point type
     \tparam CsTag2 tag of coordinate system of segment type, usually same as CsTag1
     \tparam Point point-type
-    \tparam Segment segment-type
+    \tparam PointOfSegment segment-point-type
 */
-template <typename CsTag1, typename CsTag2, typename Point, typename Segment>
+template <typename CsTag1, typename CsTag2, typename Point, typename PointOfSegment>
 struct strategy_distance_segment
 {
     typedef strategy::not_implemented type;
 };
 
 
+
+// New functionality:
+template 
+<
+    typename Point1, 
+    typename Point2 = Point1,
+    typename Tag1 = typename cs_tag<Point1>::type,
+    typename Tag2 = typename cs_tag<Point2>::type
+>
+struct default_distance_strategy
+{
+    typedef typename strategy_distance<Tag1, Tag2, Point1, Point2>::type type;
+};
+
+template 
+<
+    typename Point, 
+    typename PointOfSegment,
+    typename Tag1 = typename cs_tag<Point>::type,
+    typename Tag2 = typename cs_tag<PointOfSegment>::type
+>
+struct default_distance_strategy_segment
+{
+    typedef typename strategy_distance_segment<Tag1, Tag2, Point, PointOfSegment>::type type;
+};
+
+
+
+namespace strategy { namespace distance { namespace services 
+{
+
+template <typename Strategy> struct tag {};
+
+
+/*!
+    \brief Metafunction delivering a similar strategy with other input point types
+*/
+template 
+<
+    typename Strategy, 
+    typename Point1, 
+    typename Point2
+> 
+struct similar_type {};
+
+template 
+<
+    typename Strategy, 
+    typename Point1, 
+    typename Point2
+> 
+struct get_similar {};
+
+template <typename Strategy> struct comparable_type {};
+template <typename Strategy> struct get_comparable {};
+
+template <typename Strategy> struct result_from_distance {};
+
+
+}}} // namespace strategy::distance::services
 
 
 }} // namespace boost::geometry

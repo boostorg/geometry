@@ -9,68 +9,176 @@
 
 #include <geometry_test_common.hpp>
 
+#if defined(_MSC_VER)
+#  pragma warning( disable : 4101 )
+#endif
+
+#include <boost/timer.hpp>
+
+#include <boost/concept/requires.hpp>
+#include <boost/concept_check.hpp>
+
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
+#include <boost/geometry/strategies/concepts/distance_concept.hpp>
 
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+
 #include <test_common/test_point.hpp>
+
+#ifdef HAVE_TTMATH
+#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+#endif
+
+
+namespace bg = boost::geometry;
 
 template <typename P1, typename P2>
 void test_null_distance_3d()
 {
-    typename boost::geometry::strategy::distance::pythagoras<P1, P2> pythagoras;
-
     P1 p1;
-    boost::geometry::assign(p1, 1, 2, 3);
+    bg::assign(p1, 1, 2, 3);
     P2 p2;
-    boost::geometry::assign(p2, 1, 2, 3);
-    BOOST_CHECK_EQUAL(double(
-            typename boost::geometry::coordinate_type<P1>::type(pythagoras.apply(p1, p2))), 0);
+    bg::assign(p2, 1, 2, 3);
+
+    typedef bg::strategy::distance::pythagoras<P1, P2> pythagoras_type;
+    typedef typename pythagoras_type::return_type return_type;
+
+    pythagoras_type pythagoras;
+    return_type result = pythagoras.apply(p1, p2);
+
+    BOOST_CHECK_EQUAL(result, return_type(0));
 }
 
 template <typename P1, typename P2>
 void test_axis_3d()
 {
-    boost::geometry::strategy::distance::pythagoras<P1, P2> pythagoras;
-
     P1 p1;
-    boost::geometry::assign(p1, 0, 0, 0);
-
+    bg::assign(p1, 0, 0, 0);
     P2 p2;
-    boost::geometry::assign(p2, 1, 0, 0);
-    BOOST_CHECK_EQUAL(double(
-            typename boost::geometry::coordinate_type<P1>::type(pythagoras.apply(p1, p2))), 1);
-    boost::geometry::assign(p2, 0, 1, 0);
-    BOOST_CHECK_EQUAL(double(
-            typename boost::geometry::coordinate_type<P1>::type(pythagoras.apply(p1, p2))), 1);
-    boost::geometry::assign(p2, 0, 0, 1);
-    BOOST_CHECK_EQUAL(double(
-            typename boost::geometry::coordinate_type<P1>::type(pythagoras.apply(p1, p2))), 1);
+    bg::assign(p2, 1, 0, 0);
+
+    typedef bg::strategy::distance::pythagoras<P1, P2> pythagoras_type;
+    typedef typename pythagoras_type::return_type return_type;
+
+    pythagoras_type pythagoras;
+
+    return_type result = pythagoras.apply(p1, p2);
+    BOOST_CHECK_EQUAL(result, return_type(1));
+
+    bg::assign(p2, 0, 1, 0);
+    result = pythagoras.apply(p1, p2);
+    BOOST_CHECK_EQUAL(result, return_type(1));
+
+    bg::assign(p2, 0, 0, 1);
+    result = pythagoras.apply(p1, p2);
+    BOOST_CHECK_CLOSE(result, return_type(1), 0.001);
 }
 
 template <typename P1, typename P2>
 void test_arbitrary_3d()
 {
-    boost::geometry::strategy::distance::pythagoras<P1, P2> pythagoras;
+    P1 p1;
+    bg::assign(p1, 1, 2, 3);
+    P2 p2;
+    bg::assign(p2, 9, 8, 7);
+
+    {
+        typedef bg::strategy::distance::pythagoras<P1, P2> strategy_type;
+        typedef typename strategy_type::return_type return_type;
+
+        strategy_type strategy;
+        return_type result = strategy.apply(p1, p2);
+        BOOST_CHECK_CLOSE(result, return_type(10.77032961427), 0.001);
+    }
+
+    {
+        // Check comparable distance
+        typedef bg::strategy::distance::comparable::pythagoras<P1, P2> strategy_type;
+        typedef typename strategy_type::return_type return_type;
+
+        strategy_type strategy;
+        return_type result = strategy.apply(p1, p2);
+        BOOST_CHECK_EQUAL(result, return_type(116));
+    }
+}
+
+template <typename P1, typename P2, typename CalculationType>
+void test_services()
+{
 
     P1 p1;
-    boost::geometry::assign(p1, 1, 2, 3);
+    bg::assign(p1, 1, 2, 3);
+
     P2 p2;
-    boost::geometry::assign(p2, 9, 8, 7);
-    BOOST_CHECK_CLOSE(double(
-            typename boost::geometry::coordinate_type<P1>::type(pythagoras.apply(p1, p2))),
-            sqrt((double)116), 0.001);
+    bg::assign(p2, 4, 5, 6);
+
+    double const sqr_expected = 3*3 + 3*3 + 3*3; // 27
+    double const expected = sqrt(sqr_expected); // sqrt(27)=5.1961524227
+
+
+    namespace bgsd = boost::geometry::strategy::distance;
+    namespace services = boost::geometry::strategy::distance::services;
+    // 1: normal, calculate distance:
+
+    typedef bgsd::pythagoras<P1, P2, CalculationType> strategy_type;
+
+    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::PointDistanceStrategy<strategy_type>) );
+
+    typedef typename strategy_type::return_type return_type;
+
+    strategy_type strategy;
+    return_type result = strategy.apply(p1, p2);
+    BOOST_CHECK_CLOSE(result, return_type(expected), 0.001);
+
+    // 2: "similar" to construct a similar strategy (similar but with other template-parameters) for, e.g., the reverse P2/P1
+    // 2a: similar_type:
+    typedef typename services::similar_type<strategy_type, P2, P1>::type similar_type;
+    // 2b: get_similar
+    similar_type similar = services::get_similar<strategy_type, P2, P1>::apply(strategy);
+
+    //result = similar.apply(p1, p2); // should NOT compile because p1/p2 should also be reversed here
+    result = similar.apply(p2, p1);
+    BOOST_CHECK_CLOSE(result, return_type(expected), 0.001);
+
+
+    // 3: "comparable" to construct a "comparable strategy" for P1/P2
+    //    a "comparable strategy" is a strategy which does not calculate the exact distance, but 
+    //    which returns results which can be mutually compared (e.g. avoid sqrt)
+
+    // 3a: "comparable_type"
+    typedef typename services::comparable_type<strategy_type>::type comparable_type;
+
+    // 3b: "get_comparable"
+    comparable_type comparable = bgsd::services::get_comparable<strategy_type>::apply(strategy);
+
+    return_type c_result = comparable.apply(p1, p2);
+    BOOST_CHECK_CLOSE(c_result, return_type(sqr_expected), 0.001);
+
+    // 4: the comparable_type should have a distance_strategy_constructor as well, 
+    //    knowing how to compare something with a fixed distance
+    return_type c_dist5 = services::result_from_distance<comparable_type>::apply(comparable, 5.0);
+    return_type c_dist6 = services::result_from_distance<comparable_type>::apply(comparable, 6.0);
+
+    // If this is the case:
+    BOOST_CHECK(c_dist5 < c_result && c_result < c_dist6);
+
+    // This should also be the case
+    return_type dist5 = services::result_from_distance<strategy_type>::apply(strategy, 5.0);
+    return_type dist6 = services::result_from_distance<strategy_type>::apply(strategy, 6.0);
+    BOOST_CHECK(dist5 < result && result < dist6);
 }
+
 
 template <typename CoordinateType, typename CalculationType, typename AssignType>
 void test_big_2d_with(AssignType const& x1, AssignType const& y1,
                  AssignType const& x2, AssignType const& y2)
 {
-    typedef boost::geometry::point<CoordinateType, 2, boost::geometry::cs::cartesian> point_type;
-    typedef boost::geometry::strategy::distance::pythagoras
+    typedef bg::point<CoordinateType, 2, bg::cs::cartesian> point_type;
+    typedef bg::strategy::distance::pythagoras
         <
             point_type,
             point_type,
@@ -78,23 +186,22 @@ void test_big_2d_with(AssignType const& x1, AssignType const& y1,
         > pythagoras_type;
 
     pythagoras_type pythagoras;
+    typedef typename pythagoras_type::return_type return_type;
 
 
     point_type p1, p2;
-    boost::geometry::assign(p1, x1, y1);
-    boost::geometry::assign(p2, x2, y2);
-    typename pythagoras_type::return_type d1 = pythagoras.apply(p1, p2);
+    bg::assign(p1, x1, y1);
+    bg::assign(p2, x2, y2);
+    return_type d = pythagoras.apply(p1, p2);
 
-    /*
+    /***
     std::cout << typeid(CalculationType).name()
-        << " " << std::fixed << std::setprecision(20) << d1.squared_value()
+        << " " << std::fixed << std::setprecision(20) << d
         << std::endl << std::endl;
-    */
+    ***/
 
-    CalculationType d2 = d1;
 
-    BOOST_CHECK_CLOSE((double) d2,
-            1076554.5485833955678294387789057, 0.001);
+    BOOST_CHECK_CLOSE(d, return_type(1076554.5485833955678294387789057), 0.001);
 }
 
 template <typename CoordinateType, typename CalculationType>
@@ -118,7 +225,6 @@ void test_big_2d_string()
 template <typename P1, typename P2>
 void test_all_3d()
 {
-return;
     test_null_distance_3d<P1, P2>();
     test_axis_3d<P1, P2>();
     test_arbitrary_3d<P1, P2>();
@@ -127,8 +233,8 @@ return;
 template <typename P>
 void test_all_3d()
 {
-    using boost::geometry::point;
-    using boost::geometry::cs::cartesian;
+    using bg::point;
+    using bg::cs::cartesian;
 
     test_all_3d<P, int[3]>();
     test_all_3d<P, float[3]>();
@@ -139,20 +245,45 @@ void test_all_3d()
     test_all_3d<P, point<double, 3, cartesian> >();
 }
 
+template <typename P, typename Strategy>
+void time_compare_s(int const n)
+{
+    boost::timer t;
+    P p1, p2;
+    bg::assign(p1, 1, 1);
+    bg::assign(p2, 2, 2);
+    Strategy strategy;
+    typename Strategy::return_type s = 0;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            bg::set<0>(p2, bg::get<0>(p2) + 0.001);
+            s += strategy.apply(p1, p2);
+        }
+    }
+    std::cout << "s: " << s << " t: " << t.elapsed() << std::endl;
+}
+
+template <typename P>
+void time_compare(int const n)
+{
+    time_compare_s<P, bg::strategy::distance::pythagoras<P> >(n);
+    time_compare_s<P, bg::strategy::distance::comparable::pythagoras<P> >(n);
+}
+
 int test_main(int, char* [])
 {
-    using boost::geometry::point;
-    using boost::geometry::cs::cartesian;
+    using bg::point;
+    using bg::cs::cartesian;
 
-#if ! defined(_MSC_VER)
     test_all_3d<int[3]>();
-#endif
     test_all_3d<float[3]>();
     test_all_3d<double[3]>();
+
     test_all_3d<test::test_point>();
-#if ! defined(_MSC_VER)
+
     test_all_3d<point<int, 3, cartesian> >();
-#endif
     test_all_3d<point<float, 3, cartesian> >();
     test_all_3d<point<double, 3, cartesian> >();
 
@@ -161,29 +292,22 @@ int test_main(int, char* [])
     test_big_2d<long double, long double>();
     test_big_2d<float, long double>();
 
-/*
-TODO: fix this, assign type should use boost::to etc
+    test_services<point<float, 3, cartesian>, double[3], long double>();
+    test_services<double[3], test::test_point, float>();
 
-#if defined(HAVE_CLN)
-    // combination of CLN with normal types
-    typedef boost::numeric_adaptor::cln_value_type cln_type;
-    typedef point<cln_type, 3, cartesian> cln_point;
-    test_all_3d<cln_point>();
-    test_all_3d<cln_point, cln_point>();
 
-    test_big_2d<cln_type, cln_type>();
-    test_big_2d_string<cln_type, cln_type>();
+    time_compare<point<double, 2, cartesian> >(10000);
 
+#if defined(HAVE_TTMATH)
+
+    typedef ttmath::Big<1,4> tt;
+    typedef point<tt, 3, cartesian> tt_point;
+
+    //test_all_3d<tt[3]>();
+    test_all_3d<tt_point>();
+    test_all_3d<tt_point, tt_point>();
+    test_big_2d<tt, tt>();
+    test_big_2d_string<tt, tt>();
 #endif
-#if defined(HAVE_GMP)
-    typedef boost::numeric_adaptor::gmp_value_type gmp_type;
-    typedef point<gmp_type, 3, cartesian> gmp_point;
-    test_all_3d<gmp_point>();
-    test_all_3d<gmp_point, gmp_point>();
-
-    test_big_2d<gmp_type, gmp_type>();
-    test_big_2d_string<gmp_type, gmp_type>();
-#endif
-*/
     return 0;
 }

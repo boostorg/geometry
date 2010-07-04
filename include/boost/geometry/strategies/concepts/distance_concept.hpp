@@ -63,10 +63,58 @@ struct PointDistanceStrategy
             }
         };
 
+        // 5) must define meta-function "similar_type"
+        typedef typename strategy::distance::services::similar_type
+            <
+                Strategy, ptype2, ptype1
+            >::type stype;
+
+        // 6) must define meta-function "comparable_type"
+        typedef typename strategy::distance::services::comparable_type
+            <
+                Strategy
+            >::type ctype;
+
+        // 6) must define meta-function "tag"
+        typedef typename strategy::distance::services::tag
+            <
+                Strategy
+            >::type tag;
+
+
+        // 7) must define (meta)struct "get_similar" with apply
+        // 8) must define (meta)struct "get_comparable" with apply
+        // 9) must define (meta)struct "result_from_distance" with apply
+        struct services_checker
+        {
+            static void check()
+            {
+                Strategy* str;
+                stype s = strategy::distance::services::get_similar
+                    <
+                        Strategy,
+                        ptype2, ptype1
+                    >::apply(*str);
+                ctype c = strategy::distance::services::get_comparable
+                    <
+                        Strategy
+                    >::apply(*str);
+                rtype r = strategy::distance::services::result_from_distance
+                    <
+                        Strategy
+                    >::apply(*str, 1.0);
+
+                boost::ignore_unused_variable_warning(s);
+                boost::ignore_unused_variable_warning(c);
+            }
+        };
+
+
     public :
         BOOST_CONCEPT_USAGE(PointDistanceStrategy)
         {
             apply_checker::check();
+            services_checker::check();
         }
 #endif
 };

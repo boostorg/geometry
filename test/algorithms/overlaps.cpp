@@ -20,6 +20,10 @@
 template <typename P>
 void test_2d()
 {
+#if defined(BOOST_GEOMETRY_COMPILE_FAIL)
+    test_geometry<P, P>("POINT(1 1)", "POINT(1 1)", true);
+#endif
+
     test_geometry<boost::geometry::box<P>, boost::geometry::box<P> >("BOX(1 1, 3 3)", "BOX(0 0,2 2)", true);
 
     // touch -> false

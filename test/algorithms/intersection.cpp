@@ -29,6 +29,11 @@ void test_all()
 
     std::string clip = "box(2 2,8 8)";
 
+    test_one<polygon, polygon, polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 7, 5.47363293);
+
+
     // Basic check: box/linestring, is clipping OK? should compile in any order
     test_one<linestring, linestring, box>("llb", "LINESTRING(0 0,10 10)", clip, 1, 2, sqrt(2.0 * 6.0 * 6.0));
     test_one<linestring, box, linestring>("lbl", clip, "LINESTRING(0 0,10 10)", 1, 2, sqrt(2.0 * 6.0 * 6.0));

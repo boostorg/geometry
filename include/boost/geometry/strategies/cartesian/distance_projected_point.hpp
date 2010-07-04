@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_HPP
 
 
+#include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
 
@@ -28,7 +29,8 @@
 #include <boost/geometry/util/copy.hpp>
 
 
-// Helper geometry
+// Helper geometries
+#include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
 
@@ -38,7 +40,6 @@ namespace boost { namespace geometry
 
 namespace strategy { namespace distance
 {
-
 
 
 /*!
@@ -51,30 +52,65 @@ namespace strategy { namespace distance
     \tparam Strategy strategy, optional, defaults to pythagoras
     \par Concepts for Strategy:
     - cartesian_distance operator(Point,Point)
+    \note If the Strategy is a "comparable::pythagoras", this strategy
+        automatically is a comparable projected_point strategy (so without sqrt)
 */
 template
 <
     typename Point,
     typename PointOfSegment,
-    typename Strategy = pythagoras
-        <
-            Point,
-            typename point_type<PointOfSegment>::type
-        >
+    typename CalculationType = void,
+    typename Strategy = pythagoras<Point, PointOfSegment, CalculationType>
 >
-struct projected_point
+class projected_point
 {
+public :
     typedef Point point_type;
     typedef PointOfSegment segment_point_type;
+
     typedef typename select_coordinate_type
         <
             Point,
             PointOfSegment
         >::type coordinate_type;
-    typedef cartesian_distance<coordinate_type> return_type;
+
+    typedef typename Strategy::return_type return_type;
 
     typedef Strategy point_strategy_type;
 
+private :
+
+    // The three typedefs below are necessary to calculate distances
+    // from segments defined in integer coordinates.
+
+    // Integer coordinates can still result in FP distances.
+    // There is a division, which must be represented in FP.
+    // So promote.
+    typedef typename promote_floating_point<coordinate_type>::type fp_type;
+
+    // A projected point of points in Integer coordinates must be able to be
+    // represented in FP.
+    typedef boost::geometry::point
+        <
+            fp_type,
+            dimension<PointOfSegment>::value,
+            typename coordinate_system<PointOfSegment>::type
+        > fp_point_type;
+
+    // For convenience
+    typedef fp_point_type fp_vector_type;
+
+    // We have to use a strategy using FP coordinates (fp-type) which is
+    // not always the same as Strategy (defined as point_strategy_type)
+    // So we create a "similar" one
+    typedef typename strategy::distance::services::similar_type
+        <
+            point_strategy_type,
+            Point,
+            fp_point_type
+        >::type fp_strategy_type;
+
+public :
 
     inline return_type apply(Point const& p,
                     PointOfSegment const& p1, PointOfSegment const& p2) const
@@ -90,48 +126,147 @@ struct projected_point
         RETURN POINT(x1 + b * vx, y1 + b * vy);
         */
 
-
-        // Take here the first point type. It should have a default constructor.
-        // That is not required for the second point type.
-        Point v, w;
+        // v is multiplied below with a (possibly) FP-value, so should be in FP
+        // For consistency we define w also in FP
+        fp_vector_type v, w;
 
         copy_coordinates(p2, v);
         copy_coordinates(p, w);
         subtract_point(v, p1);
         subtract_point(w, p1);
 
-        Strategy strategy;
+        point_strategy_type strategy;
+        boost::ignore_unused_variable_warning(strategy);
 
         coordinate_type zero = coordinate_type();
-        coordinate_type c1 = dot_product(w, v);
+        fp_type c1 = dot_product(w, v);
         if (c1 <= zero)
         {
             return strategy.apply(p, p1);
         }
-        coordinate_type c2 = dot_product(v, v);
+        fp_type c2 = dot_product(v, v);
         if (c2 <= c1)
         {
             return strategy.apply(p, p2);
         }
 
-        // Even in case of char's, we have to turn to a point<double/float>
-        // because of the division.
-        typedef typename geometry::select_most_precise<coordinate_type, double>::type divisor_type;
-        divisor_type b = c1 / c2;
+        // See above, c1 > 0 AND c2 > c1 so: c2 != 0
+        fp_type b = fp_type(c1) / fp_type(c2);
 
-        // Note that distances with integer coordinates do NOT work because
-        // - the project point is integer
-        // - if we solve that, the used distance_strategy cannot handle double points
-        PointOfSegment projected;
+
+        fp_strategy_type fp_strategy
+            = strategy::distance::services::get_similar
+                <
+                    point_strategy_type, Point, fp_point_type
+                >::apply(strategy);
+
+        fp_point_type projected;
         copy_coordinates(p1, projected);
         multiply_value(v, b);
         add_point(projected, v);
 
-        return strategy.apply(p, projected);
+        //std::cout << "distance " << dsv(p) << " .. " << dsv(projected) << std::endl;
 
+        return fp_strategy.apply(p, projected);
     }
 
 };
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+namespace services
+{
+
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct tag<projected_point<Point, PointOfSegment, CalculationType, Strategy> >
+{
+    typedef strategy_tag_distance_point_segment type;
+};
+
+
+template
+<
+    typename Point,
+    typename PointOfSegment,
+    typename CalculationType,
+    typename Strategy,
+    typename P1,
+    typename P2
+>
+struct similar_type<projected_point<Point, PointOfSegment, CalculationType, Strategy>, P1, P2>
+{
+    typedef projected_point<P1, P2, CalculationType, Strategy> type;
+};
+
+
+template
+<
+    typename Point,
+    typename PointOfSegment,
+    typename CalculationType,
+    typename Strategy,
+    typename P1,
+    typename P2
+>
+struct get_similar<projected_point<Point, PointOfSegment, CalculationType, Strategy>, P1, P2>
+{
+    static inline typename similar_type
+        <
+            projected_point<Point, PointOfSegment, CalculationType, Strategy>, P1, P2
+        >::type apply(projected_point<Point, PointOfSegment, CalculationType, Strategy> const& )
+    {
+        return projected_point<P1, P2, CalculationType, Strategy>();
+    }
+};
+
+
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct comparable_type<projected_point<Point, PointOfSegment, CalculationType, Strategy> >
+{
+    // Define a projected_point strategy with its underlying point-point-strategy
+    // being comparable
+    typedef projected_point
+        <
+            Point,
+            PointOfSegment,
+            CalculationType,
+            typename comparable_type<Strategy>::type
+        > type;
+};
+
+
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct get_comparable<projected_point<Point, PointOfSegment, CalculationType, Strategy> >
+{
+    typedef typename comparable_type
+        <
+            projected_point<Point, PointOfSegment, CalculationType, Strategy>
+        >::type comparable_type;
+public :
+    static inline comparable_type apply(projected_point<Point, PointOfSegment, CalculationType, Strategy> const& )
+    {
+        return comparable_type();
+    }
+};
+
+
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct result_from_distance<projected_point<Point, PointOfSegment, CalculationType, Strategy> >
+{
+private :
+    typedef typename projected_point<Point, PointOfSegment, CalculationType, Strategy>::return_type return_type;
+public :
+    template <typename T>
+    static inline return_type apply(projected_point<Point, PointOfSegment, CalculationType, Strategy> const& , T const& value)
+    {
+        Strategy s;
+        return result_from_distance<Strategy>::apply(s, value);
+    }
+};
+
+
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
 
 }} // namespace strategy::distance
 
@@ -149,6 +284,7 @@ struct strategy_distance_segment<cartesian_tag, cartesian_tag, Point, PointOfSeg
     <
         Point,
         PointOfSegment,
+        void,
         typename strategy_distance
         <
             cartesian_tag, cartesian_tag, Point, segment_point_type

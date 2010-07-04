@@ -20,17 +20,76 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <test_common/test_point.hpp>
 
+#ifdef HAVE_TTMATH
+#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+#endif
+
+namespace bg = boost::geometry;
+
+
+template <typename P, typename PS, typename CalculationType>
+void test_services()
+{
+    PS p1, p2;
+    bg::assign(p1, 0, 0);
+    bg::assign(p2, 0, 4);
+
+    P p;
+    bg::assign(p, 2, 0);
+
+    double const sqr_expected = 4; 
+    double const expected = 2;
+
+
+    namespace bgsd = bg::strategy::distance;
+    namespace services = bg::strategy::distance::services;
+    // 1: normal, calculate distance:
+
+    typedef bgsd::projected_point<P, PS, CalculationType> strategy_type;
+
+    BOOST_CONCEPT_ASSERT( (bg::concept::PointSegmentDistanceStrategy<strategy_type>) );
+
+    typedef typename strategy_type::return_type return_type;
+
+    strategy_type strategy;
+    return_type result = strategy.apply(p, p1, p2);
+    BOOST_CHECK_CLOSE(result, return_type(expected), 0.001);
+
+    // 2: "similar" to construct a similar strategy (similar but with other template-parameters) for, e.g., the reverse P2/P1
+    // 2a: similar_type:
+    typedef typename services::similar_type<strategy_type, P, PS>::type similar_type;
+    // 2b: get_similar
+    similar_type similar = services::get_similar<strategy_type, P, PS>::apply(strategy);
+
+    result = similar.apply(p, p1, p2);
+    BOOST_CHECK_CLOSE(result, return_type(expected), 0.001);
+
+
+    // 3: "comparable" to construct a "comparable strategy" for P1/P2
+    //    a "comparable strategy" is a strategy which does not calculate the exact distance, but 
+    //    which returns results which can be mutually compared (e.g. avoid sqrt)
+
+    // 3a: "comparable_type"
+    typedef typename services::comparable_type<strategy_type>::type comparable_type;
+
+    // 3b: "get_comparable"
+    comparable_type comparable = bgsd::services::get_comparable<strategy_type>::apply(strategy);
+
+    return_type c_result = comparable.apply(p, p1, p2);
+    BOOST_CHECK_CLOSE(c_result, return_type(sqr_expected), 0.001);
+}
+
 
 template <typename P1, typename P2>
 void test_all_2d()
 {
     P1 p;
     P2 sp1, sp2;
-    boost::geometry::read_wkt("POINT(1 1)", p);
-    boost::geometry::read_wkt("POINT(0 0)", sp1);
-    boost::geometry::read_wkt("POINT(2 3)", sp2);
+    bg::read_wkt("POINT(1 1)", p);
+    bg::read_wkt("POINT(0 0)", sp1);
+    bg::read_wkt("POINT(2 3)", sp2);
 
-    typedef typename boost::geometry::strategy::distance::projected_point
+    typedef typename bg::strategy::distance::projected_point
         <
             P1,
             P2
@@ -38,61 +97,51 @@ void test_all_2d()
 
     BOOST_CONCEPT_ASSERT
         (
-            (boost::geometry::concept::PointSegmentDistanceStrategy<strategy_type>)
+            (bg::concept::PointSegmentDistanceStrategy<strategy_type>)
         );
 
 
     strategy_type strategy;
-    std::cout << strategy.apply(p, sp1, sp2) << std::endl;
+    typename strategy_type::return_type d = strategy.apply(p, sp1, sp2);
+    BOOST_CHECK_CLOSE(d, 0.27735203958327, 0.001);
 }
 
 
 template <typename P>
 void test_all_2d()
 {
-    using boost::geometry::point;
-    using boost::geometry::cs::cartesian;
+    using bg::point;
+    using bg::cs::cartesian;
 
     //test_all_2d<P, int[2]>();
     //test_all_2d<P, float[2]>();
     //test_all_2d<P, double[2]>();
     //test_all_2d<P, test::test_point>();
-    //test_all_2d<P, point<int, 2, cartesian> >();
-    //test_all_2d<P, point<float, 2, cartesian> >();
+    test_all_2d<P, point<int, 2, cartesian> >();
+    test_all_2d<P, point<float, 2, cartesian> >();
     test_all_2d<P, point<double, 2, cartesian> >();
+    test_all_2d<P, point<long double, 2, cartesian> >();
 }
 
 int test_main(int, char* [])
 {
-    using boost::geometry::point;
-    using boost::geometry::cs::cartesian;
+    using bg::point;
+    using bg::cs::cartesian;
 
-#if ! defined(_MSC_VER)
     test_all_2d<int[2]>();
     test_all_2d<float[2]>();
     test_all_2d<double[2]>();
-#endif
     //test_all_2d<test::test_point>();
 
-#if ! defined(_MSC_VER)
     test_all_2d<point<int, 2, cartesian> >();
-#endif
     test_all_2d<point<float, 2, cartesian> >();
     test_all_2d<point<double, 2, cartesian> >();
 
+    test_services<point<double, 2, cartesian>, point<float, 2, cartesian>, long double>();
 
-#if defined(HAVE_CLN)
-    // combination of CLN with normal types
-    typedef boost::numeric_adaptor::cln_value_type cln_type;
-    typedef point<cln_type, 2, cartesian> cln_point;
-    test_all_2d<cln_point>();
 
-#endif
-#if defined(HAVE_GMP)
-    typedef boost::numeric_adaptor::gmp_value_type gmp_type;
-    typedef point<gmp_type, 2, cartesian> gmp_point;
-    test_all_2d<gmp_point>();
-
+#if defined(HAVE_TTMATH)
+    test_all_2d<point<ttmath_big, 2, cartesian>, point<ttmath_big, 2, cartesian> >();
 #endif
 
     return 0;

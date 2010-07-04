@@ -14,6 +14,8 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
+#include <boost/geometry/util/select_calculation_type.hpp>
+#include <boost/geometry/util/promote_floating_point.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 
@@ -23,8 +25,76 @@
 namespace boost { namespace geometry
 {
 
+
 namespace strategy { namespace distance
 {
+
+
+namespace comparable
+{
+
+// Comparable haversine.
+// To compare distances, we can avoid:
+// - multiplication with radius and 2.0
+// - applying sqrt
+// - applying asin (which is strictly (monotone) increasing)
+template
+<
+    typename Point1,
+    typename Point2 = Point1,
+    typename CalculationType = void
+>
+class haversine
+{
+public :
+    typedef typename promote_floating_point
+        <
+            typename select_calculation_type
+                <
+                    Point1,
+                    Point2,
+                    CalculationType
+                >::type
+        >::type return_type;
+
+    typedef Point1 first_point_type;
+    typedef Point2 second_point_type;
+
+    inline haversine(return_type const& r = 1.0)
+        : m_radius(r)
+    {}
+
+
+    static inline return_type apply(Point1 const& p1, Point2 const& p2)
+    {
+        return calculate(get_as_radian<0>(p1), get_as_radian<1>(p1),
+                        get_as_radian<0>(p2), get_as_radian<1>(p2));
+    }
+
+    inline return_type radius() const
+    {
+        return m_radius;
+    }
+
+
+private :
+    typedef return_type promoted_type;
+
+    static inline return_type calculate(promoted_type const& lon1,
+            promoted_type const& lat1,
+            promoted_type const& lon2,
+            promoted_type const& lat2)
+    {
+        return math::hav(lat2 - lat1)
+                + cos(lat1) * cos(lat2) * math::hav(lon2 - lon1);
+    }
+
+    return_type m_radius;
+};
+
+
+
+} // namespace comparable
 
 /*!
     \brief Distance calculation for spherical coordinates
@@ -43,71 +113,200 @@ namespace strategy { namespace distance
                 + cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2))
                 </em>
 */
-template <typename Point1, typename Point2 = Point1>
+template
+<
+    typename Point1,
+    typename Point2 = Point1,
+    typename CalculationType = void
+>
 class haversine
 {
+    typedef comparable::haversine<Point1, Point2, CalculationType> comparable_type;
+
 public :
     typedef Point1 first_point_type;
     typedef Point2 second_point_type;
-    typedef double return_type;
 
-    inline haversine(double r = 1.0)
+    typedef typename comparable_type::return_type return_type;
+
+    inline haversine(return_type const& r = 1.0)
         : m_radius(r)
     {}
 
     inline return_type apply(Point1 const& p1, Point2 const& p2) const
     {
-        return calculate(get_as_radian<0>(p1), get_as_radian<1>(p1),
-                        get_as_radian<0>(p2), get_as_radian<1>(p2));
+        return_type const a = comparable_type::apply(p1, p2);
+        return_type const c = return_type(2.0) * asin(sqrt(a));
+        return m_radius * c;
+    }
+
+    inline return_type radius() const
+    {
+        return m_radius;
     }
 
 private :
-    double m_radius;
-    typedef typename coordinate_type<Point1>::type coordinate_type1;
-    typedef typename coordinate_type<Point2>::type coordinate_type2;
+    return_type m_radius;
+};
 
-    inline return_type calculate(coordinate_type1 const& lon1,
-            coordinate_type1 const& lat1,
-            coordinate_type2 const& lon2,
-            coordinate_type2 const& lat2) const
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+namespace services
+{
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct tag<haversine<Point1, Point2, CalculationType> >
+{
+    typedef strategy_tag_distance_point_point type;
+};
+
+
+template <typename Point1, typename Point2, typename CalculationType, typename P1, typename P2>
+struct similar_type<haversine<Point1, Point2, CalculationType>, P1, P2>
+{
+    typedef haversine<P1, P2, CalculationType> type;
+};
+
+
+template <typename Point1, typename Point2, typename CalculationType, typename P1, typename P2>
+struct get_similar<haversine<Point1, Point2, CalculationType>, P1, P2>
+{
+private :
+    typedef haversine<Point1, Point2, CalculationType> this_type;
+public :
+    static inline typename similar_type<this_type, P1, P2>::type apply(this_type const& input)
     {
-        double a = math::hav(lat2 - lat1)
-                + cos(lat1) * cos(lat2) * math::hav(lon2 - lon1);
-        double c = 2.0 * asin(sqrt(a));
-        return return_type(m_radius * c);
+        return haversine<P1, P2, CalculationType>(input.radius());
     }
 };
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct comparable_type<haversine<Point1, Point2, CalculationType> >
+{
+    typedef comparable::haversine<Point1, Point2, CalculationType> type;
+};
+
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct get_comparable<haversine<Point1, Point2, CalculationType> >
+{
+private :
+    typedef haversine<Point1, Point2, CalculationType> this_type;
+    typedef comparable::haversine<Point1, Point2, CalculationType> comparable_type;
+public :
+    static inline comparable_type apply(this_type const& input)
+    {
+        return comparable_type(input.radius());
+    }
+};
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct result_from_distance<haversine<Point1, Point2, CalculationType> >
+{
+private :
+    typedef haversine<Point1, Point2, CalculationType> this_type;
+public :
+    template <typename T>
+    static inline typename this_type::return_type apply(this_type const& , T const& value)
+    {
+        return  typename this_type::return_type(value);
+    }
+};
+
+
+
+// Specializations for comparable::haversine
+template <typename Point1, typename Point2, typename CalculationType>
+struct tag<comparable::haversine<Point1, Point2, CalculationType> >
+{
+    typedef strategy_tag_distance_point_point type;
+};
+
+
+template <typename Point1, typename Point2, typename CalculationType, typename P1, typename P2>
+struct similar_type<comparable::haversine<Point1, Point2, CalculationType>, P1, P2>
+{
+    typedef comparable::haversine<P1, P2, CalculationType> type;
+};
+
+
+template <typename Point1, typename Point2, typename CalculationType, typename P1, typename P2>
+struct get_similar<comparable::haversine<Point1, Point2, CalculationType>, P1, P2>
+{
+private :
+    typedef comparable::haversine<Point1, Point2, CalculationType> this_type;
+public :
+    static inline typename similar_type<this_type, P1, P2>::type apply(this_type const& input)
+    {
+        return comparable::haversine<P1, P2, CalculationType>(input.radius());
+    }
+};
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct comparable_type<comparable::haversine<Point1, Point2, CalculationType> >
+{
+    typedef comparable::haversine<Point1, Point2, CalculationType> type;
+};
+
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct get_comparable<comparable::haversine<Point1, Point2, CalculationType> >
+{
+private :
+    typedef comparable::haversine<Point1, Point2, CalculationType> this_type;
+public :
+    static inline this_type apply(this_type const& input)
+    {
+        return input;
+    }
+};
+
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct result_from_distance<comparable::haversine<Point1, Point2, CalculationType> >
+{
+private :
+    typedef comparable::haversine<Point1, Point2, CalculationType> strategy_type;
+    typedef typename strategy_type::return_type return_type;
+public :
+    template <typename T>
+    static inline return_type apply(strategy_type const& strategy, T const& distance)
+    {
+        return_type const s = sin((distance / strategy.radius()) / return_type(2));
+        return s * s;
+    }
+};
+
+
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace strategy::distance
 
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-template <typename P1, typename P2>
-struct strategy_distance<spherical_tag, spherical_tag, P1, P2>
+template <typename Point1, typename Point2>
+struct strategy_distance<spherical_tag, spherical_tag, Point1, Point2>
 {
-    typedef strategy::distance::haversine<P1, P2> type;
+    typedef strategy::distance::haversine<Point1, Point2> type;
 };
 
 
+template <typename Point1, typename Point2>
+struct strategy_tag<strategy::distance::haversine<Point1, Point2> >
+{
+    typedef strategy_tag_distance_point_point type;
+};
 
-
-
-
-template <typename P1, typename P2>
-struct strategy_tag<strategy::distance::haversine<P1, P2> >
+template <typename Point1, typename Point2>
+struct strategy_tag<strategy::distance::comparable::haversine<Point1, Point2> >
 {
     typedef strategy_tag_distance_point_point type;
 };
 
 
-
-
-#endif
-
-
-
-
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace boost::geometry

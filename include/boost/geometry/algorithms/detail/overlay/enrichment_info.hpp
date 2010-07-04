@@ -36,7 +36,7 @@ struct enrichment_info
         : travels_to_vertex_index(-1)
         , travels_to_ip_index(-1)
         , next_ip_index(-1)
-        , distance(geometry::make_distance_result<distance_type>(0))
+        , distance(distance_type())
     {}
 
     // vertex to which is free travel after this IP,
