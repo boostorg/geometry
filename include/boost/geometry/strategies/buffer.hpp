@@ -121,9 +121,9 @@ struct join_miter
     {
         coordinate_type zero = 0;
         int signum = buffer_distance > zero
-            ? 1 
-            : buffer_distance < zero 
-                ? -1 
+            ? 1
+            : buffer_distance < zero
+                ? -1
                 : 0;
 
         if (side::apply(perp1, ip, perp2) == signum)
@@ -157,7 +157,7 @@ struct join_miter
             coordinate_type ten = 10.0;
             coordinate_type zero_seven = 0.7;
 
-            coordinate_type max = ten * std::abs(buffer_distance);
+            coordinate_type max = ten * geometry::math::abs(buffer_distance);
 
             if (length > max)
             {
@@ -297,8 +297,8 @@ struct join_round
         coordinate_type zero = 0;
         int signum = buffer_distance > zero
             ? 1
-            : buffer_distance < zero 
-                ? -1 
+            : buffer_distance < zero
+                ? -1
                 : 0;
 
         if (side::apply(perp1, ip, perp2) == signum)
@@ -320,7 +320,7 @@ struct join_round
             coordinate_type length_i = sqrt(vix * vix + viy * viy);
 
 
-            coordinate_type const bd = std::abs(buffer_distance);
+            coordinate_type const bd = geometry::math::abs(buffer_distance);
             coordinate_type prop = bd / length_i;
 
             PointIn bp;

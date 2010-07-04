@@ -92,7 +92,7 @@ struct split_range
             first += mn;
 
             typename boost::range_iterator<Range>::type last = first;
-            last += std::abs(id2.segment_index - id1.segment_index);
+            last += geometry::math::abs(id2.segment_index - id1.segment_index);
 
             // Create splitted ring
             output.push_back(point);

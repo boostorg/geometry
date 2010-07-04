@@ -353,8 +353,8 @@ public :
             dy2 /= magnitude2;
 
             // If the directions are opposite, it can be removed
-            if (std::abs(dx1 + dx2) < m_limit 
-                && std::abs(dy1 + dy2) < m_limit)
+            if (geometry::math::abs(dx1 + dx2) < m_limit
+                && geometry::math::abs(dy1 + dy2) < m_limit)
             {
                 return true;
             }

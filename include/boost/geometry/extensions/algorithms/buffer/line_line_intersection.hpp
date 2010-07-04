@@ -61,12 +61,12 @@ struct line_line_intersection
         set<1>(p, py);
 
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER
-        if (std::abs(denominator) < 1.0e-7)
+        if (geometry::math::abs(denominator) < 1.0e-7)
         {
             std::cout << "small " << denominator << std::endl;
         }
 #endif
-        return std::abs(denominator) > 1.0e-7;
+        return geometry::math::abs(denominator) > 1.0e-7;
     }
 };
 
