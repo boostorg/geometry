@@ -38,6 +38,8 @@
 #include <cmath>
 
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/adjlon.hpp>
 
 /* general forward projection */
@@ -59,21 +61,21 @@ inline void pj_fwd(Prj const& prj, P const& par, LL const& ll, XY& xy)
 
     double lp_lon = geometry::get_as_radian<0>(ll);
     double lp_lat = geometry::get_as_radian<1>(ll);
-    const double t = std::fabs(lp_lat) - HALFPI;
+    const double t = geometry::math::abs(lp_lat) - HALFPI;
 
     /* check for forward and latitude or longitude overange */
-    if (t > forwrd::EPS || std::fabs(lp_lon) > 10.)
+    if (t > forwrd::EPS || geometry::math::abs(lp_lon) > 10.)
     {
         throw proj_exception();
     }
 
-    if (std::fabs(t) <= forwrd::EPS)
+    if (geometry::math::abs(t) <= forwrd::EPS)
     {
         lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
     }
     else if (par.geoc)
     {
-        lp_lat = std::atan(par.rone_es * std::tan(lp_lat));
+        lp_lat = atan(par.rone_es * tan(lp_lat));
     }
 
     lp_lon -= par.lam0;    /* compute del lp.lam */

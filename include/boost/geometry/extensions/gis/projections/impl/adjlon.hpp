@@ -38,6 +38,7 @@
 #include <cmath>
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
@@ -54,7 +55,7 @@ inline double adjlon (double lon)
     static const double TWOPI = 6.2831853071795864769;
     static const double ONEPI = 3.14159265358979323846;
 
-    if (std::fabs(lon) <= SPI)
+    if (geometry::math::abs(lon) <= SPI)
     {
         return lon;
     }

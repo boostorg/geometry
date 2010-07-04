@@ -154,10 +154,10 @@ namespace detail
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_spherical_coordinates
         // Phi = first, theta is second, r is third, see documentation on cs::spherical
-        double const sin_theta = std::sin(theta);
-        set<0>(p, r * sin_theta * std::cos(phi));
-        set<1>(p, r * sin_theta * std::sin(phi));
-        set<2>(p, r * std::cos(theta));
+        double const sin_theta = sin(theta);
+        set<0>(p, r * sin_theta * cos(phi));
+        set<1>(p, r * sin_theta * sin(phi));
+        set<2>(p, r * cos(theta));
     }
 
     /// Helper function for conversion
@@ -170,7 +170,7 @@ namespace detail
 
 #if defined(BOOST_GEOMETRY_TRANSFORM_CHECK_UNIT_SPHERE)
         // TODO: MAYBE ONLY IF TO BE CHECKED?
-        double const r = /*std::sqrt not necessary, sqrt(1)=1*/ (x * x + y * y + z * z);
+        double const r = /*sqrt not necessary, sqrt(1)=1*/ (x * x + y * y + z * z);
 
         // Unit sphere, so r should be 1
         if (geometry::math::abs(r - 1.0) > double(1e-6))
@@ -180,8 +180,8 @@ namespace detail
         // end todo
 #endif
 
-        set_from_radian<0>(p, std::atan2(y, x));
-        set_from_radian<1>(p, std::acos(z));
+        set_from_radian<0>(p, atan2(y, x));
+        set_from_radian<1>(p, acos(z));
         return true;
     }
 
@@ -191,12 +191,12 @@ namespace detail
         assert_dimension<P, 3>();
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_Cartesian_coordinates
-        double const r = std::sqrt(x * x + y * y + z * z);
+        double const r = sqrt(x * x + y * y + z * z);
         set<2>(p, r);
-        set_from_radian<0>(p, std::atan2(y, x));
+        set_from_radian<0>(p, atan2(y, x));
         if (r > 0.0)
         {
-            set_from_radian<1>(p, std::acos(z / r));
+            set_from_radian<1>(p, acos(z / r));
             return true;
         }
         return false;

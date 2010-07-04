@@ -38,6 +38,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/pj_ellps.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_param.hpp>
 
@@ -130,7 +132,7 @@ inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
             double tmp;
 
             tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
-            if (fabs(tmp) > HALFPI) {
+            if (geometry::math::abs(tmp) > HALFPI) {
                 throw proj_exception(-11);
             }
             tmp = 1. - es * tmp * tmp;

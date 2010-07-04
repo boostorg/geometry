@@ -36,6 +36,9 @@
 // DEALINGS IN THE SOFTWARE.
 
 
+#include <boost/geometry/util/math.hpp>
+
+
 namespace boost { namespace geometry { namespace projection {
 namespace detail {
 
@@ -58,7 +61,7 @@ inline double pj_phi2(double ts, double e)
         dphi = HALFPI - 2. * atan (ts * pow((1. - con) /
            (1. + con), eccnth)) - Phi;
         Phi += dphi;
-    } while ( fabs(dphi) > phi2::TOL && --i);
+    } while ( geometry::math::abs(dphi) > phi2::TOL && --i);
     if (i <= 0)
         throw proj_exception(-18);
     return Phi;

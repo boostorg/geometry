@@ -15,8 +15,13 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
+#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/geographic/detail/ellipsoid.hpp>
+
+
 
 
 namespace boost { namespace geometry
@@ -28,8 +33,8 @@ namespace strategy { namespace distance
 /*!
     \brief Distance calculation formulae on latlong coordinates, after Vincenty, 1975
     \ingroup distance
-    \tparam P1 first point type
-    \tparam P2 optional second point type
+    \tparam Point1 first point type
+    \tparam Point2 optional second point type
     \author See http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
     \author Adapted from various implementations to get it close to the original document
         - http://www.movable-type.co.uk/scripts/LatLongVincenty.html
@@ -37,108 +42,158 @@ namespace strategy { namespace distance
         - http://futureboy.homeip.net/fsp/colorize.fsp?fileName=navigation.frink
 
 */
-template <typename P1, typename P2 = P1>
+template 
+<
+    typename Point1, 
+    typename Point2 = Point1,
+    typename CalculationType = void
+>
 class vincenty
 {
-    public :
-        //typedef spherical_distance return_type;
-        typedef P1 first_point_type;
-        typedef P2 second_point_type;
-        typedef double return_type;
+public :
+    typedef typename promote_floating_point
+        <
+            typename select_most_precise
+                <
+                    typename select_calculation_type
+                        <
+                            Point1,
+                            Point2,
+                            CalculationType
+                        >::type,
+                    double // it should be at least double otherwise Vincenty does not run
+                >::type
+        >::type return_type;
 
-        inline vincenty()
-        {}
+    typedef Point1 first_point_type;
+    typedef Point2 second_point_type;
 
-        explicit inline vincenty(geometry::detail::ellipsoid const& e)
-            : m_ellipsoid(e)
-        {}
+    inline vincenty()
+    {}
 
-        inline return_type apply(P1 const& p1, P2 const& p2) const
+    explicit inline vincenty(geometry::detail::ellipsoid const& e)
+        : m_ellipsoid(e)
+    {}
+
+    inline return_type apply(Point1 const& p1, Point2 const& p2) const
+    {
+        return calculate(get_as_radian<0>(p1), get_as_radian<1>(p1),
+                        get_as_radian<0>(p2), get_as_radian<1>(p2));
+    }
+
+    inline geometry::detail::ellipsoid ellipsoid() const
+    {
+        return m_ellipsoid;
+    }
+
+
+private :
+    typedef return_type promoted_type;
+    geometry::detail::ellipsoid m_ellipsoid;
+
+    inline return_type calculate(promoted_type const& lon1, 
+                promoted_type const& lat1, 
+                promoted_type const& lon2, 
+                promoted_type const& lat2) const
+    {
+        namespace mc = boost::math::constants;
+
+        promoted_type const c2 = 2;
+        promoted_type const two_pi = c2 * mc::pi<promoted_type>();
+
+        // lambda: difference in longitude on an auxiliary sphere
+        promoted_type L = lon2 - lon1;
+        promoted_type lambda = L;
+
+        if (L < -mc::pi<promoted_type>()) L += two_pi;
+        if (L > mc::pi<promoted_type>()) L -= two_pi;
+
+        if (math::equals(lat1, lat2) && math::equals(lon1, lon2))
         {
-            return calculate(get_as_radian<0>(p1), get_as_radian<1>(p1),
-                            get_as_radian<0>(p2), get_as_radian<1>(p2));
+            return return_type(0);
         }
 
-        inline geometry::detail::ellipsoid ellipsoid() const
+        // TODO: give ellipsoid a template-parameter
+        promoted_type const ellipsoid_f = m_ellipsoid.f();
+        promoted_type const ellipsoid_a = m_ellipsoid.a();
+        promoted_type const ellipsoid_b = m_ellipsoid.b();
+
+        // U: reduced latitude, defined by tan U = (1-f) tan phi
+        promoted_type const c1 = 1;
+        promoted_type const one_min_f = c1 - ellipsoid_f;
+
+        promoted_type const U1 = atan(one_min_f * tan(lat1)); // above (1)
+        promoted_type const U2 = atan(one_min_f * tan(lat2)); // above (1)
+
+        promoted_type const cos_U1 = cos(U1);
+        promoted_type const cos_U2 = cos(U2);
+        promoted_type const sin_U1 = sin(U1);
+        promoted_type const sin_U2 = sin(U2);
+
+        // alpha: azimuth of the geodesic at the equator
+        promoted_type cos2_alpha;
+        promoted_type sin_alpha;
+
+        // sigma: angular distance p1,p2 on the sphere
+        // sigma1: angular distance on the sphere from the equator to p1
+        // sigma_m: angular distance on the sphere from the equator to the midpoint of the line
+        promoted_type sigma;
+        promoted_type sin_sigma;
+        promoted_type cos2_sigma_m;
+
+        promoted_type previous_lambda;
+
+        promoted_type const c3 = 3;
+        promoted_type const c4 = 4;
+        promoted_type const c6 = 6;
+        promoted_type const c16 = 16;
+
+        promoted_type const c_e_12 = 1e-12;
+
+        do
         {
-            return m_ellipsoid;
-        }
+            previous_lambda = lambda; // (13)
+            promoted_type sin_lambda = sin(lambda);
+            promoted_type cos_lambda = cos(lambda);
+            sin_sigma = sqrt(math::sqr(cos_U2 * sin_lambda) + math::sqr(cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda)); // (14)
+            promoted_type cos_sigma = sin_U1 * sin_U2 + cos_U1 * cos_U2 * cos_lambda; // (15)
+            sin_alpha = cos_U1 * cos_U2 * sin_lambda / sin_sigma; // (17)
+            cos2_alpha = c1 - math::sqr(sin_alpha);
+            cos2_sigma_m = cos2_alpha == 0 ? 0 : cos_sigma - c2 * sin_U1 * sin_U2 / cos2_alpha; // (18)
 
 
-    private :
-        typedef typename coordinate_type<P1>::type T1;
-        typedef typename coordinate_type<P2>::type T2;
-        geometry::detail::ellipsoid m_ellipsoid;
+            promoted_type C = ellipsoid_f/c16 * cos2_alpha * (c4 + ellipsoid_f * (c4 - c3 * cos2_alpha)); // (10)
+            sigma = atan2(sin_sigma, cos_sigma); // (16)
+            lambda = L + (c1 - C) * ellipsoid_f * sin_alpha *
+                (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-c1 + c2 * math::sqr(cos2_sigma_m)))); // (11)
 
-        inline return_type calculate(T1 const& lon1, T1 const& lat1, T2 const& lon2, T2 const& lat2) const
-        {
-            namespace mc = boost::math::constants;
+        } while (geometry::math::abs(previous_lambda - lambda) > c_e_12
+                && geometry::math::abs(lambda) < mc::pi<promoted_type>());
 
-            double const two_pi = 2.0 * mc::pi<double>();
+        promoted_type sqr_u = cos2_alpha * (math::sqr(ellipsoid_a) - math::sqr(ellipsoid_b)) / math::sqr(ellipsoid_b); // above (1)
 
-            // lambda: difference in longitude on an auxiliary sphere
-            double L = lon2 - lon1;
-            double lambda = L;
+        // Oops getting hard here
+        // (again, problem is that ttmath cannot divide by doubles, which is OK)
+        promoted_type const c47 = 47;
+        promoted_type const c74 = 74;
+        promoted_type const c128 = 128;
+        promoted_type const c256 = 256;
+        promoted_type const c175 = 175;
+        promoted_type const c320 = 320;
+        promoted_type const c768 = 768;
+        promoted_type const c1024 = 1024;
+        promoted_type const c4096 = 4096;
+        promoted_type const c16384 = 16384;
 
-            if (L < -mc::pi<double>()) L += two_pi;
-            if (L > mc::pi<double>()) L -= two_pi;
+        promoted_type A = c1 + sqr_u/c16384 * (c4096 + sqr_u * (-c768 + sqr_u * (c320 - c175 * sqr_u))); // (3)
+        promoted_type B = sqr_u/c1024 * (c256 + sqr_u * ( -c128 + sqr_u * (c74 - c47 * sqr_u))); // (4)
+        promoted_type delta_sigma = B * sin_sigma * ( cos2_sigma_m + (B/c4) * (cos(sigma)* (-c1 + c2 * cos2_sigma_m)
+                - (B/c6) * cos2_sigma_m * (-c3 + c4 * math::sqr(sin_sigma)) * (-c3 + c4 * cos2_sigma_m))); // (6)
 
-            if (lat1 == lat2 && lon1 == lon2)
-            {
-              return return_type(0);
-            }
+        promoted_type dist = ellipsoid_b * A * (sigma - delta_sigma); // (19)
 
-            // U: reduced latitude, defined by tan U = (1-f) tan phi
-            double U1 = atan((1-m_ellipsoid.f()) * tan(lat1)); // above (1)
-            double U2 = atan((1-m_ellipsoid.f()) * tan(lat2)); // above (1)
-
-            double cos_U1 = cos(U1);
-            double cos_U2 = cos(U2);
-            double sin_U1 = sin(U1);
-            double sin_U2 = sin(U2);
-
-            // alpha: azimuth of the geodesic at the equator
-            double cos2_alpha;
-            double sin_alpha;
-
-            // sigma: angular distance p1,p2 on the sphere
-            // sigma1: angular distance on the sphere from the equator to p1
-            // sigma_m: angular distance on the sphere from the equator to the midpoint of the line
-            double sigma;
-            double sin_sigma;
-            double cos2_sigma_m;
-
-            double previous_lambda;
-
-            do
-            {
-                previous_lambda = lambda; // (13)
-                double sin_lambda = sin(lambda);
-                double cos_lambda = cos(lambda);
-                sin_sigma = sqrt(math::sqr(cos_U2 * sin_lambda) + math::sqr(cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda)); // (14)
-                double cos_sigma = sin_U1 * sin_U2 + cos_U1 * cos_U2 * cos_lambda; // (15)
-                sin_alpha = cos_U1 * cos_U2 * sin_lambda / sin_sigma; // (17)
-                cos2_alpha = 1.0 - math::sqr(sin_alpha);
-                cos2_sigma_m = cos2_alpha == 0 ? 0 : cos_sigma - 2.0 * sin_U1 * sin_U2 / cos2_alpha; // (18)
-
-                double C = m_ellipsoid.f()/16.0 * cos2_alpha * (4.0 + m_ellipsoid.f() * (4.0 - 3.0 * cos2_alpha)); // (10)
-                sigma = atan2(sin_sigma, cos_sigma); // (16)
-                lambda = L + (1.0 - C) * m_ellipsoid.f() * sin_alpha *
-                    (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-1.0 + 2.0 * math::sqr(cos2_sigma_m)))); // (11)
-
-            } while (fabs(previous_lambda - lambda) > 1e-12 && fabs(lambda) < mc::pi<double>());
-
-            double sqr_u = cos2_alpha * (math::sqr(m_ellipsoid.a()) - math::sqr(m_ellipsoid.b())) / math::sqr(m_ellipsoid.b()); // above (1)
-
-            double A = 1.0 + sqr_u/16384.0 * (4096 + sqr_u * (-768.0 + sqr_u * (320.0 - 175.0 * sqr_u))); // (3)
-            double B = sqr_u/1024.0 * (256.0 + sqr_u * ( -128.0 + sqr_u * (74.0 - 47.0 * sqr_u))); // (4)
-            double delta_sigma = B * sin_sigma * ( cos2_sigma_m + (B/4.0) * (cos(sigma)* (-1.0 + 2.0 * cos2_sigma_m)
-                    - (B/6.0) * cos2_sigma_m * (-3.0 + 4.0 * math::sqr(sin_sigma)) * (-3.0 + 4.0 * cos2_sigma_m))); // (6)
-
-            double dist = m_ellipsoid.b() * A * (sigma - delta_sigma); // (19)
-
-            return return_type(dist);
-        }
+        return return_type(dist);
+    }
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
@@ -209,8 +264,8 @@ struct result_from_distance<vincenty<Point1, Point2> >
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
-template <typename P1, typename P2>
-struct strategy_tag<strategy::distance::vincenty<P1, P2> >
+template <typename Point1, typename Point2>
+struct strategy_tag<strategy::distance::vincenty<Point1, Point2> >
 {
     typedef strategy_tag_distance_point_point type;
 };

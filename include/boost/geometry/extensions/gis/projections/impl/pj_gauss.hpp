@@ -36,6 +36,9 @@
 #define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_GAUSS_HPP
 
 
+#include <boost/geometry/util/math.hpp>
+
+
 namespace boost { namespace geometry { namespace projection {
 
 namespace detail { namespace gauss {
@@ -55,7 +58,7 @@ static const double DEL_TOL = 1e-14;
 
 inline double srat(double esinp, double exp)
 {
-    return (std::pow((1.0 - esinp) / (1.0 + esinp), exp));
+    return (pow((1.0 - esinp) / (1.0 + esinp), exp));
 }
 
 inline GAUSS gauss_ini(double e, double phi0, double &chi, double &rc)
@@ -90,8 +93,8 @@ inline GAUSS gauss_ini(double e, double phi0, double &chi, double &rc)
 template <typename T>
 inline void gauss(GAUSS const& en, T& lam, T& phi)
 {
-    phi = 2.0 * std::atan(en.K * std::pow(std::tan(0.5 * phi + FORTPI), en.C)
-          * srat(en.e * std::sin(phi), en.ratexp) ) - HALFPI;
+    phi = 2.0 * atan(en.K * pow(tan(0.5 * phi + FORTPI), en.C)
+          * srat(en.e * sin(phi), en.ratexp) ) - HALFPI;
 
     lam *= en.C;
 }
@@ -100,14 +103,14 @@ template <typename T>
 inline void inv_gauss(GAUSS const& en, T& lam, T& phi)
 {
     lam /= en.C;
-    const double num = std::pow(std::tan(0.5 * phi + FORTPI) / en.K, 1.0 / en.C);
+    const double num = pow(tan(0.5 * phi + FORTPI) / en.K, 1.0 / en.C);
 
     int i = 0;
     for (i = MAX_ITER; i; --i)
     {
-        const double elp_phi = 2.0 * std::atan(num * srat(en.e * std::sin(phi), - 0.5 * en.e)) - HALFPI;
+        const double elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - HALFPI;
 
-        if (std::fabs(elp_phi - phi) < DEL_TOL)
+        if (geometry::math::abs(elp_phi - phi) < DEL_TOL)
         {
             break;
         }
