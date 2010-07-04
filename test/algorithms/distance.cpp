@@ -63,7 +63,7 @@ void test_distance_result()
         comparable_strategy_type comparable_strategy = services::get_comparable<strategy_type>::apply(strategy);
         distance_type comparable = services::result_from_distance<comparable_strategy_type>::apply(comparable_strategy, 3);
 
-        BOOST_CHECK_CLOSE(comparable, 9.000, 0.001);
+        BOOST_CHECK_CLOSE(double(comparable), 9.000, 0.001);
 
         // COMPILATION TESTS (probably obsolete...)
         if (comparable == dr12) {};
