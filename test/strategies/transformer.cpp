@@ -93,8 +93,8 @@ void test_all()
 int test_main(int, char* [])
 {
     //test_all<int[2]>();
-    test_all<float[2]>();
-    test_all<double[2]>();
+    //test_all<float[2]>();
+    //test_all<double[2]>();
 
     test_all<boost::tuple<float, float> >();
 
