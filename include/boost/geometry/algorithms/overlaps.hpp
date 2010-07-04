@@ -22,6 +22,8 @@ with the opposite interior faces.
 
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
+
 #include <boost/geometry/core/access.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -142,10 +144,12 @@ struct box_box
 }} // namespace detail::overlaps
 #endif // DOXYGEN_NO_DETAIL
 
+//struct not_implemented_for_this_geometry_type : public boost::false_type {};
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
+
 
 template
 <
@@ -155,7 +159,13 @@ template
     typename Geometry2
 >
 struct overlaps
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENT_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry1, Geometry2>)
+        );
+};
 
 
 template <typename Box1, typename Box2>

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="projected_point"
-	ProjectGUID="{A27A46D2-AAD2-47F9-86E2-21FF849EF2D4}"
-	RootNamespace="projected_point"
+	Name="comparable_distance"
+	ProjectGUID="{F11970B5-BE16-4FF5-9780-4C15082B76A0}"
+	RootNamespace="comparable_distance"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,9 +18,9 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\projected_point"
+			IntermediateDirectory="$(ConfigurationName)\comparable_distance"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -91,9 +91,9 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\projected_point"
+			IntermediateDirectory="$(ConfigurationName)\comparable_distance"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\projected_point.cpp"
+			RelativePath=".\comparable_distance.cpp"
 			>
 		</File>
 	</Files>

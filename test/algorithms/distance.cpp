@@ -52,26 +52,34 @@ void test_distance_result()
     BOOST_CHECK_CLOSE(double(dr13), 4.000, 0.001);
     BOOST_CHECK_CLOSE(double(dr23), 5.000, 0.001);
 
-    // COMPILATION TESTS
-    distance_type comparable = boost::geometry::make_distance_result<distance_type>(3);
-    //BOOST_CHECK_CLOSE(comparable.value(), 9.000, 0.001);
+    // COMPARABLE TESTS
+    {
+        namespace services = boost::geometry::strategy::distance::services;
 
+        typedef typename boost::geometry::default_distance_strategy<P>::type strategy_type;
+        typedef typename services::comparable_type<strategy_type>::type comparable_strategy_type;
 
-    // Question: how to check if the implemented operator is used, and not the auto-conversion to double?
-    if (comparable == dr12) {};
-    if (comparable < dr12) {};
-    if (comparable > dr12) {};
+        strategy_type strategy;
+        comparable_strategy_type comparable_strategy = services::get_comparable<strategy_type>::apply(strategy);
+        distance_type comparable = services::result_from_distance<comparable_strategy_type>::apply(comparable_strategy, 3);
 
-    // Check streamability
-    std::ostringstream s;
-    s << comparable;
+        BOOST_CHECK_CLOSE(comparable, 9.000, 0.001);
 
-    // Check comparisons with plain double
-    double d = 3.0;
-    if (dr12 == d) {};
-    if (dr12 < d) {};
-    if (dr12 > d) {};
+        // COMPILATION TESTS (probably obsolete...)
+        if (comparable == dr12) {};
+        if (comparable < dr12) {};
+        if (comparable > dr12) {};
 
+        // Check streamability
+        std::ostringstream s;
+        s << comparable;
+
+        // Check comparisons with plain double
+        double d = 3.0;
+        if (dr12 == d) {};
+        if (dr12 < d) {};
+        if (dr12 > d) {};
+    }
 }
 
 template <typename P>
@@ -180,22 +188,22 @@ void test_all()
 {
     test_distance_result<P>();
     test_distance_point<P>();
-    test_distance_segment<P>();
+//    test_distance_segment<P>();
 #ifndef TEST_ARRAY
-    test_distance_linestring<P>();
+    //test_distance_linestring<P>();
 #endif
 }
 
 int test_main(int, char* [])
 {
 #ifdef TEST_ARRAY
-    //test_all<int[2]>();
+    test_all<int[2]>();
     test_all<float[2]>();
     test_all<double[2]>();
     test_all<test::test_point>(); // located here because of 3D
 #endif
 
-    //test_all<boost::geometry::point_xy<int> >();
+    test_all<boost::geometry::point_xy<int> >();
     test_all<boost::tuple<float, float> >();
     test_all<boost::geometry::point_xy<float> >();
     test_all<boost::geometry::point_xy<double> >();

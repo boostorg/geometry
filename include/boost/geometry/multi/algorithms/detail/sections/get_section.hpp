@@ -28,15 +28,24 @@ namespace dispatch
 {
 
 
-template <typename MultiPolygon, typename Section>
-struct get_section<multi_polygon_tag, MultiPolygon, Section>
+template <typename MultiPolygon, typename Section, bool IsConst>
+struct get_section<multi_polygon_tag, MultiPolygon, Section, IsConst>
 {
     typedef typename boost::range_iterator
         <
-            typename geometry::range_type<MultiPolygon>::type const
+            typename add_const_if_c
+            <
+                IsConst,
+                typename geometry::range_type<MultiPolygon>::type
+            >::type
         >::type iterator_type;
 
-    static inline void apply(MultiPolygon const& multi_polygon,
+    static inline void apply(
+                typename add_const_if_c
+                    <
+                        IsConst,
+                        MultiPolygon
+                    >::type const& multi_polygon,
                 Section const& section,
                 iterator_type& begin, iterator_type& end)
     {
@@ -49,7 +58,8 @@ struct get_section<multi_polygon_tag, MultiPolygon, Section>
             <
                 polygon_tag,
                 typename boost::range_value<MultiPolygon>::type,
-                Section
+                Section,
+                IsConst
             >::apply(multi_polygon[section.multi_index], section, begin, end);
     }
 };

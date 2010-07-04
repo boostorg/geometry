@@ -77,7 +77,7 @@ int test_main(int, char* [])
 {
     // Integer compiles, but simplify-process fails (due to distances)
     //test_all<boost::geometry::point_xy<int> >();
-    //test_all<boost::geometry::point_xy<float> >();
+    test_all<boost::geometry::point_xy<float> >();
     test_all<boost::geometry::point_xy<double> >();
 
     test_spherical<boost::geometry::point<double, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >();

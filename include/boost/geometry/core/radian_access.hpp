@@ -17,9 +17,11 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/coordinate_type.hpp>
 
 
 #include <boost/geometry/util/math.hpp>
+
 
 
 namespace boost { namespace geometry
@@ -33,7 +35,7 @@ namespace detail
 template<std::size_t Dimension, typename Geometry>
 struct degree_radian_converter
 {
-    typedef typename coordinate_type<Geometry>::type coordinate_type;
+    typedef typename fp_coordinate_type<Geometry>::type coordinate_type;
 
     static inline coordinate_type get(Geometry const& geometry)
     {
@@ -58,7 +60,7 @@ struct degree_radian_converter
 template <std::size_t Dimension, typename Geometry, typename DegreeOrRadian>
 struct radian_access
 {
-    typedef typename coordinate_type<Geometry>::type coordinate_type;
+    typedef typename fp_coordinate_type<Geometry>::type coordinate_type;
 
     static inline coordinate_type get(Geometry const& geometry)
     {
@@ -111,7 +113,7 @@ struct radian_access<1, Geometry, CoordinateSystem<degree> >
         e.g. spherical or geographic coordinate systems
 */
 template <std::size_t Dimension, typename Geometry>
-inline typename coordinate_type<Geometry>::type get_as_radian(Geometry const& geometry)
+inline typename fp_coordinate_type<Geometry>::type get_as_radian(Geometry const& geometry)
 {
     return detail::radian_access<Dimension, Geometry,
             typename coordinate_system<Geometry>::type>::get(geometry);
@@ -132,7 +134,7 @@ inline typename coordinate_type<Geometry>::type get_as_radian(Geometry const& ge
 */
 template <std::size_t Dimension, typename Geometry>
 inline void set_from_radian(Geometry& geometry,
-            const typename coordinate_type<Geometry>::type& radians)
+            typename fp_coordinate_type<Geometry>::type const& radians)
 {
     detail::radian_access<Dimension, Geometry,
             typename coordinate_system<Geometry>::type>::set(geometry, radians);

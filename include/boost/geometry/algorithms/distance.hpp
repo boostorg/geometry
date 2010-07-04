@@ -26,6 +26,9 @@
 #include <boost/geometry/strategies/distance_result.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
+
+#include <boost/geometry/util/math.hpp>
+
 /*!
 \defgroup distance distance: calculate distance between two geometries
 The distance algorithm returns the distance between two geometries.
@@ -99,19 +102,19 @@ struct point_to_segment
 template<typename Point, typename Range, typename PPStrategy, typename PSStrategy>
 struct point_to_range
 {
-    typedef typename PPStrategy::return_type return_type;
+    typedef typename PSStrategy::return_type return_type;
 
     static inline return_type apply(Point const& point, Range const& range,
             PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
     {
-        typedef segment<typename point_type<Range>::type const> segment_type;
+        return_type const zero = return_type(0);
 
         if (boost::size(range) == 0)
         {
-            return return_type(0);
+            return zero;
         }
 
-        // line of one point: return point square_distance
+        // line of one point: return point distance
         typedef typename boost::range_iterator<Range const>::type iterator_type;
         iterator_type it = boost::begin(range);
         iterator_type prev = it++;
@@ -120,27 +123,32 @@ struct point_to_range
             return pp_strategy.apply(point, *boost::begin(range));
         }
 
+        // Create efficient strategy
+        typedef typename strategy::distance::services::comparable_type<PSStrategy>::type eps_strategy_type;
+        eps_strategy_type eps_strategy = strategy::distance::services::get_comparable<PSStrategy>::apply(ps_strategy);
 
         // start with first segment distance
-        return_type d = ps_strategy.apply(point, *prev, *it);
+        return_type d = eps_strategy.apply(point, *prev, *it);
+        return_type rd = ps_strategy.apply(point, *prev, *it);
 
         // check if other segments are closer
         prev = it++;
         while(it != boost::end(range))
         {
-            return_type ds = ps_strategy.apply(point, *prev, *it);
-            if (geometry::close_to_zero(ds))
+            return_type const ds = ps_strategy.apply(point, *prev, *it);
+            if (geometry::math::equals(ds, zero))
             {
-                return return_type(0);
+                return ds;
             }
             else if (ds < d)
             {
                 d = ds;
+                return_type rd = ps_strategy.apply(point, *prev, *it);
             }
             prev = it++;
         }
 
-        return d;
+        return rd;
     }
 };
 
@@ -422,6 +430,9 @@ template <typename Geometry1, typename Geometry2, typename Strategy>
 inline typename Strategy::return_type distance(Geometry1 const& geometry1,
             Geometry2 const& geometry2, Strategy const& strategy)
 {
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
+
     return boost::mpl::if_
         <
             typename geometry::reverse_dispatch<Geometry1, Geometry2>::type,

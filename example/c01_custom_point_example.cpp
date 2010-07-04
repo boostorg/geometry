@@ -70,12 +70,26 @@ private:
     double m_x, m_y;
 };
 
+// Sample point within a namespace
+namespace my
+{
+    struct my_namespaced_point
+    {
+        double x, y;
+    };
+}
+
+
+
 BOOST_GEOMETRY_REGISTER_POINT_3D(my_color_point, double, cs::cartesian, red, green, blue)
 BOOST_GEOMETRY_REGISTER_POINT_3D(my_array_point, int, cs::cartesian, c[0], c[1], c[2])
 BOOST_GEOMETRY_REGISTER_POINT_2D(my_2d, float, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_POINT_2D_CONST(my_class_ro, double, cs::cartesian, x(), y())
 BOOST_GEOMETRY_REGISTER_POINT_2D(my_class_rw, double, cs::cartesian, x(), y())
 BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(my_class_gs, double, cs::cartesian, get_x, get_y, set_x, set_y)
+
+BOOST_GEOMETRY_REGISTER_POINT_2D(my::my_namespaced_point, double, cs::cartesian, x, y)
+
 
 int main()
 {
@@ -131,6 +145,14 @@ int main()
         << boost::geometry::dsv(crw1) << " to "
         << boost::geometry::dsv(crw2) << " is "
         << boost::geometry::distance(cgs1,cgs2) << std::endl;
+
+    my::my_namespaced_point nsp1 = boost::geometry::make<my::my_namespaced_point>(1, 2);
+    my::my_namespaced_point nsp2 = boost::geometry::make<my::my_namespaced_point>(3, 4);
+    std::cout << "namespaced distance "
+        << boost::geometry::dsv(nsp1) << " to "
+        << boost::geometry::dsv(nsp2) << " is "
+        << boost::geometry::distance(nsp1,nsp2) << std::endl;
+
 
     return 0;
 }

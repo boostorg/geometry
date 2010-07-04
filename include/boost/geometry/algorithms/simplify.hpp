@@ -73,9 +73,9 @@ namespace detail { namespace simplify
 template<typename Range, typename Strategy>
 struct simplify_range_inserter
 {
-    template <typename OutputIterator>
+    template <typename OutputIterator, typename Distance>
     static inline void apply(Range const& range, OutputIterator out,
-                    double max_distance, Strategy const& strategy)
+                    Distance const& max_distance, Strategy const& strategy)
     {
         if (boost::size(range) <= 2 || max_distance < 0)
         {
@@ -92,8 +92,9 @@ struct simplify_range_inserter
 template<typename Range, typename Strategy>
 struct simplify_copy
 {
+    template <typename Distance>
     static inline void apply(Range const& range, Range& out,
-                    double max_distance, Strategy const& strategy)
+                    Distance const& max_distance, Strategy const& strategy)
     {
         std::copy
             (
@@ -106,8 +107,9 @@ struct simplify_copy
 template<typename Range, typename Strategy, std::size_t Minimum>
 struct simplify_range
 {
+    template <typename Distance>
     static inline void apply(Range const& range, Range& out,
-                    double max_distance, Strategy const& strategy)
+                    Distance const& max_distance, Strategy const& strategy)
     {
         // Call do_container for a linestring / ring
 
@@ -144,8 +146,9 @@ struct simplify_range
 template<typename Polygon, typename Strategy>
 struct simplify_polygon
 {
+    template <typename Distance>
     static inline void apply(Polygon const& poly_in, Polygon& poly_out,
-                    double max_distance, Strategy const& strategy)
+                    Distance const& max_distance, Strategy const& strategy)
     {
         typedef typename ring_type<Polygon>::type ring_type;
 
@@ -198,8 +201,9 @@ struct simplify
 template <typename Point, typename Strategy>
 struct simplify<point_tag, Point, Strategy>
 {
+    template <typename Distance>
     static inline void apply(Point const& point, Point& out,
-                    double max_distance, Strategy const& strategy)
+                    Distance const& max_distance, Strategy const& strategy)
     {
         copy_coordinates(point, out);
     }
@@ -275,9 +279,9 @@ struct simplify_inserter<ring_tag, Ring, Strategy>
     \param strategy simplify strategy to be used for simplification, might
         include point-distance strategy
  */
-template<typename Geometry, typename Strategy>
+template<typename Geometry, typename Distance, typename Strategy>
 inline void simplify(Geometry const& geometry, Geometry& out,
-                     double max_distance, Strategy const& strategy)
+                     Distance const& max_distance, Strategy const& strategy)
 {
     concept::check<Geometry>();
 
@@ -312,21 +316,15 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     \line {
     \until }
  */
-template<typename Geometry>
+template<typename Geometry, typename Distance>
 inline void simplify(Geometry const& geometry, Geometry& out,
-                     double max_distance)
+                     Distance const& max_distance)
 {
     concept::check<Geometry>();
 
     typedef typename point_type<Geometry>::type point_type;
-    typedef typename cs_tag<point_type>::type cs_tag;
-    typedef typename strategy_distance_segment
-        <
-            cs_tag,
-            cs_tag,
-            point_type,
-            point_type
-        >::type ds_strategy_type;
+    typedef typename default_distance_strategy_segment
+                <point_type>::type ds_strategy_type;
 
     typedef strategy::simplify::douglas_peucker
         <
@@ -354,9 +352,9 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     \line {
     \until }
  */
-template<typename Geometry, typename OutputIterator, typename Strategy>
+template<typename Geometry, typename OutputIterator, typename Distance, typename Strategy>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
-                              double max_distance, Strategy const& strategy)
+                              Distance const& max_distance, Strategy const& strategy)
 {
     concept::check<Geometry const>();
     BOOST_CONCEPT_ASSERT( (geometry::concept::SimplifyStrategy<Strategy>) );
@@ -377,9 +375,9 @@ inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
     \param max_distance distance (in units of input coordinates) of a vertex
         to other segments to be removed
  */
-template<typename Geometry, typename OutputIterator>
+template<typename Geometry, typename OutputIterator, typename Distance>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
-                              double max_distance)
+                              Distance const& max_distance)
 {
     typedef typename point_type<Geometry>::type point_type;
 

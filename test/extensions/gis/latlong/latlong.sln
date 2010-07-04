@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "parse_dms", "parse_dms.vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "parse", "parse.vcproj", "{38C7173B-F81D-427D-B236-57611A31656A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vincenty", "vincenty.vcproj", "{F4A5BE68-7213-498D-944B-023B50FB10FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -43,6 +45,10 @@ Global
 		{38C7173B-F81D-427D-B236-57611A31656A}.Debug|Win32.Build.0 = Debug|Win32
 		{38C7173B-F81D-427D-B236-57611A31656A}.Release|Win32.ActiveCfg = Release|Win32
 		{38C7173B-F81D-427D-B236-57611A31656A}.Release|Win32.Build.0 = Release|Win32
+		{F4A5BE68-7213-498D-944B-023B50FB10FD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F4A5BE68-7213-498D-944B-023B50FB10FD}.Debug|Win32.Build.0 = Debug|Win32
+		{F4A5BE68-7213-498D-944B-023B50FB10FD}.Release|Win32.ActiveCfg = Release|Win32
+		{F4A5BE68-7213-498D-944B-023B50FB10FD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
