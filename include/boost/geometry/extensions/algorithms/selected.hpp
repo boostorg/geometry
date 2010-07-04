@@ -61,7 +61,7 @@ struct differences_loop
         coordinate_type const c1 = boost::numeric_cast<coordinate_type>(get<D>(p1));
         coordinate_type const c2 = boost::numeric_cast<coordinate_type>(get<D>(p2));
 
-        T const d = std::abs(c1 - c2);
+        T const d = geometry::math::abs(c1 - c2);
         if (d > distance)
         {
             return false;

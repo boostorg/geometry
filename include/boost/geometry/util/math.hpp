@@ -125,6 +125,18 @@ inline T sqr(T const& value)
     return value * value;
 }
 
+
+/*!
+\brief Short utility to workaround gcc/clang problem that abs is converting to integer
+\ingroup utility
+*/
+template<typename T>
+inline T abs(const T& t)
+{
+    using std::abs;
+    return abs(t);
+}
+
 } // namespace math
 
 

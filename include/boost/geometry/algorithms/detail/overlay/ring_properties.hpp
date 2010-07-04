@@ -80,7 +80,7 @@ struct ring_properties
     inline bool operator<(ring_properties<Point> const& other) const
     {
         // Normal sorting: in reverse order
-        return std::abs(area) > std::abs(other.area);
+        return geometry::math::abs(area) > geometry::math::abs(other.area);
     }
 
     inline ring_identifier const& id() const
@@ -218,7 +218,7 @@ public :
 
         // If it is the same, sort on size descending
         return left_id == right_id
-            ? std::abs(left.area) > std::abs(right.area)
+            ? geometry::math::abs(left.area) > geometry::math::abs(right.area)
             : left_id < right_id;
     }
 };

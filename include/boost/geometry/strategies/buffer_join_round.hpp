@@ -78,7 +78,7 @@ struct join_round2
 
         coordinate_type between_length = sqrt(v_x * v_x + v_y * v_y);
 
-        coordinate_type const positive_buffer_distance = std::abs(buffer_distance);
+        coordinate_type const positive_buffer_distance = geometry::math::abs(buffer_distance);
         coordinate_type prop = positive_buffer_distance / between_length;
 
         PointOut mid_point;

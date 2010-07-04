@@ -22,9 +22,8 @@
 
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/math.hpp>
+
 //#include <boost/geometry/util/write_dsv.hpp>
-
-
 
 
 namespace boost { namespace geometry
@@ -87,8 +86,6 @@ public :
     inline return_type apply(Point const& p,
                 PointOfSegment const& sp1, PointOfSegment const& sp2) const
     {
-        using std::abs; // to support ADL, and forces std::abs
-
         // http://williams.best.vwh.net/avform.htm#XTE
         return_type d1 = m_strategy.apply(sp1, p);
 
@@ -97,7 +94,7 @@ public :
 
         return_type crs_AD = course(sp1, p);
         return_type crs_AB = course(sp1, sp2);
-        return_type XTD = abs(asin(sin(d1) * sin(crs_AD - crs_AB)));
+        return_type XTD = geometry::math::abs(asin(sin(d1) * sin(crs_AD - crs_AB)));
 
 //std::cout << "Course " << dsv(sp1) << " to " << dsv(p) << " " << crs_AD * geometry::math::r2d << std::endl;
 //std::cout << "Course " << dsv(sp1) << " to " << dsv(sp2) << " " << crs_AB * geometry::math::r2d << std::endl;

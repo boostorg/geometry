@@ -91,7 +91,7 @@ struct circular_comparator
         // Two coordinates on a circle are
         // at max <= half a circle away from each other.
         // So if it is more, shift origin.
-        CoordinateType diff = std::abs(v1 - v2);
+        CoordinateType diff = geometry::math::abs(v1 - v2);
         if (diff > half)
         {
             v1 = put_in_range(v1, 0, full);

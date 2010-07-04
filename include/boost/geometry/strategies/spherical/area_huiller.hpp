@@ -94,12 +94,12 @@ public :
 
             // E: spherical excess, using l'Huiller's formula
             // [tg(e / 4)]2   =   tg[s / 2]  tg[(s-a) / 2]  tg[(s-b) / 2]  tg[(s-c) / 2]
-            double E = 4.0 * atan(sqrt(std::abs(tan(s / 2)
+            double E = 4.0 * atan(sqrt(geometry::math::abs(tan(s / 2)
                     * tan((s - a) / 2)
                     * tan((s - b) / 2)
                     * tan((s - c) / 2))));
 
-            E = std::abs(E);
+            E = geometry::math::abs(E);
 
             // In right direction: positive, add area. In left direction: negative, subtract area.
             // Longitude comparisons are not so obvious. If one is negative, other is positive,

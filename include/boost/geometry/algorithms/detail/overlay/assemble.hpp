@@ -448,7 +448,8 @@ std::cout << item1.ring_id << " area: " << item1.area << std::endl;
             {
                 item_type& item2 = *it2;
                 if (geometry::within(item2.point, item1.box)
-                    && std::abs(item2.area) < std::abs(item1.area)
+                    && geometry::math::abs(item2.area)
+                            < geometry::math::abs(item1.area)
                     && contains(item1, item2, geometry1, geometry2, collection)
                     )
                 {

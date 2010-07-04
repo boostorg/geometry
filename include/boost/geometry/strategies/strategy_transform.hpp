@@ -171,9 +171,8 @@ namespace detail
         // TODO: MAYBE ONLY IF TO BE CHECKED?
         double const r = std::sqrt(x * x + y * y + z * z);
 
-        // Unit sphere, r should be 1
-        typedef typename coordinate_type<P>::type coordinate_type;
-        if (std::abs(r - 1.0) > std::numeric_limits<coordinate_type>::epsilon())
+        // Unit sphere, so r should be 1
+        if (! geometry::math::equals(r, 1))
         {
             return false;
         }

@@ -124,7 +124,7 @@ struct elongated_hole
         {
             double a = area(ring);
             double p = perimeter(ring);
-            return std::abs(a/p) < m_ratio;
+            return geometry::math::abs(a / p) < m_ratio;
         }
         // Rings with less then 4 points (including closing)
         // are also considered as small and thus removed

@@ -106,17 +106,17 @@ struct per_segment_buffer
         coordinate_type ext_y = get<1>(head) - get<1>(tail);
         distance_type segment_length = sqrt(ext_x * ext_x + ext_y * ext_y);
 
-        if (buffered_length < std::abs(distance_left))
+        if (buffered_length < geometry::math::abs(distance_left))
         {
             distance_left = buffered_length * distance_left < 0 ? -1.0 : 1.0;
         }
-        if (buffered_length < std::abs(distance_right))
+        if (buffered_length < geometry::math::abs(distance_right))
         {
             distance_right = buffered_length * distance_right < 0 ? -1.0 : 1.0;
         }
 
-        distance_type prop_left = std::abs(distance_left) / segment_length;
-        distance_type prop_right = std::abs(distance_right) / segment_length;
+        distance_type prop_left = geometry::math::abs(distance_left) / segment_length;
+        distance_type prop_right = geometry::math::abs(distance_right) / segment_length;
 
         set<0>(tail_left, get<0>(tail) - ext_x * prop_left);
         set<1>(tail_left, get<1>(tail) - ext_y * prop_left);
