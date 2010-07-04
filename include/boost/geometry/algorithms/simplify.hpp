@@ -323,8 +323,10 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     concept::check<Geometry>();
 
     typedef typename point_type<Geometry>::type point_type;
-    typedef typename default_distance_strategy_segment
-                <point_type>::type ds_strategy_type;
+    typedef typename strategy::distance::services::default_strategy
+            <
+                segment_tag, point_type
+            >::type ds_strategy_type;
 
     typedef strategy::simplify::douglas_peucker
         <
@@ -385,13 +387,9 @@ inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
     concept::check<Geometry const>();
     concept::check<point_type>();
 
-    typedef typename cs_tag<point_type>::type cs_tag;
-    typedef typename strategy_distance_segment
+    typedef typename strategy::distance::services::default_strategy
         <
-            cs_tag,
-            cs_tag,
-            point_type,
-            point_type
+            segment_tag, point_type
         >::type ds_strategy_type;
 
     typedef strategy::simplify::douglas_peucker

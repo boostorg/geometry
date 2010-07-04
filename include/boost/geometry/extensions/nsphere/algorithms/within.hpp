@@ -42,12 +42,9 @@ inline bool point_in_circle(P const& p, C const& c)
     assert_dimension<C, 2>();
 
     typedef typename point_type<C>::type point_type;
-    typedef typename strategy_distance
+    typedef typename strategy::distance::services::default_strategy
         <
-            typename cs_tag<P>::type,
-            typename cs_tag<point_type>::type,
-            P,
-            point_type
+            point_tag, P, point_type
         >::type strategy_type;
     typedef typename strategy_type::return_type return_type;
 

@@ -39,9 +39,9 @@ namespace strategy { namespace distance
     \see http://futureboy.homeip.net/frinksamp/navigation.frink (implementation)
     \see http://www.voidware.com/earthdist.htm (implementation)
 */
-template 
+template
 <
-    typename P1, 
+    typename P1,
     typename P2 = P1
     // calculation_type
 >
@@ -75,7 +75,7 @@ class andoyer
         {
             return m_ellipsoid;
         }
-       
+
 
     private :
         typedef typename coordinate_type<P1>::type T1;
@@ -126,7 +126,7 @@ class andoyer
 
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-namespace services 
+namespace services
 {
 
 template <typename Point1, typename Point2>
@@ -179,30 +179,18 @@ struct result_from_distance<andoyer<Point1, Point2> >
 };
 
 
+template <typename Point1, typename Point2>
+struct default_strategy<point_tag, Point1, Point2, geographic_tag, geographic_tag>
+{
+    typedef strategy::distance::andoyer<Point1, Point2> type;
+};
+
+
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace strategy::distance
-
-
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-template <typename P1, typename P2>
-struct strategy_distance<geographic_tag, geographic_tag, P1, P2>
-{
-    typedef strategy::distance::andoyer<P1, P2> type;
-};
-
-
-template <typename P1, typename P2>
-struct strategy_tag<strategy::distance::andoyer<P1, P2> >
-{
-    typedef strategy_tag_distance_point_point type;
-};
-
-#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
 
 
 }} // namespace boost::geometry

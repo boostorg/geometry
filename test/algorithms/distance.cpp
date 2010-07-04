@@ -56,7 +56,7 @@ void test_distance_result()
     {
         namespace services = boost::geometry::strategy::distance::services;
 
-        typedef typename boost::geometry::default_distance_strategy<P>::type strategy_type;
+        typedef typename services::default_strategy<boost::geometry::point_tag, P>::type strategy_type;
         typedef typename services::comparable_type<strategy_type>::type comparable_strategy_type;
 
         strategy_type strategy;

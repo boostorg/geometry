@@ -450,12 +450,12 @@ The distance function will now change: it will select the computation method for
 template <typename G1, typename G2>
 double distance(G1 const& g1, G2 const& g2)
 {
-    typedef typename strategy_distance
+    typedef typename default_distance_strategy
         <
-            typename coordinate_system<G1>::type,
-            typename coordinate_system<G2>::type,
             typename point_type<G1>::type,
             typename point_type<G2>::type,
+            typename coordinate_system<G1>::type,
+            typename coordinate_system<G2>::type,
             dimension<G1>::value
         >::type strategy;
 
@@ -468,17 +468,17 @@ double distance(G1 const& g1, G2 const& g2)
 }
 \endcode
 
-The strategy_distance mentioned here is a metafunction with specializations for different coordinate systems.
+The default_distance_strategy mentioned here is a metafunction with specializations for different coordinate systems.
 
 \code
-template <typename T1, typename T2, typename P1, typename P2, int D>
-struct strategy_distance
+template <typename P1, typename P2, typename T1, typename T2, int D>
+struct default_distance_strategy
 {
     // undefined; type is not defined
 };
 
 template <typename P1, typename P2, int D>
-struct strategy_distance<cartesian, cartesian, P1, P2, D>
+struct default_distance_strategy<P1, P2, cartesian, cartesian, D>
 {
     typedef pythagoras<P1, P2, D> type;
 };
@@ -489,7 +489,7 @@ So here is our Pythagoras again, now defined as a strategy. The distance dispatc
 So this is an important step: for spherical or geographical coordinate systems, another strategy (computation method) can be implemented. For spherical coordinate systems we have the haversine formula. So the dispatching traits struct is specialized like this:
 \code
 template <typename P1, typename P2, int D = 2>
-struct strategy_distance<spherical, spherical, P1, P2, D>
+struct default_distance_strategy<P1, P2, spherical, spherical, D>
 {
     typedef haversine<P1, P2> type;
 };
@@ -612,11 +612,11 @@ struct distance_result
 {
     typedef typename point_type<G1>::type P1;
     typedef typename point_type<G2>::type P2;
-    typedef typename strategy_distance
+    typedef typename default_distance_strategy
         <
+            P1, P2,
             typename cs_tag<P1>::type,
-            typename cs_tag<P2>::type,
-            P1, P2
+            typename cs_tag<P2>::type
         >::type S;
 
     typedef typename S::return_type type;

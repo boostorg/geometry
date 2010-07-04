@@ -84,10 +84,9 @@ struct point_to_segment
     static inline typename Strategy::return_type apply(Point const& point,
                 Segment const& segment, Strategy const& strategy)
     {
-        typename strategy_distance_segment
+        typename strategy::distance::services::default_strategy
             <
-                typename cs_tag<Point>::type,
-                typename cs_tag<Segment>::type,
+                segment_tag,
                 Point,
                 typename point_type<Segment>::type
             >::type segment_strategy;
@@ -269,12 +268,11 @@ struct distance
             Linestring const& linestring,
             Strategy const& strategy)
     {
-        typedef typename geometry::strategy_distance_segment
+        typedef typename strategy::distance::services::default_strategy
                     <
-                            typename cs_tag<Point>::type,
-                            typename cs_tag<Linestring>::type,
-                            Point,
-                            typename point_type<Linestring>::type
+                        segment_tag,
+                        Point,
+                        typename point_type<Linestring>::type
                     >::type ps_strategy_type;
 
         return detail::distance::point_to_range
@@ -323,13 +321,12 @@ struct distance
             Polygon const& polygon,
             Strategy const& strategy)
     {
-        typedef typename geometry::strategy_distance_segment
-                    <
-                            typename cs_tag<Point>::type,
-                            typename cs_tag<Polygon>::type,
-                            Point,
-                            typename point_type<Polygon>::type
-                    >::type ps_strategy_type;
+        typedef typename strategy::distance::services::default_strategy
+            <
+                segment_tag,
+                Point,
+                typename point_type<Polygon>::type
+            >::type ps_strategy_type;
 
         std::pair<return_type, bool>
             dc = detail::distance::point_to_polygon
@@ -442,7 +439,7 @@ inline typename Strategy::return_type distance(Geometry1 const& geometry1,
                     typename tag<Geometry2>::type,
                     Geometry1,
                     Geometry2,
-                    typename strategy_tag<Strategy>::type,
+                    typename strategy::distance::services::tag<Strategy>::type,
                     Strategy,
                     is_multi<Geometry1>::value,
                     is_multi<Geometry2>::value
@@ -453,7 +450,7 @@ inline typename Strategy::return_type distance(Geometry1 const& geometry1,
                     typename tag<Geometry2>::type,
                     Geometry1,
                     Geometry2,
-                    typename strategy_tag<Strategy>::type,
+                    typename strategy::distance::services::tag<Strategy>::type,
                     Strategy,
                     is_multi<Geometry1>::value,
                     is_multi<Geometry2>::value
@@ -487,17 +484,15 @@ inline typename distance_result<Geometry1, Geometry2>::type distance(
     typedef typename boost::mpl::if_c
         <
             geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
-            typename strategy_distance
+            typename strategy::distance::services::default_strategy
                 <
-                    typename cs_tag<point2_type>::type,
-                    typename cs_tag<point1_type>::type,
+                    point_tag,
                     point2_type,
                     point1_type
                 >::type,
-            typename strategy_distance
+            typename strategy::distance::services::default_strategy
                 <
-                    typename cs_tag<point1_type>::type,
-                    typename cs_tag<point2_type>::type,
+                    point_tag,
                     point1_type,
                     point2_type
                 >::type
