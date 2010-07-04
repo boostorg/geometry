@@ -29,7 +29,7 @@ void test_transform_point(double value)
     boost::geometry::set<0>(p1, 1);
     boost::geometry::set<1>(p1, 2);
     P2 p2;
-    boost::geometry::transform(p1, p2);
+    BOOST_CHECK(boost::geometry::transform(p1, p2));
 
     BOOST_CHECK_CLOSE(value * boost::geometry::get<0>(p1), double(boost::geometry::get<0>(p2)), 0.001);
     BOOST_CHECK_CLOSE(value * boost::geometry::get<1>(p1), double(boost::geometry::get<1>(p2)), 0.001);
@@ -42,7 +42,7 @@ void test_transform_linestring()
     line1.push_back(boost::geometry::make<P1>(1, 1));
     line1.push_back(boost::geometry::make<P1>(2, 2));
     boost::geometry::linestring<P2> line2;
-    boost::geometry::transform(line1, line2);
+    BOOST_CHECK(boost::geometry::transform(line1, line2));
     BOOST_CHECK_EQUAL(line1.size(), line2.size());
 
     std::ostringstream out1, out2;
@@ -72,10 +72,10 @@ void test_transformations(double phi, double theta, double r)
         typedef point<T, 3, cs::spherical<DegreeOrRadian> >  spherical_type;
         spherical_type sph1;
         assign(sph1, phi, theta, r);
-        transform(sph1, p);
+        BOOST_CHECK(transform(sph1, p));
 
         spherical_type sph2;
-        transform(p, sph2);
+        BOOST_CHECK(transform(p, sph2));
 
         BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(sph1)), double(boost::geometry::get<0>(sph2)), 0.001);
         BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(sph1)), double(boost::geometry::get<1>(sph2)), 0.001);
@@ -89,8 +89,8 @@ void test_transformations(double phi, double theta, double r)
         typedef point<T, 2, cs::spherical<DegreeOrRadian> >  spherical_type;
         spherical_type sph1, sph2;
         assign(sph1, phi, theta);
-        transform(sph1, p);
-        transform(p, sph2);
+        BOOST_CHECK(transform(sph1, p));
+        BOOST_CHECK(transform(p, sph2));
 
         BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(sph1)), double(boost::geometry::get<0>(sph2)), 0.001);
         BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(sph1)), double(boost::geometry::get<1>(sph2)), 0.001);
