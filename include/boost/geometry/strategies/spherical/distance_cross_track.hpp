@@ -38,8 +38,8 @@ namespace strategy { namespace distance
     \ingroup distance
     \details Class which calculates the distance of a point to a segment, using latlong points
     \see http://williams.best.vwh.net/avform.htm
-    \tparam P point type
-    \tparam S segment type
+    \tparam Point point type
+    \tparam PointOfSegment type of point-of-segment
 */
 template
 <
@@ -87,6 +87,8 @@ public :
     inline return_type apply(Point const& p,
                 PointOfSegment const& sp1, PointOfSegment const& sp2) const
     {
+        using std::abs; // to support ADL, and forces std::abs
+
         // http://williams.best.vwh.net/avform.htm#XTE
         return_type d1 = m_strategy.apply(sp1, p);
 
