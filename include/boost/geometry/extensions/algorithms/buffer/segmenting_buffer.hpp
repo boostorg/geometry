@@ -22,6 +22,8 @@
 
 #include <boost/geometry/strategies/buffer_side.hpp>
 #include <boost/geometry/strategies/buffer_join_round.hpp>
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 
 

@@ -21,6 +21,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/distance.hpp>

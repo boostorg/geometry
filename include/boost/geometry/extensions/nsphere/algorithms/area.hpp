@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_AREA_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_AREA_HPP
 
+#include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 
@@ -44,7 +45,7 @@ struct circle_area
         assert_dimension<C, 2>();
 
         return_type r = get_radius<0>(c);
-        r *= r * geometry::math::pi;
+        r *= r * boost::math::constants::pi<return_type>();
         return r;
     }
 };

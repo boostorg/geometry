@@ -10,9 +10,12 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_HUILLER_HPP
 
 
+#include <boost/math/constants/constants.hpp>
+
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry
@@ -82,22 +85,29 @@ public :
     {
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
+            namespace mc = boost::math::constants;
+
+            double const two_pi = 2.0 * mc::pi<double>();
+            double const half = 0.5;
+            double const two = 2.0;
+            double const four = 4.0;
+
             // Distance p1 p2
             double a = state.distance_over_unit_sphere.apply(p1, p2);
 
             // Sides on unit sphere to south pole
-            double b = 0.5 * math::pi - geometry::get_as_radian<1>(p2);
-            double c = 0.5 * math::pi - geometry::get_as_radian<1>(p1);
+            double b = half * mc::pi<double>() - geometry::get_as_radian<1>(p2);
+            double c = half * mc::pi<double>() - geometry::get_as_radian<1>(p1);
 
             // Semi parameter
-            double s = 0.5 * (a + b + c);
+            double s = half * (a + b + c);
 
             // E: spherical excess, using l'Huiller's formula
             // [tg(e / 4)]2   =   tg[s / 2]  tg[(s-a) / 2]  tg[(s-b) / 2]  tg[(s-c) / 2]
-            double E = 4.0 * atan(sqrt(geometry::math::abs(tan(s / 2)
-                    * tan((s - a) / 2)
-                    * tan((s - b) / 2)
-                    * tan((s - c) / 2))));
+            double E = four * atan(sqrt(geometry::math::abs(tan(s / two)
+                    * tan((s - a) / two)
+                    * tan((s - b) / two)
+                    * tan((s - c) / two))));
 
             E = geometry::math::abs(E);
 
@@ -107,11 +117,11 @@ public :
             // TODO: check this / enhance this, should be more robust. See also the "grow" for ll
             // TODO: use minmax or "smaller"/"compare" strategy for this
             double lon1 = geometry::get_as_radian<0>(p1) < 0
-                ? geometry::get_as_radian<0>(p1) + math::two_pi
+                ? geometry::get_as_radian<0>(p1) + two_pi
                 : geometry::get_as_radian<0>(p1);
 
             double lon2 = geometry::get_as_radian<0>(p2) < 0
-                ? geometry::get_as_radian<0>(p2) + math::two_pi
+                ? geometry::get_as_radian<0>(p2) + two_pi
                 : geometry::get_as_radian<0>(p2);
 
             if (lon2 < lon1)

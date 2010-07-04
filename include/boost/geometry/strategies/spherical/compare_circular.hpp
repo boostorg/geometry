@@ -8,9 +8,12 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_COMPARE_SPHERICAL_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_COMPARE_SPHERICAL_HPP
 
+#include <boost/math/constants/constants.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/strategies/compare.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry
@@ -40,8 +43,8 @@ struct shift<degree>
 template <>
 struct shift<radian>
 {
-    static inline double full() { return geometry::math::two_pi; }
-    static inline double half() { return geometry::math::pi; }
+    static inline double full() { return 2.0 * boost::math::constants::pi<double>(); }
+    static inline double half() { return boost::math::constants::pi<double>(); }
 };
 
 } // namespace detail

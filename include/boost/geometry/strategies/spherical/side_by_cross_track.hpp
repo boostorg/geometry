@@ -16,6 +16,7 @@
 #include <boost/geometry/core/radian_access.hpp>
 
 #include <boost/geometry/util/select_coordinate_type.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/side.hpp>
 //#include <boost/geometry/strategies/concepts/side_concept.hpp>
