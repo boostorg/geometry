@@ -343,8 +343,8 @@ public :
 
         // Normalize the vectors -> this results in points+direction
         // and is comparible between geometries
-        coordinate_type const magnitude1 = std::sqrt(dx1 * dx1 + dy1 * dy1);
-        coordinate_type const magnitude2 = std::sqrt(dx2 * dx2 + dy2 * dy2);
+        coordinate_type const magnitude1 = sqrt(dx1 * dx1 + dy1 * dy1);
+        coordinate_type const magnitude2 = sqrt(dx2 * dx2 + dy2 * dy2);
 
         if (magnitude1 > m_zero && magnitude2 > m_zero)
         {

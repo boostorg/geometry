@@ -14,6 +14,8 @@
 #include <string>
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/geometry/util/math.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -109,7 +111,7 @@ public:
             :  (CardinalDir == south) ? 'S'
             : ' ');
 
-        value = std::fabs(value);
+        value = geometry::math::abs(value);
 
         // Calculate the values
         double fraction = 0;

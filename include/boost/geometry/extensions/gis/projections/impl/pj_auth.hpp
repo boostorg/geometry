@@ -74,9 +74,9 @@ inline double pj_authlat(double beta, const double* APA)
 {
     assert(0 != APA);
 
-    const double t = beta + beta;
+    double const t = beta + beta;
 
-    return(beta + APA[0] * std::sin(t) + APA[1] * std::sin(t + t) + APA[2] * std::sin(t + t + t));
+    return(beta + APA[0] * sin(t) + APA[1] * sin(t + t) + APA[2] * sin(t + t + t));
 }
 
 } // namespace detail

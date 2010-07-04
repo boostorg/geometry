@@ -41,6 +41,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/util/math.hpp>
+
+
 #include <boost/geometry/extensions/gis/projections/impl/pj_datum_set.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_datums.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_ell_set.hpp>
@@ -140,7 +143,7 @@ parameters pj_init(R const& arguments, bool use_defaults = true)
         && pin.datum_params[1] == 0.0
         && pin.datum_params[2] == 0.0
         && pin.a == 6378137.0
-        && fabs(pin.es - 0.006694379990) < 0.000000000050 )/*WGS84/GRS80*/
+        && geometry::math::abs(pin.es - 0.006694379990) < 0.000000000050 )/*WGS84/GRS80*/
     {
         pin.datum_type = PJD_WGS84;
     }

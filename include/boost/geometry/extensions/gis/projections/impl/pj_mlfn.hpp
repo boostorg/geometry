@@ -35,6 +35,10 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+
+#include <boost/geometry/util/math.hpp>
+
+
 namespace boost { namespace geometry { namespace projection {
 
 namespace detail {
@@ -93,7 +97,7 @@ inline double pj_inv_mlfn(double arg, double es, const double *en)
         s = sin(phi);
         t = 1. - es * s * s;
         phi -= t = (pj_mlfn(phi, s, cos(phi), en) - arg) * (t * sqrt(t)) * k;
-        if (fabs(t) < EPS)
+        if (geometry::math::abs(t) < EPS)
             return phi;
     }
     throw proj_exception(-17);

@@ -35,6 +35,10 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+
+#include <boost/geometry/util/math.hpp>
+
+
 namespace boost { namespace geometry { namespace projection
 {
 namespace detail
@@ -120,7 +124,7 @@ namespace detail
             t = 1. - b.es * s * s;
             phi -= t = (proj_mdist(phi, s, cos(phi), b) - dist) *
                 (t * sqrt(t)) * k;
-            if (fabs(t) < TOL) /* that is no change */
+            if (geometry::math::abs(t) < TOL) /* that is no change */
                 return phi;
         }
             /* convergence failed */
