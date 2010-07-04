@@ -38,6 +38,8 @@
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/iterators/range_type.hpp>
+#include <boost/geometry/util/math.hpp>
+
 
 #include <boost/geometry/strategies/intersection.hpp>
 

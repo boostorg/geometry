@@ -22,6 +22,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 #include <boost/geometry/algorithms/intersects.hpp>

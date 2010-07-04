@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/perimeter.hpp>
 
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 

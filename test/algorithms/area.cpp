@@ -7,6 +7,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
+#include <boost/math/constants/constants.hpp>
+
 #include <algorithms/test_area.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
@@ -47,7 +49,7 @@ void test_spherical()
     boost::geometry::polygon<Point> geometry;
 
     // unit-sphere has area of 4-PI. Polygon covering 1/8 of it:
-    double expected = 4.0 * boost::geometry::math::pi / 8.0;
+    double expected = 4.0 * boost::math::constants::pi<double>() / 8.0;
     boost::geometry::read_wkt("POLYGON((0 0,0 90,90 0,0 0))", geometry);
 
     double area = boost::geometry::area(geometry);

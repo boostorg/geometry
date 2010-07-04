@@ -9,6 +9,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_VINCENTY_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_VINCENTY_HPP
 
+#include <boost/math/constants/constants.hpp>
+
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/core/radian_access.hpp>
@@ -70,12 +72,16 @@ class vincenty
 
         inline return_type calculate(T1 const& lon1, T1 const& lat1, T2 const& lon2, T2 const& lat2) const
         {
+            namespace mc = boost::math::constants;
+
+            double const two_pi = 2.0 * mc::pi<double>();
+
             // lambda: difference in longitude on an auxiliary sphere
             double L = lon2 - lon1;
             double lambda = L;
 
-            if (L < -math::pi) L += math::two_pi;
-            if (L > math::pi) L -= math::two_pi;
+            if (L < -mc::pi<double>()) L += two_pi;
+            if (L > mc::pi<double>()) L -= two_pi;
 
             if (lat1 == lat2 && lon1 == lon2)
             {
@@ -120,7 +126,7 @@ class vincenty
                 lambda = L + (1.0 - C) * m_ellipsoid.f() * sin_alpha *
                     (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-1.0 + 2.0 * math::sqr(cos2_sigma_m)))); // (11)
 
-            } while (fabs(previous_lambda - lambda) > 1e-12 && fabs(lambda) < math::pi);
+            } while (fabs(previous_lambda - lambda) > 1e-12 && fabs(lambda) < mc::pi<double>());
 
             double sqr_u = cos2_alpha * (math::sqr(m_ellipsoid.a()) - math::sqr(m_ellipsoid.b())) / math::sqr(m_ellipsoid.b()); // above (1)
 
@@ -136,7 +142,7 @@ class vincenty
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-namespace services 
+namespace services
 {
 
 template <typename Point1, typename Point2>

@@ -9,6 +9,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP
 
 
+#include <boost/geometry/util/math.hpp>
+
 namespace boost { namespace geometry
 {
 

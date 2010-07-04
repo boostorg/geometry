@@ -80,23 +80,7 @@ inline bool equals(T1 const& a, T2 const& b)
 }
 
 
-// TODO: The idea is to replace "double const globals" with inline
-// template functions, so code/data is not generated if not necessary.
-// --mloskot
-//template <typename T>
-//inline T pi()
-//{
-//   return boost::math::constants::pi<T>();
-//}
-//
-//template <>
-//inline double pi<double>()
-//{
-//   return boost::math::constants::pi<double>();
-//}
-double const pi = boost::math::constants::pi<double>();
-double const two_pi = 2.0 * pi;
-double const d2r = pi / 180.0;
+double const d2r = boost::math::constants::pi<double>() / 180.0;
 double const r2d = 1.0 / d2r;
 
 /*!

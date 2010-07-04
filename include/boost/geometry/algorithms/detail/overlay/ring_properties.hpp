@@ -12,8 +12,8 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
-
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 

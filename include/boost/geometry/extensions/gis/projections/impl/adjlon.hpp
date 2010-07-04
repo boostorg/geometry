@@ -37,6 +37,8 @@
 
 #include <cmath>
 
+#include <boost/math/constants/constants.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
 namespace boost { namespace geometry { namespace projection
