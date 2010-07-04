@@ -149,12 +149,9 @@ struct close_to_segment
         {
             // Not outside, calculate dot product/square distance to segment.
             // Call corresponding strategy
-            typedef typename strategy_distance_segment
+            typedef typename strategy::distance::services::default_strategy
                 <
-                    typename cs_tag<P>::type,
-                    typename cs_tag<PS>::type,
-                    P,
-                    PS
+                    segment_tag, P, PS
                 >::type strategy_type;
             typedef typename strategy_type::return_type return_type;
 

@@ -25,11 +25,15 @@ namespace boost { namespace geometry
         from length, where distance is sqr/sqrt, but length always squared)
 
  */
+
+// TODO: rename to "default_distance_result" or services::default_result
+
 template <typename Geometry1, typename Geometry2>
 struct distance_result
 {
-    typedef typename default_distance_strategy
+    typedef typename strategy::distance::services::default_strategy
         <
+            point_tag,
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type
         >::type strategy_type;

@@ -44,12 +44,12 @@ inline typename distance_result<Geometry1, Geometry2>::type comparable_distance(
         <
             typename boost::mpl::if_c
                 <
-                    geometry::reverse_dispatch  
+                    geometry::reverse_dispatch
                         <Geometry1, Geometry2>::type::value,
-                    typename default_distance_strategy
-                            <point2_type, point1_type>::type,
-                    typename default_distance_strategy
-                            <point1_type, point2_type>::type
+                    typename strategy::distance::services::default_strategy
+                            <point_tag, point2_type, point1_type>::type,
+                    typename strategy::distance::services::default_strategy
+                            <point_tag, point1_type, point2_type>::type
                 >::type
         >::type strategy_type;
 

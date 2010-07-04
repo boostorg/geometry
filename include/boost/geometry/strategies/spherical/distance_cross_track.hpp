@@ -45,7 +45,7 @@ template
     typename Point,
     typename PointOfSegment = Point,
     typename CalculationType = void,
-    typename Strategy = typename default_distance_strategy<Point>::type
+    typename Strategy = typename services::default_strategy<point_tag, Point>::type
 >
 class cross_track
 {
@@ -209,6 +209,20 @@ public :
     }
 };
 
+template <typename Point, typename PointOfSegment>
+struct default_strategy<segment_tag, Point, PointOfSegment, spherical_tag, spherical_tag>
+{
+    typedef strategy::distance::cross_track<Point, PointOfSegment> type;
+};
+
+
+// Use this point-segment for geographic as well. TODO: change this, extension!
+template <typename Point, typename PointOfSegment>
+struct default_strategy<segment_tag, Point, PointOfSegment, geographic_tag, geographic_tag>
+{
+    typedef strategy::distance::cross_track<Point, PointOfSegment> type;
+};
+
 
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
@@ -217,30 +231,7 @@ public :
 }} // namespace strategy::distance
 
 
-
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-
-template <typename Point, typename Segment>
-struct strategy_distance_segment<spherical_tag, spherical_tag, Point, Segment>
-{
-    typedef strategy::distance::cross_track<Point, Segment> type;
-};
-
-
-// Use this point-segment for geographic as well. TODO: change this, extension!
-template <typename Point, typename PointOfSegment>
-struct strategy_distance_segment<geographic_tag, geographic_tag, Point, PointOfSegment>
-{
-    typedef strategy::distance::cross_track<Point, PointOfSegment> type;
-};
-
-
-template <typename Point, typename Segment>
-struct strategy_tag<strategy::distance::cross_track<Point, Segment> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
 
 
 #endif

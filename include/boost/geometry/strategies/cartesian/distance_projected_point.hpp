@@ -264,41 +264,28 @@ public :
 };
 
 
-} // namespace services
-#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-
-}} // namespace strategy::distance
-
-
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-
 template <typename Point, typename PointOfSegment>
-struct strategy_distance_segment<cartesian_tag, cartesian_tag, Point, PointOfSegment>
+struct default_strategy<segment_tag, Point, PointOfSegment, cartesian_tag, cartesian_tag>
 {
-    typedef typename point_type<PointOfSegment>::type segment_point_type;
-
     typedef strategy::distance::projected_point
     <
         Point,
         PointOfSegment,
         void,
-        typename strategy_distance
+        typename default_strategy
         <
-            cartesian_tag, cartesian_tag, Point, segment_point_type
+            point_tag, Point, PointOfSegment,
+            cartesian_tag, cartesian_tag
         >::type
     > type;
 };
-#endif
 
 
-template <typename Point, typename PointOfSegment, typename PPStrategy>
-struct strategy_tag<strategy::distance::projected_point<Point, PointOfSegment, PPStrategy> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+
+}} // namespace strategy::distance
 
 
 }} // namespace boost::geometry

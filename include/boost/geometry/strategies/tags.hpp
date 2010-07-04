@@ -27,17 +27,9 @@ namespace strategy
 }
 
 
-
-
-struct strategy_tag_unknown {};
 struct strategy_tag_distance_point_point {};
 struct strategy_tag_distance_point_segment {};
 
-template <typename T>
-struct strategy_tag
-{
-    typedef strategy_tag_unknown type;
-};
 
 }} // namespace boost::geometry
 

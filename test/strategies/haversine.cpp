@@ -66,7 +66,6 @@ struct test_distance
 template <typename Point>
 void test_all()
 {
-
     // earth to unit-sphere -> divide by earth circumference, then it is from 0-1,
     // then multiply with 2 PI, so effectively just divide by earth radius
     double e2u = 1.0 / average_earth_radius;
@@ -88,6 +87,15 @@ void test_all()
 template <typename P1, typename P2, typename CalculationType>
 void test_services()
 {
+    namespace bgsd = bg::strategy::distance;
+    namespace services = bg::strategy::distance::services;
+
+    {
+
+        // Compile-check if there is a strategy for this type
+        typedef services::default_strategy<bg::point_tag, P1, P2>::type haversine_strategy_type;
+    }
+
     P1 p1;
     bg::assign(p1, 4, 52);
 
@@ -102,10 +110,6 @@ void test_services()
     double const expected_lower = 460.0 * km;
     double const expected_higher = 470.0 * km;
 
-
-
-    namespace bgsd = bg::strategy::distance;
-    namespace services = bg::strategy::distance::services;
     // 1: normal, calculate distance:
 
     typedef bgsd::haversine<P1, P2, CalculationType> strategy_type;
@@ -162,6 +166,7 @@ void test_services()
     BOOST_CHECK(dist_lower < result && result < dist_higher);
 }
 
+/****
 template <typename P, typename Strategy>
 void time_compare_s(int const n)
 {
@@ -230,7 +235,7 @@ double time_normal(int n)
     std::cout << "Check: " << s << " Time: " << diff << std::endl;
     return diff;
 }
-
+***/
 
 int test_main(int, char* [])
 {
@@ -239,10 +244,10 @@ int test_main(int, char* [])
     test_all<bg::point<float, 2, bg::cs::spherical<bg::degree> > >();
     test_all<bg::point<double, 2, bg::cs::spherical<bg::degree> > >();
 
-    double t1 = time_sqrt(20000);
-    double t2 = time_normal(20000);
-    std::cout << "Factor: " << (t1 / t2) << std::endl;
-    time_compare<bg::point<double, 2, bg::cs::spherical<bg::radian> > >(10000);
+    //double t1 = time_sqrt(20000);
+    //double t2 = time_normal(20000);
+    //std::cout << "Factor: " << (t1 / t2) << std::endl;
+    //time_compare<bg::point<double, 2, bg::cs::spherical<bg::radian> > >(10000);
 
 #if defined(HAVE_TTMATH)
     typedef ttmath::Big<1,4> tt;

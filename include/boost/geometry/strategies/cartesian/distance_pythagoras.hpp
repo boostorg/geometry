@@ -298,35 +298,18 @@ public :
 };
 
 
+template <typename Point1, typename Point2>
+struct default_strategy<point_tag, Point1, Point2, cartesian_tag, cartesian_tag>
+{
+    typedef pythagoras<Point1, Point2> type;
+};
+
+
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace strategy::distance
-
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-template <typename Point1, typename Point2>
-struct strategy_distance<cartesian_tag, cartesian_tag, Point1, Point2>
-{
-    typedef strategy::distance::pythagoras<Point1, Point2> type;
-};
-
-
-template <typename Point1, typename Point2>
-struct strategy_tag<strategy::distance::pythagoras<Point1, Point2> >
-{
-    typedef strategy_tag_distance_point_point type;
-};
-
-template <typename Point1, typename Point2>
-struct strategy_tag<strategy::distance::comparable::pythagoras<Point1, Point2> >
-{
-    typedef strategy_tag_distance_point_point type;
-};
-
-
-#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
 }} // namespace boost::geometry

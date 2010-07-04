@@ -42,9 +42,9 @@ namespace strategy { namespace distance
         - http://futureboy.homeip.net/fsp/colorize.fsp?fileName=navigation.frink
 
 */
-template 
+template
 <
-    typename Point1, 
+    typename Point1,
     typename Point2 = Point1,
     typename CalculationType = void
 >
@@ -91,9 +91,9 @@ private :
     typedef return_type promoted_type;
     geometry::detail::ellipsoid m_ellipsoid;
 
-    inline return_type calculate(promoted_type const& lon1, 
-                promoted_type const& lat1, 
-                promoted_type const& lon2, 
+    inline return_type calculate(promoted_type const& lon1,
+                promoted_type const& lat1,
+                promoted_type const& lon2,
                 promoted_type const& lat2) const
     {
         namespace mc = boost::math::constants;
@@ -254,24 +254,11 @@ struct result_from_distance<vincenty<Point1, Point2> >
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
-
 // We might add a vincenty-like strategy also for point-segment distance, but to calculate the projected point is not trivial
 
 
 
 }} // namespace strategy::distance
-
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-template <typename Point1, typename Point2>
-struct strategy_tag<strategy::distance::vincenty<Point1, Point2> >
-{
-    typedef strategy_tag_distance_point_point type;
-};
-
-
-#endif
 
 
 }} // namespace boost::geometry

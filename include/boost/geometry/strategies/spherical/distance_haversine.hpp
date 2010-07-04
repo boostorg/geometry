@@ -278,35 +278,20 @@ public :
 };
 
 
-} // namespace services
-#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-
-}} // namespace strategy::distance
-
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+// Register it as the default for point-types in a spherical coordinate system
 template <typename Point1, typename Point2>
-struct strategy_distance<spherical_tag, spherical_tag, Point1, Point2>
+struct default_strategy<point_tag, Point1, Point2, spherical_tag, spherical_tag>
 {
     typedef strategy::distance::haversine<Point1, Point2> type;
 };
 
 
-template <typename Point1, typename Point2>
-struct strategy_tag<strategy::distance::haversine<Point1, Point2> >
-{
-    typedef strategy_tag_distance_point_point type;
-};
 
-template <typename Point1, typename Point2>
-struct strategy_tag<strategy::distance::comparable::haversine<Point1, Point2> >
-{
-    typedef strategy_tag_distance_point_point type;
-};
-
-
+} // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+
+}} // namespace strategy::distance
 
 
 }} // namespace boost::geometry

@@ -47,7 +47,7 @@ struct perimeter : detail::calculate_null
 
 template <typename Geometry, typename Strategy>
 struct perimeter<ring_tag, Geometry, Strategy>
-    : detail::length::range_length<Geometry, Strategy, 
+    : detail::length::range_length<Geometry, Strategy,
     closure<Geometry>::value == open>
 {};
 
@@ -62,7 +62,7 @@ struct perimeter<polygon_tag, Polygon, Strategy>
                 <
                     typename ring_type<Polygon>::type,
                     Strategy,
-					closure<Polygon>::value == open
+                    closure<Polygon>::value == open
                 >
         >
 {};
@@ -90,13 +90,9 @@ inline typename length_result<Geometry>::type perimeter(
     concept::check<Geometry const>();
 
     typedef typename point_type<Geometry>::type point_type;
-    typedef typename cs_tag<point_type>::type cs_tag;
-    typedef typename strategy_distance
+    typedef typename strategy::distance::services::default_strategy
         <
-            cs_tag,
-            cs_tag,
-            point_type,
-            point_type
+            point_tag, point_type
         >::type strategy_type;
 
     return dispatch::perimeter

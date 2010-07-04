@@ -89,8 +89,8 @@ struct range_length
         iterator_type it = boost::begin(view), end = boost::end(view);
         if(it != end)
         {
-            for(iterator_type previous = it++; 
-                    it != end; 
+            for(iterator_type previous = it++;
+                    it != end;
                     ++previous, ++it)
             {
                 // Add point-point distance using the return type belonging
@@ -162,14 +162,9 @@ inline typename length_result<Geometry>::type length(
 {
     concept::check<Geometry const>();
 
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename cs_tag<point_type>::type cs_tag;
-    typedef typename strategy_distance
+    typedef typename strategy::distance::services::default_strategy
         <
-            cs_tag,
-            cs_tag,
-            point_type,
-            point_type
+            point_tag, typename point_type<Geometry>::type
         >::type strategy_type;
 
     return dispatch::length

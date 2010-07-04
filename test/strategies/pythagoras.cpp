@@ -109,6 +109,15 @@ void test_arbitrary_3d()
 template <typename P1, typename P2, typename CalculationType>
 void test_services()
 {
+    namespace bgsd = boost::geometry::strategy::distance;
+    namespace services = boost::geometry::strategy::distance::services;
+
+    {
+
+        // Compile-check if there is a strategy for this type
+        typedef services::default_strategy<bg::point_tag, P1, P2>::type pythagoras_strategy_type;
+    }
+
 
     P1 p1;
     bg::assign(p1, 1, 2, 3);
@@ -119,9 +128,6 @@ void test_services()
     double const sqr_expected = 3*3 + 3*3 + 3*3; // 27
     double const expected = sqrt(sqr_expected); // sqrt(27)=5.1961524227
 
-
-    namespace bgsd = boost::geometry::strategy::distance;
-    namespace services = boost::geometry::strategy::distance::services;
     // 1: normal, calculate distance:
 
     typedef bgsd::pythagoras<P1, P2, CalculationType> strategy_type;
