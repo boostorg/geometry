@@ -168,15 +168,17 @@ namespace detail
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_Cartesian_coordinates
 
+#if defined(BOOST_GEOMETRY_TRANSFORM_CHECK_UNIT_SPHERE)
         // TODO: MAYBE ONLY IF TO BE CHECKED?
-        double const r = std::sqrt(x * x + y * y + z * z);
+        double const r = /*std::sqrt not necessary, sqrt(1)=1*/ (x * x + y * y + z * z);
 
         // Unit sphere, so r should be 1
-        if (! geometry::math::equals(r, 1))
+        if (geometry::math::abs(r - 1.0) > double(1e-6))
         {
             return false;
         }
         // end todo
+#endif
 
         set_from_radian<0>(p, std::atan2(y, x));
         set_from_radian<1>(p, std::acos(z));
