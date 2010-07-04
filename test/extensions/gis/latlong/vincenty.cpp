@@ -18,6 +18,11 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <test_common/test_point.hpp>
 
+#ifdef HAVE_TTMATH
+#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+#endif
+
+
 
 template <typename P1, typename P2>
 void test_vincenty(double lon1, double lat1, double lon2, double lat2, double expected_km)
@@ -27,6 +32,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
     BOOST_CONCEPT_ASSERT( (boost::geometry::concept::PointDistanceStrategy<vincenty_type>) );
 
     vincenty_type vincenty;
+    typedef typename vincenty_type::return_type return_type;
 
 
     P1 p1, p2;
@@ -34,13 +40,13 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
     boost::geometry::assign(p1, lon1, lat1);
     boost::geometry::assign(p2, lon2, lat2);
 
-    BOOST_CHECK_CLOSE(double(vincenty.apply(p1, p2)), 1000.0 * expected_km, 0.001);
+    BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(1000.0) * return_type(expected_km), 0.001);
 }
 
 template <typename P1, typename P2>
 void test_all()
 {
-    test_vincenty<P1, P2>(0, 90, 1, 80, 1116.814237); // polar
+    test_vincenty<P1, P2>(0, 90, 1, 80, 1116.828862); // polar
     test_vincenty<P1, P2>(4, 52, 4, 52, 0.0); // no point difference
     test_vincenty<P1, P2>(4, 52, 3, 40, 1336.039890); // normal case
 }
@@ -58,8 +64,15 @@ int test_main(int, char* [])
 
     //test_all<float[2]>();
     //test_all<double[2]>();
-    test_all<point<float, 2, geographic<degree> > >();
+    test_all<point<int, 2, geographic<degree> > >();
+    //test_all<point<float, 2, geographic<degree> > >();
     test_all<point<double, 2, geographic<degree> > >();
+
+#if defined(HAVE_TTMATH)
+    test_all<point<ttmath::Big<1,4>, 2, geographic<degree> > >();
+    test_all<point<ttmath_big, 2, geographic<degree> > >();
+#endif
+
 
     return 0;
 }
