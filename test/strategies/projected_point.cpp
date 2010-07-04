@@ -37,8 +37,8 @@ void test_services()
     P p;
     bg::assign(p, 2, 0);
 
-    double const sqr_expected = 4; 
-    double const expected = 2;
+    CalculationType const sqr_expected = 4; 
+    CalculationType const expected = 2;
 
 
     namespace bgsd = bg::strategy::distance;
@@ -102,8 +102,9 @@ void test_all_2d()
 
 
     strategy_type strategy;
-    typename strategy_type::return_type d = strategy.apply(p, sp1, sp2);
-    BOOST_CHECK_CLOSE(d, 0.27735203958327, 0.001);
+    typedef typename strategy_type::return_type return_type;
+    return_type d = strategy.apply(p, sp1, sp2);
+    BOOST_CHECK_CLOSE(d, return_type(0.27735203958327), 0.001);
 }
 
 
