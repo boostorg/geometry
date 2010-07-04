@@ -106,6 +106,7 @@ struct PointDistanceStrategy
 
                 boost::ignore_unused_variable_warning(s);
                 boost::ignore_unused_variable_warning(c);
+                boost::ignore_unused_variable_warning(r);
             }
         };
 
