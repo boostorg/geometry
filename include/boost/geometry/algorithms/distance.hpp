@@ -143,7 +143,7 @@ struct point_to_range
             else if (ds < d)
             {
                 d = ds;
-                return_type rd = ps_strategy.apply(point, *prev, *it);
+                rd = ps_strategy.apply(point, *prev, *it);
             }
             prev = it++;
         }
