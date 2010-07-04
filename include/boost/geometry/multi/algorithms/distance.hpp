@@ -34,31 +34,26 @@ template<typename Geometry, typename MultiGeometry, typename Strategy>
 struct distance_single_to_multi
 {
     typedef typename Strategy::return_type return_type;
+
     static inline return_type apply(Geometry const& geometry,
                 MultiGeometry const& multi,
                 Strategy const& strategy)
     {
         using namespace boost;
 
-        return_type mindist = make_distance_result<return_type>(
-                numeric::bounds
-                    <
-                        typename select_coordinate_type
-                            <
-                                Geometry,
-                                MultiGeometry
-                            >::type
-                    >::highest());
+        bool first = true;
+        return_type mindist;
 
         for(typename range_iterator<MultiGeometry const>::type it = begin(multi);
                 it != end(multi);
                 ++it)
         {
             return_type dist = geometry::distance(geometry, *it);
-            if (dist < mindist)
+            if (first || dist < mindist)
             {
                 mindist = dist;
             }
+            first = false;
         }
 
         return mindist;
@@ -75,15 +70,8 @@ struct distance_multi_to_multi
     {
         using namespace boost;
 
-        return_type mindist = make_distance_result<return_type>(
-                numeric::bounds
-                    <
-                        typename select_coordinate_type
-                            <
-                                Multi1,
-                                Multi2
-                            >::type
-                    >::highest());
+        bool first = true;
+        return_type mindist;
 
         for(typename range_iterator<Multi1 const>::type it = begin(multi1);
                 it != end(multi1);
@@ -95,10 +83,11 @@ struct distance_multi_to_multi
                     Multi2,
                     Strategy
                 >::apply(*it, multi2, strategy);
-            if (dist < mindist)
+            if (first || dist < mindist)
             {
                 mindist = dist;
             }
+            first = false;
         }
 
         return mindist;
