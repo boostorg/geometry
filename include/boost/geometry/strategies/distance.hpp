@@ -64,7 +64,7 @@ struct default_distance_strategy
 template 
 <
     typename Point, 
-    typename PointOfSegment,
+    typename PointOfSegment = Point,
     typename Tag1 = typename cs_tag<Point>::type,
     typename Tag2 = typename cs_tag<PointOfSegment>::type
 >
