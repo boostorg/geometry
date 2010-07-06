@@ -32,7 +32,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
     BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<vincenty_type>) );
 
     vincenty_type vincenty;
-    typedef bg::strategy::distance::services::return_type<vincenty_type>::type return_type;
+    typedef typename bg::strategy::distance::services::return_type<vincenty_type>::type return_type;
 
 
     P1 p1, p2;
