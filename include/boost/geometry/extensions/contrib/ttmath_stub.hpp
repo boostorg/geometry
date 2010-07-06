@@ -7,70 +7,70 @@
 #include <ttmath/ttmath.h>
 namespace ttmath
 {
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> sqrt(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> sqrt(Big<Exponent, Mantissa> const& v)
     {
         return Sqrt(v);
     }
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> abs(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> abs(Big<Exponent, Mantissa> const& v)
     {
         return Abs(v);
     }
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> ceil(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> ceil(Big<Exponent, Mantissa> const& v)
     {
         return Ceil(v);
     }
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> floor(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> floor(Big<Exponent, Mantissa> const& v)
     {
         return Floor(v);
     }
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> asin(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> asin(Big<Exponent, Mantissa> const& v)
     {
         return ASin(v);
     }
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> sin(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> sin(Big<Exponent, Mantissa> const& v)
     {
         return Sin(v);
     }
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> cos(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> cos(Big<Exponent, Mantissa> const& v)
     {
         return Cos(v);
     }
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> tan(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> tan(Big<Exponent, Mantissa> const& v)
     {
         return Tan(v);
     }
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> atan(Big<Mantissa, Exponent> const& v)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> atan(Big<Exponent, Mantissa> const& v)
     {
         return ATan(v);
     }
 
 
-    template <uint Mantissa, uint Exponent>
-    inline Big<Mantissa, Exponent> atan2(Big<Mantissa, Exponent> const& y, Big<Mantissa, Exponent> const& x)
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> atan2(Big<Exponent, Mantissa> const& y, Big<Exponent, Mantissa> const& x)
     {
         // return ATan2(y, 2); does not (yet) exist in ttmath...
 
         // See http://en.wikipedia.org/wiki/Atan2
 
-        Big<Mantissa, Exponent> const zero(0);
-        Big<Mantissa, Exponent> const two(2);
+        Big<Exponent, Mantissa> const zero(0);
+        Big<Exponent, Mantissa> const two(2);
 
         if (y == zero)
         {
@@ -109,14 +109,14 @@ struct ttmath_big : ttmath::Big<1,4>
 
 namespace boost{ namespace math { namespace constants
 {
-    // Workaround for boost::math::constants::pi: 
+    // Workaround for boost::math::constants::pi:
     // 1) lexical cast -> stack overflow and
     // 2) because it is implemented as a function, generic implementation not possible
 
-    template <ttmath::uint Mantissa, ttmath::uint Exponent>
-    inline ttmath::Big<Mantissa, Exponent> ttmath_pi()
+    template <ttmath::uint Exponent, ttmath::uint Mantissa>
+    inline ttmath::Big<Exponent, Mantissa> ttmath_pi()
     {
-        static ttmath::Big<Mantissa, Exponent> const the_pi("3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196");
+        static ttmath::Big<Exponent, Mantissa> const the_pi("3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196");
         return the_pi;
     }
 

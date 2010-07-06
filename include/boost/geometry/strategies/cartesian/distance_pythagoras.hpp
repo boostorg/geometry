@@ -86,9 +86,6 @@ struct pythagoras
                 CalculationType
             >::type calculation_type;
 
-    typedef Point1 first_point_type;
-    typedef Point2 second_point_type;
-
     static inline calculation_type apply(Point1 const& p1, Point2 const& p2)
     {
         BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point1>) );
@@ -132,9 +129,6 @@ struct pythagoras
         <
             typename services::return_type<comparable_type>::type
         >::type calculation_type;
-
-    typedef Point1 first_point_type;
-    typedef Point2 second_point_type;
 
     static inline calculation_type apply(Point1 const& p1, Point2 const& p2)
     {

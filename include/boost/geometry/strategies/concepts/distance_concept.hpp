@@ -20,6 +20,40 @@
 namespace boost { namespace geometry { namespace concept
 {
 
+namespace detail
+{
+
+template <typename Strategy> struct first_point_type {};
+template <typename Strategy> struct second_point_type {};
+
+// Specializations for strategies having P1,P2,CalculationType
+template <template <typename, typename, typename> class Strategy, typename P1, typename P2, typename C>
+struct first_point_type<Strategy<P1, P2, C> >
+{
+    typedef P1 type;
+};
+
+template <template <typename, typename, typename> class Strategy, typename P1, typename P2, typename C>
+struct second_point_type<Strategy<P1, P2, C> >
+{
+    typedef P2 type;
+};
+
+
+// Specializations for strategies having P1,P2
+template <template <typename, typename> class Strategy, typename P1, typename P2>
+struct first_point_type<Strategy<P1, P2> >
+{
+    typedef P1 type;
+};
+
+template <template <typename, typename> class Strategy, typename P1, typename P2>
+struct second_point_type<Strategy<P1, P2> >
+{
+    typedef P2 type;
+};
+
+}
 
 /*!
     \brief Checks strategy for point-segment-distance
@@ -31,24 +65,43 @@ struct PointDistanceStrategy
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
     private :
 
-        // 1) must define first_point_type
-        typedef typename Strategy::first_point_type ptype1;
+        // Helper to get first_point_type
+        //typedef typename Strategy::first_point_type ptype1;
+        typedef typename detail::first_point_type<Strategy>::type ptype1;
         BOOST_CONCEPT_ASSERT
             (
                 (concept::ConstPoint<ptype1>)
             );
 
-        // 2) must define second_point_type
-        typedef typename Strategy::second_point_type ptype2;
+        // Helper to get second_point_type
+        typedef typename detail::second_point_type<Strategy>::type ptype2;
         BOOST_CONCEPT_ASSERT
             (
                 (concept::ConstPoint<ptype2>)
             );
 
-        // 3) must define meta-function return_type
+        // 1) must define meta-function return_type
         typedef typename strategy::distance::services::return_type<Strategy>::type rtype;
 
-        // 4) must implement apply with arguments
+        // 2) must define meta-function "similar_type"
+        typedef typename strategy::distance::services::similar_type
+            <
+                Strategy, ptype2, ptype1
+            >::type stype;
+
+        // 3) must define meta-function "comparable_type"
+        typedef typename strategy::distance::services::comparable_type
+            <
+                Strategy
+            >::type ctype;
+
+        // 4) must define meta-function "tag"
+        typedef typename strategy::distance::services::tag
+            <
+                Strategy
+            >::type tag;
+
+        // 5) must implement apply with arguments
         struct apply_checker
         {
             static void check()
@@ -63,28 +116,9 @@ struct PointDistanceStrategy
             }
         };
 
-        // 5) must define meta-function "similar_type"
-        typedef typename strategy::distance::services::similar_type
-            <
-                Strategy, ptype2, ptype1
-            >::type stype;
-
-        // 6) must define meta-function "comparable_type"
-        typedef typename strategy::distance::services::comparable_type
-            <
-                Strategy
-            >::type ctype;
-
-        // 6) must define meta-function "tag"
-        typedef typename strategy::distance::services::tag
-            <
-                Strategy
-            >::type tag;
-
-
-        // 7) must define (meta)struct "get_similar" with apply
-        // 8) must define (meta)struct "get_comparable" with apply
-        // 9) must define (meta)struct "result_from_distance" with apply
+        // 6) must define (meta)struct "get_similar" with apply
+        // 7) must define (meta)struct "get_comparable" with apply
+        // 8) must define (meta)struct "result_from_distance" with apply
         struct services_checker
         {
             static void check()
