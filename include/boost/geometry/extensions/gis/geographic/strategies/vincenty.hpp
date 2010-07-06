@@ -207,6 +207,13 @@ struct tag<strategy::distance::vincenty<Point1, Point2> >
 };
 
 
+template <typename Point1, typename Point2>
+struct return_type<strategy::distance::vincenty<Point1, Point2> >
+{
+    typedef typename strategy::distance::vincenty<Point1, Point2>::return_type type;
+};
+
+
 template <typename Point1, typename Point2, typename P1, typename P2>
 struct similar_type<vincenty<Point1, Point2>, P1, P2>
 {

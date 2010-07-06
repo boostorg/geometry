@@ -136,6 +136,13 @@ struct tag<strategy::distance::andoyer<Point1, Point2> >
 };
 
 
+template <typename Point1, typename Point2>
+struct return_type<strategy::distance::andoyer<Point1, Point2> >
+{
+    typedef typename strategy::distance::andoyer<Point1, Point2>::return_type type;
+};
+
+
 template <typename Point1, typename Point2, typename P1, typename P2>
 struct similar_type<andoyer<Point1, Point2>, P1, P2>
 {
@@ -172,7 +179,7 @@ template <typename Point1, typename Point2>
 struct result_from_distance<andoyer<Point1, Point2> >
 {
     template <typename T>
-    static inline typename andoyer<Point1, Point2>::return_type apply(andoyer<Point1, Point2> const& , T const& value)
+    static inline typename return_type<andoyer<Point1, Point2> >::type apply(andoyer<Point1, Point2> const& , T const& value)
     {
         return value;
     }

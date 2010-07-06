@@ -84,12 +84,12 @@ struct pythagoras
                 Point1,
                 Point2,
                 CalculationType
-            >::type return_type;
+            >::type calculation_type;
 
     typedef Point1 first_point_type;
     typedef Point2 second_point_type;
 
-    static inline return_type apply(Point1 const& p1, Point2 const& p2)
+    static inline calculation_type apply(Point1 const& p1, Point2 const& p2)
     {
         BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point1>) );
         BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point2>) );
@@ -103,7 +103,7 @@ struct pythagoras
             <
                 Point1, Point2,
                 dimension<Point1>::value,
-                return_type
+                calculation_type
             >::apply(p1, p2);
     }
 };
@@ -130,15 +130,15 @@ struct pythagoras
     typedef comparable::pythagoras<Point1, Point2, CalculationType> comparable_type;
     typedef typename promote_floating_point
         <
-            typename comparable_type::return_type
-        >::type return_type;
+            typename services::return_type<comparable_type>::type
+        >::type calculation_type;
 
     typedef Point1 first_point_type;
     typedef Point2 second_point_type;
 
-    static inline return_type apply(Point1 const& p1, Point2 const& p2)
+    static inline calculation_type apply(Point1 const& p1, Point2 const& p2)
     {
-        return_type const t = comparable_type::apply(p1, p2);
+        calculation_type const t = comparable_type::apply(p1, p2);
         return sqrt(t);
     }
 };
@@ -152,6 +152,13 @@ template <typename Point1, typename Point2, typename CalculationType>
 struct tag<pythagoras<Point1, Point2, CalculationType> >
 {
     typedef strategy_tag_distance_point_point type;
+};
+
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct return_type<pythagoras<Point1, Point2, CalculationType> >
+{
+    typedef typename pythagoras<Point1, Point2, CalculationType>::calculation_type type;
 };
 
 
@@ -212,7 +219,7 @@ template <typename Point1, typename Point2, typename CalculationType>
 struct result_from_distance<pythagoras<Point1, Point2, CalculationType> >
 {
 private :
-    typedef typename pythagoras<Point1, Point2, CalculationType>::return_type return_type;
+    typedef typename return_type<pythagoras<Point1, Point2, CalculationType> >::type return_type;
 public :
     template <typename T>
     static inline return_type apply(pythagoras<Point1, Point2, CalculationType> const& , T const& value)
@@ -228,6 +235,15 @@ struct tag<comparable::pythagoras<Point1, Point2, CalculationType> >
 {
     typedef strategy_tag_distance_point_point type;
 };
+
+
+template <typename Point1, typename Point2, typename CalculationType>
+struct return_type<comparable::pythagoras<Point1, Point2, CalculationType> >
+{
+    typedef typename comparable::pythagoras<Point1, Point2, CalculationType>::calculation_type type;
+};
+
+
 
 
 template
@@ -287,7 +303,7 @@ template <typename Point1, typename Point2, typename CalculationType>
 struct result_from_distance<comparable::pythagoras<Point1, Point2, CalculationType> >
 {
 private :
-    typedef typename comparable::pythagoras<Point1, Point2, CalculationType>::return_type return_type;
+    typedef typename return_type<comparable::pythagoras<Point1, Point2, CalculationType> >::type return_type;
 public :
     template <typename T>
     static inline return_type apply(comparable::pythagoras<Point1, Point2, CalculationType> const& , T const& value)

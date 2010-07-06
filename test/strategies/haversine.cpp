@@ -41,7 +41,7 @@ struct test_distance
     BOOST_CONCEPT_ASSERT( (boost::geometry::concept::PointDistanceStrategy<haversine_type>) );
 
 
-    typedef typename haversine_type::return_type return_type;
+    typedef typename bg::strategy::distance::services::return_type<haversine_type>::type return_type;
 
     BOOST_CONCEPT_ASSERT
         (
@@ -113,7 +113,7 @@ void test_services()
     // 1: normal, calculate distance:
 
     typedef bgsd::haversine<P1, P2, CalculationType> strategy_type;
-    typedef typename strategy_type::return_type return_type;
+    typedef typename bgsd::services::return_type<strategy_type>::type return_type;
 
     strategy_type strategy(average_earth_radius);
     return_type result = strategy.apply(p1, p2);

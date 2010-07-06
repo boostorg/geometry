@@ -46,7 +46,7 @@ inline bool point_in_circle(P const& p, C const& c)
         <
             point_tag, P, point_type
         >::type strategy_type;
-    typedef typename strategy_type::return_type return_type;
+    typedef typename strategy::distance::services::return_type<strategy_type>::type return_type;
 
     P const center = geometry::make<P>(get<0>(c), get<1>(c));
     return_type const r = geometry::distance(p, center);

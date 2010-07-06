@@ -33,7 +33,7 @@ namespace detail { namespace distance
 template<typename Geometry, typename MultiGeometry, typename Strategy>
 struct distance_single_to_multi
 {
-    typedef typename Strategy::return_type return_type;
+    typedef typename strategy::distance::services::return_type<Strategy>::type return_type;
 
     static inline return_type apply(Geometry const& geometry,
                 MultiGeometry const& multi,
@@ -63,7 +63,7 @@ struct distance_single_to_multi
 template<typename Multi1, typename Multi2, typename Strategy>
 struct distance_multi_to_multi
 {
-    typedef typename Strategy::return_type return_type;
+    typedef typename strategy::distance::services::return_type<Strategy>::type return_type;
 
     static inline return_type apply(Multi1 const& multi1,
                 Multi2 const& multi2, Strategy const& strategy)

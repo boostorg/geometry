@@ -74,7 +74,7 @@ public :
             PointOfSegment
         >::type coordinate_type;
 
-    typedef typename Strategy::return_type return_type;
+    typedef typename strategy::distance::services::return_type<Strategy>::type return_type;
 
     typedef Strategy point_strategy_type;
 
@@ -183,6 +183,13 @@ struct tag<projected_point<Point, PointOfSegment, CalculationType, Strategy> >
 };
 
 
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct return_type<projected_point<Point, PointOfSegment, CalculationType, Strategy> >
+{
+    typedef typename projected_point<Point, PointOfSegment, CalculationType, Strategy>::return_type type;
+};
+
+
 template
 <
     typename Point,
@@ -253,7 +260,7 @@ template <typename Point, typename PointOfSegment, typename CalculationType, typ
 struct result_from_distance<projected_point<Point, PointOfSegment, CalculationType, Strategy> >
 {
 private :
-    typedef typename projected_point<Point, PointOfSegment, CalculationType, Strategy>::return_type return_type;
+    typedef typename return_type<projected_point<Point, PointOfSegment, CalculationType, Strategy> >::type return_type;
 public :
     template <typename T>
     static inline return_type apply(projected_point<Point, PointOfSegment, CalculationType, Strategy> const& , T const& value)

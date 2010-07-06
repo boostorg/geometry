@@ -134,23 +134,17 @@ private :
 namespace services
 {
 
-template <typename Point, typename PointOfSegment>
-struct tag<cross_track<Point, PointOfSegment> >
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct tag<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
     typedef strategy_tag_distance_point_segment type;
 };
 
 
-template
-<
-    typename Point,
-    typename PointOfSegment,
-    typename P,
-    typename PS
->
-struct similar_type<cross_track<Point, PointOfSegment>, P, PS>
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct return_type<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
-    typedef cross_track<Point, PointOfSegment> type;
+    typedef typename cross_track<Point, PointOfSegment, CalculationType, Strategy>::return_type type;
 };
 
 
@@ -158,52 +152,75 @@ template
 <
     typename Point,
     typename PointOfSegment,
+    typename CalculationType,
+    typename Strategy,
     typename P,
     typename PS
 >
-struct get_similar<cross_track<Point, PointOfSegment>, P, PS>
+struct similar_type<cross_track<Point, PointOfSegment, CalculationType, Strategy>, P, PS>
+{
+    typedef cross_track<Point, PointOfSegment, CalculationType, Strategy> type;
+};
+
+
+template
+<
+    typename Point,
+    typename PointOfSegment,
+    typename CalculationType, 
+    typename Strategy,
+    typename P,
+    typename PS
+>
+struct get_similar<cross_track<Point, PointOfSegment, CalculationType, Strategy>, P, PS>
 {
     static inline typename similar_type
         <
-            cross_track<Point, PointOfSegment>, P, PS
-        >::type apply(cross_track<Point, PointOfSegment> const& strategy)
+            cross_track<Point, PointOfSegment, CalculationType, Strategy>, P, PS
+        >::type apply(cross_track<Point, PointOfSegment, CalculationType, Strategy> const& strategy)
     {
-        return cross_track<P, PS>(strategy.radius());
+        return cross_track<P, PS, CalculationType, Strategy>(strategy.radius());
     }
 };
 
 
-template <typename Point, typename PointOfSegment>
-struct comparable_type<cross_track<Point, PointOfSegment> >
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct comparable_type<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
     // Comparable type is here just the strategy
-    typedef typename similar_type<cross_track<Point, PointOfSegment>, Point, PointOfSegment>::type type;
+    typedef typename similar_type
+        <
+            cross_track
+                <
+                    Point, PointOfSegment, CalculationType, Strategy
+                >, Point, PointOfSegment
+        >::type type;
 };
 
 
-template <typename Point, typename PointOfSegment>
-struct get_comparable<cross_track<Point, PointOfSegment> >
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct get_comparable<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
     typedef typename comparable_type
         <
-            cross_track<Point, PointOfSegment>
+            cross_track<Point, PointOfSegment, CalculationType, Strategy>
         >::type comparable_type;
 public :
-    static inline comparable_type apply(cross_track<Point, PointOfSegment> const& strategy)
+    static inline comparable_type apply(cross_track<Point, PointOfSegment, CalculationType, Strategy> const& strategy)
     {
         return comparable_type(strategy.radius());
     }
 };
 
 
-template <typename Point, typename PointOfSegment>
-struct result_from_distance<cross_track<Point, PointOfSegment> >
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct result_from_distance<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
 private :
-    typedef typename cross_track<Point, PointOfSegment>::return_type return_type;
+    typedef typename cross_track<Point, PointOfSegment, CalculationType, Strategy>::return_type return_type;
 public :
     template <typename T>
-    static inline return_type apply(cross_track<Point, PointOfSegment> const& , T const& distance)
+    static inline return_type apply(cross_track<Point, PointOfSegment, CalculationType, Strategy> const& , T const& distance)
     {
         return distance;
     }
@@ -212,7 +229,7 @@ public :
 template <typename Point, typename PointOfSegment>
 struct default_strategy<segment_tag, Point, PointOfSegment, spherical_tag, spherical_tag>
 {
-    typedef strategy::distance::cross_track<Point, PointOfSegment> type;
+    typedef cross_track<Point, PointOfSegment> type;
 };
 
 
@@ -220,7 +237,7 @@ struct default_strategy<segment_tag, Point, PointOfSegment, spherical_tag, spher
 template <typename Point, typename PointOfSegment>
 struct default_strategy<segment_tag, Point, PointOfSegment, geographic_tag, geographic_tag>
 {
-    typedef strategy::distance::cross_track<Point, PointOfSegment> type;
+    typedef cross_track<Point, PointOfSegment> type;
 };
 
 

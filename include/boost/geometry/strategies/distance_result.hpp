@@ -31,14 +31,15 @@ namespace boost { namespace geometry
 template <typename Geometry1, typename Geometry2>
 struct distance_result
 {
-    typedef typename strategy::distance::services::default_strategy
+    typedef typename strategy::distance::services::return_type
         <
-            point_tag,
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type
-        >::type strategy_type;
-
-    typedef typename strategy_type::return_type type;
+            typename strategy::distance::services::default_strategy
+                <
+                    point_tag,
+                    typename point_type<Geometry1>::type,
+                    typename point_type<Geometry2>::type
+                >::type
+        >::type type;
 };
 
 
