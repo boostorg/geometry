@@ -45,8 +45,8 @@ struct PointDistanceStrategy
                 (concept::ConstPoint<ptype2>)
             );
 
-        // 3) must define return_type
-        typedef typename Strategy::return_type rtype;
+        // 3) must define meta-function return_type
+        typedef typename strategy::distance::services::return_type<Strategy>::type rtype;
 
         // 4) must implement apply with arguments
         struct apply_checker
@@ -145,8 +145,8 @@ struct PointSegmentDistanceStrategy
                 (concept::ConstPoint<sptype>)
             );
 
-        // 3) must define return_type
-        typedef typename Strategy::return_type rtype;
+        // 3) must define meta-function return_type
+        typedef typename strategy::distance::services::return_type<Strategy>::type rtype;
 
         // 4) must define underlying point-distance-strategy
         typedef typename Strategy::point_strategy_type stype;

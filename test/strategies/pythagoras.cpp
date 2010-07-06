@@ -45,7 +45,7 @@ void test_null_distance_3d()
     bg::assign(p2, 1, 2, 3);
 
     typedef bg::strategy::distance::pythagoras<P1, P2> pythagoras_type;
-    typedef typename pythagoras_type::return_type return_type;
+    typedef typename bg::strategy::distance::services::return_type<pythagoras_type>::type return_type;
 
     pythagoras_type pythagoras;
     return_type result = pythagoras.apply(p1, p2);
@@ -62,7 +62,7 @@ void test_axis_3d()
     bg::assign(p2, 1, 0, 0);
 
     typedef bg::strategy::distance::pythagoras<P1, P2> pythagoras_type;
-    typedef typename pythagoras_type::return_type return_type;
+    typedef typename bg::strategy::distance::services::return_type<pythagoras_type>::type return_type;
 
     pythagoras_type pythagoras;
 
@@ -88,7 +88,7 @@ void test_arbitrary_3d()
 
     {
         typedef bg::strategy::distance::pythagoras<P1, P2> strategy_type;
-        typedef typename strategy_type::return_type return_type;
+        typedef typename bg::strategy::distance::services::return_type<strategy_type>::type return_type;
 
         strategy_type strategy;
         return_type result = strategy.apply(p1, p2);
@@ -98,7 +98,7 @@ void test_arbitrary_3d()
     {
         // Check comparable distance
         typedef bg::strategy::distance::comparable::pythagoras<P1, P2> strategy_type;
-        typedef typename strategy_type::return_type return_type;
+        typedef typename bg::strategy::distance::services::return_type<strategy_type>::type return_type;
 
         strategy_type strategy;
         return_type result = strategy.apply(p1, p2);
@@ -134,7 +134,7 @@ void test_services()
 
     BOOST_CONCEPT_ASSERT( (boost::geometry::concept::PointDistanceStrategy<strategy_type>) );
 
-    typedef typename strategy_type::return_type return_type;
+    typedef typename bgsd::services::return_type<strategy_type>::type return_type;
 
     strategy_type strategy;
     return_type result = strategy.apply(p1, p2);
@@ -192,7 +192,7 @@ void test_big_2d_with(AssignType const& x1, AssignType const& y1,
         > pythagoras_type;
 
     pythagoras_type pythagoras;
-    typedef typename pythagoras_type::return_type return_type;
+    typedef typename bg::strategy::distance::services::return_type<pythagoras_type>::type return_type;
 
 
     point_type p1, p2;
@@ -259,7 +259,7 @@ void time_compare_s(int const n)
     bg::assign(p1, 1, 1);
     bg::assign(p2, 2, 2);
     Strategy strategy;
-    typename Strategy::return_type s = 0;
+    typename bg::strategy::distance::services::return_type<Strategy>::type s = 0;
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)

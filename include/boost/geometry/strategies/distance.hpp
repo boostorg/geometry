@@ -24,6 +24,7 @@ namespace strategy { namespace distance { namespace services
 {
 
 template <typename Strategy> struct tag {};
+template <typename Strategy> struct return_type {};
 
 
 /*!

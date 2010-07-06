@@ -91,7 +91,7 @@ class douglas_peucker
 public :
 
     typedef typename strategy::distance::services::comparable_type<PointDistanceStrategy>::type distance_strategy_type;
-    typedef typename distance_strategy_type::return_type return_type;
+    typedef typename strategy::distance::services::return_type<distance_strategy_type>::type return_type;
 
 private :
     typedef detail::douglas_peucker_point<Point> dp_point_type;
@@ -189,7 +189,7 @@ public :
 
         // Get points, recursively, including them if they are further away
         // than the specified distance
-        typedef typename distance_strategy_type::return_type return_type;
+        typedef typename strategy::distance::services::return_type<distance_strategy_type>::type return_type;
 
         consider(boost::begin(ref_candidates), boost::end(ref_candidates), max_distance, n, strategy);
 

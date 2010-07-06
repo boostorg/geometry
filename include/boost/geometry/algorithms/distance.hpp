@@ -67,10 +67,13 @@ namespace boost { namespace geometry
 namespace detail { namespace distance
 {
 
+// To avoid spurious namespaces here:
+using strategy::distance::services::return_type;
+
 template <typename P1, typename P2, typename Strategy>
 struct point_to_point
 {
-    static inline typename Strategy::return_type apply(P1 const& p1,
+    static inline typename return_type<Strategy>::type apply(P1 const& p1,
                 P2 const& p2, Strategy const& strategy)
     {
         return strategy.apply(p1, p2);
@@ -81,7 +84,7 @@ struct point_to_point
 template<typename Point, typename Segment, typename Strategy>
 struct point_to_segment
 {
-    static inline typename Strategy::return_type apply(Point const& point,
+    static inline typename return_type<Strategy>::type apply(Point const& point,
                 Segment const& segment, Strategy const& strategy)
     {
         typename strategy::distance::services::default_strategy
@@ -101,7 +104,7 @@ struct point_to_segment
 template<typename Point, typename Range, typename PPStrategy, typename PSStrategy>
 struct point_to_range
 {
-    typedef typename PSStrategy::return_type return_type;
+    typedef typename return_type<PSStrategy>::type return_type;
 
     static inline return_type apply(Point const& point, Range const& range,
             PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
@@ -155,7 +158,10 @@ struct point_to_range
 template<typename Point, typename Ring, typename PPStrategy, typename PSStrategy>
 struct point_to_ring
 {
-    typedef std::pair<typename PPStrategy::return_type, bool> distance_containment;
+    typedef std::pair
+        <
+            typename return_type<PPStrategy>::type, bool
+        > distance_containment;
 
     static inline distance_containment apply(Point const& point,
                 Ring const& ring,
@@ -180,8 +186,8 @@ struct point_to_ring
 template<typename Point, typename Polygon, typename PPStrategy, typename PSStrategy>
 struct point_to_polygon
 {
-    typedef typename PPStrategy::return_type return_type;
-    typedef std::pair<typename PPStrategy::return_type, bool> distance_containment;
+    typedef typename return_type<PPStrategy>::type return_type;
+    typedef std::pair<return_type, bool> distance_containment;
 
     static inline distance_containment apply(Point const& point,
                 Polygon const& polygon,
@@ -232,6 +238,9 @@ struct point_to_polygon
 namespace dispatch
 {
 
+using strategy::distance::services::return_type;
+
+
 template
 <
     typename GeometryTag1, typename GeometryTag2,
@@ -264,7 +273,7 @@ struct distance
 >
 {
 
-    static inline typename Strategy::return_type apply(Point const& point,
+    static inline typename return_type<Strategy>::type apply(Point const& point,
             Linestring const& linestring,
             Strategy const& strategy)
     {
@@ -293,7 +302,7 @@ struct distance
     false, false
 >
 {
-    static inline typename Strategy::return_type apply(Point const& point,
+    static inline typename return_type<Strategy>::type apply(Point const& point,
             Linestring const& linestring,
             Strategy const& strategy)
     {
@@ -315,7 +324,7 @@ struct distance
     false, false
 >
 {
-    typedef typename Strategy::return_type return_type;
+    typedef typename return_type<Strategy>::type return_type;
 
     static inline return_type apply(Point const& point,
             Polygon const& polygon,
@@ -361,7 +370,7 @@ struct distance
     false, false
 >
 {
-    static inline typename Strategy::return_type apply(Point const& point,
+    static inline typename return_type<Strategy>::type apply(Point const& point,
                 Segment const& segment, Strategy const& strategy)
     {
         // TODO: We cannot use .first and .second here.
@@ -388,7 +397,7 @@ template
 >
 struct distance_reversed
 {
-    static inline typename Strategy::return_type apply(G1 const& g1,
+    static inline typename return_type<Strategy>::type apply(G1 const& g1,
                 G2 const& g2, Strategy const& strategy)
     {
         return distance
@@ -424,8 +433,9 @@ struct distance_reversed
     \until }
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>
-inline typename Strategy::return_type distance(Geometry1 const& geometry1,
-            Geometry2 const& geometry2, Strategy const& strategy)
+inline typename strategy::distance::services::return_type<Strategy>::type distance(
+                Geometry1 const& geometry1,
+                Geometry2 const& geometry2, Strategy const& strategy)
 {
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
