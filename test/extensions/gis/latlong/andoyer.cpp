@@ -18,21 +18,23 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <test_common/test_point.hpp>
 
+namespace bg = boost::geometry;
+
 
 template <typename P1, typename P2>
 void test_andoyer(double lon1, double lat1, double lon2, double lat2, double expected_km)
 {
-    typedef boost::geometry::strategy::distance::andoyer<P1, P2> andoyer_type;
+    typedef bg::strategy::distance::andoyer<P1, P2> andoyer_type;
 
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::PointDistanceStrategy<andoyer_type>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<andoyer_type>) );
 
     andoyer_type andoyer;
 
 
     P1 p1, p2;
 
-    boost::geometry::assign(p1, lon1, lat1);
-    boost::geometry::assign(p2, lon2, lat2);
+    bg::assign(p1, lon1, lat1);
+    bg::assign(p2, lon2, lat2);
 
     BOOST_CHECK_CLOSE(double(andoyer.apply(p1, p2)), 1000.0 * expected_km, 0.001);
 }
@@ -53,13 +55,10 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    using namespace boost::geometry;
-    using namespace boost::geometry::cs;
-
     //test_all<float[2]>();
     //test_all<double[2]>();
-    test_all<point<float, 2, geographic<degree> > >();
-    test_all<point<double, 2, geographic<degree> > >();
+    test_all<bg::point<float, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::point<double, 2, bg::cs::geographic<bg::degree> > >();
 
     return 0;
 }
