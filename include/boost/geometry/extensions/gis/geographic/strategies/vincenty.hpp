@@ -65,9 +65,6 @@ public :
                 >::type
         >::type return_type;
 
-    typedef Point1 first_point_type;
-    typedef Point2 second_point_type;
-
     inline vincenty()
     {}
 

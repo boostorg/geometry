@@ -57,9 +57,6 @@ public :
                 >::type
         >::type calculation_type;
 
-    typedef Point1 first_point_type;
-    typedef Point2 second_point_type;
-
     inline haversine(calculation_type const& r = 1.0)
         : m_radius(r)
     {}
@@ -123,8 +120,6 @@ class haversine
     typedef comparable::haversine<Point1, Point2, CalculationType> comparable_type;
 
 public :
-    typedef Point1 first_point_type;
-    typedef Point2 second_point_type;
 
     typedef typename services::return_type<comparable_type>::type calculation_type;
 

@@ -48,8 +48,6 @@ template
 class andoyer
 {
     public :
-        typedef P1 first_point_type;
-        typedef P2 second_point_type;
         typedef double return_type;
 
         andoyer()
