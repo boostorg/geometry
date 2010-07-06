@@ -1,4 +1,4 @@
-# test/extensions/gis/projections/Jamfile.v2 
+# test/extensions/gis/latlong/Jamfile.v2 
 #
 # Copyright (c) 2010 Barend Gehrels
 #
@@ -6,9 +6,11 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-extensions-gis-projections
+test-suite boost-geometry-extensions-gis-latong
     :
-    [ run projection.cpp ]
-    [ run projections.cpp ]
-    [ run projection_epsg.cpp ]
+    [ run andoyer.cpp ]
+    [ run area_ll.cpp ]
+    [ run distance_mixed.cpp ]
+    [ run point_ll.cpp ]
+    [ run vincenty.cpp ]
     ;
