@@ -24,6 +24,7 @@
 
 namespace bg = boost::geometry;
 
+
 template <typename P1, typename P2>
 void test_vincenty(double lon1, double lat1, double lon2, double lat2, double expected_km)
 {
@@ -46,7 +47,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
 template <typename P1, typename P2>
 void test_all()
 {
-    test_vincenty<P1, P2>(0, 90, 1, 80, 1116.828862); // polar
+    test_vincenty<P1, P2>(0, 89, 1, 80, 1005.1535769); // sub-polar
     test_vincenty<P1, P2>(4, 52, 4, 52, 0.0); // no point difference
     test_vincenty<P1, P2>(4, 52, 3, 40, 1336.039890); // normal case
 }
@@ -63,7 +64,7 @@ int test_main(int, char* [])
     //test_all<float[2]>();
     //test_all<double[2]>();
     test_all<bg::point<int, 2, bg::cs::geographic<bg::degree> > >();
-    //test_all<point<float, 2, geographic<degree> > >();
+    test_all<bg::point<float, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::point<double, 2, bg::cs::geographic<bg::degree> > >();
 
 #if defined(HAVE_TTMATH)

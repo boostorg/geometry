@@ -68,7 +68,7 @@ public :
     inline vincenty()
     {}
 
-    explicit inline vincenty(geometry::detail::ellipsoid const& e)
+    explicit inline vincenty(geometry::detail::ellipsoid<calculation_type> const& e)
         : m_ellipsoid(e)
     {}
 
@@ -78,14 +78,14 @@ public :
                         get_as_radian<0>(p2), get_as_radian<1>(p2));
     }
 
-    inline geometry::detail::ellipsoid ellipsoid() const
+    inline geometry::detail::ellipsoid<calculation_type> ellipsoid() const
     {
         return m_ellipsoid;
     }
 
 
 private :
-    geometry::detail::ellipsoid m_ellipsoid;
+    geometry::detail::ellipsoid<calculation_type> m_ellipsoid;
 
     inline calculation_type calculate(calculation_type const& lon1,
                 calculation_type const& lat1,
@@ -108,14 +108,9 @@ private :
             return calculation_type(0);
         }
 
-        // TODO: give ellipsoid a template-parameter
-        calculation_type const ellipsoid_f = m_ellipsoid.f();
-        calculation_type const ellipsoid_a = m_ellipsoid.a();
-        calculation_type const ellipsoid_b = m_ellipsoid.b();
-
         // U: reduced latitude, defined by tan U = (1-f) tan phi
         calculation_type const c1 = 1;
-        calculation_type const one_min_f = c1 - ellipsoid_f;
+        calculation_type const one_min_f = c1 - m_ellipsoid.f();
 
         calculation_type const U1 = atan(one_min_f * tan(lat1)); // above (1)
         calculation_type const U2 = atan(one_min_f * tan(lat2)); // above (1)
@@ -156,15 +151,15 @@ private :
             cos2_alpha = c1 - math::sqr(sin_alpha);
             cos2_sigma_m = math::equals(cos2_alpha, 0) ? 0 : cos_sigma - c2 * sin_U1 * sin_U2 / cos2_alpha; // (18)
 
-            calculation_type C = ellipsoid_f/c16 * cos2_alpha * (c4 + ellipsoid_f * (c4 - c3 * cos2_alpha)); // (10)
+            calculation_type C = m_ellipsoid.f()/c16 * cos2_alpha * (c4 + m_ellipsoid.f() * (c4 - c3 * cos2_alpha)); // (10)
             sigma = atan2(sin_sigma, cos_sigma); // (16)
-            lambda = L + (c1 - C) * ellipsoid_f * sin_alpha *
+            lambda = L + (c1 - C) * m_ellipsoid.f() * sin_alpha *
                 (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-c1 + c2 * math::sqr(cos2_sigma_m)))); // (11)
 
         } while (geometry::math::abs(previous_lambda - lambda) > c_e_12
                 && geometry::math::abs(lambda) < pi);
 
-        calculation_type sqr_u = cos2_alpha * (math::sqr(ellipsoid_a) - math::sqr(ellipsoid_b)) / math::sqr(ellipsoid_b); // above (1)
+        calculation_type sqr_u = cos2_alpha * (math::sqr(m_ellipsoid.a()) - math::sqr(m_ellipsoid.b())) / math::sqr(m_ellipsoid.b()); // above (1)
 
         // Oops getting hard here
         // (again, problem is that ttmath cannot divide by doubles, which is OK)
@@ -184,7 +179,7 @@ private :
         calculation_type delta_sigma = B * sin_sigma * ( cos2_sigma_m + (B/c4) * (cos(sigma)* (-c1 + c2 * cos2_sigma_m)
                 - (B/c6) * cos2_sigma_m * (-c3 + c4 * math::sqr(sin_sigma)) * (-c3 + c4 * cos2_sigma_m))); // (6)
 
-        return ellipsoid_b * A * (sigma - delta_sigma); // (19)
+        return m_ellipsoid.b() * A * (sigma - delta_sigma); // (19)
     }
 };
 
