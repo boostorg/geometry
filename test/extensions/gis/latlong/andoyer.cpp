@@ -33,7 +33,7 @@ void test_andoyer(double lon1, double lat1, double lon2, double lat2, double exp
     BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<andoyer_type>) );
 
     andoyer_type andoyer;
-    typedef bg::strategy::distance::services::return_type<andoyer_type>::type return_type;
+    typedef typename bg::strategy::distance::services::return_type<andoyer_type>::type return_type;
 
 
     P1 p1, p2;
