@@ -390,9 +390,8 @@ void HelloWorldCanvas::DrawCountry(wxDC& dc, country_type const& country)
 
         boost::scoped_array<wxPoint> points(new wxPoint[n]);
 
-        bg::transform(poly.outer(), 
-                    std::make_pair(points.get(), points.get() + n), 
-                    *m_map_transformer);
+        wxPointPointerPair pair = std::make_pair(points.get(), points.get() + n);
+        bg::transform(poly.outer(), pair, *m_map_transformer);
 
         dc.DrawPolygon(n, points.get());
     }
