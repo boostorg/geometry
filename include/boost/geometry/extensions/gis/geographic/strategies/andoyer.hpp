@@ -13,6 +13,9 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
+#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/geographic/detail/ellipsoid.hpp>
 
@@ -27,8 +30,8 @@ namespace strategy { namespace distance
 /*!
     \brief Point-point distance approximation taking flattening into account
     \ingroup distance
-    \tparam P1 first point type
-    \tparam P2 optional second point type
+    \tparam Point1 first point type
+    \tparam Point2 optional second point type
     \author After Andoyer, 19xx, republished 1950, republished by Meeus, 1999
     \note Although not so well-known, the approximation is very good: in all cases the results
     are about the same as Vincenty. In my (Barend's) testcases the results didn't differ more than 6 m
@@ -41,20 +44,28 @@ namespace strategy { namespace distance
 */
 template
 <
-    typename P1,
-    typename P2 = P1
-    // calculation_type
+    typename Point1,
+    typename Point2 = Point1,
+    typename CalculationType = void
 >
 class andoyer
 {
     public :
-        typedef double return_type;
+    typedef typename promote_floating_point
+        <
+            typename select_calculation_type
+                <
+                    Point1,
+                    Point2,
+                    CalculationType
+                >::type
+        >::type calculation_type;
 
-        andoyer()
+        inline andoyer()
             : m_ellipsoid()
         {}
 
-        explicit inline andoyer(double f)
+        explicit inline andoyer(calculation_type f)
             : m_ellipsoid(f)
         {}
 
@@ -63,10 +74,10 @@ class andoyer
         {}
 
 
-        inline return_type apply(P1 const& p1, P2 const& p2) const
+        inline calculation_type apply(Point1 const& point1, Point2 const& point2) const
         {
-            return calc(get_as_radian<0>(p1), get_as_radian<1>(p1),
-                            get_as_radian<0>(p2), get_as_radian<1>(p2));
+            return calc(get_as_radian<0>(point1), get_as_radian<1>(point1),
+                            get_as_radian<0>(point2), get_as_radian<1>(point2));
         }
 
         inline geometry::detail::ellipsoid ellipsoid() const
@@ -76,13 +87,15 @@ class andoyer
 
 
     private :
-        typedef typename coordinate_type<P1>::type T1;
-        typedef typename coordinate_type<P2>::type T2;
+        typedef typename coordinate_type<Point1>::type T1;
+        typedef typename coordinate_type<Point2>::type T2;
         geometry::detail::ellipsoid m_ellipsoid;
 
-        inline return_type calc(T1 const& lon1, T1 const& lat1, T2 const& lon2, T2 const& lat2) const
+        inline calculation_type calc(calculation_type const& lon1, 
+                    calculation_type const& lat1, 
+                    calculation_type const& lon2, 
+                    calculation_type const& lat2) const
         {
-            typedef double calculation_type;
             calculation_type G = (lat1 - lat2) / 2.0;
             calculation_type lambda = (lon1 - lon2) / 2.0;
 
@@ -109,16 +122,20 @@ class andoyer
                 return 0.0;
             }
 
+            calculation_type const c1 = 1;
+            calculation_type const c2 = 2;
+            calculation_type const c3 = 3;
+
             calculation_type omega = atan(sqrt(S / C));
             calculation_type r = sqrt(S * C) / omega; // not sure if this is r or greek nu
 
-            calculation_type D = 2.0 * omega * m_ellipsoid.a();
-            calculation_type H1 = (3 * r - 1.0) / (2.0 * C);
-            calculation_type H2 = (3 * r + 1.0) / (2.0 * S);
+            calculation_type D = c2 * omega * m_ellipsoid.a();
+            calculation_type H1 = (c3 * r - c1) / (c2 * C);
+            calculation_type H2 = (c3 * r + c1) / (c2 * S);
 
-            return return_type(D
-                * (1.0 + m_ellipsoid.f() * H1 * sinF2 * cosG2
-                            - m_ellipsoid.f() * H2 * cosF2 * sinG2));
+            calculation_type f = m_ellipsoid.f();
+
+            return D * (c1 + f * H1 * sinF2 * cosG2 - f * H2 * cosF2 * sinG2);
         }
 };
 
@@ -137,7 +154,7 @@ struct tag<strategy::distance::andoyer<Point1, Point2> >
 template <typename Point1, typename Point2>
 struct return_type<strategy::distance::andoyer<Point1, Point2> >
 {
-    typedef typename strategy::distance::andoyer<Point1, Point2>::return_type type;
+    typedef typename strategy::distance::andoyer<Point1, Point2>::calculation_type type;
 };
 
 

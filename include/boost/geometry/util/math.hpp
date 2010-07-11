@@ -19,9 +19,11 @@
 namespace boost { namespace geometry
 {
 
+namespace math
+{
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace math
+namespace detail
 {
 
 
@@ -46,11 +48,26 @@ struct equals<T, true>
 };
 
 
-}} // namespace detail::math
+/*!
+\brief Short construct to enable partial specialization for PI, currently not possible in Math.
+*/
+template <typename T>
+struct define_pi
+{
+    static inline T apply()
+    {
+        // Default calls Boost.Math
+        return boost::math::constants::pi<T>();
+    }
+};
+
+
+} // namespace detail
 #endif
 
-namespace math
-{
+
+template <typename T>
+inline T pi() { return detail::define_pi<T>::apply(); }
 
 
 // Maybe replace this by boost equals or boost ublas numeric equals or so
@@ -72,7 +89,7 @@ template <typename T1, typename T2>
 inline bool equals(T1 const& a, T2 const& b)
 {
     typedef typename select_most_precise<T1, T2>::type select_type;
-    return detail::math::equals
+    return detail::equals
         <
             select_type,
             boost::is_floating_point<select_type>::type::value
@@ -80,7 +97,7 @@ inline bool equals(T1 const& a, T2 const& b)
 }
 
 
-double const d2r = boost::math::constants::pi<double>() / 180.0;
+double const d2r = geometry::math::pi<double>() / 180.0;
 double const r2d = 1.0 / d2r;
 
 /*!
@@ -120,6 +137,7 @@ inline T abs(const T& t)
     using std::abs;
     return abs(t);
 }
+
 
 } // namespace math
 

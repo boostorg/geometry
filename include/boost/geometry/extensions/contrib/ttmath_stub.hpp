@@ -2,6 +2,7 @@
 #define TTMATH_STUB
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 #include <ttmath/ttmath.h>
@@ -107,39 +108,39 @@ struct ttmath_big : ttmath::Big<1,4>
     */
 };
 
-namespace boost{ namespace math { namespace constants
+namespace boost{ namespace geometry { namespace math
+{
+
+namespace detail
 {
     // Workaround for boost::math::constants::pi:
     // 1) lexical cast -> stack overflow and
     // 2) because it is implemented as a function, generic implementation not possible
 
+    // Partial specialization for ttmath
     template <ttmath::uint Exponent, ttmath::uint Mantissa>
-    inline ttmath::Big<Exponent, Mantissa> ttmath_pi()
+    struct define_pi<ttmath::Big<Exponent, Mantissa> >
     {
-        static ttmath::Big<Exponent, Mantissa> const the_pi("3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196");
-        return the_pi;
-    }
+        static inline ttmath::Big<Exponent, Mantissa> apply()
+        {
+            static ttmath::Big<Exponent, Mantissa> const the_pi(
+                "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196");
+            return the_pi;
+        }
+    };
 
-
-    template <> inline ttmath::Big<1,4> pi<ttmath::Big<1,4> >(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE_SPEC( (ttmath::Big<1,4>) ))
+    template <>
+    struct define_pi<ttmath_big>
     {
-        return ttmath_pi<1,4>();
-    }
-    template <> inline ttmath::Big<1,8> pi<ttmath::Big<1,8> >(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE_SPEC( (ttmath::Big<1,8>) ))
-    {
-        return ttmath_pi<1,8>();
-    }
+        static inline ttmath_big apply()
+        {
+            return define_pi<ttmath::Big<1,4> >::apply();
+        }
+    };
 
-    // and so on...
-    // or fix lexical_cast but probably has the same problem
+}
+}}} // boost::geometry::math
 
-
-    template <> inline ttmath_big pi<ttmath_big >(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE_SPEC(ttmath_big))
-    {
-        return ttmath_pi<1,4>();
-    }
-
-}}}
 
 
 #endif
