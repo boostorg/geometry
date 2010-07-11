@@ -23,31 +23,32 @@ namespace boost { namespace geometry { namespace detail
     - and http://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS84
     \note
 */
+template <typename T>
 class ellipsoid
 {
     public :
-        ellipsoid(double a, double b)
+        ellipsoid(T const& a, T const& b)
             : m_a(a)
             , m_b(b)
             , m_f((a - b) / a)
         {}
         ellipsoid()
-            : m_a(6378137.0)
-            , m_b(6356752.314245)
+            : m_a(T(6378137.0))
+            , m_b(T(6356752.314245))
             , m_f((m_a - m_b) / m_a)
         {}
         // Unit sphere
-        ellipsoid(double f)
+        ellipsoid(T const& f)
             : m_a(1.0)
             , m_f(f)
         {}
 
-        double a() const { return m_a; }
-        double b() const { return m_b; }
-        double f() const { return m_f; }
+        T a() const { return m_a; }
+        T b() const { return m_b; }
+        T f() const { return m_f; }
 
     private :
-        double m_a, m_b, m_f; // equatorial radius, polar radius, flattening
+        T m_a, m_b, m_f; // equatorial radius, polar radius, flattening
 };
 
 

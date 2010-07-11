@@ -18,6 +18,10 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <test_common/test_point.hpp>
 
+#ifdef HAVE_TTMATH
+#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+#endif
+
 namespace bg = boost::geometry;
 
 
@@ -29,6 +33,7 @@ void test_andoyer(double lon1, double lat1, double lon2, double lat2, double exp
     BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<andoyer_type>) );
 
     andoyer_type andoyer;
+    typedef bg::strategy::distance::services::return_type<andoyer_type>::type return_type;
 
 
     P1 p1, p2;
@@ -36,7 +41,7 @@ void test_andoyer(double lon1, double lat1, double lon2, double lat2, double exp
     bg::assign(p1, lon1, lat1);
     bg::assign(p2, lon2, lat2);
 
-    BOOST_CHECK_CLOSE(double(andoyer.apply(p1, p2)), 1000.0 * expected_km, 0.001);
+    BOOST_CHECK_CLOSE(andoyer.apply(p1, p2), return_type(1000.0 * expected_km), 0.001);
 }
 
 template <typename P1, typename P2>
@@ -57,8 +62,14 @@ int test_main(int, char* [])
 {
     //test_all<float[2]>();
     //test_all<double[2]>();
+    test_all<bg::point<int, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::point<float, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::point<double, 2, bg::cs::geographic<bg::degree> > >();
+
+#if defined(HAVE_TTMATH)
+    test_all<bg::point<ttmath::Big<1,4>, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::point<ttmath_big, 2, bg::cs::geographic<bg::degree> > >();
+#endif
 
     return 0;
 }
