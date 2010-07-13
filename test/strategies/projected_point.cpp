@@ -49,7 +49,7 @@ void test_services()
 
     BOOST_CONCEPT_ASSERT( (bg::concept::PointSegmentDistanceStrategy<strategy_type>) );
 
-    typedef typename strategy_type::return_type return_type;
+    typedef typename services::return_type<strategy_type>::type return_type;
 
     strategy_type strategy;
     return_type result = strategy.apply(p, p1, p2);
@@ -102,7 +102,7 @@ void test_all_2d()
 
 
     strategy_type strategy;
-    typedef typename strategy_type::return_type return_type;
+    typedef typename bg::strategy::distance::services::return_type<strategy_type>::type return_type;
     return_type d = strategy.apply(p, sp1, sp2);
     BOOST_CHECK_CLOSE(d, return_type(0.27735203958327), 0.001);
 }

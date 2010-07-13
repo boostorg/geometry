@@ -60,18 +60,6 @@ public :
                 >::type
         >::type return_type;
 
-    typedef Point point_type;
-    typedef PointOfSegment segment_point_type;
-
-    typedef Strategy point_strategy_type;
-
-    BOOST_CONCEPT_ASSERT
-        (
-            (geometry::concept::PointDistanceStrategy<point_strategy_type>)
-        );
-
-
-
     inline cross_track(return_type const& r = 1.0)
         : m_radius(r)
         , m_strategy(1.0) // Keep this 1.0 and not r
@@ -108,10 +96,16 @@ public :
     inline return_type radius() const { return m_radius; }
 
 private :
+    BOOST_CONCEPT_ASSERT
+        (
+            (geometry::concept::PointDistanceStrategy<Strategy >)
+        );
+
+
     return_type m_radius;
 
     // Point-point distances are calculated in radians, on the unit sphere
-    point_strategy_type m_strategy;
+    Strategy m_strategy;
 
     /// Calculate course (bearing) between two points. Might be moved to a "course formula" ...
     inline return_type course(Point const& p1, Point const& p2) const
@@ -225,6 +219,15 @@ public :
         return distance;
     }
 };
+
+
+template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+struct strategy_point_point<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
+{
+    typedef typename Strategy type;
+};
+
+
 
 template <typename Point, typename PointOfSegment>
 struct default_strategy<segment_tag, Point, PointOfSegment, spherical_tag, spherical_tag>
