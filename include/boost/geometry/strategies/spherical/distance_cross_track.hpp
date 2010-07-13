@@ -224,7 +224,7 @@ public :
 template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
 struct strategy_point_point<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
-    typedef typename Strategy type;
+    typedef Strategy type;
 };
 
 
