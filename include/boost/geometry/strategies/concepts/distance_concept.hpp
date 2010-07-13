@@ -28,6 +28,7 @@
 namespace boost { namespace geometry { namespace concept
 {
 
+
 /*!
     \brief Checks strategy for point-segment-distance
     \ingroup distance
@@ -57,30 +58,24 @@ private :
                 >::type base_index;
 
             // 1: inspect and define both arguments of apply
-            typedef typename boost::remove_const
+            typedef typename boost::remove_reference
                 <
-                    typename boost::remove_reference
+                    typename boost::mpl::at
                         <
-                            typename boost::mpl::at
-                                <
-                                    parameter_types, 
-                                    base_index
-                                >::type
+                            parameter_types, 
+                            base_index
                         >::type
                 >::type ptype1;
 
-            typedef typename boost::remove_const
+            typedef typename boost::remove_reference
                 <
-                    typename boost::remove_reference
+                    typename boost::mpl::at
                         <
-                            typename boost::mpl::at
+                            parameter_types, 
+                            typename boost::mpl::plus
                                 <
-                                    parameter_types, 
-                                    typename boost::mpl::plus
-                                        <
-                                            base_index, 
-                                            boost::mpl::int_<1> 
-                                        >::type
+                                    base_index, 
+                                    boost::mpl::int_<1> 
                                 >::type
                         >::type
                 >::type ptype2;
@@ -190,30 +185,24 @@ private :
                 >::type base_index;
 
             // 1: inspect and define both arguments of apply
-            typedef typename boost::remove_const
+            typedef typename boost::remove_reference
                 <
-                    typename boost::remove_reference
+                    typename boost::mpl::at
                         <
-                            typename boost::mpl::at
-                                <
-                                    parameter_types, 
-                                    base_index
-                                >::type
+                            parameter_types, 
+                            base_index
                         >::type
                 >::type ptype;
 
-            typedef typename boost::remove_const
+            typedef typename boost::remove_reference
                 <
-                    typename boost::remove_reference
+                    typename boost::mpl::at
                         <
-                            typename boost::mpl::at
+                            parameter_types, 
+                            typename boost::mpl::plus
                                 <
-                                    parameter_types, 
-                                    typename boost::mpl::plus
-                                        <
-                                            base_index, 
-                                            boost::mpl::int_<1> 
-                                        >::type
+                                    base_index, 
+                                    boost::mpl::int_<1> 
                                 >::type
                         >::type
                 >::type sptype;
