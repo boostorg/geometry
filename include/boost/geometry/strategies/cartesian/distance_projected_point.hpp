@@ -181,7 +181,7 @@ struct return_type<projected_point<Point, PointOfSegment, CalculationType, Strat
 template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
 struct strategy_point_point<projected_point<Point, PointOfSegment, CalculationType, Strategy> >
 {
-    typedef typename Strategy type;
+    typedef Strategy type;
 };
 
 
