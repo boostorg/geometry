@@ -52,6 +52,9 @@ template <typename Strategy> struct get_comparable {};
 template <typename Strategy> struct result_from_distance {};
 
 
+// For point-segment only:
+template <typename Strategy> struct strategy_point_point {};
+
 
 // Default strategy
 
