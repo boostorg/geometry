@@ -54,13 +54,16 @@ private :
                 >::type base_index;
 
             // 1: inspect and define both arguments of apply
-            typedef typename boost::remove_reference
+            typedef typename boost::remove_const
                 <
-                    typename boost::mpl::at
-                        <
-                            parameter_types, 
-                            base_index
-                        >::type
+                    typename boost::remove_reference
+                    <
+                        typename boost::mpl::at
+                            <
+                                parameter_types, 
+                                base_index
+                            >::type
+                    >::type
                 >::type point_type;
 
 
