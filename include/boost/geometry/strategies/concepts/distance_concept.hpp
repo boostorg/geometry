@@ -13,21 +13,13 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/type_traits.hpp>
-
-#include <boost/mpl/at.hpp>
-#include <boost/mpl/int.hpp>
-#include <boost/mpl/plus.hpp>
-
 #include <boost/function_types/function_arity.hpp>
 #include <boost/function_types/is_member_function_pointer.hpp>
 #include <boost/function_types/parameter_types.hpp>
-
-//#define RMP
-#ifdef RMP
-#include <boost/remove_member_pointer.hpp>
-#endif
-
+#include <boost/mpl/at.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/plus.hpp>
+#include <boost/type_traits.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/segment.hpp>
@@ -49,63 +41,41 @@ private :
     struct checker
     {
         template <typename ApplyMethod>
-        static void check(ApplyMethod const&)
+        static void apply(ApplyMethod const&)
         {
-
-    #ifdef RMP
-            typedef boost::function_traits
+            namespace ft = boost::function_types;
+            typedef typename ft::parameter_types
                 <
-                    typename boost::remove_pointer
-                        <
-                            typename boost::remove_member_pointer<ApplyMethod>::type
-                        >::type
-                > ftraits;
-                
-            typedef typename boost::remove_const
-                <
-                    typename boost::remove_reference
-                        <
-                            typename ftraits::arg1_type
-                        >::type
-                >::type ptype1;
-            typedef typename boost::remove_const
-                <
-                    typename boost::remove_reference
-                        <
-                            typename ftraits::arg2_type
-                        >::type
-                >::type ptype2;
-    #else
-
-            typedef typename boost::function_types::parameter_types<ApplyMethod>::type typeseq;
+                    ApplyMethod
+                >::type parameter_types;
 
             typedef typename boost::mpl::if_
                 <
-                    boost::function_types::is_member_function_pointer<ApplyMethod>,
+                    ft::is_member_function_pointer<ApplyMethod>,
                     boost::mpl::int_<1>,
                     boost::mpl::int_<0>
                 >::type base_index;
 
+            // 1: inspect and define both arguments of apply
             typedef typename boost::remove_const
                 <
                     typename boost::remove_reference
                         <
                             typename boost::mpl::at
                                 <
-                                    typeseq, 
+                                    parameter_types, 
                                     base_index
                                 >::type
                         >::type
                 >::type ptype1;
 
-
             typedef typename boost::remove_const
                 <
                     typename boost::remove_reference
                         <
                             typename boost::mpl::at
                                 <
-                                    typeseq, 
+                                    parameter_types, 
                                     typename boost::mpl::plus
                                         <
                                             base_index, 
@@ -114,8 +84,8 @@ private :
                                 >::type
                         >::type
                 >::type ptype2;
-    #endif
 
+            // 2) check if apply-arguments fulfill point concept 
             BOOST_CONCEPT_ASSERT
                 (
                     (concept::ConstPoint<ptype1>)
@@ -127,47 +97,47 @@ private :
                 );
 
 
-            // 1) must define meta-function return_type
+            // 3) must define meta-function return_type
             typedef typename strategy::distance::services::return_type<Strategy>::type rtype;
 
-            // 2) must define meta-function "similar_type"
+            // 4) must define meta-function "similar_type"
             typedef typename strategy::distance::services::similar_type
                 <
                     Strategy, ptype2, ptype1
                 >::type stype;
 
-            // 3) must define meta-function "comparable_type"
+            // 5) must define meta-function "comparable_type"
             typedef typename strategy::distance::services::comparable_type
                 <
                     Strategy
                 >::type ctype;
 
-            // 4) must define meta-function "tag"
+            // 6) must define meta-function "tag"
             typedef typename strategy::distance::services::tag
                 <
                     Strategy
                 >::type tag;
 
-            // 5) must implement apply with arguments
+            // 7) must implement apply with arguments
             Strategy* str;
             ptype1 *p1;
             ptype2 *p2;
             rtype r = str->apply(*p1, *p2);
 
-            // 6) must define (meta)struct "get_similar" with apply
+            // 8) must define (meta)struct "get_similar" with apply
             stype s = strategy::distance::services::get_similar
                 <
                     Strategy,
                     ptype2, ptype1
                 >::apply(*str);
 
-            // 7) must define (meta)struct "get_comparable" with apply
+            // 9) must define (meta)struct "get_comparable" with apply
             ctype c = strategy::distance::services::get_comparable
                 <
                     Strategy
                 >::apply(*str);
 
-            // 8) must define (meta)struct "result_from_distance" with apply
+            // 10) must define (meta)struct "result_from_distance" with apply
             r = strategy::distance::services::result_from_distance
                 <
                     Strategy
@@ -185,7 +155,7 @@ private :
 public :
     BOOST_CONCEPT_USAGE(PointDistanceStrategy)
     {
-        checker::check(&Strategy::apply);
+        checker::apply(&Strategy::apply);
     }
 #endif
 };
