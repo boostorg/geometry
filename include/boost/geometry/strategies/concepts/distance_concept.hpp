@@ -13,47 +13,28 @@
 
 #include <boost/concept_check.hpp>
 
+#include <boost/type_traits.hpp>
+
+#include <boost/mpl/at.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/plus.hpp>
+
+#include <boost/function_types/function_arity.hpp>
+#include <boost/function_types/is_member_function_pointer.hpp>
+#include <boost/function_types/parameter_types.hpp>
+
+//#define RMP
+#ifdef RMP
+#include <boost/remove_member_pointer.hpp>
+#endif
+
+
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
 
 namespace boost { namespace geometry { namespace concept
 {
-
-namespace detail
-{
-
-template <typename Strategy> struct first_point_type {};
-template <typename Strategy> struct second_point_type {};
-
-// Specializations for strategies having P1,P2,CalculationType
-template <template <typename, typename, typename> class Strategy, typename P1, typename P2, typename C>
-struct first_point_type<Strategy<P1, P2, C> >
-{
-    typedef P1 type;
-};
-
-template <template <typename, typename, typename> class Strategy, typename P1, typename P2, typename C>
-struct second_point_type<Strategy<P1, P2, C> >
-{
-    typedef P2 type;
-};
-
-
-// Specializations for strategies having P1,P2
-template <template <typename, typename> class Strategy, typename P1, typename P2>
-struct first_point_type<Strategy<P1, P2> >
-{
-    typedef P1 type;
-};
-
-template <template <typename, typename> class Strategy, typename P1, typename P2>
-struct second_point_type<Strategy<P1, P2> >
-{
-    typedef P2 type;
-};
-
-}
 
 /*!
     \brief Checks strategy for point-segment-distance
@@ -63,94 +44,149 @@ template <typename Strategy>
 struct PointDistanceStrategy
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    private :
+private :
 
-        // Helper to get first_point_type
-        //typedef typename Strategy::first_point_type ptype1;
-        typedef typename detail::first_point_type<Strategy>::type ptype1;
-        BOOST_CONCEPT_ASSERT
-            (
-                (concept::ConstPoint<ptype1>)
-            );
-
-        // Helper to get second_point_type
-        typedef typename detail::second_point_type<Strategy>::type ptype2;
-        BOOST_CONCEPT_ASSERT
-            (
-                (concept::ConstPoint<ptype2>)
-            );
-
-        // 1) must define meta-function return_type
-        typedef typename strategy::distance::services::return_type<Strategy>::type rtype;
-
-        // 2) must define meta-function "similar_type"
-        typedef typename strategy::distance::services::similar_type
-            <
-                Strategy, ptype2, ptype1
-            >::type stype;
-
-        // 3) must define meta-function "comparable_type"
-        typedef typename strategy::distance::services::comparable_type
-            <
-                Strategy
-            >::type ctype;
-
-        // 4) must define meta-function "tag"
-        typedef typename strategy::distance::services::tag
-            <
-                Strategy
-            >::type tag;
-
-        // 5) must implement apply with arguments
-        struct apply_checker
+    struct checker
+    {
+        template <typename ApplyMethod>
+        static void check(ApplyMethod const&)
         {
-            static void check()
-            {
-                Strategy* str;
-                ptype1 *p1;
-                ptype2 *p2;
-                rtype r = str->apply(*p1, *p2);
 
-                boost::ignore_unused_variable_warning(str);
-                boost::ignore_unused_variable_warning(r);
-            }
-        };
+    #ifdef RMP
+            typedef boost::function_traits
+                <
+                    typename boost::remove_pointer
+                        <
+                            typename boost::remove_member_pointer<ApplyMethod>::type
+                        >::type
+                > ftraits;
+                
+            typedef typename boost::remove_const
+                <
+                    typename boost::remove_reference
+                        <
+                            typename ftraits::arg1_type
+                        >::type
+                >::type ptype1;
+            typedef typename boost::remove_const
+                <
+                    typename boost::remove_reference
+                        <
+                            typename ftraits::arg2_type
+                        >::type
+                >::type ptype2;
+    #else
 
-        // 6) must define (meta)struct "get_similar" with apply
-        // 7) must define (meta)struct "get_comparable" with apply
-        // 8) must define (meta)struct "result_from_distance" with apply
-        struct services_checker
-        {
-            static void check()
-            {
-                Strategy* str;
-                stype s = strategy::distance::services::get_similar
-                    <
-                        Strategy,
-                        ptype2, ptype1
-                    >::apply(*str);
-                ctype c = strategy::distance::services::get_comparable
-                    <
-                        Strategy
-                    >::apply(*str);
-                rtype r = strategy::distance::services::result_from_distance
-                    <
-                        Strategy
-                    >::apply(*str, 1.0);
+            typedef typename boost::function_types::parameter_types<ApplyMethod>::type typeseq;
 
-                boost::ignore_unused_variable_warning(s);
-                boost::ignore_unused_variable_warning(c);
-                boost::ignore_unused_variable_warning(r);
-            }
-        };
+            typedef typename boost::mpl::if_
+                <
+                    boost::function_types::is_member_function_pointer<ApplyMethod>,
+                    boost::mpl::int_<1>,
+                    boost::mpl::int_<0>
+                >::type base_index;
+
+            typedef typename boost::remove_const
+                <
+                    typename boost::remove_reference
+                        <
+                            typename boost::mpl::at
+                                <
+                                    typeseq, 
+                                    base_index
+                                >::type
+                        >::type
+                >::type ptype1;
 
 
-    public :
-        BOOST_CONCEPT_USAGE(PointDistanceStrategy)
-        {
-            apply_checker::check();
-            services_checker::check();
+            typedef typename boost::remove_const
+                <
+                    typename boost::remove_reference
+                        <
+                            typename boost::mpl::at
+                                <
+                                    typeseq, 
+                                    typename boost::mpl::plus
+                                        <
+                                            base_index, 
+                                            boost::mpl::int_<1> 
+                                        >::type
+                                >::type
+                        >::type
+                >::type ptype2;
+    #endif
+
+            BOOST_CONCEPT_ASSERT
+                (
+                    (concept::ConstPoint<ptype1>)
+                );
+
+            BOOST_CONCEPT_ASSERT
+                (
+                    (concept::ConstPoint<ptype2>)
+                );
+
+
+            // 1) must define meta-function return_type
+            typedef typename strategy::distance::services::return_type<Strategy>::type rtype;
+
+            // 2) must define meta-function "similar_type"
+            typedef typename strategy::distance::services::similar_type
+                <
+                    Strategy, ptype2, ptype1
+                >::type stype;
+
+            // 3) must define meta-function "comparable_type"
+            typedef typename strategy::distance::services::comparable_type
+                <
+                    Strategy
+                >::type ctype;
+
+            // 4) must define meta-function "tag"
+            typedef typename strategy::distance::services::tag
+                <
+                    Strategy
+                >::type tag;
+
+            // 5) must implement apply with arguments
+            Strategy* str;
+            ptype1 *p1;
+            ptype2 *p2;
+            rtype r = str->apply(*p1, *p2);
+
+            // 6) must define (meta)struct "get_similar" with apply
+            stype s = strategy::distance::services::get_similar
+                <
+                    Strategy,
+                    ptype2, ptype1
+                >::apply(*str);
+
+            // 7) must define (meta)struct "get_comparable" with apply
+            ctype c = strategy::distance::services::get_comparable
+                <
+                    Strategy
+                >::apply(*str);
+
+            // 8) must define (meta)struct "result_from_distance" with apply
+            r = strategy::distance::services::result_from_distance
+                <
+                    Strategy
+                >::apply(*str, 1.0);
+
+            boost::ignore_unused_variable_warning(str);
+            boost::ignore_unused_variable_warning(s);
+            boost::ignore_unused_variable_warning(c);
+            boost::ignore_unused_variable_warning(r);
         }
+    };
+
+
+
+public :
+    BOOST_CONCEPT_USAGE(PointDistanceStrategy)
+    {
+        checker::check(&Strategy::apply);
+    }
 #endif
 };
 
