@@ -28,41 +28,68 @@ template <typename Strategy>
 struct SimplifyStrategy
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    private :
+private :
 
-        // 1) must define distance_strategy_type,
-        //    defining point-segment distance strategy (to be checked)
-        typedef typename Strategy::distance_strategy_type ds_type;
+    // 1) must define distance_strategy_type,
+    //    defining point-segment distance strategy (to be checked)
+    typedef typename Strategy::distance_strategy_type ds_type;
 
-        BOOST_CONCEPT_ASSERT
-            (
-                (concept::PointSegmentDistanceStrategy<ds_type>)
-            );
 
-        struct apply_checker
+    struct checker
+    {
+        template <typename ApplyMethod>
+        static void apply(ApplyMethod const&)
         {
-            static void check()
-            {
-                Strategy *str;
-                std::vector<typename ds_type::point_type> const* v1;
-                std::vector<typename ds_type::point_type> * v2;
+            namespace ft = boost::function_types;
+            typedef typename ft::parameter_types
+                <
+                    ApplyMethod
+                >::type parameter_types;
 
-                // 2) must implement method apply with arguments
-                //    - Range
-                //    - OutputIterator
-                //    - floating point value
-                str->apply(*v1, std::back_inserter(*v2), 1.0);
+            typedef typename boost::mpl::if_
+                <
+                    ft::is_member_function_pointer<ApplyMethod>,
+                    boost::mpl::int_<1>,
+                    boost::mpl::int_<0>
+                >::type base_index;
 
-                boost::ignore_unused_variable_warning(str);
-            }
-        };
+            // 1: inspect and define both arguments of apply
+            typedef typename boost::remove_reference
+                <
+                    typename boost::mpl::at
+                        <
+                            parameter_types, 
+                            base_index
+                        >::type
+                >::type point_type;
 
-    public :
-        BOOST_CONCEPT_USAGE(SimplifyStrategy)
-        {
-            apply_checker::check();
 
+
+            BOOST_CONCEPT_ASSERT
+                (
+                    (concept::PointSegmentDistanceStrategy<ds_type>)
+                );
+
+            Strategy *str;
+            std::vector<point_type> const* v1;
+            std::vector<point_type> * v2;
+
+            // 2) must implement method apply with arguments
+            //    - Range
+            //    - OutputIterator
+            //    - floating point value
+            str->apply(*v1, std::back_inserter(*v2), 1.0);
+
+            boost::ignore_unused_variable_warning(str);
         }
+    };
+
+public :
+    BOOST_CONCEPT_USAGE(SimplifyStrategy)
+    {
+        checker::apply(&ds_type::apply);
+
+    }
 #endif
 };
 
