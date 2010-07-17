@@ -91,7 +91,10 @@ struct point_to_segment
             <
                 segment_tag,
                 Point,
-                typename point_type<Segment>::type
+                typename point_type<Segment>::type,
+                typename cs_tag<Point>::type,
+                typename cs_tag<typename point_type<Segment>::type>::type,
+                Strategy
             >::type segment_strategy;
 
         // See remark below.
@@ -125,7 +128,7 @@ struct point_to_range
             return pp_strategy.apply(point, *boost::begin(range));
         }
 
-        // Create efficient strategy
+        // Create comparable (more efficient) strategy
         typedef typename strategy::distance::services::comparable_type<PSStrategy>::type eps_strategy_type;
         eps_strategy_type eps_strategy = strategy::distance::services::get_comparable<PSStrategy>::apply(ps_strategy);
 
@@ -422,7 +425,7 @@ struct distance_reversed
     \param geometry1 first geometry
     \param geometry2 second geometry
     \param strategy strategy to calculate distance between two points
-    \return the distance (either a double or a distance_result, (convertable to double))
+    \return the distance
     \note The strategy can be a point-point strategy. In case of distance point-line/point-polygon
         it may also be a point-segment strategy.
     \par Example:
@@ -432,6 +435,15 @@ struct distance_reversed
     \line {
     \until }
  */
+
+/*
+Note, in case of a Compilation Error: 
+if you get:
+ - "Failed to specialize function template ..."
+ - "error: no matching function for call to ..."
+for distance, it is probably so that there is no specialization
+for return_type<...> for your strategy.
+*/
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline typename strategy::distance::services::return_type<Strategy>::type distance(
                 Geometry1 const& geometry1,

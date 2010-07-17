@@ -6,7 +6,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//#define TEST_ARRAY
+#define TEST_ARRAY
 
 #include <sstream>
 
@@ -28,185 +28,312 @@
 #include <test_common/test_point.hpp>
 
 
-template <typename P>
-void test_distance_result()
+namespace bg = boost::geometry;
+
+
+// Define a custom distance strategy
+// For this one, the "taxicab" distance, 
+// see http://en.wikipedia.org/wiki/Taxicab_geometry
+
+// For a point-point-distance operation, one typename Point is enough.
+// For a point-segment-distance operation, there is some magic inside
+// using another point type and casting if necessary. Therefore,
+// two point-types are necessary.
+template <typename P1, typename P2 = P1>
+struct taxicab_distance
 {
-    typedef typename boost::geometry::distance_result<P, P>::type distance_type;
-
-#ifndef TEST_ARRAY
-    P p1 = boost::geometry::make<P>(0, 0);
-    P p2 = boost::geometry::make<P>(3, 0);
-    P p3 = boost::geometry::make<P>(0, 4);
-#else
-    P p1, p2, p3;
-    boost::geometry::set<0>(p1, 0); boost::geometry::set<1>(p1, 0);
-    boost::geometry::set<0>(p2, 3); boost::geometry::set<1>(p2, 0);
-    boost::geometry::set<0>(p3, 0); boost::geometry::set<1>(p3, 4);
-#endif
-
-    distance_type dr12 = boost::geometry::distance(p1, p2);
-    distance_type dr13 = boost::geometry::distance(p1, p3);
-    distance_type dr23 = boost::geometry::distance(p2, p3);
-
-    BOOST_CHECK_CLOSE(double(dr12), 3.000, 0.001);
-    BOOST_CHECK_CLOSE(double(dr13), 4.000, 0.001);
-    BOOST_CHECK_CLOSE(double(dr23), 5.000, 0.001);
-
-    // COMPARABLE TESTS
+    static inline typename boost::geometry::coordinate_type<P1>::type apply(
+                    P1 const& p1, P2 const& p2) 
     {
-        namespace services = boost::geometry::strategy::distance::services;
-
-        typedef typename services::default_strategy<boost::geometry::point_tag, P>::type strategy_type;
-        typedef typename services::comparable_type<strategy_type>::type comparable_strategy_type;
-
-        strategy_type strategy;
-        comparable_strategy_type comparable_strategy = services::get_comparable<strategy_type>::apply(strategy);
-        distance_type comparable = services::result_from_distance<comparable_strategy_type>::apply(comparable_strategy, 3);
-
-        BOOST_CHECK_CLOSE(double(comparable), 9.000, 0.001);
-
-        // COMPILATION TESTS (probably obsolete...)
-        if (comparable == dr12) {};
-        if (comparable < dr12) {};
-        if (comparable > dr12) {};
-
-        // Check streamability
-        std::ostringstream s;
-        s << comparable;
-
-        // Check comparisons with plain double
-        double d = 3.0;
-        if (dr12 == d) {};
-        if (dr12 < d) {};
-        if (dr12 > d) {};
+        using boost::geometry::get;
+        using boost::geometry::math::abs;
+        return abs(get<0>(p1) - get<1>(p2))
+            + abs(get<1>(p1) - get<1>(p2));
     }
-}
+};
+
+
+
+namespace boost { namespace geometry { namespace strategy { namespace distance { namespace services 
+{
+
+template <typename P1, typename P2>
+struct tag<taxicab_distance<P1, P2> >
+{
+    typedef strategy_tag_distance_point_point type;
+};
+
+
+template <typename P1, typename P2>
+struct return_type<taxicab_distance<P1, P2> >
+{
+    typedef typename coordinate_type<P1>::type type;
+};
+
+
+template<typename P1, typename P2, typename PN1, typename PN2>
+struct similar_type<taxicab_distance<P1, P2>, PN1, PN2>
+{
+    typedef taxicab_distance<PN1, PN2> type;
+};
+
+
+template<typename P1, typename P2, typename PN1, typename PN2>
+struct get_similar<taxicab_distance<P1, P2>, PN1, PN2>
+{
+    static inline typename similar_type
+        <
+            taxicab_distance<P1, P2>, PN1, PN2
+        >::type apply(taxicab_distance<P1, P2> const& )
+    {
+        return taxicab_distance<PN1, PN2>();
+    }
+};
+
+template <typename P1, typename P2>
+struct comparable_type<taxicab_distance<P1, P2> >
+{
+    typedef taxicab_distance<P1, P2> type;
+};
+
+template <typename P1, typename P2>
+struct get_comparable<taxicab_distance<P1, P2> >
+{
+    static inline taxicab_distance<P1, P2> apply(taxicab_distance<P1, P2> const& input)
+    {
+        return input;
+    }
+};
+
+template <typename P1, typename P2>
+struct result_from_distance<taxicab_distance<P1, P2> >
+{
+    template <typename T>
+    static inline typename coordinate_type<P1>::type apply(taxicab_distance<P1, P2> const& , T const& value)
+    {
+        return value;
+    }
+};
+
+
+}}}}} // namespace boost::geometry::strategy::distance::services
+
+
+
 
 template <typename P>
 void test_distance_point()
 {
-    P p1;
-    boost::geometry::set<0>(p1, 1);
-    boost::geometry::set<1>(p1, 1);
+    namespace services = bg::strategy::distance::services;
+    typedef typename bg::distance_result<P>::type return_type;
 
-    P p2;
-    boost::geometry::set<0>(p2, 2);
-    boost::geometry::set<1>(p2, 2);
+    {
+        // Basic, trivial test
 
-    double d = boost::geometry::distance(p1, p2);
-    BOOST_CHECK_CLOSE(d, 1.4142135, 0.001);
+        P p1;
+        bg::set<0>(p1, 1);
+        bg::set<1>(p1, 1);
+
+        P p2;
+        bg::set<0>(p2, 2);
+        bg::set<1>(p2, 2);
+
+        return_type d = bg::distance(p1, p2);
+        BOOST_CHECK_CLOSE(d, return_type(1.4142135), 0.001);
+
+        // Test specifying strategy manually
+        typename services::default_strategy<bg::point_tag, P>::type strategy;
+
+        d = bg::distance(p1, p2, strategy);
+        BOOST_CHECK_CLOSE(d, return_type(1.4142135), 0.001);
+
+        {
+            // Test custom strategy
+            BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<taxicab_distance<P> >) );
+
+            typedef typename services::return_type<taxicab_distance<P> >::type cab_return_type;
+            BOOST_MPL_ASSERT((boost::is_same<cab_return_type, typename bg::coordinate_type<P>::type>));
+
+            taxicab_distance<P> tcd;
+            cab_return_type d = bg::distance(p1, p2, tcd);
+
+            BOOST_CHECK( bg::math::abs(d - cab_return_type(2)) <= cab_return_type(0.01) );
+        }
+    }
+
+
+    {
+        // 3-4-5 angle
+        P p1, p2, p3;
+        bg::set<0>(p1, 0); bg::set<1>(p1, 0);
+        bg::set<0>(p2, 3); bg::set<1>(p2, 0);
+        bg::set<0>(p3, 0); bg::set<1>(p3, 4);
+
+        return_type dr12 = bg::distance(p1, p2);
+        return_type dr13 = bg::distance(p1, p3);
+        return_type dr23 = bg::distance(p2, p3);
+
+        BOOST_CHECK_CLOSE(dr12, return_type(3), 0.001);
+        BOOST_CHECK_CLOSE(dr13, return_type(4), 0.001);
+        BOOST_CHECK_CLOSE(dr23, return_type(5), 0.001);
+    }
+
+
+    {
+        // test comparability
+
+        typedef typename services::default_strategy<bg::point_tag, P>::type strategy_type;
+        typedef typename services::comparable_type<strategy_type>::type comparable_strategy_type;
+
+        strategy_type strategy;
+        comparable_strategy_type comparable_strategy = services::get_comparable<strategy_type>::apply(strategy);
+        return_type comparable = services::result_from_distance<comparable_strategy_type>::apply(comparable_strategy, 3);
+
+        BOOST_CHECK_CLOSE(comparable, return_type(9), 0.001);
+    }
 }
 
 template <typename P>
 void test_distance_segment()
 {
-    typedef typename boost::geometry::coordinate_type<P>::type coordinate_type;
+    typedef typename bg::distance_result<P>::type return_type;
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
 
-    P s1; boost::geometry::set<0>(s1, 2); boost::geometry::set<1>(s1, 2);
-    P s2; boost::geometry::set<0>(s2, 3); boost::geometry::set<1>(s2, 3);
+    P s1; bg::set<0>(s1, 1); bg::set<1>(s1, 1);
+    P s2; bg::set<0>(s2, 4); bg::set<1>(s2, 4);
 
     // Check points left, right, projected-left, projected-right, on segment
-    P p1; boost::geometry::set<0>(p1, 0); boost::geometry::set<1>(p1, 0);
-    P p2; boost::geometry::set<0>(p2, 4); boost::geometry::set<1>(p2, 4);
-    P p3; boost::geometry::set<0>(p3, coordinate_type(2.4)); boost::geometry::set<1>(p3, coordinate_type(2.6));
-    P p4; boost::geometry::set<0>(p4, coordinate_type(2.6)); boost::geometry::set<1>(p4, coordinate_type(2.4));
-    P p5; boost::geometry::set<0>(p5, 2.5); boost::geometry::set<1>(p5, 2.5);
+    P p1; bg::set<0>(p1, 0); bg::set<1>(p1, 1);
+    P p2; bg::set<0>(p2, 1); bg::set<1>(p2, 0);
+    P p3; bg::set<0>(p3, 3); bg::set<1>(p3, 1);
+    P p4; bg::set<0>(p4, 1); bg::set<1>(p4, 3);
+    P p5; bg::set<0>(p5, 3); bg::set<1>(p5, 3);
 
-    const boost::geometry::segment<const P> seg(s1, s2);
+    bg::segment<P const> const seg(s1, s2);
 
-    double d1 = boost::geometry::distance(p1, seg); BOOST_CHECK_CLOSE(d1, 2.8284271, 0.001);
-    double d2 = boost::geometry::distance(p2, seg); BOOST_CHECK_CLOSE(d2, 1.4142135, 0.001);
-    double d3 = boost::geometry::distance(p3, seg); BOOST_CHECK_CLOSE(d3, 0.141421, 0.001);
-    double d4 = boost::geometry::distance(p4, seg); BOOST_CHECK_CLOSE(d4, 0.141421, 0.001);
-    double d5 = boost::geometry::distance(p5, seg); BOOST_CHECK_CLOSE(d5, 0.0, 0.001);
+    return_type d1 = bg::distance(p1, seg); 
+    return_type d2 = bg::distance(p2, seg); 
+    return_type d3 = bg::distance(p3, seg); 
+    return_type d4 = bg::distance(p4, seg); 
+    return_type d5 = bg::distance(p5, seg); 
 
-    // Reverse case
-    double dr1 = boost::geometry::distance(seg, p1); BOOST_CHECK_CLOSE(dr1, d1, 0.001);
-    double dr2 = boost::geometry::distance(seg, p2); BOOST_CHECK_CLOSE(dr2, d2, 0.001);
+    BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
+    BOOST_CHECK_CLOSE(d2, return_type(1), 0.001);
+    BOOST_CHECK_CLOSE(d3, return_type(1.4142135), 0.001);
+    BOOST_CHECK_CLOSE(d4, return_type(1.4142135), 0.001);
+    BOOST_CHECK_CLOSE(d5, return_type(0), 0.001);
+
+    // Reverse case: segment/point instead of point/segment
+    return_type dr1 = bg::distance(seg, p1); 
+    return_type dr2 = bg::distance(seg, p2); 
+
+    BOOST_CHECK_CLOSE(dr1, d1, 0.001);
+    BOOST_CHECK_CLOSE(dr2, d2, 0.001);
+
+    // Test specifying strategy manually:
+    // 1) point-point-distance
+    typename bg::strategy::distance::services::default_strategy<bg::point_tag, P>::type pp_strategy;
+    d1 = bg::distance(p1, seg, pp_strategy); 
+    BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
+
+    // 2) point-segment-distance
+    typename bg::strategy::distance::services::default_strategy<bg::segment_tag, P>::type ps_strategy;
+    d1 = bg::distance(p1, seg, ps_strategy); 
+    BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
+
+    // 3) custom point strategy
+    taxicab_distance<P> tcd;
+    return_type d = bg::distance(p1, seg, tcd);
+    BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
 }
+
 
 template <typename P>
 void test_distance_linestring()
 {
-    typedef typename boost::geometry::coordinate_type<P>::type coordinate_type;
+    typedef typename bg::distance_result<P>::type return_type;
 
     boost::array<P, 2> points;
-    boost::geometry::set<0>(points[0], 1);
-    boost::geometry::set<1>(points[0], 1);
-    boost::geometry::set<0>(points[1], 3);
-    boost::geometry::set<1>(points[1], 3);
+    bg::set<0>(points[0], 1);
+    bg::set<1>(points[0], 1);
+    bg::set<0>(points[1], 3);
+    bg::set<1>(points[1], 3);
 
-#ifndef TEST_ARRAY
-    P p = boost::geometry::make<P>(2, 1);
-#else
     P p;
-    boost::geometry::set<0>(p, 2); boost::geometry::set<1>(p, 1);
-#endif
+    bg::set<0>(p, 2); bg::set<1>(p, 1);
 
-    double d = boost::geometry::distance(p, points);
-    BOOST_CHECK_CLOSE(d, 0.70710678, 0.001);
+    return_type d = bg::distance(p, points);
+    BOOST_CHECK_CLOSE(d, return_type(0.70710678), 0.001);
 
-#ifndef TEST_ARRAY
-    p = boost::geometry::make<P>(5, 5);
-#else
-    boost::geometry::set<0>(p, 5); boost::geometry::set<1>(p, 5);
-#endif
-    d = boost::geometry::distance(p, points);
-    BOOST_CHECK_CLOSE(d, 2.828427, 0.001);
+    bg::set<0>(p, 5); bg::set<1>(p, 5);
+    d = bg::distance(p, points);
+    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
 
 
-    boost::geometry::linestring<P> line;
-#ifndef TEST_ARRAY
-    line.push_back(boost::geometry::make<P>(1,1));
-    line.push_back(boost::geometry::make<P>(2,2));
-    line.push_back(boost::geometry::make<P>(3,3));
-#else
+    bg::linestring<P> line;
     {
         P lp;
-        boost::geometry::set<0>(lp, 1); boost::geometry::set<1>(lp, 1); line.push_back(lp);
-        boost::geometry::set<0>(lp, 2); boost::geometry::set<1>(lp, 2); line.push_back(lp);
-        boost::geometry::set<0>(lp, 3); boost::geometry::set<1>(lp, 3); line.push_back(lp);
+        bg::set<0>(lp, 1); bg::set<1>(lp, 1); line.push_back(lp);
+        bg::set<0>(lp, 2); bg::set<1>(lp, 2); line.push_back(lp);
+        bg::set<0>(lp, 3); bg::set<1>(lp, 3); line.push_back(lp);
     }
-#endif
 
-#ifndef TEST_ARRAY
-    p = boost::geometry::make<P>(5, 5);
-#else
-    boost::geometry::set<0>(p, 5); boost::geometry::set<1>(p, 5);
-#endif
+    bg::set<0>(p, 5); bg::set<1>(p, 5);
 
-    d = boost::geometry::distance(p, line);
-    BOOST_CHECK_CLOSE(d, 2.828427, 0.001);
+    d = bg::distance(p, line);
+    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
 
-    // Reverse case
-    d = boost::geometry::distance(line, p);
-    BOOST_CHECK_CLOSE(d, 2.828427, 0.001);
+    // Reverse case: line/point instead of point/line
+    d = bg::distance(line, p);
+    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
 }
+
+
+template <typename P>
+void test_distance_ring()
+{
+    typedef typename bg::distance_result<P>::type return_type;
+
+    bg::linear_ring<P> ring;
+    {
+        P lp;
+        bg::set<0>(lp, 1); bg::set<1>(lp, 1); line.push_back(lp);
+        bg::set<0>(lp, 2); bg::set<1>(lp, 2); line.push_back(lp);
+        bg::set<0>(lp, 3); bg::set<1>(lp, 3); line.push_back(lp);
+    }
+
+    bg::set<0>(p, 5); bg::set<1>(p, 5);
+
+    d = bg::distance(p, line);
+    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
+
+    // Reverse case: line/point instead of point/line
+    d = bg::distance(line, p);
+    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
+}
+
 
 template <typename P>
 void test_all()
 {
-    test_distance_result<P>();
     test_distance_point<P>();
-//    test_distance_segment<P>();
-#ifndef TEST_ARRAY
-    //test_distance_linestring<P>();
-#endif
+    test_distance_segment<P>();
+    test_distance_linestring<P>();
 }
 
 int test_main(int, char* [])
 {
 #ifdef TEST_ARRAY
-    test_all<int[2]>();
-    test_all<float[2]>();
-    test_all<double[2]>();
-    test_all<test::test_point>(); // located here because of 3D
+    //test_all<int[2]>();
+    //test_all<float[2]>();
+    //test_all<double[2]>();
+    //test_all<test::test_point>(); // located here because of 3D
 #endif
 
-    test_all<boost::geometry::point_xy<int> >();
+    test_all<bg::point_xy<int> >();
     test_all<boost::tuple<float, float> >();
-    test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::point_xy<float> >();
+    test_all<bg::point_xy<double> >();
 
     return 0;
 }
