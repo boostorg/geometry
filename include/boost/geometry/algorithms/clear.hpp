@@ -13,6 +13,7 @@
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/container_access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
@@ -27,16 +28,7 @@ namespace detail { namespace clear
 {
 
 template <typename Geometry>
-struct use_std_clear
-{
-    static inline void apply(Geometry& geometry)
-    {
-        geometry.clear();
-    }
-};
-
-template <typename Geometry>
-struct use_traits_clear
+struct collection_clear
 {
     static inline void apply(Geometry& geometry)
     {
@@ -69,45 +61,40 @@ struct no_action
 namespace dispatch
 {
 
-template <typename Tag, bool UseStd, typename Geometry>
+template <typename Tag, typename Geometry>
 struct clear
-{};
-
-// True (default for all geometry types, unless otherwise implemented in traits)
-// uses std::clear
-template <typename Tag, typename Geometry>
-struct clear<Tag, true, Geometry>
-    : detail::clear::use_std_clear<Geometry>
-{};
-
-// If any geometry specializes use_std<Geometry> to false, specialize to use the traits clear.
-template <typename Tag, typename Geometry>
-struct clear<Tag, false, Geometry>
-    : detail::clear::use_traits_clear<Geometry>
 {};
 
 // Point/box/segment do not have clear. So specialize to do nothing.
 template <typename Geometry>
-struct clear<point_tag, true, Geometry>
+struct clear<point_tag, Geometry>
     : detail::clear::no_action<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<box_tag, true, Geometry>
+struct clear<box_tag, Geometry>
     : detail::clear::no_action<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<segment_tag, true, Geometry>
+struct clear<segment_tag, Geometry>
     : detail::clear::no_action<Geometry>
 {};
 
+template <typename Geometry>
+struct clear<linestring_tag, Geometry>
+    : detail::clear::collection_clear<Geometry>
+{};
 
+template <typename Geometry>
+struct clear<ring_tag, Geometry>
+    : detail::clear::collection_clear<Geometry>
+{};
 
 
 // Polygon can (indirectly) use std for clear
 template <typename Polygon>
-struct clear<polygon_tag, true, Polygon>
+struct clear<polygon_tag, Polygon>
     : detail::clear::polygon_clear<Polygon>
 {};
 
@@ -130,10 +117,6 @@ inline void clear(Geometry& geometry)
     dispatch::clear
         <
             typename tag<Geometry>::type,
-            traits::use_std
-                <
-                    typename boost::remove_const<Geometry>::type
-                >::value,
             Geometry
         >::apply(geometry);
 }

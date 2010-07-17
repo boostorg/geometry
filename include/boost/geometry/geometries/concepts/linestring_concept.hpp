@@ -16,12 +16,11 @@
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/container_access.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
-#include <boost/geometry/geometries/concepts/detail/check_clear.hpp>
-#include <boost/geometry/geometries/concepts/detail/check_append.hpp>
 
 
 namespace boost { namespace geometry { namespace concept
@@ -86,16 +85,11 @@ public :
     BOOST_CONCEPT_USAGE(Linestring)
     {
         // Check if it can be modified
-        static const bool use_std = traits::use_std
-            <
-                typename boost::remove_const<Geometry>::type
-            >::value;
-
         Geometry* ls;
-        detail::check_clear<Geometry, use_std>::apply(*ls);
+        traits::clear<Geometry>::apply(*ls);
 
         point_type* p;
-        detail::check_append<Geometry, point_type, use_std>::apply(*ls, *p);
+        traits::append_point<Geometry, point_type>::apply(*ls, *p, -1, -1);
     }
 #endif
 };

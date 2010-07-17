@@ -10,16 +10,9 @@
 
 #include <sstream>
 
+#include <algorithms/test_distance.hpp>
+
 #include <boost/mpl/if.hpp>
-#include <geometry_test_common.hpp>
-
-
-#include <boost/geometry/algorithms/distance.hpp>
-#include <boost/geometry/strategies/strategies.hpp>
-
-#ifndef TEST_ARRAY
-#include <boost/geometry/algorithms/make.hpp>
-#endif
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/boost_array_as_linestring.hpp>
@@ -31,153 +24,43 @@
 namespace bg = boost::geometry;
 
 
-// Define a custom distance strategy
-// For this one, the "taxicab" distance, 
-// see http://en.wikipedia.org/wiki/Taxicab_geometry
-
-// For a point-point-distance operation, one typename Point is enough.
-// For a point-segment-distance operation, there is some magic inside
-// using another point type and casting if necessary. Therefore,
-// two point-types are necessary.
-template <typename P1, typename P2 = P1>
-struct taxicab_distance
-{
-    static inline typename boost::geometry::coordinate_type<P1>::type apply(
-                    P1 const& p1, P2 const& p2) 
-    {
-        using boost::geometry::get;
-        using boost::geometry::math::abs;
-        return abs(get<0>(p1) - get<1>(p2))
-            + abs(get<1>(p1) - get<1>(p2));
-    }
-};
-
-
-
-namespace boost { namespace geometry { namespace strategy { namespace distance { namespace services 
-{
-
-template <typename P1, typename P2>
-struct tag<taxicab_distance<P1, P2> >
-{
-    typedef strategy_tag_distance_point_point type;
-};
-
-
-template <typename P1, typename P2>
-struct return_type<taxicab_distance<P1, P2> >
-{
-    typedef typename coordinate_type<P1>::type type;
-};
-
-
-template<typename P1, typename P2, typename PN1, typename PN2>
-struct similar_type<taxicab_distance<P1, P2>, PN1, PN2>
-{
-    typedef taxicab_distance<PN1, PN2> type;
-};
-
-
-template<typename P1, typename P2, typename PN1, typename PN2>
-struct get_similar<taxicab_distance<P1, P2>, PN1, PN2>
-{
-    static inline typename similar_type
-        <
-            taxicab_distance<P1, P2>, PN1, PN2
-        >::type apply(taxicab_distance<P1, P2> const& )
-    {
-        return taxicab_distance<PN1, PN2>();
-    }
-};
-
-template <typename P1, typename P2>
-struct comparable_type<taxicab_distance<P1, P2> >
-{
-    typedef taxicab_distance<P1, P2> type;
-};
-
-template <typename P1, typename P2>
-struct get_comparable<taxicab_distance<P1, P2> >
-{
-    static inline taxicab_distance<P1, P2> apply(taxicab_distance<P1, P2> const& input)
-    {
-        return input;
-    }
-};
-
-template <typename P1, typename P2>
-struct result_from_distance<taxicab_distance<P1, P2> >
-{
-    template <typename T>
-    static inline typename coordinate_type<P1>::type apply(taxicab_distance<P1, P2> const& , T const& value)
-    {
-        return value;
-    }
-};
-
-
-}}}}} // namespace boost::geometry::strategy::distance::services
-
-
-
-
 template <typename P>
 void test_distance_point()
 {
     namespace services = bg::strategy::distance::services;
     typedef typename bg::distance_result<P>::type return_type;
 
-    {
-        // Basic, trivial test
+    // Basic, trivial test
 
-        P p1;
-        bg::set<0>(p1, 1);
-        bg::set<1>(p1, 1);
+    P p1;
+    bg::set<0>(p1, 1);
+    bg::set<1>(p1, 1);
 
-        P p2;
-        bg::set<0>(p2, 2);
-        bg::set<1>(p2, 2);
+    P p2;
+    bg::set<0>(p2, 2);
+    bg::set<1>(p2, 2);
 
-        return_type d = bg::distance(p1, p2);
-        BOOST_CHECK_CLOSE(d, return_type(1.4142135), 0.001);
+    return_type d = bg::distance(p1, p2);
+    BOOST_CHECK_CLOSE(d, return_type(1.4142135), 0.001);
 
-        // Test specifying strategy manually
-        typename services::default_strategy<bg::point_tag, P>::type strategy;
+    // Test specifying strategy manually
+    typename services::default_strategy<bg::point_tag, P>::type strategy;
 
-        d = bg::distance(p1, p2, strategy);
-        BOOST_CHECK_CLOSE(d, return_type(1.4142135), 0.001);
-
-        {
-            // Test custom strategy
-            BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<taxicab_distance<P> >) );
-
-            typedef typename services::return_type<taxicab_distance<P> >::type cab_return_type;
-            BOOST_MPL_ASSERT((boost::is_same<cab_return_type, typename bg::coordinate_type<P>::type>));
-
-            taxicab_distance<P> tcd;
-            cab_return_type d = bg::distance(p1, p2, tcd);
-
-            BOOST_CHECK( bg::math::abs(d - cab_return_type(2)) <= cab_return_type(0.01) );
-        }
-    }
-
+    d = bg::distance(p1, p2, strategy);
+    BOOST_CHECK_CLOSE(d, return_type(1.4142135), 0.001);
 
     {
-        // 3-4-5 angle
-        P p1, p2, p3;
-        bg::set<0>(p1, 0); bg::set<1>(p1, 0);
-        bg::set<0>(p2, 3); bg::set<1>(p2, 0);
-        bg::set<0>(p3, 0); bg::set<1>(p3, 4);
+        // Test custom strategy
+        BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<taxicab_distance<P> >) );
 
-        return_type dr12 = bg::distance(p1, p2);
-        return_type dr13 = bg::distance(p1, p3);
-        return_type dr23 = bg::distance(p2, p3);
+        typedef typename services::return_type<taxicab_distance<P> >::type cab_return_type;
+        BOOST_MPL_ASSERT((boost::is_same<cab_return_type, typename bg::coordinate_type<P>::type>));
 
-        BOOST_CHECK_CLOSE(dr12, return_type(3), 0.001);
-        BOOST_CHECK_CLOSE(dr13, return_type(4), 0.001);
-        BOOST_CHECK_CLOSE(dr23, return_type(5), 0.001);
+        taxicab_distance<P> tcd;
+        cab_return_type d = bg::distance(p1, p2, tcd);
+
+        BOOST_CHECK( bg::math::abs(d - cab_return_type(2)) <= cab_return_type(0.01) );
     }
-
 
     {
         // test comparability
@@ -260,7 +143,8 @@ void test_distance_linestring()
     bg::set<1>(points[1], 3);
 
     P p;
-    bg::set<0>(p, 2); bg::set<1>(p, 1);
+    bg::set<0>(p, 2); 
+    bg::set<1>(p, 1);
 
     return_type d = bg::distance(p, points);
     BOOST_CHECK_CLOSE(d, return_type(0.70710678), 0.001);
@@ -268,49 +152,9 @@ void test_distance_linestring()
     bg::set<0>(p, 5); bg::set<1>(p, 5);
     d = bg::distance(p, points);
     BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
-
-
-    bg::linestring<P> line;
-    {
-        P lp;
-        bg::set<0>(lp, 1); bg::set<1>(lp, 1); line.push_back(lp);
-        bg::set<0>(lp, 2); bg::set<1>(lp, 2); line.push_back(lp);
-        bg::set<0>(lp, 3); bg::set<1>(lp, 3); line.push_back(lp);
-    }
-
-    bg::set<0>(p, 5); bg::set<1>(p, 5);
-
-    d = bg::distance(p, line);
-    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
-
-    // Reverse case: line/point instead of point/line
-    d = bg::distance(line, p);
-    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
 }
 
 
-template <typename P>
-void test_distance_ring()
-{
-    typedef typename bg::distance_result<P>::type return_type;
-
-    bg::linear_ring<P> ring;
-    {
-        P lp;
-        bg::set<0>(lp, 1); bg::set<1>(lp, 1); line.push_back(lp);
-        bg::set<0>(lp, 2); bg::set<1>(lp, 2); line.push_back(lp);
-        bg::set<0>(lp, 3); bg::set<1>(lp, 3); line.push_back(lp);
-    }
-
-    bg::set<0>(p, 5); bg::set<1>(p, 5);
-
-    d = bg::distance(p, line);
-    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
-
-    // Reverse case: line/point instead of point/line
-    d = bg::distance(line, p);
-    BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
-}
 
 
 template <typename P>
@@ -319,6 +163,18 @@ void test_all()
     test_distance_point<P>();
     test_distance_segment<P>();
     test_distance_linestring<P>();
+
+    test_geometry<P, P>("POINT(1 1)", "POINT(2 2)", sqrt(2.0));
+    test_geometry<P, P>("POINT(0 0)", "POINT(0 3)", 3.0);
+    test_geometry<P, P>("POINT(0 0)", "POINT(4 0)", 4.0);
+    test_geometry<P, P>("POINT(0 3)", "POINT(4 0)", 5.0);
+    test_geometry<P, bg::linestring<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    test_geometry<P, bg::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+
+    // This one COMPILES but should THROW
+    //test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+
+    test_geometry<bg::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
 }
 
 int test_main(int, char* [])
