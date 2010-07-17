@@ -78,6 +78,7 @@ struct transform_point
     }
 };
 
+
 template <typename Box1, typename Box2, typename Strategy>
 struct transform_box
 {
@@ -117,6 +118,7 @@ struct transform_box
     }
 };
 
+
 template
 <
     typename PointOut,
@@ -142,11 +144,11 @@ inline bool transform_range_out(Range const& range,
         {
             return false;
         }
-        *out = point_out;
-        ++out;
+        *out++ = point_out;
     }
     return true;
 }
+
 
 template <typename Polygon1, typename Polygon2, typename Strategy>
 struct transform_polygon
@@ -312,6 +314,7 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
     return transform_type::apply(geometry1, geometry2, strategy);
 }
 
+
 /*!
     \brief Transforms from one geometry to another geometry using a strategy
     \ingroup transform
@@ -331,6 +334,8 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2)
     return transform(geometry1, geometry2, strategy);
 }
 
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_TRANSFORM_HPP

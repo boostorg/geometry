@@ -22,6 +22,7 @@
 #include <boost/geometry/geometries/adapted/boost_array_as_linestring.hpp>
 
 #include <test_common/test_point.hpp>
+#include <test_geometries/wrapped_boost_array.hpp>
 
 template <typename G>
 void test_geometry()
@@ -47,6 +48,8 @@ void test_all()
     test_geometry<std::vector<P> >();
     test_geometry<std::deque<P> >();
     //test_geometry<std::list<P> >();
+
+    test_geometry<test::wrapped_boost_array<P, 2> >();
 }
 
 int test_main(int, char* [])

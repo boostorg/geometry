@@ -51,17 +51,6 @@ namespace traits
         }
     };
 
-    // Append does not exist for a boost::array
-    // It should not be used, and therefore: throw
-    template <typename Point, std::size_t PointCount, typename Point2>
-    struct append_point< boost::array<Point, PointCount>, Point2 >
-    {
-        static inline void apply(boost::array<Point, PointCount>& ,
-                        Point const& , int , int )
-        {
-        }
-    };
-
 }
 #endif
 

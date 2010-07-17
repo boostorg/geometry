@@ -123,7 +123,8 @@ inline void assign_next_ip(G1 const& g1, G2 const& g2,
         ip = boost::begin(turns) + info.enriched.next_ip_index;
         seg_id = info.seg_id;
     }
-    *(std::back_inserter(current_output)++) = ip->point;
+
+    geometry::append(current_output, ip->point);
 }
 
 
@@ -300,7 +301,7 @@ inline void traverse(Geometry1 const& geometry1,
                         set_visited_for_contine(*it, *iit);
 
                         typename boost::range_value<Rings>::type current_output;
-                        *(std::back_inserter(current_output)++) = it->point;
+                        geometry::append(current_output, it->point);
 
                         turn_iterator current = it;
                         turn_operation_iterator_type current_iit = iit;

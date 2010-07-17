@@ -15,12 +15,6 @@ test-suite ggl-geometries
         : # target name
         custom_linestring_test_fail_clear
     ]
-    [ compile-fail custom_linestring.cpp 
-        : # requirements
-        <define>TEST_FAIL_APPEND
-        : # target name
-        custom_linestring_test_fail_append
-    ]
     [ run custom_linestring.cpp ]
     [ run segment.cpp ]
     ;

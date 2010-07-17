@@ -13,6 +13,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 
 
+#include <test_geometries/wrapped_boost_array.hpp>
 #include <test_common/test_point.hpp>
 
 
@@ -32,6 +33,14 @@ void test_all()
     test_geometry<boost::geometry::linestring<P> >(
         "LINESTRING(0 0,5 5,7 5,10 10)",
         "LINESTRING(0 0,5 5,7 5,10 10)", 1.0);
+
+    test_geometry<test::wrapped_boost_array<P, 10> >(
+        "LINESTRING(0 0,5 5,7 5,10 10)",
+        "LINESTRING(0 0,5 5,7 5,10 10)", 1.0);
+
+    test_geometry<boost::geometry::linear_ring<P> >(
+        "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
+        "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
 
     test_geometry<boost::geometry::polygon<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
@@ -77,6 +86,7 @@ int test_main(int, char* [])
 {
     // Integer compiles, but simplify-process fails (due to distances)
     //test_all<boost::geometry::point_xy<int> >();
+
     test_all<boost::geometry::point_xy<float> >();
     test_all<boost::geometry::point_xy<double> >();
 

@@ -141,9 +141,7 @@ struct convert<ring_tag, ring_tag, Dimensions, Ring1, Ring2>
             it != boost::end(source);
             ++it)
         {
-            typename geometry::point_type<Ring2>::type p;
-            geometry::copy_coordinates(*it, p);
-            geometry::append(destination, p);
+            geometry::append(destination, *it);
         }
     }
 };

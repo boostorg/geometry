@@ -27,10 +27,8 @@ namespace traits
 
 
 /*!
-\brief Traits class, optional, might be implemented to clear a geometry
-\details If a geometry type should not use the std ".clear()"
-    then it can specialize the "use_std" traits class to false,
-    it should then implement (a.o.) clear
+\brief Traits class to clear a geometry
+\note Might be obsolete as well...
 \ingroup traits
 \par Geometries:
     - linestring
@@ -47,29 +45,6 @@ struct clear
     }
 };
 
-
-/*!
-\brief Traits class, optional, might be implemented to append a point
-\details If a geometry type should not use the std "push_back"
-    then it can specialize the "use_std" traits class to false,
-    it should then implement (a.o.) append_point
-\ingroup traits
-\par Geometries:
-    - linestring
-    - linear_ring
-\par Specializations should provide:
-    - apply
- */
-template <typename Geometry, typename Point>
-struct append_point
-{
-    static inline void apply(Geometry& geometry, Point const& point, int , int )
-    {
-        typename geometry::point_type<Geometry>::type copy;
-        copy_coordinates(point, copy);
-        geometry.push_back(copy);
-    }
-};
 
 
 } // namespace traits

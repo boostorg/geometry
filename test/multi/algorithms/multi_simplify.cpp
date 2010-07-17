@@ -7,7 +7,6 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/simplify.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
