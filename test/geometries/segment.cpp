@@ -15,8 +15,6 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
-#include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/geometries/register/segment.hpp>
 
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
@@ -25,6 +23,7 @@
 
 
 #include <test_common/test_point.hpp>
+#include <test_geometries/custom_segment.hpp>
 
 
 template <typename P>
@@ -48,7 +47,7 @@ void test_all()
 
     //std::cout << sizeof(typename coordinate_type<S>::type) << std::endl;
 
-    typedef boost::geometry::segment<const P> CS;
+    typedef boost::geometry::segment<P const> CS;
     //BOOST_CONCEPT_ASSERT( (concept::ConstSegment<CS>) );
 
     CS cs(p1, p2);
@@ -57,28 +56,6 @@ void test_all()
     typedef typename boost::geometry::point_type<CS>::type CSP;
 }
 
-struct custom_point
-{
-    double x, y;
-};
-struct custom_segment
-{
-    custom_point one, two;
-};
-template <typename P>
-struct custom_segment_of
-{
-    P p1, p2;
-};
-struct custom_segment_4
-{
-    double a, b, c, d;
-};
-
-BOOST_GEOMETRY_REGISTER_POINT_2D(custom_point, double, boost::geometry::cs::cartesian, x, y)
-BOOST_GEOMETRY_REGISTER_SEGMENT(custom_segment, custom_point, one, two)
-BOOST_GEOMETRY_REGISTER_SEGMENT_TEMPLATIZED(custom_segment_of, p1, p2)
-BOOST_GEOMETRY_REGISTER_SEGMENT_2D_4VALUES(custom_segment_4, custom_point, a, b, c, d)
 
 
 template <typename S>
@@ -105,10 +82,10 @@ int test_main(int, char* [])
     test_all<boost::geometry::point<float, 3, boost::geometry::cs::cartesian> >();
     test_all<boost::geometry::point<double, 3, boost::geometry::cs::cartesian> >();
 
-    test_custom<custom_segment>();
-    test_custom<custom_segment_of<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> > >();
-    test_custom<custom_segment_of<custom_point> >();
-    test_custom<custom_segment_4>();
+    test_custom<test::custom_segment>();
+    test_custom<test::custom_segment_of<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> > >();
+    test_custom<test::custom_segment_of<test::custom_point_for_segment> >();
+    test_custom<test::custom_segment_4>();
 
     return 0;
 }

@@ -10,9 +10,6 @@
 #define GEOMETRY_TEST_TEST_GEOMETRIES_WRAPPED_BOOST_ARRAY_HPP
 
 #include <cstddef>
-#include <vector>
-#include <boost/array.hpp>
-
 
 #include <boost/array.hpp>
 #include <boost/range.hpp>
@@ -63,7 +60,7 @@ namespace test
     template <typename Point, std::size_t Count>
     inline typename boost::range_iterator
         <
-            wrapped_boost_array<Point, Count> 
+            wrapped_boost_array<Point, Count>
         >::type range_begin(wrapped_boost_array<Point, Count>& ar)
     {
         return ar.array.begin();
@@ -86,7 +83,7 @@ namespace test
     {
         typename boost::range_iterator
             <
-                wrapped_boost_array<Point, Count> 
+                wrapped_boost_array<Point, Count>
             >::type it = ar.array.begin();
         return it + ar.size;
     }
@@ -141,22 +138,22 @@ class back_insert_iterator< test::wrapped_boost_array<Point, Count> >
 public:
 
     typedef test::wrapped_boost_array<Point, Count> container_type;
-    typedef back_insert_iterator<container_type> this_type; 
+    typedef back_insert_iterator<container_type> this_type;
 
-    explicit back_insert_iterator(container_type& ar) 
+    explicit back_insert_iterator(container_type& ar)
         : m_current(boost::begin(ar) + ar.size)
         , m_array(ar)
     {}
 
-    inline this_type& operator=(Point const& value) 
-    { 
+    inline this_type& operator=(Point const& value)
+    {
         // Check if not passed beyond
         if (m_array.size < Count)
         {
-    	    *m_current++ = value;
+            *m_current++ = value;
             m_array.size++;
         }
-	    return *this;
+        return *this;
     }
 
     // Boiler-plate
