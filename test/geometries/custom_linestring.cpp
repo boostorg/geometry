@@ -51,16 +51,11 @@ namespace boost { namespace geometry { namespace traits {
     template <typename P>
     struct tag< custom_linestring2<P> > { typedef linestring_tag type; };
 
-    template <typename P>
-    struct use_std< custom_linestring2<P> >
-    {
-        static const bool value = false;
-    };
-
 #if ! defined(TEST_FAIL_CLEAR)
     template <typename P>
     struct clear< custom_linestring2<P> >
     {
+        // does not use std::vector<P>.clear() but something else.
         static inline void apply(custom_linestring2<P>& ls) { ls.resize(0); }
     };
 #endif
