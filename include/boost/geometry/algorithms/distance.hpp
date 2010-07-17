@@ -24,6 +24,7 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 
@@ -97,9 +98,10 @@ struct point_to_segment
                 Strategy
             >::type segment_strategy;
 
-        // See remark below.
-        // TODO: avoid .first, .second
-        return segment_strategy.apply(point, segment.first, segment.second);
+        typename point_type<Segment>::type p[2];
+        geometry::assign_point_from_index<0>(segment, p[0]);
+        geometry::assign_point_from_index<1>(segment, p[1]);
+        return segment_strategy.apply(point, p[0], p[1]);
     }
 };
 

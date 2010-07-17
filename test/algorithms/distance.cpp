@@ -20,6 +20,7 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
 #include <test_common/test_point.hpp>
+#include <test_geometries/custom_segment.hpp>
 #include <test_geometries/wrapped_boost_array.hpp>
 
 
@@ -134,10 +135,11 @@ void test_distance_segment()
 
 
 template <typename P>
-void test_distance_linestring()
+void test_distance_array_as_linestring()
 {
     typedef typename bg::distance_result<P>::type return_type;
 
+    // Normal array does not have
     boost::array<P, 2> points;
     bg::set<0>(points[0], 1);
     bg::set<1>(points[0], 1);
@@ -164,7 +166,10 @@ void test_all()
 {
     test_distance_point<P>();
     test_distance_segment<P>();
-    test_distance_linestring<P>();
+    test_distance_array_as_linestring<P>();
+
+    test_geometry<P, test::custom_segment>("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    test_geometry<P, test::custom_segment>("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_geometry<P, P>("POINT(1 1)", "POINT(2 2)", sqrt(2.0));
     test_geometry<P, P>("POINT(0 0)", "POINT(0 3)", 3.0);
@@ -172,13 +177,12 @@ void test_all()
     test_geometry<P, P>("POINT(0 3)", "POINT(4 0)", 5.0);
     test_geometry<P, bg::linestring<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
     test_geometry<P, bg::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    test_geometry<bg::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
 
     // This one COMPILES but should THROW - because boost::array is not variably sized
     //test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_geometry<P, test::wrapped_boost_array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
-
-    test_geometry<bg::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
 }
 
 int test_main(int, char* [])
