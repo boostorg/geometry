@@ -28,7 +28,7 @@ namespace boost { namespace geometry
 
 // TODO: rename to "default_distance_result" or services::default_result
 
-template <typename Geometry1, typename Geometry2>
+template <typename Geometry1, typename Geometry2 = Geometry1>
 struct distance_result
 {
     typedef typename strategy::distance::services::return_type

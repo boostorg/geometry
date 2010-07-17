@@ -23,8 +23,15 @@ namespace boost { namespace geometry
 namespace strategy { namespace distance { namespace services
 {
 
+
 template <typename Strategy> struct tag {};
-template <typename Strategy> struct return_type {};
+template <typename Strategy> struct return_type 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY, (types<Strategy>)
+        );
+};
 
 
 /*!
@@ -36,7 +43,14 @@ template
     typename Point1,
     typename Point2
 >
-struct similar_type {};
+struct similar_type 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY
+            , (types<Strategy, Point1, Point2>)
+        );
+};
 
 template
 <
@@ -44,10 +58,30 @@ template
     typename Point1,
     typename Point2
 >
-struct get_similar {};
+struct get_similar 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY
+            , (types<Strategy, Point1, Point2>)
+        );
+};
 
-template <typename Strategy> struct comparable_type {};
-template <typename Strategy> struct get_comparable {};
+template <typename Strategy> struct comparable_type 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY, (types<Strategy>)
+        );
+};
+
+template <typename Strategy> struct get_comparable 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY, (types<Strategy>)
+        );
+};
 
 template <typename Strategy> struct result_from_distance {};
 
@@ -75,7 +109,8 @@ template
     typename Point1,
     typename Point2 = Point1,
     typename CsTag1 = typename cs_tag<Point1>::type,
-    typename CsTag2 = typename cs_tag<Point2>::type
+    typename CsTag2 = typename cs_tag<Point2>::type,
+    typename UnderlyingStrategy = void
 >
 struct default_strategy
 {

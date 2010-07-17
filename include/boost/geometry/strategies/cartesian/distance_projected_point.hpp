@@ -266,19 +266,29 @@ public :
 };
 
 
-template <typename Point, typename PointOfSegment>
-struct default_strategy<segment_tag, Point, PointOfSegment, cartesian_tag, cartesian_tag>
+// Get default-strategy for point-segment distance calculation
+// while still have the possibility to specify point-point distance strategy (PPS)
+// It is used in algorithms/distance.hpp where users specify PPS for distance
+// of point-to-segment or point-to-linestring.
+// Convenient for geographic coordinate systems especially.
+template <typename Point, typename PointOfSegment, typename Strategy>
+struct default_strategy<segment_tag, Point, PointOfSegment, cartesian_tag, cartesian_tag, Strategy>
 {
     typedef strategy::distance::projected_point
     <
         Point,
         PointOfSegment,
         void,
-        typename default_strategy
-        <
-            point_tag, Point, PointOfSegment,
-            cartesian_tag, cartesian_tag
-        >::type
+        typename boost::mpl::if_
+            <
+                boost::is_void<Strategy>,
+                typename default_strategy
+                    <
+                        point_tag, Point, PointOfSegment,
+                        cartesian_tag, cartesian_tag
+                    >::type,
+                Strategy
+            >::type
     > type;
 };
 
