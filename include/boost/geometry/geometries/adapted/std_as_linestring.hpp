@@ -25,6 +25,7 @@
 
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/container_access.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -50,10 +51,6 @@ namespace traits
 {
     // specialization for an iterator pair (read only)
     template <typename P> struct tag< std::pair<P, P> > : util::std_as_linestring {};
-
-    // Indicate that std::library is not used to add things to std::pair.
-    // Don't implement anything else -> adding points or clearing not possible
-    template <typename P> struct use_std< std::pair<P, P> > : boost::mpl::false_ {};
 
     // specializations for the std:: containers: vector, deque, list
     template <typename P> struct tag< std::vector<P> > : util::std_as_linestring {};

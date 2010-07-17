@@ -14,6 +14,7 @@
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/container_access.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -29,23 +30,8 @@ namespace boost { namespace geometry
 namespace detail { namespace append
 {
 
-template <typename Geometry, typename Point, bool UseStd>
-struct append_point {};
-
 template <typename Geometry, typename Point>
-struct append_point<Geometry, Point, true>
-{
-    static inline void apply(Geometry& geometry, Point const& point, int , int )
-    {
-        typename point_type<Geometry>::type point_type;
-
-        copy_coordinates(point, point_type);
-        geometry.push_back(point_type);
-    }
-};
-
-template <typename Geometry, typename Point>
-struct append_point<Geometry, Point, false>
+struct append_point
 {
     static inline void apply(Geometry& geometry, Point const& point,
                 int ring_index, int multi_index)
@@ -55,7 +41,7 @@ struct append_point<Geometry, Point, false>
     }
 };
 
-template <typename Geometry, typename Range, bool UseStd>
+template <typename Geometry, typename Range>
 struct append_range
 {
     typedef typename boost::range_value<Range>::type point_type;
@@ -68,13 +54,13 @@ struct append_range
              it != boost::end(range);
              ++it)
         {
-            append_point<Geometry, point_type, UseStd>::apply(geometry, *it,
+            traits::append_point<Geometry, point_type>::apply(geometry, *it,
                         ring_index, multi_index);
         }
     }
 };
 
-template <typename Polygon, typename Point, bool Std>
+template <typename Polygon, typename Point>
 struct point_to_poly
 {
     typedef typename ring_type<Polygon>::type range_type;
@@ -84,18 +70,18 @@ struct point_to_poly
     {
         if (ring_index == -1)
         {
-            append_point<range_type, Point, Std>::apply(
+            traits::append_point<range_type, Point>::apply(
                         exterior_ring(polygon), point, -1, -1);
         }
         else if (ring_index < int(num_interior_rings(polygon)))
         {
-            append_point<range_type, Point, Std>::apply(
+            traits::append_point<range_type, Point>::apply(
                         interior_rings(polygon)[ring_index], point, -1, -1);
         }
     }
 };
 
-template <typename Polygon, typename Range, bool Std>
+template <typename Polygon, typename Range>
 struct range_to_poly
 {
     typedef typename ring_type<Polygon>::type ring_type;
@@ -105,12 +91,12 @@ struct range_to_poly
     {
         if (ring_index == -1)
         {
-            append_range<ring_type, Range, Std>::apply(
+            append_range<ring_type, Range>::apply(
                         exterior_ring(polygon), range, -1, -1);
         }
         else if (ring_index < int(num_interior_rings(polygon)))
         {
-            append_range<ring_type, Range, Std>::apply(
+            append_range<ring_type, Range>::apply(
                         interior_rings(polygon)[ring_index], range, -1, -1);
         }
     }
@@ -124,32 +110,32 @@ struct range_to_poly
 namespace dispatch
 {
 
-// (RoP = range or point, Std = use std library)
+// (RoP = range or point = use std library)
 
 // Default case (where RoP will be range/array/etc)
-template <typename Tag, typename TagRoP, typename G, typename RoP, bool Std>
-struct append : detail::append::append_range<G, RoP, Std> {};
+template <typename Tag, typename TagRoP, typename G, typename RoP>
+struct append : detail::append::append_range<G, RoP> {};
 
 // Append a point to any geometry
-template <typename Tag, typename G, typename P, bool Std>
-struct append<Tag, point_tag, G, P, Std>
-    : detail::append::append_point<G, P, Std> {};
+template <typename Tag, typename G, typename P>
+struct append<Tag, point_tag, G, P>
+    : detail::append::append_point<G, P> {};
 
 // Never possible to append anything to a point/box/n-sphere
-template <typename TagRoP, typename Point, typename RoP, bool Std>
-struct append<point_tag, TagRoP, Point, RoP, Std> {};
+template <typename TagRoP, typename Point, typename RoP>
+struct append<point_tag, TagRoP, Point, RoP> {};
 
-template <typename TagRoP, typename Box, typename RoP, bool Std>
-struct append<box_tag, TagRoP, Box, RoP, Std> {};
+template <typename TagRoP, typename Box, typename RoP>
+struct append<box_tag, TagRoP, Box, RoP> {};
 
 
-template <typename Polygon, typename TagRange, typename Range, bool Std>
-struct append<polygon_tag, TagRange, Polygon, Range, Std>
-        : detail::append::range_to_poly<Polygon, Range, Std> {};
+template <typename Polygon, typename TagRange, typename Range>
+struct append<polygon_tag, TagRange, Polygon, Range>
+        : detail::append::range_to_poly<Polygon, Range> {};
 
-template <typename Polygon, typename Point, bool Std>
-struct append<polygon_tag, point_tag, Polygon, Point, Std>
-        : detail::append::point_to_poly<Polygon, Point, Std> {};
+template <typename Polygon, typename Point>
+struct append<polygon_tag, point_tag, Polygon, Point>
+        : detail::append::point_to_poly<Polygon, Point> {};
 
 // Multi-linestring and multi-polygon might either implement traits
 // or use standard...
@@ -180,8 +166,7 @@ inline void append(Geometry& geometry, RoP const& range_or_point,
             typename tag<Geometry>::type,
             typename tag<RoP>::type,
             ncg_type,
-            RoP,
-            traits::use_std<ncg_type>::value
+            RoP
         >::apply(geometry, range_or_point, ring_index, multi_index);
 }
 

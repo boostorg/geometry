@@ -16,12 +16,10 @@
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/container_access.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
-
-#include <boost/geometry/geometries/concepts/detail/check_clear.hpp>
-#include <boost/geometry/geometries/concepts/detail/check_append.hpp>
 
 
 namespace boost { namespace geometry { namespace concept
@@ -58,17 +56,11 @@ public :
 
     BOOST_CONCEPT_USAGE(Ring)
     {
-        // Check if it can be modified
-        static const bool use_std = traits::use_std
-            <
-                typename boost::remove_const<Geometry>::type
-            >::value;
-
         Geometry* ring;
-        detail::check_clear<Geometry, use_std>::apply(*ring);
+        traits::clear<Geometry>::apply(*ring);
 
         point_type* p;
-        detail::check_append<Geometry, point_type, use_std>::apply(*ring, *p);
+        traits::append_point<Geometry, point_type>::apply(*ring, *p, -1, -1);
     }
 #endif
 };

@@ -22,6 +22,7 @@
 
 
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -229,6 +230,40 @@ struct container_inserter
     }
 };
 
+
+template <typename Geometry>
+struct container_appender
+{
+    typedef typename geometry::point_type<Geometry>::type point_type;
+    static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
+        std::string const& wkt, Geometry& out)
+    {
+        handle_open_parenthesis(it, end, wkt);
+
+        point_type point;
+
+        // Parse points until closing parenthesis
+
+        while (it != end && *it != ")")
+        {
+            parsing_assigner
+                <
+                    point_type,
+                    0,
+                    dimension<point_type>::value
+                >::apply(it, end, point, wkt);
+
+            geometry::append(out, point);
+            if (it != end && *it == ",")
+            {
+                ++it;
+            }
+        }
+
+        handle_close_parenthesis(it, end, wkt);
+    }
+};
+
 /*!
 \brief Internal, parses a point from a string like this "(x y)"
 \note used for parsing points and multi-points
@@ -252,10 +287,7 @@ struct linestring_parser
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
                 std::string const& wkt, Geometry& geometry)
     {
-        container_inserter
-            <
-                typename point_type<Geometry>::type
-            >::apply(it, end, wkt, std::back_inserter(geometry));
+        container_appender<Geometry>::apply(it, end, wkt, geometry);
     }
 };
 
@@ -270,10 +302,7 @@ struct ring_parser
         // So handle the extra opening/closing parentheses
         // and in between parse using the container-inserter
         handle_open_parenthesis(it, end, wkt);
-        container_inserter
-            <
-                typename point_type<Ring>::type
-            >::apply(it, end, wkt, std::back_inserter(ring));
+        container_appender<Ring>::apply(it, end, wkt, ring);
         handle_close_parenthesis(it, end, wkt);
     }
 };
@@ -288,13 +317,12 @@ struct ring_parser
 template <typename Polygon>
 struct polygon_parser
 {
+    typedef typename ring_type<Polygon>::type ring_type;
+
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
                 std::string const& wkt, Polygon& poly)
     {
-        typedef container_inserter
-            <
-                typename point_type<Polygon>::type
-            > container_inserter;
+        typedef container_appender<ring_type> appender;
 
         handle_open_parenthesis(it, end, wkt);
 
@@ -306,14 +334,13 @@ struct polygon_parser
             // Parse ring
             if (++n == 0)
             {
-                container_inserter::apply(it, end, wkt,
-                        std::back_inserter(exterior_ring(poly)));
+                appender::apply(it, end, wkt, exterior_ring(poly));
             }
             else
             {
                 interior_rings(poly).resize(n);
-                container_inserter::apply(it, end, wkt,
-                        std::back_inserter(interior_rings(poly).back()));
+                appender::apply(it, end, wkt,
+                        interior_rings(poly).back());
             }
 
             if (it != end && *it == ",")
@@ -665,8 +692,8 @@ Small example showing how to use read_wkt with an output iterator
 \line {
 \until }
 */
-template <typename Point, typename Out>
-inline void read_wkt(std::string const& wkt, Out out)
+template <typename Point, typename OutputIterator>
+inline void read_wkt(std::string const& wkt, OutputIterator out)
 {
     geometry::concept::check<Point>();
 

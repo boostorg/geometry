@@ -47,10 +47,10 @@ namespace boost { namespace geometry
 {
 
 /// Index of minimum corner of the box.
-const int min_corner = 0;
+int const min_corner = 0;
 
 /// Index of maximum corner of the box.
-const int max_corner = 1;
+int const max_corner = 1;
 
 namespace traits
 {
@@ -84,60 +84,6 @@ struct access {};
 */
 template <typename Geometry, std::size_t Index, std::size_t Dimension>
 struct indexed_access {};
-
-
-/*!
-\brief Traits class, optional, indicating that the std-library should be used
-\details The default geometry (linestring, ring, multi*) follow std:: for
-    its modifying operations (push_back, clear, size, resize, reserve, etc)
-    If they NOT follow the std:: library they should specialize this traits
-    class
-\ingroup traits
-\par Geometries:
-    - linestring
-    - linear_ring
-\par Specializations should provide:
-    - value (defaults to true)
- */
-template <typename Geometry>
-struct use_std
-{
-    static const bool value = true;
-};
-
-
-/*!
-\brief Traits class, optional, might be implemented to clear a geometry
-\details If a geometry type should not use the std ".clear()"
-    then it can specialize the "use_std" traits class to false,
-    it should then implement (a.o.) clear
-\ingroup traits
-\par Geometries:
-    - linestring
-    - linear_ring
-\par Specializations should provide:
-    - apply
- */
-template <typename Geometry>
-struct clear
-{};
-
-
-/*!
-\brief Traits class, optional, might be implemented to append a point
-\details If a geometry type should not use the std "push_back"
-    then it can specialize the "use_std" traits class to false,
-    it should then implement (a.o.) append_point
-\ingroup traits
-\par Geometries:
-    - linestring
-    - linear_ring
-\par Specializations should provide:
-    - apply
- */
-template <typename Geometry, typename Point>
-struct append_point
-{};
 
 
 } // namespace traits

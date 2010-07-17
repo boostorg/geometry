@@ -22,6 +22,7 @@
 
 #include <boost/array.hpp>
 
+#include <boost/geometry/core/container_access.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -34,10 +35,31 @@ namespace boost { namespace geometry
 namespace traits
 {
 
-    template <typename PointType, std::size_t DimensionCount>
-    struct tag< boost::array<PointType, DimensionCount> >
+    template <typename Point, std::size_t PointCount>
+    struct tag< boost::array<Point, PointCount> >
     {
         typedef linestring_tag type;
+    };
+
+    // Clear does not exist for a boost::array
+    // It should not be used, and therefore: throw
+    template <typename Point, std::size_t PointCount>
+    struct clear< boost::array<Point, PointCount> >
+    {
+        static inline void apply(boost::array<Point, PointCount>& )
+        {
+        }
+    };
+
+    // Append does not exist for a boost::array
+    // It should not be used, and therefore: throw
+    template <typename Point, std::size_t PointCount, typename Point2>
+    struct append_point< boost::array<Point, PointCount>, Point2 >
+    {
+        static inline void apply(boost::array<Point, PointCount>& ,
+                        Point const& , int , int )
+        {
+        }
     };
 
 }
