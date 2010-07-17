@@ -34,21 +34,16 @@ namespace boost { namespace geometry { namespace concept
 The linestring concept is defined as following:
 - there must be a specialization of traits::tag defining linestring_tag as type
 - it must behave like a Boost.Range
-- either it can behave like the std library, having push_back and clear
-- or it can implement a mechanism for clearing and adding points:
-   - there can be a specialization of traits::use_std class indicating
-     that it does not use the standard library (for modifications)
-   - there should then be a specialization of traits::clear
-     to make a linestring empty
-   - there should then be a specialization of traits::append_point
-     to add a point to a linestring
+- it must implement a std::back_insert_iterator
+    - either by implementing push_back
+    - or by specializing std::back_insert_iterator
 
-\note to fulfil the concepts, no traits class has to be specialized to
+\note to fulfill the concepts, no traits class has to be specialized to
 define the point type.
 
 \par Example:
 
-A custom linestring, defining the necessary specializations to fulfil to the concept.
+A custom linestring, defining the necessary specializations to fulfill to the concept.
 
 Suppose that the following linestring is defined:
 \dontinclude doxygen_5.cpp
@@ -79,6 +74,8 @@ class Linestring
     BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
 
+    // There should be a std::back_insert_iterator, to add points
+    typedef std::back_insert_iterator<Geometry> back_inserter;
 
 public :
 
@@ -87,9 +84,6 @@ public :
         // Check if it can be modified
         Geometry* ls;
         traits::clear<Geometry>::apply(*ls);
-
-        point_type* p;
-        traits::append_point<Geometry, point_type>::apply(*ls, *p, -1, -1);
     }
 #endif
 };

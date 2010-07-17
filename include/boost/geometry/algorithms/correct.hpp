@@ -120,10 +120,7 @@ struct correct_ring
 
             if (disjoint && (s == closed))
             {
-                // Close it
-                point_type first;
-                geometry::copy_coordinates(*boost::begin(r), first);
-                *(std::back_inserter(r)++) = first;
+                geometry::append(r, *boost::begin(r));
             }
             if (! disjoint && geometry::closure<Ring>::value != closed)
             {

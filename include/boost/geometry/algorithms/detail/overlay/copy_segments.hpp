@@ -76,10 +76,7 @@ struct copy_segments_ring
                 << geometry::get<0>(*it) << ", " << geometry::get<1>(*it) << ")"
                 << std::endl;
 #endif
-            typename geometry::point_type<RangeOut>::type p;
-            geometry::copy_coordinates(*it, p);
-            //current_output.push_back(p);
-            *(std::back_inserter(current_output)++) = p;
+            geometry::append(current_output, *it);
         }
     }
 };

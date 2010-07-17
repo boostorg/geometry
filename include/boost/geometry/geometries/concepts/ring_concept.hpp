@@ -35,11 +35,10 @@ The ring concept is defined as following:
 - it must behave like a Boost.Range
 - there can optionally be a specialization of traits::point_order defining the
   order or orientation of its points, clockwise or counterclockwise.
-- either it can behave like the std library, having pushback
-- or it can implement a mechanism for clearing and adding points.
-  This is the same as the for the concept Linestring, and described there.
+- it must implement a std::back_insert_iterator
+  (This is the same as the for the concept Linestring, and described there)
 
-\note to fulfil the concepts, no traits class has to be specialized to
+\note to fulfill the concepts, no traits class has to be specialized to
 define the point type.
 */
 template <typename Geometry>
@@ -51,6 +50,8 @@ class Ring
     BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
 
+    // There should be a std::back_insert_iterator, to add points
+    typedef std::back_insert_iterator<Geometry> back_inserter;
 
 public :
 
@@ -58,9 +59,6 @@ public :
     {
         Geometry* ring;
         traits::clear<Geometry>::apply(*ring);
-
-        point_type* p;
-        traits::append_point<Geometry, point_type>::apply(*ring, *p, -1, -1);
     }
 #endif
 };

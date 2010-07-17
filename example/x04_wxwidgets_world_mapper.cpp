@@ -41,38 +41,49 @@
 #include "wx/graphics.h"
 #endif
 
-// wxWidgets draws using wxPoint*
-// So we have to make a wxPoint* array compatible with Boost.Range
-// and with std::back_inserter
-// So we define an iterator pair:
-typedef std::pair<wxPoint*,wxPoint*> wxPointPointerPair;
+
+typedef boost::geometry::multi_polygon<boost::geometry::polygon_2d> country_type;
 
 // Adapt wxWidgets points to Boost.Geometry points such that they can be used 
 // in e.g. transformations (see below)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxPoint, int, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxRealPoint, double, cs::cartesian, x, y)
 
-// Done explicitly below to implement "clear"
-//BOOST_GEOMETRY_REGISTER_RING(wxPointPointerPair);
+
+// wxWidgets draws using wxPoint*, so we HAVE to use that.
+// Therefore have to make a wxPoint* array 
+// 1) compatible with Boost.Geometry
+// 2) compatible with Boost.Range (required by Boost.Geometry)
+// 3) compatible with std::back_inserter (required by Boost.Geometry)
+
+// For compatible 2):
+typedef std::pair<wxPoint*,wxPoint*> wxPointPointerPair;
+
+// For compatible 1):
+BOOST_GEOMETRY_REGISTER_RING(wxPointPointerPair);
 
 
-
-// Implement a draft back_insert_iterator for such a pair of pointers
-// It might exist somewhere in Boost yet.
+// For compatible 3):
+// Specialize back_insert_iterator for the wxPointPointerPair
+// (has to be done within "namespace std")
 namespace std
 {
 
 template <>
 class back_insert_iterator<wxPointPointerPair>
+    : public std::iterator<std::output_iterator_tag, void, void, void, void>
 {
 public:
+
+    typedef wxPointPointerPair container_type;
+
     explicit back_insert_iterator(wxPointPointerPair& x) 
         : current(boost::begin(x))
         , end(boost::end(x))
     {}
 
-    back_insert_iterator<wxPointPointerPair>&
-                operator=(const wxPoint& value) 
+    inline back_insert_iterator<wxPointPointerPair>&
+                operator=(wxPoint const& value) 
     { 
         // Check if not passed beyond
         if (current != end)
@@ -83,57 +94,22 @@ public:
     }
 
     // Boiler-plate
-    back_insert_iterator<wxPointPointerPair>& operator*()     { return *this; }
-    back_insert_iterator<wxPointPointerPair>& operator++()    { return *this; }
-    back_insert_iterator<wxPointPointerPair>& operator++(int) { return *this; }
+    inline back_insert_iterator<wxPointPointerPair>& operator*()     { return *this; }
+    inline back_insert_iterator<wxPointPointerPair>& operator++()    { return *this; }
+    inline back_insert_iterator<wxPointPointerPair>& operator++(int) { return *this; }
 
-    typedef wxPointPointerPair  container_type;
-    typedef output_iterator_tag iterator_category;
-    typedef void                value_type;
-    typedef void                difference_type;
-    typedef void                pointer;
-    typedef void                reference;
-
-protected:
+private:
     boost::range_iterator<wxPointPointerPair>::type current, end;
 };
 
-}
-
-
-namespace boost { namespace geometry { namespace traits 
-{
-    template <>
-    struct tag< wxPointPointerPair > { typedef ring_tag type; };
-
-    template <>
-    struct use_std< wxPointPointerPair >
-    {
-        static bool const value = false;
-    };
-
-    template <>
-    struct clear< wxPointPointerPair >
-    {
-        static inline void apply(wxPointPointerPair& ls) 
-		{  
-			// Empty on purpose, fixed size, cannot be cleared
-			!!! /*TODO*/ 0;
-		}
-    };
-
-}}} // namespace boost::geometry::traits
-
-
-
-typedef boost::geometry::multi_polygon<boost::geometry::polygon_2d> country_type;
+} // namespace std
 
 
 // ----------------------------------------------------------------------------
 // Read an ASCII file containing WKT's
 // ----------------------------------------------------------------------------
 template <typename Geometry, typename Box>
-void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Box& box)
+inline void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Box& box)
 {
     std::ifstream cpp_file(filename.c_str());
     if (cpp_file.is_open())
@@ -152,9 +128,6 @@ void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Bo
         }
     }
 }
-
-
-
 
 
 // ----------------------------------------------------------------------------

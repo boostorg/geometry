@@ -18,7 +18,9 @@
 #include <boost/geometry/geometries/adapted/boost_array_as_linestring.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+
 #include <test_common/test_point.hpp>
+#include <test_geometries/wrapped_boost_array.hpp>
 
 
 namespace bg = boost::geometry;
@@ -171,8 +173,10 @@ void test_all()
     test_geometry<P, bg::linestring<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
     test_geometry<P, bg::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
-    // This one COMPILES but should THROW
+    // This one COMPILES but should THROW - because boost::array is not variably sized
     //test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+
+    test_geometry<P, test::wrapped_boost_array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_geometry<bg::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
 }

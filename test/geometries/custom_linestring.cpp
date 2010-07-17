@@ -60,18 +60,6 @@ namespace boost { namespace geometry { namespace traits {
     };
 #endif
 
-#if ! defined(TEST_FAIL_APPEND)
-    template <typename P>
-    struct append_point< custom_linestring2<P>, P>
-    {
-        static inline void apply(custom_linestring2<P>& geometry,
-                        const P& point, int ring_index, int multi_index)
-        {
-            // does not use push-back but something else.
-            geometry.insert(geometry.end(), point);
-        }
-    };
-#endif
 }}} // namespace boost::geometry::traits
 
 // ----------------------------------------------------------------------------
