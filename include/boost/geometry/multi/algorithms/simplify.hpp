@@ -16,6 +16,7 @@
 
 #include <boost/geometry/multi/iterators/range_type.hpp>
 
+#include <boost/geometry/multi/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 
 
