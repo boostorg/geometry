@@ -162,7 +162,7 @@ struct overlaps
 {
     BOOST_MPL_ASSERT_MSG
         (
-            false, NOT_OR_NOT_YET_IMPLEMENT_FOR_THIS_GEOMETRY_TYPE
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
             , (types<Geometry1, Geometry2>)
         );
 };

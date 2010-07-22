@@ -39,18 +39,25 @@ namespace detail { namespace within
 template<typename P, typename C>
 inline bool point_in_circle(P const& p, C const& c)
 {
+    namespace services = strategy::distance::services;
+
     assert_dimension<C, 2>();
 
     typedef typename point_type<C>::type point_type;
-    typedef typename strategy::distance::services::default_strategy
+    typedef typename services::default_strategy
         <
             point_tag, P, point_type
         >::type strategy_type;
-    typedef typename strategy::distance::services::return_type<strategy_type>::type return_type;
+    typedef typename services::return_type<strategy_type>::type return_type;
+
+    strategy_type strategy;
 
     P const center = geometry::make<P>(get<0>(c), get<1>(c));
-    return_type const r = geometry::distance(p, center);
-    return_type const rad = make_distance_result<return_type>(get_radius<0>(c));
+    return_type const r = geometry::distance(p, center, strategy);
+    return_type const rad = services::result_from_distance
+        <
+            strategy_type
+        >::apply(strategy, get_radius<0>(c));
 
     return r < rad;
 }

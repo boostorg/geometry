@@ -47,6 +47,7 @@ The within algorithm is used as following:
 #include <cstddef>
 
 #include <boost/range.hpp>
+#include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
 
@@ -283,7 +284,13 @@ template
     typename Strategy
 >
 struct within
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry1, Geometry2>)
+        );
+};
 
 
 template <typename Point, typename Box, typename Strategy>
