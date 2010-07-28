@@ -185,6 +185,9 @@ void test_all()
     // other way round
     test_geometry<bg::linear_ring<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
 
+    // open ring
+    test_geometry<P, bg::linear_ring<P, std::vector, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
+
     // This one COMPILES but should THROW - because boost::array is not variably sized
     //test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
