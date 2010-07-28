@@ -18,6 +18,7 @@
 #include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/is_multi.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 
@@ -29,7 +30,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-
+#include <boost/geometry/util/closeable_view.hpp>
 #include <boost/geometry/util/math.hpp>
 
 /*!
@@ -108,7 +109,14 @@ struct point_to_segment
 };
 
 
-template<typename Point, typename Range, typename PPStrategy, typename PSStrategy>
+template
+<
+    typename Point, 
+    typename Range, 
+    closure_selector Closure,
+    typename PPStrategy, 
+    typename PSStrategy
+>
 struct point_to_range
 {
     typedef typename return_type<PSStrategy>::type return_type;
@@ -123,13 +131,21 @@ struct point_to_range
             return zero;
         }
 
+        typedef closeable_view
+            <
+                Range const,
+                Closure == open 
+            > view_type;
+
+        view_type view(range);
+
         // line of one point: return point distance
-        typedef typename boost::range_iterator<Range const>::type iterator_type;
-        iterator_type it = boost::begin(range);
+        typedef typename boost::range_iterator<view_type const>::type iterator_type;
+        iterator_type it = boost::begin(view);
         iterator_type prev = it++;
-        if (it == boost::end(range))
+        if (it == boost::end(view))
         {
-            return pp_strategy.apply(point, *boost::begin(range));
+            return pp_strategy.apply(point, *boost::begin(view));
         }
 
         // Create comparable (more efficient) strategy
@@ -141,8 +157,7 @@ struct point_to_range
         return_type rd = ps_strategy.apply(point, *prev, *it);
 
         // check if other segments are closer
-        prev = it++;
-        while(it != boost::end(range))
+        for (++prev, ++it; it != boost::end(view); ++prev, ++it)
         {
             return_type const ds = ps_strategy.apply(point, *prev, *it);
             if (geometry::math::equals(ds, zero))
@@ -154,7 +169,6 @@ struct point_to_range
                 d = ds;
                 rd = ps_strategy.apply(point, *prev, *it);
             }
-            prev = it++;
         }
 
         return rd;
@@ -162,7 +176,14 @@ struct point_to_range
 };
 
 
-template<typename Point, typename Ring, typename PPStrategy, typename PSStrategy>
+template
+<
+    typename Point, 
+    typename Ring, 
+    closure_selector Closure,
+    typename PPStrategy, 
+    typename PSStrategy
+>
 struct point_to_ring
 {
     typedef std::pair
@@ -180,6 +201,7 @@ struct point_to_ring
                     <
                         Point,
                         Ring,
+                        Closure,
                         PPStrategy,
                         PSStrategy
                     >::apply(point, ring, pp_strategy, ps_strategy),
@@ -190,7 +212,14 @@ struct point_to_ring
 
 
 
-template<typename Point, typename Polygon, typename PPStrategy, typename PSStrategy>
+template
+<
+    typename Point, 
+    typename Polygon, 
+    closure_selector Closure,
+    typename PPStrategy, 
+    typename PSStrategy
+>
 struct point_to_polygon
 {
     typedef typename return_type<PPStrategy>::type return_type;
@@ -205,6 +234,7 @@ struct point_to_polygon
             <
                 Point,
                 typename ring_type<Polygon>::type,
+                Closure,
                 PPStrategy,
                 PSStrategy
             > per_ring;
@@ -299,7 +329,7 @@ struct distance
 
         return detail::distance::point_to_range
             <
-                Point, Linestring, Strategy, ps_strategy_type
+                Point, Linestring, closed, Strategy, ps_strategy_type
             >::apply(point, linestring, strategy, ps_strategy_type());
     }
 };
@@ -322,7 +352,7 @@ struct distance
         typedef typename Strategy::point_strategy_type pp_strategy_type;
         return detail::distance::point_to_range
             <
-                Point, Linestring, pp_strategy_type, Strategy
+                Point, Linestring, closed, pp_strategy_type, Strategy
             >::apply(point, linestring, pp_strategy_type(), strategy);
     }
 };
@@ -353,7 +383,9 @@ struct distance
         std::pair<return_type, bool>
             dc = detail::distance::point_to_ring
             <
-                Point, Ring, Strategy, ps_strategy_type
+                Point, Ring, 
+                geometry::closure<Ring>::value,
+                Strategy, ps_strategy_type
             >::apply(point, ring, strategy, ps_strategy_type());
 
         return dc.second ? return_type(0) : dc.first;
@@ -387,7 +419,9 @@ struct distance
         std::pair<return_type, bool>
             dc = detail::distance::point_to_polygon
             <
-                Point, Polygon, Strategy, ps_strategy_type
+                Point, Polygon, 
+                geometry::closure<Polygon>::value,
+                Strategy, ps_strategy_type
             >::apply(point, polygon, strategy, ps_strategy_type());
 
         return dc.second ? return_type(0) : dc.first;
