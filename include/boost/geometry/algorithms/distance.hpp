@@ -15,6 +15,8 @@
 
 #include <boost/static_assert.hpp>
 
+#include <boost/mpl/assert.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/is_multi.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
@@ -249,12 +251,18 @@ using strategy::distance::services::return_type;
 template
 <
     typename GeometryTag1, typename GeometryTag2,
-    typename G1, typename G2,
+    typename Geometry1, typename Geometry2,
     typename StrategyTag, typename Strategy,
     bool IsMulti1, bool IsMulti2
 >
 struct distance
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry1, Geometry2>)
+        );
+};
 
 
 template <typename P1, typename P2, typename Strategy>
@@ -267,7 +275,7 @@ struct distance
 > : detail::distance::point_to_point<P1, P2, Strategy>
 {};
 
-/// Point-line version 1, where point-point strategy is specified
+// Point-line version 1, where point-point strategy is specified
 template <typename Point, typename Linestring, typename Strategy>
 struct distance
 <
@@ -297,7 +305,7 @@ struct distance
 };
 
 
-/// Point-line version 2, where point-segment strategy is specified
+// Point-line version 2, where point-segment strategy is specified
 template <typename Point, typename Linestring, typename Strategy>
 struct distance
 <
@@ -319,7 +327,41 @@ struct distance
     }
 };
 
-/// Point-polygon , where point-segment strategy is specified
+// Point-ring , where point-segment strategy is specified
+template <typename Point, typename Ring, typename Strategy>
+struct distance
+<
+    point_tag, ring_tag,
+    Point, Ring,
+    strategy_tag_distance_point_point, Strategy,
+    false, false
+>
+{
+    typedef typename return_type<Strategy>::type return_type;
+
+    static inline return_type apply(Point const& point,
+            Ring const& ring,
+            Strategy const& strategy)
+    {
+        typedef typename strategy::distance::services::default_strategy
+            <
+                segment_tag,
+                Point,
+                typename point_type<Ring>::type
+            >::type ps_strategy_type;
+
+        std::pair<return_type, bool>
+            dc = detail::distance::point_to_ring
+            <
+                Point, Ring, Strategy, ps_strategy_type
+            >::apply(point, ring, strategy, ps_strategy_type());
+
+        return dc.second ? return_type(0) : dc.first;
+    }
+};
+
+
+// Point-polygon , where point-segment strategy is specified
 template <typename Point, typename Polygon, typename Strategy>
 struct distance
 <
