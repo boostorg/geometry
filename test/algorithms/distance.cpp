@@ -179,6 +179,12 @@ void test_all()
     test_geometry<P, bg::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
     test_geometry<bg::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
 
+
+    test_geometry<P, bg::linear_ring<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
+    test_geometry<P, bg::linear_ring<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
+    // other way round
+    test_geometry<bg::linear_ring<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
+
     // This one COMPILES but should THROW - because boost::array is not variably sized
     //test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
