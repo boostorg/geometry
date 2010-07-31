@@ -17,6 +17,7 @@
 
 #include <test_common/test_point.hpp>
 #include <test_common/with_pointer.hpp>
+#include <test_geometries/custom_segment.hpp>
 
 
 
@@ -26,6 +27,7 @@ void test_all()
     typedef boost::geometry::linestring<P> linestring;
     typedef boost::geometry::polygon<P> polygon;
     typedef boost::geometry::box<P> box;
+    typedef test::custom_segment_of<P> segment;
 
     std::string clip = "box(2 2,8 8)";
 
@@ -37,6 +39,10 @@ void test_all()
     // Basic check: box/linestring, is clipping OK? should compile in any order
     test_one<linestring, linestring, box>("llb", "LINESTRING(0 0,10 10)", clip, 1, 2, sqrt(2.0 * 6.0 * 6.0));
     test_one<linestring, box, linestring>("lbl", clip, "LINESTRING(0 0,10 10)", 1, 2, sqrt(2.0 * 6.0 * 6.0));
+
+    // Box/segment
+    test_one<linestring, segment, box>("lsb", "LINESTRING(0 0,10 10)", clip, 1, 2, sqrt(2.0 * 6.0 * 6.0));
+    test_one<linestring, box, segment>("lbs", clip, "LINESTRING(0 0,10 10)", 1, 2, sqrt(2.0 * 6.0 * 6.0));
 
     // Completely inside
     test_one<linestring, linestring, box>("llbi", "LINESTRING(3 3,7 7)", clip, 1, 2, sqrt(2.0 * 4.0 * 4.0));

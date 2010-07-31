@@ -1,0 +1,25 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "segment_range", "segment_range.vcproj", "{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "box_range", "box_range.vcproj", "{34A1F53A-DA46-41E6-9E26-740D22D662DC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}.Debug|Win32.Build.0 = Debug|Win32
+		{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}.Release|Win32.ActiveCfg = Release|Win32
+		{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}.Release|Win32.Build.0 = Release|Win32
+		{34A1F53A-DA46-41E6-9E26-740D22D662DC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{34A1F53A-DA46-41E6-9E26-740D22D662DC}.Debug|Win32.Build.0 = Debug|Win32
+		{34A1F53A-DA46-41E6-9E26-740D22D662DC}.Release|Win32.ActiveCfg = Release|Win32
+		{34A1F53A-DA46-41E6-9E26-740D22D662DC}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

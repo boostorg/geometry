@@ -102,7 +102,9 @@ class ConstLinestring
     typedef typename point_type<Geometry>::type point_type;
 
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<point_type>) );
-    BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
+    //BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
+    // Relaxed the concept.
+    BOOST_CONCEPT_ASSERT( (boost::ForwardRangeConcept<Geometry>) );
 
 
 public :

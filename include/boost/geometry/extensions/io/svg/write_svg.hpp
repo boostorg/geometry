@@ -13,6 +13,7 @@
 #include <string>
 
 #include <boost/config.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 
@@ -192,7 +193,14 @@ template <typename Char, typename Traits>
 static inline void apply(std::basic_ostream<Char, Traits>& os, G const& geometry)
 */
 template <typename GeometryTag, typename Geometry>
-struct svg {};
+struct svg 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (Geometry)
+        );
+};
 
 template <typename Point>
 struct svg<point_tag, Point> : detail::svg::svg_point<Point> {};

@@ -179,17 +179,34 @@ void test_all()
     test_geometry<P, bg::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
     test_geometry<bg::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
 
-
+    // Rings
     test_geometry<P, bg::linear_ring<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
     test_geometry<P, bg::linear_ring<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
     // other way round
     test_geometry<bg::linear_ring<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
-
     // open ring
     test_geometry<P, bg::linear_ring<P, std::vector, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
 
-    // This one COMPILES but should THROW - because boost::array is not variably sized
-    //test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    // Polygons
+    test_geometry<P, bg::polygon<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
+    test_geometry<P, bg::polygon<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
+    // other way round
+    test_geometry<bg::polygon<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
+    // open polygon
+    test_geometry<P, bg::polygon<P, std::vector, std::vector, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
+
+    // Polygons with holes
+    std::string donut = "POLYGON ((0 0,1 9,8 1,0 0),(1 1,4 1,1 4,1 1))";
+    test_geometry<P, bg::polygon<P> >("POINT(2 2)", donut, 0.5 * sqrt(2.0));
+    test_geometry<P, bg::polygon<P> >("POINT(3 3)", donut, 0.0);
+    // other way round
+    test_geometry<bg::polygon<P>, P>(donut, "POINT(2 2)", 0.5 * sqrt(2.0));
+    // open 
+    test_geometry<P, bg::polygon<P, std::vector, std::vector, true, false> >("POINT(2 2)", "POLYGON ((0 0,1 9,8 1),(1 1,4 1,1 4))", 0.5 * sqrt(2.0));
+
+
+    // DOES NOT COMPILE - cannot do read_wkt (because boost::array is not variably sized)
+    // test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_geometry<P, test::wrapped_boost_array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 }

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="segment_iterator"
-	ProjectGUID="{A38B1CA8-5194-4FAD-B85E-55697BEECCB7}"
-	RootNamespace="segment_iterator"
+	Name="segment_range"
+	ProjectGUID="{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}"
+	RootNamespace="segment_range"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\segment_iterator"
+			IntermediateDirectory="$(ConfigurationName)\segment_range"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -46,6 +46,7 @@
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
+				WarningLevel="3"
 				DebugInformationFormat="1"
 			/>
 			<Tool
@@ -92,7 +93,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\segment_iterator"
+			IntermediateDirectory="$(ConfigurationName)\segment_range"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -119,6 +120,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
+				WarningLevel="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -167,7 +169,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\segment_iterator.cpp"
+			RelativePath=".\segment_range.cpp"
 			>
 		</File>
 	</Files>

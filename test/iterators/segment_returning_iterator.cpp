@@ -19,7 +19,7 @@
 #include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/iterators/segment_iterator.hpp>
+#include <boost/geometry/iterators/segment_returning_iterator.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 
 template <typename C>
@@ -28,8 +28,8 @@ void test_linestring(std::string const& wkt, std::string const& expected)
     typedef C point_list;
     typedef typename C::value_type point;
     typedef typename C::iterator base_iterator;
-    typedef boost::geometry::segment_iterator<base_iterator, point> segment_iterator;
-    typedef typename segment_iterator::value_type segment;
+    typedef boost::geometry::segment_returning_iterator<base_iterator, point> segment_returning_iterator;
+    typedef typename segment_returning_iterator::value_type segment;
     typedef boost::geometry::linestring<point> linestring;
 
     linestring g;
@@ -39,8 +39,8 @@ void test_linestring(std::string const& wkt, std::string const& expected)
     std::copy(g.begin(), g.end(), std::back_insert_iterator<point_list>(v));
     BOOST_CHECK_EQUAL(g.size(), v.size());
 
-    segment_iterator it(v.begin(), v.end());
-    segment_iterator end(v.end());
+    segment_returning_iterator it(v.begin(), v.end());
+    segment_returning_iterator end(v.end());
 
     std::ostringstream oss;
     while (it != end)

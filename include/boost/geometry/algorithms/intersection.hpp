@@ -20,6 +20,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
+#include <boost/geometry/views/segment_range.hpp>
 
 
 
@@ -87,15 +88,15 @@ namespace dispatch
 
 template
 <
-    typename Tag1, typename Tag2, typename Tag3,
-    typename G1, typename G2,
+    typename TagIn1, typename TagIn2, typename TagOut,
+    typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename GeometryOut,
     typename Strategy
 >
 struct intersection_inserter
     : detail::overlay::overlay
-        <G1, G2, OutputIterator, GeometryOut, -1, Strategy>
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, Strategy>
 {};
 
 
@@ -162,8 +163,35 @@ struct intersection_inserter
     {
         typedef typename point_type<GeometryOut>::type point_type;
         strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
-        return detail::intersection::clip_linestring_with_box
+        return detail::intersection::clip_range_with_box
             <GeometryOut>(box, linestring, out, lb_strategy);
+    }
+};
+
+template
+<
+    typename Segment, typename Box,
+    typename OutputIterator, typename GeometryOut,
+    typename Strategy
+>
+struct intersection_inserter
+    <
+        segment_tag, box_tag, linestring_tag,
+        Segment, Box,
+        OutputIterator, GeometryOut,
+        Strategy
+    >
+{
+    static inline OutputIterator apply(Segment const& segment,
+            Box const& box, OutputIterator out, Strategy const& strategy)
+    {
+        typedef boost::geometry::segment_range<Segment> range_type;
+        range_type range(segment);
+
+        typedef typename point_type<GeometryOut>::type point_type;
+        strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
+        return detail::intersection::clip_range_with_box
+            <GeometryOut>(box, range, out, lb_strategy);
     }
 };
 
