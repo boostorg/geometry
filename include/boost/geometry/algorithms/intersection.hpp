@@ -20,7 +20,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
-#include <boost/geometry/views/segment_range.hpp>
+#include <boost/geometry/ranges/segment_range.hpp>
 
 
 
