@@ -12,10 +12,11 @@
 
 #include <vector>
 
-
-#include <boost/scoped_ptr.hpp>
-#include <boost/type_traits/remove_const.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -24,8 +25,8 @@
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/strategies/transform.hpp>
-
 #include <boost/geometry/strategies/transform/map_transformer.hpp>
+#include <boost/geometry/views/segment_range.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
@@ -51,6 +52,11 @@ namespace dispatch
 template <typename GeometryTag, bool IsMulti, typename Geometry>
 struct svg_map
 {
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (Geometry)
+        );
 };
 
 
@@ -98,6 +104,23 @@ struct svg_map_range
     }
 };
 
+template <typename Segment>
+struct svg_map<boost::geometry::segment_tag, false, Segment>
+{
+    template <typename TransformStrategy>
+    static inline void apply(std::ostream& stream,
+                    std::string const& style, int size,
+                    Segment const& segment, TransformStrategy const& strategy)
+    {
+        typedef boost::geometry::segment_range<Segment> range_type;
+        range_type range(segment);
+        svg_map_range
+            <
+                range_type, 
+                boost::geometry::linestring<boost::geometry::point_xy<int> >
+            >::apply(stream, style, size, range, strategy);
+    }
+};
 
 
 template <typename Ring>
@@ -237,6 +260,18 @@ public :
     void map(Geometry const& geometry, std::string const& style,
                 int size = -1)
     {
+        BOOST_MPL_ASSERT_MSG
+        (
+            ( boost::is_same
+                <
+                    Point, 
+                    typename boost::geometry::point_type<Geometry>::type
+                >::value )
+            , POINT_TYPES_ARE_NOT_SAME_FOR_MAPPER_AND_MAP
+            , (types<Point, typename boost::geometry::point_type<Geometry>::type>)
+        );
+
+
         init_matrix();
         svg_map(m_stream, style, size, geometry, *m_matrix);
     }

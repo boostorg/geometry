@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ITERATORS_SEGMENT_ITERATOR_HPP
-#define BOOST_GEOMETRY_ITERATORS_SEGMENT_ITERATOR_HPP
+#ifndef BOOST_GEOMETRY_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP
+#define BOOST_GEOMETRY_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP
 
 // TODO: This is very experimental version of input iterator
 // reading collection of points as segments - proof of concept.
@@ -30,7 +30,7 @@ namespace boost { namespace geometry
 {
 
 template <typename Base, typename Point>
-struct segment_iterator
+struct segment_returning_iterator
 {
     typedef Base base_type;
     typedef Point point_type;
@@ -42,7 +42,7 @@ struct segment_iterator
     typedef segment_type* pointer;
     typedef segment_type& reference;
 
-    explicit segment_iterator(Base const& end)
+    explicit segment_returning_iterator(Base const& end)
         : m_segment(p1 , p2)
         , m_prev(end)
         , m_it(end)
@@ -50,7 +50,7 @@ struct segment_iterator
     {
     }
 
-    segment_iterator(Base const& it, Base const& end)
+    segment_returning_iterator(Base const& it, Base const& end)
         : m_segment(p1 , p2)
         , m_prev(it)
         , m_it(it)
@@ -78,16 +78,16 @@ struct segment_iterator
         return &(operator*());
     }
 
-    segment_iterator& operator++()
+    segment_returning_iterator& operator++()
     {
         ++m_prev;
         ++m_it;
         return *this;
     }
 
-    segment_iterator operator++(int)
+    segment_returning_iterator operator++(int)
     {
-        segment_iterator it(*this);
+        segment_returning_iterator it(*this);
         ++(*this);
         return it;
     }
@@ -106,32 +106,32 @@ private:
 };
 
 template <typename Base, typename Point>
-bool operator==(segment_iterator<Base, Point> const& lhs,
-                segment_iterator<Base, Point> const& rhs)
+bool operator==(segment_returning_iterator<Base, Point> const& lhs,
+                segment_returning_iterator<Base, Point> const& rhs)
 {
     return (lhs.base() == rhs.base());
 }
 
 template <typename Base, typename Point>
-bool operator!=(segment_iterator<Base, Point> const& lhs,
-                segment_iterator<Base, Point> const& rhs)
+bool operator!=(segment_returning_iterator<Base, Point> const& lhs,
+                segment_returning_iterator<Base, Point> const& rhs)
 {
     return (lhs.base() != rhs.base());
 }
 
 template <typename C>
-segment_iterator
+inline segment_returning_iterator
 <
     typename C::iterator,
     typename C::value_type
 >
-make_segment_iterator(C& c)
+make_segment_returning_iterator(C& c)
 {
     typedef typename C::iterator base_iterator;
     typedef typename C::value_type point_type;
-    return segment_iterator<base_iterator, point_type>(c.begin(), c.end());
+    return segment_returning_iterator<base_iterator, point_type>(c.begin(), c.end());
 }
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ITERATORS_SEGMENT_ITERATOR_HPP
+#endif // BOOST_GEOMETRY_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP

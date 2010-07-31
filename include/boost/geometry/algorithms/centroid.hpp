@@ -24,7 +24,7 @@
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/iterators/segment_iterator.hpp>
+#include <boost/geometry/iterators/segment_returning_iterator.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
 #include <boost/geometry/util/closeable_view.hpp>
@@ -247,7 +247,7 @@ struct centroid_linestring
 
         typedef typename point_type<Linestring>::type point_type;
         typedef typename boost::range_iterator<Linestring const>::type point_iterator_type;
-        typedef segment_iterator<point_iterator_type, point_type> segment_iterator;
+        typedef segment_returning_iterator<point_iterator_type, point_type> segment_iterator;
 
         double length = double();
         std::pair<double, double> average_sum;
@@ -366,8 +366,8 @@ template <typename Ring, typename Point, typename Strategy>
 struct centroid<ring_tag, Ring, Point, Strategy>
     : detail::centroid::centroid_ring
         <
-            Ring, 
-            Point, 
+            Ring,
+            Point,
             geometry::closure<Ring>::value,
             Strategy
         >

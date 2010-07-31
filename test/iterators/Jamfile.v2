@@ -8,8 +8,10 @@
 
 test-suite ggl-iterators
     :
+    [ run box_iterator.cpp ]
     [ run circular_iterator.cpp ] 
     [ run closing_iterator.cpp ] 
     [ run ever_circling_iterator.cpp ]
-    [ run segment_iterator.cpp ]
+    [ run segment_returning_iterator.cpp ]
+    [ run segment_range_iterator.cpp ]
     ;
