@@ -91,8 +91,8 @@ struct box_area
 
 template
 <
-    typename Ring, 
-    iterate_direction Direction, 
+    typename Ring,
+    iterate_direction Direction,
     closure_selector Closure,
     typename Strategy
 >
@@ -168,9 +168,9 @@ struct area
         > {};
 
 
-template 
+template
 <
-    typename Geometry, 
+    typename Geometry,
     typename Strategy
 >
 struct area<box_tag, Geometry, Strategy>
@@ -178,15 +178,15 @@ struct area<box_tag, Geometry, Strategy>
 {};
 
 
-template 
+template
 <
-    typename Ring, 
+    typename Ring,
     typename Strategy
 >
 struct area<ring_tag, Ring, Strategy>
     : detail::area::ring_area
         <
-            Ring, 
+            Ring,
             order_as_direction<geometry::point_order<Ring>::value>::value,
             geometry::closure<Ring>::value,
             Strategy
@@ -194,9 +194,9 @@ struct area<ring_tag, Ring, Strategy>
 {};
 
 
-template 
+template
 <
-    typename Polygon, 
+    typename Polygon,
     typename Strategy
 >
 struct area<polygon_tag, Polygon, Strategy>
@@ -229,8 +229,12 @@ struct area<polygon_tag, Polygon, Strategy>
     provided for cartesian and spherical coordinate systems
     The geometries should correct, polygons should be closed
     and according to the specified orientation (clockwise/counter clockwise)
-    \param geometry a geometry
-    \return the area
+    \tparam Geometry A type fulfilling any Geometry concept
+    \param geometry A model of Geometry
+    \return The calculated area
+
+    \xmlonly <qbk.example>area_polygon</qbk.example> \endxmlonly
+    \xmlonly <qbk.example>area_polygon_spherical</qbk.example> \endxmlonly
  */
 template <typename Geometry>
 inline typename area_result<Geometry>::type area(Geometry const& geometry)
@@ -251,10 +255,13 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
     \brief Calculate area of a geometry using a specified strategy
     \ingroup area
     \details This version of area calculation takes a strategy
-    \param geometry a geometry
-    \param strategy the strategy to calculate area.
-        Especially for spherical areas there are some approaches.
-    \return the area
+    \tparam Geometry A type fulfilling any Geometry concept
+    \tparam Strategy A type fulfilling a AreaStrategy concept
+    \param geometry A model of Geometry
+    \param strategy A strategy to calculate area.
+        Especially for spherical and geographical area calculations there
+        are various approaches.
+    \return The calculated area
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(
