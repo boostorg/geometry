@@ -1,0 +1,60 @@
+[section:area0 area]
+
+Calculate area of a geometry using a specified strategy. 
+
+[heading Synopsis]
+``template<typename Geometry, typename Strategy>
+Strategy::return_type area (Geometry const &geometry, Strategy const &strategy)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Geometry] [A type fulfilling any Geometry concept ] [geometry] [A model of Geometry ]]
+[[Strategy] [A type fulfilling a AreaStrategy concept ] [strategy] [A strategy to calculate area. Especially for spherical and geographical area calculations there are various approaches. ]]
+]
+
+
+[heading Returns]
+The calculated area 
+
+[heading Description]
+This version of area calculation takes a strategy 
+
+[heading Header]
+`#include <boost/geometry/algorithms/area.hpp>`
+
+
+[endsect]
+
+[section:area1 area]
+
+Calculate area of a geometry. 
+
+[heading Synopsis]
+``template<typename Geometry>
+area_result<Geometry>::type area (Geometry const &geometry)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Geometry] [A type fulfilling any Geometry concept ] [geometry] [A model of Geometry ]]
+]
+
+
+[heading Returns]
+The calculated area
+
+[heading Description]
+The function area returns the area of a polygon, ring, box using the default area-calculation strategy. Strategies are provided for cartesian and spherical coordinate systems The geometries should correct, polygons should be closed and according to the specified orientation (clockwise/counter clockwise) 
+
+[heading Header]
+`#include <boost/geometry/algorithms/area.hpp>`
+
+[heading Example]
+[area_polygon]
+[area_polygon_spherical]
+
+[endsect]
+

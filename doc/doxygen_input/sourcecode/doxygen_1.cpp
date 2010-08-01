@@ -23,23 +23,24 @@
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
 
-// All functions below are referred to in the source of the Geometry Library.
+// All functions below are referred to in the documentation of Boost.Geometry
 // Don't rename them.
-
 void example_area_polygon()
 {
-    boost::geometry::polygon<boost::geometry::point_xy<double> > poly;
-    boost::geometry::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
-    std::cout << "Polygon area is "
-        << boost::geometry::area(poly)
-        << " square units" << std::endl;
+    //[area_polygon
+    //` Calculate the area of a polygon
+    boost::geometry::polygon<boost::geometry::point_xy<double> > poly; /*< Declare >*/
+    boost::geometry::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly); /*< Fill, in this case with WKT >*/
+    double area = boost::geometry::area(poly); /*< Calculate area >*/
+    //]
 
-    // Other coordinate system, spherical or geographic (extension)
-    boost::geometry::polygon<boost::geometry::point<float, 2, boost::geometry::cs::spherical<boost::geometry::degree> > > sph_poly;
-    boost::geometry::read_wkt("POLYGON((0 0,0 45,45 0,0 0))", sph_poly);
-    std::cout << "Area is "
-        << boost::geometry::area(sph_poly)
-        << " on unit sphere " << std::endl;
+    //[area_polygon_spherical
+    //` Calculate the area of a *spherical* polygon
+    namespace bg = boost::geometry;
+    bg::polygon<bg::point<float, 2, bg::cs::spherical<bg::degree> > > sph_poly;
+    bg::read_wkt("POLYGON((0 0,0 45,45 0,0 0))", sph_poly);
+    double area = bg::area(sph_poly);
+    //]
 }
 
 void example_as_wkt_point()

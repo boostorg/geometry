@@ -1,0 +1,42 @@
+[/==============================================================================
+    Copyright (c) 1995-2010 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+    Copyright (c) 2008-2010 Bruno Lalande, Paris, France.
+    Copyright (c) 2009-2010 Mateusz Loskot (mateusz@loskot.net), London, UK
+
+    Use, modification and distribution is subject to the Boost Software License,
+    Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+===============================================================================/]
+
+[library Boost.Geometry
+    [quickbook 1.5]
+    [version 1.0]
+    [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz]]
+    [copyright 2010 Barend Gehrels, Bruno Lalande, Mateusz Loskot]
+    [purpose A generic library for geometry]
+    [license
+        Distributed under the Boost Software License, Version 1.0.
+        (See accompanying file LICENSE_1_0.txt or copy at
+        [@http://www.boost.org/LICENSE_1_0.txt])
+    ]
+    [id geometry]
+]
+
+EXPERIMENTAL!
+
+[import ../../../../boost/geometry/geometries/point.hpp]
+[import ../../../../boost/geometry/algorithms/area.hpp]
+[import ../doxygen_input/sourcecode/doxygen_1.cpp]
+
+[section Introduction]
+This is the documentation of Boost Geometry.
+[endsect]
+
+[section Sample]
+[point]
+[endsect]
+
+[section Reference]
+[include area.qbk]
+[include distance.qbk]
+[endsect]
