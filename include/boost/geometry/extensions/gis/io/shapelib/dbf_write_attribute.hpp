@@ -19,19 +19,16 @@
 namespace boost { namespace geometry
 {
 
-
-template <typename T>
-struct DBFFieldType
+namespace detail
 {
-    // IS integer etc.
-};
 
+// Called with promote so not all cases necessary
+template <typename T> struct DBFFieldType {};
 template <> struct DBFFieldType<int> { static ::DBFFieldType const value = FTInteger; };
-template <> struct DBFFieldType<float> { static ::DBFFieldType const value = FTDouble; };
 template <> struct DBFFieldType<double> { static ::DBFFieldType const value = FTDouble; };
 template <> struct DBFFieldType<std::string> { static ::DBFFieldType const value = FTString; };
 
-
+// Also called with promote
 template <typename T> struct DBFWriteAttribute
 {
 };
@@ -39,7 +36,8 @@ template <typename T> struct DBFWriteAttribute
 template <> struct DBFWriteAttribute<int>
 {
     template <typename T>
-    inline static void apply(DBFHandle dbf, int row_index, int field_index, T const& value)
+    inline static void apply(DBFHandle dbf, int row_index, int field_index, 
+                    T const& value)
     {
         DBFWriteIntegerAttribute(dbf, row_index, field_index, value);
     }
@@ -48,7 +46,8 @@ template <> struct DBFWriteAttribute<int>
 template <> struct DBFWriteAttribute<double>
 {
     template <typename T>
-    inline static void apply(DBFHandle dbf, int row_index, int field_index, T const& value)
+    inline static void apply(DBFHandle dbf, int row_index, int field_index, 
+                    T const& value)
     {
         DBFWriteDoubleAttribute(dbf, row_index, field_index, value);
     }
@@ -56,18 +55,29 @@ template <> struct DBFWriteAttribute<double>
 
 template <> struct DBFWriteAttribute<std::string>
 {
-    template <typename T>
-    inline static void apply(DBFHandle dbf, int row_index, int field_index, T const& value)
+    inline static void apply(DBFHandle dbf, int row_index, int field_index, 
+                    std::string const& value)
     {
-        DBFWriteStringAttribute(dbf, row_index, field_index, value);
+        DBFWriteStringAttribute(dbf, row_index, field_index, value.c_str());
     }
 };
 
+// Derive char* variants from std::string, 
+// implicitly casting to a temporary std::string
+// (note that boost::remove_const does not remove const from "const char*")
 template <int N> 
 struct DBFWriteAttribute<char[N]> : DBFWriteAttribute<std::string> {};
 
+template <int N> 
+struct DBFWriteAttribute<const char[N]> : DBFWriteAttribute<std::string> {};
+
+template <>
+struct DBFWriteAttribute<const char*> : DBFWriteAttribute<std::string> {};
+
 template <>
 struct DBFWriteAttribute<char*> : DBFWriteAttribute<std::string> {};
+
+}
 
 
 }} // namespace boost::geometry

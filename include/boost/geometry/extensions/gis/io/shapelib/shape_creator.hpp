@@ -12,7 +12,7 @@
 #include "shapefil.h"
 
 #include <boost/noncopyable.hpp>
-#include <boost/type_traits/remove_const.hpp>
+#include <boost/type_traits/promote.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object.hpp>
@@ -105,15 +105,20 @@ public :
     template <typename T>
     inline void AddField(std::string const& name, int width = 16, int decimals = 0)
     {
-        ::DBFAddField(m_dbf, name.c_str(), DBFFieldType<T>::value, width, decimals);
+        ::DBFAddField(m_dbf, name.c_str(), 
+            detail::DBFFieldType
+                <
+                    typename boost::promote<T>::type
+                >::value,
+            width, decimals);
     }
 
     template <typename T>
     inline void WriteField(int row_index, int field_index, T const& value)
     {
-        DBFWriteAttribute
+        detail::DBFWriteAttribute
             <
-                typename boost::remove_const<T>::type
+                typename boost::promote<T>::type
             >::apply(m_dbf, row_index, field_index, value);
     }
 
