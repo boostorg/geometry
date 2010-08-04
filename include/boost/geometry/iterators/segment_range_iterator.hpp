@@ -32,7 +32,7 @@ struct segment_range_iterator
     <
         segment_range_iterator<Segment>,
         typename point_type<Segment>::type const,
-        boost::bidirectional_traversal_tag
+        boost::random_access_traversal_tag
     >
 {
     // Default constructor is required to check concept of Range
@@ -90,13 +90,18 @@ private:
         m_index--;
     }
 
+    inline difference_type distance_to(segment_range_iterator<Segment> const& other) const
+    {
+        return other.m_index - this->m_index;
+    }
+
     inline void init(Segment const& segment)
     {
         assign_point_from_index<0>(segment, m_points[0]);
         assign_point_from_index<1>(segment, m_points[1]);
     }
 
-    // We HAVE TO copy the points, because a segment does not need 
+    // We HAVE TO copy the points, because a segment does not need
     // to consist of two points,
     // and we are expected to return a point here
     point_type m_points[2];

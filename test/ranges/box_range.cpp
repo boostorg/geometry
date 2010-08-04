@@ -46,6 +46,12 @@ void test_geometry(std::string const& wkt, std::string const& expected)
         it--;
         // Not verified further, same as segment
     }
+
+    {
+        // Check random access behaviour
+        int const n = boost::size(range);
+        BOOST_CHECK_EQUAL(n, 5);
+    }
 }
 
 
