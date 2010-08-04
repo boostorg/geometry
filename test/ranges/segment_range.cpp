@@ -52,6 +52,12 @@ void test_geometry(std::string const& wkt, std::string const& expected)
         out << " " << boost::geometry::get<0>(*it2) << boost::geometry::get<1>(*it2);
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
+
+    {
+        // Check random access behaviour
+        int const n = boost::size(range);
+        BOOST_CHECK_EQUAL(n, 2);
+    }
 }
 
 

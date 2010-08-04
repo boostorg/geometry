@@ -43,7 +43,7 @@ private :
 };
 
 
-// All box ranges can be handled as linestrings
+// All box ranges can be handled as rings
 namespace traits
 {
     template<typename Box>

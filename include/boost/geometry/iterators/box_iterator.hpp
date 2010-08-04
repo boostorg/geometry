@@ -32,7 +32,7 @@ struct box_iterator
     <
         box_iterator<Box>,
         typename point_type<Box>::type const,
-        boost::bidirectional_traversal_tag
+        boost::random_access_traversal_tag
     >
 {
     explicit inline box_iterator(Box const& box)
@@ -78,6 +78,11 @@ private:
     inline void decrement()
     {
         m_index--;
+    }
+
+    inline difference_type distance_to(box_iterator<Box> const& other) const
+    {
+        return other.m_index - this->m_index;
     }
 
     inline void init(Box const& box)
