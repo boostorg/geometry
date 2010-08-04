@@ -87,7 +87,7 @@ int main()
 
 	    {
 		    shape_creator<bg::segment<point_type const> > sc("out/seg");
-		    sc.AddField<int>("dummy", 10);
+		    sc.AddField<short>("dummy", 10);
 
             // This time, write to shape as geometry and not as WKT
             // (because bg::segment is currently const -> no WKT support)
@@ -102,16 +102,16 @@ int main()
 
 	    {
 		    shape_creator<bg::multi_point<point_type> > sc("out/mpnt");
-		    sc.AddField<int>("dummy", 10);
+		    sc.AddField<float>("dummy", 10);
 		    int r = sc.AddGeomFromText("MULTIPOINT((0 0),(1 1),(5 2),(7 3))");
-		    sc.WriteField(r, 0, 10);
+		    sc.WriteField(r, 0, 10.1f);
 	    }
 
 	    {
 		    shape_creator<bg::multi_linestring<bg::linestring<point_type> > > sc("out/ml");
-		    sc.AddField<int>("dummy", 10);
+		    sc.AddField<double>("dummy", 10);
 		    int r = sc.AddGeomFromText("MULTILINESTRING((0 0,1 1,2 0,3 1),(4 4,5 3,6 5))");
-		    sc.WriteField(r, 0, 10);
+		    sc.WriteField(r, 0, 10.2);
 	    }
 
 	    {
