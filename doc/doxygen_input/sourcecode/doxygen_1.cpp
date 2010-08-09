@@ -213,16 +213,21 @@ void example_intersection_polygon1()
 
 void example_simplify_linestring1()
 {
+    //[simplify
+    //` Simplify a linestring
     boost::geometry::linestring<boost::geometry::point_xy<double> > line, simplified;
     boost::geometry::read_wkt("linestring(1.1 1.1, 2.5 2.1, 3.1 3.1, 4.9 1.1, 3.1 1.9)", line);
-    boost::geometry::simplify(line, simplified, 0.5);
+    boost::geometry::simplify(line, simplified, 0.5); /*< Simplify it, using distance of 0.5 units >*/
     std::cout
         << "  original line: " << boost::geometry::dsv(line) << std::endl
         << "simplified line: " << boost::geometry::dsv(simplified) << std::endl;
+    //]
 }
 
 void example_simplify_linestring2()
 {
+    //[simplify_inserter
+    //` Simplify a linestring using an output iterator
     typedef boost::geometry::point_xy<double> P;
     typedef boost::geometry::linestring<P> L;
     L line;
@@ -232,6 +237,7 @@ void example_simplify_linestring2()
     typedef boost::geometry::strategy::distance::projected_point<P, P> DS;
     typedef boost::geometry::strategy::simplify::douglas_peucker<P, DS> simplification;
     boost::geometry::simplify_inserter(line, std::ostream_iterator<P>(std::cout, "\n"), 0.5, simplification());
+    //]
 }
 
 

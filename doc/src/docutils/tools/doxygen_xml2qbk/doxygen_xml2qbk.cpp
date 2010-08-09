@@ -14,7 +14,7 @@
 // - basically generic, but implemented with Boost.Geometry in mind
 // - makes use of some specific XML elements, which can be created by Doxygen
 //       using /xmlonly
-//     currently this is the element <qbk.example> which will make a reference
+//     currently this is the element <qbk.snippet> which will make a reference
 //     to an example.
 // - earlier generations of QBK was done by XSLT, I'm not so into the XSLT and
 //   think this is more flexible. The XSLT only did point-structure, not yet
@@ -24,6 +24,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
+#define _SCL_INSECURE_DEPRECATE
 
 #include <iostream>
 #include <fstream>
@@ -121,7 +122,8 @@ struct function
     std::string model_of;
     std::string location;
     std::string paragraphs; 
-    std::vector<std::string> example;
+    std::vector<std::string> snippets;
+    std::vector<std::string> images;
 
     std::map<std::string, par> parameters;
     std::vector<std::string> tparams;
@@ -136,17 +138,12 @@ static void parse_parameter(rapidxml::xml_node<>* node, par& p)
         if (name == "type") 
         {   
             p.fulltype = node->value(); 
-            std::vector<std::string> splitted;
-            boost::split(splitted, p.fulltype, boost::is_any_of(" *&"));
-            for(std::vector<std::string>::const_iterator it = splitted.begin();
-                it != splitted.end(); ++it)
-            {
-                if (! it->empty()
-                    && *it != "const")
-                {
-                    p.type = *it;
-                }
-            }
+            p.type = p.fulltype;
+            boost::replace_all(p.type, " const", "");
+            boost::trim(p.type);
+            boost::replace_all(p.type, "&", "");
+            boost::replace_all(p.type, "*", "");
+            boost::trim(p.type);
         }
         else if (name == "declname") p.name = node->value();
         else if (name == "parametername") p.name = node->value();
@@ -184,10 +181,16 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, function& f)
         }
 		else if (name == "param") 
         {
-            // Element of 'templateparamlist.param'
-            std::string type;
-            get_contents(node->first_node(), type);
-            f.tparams.push_back(type);
+            // Element of 'templateparamlist.param (.type,.declname,.defname)'
+            par p;
+            parse_parameter(node->first_node(), p);
+            std::string tparam = p.type;
+            if (! p.name.empty())
+            {
+                tparam += " ";
+                tparam += p.name;
+            }
+            f.tparams.push_back(tparam);
         }
 
         parse_parameter_list(node->first_node(), f);
@@ -240,9 +243,17 @@ static void parse_member(rapidxml::xml_node<>* node, std::string const& parent, 
                 get_contents(node->first_node(), f.paragraphs);
             }
         }
-        else if (full == ".detaileddescription.para.qbk.example")
+        else if (full == ".detaileddescription.para.qbk.snippet")
         {
-            f.example.push_back(node->value());
+            f.snippets.push_back(node->value());
+        }
+        else if (full == ".detaileddescription.para.image")
+        {
+            std::string image = get_attribute(node, "name");
+            if (! image.empty())
+            {
+                f.images.push_back(image);
+            }
         }
         else if (full == ".templateparamlist") 
         {
@@ -287,7 +298,8 @@ static void parse_member(rapidxml::xml_node<>* node, std::string const& parent, 
 void quickbook_output(function const& f, std::ostream& out, int index)
 {
     // Write the parsed function
-    out << "[section:" << f.name << index << " " << f.name << "]" << std::endl;
+    int arity = f.parameters.size();
+    out << "[section:" << f.name << "_" << arity << " " << f.name << " (" << arity << ")" "]" << std::endl;
     out << std::endl;
 
     out << f.brief_description << std::endl;
@@ -321,15 +333,18 @@ void quickbook_output(function const& f, std::ostream& out, int index)
         it != f.parameters.end(); ++it)
     {
         par const& p = it->second;
-        out << "[[" << p.type << "] [" << p.concept << "] [" << p.name << "] [" << p.description << "]]" << std::endl;
+        out << "[[" << p.fulltype << "] [" << p.concept << "] [" << p.name << "] [" << p.description << "]]" << std::endl;
     }
     out << "]" << std::endl;
     out << std::endl;
     out << std::endl;
 
-    out << "[heading Returns]" << std::endl;
-    out << f.return_type << std::endl;
-    out << std::endl;
+    if (! f.return_type.empty())
+    {
+        out << "[heading Returns]" << std::endl;
+        out << f.return_type << std::endl;
+        out << std::endl;
+    }
 
     out << "[heading Description]" << std::endl;
     out << f.detailed_description << std::endl;
@@ -343,19 +358,35 @@ void quickbook_output(function const& f, std::ostream& out, int index)
     }
 
     out << "[heading Header]" << std::endl;
+    if (true)
+    {
+        // TODO: get the alternative headerfiles from somewhere
+        out << "Either" << std::endl << std::endl;
+        out << "`#include <boost/geometry/geometry.hpp>`" << std::endl << std::endl;
+        out << "Or" << std::endl << std::endl;
+    }
     out << "`#include <" << f.location << ">`" << std::endl;
     out << std::endl;
 
-    if (! f.example.empty())
+    if (! f.snippets.empty())
     {
-        out << "[heading Example]" << std::endl;
-        BOOST_FOREACH(std::string const& example, f.example)
+        out << "[heading Snippets]" << std::endl;
+        BOOST_FOREACH(std::string const& snippet, f.snippets)
         {
-            out << "[" << example << "]" << std::endl;
+            out << "[" << snippet << "]" << std::endl;
         }
     }
     out << std::endl;
-    // todo, include an appropriate QBK
+
+    if (! f.images.empty())
+    {
+        out << "[heading Image(s)]" << std::endl;
+        BOOST_FOREACH(std::string const& image, f.images)
+        {
+            out << "[$" << image << "]" << std::endl;
+        }
+    }
+    out << std::endl;
 
     out << "[endsect]" << std::endl;
     out << std::endl;
@@ -401,7 +432,7 @@ int main(int argc, char** argv)
     std::string filename = 
         argc > 1 
             ? argv[1] 
-            : "../../../libs/geometry/doc/qbk/doxygen_output/xml/group__area.xml";
+            : "../../../libs/geometry/doc/qbk/doxygen_output/xml/group__simplify.xml";
 
     std::string xml = file_to_string(filename);
 

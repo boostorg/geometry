@@ -16,9 +16,11 @@
 
 doxygen
 
-set xml2qbk=..\..\..\..\other\programs\doxygen_xml2qbk\Debug\doxygen_xml2qbk.exe
+set xml2qbk=..\..\..\..\other\programs\doxygen_xml2qbk\Release\doxygen_xml2qbk.exe
 %xml2qbk% doxygen_output\xml\group__area.xml > area.qbk
+%xml2qbk% doxygen_output\xml\group__access.xml > access.qbk
 %xml2qbk% doxygen_output\xml\group__distance.xml > distance.qbk
+%xml2qbk% doxygen_output\xml\group__simplify.xml > simplify.qbk
 
 set xslt=c:\software\xsltproc\xml\bin\xsltproc.exe
 
@@ -27,4 +29,5 @@ set xslt=c:\software\xsltproc\xml\bin\xsltproc.exe
 :: %xslt% reference.xsl doxygen_output\xml\area_8hpp.xml > area2.qbk
 
 
-bjam --toolset=msvc
+bjam --toolset=msvc --without-python
+
