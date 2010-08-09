@@ -25,18 +25,26 @@
 EXPERIMENTAL!
 
 [import ../../../../boost/geometry/geometries/point.hpp]
-[import ../../../../boost/geometry/algorithms/area.hpp]
 [import ../doxygen_input/sourcecode/doxygen_1.cpp]
 
 [section Introduction]
 This is the documentation of Boost Geometry.
 [endsect]
 
+[/xinclude ref.xml]
+
+
 [section Sample]
 [point]
 [endsect]
 
+[def __geometry_concept__ Any geometry fulfilling the any Geometry concept]
+
+
 [section Reference]
 [include area.qbk]
+[include access.qbk]
 [include distance.qbk]
+[include simplify.qbk]
 [endsect]
+

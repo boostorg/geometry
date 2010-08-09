@@ -8,15 +8,17 @@
 
 # Experimental!
 
+project geometry/doc ;
+
+import boostbook ;
 import quickbook ;
 
-xml geometry
-	: geometry.qbk 
-	: <dependency>Jamfile.v2
+
+boostbook geometry 
+	: geometry.qbk
+	: <dependency>Jamfile.v2	  
+        : <xsl:param>boost.root=br_stub
+	  <xsl:param>callout.graphics.path=br_stub/doc/html/images/callouts/
 	;
 
-boostbook standalone
-	: geometry
-	: <xsl:param>callout.graphics.path=../callouts/
-	;
 

@@ -24,7 +24,7 @@ MULTILINE_CPP_IS_BRIEF = NO
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
-ALIASES                = 
+ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly"
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
 OPTIMIZE_FOR_FORTRAN   = NO
@@ -80,10 +80,11 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = ../../../../boost/geometry/geometries \
+			../../../../boost/geometry/core \
 			../../../../boost/geometry/algorithms \
 			../../../../boost/geometry/strategies/cartesian
 INPUT_ENCODING         = UTF-8
-FILE_PATTERNS          = point.hpp area.hpp distance.hpp distance_pythagoras.hpp 
+FILE_PATTERNS          = point.hpp area.hpp distance.hpp distance_pythagoras.hpp simplify1.hpp access.hpp
 RECURSIVE              = NO
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
@@ -92,7 +93,7 @@ EXCLUDE_SYMBOLS        =
 EXAMPLE_PATH           = ../doxygen_input/sourcecode
 EXAMPLE_PATTERNS       = 
 EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             = 
+IMAGE_PATH             = ../doxygen_input/images
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO

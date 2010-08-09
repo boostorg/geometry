@@ -272,12 +272,18 @@ struct simplify_inserter<ring_tag, Ring, Strategy>
 /*!
     \brief Simplify a geometry using a specified strategy
     \ingroup simplify
+    \tparam Geometry A type fulfilling any Geometry concept
+    \tparam Distance A numerical distance measure
+    \tparam Strategy A type fulfilling a SimplifyStrategy concept
+    \param strategy A strategy to calculate simplification
     \param geometry input geometry, to be simplified
     \param out output geometry, simplified version of the input geometry
     \param max_distance distance (in units of input coordinates) of a vertex
         to other segments to be removed
     \param strategy simplify strategy to be used for simplification, might
         include point-distance strategy
+
+    \image html svg_simplify_country.png
  */
 template<typename Geometry, typename Distance, typename Strategy>
 inline void simplify(Geometry const& geometry, Geometry& out,
@@ -303,6 +309,8 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 /*!
     \brief Simplify a geometry
     \ingroup simplify
+    \tparam Geometry A type fulfilling any Geometry concept
+    \tparam Distance A numerical distance measure
     \note This version of simplify simplifies a geometry using the default
         strategy (Douglas Peucker),
     \param geometry input geometry, to be simplified
@@ -315,6 +323,9 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     \skip example_simplify_linestring1
     \line {
     \until }
+
+    \xmlonly <qbk.example>simplify</qbk.example> \endxmlonly
+    \image html svg_simplify_country.png
  */
 template<typename Geometry, typename Distance>
 inline void simplify(Geometry const& geometry, Geometry& out,
@@ -341,6 +352,7 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     \brief Simplify a geometry, using an output iterator
         and a specified strategy
     \ingroup simplify
+    \tparam Geometry geometry_concept
     \param geometry input geometry, to be simplified
     \param out output iterator, outputs all simplified points
     \param max_distance distance (in units of input coordinates) of a vertex
@@ -353,6 +365,9 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     \skip example_simplify_linestring2
     \line {
     \until }
+
+    \xmlonly <qbk.example>simplify_inserter</qbk.example> \endxmlonly
+    \image html svg_simplify_country.png
  */
 template<typename Geometry, typename OutputIterator, typename Distance, typename Strategy>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
@@ -372,11 +387,14 @@ inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
 /*!
     \brief Simplify a geometry, using an output iterator
     \ingroup simplify
+    \tparam Geometry geometry_concept
     \param geometry input geometry, to be simplified
     \param out output iterator, outputs all simplified points
     \param max_distance distance (in units of input coordinates) of a vertex
         to other segments to be removed
- */
+
+    \image html svg_simplify_country.png
+*/
 template<typename Geometry, typename OutputIterator, typename Distance>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
                               Distance const& max_distance)
