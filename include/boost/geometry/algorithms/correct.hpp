@@ -170,7 +170,13 @@ namespace dispatch
 {
 
 template <typename Tag, typename Geometry>
-struct correct {};
+struct correct 
+{
+    static inline void apply(Geometry& geometry)
+    {
+        // Default: no action necessary
+    }
+};
 
 template <typename Box>
 struct correct<box_tag, Box>
