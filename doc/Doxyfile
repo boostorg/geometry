@@ -25,7 +25,9 @@ MULTILINE_CPP_IS_BRIEF = NO
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
-ALIASES                = 
+ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
+			geometry_concept="Any geometry fulfilling the any Geometry concept" \
+			template_numerical="Numerical type (int, double, ttmath, ...)"
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
 OPTIMIZE_FOR_FORTRAN   = NO
@@ -83,7 +85,9 @@ WARN_LOGFILE           =
 INPUT                  = . .. ../../../boost/geometry/core \
 			../../../boost/geometry/algorithms \
 			../../../boost/geometry/algorithms/detail \
-			../../../boost/geometry/algorithms/overlay \
+			../../../boost/geometry/algorithms/detail\overlay \
+			../../../boost/geometry/algorithms/detail\equals \
+			../../../boost/geometry/algorithms/detail\sections \
 			../../../boost/geometry/arithmetic \
 			../../../boost/geometry/geometries/concepts \
 			../../../boost/geometry/geometries/concepts/detail \
@@ -99,6 +103,7 @@ INPUT                  = . .. ../../../boost/geometry/core \
 			../../../boost/geometry/multi/iterators \
 			../../../boost/geometry/policies \
 			../../../boost/geometry/policies/relate \
+			../../../boost/geometry/ranges \
 			../../../boost/geometry/strategies \
 			../../../boost/geometry/strategies/concepts \
 			../../../boost/geometry/strategies/agnostic \
@@ -106,8 +111,10 @@ INPUT                  = . .. ../../../boost/geometry/core \
 			../../../boost/geometry/strategies/spherical \
 			../../../boost/geometry/strategies/transform \
 			../../../boost/geometry/util \
+			../../../boost/geometry/views \
 			../../../boost/geometry/extensions/io/svg \
-			./doxygen_input/pages
+			./doxygen_input/pages \
+			./doxygen_input/groups
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp
 RECURSIVE              = NO
@@ -206,11 +213,11 @@ MAN_LINKS              = NO
 #---------------------------------------------------------------------------
 # configuration options related to the XML output
 #---------------------------------------------------------------------------
-GENERATE_XML           = NO
+GENERATE_XML           = YES
 XML_OUTPUT             = xml
 XML_SCHEMA             = 
 XML_DTD                = 
-XML_PROGRAMLISTING     = YES
+XML_PROGRAMLISTING     = NO
 #---------------------------------------------------------------------------
 # configuration options for the AutoGen Definitions output
 #---------------------------------------------------------------------------

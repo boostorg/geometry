@@ -8,7 +8,7 @@
     http://www.boost.org/LICENSE_1_0.txt)
 ===============================================================================/]
 
-[library Boost.Geometry
+[library Geometry
     [quickbook 1.5]
     [version 1.0]
     [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz]]
@@ -22,29 +22,22 @@
     [id geometry]
 ]
 
-EXPERIMENTAL!
+In progress
 
-[import ../../../../boost/geometry/geometries/point.hpp]
-[import ../doxygen_input/sourcecode/doxygen_1.cpp]
+Link to [link geometry.reference.models.point_xy point XY]
+
+
+[import snippets/qbk_1.cpp]
+[import snippets/qbk_2.cpp]
+[import snippets/qbk_3.cpp]
+[import snippets/qbk_4.cpp]
+[import snippets/qbk_5.cpp]
+
 
 [section Introduction]
-This is the documentation of Boost Geometry.
+Documentation of Boost Geometry.
 [endsect]
 
-[/xinclude ref.xml]
-
-
-[section Sample]
-[point]
-[endsect]
-
-[def __geometry_concept__ Any geometry fulfilling the any Geometry concept]
-
-
-[section Reference]
-[include area.qbk]
-[include access.qbk]
-[include distance.qbk]
-[include simplify.qbk]
-[endsect]
+[include matrix.qbk]
+[include reference.qbk]
 
