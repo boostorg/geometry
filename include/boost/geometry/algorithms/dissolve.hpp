@@ -149,7 +149,7 @@ struct dissolve<ring_tag, ring_tag, Ring, RingOut>
     \tparam OutputIterator type of intersection container
         (e.g. vector of "intersection/turn point"'s)
     \param geometry first geometry
-    \param output container which will contain dissolved geometry
+    \param out output iterator getting dissolved geometry
     \note Currently dissolve with a (multi)linestring does NOT remove internal
         overlap, it only tries to connect multiple line end-points.
         TODO: we should change this behaviour and add a separate "connect"

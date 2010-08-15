@@ -20,9 +20,6 @@
 // TODO: remove used EXTENSION here (result should be part of parsing strategy)
 #include <boost/geometry/extensions/gis/geographic/strategies/dms_parser.hpp>
 
-/*!
-\defgroup parse parse and assign string values
-*/
 
 namespace boost { namespace geometry
 {

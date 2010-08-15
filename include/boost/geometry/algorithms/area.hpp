@@ -37,31 +37,6 @@
 #include <boost/geometry/util/reversible_view.hpp>
 
 
-/*!
-\defgroup area area: calculate area of a geometry
-
-\par Performance
-2776 * 1000 area calculations are done in 0.11 seconds
-(http://trac.osgeo.org/ggl/wiki/Performance#Area1)
-
-\par Coordinate systems and strategies
-Area calculation can be done in Cartesian and in spherical/geographic
-coordinate systems.
-
-\par Geometries
-The area algorithm calculates the surface area of all geometries
-having a surface: box, polygon, multi_polygon. The units are the square of
-the units used for the points defining the surface. If the polygon is defined
-in meters, the area is in square meters.
-
-\par Example:
-Example showing area calculation of polygons built
-\dontinclude doxygen_1.cpp
-\skip example_area_polygon()
-\line {
-\until }
-
-*/
 namespace boost { namespace geometry
 {
 
@@ -222,19 +197,19 @@ struct area<polygon_tag, Polygon, Strategy>
 
 
 /*!
-    \brief Calculate area of a geometry
-    \ingroup area
-    \details The function area returns the area of a polygon, ring, box
-    using the default area-calculation strategy. Strategies are
-    provided for cartesian and spherical coordinate systems
-    The geometries should correct, polygons should be closed
-    and according to the specified orientation (clockwise/counter clockwise)
-    \tparam Geometry A type fulfilling any Geometry concept
-    \param geometry A model of Geometry
-    \return The calculated area
+\brief Calculate area of a geometry
+\ingroup area
+\details The function area returns the area of a polygon, ring, box
+using the default area-calculation strategy. Strategies are
+provided for cartesian and spherical coordinate systems
+The geometries should correct, polygons should be closed
+and according to the specified orientation (clockwise/counter clockwise)
+\tparam Geometry \geometry_concept
+\param geometry A model of Geometry
+\return The calculated area
 
-    \xmlonly <qbk.example>area_polygon</qbk.example> \endxmlonly
-    \xmlonly <qbk.example>area_polygon_spherical</qbk.example> \endxmlonly
+\qbk{snippet,area_polygon}
+\qbk{snippet,area_polygon_spherical}
  */
 template <typename Geometry>
 inline typename area_result<Geometry>::type area(Geometry const& geometry)
@@ -252,16 +227,16 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 }
 
 /*!
-    \brief Calculate area of a geometry using a specified strategy
-    \ingroup area
-    \details This version of area calculation takes a strategy
-    \tparam Geometry A type fulfilling any Geometry concept
-    \tparam Strategy A type fulfilling a AreaStrategy concept
-    \param geometry A model of Geometry
-    \param strategy A strategy to calculate area.
-        Especially for spherical and geographical area calculations there
-        are various approaches.
-    \return The calculated area
+\brief Calculate area of a geometry using a specified strategy
+\ingroup area
+\details This version of area calculation takes a strategy
+\tparam Geometry \geometry_concept
+\tparam Strategy A type fulfilling a AreaStrategy concept
+\param geometry A model of Geometry
+\param strategy A strategy to calculate area.
+    Especially for spherical and geographical area calculations there
+    are various approaches.
+\return The calculated area
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(

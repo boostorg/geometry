@@ -19,15 +19,15 @@ namespace boost { namespace geometry
 {
 
 /*!
-    \brief Iterator which iterates through a range, but adds first element at end of the range
-    \tparam Range range on which this class is based on
-    \ingroup iterators
-    \note Use with "closing_iterator<Range> or "closing_iterator<Range const> 
-            to get non-const / const behaviour
-    \note This class is normally used from "closeable_view" if Close==true
+\brief Iterator which iterates through a range, but adds first element at end of the range
+\tparam Range range on which this class is based on
+\ingroup iterators
+\note Use with "closing_iterator<Range> or "closing_iterator<Range const>
+        to get non-const / const behaviour
+\note This class is normally used from "closeable_view" if Close==true
 */
 template <typename Range>
-struct closing_iterator 
+struct closing_iterator
     : public boost::iterator_adaptor
     <
         closing_iterator<Range>,
@@ -36,6 +36,7 @@ struct closing_iterator
         boost::forward_traversal_tag
     >
 {
+    /// Constructor including the range it is based on
     explicit inline closing_iterator(Range& range)
         : m_range(range)
         , m_beyond(false)
@@ -44,7 +45,7 @@ struct closing_iterator
         this->base_reference() = boost::begin(m_range);
     }
 
-    // Constructor to indicate the end of a range
+    /// Constructor to indicate the end of a range
     explicit inline closing_iterator(Range& range, bool)
         : m_range(range)
         , m_beyond(true)
@@ -58,7 +59,7 @@ private:
 
     inline bool equal(closing_iterator<Range> const& other) const
     {
-        return this->base() == other.base() 
+        return this->base() == other.base()
             && this->m_beyond == other.m_beyond;
     }
 

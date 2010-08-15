@@ -15,19 +15,19 @@
 #include <boost/geometry/algorithms/reverse.hpp>
 
 
-/*!
-\defgroup sym_difference sym_difference: sym_difference of two geometries
-*/
-
-
 namespace boost { namespace geometry
 {
 
 
 /*!
     \ingroup sym_difference
-    \tparam Geometry geometry type
-    \param geometry the geometry to make symmetric difference
+    \tparam Geometry1 first geometry type
+    \tparam Geometry2 second geometry type
+    \tparam Collection output collection, either a multi-geometry,
+        or a std::vector<Geometry> / std::deque<Geometry> etc
+    \param geometry1 first geometry
+    \param geometry2 second geometry
+    \param output_collection the output collection
 */
 template
 <

@@ -13,9 +13,6 @@
 
 #include <boost/geometry/core/tags.hpp>
 
-/*!
-\defgroup core core: meta-functions for geometry types
-*/
 
 namespace boost { namespace geometry
 {
