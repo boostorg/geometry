@@ -129,7 +129,7 @@ public :
 
         range1_iterator prev1, it1, end1;
 
-        get_start_point_iterator(sec1, prev1, it1, end1, 
+        get_start_point_iterator(sec1, prev1, it1, end1,
                     index1, ndi1, geometry1, dir1, sec2.bounding_box);
 
         // We need a circular iterator because it might run through the closing point.
@@ -153,7 +153,7 @@ public :
 
             range2_iterator prev2, it2, end2;
 
-            get_start_point_iterator(sec2, prev2, it2, end2, 
+            get_start_point_iterator(sec2, prev2, it2, end2,
                         index2, ndi2, geometry2, dir2, sec1.bounding_box);
             ever_circling_iterator<range2_iterator> next2(begin_range_2, end_range_2, it2, true);
             next2++;
@@ -829,6 +829,8 @@ struct get_turns_reversed
     \param geometry1 first geometry
     \param geometry2 second geometry
     \param turns container which will contain intersection points
+    \param interrupt_policy policy determining if process is stopped
+        when intersection is found
  */
 template
 <

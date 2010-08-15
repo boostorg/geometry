@@ -18,9 +18,6 @@
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
-/*!
-\defgroup arithmetic arithmetic: arithmetic operations on points
-*/
 
 namespace boost { namespace geometry
 {

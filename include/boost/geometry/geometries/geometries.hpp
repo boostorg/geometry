@@ -9,17 +9,6 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_HPP
 
-
-/*!
-\defgroup geometries geometries: geometries provided by default
-\details The GGL can be used with the geometry classes provided by the library,
-and with custom geometries registered by traits classes or registration
-macros.
-
-This documentation page refers to the geometry classes provided by the library.
-
-*/
-
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/tuple.hpp>
 

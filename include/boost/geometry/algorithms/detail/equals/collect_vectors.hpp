@@ -279,7 +279,9 @@ struct collect_vectors<multi_polygon_tag, Collection, MultiPolygon>
 
 /*!
     \ingroup collect_vectors
+    \tparam Collection Collection type, should be e.g. std::vector<>
     \tparam Geometry geometry type
+    \param collection the collection of vectors
     \param geometry the geometry to make collect_vectors
 */
 template <typename Collection, typename Geometry>

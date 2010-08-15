@@ -175,6 +175,8 @@ struct self_get_turn_points
                 (e.g. vector of "intersection/turn point"'s)
     \param geometry geometry
     \param turns container which will contain intersection points
+    \param interrupt_policy policy determining if process is stopped
+        when intersection is found
  */
 template
 <

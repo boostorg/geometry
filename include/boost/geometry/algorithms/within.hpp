@@ -9,40 +9,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_WITHIN_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_WITHIN_HPP
 
-/*!
-\defgroup within within: detect if a geometry is inside another geometry, a.o. point-in-polygon
-
-\par Source descriptions:
-- OGC: Returns 1 (TRUE) if this geometric object is "spatially within"
-        another Geometry.
-
-\par Performance
-- 2776 within determinations using bounding box and polygon are done
-    in 0.05 seconds (http://trac.osgeo.org/ggl/wiki/Performance#Within1)
-- note that using another strategy the performance can be increased:
-  - winding            : 0.093 s
-  - franklin           : 0.062 s
-  - Crossings-multiply : 0.047 s
-- but note also that the last two do not detect point-on-border cases
-
-\par Geometries:
-- \b point + \b polygon: The well-known point-in-polygon, returning true if
-    a point falls within a polygon (and not
-within one of its holes) \image html within_polygon.png
-- \b point + \b ring: returns true if point is completely within
-    a ring \image html within_ring.png
-- \b point + \b box
-- \b box + \b box
-
-\par Example:
-The within algorithm is used as following:
-\dontinclude doxygen_1.cpp
-\skip example_within
-\line {
-\until }
-
-*/
-
 
 #include <cstddef>
 
@@ -175,9 +141,9 @@ struct box_in_box<Box1, Box2, Strategy, DimensionCount, DimensionCount>
 
 template
 <
-    typename Point, 
-    typename Ring, 
-    iterate_direction Direction, 
+    typename Point,
+    typename Ring,
+    iterate_direction Direction,
     closure_selector Closure,
     typename Strategy
 >
@@ -223,9 +189,9 @@ struct point_in_ring
 // Polygon: in exterior ring, and if so, not within interior ring(s)
 template
 <
-    typename Point, 
-    typename Polygon, 
-    iterate_direction Direction, 
+    typename Point,
+    typename Polygon,
+    iterate_direction Direction,
     closure_selector Closure,
     typename Strategy
 >
@@ -323,8 +289,8 @@ template <typename Point, typename Ring, typename Strategy>
 struct within<point_tag, ring_tag, Point, Ring, Strategy>
     : detail::within::point_in_ring
         <
-            Point, 
-            Ring, 
+            Point,
+            Ring,
             order_as_direction<geometry::point_order<Ring>::value>::value,
             geometry::closure<Ring>::value,
             Strategy
@@ -335,8 +301,8 @@ template <typename Point, typename Polygon, typename Strategy>
 struct within<point_tag, polygon_tag, Point, Polygon, Strategy>
     : detail::within::point_in_polygon
         <
-            Point, 
-            Polygon, 
+            Point,
+            Polygon,
             order_as_direction<geometry::point_order<Polygon>::value>::value,
             geometry::closure<Polygon>::value,
             Strategy

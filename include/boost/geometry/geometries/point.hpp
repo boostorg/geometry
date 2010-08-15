@@ -24,55 +24,66 @@ namespace boost { namespace geometry
 {
 
 /*!
-    \brief Basic point class, having coordinates defined in a neutral way
-    \ingroup geometries
-    \tparam T numeric type, for example double, float, int
-    \tparam D coordinate dimension as number of coordinates, for example 2
-    \tparam C coordinate system, for example cs::cartesian
+\brief Basic point class, having coordinates defined in a neutral way
+\ingroup geometries
+
+\tparam CoordinateType \template_numerical
+\tparam DimensionCount number of coordinates, usually 2 or 3
+\tparam CoordinateSystem coordinate system, for example cs::cartesian
+
+\qbk{snippet,point}
+
+\details Defines a neutral point class, fulfilling the Point Concept.
+    Library users can use this point class, or use their own point classes.
+    This point class is used in most of the samples and tests of Boost.Geometry
+    This point class is used occasionally within the library, where a temporary
+    point class is necessary.
 */
-template<typename T, std::size_t D, typename C>
+template
+<
+    typename CoordinateType,
+    std::size_t DimensionCount,
+    typename CoordinateSystem
+>
 class point
 {
 public:
 
-    // Concept typedefs and members
-    typedef T coordinate_type;
-    typedef C coordinate_system;
-
-    static const std::size_t coordinate_count = D;
-
-    /// Default constructor, no initialization at all
+    /// @brief Default constructor, no initialization
     inline point()
     {}
 
-    /// Constructs with one, or optionally two or three values
-    inline point(T const& v0, T const& v1 = 0, T const& v2 = 0)
+    /// @brief Constructor to set one, two or three values
+    inline point(CoordinateType const& v0, CoordinateType const& v1 = 0, CoordinateType const& v2 = 0)
     {
-        if (D >= 1) m_values[0] = v0;
-        if (D >= 2) m_values[1] = v1;
-        if (D >= 3) m_values[2] = v2;
+        if (DimensionCount >= 1) m_values[0] = v0;
+        if (DimensionCount >= 2) m_values[1] = v1;
+        if (DimensionCount >= 3) m_values[2] = v2;
     }
 
-
-    /// Compile time access to coordinate values
+    /// @brief Get a coordinate
+    /// @tparam K coordinate to get
+    /// @return the coordinate
     template <std::size_t K>
-    inline T const& get() const
+    inline CoordinateType const& get() const
     {
-        BOOST_STATIC_ASSERT(K < D);
+        BOOST_STATIC_ASSERT(K < DimensionCount);
         return m_values[K];
     }
 
+    /// @brief Set a coordinate
+    /// @tparam K coordinate to set
+    /// @param value value to set
     template <std::size_t K>
-    inline void set(T value)
+    inline void set(CoordinateType const& value)
     {
-        BOOST_STATIC_ASSERT(K < D);
+        BOOST_STATIC_ASSERT(K < DimensionCount);
         m_values[K] = value;
     }
 
-
 private:
 
-    T m_values[D];
+    CoordinateType m_values[DimensionCount];
 };
 
 

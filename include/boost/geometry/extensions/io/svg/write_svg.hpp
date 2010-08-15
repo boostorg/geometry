@@ -23,9 +23,6 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-/*!
-\defgroup svg x Extension svg: Stream SVG (Scalable Vector Graphics)
-*/
 
 namespace boost { namespace geometry
 {
@@ -193,7 +190,7 @@ template <typename Char, typename Traits>
 static inline void apply(std::basic_ostream<Char, Traits>& os, G const& geometry)
 */
 template <typename GeometryTag, typename Geometry>
-struct svg 
+struct svg
 {
     BOOST_MPL_ASSERT_MSG
         (

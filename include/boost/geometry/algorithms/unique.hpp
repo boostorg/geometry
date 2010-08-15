@@ -17,13 +17,6 @@
 #include <boost/geometry/policies/compare.hpp>
 
 
-/*!
-\defgroup unique unique: make a geometry unique w.r.t. points,
-        so no duplicate consecutive points
-
-*/
-
-
 namespace boost { namespace geometry
 {
 
