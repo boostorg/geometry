@@ -103,15 +103,18 @@ include polygon_example.cpp
 
 //---------------------------------------------------------------------------------------------------
  /*!
-\example 06_transformation_example.cpp
+\example 06_a_transformation_example.cpp
 This sample demonstrates the usage of transformations in the Generic Geometry Library.
 Behind the screens this is done using with the uBLAS matrix/vector library.
+
+\example 06_b_transformation_example.cpp
+
 */
 
 //---------------------------------------------------------------------------------------------------
 
 /*!
-\example 07_graph_route_example.cpp
+\example 07_a_graph_route_example.cpp
 The graph route example shows how GGL can be combined with Boost.Graph. The sample does the following things:
 - it reads roads (included in the distribution, stored on disk in the form of a text file containing geometries and names)
 - it reads cities
@@ -133,6 +136,8 @@ The SVG looks like:
 
 The output screen looks like:
 \image html 07_graph_route_example_text.png
+
+\example 07_b_graph_route_example.cpp
 
 
 */
