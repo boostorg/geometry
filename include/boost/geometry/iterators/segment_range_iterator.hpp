@@ -59,10 +59,11 @@ struct segment_range_iterator
         init(segment);
     }
 
+    typedef std::ptrdiff_t difference_type;
+
 private:
     friend class boost::iterator_core_access;
     typedef typename point_type<Segment>::type point_type;
-    typedef std::ptrdiff_t difference_type;
 
     inline point_type const& dereference() const
     {
