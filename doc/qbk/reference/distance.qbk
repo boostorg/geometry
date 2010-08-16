@@ -4,6 +4,9 @@
 
 Calculate comparable distance measurement between two geometries. 
 
+[heading Description]
+The default strategy is used, belonging to the corresponding coordinate system of the geometries and the comparable strategy is used 
+
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, , >
 distance_result<Geometry1, Geometry2>::type comparable_distance (Geometry1 const &geometry1, Geometry2 const &geometry2)``
@@ -19,9 +22,6 @@ distance_result<Geometry1, Geometry2>::type comparable_distance (Geometry1 const
 
 [heading Returns]
 the comparable distance 
-
-[heading Description]
-The default strategy is used, belonging to the corresponding coordinate system of the geometries and the comparable strategy is used 
 
 [heading Header]
 Either
@@ -39,6 +39,9 @@ Or
 
 Calculate distance between two geometries. 
 
+[heading Description]
+The default strategy is used, belonging to the corresponding coordinate system of the geometries 
+
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
 distance_result<Geometry1, Geometry2>::type distance (Geometry1 const &geometry1, Geometry2 const &geometry2)``
@@ -54,9 +57,6 @@ distance_result<Geometry1, Geometry2>::type distance (Geometry1 const &geometry1
 
 [heading Returns]
 the distance (either a double or a distance result, convertable to double) 
-
-[heading Description]
-The default strategy is used, belonging to the corresponding coordinate system of the geometries 
 
 [heading Header]
 Either
@@ -90,9 +90,6 @@ strategy::distance::services::return_type<Strategy>::type distance (Geometry1 co
 
 [heading Returns]
 the distance 
-
-[heading Description]
-
 
 [heading Header]
 Either

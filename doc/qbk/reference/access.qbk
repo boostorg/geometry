@@ -19,9 +19,6 @@ void append (Geometry &geometry, RoP const &range_or_point, int ring_index=-1, i
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -34,24 +31,53 @@ Or
 
 [endsect]
 
-[section:assign_2 assign (2)]
+[section:assign_3 assign (3)]
 
-assign a range of points to a linestring, ring or polygon 
+assign two values to a 2D point 
 
 [heading Synopsis]
-``template<typename Geometry, typename Range>
-void assign (Geometry &geometry, Range const &range)``
+``template<typename Geometry, typename Type>
+void assign (Geometry &geometry, Type const &c1, Type const &c2)``
 
 [heading Parameters]
 
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry &] [] [geometry] []]
-[[Range const &] [] [range] []]
+[[Type const &] [] [c1] []]
+[[Type const &] [] [c2] []]
 ]
 
 
-[heading Description]
+[heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
+`#include <boost/geometry/algorithms/assign.hpp>`
+
+
+[endsect]
+
+[section:assign_4 assign (4)]
+
+assign three values to a 3D point [or the center + radius to a circle] 
+
+[heading Synopsis]
+``template<typename Geometry, typename Type>
+void assign (Geometry &geometry, Type const &c1, Type const &c2, Type const &c3)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Geometry &] [] [geometry] []]
+[[Type const &] [] [c1] []]
+[[Type const &] [] [c2] []]
+[[Type const &] [] [c3] []]
+]
 
 
 [heading Header]
@@ -86,9 +112,6 @@ void assign (Geometry &geometry, Type const &c1, Type const &c2, Type const &c3,
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -101,59 +124,21 @@ Or
 
 [endsect]
 
-[section:assign_4 assign (4)]
+[section:assign_2 assign (2)]
 
-assign three values to a 3D point [or the center + radius to a circle] 
+assign a range of points to a linestring, ring or polygon 
 
 [heading Synopsis]
-``template<typename Geometry, typename Type>
-void assign (Geometry &geometry, Type const &c1, Type const &c2, Type const &c3)``
+``template<typename Geometry, typename Range>
+void assign (Geometry &geometry, Range const &range)``
 
 [heading Parameters]
 
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry &] [] [geometry] []]
-[[Type const &] [] [c1] []]
-[[Type const &] [] [c2] []]
-[[Type const &] [] [c3] []]
+[[Range const &] [] [range] []]
 ]
-
-
-[heading Description]
-
-
-[heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
-`#include <boost/geometry/algorithms/assign.hpp>`
-
-
-[endsect]
-
-[section:assign_3 assign (3)]
-
-assign two values to a 2D point 
-
-[heading Synopsis]
-``template<typename Geometry, typename Type>
-void assign (Geometry &geometry, Type const &c1, Type const &c2)``
-
-[heading Parameters]
-
-[table
-[[Type] [Concept] [Name] [Description] ]
-[[Geometry &] [] [geometry] []]
-[[Type const &] [] [c1] []]
-[[Type const &] [] [c2] []]
-]
-
-
-[heading Description]
 
 
 [heading Header]
@@ -188,9 +173,6 @@ void assign_box_corners (Box const &box, Point &lower_left, Point &lower_right, 
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -207,6 +189,9 @@ Or
 
 assign to a box inverse infinite 
 
+[heading Description]
+The assign_inverse function initialize a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small. This is a convenient starting point to collect the minimum bounding box of a geometry. 
+
 [heading Synopsis]
 ``template<typename Geometry>
 void assign_inverse (Geometry &geometry)``
@@ -218,9 +203,6 @@ void assign_inverse (Geometry &geometry)``
 [[Geometry &] [] [geometry] []]
 ]
 
-
-[heading Description]
-The assign_inverse function initialize a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small. This is a convenient starting point to collect the minimum bounding box of a geometry. 
 
 [heading Header]
 Either
@@ -249,9 +231,6 @@ void assign_point_from_index (Geometry const &geometry, Point &point)``
 [[Geometry const &] [] [geometry] []]
 [[Point &] [] [point] []]
 ]
-
-
-[heading Description]
 
 
 [heading Header]
@@ -283,9 +262,6 @@ void assign_point_to_index (Point const &point, Geometry &geometry)``
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -302,6 +278,9 @@ Or
 
 assign zero values to a box, point 
 
+[heading Description]
+The assign_zero function initializes a 2D or 3D point or box with coordinates of zero 
+
 [heading Synopsis]
 ``template<typename Geometry>
 void assign_zero (Geometry &geometry)``
@@ -313,9 +292,6 @@ void assign_zero (Geometry &geometry)``
 [[Geometry &] [the geometry type ] [geometry] []]
 ]
 
-
-[heading Description]
-The assign_zero function initializes a 2D or 3D point or box with coordinates of zero 
 
 [heading Header]
 Either
@@ -345,9 +321,6 @@ void clear (Geometry &geometry)``
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -356,40 +329,6 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/clear.hpp>`
-
-
-[endsect]
-
-[section:exterior_ring_1 exterior_ring (1)]
-
-Function to get the exterior ring of a polygon (const version). 
-
-[heading Synopsis]
-``template<typename Polygon>
-const ring_type<Polygon>::type& exterior_ring (Polygon const &polygon)``
-
-[heading Parameters]
-
-[table
-[[Type] [Concept] [Name] [Description] ]
-[[Polygon const &] [polygon type ] [polygon] [the polygon to get the exterior ring from ]]
-]
-
-
-[heading Returns]
-a const reference to the exterior ring 
-
-[heading Description]
-
-
-[heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
-`#include <boost/geometry/core/exterior_ring.hpp>`
 
 
 [endsect]
@@ -413,8 +352,36 @@ ring_type<Polygon>::type& exterior_ring (Polygon &polygon)``
 [heading Returns]
 a reference to the exterior ring 
 
-[heading Description]
+[heading Header]
+Either
 
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
+`#include <boost/geometry/core/exterior_ring.hpp>`
+
+
+[endsect]
+
+[section:exterior_ring_1 exterior_ring (1)]
+
+Function to get the exterior ring of a polygon (const version). 
+
+[heading Synopsis]
+``template<typename Polygon>
+const ring_type<Polygon>::type& exterior_ring (Polygon const &polygon)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Polygon const &] [polygon type ] [polygon] [the polygon to get the exterior ring from ]]
+]
+
+
+[heading Returns]
+a const reference to the exterior ring 
 
 [heading Header]
 Either
@@ -447,9 +414,6 @@ coordinate_type<Geometry>::type get (Geometry const &geometry)``
 [heading Returns]
 coordinate value 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -466,6 +430,9 @@ Or
 
 get coordinate value of a point, result is in Radian 
 
+[heading Description]
+Result is in Radian, even if source coordinate system is in Degrees 
+
 [heading Synopsis]
 ``template<std::size_t Dimension, typename Geometry>
 fp_coordinate_type<Geometry>::type get_as_radian (Geometry const &geometry)``
@@ -481,9 +448,6 @@ fp_coordinate_type<Geometry>::type get_as_radian (Geometry const &geometry)``
 [heading Returns]
 coordinate value
 
-[heading Description]
-Result is in Radian, even if source coordinate system is in Degrees 
-
 [heading Header]
 Either
 
@@ -492,40 +456,6 @@ Either
 Or
 
 `#include <boost/geometry/core/radian_access.hpp>`
-
-
-[endsect]
-
-[section:interior_rings_1 interior_rings (1)]
-
-Function to get the interior rings of a polygon (const version). 
-
-[heading Synopsis]
-``template<typename Polygon, >
-const interior_type<Polygon>::type& interior_rings (Polygon const &polygon)``
-
-[heading Parameters]
-
-[table
-[[Type] [Concept] [Name] [Description] ]
-[[Polygon const &] [] [polygon] [the polygon to get the interior rings from ]]
-]
-
-
-[heading Returns]
-a const reference to the interior rings 
-
-[heading Description]
-
-
-[heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
-`#include <boost/geometry/core/interior_rings.hpp>`
 
 
 [endsect]
@@ -549,8 +479,36 @@ interior_type<Polygon>::type& interior_rings (Polygon &polygon)``
 [heading Returns]
 a reference to the interior rings 
 
-[heading Description]
+[heading Header]
+Either
 
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
+`#include <boost/geometry/core/interior_rings.hpp>`
+
+
+[endsect]
+
+[section:interior_rings_1 interior_rings (1)]
+
+Function to get the interior rings of a polygon (const version). 
+
+[heading Synopsis]
+``template<typename Polygon, >
+const interior_type<Polygon>::type& interior_rings (Polygon const &polygon)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Polygon const &] [] [polygon] [the polygon to get the interior rings from ]]
+]
+
+
+[heading Returns]
+a const reference to the interior rings 
 
 [heading Header]
 Either
@@ -560,6 +518,41 @@ Either
 Or
 
 `#include <boost/geometry/core/interior_rings.hpp>`
+
+
+[endsect]
+
+[section:make_2 make (2)]
+
+Make a geometry. 
+
+[heading Description]
+the Generic Geometry Library uses concepts for all its geometries. Therefore it does not rely on constructors. The "make" functions are object generators creating geometries. There are overloads with two, three, four or six values, which are implemented depending on the geometry specified. 
+
+[heading Synopsis]
+``template<typename Geometry, typename T, >
+Geometry make (T const &c1, T const &c2)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[T const &] [the coordinate type ] [c1] []]
+[[T const &] [the coordinate type ] [c2] []]
+]
+
+
+[heading Returns]
+the geometry 
+
+[heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
+`#include <boost/geometry/algorithms/make.hpp>`
 
 
 [endsect]
@@ -585,44 +578,6 @@ Geometry make (T const &c1, T const &c2, T const &c3)``
 [heading Returns]
 a 3D point 
 
-[heading Description]
-
-
-[heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
-`#include <boost/geometry/algorithms/make.hpp>`
-
-
-[endsect]
-
-[section:make_2 make (2)]
-
-Make a geometry. 
-
-[heading Synopsis]
-``template<typename Geometry, typename T, >
-Geometry make (T const &c1, T const &c2)``
-
-[heading Parameters]
-
-[table
-[[Type] [Concept] [Name] [Description] ]
-[[T const &] [the coordinate type ] [c1] []]
-[[T const &] [the coordinate type ] [c2] []]
-]
-
-
-[heading Returns]
-the geometry 
-
-[heading Description]
-the Generic Geometry Library uses concepts for all its geometries. Therefore it does not rely on constructors. The "make" functions are object generators creating geometries. There are overloads with two, three, four or six values, which are implemented depending on the geometry specified. 
-
 [heading Header]
 Either
 
@@ -639,6 +594,9 @@ Or
 
 Create a box with inverse infinite coordinates. 
 
+[heading Description]
+The make_inverse function initialize a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small 
+
 [heading Synopsis]
 ``template<typename Geometry>
 Geometry make_inverse ()``
@@ -652,9 +610,6 @@ Geometry make_inverse ()``
 
 [heading Returns]
 the box 
-
-[heading Description]
-The make_inverse function initialize a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small 
 
 [heading Header]
 Either
@@ -672,6 +627,9 @@ Or
 
 Create a geometry with "zero" coordinates. 
 
+[heading Description]
+The make_zero function initializes a 2D or 3D point or box with coordinates of zero 
+
 [heading Synopsis]
 ``template<typename Geometry>
 Geometry make_zero ()``
@@ -685,9 +643,6 @@ Geometry make_zero ()``
 
 [heading Returns]
 the geometry 
-
-[heading Description]
-The make_zero function initializes a 2D or 3D point or box with coordinates of zero 
 
 [heading Header]
 Either
@@ -720,9 +675,6 @@ std::size_t num_geometries (Geometry const &geometry)``
 [heading Returns]
 the number of interior rings of the geometry 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -753,9 +705,6 @@ std::size_t num_interior_rings (Geometry const &geometry)``
 
 [heading Returns]
 the number of interior rings of the geometry 
-
-[heading Description]
-
 
 [heading Header]
 Either
@@ -788,9 +737,6 @@ std::size_t num_points (Geometry const &geometry)``
 [heading Returns]
 number of points 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -820,9 +766,6 @@ void set (Geometry &geometry, typename coordinate_type< Geometry >::type const &
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -850,9 +793,6 @@ void set_from_radian (Geometry &geometry, typename fp_coordinate_type< Geometry 
 [[Geometry &] [geometry ] [geometry] [geometry to assign coordinate to ]]
 [[typename fp_coordinate_type< Geometry >::type const &] [] [radians] [coordinate value to assign ]]
 ]
-
-
-[heading Description]
 
 
 [heading Header]

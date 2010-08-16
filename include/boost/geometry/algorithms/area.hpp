@@ -205,11 +205,15 @@ provided for cartesian and spherical coordinate systems
 The geometries should correct, polygons should be closed
 and according to the specified orientation (clockwise/counter clockwise)
 \tparam Geometry \geometry_concept
-\param geometry A model of Geometry
+\param geometry \geometry_model
 \return The calculated area
 
 \qbk{snippet,area_polygon}
 \qbk{snippet,area_polygon_spherical}
+\qbk{behavior,__0dim__:Returns zero}
+\qbk{behavior,__1dim__:Returns zero}
+\qbk{behavior,__2dim__:Returns the area}
+\qbk{complexity,Linear}
  */
 template <typename Geometry>
 inline typename area_result<Geometry>::type area(Geometry const& geometry)
@@ -237,6 +241,8 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
     Especially for spherical and geographical area calculations there
     are various approaches.
 \return The calculated area
+
+\qbk{complexity,Linear}
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(

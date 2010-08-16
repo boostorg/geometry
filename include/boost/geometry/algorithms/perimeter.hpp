@@ -66,13 +66,18 @@ struct perimeter<polygon_tag, Polygon, Strategy>
 
 
 /*!
-    \brief Calculate perimeter of a geometry
-    \ingroup perimeter
-    \details The function perimeter returns the perimeter of a geometry,
-        using the default distance-calculation-strategy
-    \param geometry the geometry, be it a geometry::ring, vector, iterator pair,
-        or any other boost compatible range
-    \return the perimeter
+\brief Calculate perimeter of a geometry
+\ingroup perimeter
+\details The function perimeter returns the perimeter of a geometry,
+    using the default distance-calculation-strategy
+\tparam Geometry \geometry_concept
+\param geometry \geometry_model
+\return The calculated perimeter
+
+\qbk{behavior,__0dim__:Returns zero}
+\qbk{behavior,__1dim__:Returns zero}
+\qbk{behavior,__2dim__:Returns the perimeter}
+\qbk{complexity,Linear}
  */
 template<typename Geometry>
 inline typename length_result<Geometry>::type perimeter(
@@ -95,14 +100,15 @@ inline typename length_result<Geometry>::type perimeter(
 }
 
 /*!
-    \brief Calculate perimeter of a geometry
-    \ingroup perimeter
-    \details The function perimeter returns the perimeter of a geometry,
-        using specified strategy
-    \param geometry the geometry, be it a geometry::ring, vector, iterator pair,
-        or any other boost compatible range
-    \param strategy strategy to be used for distance calculations.
-    \return the perimeter
+\brief Calculate perimeter of a geometry
+\ingroup perimeter
+\details The function perimeter returns the perimeter of a geometry,
+    using specified strategy
+\tparam Geometry \geometry_concept
+\tparam Strategy A type fulfilling a DistanceStrategy concept
+\param geometry \geometry_model
+\param strategy strategy to be used for distance calculations.
+\return The calculated perimeter
  */
 template<typename Geometry, typename Strategy>
 inline typename length_result<Geometry>::type perimeter(

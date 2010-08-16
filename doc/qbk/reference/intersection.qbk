@@ -4,6 +4,9 @@
 
 Intersects two geometries. 
 
+[heading Description]
+The two input geometries are intersected and the resulting linestring(s), ring(s) or polygon(s) are added to the specified collection. 
+
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename Collection>
 void intersection (Geometry1 const &geometry1, Geometry2 const &geometry2, Collection &output_collection)``
@@ -21,45 +24,6 @@ void intersection (Geometry1 const &geometry1, Geometry2 const &geometry2, Colle
 [heading Returns]
 true if successful 
 
-[heading Description]
-The two input geometries are intersected and the resulting linestring(s), ring(s) or polygon(s) are added to the specified collection. 
-
-[heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
-`#include <boost/geometry/algorithms/intersection.hpp>`
-
-
-[endsect]
-
-[section:intersection_inserter_3 intersection_inserter (3)]
-
-Intersects two geometries. 
-
-[heading Synopsis]
-``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator>
-OutputIterator intersection_inserter (Geometry1 const &geometry1, Geometry2 const &geometry2, OutputIterator out)``
-
-[heading Parameters]
-
-[table
-[[Type] [Concept] [Name] [Description] ]
-[[Geometry1 const &] [first geometry type ] [geometry1] [first geometry ]]
-[[Geometry2 const &] [second geometry type ] [geometry2] [second geometry ]]
-[[OutputIterator] [output iterator ] [out] [the output iterator, outputting linestrings or polygons ]]
-]
-
-
-[heading Returns]
-the output iterator 
-
-[heading Description]
-The two input geometries are intersected and the resulting linestring(s), ring(s) or polygon(s) are sent to the specified output operator. 
-
 [heading Header]
 Either
 
@@ -75,6 +39,9 @@ Or
 [section:intersection_inserter_4 intersection_inserter (4)]
 
 Intersects two geometries. 
+
+[heading Description]
+The two input geometries are intersected and the resulting linestring(s), ring(s) or polygon(s) are sent to the specified output operator. 
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator, typename Strategy>
@@ -94,8 +61,41 @@ OutputIterator intersection_inserter (Geometry1 const &geometry1, Geometry2 cons
 [heading Returns]
 the output iterator 
 
+[heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
+`#include <boost/geometry/algorithms/intersection.hpp>`
+
+
+[endsect]
+
+[section:intersection_inserter_3 intersection_inserter (3)]
+
+Intersects two geometries. 
+
 [heading Description]
 The two input geometries are intersected and the resulting linestring(s), ring(s) or polygon(s) are sent to the specified output operator. 
+
+[heading Synopsis]
+``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator>
+OutputIterator intersection_inserter (Geometry1 const &geometry1, Geometry2 const &geometry2, OutputIterator out)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Geometry1 const &] [first geometry type ] [geometry1] [first geometry ]]
+[[Geometry2 const &] [second geometry type ] [geometry2] [second geometry ]]
+[[OutputIterator] [output iterator ] [out] [the output iterator, outputting linestrings or polygons ]]
+]
+
+
+[heading Returns]
+the output iterator 
 
 [heading Header]
 Either

@@ -15,8 +15,8 @@ ABBREVIATE_BRIEF       =
 ALWAYS_DETAILED_SEC    = YES
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = c:/svn/boost-geometry  \
-				c:/svn/boost-geometry/libs/geometry/doc/doxygen_input/pages
+STRIP_FROM_PATH        = c:/_svn/boost/sandbox/geometry  \
+				c:/_svn/boost/sandbox/geometry/libs/geometry/doc/doxygen_input/pages
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = NO
@@ -26,8 +26,12 @@ INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
 ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
-			geometry_concept="Any geometry fulfilling the any Geometry concept" \
-			template_numerical="Numerical type (int, double, ttmath, ...)"
+			qbk{3}="\xmlonly <qbk.\1>\2, \3</qbk.\1> \endxmlonly" \
+			geometry_concept="Any type fulfilling a Geometry concept" \
+			point_concept="Any type fulfilling a Point concept" \
+			geometry_model="A model of the specified concept" \
+			template_numerical="Numerical type (int, double, ttmath, ...)" \
+			strategy_reasons="Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation (e.g. distance over the Earth)"
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
 OPTIMIZE_FOR_FORTRAN   = NO
@@ -111,7 +115,6 @@ INPUT                  = . .. ../../../boost/geometry/core \
 			../../../boost/geometry/strategies/spherical \
 			../../../boost/geometry/strategies/transform \
 			../../../boost/geometry/util \
-			../../../boost/geometry/views \
 			../../../boost/geometry/extensions/io/svg \
 			./doxygen_input/pages \
 			./doxygen_input/groups

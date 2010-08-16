@@ -129,18 +129,27 @@ struct length<segment_tag, Geometry, Strategy>
 
 
 /*!
-    \brief Calculate length of a geometry
-    \ingroup length
-    \details The function length returns the length of a geometry, using the
-        default distance-calculation-strategy
-    \param geometry the geometry, being a geometry::linestring, vector,
-        iterator pair, or any other boost compatible range
-    \return the length
-    Example showing length calculation on a vector
-    \dontinclude doxygen_1.cpp
-    \skip example_length_linestring_iterators2
-    \line {
-    \until }
+\brief Calculate length of a geometry
+\ingroup length
+\details The version without a strategy takes the default
+    distance-calculation-strategy to calculate distances between
+    consecutive points of a geometry, summing them to the length
+    of the geometry
+\tparam Geometry \geometry_concept
+\param geometry \geometry_model
+\return The calculated length
+
+\par Example:
+Example showing length calculation on a vector
+\dontinclude doxygen_1.cpp
+\skip example_length_linestring_iterators2
+\line {
+\until }
+
+\qbk{behavior,__0dim__:Returns zero}
+\qbk{behavior,__1dim__:Returns the length}
+\qbk{behavior,__2dim__:Returns zero}
+\qbk{complexity,Linear}
  */
 template<typename Geometry>
 inline typename length_result<Geometry>::type length(
@@ -163,21 +172,24 @@ inline typename length_result<Geometry>::type length(
 
 
 /*!
-    \brief Calculate length of a geometry
-    \ingroup length
-    \details The function length returns the length of a geometry,
-        using specified strategy
-    \param geometry the geometry, being a geometry::linestring, vector,
-        iterator pair, or any other boost compatible range
-    \param strategy strategy to be used for distance calculations.
-    \return the length
-    \par Example:
-    Example showing length calculation using iterators
-        and the Vincenty strategy
-    \dontinclude doxygen_1.cpp
-    \skip example_length_linestring_iterators3
-    \line {
-    \until }
+\brief Calculate length of a geometry
+\ingroup length
+\details The version with a specified strategy uses that strategy
+    to calculate distances between consecutive points, summing them
+    to the length of the geometry. \strategy_reasons
+\tparam Geometry \geometry_concept
+\tparam Strategy A type fulfilling a DistanceStrategy concept
+\param geometry \geometry_model
+\param strategy A strategy to be used for distance calculations.
+\return The calculated length
+
+\par Example:
+Example showing length calculation using iterators
+    and the Vincenty strategy
+\dontinclude doxygen_1.cpp
+\skip example_length_linestring_iterators3
+\line {
+\until }
  */
 template<typename Geometry, typename Strategy>
 inline typename length_result<Geometry>::type length(

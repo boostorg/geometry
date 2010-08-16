@@ -47,6 +47,7 @@ set out=..\doxygen_output\xml
 %xml2qbk% %out%\group__unique.xml > reference\unique.qbk
 %xml2qbk% %out%\group__within.xml > reference\within.qbk
 
+%xml2qbk% %out%\group__register.xml > reference\register.qbk
 
 
 %xml2qbk% %out%\classboost_1_1geometry_1_1point.xml > reference\point.qbk
@@ -61,4 +62,4 @@ set out=..\doxygen_output\xml
 :: %xslt% reference.xsl doxygen_output\xml\group__area.xml > area.qbk
 :: %xslt% reference.xsl doxygen_output\xml\area_8hpp.xml > area2.qbk
 
-bjam --toolset=msvc
+bjam --toolset=msvc --without-python

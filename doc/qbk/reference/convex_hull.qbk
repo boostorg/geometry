@@ -17,9 +17,6 @@ void convex_hull (Geometry1 const &geometry, Geometry2 &out)``
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -47,9 +44,6 @@ OutputIterator convex_hull_inserter (Geometry const &geometry, OutputIterator ou
 [[Geometry const &] [the input geometry type ] [geometry] [the geometry to calculate convex hull from ]]
 [[OutputIterator] [] [out] [an output iterator outputing points of the convex hull ]]
 ]
-
-
-[heading Description]
 
 
 [heading Header]

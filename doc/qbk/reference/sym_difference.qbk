@@ -18,9 +18,6 @@ void sym_difference (Geometry1 geometry1, Geometry2 geometry2, Collection &outpu
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 

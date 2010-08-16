@@ -18,45 +18,6 @@ void union_ (Geometry1 const &geometry1, Geometry2 const &geometry2, Collection 
 ]
 
 
-[heading Description]
-
-
-[heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
-`#include <boost/geometry/algorithms/union.hpp>`
-
-
-[endsect]
-
-[section:union_inserter_3 union_inserter (3)]
-
-Combines two geometries which each other. 
-
-[heading Synopsis]
-``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator>
-OutputIterator union_inserter (Geometry1 const &geometry1, Geometry2 const &geometry2, OutputIterator out)``
-
-[heading Parameters]
-
-[table
-[[Type] [Concept] [Name] [Description] ]
-[[Geometry1 const &] [first geometry type ] [geometry1] [first geometry ]]
-[[Geometry2 const &] [second geometry type ] [geometry2] [second geometry ]]
-[[OutputIterator] [output iterator ] [out] [the output iterator, outputting polygons ]]
-]
-
-
-[heading Returns]
-the output iterator 
-
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -91,8 +52,38 @@ OutputIterator union_inserter (Geometry1 const &geometry1, Geometry2 const &geom
 [heading Returns]
 the output iterator 
 
-[heading Description]
+[heading Header]
+Either
 
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
+`#include <boost/geometry/algorithms/union.hpp>`
+
+
+[endsect]
+
+[section:union_inserter_3 union_inserter (3)]
+
+Combines two geometries which each other. 
+
+[heading Synopsis]
+``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator>
+OutputIterator union_inserter (Geometry1 const &geometry1, Geometry2 const &geometry2, OutputIterator out)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Geometry1 const &] [first geometry type ] [geometry1] [first geometry ]]
+[[Geometry2 const &] [second geometry type ] [geometry2] [second geometry ]]
+[[OutputIterator] [output iterator ] [out] [the output iterator, outputting polygons ]]
+]
+
+
+[heading Returns]
+the output iterator 
 
 [heading Header]
 Either
