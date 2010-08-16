@@ -4,21 +4,21 @@
 
 Calls functor for geometry. 
 
+[heading Description]
+Calls the functor the specified 
+
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
-Functor for_each_point (Geometry &geometry, Functor f)``
+Functor for_each_point (Geometry const &geometry, Functor f)``
 
 [heading Parameters]
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry &] [] [geometry] [geometry to loop through ]]
+[[Geometry const &] [] [geometry] [geometry to loop through ]]
 [[Functor] [] [f] [functor to use]]
 ]
 
-
-[heading Description]
-Calls the functor for the specified geometry 
 
 [heading Header]
 Either
@@ -36,41 +36,12 @@ Or
 
 Calls functor for geometry. 
 
-[heading Synopsis]
-``template<typename Geometry, typename Functor>
-Functor for_each_point (Geometry const &geometry, Functor f)``
-
-[heading Parameters]
-
-[table
-[[Type] [Concept] [Name] [Description] ]
-[[Geometry const &] [] [geometry] [geometry to loop through ]]
-[[Functor] [] [f] [functor to use]]
-]
-
-
 [heading Description]
-Calls the functor the specified 
-
-[heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
-`#include <boost/geometry/algorithms/for_each.hpp>`
-
-
-[endsect]
-
-[section:for_each_segment_2 for_each_segment (2)]
-
-Calls functor for segments on linestrings, rings, polygons, ... 
+Calls the functor for the specified geometry 
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
-Functor for_each_segment (Geometry &geometry, Functor f)``
+Functor for_each_point (Geometry &geometry, Functor f)``
 
 [heading Parameters]
 
@@ -81,9 +52,6 @@ Functor for_each_segment (Geometry &geometry, Functor f)``
 ]
 
 
-[heading Description]
-Calls the functor all segments of the specified geometry 
-
 [heading Header]
 Either
 
@@ -99,6 +67,9 @@ Or
 [section:for_each_segment_2 for_each_segment (2)]
 
 Calls functor for segments on linestrings, rings, polygons, ... 
+
+[heading Description]
+Calls the functor all 
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
@@ -113,8 +84,37 @@ Functor for_each_segment (Geometry const &geometry, Functor f)``
 ]
 
 
+[heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
+`#include <boost/geometry/algorithms/for_each.hpp>`
+
+
+[endsect]
+
+[section:for_each_segment_2 for_each_segment (2)]
+
+Calls functor for segments on linestrings, rings, polygons, ... 
+
 [heading Description]
-Calls the functor all 
+Calls the functor all segments of the specified geometry 
+
+[heading Synopsis]
+``template<typename Geometry, typename Functor>
+Functor for_each_segment (Geometry &geometry, Functor f)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Geometry &] [] [geometry] [geometry to loop through ]]
+[[Functor] [] [f] [functor to use]]
+]
+
 
 [heading Header]
 Either

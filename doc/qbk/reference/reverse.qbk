@@ -16,9 +16,6 @@ void reverse (Geometry &geometry)``
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 

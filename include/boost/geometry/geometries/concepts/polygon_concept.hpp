@@ -44,8 +44,7 @@ the collection of its interior rings as type
   a const version and a mutable version
 
 \note to fulfil the concepts, no traits class has to be specialized to
-define the point type. The point type is automatically defined as
-typename range_value<typename ring_type<P>::type>::type
+define the point type. The point type is extracted from the ring type
 */
 template <typename Geometry>
 class Polygon

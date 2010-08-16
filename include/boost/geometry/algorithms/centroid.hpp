@@ -45,7 +45,7 @@ public:
 
     virtual char const* what() const throw()
     {
-        return "GGL Centroid calculation exception";
+        return "Boost.Geometry Centroid calculation exception";
     }
 };
 
@@ -353,11 +353,14 @@ struct centroid<polygon_tag, Polygon, Point, Strategy>
 
 
 /*!
-    \brief Calculate centroid using a specified strategy
-    \ingroup centroid
-    \param geometry the geometry to calculate centroid from
-    \param c reference to point which will contain the centroid
-    \param strategy Calculation strategy for centroid
+\brief Calculate centroid using a specified strategy
+\ingroup centroid
+\tparam Geometry \geometry_concept
+\tparam Point \point_concept
+\tparam Strategy A type fulfilling a CentroidStrategy concept
+\param geometry \geometry_model
+\param c the calculated centroid will be assigned to this point reference
+\param strategy A strategy to calculate the centroid
  */
 template<typename Geometry, typename Point, typename Strategy>
 inline void centroid(Geometry const& geometry, Point& c,
@@ -382,10 +385,18 @@ inline void centroid(Geometry const& geometry, Point& c,
 
 
 /*!
-    \brief Calculate centroid
-    \ingroup centroid
-    \param geometry a geometry (e.g. closed ring or polygon)
-    \param c reference to point which will contain the centroid
+\brief Calculate centroid
+\ingroup centroid
+\tparam Geometry \geometry_concept
+\tparam Point \point_concept
+\param geometry \geometry_model
+\param c the calculated centroid will be assigned to this point reference
+
+\qbk{behavior,__0dim__:Calculates centroid}
+\qbk{behavior,__1dim__:Calculates centroid}
+\qbk{behavior,__2dim__:Calculates centroid}
+\qbk{behavior,__empty__:Throws a centroid_exception}
+\qbk{complexity,Linear}
  */
 template<typename Geometry, typename Point>
 inline void centroid(Geometry const& geometry, Point& c)
@@ -406,10 +417,12 @@ inline void centroid(Geometry const& geometry, Point& c)
 
 
 /*!
-    \brief Calculate and return centroid
-    \ingroup centroid
-    \param geometry the geometry to calculate centroid from
-    \return the centroid
+\brief Calculate and return centroid
+\ingroup centroid
+\tparam Point \point_concept
+\tparam Geometry \geometry_concept
+\param geometry \geometry_model
+\return The calculated centroid
  */
 template<typename Point, typename Geometry>
 inline Point make_centroid(Geometry const& geometry)
@@ -422,11 +435,13 @@ inline Point make_centroid(Geometry const& geometry)
 }
 
 /*!
-    \brief Calculate and return centroid, using a specified strategy
-    \ingroup centroid
-    \param geometry the geometry to calculate centroid from
-    \param strategy Calculation strategy for centroid
-    \return the centroid
+\brief Calculate and return centroid, using a specified strategy
+\ingroup centroid
+\tparam Point \point_concept
+\tparam Geometry \geometry_concept
+\param geometry \geometry_model
+\param strategy Calculation strategy for centroid
+\return The calculated centroid
  */
 template<typename Point, typename Geometry, typename Strategy>
 inline Point make_centroid(Geometry const& geometry, Strategy const& strategy)

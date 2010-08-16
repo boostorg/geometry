@@ -2,9 +2,6 @@
 [/ Generated from ..\doxygen_output\xml\structboost_1_1geometry_1_1closing__iterator.xml]
 [section:closing_iterator closing_iterator]
 
-[heading Description]
-
-
 [heading Synopsis]
 ``template<typename Range>
 class closing_iterator

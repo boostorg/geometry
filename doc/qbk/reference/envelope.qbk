@@ -17,9 +17,6 @@ void envelope (Geometry const &geometry, Box &mbr)``
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 
@@ -46,9 +43,6 @@ Box make_envelope (Geometry const &geometry)``
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry const &] [] [geometry] [the geometry ]]
 ]
-
-
-[heading Description]
 
 
 [heading Header]

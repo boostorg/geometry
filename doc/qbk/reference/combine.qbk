@@ -17,9 +17,6 @@ void combine (Box &box, Geometry const &geometry)``
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 

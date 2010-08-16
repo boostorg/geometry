@@ -22,6 +22,12 @@
     [id geometry]
 ]
 
+
+[def __0dim__  0-dimensional (e.g. point)]
+[def __1dim__  1-dimensional (e.g. linestring)]
+[def __2dim__  2-dimensional (e.g. polygon)]
+[def __empty__ Empty (e.g. polygon without points)]
+
 In progress
 
 Link to [link geometry.reference.models.point_xy point XY]

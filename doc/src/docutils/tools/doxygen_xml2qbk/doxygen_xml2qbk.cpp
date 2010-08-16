@@ -122,8 +122,10 @@ struct element
     std::string location;
     int line; // To sort - Doxygen changes order - we change it back
     std::vector<std::string> snippets;
+    std::vector<std::string> behaviors;
     std::vector<std::string> admonitions;
     std::vector<std::string> images;
+    std::string complexity;
 
     std::vector<param> template_parameters;
     std::vector<param> parameters;
@@ -314,6 +316,15 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
         else if (full == ".detaileddescription.para.qbk.admonition")
         {
             el.admonitions.push_back(boost::trim_copy(std::string(node->value())));
+        }
+        else if (full == ".detaileddescription.para.qbk.behavior")
+        {
+            el.behaviors.push_back(boost::trim_copy(std::string(node->value())));
+        }
+        else if (full == ".detaileddescription.para.qbk.complexity")
+        {
+            el.complexity = node->value();
+            boost::trim(el.complexity);
         }
         else if (full == ".templateparamlist") 
         {
@@ -517,7 +528,7 @@ void quickbook_synopsis(function const& f, std::ostream& out)
             break;
         case function_define :
             {
-                out << f.name;
+                out << "#define " << f.name;
                 bool first = true;
                 BOOST_FOREACH(param const& p, f.parameters)
                 {
@@ -531,7 +542,11 @@ void quickbook_synopsis(function const& f, std::ostream& out)
             }
             break;
     }
-    out << " " << f.argsstring << "``" << std::endl
+    if (! f.argsstring.empty())
+    {
+        out << " " << f.argsstring;
+    }
+    out << "``" << std::endl
         << std::endl;
 }
 
@@ -565,6 +580,41 @@ void quickbook_snippets(std::vector<std::string> const& snippets, std::ostream& 
     }
 }
 
+void quickbook_behaviors(std::vector<std::string> const& behaviors, std::ostream& out)
+{
+    if (! behaviors.empty())
+    {
+        out << "[heading Behavior]" << std::endl
+            << "[table" << std::endl 
+            << "[[Case] [Behavior] ]" << std::endl;
+        BOOST_FOREACH(std::string const& behavior, behaviors)
+        {
+            // Split at first ":"
+            std::size_t pos = behavior.find(":");
+            if (pos != std::string::npos)
+            {
+                std::string c = behavior.substr(0, pos);
+                std::string b = behavior.substr(pos + 1);
+                out << "[[" << c << "][" << b << "]]" << std::endl;
+            }
+        }
+        out << "]" << std::endl
+            << std::endl
+            << std::endl;
+    }
+}
+
+void quickbook_heading_string(std::string const& heading, 
+            std::string const& contents, std::ostream& out)
+{
+    if (! contents.empty())
+    {
+        out << "[heading " << heading << "]" << std::endl
+            << contents << std::endl
+            << std::endl;
+    }
+}
+
 
 void quickbook_output(function const& f, std::ostream& out)
 {
@@ -576,11 +626,13 @@ void quickbook_output(function const& f, std::ostream& out)
     out << f.brief_description << std::endl;
     out << std::endl;
 
+    quickbook_heading_string("Description", f.detailed_description, out);
+
     out << "[heading Synopsis]" << std::endl;
     quickbook_synopsis(f, out);
 
-    out << "[heading Parameters]" << std::endl;
-    out << std::endl;
+    out << "[heading Parameters]" << std::endl
+        << std::endl;
 
     out << "[table" << std::endl << "[";
     if (f.type != function_define)
@@ -606,34 +658,23 @@ void quickbook_output(function const& f, std::ostream& out)
             << "]]" 
             << std::endl;
     }
-    out << "]" << std::endl;
-    out << std::endl;
-    out << std::endl;
+    out << "]" << std::endl
+        << std::endl
+        << std::endl;
 
-    if (! f.return_description.empty())
-    {
-        out << "[heading Returns]" << std::endl;
-        out << f.return_description << std::endl;
-        out << std::endl;
-    }
+    quickbook_heading_string("Returns", f.return_description, out);
+    //quickbook_heading_string("Model of", f.model_of, out);
 
-    out << "[heading Description]" << std::endl;
-    out << f.detailed_description << std::endl;
-    out << std::endl;
+    quickbook_header(f.location, out);
+    quickbook_behaviors(f.behaviors, out);
 
-    /*if (! f.model_of.empty())
-    {
-        out << "[heading Model of]" << std::endl;
-        out << f.model_of << std::endl;
-        out << std::endl;
-    }*/
+    quickbook_heading_string("Complexity", f.complexity, out);
 
     BOOST_FOREACH(std::string const& admonition, f.admonitions)
     {
         out << admonition << std::endl;
     }
 
-    quickbook_header(f.location, out);
     quickbook_snippets(f.snippets, out);
 
     if (! f.images.empty())
@@ -688,10 +729,7 @@ void quickbook_output(class_or_struct const& cos, std::ostream& out)
     out << "[section:" << short_name << " " << short_name << "]" << std::endl
         << std::endl;
 
-    out << "[heading Description]" << std::endl
-        << cos.detailed_description << std::endl 
-        << std::endl;
-
+    quickbook_heading_string("Description", cos.detailed_description, out);
 
     out << "[heading Synopsis]" << std::endl
         << "``";
@@ -791,6 +829,28 @@ int main(int argc, char** argv)
     
     documentation doc;
     parse(xml.first_node(), doc);
+
+    // Boost.Geometry specific
+    // Copy behaviors if empty and function has same name
+    BOOST_FOREACH(function& f1, doc.functions)
+    {
+        BOOST_FOREACH(function const& f2, doc.functions)
+        {
+            if (f1.name == f2.name
+                || f1.name == std::string("make_") + f2.name
+                || f1.name == f2.name + std::string("_inserter"))
+            {
+                if (f1.behaviors.empty() && !f2.behaviors.empty())
+                {
+                    f1.behaviors = f2.behaviors;
+                }
+                if (f1.complexity.empty() && !f2.complexity.empty())
+                {
+                    f1.complexity = f2.complexity;
+                }
+            }
+        }
+    }
 
     std::cout 
         << "[/ Generated by doxygen_xml2qbk, don't change, it will be overwritten automatically]" << std::endl

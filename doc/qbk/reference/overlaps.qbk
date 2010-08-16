@@ -20,9 +20,6 @@ bool overlaps (Geometry1 const &geometry1, Geometry2 const &geometry2)``
 [heading Returns]
 true if there is overlap 
 
-[heading Description]
-
-
 [heading Header]
 Either
 

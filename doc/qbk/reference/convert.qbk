@@ -17,9 +17,6 @@ void convert (Geometry1 const &geometry1, Geometry2 &geometry2)``
 ]
 
 
-[heading Description]
-
-
 [heading Header]
 Either
 

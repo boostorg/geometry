@@ -2,9 +2,6 @@
 [/ Generated from ..\doxygen_output\xml\classboost_1_1geometry_1_1point__xy.xml]
 [section:point_xy point_xy]
 
-[heading Description]
-
-
 [heading Synopsis]
 ``template<typename T, typename C>
 class point_xy

@@ -17,13 +17,14 @@ import quickbook ;
 boostbook geometry 
 	: geometry.qbk
 	: <dependency>Jamfile.v2	  
+		<dependency>quickref.xml
         : <xsl:param>chunk.section.depth=4
 	<xsl:param>chunk.first.sections=1
 	<xsl:param>toc.section.depth=3
 	<xsl:param>toc.max.depth=2
 	<xsl:param>generate.section.toc.level=4
-	<xsl:param>boost.root=../boostroot_stub
-	  <xsl:param>callout.graphics.path=../boostroot_stub/doc/html/images/callouts/
+	<xsl:param>boost.root=../../../..
+	  <xsl:param>callout.graphics.path=../../../../doc/html/images/callouts/
 	;
 
 
