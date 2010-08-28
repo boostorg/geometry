@@ -40,9 +40,8 @@ namespace boost { namespace geometry
 namespace detail { namespace disjoint
 {
 
-
 template <typename Geometry1, typename Geometry2>
-struct general
+struct disjoint_linear
 {
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
@@ -61,6 +60,46 @@ struct general
         {
             return false;
         }
+
+        return true;
+    }
+};
+
+template <typename Segment1, typename Segment2>
+struct disjoint_segment
+{
+    static inline bool apply(Segment1 const& segment1, Segment2 const& segment2)
+    {
+        typedef typename point_type<Segment1>::type point_type;
+
+        segment_intersection_points<point_type> is
+            = strategy::intersection::relate_cartesian_segments
+            <
+                policies::relate::segments_intersection_points
+                    <
+                        Segment1,
+                        Segment2,
+                        segment_intersection_points<point_type>
+                    >
+            >::apply(segment1, segment2);
+
+        return is.count == 0;
+    }
+};
+
+
+
+template <typename Geometry1, typename Geometry2>
+struct general_areal
+{
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        if (! disjoint_linear<Geometry1, Geometry2>::apply(geometry1, geometry2))
+        {
+            return false;
+        }
+
+        typedef typename geometry::point_type<Geometry1>::type point_type;
 
         // If there is no intersection of segments, they might located
         // inside each other
@@ -100,7 +139,7 @@ template
     std::size_t DimensionCount
 >
 struct disjoint
-    : detail::disjoint::general<Geometry1, Geometry2>
+    : detail::disjoint::general_areal<Geometry1, Geometry2>
 {};
 
 
@@ -119,6 +158,16 @@ struct disjoint<box_tag, box_tag, Box1, Box2, false, false, DimensionCount>
 template <typename Point, typename Box, std::size_t DimensionCount>
 struct disjoint<point_tag, box_tag, Point, Box, false, false, DimensionCount>
     : detail::disjoint::point_box<Point, Box, 0, DimensionCount>
+{};
+
+template <typename Linestring1, typename Linestring2>
+struct disjoint<linestring_tag, linestring_tag, Linestring1, Linestring2, false, false, 2>
+    : detail::disjoint::disjoint_linear<Linestring1, Linestring2>
+{};
+
+template <typename Linestring1, typename Linestring2>
+struct disjoint<segment_tag, segment_tag, Linestring1, Linestring2, false, false, 2>
+    : detail::disjoint::disjoint_segment<Linestring1, Linestring2>
 {};
 
 
@@ -150,13 +199,13 @@ struct disjoint_reversed
 
 
 /*!
-    \brief Calculate if two geometries are disjoint
-    \ingroup disjoint
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \return true if disjoint, else false
+\brief \brief_check2{are disjoint}
+\ingroup disjoint
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\return \return_check2{are disjoint}
  */
 template <typename Geometry1, typename Geometry2>
 inline bool disjoint(Geometry1 const& geometry1,
