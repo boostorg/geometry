@@ -589,8 +589,8 @@ void quickbook_behaviors(std::vector<std::string> const& behaviors, std::ostream
             << "[[Case] [Behavior] ]" << std::endl;
         BOOST_FOREACH(std::string const& behavior, behaviors)
         {
-            // Split at first ":"
-            std::size_t pos = behavior.find(":");
+            // Split at last ":"
+            std::size_t pos = behavior.rfind(":");
             if (pos != std::string::npos)
             {
                 std::string c = behavior.substr(0, pos);
@@ -616,12 +616,31 @@ void quickbook_heading_string(std::string const& heading,
 }
 
 
-void quickbook_output(function const& f, std::ostream& out)
+void quickbook_output(function const& f, bool use_arity, std::ostream& out)
 {
     // Write the parsed function
     int arity = (int)f.parameters.size();
-    out << "[section:" << f.name << "_" << arity << " " << f.name << " (" << arity << ")" "]" << std::endl;
-    out << std::endl;
+    bool has_strategy = false;
+    BOOST_FOREACH(param const& p, f.parameters)
+    {
+        if (p.type == "Strategy")
+        {
+            has_strategy = true;
+        }
+    }
+
+    out << "[section:" << f.name;
+    if (use_arity)
+    {
+        out << "_" << arity;
+    }
+    out << " " << f.name;
+    if (has_strategy)
+    {
+        out << " (with strategy)";
+    }
+    out << "]" << std::endl
+        << std::endl;
 
     out << f.brief_description << std::endl;
     out << std::endl;
@@ -821,7 +840,9 @@ int main(int argc, char** argv)
             //: "../../../libs/geometry/doc/doxygen_output/xml/structboost_1_1geometry_1_1strategy_1_1distance_1_1pythagoras.xml";
             //: "../../../libs/geometry/doc/doxygen_output/xml/classboost_1_1geometry_1_1point.xml";
             //: "../../../libs/geometry/doc/doxygen_output/xml/group__simplify.xml";
-            : "../../../libs/geometry/doc/doxygen_output/xml/group__register.xml"; 
+            //: "../../../libs/geometry/doc/doxygen_output/xml/group__centroid.xml";
+            //: "../../../libs/geometry/doc/doxygen_output/xml/group__register.xml"; 
+            : "../../../libs/geometry/doc/doxygen_output/xml/group__intersection.xml";
 
     std::string xml_string = file_to_string(filename);
 
@@ -858,11 +879,11 @@ int main(int argc, char** argv)
 
     BOOST_FOREACH(function const& f, doc.functions)
     {
-        quickbook_output(f, std::cout);        
+        quickbook_output(f, doc.functions.size() > 1, std::cout);        
     }
     BOOST_FOREACH(function const& f, doc.defines)
     {
-        quickbook_output(f, std::cout);        
+        quickbook_output(f, true, std::cout);        
     }
 
     if (! doc.cos.name.empty())
