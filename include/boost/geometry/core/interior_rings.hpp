@@ -212,15 +212,21 @@ inline const typename interior_type<Polygon>::type& interior_rings(
 
 
 /*!
-    \brief Function to get the number of interior rings of a polygon
-    \ingroup access
-    \note Defined by OGC as "numInteriorRing". To be consistent with "numPoints"
-        letter "s" is appended
-    \note Can be used for any geometry, returning 0 for geometries not having
-        interior rings
-    \tparam Geometry geometry type
-    \param geometry the polygon or other geometry
-    \return the number of interior rings of the geometry
+\brief \brief_calc{number of interior rings}
+\ingroup num_interior_rings
+\details \details_calc{num_interior_rings, number of interior rings}.
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\return \return_calc{number of interior rings}
+
+\qbk{behavior,__polygon__:[qbk_ret number of its interior rings]}
+\qbk{behavior,__multi_polygon__:[qbk_ret number of the interior rings of all polygons]}
+\qbk{behavior,__other__:[qbk_ret 0]}
+\qbk{compliance,__ogc__: numInteriorRing}
+\qbk{complexity,Constant}
+
+\note Defined by OGC as "numInteriorRing". To be consistent with "numPoints"
+    letter "s" is appended
 */
 template <typename Geometry>
 inline std::size_t num_interior_rings(Geometry const& geometry)
