@@ -172,6 +172,23 @@ private :
     std::string m_name;
 };
 
+
+// Predicate for std::find_if
+struct par_by_type
+{
+    par_by_type(std::string const& n)
+        : m_type(n)
+    {}
+
+    inline bool operator()(param const& p)
+    {
+        return p.type == m_type;
+    }
+private :
+    std::string m_type;
+};
+
+
 template <typename Element>
 struct sort_on_line
 {
@@ -589,8 +606,8 @@ void quickbook_behaviors(std::vector<std::string> const& behaviors, std::ostream
             << "[[Case] [Behavior] ]" << std::endl;
         BOOST_FOREACH(std::string const& behavior, behaviors)
         {
-            // Split at last ":"
-            std::size_t pos = behavior.rfind(":");
+            // Split at first ":"
+            std::size_t pos = behavior.find(":");
             if (pos != std::string::npos)
             {
                 std::string c = behavior.substr(0, pos);
@@ -659,6 +676,18 @@ void quickbook_output(function const& f, bool use_arity, std::ostream& out)
         out << "[Type] [Concept] ";
     }
     out << "[Name] [Description] ]" << std::endl;
+
+    // First: output any template parameter which is NOT used in the normal parameter list
+    BOOST_FOREACH(param const& tp, f.template_parameters)
+    {
+        std::vector<param>::const_iterator it = std::find_if(f.parameters.begin(), f.parameters.end(), par_by_type(tp.name));
+
+        if (it == f.parameters.end())
+        {
+            out << "[[" << tp.name << "] [" << tp.description << "] [ - ] [Must be specified]]" << std::endl;
+        }
+
+    }
 
     BOOST_FOREACH(param const& p, f.parameters)
     {
@@ -829,7 +858,11 @@ void quickbook_output(class_or_struct const& cos, std::ostream& out)
         << std::endl;
 }
 
-
+inline bool equal_ignore_fix(std::string const& a, std::string const& b, std::string const &fix)
+{
+    return fix + a == b || a == fix + b
+        || a + fix == b || a == b + fix;
+}
 
 
 int main(int argc, char** argv)
@@ -858,8 +891,8 @@ int main(int argc, char** argv)
         BOOST_FOREACH(function const& f2, doc.functions)
         {
             if (f1.name == f2.name
-                || f1.name == std::string("make_") + f2.name
-                || f1.name == f2.name + std::string("_inserter"))
+                || equal_ignore_fix(f1.name, f2.name, "make_")
+                || equal_ignore_fix(f1.name, f2.name, "_inserter"))
             {
                 if (f1.behaviors.empty() && !f2.behaviors.empty())
                 {
