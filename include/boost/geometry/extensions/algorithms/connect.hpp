@@ -15,6 +15,7 @@
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
 #include <boost/geometry/policies/compare.hpp>
@@ -56,6 +57,10 @@ struct node
 template <typename Point>
 struct map_policy
 {
+    typedef typename strategy::distance::services::default_strategy
+        <
+            point_tag, Point
+        >::type strategy_type;
 
     // Have a map<point, <index,start/end> > such that we can find
     // the corresponding point on each end. Note that it uses the
@@ -143,17 +148,18 @@ struct map_policy
         }
 
         // 2c: for all candidates get closest one
+        strategy_type strategy;
 
-        // TODO: make utility to initalize distance result with large value
-        distance_result_type min_dist
-            = make_distance_result<distance_result_type>(100);
+        distance_result_type min_dist = strategy::distance::services
+            ::result_from_distance<strategy_type>::apply(strategy, 100);
+
         for (vector_iterator_type it = boost::begin(range);
             it != boost::end(range);
             ++it)
         {
             if (! included[it->index])
             {
-                distance_result_type d = geometry::distance(p1, it->point);
+                distance_result_type d = geometry::comparable_distance(p1, it->point);
                 if (d < min_dist)
                 {
                     closest = *it;
@@ -172,6 +178,10 @@ struct map_policy
 template <typename Point>
 struct fuzzy_policy
 {
+    typedef typename strategy::distance::services::default_strategy
+        <
+            point_tag, Point
+        >::type strategy_type;
 
     // Have a map<point, <index,start/end> > such that we can find
     // the corresponding point on each end. Note that it uses the
@@ -290,6 +300,8 @@ struct fuzzy_policy
 
     inline node<Point> find_closest(Point const& p1, std::map<int, bool>& included)
     {
+        namespace services = strategy::distance::services;
+
         node<Point> closest;
 
         typename boost::range_iterator<map_type>::type it = fuzzy_closest(p1);
@@ -310,17 +322,17 @@ struct fuzzy_policy
         }
 
         // 2c: for all candidates get closest one
+        strategy_type strategy;
+        distance_result_type min_dist = strategy::distance::services
+            ::result_from_distance<strategy_type>::apply(strategy, 100);
 
-        // TODO: make utility to initalize distance result with large value
-        distance_result_type min_dist
-            = make_distance_result<distance_result_type>(100);
         for (vector_iterator_type it = boost::begin(range);
             it != boost::end(range);
             ++it)
         {
             if (! included[it->index])
             {
-                distance_result_type d = geometry::distance(p1, it->point);
+                distance_result_type d = geometry::comparable_distance(p1, it->point);
                 if (d < min_dist)
                 {
                     closest = *it;

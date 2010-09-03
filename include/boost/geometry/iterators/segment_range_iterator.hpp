@@ -43,6 +43,14 @@ struct segment_range_iterator
     {
     }
 
+    // Operator= is required to check concept of Range
+    inline segment_range_iterator<Segment>& operator=(segment_range_iterator<Segment> const& source)
+    {
+        m_index = source.m_index;
+        m_segment_address = source.m_segment_address;
+        return *this;
+    }
+
 
     explicit inline segment_range_iterator(Segment const& segment)
         : m_index(0)
@@ -108,7 +116,7 @@ private:
     // and we are expected to return a point here
     point_type m_points[2];
     int m_index;
-    Segment const* const m_segment_address;
+    Segment const* m_segment_address;
 };
 
 
