@@ -197,24 +197,24 @@ struct area<polygon_tag, Polygon, Strategy>
 
 
 /*!
-\brief Calculate area of a geometry
+\brief \brief_calc{area}
 \ingroup area
-\details The function area returns the area of a polygon, ring, box
-using the default area-calculation strategy. Strategies are
-provided for cartesian and spherical coordinate systems
-The geometries should correct, polygons should be closed
-and according to the specified orientation (clockwise/counter clockwise)
-\tparam Geometry \geometry_concept
-\param geometry \geometry_model
-\return The calculated area
+\details \details_calc{area}. \details_default_strategy
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\return \return_calc{area}
 
 \qbk{snippet,area_polygon}
 \qbk{snippet,area_polygon_spherical}
-\qbk{behavior,__0dim__:Returns zero}
-\qbk{behavior,__1dim__:Returns zero}
-\qbk{behavior,__2dim__:Returns the area}
+\qbk{behavior,__0dim__:[qbk_ret 0]}
+\qbk{behavior,__1dim__:[qbk_ret 0]}
+\qbk{behavior,__2dim__:[qbk_ret the area]}
+\qbk{behavior,__cart__:[qbk_ret the area] __cs_units__}
+\qbk{behavior,__sph__:[qbk_ret the area] __sph1__}
+\qbk{behavior,__rev__:[qbk_ret the negative area]}
 \qbk{complexity,Linear}
- */
+\qbk{compliance,__ogc__}
+*/
 template <typename Geometry>
 inline typename area_result<Geometry>::type area(Geometry const& geometry)
 {
@@ -231,18 +231,16 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 }
 
 /*!
-\brief Calculate area of a geometry using a specified strategy
+\brief \brief_calc{area} \brief_strategy
 \ingroup area
-\details This version of area calculation takes a strategy
-\tparam Geometry \geometry_concept
-\tparam Strategy A type fulfilling a AreaStrategy concept
-\param geometry A model of Geometry
-\param strategy A strategy to calculate area.
-    Especially for spherical and geographical area calculations there
-    are various approaches.
-\return The calculated area
+\details \details_calc{area} \brief_strategy. \details_strategy_reasons
+\tparam Geometry \tparam_geometry
+\tparam Strategy \tparam_strategy{Area}
+\param geometry \param_geometry
+\param strategy \param_strategy{area}
+\return \return_calc{area}
 
-\qbk{complexity,Linear}
+\qbk{snippet,area_polygon_strategy}
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(

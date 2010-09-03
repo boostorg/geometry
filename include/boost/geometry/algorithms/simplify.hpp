@@ -236,7 +236,7 @@ struct simplify_inserter<ring_tag, Ring, Strategy>
 /*!
 \brief Simplify a geometry using a specified strategy
 \ingroup simplify
-\tparam Geometry \geometry_concept
+\tparam Geometry \tparam_geometry
 \tparam Distance A numerical distance measure
 \tparam Strategy A type fulfilling a SimplifyStrategy concept
 \param strategy A strategy to calculate simplification
@@ -274,8 +274,8 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 /*!
 \brief Simplify a geometry
 \ingroup simplify
-\tparam Geometry \geometry_concept
-\tparam Distance \template_numerical
+\tparam Geometry \tparam_geometry
+\tparam Distance \tparam_numeric
 \note This version of simplify simplifies a geometry using the default
     strategy (Douglas Peucker),
 \param geometry input geometry, to be simplified
@@ -318,7 +318,7 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 \brief Simplify a geometry, using an output iterator
     and a specified strategy
 \ingroup simplify
-\tparam Geometry \geometry_concept
+\tparam Geometry \tparam_geometry
 \param geometry input geometry, to be simplified
 \param out output iterator, outputs all simplified points
 \param max_distance distance (in units of input coordinates) of a vertex
@@ -353,7 +353,7 @@ inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
 /*!
 \brief Simplify a geometry, using an output iterator
 \ingroup simplify
-\tparam Geometry \geometry_concept
+\tparam Geometry \tparam_geometry
 \param geometry input geometry, to be simplified
 \param out output iterator, outputs all simplified points
 \param max_distance distance (in units of input coordinates) of a vertex

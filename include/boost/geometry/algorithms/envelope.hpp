@@ -195,10 +195,14 @@ struct envelope
 
 
 /*!
-\brief Calculate envelope of a geometry
+\brief \brief_calc{envelope}
 \ingroup envelope
-\param geometry the geometry
-\param mbr the box receiving the envelope
+\details \details_calc{envelope,\det_envelope}.
+\tparam Geometry \tparam_geometry
+\tparam Box \tparam_box
+\param geometry \param_geometry
+\param mbr \param_box \param_set{envelope}
+
 \par Example:
 Example showing envelope calculation, using point_ll latlong points
 \dontinclude doxygen_1.cpp
@@ -222,9 +226,13 @@ inline void envelope(Geometry const& geometry, Box& mbr)
 
 
 /*!
-\brief Calculate and return envelope of a geometry
+\brief \brief_calc{envelope}
 \ingroup envelope
-\param geometry the geometry
+\details \details_calc{make_envelope,\det_envelope}. \details_make{envelope}
+\tparam Box \tparam_box
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\return \return_calc{envelope}
 */
 template<typename Box, typename Geometry>
 inline Box make_envelope(Geometry const& geometry)

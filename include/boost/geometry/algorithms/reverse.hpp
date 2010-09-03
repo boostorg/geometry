@@ -102,9 +102,10 @@ struct reverse<polygon_tag, Polygon>
 
 
 /*!
-    \ingroup reverse
-    \tparam Geometry geometry type
-    \param geometry the geometry to make reverse
+\brief Reverses a geometry
+\ingroup reverse
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry which will be reversed
 */
 template <typename Geometry>
 inline void reverse(Geometry& geometry)

@@ -116,9 +116,11 @@ struct unique<polygon_tag, Polygon, ComparePolicy>
 
 
 /*!
-    \ingroup unique
-    \tparam Geometry geometry type
-    \param geometry the geometry to make unique
+\brief \brief_calc{minimal set}
+\ingroup unique
+\details \details_calc{unique,minimal set (where duplicate consecutive points are removed)}.
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry which will be made unique
 */
 template <typename Geometry>
 inline void unique(Geometry& geometry)

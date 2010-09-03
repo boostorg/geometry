@@ -116,14 +116,19 @@ struct num_points<polygon_tag, false, Geometry>
 
 
 /*!
-    \brief get number of points
-    \ingroup access
-    \tparam Geometry geometry type
-    \param geometry the geometry to get number of points from
-    \return number of points
-    \note For linestrings/rings also boost::size or .size() could be used, however,
-        for polygons this is less obvious. So this function is provided. Besides that
-        it is described by OGC (numPoints)
+\brief \brief_calc{number of points}
+\ingroup num_points
+\details \details_calc{num_points, number of points}.
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\return \return_calc{number of points}
+
+\qbk{behavior,__point__:[qbk_ret 1]}
+\qbk{behavior,__box__:[qbk_ret 1]}
+\qbk{behavior,__range__:[qbk_ret boost::size(geometry)]}
+\qbk{behavior,__other__:[qbk_ret the sum of the number of points of its elements]}
+\qbk{complexity,Constant or Linear}
+\qbk{compliance,__ogc__}
 */
 template <typename Geometry>
 inline std::size_t num_points(Geometry const& geometry)

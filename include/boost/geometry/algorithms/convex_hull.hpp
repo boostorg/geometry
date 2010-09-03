@@ -146,16 +146,17 @@ inline void convex_hull(Geometry1 const& geometry,
 
 
 /*!
-    \brief Calculate the convex hull of a geometry
-    \ingroup convex_hull
-    \tparam Geometry1 the input geometry type
-    \tparam Geometry2: the output geometry type
-    \param geometry the geometry to calculate convex hull from
-    \param out a geometry receiving points of the convex hull
+\brief \brief_calc{convex hull}
+\ingroup convex_hull
+\details \details_calc{convex_hull,convex hull}.
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry \param_geometry,  used for input
+\param hull \param_geometry \param_set{convex hull}
  */
 template<typename Geometry1, typename Geometry2>
 inline void convex_hull(Geometry1 const& geometry,
-            Geometry2& out)
+            Geometry2& hull)
 {
     concept::check_concepts_and_equal_dimensions
         <
@@ -173,7 +174,7 @@ inline void convex_hull(Geometry1 const& geometry,
             point_type
         >::type strategy_type;
 
-    convex_hull(geometry, out, strategy_type());
+    convex_hull(geometry, hull, strategy_type());
 }
 
 
@@ -198,16 +199,16 @@ inline OutputIterator convex_hull_inserter(Geometry const& geometry,
 
 
 /*!
-    \brief Calculate the convex hull of a geometry, output-iterator version
-    \ingroup convex_hull
-    \tparam Geometry the input geometry type
-    \tparam OutputIterator: an output-iterator
-    \param geometry the geometry to calculate convex hull from
-    \param out an output iterator outputing points of the convex hull
-    \note This overloaded version outputs to an output iterator.
-    In this case, nothing is known about its point-type or
-        about its clockwise order. Therefore, the input point-type
-        and order are copied
+\brief Calculate the convex hull of a geometry, output-iterator version
+\ingroup convex_hull
+\tparam Geometry the input geometry type
+\tparam OutputIterator: an output-iterator
+\param geometry the geometry to calculate convex hull from
+\param out an output iterator outputing points of the convex hull
+\note This overloaded version outputs to an output iterator.
+In this case, nothing is known about its point-type or
+    about its clockwise order. Therefore, the input point-type
+    and order are copied
 
  */
 template<typename Geometry, typename OutputIterator>

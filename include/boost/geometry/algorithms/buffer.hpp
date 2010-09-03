@@ -94,19 +94,23 @@ struct buffer<box_tag, box_tag, BoxIn, T, BoxOut>
 
 
 /*!
-    \brief Calculate buffer (= new geometry) around specified distance of geometry
-    \ingroup buffer
-    \param geometry_in input geometry
-    \param distance the distance used in buffer
-    \param chord_length length of the chord's in the generated arcs around points or bends
-    \param geometry_out buffered geometry
-    \note Currently only implemented for box, the trivial case, but still useful
-    \par Use case:
-        BOX + distance -> BOX: it is allowed that "geometry_out" the same object as "geometry_in"
+\brief \brief_calc{buffer}
+\ingroup buffer
+\details \details_calc{buffer, \det_buffer}.
+\tparam Input \tparam_geometry
+\tparam Output \tparam_geometry
+\tparam Distance \tparam_numeric
+\param geometry_in \param_geometry
+\param geometry_out \param_geometry
+\param distance The distance to be used for the buffer
+\param chord_length (optional) The length of the chord's in the generated arcs around points or bends
+\note Currently only implemented for box, the trivial case, but still useful
+
+\qbk{behavior,__box__/__box__:Returns a new rectangular box\, enlarged with the specified distance. It is allowed that "geometry_out" the same object as "geometry_in"}
  */
-template <typename Input, typename Output, typename T>
+template <typename Input, typename Output, typename Distance>
 inline void buffer(Input const& geometry_in, Output& geometry_out,
-            T const& distance, T const& chord_length = -1)
+            Distance const& distance, Distance const& chord_length = -1)
 {
     concept::check<Input const>();
     concept::check<Output>();
@@ -116,19 +120,22 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
             typename tag<Input>::type,
             typename tag<Output>::type,
             Input,
-            T,
+            Distance,
             Output
         >::apply(geometry_in, distance, chord_length, geometry_out);
 }
 
 /*!
-    \brief Calculate and return buffer (= new geometry) around specified distance of geometry
-    \ingroup buffer
-    \param geometry input geometry
-    \param distance the distance used in buffer
-    \param chord_length length of the chord's in the generated arcs around points or bends
-    \return the buffered geometry
-    \note See also: buffer
+\brief \brief_calc{buffer}
+\ingroup buffer
+\details \details_calc{make_buffer, \det_buffer}. \details_make{buffer}.
+\tparam Input \tparam_geometry
+\tparam Output \tparam_geometry
+\tparam Distance \tparam_numeric
+\param geometry \param_geometry
+\param distance The distance to be used for the buffer
+\param chord_length (optional) The length of the chord's in the generated arcs around points or bends
+\return \return_calc{buffer}
  */
 template <typename Output, typename Input, typename T>
 Output make_buffer(Input const& geometry, T const& distance, T const& chord_length = -1)

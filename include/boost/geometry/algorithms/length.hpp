@@ -129,15 +129,15 @@ struct length<segment_tag, Geometry, Strategy>
 
 
 /*!
-\brief Calculate length of a geometry
+\brief \brief_calc{length}
 \ingroup length
 \details The version without a strategy takes the default
     distance-calculation-strategy to calculate distances between
     consecutive points of a geometry, summing them to the length
     of the geometry
-\tparam Geometry \geometry_concept
-\param geometry \geometry_model
-\return The calculated length
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\return \return_calc{length}
 
 \par Example:
 Example showing length calculation on a vector
@@ -146,10 +146,11 @@ Example showing length calculation on a vector
 \line {
 \until }
 
-\qbk{behavior,__0dim__:Returns zero}
-\qbk{behavior,__1dim__:Returns the length}
-\qbk{behavior,__2dim__:Returns zero}
+\qbk{behavior,__0dim__:[qbk_ret 0]}
+\qbk{behavior,__1dim__:[qbk_ret the length]}
+\qbk{behavior,__2dim__:[qbk_ret 0]}
 \qbk{complexity,Linear}
+\qbk{compliance,__ogc__}
  */
 template<typename Geometry>
 inline typename length_result<Geometry>::type length(
@@ -172,16 +173,16 @@ inline typename length_result<Geometry>::type length(
 
 
 /*!
-\brief Calculate length of a geometry
+\brief \brief_calc{length} \brief_strategy
 \ingroup length
 \details The version with a specified strategy uses that strategy
     to calculate distances between consecutive points, summing them
-    to the length of the geometry. \strategy_reasons
-\tparam Geometry \geometry_concept
-\tparam Strategy A type fulfilling a DistanceStrategy concept
-\param geometry \geometry_model
-\param strategy A strategy to be used for distance calculations.
-\return The calculated length
+    to the length of the geometry. \details_strategy_reasons
+\tparam Geometry \tparam_geometry
+\tparam Strategy \tparam_strategy{distance}
+\param geometry \param_geometry
+\param strategy \param_strategy{distance}
+\return \return_calc{length}
 
 \par Example:
 Example showing length calculation using iterators

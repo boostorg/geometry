@@ -252,14 +252,14 @@ struct transform<box_tag, box_tag, Box1, Box2, Strategy>
 
 
 /*!
-    \brief Transforms from one geometry to another geometry using a strategy
-    \ingroup transform
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam Strategy strategy
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param strategy the strategy to be used for transformation
+\brief Transforms from one geometry to another geometry using a strategy
+\ingroup transform
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Strategy strategy
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param strategy the strategy to be used for transformation
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
@@ -282,13 +282,13 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
 
 
 /*!
-    \brief Transforms from one geometry to another geometry using a strategy
-    \ingroup transform
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \return true if the transformation could be done
+\brief Transforms from one geometry to another geometry using a strategy
+\ingroup transform
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\return true if the transformation could be done
  */
 template <typename Geometry1, typename Geometry2>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2)
