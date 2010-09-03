@@ -58,6 +58,45 @@ public:
     {}
 };
 
+
+// Namespace model
+// Anticipates for all geometries, which will be moved to namespace "model":
+
+/*
+Bruno:
+However maybe an even better name
+would be "model", since those geometries model the concepts GGL
+defines. It would state more clearly that those shapes are not mere
+shapes but are also examples of models for our concepts.
+
+Barend:   
+I agree that model is a better name. Very good.
+So that is the new proposal :-)
+*/
+
+namespace model
+{
+
+/*!
+\brief segment: segment owning two points
+\note Might be merged with "segment", while "segment" be used as segment<P&>
+*/
+template<typename Point>
+struct segment : public std::pair<Point, Point>
+{
+    inline segment() 
+    {}
+
+    inline segment(Point const& p1, Point const& p2)
+    {
+        this->first = p1;
+        this->second = p2;
+    }
+};
+
+} // namespace model
+
+
 // Traits specializations for segment above
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
@@ -109,6 +148,56 @@ struct indexed_access<segment<ConstOrNonConstPoint>, 1, Dimension>
         geometry::set<Dimension>(s.second, value);
     }
 };
+
+
+template <typename Point>
+struct tag<model::segment<Point> >
+{
+    typedef segment_tag type;
+};
+
+template <typename Point>
+struct point_type<model::segment<Point> >
+{
+    typedef Point type;
+};
+
+template <typename Point, std::size_t Dimension>
+struct indexed_access<model::segment<Point>, 0, Dimension>
+{
+    typedef model::segment<Point> segment_type;
+    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+
+    static inline coordinate_type get(segment_type const& s)
+    {
+        return geometry::get<Dimension>(s.first);
+    }
+
+    static inline void set(segment_type& s, coordinate_type const& value)
+    {
+        geometry::set<Dimension>(s.first, value);
+    }
+};
+
+
+template <typename Point, std::size_t Dimension>
+struct indexed_access<model::segment<Point>, 1, Dimension>
+{
+    typedef model::segment<Point> segment_type;
+    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+
+    static inline coordinate_type get(segment_type const& s)
+    {
+        return geometry::get<Dimension>(s.second);
+    }
+
+    static inline void set(segment_type& s, coordinate_type const& value)
+    {
+        geometry::set<Dimension>(s.second, value);
+    }
+};
+
+
 
 } // namespace traits
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
