@@ -287,12 +287,12 @@ inline void combine(Box& box, Geometry const& geometry,
 
 
 /*!
-    \brief Combines a box with another geometry (box, point)
-    \ingroup combine
-    \tparam Box type of the box
-    \tparam Geometry of second geometry, to be combined with the box
-    \param box box to combine another geometry with, might be changed
-    \param geometry other geometry
+\brief Combines a box with another geometry (box, point)
+\ingroup combine
+\tparam Box type of the box
+\tparam Geometry \tparam_geometry
+\param box box to combine another geometry with, might be changed
+\param geometry \param_geometry
  */
 template <typename Box, typename Geometry>
 inline void combine(Box& box, Geometry const& geometry)

@@ -230,14 +230,14 @@ struct convert<polygon_tag, ring_tag, Dimensions, Polygon, Ring>
 #endif // DOXYGEN_NO_DISPATCH
 
 /*!
-    \brief Converts one geometry to another geometry
-    \details The convert algorithm converts one geometry, e.g. a BOX, to another geometry, e.g. a RING. This only
-    if it is possible and applicable.
-    \ingroup convert
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \param geometry1 first geometry (source)
-    \param geometry2 second geometry (target)
+\brief Converts one geometry to another geometry
+\details The convert algorithm converts one geometry, e.g. a BOX, to another geometry, e.g. a RING. This only
+if it is possible and applicable.
+\ingroup convert
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry (source)
+\param geometry2 \param_geometry (target)
  */
 template <typename Geometry1, typename Geometry2>
 inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)

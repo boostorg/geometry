@@ -465,23 +465,27 @@ struct distance_reversed
 #endif // DOXYGEN_NO_DISPATCH
 
 /*!
-    \brief Calculate distance between two geometries with a specified strategy
-    \ingroup distance
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam Strategy point-point-distance strategy type
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param strategy strategy to calculate distance between two points
-    \return the distance
-    \note The strategy can be a point-point strategy. In case of distance point-line/point-polygon
-        it may also be a point-segment strategy.
-    \par Example:
-    Example showing distance calculation of two lat long points, using the accurate Vincenty approximation
-    \dontinclude doxygen_1.cpp
-    \skip example_distance_point_point_strategy
-    \line {
-    \until }
+\brief \brief_calc2{distance} \brief_strategy
+\ingroup distance
+\details
+\details \details_calc{area}. \brief_strategy. \details_strategy_reasons
+
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Strategy \tparam_strategy{distance}
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param strategy \param_strategy{distance}
+\return \return_calc{distance}
+\note The strategy can be a point-point strategy. In case of distance point-line/point-polygon
+    it may also be a point-segment strategy.
+
+\par Example:
+Example showing distance calculation of two lat long points, using the accurate Vincenty approximation
+\dontinclude doxygen_1.cpp
+\skip example_distance_point_point_strategy
+\line {
+\until }
  */
 
 /*
@@ -530,14 +534,14 @@ inline typename strategy::distance::services::return_type<Strategy>::type distan
 
 
 /*!
-    \brief Calculate distance between two geometries
-    \ingroup distance
-    \details The default strategy is used, belonging to the corresponding coordinate system of the geometries
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \return the distance (either a double or a distance result, convertable to double)
+\brief \brief_calc2{distance}
+\ingroup distance
+\details The default strategy is used, belonging to the corresponding coordinate system of the geometries
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\return \return_calc{distance}
  */
 template <typename Geometry1, typename Geometry2>
 inline typename distance_result<Geometry1, Geometry2>::type distance(

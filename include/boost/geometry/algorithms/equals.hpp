@@ -269,13 +269,13 @@ struct equals_reversed
 
 
 /*!
-    \brief Detect if two geometries are spatially equal
-    \ingroup equals
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \return true if geometries are spatially equal, else false
+\brief \brief_check{are spatially equal}
+\ingroup equals
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\return \return_check2{are spatially disjoint}
  */
 template <typename Geometry1, typename Geometry2>
 inline bool equals(Geometry1 const& geometry1, Geometry2 const& geometry2)

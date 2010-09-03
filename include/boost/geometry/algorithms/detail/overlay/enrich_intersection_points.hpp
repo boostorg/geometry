@@ -355,17 +355,17 @@ static inline bool enrich(Container& operations,
 
 
 /*!
-    \brief All intersection points are enriched with successor information
-    \ingroup overlay
-    \tparam TurnPoints type of intersection container
-                (e.g. vector of "intersection/turn point"'s)
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam Strategy point-point-distance strategy type
-    \param turn_points container containing intersectionpoints
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param strategy strategy
+\brief All intersection points are enriched with successor information
+\ingroup overlay
+\tparam TurnPoints type of intersection container
+            (e.g. vector of "intersection/turn point"'s)
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Strategy point-point-distance strategy type
+\param turn_points container containing intersectionpoints
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param strategy strategy
  */
 template
 <

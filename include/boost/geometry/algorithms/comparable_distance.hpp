@@ -17,15 +17,15 @@ namespace boost { namespace geometry
 
 
 /*!
-    \brief Calculate comparable distance measurement between two geometries
-    \ingroup distance
-    \details The default strategy is used, belonging to the corresponding coordinate system of the geometries
-        and the comparable strategy is used
-    \tparam G1 first geometry type
-    \tparam G2 second geometry type
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \return the comparable distance
+\brief \brief_calc2{comparable distance measurement}
+\ingroup distance
+\details The default strategy is used, belonging to the corresponding coordinate system of the geometries
+    and the comparable strategy is used
+\tparam Geometry1 first geometry type
+\tparam Geometry2 second geometry type
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\return \return_calc{comparable distance}
  */
 template <typename Geometry1, typename Geometry2>
 inline typename distance_result<Geometry1, Geometry2>::type comparable_distance(

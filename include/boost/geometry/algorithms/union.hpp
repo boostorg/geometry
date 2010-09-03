@@ -72,18 +72,18 @@ struct union_inserter_reversed
 
 
 /*!
-    \brief Combines two geometries which each other
-    \ingroup union
-    \tparam GeometryOut output geometry type, must be specified
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam OutputIterator output iterator
-    \tparam Strategy compound strategy for intersection
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param out the output iterator, outputting polygons
-    \param strategy the strategy
-    \return the output iterator
+\brief Combines two geometries which each other
+\ingroup union
+\tparam GeometryOut output geometry type, must be specified
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam OutputIterator output iterator
+\tparam Strategy compound strategy for intersection
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param out the output iterator, outputting polygons
+\param strategy the strategy
+\return the output iterator
 */
 template
 <
@@ -128,16 +128,16 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
 }
 
 /*!
-    \brief Combines two geometries which each other
-    \ingroup union
-    \tparam GeometryOut output geometry type, must be specified
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam OutputIterator output iterator
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param out the output iterator, outputting polygons
-    \return the output iterator
+\brief Combines two geometries which each other
+\ingroup union
+\tparam GeometryOut output geometry type, must be specified
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam OutputIterator output iterator
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param out the output iterator, outputting polygons
+\return the output iterator
 */
 template
 <
@@ -166,16 +166,16 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
 
 
 /*!
-    \brief Combines two geometries which each other
-    \ingroup union
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam Collection output collection, either a multi-geometry,
-        or a std::vector<Geometry> / std::deque<Geometry> etc
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param output_collection the output collection
-    \note Called union_ because union is a reserved word.
+\brief Combines two geometries which each other
+\ingroup union
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Collection output collection, either a multi-geometry,
+    or a std::vector<Geometry> / std::deque<Geometry> etc
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param output_collection the output collection
+\note Called union_ because union is a reserved word.
 */
 template
 <

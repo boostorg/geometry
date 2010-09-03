@@ -314,14 +314,17 @@ struct within<point_tag, polygon_tag, Point, Polygon, Strategy>
 
 
 /*!
-    \brief Within, examine if a geometry is within another geometry
-    \ingroup within
-    \param geometry1 geometry which might be within the second geometry
-    \param geometry2 geometry which might contain the first geometry
-    \return true if geometry1 is completely contained within geometry2,
-        else false
-    \note The default strategy is used for within detection
-
+\brief \brief_check12{completely inside}
+\ingroup within
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param geometry1 geometry which might be within the second geometry
+\param geometry2 geometry which might contain the first geometry
+\return true if geometry1 is completely contained within geometry2,
+    else false
+\note The default strategy is used for within detection
  */
 template<typename Geometry1, typename Geometry2>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
@@ -351,14 +354,18 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
 }
 
 /*!
-    \brief Within, examine if a geometry is within another geometry,
-        using a specified strategy
-    \ingroup within
-    \param geometry1 geometry which might be within the second geometry
-    \param geometry2 geometry which might contain the first geometry
-    \param strategy strategy to be used
-    \return true if geometry1 is completely contained within geometry2,
-        else false
+\brief Within, examine if a geometry is within another geometry,
+    using a specified strategy
+\ingroup within
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param geometry1 \param_geometry geometry which might be within the second geometry
+\param geometry2 \param_geometry which might contain the first geometry
+\param strategy strategy to be used
+\return true if geometry1 is completely contained within geometry2,
+    else false
  */
 template<typename Geometry1, typename Geometry2, typename Strategy>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,
