@@ -13,7 +13,7 @@ void combine (Box &box, Geometry const &geometry)``
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Box &] [type of the box ] [box] [box to combine another geometry with, might be changed ]]
-[[Geometry const &] [of second geometry, to be combined with the box ] [geometry] [other geometry ]]
+[[Geometry const &] [Any type fulfilling a Geometry concept ] [geometry] [A model of the specified concept ]]
 ]
 
 

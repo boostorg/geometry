@@ -17,13 +17,14 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
+#include <boost/geometry/geometries/register/segment.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
 
-void example_point()
+void snippet_point()
 {
     struct custom_cs {};
 
@@ -49,7 +50,8 @@ struct legacy_point /*< Somewhere, any legacy point struct is available >*/
 
 BOOST_GEOMETRY_REGISTER_POINT_2D(legacy_point, double, boost::geometry::cs::cartesian, x, y); /*< The magic: adapt it to Boost.Geometry Point Concept >*/
 
-void foo1()
+/*<-*/ namespace boost_geometry_register_point_2d { /*->*/
+void foo()
 {
     legacy_point p1, p2;
 
@@ -59,13 +61,11 @@ void foo1()
     bg::assign(p2, 2, 2);
     double d = bg::distance(p1, p2);
 }
-
 //]
+} // namespace
 
 
-// All functions below are referred to in the documentation of Boost.Geometry
-// Don't rename them.
-void example_area_polygon()
+void snippet_area_polygon()
 {
     //[area_polygon
     //` Calculate the area of a polygon
@@ -76,10 +76,10 @@ void example_area_polygon()
     //]
 }
 
-void example_area_polygon_spherical()
+void snippet_area_polygon_spherical()
 {
     //[area_polygon_spherical
-    //` Calculate the area of a *spherical* polygon
+    //` Calculate the area of a [*spherical] polygon
     namespace bg = boost::geometry;
     bg::polygon<bg::point<float, 2, bg::cs::spherical<bg::degree> > > sph_poly;
     bg::read_wkt("POLYGON((0 0,0 45,45 0,0 0))", sph_poly);
@@ -87,9 +87,25 @@ void example_area_polygon_spherical()
     //]
 }
 
+void snippet_area_polygon_strategy()
+{
+    //[area_polygon_strategy
+    //` Calculate the area of a polygon specifying a strategy
+    namespace bg = boost::geometry;
+    typedef bg::point<float, 2, bg::cs::spherical<bg::degree> > pnt_type;
+    bg::polygon<pnt_type> hawaii;
+    bg::read_wkt("POLYGON((-155.86 18.93,-155.84 20.30,-154.80 19.52,-155.86 18.93))" /*< [@http://en.wikipedia.org/wiki/Hawaii_%28island%29 Rough appromation of Hawaii Island] >*/
+        , hawaii); 
+    double const mean_radius = 6371.0; /*< [@http://en.wikipedia.org/wiki/Earth_radius Wiki]  >*/
+    bg::strategy::area::huiller<pnt_type> in_square_kilometers(mean_radius);
+    double area = bg::area(hawaii, in_square_kilometers);
+    
+    //]
+}
 
 
-void example_as_wkt_point()
+
+void snippet_as_wkt_point()
 {
     typedef boost::geometry::point_xy<double> P;
     P p(5.12, 6.34);
@@ -103,7 +119,7 @@ void example_as_wkt_point()
     std::cout << boost::geometry::wkt(p) << std::endl;
 }
 
-void example_as_wkt_vector()
+void snippet_as_wkt_vector()
 {
     std::vector<boost::geometry::point_xy<int> > v;
     boost::geometry::read_wkt<boost::geometry::point_xy<int> >("linestring(1 1,2 2,3 3,4 4)", std::back_inserter(v));
@@ -112,7 +128,7 @@ void example_as_wkt_vector()
 }
 
 
-void example_centroid_polygon()
+void snippet_centroid_polygon()
 {
     boost::geometry::polygon<boost::geometry::point_xy<double> > poly;
     boost::geometry::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
@@ -123,7 +139,7 @@ void example_centroid_polygon()
 }
 
 
-void example_distance_point_point()
+void snippet_distance_point_point()
 {
     boost::geometry::point_xy<double> p1(1, 1);
     boost::geometry::point_xy<double> p2(2, 3);
@@ -144,7 +160,7 @@ void example_distance_point_point()
     */
 }
 
-void example_distance_point_point_strategy()
+void snippet_distance_point_point_strategy()
 {
     /*
     Extension, other coordinate system:
@@ -161,35 +177,35 @@ void example_distance_point_point_strategy()
     */
 }
 
-void example_from_wkt_point()
+void snippet_from_wkt_point()
 {
     boost::geometry::point_xy<int> point;
     boost::geometry::read_wkt("Point(1 2)", point);
     std::cout << point.x() << "," << point.y() << std::endl;
 }
 
-void example_from_wkt_output_iterator()
+void snippet_from_wkt_output_iterator()
 {
     std::vector<boost::geometry::point_xy<int> > v;
     boost::geometry::read_wkt<boost::geometry::point_xy<int> >("linestring(1 1,2 2,3 3,4 4)", std::back_inserter(v));
     std::cout << "vector has " << v.size() << " coordinates" << std::endl;
 }
 
-void example_from_wkt_linestring()
+void snippet_from_wkt_linestring()
 {
     boost::geometry::linestring<boost::geometry::point_xy<double> > line;
     boost::geometry::read_wkt("linestring(1 1,2 2,3 3,4 4)", line);
     std::cout << "linestring has " << line.size() << " coordinates" << std::endl;
 }
 
-void example_from_wkt_polygon()
+void snippet_from_wkt_polygon()
 {
     boost::geometry::polygon<boost::geometry::point_xy<double> > poly;
     boost::geometry::read_wkt("POLYGON((0 0,0 1,1 1,1 0,0 0))", poly);
     std::cout << "Polygon has " << poly.outer().size() << " coordinates in outer ring" << std::endl;
 }
 
-void example_point_ll_convert()
+void snippet_point_ll_convert()
 {
     /*
     Extension, other coordinate system:
@@ -201,7 +217,72 @@ void example_point_ll_convert()
     */
 }
 
-void example_clip_linestring1()
+void snippet_intersection_linestring()
+{
+    //[intersection_linestring
+    typedef boost::geometry::point_xy<double> P;
+    std::vector<P> line1, line2;
+    boost::geometry::read_wkt("linestring(1 1,2 2)", line1);
+    boost::geometry::read_wkt("linestring(2 1,1 2)", line2);
+
+    std::deque<P> intersection_points;
+    boost::geometry::intersection(line1, line2, intersection_points);
+    //]
+}
+
+void snippet_intersects_linestring()
+{
+    typedef boost::geometry::point_xy<double> P;
+    std::vector<P> line1, line2;
+    boost::geometry::read_wkt("linestring(1 1,2 2)", line1);
+    boost::geometry::read_wkt("linestring(2 1,1 2)", line2);
+
+    bool b = boost::geometry::intersects(line1, line2);
+}
+
+
+
+void snippet_intersection_segment()
+{
+    typedef boost::geometry::point_xy<double> P;
+    boost::geometry::model::segment<P> segment1, segment2;
+    boost::geometry::read_wkt("linestring(1 1,2 2)", segment1);
+    boost::geometry::read_wkt("linestring(2 1,1 2)", segment2);
+
+    std::vector<P> intersections;
+    boost::geometry::intersection(segment1, segment2, intersections);
+}
+
+void snippet_intersection_inserter_segment()
+{
+    //[intersection_segment_inserter
+
+    typedef boost::geometry::point_xy<double> P;
+    boost::geometry::model::segment<P> segment1, segment2;
+    boost::geometry::read_wkt("linestring(1 1,2 2)", segment1);
+    boost::geometry::read_wkt("linestring(2 1,1 2)", segment2);
+
+    std::vector<P> intersections;
+    boost::geometry::intersection_inserter<P>(segment1, segment2, std::back_inserter(intersections));
+    //` The vector [*intersection] now contains one point: the intersection of the two segments.
+    //` If segments do not intersect, the vector is empty.
+    //` If segments happen to be collinear, the vector  contains two points.
+
+    //]
+}
+
+void snippet_intersects_segment()
+{
+    typedef boost::geometry::point_xy<double> P;
+    custom_segment<P> line1, line2;
+    boost::geometry::read_wkt("linestring(1 1,2 2)", line1);
+    boost::geometry::read_wkt("linestring(2 1,1 2)", line2);
+
+    bool b = boost::geometry::intersects(line1, line2);
+}
+
+
+void snippet_clip_linestring1()
 {
     typedef boost::geometry::point_xy<double> P;
     boost::geometry::linestring<P> line;
@@ -213,7 +294,7 @@ void example_clip_linestring1()
     boost::geometry::intersection_inserter<boost::geometry::linestring<P> >(cb, line, std::back_inserter(intersection));
 }
 
-void example_clip_linestring2()
+void snippet_clip_linestring2()
 {
     typedef boost::geometry::point_xy<double> P;
     std::vector<P> vector_in;
@@ -237,7 +318,7 @@ void example_clip_linestring2()
 
 
 
-void example_intersection_polygon1()
+void snippet_intersection_polygon1()
 {
     typedef boost::geometry::point_xy<double> P;
     typedef std::vector<boost::geometry::polygon<P> > PV;
@@ -257,7 +338,7 @@ void example_intersection_polygon1()
     }
 }
 
-void example_simplify_linestring1()
+void snippet_simplify_linestring1()
 {
     //[simplify
     //` Simplify a linestring
@@ -270,7 +351,7 @@ void example_simplify_linestring1()
     //]
 }
 
-void example_simplify_linestring2()
+void snippet_simplify_linestring2()
 {
     //[simplify_inserter
     //` Simplify a linestring using an output iterator
@@ -288,7 +369,7 @@ void example_simplify_linestring2()
 
 
 
-void example_within()
+void snippet_within()
 {
     boost::geometry::polygon<boost::geometry::point_xy<double> > poly;
     boost::geometry::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
@@ -300,7 +381,7 @@ void example_within()
 }
 
 /*
-void example_within_strategy()
+void snippet_within_strategy()
 {
     // TO BE UPDATED/FINISHED
     typedef boost::geometry::point_xy<double> P;
@@ -310,7 +391,7 @@ void example_within_strategy()
 }
 */
 
-void example_length_linestring()
+void snippet_length_linestring()
 {
     using namespace boost::geometry;
     linestring<point_xy<double> > line;
@@ -340,7 +421,7 @@ void example_length_linestring()
         */
 }
 
-void example_length_linestring_iterators1()
+void snippet_length_linestring_iterators1()
 {
     boost::geometry::linestring<boost::geometry::point_xy<double> > line;
     boost::geometry::read_wkt("linestring(0 0,1 1,4 8,3 2)", line);
@@ -349,7 +430,7 @@ void example_length_linestring_iterators1()
         << " units" << std::endl;
 }
 
-void example_length_linestring_iterators2()
+void snippet_length_linestring_iterators2()
 {
     std::vector<boost::geometry::point_xy<double> > line;
     boost::geometry::read_wkt<boost::geometry::point_xy<double> >("linestring(0 0,1 1,4 8,3 2)", std::back_inserter(line));
@@ -358,7 +439,7 @@ void example_length_linestring_iterators2()
         << " units" << std::endl;
 }
 
-void example_length_linestring_iterators3()
+void snippet_length_linestring_iterators3()
 {
     /*
     Extension, other coordinate system:
@@ -373,7 +454,7 @@ void example_length_linestring_iterators3()
 }
 
 
-void example_length_linestring_strategy()
+void snippet_length_linestring_strategy()
 {
     /*
     Extension, other coordinate system:
@@ -390,7 +471,7 @@ void example_length_linestring_strategy()
 }
 
 
-void example_envelope_linestring()
+void snippet_envelope_linestring()
 {
     boost::geometry::linestring<boost::geometry::point_xy<double> > line;
     boost::geometry::read_wkt("linestring(0 0,1 1,4 8,3 2)", line);
@@ -400,7 +481,7 @@ void example_envelope_linestring()
     std::cout << "envelope is " << boost::geometry::dsv(box) << std::endl;
 }
 
-void example_envelope_polygon()
+void snippet_envelope_polygon()
 {
     /*
     Extension, other coordinate system:
@@ -431,7 +512,7 @@ void example_envelope_polygon()
 }
 
 
-void example_dms()
+void snippet_dms()
 {
     /*
     Extension, other coordinate system:
@@ -455,7 +536,7 @@ void example_dms()
     */
 }
 
-void example_point_ll_construct()
+void snippet_point_ll_construct()
 {
     /*
     Extension, other coordinate system:
@@ -477,44 +558,53 @@ void example_point_ll_construct()
 
 int main(void)
 {
-    example_point();
+    snippet_point();
 
-    example_area_polygon();
-    example_area_polygon_spherical();
+    snippet_area_polygon();
+    snippet_area_polygon_spherical();
+    snippet_area_polygon_strategy();
 
-    example_centroid_polygon();
+    snippet_centroid_polygon();
 
-    example_distance_point_point();
-    example_distance_point_point_strategy();
+    snippet_intersection_linestring();
+    snippet_intersects_linestring();
+    snippet_intersection_segment();
+    snippet_intersection_inserter_segment();
+    snippet_intersects_segment();
 
-    example_from_wkt_point();
-    example_from_wkt_output_iterator();
-    example_from_wkt_linestring();
-    example_from_wkt_polygon();
 
-    example_as_wkt_point();
+    snippet_distance_point_point();
+    snippet_distance_point_point_strategy();
 
-    example_clip_linestring1();
-    example_clip_linestring2();
-    example_intersection_polygon1();
+    snippet_from_wkt_point();
+    snippet_from_wkt_output_iterator();
+    snippet_from_wkt_linestring();
+    snippet_from_wkt_polygon();
 
-    example_simplify_linestring1();
-    example_simplify_linestring2();
+    snippet_as_wkt_point();
 
-    example_length_linestring();
-    example_length_linestring_iterators1();
-    example_length_linestring_iterators2();
-    example_length_linestring_iterators3();
-    example_length_linestring_strategy();
+    snippet_clip_linestring1();
+    snippet_clip_linestring2();
+    snippet_intersection_polygon1();
 
-    example_envelope_linestring();
-    example_envelope_polygon();
+    snippet_simplify_linestring1();
+    snippet_simplify_linestring2();
 
-    example_within();
+    snippet_length_linestring();
+    snippet_length_linestring_iterators1();
+    snippet_length_linestring_iterators2();
+    snippet_length_linestring_iterators3();
+    snippet_length_linestring_strategy();
 
-    example_point_ll_convert();
-    example_point_ll_construct();
-    example_dms();
+    snippet_envelope_linestring();
+    snippet_envelope_polygon();
+
+    snippet_within();
+
+    snippet_point_ll_convert();
+    snippet_point_ll_construct();
+    snippet_dms();
+
 
     boost_geometry_register_point_2d::foo();
 
