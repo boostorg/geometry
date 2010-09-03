@@ -85,23 +85,31 @@ struct indexed_access<QRect, C, D>
 
 void example_for_main_page()
 {
+
+    //[main1
+    //` Snippets below assume the namespace boost::geometry is known
     using namespace boost::geometry;
 
+    //` It should be possible to use a very small part of the library, for example only the distance between two points. 
     int a[2] = {1,1};
     int b[2] = {2,3};
     double d = distance(a, b);
     std::cout << "Distance a-b is:" << d << std::endl;
 
-    ring_2d poly;
+    //` Other often used algorithms are point-in-polygon:
     double points[][2] = {{2.0, 1.3}, {4.1, 3.0}, {5.3, 2.6}, {2.9, 0.7}, {2.0, 1.3}};
     append(poly, points);
     boost::tuple<double, double> p = boost::make_tuple(3.7, 2.0);
     std::cout << "Point p is in polygon? " << (within(p, poly) ? "YES" : "NO")  << std::endl;
 
+    //` or area: 
     std::cout << "Area: " << area(poly) << std::endl;
 
+    //` It is possible, by the nature of a template library, to mix the point types declared above: 
     double d2 = distance(a, p);
     std::cout << "Distance a-p is:" << d2 << std::endl;
+
+    //]
 
     /***
     Now extension
@@ -111,12 +119,14 @@ void example_for_main_page()
     std::cout << "Distance A'dam-Paris: " << distance(amsterdam, paris) / 1000.0 << " kilometers " << std::endl;
     ***/
 
+    //[main3
     QRect r1(100, 200, 15, 15);
     QRect r2(110, 210, 20, 20);
     if (overlaps(r1, r2))
     {
         assign(r2, 200, 300, 220, 320);
     }
+    //]
 }
 
 

@@ -2,7 +2,7 @@
 [/ Generated from ..\doxygen_output\xml\group__sym__difference.xml]
 [section:sym_difference_3 sym_difference (3)]
 
-
+calculates2{symmetric difference} 
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename Collection>
@@ -12,8 +12,8 @@ void sym_difference (Geometry1 geometry1, Geometry2 geometry2, Collection &outpu
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry1] [first geometry type ] [geometry1] [first geometry ]]
-[[Geometry2] [second geometry type ] [geometry2] [second geometry ]]
+[[Geometry1] [Any type fulfilling a Geometry concept ] [geometry1] [A model of the specified concept ]]
+[[Geometry2] [Any type fulfilling a Geometry concept ] [geometry2] [A model of the specified concept ]]
 [[Collection &] [output collection, either a multi-geometry, or a std::vector<Geometry> / std::deque<Geometry> etc ] [output_collection] [the output collection ]]
 ]
 

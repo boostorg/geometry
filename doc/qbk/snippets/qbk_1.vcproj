@@ -88,7 +88,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -121,7 +120,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -136,7 +135,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib $(NoInherit)"
 				LinkIncremental="1"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -165,7 +164,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="cd ../doc&#x0D;&#x0A;doxygen&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

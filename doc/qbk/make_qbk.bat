@@ -14,37 +14,46 @@
 
 @echo off
 
+if a%1 == askip_doxygen goto skip_doxygen
+
 cd ..
 doxygen
 cd qbk
+
+:skip_doxygen
 
 set xml2qbk=..\..\..\..\other\programs\doxygen_xml2qbk\Release\doxygen_xml2qbk.exe
 set out=..\doxygen_output\xml
 
 :: Algorithms
-%xml2qbk% %out%\group__access.xml > reference\access.qbk
 %xml2qbk% %out%\group__area.xml > reference\area.qbk
+%xml2qbk% %out%\group__buffer.xml > reference\buffer.qbk
 %xml2qbk% %out%\group__centroid.xml > reference\centroid.qbk
-%xml2qbk% %out%\group__combine.xml > reference\combine.qbk
-%xml2qbk% %out%\group__convert.xml > reference\convert.qbk
 %xml2qbk% %out%\group__convex__hull.xml > reference\convex_hull.qbk
-%xml2qbk% %out%\group__difference.xml > reference\difference.qbk
-%xml2qbk% %out%\group__disjoint.xml > reference\disjoint.qbk
-%xml2qbk% %out%\group__distance.xml > reference\distance.qbk
+%xml2qbk% %out%\group__dissolve.xml > reference\dissolve.qbk
 %xml2qbk% %out%\group__envelope.xml > reference\envelope.qbk
-%xml2qbk% %out%\group__equals.xml > reference\equals.qbk
-%xml2qbk% %out%\group__for__each.xml > reference\for_each.qbk
-%xml2qbk% %out%\group__intersection.xml > reference\intersection.qbk
-%xml2qbk% %out%\group__intersects.xml > reference\intersects.qbk
 %xml2qbk% %out%\group__length.xml > reference\length.qbk
-%xml2qbk% %out%\group__overlaps.xml > reference\overlaps.qbk
+%xml2qbk% %out%\group__num__geometries.xml > reference\num_geometries.qbk
+%xml2qbk% %out%\group__num__interior__rings.xml > reference\num_interior_rings.qbk
+%xml2qbk% %out%\group__num__points.xml > reference\num_points.qbk
 %xml2qbk% %out%\group__perimeter.xml > reference\perimeter.qbk
 %xml2qbk% %out%\group__reverse.xml > reference\reverse.qbk
 %xml2qbk% %out%\group__simplify.xml > reference\simplify.qbk
-%xml2qbk% %out%\group__sym__difference.xml > reference\sym_difference.qbk
-%xml2qbk% %out%\group__transform.xml > reference\transform.qbk
-%xml2qbk% %out%\group__union.xml > reference\union.qbk
 %xml2qbk% %out%\group__unique.xml > reference\unique.qbk
+:: %xml2qbk% %out%\group__access.xml > reference\access.qbk
+:: %xml2qbk% %out%\group__combine.xml > reference\combine.qbk
+:: %xml2qbk% %out%\group__convert.xml > reference\convert.qbk
+:: %xml2qbk% %out%\group__difference.xml > reference\difference.qbk
+:: %xml2qbk% %out%\group__disjoint.xml > reference\disjoint.qbk
+%xml2qbk% %out%\group__distance.xml > reference\distance.qbk
+:: %xml2qbk% %out%\group__equals.xml > reference\equals.qbk
+:: %xml2qbk% %out%\group__for__each.xml > reference\for_each.qbk
+%xml2qbk% %out%\group__intersection.xml > reference\intersection.qbk
+%xml2qbk% %out%\group__intersects.xml > reference\intersects.qbk
+:: %xml2qbk% %out%\group__overlaps.xml > reference\overlaps.qbk
+:: %xml2qbk% %out%\group__sym__difference.xml > reference\sym_difference.qbk
+:: %xml2qbk% %out%\group__transform.xml > reference\transform.qbk
+:: %xml2qbk% %out%\group__union.xml > reference\union.qbk
 %xml2qbk% %out%\group__within.xml > reference\within.qbk
 
 %xml2qbk% %out%\group__register.xml > reference\register.qbk

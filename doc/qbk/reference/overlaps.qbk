@@ -2,7 +2,7 @@
 [/ Generated from ..\doxygen_output\xml\group__overlaps.xml]
 [section:overlaps_2 overlaps (2)]
 
-Determines overlap between two geometries. 
+Checks if two geometries overlap. 
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
@@ -18,7 +18,7 @@ bool overlaps (Geometry1 const &geometry1, Geometry2 const &geometry2)``
 
 
 [heading Returns]
-true if there is overlap 
+Returns true if two geometries overlap 
 
 [heading Header]
 Either

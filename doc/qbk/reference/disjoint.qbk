@@ -2,7 +2,7 @@
 [/ Generated from ..\doxygen_output\xml\group__disjoint.xml]
 [section:disjoint_2 disjoint (2)]
 
-Calculate if two geometries are disjoint. 
+Checks if two geometries are disjoint. 
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
@@ -12,13 +12,13 @@ bool disjoint (Geometry1 const &geometry1, Geometry2 const &geometry2)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry1 const &] [first geometry type ] [geometry1] [first geometry ]]
-[[Geometry2 const &] [second geometry type ] [geometry2] [second geometry ]]
+[[Geometry1 const &] [Any type fulfilling a Geometry concept ] [geometry1] [A model of the specified concept ]]
+[[Geometry2 const &] [Any type fulfilling a Geometry concept ] [geometry2] [A model of the specified concept ]]
 ]
 
 
 [heading Returns]
-true if disjoint, else false 
+Returns true if two geometries are disjoint 
 
 [heading Header]
 Either

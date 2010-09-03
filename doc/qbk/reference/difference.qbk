@@ -12,8 +12,8 @@ void difference (Geometry1 const &geometry1, Geometry2 geometry2, Collection &ou
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry1 const &] [first geometry type ] [geometry1] [first geometry ]]
-[[Geometry2] [second geometry type ] [geometry2] [second geometry ]]
+[[Geometry1 const &] [Any type fulfilling a Geometry concept ] [geometry1] [A model of the specified concept ]]
+[[Geometry2] [Any type fulfilling a Geometry concept ] [geometry2] [A model of the specified concept ]]
 [[Collection &] [output collection, either a multi-geometry, or a std::vector<Geometry> / std::deque<Geometry> etc ] [output_collection] [the output collection ]]
 ]
 

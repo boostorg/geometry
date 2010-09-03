@@ -12,8 +12,8 @@ void convert (Geometry1 const &geometry1, Geometry2 &geometry2)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry1 const &] [first geometry type ] [geometry1] [first geometry (source) ]]
-[[Geometry2 &] [second geometry type ] [geometry2] [second geometry (target) ]]
+[[Geometry1 const &] [Any type fulfilling a Geometry concept ] [geometry1] [A model of the specified concept (source) ]]
+[[Geometry2 &] [Any type fulfilling a Geometry concept ] [geometry2] [A model of the specified concept (target) ]]
 ]
 
 
