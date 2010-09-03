@@ -26,8 +26,7 @@ namespace boost { namespace geometry
 /*!
 \brief Basic point class, having coordinates defined in a neutral way
 \ingroup geometries
-
-\tparam CoordinateType \template_numerical
+\tparam CoordinateType \tparam_numeric
 \tparam DimensionCount number of coordinates, usually 2 or 3
 \tparam CoordinateSystem coordinate system, for example cs::cartesian
 
