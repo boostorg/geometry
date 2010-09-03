@@ -20,14 +20,15 @@ namespace boost { namespace geometry
 
 
 /*!
-    \ingroup sym_difference
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam Collection output collection, either a multi-geometry,
-        or a std::vector<Geometry> / std::deque<Geometry> etc
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param output_collection the output collection
+\brief \brief_calc2{symmetric difference}
+\ingroup sym_difference
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Collection output collection, either a multi-geometry,
+    or a std::vector<Geometry> / std::deque<Geometry> etc
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param output_collection the output collection
 */
 template
 <
