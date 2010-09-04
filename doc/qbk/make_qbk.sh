@@ -8,9 +8,9 @@
 #  http://www.boost.org/LICENSE_1_0.txt)
 # ============================================================================
 
-#cd ..
-#doxygen
-#cd qbk
+cd ..
+doxygen
+cd qbk
 
 # Assume that doxygen_xml2qbk is in /usr/local/bin
 export out=../doxygen_output/xml
@@ -56,4 +56,6 @@ doxygen_xml2qbk $out/classboost_1_1geometry_1_1concept_1_1_point.xml > reference
 
 doxygen_xml2qbk $out/structboost_1_1geometry_1_1closing__iterator.xml > reference/closing_iterator.qbk
 
-#bjam --toolset=gcc --without-python
+bjam --toolset=gcc --without-python
+echo Please ignore for the moment the IDs which are not found
+
