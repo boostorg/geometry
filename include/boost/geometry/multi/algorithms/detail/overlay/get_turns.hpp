@@ -34,9 +34,8 @@ template
     typename MultiTag2,
     typename MultiGeometry1,
     typename MultiGeometry2,
-    typename IntersectionPoints,
-    typename Strategy,
-    typename AssignPolicy,
+    typename Turns,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct get_turns
@@ -44,17 +43,15 @@ struct get_turns
         MultiTag1, MultiTag2,
         true, true,
         MultiGeometry1, MultiGeometry2,
-        IntersectionPoints,
-        Strategy,
-        AssignPolicy, InterruptPolicy
+        Turns,
+        TurnPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
             MultiGeometry1,
             MultiGeometry2,
-            IntersectionPoints,
-            Strategy,
-            AssignPolicy, InterruptPolicy
+            Turns,
+            TurnPolicy, InterruptPolicy
         >
 {};
 
@@ -65,9 +62,8 @@ template
     typename MultiTag,
     typename SingleGeometry,
     typename MultiGeometry,
-    typename IntersectionPoints,
-    typename Strategy,
-    typename AssignPolicy,
+    typename Turns,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct get_turns
@@ -75,17 +71,15 @@ struct get_turns
         SingleTag, MultiTag,
         false, true,
         SingleGeometry, MultiGeometry,
-        IntersectionPoints,
-        Strategy,
-        AssignPolicy, InterruptPolicy
+        Turns,
+        TurnPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
             SingleGeometry,
             MultiGeometry,
-            IntersectionPoints,
-            Strategy,
-            AssignPolicy, InterruptPolicy
+            Turns,
+            TurnPolicy, InterruptPolicy
         >
 {};
 
@@ -97,9 +91,8 @@ template
     typename SingleTag,
     typename MultiGeometry,
     typename SingleGeometry,
-    typename IntersectionPoints,
-    typename Strategy,
-    typename AssignPolicy,
+    typename Turns,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct get_turns
@@ -107,17 +100,15 @@ struct get_turns
         MultiTag, SingleTag,
         true, false,
         MultiGeometry, SingleGeometry,
-        IntersectionPoints,
-        Strategy,
-        AssignPolicy, InterruptPolicy
+        Turns,
+        TurnPolicy, InterruptPolicy
     >
     : detail::get_turns::get_turns_generic
         <
             MultiGeometry,
             SingleGeometry,
-            IntersectionPoints,
-            Strategy,
-            AssignPolicy, InterruptPolicy
+            Turns,
+            TurnPolicy, InterruptPolicy
         >
 {};
 

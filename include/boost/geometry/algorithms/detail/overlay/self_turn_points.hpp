@@ -33,8 +33,7 @@ template
 <
     typename Geometry,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct get_turns
@@ -74,8 +73,8 @@ struct get_turns
                             Geometry, Geometry,
                             typename boost::range_value<sections_type>::type,
                             typename boost::range_value<sections_type>::type,
-                            Turns, IntersectionStrategy,
-                            AssignPolicy, InterruptPolicy
+                            Turns, TurnPolicy,
+                            InterruptPolicy
                         >::apply(
                                 0, geometry, *it1,
                                 0, geometry, *it2,
@@ -105,8 +104,7 @@ template
     bool IsMulti,
     typename Geometry,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct self_get_turn_points
@@ -118,23 +116,22 @@ template
 <
     typename Ring,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct self_get_turn_points
     <
         ring_tag, false, Ring,
         Turns,
-        IntersectionStrategy,
-        AssignPolicy, InterruptPolicy
+        TurnPolicy,
+        InterruptPolicy
     >
     : detail::self_get_turn_points::get_turns
         <
             Ring,
             Turns,
-            IntersectionStrategy,
-            AssignPolicy, InterruptPolicy
+            TurnPolicy, 
+            InterruptPolicy
         >
 {};
 
@@ -143,22 +140,22 @@ template
 <
     typename Polygon,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct self_get_turn_points
     <
         polygon_tag, false, Polygon,
-        Turns, IntersectionStrategy,
-        AssignPolicy, InterruptPolicy
+        Turns, 
+        TurnPolicy,
+        InterruptPolicy
     >
     : detail::self_get_turn_points::get_turns
         <
             Polygon,
             Turns,
-            IntersectionStrategy,
-            AssignPolicy, InterruptPolicy
+            TurnPolicy, 
+            InterruptPolicy
         >
 {};
 
@@ -198,14 +195,22 @@ inline void get_turns(Geometry const& geometry,
             typename boost::range_value<Turns>::type
         >::segment_intersection_strategy_type strategy_type;
 
+    typedef detail::overlay::get_turn_info
+                        <
+                            typename point_type<Geometry>::type, 
+                            typename point_type<Geometry>::type,
+                            typename boost::range_value<Turns>::type,
+                            detail::overlay::assign_null_policy
+                        > TurnPolicy;
 
     dispatch::self_get_turn_points
             <
                 typename tag<Geometry>::type,
                 is_multi<Geometry>::type::value,
                 Geometry,
-                Turns, strategy_type,
-                AssignPolicy, InterruptPolicy
+                Turns, 
+                TurnPolicy, 
+                InterruptPolicy
             >::apply(geometry, turns, interrupt_policy);
 }
 

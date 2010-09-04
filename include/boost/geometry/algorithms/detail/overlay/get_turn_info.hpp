@@ -682,10 +682,10 @@ struct crosses : public base_turn_handler
 
 
 /*!
-    \brief Policy doing nothing
-    \details get_turn_info can have an optional policy to get/assign some
-        extra information. By default it does not, and this class
-        is that default.
+\brief Policy doing nothing
+\details get_turn_info can have an optional policy to get/assign some
+    extra information. By default it does not, and this class
+    is that default.
  */
 struct assign_null_policy
 {
@@ -730,7 +730,7 @@ struct get_turn_info
 
 
     template <typename OutputIterator>
-    static inline void apply(
+    static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
                 TurnInfo const& tp_model,
@@ -881,6 +881,8 @@ struct get_turn_info
             default :
                 std::cout << "get_turns, nyi: " << method << std::endl;
         }
+
+        return out;
     }
 };
 

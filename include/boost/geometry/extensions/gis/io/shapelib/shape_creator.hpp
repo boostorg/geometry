@@ -8,8 +8,9 @@
 #ifndef BOOST_GEOMETRY_EXT_GIS_IO_SHAPELIB_SHAPE_CREATOR_HPP
 #define BOOST_GEOMETRY_EXT_GIS_IO_SHAPELIB_SHAPE_CREATOR_HPP
 
-
+#include <fstream>
 #include "shapefil.h"
+
 
 #include <boost/noncopyable.hpp>
 #include <boost/type_traits/promote.hpp>
@@ -78,6 +79,7 @@ public :
     {
         m_shp = ::SHPCreate((name + ".shp").c_str(), ShapeType);
         m_dbf = ::DBFCreate((name + ".dbf").c_str());
+        m_prj_name = name + ".prj";
 
         if (m_shp == NULL || m_dbf == NULL)
         {
@@ -122,10 +124,34 @@ public :
             >::apply(m_dbf, row_index, field_index, value);
     }
 
+    inline void SetSrid(int srid)
+    {
+        if (srid == 28992)
+        {
+            std::ofstream out(m_prj_name.c_str());
+            out << "PROJCS[\"RD_New\""
+                << ",GEOGCS[\"GCS_Amersfoort\""
+                << ",DATUM[\"D_Amersfoort\""
+                << ",SPHEROID[\"Bessel_1841\",6377397.155,299.1528128]]"
+                << ",PRIMEM[\"Greenwich\",0]"
+                << ",UNIT[\"Degree\",0.0174532925199432955]]"
+                << ",PROJECTION[\"Double_Stereographic\"]"
+                << ",PARAMETER[\"False_Easting\",155000]"
+                << ",PARAMETER[\"False_Northing\",463000]"
+                << ",PARAMETER[\"Central_Meridian\",5.38763888888889]"
+                << ",PARAMETER[\"Scale_Factor\",0.9999079]"
+                << ",PARAMETER[\"Latitude_Of_Origin\",52.15616055555555]"
+                << ",UNIT[\"Meter\",1]]"
+                << std::endl;
+        }
+    }
+
 
 private :
     ::SHPHandle m_shp;
     ::DBFHandle m_dbf;
+    std::string m_prj_name;
+
 };
 
 
