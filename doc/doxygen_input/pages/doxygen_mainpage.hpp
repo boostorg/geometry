@@ -10,6 +10,9 @@
 #define _DOXYGEN_MAINPAGE_HPP
 
 
+// -> introduction.qbk
+// -> quickstart.qbk
+
 /*!
 \mainpage Boost.Geometry
 
@@ -23,12 +26,17 @@ Distributed under the Boost Software License, Version 1.0.\n
 </em>
 
 \section intro Introduction
-Boost.Geometry, formally accepted by Boost, defines \ref concepts "concepts" for geometries and implements some algorithms on such geometries. Before acceptance by Boost it was known as GGL (Generic Geometry Library)
-and this documentation still contains that name on various places.
+Boost.Geometry, formally accepted by Boost, defines \ref concepts "concepts" for geometries and
+implements some algorithms on such geometries. Before acceptance by Boost it was known as GGL
+(Generic Geometry Library) and this documentation still contains that name on various places.
 
 
-Boost.Geometry contains a dimension-agnostic, coordinate-system-agnostic and scalable kernel,  based on concepts, meta-functions and tag- dispatching.
-On top of that kernel, algorithms are built: area, length, perimeter, centroid, convex hull, intersection (clipping), within (point in polygon), distance, envelope (bounding box), simplify, transform, convert, and more. The library is also designed to support high precision arithmetic numbers, such as GMP.
+Boost.Geometry contains a dimension-agnostic, coordinate-system-agnostic and
+scalable kernel, based on concepts, meta-functions and tag- dispatching. On top
+of that kernel, algorithms are built: area, length, perimeter, centroid, convex
+hull, intersection (clipping), within (point in polygon), distance, envelope
+(bounding box), simplify, transform, convert, and more. The library is also
+designed to support high precision arithmetic numbers, such as GMP.
 
 Boost.Geometry contains instantiable geometry classes, but library users can also use their own. Using registration macros or traits classes their geometries can be adapted to fulfil the Boost.Geometry Concepts.
 

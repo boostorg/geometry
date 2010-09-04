@@ -25,13 +25,54 @@ MULTILINE_CPP_IS_BRIEF = NO
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
+
+# The aliases are shortcuts for Doxygen documentation. 
+# Within Boost.Geometry they are used in the top section, so for both
+# Doxygen documentation and QuickBook documentation.
+# They avoid repetations and make the documentation more structured.
+# There are also qbk expressions, which might qbk defines and templates.
+
+# There are sections for
+# \brief* for various brief descriptions
+# \tparam* for various template parameters
+# \param* for various parameters
+# \return* for various return cases
 ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
-			qbk{3}="\xmlonly <qbk.\1>\2, \3</qbk.\1> \endxmlonly" \
-			geometry_concept="Any type fulfilling a Geometry concept" \
-			point_concept="Any type fulfilling a Point concept" \
-			geometry_model="A model of the specified concept" \
-			template_numerical="Numerical type (int, double, ttmath, ...)" \
-			strategy_reasons="Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation (e.g. distance over the Earth)"
+			brief_calc{1}="Calculates the \1 of a geometry" \
+			brief_calc2{1}="Calculate the \1 of two geometries" \
+			brief_calc2{2}="Calculate the \1 \2 two geometries" \
+			brief_check{1}="Checks if a geometry \1" \
+			brief_check2{1}="Checks if two geometries \1" \
+			brief_check12{1}="Checks if the first geometry \1 the second geometry" \
+			brief_strategy="using the specified strategy" \
+			tparam_geometry="Any type fulfilling a Geometry Concept" \
+			tparam_geometry{1}="A type fulfilling a \1 Concept" \
+			tparam_point="Any type fulfilling a Point Concept" \
+			tparam_box="Any type fulfilling a Box Concept" \
+			tparam_strategy{1}="Any type fulfilling a \1 Strategy Concept" \
+			tparam_numeric="Numerical type (int, double, ttmath, ...)" \
+			tparam_out{1}="A valid output iterator type, accepting geometries of \1 Concept" \
+			param_geometry="A model of the specified concept" \
+			param_box="A model of the specified Box Concept" \
+			param_point="A model of the specified Point Concept" \
+			param_strategy{1}="The strategy which will be used for \1 calculations" \
+			param_set{1}="which is set to the \1" \
+			param_out{1}="The output iterator, to which \1 geometries are feeded" \
+			details_calc{2}="The free function \1 calculates the \2 of a geometry" \
+			details_calc{1}="The free function \1 calculates the \1 of a geometry" \
+			details_calc2{2}="The free function \1 calculates the \2 of two geometries" \
+			details_calc2{1}="The free function \1 calculates the \1 of two geometries" \
+			details_default_strategy="It uses the default strategy, based on the coordinate system of the geometry." \
+			details_strategy_reasons="Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation (e.g. distance over the Earth)" \
+			details_make{1}="This version with the make_ prefix returns the \1, and a template parameter must therefore be specified in the call." \
+			details_inserter{1}="This version with the _inserter suffix outputs the \1 to an output iterator, and a template parameter must therefore be specified in the call." \
+			return_calc{1}="The calculated \1" \
+			return_check{1}="Returns true if the geometry \1" \
+			return_check2{1}="Returns true if two geometries \1" \
+			return_out="The output iterator" \
+			det_envelope="envelope (also known as axis aligned bounding box, aabb, or minimum bounding rectangle, mbr)" \
+			det_buffer="buffer (a polygon being the spatial point set collection within a specified maximum distance from a geometry)" \
+			p_l_or_c="Point, LineString or Polygon"
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
 OPTIMIZE_FOR_FORTRAN   = NO
