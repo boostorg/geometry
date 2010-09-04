@@ -130,9 +130,9 @@ WARN_LOGFILE           =
 INPUT                  = . .. ../../../boost/geometry/core \
 			../../../boost/geometry/algorithms \
 			../../../boost/geometry/algorithms/detail \
-			../../../boost/geometry/algorithms/detail\overlay \
-			../../../boost/geometry/algorithms/detail\equals \
-			../../../boost/geometry/algorithms/detail\sections \
+			../../../boost/geometry/algorithms/detail/overlay \
+			../../../boost/geometry/algorithms/detail/equals \
+			../../../boost/geometry/algorithms/detail/sections \
 			../../../boost/geometry/arithmetic \
 			../../../boost/geometry/geometries/concepts \
 			../../../boost/geometry/geometries/concepts/detail \
