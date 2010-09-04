@@ -27,7 +27,7 @@ void test_all()
     typedef boost::geometry::linestring<P> linestring;
     typedef boost::geometry::polygon<P> polygon;
     typedef boost::geometry::box<P> box;
-    typedef test::custom_segment_of<P> segment;
+    typedef boost::geometry::model::segment<P> segment;
 
     std::string clip = "box(2 2,8 8)";
 
@@ -183,6 +183,15 @@ void test_all()
     test_one<polygon, polygon, polygon>("intersect_exterior_and_interiors_winded",
         intersect_exterior_and_interiors_winded[0], intersect_exterior_and_interiors_winded[1],
         1, 14, 25.2166667);
+
+    // linear
+    test_one<P, linestring, linestring>("llp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
+    test_one<P, segment, segment>("ssp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
+    test_one<P, linestring, linestring>("llp2", "LINESTRING(0 0,1 1)", "LINESTRING(0 0,2 2)", 2, 2, 0);
+
+    // polygons outputing points
+    //test_one<P, polygon, polygon>("ppp1", simplex_normal[0], simplex_normal[1], 1, 7, 5.47363293);
+
 
     return;
 
