@@ -20,11 +20,90 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/ranges/segment_range.hpp>
 
 
 namespace boost { namespace geometry
 {
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace intersection
+{
+
+template
+<
+    typename Segment1, typename Segment2,
+    typename OutputIterator, typename PointOut,
+    typename Strategy
+>
+struct intersection_segment_segment_point
+{
+    static inline OutputIterator apply(Segment1 const& segment1,
+            Segment2 const& segment2, OutputIterator out,
+            Strategy const& strategy)
+    {
+        typedef typename point_type<PointOut>::type point_type;
+
+        // Get the intersection point (or two points)
+        segment_intersection_points<point_type> is
+            = strategy::intersection::relate_cartesian_segments
+            <
+                policies::relate::segments_intersection_points
+                    <
+                        Segment1,
+                        Segment2,
+                        segment_intersection_points<point_type>
+                    >
+            >::apply(segment1, segment2);
+
+        for (std::size_t i = 0; i < is.count; i++)
+        {
+            PointOut p;
+            geometry::copy_coordinates(is.intersections[i], p);
+            *out++ = p;
+        }
+        return out;
+    }
+};
+
+template
+<
+    typename Linestring1, typename Linestring2,
+    typename OutputIterator, typename PointOut,
+    typename Strategy
+>
+struct intersection_linestring_linestring_point
+{
+    static inline OutputIterator apply(Linestring1 const& linestring1,
+            Linestring2 const& linestring2, OutputIterator out,
+            Strategy const& strategy)
+    {
+        typedef typename point_type<PointOut>::type point_type;
+
+        typedef detail::overlay::turn_info<point_type> turn_info;
+        std::deque<turn_info> turns;
+
+        geometry::get_intersection_points(linestring1, linestring2, turns);
+
+        for (typename boost::range_iterator<std::deque<turn_info> const>::type
+            it = boost::begin(turns); it != boost::end(turns); ++it)
+        {
+            PointOut p;
+            geometry::copy_coordinates(it->point, p);
+            *out++ = p;
+        }
+        return out;
+    }
+};
+
+
+
+}} // namespace detail::disjoint
+#endif // DOXYGEN_NO_DETAIL
+
+
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
@@ -56,36 +135,34 @@ struct intersection_inserter
         Segment1, Segment2,
         OutputIterator, GeometryOut,
         Strategy
-    >
-{
-    static inline OutputIterator apply(Segment1 const& segment1,
-            Segment2 const& segment2, OutputIterator out,
-            Strategy const& strategy)
-    {
-        typedef typename point_type<GeometryOut>::type point_type;
-
-        // Get the intersection point (or two points)
-        segment_intersection_points<point_type> is
-            = strategy::intersection::relate_cartesian_segments
+    > : detail::intersection::intersection_segment_segment_point
             <
-                policies::relate::segments_intersection_points
-                    <
-                        Segment1,
-                        Segment2,
-                        segment_intersection_points<point_type>
-                    >
-            >::apply(segment1, segment2);
+                Segment1, Segment2,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
 
-        for (std::size_t i = 0; i < is.count; i++)
-        {
-            GeometryOut p;
-            geometry::copy_coordinates(is.intersections[i], p);
-            *out = p;
-            out++;
-        }
-        return out;
-    }
-};
+
+template
+<
+    typename Linestring1, typename Linestring2,
+    typename OutputIterator, typename GeometryOut,
+    typename Strategy
+>
+struct intersection_inserter
+    <
+        linestring_tag, linestring_tag, point_tag,
+        Linestring1, Linestring2,
+        OutputIterator, GeometryOut,
+        Strategy
+    > : detail::intersection::intersection_linestring_linestring_point
+            <
+                Linestring1, Linestring2,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
 
 
 template
@@ -169,21 +246,24 @@ struct intersection_inserter_reversed
 #endif // DOXYGEN_NO_DISPATCH
 
 /*!
-    \brief Intersects two geometries
-    \ingroup intersection
-    \details The two input geometries are intersected and the resulting
-        linestring(s), ring(s) or polygon(s) are sent
-        to the specified output operator.
-    \tparam GeometryOut output geometry type, must be specified
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam OutputIterator output iterator
-    \tparam Strategy compound strategy for intersection
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param out the output iterator, outputting linestrings or polygons
-    \param strategy the strategy
-    \return the output iterator
+\brief \brief_calc2{intersection} \brief_strategy
+\ingroup intersection
+\details \details_calc2{intersection_inserter, spatial set theoretic intersection}
+    \brief_strategy. \details_inserter{intersection}
+\tparam GeometryOut \tparam_geometry{\p_l_or_c}
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam OutputIterator \tparam_out{\p_l_or_c}
+\tparam Strategy Compound strategy for intersection
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param out \param_out{intersection}
+\param strategy The strategy
+\return \return_out
+
+\qbk{behavior,[qbk_out __point__]:Calculates intersection points of input geometries}
+\qbk{behavior,[qbk_out __linestring__]:Calculates intersection linestrings of input geometries (NYI)}
+\qbk{behavior,[qbk_out __polygon__]:Calculates intersection polygons input (multi)polygons and/or boxes}
 */
 template
 <
@@ -229,19 +309,19 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 
 
 /*!
-    \brief Intersects two geometries
-    \ingroup intersection
-    \details The two input geometries are intersected and the resulting
-        linestring(s), ring(s) or polygon(s) are sent
-        to the specified output operator.
-    \tparam GeometryOut output geometry type, must be specified
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam OutputIterator output iterator
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param out the output iterator, outputting linestrings or polygons
-    \return the output iterator
+\brief \brief_calc2{intersection}
+\ingroup intersection
+\details \details_calc2{intersection_inserter, spatial set theoretic intersection}. \details_inserter{intersection}
+\tparam GeometryOut \tparam_geometry{\p_l_or_c}
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam OutputIterator \tparam_out{\p_l_or_c}
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param out \param_out{intersection}
+\return \return_out
+
+\qbk{snippet,intersection_segment_inserter}
 */
 template
 <
@@ -271,18 +351,18 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 
 
 /*!
-    \brief Intersects two geometries
-    \ingroup intersection
-    \details The two input geometries are intersected and the resulting
-        linestring(s), ring(s) or polygon(s) are added
-        to the specified collection.
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam Collection collection of rings, polygons (e.g. a vector<polygon> or a multi_polygon)
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param output_collection the collection
-    \return true if successful
+\brief \brief_calc2{intersection}
+\ingroup intersection
+\details \details_calc2{intersection, spatial set theoretic intersection}.
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Collection Collection of geometries (e.g. std::vector, std::deque, boost::geometry::multi*) of which
+    the value_type (below referred to as 'GeometryOut') fulfills a \p_l_or_c concept.
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param output_collection The collection being filled or extended by the algorithm
+
+\qbk{snippet,intersection_linestring}
 */
 template
 <

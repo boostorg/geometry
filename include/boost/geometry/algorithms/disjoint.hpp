@@ -170,6 +170,11 @@ struct disjoint<segment_tag, segment_tag, Linestring1, Linestring2, false, false
     : detail::disjoint::disjoint_segment<Linestring1, Linestring2>
 {};
 
+template <typename Linestring, typename Segment>
+struct disjoint<linestring_tag, segment_tag, Linestring, Segment, false, false, 2>
+    : detail::disjoint::disjoint_linear<Linestring, Segment>
+{};
+
 
 template
 <

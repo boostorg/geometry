@@ -85,8 +85,7 @@ template
     typename Geometry1, typename Geometry2,
     typename Section1, typename Section2,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 class get_turns_in_sections
@@ -204,12 +203,7 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    detail::overlay::get_turn_info
-                        <
-                            point1_type, point2_type,
-                            turn_info,
-                            AssignPolicy
-                        >::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
+                    TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
                             ti, std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
@@ -302,8 +296,7 @@ template
     typename Geometry1,
     typename Geometry2,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 class get_turns_generic
@@ -370,8 +363,8 @@ class get_turns_generic
                                     typename boost::range_value<Sections1>::type,
                                     typename boost::range_value<Sections2>::type,
                                     Turns,
-                                    IntersectionStrategy,
-                                    AssignPolicy, InterruptPolicy
+                                    TurnPolicy,
+                                    InterruptPolicy
                                 >::apply(
                                         source_id1, geometry1, *it1,
                                         source_id2, geometry2, *it2,
@@ -500,8 +493,7 @@ template
     typename Range,
     typename Box,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct get_turns_cs
@@ -580,13 +572,6 @@ struct get_turns_cs
             if (true)
             {
                 typedef typename boost::range_value<Turns>::type turn_info;
-                typedef detail::overlay::get_turn_info
-                    <
-                        box_point_type,
-                        point_type,
-                        turn_info,
-                        AssignPolicy
-                    > relater;
 
                 // Depending on code some relations can be left out
                 turn_info ti;
@@ -595,25 +580,25 @@ struct get_turns_cs
 
                 ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
                 ti.operations[0].other_id = ti.operations[1].seg_id;
-                relater::apply(*prev, *it, *next,
+                TurnPolicy::apply(*prev, *it, *next,
                         lower_left, upper_left, upper_right,
                         ti, std::back_inserter(turns));
 
                 ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
                 ti.operations[0].other_id = ti.operations[1].seg_id;
-                relater::apply(*prev, *it, *next,
+                TurnPolicy::apply(*prev, *it, *next,
                         upper_left, upper_right, lower_right,
                         ti, std::back_inserter(turns));
 
                 ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
                 ti.operations[0].other_id = ti.operations[1].seg_id;
-                relater::apply(*prev, *it, *next,
+                TurnPolicy::apply(*prev, *it, *next,
                         upper_right, lower_right, lower_left,
                         ti, std::back_inserter(turns));
 
                 ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
                 ti.operations[0].other_id = ti.operations[1].seg_id;
-                relater::apply(*prev, *it, *next,
+                TurnPolicy::apply(*prev, *it, *next,
                         lower_right, lower_left, upper_left,
                         ti, std::back_inserter(turns));
 
@@ -664,8 +649,7 @@ template
     bool IsMulti1, bool IsMulti2,
     typename Geometry1, typename Geometry2,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct get_turns
@@ -674,8 +658,8 @@ struct get_turns
             Geometry1,
             Geometry2,
             Turns,
-            IntersectionStrategy,
-            AssignPolicy, InterruptPolicy
+            TurnPolicy,
+            InterruptPolicy
         >
 {};
 
@@ -685,8 +669,7 @@ template
     typename Polygon,
     typename Box,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct get_turns
@@ -694,8 +677,7 @@ struct get_turns
         polygon_tag, box_tag, false, false,
         Polygon, Box,
         Turns,
-        IntersectionStrategy,
-        AssignPolicy,
+        TurnPolicy,
         InterruptPolicy
     >
 {
@@ -718,8 +700,8 @@ struct get_turns
                 ring_type,
                 Box,
                 Turns,
-                IntersectionStrategy,
-                AssignPolicy, InterruptPolicy
+                TurnPolicy,
+                InterruptPolicy
             > intersector_type;
 
         intersector_type::apply(
@@ -746,8 +728,7 @@ template
     typename Ring,
     typename Box,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy,
+    typename TurnPolicy,
     typename InterruptPolicy
 >
 struct get_turns
@@ -755,8 +736,8 @@ struct get_turns
         ring_tag, box_tag, false, false,
         Ring, Box,
         Turns,
-        IntersectionStrategy,
-        AssignPolicy, InterruptPolicy
+        TurnPolicy,
+        InterruptPolicy
     >
 {
     static inline void apply(
@@ -774,8 +755,8 @@ struct get_turns
                 Ring,
                 Box,
                 Turns,
-                IntersectionStrategy,
-                AssignPolicy, InterruptPolicy
+                TurnPolicy,
+                InterruptPolicy
             > intersector_type;
 
         intersector_type::apply(
@@ -793,8 +774,8 @@ template
     bool IsMulti1, bool IsMulti2,
     typename Geometry1, typename Geometry2,
     typename Turns,
-    typename IntersectionStrategy,
-    typename AssignPolicy, typename InterruptPolicy
+    typename TurnPolicy,
+    typename InterruptPolicy
 >
 struct get_turns_reversed
 {
@@ -808,8 +789,8 @@ struct get_turns_reversed
                 GeometryTag2, GeometryTag1,
                 IsMulti2, IsMulti1,
                 Geometry2, Geometry1,
-                Turns, IntersectionStrategy,
-                AssignPolicy, InterruptPolicy
+                Turns, TurnPolicy,
+                InterruptPolicy
             >::apply(source_id2, g2, source_id1, g1, turns, interrupt_policy);
     }
 };
@@ -821,16 +802,16 @@ struct get_turns_reversed
 
 
 /*!
-    \brief Calculate intersection points of two geometries
-    \ingroup overlay
-    \tparam Geometry1 first geometry type
-    \tparam Geometry2 second geometry type
-    \tparam Turns type of turn-container (e.g. vector of "intersection/turn point"'s)
-    \param geometry1 first geometry
-    \param geometry2 second geometry
-    \param turns container which will contain intersection points
-    \param interrupt_policy policy determining if process is stopped
-        when intersection is found
+\brief \brief_calc2{turn points}
+\ingroup overlay
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Turns type of turn-container (e.g. vector of "intersection/turn point"'s)
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param turns container which will contain turn points
+\param interrupt_policy policy determining if process is stopped
+    when intersection is found
  */
 template
 <
@@ -855,6 +836,14 @@ inline void get_turns(Geometry1 const& geometry1,
             typename boost::range_value<Turns>::type
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
+    typedef detail::overlay::get_turn_info
+        <
+            typename point_type<Geometry1>::type,
+            typename point_type<Geometry2>::type,
+            typename boost::range_value<Turns>::type,
+            AssignPolicy
+        > TurnPolicy;
+
     boost::mpl::if_c
         <
             reverse_dispatch<Geometry1, Geometry2>::type::value,
@@ -866,9 +855,8 @@ inline void get_turns(Geometry1 const& geometry1,
                 is_multi<Geometry2>::type::value,
                 Geometry1,
                 Geometry2,
-                Turns,
-                segment_intersection_strategy_type,
-                AssignPolicy, InterruptPolicy
+                Turns, TurnPolicy,
+                InterruptPolicy
             >,
             dispatch::get_turns
             <
@@ -878,9 +866,8 @@ inline void get_turns(Geometry1 const& geometry1,
                 is_multi<Geometry2>::type::value,
                 Geometry1,
                 Geometry2,
-                Turns,
-                segment_intersection_strategy_type,
-                AssignPolicy, InterruptPolicy
+                Turns, TurnPolicy,
+                InterruptPolicy
             >
         >::type::apply(
             0, geometry1,
