@@ -23,13 +23,9 @@
 
 // Aug 14/15: added classes, defines, various enhancements.
 
-
-#define _CRT_SECURE_NO_WARNINGS
-#define _SCL_SECURE_NO_WARNINGS
-#define _SCL_INSECURE_DEPRECATE
-
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <map>
 
@@ -129,16 +125,25 @@ struct element
 
     std::vector<param> template_parameters;
     std::vector<param> parameters;
+
+    element()
+        : line(0)
+    {}
 };
 
-enum function_type { function_define, function_constructor, function_member, function_free };
+enum function_type { function_unknown, function_define, function_constructor, function_member, function_free };
 
 struct function : public element
 {
     function_type type;
     std::string definition, argsstring;
     std::string return_type, return_description;
-    //std::string paragraphs; 
+    bool unique;
+
+    function()
+        : unique(true)
+        , type(function_unknown)
+    {}
 
 };
 
@@ -277,11 +282,11 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
             // Doxygen handles templateparamlist param's differently:
             //
             // Case 1:
-            // <param><type>typename Geometry</type></param>
+            // <param><type>typename T</type></param>
             // -> no name, assign type to name, replace typename
             //
             // Case 2:
-            // <type>typename</type><declname>CoordinateType</declname><defname>CoordinateType</defname>
+            // <type>typename</type><declname>T</declname><defname>T</defname>
             // -> set full type
             if (p.name.empty())
             {
@@ -318,6 +323,7 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
         else if (full == ".location")
         {
             std::string loc = get_attribute(node, "file");
+            // Boost.Geometry specific, to make generic: make this path-start configurable
             std::size_t pos = loc.rfind("/boost/geometry/");
             if (pos != std::string::npos)
             {
@@ -377,6 +383,7 @@ static void parse_function(rapidxml::xml_node<>* node, std::string const& parent
         else if (full == ".definition") 
         {
             f.definition = node->value();
+            // Boost.Geometry specific, to make generic: make this namespace-to-be-skipped configurable
             boost::replace_all(f.definition, "boost::geometry::", "");
         }
         else if (full == ".param")
@@ -438,7 +445,7 @@ static void parse(rapidxml::xml_node<>* node, documentation& doc, bool member = 
             }
             if (kind == "define" )
             {
-                // Get define or Boost.Geometry registration macro
+                // Get define or registration macro
                 recurse = true;
             }
             else if (kind == "public-static-func" || kind == "public-func")
@@ -633,30 +640,49 @@ void quickbook_heading_string(std::string const& heading,
 }
 
 
-void quickbook_output(function const& f, bool use_arity, std::ostream& out)
+void quickbook_output(function const& f, std::ostream& out)
 {
     // Write the parsed function
     int arity = (int)f.parameters.size();
-    bool has_strategy = false;
-    BOOST_FOREACH(param const& p, f.parameters)
+
+    std::string additional_description;
+
+    if (! f.unique)
     {
-        if (p.type == "Strategy")
+        BOOST_FOREACH(param const& p, f.parameters)
         {
-            has_strategy = true;
+            // Boost.Geometry specific, if there is a Strategy parameter,
+            // rename the description to " with Strategy"
+            // TODO: get this from somewhere
+            if (boost::contains(p.type, "Strategy"))
+            {
+                additional_description = " (with strategy)";
+            }
+        }
+    }
+    if (! f.unique && additional_description.empty())
+    {
+        // http://en.wikipedia.org/wiki/Arity
+        static std::string const descriptions[] = {"nullary", "unary", "binary", "ternary"
+            , "quaternary", "quinary", "senary", "septenary", "octary", "nonary"};
+        static int const n = sizeof(descriptions) / sizeof(descriptions[0]);
+        if (arity < n)
+        {
+            std::ostringstream out;
+            out << " (" << descriptions[arity] << ")";
+            additional_description = out.str();
+
         }
     }
 
     out << "[section:" << f.name;
-    if (use_arity)
+    if (! f.unique)
     {
         out << "_" << arity;
     }
-    out << " " << f.name;
-    if (has_strategy)
-    {
-        out << " (with strategy)";
-    }
-    out << "]" << std::endl
+    out << " " << f.name
+        << additional_description
+        << "]" << std::endl
         << std::endl;
 
     out << f.brief_description << std::endl;
@@ -867,16 +893,15 @@ inline bool equal_ignore_fix(std::string const& a, std::string const& b, std::st
 
 int main(int argc, char** argv)
 {
-    std::string filename = 
-        argc > 1 
-            ? argv[1] 
-            //: "../../../libs/geometry/doc/doxygen_output/xml/structboost_1_1geometry_1_1strategy_1_1distance_1_1pythagoras.xml";
-            //: "../../../libs/geometry/doc/doxygen_output/xml/classboost_1_1geometry_1_1point.xml";
-            //: "../../../libs/geometry/doc/doxygen_output/xml/group__simplify.xml";
-            //: "../../../libs/geometry/doc/doxygen_output/xml/group__centroid.xml";
-            //: "../../../libs/geometry/doc/doxygen_output/xml/group__register.xml"; 
-            : "../../../libs/geometry/doc/doxygen_output/xml/group__intersection.xml";
+    if (argc < 2)
+    {
+        std::cerr 
+            << "Usage: doxygen_xml2qbk [XML-filename]" << std::endl
+            << "   where the XML refers to an XML written by Doxygen" << std::endl;
+        return 1;
+    }
 
+    std::string filename = argv[1];
     std::string xml_string = file_to_string(filename);
 
     xml_doc xml(xml_string.c_str());
@@ -884,16 +909,18 @@ int main(int argc, char** argv)
     documentation doc;
     parse(xml.first_node(), doc);
 
-    // Boost.Geometry specific
-    // Copy behaviors if empty and function has same name
-    BOOST_FOREACH(function& f1, doc.functions)
+    for (std::size_t i = 0; i < doc.functions.size(); i++)
     {
-        BOOST_FOREACH(function const& f2, doc.functions)
+        function& f1 = doc.functions[i];
+        for (std::size_t j = i + 1; j < doc.functions.size(); j++)
         {
+            function& f2 = doc.functions[j];
             if (f1.name == f2.name
                 || equal_ignore_fix(f1.name, f2.name, "make_")
                 || equal_ignore_fix(f1.name, f2.name, "_inserter"))
             {
+                // Boost.Geometry specific
+                // Copy behaviors if empty and function has same name
                 if (f1.behaviors.empty() && !f2.behaviors.empty())
                 {
                     f1.behaviors = f2.behaviors;
@@ -902,6 +929,14 @@ int main(int argc, char** argv)
                 {
                     f1.complexity = f2.complexity;
                 }
+            }
+
+            if (f1.name == f2.name)
+            {
+                // It is not a unique function, so e.g. an overload,
+                // so a description must distinguish them.
+                f1.unique = false;
+                f2.unique = false;
             }
         }
     }
@@ -912,11 +947,11 @@ int main(int argc, char** argv)
 
     BOOST_FOREACH(function const& f, doc.functions)
     {
-        quickbook_output(f, doc.functions.size() > 1, std::cout);        
+        quickbook_output(f, std::cout);        
     }
     BOOST_FOREACH(function const& f, doc.defines)
     {
-        quickbook_output(f, true, std::cout);        
+        quickbook_output(f, std::cout);        
     }
 
     if (! doc.cos.name.empty())
