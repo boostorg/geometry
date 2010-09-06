@@ -67,7 +67,7 @@ length_result<Geometry>::type perimeter (Geometry const &geometry, Strategy cons
 
 
 [heading Returns]
-The calculated perimeter 
+The calculated perimeter
 
 [heading Header]
 Either
@@ -77,18 +77,6 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/perimeter.hpp>`
-
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__0dim__][Returns zero]]
-[[__1dim__][Returns zero]]
-[[__2dim__][Returns the perimeter]]
-]
-
-
-[heading Complexity]
-Linear
 
 
 [endsect]

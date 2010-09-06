@@ -98,6 +98,19 @@ void test_all()
     // Test if within(a,b) returns false for disjoint
     test_disjoint<ring, ring>("within_simplex_rr1", within_simplex[0], within_simplex[1], false);
     test_disjoint<ring, ring>("within_simplex_rr2", within_simplex[1], within_simplex[0], false);
+
+    // Linear
+    typedef boost::geometry::linestring<P> ls;
+    typedef boost::geometry::model::segment<P> segment;
+    test_disjoint<ls, ls>("ls/ls 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
+    test_disjoint<ls, ls>("ls/ls 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
+    test_disjoint<segment, segment>("s/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
+    test_disjoint<segment, segment>("s/s 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
+    // TODO test_disjoint<segment, ls>("s/ls 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
+    // TODO test_disjoint<segment, ls>("s/ls 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
+    // TODO test_disjoint<ls, segment>("ls/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
+    // TODO test_disjoint<ls, segment>("ls/s 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
+
 }
 
 int test_main(int, char* [])

@@ -50,9 +50,6 @@ Linear
 
 Calculates the length of a geometry using the specified strategy. 
 
-[heading Description]
-The version with a specified strategy uses that strategy to calculate distances between consecutive points, summing them to the length of the geometry. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation (e.g. distance over the Earth) 
-
 [heading Synopsis]
 ``template<typename Geometry, typename Strategy>
 length_result<Geometry>::type length (Geometry const &geometry, Strategy const &strategy)``
@@ -77,18 +74,6 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/length.hpp>`
-
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__0dim__][[qbk_ret 0]]]
-[[__1dim__][[qbk_ret the length]]]
-[[__2dim__][[qbk_ret 0]]]
-]
-
-
-[heading Complexity]
-Linear
 
 
 [endsect]

@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// doxygen_xml2qbk (developed in the context of Boost.Geometry documentation)
 //
 // Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,7 +14,7 @@
 // - basically generic, but implemented with Boost.Geometry in mind
 // - makes use of some specific XML elements, which can be created by Doxygen
 //       using /xmlonly
-//     currently this is the element <qbk.snippet> which will make a reference
+//     currently this is the element <qbk.example> which will make a reference
 //     to an example.
 // - earlier generations of QBK was done by XSLT, I'm not so into the XSLT and
 //   think this is more flexible. The XSLT only did point-structure, not yet
@@ -117,11 +117,15 @@ struct element
     std::string brief_description, detailed_description;
     std::string location;
     int line; // To sort - Doxygen changes order - we change it back
-    std::vector<std::string> snippets;
+    std::vector<std::string> examples;
     std::vector<std::string> behaviors;
     std::vector<std::string> admonitions;
     std::vector<std::string> images;
     std::string complexity;
+
+    // To distinguish overloads: unary, binary etc, 
+    // Filled with: \qbk{distinguish,<A discerning description>}
+    std::string additional_description; 
 
     std::vector<param> template_parameters;
     std::vector<param> parameters;
@@ -138,6 +142,7 @@ struct function : public element
     function_type type;
     std::string definition, argsstring;
     std::string return_type, return_description;
+
     bool unique;
 
     function()
@@ -332,9 +337,9 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
             el.location = loc;
             el.line = atol(get_attribute(node, "line").c_str());
         }
-        else if (full == ".detaileddescription.para.qbk.snippet")
+        else if (full == ".detaileddescription.para.qbk.example")
         {
-            el.snippets.push_back(boost::trim_copy(std::string(node->value())));
+            el.examples.push_back(boost::trim_copy(std::string(node->value())));
         }
         else if (full == ".detaileddescription.para.qbk.admonition")
         {
@@ -348,6 +353,11 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
         {
             el.complexity = node->value();
             boost::trim(el.complexity);
+        }
+        else if (full == ".detaileddescription.para.qbk.distinguish")
+        {
+            el.additional_description = node->value();
+            boost::trim(el.additional_description);
         }
         else if (full == ".templateparamlist") 
         {
@@ -591,14 +601,14 @@ void quickbook_header(std::string const& location, std::ostream& out)
     }
 }
 
-void quickbook_snippets(std::vector<std::string> const& snippets, std::ostream& out)
+void quickbook_snippets(std::vector<std::string> const& examples, std::ostream& out)
 {
-    if (! snippets.empty())
+    if (! examples.empty())
     {
-        out << "[heading Snippets]" << std::endl;
-        BOOST_FOREACH(std::string const& snippet, snippets)
+        out << "[heading Examples]" << std::endl;
+        BOOST_FOREACH(std::string const& example, examples)
         {
-            out << "[" << snippet << "]" << std::endl;
+            out << "[" << example << "]" << std::endl;
         }
         out << std::endl;
     }
@@ -646,33 +656,12 @@ void quickbook_output(function const& f, std::ostream& out)
     int arity = (int)f.parameters.size();
 
     std::string additional_description;
-
-    if (! f.unique)
+    
+    if (! f.additional_description.empty())
     {
-        BOOST_FOREACH(param const& p, f.parameters)
-        {
-            // Boost.Geometry specific, if there is a Strategy parameter,
-            // rename the description to " with Strategy"
-            // TODO: get this from somewhere
-            if (boost::contains(p.type, "Strategy"))
-            {
-                additional_description = " (with strategy)";
-            }
-        }
-    }
-    if (! f.unique && additional_description.empty())
-    {
-        // http://en.wikipedia.org/wiki/Arity
-        static std::string const descriptions[] = {"nullary", "unary", "binary", "ternary"
-            , "quaternary", "quinary", "senary", "septenary", "octary", "nonary"};
-        static int const n = sizeof(descriptions) / sizeof(descriptions[0]);
-        if (arity < n)
-        {
-            std::ostringstream out;
-            out << " (" << descriptions[arity] << ")";
-            additional_description = out.str();
-
-        }
+        additional_description = " (";
+        additional_description += f.additional_description;
+        additional_description += ")";
     }
 
     out << "[section:" << f.name;
@@ -749,7 +738,7 @@ void quickbook_output(function const& f, std::ostream& out)
         out << admonition << std::endl;
     }
 
-    quickbook_snippets(f.snippets, out);
+    quickbook_snippets(f.examples, out);
 
     if (! f.images.empty())
     {
@@ -783,12 +772,12 @@ void quickbook_short_output(function const& f, std::ostream& out)
     }
 
 
-    if (! f.snippets.empty())
+    if (! f.examples.empty())
     {
-        out << std::endl << std::endl << "[*Snippets]" << std::endl;
-        BOOST_FOREACH(std::string const& snippet, f.snippets)
+        out << std::endl << std::endl << "[*Examples]" << std::endl;
+        BOOST_FOREACH(std::string const& example, f.examples)
         {
-            out << "[" << snippet << "]" << std::endl;
+            out << "[" << example << "]" << std::endl;
         }
     }
     out << std::endl;
@@ -878,7 +867,7 @@ void quickbook_output(class_or_struct const& cos, std::ostream& out)
     }
 
     quickbook_header(cos.location, out);
-    quickbook_snippets(cos.snippets, out);
+    quickbook_snippets(cos.examples, out);
 
     out << "[endsect]" << std::endl
         << std::endl;

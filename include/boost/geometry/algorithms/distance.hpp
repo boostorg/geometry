@@ -480,6 +480,8 @@ struct distance_reversed
 \note The strategy can be a point-point strategy. In case of distance point-line/point-polygon
     it may also be a point-segment strategy.
 
+\qbk{distinguish,with strategy}
+
 \par Example:
 Example showing distance calculation of two lat long points, using the accurate Vincenty approximation
 \dontinclude doxygen_1.cpp

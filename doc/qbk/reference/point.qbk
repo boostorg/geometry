@@ -77,7 +77,7 @@ Or
 
 `#include <boost/geometry/geometries/point.hpp>`
 
-[heading Snippets]
+[heading Examples]
 [point]
 
 [endsect]

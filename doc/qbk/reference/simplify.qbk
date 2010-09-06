@@ -28,9 +28,6 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[heading Complexity]
-Linear
-
 [heading Image(s)]
 [$svg_simplify_country.png]
 
@@ -63,9 +60,6 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[heading Complexity]
-Linear
-
 
 [endsect]
 
@@ -97,10 +91,7 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[heading Complexity]
-Linear
-
-[heading Snippets]
+[heading Examples]
 [simplify_inserter]
 
 
@@ -120,7 +111,7 @@ void simplify_inserter (Geometry const &geometry, OutputIterator out, Distance c
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [input geometry, to be simplified ]]
 [[OutputIterator] [] [out] [output iterator, outputs all simplified points ]]
-[[Distance const &] [] [max_distance] [distance (in units of input coordinates) of a vertex to other segments to be removed]]
+[[Distance const &] [] [max_distance] [distance (in units of input coordinates) of a vertex to other segments to be removed ]]
 ]
 
 
@@ -132,9 +123,6 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
-
-[heading Complexity]
-Linear
 
 
 [endsect]

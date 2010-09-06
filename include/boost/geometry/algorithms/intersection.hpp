@@ -261,6 +261,7 @@ struct intersection_inserter_reversed
 \param strategy The strategy
 \return \return_out
 
+\qbk{distinguish,with strategy}
 \qbk{behavior,[qbk_out __point__]:Calculates intersection points of input geometries}
 \qbk{behavior,[qbk_out __linestring__]:Calculates intersection linestrings of input geometries (NYI)}
 \qbk{behavior,[qbk_out __polygon__]:Calculates intersection polygons input (multi)polygons and/or boxes}
@@ -321,7 +322,7 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 \param out \param_out{intersection}
 \return \return_out
 
-\qbk{snippet,intersection_segment_inserter}
+\qbk{example,intersection_segment_inserter}
 */
 template
 <
@@ -362,7 +363,7 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 \param geometry2 \param_geometry
 \param output_collection The collection being filled or extended by the algorithm
 
-\qbk{snippet,intersection_linestring}
+\qbk{example,intersection_linestring}
 */
 template
 <

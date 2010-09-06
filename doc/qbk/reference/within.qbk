@@ -51,7 +51,7 @@ bool within (Geometry1 const &geometry1, Geometry2 const &geometry2, Strategy co
 
 
 [heading Returns]
-true if geometry1 is completely contained within geometry2, else false 
+true if geometry1 is completely contained within geometry2, else false
 
 [heading Header]
 Either
