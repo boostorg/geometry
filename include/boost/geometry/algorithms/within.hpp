@@ -366,6 +366,8 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
 \param strategy strategy to be used
 \return true if geometry1 is completely contained within geometry2,
     else false
+
+\qbk{distinguish,with strategy}
  */
 template<typename Geometry1, typename Geometry2, typename Strategy>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,

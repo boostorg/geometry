@@ -124,7 +124,8 @@ struct num_points<polygon_tag, false, Geometry>
 \return \return_calc{number of points}
 
 \qbk{behavior,__point__:[qbk_ret 1]}
-\qbk{behavior,__box__:[qbk_ret 1]}
+\qbk{behavior,__segment__:[qbk_ret 2]}
+\qbk{behavior,__box__:[qbk_ret 4]}
 \qbk{behavior,__range__:[qbk_ret boost::size(geometry)]}
 \qbk{behavior,__other__:[qbk_ret the sum of the number of points of its elements]}
 \qbk{complexity,Constant or Linear}

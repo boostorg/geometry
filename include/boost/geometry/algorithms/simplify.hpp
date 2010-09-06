@@ -248,7 +248,7 @@ struct simplify_inserter<ring_tag, Ring, Strategy>
     include point-distance strategy
 
 \image html svg_simplify_country.png "The image below presents the simplified country"
-\qbk{complexity,Linear}
+\qbk{distinguish,with strategy}
 */
 template<typename Geometry, typename Distance, typename Strategy>
 inline void simplify(Geometry const& geometry, Geometry& out,
@@ -290,8 +290,6 @@ Simplify can be used as following:
 \line {
 \until }
 
-
-\qbk{complexity,Linear}
  */
 template<typename Geometry, typename Distance>
 inline void simplify(Geometry const& geometry, Geometry& out,
@@ -332,8 +330,8 @@ simplify_inserter with strategy is used as following:
 \line {
 \until }
 
-\qbk{snippet,simplify_inserter}
-\qbk{complexity,Linear}
+\qbk{distinguish,with strategy}
+\qbk{example,simplify_inserter}
  */
 template<typename Geometry, typename OutputIterator, typename Distance, typename Strategy>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
@@ -359,7 +357,6 @@ inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
 \param max_distance distance (in units of input coordinates) of a vertex
     to other segments to be removed
 
-\qbk{complexity,Linear}
  */
 template<typename Geometry, typename OutputIterator, typename Distance>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,

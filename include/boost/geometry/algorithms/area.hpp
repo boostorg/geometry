@@ -204,8 +204,8 @@ struct area<polygon_tag, Polygon, Strategy>
 \param geometry \param_geometry
 \return \return_calc{area}
 
-\qbk{snippet,area_polygon}
-\qbk{snippet,area_polygon_spherical}
+\qbk{example,area_polygon}
+\qbk{example,area_polygon_spherical}
 \qbk{behavior,__0dim__:[qbk_ret 0]}
 \qbk{behavior,__1dim__:[qbk_ret 0]}
 \qbk{behavior,__2dim__:[qbk_ret the area]}
@@ -240,7 +240,8 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 \param strategy \param_strategy{area}
 \return \return_calc{area}
 
-\qbk{snippet,area_polygon_strategy}
+\qbk{distinguish,with strategy}
+\qbk{example,area_polygon_strategy}
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(

@@ -109,6 +109,8 @@ inline typename length_result<Geometry>::type perimeter(
 \param geometry \param_geometry
 \param strategy strategy to be used for distance calculations.
 \return \return_calc{perimeter}
+
+\qbk{distinguish,with strategy}
  */
 template<typename Geometry, typename Strategy>
 inline typename length_result<Geometry>::type perimeter(

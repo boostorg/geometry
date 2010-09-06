@@ -46,7 +46,7 @@ Or
 [heading Complexity]
 Linear
 
-[heading Snippets]
+[heading Examples]
 [area_polygon]
 [area_polygon_spherical]
 
@@ -85,22 +85,7 @@ Or
 
 `#include <boost/geometry/algorithms/area.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__0dim__][[qbk_ret 0]]]
-[[__1dim__][[qbk_ret 0]]]
-[[__2dim__][[qbk_ret the area]]]
-[[__cart__][[qbk_ret the area] __cs_units__]]
-[[__sph__][[qbk_ret the area] __sph1__]]
-[[__rev__][[qbk_ret the negative area]]]
-]
-
-
-[heading Complexity]
-Linear
-
-[heading Snippets]
+[heading Examples]
 [area_polygon_strategy]
 
 

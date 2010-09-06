@@ -21,14 +21,16 @@ namespace boost { namespace geometry
 {
 
 /*!
-\brief \brief_check{at least one intersection(crossing or self-tangency)}
+\brief \brief_check{has at least one intersection (crossing or self-tangency)}
 \note This function can be called for one geometry (self-intersection) and
     also for two geometries (intersection)
 \ingroup intersects
-\tparam Geometry geometry type
-\param geometry geometry
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
 \return \return_check{is self-intersecting}
- */
+
+\qbk{distinguish,one geometry}
+*/
 template <typename Geometry>
 inline bool intersects(Geometry const& geometry)
 {
@@ -51,7 +53,7 @@ inline bool intersects(Geometry const& geometry)
 
     typedef detail::overlay::get_turn_info
         <
-            typename point_type<Geometry>::type, 
+            typename point_type<Geometry>::type,
             typename point_type<Geometry>::type,
             turn_info,
             detail::overlay::assign_null_policy
@@ -77,6 +79,8 @@ inline bool intersects(Geometry const& geometry)
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \return \return_check2{intersect each other}
+
+\qbk{distinguish,two geometries}
  */
 template <typename Geometry1, typename Geometry2>
 inline bool intersects(Geometry1 const& geometry1, Geometry2 const& geometry2)

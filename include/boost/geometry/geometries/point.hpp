@@ -30,7 +30,7 @@ namespace boost { namespace geometry
 \tparam DimensionCount number of coordinates, usually 2 or 3
 \tparam CoordinateSystem coordinate system, for example cs::cartesian
 
-\qbk{snippet,point}
+\qbk{example,point}
 
 \details Defines a neutral point class, fulfilling the Point Concept.
     Library users can use this point class, or use their own point classes.

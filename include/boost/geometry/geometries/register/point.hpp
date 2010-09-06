@@ -59,7 +59,7 @@
 \param Field0 Member containing first (usually x) coordinate
 \param Field1 Member containing second (usually y) coordinate
 
-\qbk{snippet, boost_geometry_register_point_2d}
+\qbk{example, boost_geometry_register_point_2d}
 \qbk{admonition, [caution Use the macro outside any namespace]}
 \qbk{admonition, [note A point can include a namespace]}
 */

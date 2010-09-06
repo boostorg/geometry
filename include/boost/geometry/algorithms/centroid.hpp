@@ -362,6 +362,8 @@ struct centroid<polygon_tag, Polygon, Point, Strategy>
 \param geometry \param_geometry
 \param c \param_point \param_set{centroid}
 \param strategy \param_strategy{centroid}
+
+\qbk{distinguish,with strategy}
 */
 template<typename Geometry, typename Point, typename Strategy>
 inline void centroid(Geometry const& geometry, Point& c,
@@ -448,6 +450,8 @@ inline Point make_centroid(Geometry const& geometry)
 \param geometry \param_geometry
 \param strategy \param_strategy{centroid}
 \return \return_calc{centroid}
+
+\qbk{distinguish,with strategy}
  */
 template<typename Point, typename Geometry, typename Strategy>
 inline Point make_centroid(Geometry const& geometry, Strategy const& strategy)

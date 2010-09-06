@@ -184,6 +184,8 @@ inline typename length_result<Geometry>::type length(
 \param strategy \param_strategy{distance}
 \return \return_calc{length}
 
+\qbk{distinguish,with strategy}
+
 \par Example:
 Example showing length calculation using iterators
     and the Vincenty strategy

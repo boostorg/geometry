@@ -56,9 +56,9 @@
 [include reference/intersection.qbk]
 [endsect]
 
-[/section:intersects intersects]
-[/include reference/intersects.qbk]
-[/endsect]
+[section:intersects intersects]
+[include reference/intersects.qbk]
+[endsect]
 
 [section:length length]
 [include reference/length.qbk]
