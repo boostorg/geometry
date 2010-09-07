@@ -51,13 +51,14 @@
 
 
 /*!
-\brief Macro to register a custom 2D point
+\brief \brief_macro{2D point type}
 \ingroup register
-\param Point Point type to be registered
-\param CoordinateType Type of the coordinates of the point
-\param CoordinateSystem Coordinate system (e.g. cs::cartesian)
-\param Field0 Member containing first (usually x) coordinate
-\param Field1 Member containing second (usually y) coordinate
+\details \details_macro{BOOST_GEOMETRY_REGISTER_POINT_2D, two-dimensional point type}
+\param Point \param_macro_type{Point}
+\param CoordinateType \param_macro_coortype{point}
+\param CoordinateSystem \param_macro_coorsystem
+\param Field0 \param_macro_member{\macro_x}
+\param Field1 \param_macro_member{\macro_y}
 
 \qbk{example, boost_geometry_register_point_2d}
 \qbk{admonition, [caution Use the macro outside any namespace]}
@@ -71,8 +72,15 @@ namespace boost { namespace geometry { namespace traits {  \
 }}}
 
 /*!
-\brief Macro to register a custom 3D point
+\brief \brief_macro{3D point type}
 \ingroup register
+\details \details_macro{BOOST_GEOMETRY_REGISTER_POINT_3D, three-dimensional point type}
+\param Point \param_macro_type{Point}
+\param CoordinateType \param_macro_coortype{point}
+\param CoordinateSystem \param_macro_coorsystem
+\param Field0 \param_macro_member{\macro_x}
+\param Field1 \param_macro_member{\macro_y}
+\param Field2 \param_macro_member{\macro_z}
 */
 #define BOOST_GEOMETRY_REGISTER_POINT_3D(Point, CoordinateType, CoordinateSystem, Field0, Field1, Field2) \
 namespace boost { namespace geometry { namespace traits {  \
@@ -83,8 +91,14 @@ namespace boost { namespace geometry { namespace traits {  \
 }}}
 
 /*!
-\brief Macro to register a custom 2D point (CONST version)
+\brief \brief_macro{2D point type} \brief_macro_const
 \ingroup register
+\details \details_macro{BOOST_GEOMETRY_REGISTER_POINT_2D_CONST, two-dimensional point type}. \details_macro_const
+\param Point \param_macro_type{Point}
+\param CoordinateType \param_macro_coortype{point}
+\param CoordinateSystem \param_macro_coorsystem
+\param Field0 \param_macro_member{\macro_x}
+\param Field1 \param_macro_member{\macro_y}
 */
 #define BOOST_GEOMETRY_REGISTER_POINT_2D_CONST(Point, CoordinateType, CoordinateSystem, Field0, Field1) \
 namespace boost { namespace geometry { namespace traits {  \
@@ -94,8 +108,15 @@ namespace boost { namespace geometry { namespace traits {  \
 }}}
 
 /*!
-\brief Macro to register a custom 3D point (CONST version)
+\brief \brief_macro{3D point type} \brief_macro_const
 \ingroup register
+\details \details_macro{BOOST_GEOMETRY_REGISTER_POINT_3D_CONST, three-dimensional point type}. \details_macro_const
+\param Point \param_macro_type{Point}
+\param CoordinateType \param_macro_coortype{point}
+\param CoordinateSystem \param_macro_coorsystem
+\param Field0 \param_macro_member{\macro_x}
+\param Field1 \param_macro_member{\macro_y}
+\param Field2 \param_macro_member{\macro_z}
 */
 #define BOOST_GEOMETRY_REGISTER_POINT_3D_CONST(Point, CoordinateType, CoordinateSystem, Field0, Field1, Field2) \
 namespace boost { namespace geometry { namespace traits {  \
@@ -106,8 +127,16 @@ namespace boost { namespace geometry { namespace traits {  \
 }}}
 
 /*!
-\brief Macro to register a custom 2D point (having separate get/set methods)
+\brief \brief_macro{2D point type} \brief_macro_getset
 \ingroup register
+\details \details_macro{BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET, two-dimensional point type}. \details_macro_getset
+\param Point \param_macro_type{Point}
+\param CoordinateType \param_macro_coortype{point}
+\param CoordinateSystem \param_macro_coorsystem
+\param Get0 \param_macro_getset{get, \macro_x}
+\param Get1 \param_macro_getset{get, \macro_y}
+\param Set0 \param_macro_getset{set, \macro_x}
+\param Set1 \param_macro_getset{set, \macro_y}
 */
 #define BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(Point, CoordinateType, CoordinateSystem, Get0, Get1, Set0, Set1) \
 namespace boost { namespace geometry { namespace traits {  \
@@ -117,8 +146,18 @@ namespace boost { namespace geometry { namespace traits {  \
 }}}
 
 /*!
-\brief Macro to register a custom 3D point (having separate get/set methods)
+\brief \brief_macro{3D point type} \brief_macro_getset
 \ingroup register
+\details \details_macro{BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET, three-dimensional point type}. \details_macro_getset
+\param Point \param_macro_type{Point}
+\param CoordinateType \param_macro_coortype{point}
+\param CoordinateSystem \param_macro_coorsystem
+\param Get0 \param_macro_getset{get, \macro_x}
+\param Get1 \param_macro_getset{get, \macro_y}
+\param Get2 \param_macro_getset{get, \macro_z}
+\param Set0 \param_macro_getset{set, \macro_x}
+\param Set1 \param_macro_getset{set, \macro_y}
+\param Set2 \param_macro_getset{set, \macro_z}
 */
 #define BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET(Point, CoordinateType, CoordinateSystem, Get0, Get1, Get2, Set0, Set1, Set2) \
 namespace boost { namespace geometry { namespace traits {  \

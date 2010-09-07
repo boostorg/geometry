@@ -74,7 +74,7 @@ class point_xy
 [heading Header]
 Either
 
-`#include <boost/geometry/geometry.hpp>`
+`#include <boost/geometry/geometries/geometries.hpp>`
 
 Or
 

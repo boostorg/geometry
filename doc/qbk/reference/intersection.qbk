@@ -41,6 +41,7 @@ Or
 
 [heading Examples]
 [intersection_linestring]
+[intersection_segment]
 
 
 [endsect]

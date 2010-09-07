@@ -24,12 +24,6 @@ distance_result<Geometry1, Geometry2>::type comparable_distance (Geometry1 const
 The calculated comparable distance 
 
 [heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
 `#include <boost/geometry/algorithms/comparable_distance.hpp>`
 
 

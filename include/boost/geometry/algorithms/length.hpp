@@ -131,26 +131,17 @@ struct length<segment_tag, Geometry, Strategy>
 /*!
 \brief \brief_calc{length}
 \ingroup length
-\details The version without a strategy takes the default
-    distance-calculation-strategy to calculate distances between
-    consecutive points of a geometry, summing them to the length
-    of the geometry
+\details \details_calc{length, length (the sum of distances between consecutive points)}. \details_default_strategy
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \return \return_calc{length}
-
-\par Example:
-Example showing length calculation on a vector
-\dontinclude doxygen_1.cpp
-\skip example_length_linestring_iterators2
-\line {
-\until }
 
 \qbk{behavior,__0dim__:[qbk_ret 0]}
 \qbk{behavior,__1dim__:[qbk_ret the length]}
 \qbk{behavior,__2dim__:[qbk_ret 0]}
 \qbk{complexity,Linear}
 \qbk{compliance,__ogc__}
+\qbk{example,length}
  */
 template<typename Geometry>
 inline typename length_result<Geometry>::type length(
@@ -175,9 +166,7 @@ inline typename length_result<Geometry>::type length(
 /*!
 \brief \brief_calc{length} \brief_strategy
 \ingroup length
-\details The version with a specified strategy uses that strategy
-    to calculate distances between consecutive points, summing them
-    to the length of the geometry. \details_strategy_reasons
+\details \details_calc{length, length (the sum of distances between consecutive points)} \brief_strategy. \details_strategy_reasons
 \tparam Geometry \tparam_geometry
 \tparam Strategy \tparam_strategy{distance}
 \param geometry \param_geometry
@@ -185,14 +174,7 @@ inline typename length_result<Geometry>::type length(
 \return \return_calc{length}
 
 \qbk{distinguish,with strategy}
-
-\par Example:
-Example showing length calculation using iterators
-    and the Vincenty strategy
-\dontinclude doxygen_1.cpp
-\skip example_length_linestring_iterators3
-\line {
-\until }
+\qbk{example,length_strategy}
  */
 template<typename Geometry, typename Strategy>
 inline typename length_result<Geometry>::type length(
