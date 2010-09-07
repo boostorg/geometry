@@ -364,6 +364,7 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 \param output_collection The collection being filled or extended by the algorithm
 
 \qbk{example,intersection_linestring}
+\qbk{example,intersection_segment}
 */
 template
 <

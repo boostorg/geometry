@@ -16,9 +16,6 @@
 //       using /xmlonly
 //     currently this is the element <qbk.example> which will make a reference
 //     to an example.
-// - earlier generations of QBK was done by XSLT, I'm not so into the XSLT and
-//   think this is more flexible. The XSLT only did point-structure, not yet
-//   functions as area, so there is not (yet) an overlap
 // - currently still in draft
 
 // Aug 14/15: added classes, defines, various enhancements.
@@ -165,6 +162,14 @@ struct documentation
     std::vector<function> functions;
     std::vector<function> defines;
 };
+
+struct configuration
+{
+    // Prefix to find headerfiles (will not be outputted)
+    std::string prefix;
+    std::vector<std::string> headerfiles;
+};
+
 
 
 // Predicate for std::find_if
@@ -584,24 +589,65 @@ void quickbook_synopsis(function const& f, std::ostream& out)
         << std::endl;
 }
 
-void quickbook_header(std::string const& location, std::ostream& out)
+inline bool includes(std::string const& filename, std::string const& header)
+{
+    std::string result;
+
+    std::ifstream cpp_file(filename.c_str());
+    if (cpp_file.is_open())
+    {
+        while (! cpp_file.eof() )
+        {
+            std::string line;
+            std::getline(cpp_file, line);
+            boost::trim(line);
+            if (boost::starts_with(line, "#include")
+                && boost::contains(line, header))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+void quickbook_header(std::string const& location, 
+    configuration const& config,
+    std::ostream& out)
 {
     if (! location.empty())
     {
-        out << "[heading Header]" << std::endl;
-        if (true)
+        std::vector<std::string> including_headers;
+
+        // Check all headerfiles to see if this specific headerfile is found
+        BOOST_FOREACH(std::string const& headerfile, config.headerfiles)
         {
-            // TODO: get the alternative headerfiles from somewhere
-            out << "Either" << std::endl << std::endl;
-            out << "`#include <boost/geometry/geometry.hpp>`" << std::endl << std::endl;
-            out << "Or" << std::endl << std::endl;
+            if (includes(config.prefix + headerfile, location))
+            {
+                including_headers.push_back(headerfile);
+            }
+        }
+
+        out << "[heading Header]" << std::endl;
+        if (! including_headers.empty())
+        {
+            out << "Either"
+                << (including_headers.size() > 1 ? " one of" : "")
+                << std::endl << std::endl;
+            BOOST_FOREACH(std::string const& headerfile, including_headers)
+            {
+                out << "`#include <" << headerfile << ">`" << std::endl;
+            }
+            
+            out << std::endl << "Or" << std::endl << std::endl;
         }
         out << "`#include <" << location << ">`" << std::endl;
         out << std::endl;
     }
 }
 
-void quickbook_snippets(std::vector<std::string> const& examples, std::ostream& out)
+void quickbook_examples(std::vector<std::string> const& examples, std::ostream& out)
 {
     if (! examples.empty())
     {
@@ -650,7 +696,7 @@ void quickbook_heading_string(std::string const& heading,
 }
 
 
-void quickbook_output(function const& f, std::ostream& out)
+void quickbook_output(function const& f, configuration const& headerfiles, std::ostream& out)
 {
     // Write the parsed function
     int arity = (int)f.parameters.size();
@@ -728,7 +774,7 @@ void quickbook_output(function const& f, std::ostream& out)
     quickbook_heading_string("Returns", f.return_description, out);
     //quickbook_heading_string("Model of", f.model_of, out);
 
-    quickbook_header(f.location, out);
+    quickbook_header(f.location, headerfiles, out);
     quickbook_behaviors(f.behaviors, out);
 
     quickbook_heading_string("Complexity", f.complexity, out);
@@ -738,7 +784,7 @@ void quickbook_output(function const& f, std::ostream& out)
         out << admonition << std::endl;
     }
 
-    quickbook_snippets(f.examples, out);
+    quickbook_examples(f.examples, out);
 
     if (! f.images.empty())
     {
@@ -783,8 +829,9 @@ void quickbook_short_output(function const& f, std::ostream& out)
     out << std::endl;
 }
 
-void quickbook_output(class_or_struct const& cos, std::ostream& out)
+void quickbook_output(class_or_struct const& cos, configuration const& headerfiles, std::ostream& out)
 {
+    // Boost.Geometry specific, to make generic: make this namespace-to-be-skipped configurable
     std::string short_name = boost::replace_all_copy(cos.fullname, "boost::geometry::", "");
     
 
@@ -866,8 +913,8 @@ void quickbook_output(class_or_struct const& cos, std::ostream& out)
             << std::endl;
     }
 
-    quickbook_header(cos.location, out);
-    quickbook_snippets(cos.examples, out);
+    quickbook_header(cos.location, headerfiles, out);
+    quickbook_examples(cos.examples, out);
 
     out << "[endsect]" << std::endl
         << std::endl;
@@ -885,7 +932,7 @@ int main(int argc, char** argv)
     if (argc < 2)
     {
         std::cerr 
-            << "Usage: doxygen_xml2qbk [XML-filename]" << std::endl
+            << "Usage: doxygen_xml2qbk [XML-filename] {prefix CH} {convenience header (CH) 1} {CH 2} ..." << std::endl
             << "   where the XML refers to an XML written by Doxygen" << std::endl;
         return 1;
     }
@@ -930,23 +977,33 @@ int main(int argc, char** argv)
         }
     }
 
+    configuration config;
+    if (argc > 2)
+    {
+        config.prefix = argv[2];
+        for (int i = 3; i < argc; i++)
+        {
+            config.headerfiles.push_back(argv[i]);
+        }
+    }
+
     std::cout 
         << "[/ Generated by doxygen_xml2qbk, don't change, it will be overwritten automatically]" << std::endl
         << "[/ Generated from " << filename << "]" << std::endl;
 
     BOOST_FOREACH(function const& f, doc.functions)
     {
-        quickbook_output(f, std::cout);        
+        quickbook_output(f, config, std::cout);        
     }
     BOOST_FOREACH(function const& f, doc.defines)
     {
-        quickbook_output(f, std::cout);        
+        quickbook_output(f, config, std::cout);        
     }
 
     if (! doc.cos.name.empty())
     {
         std::sort(doc.cos.functions.begin(), doc.cos.functions.end(), sort_on_line<function>());
-        quickbook_output(doc.cos, std::cout);        
+        quickbook_output(doc.cos, config, std::cout);        
     }
 
     return 0;

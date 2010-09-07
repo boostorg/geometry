@@ -5,7 +5,7 @@
 Calculates the length of a geometry. 
 
 [heading Description]
-The version without a strategy takes the default distance-calculation-strategy to calculate distances between consecutive points of a geometry, summing them to the length of the geometry 
+The free function length calculates the length (the sum of distances between consecutive points) of a geometry. It uses the default strategy, based on the coordinate system of the geometry. 
 
 [heading Synopsis]
 ``template<typename Geometry>
@@ -43,12 +43,18 @@ Or
 [heading Complexity]
 Linear
 
+[heading Examples]
+[length]
+
 
 [endsect]
 
 [section:length_2 length (with strategy)]
 
 Calculates the length of a geometry using the specified strategy. 
+
+[heading Description]
+The free function length calculates the length (the sum of distances between consecutive points) of a geometry using the specified strategy. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation (e.g. distance over the Earth) 
 
 [heading Synopsis]
 ``template<typename Geometry, typename Strategy>
@@ -74,6 +80,9 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/length.hpp>`
+
+[heading Examples]
+[length_strategy]
 
 
 [endsect]

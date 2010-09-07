@@ -20,12 +20,6 @@ class concept::Point
 ]
 
 [heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
 `#include <boost/geometry/geometries/concepts/point_concept.hpp>`
 
 [endsect]

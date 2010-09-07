@@ -40,12 +40,6 @@ class closing_iterator
 ]
 
 [heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
 `#include <boost/geometry/iterators/closing_iterator.hpp>`
 
 [endsect]

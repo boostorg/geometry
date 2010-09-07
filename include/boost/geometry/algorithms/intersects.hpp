@@ -81,6 +81,8 @@ inline bool intersects(Geometry const& geometry)
 \return \return_check2{intersect each other}
 
 \qbk{distinguish,two geometries}
+\qbk{example,intersects_linestring}
+\qbk{example,intersects_segment}
  */
 template <typename Geometry1, typename Geometry2>
 inline bool intersects(Geometry1 const& geometry1, Geometry2 const& geometry2)
