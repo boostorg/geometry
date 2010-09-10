@@ -28,6 +28,6 @@ Procedure to create documentation using Doxygen, QuickBook and doxygen_xml2qbk
 2) install QuickBook using http://www.boost.org/doc/libs/1_44_0/doc/html/quickbook/install.html#quickbook.install.linux
 3) compile doxygen_xml2qbk, in .../boost/sandbox/geometry/other/programs/doxygen_xml2qbk
 4) put binary somewhere, e.g. in /usr/local/bin/doxygen_xml2qbk
-5) execute the batchfile or shellscript
+5) execute python file "make_qbk.py"
 
 - 
