@@ -22,7 +22,7 @@ os.chdir("qbk");
 
 #skip_doxygen
 
-cmd="doxygen_xml2qbk.exe  ../doxygen_output/xml/%s.xml ../../../../ boost/geometry/geometry.hpp boost/geometry/geometries/geometries.hpp boost/geometry/multi/multi.hpp > reference/%s.qbk"
+cmd="doxygen_xml2qbk  ../doxygen_output/xml/%s.xml ../../../../ boost/geometry/geometry.hpp boost/geometry/geometries/geometries.hpp boost/geometry/multi/multi.hpp > reference/%s.qbk"
 
 # Algorithms
 os.system(cmd % ("group__area", "area"));
@@ -73,6 +73,6 @@ os.system(cmd % ("classboost_1_1geometry_1_1point__xy", "point_xy"));
 os.system(cmd % ("structboost_1_1geometry_1_1closing__iterator", "closing_iterator"));
 
 
-os.system("bjam --toolset=msvc --without-python") 
+os.system("bjam") 
 
 
