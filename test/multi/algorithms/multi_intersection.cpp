@@ -48,14 +48,14 @@ void test_all()
 
     test_one<polygon, multi_polygon, polygon>("simplex_multi_mp_p",
         case_multi_simplex[0], case_single_simplex,
-        1, 20, 14.58);
+        2, 12, 6.42);
 
     test_one<polygon, ring, multi_polygon>("simplex_multi_r_mp",
         case_single_simplex, case_multi_simplex[0],
-        1, 20, 14.58);
-    /*test_one<ring, multi_polygon, polygon>("simplex_multi_mp_r",
+        2, 12, 6.42);
+    test_one<ring, multi_polygon, polygon>("simplex_multi_mp_r",
         case_multi_simplex[0], case_single_simplex,
-        1, 20, 14.58);*/
+        2, 12, 6.42);
 
 
     // linear
