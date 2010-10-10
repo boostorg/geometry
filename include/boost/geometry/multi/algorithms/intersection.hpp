@@ -21,8 +21,41 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 
-// Currently empty, all done in overlay / assemble
 
+template
+<
+    typename Polygon, typename MultiPolygon,
+    typename OutputIterator,
+    typename PolygonOut,
+    typename Strategy
+>
+struct intersection_inserter
+    <
+        polygon_tag, multi_polygon_tag, polygon_tag,
+        Polygon, MultiPolygon,
+        OutputIterator, PolygonOut,
+        Strategy
+    > : detail::overlay::overlay
+        <Polygon, MultiPolygon, OutputIterator, PolygonOut, -1, Strategy>
+{};
+
+
+template
+<
+    typename MultiPolygon1, typename MultiPolygon2,
+    typename OutputIterator,
+    typename PolygonOut,
+    typename Strategy
+>
+struct intersection_inserter
+    <
+        multi_polygon_tag, multi_polygon_tag, polygon_tag,
+        MultiPolygon1, MultiPolygon2,
+        OutputIterator, PolygonOut,
+        Strategy
+    > : detail::overlay::overlay
+        <MultiPolygon1, MultiPolygon2, OutputIterator, PolygonOut, -1, Strategy>
+{};
 
 
 } // namespace dispatch

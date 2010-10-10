@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <boost/range.hpp>
+#include <boost/mpl/assert.hpp>
 
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -162,7 +163,13 @@ struct convert_ring<polygon_tag>
 
 template <typename Tag, typename Geometry>
 struct add_to_containment
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
 
 template <typename Ring>
 struct add_to_containment<ring_tag, Ring>

@@ -13,6 +13,7 @@
 #include <cstddef>
 
 #include <boost/mpl/if.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/range/metafunctions.hpp>
 
 
@@ -118,8 +119,48 @@ template
     typename Strategy
 >
 struct intersection_inserter
-    : detail::overlay::overlay
-        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, Strategy>
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPES
+            , (types<Geometry1, Geometry2, GeometryOut>)
+        );
+};
+
+
+template
+<
+    typename Polygon1, typename Polygon2,
+    typename OutputIterator,
+    typename PolygonOut,
+    typename Strategy
+>
+struct intersection_inserter
+    <
+        polygon_tag, polygon_tag, polygon_tag,
+        Polygon1, Polygon2,
+        OutputIterator, PolygonOut,
+        Strategy
+    > : detail::overlay::overlay
+        <Polygon1, Polygon2, OutputIterator, PolygonOut, -1, Strategy>
+{};
+
+
+template
+<
+    typename Polygon, typename Box,
+    typename OutputIterator,
+    typename PolygonOut,
+    typename Strategy
+>
+struct intersection_inserter
+    <
+        polygon_tag, box_tag, polygon_tag,
+        Polygon, Box,
+        OutputIterator, PolygonOut,
+        Strategy
+    > : detail::overlay::overlay
+        <Polygon, Box, OutputIterator, PolygonOut, -1, Strategy>
 {};
 
 
