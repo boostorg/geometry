@@ -10,11 +10,98 @@
 
 
 #include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/multi/core/is_areal.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/assemble.hpp>
 
 
 namespace boost { namespace geometry
 {
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace intersection
+{
+
+
+template
+<
+    typename MultiLinestring1, typename MultiLinestring2,
+    typename OutputIterator, typename PointOut,
+    typename Strategy
+>
+struct intersection_multi_linestring_multi_linestring_point
+{
+    static inline OutputIterator apply(MultiLinestring1 const& ml1,
+            MultiLinestring2 const& ml2, OutputIterator out,
+            Strategy const& strategy)
+    {
+        // Note, this loop is quadratic w.r.t. number of linestrings per input.
+        // Future Enhancement: first do the sections of each, then intersect.
+        for (typename boost::range_iterator
+                <
+                    MultiLinestring1 const
+                >::type it1 = boost::begin(ml1);
+            it1 != boost::end(ml1);
+            ++it1)
+        {
+            for (typename boost::range_iterator
+                    <
+                        MultiLinestring2 const
+                    >::type it2 = boost::begin(ml2);
+                it2 != boost::end(ml2);
+                ++it2)
+            {
+                out = intersection_linestring_linestring_point
+                    <
+                        typename boost::range_value<MultiLinestring1>::type,
+                        typename boost::range_value<MultiLinestring2>::type,
+                        OutputIterator, PointOut, Strategy
+                    >::apply(*it1, *it2, out, strategy);
+            }
+        }
+
+        return out;
+    }
+};
+
+
+template
+<
+    typename Linestring, typename MultiLinestring,
+    typename OutputIterator, typename PointOut,
+    typename Strategy
+>
+struct intersection_linestring_multi_linestring_point
+{
+    static inline OutputIterator apply(Linestring const& linestring,
+            MultiLinestring const& ml, OutputIterator out,
+            Strategy const& strategy)
+    {
+        for (typename boost::range_iterator
+                <
+                    MultiLinestring const
+                >::type it = boost::begin(ml);
+            it != boost::end(ml);
+            ++it)
+        {
+            out = intersection_linestring_linestring_point
+                <
+                    Linestring,
+                    typename boost::range_value<MultiLinestring>::type,
+                    OutputIterator, PointOut, Strategy
+                >::apply(linestring, *it, out, strategy);
+        }
+
+        return out;
+    }
+};
+
+
+
+
+
+}} // namespace detail::intersection
+#endif // DOXYGEN_NO_DETAIL
+
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -22,39 +109,47 @@ namespace dispatch
 {
 
 
+// Linear
 template
 <
-    typename Polygon, typename MultiPolygon,
-    typename OutputIterator,
-    typename PolygonOut,
+    typename MultiLinestring1, typename MultiLinestring2,
+    typename OutputIterator, typename GeometryOut,
     typename Strategy
 >
 struct intersection_inserter
     <
-        polygon_tag, multi_polygon_tag, polygon_tag,
-        Polygon, MultiPolygon,
-        OutputIterator, PolygonOut,
+        multi_linestring_tag, multi_linestring_tag, point_tag,
+        false, false, false,
+        MultiLinestring1, MultiLinestring2,
+        OutputIterator, GeometryOut,
         Strategy
-    > : detail::overlay::overlay
-        <Polygon, MultiPolygon, OutputIterator, PolygonOut, -1, Strategy>
+    > : detail::intersection::intersection_multi_linestring_multi_linestring_point
+            <
+                MultiLinestring1, MultiLinestring2,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
 {};
 
-
 template
 <
-    typename MultiPolygon1, typename MultiPolygon2,
-    typename OutputIterator,
-    typename PolygonOut,
+    typename Linestring, typename MultiLinestring,
+    typename OutputIterator, typename GeometryOut,
     typename Strategy
 >
 struct intersection_inserter
     <
-        multi_polygon_tag, multi_polygon_tag, polygon_tag,
-        MultiPolygon1, MultiPolygon2,
-        OutputIterator, PolygonOut,
+        linestring_tag, multi_linestring_tag, point_tag,
+        false, false, false,
+        Linestring, MultiLinestring,
+        OutputIterator, GeometryOut,
         Strategy
-    > : detail::overlay::overlay
-        <MultiPolygon1, MultiPolygon2, OutputIterator, PolygonOut, -1, Strategy>
+    > : detail::intersection::intersection_linestring_multi_linestring_point
+            <
+                Linestring, MultiLinestring,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
 {};
 
 
