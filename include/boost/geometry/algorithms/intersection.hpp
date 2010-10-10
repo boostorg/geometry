@@ -18,6 +18,7 @@
 
 
 #include <boost/geometry/core/reverse_dispatch.hpp>
+#include <boost/geometry/core/is_areal.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
@@ -101,7 +102,7 @@ struct intersection_linestring_linestring_point
 
 
 
-}} // namespace detail::disjoint
+}} // namespace detail::intersection
 #endif // DOXYGEN_NO_DETAIL
 
 
@@ -112,7 +113,11 @@ namespace dispatch
 
 template
 <
+    // tag dispatching:
     typename TagIn1, typename TagIn2, typename TagOut,
+    // metafunction finetuning helpers:
+    bool Areal1, bool Areal2, bool ArealOut, 
+    // real types
     typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename GeometryOut,
@@ -130,38 +135,23 @@ struct intersection_inserter
 
 template
 <
-    typename Polygon1, typename Polygon2,
+    typename TagIn1, typename TagIn2, typename TagOut,
+    typename Geometry1, typename Geometry2,
     typename OutputIterator,
-    typename PolygonOut,
+    typename GeometryOut,
     typename Strategy
 >
 struct intersection_inserter
     <
-        polygon_tag, polygon_tag, polygon_tag,
-        Polygon1, Polygon2,
-        OutputIterator, PolygonOut,
+        TagIn1, TagIn2, TagOut,
+        true, true, true,
+        Geometry1, Geometry2,
+        OutputIterator, GeometryOut,
         Strategy
     > : detail::overlay::overlay
-        <Polygon1, Polygon2, OutputIterator, PolygonOut, -1, Strategy>
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, Strategy>
 {};
 
-
-template
-<
-    typename Polygon, typename Box,
-    typename OutputIterator,
-    typename PolygonOut,
-    typename Strategy
->
-struct intersection_inserter
-    <
-        polygon_tag, box_tag, polygon_tag,
-        Polygon, Box,
-        OutputIterator, PolygonOut,
-        Strategy
-    > : detail::overlay::overlay
-        <Polygon, Box, OutputIterator, PolygonOut, -1, Strategy>
-{};
 
 
 template
@@ -173,6 +163,7 @@ template
 struct intersection_inserter
     <
         segment_tag, segment_tag, point_tag,
+        false, false, false,
         Segment1, Segment2,
         OutputIterator, GeometryOut,
         Strategy
@@ -194,6 +185,7 @@ template
 struct intersection_inserter
     <
         linestring_tag, linestring_tag, point_tag,
+        false, false, false,
         Linestring1, Linestring2,
         OutputIterator, GeometryOut,
         Strategy
@@ -215,6 +207,7 @@ template
 struct intersection_inserter
     <
         linestring_tag, box_tag, linestring_tag,
+        false, true, false,
         Linestring, Box,
         OutputIterator, GeometryOut,
         Strategy
@@ -239,6 +232,7 @@ template
 struct intersection_inserter
     <
         segment_tag, box_tag, linestring_tag,
+        false, true, false,
         Segment, Box,
         OutputIterator, GeometryOut,
         Strategy
@@ -261,6 +255,7 @@ struct intersection_inserter
 template
 <
     typename GeometryTag1, typename GeometryTag2, typename GeometryTag3,
+    bool Areal1, bool Areal2, bool ArealOut, 
     typename Geometry1, typename Geometry2,
     typename OutputIterator, typename GeometryOut,
     typename Strategy
@@ -274,6 +269,7 @@ struct intersection_inserter_reversed
         return intersection_inserter
             <
                 GeometryTag2, GeometryTag1, GeometryTag3,
+                Areal2, Areal1, ArealOut, 
                 Geometry2, Geometry1,
                 OutputIterator, GeometryOut,
                 Strategy
@@ -331,6 +327,9 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
                 typename tag<GeometryOut>::type,
+                is_areal<Geometry1>::value,
+                is_areal<Geometry2>::value,
+                is_areal<GeometryOut>::value,
                 Geometry1,
                 Geometry2,
                 OutputIterator, GeometryOut,
@@ -341,6 +340,9 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
                 typename tag<GeometryOut>::type,
+                is_areal<Geometry1>::value,
+                is_areal<Geometry2>::value,
+                is_areal<GeometryOut>::value,
                 Geometry1,
                 Geometry2,
                 OutputIterator, GeometryOut,

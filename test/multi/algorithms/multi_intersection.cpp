@@ -15,6 +15,7 @@
 
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 
+#include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
@@ -27,8 +28,12 @@ void test_all()
     // polygon/multi polygon and ring/multi polygon are tested in union
 
     namespace bg = boost::geometry;
+    typedef bg::linear_ring<P> ring;
     typedef bg::polygon<P> polygon;
     typedef bg::multi_polygon<polygon> multi_polygon;
+
+    typedef bg::linestring<P> linestring;
+    typedef bg::multi_linestring<linestring> multi_linestring;
 
     test_one<polygon, multi_polygon, multi_polygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
@@ -40,6 +45,34 @@ void test_all()
     test_one<polygon, multi_polygon, multi_polygon>("case_multi_2",
         case_multi_2[0], case_multi_2[1],
         3, 12, 5.9);
+
+    test_one<polygon, multi_polygon, polygon>("simplex_multi_mp_p",
+        case_multi_simplex[0], case_single_simplex,
+        1, 20, 14.58);
+
+    test_one<polygon, ring, multi_polygon>("simplex_multi_r_mp",
+        case_single_simplex, case_multi_simplex[0],
+        1, 20, 14.58);
+    /*test_one<ring, multi_polygon, polygon>("simplex_multi_mp_r",
+        case_multi_simplex[0], case_single_simplex,
+        1, 20, 14.58);*/
+
+
+    // linear
+    test_one<P, multi_linestring, multi_linestring>("case_multi_linear_1",
+        "MULTILINESTRING((0 0,1 1))", "MULTILINESTRING((0 1,1 0))",
+        1, 1, 0);
+    test_one<P, multi_linestring, multi_linestring>("case_multi_linear_2",
+        "MULTILINESTRING((0 0,1 1),(0.5 0,1.5 1))", "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))",
+        4, 4, 0);
+
+    test_one<P, linestring, multi_linestring>("case_multi_linear_3",
+        "LINESTRING(0 0,1 1)", "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))",
+        2, 2, 0);
+    test_one<P, multi_linestring, linestring>("case_multi_linear_4",
+        "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))", "LINESTRING(0 0,1 1)", 
+        2, 2, 0);
+
 }
 
 
