@@ -31,10 +31,10 @@ void test_geometry()
     typedef typename boost::geometry::point_type<G>::type P;
 
     boost::geometry::append(geometry, boost::geometry::make_zero<P>());
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(geometry), 1);
+    BOOST_CHECK_EQUAL(boost::geometry::num_points(geometry), 1u);
 
     boost::geometry::clear(geometry);
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(geometry), 0);
+    BOOST_CHECK_EQUAL(boost::geometry::num_points(geometry), 0u);
     //P p = boost::range::front(geometry);
 }
 

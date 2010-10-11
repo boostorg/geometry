@@ -47,10 +47,6 @@ struct base_turn_handler
     {
         ti.operations[0].operation = op;
         ti.operations[1].operation = op;
-        if (op == operation_union)
-        {
-            ti.ignore = true;
-        }
     }
 
     // If condition, first union/second intersection, else vice versa
@@ -292,7 +288,6 @@ struct touch : public base_turn_handler
                     uu_else_ii(! q_turns_left, ti);
                     if (block_q)
                     {
-                        ti.ignore = false;
                         ti.operations[1].operation = operation_blocked;
                     }
                     //block_second(block_q, ti);
@@ -313,12 +308,6 @@ struct touch : public base_turn_handler
                             : side_qi_p1 == 1 || side_qk_p1 == 1
                             ? operation_union
                             : operation_intersection;
-
-                if (ti.operations[0].operation == operation_union
-                    && ti.operations[1].operation == operation_union)
-                {
-                    ti.ignore = true;
-                }
 
                 return;
             }
@@ -373,6 +362,7 @@ struct touch : public base_turn_handler
         }
 
         // Normally a robustness issue.
+        // TODO: solve this!
         std::cout << "Not yet handled" << std::endl
             << "pi " << get<0>(pi) << " , " << get<1>(pi)
             << " pj " << get<0>(pj) << " , " << get<1>(pj)

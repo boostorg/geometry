@@ -21,8 +21,8 @@
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
 
-#include <overlay_common.hpp>
-#include <overlay_cases.hpp>
+#include <algorithms/overlay/overlay_common.hpp>
+#include <algorithms/overlay/overlay_cases.hpp>
 
 
 
@@ -120,7 +120,7 @@ struct test_get_turns
                         << ": " << bg::operation_char(turn.operations[0].operation)
                         << " " << bg::operation_char(turn.operations[1].operation)
                         << " (" << bg::method_char(turn.method) << ")"
-                        << (turn.ignore ? " (ignore) " : " ")
+                        << (turn.ignore() ? " (ignore) " : " ")
                         ;
 
                     offsets[p] += 10;
@@ -248,7 +248,7 @@ void test_all()
     test_overlay<polygon, polygon, test_get_turns,  Tuple>("54bb", boost::make_tuple(13, 0.0, 0.0), case_54[1], case_54[3]);
 
     test_overlay<polygon, polygon, test_get_turns,  Tuple>("55", boost::make_tuple(10, 0.0, 0.0), case_55[0], case_55[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("56", boost::make_tuple(8, 0.0, 0.0), case_56[0], case_56[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("56", boost::make_tuple(9, 0.0, 0.0), case_56[0], case_56[1]);
 
 
     // other
@@ -273,9 +273,9 @@ void test_all()
     test_overlay<linestring, linestring, test_get_turns,  Tuple>("lineline1", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[0], line_line1[1]);
 
     // line-polygon
-    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly1", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[0], case_1[1]);
-    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly2", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[1], case_1[0]);
-    test_overlay<polygon, linestring, test_get_turns,  Tuple>("poly_line", boost::make_tuple(3, 1.6190476, 3.4761905), case_1[1], line_line1[0]);
+    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly1", boost::make_tuple(4, 1.6190476, 3.4761905), line_line1[0], case_1[1]);
+    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly2", boost::make_tuple(4, 1.6190476, 3.4761905), line_line1[1], case_1[0]);
+    test_overlay<polygon, linestring, test_get_turns,  Tuple>("poly_line", boost::make_tuple(4, 1.6190476, 3.4761905), case_1[1], line_line1[0]);
 }
 
 

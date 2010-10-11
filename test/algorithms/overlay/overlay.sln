@@ -18,6 +18,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "split_rings", "split_rings.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dissolver", "dissolver.vcproj", "{6CCB145C-C682-4B9F-8672-6D04DB5C76DD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccw_traverse", "ccw_traverse.vcproj", "{BA789719-B2FC-405A-9258-E9E4ABCE1791}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -60,6 +62,10 @@ Global
 		{6CCB145C-C682-4B9F-8672-6D04DB5C76DD}.Debug|Win32.Build.0 = Debug|Win32
 		{6CCB145C-C682-4B9F-8672-6D04DB5C76DD}.Release|Win32.ActiveCfg = Release|Win32
 		{6CCB145C-C682-4B9F-8672-6D04DB5C76DD}.Release|Win32.Build.0 = Release|Win32
+		{BA789719-B2FC-405A-9258-E9E4ABCE1791}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA789719-B2FC-405A-9258-E9E4ABCE1791}.Debug|Win32.Build.0 = Debug|Win32
+		{BA789719-B2FC-405A-9258-E9E4ABCE1791}.Release|Win32.ActiveCfg = Release|Win32
+		{BA789719-B2FC-405A-9258-E9E4ABCE1791}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

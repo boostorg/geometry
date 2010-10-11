@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="enrich_intersection_points"
-	ProjectGUID="{20FE798A-E4EE-4C87-A988-7317E774D28A}"
-	RootNamespace="enrich_intersection_points"
+	Name="ccw_traverse"
+	ProjectGUID="{BA789719-B2FC-405A-9258-E9E4ABCE1791}"
+	RootNamespace="ccw_traverse"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\enrich_intersection_points"
+			IntermediateDirectory="$(ConfigurationName)\ccw_traverse"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\boost.vsprops"
 			CharacterSet="1"
@@ -91,7 +91,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\enrich_intersection_points"
+			IntermediateDirectory="$(ConfigurationName)\ccw_traverse"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\boost.vsprops"
 			CharacterSet="1"
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\enrich_intersection_points.cpp"
+			RelativePath=".\ccw_traverse.cpp"
 			>
 		</File>
 	</Files>
