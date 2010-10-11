@@ -279,7 +279,7 @@ void test_pointer_version()
         n += boost::geometry::num_points(*it);
     }
 
-    BOOST_CHECK_EQUAL(clip.size(), 1);
+    BOOST_CHECK_EQUAL(clip.size(), 1u);
     BOOST_CHECK_EQUAL(n, 2);
     BOOST_CHECK_CLOSE(length, sqrt(2.0 * 6.0 * 6.0), 0.001);
 

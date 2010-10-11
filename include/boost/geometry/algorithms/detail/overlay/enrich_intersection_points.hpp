@@ -398,7 +398,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
          it != boost::end(turn_points);
          ++it, ++index)
     {
-        if (! it->ignore)
+        if (! it->ignore()) 
         {
             int op_index = 0;
             for (typename boost::range_iterator<container_type const>::type

@@ -42,7 +42,7 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
     bg::union_inserter<Geometry>(p, q, std::back_inserter(u));
     bg::intersection_inserter<Geometry>(p, q, std::back_inserter(i));
 
-    typedef bg::coordinate_type<Geometry>::type type;
+    typedef typename bg::coordinate_type<Geometry>::type type;
     type area_p = bg::area(p);
     type area_q = bg::area(q);
     type area_i = 0;

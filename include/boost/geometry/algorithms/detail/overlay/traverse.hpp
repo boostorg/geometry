@@ -285,8 +285,8 @@ inline void traverse(Geometry1 const& geometry1,
             ! fail && it != boost::end(turns);
             ++it)
         {
-            // Skip the ones marked ignore (these are: "uu", so self-tangent)
-            if (! it->ignore)
+            // Skip the self-tangent ones (uu)
+            if (! it->ignore())
             {
                 for (turn_operation_iterator_type iit = boost::begin(it->operations);
                     ! fail && iit != boost::end(it->operations);

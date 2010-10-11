@@ -35,3 +35,5 @@ test-suite boost-geometry-algorithms
     [ run unique.cpp ]
     [ run within.cpp ]
     ;
+
+build-project overlay ;

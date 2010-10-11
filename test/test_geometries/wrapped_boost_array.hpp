@@ -148,7 +148,7 @@ public:
     inline this_type& operator=(Point const& value)
     {
         // Check if not passed beyond
-        if (m_array.size < Count)
+        if (std::size_t(m_array.size) < Count)
         {
             *m_current++ = value;
             m_array.size++;

@@ -97,11 +97,11 @@ void test_distance_segment()
 
     bg::segment<P const> const seg(s1, s2);
 
-    return_type d1 = bg::distance(p1, seg); 
-    return_type d2 = bg::distance(p2, seg); 
-    return_type d3 = bg::distance(p3, seg); 
-    return_type d4 = bg::distance(p4, seg); 
-    return_type d5 = bg::distance(p5, seg); 
+    return_type d1 = bg::distance(p1, seg);
+    return_type d2 = bg::distance(p2, seg);
+    return_type d3 = bg::distance(p3, seg);
+    return_type d4 = bg::distance(p4, seg);
+    return_type d5 = bg::distance(p5, seg);
 
     BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
     BOOST_CHECK_CLOSE(d2, return_type(1), 0.001);
@@ -110,8 +110,8 @@ void test_distance_segment()
     BOOST_CHECK_CLOSE(d5, return_type(0), 0.001);
 
     // Reverse case: segment/point instead of point/segment
-    return_type dr1 = bg::distance(seg, p1); 
-    return_type dr2 = bg::distance(seg, p2); 
+    return_type dr1 = bg::distance(seg, p1);
+    return_type dr2 = bg::distance(seg, p2);
 
     BOOST_CHECK_CLOSE(dr1, d1, 0.001);
     BOOST_CHECK_CLOSE(dr2, d2, 0.001);
@@ -119,17 +119,17 @@ void test_distance_segment()
     // Test specifying strategy manually:
     // 1) point-point-distance
     typename bg::strategy::distance::services::default_strategy<bg::point_tag, P>::type pp_strategy;
-    d1 = bg::distance(p1, seg, pp_strategy); 
+    d1 = bg::distance(p1, seg, pp_strategy);
     BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
 
     // 2) point-segment-distance
     typename bg::strategy::distance::services::default_strategy<bg::segment_tag, P>::type ps_strategy;
-    d1 = bg::distance(p1, seg, ps_strategy); 
+    d1 = bg::distance(p1, seg, ps_strategy);
     BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
 
     // 3) custom point strategy
     taxicab_distance<P> tcd;
-    return_type d = bg::distance(p1, seg, tcd);
+    d1 = bg::distance(p1, seg, tcd);
     BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
 }
 
@@ -147,7 +147,7 @@ void test_distance_array_as_linestring()
     bg::set<1>(points[1], 3);
 
     P p;
-    bg::set<0>(p, 2); 
+    bg::set<0>(p, 2);
     bg::set<1>(p, 1);
 
     return_type d = bg::distance(p, points);
@@ -201,7 +201,7 @@ void test_all()
     test_geometry<P, bg::polygon<P> >("POINT(3 3)", donut, 0.0);
     // other way round
     test_geometry<bg::polygon<P>, P>(donut, "POINT(2 2)", 0.5 * sqrt(2.0));
-    // open 
+    // open
     test_geometry<P, bg::polygon<P, std::vector, std::vector, true, false> >("POINT(2 2)", "POLYGON ((0 0,1 9,8 1),(1 1,4 1,1 4))", 0.5 * sqrt(2.0));
 
 

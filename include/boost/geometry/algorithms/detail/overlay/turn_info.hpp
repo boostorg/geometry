@@ -87,17 +87,20 @@ struct turn_info
 
     Point point;
     method_type method;
-    bool ignore;
 
     Container operations;
 
-    turn_info()
+    inline turn_info()
         : method(method_none)
-        , ignore(false)
     {}
 
-};
+    inline bool ignore() const
+    {
+        return this->operations[0].operation == operation_union
+            && this->operations[1].operation == operation_union;
+    }
 
+};
 
 
 }} // namespace detail::overlay
