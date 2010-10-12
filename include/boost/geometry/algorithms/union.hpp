@@ -14,11 +14,11 @@
 
 #include <boost/range/metafunctions.hpp>
 
-#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/is_areal.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 
 
 namespace boost { namespace geometry
@@ -30,22 +30,75 @@ namespace dispatch
 
 template
 <
-    typename Tag1, typename Tag2, typename Tag3,
-    typename G1, typename G2,
+    // tag dispatching:
+    typename TagIn1, typename TagIn2, typename TagOut,
+    // orientation 
+    order_selector Order1, order_selector Order2, order_selector OrderOut,
+    // metafunction finetuning helpers:
+    bool Areal1, bool Areal2, bool ArealOut, 
+    // real types
+    typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename GeometryOut,
     typename Strategy
 >
 struct union_inserter
-    : detail::overlay::overlay
-        <G1, G2, OutputIterator, GeometryOut, 1, true, Strategy>
 {
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPES
+            , (types<Geometry1, Geometry2, GeometryOut>)
+        );
 };
 
 
 template
 <
+    typename TagIn1, typename TagIn2, typename TagOut,
+    typename Geometry1, typename Geometry2,
+    typename OutputIterator,
+    typename GeometryOut,
+    typename Strategy
+>
+struct union_inserter
+    <
+        TagIn1, TagIn2, TagOut,
+        clockwise, clockwise, clockwise,
+        true, true, true,
+        Geometry1, Geometry2,
+        OutputIterator, GeometryOut,
+        Strategy
+    > : detail::overlay::overlay
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, 1, true, Strategy>
+{};
+
+
+template
+<
+    typename TagIn1, typename TagIn2, typename TagOut,
+    typename Geometry1, typename Geometry2,
+    typename OutputIterator,
+    typename GeometryOut,
+    typename Strategy
+>
+struct union_inserter
+    <
+        TagIn1, TagIn2, TagOut,
+        counterclockwise, counterclockwise, counterclockwise,
+        true, true, true,
+        Geometry1, Geometry2,
+        OutputIterator, GeometryOut,
+        Strategy
+    > : detail::overlay::overlay
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, 1, false, Strategy>
+{};
+
+
+template
+<
     typename GeometryTag1, typename GeometryTag2, typename GeometryTag3,
+    order_selector Order1, order_selector Order2, order_selector OrderOut,
+    bool Areal1, bool Areal2, bool ArealOut, 
     typename Geometry1, typename Geometry2,
     typename OutputIterator, typename GeometryOut,
     typename Strategy
@@ -59,6 +112,8 @@ struct union_inserter_reversed
         return union_inserter
             <
                 GeometryTag2, GeometryTag1, GeometryTag3,
+                Order2, Order1, OrderOut,
+                Areal2, Areal1, ArealOut, 
                 Geometry2, Geometry1,
                 OutputIterator, GeometryOut,
                 Strategy
@@ -109,6 +164,12 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
                 typename tag<GeometryOut>::type,
+                point_order<Geometry1>::value,
+                point_order<Geometry2>::value,
+                point_order<GeometryOut>::value,
+                is_areal<Geometry1>::value,
+                is_areal<Geometry2>::value,
+                is_areal<GeometryOut>::value,
                 Geometry1,
                 Geometry2,
                 OutputIterator, GeometryOut,
@@ -119,6 +180,12 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
                 typename tag<GeometryOut>::type,
+                point_order<Geometry1>::value,
+                point_order<Geometry2>::value,
+                point_order<GeometryOut>::value,
+                is_areal<Geometry1>::value,
+                is_areal<Geometry2>::value,
+                is_areal<GeometryOut>::value,
                 Geometry1,
                 Geometry2,
                 OutputIterator, GeometryOut,

@@ -14,29 +14,18 @@
 #include <vector>
 
 #include <boost/range.hpp>
-#include <boost/mpl/assert.hpp>
 
-
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
-#include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
-#include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
+#include <boost/geometry/algorithms/detail/overlay/convert_ring.hpp>
+#include <boost/geometry/algorithms/detail/overlay/add_to_containment.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
-#include <boost/geometry/algorithms/detail/overlay/reverse_operations.hpp>
 //#include <boost/geometry/strategies/intersection_result.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/iterators/range_type.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/intersection.hpp>
@@ -55,189 +44,6 @@ namespace detail { namespace overlay
 {
 
 
-template<typename Tag>
-struct get_ring
-{};
-
-template<>
-struct get_ring<ring_tag>
-{
-    template<typename Ring>
-    static inline Ring const& apply(ring_identifier const& , Ring const& ring)
-    {
-        return ring;
-    }
-};
-
-
-template<>
-struct get_ring<void>
-{
-    template<typename Container>
-    static inline typename boost::range_value<Container>::type const&
-                apply(ring_identifier const& id, Container const& container)
-    {
-        return container[id.multi_index];
-    }
-};
-
-
-template<>
-struct get_ring<box_tag>
-{
-    template<typename Box>
-    static inline Box const& apply(ring_identifier const& ,
-                    Box const& box)
-    {
-        return box;
-    }
-};
-
-
-template<>
-struct get_ring<polygon_tag>
-{
-    template<typename Polygon>
-    static inline typename ring_type<Polygon>::type const& apply(
-                ring_identifier const& id,
-                Polygon const& polygon)
-    {
-        BOOST_ASSERT
-            (
-                id.ring_index >= -1
-                && id.ring_index < boost::size(interior_rings(polygon))
-            );
-        return id.ring_index < 0
-            ? exterior_ring(polygon)
-            : interior_rings(polygon)[id.ring_index];
-    }
-};
-
-
-
-
-template<typename Tag>
-struct convert_ring
-{};
-
-template<>
-struct convert_ring<ring_tag>
-{
-    template<typename Destination, typename Source>
-    static inline void apply(Destination& destination, Source const& source,
-                bool append = false)
-    {
-        if (! append)
-        {
-            geometry::convert(source, destination);
-        }
-    }
-};
-
-
-
-
-template<>
-struct convert_ring<polygon_tag>
-{
-    template<typename Destination, typename Source>
-    static inline void apply(Destination& destination, Source const& source,
-                bool append = false)
-    {
-        if (! append)
-        {
-            geometry::convert(source, exterior_ring(destination));
-        }
-        else
-        {
-            interior_rings(destination).resize(
-                        interior_rings(destination).size() + 1);
-            geometry::convert(source, interior_rings(destination).back());
-        }
-    }
-};
-
-
-
-template <typename Tag, typename Geometry>
-struct add_to_containment
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
-
-template <typename Ring>
-struct add_to_containment<ring_tag, Ring>
-{
-    template <typename ContainmentContainer, typename Map>
-    static inline void apply(ContainmentContainer& container,
-            ring_identifier const& id, Ring const& ring, Map const& map,
-            bool dissolve)
-    {
-        typedef typename range_value<ContainmentContainer>::type prop;
-        bool found = map.find(id) != map.end();
-        if (! dissolve || ! found)
-        {
-            // For dissolve, do not add intersected rings
-            container.push_back(prop(id, ring, found));
-        }
-    }
-};
-
-template <typename Box>
-struct add_to_containment<box_tag, Box>
-{
-    template <typename ContainmentContainer, typename Map>
-    static inline void apply(ContainmentContainer& container,
-            ring_identifier const& id, Box const& box, Map const& map,
-            bool dissolve)
-    {
-        typedef typename range_value<ContainmentContainer>::type prop;
-        bool found = map.find(id) != map.end();
-        if (! dissolve || ! found)
-        {
-            container.push_back(prop(id, box, found));
-        }
-    }
-};
-
-
-template <typename Polygon>
-struct add_to_containment<polygon_tag, Polygon>
-{
-    template <typename ContainmentContainer, typename Map>
-    static inline void apply(ContainmentContainer& container,
-            ring_identifier const& id, Polygon const& polygon, Map const& map,
-            bool dissolve)
-    {
-        // Add exterior ring and interior rings
-        ring_identifier copy = id;
-
-        typedef add_to_containment
-            <
-                ring_tag,
-                typename ring_type<Polygon>::type
-            > policy;
-
-        policy::apply(container, copy, exterior_ring(polygon), map, dissolve);
-        copy.ring_index = 0;
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type const
-                >::type it = boost::begin(interior_rings(polygon));
-            it != boost::end(interior_rings(polygon));
-            ++it, ++copy.ring_index)
-        {
-            policy::apply(container, copy, *it, map, dissolve);
-        }
-    }
-};
-
-
-
 template <typename TurnPoints, typename Map>
 inline void map_turns(Map& map, TurnPoints const& turn_points)
 {
@@ -250,7 +56,7 @@ inline void map_turns(Map& map, TurnPoints const& turn_points)
          it != boost::end(turn_points);
          ++it, ++index)
     {
-        if (! it->ignore()) 
+        if (! it->ignore())
         {
             int op_index = 0;
             for (typename boost::range_iterator<container_type const>::type
@@ -623,7 +429,7 @@ inline OutputIterator add_all_rings(Container& container,
 
 template
 <
-    typename GeometryOut, 
+    typename GeometryOut,
     typename Rings, typename Map,
     typename Geometry1, typename Geometry2,
     typename OutputIterator
@@ -756,92 +562,6 @@ std::cout << "assemble.add rings" << std::endl;
         return add_all_rings<GeometryOut>(ring_properties_container,
                     geometry1, geometry2, rings, direction, dissolve, out);
 }
-
-
-template
-<
-    typename Geometry1, typename Geometry2,
-    typename OutputIterator, typename GeometryOut,
-    int Direction, bool ClockWise,
-    typename Strategy
->
-struct overlay
-{
-    static inline OutputIterator apply(
-                Geometry1 const& geometry1, Geometry2 const& geometry2,
-                OutputIterator out,
-                Strategy const& )
-    {
-        if (geometry::num_points(geometry1) == 0 && geometry::num_points(geometry2) == 0)
-        {
-            return out;
-        }
-
-        typedef typename geometry::point_type<GeometryOut>::type point_type;
-        typedef detail::overlay::traversal_turn_info<point_type> turn_info;
-        typedef std::deque<turn_info> container_type;
-
-        // "Use" rangetype for ringtype:
-        // for polygon, it is the type of the exterior ring.
-        // for ring, it is the ring itself. That is what is
-        // for multi-polygon, it is also the type of the ring.
-        typedef typename geometry::range_type<GeometryOut>::type ring_type;
-
-        // If one input is empty, output the other one for a union.
-        // For an intersection, the intersection is empty.
-        if (geometry::num_points(geometry1) == 0
-            || geometry::num_points(geometry2) == 0)
-        {
-            if (Direction == 1)
-            {
-                std::map<ring_identifier, int> map;
-                std::vector<ring_type> rings;
-                return assemble<GeometryOut>(rings, map,
-                                geometry1, geometry2, Direction, false, false, out);
-            }
-            return out;
-        }
-
-        container_type turn_points;
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "get turns" << std::endl;
-#endif
-        detail::get_turns::no_interrupt_policy policy;
-        boost::geometry::get_turns
-            <
-                detail::overlay::calculate_distance_policy
-            >(geometry1, geometry2, turn_points, policy);
-
-        if (! ClockWise)
-        {
-            detail::overlay::reverse_operations(turn_points);
-        }
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "enrich" << std::endl;
-#endif
-        typename Strategy::side_strategy_type side_strategy;
-        geometry::enrich_intersection_points(turn_points, geometry1, geometry2,
-                    side_strategy);
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "traverse" << std::endl;
-#endif
-        std::vector<ring_type> rings;
-        geometry::traverse(geometry1, geometry2,
-                Direction == -1
-                    ? boost::geometry::detail::overlay::operation_intersection
-                    : boost::geometry::detail::overlay::operation_union
-                    ,
-                turn_points, rings);
-
-        std::map<ring_identifier, int> map;
-        map_turns(map, turn_points);
-        return assemble<GeometryOut>(rings, map,
-                        geometry1, geometry2, Direction, false, false, out);
-    }
-};
 
 
 }} // namespace detail::overlay

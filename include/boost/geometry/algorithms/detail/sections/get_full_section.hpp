@@ -9,6 +9,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_GET_FULL_SECTION_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -75,7 +76,13 @@ template
     typename Iterator
 >
 struct get_full_section
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
 
 
 template <typename LineString, typename Section, typename Iterator>

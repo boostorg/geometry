@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <vector>
 
 #include <boost/assert.hpp>
@@ -160,6 +161,11 @@ template
 >
 struct copy_segments
 {
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<GeometryIn>)
+        );
 };
 
 

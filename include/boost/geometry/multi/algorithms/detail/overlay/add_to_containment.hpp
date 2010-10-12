@@ -5,26 +5,15 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_ASSEMBLE_HPP
-#define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_ASSEMBLE_HPP
+#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_ADD_TO_CONTAINMENT_HPP
+#define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_ADD_TO_CONTAINMENT_HPP
 
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
-
-#include <boost/geometry/multi/core/ring_type.hpp>
-
-#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
-#include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/get_full_section.hpp>
-
-#include <boost/geometry/multi/algorithms/envelope.hpp>
-#include <boost/geometry/multi/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/within.hpp>
+#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/add_to_containment.hpp>
+#include <boost/geometry/multi/core/tags.hpp>
 
 
 namespace boost { namespace geometry
@@ -63,27 +52,6 @@ struct add_to_containment<multi_polygon_tag, MultiPolygon>
 };
 
 
-
-template<>
-struct get_ring<multi_polygon_tag>
-{
-    template<typename MultiPolygon>
-    static inline typename ring_type<MultiPolygon>::type const& apply(
-                ring_identifier const& id,
-                MultiPolygon const& multi_polygon)
-    {
-        BOOST_ASSERT
-            (
-                id.multi_index >= 0
-                && id.multi_index < boost::size(multi_polygon)
-            );
-        return get_ring<polygon_tag>::apply(id,
-                    multi_polygon[id.multi_index]);
-    }
-};
-
-
-
 }} // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
@@ -91,4 +59,4 @@ struct get_ring<multi_polygon_tag>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_ASSEMBLE_HPP
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_ADD_TO_CONTAINMENT_HPP

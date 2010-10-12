@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/union.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
@@ -120,6 +121,10 @@ void test_one(std::string const& caseid, std::string const& wkt1, std::string co
 
     G2 g2;
     boost::geometry::read_wkt(wkt2, g2);
+
+    // Reverse if necessary
+    boost::geometry::correct(g1);
+    boost::geometry::correct(g2);
 
     test_union<OutputType>(caseid, g1, g2,
         expected_count, expected_hole_count, expected_point_count,
