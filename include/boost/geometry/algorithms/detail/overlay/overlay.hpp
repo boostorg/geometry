@@ -52,7 +52,7 @@ template
 <
     typename Geometry1, typename Geometry2,
     typename OutputIterator, typename GeometryOut,
-    int Direction, bool ClockWise,
+    int Direction, order_selector Order,
     typename Strategy
 >
 struct overlay
@@ -103,7 +103,7 @@ std::cout << "get turns" << std::endl;
                 detail::overlay::calculate_distance_policy
             >(geometry1, geometry2, turn_points, policy);
 
-        if (! ClockWise)
+        if (Order == counterclockwise)
         {
             detail::overlay::reverse_operations(turn_points);
         }
@@ -119,7 +119,7 @@ std::cout << "enrich" << std::endl;
 std::cout << "traverse" << std::endl;
 #endif
         std::vector<ring_type> rings;
-        geometry::traverse(geometry1, geometry2,
+        geometry::traverse<Order>(geometry1, geometry2,
                 Direction == -1
                     ? boost::geometry::detail::overlay::operation_intersection
                     : boost::geometry::detail::overlay::operation_union

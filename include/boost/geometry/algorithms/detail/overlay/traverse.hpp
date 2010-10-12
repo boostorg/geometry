@@ -61,7 +61,7 @@ inline void clear_visit_info(Turns& turns)
 
 
 template <typename Info, typename Turn>
-inline void set_visited_for_contine(Info& info, Turn const& turn)
+inline void set_visited_for_continue(Info& info, Turn const& turn)
 {
     // On "continue", set "visited" for ALL directions
     if (turn.operation == detail::overlay::operation_continue)
@@ -84,6 +84,7 @@ inline void set_visited_for_contine(Info& info, Turn const& turn)
 
 template
 <
+    order_selector Order,
     typename GeometryOut,
     typename G1,
     typename G2,
@@ -98,20 +99,20 @@ inline void assign_next_ip(G1 const& g1, G2 const& g2,
             segment_identifier& seg_id)
 {
     info.visited.set_visited();
-    set_visited_for_contine(*ip, info);
+    set_visited_for_continue(*ip, info);
 
     // If there is no next IP on this segment
     if (info.enriched.next_ip_index < 0)
     {
         if (info.seg_id.source_index == 0)
         {
-            geometry::copy_segments(g1, info.seg_id,
+            geometry::copy_segments<Order>(g1, info.seg_id,
                     info.enriched.travels_to_vertex_index,
                     current_output);
         }
         else
         {
-            geometry::copy_segments(g2, info.seg_id,
+            geometry::copy_segments<Order>(g2, info.seg_id,
                     info.enriched.travels_to_vertex_index,
                     current_output);
         }
@@ -257,6 +258,7 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
  */
 template
 <
+    order_selector Order,
     typename Geometry1,
     typename Geometry2,
     typename Turns,
@@ -298,7 +300,7 @@ inline void traverse(Geometry1 const& geometry1,
                             || iit->operation == detail::overlay::operation_continue)
                         )
                     {
-                        set_visited_for_contine(*it, *iit);
+                        set_visited_for_continue(*it, *iit);
 
                         typename boost::range_value<Rings>::type current_output;
                         geometry::append(current_output, it->point);
@@ -307,7 +309,7 @@ inline void traverse(Geometry1 const& geometry1,
                         turn_operation_iterator_type current_iit = iit;
                         segment_identifier current_seg_id;
 
-                        detail::overlay::assign_next_ip(geometry1, geometry2,
+                        detail::overlay::assign_next_ip<Order>(geometry1, geometry2,
                                     turns,
                                     current, current_output,
                                     *iit, current_seg_id);
@@ -358,7 +360,7 @@ inline void traverse(Geometry1 const& geometry1,
                                     // will continue with the next one.
 
                                     // Below three reasons to stop.
-                                    assign_next_ip(geometry1, geometry2,
+                                    detail::overlay::assign_next_ip<Order>(geometry1, geometry2,
                                         turns, current, current_output,
                                         *current_iit, current_seg_id);
 

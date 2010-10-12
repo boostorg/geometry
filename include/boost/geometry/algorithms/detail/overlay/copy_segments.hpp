@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP
 
 
+#include <boost/array.hpp>
 #include <boost/mpl/assert.hpp>
 #include <vector>
 
@@ -49,12 +50,13 @@ struct copy_segments_ring
 
         typedef geometry::ever_circling_iterator<iterator> ec_iterator;
 
-        // The problem: sometimes we want to from "3" to "2" -> end = "3" -> end == begin
+        // The problem: sometimes we want to from "3" to "2" 
+        // -> end = "3" -> end == begin
         // This is not convenient with iterators.
 
         // So we use the ever-circling iterator and determine when to step out
 
-        int from_index = seg_id.segment_index + 1;
+        int const from_index = seg_id.segment_index + 1;
 
         // Sanity check
         BOOST_ASSERT(from_index < boost::size(ring));
@@ -66,7 +68,7 @@ struct copy_segments_ring
         // [4..2],size=6 -> 6 - 4 + 2 + 1 = 5 -> {4,5,0,1,2} -> OK
         // [1..1], travel the whole ring round
         typedef typename boost::range_difference<Ring>::type size_type;
-        size_type count = from_index <= to_index
+        size_type const count = from_index <= to_index
             ? to_index - from_index + 1
             : boost::size(ring) - from_index + to_index + 1;
 
@@ -108,35 +110,50 @@ struct copy_segments_polygon
 };
 
 
-template <typename Box, typename SegmentIdentifier, typename RangeOut>
+template 
+<
+    typename Box, 
+    typename SegmentIdentifier, 
+    typename RangeOut, 
+    order_selector Order
+>
 struct copy_segments_box
 {
     static inline void apply(Box const& box,
             SegmentIdentifier const& seg_id, int to_index,
             RangeOut& current_output)
     {
-        // Convert again...
-        // TODO: avoid that...
+        int index = seg_id.segment_index + 1;
+        BOOST_ASSERT(index < 5);
 
-        typedef typename point_type<Box>::type point_type;
+        int const count = index <= to_index
+            ? to_index - index + 1
+            : 5 - index + to_index + 1;
 
-        point_type ll, lr, ul, ur;
-        assign_box_corners(box, ll, lr, ul, ur);
+        boost::array<typename point_type<Box>::type, 4> bp;
+        boost::array<int, 5> point_index;
 
-        std::vector<point_type> points;
-        points.push_back(ll);
-        points.push_back(ul);
-        points.push_back(ur);
-        points.push_back(lr);
-        points.push_back(ll);
+        // 1: They are retrieved by "assign_box_order" in order ll, lr, ul, ur
+        assign_box_corners(box, bp[0], bp[3], bp[1], bp[2]);
 
-        copy_segments_ring
-            <
-                std::vector<point_type>,
-                SegmentIdentifier,
-                RangeOut
-            >
-            ::apply(points, seg_id, to_index, current_output);
+        // 2: set indexes, reverse direction if necessary
+        bool const reverse = Order == counterclockwise;
+        point_index[0] = 0;
+        point_index[1] = reverse ? 3 : 1;
+        point_index[2] = 2;
+        point_index[3] = reverse ? 1 : 3;
+        point_index[4] = 0;
+
+        // 3: (possibly cyclic) copy to output 
+        //    (see comments in ring-version)
+        for (int i = 0; i < count; ++i)
+        {
+            geometry::append(current_output, bp[point_index[index++]]);
+            if (index == 5)
+            {
+                index = 0;
+            }
+        }
     }
 };
 
@@ -151,13 +168,14 @@ struct copy_segments_box
 namespace dispatch
 {
 
-
+// Note: Order is specified explicitly, because Box does not have an own direction
 template
 <
     typename Tag,
     typename GeometryIn,
     typename SegmentIdentifier,
-    typename RangeOut
+    typename RangeOut,
+    order_selector Order 
 >
 struct copy_segments
 {
@@ -169,16 +187,28 @@ struct copy_segments
 };
 
 
-template <typename Ring, typename SegmentIdentifier, typename RangeOut>
-struct copy_segments<ring_tag, Ring, SegmentIdentifier, RangeOut>
+template 
+<
+    typename Ring, 
+    typename SegmentIdentifier, 
+    typename RangeOut, 
+    order_selector Order
+>
+struct copy_segments<ring_tag, Ring, SegmentIdentifier, RangeOut, Order>
     : detail::copy_segments::copy_segments_ring
         <
             Ring, SegmentIdentifier, RangeOut
         >
 {};
 
-template <typename Polygon, typename SegmentIdentifier, typename RangeOut>
-struct copy_segments<polygon_tag, Polygon, SegmentIdentifier, RangeOut>
+template 
+<
+    typename Polygon, 
+    typename SegmentIdentifier, 
+    typename RangeOut, 
+    order_selector Order
+>
+struct copy_segments<polygon_tag, Polygon, SegmentIdentifier, RangeOut, Order>
     : detail::copy_segments::copy_segments_polygon
         <
             Polygon, SegmentIdentifier, RangeOut
@@ -186,11 +216,17 @@ struct copy_segments<polygon_tag, Polygon, SegmentIdentifier, RangeOut>
 {};
 
 
-template <typename Box, typename SegmentIdentifier, typename RangeOut>
-struct copy_segments<box_tag, Box, SegmentIdentifier, RangeOut>
+template 
+<
+    typename Box, 
+    typename SegmentIdentifier, 
+    typename RangeOut, 
+    order_selector Order
+>
+struct copy_segments<box_tag, Box, SegmentIdentifier, RangeOut, Order>
     : detail::copy_segments::copy_segments_box
         <
-            Box, SegmentIdentifier, RangeOut
+            Box, SegmentIdentifier, RangeOut, Order
         >
 {};
 
@@ -204,10 +240,17 @@ struct copy_segments<box_tag, Box, SegmentIdentifier, RangeOut>
 
 
 /*!
-    \brief Traverses through intersection points / geometries
+    \brief Copy segments from a geometry, starting with the specified segment (seg_id)
+        until the specified index (to_index)
     \ingroup overlay
  */
-template<typename Geometry, typename SegmentIdentifier, typename RangeOut>
+template
+<
+    order_selector Order, 
+    typename Geometry, 
+    typename SegmentIdentifier, 
+    typename RangeOut
+>
 inline void copy_segments(Geometry const& geometry,
             SegmentIdentifier const& seg_id, int to_index,
             RangeOut& range_out)
@@ -219,7 +262,8 @@ inline void copy_segments(Geometry const& geometry,
             typename tag<Geometry>::type,
             Geometry,
             SegmentIdentifier,
-            RangeOut
+            RangeOut,
+            Order
         >::apply(geometry, seg_id, to_index, range_out);
 }
 

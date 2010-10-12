@@ -64,7 +64,7 @@ template
 >
 struct point_to_box<Point, Box, Index, DimensionCount, DimensionCount>
 {
-    static inline void apply(Point const& point, Box& box)
+    static inline void apply(Point const& , Box& )
     {}
 };
 

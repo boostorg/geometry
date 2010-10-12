@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <map>
 
+#include <boost/array.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
 
@@ -487,7 +488,7 @@ public:
 };
 
 
-// Get turns for something with a box, following Cohen-Sutherland (cs) approach
+// Get turns for a range with a box, following Cohen-Sutherland (cs) approach
 template
 <
     typename Range,
@@ -498,6 +499,10 @@ template
 >
 struct get_turns_cs
 {
+    typedef typename boost::range_value<Turns>::type turn_info;
+    typedef typename geometry::point_type<Range>::type point_type;
+    typedef typename geometry::point_type<Box>::type box_point_type;
+
     static inline void apply(
                 int source_id1, Range const& range,
                 int multi_index, int ring_index,
@@ -510,19 +515,17 @@ struct get_turns_cs
             return;
         }
 
+        // Box-points in order ll, ul, ur, lr
+        boost::array<box_point_type,4> bp;
 
-        typedef typename geometry::point_type<Box>::type box_point_type;
-        typedef typename geometry::point_type<Range>::type point_type;
+        // They are retrieved by "assign_box_order" in order ll, lr, ul, ur
+        assign_box_corners(box, bp[0], bp[3], bp[1], bp[2]);
 
-        point_type lower_left, upper_left, lower_right, upper_right;
-        assign_box_corners(box, lower_left, lower_right, upper_left, upper_right);
-
-        /*
-        box_segment_type left(lower_left, upper_left);
-        box_segment_type top(upper_left, upper_right);
-        box_segment_type right(upper_right, lower_right);
-        box_segment_type bottom(lower_right, lower_left);
-        */
+        // The arrangement is now OK for clockwise,
+        // for counter clockwise we only need to swap ul with lr (== 1 with 3)
+        // Note we swap the index, not the point itself.
+        int const i1 = point_order<Range>::value == clockwise ? 1 : 3;
+        int const i3 = point_order<Range>::value == clockwise ? 3 : 1;
 
         typedef typename boost::range_iterator
             <Range const>::type iterator_type;
@@ -571,39 +574,11 @@ struct get_turns_cs
                 )*/
             if (true)
             {
-                typedef typename boost::range_value<Turns>::type turn_info;
-
-                // Depending on code some relations can be left out
-                turn_info ti;
-                ti.operations[0].seg_id = seg_id;
-                ti.operations[1].other_id = ti.operations[0].seg_id;
-
-                ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
-                ti.operations[0].other_id = ti.operations[1].seg_id;
-                TurnPolicy::apply(*prev, *it, *next,
-                        lower_left, upper_left, upper_right,
-                        ti, std::back_inserter(turns));
-
-                ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
-                ti.operations[0].other_id = ti.operations[1].seg_id;
-                TurnPolicy::apply(*prev, *it, *next,
-                        upper_left, upper_right, lower_right,
-                        ti, std::back_inserter(turns));
-
-                ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
-                ti.operations[0].other_id = ti.operations[1].seg_id;
-                TurnPolicy::apply(*prev, *it, *next,
-                        upper_right, lower_right, lower_left,
-                        ti, std::back_inserter(turns));
-
-                ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
-                ti.operations[0].other_id = ti.operations[1].seg_id;
-                TurnPolicy::apply(*prev, *it, *next,
-                        lower_right, lower_left, upper_left,
-                        ti, std::back_inserter(turns));
-
-                // TODO: call the break policy
-
+                get_turns_with_box(seg_id, source_id2,
+                        *prev, *it, *next, 
+                        bp[0], bp[i1], bp[2], bp[i3], // note the "i" here
+                        turns);
+                // TODO: call the interrupt policy if applicable
             }
         }
     }
@@ -629,6 +604,45 @@ private:
         else return 0;
     }
 
+    static inline void get_turns_with_box(segment_identifier const& seg_id, int source_id2,
+            // Points from a range:
+            point_type const& rp0, 
+            point_type const& rp1, 
+            point_type const& rp2,
+            // Points from the box
+            box_point_type const& bp0, 
+            box_point_type const& bp1, 
+            box_point_type const& bp2,
+            box_point_type const& bp3, 
+            // Output
+            Turns& turns)
+    {
+        // TODO:
+        // Depending on code some relations can be left out
+
+        typedef typename boost::range_value<Turns>::type turn_info;
+
+        turn_info ti;
+        ti.operations[0].seg_id = seg_id;
+        ti.operations[0].other_id = ti.operations[1].seg_id;
+        ti.operations[1].other_id = seg_id;
+
+        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
+        TurnPolicy::apply(rp0, rp1, rp2, bp0, bp1, bp2,
+                ti, std::back_inserter(turns));
+
+        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
+        TurnPolicy::apply(rp0, rp1, rp2, bp1, bp2, bp3,
+                ti, std::back_inserter(turns));
+
+        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
+        TurnPolicy::apply(rp0, rp1, rp2, bp2, bp3, bp0,
+                ti, std::back_inserter(turns));
+
+        ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
+        TurnPolicy::apply(rp0, rp1, rp2, bp3, bp0, bp1,
+                ti, std::back_inserter(turns));
+    }
 
 };
 

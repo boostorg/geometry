@@ -112,7 +112,7 @@ inline typename ring_type<Polygon>::type& exterior_ring(Polygon& polygon)
     \return a const reference to the exterior ring
 */
 template <typename Polygon>
-inline const typename ring_type<Polygon>::type& exterior_ring(
+inline typename ring_type<Polygon>::type const& exterior_ring(
         Polygon const& polygon)
 {
     return core_dispatch::exterior_ring
