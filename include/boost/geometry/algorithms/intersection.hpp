@@ -129,7 +129,7 @@ struct intersection_inserter
 {
     BOOST_MPL_ASSERT_MSG
         (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPES
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPES_OR_ORIENTATIONS
             , (types<Geometry1, Geometry2, GeometryOut>)
         );
 };
@@ -152,9 +152,11 @@ struct intersection_inserter
         OutputIterator, GeometryOut,
         Strategy
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, true, Strategy>
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, clockwise, Strategy>
 {};
 
+
+// All counter clockwise:
 template
 <
     typename TagIn1, typename TagIn2, typename TagOut,
@@ -172,7 +174,30 @@ struct intersection_inserter
         OutputIterator, GeometryOut,
         Strategy
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, false, Strategy>
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, counterclockwise, Strategy>
+{};
+
+
+// Boxes are never counter clockwise.
+// Any counter areal type with box:
+template
+<
+    typename TagIn, typename TagOut,
+    typename Geometry, typename Box,
+    typename OutputIterator,
+    typename GeometryOut,
+    typename Strategy
+>
+struct intersection_inserter
+    <
+        TagIn, box_tag, TagOut,
+        counterclockwise, clockwise, counterclockwise,
+        true, true, true,
+        Geometry, Box,
+        OutputIterator, GeometryOut,
+        Strategy
+    > : detail::overlay::overlay
+        <Geometry, Box, OutputIterator, GeometryOut, -1, counterclockwise, Strategy>
 {};
 
 

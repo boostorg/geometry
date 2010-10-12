@@ -147,6 +147,43 @@ void test_areal()
 
 }
 
+template <typename Polygon, typename Box>
+void test_areal_clip()
+{
+    test_one<Polygon, Box, Polygon>("boxring", example_box, example_ring,
+        2, 12, 1.09125);
+    test_one<Polygon, Polygon, Box>("boxring2", example_ring,example_box, 
+        2, 12, 1.09125);
+
+    test_one<Polygon, Box, Polygon>("boxpoly", example_box, example_polygon,
+        3, 19, 0.840166);
+
+    test_one<Polygon, Box, Polygon>("poly1", example_box,
+        "POLYGON((3.4 2,4.1 3,5.3 2.6,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2))",
+        2, 12, 1.09125);
+
+    test_one<Polygon, Box, Polygon>("clip_poly2", example_box,
+        "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,5.3 2.5,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3))",
+        2, 12, 1.00375);
+    test_one<Polygon, Box, Polygon>("clip_poly3", example_box,
+        "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 2.5,4.5 1.2,4.9 0.8,2.9 0.7,2 1.3))",
+        2, 12, 1.00375);
+    test_one<Polygon, Box, Polygon>("clip_poly4", example_box,
+        "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 2.5,4.5 2.3,5.0 2.3,5.0 2.1,4.5 2.1,4.5 1.9,4.0 1.9,4.5 1.2,4.9 0.8,2.9 0.7,2 1.3))",
+        2, 16, 0.860892);
+
+    test_one<Polygon, Box, Polygon>("clip_poly5", example_box,
+            "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 1.2,2.9 0.7,2 1.3))",
+                2, 11, 0.7575961);
+
+    test_one<Polygon, Box, Polygon>("clip_poly6", example_box,
+            "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.0 3.0,5.0 2.0,2.9 0.7,2 1.3))",
+                2, 13, 1.0744456);
+
+    test_one<Polygon, Box, Polygon>("clip_poly7", "Box(0 0, 3 3)",
+            "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))", 1, 4, 0.75);
+}
+
 
 template <typename P>
 void test_all()
@@ -156,14 +193,27 @@ void test_all()
     typedef boost::geometry::box<P> box;
     typedef boost::geometry::model::segment<P> segment;
 
+    typedef boost::geometry::polygon<P, std::vector, std::vector, false> polygon_ccw;
+
     std::string clip = "box(2 2,8 8)";
 
-    // Test clockwise polygons
+    // Test polygons clockwise and counter clockwise
     test_areal<polygon>();
+    test_areal<polygon_ccw>();
 
-    // Test counter-clockwise polygons
-    test_areal<boost::geometry::polygon<P, std::vector, std::vector, false> >();
+    test_areal_clip<polygon, box>();
+    test_areal_clip<polygon_ccw, box>();
 
+#if defined(TEST_FAIL_DIFFERENT_ORIENTATIONS)
+    // Should NOT compile
+    test_one<polygon, polygon_ccw, polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 7, 5.47363293);
+    // Output ccw, nyi (should be just reversing afterwards)
+    test_one<polygon, polygon, polygon_ccw>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 7, 5.47363293);
+#endif
 
     // Basic check: box/linestring, is clipping OK? should compile in any order
     test_one<linestring, linestring, box>("llb", "LINESTRING(0 0,10 10)", clip, 1, 2, sqrt(2.0 * 6.0 * 6.0));
@@ -191,38 +241,6 @@ void test_all()
     test_one<linestring, linestring, box>("llb_2", "LINESTRING(1.7 1.6,2.3 2.4,2.9 1.6,3.5 2.4,4.1 1.6)", clip, 2, 6, 4 * 0.5);
 
 
-    test_one<polygon, box, polygon>("boxring", example_box, example_ring,
-        2, 12, 1.09125);
-
-    test_one<polygon, box, polygon>("boxpoly", example_box, example_polygon,
-        3, 19, 0.840166);
-
-
-
-    test_one<polygon, box, polygon>("poly1", example_box,
-        "POLYGON((3.4 2,4.1 3,5.3 2.6,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2))",
-        2, 12, 1.09125);
-
-    test_one<polygon, box, polygon>("clip_poly2", example_box,
-        "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,5.3 2.5,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3))",
-        2, 12, 1.00375);
-    test_one<polygon, box, polygon>("clip_poly3", example_box,
-        "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 2.5,4.5 1.2,4.9 0.8,2.9 0.7,2 1.3))",
-        2, 12, 1.00375);
-    test_one<polygon, box, polygon>("clip_poly4", example_box,
-        "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 2.5,4.5 2.3,5.0 2.3,5.0 2.1,4.5 2.1,4.5 1.9,4.0 1.9,4.5 1.2,4.9 0.8,2.9 0.7,2 1.3))",
-        2, 16, 0.860892);
-
-    test_one<polygon, box, polygon>("clip_poly5", example_box,
-            "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 1.2,2.9 0.7,2 1.3))",
-                2, 11, 0.7575961);
-
-    test_one<polygon, box, polygon>("clip_poly6", example_box,
-            "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.0 3.0,5.0 2.0,2.9 0.7,2 1.3))",
-                2, 13, 1.0744456);
-
-    test_one<polygon, box, polygon>("clip_poly7", "box(0 0, 3 3)",
-            "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))", 1, 4, 0.75);
 
 
     // linear

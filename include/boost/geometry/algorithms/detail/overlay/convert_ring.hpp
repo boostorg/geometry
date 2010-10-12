@@ -9,6 +9,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CONVERT_RING_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 
@@ -31,7 +32,13 @@ namespace detail { namespace overlay
 
 template<typename Tag>
 struct convert_ring
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TAG
+            , (types<Tag>)
+        );
+};
 
 template<>
 struct convert_ring<ring_tag>

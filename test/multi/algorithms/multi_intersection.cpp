@@ -48,6 +48,13 @@ void test_areal()
         2, 12, 6.42);
 }
 
+template <typename Polygon, typename MultiPolygon, typename Box>
+void test_areal_clip()
+{
+    test_one<Polygon, Box, MultiPolygon>("simplex_multi_mp_b", "POLYGON((1 1,4 4))", case_multi_simplex[0],
+        2, 12, 6.42);
+}
+
 
 template <typename P>
 void test_all()
@@ -55,6 +62,7 @@ void test_all()
     namespace bg = boost::geometry;
 
 
+    typedef bg::box<P> box;
     typedef bg::linear_ring<P> ring;
     typedef bg::polygon<P> polygon;
     typedef bg::multi_polygon<polygon> multi_polygon;
@@ -65,8 +73,13 @@ void test_all()
     typedef bg::multi_polygon<polygon_ccw> multi_polygon_ccw;
     test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
 
+    // multi/box: was NOT implemented, next step TODO.
+    //test_areal_clip<polygon, multi_polygon, box>();
+    //test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
+
     typedef bg::linestring<P> linestring;
     typedef bg::multi_linestring<linestring> multi_linestring;
+
 
 
     // linear

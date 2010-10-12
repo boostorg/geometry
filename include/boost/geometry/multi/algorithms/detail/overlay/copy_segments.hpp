@@ -67,14 +67,16 @@ template
 <
     typename MultiPolygon,
     typename SegmentIdentifier,
-    typename RangeOut
+    typename RangeOut,
+    order_selector Order
 >
 struct copy_segments
     <
         multi_polygon_tag,
         MultiPolygon,
         SegmentIdentifier,
-        RangeOut
+        RangeOut,
+        Order
     >
     : detail::copy_segments::copy_segments_multi
         <

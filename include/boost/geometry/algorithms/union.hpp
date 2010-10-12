@@ -69,7 +69,7 @@ struct union_inserter
         OutputIterator, GeometryOut,
         Strategy
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, OutputIterator, GeometryOut, 1, true, Strategy>
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, 1, clockwise, Strategy>
 {};
 
 
@@ -90,7 +90,7 @@ struct union_inserter
         OutputIterator, GeometryOut,
         Strategy
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, OutputIterator, GeometryOut, 1, false, Strategy>
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, 1, counterclockwise, Strategy>
 {};
 
 

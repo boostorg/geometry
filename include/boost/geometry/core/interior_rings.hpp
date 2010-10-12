@@ -198,7 +198,7 @@ inline typename interior_type<Polygon>::type& interior_rings(Polygon& polygon)
     \return a const reference to the interior rings
 */
 template <typename Polygon>
-inline const typename interior_type<Polygon>::type& interior_rings(
+inline typename interior_type<Polygon>::type const& interior_rings(
             Polygon const& polygon)
 {
     return core_dispatch::interior_rings
