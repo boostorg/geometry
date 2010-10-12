@@ -59,8 +59,7 @@ void test_sectionalize_part()
 
 template <int DimensionCount, typename G>
 void test_sectionalize(G const& g, std::size_t section_count,
-        std::string const& index_check, std::string const& dir_check,
-        bool sort = false)
+        std::string const& index_check, std::string const& dir_check)
 {
     typedef typename bg::point_type<G>::type point;
     typedef bg::box<point> box;
@@ -79,7 +78,7 @@ void test_sectionalize(G const& g, std::size_t section_count,
         {
             BOOST_CHECK_EQUAL(previous_index, sec.begin_index);
         }
-        BOOST_CHECK_EQUAL(sec.count, sec.end_index - sec.begin_index);
+        BOOST_CHECK_EQUAL(int(sec.count), int(sec.end_index - sec.begin_index));
         previous_index = sec.end_index;
     }
 
@@ -139,13 +138,12 @@ void test_sectionalize(G const& g, std::size_t section_count,
 template <typename G>
 void test_sectionalize(std::string const& wkt,
         std::size_t count2, std::string const& s2, std::string const d2,
-        std::size_t count1, std::string const& s1, std::string const d1,
-        bool sort = false)
+        std::size_t count1, std::string const& s1, std::string const d1)
 {
     G g;
     bg::read_wkt(wkt, g);
-    test_sectionalize<2>(g, count2, s2, d2, sort);
-    test_sectionalize<1>(g, count1, s1, d1, sort);
+    test_sectionalize<2>(g, count2, s2, d2);
+    test_sectionalize<1>(g, count1, s1, d1);
 }
 
 template <typename P>
