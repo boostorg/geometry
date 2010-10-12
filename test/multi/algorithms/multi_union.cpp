@@ -13,6 +13,7 @@
 #include <algorithms/test_overlay.hpp>
 #include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 
+#include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/multi/algorithms/union.hpp>
 
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
@@ -21,40 +22,56 @@
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
 
 
-template <typename P>
-void test_all()
+template <typename Ring, typename Polygon, typename MultiPolygon>
+void test_areal()
 {
-    namespace bg = boost::geometry;
-    typedef bg::linear_ring<P> ring;
-    typedef bg::polygon<P> polygon;
-    typedef bg::multi_polygon<polygon> multi_polygon;
-
-    test_one<polygon, multi_polygon, multi_polygon>("simplex_multi",
+    test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
 
-    test_one<polygon, polygon, multi_polygon>("simplex_multi_p_mp",
+    test_one<Polygon, Polygon, MultiPolygon>("simplex_multi_p_mp",
         case_single_simplex, case_multi_simplex[0],
         1, 0, 20, 14.58);
-    test_one<polygon, multi_polygon, polygon>("simplex_multi_mp_p",
+    test_one<Polygon, MultiPolygon, Polygon>("simplex_multi_mp_p",
         case_multi_simplex[0], case_single_simplex,
         1, 0, 20, 14.58);
 
-    test_one<polygon, ring, multi_polygon>("simplex_multi_r_mp",
+    test_one<Polygon, Ring, MultiPolygon>("simplex_multi_r_mp",
         case_single_simplex, case_multi_simplex[0],
         1, 0, 20, 14.58);
-    test_one<ring, multi_polygon, polygon>("simplex_multi_mp_r",
+    test_one<Ring, MultiPolygon, Polygon>("simplex_multi_mp_r",
         case_multi_simplex[0], case_single_simplex,
         1, 0, 20, 14.58);
 
 
     // Normal test cases
-    test_one<polygon, multi_polygon, multi_polygon>("case_multi_no_ip",
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_multi_no_ip",
         case_multi_no_ip[0], case_multi_no_ip[1],
         4, 0, 16, 66.5);
-    test_one<polygon, multi_polygon, multi_polygon>("case_multi_2",
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_multi_2",
         case_multi_2[0], case_multi_2[1],
         3, 0, 16, 59.1);
+}
+
+template <typename P>
+void test_all()
+{
+    namespace bg = boost::geometry;
+
+    {
+        typedef bg::linear_ring<P> ring;
+        typedef bg::polygon<P> polygon;
+        typedef bg::multi_polygon<polygon> multi_polygon;
+        test_areal<ring, polygon, multi_polygon>();
+    }
+
+    {
+        typedef bg::linear_ring<P, std::vector, false> ring_ccw;
+        typedef bg::polygon<P, std::vector, std::vector, false> polygon_ccw;
+        typedef bg::multi_polygon<polygon_ccw> multi_polygon_ccw;
+        test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
+    }
+
 }
 
 

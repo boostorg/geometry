@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/numeric/conversion/cast.hpp>
@@ -86,7 +87,14 @@ template
     typename Geometry, typename Box,
     typename StrategyLess, typename StrategyGreater
 >
-struct envelope {};
+struct envelope 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
 
 
 template

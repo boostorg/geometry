@@ -21,7 +21,7 @@
 
 
 template <typename Polygon>
-void test_polygons()
+void test_areal()
 {
     test_one<Polygon, Polygon, Polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
@@ -159,10 +159,10 @@ void test_all()
     std::string clip = "box(2 2,8 8)";
 
     // Test clockwise polygons
-    test_polygons<polygon>();
+    test_areal<polygon>();
 
     // Test counter-clockwise polygons
-    test_polygons<boost::geometry::polygon<P, std::vector, std::vector, false> >();
+    test_areal<boost::geometry::polygon<P, std::vector, std::vector, false> >();
 
 
     // Basic check: box/linestring, is clipping OK? should compile in any order

@@ -11,6 +11,7 @@
 
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/is_linear.hpp>
@@ -78,6 +79,11 @@ namespace dispatch
 template <typename GeometryTag, bool Linear, typename Geometry>
 struct num_points
 {
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
 };
 
 template <typename GeometryTag, typename Geometry>

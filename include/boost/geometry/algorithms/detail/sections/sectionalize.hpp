@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <vector>
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
@@ -496,7 +497,13 @@ template
     std::size_t MaxCount
 >
 struct sectionalize
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
 
 template
 <

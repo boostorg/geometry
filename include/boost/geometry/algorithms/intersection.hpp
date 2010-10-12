@@ -17,13 +17,13 @@
 #include <boost/range/metafunctions.hpp>
 
 
-#include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/core/is_areal.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
-#include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/ranges/segment_range.hpp>
 
 

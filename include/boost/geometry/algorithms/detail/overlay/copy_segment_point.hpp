@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENT_POINT_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
@@ -129,7 +130,13 @@ template
     typename PointOut
 >
 struct copy_segment_point
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<GeometryIn>)
+        );
+};
 
 
 template <typename LineString, typename SegmentIdentifier, typename PointOut>
