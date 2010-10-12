@@ -102,7 +102,7 @@ struct test_traverse
         out_vector v;
 
 
-        bg::traverse(g1, g2, Direction, turns, v);
+        bg::traverse<bg::clockwise>(g1, g2, Direction, turns, v);
 
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count_area.get<0>() == boost::size(v),
