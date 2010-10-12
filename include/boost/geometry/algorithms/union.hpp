@@ -38,7 +38,7 @@ template
 >
 struct union_inserter
     : detail::overlay::overlay
-        <G1, G2, OutputIterator, GeometryOut, 1, Strategy>
+        <G1, G2, OutputIterator, GeometryOut, 1, true, Strategy>
 {
 };
 

@@ -16,6 +16,7 @@
 
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
@@ -163,6 +164,10 @@ double test_one(std::string const& caseid, std::string const& wkt1, std::string 
 
     G2 g2;
     boost::geometry::read_wkt(wkt2, g2);
+
+    // Reverse if necessary
+    boost::geometry::correct(g1);
+    boost::geometry::correct(g2);
 
     return test_intersection<OutputType, void>(caseid, g1, g2,
         expected_count, expected_point_count,

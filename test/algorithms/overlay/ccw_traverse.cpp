@@ -18,28 +18,6 @@
 
 namespace bg = boost::geometry;
 
-template <typename Vector>
-void reverse_operations(Vector& v)
-{
-    using namespace bg::detail::overlay;
-
-    typedef typename boost::range_value<Vector>::type item;
-    BOOST_FOREACH(item& it, v)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            operation_type& op = it.operations[i].operation;
-            switch(op)
-            {
-                case operation_none : op = operation_none; break;
-                case operation_union : op = operation_intersection; break;
-                case operation_intersection : op = operation_union; break;
-                case operation_blocked : op = operation_blocked; break;
-                case operation_continue : op = operation_continue; break;
-            }
-        }
-    }
-}
 
 template <typename Geometry>
 inline typename bg::coordinate_type<Geometry>::type intersect(Geometry const& g1, Geometry const& g2, std::string const& name, 
@@ -63,7 +41,7 @@ inline typename bg::coordinate_type<Geometry>::type intersect(Geometry const& g1
     bool const reverse = bg::point_order<Geometry>::value == bg::counterclockwise;
     if (reverse)
     {
-        reverse_operations(turns);
+        bg::detail::overlay::reverse_operations(turns);
     }
     bg::enrich_intersection_points(turns, g1, g2, side_strategy_type());
 

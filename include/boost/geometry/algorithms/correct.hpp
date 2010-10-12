@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <functional>
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/closure.hpp>
@@ -35,6 +36,13 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace correct
 {
+
+template <typename Geometry>
+struct correct_nop
+{
+    static inline void apply(Geometry& )
+    {}
+};
 
 
 template <typename Box, std::size_t Dimension, std::size_t DimensionCount>
@@ -172,11 +180,28 @@ namespace dispatch
 template <typename Tag, typename Geometry>
 struct correct 
 {
-    static inline void apply(Geometry& geometry)
-    {
-        // Default: no action necessary
-    }
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
 };
+
+template <typename Point>
+struct correct<point_tag, Point> 
+    : detail::correct::correct_nop<Point> 
+{};
+
+template <typename LineString>
+struct correct<linestring_tag, LineString> 
+    : detail::correct::correct_nop<LineString>
+{};
+
+template <typename Segment>
+struct correct<segment_tag, Segment> 
+    : detail::correct::correct_nop<Segment> 
+{};
+
 
 template <typename Box>
 struct correct<box_tag, Box>

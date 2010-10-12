@@ -18,15 +18,25 @@
 #include <boost/geometry/multi/core/tags.hpp>
 
 
-
 namespace boost { namespace geometry
 {
-
 
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
+
+template <typename MultiPoint>
+struct correct<multi_point_tag, MultiPoint> 
+    : detail::correct::correct_nop<MultiPoint> 
+{};
+
+
+template <typename MultiLineString>
+struct correct<multi_linestring_tag, MultiLineString> 
+    : detail::correct::correct_nop<MultiLineString>
+{};
+
 
 template <typename Geometry>
 struct correct<multi_polygon_tag, Geometry>

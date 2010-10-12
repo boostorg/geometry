@@ -13,6 +13,7 @@
 #include <algorithms/test_overlay.hpp>
 #include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 
+#include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
@@ -21,41 +22,51 @@
 
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
 
+template <typename Ring, typename Polygon, typename MultiPolygon>
+void test_areal()
+{
+    test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
+        case_multi_simplex[0], case_multi_simplex[1],
+        2, 12, 6.42);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_multi_no_ip",
+        case_multi_no_ip[0], case_multi_no_ip[1],
+        2, 8, 8.5);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_multi_2",
+        case_multi_2[0], case_multi_2[1],
+        3, 12, 5.9);
+
+    test_one<Polygon, MultiPolygon, Polygon>("simplex_multi_mp_p",
+        case_multi_simplex[0], case_single_simplex,
+        2, 12, 6.42);
+
+    test_one<Polygon, Ring, MultiPolygon>("simplex_multi_r_mp",
+        case_single_simplex, case_multi_simplex[0],
+        2, 12, 6.42);
+    test_one<Ring, MultiPolygon, Polygon>("simplex_multi_mp_r",
+        case_multi_simplex[0], case_single_simplex,
+        2, 12, 6.42);
+}
+
 
 template <typename P>
 void test_all()
 {
-    // polygon/multi polygon and ring/multi polygon are tested in union
-
     namespace bg = boost::geometry;
+
+
     typedef bg::linear_ring<P> ring;
     typedef bg::polygon<P> polygon;
     typedef bg::multi_polygon<polygon> multi_polygon;
+    test_areal<ring, polygon, multi_polygon>();
+
+    typedef bg::linear_ring<P, std::vector, false> ring_ccw;
+    typedef bg::polygon<P, std::vector, std::vector, false> polygon_ccw;
+    typedef bg::multi_polygon<polygon_ccw> multi_polygon_ccw;
+    test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
 
     typedef bg::linestring<P> linestring;
     typedef bg::multi_linestring<linestring> multi_linestring;
-
-    test_one<polygon, multi_polygon, multi_polygon>("simplex_multi",
-        case_multi_simplex[0], case_multi_simplex[1],
-        2, 12, 6.42);
-
-    test_one<polygon, multi_polygon, multi_polygon>("case_multi_no_ip",
-        case_multi_no_ip[0], case_multi_no_ip[1],
-        2, 8, 8.5);
-    test_one<polygon, multi_polygon, multi_polygon>("case_multi_2",
-        case_multi_2[0], case_multi_2[1],
-        3, 12, 5.9);
-
-    test_one<polygon, multi_polygon, polygon>("simplex_multi_mp_p",
-        case_multi_simplex[0], case_single_simplex,
-        2, 12, 6.42);
-
-    test_one<polygon, ring, multi_polygon>("simplex_multi_r_mp",
-        case_single_simplex, case_multi_simplex[0],
-        2, 12, 6.42);
-    test_one<ring, multi_polygon, polygon>("simplex_multi_mp_r",
-        case_multi_simplex[0], case_single_simplex,
-        2, 12, 6.42);
 
 
     // linear

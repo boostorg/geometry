@@ -11,6 +11,8 @@
 
 #include <boost/geometry/algorithms/distance.hpp>
 
+#include <boost/geometry/strategies/intersection.hpp>
+
 
 namespace boost { namespace geometry
 {
