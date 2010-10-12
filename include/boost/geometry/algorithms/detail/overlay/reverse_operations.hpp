@@ -36,6 +36,7 @@ void reverse_operations(Turns& turns)
             {
                 case operation_union : op = operation_intersection; break;
                 case operation_intersection : op = operation_union; break;
+                default : break;
             }
         }
     }
