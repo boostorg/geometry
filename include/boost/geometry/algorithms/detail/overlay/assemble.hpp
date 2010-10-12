@@ -17,18 +17,18 @@
 #include <boost/mpl/assert.hpp>
 
 
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
-
-#include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
-
-
-#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
+#include <boost/geometry/algorithms/detail/overlay/reverse_operations.hpp>
+//#include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/combine.hpp>
@@ -36,17 +36,15 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/algorithms/detail/point_on_border.hpp>
-
 #include <boost/geometry/iterators/range_type.hpp>
 #include <boost/geometry/util/math.hpp>
-
 
 #include <boost/geometry/strategies/intersection.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/util/write_dsv.hpp>
 #endif
+
 
 namespace boost { namespace geometry
 {
@@ -625,7 +623,7 @@ inline OutputIterator add_all_rings(Container& container,
 
 template
 <
-    typename GeometryOut,
+    typename GeometryOut, 
     typename Rings, typename Map,
     typename Geometry1, typename Geometry2,
     typename OutputIterator
@@ -764,7 +762,7 @@ template
 <
     typename Geometry1, typename Geometry2,
     typename OutputIterator, typename GeometryOut,
-    int Direction,
+    int Direction, bool ClockWise,
     typename Strategy
 >
 struct overlay
@@ -815,6 +813,11 @@ std::cout << "get turns" << std::endl;
                 detail::overlay::calculate_distance_policy
             >(geometry1, geometry2, turn_points, policy);
 
+        if (! ClockWise)
+        {
+            detail::overlay::reverse_operations(turn_points);
+        }
+
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
@@ -846,5 +849,6 @@ std::cout << "traverse" << std::endl;
 
 
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSEMBLE_HPP

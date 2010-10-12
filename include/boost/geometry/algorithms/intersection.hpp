@@ -115,6 +115,8 @@ template
 <
     // tag dispatching:
     typename TagIn1, typename TagIn2, typename TagOut,
+    // orientation 
+    order_selector Order1, order_selector Order2, order_selector OrderOut,
     // metafunction finetuning helpers:
     bool Areal1, bool Areal2, bool ArealOut, 
     // real types
@@ -144,14 +146,34 @@ template
 struct intersection_inserter
     <
         TagIn1, TagIn2, TagOut,
+        clockwise, clockwise, clockwise,
         true, true, true,
         Geometry1, Geometry2,
         OutputIterator, GeometryOut,
         Strategy
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, Strategy>
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, true, Strategy>
 {};
 
+template
+<
+    typename TagIn1, typename TagIn2, typename TagOut,
+    typename Geometry1, typename Geometry2,
+    typename OutputIterator,
+    typename GeometryOut,
+    typename Strategy
+>
+struct intersection_inserter
+    <
+        TagIn1, TagIn2, TagOut,
+        counterclockwise, counterclockwise, counterclockwise,
+        true, true, true,
+        Geometry1, Geometry2,
+        OutputIterator, GeometryOut,
+        Strategy
+    > : detail::overlay::overlay
+        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, false, Strategy>
+{};
 
 
 template
@@ -163,6 +185,7 @@ template
 struct intersection_inserter
     <
         segment_tag, segment_tag, point_tag,
+        clockwise, clockwise, clockwise,
         false, false, false,
         Segment1, Segment2,
         OutputIterator, GeometryOut,
@@ -185,6 +208,7 @@ template
 struct intersection_inserter
     <
         linestring_tag, linestring_tag, point_tag,
+        clockwise, clockwise, clockwise,
         false, false, false,
         Linestring1, Linestring2,
         OutputIterator, GeometryOut,
@@ -207,6 +231,7 @@ template
 struct intersection_inserter
     <
         linestring_tag, box_tag, linestring_tag,
+        clockwise, clockwise, clockwise,
         false, true, false,
         Linestring, Box,
         OutputIterator, GeometryOut,
@@ -232,6 +257,7 @@ template
 struct intersection_inserter
     <
         segment_tag, box_tag, linestring_tag,
+        clockwise, clockwise, clockwise,
         false, true, false,
         Segment, Box,
         OutputIterator, GeometryOut,
@@ -255,6 +281,7 @@ struct intersection_inserter
 template
 <
     typename GeometryTag1, typename GeometryTag2, typename GeometryTag3,
+    order_selector Order1, order_selector Order2, order_selector OrderOut,
     bool Areal1, bool Areal2, bool ArealOut, 
     typename Geometry1, typename Geometry2,
     typename OutputIterator, typename GeometryOut,
@@ -269,6 +296,7 @@ struct intersection_inserter_reversed
         return intersection_inserter
             <
                 GeometryTag2, GeometryTag1, GeometryTag3,
+                Order2, Order1, OrderOut,
                 Areal2, Areal1, ArealOut, 
                 Geometry2, Geometry1,
                 OutputIterator, GeometryOut,
@@ -327,6 +355,9 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
                 typename tag<GeometryOut>::type,
+                point_order<Geometry1>::value,
+                point_order<Geometry2>::value,
+                point_order<GeometryOut>::value,
                 is_areal<Geometry1>::value,
                 is_areal<Geometry2>::value,
                 is_areal<GeometryOut>::value,
@@ -340,6 +371,9 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
                 typename tag<GeometryOut>::type,
+                point_order<Geometry1>::value,
+                point_order<Geometry2>::value,
+                point_order<GeometryOut>::value,
                 is_areal<Geometry1>::value,
                 is_areal<Geometry2>::value,
                 is_areal<GeometryOut>::value,

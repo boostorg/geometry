@@ -11,6 +11,7 @@
 
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/multi/core/is_areal.hpp>
+#include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/assemble.hpp>
 
 
@@ -119,6 +120,7 @@ template
 struct intersection_inserter
     <
         multi_linestring_tag, multi_linestring_tag, point_tag,
+        clockwise, clockwise, clockwise,
         false, false, false,
         MultiLinestring1, MultiLinestring2,
         OutputIterator, GeometryOut,
@@ -140,6 +142,7 @@ template
 struct intersection_inserter
     <
         linestring_tag, multi_linestring_tag, point_tag,
+        clockwise, clockwise, clockwise,
         false, false, false,
         Linestring, MultiLinestring,
         OutputIterator, GeometryOut,

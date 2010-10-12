@@ -20,6 +20,133 @@
 #include <test_geometries/custom_segment.hpp>
 
 
+template <typename Polygon>
+void test_polygons()
+{
+    test_one<Polygon, Polygon, Polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 7, 5.47363293);
+    test_one<Polygon, Polygon, Polygon>("star_ring", example_star, example_ring,
+        1, 18, 2.80983);
+
+    test_one<Polygon, Polygon, Polygon>("star_poly", example_star, example_polygon,
+        1, 0, // CLN: 23 points, other types: 22 point (one is merged)
+        2.5020508);
+    test_one<Polygon, Polygon, Polygon>("first_within_second1",
+        first_within_second[0], first_within_second[1],
+        1, 5, 1.0);
+
+    test_one<Polygon, Polygon, Polygon>("first_within_second2",
+        first_within_second[1], first_within_second[0],
+        1, 5, 1.0);
+
+    test_one<Polygon, Polygon, Polygon>("first_within_hole_of_second",
+            first_within_hole_of_second[0], first_within_hole_of_second[1],
+            0, 0, 0.0);
+
+    // Two forming new hole
+    test_one<Polygon, Polygon, Polygon>("new_hole",
+        new_hole[0], new_hole[1],
+        2, 10, 2.0);
+
+    // Two identical
+    test_one<Polygon, Polygon, Polygon>("identical",
+        identical[0], identical[1],
+        1, 5, 1.0);
+
+    // Two, inside each other, having intersections but holes are disjoint
+    test_one<Polygon, Polygon, Polygon>("intersect_holes_disjoint",
+        intersect_holes_disjoint[0], intersect_holes_disjoint[1],
+        1, 15, 18.0);
+
+    // Two, inside each other, having intersections; holes separate intersections
+    test_one<Polygon, Polygon, Polygon>("intersect_holes_intersect",
+        intersect_holes_intersect[0], intersect_holes_intersect[1],
+        1, 14, 18.25);
+
+    test_one<Polygon, Polygon, Polygon>("intersect_holes_intersect_and_disjoint",
+        intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
+        1, 19, 17.25);
+
+    test_one<Polygon, Polygon, Polygon>("intersect_holes_intersect_and_touch",
+        intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
+        1, 23, 17.25);
+  
+    test_one<Polygon, Polygon, Polygon>("intersect_holes_new_ring",
+        intersect_holes_new_ring[0], intersect_holes_new_ring[1],
+        2, 23, 122.1039);
+
+    test_one<Polygon, Polygon, Polygon>("winded",
+        winded[0], winded[1],
+        1, 22, 40.0);
+
+    test_one<Polygon, Polygon, Polygon>("two_bends",
+        two_bends[0], two_bends[1],
+        1, 7, 24.0);
+
+    test_one<Polygon, Polygon, Polygon>("star_comb_15",
+        star_15, comb_15,
+        28, 150, 189.952883);
+
+    test_one<Polygon, Polygon, Polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 7, 5.47363293);
+
+    test_one<Polygon, Polygon, Polygon>("fitting",
+        fitting[0], fitting[1],
+        0, 0, 0);
+
+    test_one<Polygon, Polygon, Polygon>("dist_zero",
+        distance_zero[0], distance_zero[1],
+        1, 0 /* f: 4, other: 5 */, 0.29516139, 0.01);
+
+    test_one<Polygon, Polygon, Polygon>("ehd",
+        equal_holes_disjoint[0], equal_holes_disjoint[1],
+        1, 20, 81 - 2 * 3 * 3 - 3 * 7);
+
+    test_one<Polygon, Polygon, Polygon>("only_hole_intersections1",
+        only_hole_intersections[0], only_hole_intersections[1],
+        1, 21, 178.090909);
+    test_one<Polygon, Polygon, Polygon>("only_hole_intersection2",
+        only_hole_intersections[0], only_hole_intersections[2],
+        1, 21, 149.090909);
+
+    test_one<Polygon, Polygon, Polygon>("intersect_exterior_and_interiors_winded",
+        intersect_exterior_and_interiors_winded[0], intersect_exterior_and_interiors_winded[1],
+        1, 14, 25.2166667);
+
+    return;
+
+
+    test_one<Polygon, Polygon, Polygon>(
+            "polygon_pseudo_line", 
+            "Polygon((0 0,0 4,4 4,4 0,0 0))", 
+            "Polygon((2 -2,2 -1,2 6,2 -2))", 
+            5, 22, 1.1901714);
+
+
+    // Icovist (submitted by Brandon during Formal Review)
+    // Test the FORWARD case
+    {
+        std::string tn = string_from_type<typename boost::geometry::coordinate_type<Polygon>::type>::name();
+        test_one<Polygon, Polygon, Polygon>("isovist",
+            isovist[0], isovist[1],
+            1,
+            tn == std::string("f") ? 19 : tn == std::string("d") ? 21 : 20,
+            88.19203,
+            tn == std::string("f") ? 0.5 : tn == std::string("d") ? 0.1 : 0.01);
+    }
+
+
+    // Test the REVERSE case - does not give correct results yet
+    /*
+    test_one<Polygon, Polygon, Polygon>("icovist_r",
+        isovist[0], isovist[2],
+        1, 4, 0.29516139, 0.01);
+    */
+
+}
+
 
 template <typename P>
 void test_all()
@@ -31,9 +158,11 @@ void test_all()
 
     std::string clip = "box(2 2,8 8)";
 
-    test_one<polygon, polygon, polygon>("simplex_normal",
-        simplex_normal[0], simplex_normal[1],
-        1, 7, 5.47363293);
+    // Test clockwise polygons
+    test_polygons<polygon>();
+
+    // Test counter-clockwise polygons
+    test_polygons<boost::geometry::polygon<P, std::vector, std::vector, false> >();
 
 
     // Basic check: box/linestring, is clipping OK? should compile in any order
@@ -68,12 +197,6 @@ void test_all()
     test_one<polygon, box, polygon>("boxpoly", example_box, example_polygon,
         3, 19, 0.840166);
 
-    test_one<polygon, polygon, polygon>("star_ring", example_star, example_ring,
-        1, 18, 2.80983);
-
-    test_one<polygon, polygon, polygon>("star_poly", example_star, example_polygon,
-        1, 0, // CLN: 23 points, other types: 22 point (one is merged)
-        2.5020508);
 
 
     test_one<polygon, box, polygon>("poly1", example_box,
@@ -101,88 +224,6 @@ void test_all()
     test_one<polygon, box, polygon>("clip_poly7", "box(0 0, 3 3)",
             "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))", 1, 4, 0.75);
 
-    test_one<polygon, polygon, polygon>("first_within_second1",
-        first_within_second[0], first_within_second[1],
-        1, 5, 1.0);
-
-    test_one<polygon, polygon, polygon>("first_within_second2",
-        first_within_second[1], first_within_second[0],
-        1, 5, 1.0);
-
-    test_one<polygon, polygon, polygon>("first_within_hole_of_second",
-            first_within_hole_of_second[0], first_within_hole_of_second[1],
-            0, 0, 0.0);
-
-    // Two forming new hole
-    test_one<polygon, polygon, polygon>("new_hole",
-        new_hole[0], new_hole[1],
-        2, 10, 2.0);
-
-    // Two identical
-    test_one<polygon, polygon, polygon>("identical",
-        identical[0], identical[1],
-        1, 5, 1.0);
-
-    // Two, inside each other, having intersections but holes are disjoint
-    test_one<polygon, polygon, polygon>("intersect_holes_disjoint",
-        intersect_holes_disjoint[0], intersect_holes_disjoint[1],
-        1, 15, 18.0);
-
-    // Two, inside each other, having intersections; holes separate intersections
-    test_one<polygon, polygon, polygon>("intersect_holes_intersect",
-        intersect_holes_intersect[0], intersect_holes_intersect[1],
-        1, 14, 18.25);
-
-    test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
-        intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
-        1, 19, 17.25);
-
-    test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_touch",
-        intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
-        1, 23, 17.25);
-  
-    test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
-        intersect_holes_new_ring[0], intersect_holes_new_ring[1],
-        2, 23, 122.1039);
-
-    test_one<polygon, polygon, polygon>("winded",
-        winded[0], winded[1],
-        1, 22, 40.0);
-
-    test_one<polygon, polygon, polygon>("two_bends",
-        two_bends[0], two_bends[1],
-        1, 7, 24.0);
-
-    test_one<polygon, polygon, polygon>("star_comb_15",
-        star_15, comb_15,
-        28, 150, 189.952883);
-
-    test_one<polygon, polygon, polygon>("simplex_normal",
-        simplex_normal[0], simplex_normal[1],
-        1, 7, 5.47363293);
-
-    test_one<polygon, polygon, polygon>("fitting",
-        fitting[0], fitting[1],
-        0, 0, 0);
-
-    test_one<polygon, polygon, polygon>("dist_zero",
-        distance_zero[0], distance_zero[1],
-        1, 0 /* f: 4, other: 5 */, 0.29516139, 0.01);
-
-    test_one<polygon, polygon, polygon>("ehd",
-        equal_holes_disjoint[0], equal_holes_disjoint[1],
-        1, 20, 81 - 2 * 3 * 3 - 3 * 7);
-
-    test_one<polygon, polygon, polygon>("only_hole_intersections1",
-        only_hole_intersections[0], only_hole_intersections[1],
-        1, 21, 178.090909);
-    test_one<polygon, polygon, polygon>("only_hole_intersection2",
-        only_hole_intersections[0], only_hole_intersections[2],
-        1, 21, 149.090909);
-
-    test_one<polygon, polygon, polygon>("intersect_exterior_and_interiors_winded",
-        intersect_exterior_and_interiors_winded[0], intersect_exterior_and_interiors_winded[1],
-        1, 14, 25.2166667);
 
     // linear
     test_one<P, linestring, linestring>("llp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
@@ -192,60 +233,6 @@ void test_all()
     // polygons outputing points
     //test_one<P, polygon, polygon>("ppp1", simplex_normal[0], simplex_normal[1], 1, 7, 5.47363293);
 
-
-    return;
-
-
-    test_one<polygon, polygon, polygon>(
-            "polygon_pseudo_line", 
-            "POLYGON((0 0,0 4,4 4,4 0,0 0))", 
-            "POLYGON((2 -2,2 -1,2 6,2 -2))", 
-            5, 22, 1.1901714);
-
-    test_one<polygon, polygon, polygon>(
-            "reverse", 
-            "POLYGON((0 0,4 0,4 4,0 4,0 0))", 
-            "POLYGON((2 2,2 3,6 3,6 2,2 2))", 
-            5, 22, 1.190171);
-
-
-
-
-    /*
-    REVERSED cases (should be handled/tested differently)
-    test_one<polygon, polygon, polygon>(102,
-        simplex_normal[0], simplex_reversed[1],
-        1, 7, 24.0);
-
-    test_one<polygon, polygon, polygon>(103,
-        simplex_reversed[0], simplex_normal[1],
-        1, 7, 24.0);
-
-    test_one<polygon, polygon, polygon>(104,
-        simplex_reversed[0], simplex_reversed[1],
-        1, 7, 24.0);
-    */
-
-
-    // Icovist (submitted by Brandon during Formal Review)
-    // Test the FORWARD case
-    {
-        std::string tn = string_from_type<typename boost::geometry::coordinate_type<P>::type>::name();
-        test_one<polygon, polygon, polygon>("isovist",
-            isovist[0], isovist[1],
-            1,
-            tn == std::string("f") ? 19 : tn == std::string("d") ? 21 : 20,
-            88.19203,
-            tn == std::string("f") ? 0.5 : tn == std::string("d") ? 0.1 : 0.01);
-    }
-
-
-    // Test the REVERSE case - does not give correct results yet
-    /*
-    test_one<polygon, polygon, polygon>("icovist_r",
-        isovist[0], isovist[2],
-        1, 4, 0.29516139, 0.01);
-    */
 
 
     /*
@@ -292,24 +279,11 @@ void test_pointer_version()
 
 
 
-template <typename P>
-void test_ccw()
-{
-    typedef boost::geometry::polygon<P, std::vector, std::vector, true> polygon;
-
-    test_one<polygon, polygon, polygon>("simplex_normal",
-        simplex_normal[0], simplex_normal[1],
-        1, 7, 5.47363293);
-}
-
 
 int test_main(int, char* [])
 {
     test_all<boost::geometry::point_xy<float> >();
     test_all<boost::geometry::point_xy<double> >();
-
-    //test_ccw<boost::geometry::point_xy<double> >();
-
 
 #if defined(HAVE_CLN)
     test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
