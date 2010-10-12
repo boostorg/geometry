@@ -73,16 +73,16 @@ void test_std()
     BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(*it)), 1.0, 0.001);
     BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(*it)), 2.0, 0.001);
 
-    BOOST_CHECK_EQUAL(ring.size(), 5);
+    BOOST_CHECK_EQUAL(ring.size(), 5u);
 
 
     polygon_type polygon;
 
     boost::geometry::convert(ring, polygon);
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(polygon), 5);
+    BOOST_CHECK_EQUAL(boost::geometry::num_points(polygon), 5u);
 
     boost::geometry::convert(polygon, ring);
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(ring), 5);
+    BOOST_CHECK_EQUAL(boost::geometry::num_points(ring), 5u);
 }
 
 int test_main(int, char* [])
