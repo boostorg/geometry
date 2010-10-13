@@ -107,12 +107,33 @@ struct intersection_linestring_multi_linestring_point
 };
 
 
-
+template
+<
+    typename MultiLinestring, typename Box,
+    typename OutputIterator, typename LinestringOut,
+    typename Strategy
+>
+struct clip_multi_linestring
+{
+    static inline OutputIterator apply(MultiLinestring const& multi_linestring,
+            Box const& box, OutputIterator out, Strategy const& strategy)
+    {
+        typedef typename point_type<LinestringOut>::type point_type;
+        strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
+        for (typename boost::range_iterator<MultiLinestring const>::type it
+            = boost::begin(multi_linestring);
+            it != boost::end(multi_linestring); ++it)
+        {
+            out = detail::intersection::clip_range_with_box
+                <LinestringOut>(box, *it, out, lb_strategy);
+        }
+        return out;
+    }
+};
 
 
 }} // namespace detail::intersection
 #endif // DOXYGEN_NO_DETAIL
-
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -125,12 +146,12 @@ template
 <
     typename MultiLinestring1, typename MultiLinestring2,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy
+    typename Strategy, order_selector Order
 >
 struct intersection_inserter
     <
         multi_linestring_tag, multi_linestring_tag, point_tag,
-        clockwise, clockwise, clockwise,
+        Order, Order, Order,
         false, false, false,
         MultiLinestring1, MultiLinestring2,
         OutputIterator, GeometryOut,
@@ -143,16 +164,17 @@ struct intersection_inserter
             >
 {};
 
+
 template
 <
     typename Linestring, typename MultiLinestring,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy
+    typename Strategy, order_selector Order
 >
 struct intersection_inserter
     <
         linestring_tag, multi_linestring_tag, point_tag,
-        clockwise, clockwise, clockwise,
+        Order, Order, Order,
         false, false, false,
         Linestring, MultiLinestring,
         OutputIterator, GeometryOut,
@@ -160,6 +182,29 @@ struct intersection_inserter
     > : detail::intersection::intersection_linestring_multi_linestring_point
             <
                 Linestring, MultiLinestring,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
+
+
+template
+<
+    typename MultiLinestring, typename Box,
+    typename OutputIterator, typename GeometryOut,
+    typename Strategy, order_selector Order
+>
+struct intersection_inserter
+    <
+        multi_linestring_tag, box_tag, linestring_tag,
+        Order, Order, Order,
+        false, true, false,
+        MultiLinestring, Box,
+        OutputIterator, GeometryOut,
+        Strategy
+    > : detail::intersection::clip_multi_linestring
+            <
+                MultiLinestring, Box,
                 OutputIterator, GeometryOut,
                 Strategy
             >

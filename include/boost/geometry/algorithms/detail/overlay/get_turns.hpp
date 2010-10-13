@@ -20,7 +20,6 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/core/is_multi.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -505,10 +504,10 @@ struct get_turns_cs
 
     static inline void apply(
                 int source_id1, Range const& range,
-                int multi_index, int ring_index,
                 int source_id2, Box const& box,
                 Turns& turns,
-                InterruptPolicy& )
+                InterruptPolicy& ,
+                int multi_index = -1, int ring_index = -1)
     {
         if (boost::size(range) <= 1)
         {
@@ -647,6 +646,57 @@ private:
 };
 
 
+template
+<
+    typename Polygon,
+    typename Box,
+    typename Turns,
+    typename TurnPolicy,
+    typename InterruptPolicy
+>
+struct get_turns_polygon_cs
+{
+    static inline void apply(
+            int source_id1, Polygon const& polygon,
+            int source_id2, Box const& box,
+            Turns& turns, InterruptPolicy& interrupt_policy,
+            int multi_index = -1)
+    {
+        typedef typename geometry::ring_type<Polygon>::type ring_type;
+
+        typedef typename boost::range_iterator
+            <
+                typename interior_type<Polygon>::type const
+            >::type iterator_type;
+
+        typedef detail::get_turns::get_turns_cs
+            <
+                ring_type,
+                Box,
+                Turns,
+                TurnPolicy,
+                InterruptPolicy
+            > intersector_type;
+
+        intersector_type::apply(
+                source_id1, geometry::exterior_ring(polygon),
+                source_id2, box, turns, interrupt_policy, 
+                multi_index, -1);
+
+        int i = 0;
+        for (iterator_type it = boost::begin(interior_rings(polygon));
+             it != boost::end(interior_rings(polygon));
+             ++it, ++i)
+        {
+            intersector_type::apply(
+                    source_id1, *it,
+                    source_id2, box, turns, interrupt_policy, 
+                    multi_index, i);
+        }
+
+    }
+};
+
 }} // namespace detail::get_turns
 #endif // DOXYGEN_NO_DETAIL
 
@@ -660,7 +710,6 @@ namespace dispatch
 template
 <
     typename GeometryTag1, typename GeometryTag2,
-    bool IsMulti1, bool IsMulti2,
     typename Geometry1, typename Geometry2,
     typename Turns,
     typename TurnPolicy,
@@ -688,53 +737,17 @@ template
 >
 struct get_turns
     <
-        polygon_tag, box_tag, false, false,
+        polygon_tag, box_tag, 
         Polygon, Box,
         Turns,
         TurnPolicy,
         InterruptPolicy
-    >
-{
-
-    static inline void apply(
-            int source_id1, Polygon const& polygon,
-            int source_id2, Box const& box,
-            Turns& turns, InterruptPolicy& interrupt_policy)
-    {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-
-        typedef typename boost::range_iterator
+    > : detail::get_turns::get_turns_polygon_cs
             <
-                typename interior_type<Polygon>::type const
-            >::type iterator_type;
-
-
-        typedef detail::get_turns::get_turns_cs
-            <
-                ring_type,
-                Box,
-                Turns,
-                TurnPolicy,
-                InterruptPolicy
-            > intersector_type;
-
-        intersector_type::apply(
-                source_id1, geometry::exterior_ring(polygon), -1, -1,
-                source_id2, box,
-                turns, interrupt_policy);
-
-        int i = 0;
-        for (iterator_type it = boost::begin(interior_rings(polygon));
-             it != boost::end(interior_rings(polygon));
-             ++it, ++i)
-        {
-            intersector_type::apply(
-                    source_id1, *it, -1, i,
-                    source_id2, box, turns, interrupt_policy);
-        }
-
-    }
-};
+                Polygon, Box,
+                Turns, TurnPolicy, InterruptPolicy
+            >
+{};
 
 
 template
@@ -747,45 +760,23 @@ template
 >
 struct get_turns
     <
-        ring_tag, box_tag, false, false,
+        ring_tag, box_tag, 
         Ring, Box,
         Turns,
         TurnPolicy,
         InterruptPolicy
-    >
-{
-    static inline void apply(
-            int source_id1, Ring const& ring,
-            int source_id2, Box const& box,
-            Turns& turns, InterruptPolicy& interrupt_policy)
-    {
-        typedef typename boost::range_iterator
+    > : detail::get_turns::get_turns_cs
             <
-                Ring const
-            >::type iterator_type;
+                Ring, Box,
+                Turns, TurnPolicy, InterruptPolicy
+            >
 
-        typedef detail::get_turns::get_turns_cs
-            <
-                Ring,
-                Box,
-                Turns,
-                TurnPolicy,
-                InterruptPolicy
-            > intersector_type;
-
-        intersector_type::apply(
-                source_id1, ring, -1, -1,
-                source_id2, box,
-                turns, interrupt_policy);
-
-    }
-};
+{};
 
 
 template
 <
     typename GeometryTag1, typename GeometryTag2,
-    bool IsMulti1, bool IsMulti2,
     typename Geometry1, typename Geometry2,
     typename Turns,
     typename TurnPolicy,
@@ -801,7 +792,6 @@ struct get_turns_reversed
         get_turns
             <
                 GeometryTag2, GeometryTag1,
-                IsMulti2, IsMulti1,
                 Geometry2, Geometry1,
                 Turns, TurnPolicy,
                 InterruptPolicy
@@ -865,8 +855,6 @@ inline void get_turns(Geometry1 const& geometry1,
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
-                is_multi<Geometry1>::type::value,
-                is_multi<Geometry2>::type::value,
                 Geometry1,
                 Geometry2,
                 Turns, TurnPolicy,
@@ -876,8 +864,6 @@ inline void get_turns(Geometry1 const& geometry1,
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
-                is_multi<Geometry1>::type::value,
-                is_multi<Geometry2>::type::value,
                 Geometry1,
                 Geometry2,
                 Turns, TurnPolicy,

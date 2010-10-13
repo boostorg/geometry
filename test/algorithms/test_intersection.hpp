@@ -60,6 +60,7 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     boost::geometry::intersection_inserter<OutputType>(g1, g2, std::back_inserter(clip), strategy());
 
+
     double length_or_area = 0;
     std::size_t n = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
@@ -122,11 +123,16 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 #if defined(TEST_WITH_SVG)
     {
+        bool const ccw = 
+            boost::geometry::point_order<G1>::value == boost::geometry::counterclockwise
+            || boost::geometry::point_order<G2>::value == boost::geometry::counterclockwise;
+
         std::ostringstream filename;
         filename << "intersection_"
             << caseid << "_"
             << string_from_type<coordinate_type>::name()
             << string_from_type<CalculationType>::name()
+            << (ccw ? "_ccw" : "")
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());
