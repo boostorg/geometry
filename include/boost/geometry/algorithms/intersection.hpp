@@ -228,12 +228,12 @@ template
 <
     typename Linestring1, typename Linestring2,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy
+    typename Strategy, order_selector Order
 >
 struct intersection_inserter
     <
         linestring_tag, linestring_tag, point_tag,
-        clockwise, clockwise, clockwise,
+        Order, Order, Order,
         false, false, false,
         Linestring1, Linestring2,
         OutputIterator, GeometryOut,
@@ -251,12 +251,12 @@ template
 <
     typename Linestring, typename Box,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy
+    typename Strategy, order_selector Order
 >
 struct intersection_inserter
     <
         linestring_tag, box_tag, linestring_tag,
-        clockwise, clockwise, clockwise,
+        Order, Order, Order,
         false, true, false,
         Linestring, Box,
         OutputIterator, GeometryOut,
@@ -277,12 +277,12 @@ template
 <
     typename Segment, typename Box,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy
+    typename Strategy, order_selector Order
 >
 struct intersection_inserter
     <
         segment_tag, box_tag, linestring_tag,
-        clockwise, clockwise, clockwise,
+        Order, Order, Order,
         false, true, false,
         Segment, Box,
         OutputIterator, GeometryOut,
