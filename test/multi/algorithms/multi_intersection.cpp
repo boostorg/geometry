@@ -61,7 +61,7 @@ void test_areal_clip()
 template <typename LineString, typename MultiLineString, typename Box>
 void test_linear()
 {
-    typedef boost::geometry::point_type<MultiLineString>::type point;
+    typedef typename boost::geometry::point_type<MultiLineString>::type point;
     test_one<point, MultiLineString, MultiLineString>("case_multi_ml_ml_1",
         "MULTILINESTRING((0 0,1 1))", "MULTILINESTRING((0 1,1 0))",
         1, 1, 0);
