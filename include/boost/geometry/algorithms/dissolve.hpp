@@ -81,12 +81,14 @@ struct dissolve_ring_or_polygon
 
 
             // Traverse the polygons twice in two different directions
-            traverse(geometry, geometry, detail::overlay::operation_union,
+            traverse<point_order<Geometry>::value>(geometry, geometry, 
+                            detail::overlay::operation_union,
                             turns, rings);
 
             clear_visit_info(turns);
 
-            traverse(geometry, geometry, detail::overlay::operation_intersection,
+            traverse<point_order<Geometry>::value>(geometry, geometry, 
+                            detail::overlay::operation_intersection,
                             turns, rings);
 
             std::map<ring_identifier, int> map;
