@@ -6,6 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 // Custom point / fusion Example
+// NOT FINISHED
 
 #include <iostream>
 
@@ -47,7 +48,7 @@ int main()
 
     std::cout << boost::fusion::at_c<1>(p1) << std::endl;
 
-    std::cout << boost::geometry::get<1>(p1) << std::endl;
+    //std::cout << boost::geometry::get<1>(p1) << std::endl;
 
     return 0;
 }
