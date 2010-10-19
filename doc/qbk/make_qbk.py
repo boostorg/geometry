@@ -66,7 +66,7 @@ os.system(cmd % ("group__register", "register"))
 os.system(cmd % ("classboost_1_1geometry_1_1point", "point"))
 os.system(cmd % ("classboost_1_1geometry_1_1point__xy", "point_xy"))
 
-#os.system(cmd % ("classboost_1_1geometry_1_1concept_1_1_point.xml", "concept_point.qbk"))
+os.system(cmd % ("classboost_1_1geometry_1_1concept_1_1_point.xml", "concept_point"))
 
 os.system(cmd % ("structboost_1_1geometry_1_1closing__iterator", "closing_iterator"))
 
