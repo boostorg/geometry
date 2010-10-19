@@ -143,8 +143,8 @@ struct function : public element
     bool unique;
 
     function()
-        : unique(true)
-        , type(function_unknown)
+        : type(function_unknown)
+        , unique(true)
     {}
 
 };
@@ -328,8 +328,19 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
         std::string name = node->name();
         std::string full = parent + "." + name;
 
-        if (full == ".briefdescription.para") el.brief_description = node->value();
-        else if (full == ".detaileddescription.para") el.detailed_description = node->value();
+        if (full == ".briefdescription.para")
+        {
+            el.brief_description = node->value();
+        }
+        else if (full == ".detaileddescription.para")
+        {
+          std::string const para(node->value());
+          if (!para.empty() && !el.detailed_description.empty())
+          {
+              el.detailed_description += "\n\n";
+          }
+          el.detailed_description += node->value();
+        }
         else if (full == ".location")
         {
             std::string loc = get_attribute(node, "file");
@@ -579,6 +590,9 @@ void quickbook_synopsis(function const& f, std::ostream& out)
                     out << ")";
                 }
             }
+            break;
+        case function_unknown :
+            // do nothing
             break;
     }
     if (! f.argsstring.empty())
