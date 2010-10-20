@@ -200,6 +200,15 @@ struct area<polygon_tag, Polygon, Strategy>
 \brief \brief_calc{area}
 \ingroup area
 \details \details_calc{area}. \details_default_strategy
+
+The area algorithm calculates the surface area of all geometries having a surface, namely
+box, polygon, ring, multipolygon. The units are the square of the units used for the points
+defining the surface. If subject geometry is defined in meters, then area is calculated
+in square meters.
+
+The area calculation can be done in all three common coordinate systems, Cartesian, Spherical
+and Geographic as well.
+
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \return \return_calc{area}
