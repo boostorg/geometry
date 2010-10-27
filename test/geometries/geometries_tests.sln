@@ -6,6 +6,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "custom_linestring", "custom
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "segment", "segment.vcproj", "{F995B070-62A2-46FE-A676-79AADB71DBD8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "boost_array_as_point", "boost_array_as_point.vcproj", "{77F84000-D088-46AD-A023-08552101B1C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -24,6 +26,10 @@ Global
 		{F995B070-62A2-46FE-A676-79AADB71DBD8}.Debug|Win32.Build.0 = Debug|Win32
 		{F995B070-62A2-46FE-A676-79AADB71DBD8}.Release|Win32.ActiveCfg = Release|Win32
 		{F995B070-62A2-46FE-A676-79AADB71DBD8}.Release|Win32.Build.0 = Release|Win32
+		{77F84000-D088-46AD-A023-08552101B1C5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{77F84000-D088-46AD-A023-08552101B1C5}.Debug|Win32.Build.0 = Debug|Win32
+		{77F84000-D088-46AD-A023-08552101B1C5}.Release|Win32.ActiveCfg = Release|Win32
+		{77F84000-D088-46AD-A023-08552101B1C5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
