@@ -10,12 +10,13 @@
 #define BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_ARRAY_AS_RING_HPP
 
 
-#ifdef BOOST_GEOMETRY_ADAPTED_BOOST_ARRAY_AS_POINT_COLLECTION_TAG_DEFINED
-#error Include either "boost_array_as_linestring" or "boost_array_as_ring" \
+#ifdef BOOST_GEOMETRY_ADAPTED_BOOST_ARRAY_TAG_DEFINED
+#error Include either "boost_array_as_point" or \
+    "boost_array_as_linestring" or "boost_array_as_ring" \
     or "boost_array_as_multi_point" to adapt a boost_array
 #endif
 
-#define BOOST_GEOMETRY_ADAPTED_BOOST_ARRAY_AS_POINT_COLLECTION_TAG_DEFINED
+#define BOOST_GEOMETRY_ADAPTED_BOOST_ARRAY_TAG_DEFINED
 
 
 #include <cstddef>
