@@ -6,8 +6,9 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite ggl-geometries
+test-suite boost-geometry-geometries
     :
+    [ run boost_array_as_point.cpp ]
     [ run box.cpp ]
     [ compile-fail custom_linestring.cpp
         : # requirements
