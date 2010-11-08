@@ -15,6 +15,7 @@
 
 #include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/multi/algorithms/intersection.hpp>
+#include <boost/geometry/multi/algorithms/within.hpp> // only for testing #77
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
@@ -46,6 +47,48 @@ void test_areal()
     test_one<Ring, MultiPolygon, Polygon>("simplex_multi_mp_r",
         case_multi_simplex[0], case_single_simplex,
         2, 12, 6.42);
+
+    // Constructed cases for multi/touch/equal/etc
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_61_multi",
+        case_61_multi[0], case_61_multi[1],
+        0, 0, 0.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_62_multi",
+        case_62_multi[0], case_62_multi[1],
+        1, 5, 1.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_63_multi",
+        case_63_multi[0], case_63_multi[1],
+        1, 5, 1.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_64_multi",
+        case_64_multi[0], case_64_multi[1],
+        1, 5, 1.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_65_multi",
+        case_65_multi[0], case_65_multi[1],
+        1, 5, 1.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_72_multi",
+        case_72_multi[0], case_72_multi[1],
+        3, 14, 2.85);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_77_multi",
+        case_77_multi[0], case_77_multi[1],
+        5, 33, 9);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
+        case_78_multi[0], case_78_multi[1],
+        1, 17, 22);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
+        case_101_multi[0], case_101_multi[1],
+        4, 22, 4.75);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi",
+        case_102_multi[0], case_102_multi[1],
+        3, 26, 19.75);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
+        case_recursive_boxes_1[0], case_recursive_boxes_1[1],
+        10, 97, 47.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
+        case_recursive_boxes_2[0], case_recursive_boxes_2[1],
+        1, 47, 90.0); // Area from SQL Server
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
+        case_recursive_boxes_3[0], case_recursive_boxes_3[1],
+        19, 87, 12.5); // Area from SQL Server
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>
@@ -96,13 +139,13 @@ void test_all()
     typedef bg::polygon<P> polygon;
     typedef bg::multi_polygon<polygon> multi_polygon;
     test_areal<ring, polygon, multi_polygon>();
+return;
 
     typedef bg::linear_ring<P, std::vector, false> ring_ccw;
     typedef bg::polygon<P, std::vector, std::vector, false> polygon_ccw;
     typedef bg::multi_polygon<polygon_ccw> multi_polygon_ccw;
     test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
 
-    // multi/box: was NOT implemented, next step TODO.
     test_areal_clip<polygon, multi_polygon, box>();
     test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
 

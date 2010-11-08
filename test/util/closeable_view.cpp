@@ -19,6 +19,59 @@
 #include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
+// The closeable view should also work on normal std:: containers
+void test_non_geometry()
+{
+    typedef boost::geometry::closeable_view
+        <
+            std::vector<int> const, true
+        > view_type;
+    
+    std::vector<int> v;
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
+
+    view_type view(v);
+
+    typedef boost::range_iterator<view_type const>::type iterator;
+    iterator it = boost::begin(view);
+    iterator end = boost::end(view);
+
+    std::ostringstream out;
+    for ( ; it != end; ++it)
+    {
+        out << *it;
+    }
+    BOOST_CHECK_EQUAL(out.str(), "1231");
+
+    // Check operators =, ++, --, +=, -=
+    it = boost::begin(view);
+    BOOST_CHECK_EQUAL(*it, 1);
+    it += 2;
+    BOOST_CHECK_EQUAL(*it, 3);
+    it -= 2;
+    BOOST_CHECK_EQUAL(*it, 1);
+    it++;
+    BOOST_CHECK_EQUAL(*it, 2);
+    it--;
+    BOOST_CHECK_EQUAL(*it, 1);
+
+    // Also check them in the last regions
+    it = boost::begin(view) + 3;
+    BOOST_CHECK_EQUAL(*it, 1);
+    it--;
+    BOOST_CHECK_EQUAL(*it, 3);
+    it++;
+    BOOST_CHECK_EQUAL(*it, 1);
+    it -= 2;
+    BOOST_CHECK_EQUAL(*it, 2);
+    it += 2;
+    BOOST_CHECK_EQUAL(*it, 1);
+
+    BOOST_CHECK_EQUAL(boost::size(view), 4);
+}
+
 
 template <bool Close, typename Range>
 void test_optionally_closing(Range const& range, std::string const& expected)
@@ -65,6 +118,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
+    test_non_geometry();
+
     namespace bg = boost::geometry;
     test_all<bg::point_2d>();
     test_all<bg::point<int, 2, bg::cs::cartesian> >();

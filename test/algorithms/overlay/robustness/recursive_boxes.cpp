@@ -26,7 +26,7 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/multi/multi.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/assemble.hpp>
+//#include <boost/geometry/multi/algorithms/detail/overlay/assemble.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
@@ -51,13 +51,24 @@ inline void make_box(Polygon& polygon, Generator& generator)
     bg::set<0>(p, x + 1); bg::set<1>(p, y + 1); ring.push_back(p);
     bg::set<0>(p, x + 1); bg::set<1>(p, y); ring.push_back(p);
     bg::set<0>(p, x); bg::set<1>(p, y); ring.push_back(p);
+
+    if (true)
+    {
+        // Remove a point depending on generator
+        int c = generator() % 4;
+        if (c >= 1 && c <= 3)
+        {
+            ring.erase(ring.begin() + c);
+        }
+    }
 }
 
 
 
 template <typename MultiPolygon, typename Generator>
-void test_recursive_boxes(MultiPolygon& result, int& index,
-            Generator& generator, bool svg, int level = 3)
+bool test_recursive_boxes(MultiPolygon& result, int& index,
+            Generator& generator, 
+            bool svg, int level = 3)
 {
     namespace bg = boost::geometry;
     MultiPolygon p, q;
@@ -72,19 +83,25 @@ void test_recursive_boxes(MultiPolygon& result, int& index,
     }
     else
     {
-        test_recursive_boxes(p, index, generator, svg, level - 1);
-        test_recursive_boxes(q, index, generator, svg, level - 1);
+        if (! test_recursive_boxes(p, index, generator, svg, level - 1)
+            || ! test_recursive_boxes(q, index, generator, svg, level - 1))
+        {
+            return false;
+        }
     }
 
     typedef typename boost::range_value<MultiPolygon>::type polygon;
 
     std::ostringstream out;
     out << "recursive_box_" << index++ << "_" << level;
-    test_overlay_p_q
+    if (! test_overlay_p_q
         <
             polygon,
             typename bg::coordinate_type<MultiPolygon>::type
-        >(out.str(), p, q, svg, 0.001);
+        >(out.str(), p, q, svg, 0.001))
+    {
+        return false;
+    }
 
     MultiPolygon mp;
     bg::union_inserter
@@ -92,20 +109,25 @@ void test_recursive_boxes(MultiPolygon& result, int& index,
             polygon
         >(p, q, std::back_inserter(mp));
 
-    result = mp;
+    bg::unique(mp);
+    //result = mp;
+    bg::simplify(mp, result, 0.01);
+    return true;
 }
 
+
 template <typename T>
-void test_all(int seed, int count, bool svg)
+void test_all(int seed, int count, bool svg, int level)
 {
     boost::timer t;
 
     typedef boost::minstd_rand base_generator_type;
 
-    boost::uniform_int<> random_coordinate(0, 9);
     base_generator_type generator(seed);
+
+    boost::uniform_int<> random_coordinate(0, 9);
     boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        int_generator(generator, random_coordinate);
+        coordinate_generator(generator, random_coordinate);
 
     typedef boost::geometry::polygon
         <
@@ -117,12 +139,12 @@ void test_all(int seed, int count, bool svg)
     int index = 0;
     for(int i = 0; i < count; i++)
     {
-
         mp p;
-        test_recursive_boxes<mp>(p, index, int_generator, svg);
+        test_recursive_boxes<mp>(p, index, coordinate_generator, svg, level);
     }
     std::cout
-        << "type: " << string_from_type<T>::name()
+        << "boxes " << index 
+        << " type: " << string_from_type<T>::name()
         << " time: " << t.elapsed()  << std::endl;
 }
 
@@ -135,9 +157,11 @@ int main(int argc, char** argv)
             ? boost::lexical_cast<int>(argv[2])
             : static_cast<unsigned int>(std::time(0));
         bool svg = argc > 3 && std::string(argv[3]) == std::string("svg");
+        int level = argc > 4 && std::string(argv[4]) != std::string("#")
+            ? boost::lexical_cast<int>(argv[4]): 3;
 
         //test_all<float>(seed, count, svg, 1e-3);
-        test_all<double>(seed, count, svg);
+        test_all<double>(seed, count, svg, level);
 
 #if defined(HAVE_CLN)
     //test_recursive_boxes<boost::numeric_adaptor::cln_value_type>("c",

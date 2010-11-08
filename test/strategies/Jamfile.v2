@@ -6,11 +6,12 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite ggl-strategies
+test-suite boost-geometry-strategies
     :
     [ run cross_track.cpp ]
     [ run haversine.cpp ]
     [ run projected_point.cpp ]
     [ run pythagoras.cpp ]
     [ run transformer.cpp ]
+    [ run within.cpp ]
     ;

@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "segment_intersection_collin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "side_by_cross_track", "side_by_cross_track.vcproj", "{ADBE38D8-1828-48A2-BBA1-81F50B53C67C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "within", "within.vcproj", "{AB13D2AC-FD34-4DE4-BD8E-4D463050E5DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -54,6 +56,10 @@ Global
 		{ADBE38D8-1828-48A2-BBA1-81F50B53C67C}.Debug|Win32.Build.0 = Debug|Win32
 		{ADBE38D8-1828-48A2-BBA1-81F50B53C67C}.Release|Win32.ActiveCfg = Release|Win32
 		{ADBE38D8-1828-48A2-BBA1-81F50B53C67C}.Release|Win32.Build.0 = Release|Win32
+		{AB13D2AC-FD34-4DE4-BD8E-4D463050E5DD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AB13D2AC-FD34-4DE4-BD8E-4D463050E5DD}.Debug|Win32.Build.0 = Debug|Win32
+		{AB13D2AC-FD34-4DE4-BD8E-4D463050E5DD}.Release|Win32.ActiveCfg = Release|Win32
+		{AB13D2AC-FD34-4DE4-BD8E-4D463050E5DD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

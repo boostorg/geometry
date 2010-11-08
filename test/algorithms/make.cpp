@@ -61,7 +61,7 @@ void test_linestring_2d()
 
     L line = make<L>(coors);
 
-    BOOST_CHECK_EQUAL(line.size(), 2);
+    BOOST_CHECK_EQUAL(line.size(), 2u);
 }
 
 template <typename T, typename P>
@@ -73,7 +73,7 @@ void test_linestring_3d()
 
     L line = make<L>(coors);
 
-    BOOST_CHECK_EQUAL(line.size(), 2);
+    BOOST_CHECK_EQUAL(line.size(), 2u);
     //std::cout << dsv(line) << std::endl;
 
 }

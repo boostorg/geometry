@@ -6,7 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="$(BOOST_ROOT);..\..\.."
+		AdditionalIncludeDirectories="&quot;$(BOOST_ROOT)&quot;;../../.."
 		PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 		WarningLevel="3"
 	/>
@@ -16,6 +16,6 @@
 	/>
 	<UserMacro
 		Name="BOOST_ROOT"
-		Value="C:\Program Files\boost\boost_1_41_0"
+		Value="C:\software\boost_1_43_0"
 	/>
 </VisualStudioPropertySheet>

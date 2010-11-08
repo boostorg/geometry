@@ -74,11 +74,11 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
                 // Get a correct point-count without duplicate points
                 // (note that overlay might be adapted to avoid duplicates)
                 boost::geometry::unique(*it);
-                n += boost::geometry::num_points(*it);
+                n += boost::geometry::num_points(*it, true);
             }
             else
             {
-                n += boost::geometry::num_points(*it);
+                n += boost::geometry::num_points(*it, true);
             }
         }
 
@@ -123,9 +123,12 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 #if defined(TEST_WITH_SVG)
     {
-        bool const ccw = 
+        bool const ccw =
             boost::geometry::point_order<G1>::value == boost::geometry::counterclockwise
             || boost::geometry::point_order<G2>::value == boost::geometry::counterclockwise;
+        bool const open =
+            boost::geometry::closure<G1>::value == boost::geometry::open
+            || boost::geometry::closure<G2>::value == boost::geometry::open;
 
         std::ostringstream filename;
         filename << "intersection_"
@@ -133,6 +136,7 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
             << string_from_type<coordinate_type>::name()
             << string_from_type<CalculationType>::name()
             << (ccw ? "_ccw" : "")
+            << (open ? "_open" : "")
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());
@@ -143,14 +147,17 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
         mapper.add(g2);
 
         mapper.map(g1, is_line
-            ? "opacity:0.6;stroke:rgb(0,0,255);stroke-width:5"
-            : "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
-        mapper.map(g2, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
+            ? "opacity:0.6;stroke:rgb(0,255,0);stroke-width:5"
+            : "fill-opacity:0.5;fill:rgb(153,204,0);"
+                    "stroke:rgb(153,204,0);stroke-width:3");
+        mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
+                    "stroke:rgb(51,51,153);stroke-width:3");
 
         for (typename std::vector<OutputType>::const_iterator it = clip.begin();
                 it != clip.end(); ++it)
         {
-            mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
+            mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
+                        "stroke:rgb(255,0,255);stroke-width:8");
         }
     }
 #endif

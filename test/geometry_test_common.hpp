@@ -31,6 +31,10 @@
 #endif
 
 
+#if defined(HAVE_TTMATH)
+#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+#endif
+
 #if defined(HAVE_CLN) || defined(HAVE_GMP)
 #  include <boost/numeric_adaptor/numeric_adaptor.hpp>
 #endif
@@ -42,6 +46,7 @@
 #if defined(HAVE_CLN)
 #  include <boost/numeric_adaptor/cln_value_type.hpp>
 #endif
+
 
 template <typename T>
 struct string_from_type {};
@@ -57,6 +62,12 @@ template <> struct string_from_type<double>
 
 template <> struct string_from_type<long double>
 { static std::string name() { return "e"; }  };
+
+#if defined(HAVE_TTMATH)
+    template <> struct string_from_type<ttmath_big>
+    { static std::string name() { return "t"; }  };
+#endif
+
 
 #if defined(HAVE_GMP)
     template <> struct string_from_type<boost::numeric_adaptor::gmp_value_type>

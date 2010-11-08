@@ -5,6 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_DEBUG_ENRICH
+#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 
 #include <geometry_test_common.hpp>
 
@@ -35,13 +37,13 @@ void test_all()
     // Self tangent
     test_one<polygon, polygon>("4", 
 		"POLYGON((0 0,0 4,4 4,4 0,2 4,0 0))",
-		0, 11, 12.0);
+		0, 8, 8.0);
 
 
     // Self tangent in corner
     test_one<polygon, polygon>("5", 
 		"POLYGON((0 0,0 4,4 4,4 0,0 4,2 0,0 0))",
-		0, 11, 16.0);
+		0, 8, 12.0);
 
 
     // With spike

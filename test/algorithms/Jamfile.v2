@@ -29,7 +29,6 @@ test-suite boost-geometry-algorithms
     [ run overlaps.cpp ]
     [ run perimeter.cpp ]
     [ run reverse.cpp ]
-    [ run sectionalize.cpp ]
     [ run simplify.cpp ]
     [ run transform.cpp ]
     [ run union.cpp ]
@@ -37,4 +36,8 @@ test-suite boost-geometry-algorithms
     [ run within.cpp ]
     ;
 
-build-project overlay ;
+build-project overlay 
+    ;
+    
+build-project detail 
+    ;

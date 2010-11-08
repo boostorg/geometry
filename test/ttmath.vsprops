@@ -11,6 +11,6 @@
 	/>
 	<UserMacro
 		Name="TTMATH_ROOT"
-		Value="../../../../boost/geometry/extensions/contrib"
+		Value="c:\_svn\boost\sandbox\geometry\boost\geometry\extensions\contrib\ttmath"
 	/>
 </VisualStudioPropertySheet>

@@ -9,6 +9,10 @@
 #include <iostream>
 #include <string>
 
+//#define BOOST_GEOMETRY_DEBUG_TRAVERSE
+//#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
+//#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
+
 
 #include <algorithms/test_intersection.hpp>
 #include <algorithms/test_overlay.hpp>
@@ -130,7 +134,7 @@ void test_areal()
     {
         std::string tn = string_from_type<typename boost::geometry::coordinate_type<Polygon>::type>::name();
         test_one<Polygon, Polygon, Polygon>("isovist",
-            isovist[0], isovist[1],
+            isovist1[0], isovist1[1],
             1,
             tn == std::string("f") ? 19 : tn == std::string("d") ? 21 : 20,
             88.19203,
@@ -189,17 +193,19 @@ template <typename P>
 void test_all()
 {
     typedef boost::geometry::linestring<P> linestring;
-    typedef boost::geometry::polygon<P> polygon;
+    typedef boost::geometry::model::polygon<P> polygon;
     typedef boost::geometry::box<P> box;
     typedef boost::geometry::model::segment<P> segment;
 
-    typedef boost::geometry::polygon<P, std::vector, std::vector, false> polygon_ccw;
+    typedef boost::geometry::model::polygon<P, false> polygon_ccw;
+    typedef boost::geometry::model::polygon<P, true, false> polygon_open;
 
     std::string clip = "box(2 2,8 8)";
 
     // Test polygons clockwise and counter clockwise
     test_areal<polygon>();
     test_areal<polygon_ccw>();
+    test_areal<polygon_open>();
 
     test_areal_clip<polygon, box>();
     test_areal_clip<polygon_ccw, box>();
@@ -300,7 +306,7 @@ void test_pointer_version()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<float> >();
+    //test_all<boost::geometry::point_xy<float> >();
     test_all<boost::geometry::point_xy<double> >();
 
 #if defined(HAVE_CLN)

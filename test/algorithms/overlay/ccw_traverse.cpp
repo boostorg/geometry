@@ -45,7 +45,8 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     {
         bg::detail::overlay::reverse_operations(turns);
     }
-    bg::enrich_intersection_points(turns, g1, g2, side_strategy_type());
+    bg::enrich_intersection_points(turns, bg::detail::overlay::operation_intersection,
+        g1, g2, side_strategy_type());
 
     typedef bg::linear_ring<typename bg::point_type<Geometry1>::type> ring_type;
     typedef std::vector<ring_type> out_vector;
@@ -124,7 +125,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
                     << std::endl
                     << "op: " << bg::operation_char(turn.operations[0].operation)
                     << " / " << bg::operation_char(turn.operations[1].operation)
-                    << (turn.ignore() ? " (ignore) " : "")
+                    << (turn.is_discarded() ? " (discarded) " : turn.blocked() ? " (blocked)" : "")
                     << std::endl;
 
                 if (turn.operations[0].enriched.next_ip_index != -1)
@@ -187,8 +188,8 @@ template <typename T>
 inline void test_polygon(std::string const& wkt1, std::string const& wkt2, std::string const& name)
 {
     typedef bg::point_xy<T> point;
-    typedef bg::polygon<point> clock;
-    typedef bg::polygon<point, std::vector, std::vector, false> counter;
+    typedef bg::model::polygon<point> clock;
+    typedef bg::model::polygon<point, false> counter;
 
     namespace ov = bg::detail::overlay;
     T area1 = intersect<clock, clock>(wkt1, wkt2, name, ov::operation_intersection);
@@ -205,8 +206,8 @@ inline void test_box_polygon(std::string const& wkt1, std::string const& wkt2, s
 {
     typedef bg::point_xy<T> point;
     typedef bg::box<point> box;
-    typedef bg::polygon<point> clock;
-    typedef bg::polygon<point, std::vector, std::vector, false> counter;
+    typedef bg::model::polygon<point> clock;
+    typedef bg::model::polygon<point, false> counter;
 
     namespace ov = bg::detail::overlay;
     T area1 = intersect<box, clock>(wkt1, wkt2, name, ov::operation_intersection);

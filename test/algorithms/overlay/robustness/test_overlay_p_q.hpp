@@ -106,18 +106,26 @@ static bool test_overlay_p_q(std::string const& caseid, G1 const& p, G2 const& q
         mapper.add(p);
         mapper.add(q);
 
-        mapper.map(p, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
-        mapper.map(q, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
+        // Input shapes in green/blue
+        mapper.map(p, "fill-opacity:0.5;fill:rgb(153,204,0);"
+                "stroke:rgb(153,204,0);stroke-width:3");
+        mapper.map(q, "fill-opacity:0.3;fill:rgb(51,51,153);"
+                "stroke:rgb(51,51,153);stroke-width:3");
 
         for (typename std::vector<OutputType>::const_iterator it = out_i.begin();
                 it != out_i.end(); ++it)
         {
-            mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:3");
+            //mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:3");
+            mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
+                    "stroke:rgb(255,0,0);stroke-width:4");
         }
         for (typename std::vector<OutputType>::const_iterator it = out_u.begin();
                 it != out_u.end(); ++it)
         {
-            mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,255);stroke-width:3");
+            //mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,255);stroke-width:3");
+            mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
+                    "stroke:rgb(255,0,255);stroke-width:4");
+
         }
     }
     return result;

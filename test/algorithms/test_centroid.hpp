@@ -57,7 +57,7 @@ void test_with_other_calculation_type(Geometry const& geometry, Point& c1)
     // Calculate it with user defined strategy
     point_type c2;
     boost::geometry::centroid(geometry, c2,
-        boost::geometry::strategy::centroid_::bashein_detmer<point_type, point_type, CalculationType>());
+        boost::geometry::strategy::centroid::bashein_detmer<point_type, point_type, CalculationType>());
 
     std::cout << typeid(CalculationType).name() << ": " << std::setprecision(20)
         << boost::geometry::get<0>(c2) << " " << boost::geometry::get<1>(c2)
