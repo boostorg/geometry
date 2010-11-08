@@ -38,7 +38,7 @@ struct test_get_turns
 {
     template <typename G1, typename G2>
     static void apply(std::string const& id,
-            boost::tuple<int, double, double> const& expected_count_and_center,
+            boost::tuple<int> const& expected_count_and_center,
             G1 const& g1, G2 const& g2, double precision)
     {
         namespace bg = boost::geometry;
@@ -60,36 +60,9 @@ struct test_get_turns
                     <typename bg::coordinate_type<G1>::type>::name()
                 );
 
-
-        typedef typename bg::coordinate_type<G1>::type coordinate_type;
-        /*
-        coordinate_type x = 0, y = 0;
-        BOOST_FOREACH(turn_info const& turn, turns)
-        {
-            x += bg::get<0>(turn.point);
-            y += bg::get<1>(turn.point);
-        }
-
-        int n = boost::size(turns);
-        if (n > 0)
-        {
-            x /= n;
-            y /= n;
-        }
-        std::cout << std::setprecision(8) << x << ", " << y << " "
-            << expected_count_and_center.get<1>()
-            << " " << expected_count_and_center.get<2>()
-            << std::endl;
-        */
-
-
-        // Obsolete test (too much work)
-        //BOOST_CHECK_CLOSE(expected_count_and_center.get<1>(), x, precision);
-        //BOOST_CHECK_CLOSE(expected_count_and_center.get<2>(), y, precision);
-
-
 #if defined(TEST_WITH_SVG)
         {
+            typedef typename bg::coordinate_type<G1>::type coordinate_type;
             std::map<std::pair<coordinate_type, coordinate_type>, int> offsets;
             std::ostringstream filename;
             filename << "get_turns_" << id
@@ -102,8 +75,11 @@ struct test_get_turns
             mapper.add(g1);
             mapper.add(g2);
 
-            mapper.map(g1, "fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
-            mapper.map(g2, "opacity:0.8;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
+            // Input shapes in green/blue
+            mapper.map(g1, "fill-opacity:0.5;fill:rgb(153,204,0);"
+                    "stroke:rgb(153,204,0);stroke-width:3");
+            mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
+                    "stroke:rgb(51,51,153);stroke-width:3");
 
             int index = 0;
             BOOST_FOREACH(turn_info const& turn, turns)
@@ -120,7 +96,7 @@ struct test_get_turns
                         << ": " << bg::operation_char(turn.operations[0].operation)
                         << " " << bg::operation_char(turn.operations[1].operation)
                         << " (" << bg::method_char(turn.method) << ")"
-                        << (turn.ignore() ? " (ignore) " : " ")
+                        << (turn.is_discarded() ? " (discarded) " : turn.blocked() ? " (blocked)" : "")
                         ;
 
                     offsets[p] += 10;
@@ -148,7 +124,7 @@ void test_all()
     typedef boost::geometry::box<P> box;
 
     // Expected count, average x, average y
-    typedef boost::tuple<int, double, double> Tuple;
+    typedef boost::tuple<int> Tuple;
 
     std::cout << string_from_type<T>::name() << std::endl;
 
@@ -156,7 +132,7 @@ void test_all()
     // snl
     /*
     test_overlay<polygon, polygon, test_get_turns,  Tuple>("snl_2",
-        boost::make_tuple(5, -122.27866617838542, 37.377897262573242),
+        boost::make_tuple(5),
         //snl-1
         //"POLYGON((182467 605842,182480 605954,182557 605958,182571 605958,182585 605958,182579 605843,182559 605838,182467 605842))",
         //"POLYGON((182499 605955,182511 605960,182536 605974,182536 605981,182536 606006,182563 606006,182610 605985,182613 605976,182620 605948,182628 605937,182631 605924,182639 605889,182634 605885,182603 605848,182579 605843,182585 605958,182571 605958,182557 605958,182499 605955))");
@@ -173,109 +149,109 @@ void test_all()
     */
 
     // 1-6
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("1", boost::make_tuple(6, 2.2547802, 3.0358056), case_1[0], case_1[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("2", boost::make_tuple(8, 2.5, 2.5), case_2[0], case_2[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("3", boost::make_tuple(4, 2.5, 2.5), case_3[0], case_3[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("4", boost::make_tuple(12, 2.5, 2.5), case_4[0], case_4[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("5", boost::make_tuple(17, 2.5987395, 2.4166667), case_5[0], case_5[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("6", boost::make_tuple(3, 3, 2.5), case_6[0], case_6[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("1", boost::make_tuple(6), case_1[0], case_1[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("2", boost::make_tuple(8),case_2[0], case_2[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("3", boost::make_tuple(4),case_3[0], case_3[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("4", boost::make_tuple(12),case_4[0], case_4[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("5", boost::make_tuple(17), case_5[0], case_5[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("6", boost::make_tuple(3),case_6[0], case_6[1]);
 
     // 7-12
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("7", boost::make_tuple(2, 3, 2.5), case_7[0], case_7[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("8", boost::make_tuple(2, 2, 2), case_8[0], case_8[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("9", boost::make_tuple(1, 2, 2), case_9[0], case_9[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("10", boost::make_tuple(3, 2, 2), case_10[0], case_10[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("11", boost::make_tuple(1, 2, 2), case_11[0], case_11[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("12", boost::make_tuple(8, 2, 3.25), case_12[0], case_12[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("7", boost::make_tuple(2),case_7[0], case_7[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("8", boost::make_tuple(2),case_8[0], case_8[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("9", boost::make_tuple(1),case_9[0], case_9[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("10", boost::make_tuple(3),case_10[0], case_10[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("11", boost::make_tuple(1),case_11[0], case_11[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("12", boost::make_tuple(8), case_12[0], case_12[1]);
 
     // 13-18
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("13", boost::make_tuple(2, 1.5, 1.5), case_13[0], case_13[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("14", boost::make_tuple(2, 2, 2), case_14[0], case_14[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("15", boost::make_tuple(2, 2, 2), case_15[0], case_15[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("16", boost::make_tuple(4, 1.5, 2.5), case_16[0], case_16[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("17", boost::make_tuple(2, 2, 2), case_17[0], case_17[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("18", boost::make_tuple(4, 2, 2), case_18[0], case_18[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("13", boost::make_tuple(2), case_13[0], case_13[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("14", boost::make_tuple(2),case_14[0], case_14[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("15", boost::make_tuple(2),case_15[0], case_15[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("16", boost::make_tuple(4),case_16[0], case_16[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("17", boost::make_tuple(2),case_17[0], case_17[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("18", boost::make_tuple(4),case_18[0], case_18[1]);
 
     // 19-24
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("19", boost::make_tuple(2, 3, 2.5), case_19[0], case_19[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("20", boost::make_tuple(3, 0, 0), case_20[0], case_20[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("21", boost::make_tuple(3, 0, 0), case_21[0], case_21[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("22", boost::make_tuple(1, 4, 2), case_22[0], case_22[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("23", boost::make_tuple(2, 3.2, 2.2), case_23[0], case_23[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("24", boost::make_tuple(1, 4, 2), case_24[0], case_24[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("19", boost::make_tuple(2),case_19[0], case_19[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("20", boost::make_tuple(3),case_20[0], case_20[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("21", boost::make_tuple(3),case_21[0], case_21[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("22", boost::make_tuple(1), case_22[0], case_22[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("23", boost::make_tuple(2), case_23[0], case_23[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("24", boost::make_tuple(1), case_24[0], case_24[1]);
 
     // 25-30
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("25", boost::make_tuple(1, 4, 2), case_25[0], case_25[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("26", boost::make_tuple(1, 4, 2), case_26[0], case_26[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("27", boost::make_tuple(2, 3.04545, 1.36363), case_27[0], case_27[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("28", boost::make_tuple(2, 3.04545, 1.36363), case_28[0], case_28[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("29", boost::make_tuple(2, 3.2, 2.2), case_29[0], case_29[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("30", boost::make_tuple(2, 2, 1.75), case_30[0], case_30[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("25", boost::make_tuple(1),case_25[0], case_25[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("26", boost::make_tuple(1),case_26[0], case_26[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("27", boost::make_tuple(2), case_27[0], case_27[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("28", boost::make_tuple(2), case_28[0], case_28[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("29", boost::make_tuple(2), case_29[0], case_29[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("30", boost::make_tuple(2), case_30[0], case_30[1]);
 
     // 31-36
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("31", boost::make_tuple(1, 2, 2), case_31[0], case_31[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("32", boost::make_tuple(1, 2, 2), case_32[0], case_32[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("33", boost::make_tuple(1, 2, 2), case_33[0], case_33[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("34", boost::make_tuple(2, 3.5, 1.5), case_34[0], case_34[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("35", boost::make_tuple(1, 4, 2), case_35[0], case_35[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("36", boost::make_tuple(3, 2.55555, 2.36111), case_36[0], case_36[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("31", boost::make_tuple(1),case_31[0], case_31[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("32", boost::make_tuple(1),case_32[0], case_32[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("33", boost::make_tuple(1),case_33[0], case_33[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("34", boost::make_tuple(2), case_34[0], case_34[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("35", boost::make_tuple(1), case_35[0], case_35[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("36", boost::make_tuple(3), case_36[0], case_36[1]);
 
     // 37-42
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("37", boost::make_tuple(3, 2.4444444, 2.0), case_37[0], case_37[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("38", boost::make_tuple(3, 3.18095239, 2.8380952), case_38[0], case_38[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("39", boost::make_tuple(4, 5.33333, 4.0), case_39[0], case_39[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("40", boost::make_tuple(3, 5.33333, 4.0), case_40[0], case_40[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("41", boost::make_tuple(5, 5.33333, 4.0), case_41[0], case_41[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("42", boost::make_tuple(5, 5.33333, 4.0), case_42[0], case_42[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("37", boost::make_tuple(3), case_37[0], case_37[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("38", boost::make_tuple(3), case_38[0], case_38[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("39", boost::make_tuple(4),case_39[0], case_39[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("40", boost::make_tuple(3),case_40[0], case_40[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("41", boost::make_tuple(5),case_41[0], case_41[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("42", boost::make_tuple(5),case_42[0], case_42[1]);
 
     // 43-48
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("43", boost::make_tuple(4, 2.125, 1.9375), case_43[0], case_43[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("44", boost::make_tuple(4, 1.5, 1.5), case_44[0], case_44[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("45", boost::make_tuple(4, 1.5, 1.5), case_45[0], case_45[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("46", boost::make_tuple(4, 2.25, 1.5), case_46[0], case_46[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("47", boost::make_tuple(5, 2.6, 1.5), case_47[0], case_47[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("43", boost::make_tuple(4), case_43[0], case_43[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("44", boost::make_tuple(4),case_44[0], case_44[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("45", boost::make_tuple(4),case_45[0], case_45[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("46", boost::make_tuple(4), case_46[0], case_46[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("47", boost::make_tuple(5), case_47[0], case_47[1]);
 
     // 49-54
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("50", boost::make_tuple(4, 0.0, 0.0), case_50[0], case_50[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("51", boost::make_tuple(3, 0.0, 0.0), case_51[0], case_51[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("52", boost::make_tuple(8, 0.0, 0.0), case_52[0], case_52[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("50", boost::make_tuple(4), case_50[0], case_50[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("51", boost::make_tuple(3), case_51[0], case_51[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("52", boost::make_tuple(8), case_52[0], case_52[1]);
     // A touching point interior/ring exterior/ring can be represented in two ways:
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("53a", boost::make_tuple(4, 0.0, 0.0), case_53[0], case_53[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("53b", boost::make_tuple(4, 0.0, 0.0), case_53[0], case_53[2]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("54aa", boost::make_tuple(13, 0.0, 0.0), case_54[0], case_54[2]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("54ab", boost::make_tuple(13, 0.0, 0.0), case_54[0], case_54[3]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("54ba", boost::make_tuple(13, 0.0, 0.0), case_54[1], case_54[2]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("54bb", boost::make_tuple(13, 0.0, 0.0), case_54[1], case_54[3]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("53a", boost::make_tuple(4), case_53[0], case_53[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("53b", boost::make_tuple(4), case_53[0], case_53[2]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("54aa", boost::make_tuple(13), case_54[0], case_54[2]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("54ab", boost::make_tuple(13), case_54[0], case_54[3]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("54ba", boost::make_tuple(13), case_54[1], case_54[2]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("54bb", boost::make_tuple(13), case_54[1], case_54[3]);
 
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("55", boost::make_tuple(10, 0.0, 0.0), case_55[0], case_55[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("56", boost::make_tuple(9, 0.0, 0.0), case_56[0], case_56[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("55", boost::make_tuple(12), case_55[0], case_55[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("56", boost::make_tuple(9), case_56[0], case_56[1]);
 
 
     // other
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("many_situations", boost::make_tuple(31, 11.625, 13.875), case_many_situations[0], case_many_situations[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("many_situations", boost::make_tuple(31), case_many_situations[0], case_many_situations[1]);
 
 
     // ticket#17
-    test_overlay<polygon, box, test_get_turns,  Tuple>("ticket_17", boost::make_tuple(6, -122.27866617838542, 37.377897262573242), ticket_17[0], ticket_17[1]);
+    test_overlay<polygon, box, test_get_turns,  Tuple>("ticket_17", boost::make_tuple(6), ticket_17[0], ticket_17[1]);
 
 
 
     // pies
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_23_16_16", boost::make_tuple(3, 0.0, 0.0), pie_23_16_16[0], pie_23_16_16[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_16_4_12", boost::make_tuple(2, 0.0, 0.0), pie_16_4_12[0], pie_16_4_12[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_4_13_15", boost::make_tuple(3, 0.0, 0.0), pie_4_13_15[0], pie_4_13_15[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_16_2_15_0", boost::make_tuple(2, 0.0, 0.0), pie_16_2_15_0[0], pie_16_2_15_0[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_20_20_7_100", boost::make_tuple(3, 0.0, 0.0), pie_20_20_7_100[0], pie_20_20_7_100[1]);
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_23_23_3_2000", boost::make_tuple(5, 0.0, 0.0), pie_23_23_3_2000[0], pie_23_23_3_2000[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_23_16_16", boost::make_tuple(3), pie_23_16_16[0], pie_23_16_16[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_16_4_12", boost::make_tuple(2), pie_16_4_12[0], pie_16_4_12[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_4_13_15", boost::make_tuple(3), pie_4_13_15[0], pie_4_13_15[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_16_2_15_0", boost::make_tuple(2), pie_16_2_15_0[0], pie_16_2_15_0[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_20_20_7_100", boost::make_tuple(3), pie_20_20_7_100[0], pie_20_20_7_100[1]);
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("pie_23_23_3_2000", boost::make_tuple(5), pie_23_23_3_2000[0], pie_23_23_3_2000[1]);
 
 
     // line-line
-    test_overlay<linestring, linestring, test_get_turns,  Tuple>("lineline1", boost::make_tuple(3, 1.6190476, 3.4761905), line_line1[0], line_line1[1]);
+    test_overlay<linestring, linestring, test_get_turns,  Tuple>("lineline1", boost::make_tuple(3), line_line1[0], line_line1[1]);
 
     // line-polygon
-    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly1", boost::make_tuple(4, 1.6190476, 3.4761905), line_line1[0], case_1[1]);
-    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly2", boost::make_tuple(4, 1.6190476, 3.4761905), line_line1[1], case_1[0]);
-    test_overlay<polygon, linestring, test_get_turns,  Tuple>("poly_line", boost::make_tuple(4, 1.6190476, 3.4761905), case_1[1], line_line1[0]);
+    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly1", boost::make_tuple(4), line_line1[0], case_1[1]);
+    test_overlay<linestring, polygon, test_get_turns,  Tuple>("line_poly2", boost::make_tuple(4), line_line1[1], case_1[0]);
+    test_overlay<polygon, linestring, test_get_turns,  Tuple>("poly_line", boost::make_tuple(4), case_1[1], line_line1[0]);
 }
 
 
@@ -283,9 +259,34 @@ template <typename T>
 void test_ccw()
 {
     typedef boost::geometry::point<T, 2, boost::geometry::cs::cartesian> P;
-    typedef boost::geometry::polygon<P, std::vector, std::vector, false> polygon;
-    typedef boost::tuple<int, double, double> Tuple;
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("1", boost::make_tuple(6, 2.2547802, 3.0358056), case_1[0], case_1[1]);
+    typedef boost::geometry::model::polygon<P, false, true> polygon;
+    typedef boost::tuple<int> Tuple;
+
+
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("ccw_1", 
+                boost::make_tuple(6), 
+                ccw_case_1[0], ccw_case_1[1]);
+
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("ccw_9", 
+                boost::make_tuple(1),
+                case_9[0], case_9[1]);
+
+}
+
+template <typename T>
+void test_open()
+{
+    typedef boost::geometry::point<T, 2, boost::geometry::cs::cartesian> P;
+    typedef boost::geometry::model::polygon<P, true, false> polygon;
+    typedef boost::tuple<int> Tuple;
+
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("open_1", 
+                boost::make_tuple(6), 
+                open_case_1[0], open_case_1[1]);
+
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("open_9", 
+                boost::make_tuple(1),
+                open_case_9[0], open_case_9[1]);
 }
 
 
@@ -294,7 +295,8 @@ int test_main(int, char* [])
 {
     test_all<float>();
     test_all<double>();
-    //test_ccw<double>();
+    test_ccw<double>();
+    test_open<double>();
     //test_all<tt>();
 
 #if ! defined(_MSC_VER)

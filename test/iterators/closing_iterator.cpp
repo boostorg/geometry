@@ -20,8 +20,8 @@
 #include <boost/geometry/geometries/cartesian2d.hpp>
 
 
-
-void test_minimal()
+// The closing iterator should also work on normal std:: containers
+void test_non_geometry()
 {
     std::vector<int> v;
     v.push_back(1);
@@ -69,15 +69,12 @@ void test_geometry(std::string const& wkt)
         }
         BOOST_CHECK_EQUAL(out.str(), " 11 14 44 41 11");
 
-        // All the following does NOT compile, and should NOT, 
-        // 1) Because it is forward only:
-        //it--;
-        //--it;
-        // 2) Because it is not random access:
-        //it += 2;
-        //it = boost::begin(geometry);
+        // Check compilations, it is (since Oct 2010) random access
+        it--;
+        --it;
+        it += 2;
+        it -= 2;
     }
-
 
     // 2: check copy behaviour
     {
@@ -102,7 +99,7 @@ void test_geometry(std::string const& wkt)
 template <typename P>
 void test_all()
 {
-    test_minimal();
+    test_non_geometry();
     test_geometry<boost::geometry::linear_ring<P> >("POLYGON((1 1,1 4,4 4,4 1))");
 }
 

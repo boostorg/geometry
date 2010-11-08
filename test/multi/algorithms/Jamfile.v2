@@ -6,7 +6,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite ggl-multi-algorithms
+test-suite boost-geometry-multi-algorithms
     :
     [ run multi_area.cpp ]
     [ run multi_centroid.cpp ]
@@ -22,4 +22,8 @@ test-suite ggl-multi-algorithms
     [ run multi_simplify.cpp ]
     [ run multi_union.cpp ]
     [ run multi_unique.cpp ]
+    [ run multi_within.cpp ]
+    ;
+
+build-project overlay 
     ;

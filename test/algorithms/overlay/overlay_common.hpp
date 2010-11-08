@@ -50,9 +50,11 @@ void test_overlay(std::string const& id, T const& expected,
     G2 g2;
     boost::geometry::read_wkt(wkt2, g2);
 
+    //std::cout << boost::geometry::wkt(g1) << std::endl;
+    //std::cout << boost::geometry::wkt(g2) << std::endl;
 
     // Try the overlay-function in both ways
-    std::string caseid = id + "_1";
+    std::string caseid = id;
 //goto case_reversed;
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
@@ -65,8 +67,8 @@ void test_overlay(std::string const& id, T const& expected,
 #endif
 
 //case_reversed:
-#if ! defined(BOOST_GEOMETRY_TEST_OVERLAY_NOT_REVERSED)
-    caseid = id + "_2";
+#if ! defined(BOOST_GEOMETRY_TEST_OVERLAY_NOT_EXCHANGED)
+    caseid = id + "_rev";
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
     std::cout << std::endl << std::endl << "# " << caseid << std::endl;
 #endif

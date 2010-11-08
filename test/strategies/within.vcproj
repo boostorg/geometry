@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="intersection_pies"
-	ProjectGUID="{24D92478-7C66-4DD5-A501-30A3D4376E4F}"
-	RootNamespace="intersection_pies"
+	Name="within"
+	ProjectGUID="{AB13D2AC-FD34-4DE4-BD8E-4D463050E5DD}"
+	RootNamespace="within"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,9 +18,9 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\intersection_pies"
+			IntermediateDirectory="$(ConfigurationName)\within"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,13 +41,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor;.;../../../../../..;../../.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TEST_WITH_SVG"
-				BasicRuntimeChecks="3"
+				AdditionalIncludeDirectories="../../../..;.."
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="1"
 			/>
 			<Tool
@@ -61,7 +59,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalLibraryDirectories="&quot;C:\gmp\gmp-dynamic&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -94,9 +91,9 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\intersection_pies"
+			IntermediateDirectory="$(ConfigurationName)\within"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -117,11 +114,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor;.;../../../../../..;../../.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				AdditionalIncludeDirectories="../../../..;.."
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -134,7 +130,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalLibraryDirectories=""
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -170,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\intersection_pies.cpp"
+			RelativePath=".\within.cpp"
 			>
 		</File>
 	</Files>

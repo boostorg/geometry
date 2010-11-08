@@ -156,26 +156,48 @@ void test_all()
         4, "0..1|1..2|2..3|3..4", "+ +|+ -|+ .|. +",
         2, "0..3|3..4", "+|.");
 
-    test_sectionalize<bg::polygon<P> >(
+    // These strings mean:
+    // 0..1|1..2 -> first section: [0, 1] | second section [1, 2], etc
+    // + +|+ -   -> X increases, Y increases | X increases, Y decreases
+    // +|.       -> (only X considered) X increases | X constant
+
+    test_sectionalize<bg::model::polygon<P> >(
         "POLYGON((0 0,0 7,4 2,2 0,0 0))",
         4, "0..1|1..2|2..3|3..4", ". +|+ -|- -|- .",
         //            .   +   -   -   -> 3 sections
         3, "0..1|1..2|2..4", ".|+|-");
 
-    test_sectionalize<bg::polygon<P> >
+    // CCW polygon - orientation is not relevant for sections,
+    // they are just generated in the order they come.
+    test_sectionalize<bg::model::polygon<P, false> >(
+        "POLYGON((0 0,2 0,4 2,0 7,0 0))",
+        4, "0..1|1..2|2..3|3..4", "+ .|+ +|- +|. -",
+        //            .   +   -   -   -> 3 sections
+        3, "0..2|2..3|3..4", "+|-|.");
+
+    // Open polygon - closeness IS relevant for sections, the
+    // last section which is not explicit here should be included.
+    // So results are the same as the pre-previous one.
+    test_sectionalize<bg::model::polygon<P, true, false> >(
+        "POLYGON((0 0,0 7,4 2,2 0))",
+        4, "0..1|1..2|2..3|3..4", ". +|+ -|- -|- .",
+        //            .   +   -   -   -> 3 sections
+        3, "0..1|1..2|2..4", ".|+|-");
+
+    test_sectionalize<bg::model::polygon<P> >
         ("polygon((2.0 1.3, 2.4 1.7, 2.8 1.8, 3.4 1.2, 3.7 1.6,3.4 2.0, 4.1 3.0, 5.3 2.6, 5.4 1.2, 4.9 0.8, 2.9 0.7,2.0 1.3))",
         8, "0..2|2..3|3..4|4..5|5..6|6..8|8..10|10..11", "+ +|+ -|+ +|- +|+ +|+ -|- -|- +",
         4, "0..4|4..5|5..8|8..11", "+|-|+|-");
 
 
-    test_sectionalize<bg::polygon<P> >(
+    test_sectionalize<bg::model::polygon<P> >(
         "POLYGON((3 1,2 2,1 3,2 4,3 5,4 4,5 3,4 2,3 1))",
         4, "0..2|2..4|4..6|6..8", "- +|+ +|+ -|- -",
         //        -   -   -   +   +   +   +   -   - -> 3 sections
         3, "0..2|2..6|6..8", "-|+|-");
 
     // With holes
-    test_sectionalize<bg::polygon<P> >(
+    test_sectionalize<bg::model::polygon<P> >(
         "POLYGON((3 1,2 2,1 3,2 4,3 5,4 4,5 3,4 2,3 1), (3 2,2 2,3 4,3 2))",
         7, "0..2|2..4|4..6|6..8|0..1|1..2|2..3", "- +|+ +|+ -|- -|- .|+ +|. -",
         //        -   -   -   +   +   +   +   -   -          -   +   . -> 6 sections
@@ -201,7 +223,7 @@ void test_all()
 
     return;
     // Buffer-case
-    test_sectionalize<bg::polygon<P> >(
+    test_sectionalize<bg::model::polygon<P> >(
     "POLYGON((-1.1713 0.937043,2.8287 5.93704,2.90334 6.02339,2.98433 6.10382,2.98433 6.10382,3.07121 6.17786,3.16346 6.24507,3.16346 6.24507,3.16346 6.24507,3.26056 6.30508,3.36193 6.35752,3.36193 6.35752,3.46701 6.40211,3.57517 6.43858,3.57517 6.43858,3.57517 6.43858,3.57517 6.43858,3.68579 6.46672,3.79822 6.48637,3.79822 6.48637,3.91183 6.49741,4.02595 6.49978,4.02595 6.49978,4.02595 6.49978,4.13991 6.49346,4.25307 6.4785,4.25307 6.4785,4.36476 6.45497,4.47434 6.42302,4.47434 6.42302,4.47434 6.42302,4.47434 6.42302,7.47434 5.42302,6.84189 3.52566,4.39043 4.68765,0.390434 -0.312348,-1.1713 0.937043))",
         8, "0..2|2..3|3..4|4..5|5..6|6..8|8..10|10..11", "+ +|+ -|+ +|- +|+ +|+ -|- -|- +",
         4, "0..4|4..5|5..8|8..11", "+|-|+|-");

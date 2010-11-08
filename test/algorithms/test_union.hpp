@@ -56,7 +56,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         // (note that overlay might be adapted to avoid duplicates)
         OutputType simplified;
         boost::geometry::unique(*it);
-        n += boost::geometry::num_points(*it);
+        n += boost::geometry::num_points(*it, true);
     }
 
 
@@ -83,10 +83,19 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 #if defined(TEST_WITH_SVG)
     {
+        bool const ccw = 
+            boost::geometry::point_order<G1>::value == boost::geometry::counterclockwise
+            || boost::geometry::point_order<G2>::value == boost::geometry::counterclockwise;
+        bool const open =            
+            boost::geometry::closure<G1>::value == boost::geometry::open
+            || boost::geometry::closure<G2>::value == boost::geometry::open;
+
         std::ostringstream filename;
         filename << "union_"
             << caseid << "_"
             << string_from_type<coordinate_type>::name()
+            << (ccw ? "_ccw" : "")
+            << (open ? "_open" : "")
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());
@@ -98,13 +107,19 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         mapper.add(g1);
         mapper.add(g2);
 
-        mapper.map(g1, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
-        mapper.map(g2, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
+        mapper.map(g1, "fill-opacity:0.5;fill:rgb(153,204,0);"
+                "stroke:rgb(153,204,0);stroke-width:3");
+        mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
+                "stroke:rgb(51,51,153);stroke-width:3");
+        //mapper.map(g1, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
+        //mapper.map(g2, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
 
         for (typename std::vector<OutputType>::const_iterator it = clip.begin();
                 it != clip.end(); ++it)
         {
-            mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
+            mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
+                    "stroke:rgb(255,0,255);stroke-width:8");
+            //mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
         }
     }
 #endif
