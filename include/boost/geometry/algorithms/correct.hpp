@@ -102,7 +102,7 @@ struct correct_ring
 {
     typedef typename point_type<Ring>::type point_type;
 
-    typedef typename strategy_area
+    typedef typename strategy::area::services::default_strategy
         <
             typename cs_tag<point_type>::type,
             point_type
@@ -124,7 +124,7 @@ struct correct_ring
         {
             // check if closed, if not, close it
             bool const disjoint = geometry::disjoint(*boost::begin(r), *(boost::end(r) - 1));
-            closure_selector s = geometry::closure<Ring>::value;
+            closure_selector const s = geometry::closure<Ring>::value;
 
             if (disjoint && (s == closed))
             {
@@ -132,8 +132,8 @@ struct correct_ring
             }
             if (! disjoint && geometry::closure<Ring>::value != closed)
             {
-                // Open it, TODO!
-                std::cout << "TODO";
+                // Open it by removing last point
+                r.resize(boost::size(r) - 1);
             }
         }
         // Check area
@@ -178,7 +178,7 @@ namespace dispatch
 {
 
 template <typename Tag, typename Geometry>
-struct correct 
+struct correct
 {
     BOOST_MPL_ASSERT_MSG
         (
@@ -188,18 +188,18 @@ struct correct
 };
 
 template <typename Point>
-struct correct<point_tag, Point> 
-    : detail::correct::correct_nop<Point> 
+struct correct<point_tag, Point>
+    : detail::correct::correct_nop<Point>
 {};
 
 template <typename LineString>
-struct correct<linestring_tag, LineString> 
+struct correct<linestring_tag, LineString>
     : detail::correct::correct_nop<LineString>
 {};
 
 template <typename Segment>
-struct correct<segment_tag, Segment> 
-    : detail::correct::correct_nop<Segment> 
+struct correct<segment_tag, Segment>
+    : detail::correct::correct_nop<Segment>
 {};
 
 

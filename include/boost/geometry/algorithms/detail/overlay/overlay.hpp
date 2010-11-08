@@ -112,7 +112,11 @@ std::cout << "get turns" << std::endl;
 std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
-        geometry::enrich_intersection_points(turn_points, geometry1, geometry2,
+        geometry::enrich_intersection_points(turn_points, 
+                Direction == -1
+                    ? boost::geometry::detail::overlay::operation_intersection
+                    : boost::geometry::detail::overlay::operation_union,
+                    geometry1, geometry2,
                     side_strategy);
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE

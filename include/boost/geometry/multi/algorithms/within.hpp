@@ -32,7 +32,7 @@ template
 >
 struct geometry_in_multi
 {
-    static inline bool apply(Geometry const& geometry,
+    static inline int apply(Geometry const& geometry,
             MultiGeometry const& multi,
             Strategy const& strategy)
     {
@@ -42,12 +42,13 @@ struct geometry_in_multi
             ++it)
         {
             // Geometry within a multi: true if within one of them
-            if (Policy::apply(geometry, *it, strategy))
+            int const code = Policy::apply(geometry, *it, strategy);
+            if (code != -1)
             {
-                return true;
+                return code;
             }
         }
-        return false;
+        return -1;
     }
 };
 

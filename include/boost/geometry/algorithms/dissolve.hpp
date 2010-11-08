@@ -76,18 +76,26 @@ struct dissolve_ring_or_polygon
                 typename cs_tag<Geometry>::type
             >::type side_strategy_type;
 
-            enrich_intersection_points(turns, geometry, geometry,
+            enrich_intersection_points(turns,
+                        detail::overlay::operation_union,
+                        geometry, geometry,
                         side_strategy_type());
 
 
             // Traverse the polygons twice in two different directions
-            traverse<point_order<Geometry>::value>(geometry, geometry, 
+            traverse<point_order<Geometry>::value>(geometry, geometry,
                             detail::overlay::operation_union,
                             turns, rings);
 
             clear_visit_info(turns);
 
-            traverse<point_order<Geometry>::value>(geometry, geometry, 
+            enrich_intersection_points(turns,
+                        detail::overlay::operation_intersection,
+                        geometry, geometry,
+                        side_strategy_type());
+
+
+            traverse<point_order<Geometry>::value>(geometry, geometry,
                             detail::overlay::operation_intersection,
                             turns, rings);
 

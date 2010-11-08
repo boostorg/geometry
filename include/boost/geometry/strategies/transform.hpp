@@ -11,9 +11,14 @@
 
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
+
 #include <boost/geometry/strategies/tags.hpp>
 
 namespace boost { namespace geometry
+{
+
+namespace strategy { namespace transform { namespace services
 {
 
 /*!
@@ -36,10 +41,17 @@ template
     std::size_t Dimension1, std::size_t Dimension2,
     typename Point1, typename Point2
 >
-struct strategy_transform
+struct default_strategy
 {
-    typedef strategy::not_implemented type;
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPES
+            , (types<Point1, Point2>)
+        );
 };
+
+}}} // namespace strategy::transform::services
+
 
 }} // namespace boost::geometry
 

@@ -27,8 +27,7 @@ struct ring_identifier
         : source_index(src)
         , multi_index(mul)
         , ring_index(rin)
-    {
-    }
+    {}
 
     inline bool operator<(ring_identifier const& other) const
     {

@@ -42,11 +42,18 @@ namespace detail { namespace copy_segments
 template <typename Ring, typename SegmentIdentifier, typename RangeOut>
 struct copy_segments_ring
 {
+    typedef closeable_view
+        <
+            Ring const,
+            closure<Ring>::value == open
+        > view_type;
+
     static inline void apply(Ring const& ring,
             SegmentIdentifier const& seg_id, int to_index,
             RangeOut& current_output)
     {
-        typedef typename boost::range_iterator<Ring const>::type iterator;
+        view_type view(ring);
+        typedef typename boost::range_iterator<view_type const>::type iterator;
 
         typedef geometry::ever_circling_iterator<iterator> ec_iterator;
 
@@ -59,10 +66,10 @@ struct copy_segments_ring
         int const from_index = seg_id.segment_index + 1;
 
         // Sanity check
-        BOOST_ASSERT(from_index < boost::size(ring));
+        BOOST_ASSERT(from_index < boost::size(view));
 
-        ec_iterator it(boost::begin(ring), boost::end(ring),
-                    boost::begin(ring) + from_index);
+        ec_iterator it(boost::begin(view), boost::end(view),
+                    boost::begin(view) + from_index);
 
         // [2..4] -> 4 - 2 + 1 = 3 -> {2,3,4} -> OK
         // [4..2],size=6 -> 6 - 4 + 2 + 1 = 5 -> {4,5,0,1,2} -> OK
@@ -70,7 +77,7 @@ struct copy_segments_ring
         typedef typename boost::range_difference<Ring>::type size_type;
         size_type const count = from_index <= to_index
             ? to_index - from_index + 1
-            : boost::size(ring) - from_index + to_index + 1;
+            : boost::size(view) - from_index + to_index + 1;
 
         for (size_type i = 0; i < count; ++i, ++it)
         {
@@ -158,8 +165,6 @@ struct copy_segments_box
 };
 
 
-
-
 }} // namespace detail::copy_segments
 #endif // DOXYGEN_NO_DETAIL
 
@@ -201,6 +206,7 @@ struct copy_segments<ring_tag, Ring, SegmentIdentifier, RangeOut, Order>
         >
 {};
 
+
 template 
 <
     typename Polygon, 
@@ -236,9 +242,6 @@ struct copy_segments<box_tag, Box, SegmentIdentifier, RangeOut, Order>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-
-
-
 /*!
     \brief Copy segments from a geometry, starting with the specified segment (seg_id)
         until the specified index (to_index)
@@ -269,5 +272,6 @@ inline void copy_segments(Geometry const& geometry,
 
 
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP

@@ -8,17 +8,16 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_GET_FULL_SECTION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_GET_FULL_SECTION_HPP
 
+// TODO rename to "range_by_section"
 
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-
-#include <boost/geometry/iterators/range_type.hpp>
-
-#include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/util/closeable_view.hpp>
 
 
 
@@ -30,31 +29,42 @@ namespace detail { namespace section
 {
 
 
-template <typename Range, typename Section, typename Iterator>
+
+
+template <typename Range, typename Section>
 struct full_section_range
 {
-    static inline void apply(Range const& range, Section const& section,
-                Iterator& begin, Iterator& end)
+    typedef closeable_view
+        <
+            Range const,
+            closure<Range>::value == open // close it if it is open
+        > view_type;
+
+    static inline view_type apply(Range const& range, Section const& section)
     {
-        begin = boost::begin(range);
-        end = boost::end(range);
+        return view_type(range);
     }
 };
 
 
-template <typename Polygon, typename Section, typename Iterator>
+template <typename Polygon, typename Section>
 struct full_section_polygon
 {
-    static inline void apply(Polygon const& polygon, Section const& section,
-                Iterator& begin, Iterator& end)
+    typedef typename geometry::ring_type<Polygon>::type ring_type;
+    typedef closeable_view
+        <
+            ring_type const,
+            closure<ring_type>::value == open // close it if it is open
+        > view_type;
+
+    static inline view_type apply(Polygon const& polygon, Section const& section)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
+
         ring_type const& ring = section.ring_index < 0
             ? geometry::exterior_ring(polygon)
             : geometry::interior_rings(polygon)[section.ring_index];
 
-        begin = boost::begin(ring);
-        end = boost::end(ring);
+        return view_type(ring);
     }
 };
 
@@ -72,8 +82,7 @@ template
 <
     typename Tag,
     typename Geometry,
-    typename Section,
-    typename Iterator
+    typename Section
 >
 struct get_full_section
 {
@@ -85,21 +94,21 @@ struct get_full_section
 };
 
 
-template <typename LineString, typename Section, typename Iterator>
-struct get_full_section<linestring_tag, LineString, Section, Iterator>
-    : detail::section::full_section_range<LineString, Section, Iterator>
+template <typename LineString, typename Section>
+struct get_full_section<linestring_tag, LineString, Section>
+    : detail::section::full_section_range<LineString, Section>
 {};
 
 
-template <typename Ring, typename Section, typename Iterator>
-struct get_full_section<ring_tag, Ring, Section, Iterator>
-    : detail::section::full_section_range<Ring, Section, Iterator>
+template <typename Ring, typename Section>
+struct get_full_section<ring_tag, Ring, Section>
+    : detail::section::full_section_range<Ring, Section>
 {};
 
 
-template <typename Polygon, typename Section, typename Iterator>
-struct get_full_section<polygon_tag, Polygon, Section, Iterator>
-    : detail::section::full_section_polygon<Polygon, Section, Iterator>
+template <typename Polygon, typename Section>
+struct get_full_section<polygon_tag, Polygon, Section>
+    : detail::section::full_section_polygon<Polygon, Section>
 {};
 
 
@@ -108,42 +117,28 @@ struct get_full_section<polygon_tag, Polygon, Section, Iterator>
 
 
 /*!
-    \brief Get iterators for a specified section
+    \brief Get a closeable view indicated by the specified section
     \ingroup sectionalize
     \tparam Geometry type
     \tparam Section type of section to get from
-    \param geometry geometry which might be located in the neighborhood
+    \param geometry geometry to take section of
     \param section structure with section
     \param begin begin-iterator (const iterator over points of section)
     \param end end-iterator (const iterator over points of section)
     \todo Create non-const version as well
 
  */
-template <typename Geometry, typename Section>
-inline void get_full_section(Geometry const& geometry, Section const& section,
-    typename boost::range_iterator
-        <
-            typename geometry::range_type<Geometry>::type const
-        >::type& begin,
-    typename boost::range_iterator
-        <
-            typename geometry::range_type<Geometry>::type const
-        >::type& end)
+template <typename Range, typename Geometry, typename Section>
+inline Range get_full_section(Geometry const& geometry, Section const& section)
 {
     concept::check<Geometry const>();
 
-    typedef typename boost::range_iterator
-        <
-            typename geometry::range_type<Geometry>::type const
-        >::type iterator_type;
-
-    dispatch::get_full_section
+    return dispatch::get_full_section
         <
             typename tag<Geometry>::type,
             Geometry,
-            Section,
-            iterator_type
-        >::apply(geometry, section, begin, end);
+            Section
+        >::apply(geometry, section);
 }
 
 

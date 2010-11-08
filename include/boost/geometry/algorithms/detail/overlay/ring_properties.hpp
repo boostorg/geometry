@@ -69,7 +69,7 @@ struct ring_properties
     {
         has_point = geometry::point_on_border(point, geometry, true);
         typedef typename coordinate_type<Geometry>::type coordinate_type;
-        coordinate_type zero = coordinate_type();
+        coordinate_type const zero = coordinate_type();
         signum = area > zero ? 1 : area < zero ? -1 : 0;
         parent_ring_id.source_index = -1;
     }

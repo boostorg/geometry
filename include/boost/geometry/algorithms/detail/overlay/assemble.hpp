@@ -19,6 +19,7 @@
 #include <boost/geometry/algorithms/detail/overlay/convert_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/add_to_containment.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 //#include <boost/geometry/strategies/intersection_result.hpp>
 
 
@@ -29,6 +30,8 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/intersection.hpp>
+#include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/util/write_dsv.hpp>
@@ -44,6 +47,81 @@ namespace detail { namespace overlay
 {
 
 
+template<typename Tag, typename Point, typename Geometry>
+struct within_code
+{};
+
+template<typename Point, typename Box>
+struct within_code<box_tag, Point, Box>
+{
+    static inline int apply(Point const& point, Box const& box)
+    {
+        // 1. Check outside
+        if (get<0>(point) < get<min_corner, 0>(box)
+            || get<0>(point) > get<max_corner, 0>(box)
+            || get<1>(point) < get<min_corner, 1>(box)
+            || get<1>(point) > get<max_corner, 1>(box))
+        {
+            return -1;
+        }
+        // 2. Check border
+        if (geometry::math::equals(get<0>(point), get<min_corner, 0>(box))
+            || geometry::math::equals(get<0>(point), get<max_corner, 0>(box))
+            || geometry::math::equals(get<1>(point), get<min_corner, 1>(box))
+            || geometry::math::equals(get<1>(point), get<max_corner, 1>(box)))
+        {
+            return 0;
+        }
+        return 1;
+    }
+};
+template<typename Point, typename Ring>
+struct within_code<ring_tag, Point, Ring>
+{
+    static inline int apply(Point const& point, Ring const& ring)
+    {
+        // Same as point_in_ring but here ALWAYS with winding.
+        typedef strategy::within::winding<Point> strategy_type;
+
+        return detail::within::point_in_ring
+            <
+                Point,
+                Ring,
+                order_as_direction<geometry::point_order<Ring>::value>::value,
+                geometry::closure<Ring>::value,
+                strategy_type
+            >::apply(point, ring, strategy_type());
+    }
+};
+
+
+template<typename Point, typename Geometry>
+inline int point_in_ring(Point const& point, Geometry const& geometry)
+{
+    return within_code<typename geometry::tag<Geometry>::type, Point, Geometry>
+        ::apply(point, geometry);
+}
+
+template<typename Point, typename Geometry>
+inline bool within_or_touch(Point const& point, Geometry const& geometry)
+{
+    return within_code<typename geometry::tag<Geometry>::type, Point, Geometry>
+        ::apply(point, geometry) >= 0;
+}
+
+
+// Skip for assemble process
+template <typename TurnInfo>
+inline bool skip(TurnInfo const& turn_info)
+{
+    return (turn_info.discarded || turn_info.both(operation_union))
+        && ! turn_info.any_blocked()
+        && ! turn_info.both(operation_intersection)
+        ;
+}
+
+
+
 template <typename TurnPoints, typename Map>
 inline void map_turns(Map& map, TurnPoints const& turn_points)
 {
@@ -56,7 +134,7 @@ inline void map_turns(Map& map, TurnPoints const& turn_points)
          it != boost::end(turn_points);
          ++it, ++index)
     {
-        if (! it->ignore())
+        if (! skip(*it))
         {
             int op_index = 0;
             for (typename boost::range_iterator<container_type const>::type
@@ -137,22 +215,27 @@ struct enrich_containment
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection)
     {
+        int code = -1;
         if (item1.ring_id.source_index == 0)
         {
-            return geometry::within(item2.point,
+            code = point_in_ring(item2.point,
                 get_ring<tag1>::apply(item1.ring_id, geometry1));
         }
         else if (item1.ring_id.source_index == 1)
         {
-            return geometry::within(item2.point,
+            code = point_in_ring(item2.point,
                 get_ring<tag2>::apply(item1.ring_id, geometry2));
         }
         else if (item1.ring_id.source_index == 2)
         {
-            return geometry::within(item2.point,
+            code = point_in_ring(item2.point,
                 get_ring<tag3>::apply(item1.ring_id, collection));
         }
-        return false;
+        else
+        {
+            return false;
+        }
+        return code == 0 ? item1.area < 0 : code == 1;
     }
 
     template <typename Selection, typename Map>
@@ -255,12 +338,16 @@ std::cout << "spatial divide n="
             item_type& item1 = *it1;
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << item1.ring_id << " area: " << item1.area << std::endl;
+if (item1.area < 0)
+{
+    std::cout << "(negative ";
+}
 #endif
             iterator it2 = it1;
             for (it2++; it2 != boost::end(container); ++it2)
             {
                 item_type& item2 = *it2;
-                if (geometry::within(item2.point, item1.box)
+                if (within_or_touch(item2.point, item1.box)
                     && geometry::math::abs(item2.area)
                             < geometry::math::abs(item1.area)
                     && contains(item1, item2, geometry1, geometry2, collection)

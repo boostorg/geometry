@@ -60,7 +60,10 @@ struct map_transformer
 
 
     private :
-        void set_transformation_point(double wx, double wy, double px, double py, double scalex, double scaley)
+        template <typename W, typename P, typename S>
+        inline void set_transformation_point(W const& wx, W const& wy, 
+            P const& px, P const& py, 
+            S const& scalex, S const& scaley)
         {
 
             // Translate to a coordinate system centered on world coordinates (-wx, -wy)

@@ -23,7 +23,7 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace centroid_
+namespace strategy { namespace centroid
 {
 
 
@@ -71,24 +71,28 @@ public :
 };
 
 
-}} // namespace strategy::centroid
-
-
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
+namespace services
+{
 
 template <typename Point, typename Geometry>
-struct strategy_centroid<cartesian_tag, multi_point_tag, 2, Point, Geometry>
+struct default_strategy<cartesian_tag, multi_point_tag, 2, Point, Geometry>
 {
-    typedef strategy::centroid_::centroid_average
+    typedef centroid_average
         <
             Point,
             typename point_type<Geometry>::type
         > type;
 };
 
+} // namespace services
+
 #endif
+
+
+}} // namespace strategy::centroid
 
 
 }} // namespace boost::geometry

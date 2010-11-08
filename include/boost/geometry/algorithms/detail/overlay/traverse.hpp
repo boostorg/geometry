@@ -36,6 +36,25 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
+template <typename Turn, typename Operation>
+inline void debug_traverse(Turn const& turn, Operation op, std::string const& header)
+{
+#ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
+    std::cout << header 
+        << " at " << op.seg_id 
+        << " op: " << operation_char(op.operation)
+        << " vis: " << visited_char(op.visited)
+        << " of:  " << operation_char(turn.operations[0].operation)
+        << operation_char(turn.operations[1].operation)
+        << std::endl;
+
+    if (boost::contains(header, "Finished"))
+    {
+        std::cout << std::endl;
+    }
+#endif
+}
+
 
 template <typename Turns>
 inline void clear_visit_info(Turns& turns)
@@ -56,6 +75,7 @@ inline void clear_visit_info(Turns& turns)
         {
             op_it->visited.clear();
         }
+        it->discarded = false;
     }
 }
 
@@ -91,11 +111,11 @@ template
     typename Turns,
     typename IntersectionInfo
 >
-inline void assign_next_ip(G1 const& g1, G2 const& g2,
+inline bool assign_next_ip(G1 const& g1, G2 const& g2,
             Turns& turns,
-            typename boost::range_iterator<Turns>::type & ip,
+            typename boost::range_iterator<Turns>::type& ip,
             GeometryOut& current_output,
-            IntersectionInfo & info,
+            IntersectionInfo& info,
             segment_identifier& seg_id)
 {
     info.visited.set_visited();
@@ -104,6 +124,11 @@ inline void assign_next_ip(G1 const& g1, G2 const& g2,
     // If there is no next IP on this segment
     if (info.enriched.next_ip_index < 0)
     {
+        if (info.enriched.travels_to_vertex_index < 0 || info.enriched.travels_to_ip_index < 0) return false;
+
+        BOOST_ASSERT(info.enriched.travels_to_vertex_index >= 0);
+        BOOST_ASSERT(info.enriched.travels_to_ip_index >= 0);
+
         if (info.seg_id.source_index == 0)
         {
             geometry::copy_segments<Order>(g1, info.seg_id,
@@ -116,8 +141,8 @@ inline void assign_next_ip(G1 const& g1, G2 const& g2,
                     info.enriched.travels_to_vertex_index,
                     current_output);
         }
-        ip = boost::begin(turns) + info.enriched.travels_to_ip_index;
         seg_id = info.seg_id;
+        ip = boost::begin(turns) + info.enriched.travels_to_ip_index;
     }
     else
     {
@@ -126,12 +151,15 @@ inline void assign_next_ip(G1 const& g1, G2 const& g2,
     }
 
     geometry::append(current_output, ip->point);
+    return true;
 }
 
 
 inline bool select_source(operation_type operation, int source1, int source2)
 {
-    return operation == operation_intersection && source1 != source2;
+    return (operation == operation_intersection && source1 != source2)
+        || (operation == operation_union && source1 == source2)
+        ;
 }
 
 
@@ -145,23 +173,35 @@ inline bool select_next_ip(operation_type operation,
             segment_identifier const& seg_id,
             Iterator& selected)
 {
+    if (turn.discarded)
+    {
+        return false;
+    }
     bool has_tp = false;
     selected = boost::end(turn.operations);
     for (Iterator it = boost::begin(turn.operations);
         it != boost::end(turn.operations);
         ++it)
     {
+        if (it->visited.started())
+        {
+            selected = it;
+            //std::cout << " RETURN";
+            return true;
+        }
+
         // In some cases there are two alternatives.
         // For "ii", take the other one (alternate)
+        //           UNLESS the other one is already visited
         // For "uu", take the same one (see above);
         // For "cc", take either one, but if there is a starting one,
         //           take that one.
         if (   (it->operation == operation_continue
-                && (! has_tp
-                    || it->visited.started()
+                && (! has_tp || it->visited.started()
                     )
                 )
             || (it->operation == operation
+                && ! it->visited.finished()
                 && (! has_tp
                     || select_source(operation,
                             it->seg_id.source_index, seg_id.source_index)
@@ -170,16 +210,17 @@ inline bool select_next_ip(operation_type operation,
             )
         {
             selected = it;
+            debug_traverse(turn, *it, " Candidate");
             has_tp = true;
-        }
-
-        if (it->visited.started())
-        {
-            selected = it;
-            return true;
         }
     }
 
+    if (has_tp)
+    {
+       debug_traverse(turn, *selected, "  Accepted");
+    }
+
+    
     return has_tp;
 }
 
@@ -208,6 +249,9 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
 #endif
             )
 {
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+    std::cout << " REJECT " << reason << std::endl;
+#endif
     fail = true;
 
     // Make bad output clean
@@ -287,8 +331,8 @@ inline void traverse(Geometry1 const& geometry1,
             ! fail && it != boost::end(turns);
             ++it)
         {
-            // Skip the self-tangent ones (uu)
-            if (! it->ignore())
+            // Skip discarded ones
+            if (! (it->is_discarded() || it->blocked()))
             {
                 for (turn_operation_iterator_type iit = boost::begin(it->operations);
                     ! fail && iit != boost::end(it->operations);
@@ -309,16 +353,22 @@ inline void traverse(Geometry1 const& geometry1,
                         turn_operation_iterator_type current_iit = iit;
                         segment_identifier current_seg_id;
 
-                        detail::overlay::assign_next_ip<Order>(geometry1, geometry2,
+                        if (! detail::overlay::assign_next_ip<Order>(geometry1, geometry2,
                                     turns,
                                     current, current_output,
-                                    *iit, current_seg_id);
+                                    *iit, current_seg_id))
+                        {
+                            detail::overlay::backtrack(
+                                size_at_start, fail,
+                                rings, current_output, turns, *current_iit,
+                                "No next IP",
+                                geometry1, geometry2);
+                        }
 
                         if (! detail::overlay::select_next_ip(
                                         operation,
                                         *current,
                                         current_seg_id,
-
                                         current_iit))
                         {
                             detail::overlay::backtrack(
@@ -331,6 +381,9 @@ inline void traverse(Geometry1 const& geometry1,
                         {
 
                             iit->visited.set_started();
+                            detail::overlay::debug_traverse(*it, *iit, "-> Started");
+                            detail::overlay::debug_traverse(*current, *current_iit, "Selected  ");
+
 
                             unsigned int i = 0;
 
@@ -368,7 +421,6 @@ inline void traverse(Geometry1 const& geometry1,
                                                 operation,
                                                 *current,
                                                 current_seg_id,
-
                                                 current_iit))
                                     {
                                         // Should not occur in valid (non-self-intersecting) polygons
@@ -380,11 +432,13 @@ inline void traverse(Geometry1 const& geometry1,
                                             "Dead end",
                                             geometry1, geometry2);
                                     }
+                                    detail::overlay::debug_traverse(*current, *current_iit, "Selected  ");
 
-                                    if (i++ > turns.size())
+                                    if (i++ > 2 + 2 * turns.size())
                                     {
                                         // Sanity check: there may be never more loops
-                                        // than intersection points.
+                                        // than turn points.
+                                        // Turn points marked as "ii" can be visited twice.
                                         detail::overlay::backtrack(
                                             size_at_start, fail,
                                             rings,  current_output, turns, *iit,
@@ -397,6 +451,7 @@ inline void traverse(Geometry1 const& geometry1,
                             if (! fail)
                             {
                                 iit->visited.set_finished();
+                                detail::overlay::debug_traverse(*current, *iit, "->Finished");
                                 rings.push_back(current_output);
                             }
                         }

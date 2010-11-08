@@ -12,12 +12,26 @@
 
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
+
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
 
 namespace boost { namespace geometry
 {
 
+
+namespace strategy { namespace centroid
+{
+
+struct not_applicable_strategy
+{
+};
+
+
+namespace services
+{
 
 /*!
     \brief Traits class binding a centroid calculation strategy to a coordinate system
@@ -36,10 +50,39 @@ template
     typename Point,
     typename Geometry
 >
-struct strategy_centroid
+struct default_strategy
 {
-    typedef strategy::not_implemented type;
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_TYPES
+            , (types<Point, Geometry>)
+        );
 };
+
+// Register NA-strategy for all where not applicable
+template <typename Point, typename Geometry, std::size_t Dimension>
+struct default_strategy<cartesian_tag, point_tag, Dimension, Point, Geometry>
+{
+    typedef not_applicable_strategy type;
+};
+
+template <typename Point, typename Geometry, std::size_t Dimension>
+struct default_strategy<cartesian_tag, box_tag, Dimension, Point, Geometry>
+{
+    typedef not_applicable_strategy type;
+};
+
+template <typename Point, typename Geometry, std::size_t Dimension>
+struct default_strategy<cartesian_tag, linestring_tag, Dimension, Point, Geometry>
+{
+    typedef not_applicable_strategy type;
+};
+
+
+} // namespace services
+
+
+}} // namespace strategy::centroid
 
 
 }} // namespace boost::geometry

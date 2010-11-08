@@ -58,7 +58,7 @@ struct turn_operation
     segment_identifier seg_id;
     segment_identifier other_id;
 
-    turn_operation()
+    inline turn_operation()
         : operation(operation_none)
     {}
 };
@@ -82,22 +82,50 @@ template
 struct turn_info
 {
     typedef Point point_type;
-    typedef Operation operation_type;
+    typedef Operation turn_operation_type;
     typedef Container container_type;
 
     Point point;
     method_type method;
+    bool discarded;
+
 
     Container operations;
 
     inline turn_info()
         : method(method_none)
+        , discarded(false)
     {}
 
-    inline bool ignore() const
+    inline bool both(operation_type type) const
     {
-        return this->operations[0].operation == operation_union
-            && this->operations[1].operation == operation_union;
+        return has12(type, type);
+    }
+
+    inline bool combination(operation_type type1, operation_type type2) const
+    {
+        return has12(type1, type2) || has12(type2, type1);
+    }
+
+
+    inline bool is_discarded() const { return discarded; }
+    inline bool blocked() const
+    {
+        return both(operation_blocked);
+    }
+    inline bool any_blocked() const
+    {
+        return this->operations[0].operation == operation_blocked 
+            || this->operations[1].operation == operation_blocked;
+    }
+
+
+private :
+    inline bool has12(operation_type type1, operation_type type2) const
+    {
+        return this->operations[0].operation == type1 
+            && this->operations[1].operation == type2
+            ;
     }
 
 };

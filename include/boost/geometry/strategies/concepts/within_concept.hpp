@@ -50,8 +50,8 @@ class WithinStrategy
             //    having a point, two segment-points, and state
             str->apply(*p, *sp, *sp, *st);
 
-            // 5) must implement a method result
-            bool r = str->result(*st);
+            // 5) must implement a method result returning int
+            int r = str->result(*st);
 
             boost::ignore_unused_variable_warning(r);
             boost::ignore_unused_variable_warning(str);

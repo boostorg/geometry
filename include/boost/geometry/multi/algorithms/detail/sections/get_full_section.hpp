@@ -13,6 +13,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/multi/core/ring_type.hpp>
 #include <boost/geometry/algorithms/detail/sections/get_full_section.hpp>
 
 
@@ -29,14 +30,19 @@ template
 <
     typename MultiGeometry,
     typename Section,
-    typename Iterator,
     typename Policy
 >
 struct full_section_multi
 {
-    static inline void apply(MultiGeometry const& multi,
-                Section const& section,
-                Iterator& begin, Iterator& end)
+    typedef typename geometry::ring_type<MultiGeometry>::type ring_type;
+    typedef closeable_view
+        <
+            ring_type const,
+            closure<MultiGeometry>::value == open // close it if it is open
+        > view_type;
+
+    static inline view_type apply(MultiGeometry const& multi,
+                Section const& section)
     {
         BOOST_ASSERT
             (
@@ -44,7 +50,7 @@ struct full_section_multi
                 && section.multi_index < boost::size(multi)
             );
 
-        Policy::apply(multi[section.multi_index], section, begin, end);
+        return Policy::apply(multi[section.multi_index], section);
     }
 };
 
@@ -59,18 +65,16 @@ namespace dispatch
 {
 
 
-template <typename MultiPolygon, typename Section, typename Iterator>
-struct get_full_section<multi_polygon_tag, MultiPolygon, Section, Iterator>
+template <typename MultiPolygon, typename Section>
+struct get_full_section<multi_polygon_tag, MultiPolygon, Section>
     : detail::section::full_section_multi
         <
             MultiPolygon,
             Section,
-            Iterator,
             detail::section::full_section_polygon
                 <
                     typename boost::range_value<MultiPolygon>::type,
-                    Section,
-                    Iterator
+                    Section
                 >
        >
 {};

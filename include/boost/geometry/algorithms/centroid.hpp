@@ -408,7 +408,7 @@ inline void centroid(Geometry const& geometry, Point& c)
 {
     concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
 
-    typedef typename strategy_centroid
+    typedef typename strategy::centroid::services::default_strategy
         <
             typename cs_tag<Geometry>::type,
             typename tag<Geometry>::type,

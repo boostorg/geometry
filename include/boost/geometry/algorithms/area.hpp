@@ -84,9 +84,10 @@ struct ring_area
         // Ignore warning (because using static method sometimes) on strategy
         boost::ignore_unused_variable_warning(strategy);
 
+        // An open linear_ring has at least three points,
         // A closed linear_ring has at least four points,
         // if not, there is no (zero) area
-        if (boost::size(ring) < 4)
+        if (boost::size(ring) < (Closure == open ? 3 : 4))
         {
             return type();
         }
@@ -121,7 +122,6 @@ struct ring_area
 
 
 #endif // DOXYGEN_NO_DETAIL
-
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -229,7 +229,12 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 {
     concept::check<Geometry const>();
 
-    typedef typename area_result<Geometry>::strategy_type strategy_type;
+    typedef typename point_type<Geometry>::type point_type;
+    typedef typename strategy::area::services::default_strategy
+        <
+            typename cs_tag<point_type>::type,
+            point_type
+        >::type strategy_type;
 
     return dispatch::area
         <

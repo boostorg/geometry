@@ -50,7 +50,6 @@
 #include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/algorithms/detail/sections/get_section.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
@@ -90,6 +89,28 @@ template
 >
 class get_turns_in_sections
 {
+    typedef closeable_view
+        <
+            typename range_type<Geometry1>::type const,
+            closure<Geometry1>::value == open
+        > view_type1;
+    typedef closeable_view
+        <
+            typename range_type<Geometry2>::type const,
+            closure<Geometry2>::value == open
+        > view_type2;
+
+    typedef typename boost::range_iterator
+        <
+            view_type1 const
+        >::type range1_iterator;
+
+    typedef typename boost::range_iterator
+        <
+            view_type2 const
+        >::type range2_iterator;
+
+
 
 public :
     // Returns true if terminated, false if interrupted
@@ -99,22 +120,14 @@ public :
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
+        view_type1 view1 = get_full_section<view_type1>(geometry1, sec1);
+        view_type2 view2 = get_full_section<view_type2>(geometry2, sec2);
 
-        typedef typename boost::range_iterator
-            <
-                typename geometry::range_type<Geometry1>::type const
-            >::type range1_iterator;
+        range1_iterator begin_range_1 = boost::begin(view1);
+        range1_iterator end_range_1 = boost::end(view1);
 
-        typedef typename boost::range_iterator
-            <
-                typename geometry::range_type<Geometry2>::type const
-            >::type range2_iterator;
-
-        range1_iterator begin_range_1, end_range_1;
-        get_full_section(geometry1, sec1, begin_range_1, end_range_1);
-
-        range2_iterator begin_range_2, end_range_2;
-        get_full_section(geometry2, sec2, begin_range_2, end_range_2);
+        range2_iterator begin_range_2 = boost::begin(view2);
+        range2_iterator end_range_2 = boost::end(view2);
 
         int const dir1 = sec1.directions[0];
         int const dir2 = sec2.directions[0];
@@ -128,8 +141,8 @@ public :
 
         range1_iterator prev1, it1, end1;
 
-        get_start_point_iterator(sec1, prev1, it1, end1,
-                    index1, ndi1, geometry1, dir1, sec2.bounding_box);
+        get_start_point_iterator(sec1, view1, prev1, it1, end1,
+                    index1, ndi1, dir1, sec2.bounding_box);
 
         // We need a circular iterator because it might run through the closing point.
         // One circle is actually enough but this one is just convenient.
@@ -141,7 +154,7 @@ public :
         // section 1: |----|---|---|---|---|
         for (prev1 = it1++, next1++;
             it1 != end1 && ! exceeding<0>(dir1, *prev1, sec2.bounding_box);
-            prev1 = it1++, index1++, next1++, ndi1++)
+            ++prev1, ++it1, ++index1, ++next1, ++ndi1)
         {
             ever_circling_iterator<range1_iterator> nd_next1(
                     begin_range_1, end_range_1, next1, true);
@@ -152,14 +165,14 @@ public :
 
             range2_iterator prev2, it2, end2;
 
-            get_start_point_iterator(sec2, prev2, it2, end2,
-                        index2, ndi2, geometry2, dir2, sec1.bounding_box);
+            get_start_point_iterator(sec2, view2, prev2, it2, end2,
+                        index2, ndi2, dir2, sec1.bounding_box);
             ever_circling_iterator<range2_iterator> next2(begin_range_2, end_range_2, it2, true);
             next2++;
 
             for (prev2 = it2++, next2++;
                 it2 != end2 && ! exceeding<0>(dir2, *prev2, sec1.bounding_box);
-                prev2 = it2++, index2++, next2++, ndi2++)
+                ++prev2, ++it2, ++index2, ++next2, ++ndi2)
             {
                 bool skip = same_source;
                 if (skip)
@@ -268,14 +281,17 @@ private :
     // because of the logistics of "index" (the section-iterator automatically
     // skips to the begin-point, we loose the index or have to recalculate it)
     // So we mimic it here
-    template <typename RangeIterator, typename Section, typename Geometry, typename Box>
-    static inline RangeIterator get_start_point_iterator(Section & section,
-            RangeIterator& it, RangeIterator& prev, RangeIterator& end,
+    template <typename Range, typename Section, typename Box>
+    static inline void get_start_point_iterator(Section & section,
+            Range const& range, 
+            typename boost::range_iterator<Range const>::type& it, 
+            typename boost::range_iterator<Range const>::type& prev, 
+            typename boost::range_iterator<Range const>::type& end,
             int& index, int& ndi,
-            Geometry const& geometry,
             int dir, Box const& other_bounding_box)
     {
-        get_section(geometry, section, it, end);
+        it = boost::begin(range) + section.begin_index;
+        end = boost::begin(range) + section.end_index + 1;
 
         // Mimic section-iterator:
         // Skip to point such that section interects other box
@@ -285,7 +301,6 @@ private :
         {}
         // Go back one step because we want to start completely preceding
         it = prev;
-        return it;
     }
 };
 

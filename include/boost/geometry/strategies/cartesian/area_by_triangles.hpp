@@ -92,18 +92,24 @@ public :
 
 };
 
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+namespace services
+{
+    template <typename Point>
+    struct default_strategy<cartesian_tag, Point>
+    {
+        typedef strategy::area::by_triangles<Point> type;
+    };
+
+} // namespace services
+
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+
 }} // namespace strategy::area
 
 
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-template <typename Point>
-struct strategy_area<cartesian_tag, Point>
-{
-    typedef strategy::area::by_triangles<Point> type;
-};
-
-#endif
 
 }} // namespace boost::geometry
 
