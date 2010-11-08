@@ -58,10 +58,6 @@
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/algorithms/detail/sections/get_section.hpp>
-#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-
-
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>
 

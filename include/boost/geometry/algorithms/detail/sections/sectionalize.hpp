@@ -19,12 +19,14 @@
 #include <boost/geometry/algorithms/combine.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/point_order.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/closeable_view.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
 
@@ -186,7 +188,8 @@ struct check_duplicate_loop
         coordinate_type const diff =
             geometry::get<1, Dimension>(seg) - geometry::get<0, Dimension>(seg);
 
-        if (! geometry::math::equals(diff, 0))
+        coordinate_type const zero = 0;
+        if (! geometry::math::equals(diff, zero))
         {
             return false;
         }
@@ -228,7 +231,7 @@ struct assign_loop<T, DimensionCount, DimensionCount>
 /// @brief Helper class to create sections of a part of a range, on the fly
 template
 <
-    typename Range,
+    typename Range,  // Can be closeable_view
     typename Point,
     typename Sections,
     std::size_t DimensionCount,
@@ -238,6 +241,7 @@ struct sectionalize_part
 {
     typedef geometry::segment<Point const> segment_type;
     typedef typename boost::range_value<Sections>::type section_type;
+
     typedef typename boost::range_iterator<Range const>::type iterator_type;
 
     static inline void apply(Sections& sections, section_type& section,
@@ -260,7 +264,7 @@ struct sectionalize_part
 
         for(iterator_type previous = it++;
             it != boost::end(range);
-            previous = it++, index++)
+            ++previous, ++it, index++)
         {
             segment_type segment(*previous, *it);
 
@@ -341,7 +345,7 @@ struct sectionalize_part
 
 template
 <
-    typename Range,
+    typename Range, closure_selector Closure,
     typename Point,
     typename Sections,
     std::size_t DimensionCount,
@@ -349,12 +353,20 @@ template
 >
 struct sectionalize_range
 {
+    typedef closeable_view
+        <
+            Range const,
+            Closure == open // close it if it is open
+        > view_type;
+
     static inline void apply(Range const& range, Sections& sections,
                 int ring_index = -1, int multi_index = -1)
     {
         typedef segment<Point const> segment_type;
 
-        std::size_t const n = boost::size(range);
+        view_type view(range);
+
+        std::size_t const n = boost::size(view);
         if (n == 0)
         {
             // Zero points, no section
@@ -375,10 +387,10 @@ struct sectionalize_range
 
         sectionalize_part
             <
-                Range, Point, Sections,
+                view_type, Point, Sections, 
                 DimensionCount, MaxCount
             >::apply(sections, section, index, ndi,
-                        range, ring_index, multi_index);
+                        view, ring_index, multi_index);
 
         // Add last section if applicable
         if (section.count > 0)
@@ -404,7 +416,8 @@ struct sectionalize_polygon
         typedef typename ring_type<Polygon>::type ring_type;
         typedef sectionalize_range
             <
-                ring_type, point_type, Sections, DimensionCount, MaxCount
+                ring_type, closure<Polygon>::value,
+                point_type, Sections, DimensionCount, MaxCount
             > sectionalizer_type;
 
         typedef typename boost::range_iterator
@@ -457,7 +470,7 @@ struct sectionalize_box
 
         sectionalize_range
             <
-                std::vector<point_type>,
+                std::vector<point_type>, closed,
                 point_type,
                 Sections,
                 DimensionCount,
@@ -539,7 +552,7 @@ struct sectionalize
     >
     : detail::sectionalize::sectionalize_range
         <
-            LineString,
+            LineString, closed,
             typename point_type<LineString>::type,
             Sections,
             DimensionCount,
@@ -549,16 +562,16 @@ struct sectionalize
 
 template
 <
-    typename Range,
+    typename Ring,
     typename Sections,
     std::size_t DimensionCount,
     std::size_t MaxCount
 >
-struct sectionalize<ring_tag, Range, Sections, DimensionCount, MaxCount>
+struct sectionalize<ring_tag, Ring, Sections, DimensionCount, MaxCount>
     : detail::sectionalize::sectionalize_range
         <
-            Range,
-            typename point_type<Range>::type,
+            Ring, geometry::closure<Ring>::value,
+            typename point_type<Ring>::type,
             Sections,
             DimensionCount,
             MaxCount

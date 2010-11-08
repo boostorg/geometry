@@ -10,6 +10,8 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_SECTIONS_GET_SECTION_HPP
 
 
+// OBSOLETE
+/*
 #include <boost/assert.hpp>
 #include <boost/concept/requires.hpp>
 #include <boost/range.hpp>
@@ -71,5 +73,6 @@ struct get_section<multi_polygon_tag, MultiPolygon, Section, IsConst>
 
 }} // namespace boost::geometry
 
+*/
 
 #endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_SECTIONS_GET_SECTION_HPP

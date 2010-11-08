@@ -25,7 +25,7 @@
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/strategies/point_in_poly.hpp>
+#include <boost/geometry/strategies/within.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
 #include <boost/geometry/util/closeable_view.hpp>
@@ -55,14 +55,14 @@ template
 >
 struct point_in_box
 {
-    static inline bool apply(Point const& p, Box const& b, Strategy const& s)
+    static inline int apply(Point const& p, Box const& b, Strategy const& s)
     {
         assert_dimension_equal<Point, Box>();
 
         if (get<Dimension>(p) <= get<min_corner, Dimension>(b)
             || get<Dimension>(p) >= get<max_corner, Dimension>(b))
         {
-            return false;
+            return -1;
         }
 
         return point_in_box
@@ -85,9 +85,9 @@ template
 >
 struct point_in_box<Point, Box, Strategy, DimensionCount, DimensionCount>
 {
-    static inline bool apply(Point const& , Box const& , Strategy const& )
+    static inline int apply(Point const& , Box const& , Strategy const& )
     {
-        return true;
+        return 1;
     }
 };
 
@@ -102,14 +102,14 @@ template
 >
 struct box_in_box
 {
-    static inline bool apply(Box1 const& b1, Box2 const& b2, Strategy const& s)
+    static inline int apply(Box1 const& b1, Box2 const& b2, Strategy const& s)
     {
         assert_dimension_equal<Box1, Box2>();
 
         if (get<min_corner, Dimension>(b1) <= get<min_corner, Dimension>(b2)
             || get<max_corner, Dimension>(b1) >= get<max_corner, Dimension>(b2))
         {
-            return false;
+            return -1;
         }
 
         return box_in_box
@@ -132,9 +132,9 @@ template
 >
 struct box_in_box<Box1, Box2, Strategy, DimensionCount, DimensionCount>
 {
-    static inline bool apply(Box1 const& , Box2 const& , Strategy const&)
+    static inline int apply(Box1 const& , Box2 const& , Strategy const&)
     {
-        return true;
+        return 1;
     }
 };
 
@@ -151,12 +151,12 @@ struct point_in_ring
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
 
-    static inline bool apply(Point const& point, Ring const& ring,
+    static inline int apply(Point const& point, Ring const& ring,
             Strategy const& strategy)
     {
         if (boost::size(ring) < 4)
         {
-            return false;
+            return -1;
         }
 
         typedef reversible_view<Ring const, Direction> rev_view_type;
@@ -182,9 +182,12 @@ struct point_in_ring
                 return false;
             }
         }
+
         return strategy.result(state);
     }
 };
+
+
 
 // Polygon: in exterior ring, and if so, not within interior ring(s)
 template
@@ -199,22 +202,20 @@ struct point_in_polygon
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
 
-    static inline bool apply(Point const& point, Polygon const& poly,
+    static inline int apply(Point const& point, Polygon const& poly,
             Strategy const& strategy)
     {
-
-        typedef point_in_ring
+        int const code = point_in_ring
             <
                 Point,
                 typename ring_type<Polygon>::type,
                 Direction,
                 Closure,
                 Strategy
-            > per_ring;
+            >::apply(point, exterior_ring(poly), strategy);
 
-        if (per_ring::apply(point, exterior_ring(poly), strategy))
+        if (code == 1)
         {
-
             for (typename boost::range_iterator
                     <
                         typename interior_type<Polygon>::type const
@@ -222,14 +223,25 @@ struct point_in_polygon
                  it != boost::end(interior_rings(poly));
                  ++it)
             {
-                if (per_ring::apply(point, *it, strategy))
+                int const interior_code = point_in_ring
+                    <
+                        Point,
+                        typename ring_type<Polygon>::type,
+                        Direction,
+                        Closure,
+                        Strategy
+                    >::apply(point, *it, strategy);
+
+                if (interior_code != -1)
                 {
-                    return false;
+                    // If 0, return 0 (touch)
+                    // If 1 (inside hole) return -1 (outside polygon)
+                    // If -1 (outside hole) check other holes if any
+                    return -interior_code;
                 }
             }
-            return true;
         }
-        return false;
+        return code;
     }
 };
 
@@ -335,8 +347,10 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
     typedef typename point_type<Geometry1>::type point_type1;
     typedef typename point_type<Geometry2>::type point_type2;
 
-    typedef typename strategy_within
+    typedef typename strategy::within::services::default_strategy
         <
+            typename tag<Geometry1>::type,
+            typename tag<Geometry2>::type,
             typename cs_tag<point_type1>::type,
             typename cs_tag<point_type2>::type,
             point_type1,
@@ -350,7 +364,7 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
             Geometry1,
             Geometry2,
             strategy_type
-        >::apply(geometry1, geometry2, strategy_type());
+        >::apply(geometry1, geometry2, strategy_type()) == 1;
 }
 
 /*!
@@ -387,7 +401,7 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Geometry1,
             Geometry2,
             Strategy
-        >::apply(geometry1, geometry2, strategy);
+        >::apply(geometry1, geometry2, strategy) == 1;
 }
 
 }} // namespace boost::geometry

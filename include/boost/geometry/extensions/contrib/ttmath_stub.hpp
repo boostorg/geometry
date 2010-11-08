@@ -2,10 +2,11 @@
 #define TTMATH_STUB
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <boost/geometry/util/math.hpp>
 
 
-#include <ttmath/ttmath.h>
+#include <ttmath.h>
 namespace ttmath
 {
     template <uint Exponent, uint Mantissa>
@@ -141,6 +142,90 @@ namespace detail
 }
 }}} // boost::geometry::math
 
+
+
+
+// Support for boost::numeric_cast to int and to double (necessary for SVG-mapper)
+namespace boost { namespace numeric
+{
+
+template
+<
+    ttmath::uint Exponent, ttmath::uint Mantissa,
+    typename Traits,
+    typename OverflowHandler,
+    typename Float2IntRounder,
+    typename RawConverter,
+    typename UserRangeChecker
+>
+struct converter<int, ttmath::Big<Exponent, Mantissa>, Traits, OverflowHandler, Float2IntRounder, RawConverter, UserRangeChecker>
+{
+    static inline int convert(ttmath::Big<Exponent, Mantissa> arg)
+    {
+        int v;
+        arg.ToInt(v);
+        return v;
+    }
+};
+
+template
+<
+    ttmath::uint Exponent, ttmath::uint Mantissa,
+    typename Traits,
+    typename OverflowHandler,
+    typename Float2IntRounder,
+    typename RawConverter,
+    typename UserRangeChecker
+>
+struct converter<double, ttmath::Big<Exponent, Mantissa>, Traits, OverflowHandler, Float2IntRounder, RawConverter, UserRangeChecker>
+{
+    static inline double convert(ttmath::Big<Exponent, Mantissa> arg)
+    {
+        double v;
+        arg.ToDouble(v);
+        return v;
+    }
+};
+
+
+template
+<
+    typename Traits,
+    typename OverflowHandler,
+    typename Float2IntRounder,
+    typename RawConverter,
+    typename UserRangeChecker
+>
+struct converter<int, ttmath_big, Traits, OverflowHandler, Float2IntRounder, RawConverter, UserRangeChecker>
+{
+    static inline int convert(ttmath_big arg)
+    {
+        int v;
+        arg.ToInt(v);
+        return v;
+    }
+};
+
+template
+<
+    typename Traits,
+    typename OverflowHandler,
+    typename Float2IntRounder,
+    typename RawConverter,
+    typename UserRangeChecker
+>
+struct converter<double, ttmath_big, Traits, OverflowHandler, Float2IntRounder, RawConverter, UserRangeChecker>
+{
+    static inline double convert(ttmath_big arg)
+    {
+        double v;
+        arg.ToDouble(v);
+        return v;
+    }
+};
+
+
+}}
 
 
 #endif

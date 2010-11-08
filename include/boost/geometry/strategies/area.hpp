@@ -9,24 +9,35 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_AREA_HPP
 #define BOOST_GEOMETRY_STRATEGIES_AREA_HPP
 
-#include <boost/geometry/strategies/tags.hpp>
+#include <boost/mpl/assert.hpp>
 
+#include <boost/geometry/strategies/tags.hpp>
 
 namespace boost { namespace geometry
 {
 
 
+namespace strategy { namespace area { namespace services
+{
+
 /*!
-    \brief Traits class binding an area strategy to a coordinate system
+    \brief Traits class binding a default area strategy to a coordinate system
     \ingroup area
     \tparam Tag tag of coordinate system
     \tparam PointOfSegment point-type
 */
 template <typename Tag, typename PointOfSegment>
-struct strategy_area
+struct default_strategy
 {
-    typedef strategy::not_implemented type;
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE
+            , (types<PointOfSegment>)
+        );
 };
+
+
+}}} // namespace strategy::area::services
 
 
 }} // namespace boost::geometry

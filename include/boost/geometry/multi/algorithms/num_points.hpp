@@ -28,7 +28,7 @@ namespace detail { namespace num_points
 template <typename MultiGeometry>
 struct multi_count
 {
-    static inline size_t apply(MultiGeometry const& geometry)
+    static inline size_t apply(MultiGeometry const& geometry, bool add_for_open)
     {
         typedef typename boost::range_value<MultiGeometry>::type geometry_type;
         typedef typename boost::range_iterator
@@ -36,7 +36,7 @@ struct multi_count
                 MultiGeometry const
             >::type iterator_type;
 
-        size_t n = 0;
+        std::size_t n = 0;
         for (iterator_type it = boost::begin(geometry);
             it != boost::end(geometry);
             ++it)
@@ -46,7 +46,7 @@ struct multi_count
                     typename tag<geometry_type>::type,
                     geometry::is_linear<geometry_type>::value,
                     geometry_type
-                >::apply(*it);
+                >::apply(*it, add_for_open);
         }
         return n;
     }

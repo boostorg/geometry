@@ -14,9 +14,13 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/is_linear.hpp>
+#include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 
+#include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
@@ -31,16 +35,29 @@ namespace detail { namespace num_points
 template <typename Range>
 struct range_count
 {
-    static inline std::size_t apply(Range const& range)
+    static inline std::size_t apply(Range const& range, bool add_for_open)
     {
-        return boost::size(range);
+        std::size_t n = boost::size(range);
+        if (add_for_open)
+        {
+            closure_selector const s = geometry::closure<Range>::value;
+
+            if (s == open)
+            {
+                if (geometry::disjoint(*boost::begin(range), *(boost::begin(range) + n - 1)))
+                {
+                    return n + 1;
+                }
+            }
+        }
+        return n;
     }
 };
 
 template <typename Geometry, std::size_t D>
 struct other_count
 {
-    static inline std::size_t apply(Geometry const& )
+    static inline std::size_t apply(Geometry const&, bool)
     {
         return D;
     }
@@ -49,9 +66,13 @@ struct other_count
 template <typename Polygon>
 struct polygon_count
 {
-    static inline std::size_t apply(Polygon const& poly)
+    static inline std::size_t apply(Polygon const& poly, bool add_for_open)
     {
-        std::size_t n = boost::size(exterior_ring(poly));
+        typedef typename geometry::ring_type<Polygon>::type ring_type;
+
+        std::size_t n = range_count<ring_type>::apply(
+                    exterior_ring(poly), add_for_open);
+
         typedef typename boost::range_iterator
             <
                 typename interior_type<Polygon>::type const
@@ -61,7 +82,7 @@ struct polygon_count
              it != boost::end(interior_rings(poly));
              ++it)
         {
-            n += boost::size(*it);
+            n += range_count<ring_type>::apply(*it, add_for_open);
         }
 
         return n;
@@ -138,7 +159,7 @@ struct num_points<polygon_tag, false, Geometry>
 \qbk{compliance,__ogc__}
 */
 template <typename Geometry>
-inline std::size_t num_points(Geometry const& geometry)
+inline std::size_t num_points(Geometry const& geometry, bool add_for_open = false)
 {
     concept::check<Geometry const>();
 
@@ -147,7 +168,7 @@ inline std::size_t num_points(Geometry const& geometry)
             typename tag<Geometry>::type,
             is_linear<Geometry>::value,
             Geometry
-        >::apply(geometry);
+        >::apply(geometry, add_for_open);
 }
 
 }} // namespace boost::geometry

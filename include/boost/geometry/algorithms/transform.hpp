@@ -167,16 +167,16 @@ struct transform_polygon
 template <typename Point1, typename Point2>
 struct select_strategy
 {
-    typedef typename strategy_transform
+    typedef typename strategy::transform::services::default_strategy
         <
-        typename cs_tag<Point1>::type,
-        typename cs_tag<Point2>::type,
-        typename coordinate_system<Point1>::type,
-        typename coordinate_system<Point2>::type,
-        dimension<Point1>::type::value,
-        dimension<Point2>::type::value,
-        typename point_type<Point1>::type,
-        typename point_type<Point2>::type
+            typename cs_tag<Point1>::type,
+            typename cs_tag<Point2>::type,
+            typename coordinate_system<Point1>::type,
+            typename coordinate_system<Point2>::type,
+            dimension<Point1>::type::value,
+            dimension<Point2>::type::value,
+            typename point_type<Point1>::type,
+            typename point_type<Point2>::type
         >::type type;
 };
 

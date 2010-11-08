@@ -9,13 +9,16 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POLY_WINDING_HPP
 #define BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POLY_WINDING_HPP
 
+#include <boost/logic/tribool.hpp>
 
-
+#include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
-#include <boost/geometry/strategies/point_in_poly.hpp>
+#include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/within.hpp>
 
-
+// TEMP!
+#include <boost/geometry/multi/core/tags.hpp>
 
 namespace boost { namespace geometry
 {
@@ -57,19 +60,20 @@ class winding
     /*! subclass to keep state */
     class counter
     {
-        int count;
-        bool touches;
+        int m_count;
+        bool m_touches;
 
-        inline bool within_no_touch() const
+        inline int code() const
         {
-            return ! touches && count != 0;
+            return m_touches ? 0 : m_count == 0 ? -1 : 1;
         }
+
     public :
         friend class winding;
 
         inline counter()
-            : count(0)
-            , touches(false)
+            : m_count(0)
+            , m_touches(false)
         {}
 
     };
@@ -85,7 +89,7 @@ class winding
         calculation_type const s2 = get<D>(seg2);
         if ((s1 <= p && s2 >= p) || (s2 <= p && s1 >= p))
         {
-            state.touches = true;
+            state.m_touches = true;
         }
         return 0;
     }
@@ -140,8 +144,8 @@ public :
             if (side == 0)
             {
                 // Point is lying on segment
-                state.touches = true;
-                state.count = 0;
+                state.m_touches = true;
+                state.m_count = 0;
                 return false;
             }
 
@@ -151,37 +155,75 @@ public :
             // See accompagnying figure (TODO)
             if (side * count > 0)
             {
-                state.count += count;
+                state.m_count += count;
             }
-
         }
-        return ! state.touches;
+        return ! state.m_touches;
     }
 
-    static inline bool result(counter const& state)
+    static inline int result(counter const& state)
     {
-        return state.within_no_touch();
+        return state.code();
     }
 };
-
-}} // namespace strategy::within
 
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
-template <typename Point, typename PointOfSegment>
-struct strategy_within<cartesian_tag, cartesian_tag, Point, PointOfSegment>
+namespace services
 {
-    typedef strategy::within::winding<Point, PointOfSegment> type;
+
+template <typename Point, typename PointOfSegment>
+struct default_strategy<point_tag, polygon_tag, cartesian_tag, cartesian_tag, Point, PointOfSegment>
+{
+    typedef winding<Point, PointOfSegment> type;
 };
 
 template <typename Point, typename PointOfSegment>
-struct strategy_within<geographic_tag, geographic_tag, Point, PointOfSegment>
+struct default_strategy<point_tag, ring_tag, cartesian_tag, cartesian_tag, Point, PointOfSegment>
 {
-    typedef strategy::within::winding<Point, PointOfSegment> type;
+    typedef winding<Point, PointOfSegment> type;
 };
+
+template <typename Point, typename PointOfSegment>
+struct default_strategy<point_tag, polygon_tag, spherical_tag, spherical_tag, Point, PointOfSegment>
+{
+    typedef winding<Point, PointOfSegment> type;
+};
+
+// TEMP!
+// register it even for the multi here, and for the box
+// future: use tag inheritance, see elsewhere
+template <typename Point, typename PointOfSegment>
+struct default_strategy<point_tag, multi_polygon_tag, cartesian_tag, cartesian_tag, Point, PointOfSegment>
+{
+    typedef winding<Point, PointOfSegment> type;
+};
+
+template <typename Point, typename PointOfSegment>
+struct default_strategy<point_tag, multi_polygon_tag, spherical_tag, spherical_tag, Point, PointOfSegment>
+{
+    typedef winding<Point, PointOfSegment> type;
+};
+
+template <typename Point, typename PointOfSegment>
+struct default_strategy<point_tag, box_tag, cartesian_tag, cartesian_tag, Point, PointOfSegment>
+{
+    typedef winding<Point, PointOfSegment> type;
+};
+
+template <typename Point, typename PointOfSegment>
+struct default_strategy<point_tag, box_tag, spherical_tag, spherical_tag, Point, PointOfSegment>
+{
+    typedef winding<Point, PointOfSegment> type;
+};
+
+} // namespace services
 
 #endif
+
+
+}} // namespace strategy::within
 
 
 }} // namespace boost::geometry

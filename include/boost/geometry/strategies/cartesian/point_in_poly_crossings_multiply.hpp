@@ -93,9 +93,9 @@ public :
         return true;
     }
 
-    static inline bool result(flags const& state)
+    static inline int result(flags const& state)
     {
-        return state.inside_flag;
+        return state.inside_flag ? 1 : -1;
     }
 };
 

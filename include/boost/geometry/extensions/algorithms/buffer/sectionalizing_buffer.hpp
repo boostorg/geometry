@@ -23,7 +23,7 @@
 #include <boost/geometry/algorithms/detail/buffer/linestring_buffer.hpp>
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
-#include <boost/geometry/algorithms/detail/sections/get_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 #include <boost/geometry/algorithms/dissolve.hpp>
@@ -91,7 +91,11 @@ void sectionalizing_buffer(Geometry const& geometry,
 
             iterator_type begin, end;
             typedef std::pair<iterator_type, iterator_type> section_range;
-            geometry::get_section(geometry, section, begin, end);
+
+TODO: UPDATE: get _ section IS OBSOLETE NOW AND DISCARDED.
+TAKE range_by_section AND ADD section.begin_index/section.end_index
+
+            geometry::get _ section(geometry, section, begin, end); // get_section is DISCARDED
             geometry::detail::buffer::linestring_buffer
                 <
                     section_range, ring_type, DistanceStrategy, JoinStrategy

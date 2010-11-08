@@ -85,9 +85,9 @@ public :
         return true;
     }
 
-    static inline bool result(crossings const& state)
+    static inline int result(crossings const& state)
     {
-        return state.crosses;
+        return state.crosses ? 1 : -1;
     }
 };
 

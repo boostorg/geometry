@@ -18,19 +18,23 @@ namespace boost { namespace geometry
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
+namespace strategy { namespace centroid { namespace services
+{
 
 template <typename Point, typename Geometry>
-struct strategy_centroid<cartesian_tag, multi_polygon_tag, 2, Point, Geometry>
+struct default_strategy<cartesian_tag, multi_polygon_tag, 2, Point, Geometry>
 {
-    typedef strategy::centroid_::bashein_detmer
+    typedef bashein_detmer
         <
             Point,
             typename point_type<Geometry>::type
         > type;
 };
 
-#endif
+}}} // namespace strategy::centroid::services
 
+
+#endif //  DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 }} // namespace boost::geometry
 

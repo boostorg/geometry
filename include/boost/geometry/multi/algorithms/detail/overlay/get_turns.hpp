@@ -15,7 +15,6 @@
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/iterators/range_type.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/sections/get_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 
 
@@ -58,7 +57,7 @@ struct get_turns_multi_polygon_cs
                     typename boost::range_value<Multi>::type,
                     Box,
                     Turns, TurnPolicy, InterruptPolicy
-                >::apply(source_id1, *it, source_id2, box, 
+                >::apply(source_id1, *it, source_id2, box,
                             turns, interrupt_policy, i);
         }
     }

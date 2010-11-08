@@ -27,7 +27,7 @@ namespace boost { namespace geometry
 // Note: when calling the namespace "centroid", it sometimes,
 // somehow, in gcc, gives compilation problems (confusion with function centroid).
 
-namespace strategy { namespace centroid_
+namespace strategy { namespace centroid
 {
 
 
@@ -204,17 +204,16 @@ public :
 
 };
 
-
-}} // namespace strategy::centroid
-
-
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+namespace services
+{
 
 // Register this strategy for rings and polygons, in two dimensions
 template <typename Point, typename Geometry>
-struct strategy_centroid<cartesian_tag, ring_tag, 2, Point, Geometry>
+struct default_strategy<cartesian_tag, ring_tag, 2, Point, Geometry>
 {
-    typedef strategy::centroid_::bashein_detmer
+    typedef bashein_detmer
         <
             Point,
             typename point_type<Geometry>::type
@@ -222,16 +221,23 @@ struct strategy_centroid<cartesian_tag, ring_tag, 2, Point, Geometry>
 };
 
 template <typename Point, typename Geometry>
-struct strategy_centroid<cartesian_tag, polygon_tag, 2, Point, Geometry>
+struct default_strategy<cartesian_tag, polygon_tag, 2, Point, Geometry>
 {
-    typedef strategy::centroid_::bashein_detmer
+    typedef bashein_detmer
         <
             Point,
             typename point_type<Geometry>::type
         > type;
 };
 
-#endif
+
+} // namespace services
+
+
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+
+}} // namespace strategy::centroid
 
 
 }} // namespace boost::geometry

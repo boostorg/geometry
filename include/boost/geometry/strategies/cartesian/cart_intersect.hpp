@@ -152,11 +152,12 @@ struct relate_cartesian_segments
         }
 
         // Degenerate cases: segments of single point, lying on other segment, non disjoint
-        if (math::equals(dx_a, 0) && math::equals(dy_a, 0))
+        coordinate_type const zero = 0;
+        if (math::equals(dx_a, zero) && math::equals(dy_a, zero))
         {
             return Policy::degenerate(a, true);
         }
-        if (math::equals(dx_b, 0) && math::equals(dy_b, 0))
+        if (math::equals(dx_b, zero) && math::equals(dy_b, zero))
         {
             return Policy::degenerate(b, false);
         }
@@ -174,7 +175,7 @@ struct relate_cartesian_segments
         // Determinant d should be nonzero.
         // If it is zero, we have an robustness issue here,
         // (and besides that we cannot divide by it)
-        if(math::equals(d, 0) && ! collinear)
+        if(math::equals(d, zero) && ! collinear)
         //if(! collinear && sides.as_collinear())
         {
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
@@ -208,7 +209,7 @@ struct relate_cartesian_segments
         if(collinear)
         {
             // Segments are collinear. We'll find out how.
-            if (math::equals(dx_b, 0))
+            if (math::equals(dx_b, zero))
             {
                 // Vertical -> Check y-direction
                 return relate_collinear(a, b,

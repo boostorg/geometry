@@ -10,7 +10,7 @@
 
 #include <boost/range.hpp>
 #include <boost/iterator.hpp>
-#include <boost/iterator/iterator_adaptor.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
 
@@ -28,65 +28,120 @@ namespace boost { namespace geometry
 */
 template <typename Range>
 struct closing_iterator
-    : public boost::iterator_adaptor
+    : public boost::iterator_facade
     <
         closing_iterator<Range>,
-        typename boost::range_iterator<Range>::type,
-        boost::use_default,
-        boost::forward_traversal_tag
+        typename boost::range_value<Range>::type const,
+        boost::random_access_traversal_tag
     >
 {
     /// Constructor including the range it is based on
     explicit inline closing_iterator(Range& range)
-        : m_range(range)
-        , m_beyond(false)
-        , m_end(boost::end(m_range))
-    {
-        this->base_reference() = boost::begin(m_range);
-    }
+        : m_range(&range)
+        , m_iterator(boost::begin(range))
+        , m_end(boost::end(range))
+        , m_size(boost::size(range))
+        , m_index(0)
+    {}
 
     /// Constructor to indicate the end of a range
     explicit inline closing_iterator(Range& range, bool)
-        : m_range(range)
-        , m_beyond(true)
-        , m_end(boost::end(m_range))
+        : m_range(&range)
+        , m_iterator(boost::end(range))
+        , m_end(boost::end(range))
+        , m_size(boost::size(range))
+        , m_index(m_size + 1)
+    {}
+
+    /// Default constructor
+    explicit inline closing_iterator()
+        : m_range(NULL)
+        , m_size(0)
+        , m_index(0)
+    {}
+
+    inline closing_iterator<Range>& operator=(closing_iterator<Range> const& source)
     {
-        this->base_reference() = m_end;
+        m_range = source.m_range;
+        m_iterator = source.m_iterator;
+        m_end = source.m_end;
+        m_size = source.m_size;
+        m_index = source.m_index;
+        return *this;
     }
+
+    typedef std::ptrdiff_t difference_type;
 
 private:
     friend class boost::iterator_core_access;
 
+    inline typename boost::range_value<Range>::type const& dereference() const
+    {
+        return *m_iterator;
+    }
+
+    inline difference_type distance_to(closing_iterator<Range> const& other) const
+    {
+        return other.m_index - this->m_index;
+    }
+
     inline bool equal(closing_iterator<Range> const& other) const
     {
-        return this->base() == other.base()
-            && this->m_beyond == other.m_beyond;
+        return this->m_range == other.m_range
+            && this->m_index == other.m_index;
     }
 
     inline void increment()
     {
-        if (m_beyond)
+        if (++m_index < m_size)
         {
-            this->base_reference() = m_end;
+            ++m_iterator;
         }
-        else if (this->base() != m_end)
+        else
         {
-            (this->base_reference())++;
-
-            if (this->base() == m_end)
-            {
-                // Now beyond last position -> set to "begin" again
-                // and set flag "beyond" such that next increment
-                // will finish traversal
-                this->base_reference() = boost::begin(m_range);
-                m_beyond = true;
-            }
+            update_iterator();
         }
     }
 
-    Range& m_range;
-    bool m_beyond;
+    inline void decrement()
+    {
+        if (m_index-- < m_size)
+        {
+            --m_iterator;
+        }
+        else
+        {
+            update_iterator();
+        }
+    }
+
+    inline void advance(difference_type n)
+    {
+        if (m_index < m_size && m_index + n < m_size)
+        {
+            m_index += n;
+            m_iterator += n;
+        }
+        else
+        {
+            m_index += n;
+            update_iterator();
+        }
+    }
+
+    inline void update_iterator()
+    {
+        this->m_iterator = m_index <= m_size 
+            ? boost::begin(*m_range) + (m_index % m_size)
+            : boost::end(*m_range)
+            ;
+    }
+
+    Range* m_range;
+    typename boost::range_iterator<Range>::type m_iterator;
     typename boost::range_iterator<Range>::type m_end;
+    difference_type m_size;
+    difference_type m_index;
 };
 
 

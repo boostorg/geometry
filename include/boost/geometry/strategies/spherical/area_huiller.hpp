@@ -143,20 +143,25 @@ private :
     double m_radius;
 };
 
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+namespace services
+{
+    template <typename Point>
+    struct default_strategy<spherical_tag, Point>
+    {
+        typedef strategy::area::huiller<Point> type;
+    };
+
+} // namespace services
+
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
 
 }} // namespace strategy::area
 
 
 
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-template <typename Point>
-struct strategy_area<spherical_tag, Point>
-{
-    typedef strategy::area::huiller<Point> type;
-};
-
-#endif
 
 }} // namespace boost::geometry
 

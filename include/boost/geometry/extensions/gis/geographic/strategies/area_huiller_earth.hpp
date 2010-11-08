@@ -32,26 +32,31 @@ class huiller_earth
 public :
     // By default the average earth radius.
     // Uses can specify another radius.
-    // Note that the earth is still spherical
+    // Note that the earth is still handled spherically
     inline huiller_earth(double radius = 6372795.0)
         : huiller<PointOfSegment, CalculationType>(radius)
     {}
 };
 
 
-
-}} // namespace strategy::area
-
-
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
-template <typename Point>
-struct strategy_area<geographic_tag, Point>
+namespace services
 {
-    typedef strategy::area::huiller_earth<Point> type;
+
+template <typename Point>
+struct default_strategy<geographic_tag, Point>
+{
+    typedef huiller_earth<Point> type;
 };
 
+} // namespace services
+
+
 #endif
+
+
+}} // namespace strategy::area
 
 
 }} // namespace boost::geometry

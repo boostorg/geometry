@@ -24,11 +24,9 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/util/math.hpp>
 
-
 #include <boost/geometry/algorithms/intersects.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
