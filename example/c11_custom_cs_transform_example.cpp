@@ -43,17 +43,16 @@ struct shift
 
 
 // 4: register the default strategy to transform any cart point to any cart_shifted5 point
-//    (note: this will be renamed to "default_strategy" in the near future)
-namespace boost { namespace geometry 
+namespace boost { namespace geometry  { namespace strategy { namespace transform { namespace services 
 {
 
 template <typename P1, typename P2>
-struct strategy_transform<cartesian_tag, cartesian_tag, cart, cart_shifted5, 2, 2, P1, P2>
+struct default_strategy<cartesian_tag, cartesian_tag, cart, cart_shifted5, 2, 2, P1, P2>
 {
     typedef shift<P1, P2> type;
 };
 
-}} // namespaces
+}}}}} // namespaces
 
 
 // 5: implement a distance strategy between the two different ones
@@ -107,6 +106,8 @@ int main()
     // This is possible by default because they are cartesian coordinate systems.
     double d1 = boost::geometry::distance(p1_a, p1_b); 
     double d2 = boost::geometry::distance(p2_a, p2_b); 
+
+    std::cout << d1 << " " << d2 << std::endl;
 
     // Transform from a to b:
     boost::geometry::point<double, 2, cart_shifted5> p1_shifted;
