@@ -19,10 +19,6 @@ namespace boost { namespace geometry
 namespace strategy { namespace within
 {
 
-struct not_applicable_strategy
-{
-};
-
 
 namespace services
 {
@@ -58,8 +54,6 @@ struct default_strategy
             , (types<Point, PointContaining>)
         );
 
-
-    //typedef strategy::not_implemented type;
 };
 
 
@@ -71,4 +65,6 @@ struct default_strategy
 
 }} // namespace boost::geometry
 
+
 #endif // BOOST_GEOMETRY_STRATEGIES_WITHIN_HPP
+
