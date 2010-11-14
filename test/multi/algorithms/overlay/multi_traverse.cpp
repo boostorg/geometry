@@ -103,14 +103,12 @@ void test_all()
 
     // #72, note that it intersects into 2 shapes,
     // the third one is done by assemble (see intersection #72)
-//wrong:
     test_overlay<multi_polygon, multi_polygon,
         test_traverse<ov::operation_intersection>,  Tuple>
         (
             "case_72_multi", boost::make_tuple(2, 1.35),
             case_72_multi[0], case_72_multi[1]
         );
-//return;
 
     test_overlay<multi_polygon, multi_polygon,
         test_traverse<ov::operation_intersection>,  Tuple>
@@ -443,6 +441,41 @@ void test_all()
             "case_recursive_boxes_3", boost::make_tuple(8, 49.5),
             case_recursive_boxes_3[0], case_recursive_boxes_3[1]
         );
+
+    test_overlay<multi_polygon, multi_polygon,
+        test_traverse<ov::operation_intersection>,  Tuple>
+        (
+            "pie_21_7_21_0_3", boost::make_tuple(2, 818824.56678),
+            pie_21_7_21_0_3[0], pie_21_7_21_0_3[1]
+        );
+
+    test_overlay<multi_polygon, multi_polygon,
+        test_traverse<ov::operation_intersection>,  Tuple>
+        (
+            "pie_23_19_5_0_2", boost::make_tuple(2, 2948602.3911823),
+            pie_23_19_5_0_2[0], pie_23_19_5_0_2[1]
+        );
+    test_overlay<multi_polygon, multi_polygon,
+        test_traverse<ov::operation_intersection>,  Tuple>
+        (
+            "pie_7_14_5_0_7", boost::make_tuple(2, 490804.56678),
+            pie_7_14_5_0_7[0], pie_7_14_5_0_7[1]
+        );
+    test_overlay<multi_polygon, multi_polygon,
+        test_traverse<ov::operation_intersection>,  Tuple>
+        (
+            "pie_16_16_9_0_2", boost::make_tuple(2, 1146795),
+            pie_16_16_9_0_2[0], pie_16_16_9_0_2[1]
+        );
+return;
+wrong:
+    test_overlay<multi_polygon, multi_polygon,
+        test_traverse<ov::operation_intersection>,  Tuple>
+        (
+            "pie_7_2_1_0_15", boost::make_tuple(2, 1146795),
+            pie_7_2_1_0_15[0], pie_7_2_1_0_15[1]
+        );
+
 }
 
 

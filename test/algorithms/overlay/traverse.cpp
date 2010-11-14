@@ -41,6 +41,9 @@
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+
+
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
 
