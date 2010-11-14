@@ -19,6 +19,9 @@
 
 
 #include <boost/geometry/geometry.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
@@ -26,7 +29,9 @@
 
 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
-static bool test_overlay_p_q(std::string const& caseid, G1 const& p, G2 const& q, bool svg, double tolerance)
+static bool test_overlay_p_q(std::string const& caseid, 
+            G1 const& p, G2 const& q, 
+            bool svg, double tolerance, bool force_output = false)
 {
     bool result = true;
 
@@ -67,12 +72,14 @@ static bool test_overlay_p_q(std::string const& caseid, G1 const& p, G2 const& q
     }
 
     double diff = (area_p + area_q) - area_u - area_i;
-    if (std::abs(diff) > tolerance
-        // for creating SVG-selection: || area_i > 2.0e+006
-        )
+    bool wrong = std::abs(diff) > tolerance;
+    if (wrong || force_output)
     {
-        result = false;
-        svg = true;
+        if (wrong)
+        {
+            result = false;
+            svg = true;
+        }
 
         std::cout
             << "type: " << string_from_type<CalculationType>::name()
@@ -115,14 +122,12 @@ static bool test_overlay_p_q(std::string const& caseid, G1 const& p, G2 const& q
         for (typename std::vector<OutputType>::const_iterator it = out_i.begin();
                 it != out_i.end(); ++it)
         {
-            //mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:3");
             mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
                     "stroke:rgb(255,0,0);stroke-width:4");
         }
         for (typename std::vector<OutputType>::const_iterator it = out_u.begin();
                 it != out_u.end(); ++it)
         {
-            //mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,255);stroke-width:3");
             mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
                     "stroke:rgb(255,0,255);stroke-width:4");
 
