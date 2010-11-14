@@ -74,22 +74,27 @@ private :
             right.subject.other_id,
             si, sj);
 
-        std::cout << "Case: " << header << " for " << left.index << " / " << right.index << std::endl;
-        std::cout << " Segment p:" << geometry::wkt(pi) << " .. " << geometry::wkt(pj) << std::endl;
-        std::cout << " Segment r:" << geometry::wkt(ri) << " .. " << geometry::wkt(rj) << std::endl;
-        std::cout << " Segment s:" << geometry::wkt(si) << " .. " << geometry::wkt(sj) << std::endl;
-
+        
         int const side_ri_p = m_strategy.apply(pi, pj, ri);
         int const side_rj_p = m_strategy.apply(pi, pj, rj);
         int const side_si_p = m_strategy.apply(pi, pj, si);
         int const side_sj_p = m_strategy.apply(pi, pj, sj);
         int const side_si_r = m_strategy.apply(ri, rj, si);
         int const side_sj_r = m_strategy.apply(ri, rj, sj);
+
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+        std::cout << "Case: " << header << " for " << left.index << " / " << right.index << std::endl;
+        std::cout << " Segment p:" << geometry::wkt(pi) << " .. " << geometry::wkt(pj) << std::endl;
+        std::cout << " Segment r:" << geometry::wkt(ri) << " .. " << geometry::wkt(rj) << std::endl;
+        std::cout << " Segment s:" << geometry::wkt(si) << " .. " << geometry::wkt(sj) << std::endl;
+
         std::cout << " r//p: " << side_ri_p << " / " << side_rj_p << std::endl;
         std::cout << " s//p: " << side_si_p << " / " << side_sj_p << std::endl;
         std::cout << " s//r: " << side_si_r << " / " << side_sj_r << std::endl;
+#endif
 
-        std::cout << header << " order: " << order
+        std::cout << header 
+                //<< " order: " << order
                 << " ops: " << operation_char(left.subject.operation)
                     << "/" << operation_char(right.subject.operation)
                 << " ri//p: " << side_ri_p
@@ -133,7 +138,7 @@ private :
 #endif
         }
 
-        debug_consider(0, left, right, header, false, "-> return ", ret);
+        //debug_consider(0, left, right, header, false, "-> return ", ret);
 
         return ret;
     }
@@ -172,12 +177,12 @@ private :
         else
         {
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-            std::cout << " iu/ux unhandled";
+            std::cout << " iu/ux unhandled" << std::endl;
 #endif
             ret = order == 1;
         }
 
-        debug_consider(0, left, right, header, false, "-> return", ret);
+        //debug_consider(0, left, right, header, false, "-> return", ret);
         return ret;
     }
 
@@ -187,7 +192,7 @@ private :
             , std::string const& header
         ) const
     {
-        debug_consider(order, left, right, header, false, "iu/ix");
+        //debug_consider(order, left, right, header, false, "iu/ix");
 
         return left.subject.operation == operation_intersection
                 && right.subject.operation == operation_intersection ? order == 1
@@ -218,12 +223,32 @@ private :
         int const side_si_p = m_strategy.apply(pi, pj, si);
         int const side_si_r = m_strategy.apply(ri, rj, si);
 
-        // Both located right (#58)
-        if (side_ri_p == -1 && side_si_p == -1 && side_si_r != 0)
+        // TODO: harmonize the similar cases below now.
+
+        // Both located at same side (#58, pie_21_7_21_0_3)
+        if (side_ri_p * side_si_p == 1 && side_si_r != 0)
         {
             // Take the most left one
-            // Solves #58
-            bool const ret = side_si_r != 1;
+            bool ret = false;
+
+            if (left.subject.operation == operation_intersection
+                && right.subject.operation == operation_union)
+            {
+                ret = false;
+            }
+            else if (left.subject.operation == operation_union
+                && right.subject.operation == operation_intersection)
+            {
+                ret = true;
+            }
+            else if (left.subject.operation == operation_union
+                && right.subject.operation == operation_union)
+            {
+                ret = side_si_r == 1;
+            }
+
+
+            //debug_consider(0, left, right, header, false, "same side", ret);
             return ret;
         }
 
@@ -253,33 +278,42 @@ private :
             else
             {
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-                std::cout << " iu/iu coming from opposite unhandled";
+                std::cout << " iu/iu coming from opposite unhandled" << std::endl;
 #endif
                 ret = left.index < right.index;
             }
 
-            debug_consider(0, left, right, header, false, "coming from opposite", ret);
+            //debug_consider(0, left, right, header, false, "coming from opposite", ret);
             return ret;
         }
 
 
-        if (side_si_r != 0)
+        // One coming from right (#83,#90)
+        // One coming from left (#90, #94, #95)
+        if (side_si_r != 0 && (side_ri_p != 0 || side_si_p != 0))
         {
-            // One coming from right (#83,#90)
-            if ((side_ri_p == 0 && side_si_p == -1)
-                || (side_ri_p == -1 && side_si_p == 0))
+            bool ret = false;
+
+            if (left.subject.operation == operation_intersection
+                && right.subject.operation == operation_union)
             {
-                bool const ret = side_si_r != 1;
-                return ret;
+                ret = false;
+            }
+            else if (left.subject.operation == operation_union
+                && right.subject.operation == operation_intersection)
+            {
+                ret = true;
             }
 
-            // One coming from left (#90, #94, #95)
-            if ((side_ri_p == 0 && side_si_p == 1)
-                || (side_ri_p == 1 && side_si_p == 0))
+            else
             {
-                bool const ret = side_si_r != -1;
-                return ret;
+                // We need EXTRA information here.                
+                int r = side_ri_p != 0 ? side_ri_p : side_si_p;
+                ret = r * side_si_r == 1;
             }
+
+            debug_consider(0, left, right, header, false, "other", ret);
+            return ret;
         }
 
         // All aligned (#92, #96)
@@ -318,7 +352,7 @@ private :
         }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-        std::cout << " iu/iu unhandled";
+        std::cout << " iu/iu unhandled" << std::endl;
 #endif
         return left.index < right.index;
     }
