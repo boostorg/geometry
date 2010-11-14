@@ -14,8 +14,6 @@
 
 #include <boost/type_traits/is_same.hpp>
 
-#define HAVE_TTMATH
-
 #ifdef HAVE_TTMATH
 #  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
 #endif
