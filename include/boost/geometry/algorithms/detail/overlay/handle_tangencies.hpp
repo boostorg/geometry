@@ -51,7 +51,43 @@ private :
     Strategy const& m_strategy;
 
     typedef typename Indexed::type turn_operation_type;
-    typedef typename geometry::point_type<Geometry1> point_type;
+    typedef typename geometry::point_type<Geometry1>::type point_type;
+    typedef geometry::segment<point_type const> segment_type;
+
+    // Determine how p/r and p/s are located.
+    template <typename P>
+    static inline void overlap_info(P const& pi, P const& pj,
+        P const& ri, P const& rj,
+        P const& si, P const& sj,
+        bool& pr_overlap, bool& ps_overlap, bool& rs_overlap)
+    {
+        // Determine how p/r and p/s are located.
+        // One of them is coming from opposite direction.
+
+        typedef strategy::intersection::relate_cartesian_segments
+            <
+                policies::relate::segments_intersection_points
+                    <
+                        segment_type,
+                        segment_type,
+                        segment_intersection_points<point_type>
+                    >
+            > policy;
+
+        segment_type p(pi, pj);
+        segment_type r(ri, rj);
+        segment_type s(si, sj);
+
+        // Get the intersection point (or two points)
+        segment_intersection_points<point_type> pr = policy::apply(p, r);
+        segment_intersection_points<point_type> ps = policy::apply(p, s);
+        segment_intersection_points<point_type> rs = policy::apply(r, s);
+
+        // Check on overlap
+        pr_overlap = pr.count == 2;
+        ps_overlap = ps.count == 2;
+        rs_overlap = rs.count == 2;
+    }
 
 
     inline void debug_consider(int order, Indexed const& left,
@@ -60,9 +96,8 @@ private :
             std::string const& extra = "", bool ret = false
         ) const
     {
-        //if (skip) return;
+        if (skip) return;
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-        typedef typename geometry::point_type<Geometry1>::type point_type;
         point_type pi, pj, ri, rj, si, sj;
         geometry::copy_segment_points(m_geometry1, m_geometry2,
             left.subject.seg_id,
@@ -74,6 +109,8 @@ private :
             right.subject.other_id,
             si, sj);
 
+        bool prc = false, psc = false, rsc = false;
+        overlap_info(pi, pj, ri, rj, si, sj, prc, psc, rsc);
         
         int const side_ri_p = m_strategy.apply(pi, pj, ri);
         int const side_rj_p = m_strategy.apply(pi, pj, rj);
@@ -100,7 +137,9 @@ private :
                 << " ri//p: " << side_ri_p
                 << " si//p: " << side_si_p
                 << " si//r: " << side_si_r
-                << " idx: " << left.index << "/" << right.index;
+                << " cnts: " << int(prc) << ","  << int(psc) << "," << int(rsc)
+                //<< " idx: " << left.index << "/" << right.index
+                ;
 
         if (! extra.empty())
         {
@@ -207,7 +246,18 @@ private :
     {
         debug_consider(0, left, right, header);
 
-        typedef typename geometry::point_type<Geometry1>::type point_type;
+        // In general, order it like "union, intersection".
+        if (left.subject.operation == operation_intersection
+            && right.subject.operation == operation_union)
+        {
+            return false;
+        }
+        else if (left.subject.operation == operation_union
+            && right.subject.operation == operation_intersection)
+        {
+            return true;
+        }
+
         point_type pi, pj, ri, rj, si, sj;
         geometry::copy_segment_points(m_geometry1, m_geometry2,
             left.subject.seg_id,
@@ -223,33 +273,17 @@ private :
         int const side_si_p = m_strategy.apply(pi, pj, si);
         int const side_si_r = m_strategy.apply(ri, rj, si);
 
-        // TODO: harmonize the similar cases below now.
-
         // Both located at same side (#58, pie_21_7_21_0_3)
         if (side_ri_p * side_si_p == 1 && side_si_r != 0)
         {
             // Take the most left one
-            bool ret = false;
-
-            if (left.subject.operation == operation_intersection
+            if (left.subject.operation == operation_union
                 && right.subject.operation == operation_union)
             {
-                ret = false;
+                bool ret = side_si_r == 1;
+                //debug_consider(0, left, right, header, false, "same side", ret);
+                return ret;
             }
-            else if (left.subject.operation == operation_union
-                && right.subject.operation == operation_intersection)
-            {
-                ret = true;
-            }
-            else if (left.subject.operation == operation_union
-                && right.subject.operation == operation_union)
-            {
-                ret = side_si_r == 1;
-            }
-
-
-            //debug_consider(0, left, right, header, false, "same side", ret);
-            return ret;
         }
 
 
@@ -258,35 +292,19 @@ private :
         {
             bool ret = false;
 
-            if (left.subject.operation == operation_intersection
-                && right.subject.operation == operation_union)
-            {
-                // #55_iet_iet: reverse this
-                ret = false;
-            }
-            else if (left.subject.operation == operation_union
-                && right.subject.operation == operation_intersection)
-            {
-                // #55_iet_iet: also.
-                ret = true;
-            }
-            else if (left.subject.operation == operation_union
-                && right.subject.operation == operation_union)
             {
                 ret = side_ri_p == 1; // #100
+                //debug_consider(0, left, right, header, false, "coming from opposite", ret);
+                return ret;
             }
-            else
-            {
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-                std::cout << " iu/iu coming from opposite unhandled" << std::endl;
+            std::cout << " iu/iu coming from opposite unhandled" << std::endl;
 #endif
-                ret = left.index < right.index;
-            }
-
-            //debug_consider(0, left, right, header, false, "coming from opposite", ret);
-            return ret;
         }
 
+        // We need EXTRA information here: are p/r/s overlapping?
+        bool pr_ov = false, ps_ov = false, rs_ov = false;
+        overlap_info(pi, pj, ri, rj, si, sj, pr_ov, ps_ov, rs_ov);
 
         // One coming from right (#83,#90)
         // One coming from left (#90, #94, #95)
@@ -294,66 +312,50 @@ private :
         {
             bool ret = false;
 
-            if (left.subject.operation == operation_intersection
-                && right.subject.operation == operation_union)
+            if (pr_ov || ps_ov)
             {
-                ret = false;
-            }
-            else if (left.subject.operation == operation_union
-                && right.subject.operation == operation_intersection)
-            {
-                ret = true;
-            }
-
-            else
-            {
-                // We need EXTRA information here.                
                 int r = side_ri_p != 0 ? side_ri_p : side_si_p;
                 ret = r * side_si_r == 1;
             }
+            else
+            {
+                ret = side_si_r == 1;
+            }
 
-            debug_consider(0, left, right, header, false, "other", ret);
+            //debug_consider(0, left, right, header, false, "other", ret);
             return ret;
         }
 
         // All aligned (#92, #96)
         if (side_ri_p == 0 && side_si_p == 0 && side_si_r == 0)
         {
-            // Determine how p/r and p/s are located.
             // One of them is coming from opposite direction.
-            typedef geometry::segment<const point_type> segment_type;
 
-            typedef strategy::intersection::relate_cartesian_segments
-                <
-                    policies::relate::segments_intersection_points
-                        <
-                            segment_type,
-                            segment_type,
-                            segment_intersection_points<point_type>
-                        >
-                > policy;
+            // Take the one NOT overlapping
+            bool ret = false;
+            bool found = false;
+            if (pr_ov && ! ps_ov) 
+            {
+                ret = true;
+                found = true;
+            }
+            else if (!pr_ov && ps_ov) 
+            {
+                ret = false;
+                found = true;
+            }
 
-            segment_type p(pi, pj);
-            segment_type r(ri, rj);
-            segment_type s(si, sj);
-
-            // Get the intersection point (or two points)
-            segment_intersection_points<point_type> pr = policy::apply(p, r);
-            segment_intersection_points<point_type> ps = policy::apply(p, s);
-
-            // Take the one NOT being collinear
-            if (pr.count == 2 && ps.count == 1) return true;
-            if (pr.count == 1 && ps.count == 2) return false;
-
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-            std::cout << "iu/iu all collinear unhandled" << std::endl;
-#endif
-
+            //debug_consider(0, left, right, header, false, "aligned", ret);
+            if (found)
+            {
+                return ret;
+            }
         }
 
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+//#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
         std::cout << " iu/iu unhandled" << std::endl;
-#endif
+        debug_consider(0, left, right, header, false, "unhandled", left.index < right.index);
+//#endif
         return left.index < right.index;
     }
 
@@ -362,7 +364,6 @@ private :
     {
         debug_consider(0, left, right, header);
 
-        typedef typename geometry::point_type<Geometry1>::type point_type;
         point_type pi, pj, ri, rj, si, sj;
         geometry::copy_segment_points(m_geometry1, m_geometry2,
             left.subject.seg_id,

@@ -101,6 +101,7 @@ template <typename Ring, typename Predicate>
 struct correct_ring
 {
     typedef typename point_type<Ring>::type point_type;
+    typedef typename coordinate_type<Ring>::type coordinate_type;
 
     typedef typename strategy::area::services::default_strategy
         <
@@ -138,7 +139,8 @@ struct correct_ring
         }
         // Check area
         Predicate predicate;
-        if (predicate(ring_area_type::apply(r, strategy_type()), 0))
+        coordinate_type const zero = 0;
+        if (predicate(ring_area_type::apply(r, strategy_type()), zero))
         {
             std::reverse(boost::begin(r), boost::end(r));
         }
@@ -151,10 +153,15 @@ template <typename Polygon>
 struct correct_polygon
 {
     typedef typename ring_type<Polygon>::type ring_type;
+    typedef typename coordinate_type<Polygon>::type coordinate_type;
 
     static inline void apply(Polygon& poly)
     {
-        correct_ring<ring_type, std::less<double> >::apply(exterior_ring(poly));
+        correct_ring
+            <
+                ring_type, 
+                std::less<coordinate_type> 
+            >::apply(exterior_ring(poly));
 
         typedef typename boost::range_iterator
             <
@@ -164,7 +171,11 @@ struct correct_polygon
         for (iterator_type it = boost::begin(interior_rings(poly));
              it != boost::end(interior_rings(poly)); ++it)
         {
-            correct_ring<ring_type, std::greater<double> >::apply(*it);
+            correct_ring
+                <
+                    ring_type, 
+                    std::greater<coordinate_type> 
+                >::apply(*it);
         }
     }
 };

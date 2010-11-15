@@ -467,12 +467,10 @@ void test_all()
             "pie_16_16_9_0_2", boost::make_tuple(2, 1146795),
             pie_16_16_9_0_2[0], pie_16_16_9_0_2[1]
         );
-return;
-wrong:
     test_overlay<multi_polygon, multi_polygon,
         test_traverse<ov::operation_intersection>,  Tuple>
         (
-            "pie_7_2_1_0_15", boost::make_tuple(2, 1146795),
+            "pie_7_2_1_0_15", boost::make_tuple(2, 490585.5),
             pie_7_2_1_0_15[0], pie_7_2_1_0_15[1]
         );
 
