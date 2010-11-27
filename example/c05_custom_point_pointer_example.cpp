@@ -95,7 +95,7 @@ int main()
     // This works because outputs to a normal struct point, no point*
     std::vector<boost::geometry::linestring_2d> clipped;
     boost::geometry::strategy::intersection::liang_barsky<boost::geometry::box_2d, boost::geometry::point_2d> strategy;
-    boost::geometry::detail::intersection::clip_linestring_with_box<boost::geometry::linestring_2d>(cb,
+    boost::geometry::detail::intersection::clip_range_with_box<boost::geometry::linestring_2d>(cb,
                     myline, std::back_inserter(clipped), strategy);
 
 
