@@ -59,6 +59,8 @@ class my_polygon
         int point_count() const { return points.size(); }
         void erase_all() { points.clear(); }
 
+        // TEMPORARY:
+        inline void resize(int n) { points.resize(n); }
 
         // Note: it IS possible to have different method names;
         // however, there should (probably) be two different
