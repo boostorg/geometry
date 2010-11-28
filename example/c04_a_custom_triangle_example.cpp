@@ -19,7 +19,7 @@
 #include <boost/geometry/util/write_dsv.hpp>
 
 
-struct triangle : public boost::array<boost::geometry::point_xy<double>, 4>
+struct triangle : public boost::array<boost::geometry::model::point_xy<double>, 4>
 {
     inline void close()
     {
@@ -71,7 +71,7 @@ int main()
     std::cout << "Triangle: " << boost::geometry::dsv(t) << std::endl;
     std::cout << "Area: " << boost::geometry::area(t) << std::endl;
 
-    boost::geometry::point_xy<double> c;
+    boost::geometry::model::point_xy<double> c;
     boost::geometry::centroid(t, c);
     std::cout << "Centroid: " << boost::geometry::dsv(c) << std::endl;
 

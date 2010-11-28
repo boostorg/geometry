@@ -7,7 +7,7 @@
 
 import os ;
 
-# Setting Shapelib and libgd paths
+# Setting Shapelib paths
 # Below, example paths point to Shapelib installation by OSGeo4W package
 # available at http://trac.osgeo.org/osgeo4w
 switch [ os.name ]
@@ -16,19 +16,11 @@ switch [ os.name ]
     {
         lib shp : : <file>C:/OSGeo4W/lib/shapelib_i.lib ;
         LIBSHP_INCLUDE = <include>C:/OSGeo4W/include ;
-
-        lib gd : : <file>C:/OSGeo4W/lib/gd.lib ;
-        LIBGD_INCLUDE = <include>C:/OSGeo4W/include/gd ;
     }
     case * :
     {
         lib shp : :
             <name>shp
-            <search>/usr/lib
-            <search>/usr/local/lib ;
-
-        lib gd : :
-            <name>gd
             <search>/usr/lib
             <search>/usr/local/lib ;
     }
@@ -46,14 +38,6 @@ exe x01_shapelib_example
     : # sources and dependencies
     x01_shapelib_example.cpp shp
     : # requirements
-    $(LIBSHP_INCLUDE)
-    ;
-
-exe x02_gd_example 
-    : # sources and dependencies
-    x02_gd_example.cpp gd shp
-    : # requirements
-    $(LIBGD_INCLUDE)
     $(LIBSHP_INCLUDE)
     ;
 

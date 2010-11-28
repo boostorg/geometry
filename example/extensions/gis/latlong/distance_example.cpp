@@ -28,33 +28,37 @@ int main()
 {
     using namespace boost::geometry;
 
-    point_ll_deg a;
+    typedef model::point_ll_deg latlon_point;
+
+    latlon_point a;
     // Amsterdam 52 22'23"N 4 53'32"E
     a.lat(dms<north>(52, 22, 23));
     a.lon(dms<east>(4, 53, 32));
 
     // Rotterdam 51 55'51"N 4 28'45"E
-    point_ll_deg r(latitude<>(dms<north>(51, 55, 51)), longitude<>(dms<east>(4, 28, 45)));
+    latlon_point r(latitude<>(dms<north>(51, 55, 51)), longitude<>(dms<east>(4, 28, 45)));
 
     // The hague: 52 4' 48" N, 4 18' 0" E
-    point_ll_deg h(longitude<>(dms<east>(4, 18, 0)), latitude<>(dms<north>(52, 4, 48)));
+    latlon_point h(longitude<>(dms<east>(4, 18, 0)), latitude<>(dms<north>(52, 4, 48)));
 
-    point_ll_rad a_rad, r_rad, h_rad;
+    model::point_ll_rad a_rad, r_rad, h_rad;
     transform(a, a_rad);
     transform(r, r_rad);
     transform(h, h_rad);
 
 #ifndef NO_PROJECTION
-    projection::sterea_ellipsoid<point_ll_rad, point_2d> proj(projection::init("+lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m"));
+    projection::sterea_ellipsoid<model::point_ll_rad, model::point_2d> proj
+        (projection::init(
+        "+lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m"));
 
-    point_2d a_rd, r_rd, h_rd;
+    model::point_2d a_rd, r_rd, h_rd;
     proj.forward(a_rad, a_rd);
     proj.forward(h_rad, h_rd);
     proj.forward(r_rad, r_rd);
 #else
-    point_2d a_rd(121267, 487245);
-    point_2d r_rd(92526.2, 438324);
-    point_2d h_rd(80454.2, 455086);
+    model::point_2d a_rd(121267, 487245);
+    model::point_2d r_rd(92526.2, 438324);
+    model::point_2d h_rd(80454.2, 455086);
 #endif
 
     // ------------------------------------------------------------------------------------------
@@ -64,10 +68,10 @@ int main()
     std::cout << "Distance Amsterdam-Rotterdam: " << std::endl;
     std::cout << "haversine:              " << 0.001 * distance(a, r) << " km" << std::endl;
     std::cout << "haversine rad:          " << 0.001 * distance(a_rad, r_rad) << " km" << std::endl;
-    std::cout << "haversine other radius: " << distance(a, r, strategy::distance::haversine<point_ll_deg>(6371.0) ) << " km" << std::endl;
-    std::cout << "andoyer:                " << 0.001 * distance(a, r, strategy::distance::andoyer<point_ll_deg>() ) << " km" << std::endl;
-    std::cout << "vincenty:               " << 0.001 * distance(a, r, strategy::distance::vincenty<point_ll_deg>() ) << " km" << std::endl;
-    std::cout << "vincenty rad:           " << 0.001 * distance(a_rad, r_rad, strategy::distance::vincenty<point_ll_rad>() ) << " km" << std::endl;
+    std::cout << "haversine other radius: " << distance(a, r, strategy::distance::haversine<latlon_point>(6371.0) ) << " km" << std::endl;
+    std::cout << "andoyer:                " << 0.001 * distance(a, r, strategy::distance::andoyer<latlon_point>() ) << " km" << std::endl;
+    std::cout << "vincenty:               " << 0.001 * distance(a, r, strategy::distance::vincenty<latlon_point>() ) << " km" << std::endl;
+    std::cout << "vincenty rad:           " << 0.001 * distance(a_rad, r_rad, strategy::distance::vincenty<model::point_ll_rad>() ) << " km" << std::endl;
     std::cout << "RD, pythagoras:         " << 0.001 * distance(a_rd, r_rd) << " km" << std::endl;
 
     std::cout << std::endl;
@@ -79,23 +83,26 @@ int main()
     // ------------------------------------------------------------------------------------------
     std::cout << std::endl << "The Hague - line Amsterdam,Rotterdam" << std::endl;
 
-    segment_2d ar_xy(a_rd, r_rd);
+    model::segment_2d ar_xy(a_rd, r_rd);
 
     double dr = distance(h_rd, ar_xy);
     std::cout << "in RD: " << 0.001 * dr << std::endl;
 
+    /* TO BE FIXED
+    // TODO: fix this
     // Temporary fix: multiply with Earth Radius. This will be refactored.
     double const er = 6378137.0;
 
-    dr = er * distance(h, segment_ll_deg(a, r));
+    dr = er * distance(h, model::segment_ll_deg(a, r));
     std::cout << "in LL: " << 0.001 * dr << std::endl;
 
     std::cout << std::endl << "Rotterdam - line Amsterdam,the Hague" << std::endl;
-    dr = distance(r_rd, segment_2d(a_rd, h_rd));
+    dr = distance(r_rd, model::segment_2d(a_rd, h_rd));
     std::cout << "in RD: " << 0.001 * dr << std::endl;
-    dr = er * distance(r, segment_ll_deg(a, h));
+    dr = er * distance(r, model::segment_ll_deg(a, h));
     std::cout << "in LL: " << 0.001 * dr << std::endl;
     std::cout << std::endl;
+    */
 
     // ------------------------------------------------------------------------------------------
     // Compilation
@@ -115,13 +122,13 @@ int main()
     // Length calculations use distances internally. The lines below take automatically the default
     // formulae for distance. However, you can also specify a formula explicitly.
 
-    linestring_ll_deg line1;
+    model::linestring_ll_deg line1;
     append(line1, a);
     append(line1, r);
     std::cout << "length: " << length(line1) << std::endl;
-    std::cout << "length using Vincenty: " << length(line1, strategy::distance::vincenty<point_ll_deg>()) << std::endl;
+    std::cout << "length using Vincenty: " << length(line1, strategy::distance::vincenty<latlon_point>()) << std::endl;
 
-    linestring_2d line2;
+    model::linestring_2d line2;
     append(line2, a_rd);
     append(line2, r_rd);
     std::cout << "length: " << length(line2) << std::endl;

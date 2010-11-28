@@ -28,17 +28,17 @@ int main()
     // Note that this is the only difference from p01_projection_example. It constructs a projection
     // with virtual methods, which can be used polymorphically. Therefore it is a pointer. For
     // convenience we use a boost shared pointer here.
-    projection::factory<point_ll_deg, point_2d> fac;
-    boost::shared_ptr<projection::projection<point_ll_deg, point_2d> > prj(fac.create_new(par));
+    projection::factory<model::point_ll_deg, model::point_2d> fac;
+    boost::shared_ptr<projection::projection<model::point_ll_deg, model::point_2d> > prj(fac.create_new(par));
 
     // Define Amsterdam / Barcelona in decimal degrees / degrees/minutes
-    point_ll_deg amsterdam(longitude<>(5.9), latitude<>(52.4));
-    point_ll_deg barcelona(
+    model::point_ll_deg amsterdam(longitude<>(5.9), latitude<>(52.4));
+    model::point_ll_deg barcelona(
         latitude<>(dms<north>(41, 23)),
         longitude<>(dms<east>(2, 11))
         );
 
-    point_2d pa, pb;
+    model::point_2d pa, pb;
 
     // Do the forward projection
     if (prj->forward(amsterdam, pa) && prj->forward(barcelona, pb))
@@ -49,7 +49,7 @@ int main()
         std::cout << "Distance (  projected):" << distance(pa, pb) / 1000.0 << " km" << std::endl;
 
         // Get the inverse
-        point_ll_deg a1;
+        model::point_ll_deg a1;
         if (prj->inverse(pa, a1))
         {
             std::cout << "Amsterdam (original): " << amsterdam  << std::endl

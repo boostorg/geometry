@@ -68,7 +68,7 @@ struct default_strategy<point_tag, Point1, Point2, martian_tag, martian_tag>
 
 int main()
 {
-    typedef boost::geometry::point
+    typedef boost::geometry::model::point
         <
             double, 2, martian<boost::geometry::degree> 
         > mars_point;

@@ -38,7 +38,7 @@
 struct tree
 {
     int id;
-    boost::geometry::point<float, 2, boost::geometry::cs::geographic<boost::geometry::degree> > location;
+    boost::geometry::model::point<float, 2, boost::geometry::cs::geographic<boost::geometry::degree> > location;
 };
 
 // conversion of row of result to user-defined type - performs WKB parsing

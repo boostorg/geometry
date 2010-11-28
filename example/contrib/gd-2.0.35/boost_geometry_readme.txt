@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library) test file
+// Boost.Geometry (aka GGL, Generic Geometry Library) 
 //
 // Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands
 // Use, modification and distribution is subject to the Boost Software License,
@@ -7,18 +7,12 @@
 
 
 
-Download shapelib from 
-http://shapelib.maptools.org/
-or http://download.osgeo.org/shapelib/
-
+Download gd from 
+http://www.libgd.og/
 and extract to this folder.
 
+Nothing has to be installed.
 
-Install at least the following files:
-- shpopen.c 
-- shapefil.h 
-- dbfopen.c 
+This is used in x05_gd_example.cpp
 
-For new shapelibs:
-- safileio.c 
 

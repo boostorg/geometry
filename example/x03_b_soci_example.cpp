@@ -35,7 +35,7 @@
 
 struct city
 {
-    boost::geometry::point<float, 2, boost::geometry::cs::geographic<boost::geometry::degree> > location;
+    boost::geometry::model::point<float, 2, boost::geometry::cs::geographic<boost::geometry::degree> > location;
     std::string name;
 };
 

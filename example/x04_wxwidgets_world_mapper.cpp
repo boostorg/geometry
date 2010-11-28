@@ -10,9 +10,6 @@
 
 // #define EXAMPLE_WX_USE_GRAPHICS_CONTEXT 1
 
-// For Boost/uBLAS:
-#define _SCL_SECURE_NO_WARNINGS 1
-
 #include <fstream>
 #include <sstream>
 
@@ -39,19 +36,21 @@
 
 #ifdef EXAMPLE_WX_USE_GRAPHICS_CONTEXT
 #include "wx/graphics.h"
+#include "wx/dcgraph.h"
 #endif
 
 
-typedef boost::geometry::multi_polygon<boost::geometry::polygon_2d> country_type;
+typedef boost::geometry::model::multi_polygon
+    <boost::geometry::model::polygon_2d> country_type;
 
-// Adapt wxWidgets points to Boost.Geometry points such that they can be used 
+// Adapt wxWidgets points to Boost.Geometry points such that they can be used
 // in e.g. transformations (see below)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxPoint, int, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxRealPoint, double, cs::cartesian, x, y)
 
 
 // wxWidgets draws using wxPoint*, so we HAVE to use that.
-// Therefore have to make a wxPoint* array 
+// Therefore have to make a wxPoint* array
 // 1) compatible with Boost.Geometry
 // 2) compatible with Boost.Range (required by Boost.Geometry)
 // 3) compatible with std::back_inserter (required by Boost.Geometry)
@@ -77,20 +76,20 @@ public:
 
     typedef wxPointPointerPair container_type;
 
-    explicit back_insert_iterator(wxPointPointerPair& x) 
+    explicit back_insert_iterator(wxPointPointerPair& x)
         : current(boost::begin(x))
         , end(boost::end(x))
     {}
 
     inline back_insert_iterator<wxPointPointerPair>&
-                operator=(wxPoint const& value) 
-    { 
+                operator=(wxPoint const& value)
+    {
         // Check if not passed beyond
         if (current != end)
         {
-    	    *current++ = value;
+            *current++ = value;
         }
-	    return *this;
+        return *this;
     }
 
     // Boiler-plate
@@ -158,19 +157,19 @@ private:
 
     typedef boost::geometry::strategy::transform::map_transformer
         <
-            boost::geometry::point_2d, wxPoint, 
+            boost::geometry::model::point_2d, wxPoint,
             true, true
         > map_transformer_type;
 
     typedef boost::geometry::strategy::transform::inverse_transformer
         <
-            wxPoint, boost::geometry::point_2d
+            wxPoint, boost::geometry::model::point_2d
         > inverse_transformer_type;
 
     boost::shared_ptr<map_transformer_type> m_map_transformer;
     boost::shared_ptr<inverse_transformer_type> m_inverse_transformer;
 
-    boost::geometry::box_2d m_box;
+    boost::geometry::model::box_2d m_box;
     std::vector<country_type> m_countries;
     int m_focus;
 
@@ -260,7 +259,7 @@ void HelloWorldCanvas::OnMouseMove(wxMouseEvent &event)
         m_owner->PrepareDC(dc);
 
         // Transform the point to Lon/Lat
-        bg::point_2d point;
+        bg::model::point_2d point;
         bg::transform(event.GetPosition(), point, *m_inverse_transformer);
 
         // Determine selected object
@@ -354,7 +353,7 @@ void HelloWorldCanvas::DrawCountry(wxDC& dc, country_type const& country)
 {
     namespace bg = boost::geometry;
 
-    BOOST_FOREACH(bg::polygon_2d const& poly, country)
+    BOOST_FOREACH(bg::model::polygon_2d const& poly, country)
     {
         // Use only outer, holes are (for the moment) ignored. This would need
         // a holey-polygon compatible wx object

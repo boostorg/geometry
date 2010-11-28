@@ -40,8 +40,10 @@ inline void point_at_distance(P1 const& p1,
         double distance, double tc, double radius,
         P2& p2)
 {
-    double earth_perimeter = radius * boost::geometry::math::two_pi;
-    double d = (distance / earth_perimeter) * boost::geometry::math::two_pi;
+    double const two_pi = 2.0 * boost::geometry::math::pi<double>();
+    double earth_perimeter = radius * two_pi;
+;
+    double d = (distance / earth_perimeter) * two_pi;
     double const& lat1 = boost::geometry::get_as_radian<1>(p1);
     double const& lon1 = boost::geometry::get_as_radian<0>(p1);
 
@@ -61,7 +63,9 @@ int main()
     using namespace boost::geometry;
 
     // Declare a latlong point, using doubles and degrees (= default)
-    point_ll_deg paris;
+    typedef model::point_ll_deg latlon_point;
+    
+    latlon_point paris;
 
     // Assign coordinates to the latlong point, using the methods lat and lon
     // Paris 48 52' 0" N, 2 19' 59" E
@@ -72,14 +76,14 @@ int main()
 
     // Constructor using explicit latitude/longitude
     // Lima 12 2' 36" S, 77 1' 42" W
-    point_ll_deg lima(
+    latlon_point lima(
             latitude<>(dms<south>(12, 2, 36)),
             longitude<>(dms<west>(77, 1, 42)));
 
     std::cout << "Lima: " << boost::geometry::dsv(lima) << std::endl;
 
     // Construction with parse utiity
-    point_ll_deg amsterdam = parse<point_ll_deg>("52 22'23\"N", "4 53'32\"E");
+    latlon_point amsterdam = parse<latlon_point>("52 22'23\"N", "4 53'32\"E");
     std::cout << "Amsterdam: " << boost::geometry::dsv(amsterdam) << std::endl;
 
     // Calculate the distance using the default strategy (Andoyer), and Vincenty
@@ -89,22 +93,22 @@ int main()
         << " km" << std::endl;
 
     std::cout << "Distance Paris-Lima, Vincenty "
-        << 0.001 * distance(paris, lima, strategy::distance::vincenty<point_ll_deg>())
+        << 0.001 * distance(paris, lima, strategy::distance::vincenty<latlon_point>())
         << " km" << std::endl;
 
     // Using great circle (=haversine), this is less precise because earth is not a sphere
     double const average_earth_radius = 6372795.0;
     std::cout << "Distance Paris-Lima, great circle "
-        << 0.001 * distance(paris, lima, strategy::distance::haversine<point_ll_deg>(average_earth_radius))
+        << 0.001 * distance(paris, lima, strategy::distance::haversine<latlon_point>(average_earth_radius))
         << " km" << std::endl;
 
     // Convert a latlong point to radians. This might be convenient, although algorithms
     // are transparent on degree/radians
-    point_ll_rad paris_rad;
+    model::point_ll_rad paris_rad;
     transform(paris, paris_rad);
     std::cout << "Paris in radians: " << boost::geometry::dsv(paris_rad) << std::endl;
 
-    point_ll_rad amsterdam_rad;
+    model::point_ll_rad amsterdam_rad;
     transform(amsterdam, amsterdam_rad);
     std::cout << "Amsterdam in radians: " << boost::geometry::dsv(amsterdam_rad) << std::endl;
 
@@ -117,7 +121,7 @@ int main()
     double tc = get_course(amsterdam, paris);
     std::cout << "Course: " << (tc * boost::geometry::math::r2d) << std::endl;
 
-    point_ll_deg paris_calculated;
+    latlon_point paris_calculated;
     point_at_distance(amsterdam, 430 * 1000.0, tc, average_earth_radius, paris_calculated);
     std::cout << "Paris calculated (degree): " << boost::geometry::dsv(paris_calculated) << std::endl;
 

@@ -62,6 +62,7 @@ class my_polygon
         // TEMPORARY:
         inline void resize(int n) { points.resize(n); }
 
+
         // Note: it IS possible to have different method names;
         // however, there should (probably) be two different
         // iterators then or an iterator with a specified policy).

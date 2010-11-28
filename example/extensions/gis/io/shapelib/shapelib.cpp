@@ -47,25 +47,25 @@ public :
 int main()
 {
     namespace bg = boost::geometry;
-	typedef bg::point<double, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
     try
     {
 	    {
-		    shape_creator<bg::linear_ring<point_type> > sc("out/pol");
+		    shape_creator<bg::model::linear_ring<point_type> > sc("out/pol");
 		    sc.AddField<int>("dummy", 10);
 		    int r = sc.AddGeomFromText("POLYGON((0 0,0 1,1 1,1 0,0 0))");
 		    sc.WriteField(r, 0, 10);
 	    }
 
 	    {
-		    shape_creator<bg::polygon<point_type> > sc("out/donut");
+		    shape_creator<bg::model::polygon<point_type> > sc("out/donut");
 		    sc.AddField<int>("dummy", 10);
 		    int r = sc.AddGeomFromText("POLYGON((0 0,0 7,4 2,2 0,0 0),(1 1,2 1,1 2,1 1))");
 		    sc.WriteField(r, 0, 10);
 	    }
 
 	    {
-		    shape_creator<bg::polygon<point_type> > sc("out/donut2");
+		    shape_creator<bg::model::polygon<point_type> > sc("out/donut2");
 		    sc.AddField<int>("dummy", 10);
 		    int r = sc.AddGeomFromText("POLYGON ((174618.3423614502 504723.43828582764, 174658.97901153564 504727.76149749756, 174655.07703399658 504763.57702636719, 174655.89733123779 504767.03034210205, 174657.70821380615 504770.11280822754, 174660.34678649902 504772.52502441406, 174663.55408477783 504774.04540252686, 174871.51212310791 504793.95350646973, 174809.82281494141 504969.10485076904, 174592.13478088379 504995.37437438965, 174596.52947998047 504954.86187744141, 174596.31950378418 504951.57875061035, 174595.33219909668 504948.68436431885, 174597.70560455322 504928.34646606445, 174618.3423614502 504723.43828582764), (174658.489402771 504823.78255462646, 174646.87094116211 504938.40633392334, 174772.98456573486 504923.18756866455, 174803.11683654785 504837.63452911377, 174658.489402771 504823.78255462646))");
 		    sc.WriteField(r, 0, 10);
@@ -73,7 +73,7 @@ int main()
 
 
 	    {
-		    shape_creator<bg::linestring<point_type> > sc("out/ls");
+		    shape_creator<bg::model::linestring<point_type> > sc("out/ls");
 		    sc.AddField<int>("dummy", 10);
 		    int r = sc.AddGeomFromText("LINESTRING(0 0,3 3,5 4,7 1)");
 		    sc.WriteField(r, 0, 10);
@@ -89,13 +89,13 @@ int main()
 	    }
 
 	    {
-		    shape_creator<bg::box<point_type> > sc("out/box");
+		    shape_creator<bg::model::box<point_type> > sc("out/box");
 		    sc.AddField<int>("dummy", 10);
 		    int r = sc.AddGeomFromText("POLYGON((1 1,2 2))");
 	    }
 
 	    {
-		    shape_creator<bg::segment<point_type const> > sc("out/seg");
+		    shape_creator<bg::model::segment<point_type> > sc("out/seg");
 		    sc.AddField<short>("dummy", 10);
 
             // This time, write to shape as geometry and not as WKT
@@ -103,28 +103,28 @@ int main()
             point_type p1, p2;
             bg::read_wkt("POINT(1 1)", p1);
             bg::read_wkt("POINT(2 2)", p2);
-            bg::segment<point_type const> s(p1, p2);
+            bg::model::segment<point_type> s(p1, p2);
 
             int r = sc.AddShape(s);
 		    sc.WriteField(r, 0, 10);
         }
 
 	    {
-		    shape_creator<bg::multi_point<point_type> > sc("out/mpnt");
+		    shape_creator<bg::model::multi_point<point_type> > sc("out/mpnt");
 		    sc.AddField<float>("dummy", 10);
 		    int r = sc.AddGeomFromText("MULTIPOINT((0 0),(1 1),(5 2),(7 3))");
 		    sc.WriteField(r, 0, 10.1f);
 	    }
 
 	    {
-		    shape_creator<bg::multi_linestring<bg::linestring<point_type> > > sc("out/ml");
+		    shape_creator<bg::model::multi_linestring<bg::model::linestring<point_type> > > sc("out/ml");
 		    sc.AddField<double>("dummy", 10);
 		    int r = sc.AddGeomFromText("MULTILINESTRING((0 0,1 1,2 0,3 1),(4 4,5 3,6 5))");
 		    sc.WriteField(r, 0, 10.2);
 	    }
 
 	    {
-		    shape_creator<bg::multi_polygon<bg::polygon<point_type> > > sc("out/mp");
+		    shape_creator<bg::model::multi_polygon<bg::model::polygon<point_type> > > sc("out/mp");
 		    sc.AddField<std::string>("dummy", 10);
 		    int r = sc.AddGeomFromText("MULTIPOLYGON(((0 0,0 7,4 2,2 0,0 0),(1 1,2 1,1 2,1 1)),((10 10,10 11,11 11,11 10,10 10)))");
 		    sc.WriteField(r, 0, "test");
