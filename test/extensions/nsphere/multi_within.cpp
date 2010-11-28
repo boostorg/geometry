@@ -22,11 +22,11 @@
 
 int test_main( int , char* [] )
 {
-    typedef boost::geometry::point_xy<double> gl_point;
-    typedef boost::geometry::circle gl_circle;
-    typedef boost::geometry::linear_ring<gl_point> gl_ring;
-    typedef boost::geometry::polygon<gl_point> gl_polygon;
-    typedef boost::geometry::multi_polygon<gl_polygon> gl_multi_polygon;
+    typedef bg::model::point_xy<double> gl_point;
+    typedef bg::circle gl_circle;
+    typedef bg::model::linear_ring<gl_point> gl_ring;
+    typedef bg::model::polygon<gl_point> gl_polygon;
+    typedef bg::multi_polygon<gl_polygon> gl_multi_polygon;
 
     gl_circle circle(gl_point(1, 1), 2.5);
 
@@ -35,7 +35,7 @@ int test_main( int , char* [] )
     ring.push_back(gl_point(1,0));
     ring.push_back(gl_point(1,1));
     ring.push_back(gl_point(0,1));
-    boost::geometry::correct(ring);
+    bg::correct(ring);
 
     gl_polygon pol;
     pol.outer() = ring;

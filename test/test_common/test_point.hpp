@@ -85,6 +85,6 @@ template<> struct access<test::test_point, 2>
     }
 };
 
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 #endif // GEOMETRY_TEST_TEST_COMMON_TEST_POINT_HPP

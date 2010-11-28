@@ -26,7 +26,7 @@ namespace boost { namespace geometry { namespace traits {
 
 template <> struct tag<ro_point> { typedef point_tag type; };
 template <> struct coordinate_type<ro_point> { typedef float type; };
-template <> struct coordinate_system<ro_point> { typedef boost::geometry::cs::cartesian type; };
+template <> struct coordinate_system<ro_point> { typedef bg::cs::cartesian type; };
 template <> struct dimension<ro_point> { enum { value = 2 }; };
 
 template <> struct access<ro_point, 0>
@@ -44,7 +44,7 @@ template <> struct access<ro_point, 1>
 
 template <> struct tag<rw_point> { typedef point_tag type; };
 template <> struct coordinate_type<rw_point> { typedef float type; };
-template <> struct coordinate_system<rw_point> { typedef boost::geometry::cs::cartesian type; };
+template <> struct coordinate_system<rw_point> { typedef bg::cs::cartesian type; };
 template <> struct dimension<rw_point> { enum { value = 2 }; };
 
 template <> struct access<rw_point, 0>
@@ -60,11 +60,11 @@ template <> struct access<rw_point, 1>
 };
 
 
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 
 int main()
 {
-    boost::geometry::concept::check<const ro_point>();
-    boost::geometry::concept::check<rw_point>();
+    bg::concept::check<const ro_point>();
+    bg::concept::check<rw_point>();
 }

@@ -29,11 +29,11 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 {
     Geometry geometry;
 
-    boost::geometry::read_wkt(wkt, geometry);
-    boost::geometry::correct(geometry);
+    bg::read_wkt(wkt, geometry);
+    bg::correct(geometry);
 
     std::ostringstream out;
-    out << boost::geometry::wkt(geometry);
+    out << bg::wkt(geometry);
 
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -41,7 +41,7 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::multi_polygon<boost::geometry::polygon<P> > cw_type;
+    typedef bg::model::multi_polygon<bg::model::polygon<P> > cw_type;
     std::string cw_mp =
             "MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)))";
     test_geometry<cw_type>(cw_mp, cw_mp);
@@ -52,7 +52,7 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

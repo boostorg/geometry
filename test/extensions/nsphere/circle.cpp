@@ -21,7 +21,7 @@
 
 
 
-using namespace boost::geometry;
+namespace bg = boost::geometry;
 
 // define a custom circle
 struct custom_circle
@@ -42,7 +42,7 @@ struct tag<custom_circle>
 template<>
 struct point_type<custom_circle>
 {
-    typedef point<double, 2, cs::cartesian> type;
+    typedef model::point<double, 2, cs::cartesian> type;
 };
 
 template<>
@@ -93,37 +93,37 @@ struct radius_access<custom_circle, int, 0>
     }
 };
 
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 
 template <typename S, typename RT, typename CT>
 void check_nsphere(S& to_check, RT radius, CT center_x, CT center_y, CT center_z)
 {
-    BOOST_CONCEPT_ASSERT( (concept::ConstNsphere<S>) );
-    BOOST_CONCEPT_ASSERT( (concept::Nsphere<S>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::ConstNsphere<S>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::Nsphere<S>) );
 
 
-    BOOST_CHECK_EQUAL(get_radius<0>(to_check), radius);
+    BOOST_CHECK_EQUAL(bg::get_radius<0>(to_check), radius);
 
-    BOOST_CHECK_EQUAL(get<0>(to_check), center_x);
-    BOOST_CHECK_EQUAL(get<1>(to_check), center_y);
-    if (dimension<S>::value >= 3)
+    BOOST_CHECK_EQUAL(bg::get<0>(to_check), center_x);
+    BOOST_CHECK_EQUAL(bg::get<1>(to_check), center_y);
+    if (bg::dimension<S>::value >= 3)
     {
-        BOOST_CHECK_EQUAL(get<2>(to_check), center_z);
+        BOOST_CHECK_EQUAL(bg::get<2>(to_check), center_z);
     }
 }
 
 template <typename P, typename T>
 void test_construction()
 {
-    typedef typename coordinate_type<P>::type ctype;
+    typedef typename bg::coordinate_type<P>::type ctype;
 
-    nsphere<P, T> c1;
+    bg::model::nsphere<P, T> c1;
     check_nsphere(c1, 0, 0,0,0);
 
     P center;
-    boost::geometry::assign(center, 1, 2, 3);
-    nsphere<P, T> c2(center, 4);
+    bg::assign(center, 1, 2, 3);
+    bg::model::nsphere<P, T> c2(center, 4);
     check_nsphere(c2, 4, 1,2,3);
 }
 
@@ -133,14 +133,14 @@ void test_assignment_3d()
     C c;
 
     // by hand
-    set<0>(c, 5);
-    set<1>(c, 50);
-    set<2>(c, 500);
+    bg::set<0>(c, 5);
+    bg::set<1>(c, 50);
+    bg::set<2>(c, 500);
 
-    set_radius<0>(c, 5000);
+    bg::set_radius<0>(c, 5000);
     check_nsphere(c, 5000, 5,50,500);
 
-    assign(c, 6, 60, 600);
+    bg::assign(c, 6, 60, 600);
     check_nsphere(c, 5000, 6,60,600);
 }
 
@@ -150,10 +150,10 @@ void test_assignment_2d()
     C c;
 
     // by hand
-    set<0>(c, 5);
-    set<1>(c, 50);
+    bg::set<0>(c, 5);
+    bg::set<1>(c, 50);
 
-    set_radius<0>(c, 5000);
+    bg::set_radius<0>(c, 5000);
 }
 
 
@@ -161,7 +161,7 @@ template <typename P, typename T>
 void test_all()
 {
     test_construction<P, T>();
-    test_assignment_3d<nsphere<P, T> >();
+    test_assignment_3d<bg::model::nsphere<P, T> >();
 }
 
 template <typename P>
@@ -178,9 +178,9 @@ int test_main(int, char* [])
     test_all<float[3]>();
     test_all<double[3]>();
     test_all<test::test_point>();
-    test_all<point<int, 3, cs::cartesian> >();
-    test_all<point<float, 3, cs::cartesian> >();
-    test_all<point<double, 3, cs::cartesian> >();
+    test_all<bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     test_assignment_2d<custom_circle>();
 

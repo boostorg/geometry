@@ -17,34 +17,33 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <test_common/test_point.hpp>
 
-using namespace boost::geometry;
 
 template <typename P>
 void test_2d()
 {
     P p1;
-    boost::geometry::assign(p1, 20, 30);
+    bg::assign(p1, 20, 30);
     P p2;
-    boost::geometry::assign(p2, 45, 70);
-    P c = boost::geometry::cross_product(p1, p2);
+    bg::assign(p2, 45, 70);
+    P c = bg::cross_product(p1, p2);
 
-    typedef typename boost::geometry::coordinate_type<P>::type scalar_type;
-    BOOST_CHECK_EQUAL(boost::geometry::get<0>(c), scalar_type(50));
+    typedef typename bg::coordinate_type<P>::type scalar_type;
+    BOOST_CHECK_EQUAL(bg::get<0>(c), scalar_type(50));
 }
 
 template <typename P>
 void test_3d()
 {
     P p1;
-    boost::geometry::assign(p1, 20, 30, 10);
+    bg::assign(p1, 20, 30, 10);
     P p2;
-    boost::geometry::assign(p2, 45, 70, 20);
-    P c = boost::geometry::cross_product(p1, p2);
+    bg::assign(p2, 45, 70, 20);
+    P c = bg::cross_product(p1, p2);
 
-    typedef typename boost::geometry::coordinate_type<P>::type scalar_type;
-    BOOST_CHECK_EQUAL(boost::geometry::get<0>(c), scalar_type(-100));
-    BOOST_CHECK_EQUAL(boost::geometry::get<1>(c), scalar_type(50));
-    BOOST_CHECK_EQUAL(boost::geometry::get<2>(c), scalar_type(50));
+    typedef typename bg::coordinate_type<P>::type scalar_type;
+    BOOST_CHECK_EQUAL(bg::get<0>(c), scalar_type(-100));
+    BOOST_CHECK_EQUAL(bg::get<1>(c), scalar_type(50));
+    BOOST_CHECK_EQUAL(bg::get<2>(c), scalar_type(50));
 }
 
 #ifdef TEST_FAIL_CROSS_PRODUCT
@@ -52,27 +51,27 @@ template <typename P>
 void test_4d()
 {
     P p1;
-    boost::geometry::assign(p1, 20, 30, 10, 15);
+    bg::assign(p1, 20, 30, 10, 15);
     P p2;
-    boost::geometry::assign(p2, 45, 70, 20, 35);
-    P c = boost::geometry::cross_product(p1, p2);
+    bg::assign(p2, 45, 70, 20, 35);
+    P c = bg::cross_product(p1, p2);
 }
 #endif
 
 int test_main(int, char* [])
 {
-    test_2d<point<int, 2, boost::geometry::cs::cartesian> >();
-    test_2d<point<float, 2, boost::geometry::cs::cartesian> >();
-    test_2d<point<double, 2, boost::geometry::cs::cartesian> >();
+    test_2d<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_2d<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
-    test_3d<point<int, 3, boost::geometry::cs::cartesian> >();
-    test_3d<point<float, 3, boost::geometry::cs::cartesian> >();
-    test_3d<point<double, 3, boost::geometry::cs::cartesian> >();
+    test_3d<bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_3d<bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
 #ifdef TEST_FAIL_CROSS_PRODUCT
-    test_4d<point<int, 3, boost::geometry::cs::cartesian> >();
-    test_4d<point<float, 3, boost::geometry::cs::cartesian> >();
-    test_4d<point<double, 3, boost::geometry::cs::cartesian> >();
+    test_4d<bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_4d<bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_4d<bg::model::point<double, 3, bg::cs::cartesian> >();
 #endif
 
     return 0;

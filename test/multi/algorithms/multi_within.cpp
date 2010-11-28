@@ -25,7 +25,7 @@
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::multi_polygon<boost::geometry::polygon<P> > mp;
+    typedef bg::model::multi_polygon<bg::model::polygon<P> > mp;
 
     // trivial cases
     test_geometry<P, mp>("POINT(1 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", true);
@@ -41,14 +41,11 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    //test_all<boost::geometry::point_xy<int> >();
-    test_all<boost::geometry::point_xy<double> >();
+    //test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::point_xy<double> >();
 
-#if defined(HAVE_CLN)
-    test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
-#endif
-#if defined(HAVE_GMP)
-    test_all<boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> >();
+#if defined(HAVE_TTMATH)
+    test_all<bg::model::point_xy<ttmath_big> >();
 #endif
 
     return 0;

@@ -19,14 +19,13 @@
 
 int test_main(int, char* [])
 {
-    using namespace boost::geometry;
-    point<double, 3, cs::cartesian> p1(1,2,3);
+    bg::model::point<double, 3, bg::cs::cartesian> p1(1,2,3);
     double p2[3] = {4,5,6};
     boost::tuple<double, double, double> p3(7,8,9);
-    boost::array<double, 3> p4={{10,11,12}};
-    std::clog << distance(p1,p2) << std::endl;
-    std::clog << distance(p2,p3) << std::endl;
-    std::clog << distance(p3,p4) << std::endl;
+    boost::array<double, 3> p4 = {{10,11,12}};
+    std::clog << bg::distance(p1, p2) << std::endl;
+    std::clog << bg::distance(p2, p3) << std::endl;
+    std::clog << bg::distance(p3, p4) << std::endl;
     return 0;
 }
 

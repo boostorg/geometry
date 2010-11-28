@@ -22,12 +22,12 @@ template <typename P>
 void test_all()
 {
     P p1;
-    boost::geometry::assign(p1, 1, 22, 333);
+    bg::assign(p1, 1, 22, 333);
     P p2;
-    boost::geometry::copy_coordinates(p1, p2);
-    BOOST_CHECK(boost::geometry::get<0>(p2) == 1);
-    BOOST_CHECK(boost::geometry::get<1>(p2) == 22);
-    BOOST_CHECK(boost::geometry::get<2>(p2) == 333);
+    bg::copy_coordinates(p1, p2);
+    BOOST_CHECK(bg::get<0>(p2) == 1);
+    BOOST_CHECK(bg::get<1>(p2) == 22);
+    BOOST_CHECK(bg::get<2>(p2) == 333);
 }
 
 int test_main(int, char* [])
@@ -36,9 +36,9 @@ int test_main(int, char* [])
     test_all<float[3]>();
     test_all<double[3]>();
     test_all<test::test_point>();
-    test_all<boost::geometry::point<int, 3, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<float, 3, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 3, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

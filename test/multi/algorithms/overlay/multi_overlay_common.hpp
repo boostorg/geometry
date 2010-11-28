@@ -25,8 +25,8 @@ void test_all(std::vector<T> const& expected, double precision = 0.01)
     typename boost::range_const_iterator<std::vector<T> >::type iterator
         = boost::begin(expected);
 
-    typedef boost::geometry::multi_polygon<boost::geometry::polygon<P> > mp;
-    typedef boost::geometry::box<P> box;
+    typedef bg::model::multi_polygon<bg::model::polygon<P> > mp;
+    typedef bg::model::box<P> box;
 
     BOOST_ASSERT(iterator != boost::end(expected));
     test_overlay<mp, mp, Functor>("1", *iterator,

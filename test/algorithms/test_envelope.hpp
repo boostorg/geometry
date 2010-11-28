@@ -29,11 +29,11 @@ struct check_result<2>
     static void apply(Box const& b, const T& x1, const T& y1, const T& z1,
                 const T& x2, const T& y2, const T& z2)
     {
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::min_corner, 0>(b)), double(x1), 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::min_corner, 1>(b)), double(y1), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::min_corner, 0>(b)), double(x1), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::min_corner, 1>(b)), double(y1), 0.001);
 
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::max_corner, 0>(b)), double(x2), 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::max_corner, 1>(b)), double(y2), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::max_corner, 0>(b)), double(x2), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::max_corner, 1>(b)), double(y2), 0.001);
     }
 };
 
@@ -44,13 +44,13 @@ struct check_result<3>
     static void apply(Box const& b, const T& x1, const T& y1, const T& z1,
                 const T& x2, const T& y2, const T& z2)
     {
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::min_corner, 0>(b)), double(x1), 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::min_corner, 1>(b)), double(y1), 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::min_corner, 2>(b)), double(z1), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::min_corner, 0>(b)), double(x1), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::min_corner, 1>(b)), double(y1), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::min_corner, 2>(b)), double(z1), 0.001);
 
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::max_corner, 0>(b)), double(x2), 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::max_corner, 1>(b)), double(y2), 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<boost::geometry::max_corner, 2>(b)), double(z2), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::max_corner, 0>(b)), double(x2), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::max_corner, 1>(b)), double(y2), 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<bg::max_corner, 2>(b)), double(z2), 0.001);
     }
 };
 
@@ -62,11 +62,11 @@ void test_envelope(std::string const& wkt,
                    const T& z1 = 0, const T& z2 = 0)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
-    boost::geometry::box<typename boost::geometry::point_type<Geometry>::type > b;
-    boost::geometry::envelope(geometry, b);
+    bg::read_wkt(wkt, geometry);
+    bg::model::box<typename bg::point_type<Geometry>::type > b;
+    bg::envelope(geometry, b);
 
-    check_result<boost::geometry::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
+    check_result<bg::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
 }
 
 template <typename Geometry, typename T>
@@ -76,11 +76,11 @@ void test_envelope_strategy(std::string const& wkt,
                    const T& z1 = 0, const T& z2 = 0)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
-    boost::geometry::box<typename boost::geometry::point_type<Geometry>::type > b;
-    boost::geometry::envelope(geometry, b);
+    bg::read_wkt(wkt, geometry);
+    bg::model::box<typename bg::point_type<Geometry>::type > b;
+    bg::envelope(geometry, b);
 
-    check_result<boost::geometry::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
+    check_result<bg::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
 }
 
 

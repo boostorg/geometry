@@ -29,15 +29,15 @@ template <typename G>
 void test_midpoints(G const& g, bool start_and_end)
 {
     G processed;
-    boost::geometry::midpoints(g, start_and_end, std::back_inserter(processed));
-    std::cout << dsv(processed) << std::endl;
+    bg::midpoints(g, start_and_end, std::back_inserter(processed));
+    std::cout << bg::dsv(processed) << std::endl;
 }
 
 template <typename G>
 void test_midpoints(std::string const& wkt)
 {
     G g;
-    boost::geometry::read_wkt(wkt, g);
+    bg::read_wkt(wkt, g);
     test_midpoints(g, true);
     test_midpoints(g, false);
 }
@@ -45,13 +45,13 @@ void test_midpoints(std::string const& wkt)
 template <typename P>
 void test_all()
 {
-    test_midpoints<boost::geometry::linestring<P> >("LINESTRING(1 1,2 2,3 3)");
+    test_midpoints<bg::model::linestring<P> >("LINESTRING(1 1,2 2,3 3)");
 }
 
 int test_main(int, char* [])
 {
-    //test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    //test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

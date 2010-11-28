@@ -22,7 +22,6 @@
 #  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
 #endif
 
-namespace bg = boost::geometry;
 
 
 template <typename P1, typename P2>
@@ -63,13 +62,13 @@ int test_main(int, char* [])
 
     //test_all<float[2]>();
     //test_all<double[2]>();
-    test_all<bg::point<int, 2, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::point<float, 2, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::point<double, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::model::point<int, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::model::point<float, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
 
 #if defined(HAVE_TTMATH)
-    test_all<bg::point<ttmath::Big<1,4>, 2, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::point<ttmath_big, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::model::point<ttmath::Big<1,4>, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::model::point<ttmath_big, 2, bg::cs::geographic<bg::degree> > >();
 #endif
 
 

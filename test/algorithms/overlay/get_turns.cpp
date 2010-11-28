@@ -29,7 +29,7 @@
 
 // To test that "get_turns" can be called using additional information
 template <typename P>
-struct my_turn_op : public boost::geometry::detail::overlay::turn_operation
+struct my_turn_op : public bg::detail::overlay::turn_operation
 {
 };
 
@@ -41,10 +41,9 @@ struct test_get_turns
             boost::tuple<int> const& expected_count_and_center,
             G1 const& g1, G2 const& g2, double precision)
     {
-        namespace bg = boost::geometry;
-        typedef bg::detail::overlay::turn_info
+            typedef bg::detail::overlay::turn_info
             <
-                typename boost::geometry::point_type<G2>::type
+                typename bg::point_type<G2>::type
             > turn_info;
         std::vector<turn_info> turns;
 
@@ -118,10 +117,10 @@ struct test_get_turns
 template <typename T>
 void test_all()
 {
-    typedef boost::geometry::point<T, 2, boost::geometry::cs::cartesian> P;
-    typedef boost::geometry::polygon<P> polygon;
-    typedef boost::geometry::linestring<P> linestring;
-    typedef boost::geometry::box<P> box;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::box<P> box;
 
     // Expected count, average x, average y
     typedef boost::tuple<int> Tuple;
@@ -258,16 +257,16 @@ void test_all()
 template <typename T>
 void test_ccw()
 {
-    typedef boost::geometry::point<T, 2, boost::geometry::cs::cartesian> P;
-    typedef boost::geometry::model::polygon<P, false, true> polygon;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
+    typedef bg::model::polygon<P, false, true> polygon;
     typedef boost::tuple<int> Tuple;
 
 
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("ccw_1", 
-                boost::make_tuple(6), 
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("ccw_1",
+                boost::make_tuple(6),
                 ccw_case_1[0], ccw_case_1[1]);
 
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("ccw_9", 
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("ccw_9",
                 boost::make_tuple(1),
                 case_9[0], case_9[1]);
 
@@ -276,15 +275,15 @@ void test_ccw()
 template <typename T>
 void test_open()
 {
-    typedef boost::geometry::point<T, 2, boost::geometry::cs::cartesian> P;
-    typedef boost::geometry::model::polygon<P, true, false> polygon;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
+    typedef bg::model::polygon<P, true, false> polygon;
     typedef boost::tuple<int> Tuple;
 
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("open_1", 
-                boost::make_tuple(6), 
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("open_1",
+                boost::make_tuple(6),
                 open_case_1[0], open_case_1[1]);
 
-    test_overlay<polygon, polygon, test_get_turns,  Tuple>("open_9", 
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("open_9",
                 boost::make_tuple(1),
                 open_case_9[0], open_case_9[1]);
 }
@@ -302,11 +301,9 @@ int test_main(int, char* [])
 #if ! defined(_MSC_VER)
     test_all<long double>();
 #endif
-#if defined(HAVE_CLN)
-    //test_all<boost::numeric_adaptor::cln_value_type>();
-#endif
-#if defined(HAVE_GMP)
-    //test_all<boost::numeric_adaptor::gmp_value_type>();
+
+#if defined(HAVE_TTMATH)
+    test_all<ttmath_big>();
 #endif
     return 0;
 }

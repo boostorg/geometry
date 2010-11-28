@@ -18,14 +18,14 @@
 template <typename G>
 void test_get_set()
 {
-    typedef typename boost::geometry::coordinate_type<G>::type coordinate_type;
+    typedef typename bg::coordinate_type<G>::type coordinate_type;
 
     G g;
-    boost::geometry::set<0>(g, coordinate_type(1));
-    boost::geometry::set<1>(g, coordinate_type(2));
+    bg::set<0>(g, coordinate_type(1));
+    bg::set<1>(g, coordinate_type(2));
 
-    coordinate_type x = boost::geometry::get<0>(g);
-    coordinate_type y = boost::geometry::get<1>(g);
+    coordinate_type x = bg::get<0>(g);
+    coordinate_type y = bg::get<1>(g);
 
     BOOST_CHECK_CLOSE(double(x), 1.0, 0.0001);
     BOOST_CHECK_CLOSE(double(y), 2.0, 0.0001);
@@ -35,10 +35,10 @@ void test_get_set()
 template <typename P>
 void test_all()
 {
-    typedef typename boost::geometry::coordinate_type<P>::type coordinate_type;
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
 
     // N-SPHERE, setting sphere center
-    test_get_set<boost::geometry::nsphere<P, coordinate_type> >();
+    test_get_set<bg::nsphere<P, coordinate_type> >();
 
 }
 
@@ -52,9 +52,9 @@ int test_main(int, char* [])
 
     test_get_set<boost::tuple<double, double> >();
 
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }

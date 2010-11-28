@@ -26,25 +26,25 @@
 template <typename P>
 void test_2d(bool is_integer = false)
 {
-    typedef typename boost::geometry::coordinate_type<P>::type ct;
+    typedef typename bg::coordinate_type<P>::type ct;
 #ifdef REPORT_RESULTS
     std::cout << std::endl << "type: " << typeid(ct).name() << " size: " << sizeof(ct) << std::endl;
 #endif
 
     if (! is_integer)
     {
-        test_centroid<boost::geometry::multi_point<P> >(
+        test_centroid<bg::model::multi_point<P> >(
             "MULTIPOINT((1 1),(2 3),(5 0))",
             2.666666666666667, 1.33333);
 
 
 
         // Only working for floating point:
-        test_centroid<boost::geometry::multi_polygon<boost::geometry::polygon<P> > >(
+        test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
             "MULTIPOLYGON(((1 1,1 3,3 3,3 1,1 1)),((4 1,4 3,8 3,8 1,4 1)))",
             4.666666666666667, 2.0);
 
-        test_centroid<boost::geometry::multi_polygon<boost::geometry::polygon<P> > >(
+        test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
             "MULTIPOLYGON(((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2"
             ",3.7 1.6,3.4 2,4.1 3,5.3 2.6,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3)),"
             "((10 10,10 12,12 12,12 10,10 10)))",
@@ -56,7 +56,7 @@ void test_2d(bool is_integer = false)
     // Test using real-world polygon with large (Y) coordinates
     // (coordinates can be used for integer and floating point point-types)
     // Note that this will fail (overflow) if centroid calculation uses float
-    test_centroid<boost::geometry::multi_polygon<boost::geometry::polygon<P> > >(
+    test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
         "MULTIPOLYGON(((426062 4527794,426123 4527731"
             ",426113 4527700,426113 4527693,426115 4527671"
             ",426133 4527584,426135 4527569,426124 4527558"
@@ -96,11 +96,11 @@ void test_2d(bool is_integer = false)
 
 int test_main(int, char* [])
 {
-    //test_2d<boost::geometry::point_xy<float> >();
-    test_2d<boost::geometry::point_xy<double> >();
-    test_2d<boost::geometry::point_xy<long int> >(true);
-    //test_2d<boost::geometry::point_xy<long long> >(true);
-    test_2d<boost::geometry::point_xy<long double> >();
+    //test_2d<bg::model::point_xy<float> >();
+    test_2d<bg::model::point_xy<double> >();
+    test_2d<bg::model::point_xy<long int> >(true);
+    //test_2d<bg::model::point_xy<long long> >(true);
+    test_2d<bg::model::point_xy<long double> >();
 
     return 0;
 }

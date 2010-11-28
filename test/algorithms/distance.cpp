@@ -24,9 +24,6 @@
 #include <test_geometries/wrapped_boost_array.hpp>
 
 
-namespace bg = boost::geometry;
-
-
 template <typename P>
 void test_distance_point()
 {
@@ -95,7 +92,7 @@ void test_distance_segment()
     P p4; bg::set<0>(p4, 1); bg::set<1>(p4, 3);
     P p5; bg::set<0>(p5, 3); bg::set<1>(p5, 3);
 
-    bg::segment<P const> const seg(s1, s2);
+    bg::model::referring_segment<P const> const seg(s1, s2);
 
     return_type d1 = bg::distance(p1, seg);
     return_type d2 = bg::distance(p2, seg);
@@ -175,34 +172,34 @@ void test_all()
     test_geometry<P, P>("POINT(0 0)", "POINT(0 3)", 3.0);
     test_geometry<P, P>("POINT(0 0)", "POINT(4 0)", 4.0);
     test_geometry<P, P>("POINT(0 3)", "POINT(4 0)", 5.0);
-    test_geometry<P, bg::linestring<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
-    test_geometry<P, bg::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
-    test_geometry<bg::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
+    test_geometry<P, bg::model::linestring<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    test_geometry<P, bg::model::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    test_geometry<bg::model::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
 
     // Rings
-    test_geometry<P, bg::linear_ring<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
-    test_geometry<P, bg::linear_ring<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
+    test_geometry<P, bg::model::linear_ring<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
+    test_geometry<P, bg::model::linear_ring<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
     // other way round
-    test_geometry<bg::linear_ring<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
+    test_geometry<bg::model::linear_ring<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
     // open ring
-    test_geometry<P, bg::linear_ring<P, std::vector, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
+    test_geometry<P, bg::model::linear_ring<P, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
 
     // Polygons
-    test_geometry<P, bg::polygon<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
-    test_geometry<P, bg::polygon<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
+    test_geometry<P, bg::model::polygon<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
+    test_geometry<P, bg::model::polygon<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
     // other way round
-    test_geometry<bg::polygon<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
+    test_geometry<bg::model::polygon<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
     // open polygon
-    test_geometry<P, bg::polygon<P, std::vector, std::vector, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
+    test_geometry<P, bg::model::polygon<P, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
 
     // Polygons with holes
     std::string donut = "POLYGON ((0 0,1 9,8 1,0 0),(1 1,4 1,1 4,1 1))";
-    test_geometry<P, bg::polygon<P> >("POINT(2 2)", donut, 0.5 * sqrt(2.0));
-    test_geometry<P, bg::polygon<P> >("POINT(3 3)", donut, 0.0);
+    test_geometry<P, bg::model::polygon<P> >("POINT(2 2)", donut, 0.5 * sqrt(2.0));
+    test_geometry<P, bg::model::polygon<P> >("POINT(3 3)", donut, 0.0);
     // other way round
-    test_geometry<bg::polygon<P>, P>(donut, "POINT(2 2)", 0.5 * sqrt(2.0));
+    test_geometry<bg::model::polygon<P>, P>(donut, "POINT(2 2)", 0.5 * sqrt(2.0));
     // open
-    test_geometry<P, bg::polygon<P, std::vector, std::vector, true, false> >("POINT(2 2)", "POLYGON ((0 0,1 9,8 1),(1 1,4 1,1 4))", 0.5 * sqrt(2.0));
+    test_geometry<P, bg::model::polygon<P, true, false> >("POINT(2 2)", "POLYGON ((0 0,1 9,8 1),(1 1,4 1,1 4))", 0.5 * sqrt(2.0));
 
 
     // DOES NOT COMPILE - cannot do read_wkt (because boost::array is not variably sized)
@@ -220,10 +217,10 @@ int test_main(int, char* [])
     //test_all<test::test_point>(); // located here because of 3D
 #endif
 
-    test_all<bg::point_xy<int> >();
+    test_all<bg::model::point_xy<int> >();
     test_all<boost::tuple<float, float> >();
-    test_all<bg::point_xy<float> >();
-    test_all<bg::point_xy<double> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

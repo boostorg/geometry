@@ -19,21 +19,22 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <test_common/test_point.hpp>
 
+
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::box<P> box_type;
+    typedef bg::model::box<P> box_type;
 
     P p;
-    boost::geometry::assign(p, 1, 2);
+    bg::assign(p, 1, 2);
 
     box_type b;
-    boost::geometry::convert(p, b);
+    bg::convert(p, b);
 
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<0, 0>(b)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<0, 1>(b)), 2.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<1, 0>(b)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<1, 1>(b)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<0, 0>(b)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<0, 1>(b)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<1, 0>(b)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<1, 1>(b)), 2.0, 0.001);
 }
 
 template <typename P>
@@ -41,55 +42,55 @@ void test_std()
 {
     test_all<P>();
 
-    typedef boost::geometry::box<P> box_type;
-    typedef boost::geometry::linear_ring<P> ring_type;
-    typedef boost::geometry::polygon<P> polygon_type;
+    typedef bg::model::box<P> box_type;
+    typedef bg::model::linear_ring<P> ring_type;
+    typedef bg::model::polygon<P> polygon_type;
 
     box_type b;
-    boost::geometry::set<boost::geometry::min_corner, 0>(b, 1);
-    boost::geometry::set<boost::geometry::min_corner, 1>(b, 2);
-    boost::geometry::set<boost::geometry::max_corner, 0>(b, 3);
-    boost::geometry::set<boost::geometry::max_corner, 1>(b, 4);
+    bg::set<bg::min_corner, 0>(b, 1);
+    bg::set<bg::min_corner, 1>(b, 2);
+    bg::set<bg::max_corner, 0>(b, 3);
+    bg::set<bg::max_corner, 1>(b, 4);
 
     ring_type ring;
-    boost::geometry::convert(b, ring);
+    bg::convert(b, ring);
 
-    //std::cout << boost::geometry::wkt(b) << std::endl;
-    //std::cout << boost::geometry::wkt(ring) << std::endl;
+    //std::cout << bg::wkt(b) << std::endl;
+    //std::cout << bg::wkt(ring) << std::endl;
 
     typename boost::range_const_iterator<ring_type>::type it = ring.begin();
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(*it)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(*it)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 2.0, 0.001);
     it++;
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(*it)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(*it)), 4.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 4.0, 0.001);
     it++;
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(*it)), 3.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(*it)), 4.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 3.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 4.0, 0.001);
     it++;
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(*it)), 3.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(*it)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 3.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 2.0, 0.001);
     it++;
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(*it)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(*it)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 2.0, 0.001);
 
     BOOST_CHECK_EQUAL(ring.size(), 5u);
 
 
     polygon_type polygon;
 
-    boost::geometry::convert(ring, polygon);
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(polygon), 5u);
+    bg::convert(ring, polygon);
+    BOOST_CHECK_EQUAL(bg::num_points(polygon), 5u);
 
-    boost::geometry::convert(polygon, ring);
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(ring), 5u);
+    bg::convert(polygon, ring);
+    BOOST_CHECK_EQUAL(bg::num_points(ring), 5u);
 }
 
 int test_main(int, char* [])
 {
-    test_std<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
-    test_std<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_std<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_std<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_std<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_std<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }

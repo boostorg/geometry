@@ -57,7 +57,7 @@
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
 
-template <boost::geometry::detail::overlay::operation_type Direction>
+template <bg::detail::overlay::operation_type Direction>
 struct test_traverse
 {
     static inline std::string operation(int d)
@@ -90,7 +90,6 @@ struct test_traverse
         //if (Direction != 1) return;
         // END DEBUG ONE ...
 
-        namespace bg = boost::geometry;
 
         /*** FOR REVERSING ONLY
         {
@@ -124,7 +123,7 @@ struct test_traverse
 
         typedef bg::detail::overlay::traversal_turn_info
             <
-                typename boost::geometry::point_type<G2>::type
+                typename bg::point_type<G2>::type
             > turn_info;
         std::vector<turn_info> turns;
 
@@ -135,7 +134,7 @@ struct test_traverse
                     : bg::detail::overlay::operation_intersection,
             g1, g2, side_strategy_type());
 
-        typedef bg::linear_ring<typename bg::point_type<G2>::type> ring_type;
+        typedef bg::model::linear_ring<typename bg::point_type<G2>::type> ring_type;
         typedef std::vector<ring_type> out_vector;
         out_vector v;
 
@@ -321,12 +320,11 @@ struct test_traverse
 template <typename T>
 void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 {
-    namespace bg = boost::geometry;
-    using namespace boost::geometry::detail::overlay;
+    using namespace bg::detail::overlay;
 
-    typedef bg::point<T, 2, bg::cs::cartesian> P;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
     typedef bg::model::polygon<P> polygon;
-    typedef bg::box<P> box;
+    typedef bg::model::box<P> box;
     typedef boost::tuple<int, double> Tuple;
 
     // 1-6
@@ -485,6 +483,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         boost::make_tuple(2, 2183372.2718), pie_20_20_7_100[0], pie_20_20_7_100[1]);
 
 
+
     // 1-6
     test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("1", boost::make_tuple(1, 11.5264), case_1[0], case_1[1]);
     test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("2", boost::make_tuple(1, 17.9455), case_2[0], case_2[1]);
@@ -558,7 +557,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("53_st", boost::make_tuple(2, 16), case_53[0], case_53[1]);
     }
     test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("53_iet",
-            boost::make_tuple(2, 16), 
+            boost::make_tuple(2, 16),
             case_53[0], case_53[2]);
     if (test_self_tangencies)
     {
@@ -601,7 +600,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             case_60[0], case_60[1]);
     }
     test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("58_iet",
-        boost::make_tuple( 4, 12.16666), 
+        boost::make_tuple( 4, 12.16666),
         case_58[0], case_58[2]);
     test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("59_iet",
         boost::make_tuple(1, -3.791666), // 2, 17.208333), outer ring (ii/ix) is done by ASSEMBLE
@@ -656,6 +655,14 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         boost::make_tuple(1, 2208122.43322), pie_4_13_15[0], pie_4_13_15[1]);
     test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_20_20_7_100",
         boost::make_tuple(1, 5577158.72823), pie_20_20_7_100[0], pie_20_20_7_100[1]);
+
+    /*
+    if (test_not_valid)
+    {
+    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_5_12_12_0_7s",
+        boost::make_tuple(1, 3271710.48516), pie_5_12_12_0_7s[0], pie_5_12_12_0_7s[1]);
+    }
+    */
 
     static const bool is_float
         = boost::is_same<T, float>::value;
@@ -828,10 +835,9 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 template <typename T>
 void test_open()
 {
-    namespace bg = boost::geometry;
-    using namespace boost::geometry::detail::overlay;
+    using namespace bg::detail::overlay;
 
-    typedef bg::point<T, 2, bg::cs::cartesian> P;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
     typedef bg::model::polygon<P, true, false> polygon;
     typedef boost::tuple<int, double> Tuple;
 
@@ -844,9 +850,9 @@ void test_open()
 
 int test_main(int, char* [])
 {
-    test_all<float>();
+    //test_all<float>();
     test_all<double>();
-    test_open<double>();
+    //test_open<double>();
 
 #if ! defined(_MSC_VER)
     test_all<long double>();
@@ -857,6 +863,6 @@ int test_main(int, char* [])
 #endif
 
     return 0;
-}
+ }
 
 #endif

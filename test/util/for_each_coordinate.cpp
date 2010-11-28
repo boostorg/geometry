@@ -21,7 +21,6 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <test_common/test_point.hpp>
 
-namespace bg = boost::geometry;
 
 struct test_operation
 {
@@ -50,15 +49,15 @@ template <typename P>
 void test_all()
 {
     P p;
-    boost::geometry::assign(p, 1, 2, 3);
-    boost::geometry::for_each_coordinate(p, test_operation());
+    bg::assign(p, 1, 2, 3);
+    bg::for_each_coordinate(p, test_operation());
     BOOST_CHECK(bg::get<0>(p) == 10);
     BOOST_CHECK(bg::get<1>(p) == 20);
     BOOST_CHECK(bg::get<2>(p) == 30);
 
     P const& cp = p;
     get_operation op;
-    op = boost::geometry::for_each_coordinate(cp, op);
+    op = bg::for_each_coordinate(cp, op);
     BOOST_CHECK(op.s == std::string("102030"));
 }
 
@@ -68,9 +67,9 @@ int test_main(int, char* [])
     test_all<float[3]>();
     test_all<double[3]>();
     test_all<test::test_point>();
-    test_all<bg::point<int, 3, bg::cs::cartesian> >();
-    test_all<bg::point<float, 3, bg::cs::cartesian> >();
-    test_all<bg::point<double, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

@@ -21,12 +21,12 @@ void test_get(T const& c, T const& e)
 {
     //std::cout << "get_as_radian " << typeid(P).name() << std::endl;
 
-    typedef typename boost::geometry::coordinate_type<P>::type coordinate_type;
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
 
     P p;
-    boost::geometry::set<D>(p, coordinate_type(c));
+    bg::set<D>(p, coordinate_type(c));
 
-    coordinate_type g = boost::geometry::get_as_radian<D>(p);
+    coordinate_type g = bg::get_as_radian<D>(p);
 
     BOOST_CHECK_CLOSE(double(g), double(e), 0.0001);
 }
@@ -37,12 +37,12 @@ void test_set(T const& c, T const& e)
 {
     //std::cout << "set_from_radian " << typeid(P).name() << std::endl;
 
-    typedef typename boost::geometry::coordinate_type<P>::type coordinate_type;
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
 
     P p;
-    boost::geometry::set_from_radian<D>(p, coordinate_type(c));
+    bg::set_from_radian<D>(p, coordinate_type(c));
 
-    coordinate_type g = boost::geometry::get<D>(p);
+    coordinate_type g = bg::get<D>(p);
 
     BOOST_CHECK_CLOSE(double(g), double(e), 0.0001);
 }
@@ -54,40 +54,40 @@ void test()
     double d2r = 3.1415926535897932384626433832795 / 180.0;
 
     // Degree
-    test_get<0, boost::geometry::point<T, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >
+    test_get<0, bg::model::point<T, 2, bg::cs::spherical<bg::degree> > >
         (1.0, 1.0 * d2r);
-    test_get<1, boost::geometry::point<T, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >
+    test_get<1, bg::model::point<T, 2, bg::cs::spherical<bg::degree> > >
         (2.0, 2.0 * d2r);
 
-    test_set<0, boost::geometry::point<T, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >
+    test_set<0, bg::model::point<T, 2, bg::cs::spherical<bg::degree> > >
         (1.0, 1.0 / d2r);
-    test_set<1, boost::geometry::point<T, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >
+    test_set<1, bg::model::point<T, 2, bg::cs::spherical<bg::degree> > >
         (2.0, 2.0 / d2r);
 
 
     // Radian
-    test_get<0, boost::geometry::point<T, 2, boost::geometry::cs::spherical<boost::geometry::radian> > >
+    test_get<0, bg::model::point<T, 2, bg::cs::spherical<bg::radian> > >
         (1.0, 1.0);
-    test_get<1, boost::geometry::point<T, 2, boost::geometry::cs::spherical<boost::geometry::radian> > >
+    test_get<1, bg::model::point<T, 2, bg::cs::spherical<bg::radian> > >
         (1.0, 1.0);
 
-    test_set<0, boost::geometry::point<T, 2, boost::geometry::cs::spherical<boost::geometry::radian> > >
+    test_set<0, bg::model::point<T, 2, bg::cs::spherical<bg::radian> > >
         (1.0, 1.0);
-    test_set<1, boost::geometry::point<T, 2, boost::geometry::cs::spherical<boost::geometry::radian> > >
+    test_set<1, bg::model::point<T, 2, bg::cs::spherical<bg::radian> > >
         (1.0, 1.0);
 
 
     // Cartesian (== untouched, no conversion)
-    test_get<0, boost::geometry::point<T, 2, boost::geometry::cs::cartesian> >
+    test_get<0, bg::model::point<T, 2, bg::cs::cartesian> >
         (1.0, 1.0);
-    test_get<1, boost::geometry::point<T, 2, boost::geometry::cs::cartesian> >
+    test_get<1, bg::model::point<T, 2, bg::cs::cartesian> >
         (1.0, 1.0);
 
     // Dimension >=2, should always be untouched, even for degree
     // (assuming lat/lon + height)
-    test_set<2, boost::geometry::point<T, 3, boost::geometry::cs::spherical<boost::geometry::radian> > >
+    test_set<2, bg::model::point<T, 3, bg::cs::spherical<bg::radian> > >
         (1.0, 1.0);
-    test_set<2, boost::geometry::point<T, 3, boost::geometry::cs::spherical<boost::geometry::degree> > >
+    test_set<2, bg::model::point<T, 3, bg::cs::spherical<bg::degree> > >
         (1.0, 1.0);
 
 }

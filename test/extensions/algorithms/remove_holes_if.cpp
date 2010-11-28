@@ -29,41 +29,41 @@ void test_remove_holes_if(std::string const& wkt, Predicate const& predicate,
             int expected_points)
 {
     G g;
-    boost::geometry::read_wkt(wkt, g);
-    boost::geometry::remove_holes_if(g, predicate);
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(g), expected_points);
+    bg::read_wkt(wkt, g);
+    bg::remove_holes_if(g, predicate);
+    BOOST_CHECK_EQUAL(bg::num_points(g), expected_points);
 }
 
 template <typename P>
 void test_all()
 {
-    boost::geometry::elongated_hole<boost::geometry::linear_ring<P> > elongated(0.05);
+    bg::elongated_hole<bg::model::linear_ring<P> > elongated(0.05);
 
     // No holes
-    test_remove_holes_if<boost::geometry::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))", elongated, 5);
+    test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))", elongated, 5);
 
     // Square hole (ratio 1/4), kept
-    test_remove_holes_if<boost::geometry::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2,2 2,2 1,1 1))", elongated, 10);
+    test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2,2 2,2 1,1 1))", elongated, 10);
 
     // Elongated hole
-    test_remove_holes_if<boost::geometry::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2,1.02 2,1.02 1,1 1))", elongated, 5);
+    test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2,1.02 2,1.02 1,1 1))", elongated, 5);
 
     // Invalid hole - removed by "elongated" predicate as well
-    test_remove_holes_if<boost::geometry::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2))", elongated, 5);
+    test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2))", elongated, 5);
 
     // Invalid hole
-    boost::geometry::invalid_hole<boost::geometry::linear_ring<P> > invalid;
-    test_remove_holes_if<boost::geometry::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2))", invalid, 5);
+    bg::invalid_hole<bg::model::linear_ring<P> > invalid;
+    test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2))", invalid, 5);
 
     // Valid hole
-    test_remove_holes_if<boost::geometry::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2,1.02 2,1.02 1,1 1))", invalid, 10);
+    test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2,1.02 2,1.02 1,1 1))", invalid, 10);
 
 }
 
 int test_main(int, char* [])
 {
-    //test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    //test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

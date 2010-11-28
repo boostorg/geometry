@@ -18,13 +18,13 @@
 template <typename Geometry>
 void test_circle(std::string const& wkt_geometry, bool expected)
 {
-    boost::geometry::circle circle;
-    boost::geometry::assign(circle, 1.0, 1.0, 3.0);
+    bg::model::circle circle;
+    bg::assign(circle, 1.0, 1.0, 3.0);
 
     Geometry geometry;
-    boost::geometry::read_wkt(wkt_geometry, geometry);
+    bg::read_wkt(wkt_geometry, geometry);
 
-    bool detected = boost::geometry::within(geometry, circle);
+    bool detected = bg::within(geometry, circle);
 
     BOOST_CHECK_MESSAGE(detected == expected,
         "within: " << wkt_geometry
@@ -39,18 +39,17 @@ void test_circle(std::string const& wkt_geometry, bool expected)
 template <typename P>
 void test_circles()
 {
-    // Circles do not yet run on CLN/GMP
     test_circle<P>("POINT(2 1)", true);
     test_circle<P>("POINT(12 1)", false);
 
-    test_circle<boost::geometry::linestring<P> >("LINESTRING(1 1,2 1,2 2)", true);
-    test_circle<boost::geometry::linestring<P> >("LINESTRING(1 1,2 1,2 2,10 10)", false);
+    test_circle<bg::model::linestring<P> >("LINESTRING(1 1,2 1,2 2)", true);
+    test_circle<bg::model::linestring<P> >("LINESTRING(1 1,2 1,2 2,10 10)", false);
 }
 
 
 int test_main( int , char* [] )
 {
-    test_circles<boost::geometry::point_xy<double> >();
+    test_circles<bg::model::point_xy<double> >();
 
     return 0;
 }

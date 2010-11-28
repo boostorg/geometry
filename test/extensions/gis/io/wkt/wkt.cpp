@@ -28,48 +28,38 @@
 #include <boost/geometry/extensions/gis/io/wkt/write_wkt.hpp>
 
 
-#if defined(HAVE_GMP)
-#  include <boost/numeric_adaptor/gmp_value_type.hpp>
-#endif
-#if defined(HAVE_CLN)
-#  include <boost/numeric_adaptor/cln_value_type.hpp>
-#endif
-
-
-
-
 template <typename G>
 void test_wkt(std::string const& wkt, int n, double len = 0,
             double ar = 0, double peri = 0)
 {
     G geometry;
 
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
     /*
-    std::cout << "n=" << boost::geometry::num_points(geometry)
-        << " dim=" << boost::geometry::topological_dimension<G>::value
-        << " length=" << boost::geometry::length(geometry)
-        << " area=" << boost::geometry::area(geometry)
-        << " perimeter=" << boost::geometry::perimeter(geometry)
+    std::cout << "n=" << bg::num_points(geometry)
+        << " dim=" << bg::topological_dimension<G>::value
+        << " length=" << bg::length(geometry)
+        << " area=" << bg::area(geometry)
+        << " perimeter=" << bg::perimeter(geometry)
         << std::endl << "\t\tgeometry=" << dsv(geometry)
         << std::endl;
     */
 
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(geometry), n);
-    BOOST_CHECK_CLOSE(double(boost::geometry::length(geometry)), len, 0.0001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::area(geometry)), ar, 0.0001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::perimeter(geometry)), peri, 0.0001);
+    BOOST_CHECK_EQUAL(bg::num_points(geometry), n);
+    BOOST_CHECK_CLOSE(double(bg::length(geometry)), len, 0.0001);
+    BOOST_CHECK_CLOSE(double(bg::area(geometry)), ar, 0.0001);
+    BOOST_CHECK_CLOSE(double(bg::perimeter(geometry)), peri, 0.0001);
 
     // String comparison: only for int/double/float etc
     // GMP/CLN add +e01, L0, etc
     if (boost::is_fundamental
         <
-            typename boost::geometry::coordinate_type<G>::type
+            typename bg::coordinate_type<G>::type
         >::type::value)
     {
         std::ostringstream out;
-        out << boost::geometry::wkt(geometry);
+        out << bg::wkt(geometry);
         BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()),
                     boost::to_upper_copy(wkt));
     }
@@ -80,14 +70,14 @@ void test_relaxed_wkt(std::string const& wkt, std::string const& expected)
 {
     if (boost::is_fundamental
         <
-            typename boost::geometry::coordinate_type<G>::type
+            typename bg::coordinate_type<G>::type
         >::type::value)
     {
         std::string e;
         G geometry;
-        boost::geometry::read_wkt(wkt, geometry);
+        bg::read_wkt(wkt, geometry);
         std::ostringstream out;
-        out << boost::geometry::wkt(geometry);
+        out << bg::wkt(geometry);
 
         BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()), boost::to_upper_copy(expected));
     }
@@ -102,9 +92,9 @@ void test_wrong_wkt(std::string const& wkt, std::string const& start)
     G geometry;
     try
     {
-        boost::geometry::read_wkt(wkt, geometry);
+        bg::read_wkt(wkt, geometry);
     }
-    catch(boost::geometry::read_wkt_exception const& ex)
+    catch(bg::read_wkt_exception const& ex)
     {
         e = ex.what();
         boost::to_lower(e);
@@ -119,37 +109,37 @@ template <typename T>
 void test_all()
 {
     using namespace boost::geometry;
-    typedef point<T, 2, boost::geometry::cs::cartesian> P;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
 
     test_wkt<P >("POINT(1 2)", 1);
-    test_wkt<linestring<P> >("LINESTRING(1 1,2 2,3 3)", 3, 2 * sqrt(2.0));
-    test_wkt<polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0)"
+    test_wkt<bg::model::linestring<P> >("LINESTRING(1 1,2 2,3 3)", 3, 2 * sqrt(2.0));
+    test_wkt<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0)"
             ",(1 1,1 2,2 2,2 1,1 1),(1 1,1 2,2 2,2 1,1 1))", 15, 0, 18, 24);
 
     // Non OGC: a box defined by a polygon
     //test_wkt<box<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 4, 0, 1, 4);
-    test_wkt<linear_ring<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 5, 0, 1, 4);
+    test_wkt<bg::model::linear_ring<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 5, 0, 1, 4);
 
     // We accept empty sequences as well (much better than EMPTY)...
     // ...or even POINT() (see below)
-    test_wkt<linestring<P> >("LINESTRING()", 0, 0);
-    test_wkt<polygon<P> >("POLYGON(())", 0);
+    test_wkt<bg::model::linestring<P> >("LINESTRING()", 0, 0);
+    test_wkt<bg::model::polygon<P> >("POLYGON(())", 0);
     // ... or even with empty holes
-    test_wkt<polygon<P> >("POLYGON((),(),())", 0);
+    test_wkt<bg::model::polygon<P> >("POLYGON((),(),())", 0);
     // which all make no valid geometries, but they can exist.
 
     // These WKT's are incomplete or abnormal but they are considered OK
     test_relaxed_wkt<P>("POINT(1)", "POINT(1 0)");
     test_relaxed_wkt<P>("POINT()", "POINT(0 0)");
-    test_relaxed_wkt<linestring<P> >("LINESTRING(1,2,3)",
+    test_relaxed_wkt<bg::model::linestring<P> >("LINESTRING(1,2,3)",
                 "LINESTRING(1 0,2 0,3 0)");
     test_relaxed_wkt<P>("POINT  ( 1 2)   ", "POINT(1 2)");
     test_relaxed_wkt<P>("POINT  M ( 1 2)", "POINT(1 2)");
-    test_relaxed_wkt<box<P> >("BOX(1 1,2 2)", "POLYGON((1 1,1 2,2 2,2 1,1 1))");
+    test_relaxed_wkt<bg::model::box<P> >("BOX(1 1,2 2)", "POLYGON((1 1,1 2,2 2,2 1,1 1))");
 
-    test_relaxed_wkt<linestring<P> >("LINESTRING EMPTY", "LINESTRING()");
+    test_relaxed_wkt<bg::model::linestring<P> >("LINESTRING EMPTY", "LINESTRING()");
 
-    test_relaxed_wkt<polygon<P> >("POLYGON( ( ) , ( ) , ( ) )",
+    test_relaxed_wkt<bg::model::polygon<P> >("POLYGON( ( ) , ( ) , ( ) )",
                 "POLYGON((),(),())");
 
     // Wrong WKT's
@@ -164,18 +154,18 @@ void test_all()
 
     test_wrong_wkt<P>("PIONT (1 2)", "should start with 'point'");
 
-    test_wrong_wkt<linestring<P> >("LINESTRING())", "too much tokens");
+    test_wrong_wkt<bg::model::linestring<P> >("LINESTRING())", "too much tokens");
 
-    test_wrong_wkt<polygon<P> >("POLYGON((1 1,1 4,4 4,4 1,1 1)"
+    test_wrong_wkt<bg::model::polygon<P> >("POLYGON((1 1,1 4,4 4,4 1,1 1)"
                 ",((2 2,2 3,3 3,3 2,2 2))", "bad lexical cast");
 
-    test_wrong_wkt<box<P> >("BOX(1 1,2 2,3 3)", "box should have 2");
-    test_wrong_wkt<box<P> >("BOX(1 1,2 2) )", "too much tokens");
+    test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2,3 3)", "box should have 2");
+    test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2) )", "too much tokens");
 
     if (boost::is_floating_point<T>::type::value
         || ! boost::is_fundamental<T>::type::value)
     {
-        test_wkt<P >("POINT(1.1 2.1)", 1);
+        test_wkt<P>("POINT(1.1 2.1)", 1);
     }
 
 }
@@ -187,13 +177,8 @@ int test_main(int, char* [])
     test_all<double>();
     test_all<int>();
 
-#if defined(HAVE_CLN)
-    std::cout << "testing CLN points" << std::endl;
-    test_all<boost::numeric_adaptor::cln_value_type>();
-#endif
-#if defined(HAVE_GMP)
-    std::cout << "testing GMP points" << std::endl;
-    test_all<boost::numeric_adaptor::gmp_value_type>();
+#if defined(HAVE_TTMATH)
+    test_all<ttmath_big>();
 #endif
 
     return 0;

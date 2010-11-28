@@ -37,15 +37,14 @@ struct test_self_intersection_points
             boost::tuple<int, double, double> const& expected_count_and_center,
             Geometry const& geometry, double precision)
     {
-        namespace bg = boost::geometry;
-        typedef bg::detail::overlay::turn_info
+            typedef bg::detail::overlay::turn_info
             <
                 typename bg::point_type<Geometry>::type
             > turn_info;
 
         std::vector<turn_info> turns;
 
-        ///boost::geometry::get_intersection_points(geometry, turns);
+        ///bg::get_intersection_points(geometry, turns);
 
         bg::detail::get_turns::no_interrupt_policy policy;
         bg::get_turns
@@ -114,7 +113,7 @@ void test_self_overlay(std::string const& id, T const& expected,
     }
 
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
     std::string caseid = id;
 
@@ -130,7 +129,7 @@ void test_self_overlay(std::string const& id, T const& expected,
 template <typename P>
 void test_self_all()
 {
-    typedef boost::geometry::polygon<P> polygon;
+    typedef bg::model::polygon<P> polygon;
 
     // Just a normal polygon
     test_self_overlay<polygon>("1", boost::make_tuple(0, 0, 0),
@@ -228,7 +227,7 @@ void test_self_all()
 #if ! defined(GEOMETRY_TEST_MULTI)
 int test_main(int, char* [])
 {
-    test_self_all<boost::geometry::point_xy<double> >();
+    test_self_all<bg::model::point_xy<double> >();
     return 0;
 }
 #endif

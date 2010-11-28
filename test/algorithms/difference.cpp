@@ -5,8 +5,11 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define BOOST_GEOMETRY_CHECK_WITH_POSTGIS
+//#define BOOST_GEOMETRY_CHECK_WITH_POSTGIS
 
+// BSG 27-11-2010 (comment)
+// NOTE: this is currently NOT yet error-free, reporting about 7 errors.
+// TODO: fix this
 
 #include <iostream>
 #include <string>
@@ -16,10 +19,11 @@
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
 
+
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::polygon<P> polygon;
+    typedef bg::model::polygon<P> polygon;
 
     test_one<polygon, polygon, polygon>(
             "star_ring", example_star, example_ring,
@@ -102,6 +106,6 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
     return 0;
 }

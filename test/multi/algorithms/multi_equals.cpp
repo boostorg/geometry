@@ -23,18 +23,18 @@ void test_all()
     std::string case1 = "MULTIPOLYGON(((0 0,0 7,4 2,2 0,0 0)))";
     std::string case1_p     = "POLYGON((0 0,0 7,4 2,2 0,0 0))";
 
-    typedef boost::geometry::polygon<P> polygon;
-    typedef boost::geometry::multi_polygon<polygon> mp;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::multi_polygon<polygon> mp;
     test_geometry<mp, mp>("c1", case1, case1, true);
 
-    test_geometry<mp, mp>("c2", 
+    test_geometry<mp, mp>("c2",
             "MULTIPOLYGON(((0 0,0 7.01,4 2,2 0,0 0)))",
             case1, false);
 
     // Different order == equal
-    test_geometry<mp, mp>("c3", 
+    test_geometry<mp, mp>("c3",
             "MULTIPOLYGON(((0 0,0 7,4 2,2 0,0 0)),((10 10,10 12,12 10,10 10)))",
-            "MULTIPOLYGON(((10 10,10 12,12 10,10 10)),((0 0,0 7,4 2,2 0,0 0)))", 
+            "MULTIPOLYGON(((10 10,10 12,12 10,10 10)),((0 0,0 7,4 2,2 0,0 0)))",
             true);
 
     // check different types
@@ -45,7 +45,7 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

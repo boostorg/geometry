@@ -27,10 +27,10 @@ void test_geometry(std::string const& wkt1,
     Geometry1 geometry1;
     Geometry2 geometry2;
 
-    boost::geometry::read_wkt(wkt1, geometry1);
-    boost::geometry::read_wkt(wkt2, geometry2);
+    bg::read_wkt(wkt1, geometry1);
+    bg::read_wkt(wkt2, geometry2);
 
-    bool detected = boost::geometry::overlaps(geometry1, geometry2);
+    bool detected = bg::overlaps(geometry1, geometry2);
 
     BOOST_CHECK_MESSAGE(detected == expected,
         "overlaps: " << wkt1

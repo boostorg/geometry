@@ -14,13 +14,14 @@
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
 
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+
 #include <algorithms/overlay/overlay_cases.hpp>
 
-namespace bg = boost::geometry;
 
 
 template <typename Geometry1, typename Geometry2>
-inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& g1, Geometry2 const& g2, std::string const& name, 
+inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& g1, Geometry2 const& g2, std::string const& name,
                bg::detail::overlay::operation_type op)
 {
     typedef typename bg::strategy_side
@@ -31,14 +32,14 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
 
     typedef bg::detail::overlay::traversal_turn_info
         <
-            typename boost::geometry::point_type<Geometry1>::type
+            typename bg::point_type<Geometry1>::type
         > turn_info;
     std::vector<turn_info> turns;
 
     bg::detail::get_turns::no_interrupt_policy policy;
     bg::get_turns<bg::detail::overlay::calculate_distance_policy>(g1, g2, turns, policy);
 
-    bool const reverse = 
+    bool const reverse =
         bg::point_order<Geometry1>::value == bg::counterclockwise
         || bg::point_order<Geometry2>::value == bg::counterclockwise;
     if (reverse)
@@ -48,7 +49,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     bg::enrich_intersection_points(turns, bg::detail::overlay::operation_intersection,
         g1, g2, side_strategy_type());
 
-    typedef bg::linear_ring<typename bg::point_type<Geometry1>::type> ring_type;
+    typedef bg::model::linear_ring<typename bg::point_type<Geometry1>::type> ring_type;
     typedef std::vector<ring_type> out_vector;
     out_vector v;
 
@@ -70,7 +71,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
 #if defined(TEST_WITH_SVG)
     {
         std::ostringstream filename;
-        filename 
+        filename
             << name << "_"
             << (op == bg::detail::overlay::operation_intersection ? "i" : "u")
             << (reverse ? "_ccw" : "")
@@ -94,7 +95,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
             mapper.map(ring, "fill-opacity:0.3;stroke-opacity:0.4;fill:rgb(255,255,0);"
                     "stroke:rgb(255,0,255);stroke-width:8");
         }
-        
+
 
         // turn points in orange, + enrichment/traversal info
 
@@ -121,7 +122,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
 
                 std::ostringstream out;
                 out << index
-                    << ": " << bg::method_char(turn.method) 
+                    << ": " << bg::method_char(turn.method)
                     << std::endl
                     << "op: " << bg::operation_char(turn.operations[0].operation)
                     << " / " << bg::operation_char(turn.operations[1].operation)
@@ -169,7 +170,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
 }
 
 template <typename Geometry1, typename Geometry2>
-inline typename bg::coordinate_type<Geometry1>::type intersect(std::string const& wkt1, std::string const& wkt2, std::string const& name, 
+inline typename bg::coordinate_type<Geometry1>::type intersect(std::string const& wkt1, std::string const& wkt2, std::string const& name,
             bg::detail::overlay::operation_type op)
 {
     Geometry1 geometry1;
@@ -187,7 +188,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(std::string const
 template <typename T>
 inline void test_polygon(std::string const& wkt1, std::string const& wkt2, std::string const& name)
 {
-    typedef bg::point_xy<T> point;
+    typedef bg::model::point_xy<T> point;
     typedef bg::model::polygon<point> clock;
     typedef bg::model::polygon<point, false> counter;
 
@@ -204,8 +205,8 @@ inline void test_polygon(std::string const& wkt1, std::string const& wkt2, std::
 template <typename T>
 inline void test_box_polygon(std::string const& wkt1, std::string const& wkt2, std::string const& name)
 {
-    typedef bg::point_xy<T> point;
-    typedef bg::box<point> box;
+    typedef bg::model::point_xy<T> point;
+    typedef bg::model::box<point> box;
     typedef bg::model::polygon<point> clock;
     typedef bg::model::polygon<point, false> counter;
 
@@ -227,7 +228,7 @@ int test_main(int, char* [])
     test_polygon<double>(case_7[0], case_7[1], "c7");
     test_polygon<double>(case_8[0], case_8[1], "c8");
     test_polygon<double>(case_9[0], case_9[1], "c9" /*, ig */);
-    
+
 
     test_polygon<double>(case_10[0], case_10[1], "c10");
     test_polygon<double>(case_11[0], case_11[1], "c11");
@@ -310,4 +311,4 @@ int test_main(int, char* [])
     }
 
     return 0;
-}  
+}

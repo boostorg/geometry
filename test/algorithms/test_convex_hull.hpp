@@ -28,27 +28,27 @@ void test_convex_hull(Geometry const& geometry, Hull const& hull,
                       double expected_area, bool reverse)
 {
 
-    std::size_t n = boost::geometry::num_points(hull);
+    std::size_t n = bg::num_points(hull);
 
     BOOST_CHECK_MESSAGE(n == size_hull,
-        "convex hull: " << boost::geometry::wkt(geometry)
-        << " -> " << boost::geometry::wkt(hull)
+        "convex hull: " << bg::wkt(geometry)
+        << " -> " << bg::wkt(hull)
         << " type "
-        << (typeid(typename boost::geometry::coordinate_type<Hull>::type).name())
+        << (typeid(typename bg::coordinate_type<Hull>::type).name())
         << " -> Expected: " << size_hull
         << " detected: " << n);
 
 
-    BOOST_CHECK(boost::geometry::num_points(geometry) == size_original);
+    BOOST_CHECK(bg::num_points(geometry) == size_original);
 
-    double ah = boost::geometry::area(hull);
+    double ah = bg::area(hull);
     if (reverse)
     {
         ah = -ah;
     }
 
-//std::cout << "Area: " << boost::geometry::area(geometry) << std::endl;
-//std::cout << boost::geometry::wkt(hull) << std::endl;
+//std::cout << "Area: " << bg::area(geometry) << std::endl;
+//std::cout << bg::wkt(hull) << std::endl;
 
     BOOST_CHECK_CLOSE(ah, expected_area, 0.001);
 }
@@ -59,44 +59,42 @@ void test_geometry_order(std::string const& wkt,
                       double expected_area)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
-    boost::geometry::polygon
+    bg::model::polygon
         <
-            typename boost::geometry::point_type<Geometry>::type,
-            std::vector,
-            std::vector,
+            typename bg::point_type<Geometry>::type,
             Clockwise
         > hull;
 
     // Test version with output iterator
-    convex_hull_inserter(geometry, std::back_inserter(hull.outer()));
+    bg::convex_hull_inserter(geometry, std::back_inserter(hull.outer()));
     test_convex_hull(geometry, hull,
         size_original, size_hull, expected_area, ! Clockwise);
 
     // Test version with ring as output
-    boost::geometry::clear(hull);
-    boost::geometry::convex_hull(geometry, hull.outer());
+    bg::clear(hull);
+    bg::convex_hull(geometry, hull.outer());
     test_convex_hull(geometry, hull, size_original, size_hull, expected_area, false);
 
     // Test version with polygon as output
-    boost::geometry::clear(hull);
-    boost::geometry::convex_hull(geometry, hull);
+    bg::clear(hull);
+    bg::convex_hull(geometry, hull);
     test_convex_hull(geometry, hull, size_original, size_hull, expected_area, false);
 
     // Test version with strategy
-    boost::geometry::clear(hull);
-    boost::geometry::strategy::convex_hull::graham_andrew
+    bg::clear(hull);
+    bg::strategy::convex_hull::graham_andrew
         <
             Geometry,
-            typename boost::geometry::point_type<Geometry>::type
+            typename bg::point_type<Geometry>::type
         > graham;
-    boost::geometry::convex_hull(geometry, hull.outer(), graham);
+    bg::convex_hull(geometry, hull.outer(), graham);
     test_convex_hull(geometry, hull, size_original, size_hull, expected_area, false);
 
     // Test version with output iterator and strategy
-    boost::geometry::clear(hull);
-    boost::geometry::convex_hull_inserter(geometry, std::back_inserter(hull.outer()), graham);
+    bg::clear(hull);
+    bg::convex_hull_inserter(geometry, std::back_inserter(hull.outer()), graham);
     test_convex_hull(geometry, hull, size_original, size_hull, expected_area, ! Clockwise);
 }
 

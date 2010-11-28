@@ -36,7 +36,6 @@
 template <typename Geometry>
 inline void test_assemble(std::string const& id, Geometry const& p, Geometry const& q)
 {
-    namespace bg = boost::geometry;
 
     std::vector<Geometry> u, i;
     bg::union_inserter<Geometry>(p, q, std::back_inserter(u));
@@ -95,7 +94,6 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
 template <typename Polygon>
 inline bool int_ok(Polygon const& poly)
 {
-    namespace bg = boost::geometry;
 
     typename bg::point_type<Polygon>::type const& pi =
         bg::interior_rings(poly)[0].front();
@@ -107,7 +105,6 @@ inline bool int_ok(Polygon const& poly)
 
 void generate()
 {
-    namespace bg = boost::geometry;
 
     static std::string exteriors[4] = {
             "(0 0,0 10,10 10,10 0,0 0)",
@@ -132,13 +129,13 @@ void generate()
                     std::string ps = "POLYGON(" + exteriors[pe] + "," + interiors[pi] + ")";
                     std::string qs = "POLYGON(" + exteriors[qe] + "," + interiors[qi] + ")";
 
-                    bg::polygon_2d p, q;
+                    bg::model::polygon_2d p, q;
                     bg::read_wkt(ps, p);
                     bg::read_wkt(qs, q);
                     bg::correct(p);
                     bg::correct(q);
-                    if (! intersects(p)
-                        && ! intersects(q)
+                    if (! bg::intersects(p)
+                        && ! bg::intersects(q)
                         && int_ok(p)
                         && int_ok(q)
                         )

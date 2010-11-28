@@ -21,15 +21,15 @@
 template <typename Geometry>
 void test_perimeter(Geometry const& geometry, long double expected_perimeter)
 {
-    long double perimeter = boost::geometry::perimeter(geometry);
+    long double perimeter = bg::perimeter(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
-    out << typeid(typename boost::geometry::coordinate_type<Geometry>::type).name()
+    out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << std::endl
-        << typeid(typename boost::geometry::perimeter_result<Geometry>::type).name()
+        << typeid(typename bg::perimeter_result<Geometry>::type).name()
         << std::endl
-        << "perimeter : " << boost::geometry::perimeter(geometry)
+        << "perimeter : " << bg::perimeter(geometry)
         << std::endl;
     std::cout << out.str();
 #endif
@@ -42,7 +42,7 @@ template <typename Geometry>
 void test_geometry(std::string const& wkt, double expected_perimeter)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
     test_perimeter(geometry, expected_perimeter);
 }
 

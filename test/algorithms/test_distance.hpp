@@ -16,7 +16,7 @@
 
 
 // Define a custom distance strategy
-// For this one, the "taxicab" distance, 
+// For this one, the "taxicab" distance,
 // see http://en.wikipedia.org/wiki/Taxicab_geometry
 
 // For a point-point-distance operation, one typename Point is enough.
@@ -26,11 +26,11 @@
 template <typename P1, typename P2 = P1>
 struct taxicab_distance
 {
-    static inline typename boost::geometry::coordinate_type<P1>::type apply(
-                    P1 const& p1, P2 const& p2) 
+    static inline typename bg::coordinate_type<P1>::type apply(
+                    P1 const& p1, P2 const& p2)
     {
-        using boost::geometry::get;
-        using boost::geometry::math::abs;
+        using bg::get;
+        using bg::math::abs;
         return abs(get<0>(p1) - get<1>(p2))
             + abs(get<1>(p1) - get<1>(p2));
     }
@@ -38,7 +38,7 @@ struct taxicab_distance
 
 
 
-namespace boost { namespace geometry { namespace strategy { namespace distance { namespace services 
+namespace boost { namespace geometry { namespace strategy { namespace distance { namespace services
 {
 
 template <typename P1, typename P2>
@@ -100,26 +100,26 @@ struct result_from_distance<taxicab_distance<P1, P2> >
 };
 
 
-}}}}} // namespace boost::geometry::strategy::distance::services
+}}}}} // namespace bg::strategy::distance::services
 
 
 
 
 
 template <typename Geometry1, typename Geometry2>
-void test_distance(Geometry1 const& geometry1, 
+void test_distance(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             long double expected_distance)
 {
-    long double distance = boost::geometry::distance(geometry1, geometry2);
+    long double distance = bg::distance(geometry1, geometry2);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
-    out << typeid(typename boost::geometry::coordinate_type<Geometry1>::type).name()
+    out << typeid(typename bg::coordinate_type<Geometry1>::type).name()
         << std::endl
-        << typeid(typename boost::geometry::distance_result<Geometry1>::type).name()
+        << typeid(typename bg::distance_result<Geometry1>::type).name()
         << std::endl
-        << "distance : " << boost::geometry::distance(geometry1, geometry2)
+        << "distance : " << bg::distance(geometry1, geometry2)
         << std::endl;
     std::cout << out.str();
 #endif
@@ -131,10 +131,10 @@ void test_distance(Geometry1 const& geometry1,
 template <typename Geometry1, typename Geometry2>
 void test_geometry(std::string const& wkt1, std::string const& wkt2, double expected_distance)
 {
-    Geometry1 geometry1; 
-    boost::geometry::read_wkt(wkt1, geometry1);
-    Geometry2 geometry2; 
-    boost::geometry::read_wkt(wkt2, geometry2);
+    Geometry1 geometry1;
+    bg::read_wkt(wkt1, geometry1);
+    Geometry2 geometry2;
+    bg::read_wkt(wkt2, geometry2);
 
     test_distance(geometry1, geometry2, expected_distance);
 }

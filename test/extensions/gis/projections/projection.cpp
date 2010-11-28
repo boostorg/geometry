@@ -31,11 +31,11 @@
 
 template <typename Prj, typename P1, typename P2>
 void test_one(double lon, double lat,
-              typename boost::geometry::coordinate_type<P2>::type x,
-              typename boost::geometry::coordinate_type<P2>::type y,
+              typename bg::coordinate_type<P2>::type x,
+              typename bg::coordinate_type<P2>::type y,
               std::string const& parameters)
 {
-    boost::geometry::projection::parameters par = boost::geometry::projection::detail::pj_init_plus(parameters);
+    bg::projection::parameters par = bg::projection::detail::pj_init_plus(parameters);
     Prj prj(par);
 
     P1 ll;
@@ -45,18 +45,18 @@ void test_one(double lon, double lat,
     P2 xy;
     prj.forward(ll, xy);
 
-    BOOST_CHECK_CLOSE(boost::geometry::get<0>(xy), x, 0.001);
-    BOOST_CHECK_CLOSE(boost::geometry::get<1>(xy), y, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(xy), x, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(xy), y, 0.001);
 }
 
 template <typename P>
 void test_all()
 {
-    typedef typename boost::geometry::coordinate_type<P>::type coord_type;
-    typedef boost::geometry::point_ll<coord_type, boost::geometry::cs::geographic<boost::geometry::degree> > point_type;
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    typedef bg::model::point_ll<coord_type, bg::cs::geographic<bg::degree> > point_type;
 
     // aea
-    test_one<boost::geometry::projection::aea_ellipsoid<point_type, P>, point_type, P>
+    test_one<bg::projection::aea_ellipsoid<point_type, P>, point_type, P>
         (4.897000, 52.371000, 334609.583974, 5218502.503686,
          "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
 }
@@ -67,10 +67,10 @@ int test_main(int, char* [])
     test_all<float[2]>();
     test_all<double[2]>();
     test_all<test::test_point>();
-    //test_all<boost::geometry::point_xy<int> >();
-    test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
-    test_all<boost::geometry::point_xy<long double> >();
+    //test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
+    test_all<bg::model::point_xy<long double> >();
 
     return 0;
 }

@@ -29,11 +29,11 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 {
     Geometry geometry;
 
-    boost::geometry::read_wkt(wkt, geometry);
-    boost::geometry::correct(geometry);
+    bg::read_wkt(wkt, geometry);
+    bg::correct(geometry);
 
     std::ostringstream out;
-    out << boost::geometry::wkt(geometry);
+    out << bg::wkt(geometry);
 
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -49,11 +49,11 @@ void test_geometry_dsv(std::string const& wkt, std::string const& expected)
 {
     Geometry geometry;
 
-    boost::geometry::read_wkt(wkt, geometry);
-    boost::geometry::correct(geometry);
+    bg::read_wkt(wkt, geometry);
+    bg::correct(geometry);
 
     std::ostringstream out;
-    out << boost::geometry::dsv(geometry);
+    out << bg::dsv(geometry);
 
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -73,46 +73,44 @@ void test_all()
     std::string ccw_open_ring = "POLYGON((0 0,1 0,1 1,0 1))";
 
     // already cw_ring
-    test_geometry<boost::geometry::linear_ring<P> >(cw_ring, cw_ring);
+    test_geometry<bg::model::linear_ring<P> >(cw_ring, cw_ring);
 
     // wrong order
-    test_geometry<boost::geometry::linear_ring<P> >(ccw_ring, cw_ring);
+    test_geometry<bg::model::linear_ring<P> >(ccw_ring, cw_ring);
 
     // ccw-ring, input ccw-ring, already correct
-    test_geometry<boost::geometry::linear_ring<P, std::vector, false> >(ccw_ring, ccw_ring);
+    test_geometry<bg::model::linear_ring<P, false> >(ccw_ring, ccw_ring);
 
     // ccw-ring, input cw-ring, corrected
-    test_geometry<boost::geometry::linear_ring<P, std::vector, false> >(cw_ring, ccw_ring);
+    test_geometry<bg::model::linear_ring<P, false> >(cw_ring, ccw_ring);
 
     // open-ring, input ccw-ring, already correct
-    test_geometry<boost::geometry::linear_ring<P, std::vector, true, false> >(cw_open_ring, cw_open_ring);
+    test_geometry<bg::model::linear_ring<P, true, false> >(cw_open_ring, cw_open_ring);
 
     // ccw-ring, input cw-ring, corrected
-    test_geometry<boost::geometry::linear_ring<P, std::vector, true, false> >(ccw_open_ring, "POLYGON((0 1,1 1,1 0,0 0))");
+    test_geometry<bg::model::linear_ring<P, true, false> >(ccw_open_ring, "POLYGON((0 1,1 1,1 0,0 0))");
 
 
 
     // not closed
-    test_geometry<boost::geometry::linear_ring<P> >(
+    test_geometry<bg::model::linear_ring<P> >(
             ccw_open_ring,
             cw_ring);
 
     // counter clockwise, cw_ring
-    test_geometry<boost::geometry::linear_ring<P, std::vector, false> >
-            (ccw_ring, ccw_ring);
+    test_geometry<bg::model::linear_ring<P, false> >(ccw_ring, ccw_ring);
 
-    test_geometry<boost::geometry::linear_ring<P, std::vector, false> >
-            (cw_ring, ccw_ring);
+    test_geometry<bg::model::linear_ring<P, false> >(cw_ring, ccw_ring);
 
 
     // polygon: cw_ring
-    test_geometry<boost::geometry::polygon<P> >(cw_ring, cw_ring);
+    test_geometry<bg::model::polygon<P> >(cw_ring, cw_ring);
     // wrong order
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
             "POLYGON((0 0,1 0,1 1,0 1,0 0))",
             cw_ring);
     // wrong order & not closed
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
             ccw_open_ring,
             cw_ring);
 
@@ -123,34 +121,34 @@ void test_all()
             "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,1 2,2 2,2 1,1 1))";
 
     // with holes: cw_ring
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
             cw_holey_polygon,
             cw_holey_polygon);
     // wrong order of main
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
             "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))",
             cw_holey_polygon);
     // wrong order of hole
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
             "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 2,2 2,2 1,1 1))",
             cw_holey_polygon);
 
     // wrong order of main and hole
-    test_geometry<boost::geometry::polygon<P> >(ccw_holey_polygon, cw_holey_polygon);
+    test_geometry<bg::model::polygon<P> >(ccw_holey_polygon, cw_holey_polygon);
 
     // test the counter-clockwise
-    test_geometry<boost::geometry::polygon<P, std::vector, std::vector, false> >(
+    test_geometry<bg::model::polygon<P, false> >(
             ccw_holey_polygon, ccw_holey_polygon);
 
     // Boxes
     std::string proper_box = "POLYGON((0 0,0 2,2 2,2 0,0 0))";
-    test_geometry<boost::geometry::box<P> >(proper_box, proper_box);
-    test_geometry<boost::geometry::box<P> >("BOX(0 0,2 2)", proper_box);
-    test_geometry<boost::geometry::box<P> >("BOX(2 2,0 0)", proper_box);
-    test_geometry<boost::geometry::box<P> >("BOX(0 2,2 0)", proper_box);
+    test_geometry<bg::model::box<P> >(proper_box, proper_box);
+    test_geometry<bg::model::box<P> >("BOX(0 0,2 2)", proper_box);
+    test_geometry<bg::model::box<P> >("BOX(2 2,0 0)", proper_box);
+    test_geometry<bg::model::box<P> >("BOX(0 2,2 0)", proper_box);
 
     // Cubes
-    typedef boost::geometry::box<boost::geometry::point<double, 3, boost::geometry::cs::cartesian> > box3d;
+    typedef bg::model::box<bg::model::point<double, 3, bg::cs::cartesian> > box3d;
     std::string proper_3d_dsv_box = "((0, 0, 0), (2, 2, 2))";
     test_geometry_dsv<box3d>("BOX(0 0 0,2 2 2)", proper_3d_dsv_box);
     test_geometry_dsv<box3d>("BOX(2 2 2,0 0 0)", proper_3d_dsv_box);
@@ -167,8 +165,8 @@ int test_main(int, char* [])
     //test_all<double[2]>();
 
     //test_all<point_xy<int> >();
-    //test_all<point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

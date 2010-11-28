@@ -34,7 +34,6 @@
 #endif
 
 
-namespace bg = boost::geometry;
 
 template <typename P1, typename P2>
 void test_null_distance_3d()
@@ -109,8 +108,8 @@ void test_arbitrary_3d()
 template <typename P1, typename P2, typename CalculationType>
 void test_services()
 {
-    namespace bgsd = boost::geometry::strategy::distance;
-    namespace services = boost::geometry::strategy::distance::services;
+    namespace bgsd = bg::strategy::distance;
+    namespace services = bg::strategy::distance::services;
 
     {
 
@@ -132,7 +131,7 @@ void test_services()
 
     typedef bgsd::pythagoras<P1, P2, CalculationType> strategy_type;
 
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::PointDistanceStrategy<strategy_type>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<strategy_type>) );
 
     typedef typename bgsd::services::return_type<strategy_type>::type return_type;
 
@@ -152,7 +151,7 @@ void test_services()
 
 
     // 3: "comparable" to construct a "comparable strategy" for P1/P2
-    //    a "comparable strategy" is a strategy which does not calculate the exact distance, but 
+    //    a "comparable strategy" is a strategy which does not calculate the exact distance, but
     //    which returns results which can be mutually compared (e.g. avoid sqrt)
 
     // 3a: "comparable_type"
@@ -164,7 +163,7 @@ void test_services()
     return_type c_result = comparable.apply(p1, p2);
     BOOST_CHECK_CLOSE(c_result, return_type(sqr_expected), 0.001);
 
-    // 4: the comparable_type should have a distance_strategy_constructor as well, 
+    // 4: the comparable_type should have a distance_strategy_constructor as well,
     //    knowing how to compare something with a fixed distance
     return_type c_dist5 = services::result_from_distance<comparable_type>::apply(comparable, 5.0);
     return_type c_dist6 = services::result_from_distance<comparable_type>::apply(comparable, 6.0);
@@ -183,7 +182,7 @@ template <typename CoordinateType, typename CalculationType, typename AssignType
 void test_big_2d_with(AssignType const& x1, AssignType const& y1,
                  AssignType const& x2, AssignType const& y2)
 {
-    typedef bg::point<CoordinateType, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
     typedef bg::strategy::distance::pythagoras
         <
             point_type,
@@ -239,16 +238,13 @@ void test_all_3d()
 template <typename P>
 void test_all_3d()
 {
-    using bg::point;
-    using bg::cs::cartesian;
-
     test_all_3d<P, int[3]>();
     test_all_3d<P, float[3]>();
     test_all_3d<P, double[3]>();
     test_all_3d<P, test::test_point>();
-    test_all_3d<P, point<int, 3, cartesian> >();
-    test_all_3d<P, point<float, 3, cartesian> >();
-    test_all_3d<P, point<double, 3, cartesian> >();
+    test_all_3d<P, bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_all_3d<P, bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_all_3d<P, bg::model::point<double, 3, bg::cs::cartesian> >();
 }
 
 template <typename P, typename Strategy>
@@ -280,34 +276,31 @@ void time_compare(int const n)
 
 int test_main(int, char* [])
 {
-    using bg::point;
-    using bg::cs::cartesian;
-
     test_all_3d<int[3]>();
     test_all_3d<float[3]>();
     test_all_3d<double[3]>();
 
     test_all_3d<test::test_point>();
 
-    test_all_3d<point<int, 3, cartesian> >();
-    test_all_3d<point<float, 3, cartesian> >();
-    test_all_3d<point<double, 3, cartesian> >();
+    test_all_3d<bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_all_3d<bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_all_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     test_big_2d<float, float>();
     test_big_2d<double, double>();
     test_big_2d<long double, long double>();
     test_big_2d<float, long double>();
 
-    test_services<point<float, 3, cartesian>, double[3], long double>();
+    test_services<bg::model::point<float, 3, bg::cs::cartesian>, double[3], long double>();
     test_services<double[3], test::test_point, float>();
 
 
-    time_compare<point<double, 2, cartesian> >(10000);
+    time_compare<bg::model::point<double, 2, bg::cs::cartesian> >(10000);
 
 #if defined(HAVE_TTMATH)
 
     typedef ttmath::Big<1,4> tt;
-    typedef point<tt, 3, cartesian> tt_point;
+    typedef bg::model::point<tt, 3, bg::cs::cartesian> tt_point;
 
     //test_all_3d<tt[3]>();
     test_all_3d<tt_point>();

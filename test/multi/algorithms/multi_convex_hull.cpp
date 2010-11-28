@@ -35,9 +35,9 @@
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::multi_point<P> mp;
-    typedef boost::geometry::multi_linestring<boost::geometry::linestring<P> > ml;
-    typedef boost::geometry::multi_polygon<boost::geometry::polygon<P> > mpoly;
+    typedef bg::model::multi_point<P> mp;
+    typedef bg::model::multi_linestring<bg::model::linestring<P> > ml;
+    typedef bg::model::multi_polygon<bg::model::polygon<P> > mpoly;
     test_geometry<mp>("multipoint((1.1 1.1), (2.5 2.1), (3.1 3.1), (4.9 1.1), (3.1 1.9))", 5, 4, 3.8);
     test_geometry<ml>("multilinestring((2 4, 3 4, 3 5), (4 3,4 4,5 4))", 6, 5, 3.0);
     test_geometry<mpoly>("multipolygon(((1 4,1 6,2 5,3 5,4 6,4 4,1 4)), ((4 2,4 3,6 3,6 2,4 2)))", 12, 7, 14.0);
@@ -46,9 +46,9 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    //test_all<boost::geometry::point_xy<int> >();
-    //test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    //test_all<bg::model::point_xy<int> >();
+    //test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

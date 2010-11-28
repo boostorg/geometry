@@ -27,64 +27,64 @@
 template <typename P, typename T>
 void check_inverse(P const& p, T const& trans)
 {
-    boost::geometry::strategy::transform::inverse_transformer<P, P> inverse(trans);
+    bg::strategy::transform::inverse_transformer<P, P> inverse(trans);
 
     P i;
-    boost::geometry::transform(p, i, inverse);
+    bg::transform(p, i, inverse);
 
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(i)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(i)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<0>(i)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(double(bg::get<1>(i)), 1.0, 0.001);
 }
 
 template <typename P>
 void test_all()
 {
     P p;
-    boost::geometry::assign(p, 1, 1);
+    bg::assign(p, 1, 1);
 
     {
-        boost::geometry::strategy::transform::translate_transformer<P, P> trans(1, 1);
+        bg::strategy::transform::translate_transformer<P, P> trans(1, 1);
         P tp;
-        boost::geometry::transform(p, tp, trans);
+        bg::transform(p, tp, trans);
 
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(tp)), 2.0, 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(tp)), 2.0, 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<0>(tp)), 2.0, 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<1>(tp)), 2.0, 0.001);
 
         check_inverse(tp, trans);
     }
 
     {
-        boost::geometry::strategy::transform::scale_transformer<P, P> trans(10, 10);
+        bg::strategy::transform::scale_transformer<P, P> trans(10, 10);
         P tp;
-        boost::geometry::transform(p, tp, trans);
+        bg::transform(p, tp, trans);
 
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(tp)), 10.0, 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(tp)), 10.0, 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<0>(tp)), 10.0, 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<1>(tp)), 10.0, 0.001);
 
         check_inverse(tp, trans);
     }
 
     {
-        boost::geometry::strategy::transform::rotate_transformer<P, P, boost::geometry::degree> trans(90.0);
+        bg::strategy::transform::rotate_transformer<P, P, bg::degree> trans(90.0);
         P tp;
-        boost::geometry::transform(p, tp, trans);
+        bg::transform(p, tp, trans);
 
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(tp)), 1.0, 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(tp)), -1.0, 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<0>(tp)), 1.0, 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<1>(tp)), -1.0, 0.001);
         check_inverse(tp, trans);
     }
 
     {
         // Map from 0,0,2,2 to 0,0,500,500
-        boost::geometry::strategy::transform::map_transformer<P, P, false> trans
+        bg::strategy::transform::map_transformer<P, P, false> trans
             (
                 0.0, 0.0, 2.0, 2.0, 500, 500
             );
         P tp;
-        boost::geometry::transform(p, tp, trans);
+        bg::transform(p, tp, trans);
 
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<0>(tp)), 250.0, 0.001);
-        BOOST_CHECK_CLOSE(double(boost::geometry::get<1>(tp)), 250.0, 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<0>(tp)), 250.0, 0.001);
+        BOOST_CHECK_CLOSE(double(bg::get<1>(tp)), 250.0, 0.001);
 
         check_inverse(tp, trans);
     }
@@ -99,8 +99,8 @@ int test_main(int, char* [])
     test_all<boost::tuple<float, float> >();
 
     //test_all<point<int, 2, cs::cartesian> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }

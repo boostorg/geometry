@@ -27,7 +27,7 @@
 template <typename G, typename Expected>
 void test_geometry()
 {
-    BOOST_CHECK_EQUAL(typeid(typename boost::geometry::coordinate_system<G>::type).name(),
+    BOOST_CHECK_EQUAL(typeid(typename bg::coordinate_system<G>::type).name(),
         typeid(Expected).name());
 }
 
@@ -35,13 +35,13 @@ template <typename P, typename Expected>
 void test_all()
 {
     test_geometry<P, Expected>();
-    test_geometry<const P, Expected>();
-    test_geometry<boost::geometry::linestring<P> , Expected>();
-    test_geometry<boost::geometry::linear_ring<P> , Expected>();
-    test_geometry<boost::geometry::polygon<P> , Expected>();
-    test_geometry<boost::geometry::box<P> , Expected>();
-    test_geometry<boost::geometry::segment<P> , Expected>();
-    test_geometry<boost::geometry::segment<const P> , Expected>();
+    test_geometry<P const, Expected>();
+    test_geometry<bg::model::linestring<P> , Expected>();
+    test_geometry<bg::model::linear_ring<P> , Expected>();
+    test_geometry<bg::model::polygon<P> , Expected>();
+    test_geometry<bg::model::box<P> , Expected>();
+    test_geometry<bg::model::segment<P> , Expected>();
+    test_geometry<bg::model::referring_segment<P const> , Expected>();
 
     test_geometry<std::vector<P>, Expected>();
     test_geometry<std::deque<P>, Expected>();
@@ -52,45 +52,45 @@ void test_all()
 int test_main(int, char* [])
 {
     // Because of the included headerfiles, there are always cartesian
-    test_geometry<int[2], boost::geometry::cs::cartesian>();
-    test_geometry<float[2], boost::geometry::cs::cartesian>();
-    test_geometry<double[2], boost::geometry::cs::cartesian>();
+    test_geometry<int[2], bg::cs::cartesian>();
+    test_geometry<float[2], bg::cs::cartesian>();
+    test_geometry<double[2], bg::cs::cartesian>();
 
-    test_geometry<int[3], boost::geometry::cs::cartesian>();
-    test_geometry<float[3], boost::geometry::cs::cartesian>();
-    test_geometry<double[3], boost::geometry::cs::cartesian>();
+    test_geometry<int[3], bg::cs::cartesian>();
+    test_geometry<float[3], bg::cs::cartesian>();
+    test_geometry<double[3], bg::cs::cartesian>();
 
     // Because of the included headerfiles, there are always cartesian
-    test_geometry<boost::tuple<double, double>, boost::geometry::cs::cartesian>();
-    test_geometry<boost::tuple<double, double, double>, boost::geometry::cs::cartesian>();
+    test_geometry<boost::tuple<double, double>, bg::cs::cartesian>();
+    test_geometry<boost::tuple<double, double, double>, bg::cs::cartesian>();
 
 
     // Test cartesian
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian>, boost::geometry::cs::cartesian>();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian>, boost::geometry::cs::cartesian>();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian>, boost::geometry::cs::cartesian>();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian>, bg::cs::cartesian>();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian>, bg::cs::cartesian>();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian>, bg::cs::cartesian>();
 
     // Test spherical
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::spherical<boost::geometry::degree> >,
-            boost::geometry::cs::spherical<boost::geometry::degree> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::spherical<boost::geometry::degree> >,
-            boost::geometry::cs::spherical<boost::geometry::degree> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::spherical<boost::geometry::degree> >,
-            boost::geometry::cs::spherical<boost::geometry::degree> >();
+    test_all<bg::model::point<int, 2, bg::cs::spherical<bg::degree> >,
+            bg::cs::spherical<bg::degree> >();
+    test_all<bg::model::point<float, 2, bg::cs::spherical<bg::degree> >,
+            bg::cs::spherical<bg::degree> >();
+    test_all<bg::model::point<double, 2, bg::cs::spherical<bg::degree> >,
+            bg::cs::spherical<bg::degree> >();
 
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::spherical<boost::geometry::radian> >,
-                boost::geometry::cs::spherical<boost::geometry::radian> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::spherical<boost::geometry::radian> >,
-                boost::geometry::cs::spherical<boost::geometry::radian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::spherical<boost::geometry::radian> >,
-                boost::geometry::cs::spherical<boost::geometry::radian> >();
+    test_all<bg::model::point<int, 2, bg::cs::spherical<bg::radian> >,
+                bg::cs::spherical<bg::radian> >();
+    test_all<bg::model::point<float, 2, bg::cs::spherical<bg::radian> >,
+                bg::cs::spherical<bg::radian> >();
+    test_all<bg::model::point<double, 2, bg::cs::spherical<bg::radian> >,
+                bg::cs::spherical<bg::radian> >();
 
     // Test other
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::polar<boost::geometry::degree> >,
-            boost::geometry::cs::polar<boost::geometry::degree> >();
+    test_all<bg::model::point<double, 2, bg::cs::polar<bg::degree> >,
+            bg::cs::polar<bg::degree> >();
 
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::geographic<boost::geometry::degree> >,
-            boost::geometry::cs::geographic<boost::geometry::degree> >();
+    test_all<bg::model::point<double, 2, bg::cs::geographic<bg::degree> >,
+            bg::cs::geographic<bg::degree> >();
 
     return 0;
 }

@@ -24,14 +24,14 @@ template <typename Box>
 void test_geometry(std::string const& wkt, std::string const& expected)
 {
     Box box;
-    boost::geometry::read_wkt(wkt, box);
+    bg::read_wkt(wkt, box);
 
     {
         std::ostringstream out;
-        boost::geometry::box_iterator<Box> it(box), end(box, true);
+        bg::box_iterator<Box> it(box), end(box, true);
         for ( ; it != end; ++it)
         {
-            out << " " << boost::geometry::get<0>(*it) << boost::geometry::get<1>(*it);
+            out << " " << bg::get<0>(*it) << bg::get<1>(*it);
         }
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
@@ -41,14 +41,14 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 template <typename P>
 void test_all()
 {
-    test_geometry<boost::geometry::box<P> >("polygon((1 1,2 2))", " 11 12 22 21 11");
-    test_geometry<boost::geometry::box<P> >("polygon((3 3,5 5))", " 33 35 55 53 33");
+    test_geometry<bg::model::box<P> >("polygon((1 1,2 2))", " 11 12 22 21 11");
+    test_geometry<bg::model::box<P> >("polygon((3 3,5 5))", " 33 35 55 53 33");
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_2d>();
+    test_all<bg::model::point_2d>();
 
     return 0;
 }

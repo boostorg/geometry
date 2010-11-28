@@ -27,10 +27,10 @@ void test_geometry(std::string const& wkt1,
     Geometry1 geometry1;
     Geometry2 geometry2;
 
-    boost::geometry::read_wkt(wkt1, geometry1);
-    boost::geometry::read_wkt(wkt2, geometry2);
+    bg::read_wkt(wkt1, geometry1);
+    bg::read_wkt(wkt2, geometry2);
 
-    bool detected = boost::geometry::intersects(geometry1, geometry2);
+    bool detected = bg::intersects(geometry1, geometry2);
 
     BOOST_CHECK_MESSAGE(detected == expected,
         "intersects: " << wkt1
@@ -45,9 +45,9 @@ void test_self_intersects(std::string const& wkt, bool expected)
 {
     Geometry geometry;
 
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
-    bool detected = boost::geometry::intersects(geometry);
+    bool detected = bg::intersects(geometry);
 
     BOOST_CHECK_MESSAGE(detected == expected,
         "intersects: " << wkt

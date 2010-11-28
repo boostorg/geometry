@@ -20,7 +20,7 @@ namespace boost { namespace geometry { namespace traits {
 
 template <> struct tag<point> { typedef point_tag type; };
 template <> struct coordinate_type<point> { typedef float type; };
-template <> struct coordinate_system<point> { typedef boost::geometry::cs::cartesian type; };
+template <> struct coordinate_system<point> { typedef bg::cs::cartesian type; };
 template <> struct dimension<point> { enum { value = 2 }; };
 
 template <> struct access<point, 0>
@@ -34,7 +34,7 @@ template <> struct access<point, 1>
 };
 
 
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 int main()
 {

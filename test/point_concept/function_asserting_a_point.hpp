@@ -13,15 +13,17 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+namespace bg = boost::geometry;
+
 namespace test
 {
     template <typename P, typename CP>
     void function_asserting_a_point(P& p1, const CP& p2)
     {
-        BOOST_CONCEPT_ASSERT((boost::geometry::concept::Point<P>));
-        BOOST_CONCEPT_ASSERT((boost::geometry::concept::ConstPoint<P>));
+        BOOST_CONCEPT_ASSERT((bg::concept::Point<P>));
+        BOOST_CONCEPT_ASSERT((bg::concept::ConstPoint<P>));
 
-        get<0>(p1) = get<0>(p2);
+        bg::get<0>(p1) = bg::get<0>(p2);
     }
 }
 

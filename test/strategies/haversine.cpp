@@ -23,7 +23,6 @@
 #  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
 #endif
 
-namespace bg = boost::geometry;
 
 
 double const average_earth_radius = 6372795.0;
@@ -38,7 +37,7 @@ struct test_distance
             Point
         > haversine_type;
 
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::PointDistanceStrategy<haversine_type>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<haversine_type>) );
 
 
     typedef typename bg::strategy::distance::services::return_type<haversine_type>::type return_type;
@@ -131,7 +130,7 @@ void test_services()
 
 
     // 3: "comparable" to construct a "comparable strategy" for P1/P2
-    //    a "comparable strategy" is a strategy which does not calculate the exact distance, but 
+    //    a "comparable strategy" is a strategy which does not calculate the exact distance, but
     //    which returns results which can be mutually compared (e.g. avoid sqrt)
 
     // 3a: "comparable_type"
@@ -148,7 +147,7 @@ void test_services()
     // And that one should be equa.
     BOOST_CHECK_CLOSE(c_result, return_type(c_expected), 0.001);
 
-    // 4: the comparable_type should have a distance_strategy_constructor as well, 
+    // 4: the comparable_type should have a distance_strategy_constructor as well,
     //    knowing how to compare something with a fixed distance
     return_type c_dist_lower = services::result_from_distance<comparable_type>::apply(comparable, expected_lower);
     return_type c_dist_higher = services::result_from_distance<comparable_type>::apply(comparable, expected_higher);
@@ -239,26 +238,25 @@ double time_normal(int n)
 
 int test_main(int, char* [])
 {
-    namespace bg = boost::geometry;
-    test_all<bg::point<int, 2, bg::cs::spherical<bg::degree> > >();
-    test_all<bg::point<float, 2, bg::cs::spherical<bg::degree> > >();
-    test_all<bg::point<double, 2, bg::cs::spherical<bg::degree> > >();
+    test_all<bg::model::point<int, 2, bg::cs::spherical<bg::degree> > >();
+    test_all<bg::model::point<float, 2, bg::cs::spherical<bg::degree> > >();
+    test_all<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >();
 
     //double t1 = time_sqrt(20000);
     //double t2 = time_normal(20000);
     //std::cout << "Factor: " << (t1 / t2) << std::endl;
-    //time_compare<bg::point<double, 2, bg::cs::spherical<bg::radian> > >(10000);
+    //time_compare<bg::model::point<double, 2, bg::cs::spherical<bg::radian> > >(10000);
 
 #if defined(HAVE_TTMATH)
     typedef ttmath::Big<1,4> tt;
-    test_all<bg::point<tt, 2, bg::cs::spherical<bg::degree> > >();
+    test_all<bg::model::point<tt, 2, bg::cs::spherical<bg::degree> > >();
 #endif
 
 
     test_services
         <
-            bg::point<float, 2, bg::cs::spherical<bg::degree> >,
-            bg::point<double, 2, bg::cs::spherical<bg::degree> >,
+            bg::model::point<float, 2, bg::cs::spherical<bg::degree> >,
+            bg::model::point<double, 2, bg::cs::spherical<bg::degree> >,
             double
         >();
 

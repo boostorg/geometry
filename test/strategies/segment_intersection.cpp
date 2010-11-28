@@ -43,14 +43,14 @@ void print_is(R const& is)
     for (int i = 0; i < is.count; i++)
     {
         std::cout
-            << " (" << boost::geometry::get<0>(is.intersections[i])
-            << "," << boost::geometry::get<1>(is.intersections[i])
+            << " (" << bg::get<0>(is.intersections[i])
+            << "," << bg::get<1>(is.intersections[i])
             << ")";
     }
 #endif
 }
 /*
-void print_im(boost::geometry::de9im const& im)
+void print_im(bg::de9im const& im)
 {
 #ifdef REPORT
     if (im.equals()) std::cout << " EQUALS";
@@ -83,14 +83,14 @@ static void test_segment_intersection(int caseno,
     std::cout << "CASE " << caseno << std::endl;
 #endif
 
-    typedef typename boost::geometry::coordinate_type<P>::type coordinate_type;
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
     typedef segment<const P> segment_type;
 
     P p1, p2, p3, p4;
-    boost::geometry::assign(p1, x1, y1);
-    boost::geometry::assign(p2, x2, y2);
-    boost::geometry::assign(p3, x3, y3);
-    boost::geometry::assign(p4, x4, y4);
+    bg::assign(p1, x1, y1);
+    bg::assign(p2, x2, y2);
+    bg::assign(p3, x3, y3);
+    bg::assign(p4, x4, y4);
 
     segment_type s12(p1,p2);
     segment_type s34(p3,p4);
@@ -130,9 +130,9 @@ static void test_segment_intersection(int caseno,
         expected_count++;
 
         BOOST_CHECK(is.count >= 1);
-        BOOST_CHECK_CLOSE(boost::geometry::get<0>(is.intersections[0]),
+        BOOST_CHECK_CLOSE(bg::get<0>(is.intersections[0]),
                 coordinate_type(expected_x1), 0.001);
-        BOOST_CHECK_CLOSE(boost::geometry::get<1>(is.intersections[0]),
+        BOOST_CHECK_CLOSE(bg::get<1>(is.intersections[0]),
                 coordinate_type(expected_y1), 0.001);
     }
     if (expected_x2 != -99 && expected_y2 != -99)
@@ -140,9 +140,9 @@ static void test_segment_intersection(int caseno,
         expected_count++;
 
         BOOST_CHECK(is.count >= 2);
-        BOOST_CHECK_CLOSE(boost::geometry::get<0>(is.intersections[1]),
+        BOOST_CHECK_CLOSE(bg::get<0>(is.intersections[1]),
                 coordinate_type(expected_x2), 0.001);
-        BOOST_CHECK_CLOSE(boost::geometry::get<1>(is.intersections[1]),
+        BOOST_CHECK_CLOSE(bg::get<1>(is.intersections[1]),
                 coordinate_type(expected_y2), 0.001);
     }
     BOOST_CHECK_EQUAL(is.count, expected_count);
@@ -213,7 +213,7 @@ static void test_segment_intersection(int caseno,
 
     // Now use generic intersection.
     std::vector<P> out;
-    boost::geometry::intersection_inserter<P>(s12, s34, std::back_inserter(out));
+    bg::intersection_inserter<P>(s12, s34, std::back_inserter(out));
 
     BOOST_CHECK_EQUAL(boost::size(out), expected_count);
 
@@ -221,18 +221,18 @@ static void test_segment_intersection(int caseno,
         && is.count >= 1
         && boost::size(out) >= 1)
     {
-        BOOST_CHECK_CLOSE(boost::geometry::get<0>(out[0]),
+        BOOST_CHECK_CLOSE(bg::get<0>(out[0]),
                 coordinate_type(expected_x1), 0.001);
-        BOOST_CHECK_CLOSE(boost::geometry::get<1>(out[0]),
+        BOOST_CHECK_CLOSE(bg::get<1>(out[0]),
                 coordinate_type(expected_y1), 0.001);
     }
     if (expected_x2 != -99 && expected_y2 != -99
         && is.count >= 2
         && boost::size(out) >= 2)
     {
-        BOOST_CHECK_CLOSE(boost::geometry::get<0>(out[1]),
+        BOOST_CHECK_CLOSE(bg::get<0>(out[1]),
                 coordinate_type(expected_x2), 0.001);
-        BOOST_CHECK_CLOSE(boost::geometry::get<1>(out[1]),
+        BOOST_CHECK_CLOSE(bg::get<1>(out[1]),
                 coordinate_type(expected_y2), 0.001);
     }
 }
@@ -361,7 +361,7 @@ int test_main(int, char* [])
 {
     std::cout << "Note this test is out-of-date and either obsolete or should be updated" << std::endl;
     test_all<boost::tuple<double, double> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
     return 0;
 }

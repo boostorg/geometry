@@ -24,13 +24,12 @@ void test_side(double lon1, double lat1,
                    double lon3, double lat3,
                    int expected)
 {
-    namespace bg = boost::geometry;
     typedef bg::strategy::side::side_by_cross_track<double> strategy;
 
     Point p1, p2, p3;
-    boost::geometry::assign(p1, lon1, lat1);
-    boost::geometry::assign(p2, lon2, lat2);
-    boost::geometry::assign(p3, lon3, lat3);
+    bg::assign(p1, lon1, lat1);
+    bg::assign(p2, lon2, lat2);
+    bg::assign(p3, lon3, lat3);
     int s = strategy::apply(p1, p2, p3);
 
 }
@@ -44,8 +43,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    namespace bg = boost::geometry;
-    test_all<bg::point<double, 2, bg::cs::spherical<bg::degree> > >();
+    test_all<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >();
 
     double a = 0;
     double b = sin(a);

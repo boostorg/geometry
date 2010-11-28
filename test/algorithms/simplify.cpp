@@ -17,20 +17,18 @@
 #include <test_common/test_point.hpp>
 
 
-
-
 template <typename P>
 void test_all()
 {
-    test_geometry<boost::geometry::linestring<P> >(
+    test_geometry<bg::model::linestring<P> >(
         "LINESTRING(0 0,5 5,10 10)",
         "LINESTRING(0 0,10 10)", 1.0);
 
-    test_geometry<boost::geometry::linestring<P> >(
+    test_geometry<bg::model::linestring<P> >(
         "LINESTRING(0 0, 5 5, 6 5, 10 10)",
         "LINESTRING(0 0,10 10)", 1.0);
 
-    test_geometry<boost::geometry::linestring<P> >(
+    test_geometry<bg::model::linestring<P> >(
         "LINESTRING(0 0,5 5,7 5,10 10)",
         "LINESTRING(0 0,5 5,7 5,10 10)", 1.0);
 
@@ -38,15 +36,15 @@ void test_all()
         "LINESTRING(0 0,5 5,7 5,10 10)",
         "LINESTRING(0 0,5 5,7 5,10 10)", 1.0);
 
-    test_geometry<boost::geometry::linear_ring<P> >(
+    test_geometry<bg::model::linear_ring<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
 
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
 
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0),(7 3,7 6,1 6,1 3,4 3,7 3))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0),(7 3,7 6,1 6,1 3,7 3))", 1.0);
 
@@ -67,7 +65,7 @@ union all select astext(ST_Simplify(geomfromtext('POLYGON((4 0, 8 2, 8 7, 4 9, 0
         "POINT(0 0)", 1.0);
 
 
-    test_geometry<boost::geometry::linear_ring<P> >(
+    test_geometry<bg::model::linear_ring<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
 }
@@ -76,7 +74,7 @@ union all select astext(ST_Simplify(geomfromtext('POLYGON((4 0, 8 2, 8 7, 4 9, 0
 template <typename P>
 void test_spherical()
 {
-    test_geometry<boost::geometry::linestring<P> >(
+    test_geometry<bg::model::linestring<P> >(
         "LINESTRING(4.1 52.1,4.2 52.2,4.3 52.3)",
         "LINESTRING(4.1 52.1,4.3 52.3)", 0.01);
 }
@@ -85,12 +83,12 @@ void test_spherical()
 int test_main(int, char* [])
 {
     // Integer compiles, but simplify-process fails (due to distances)
-    //test_all<boost::geometry::point_xy<int> >();
+    //test_all<bg::model::point_xy<int> >();
 
-    test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
-    test_spherical<boost::geometry::point<double, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >();
+    test_spherical<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >();
 
     return 0;
 }

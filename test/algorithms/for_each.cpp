@@ -28,7 +28,7 @@ void test_all()
             , 0
             , "POINT(1 1)"
         );
-    test_geometry<boost::geometry::linestring<P> >
+    test_geometry<bg::model::linestring<P> >
         (
             "LINESTRING(1 1,2 2)"
 
@@ -40,7 +40,7 @@ void test_all()
             , std::sqrt(2.0)
             , "LINESTRING(10 1,2 2)"
         );
-    test_geometry<boost::geometry::linear_ring<P> >
+    test_geometry<bg::model::linear_ring<P> >
         (
             "POLYGON((1 1,1 4,4 4,4 1,1 1))"
 
@@ -52,7 +52,7 @@ void test_all()
             , 4 * 3.0
             , "POLYGON((10 1,10 4,4 4,4 1,1 1))"
         );
-    test_geometry<boost::geometry::polygon<P> >
+    test_geometry<bg::model::polygon<P> >
         (
             "POLYGON((1 1,1 4,4 4,4 1,1 1),(2 2,3 2,3 3,2 3,2 2))"
 
@@ -69,6 +69,6 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
     return 0;
 }

@@ -25,44 +25,44 @@
 template <typename G, typename Expected>
 void test_geometry()
 {
-    BOOST_CHECK_EQUAL(typeid(typename boost::geometry::tag<G>::type).name(),
+    BOOST_CHECK_EQUAL(typeid(typename bg::tag<G>::type).name(),
         typeid(Expected).name());
 }
 
 template <typename P, size_t D>
 void test_all()
 {
-    test_geometry<P, boost::geometry::point_tag>();
-    test_geometry<const P, boost::geometry::point_tag>();
-    test_geometry<boost::geometry::linestring<P> , boost::geometry::linestring_tag>();
-    test_geometry<boost::geometry::linear_ring<P> , boost::geometry::ring_tag>();
-    test_geometry<boost::geometry::polygon<P> , boost::geometry::polygon_tag>();
-    test_geometry<boost::geometry::box<P> , boost::geometry::box_tag>();
-    test_geometry<boost::geometry::segment<P> , boost::geometry::segment_tag>();
-    test_geometry<boost::geometry::segment<const P> , boost::geometry::segment_tag>();
+    test_geometry<P, bg::point_tag>();
+    test_geometry<P const, bg::point_tag>();
+    test_geometry<bg::model::linestring<P> , bg::linestring_tag>();
+    test_geometry<bg::model::linear_ring<P> , bg::ring_tag>();
+    test_geometry<bg::model::polygon<P> , bg::polygon_tag>();
+    test_geometry<bg::model::box<P> , bg::box_tag>();
+    test_geometry<bg::model::segment<P> , bg::segment_tag>();
+    test_geometry<bg::model::referring_segment<P const> , bg::segment_tag>();
 
-    test_geometry<std::vector<P>, boost::geometry::linestring_tag>();
-    test_geometry<std::deque<P>, boost::geometry::linestring_tag>();
+    test_geometry<std::vector<P>, bg::linestring_tag>();
+    test_geometry<std::deque<P>, bg::linestring_tag>();
 
-    test_geometry<boost::array<P, 5>, boost::geometry::linestring_tag>();
+    test_geometry<boost::array<P, 5>, bg::linestring_tag>();
 }
 
 int test_main(int, char* [])
 {
-    test_geometry<int[2], boost::geometry::point_tag>();
-    test_geometry<float[2], boost::geometry::point_tag>();
-    test_geometry<double[2], boost::geometry::point_tag>();
+    test_geometry<int[2], bg::point_tag>();
+    test_geometry<float[2], bg::point_tag>();
+    test_geometry<double[2], bg::point_tag>();
 
-    test_geometry<int[3], boost::geometry::point_tag>();
-    test_geometry<float[3], boost::geometry::point_tag>();
-    test_geometry<double[3], boost::geometry::point_tag>();
+    test_geometry<int[3], bg::point_tag>();
+    test_geometry<float[3], bg::point_tag>();
+    test_geometry<double[3], bg::point_tag>();
 
-    test_geometry<boost::tuple<double, double>, boost::geometry::point_tag>();
-    test_geometry<boost::tuple<double, double, double>, boost::geometry::point_tag>();
+    test_geometry<boost::tuple<double, double>, bg::point_tag>();
+    test_geometry<boost::tuple<double, double, double>, bg::point_tag>();
 
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian>, 2 >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian>, 2 >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian>, 2 >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian>, 2 >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian>, 2 >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian>, 2 >();
 
     return 0;
 }

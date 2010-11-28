@@ -24,13 +24,13 @@ template <typename Geometry, typename CircularIterator>
 void test_forward(Geometry const& geometry, CircularIterator end,
         int offset, std::string const& expected)
 {
-    CircularIterator it(boost::begin(geometry), boost::end(geometry), 
+    CircularIterator it(boost::begin(geometry), boost::end(geometry),
                 boost::begin(geometry) + offset);
 
     std::ostringstream out;
     for (; it != end; ++it)
     {
-        out << boost::geometry::get<0>(*it);
+        out << bg::get<0>(*it);
     }
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -40,13 +40,13 @@ template <typename Geometry, typename CircularIterator>
 void test_backward(Geometry const& geometry, CircularIterator end,
         int offset, std::string const& expected)
 {
-    CircularIterator it(boost::begin(geometry), boost::end(geometry), 
+    CircularIterator it(boost::begin(geometry), boost::end(geometry),
                 boost::begin(geometry) + offset);
 
     std::ostringstream out;
     for (; it != end; --it)
     {
-        out << boost::geometry::get<0>(*it);
+        out << bg::get<0>(*it);
     }
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -57,9 +57,9 @@ template <typename G>
 void test_geometry(std::string const& wkt)
 {
     G geo;
-    boost::geometry::read_wkt(wkt, geo);
+    bg::read_wkt(wkt, geo);
     typedef typename boost::range_const_iterator<G>::type normal_iterator;
-    typedef boost::geometry::circular_iterator<normal_iterator> circular_iterator;
+    typedef bg::circular_iterator<normal_iterator> circular_iterator;
 
     circular_iterator end(boost::end(geo));
 
@@ -86,7 +86,7 @@ void test_geometry(std::string const& wkt)
     std::ostringstream out;
     for (normal_iterator cit = boost::begin(copy); cit != boost::end(copy); ++cit)
     {
-        out << boost::geometry::get<0>(*cit);
+        out << bg::get<0>(*cit);
     }
     BOOST_CHECK_EQUAL(out.str(), "34512");
 }
@@ -95,13 +95,13 @@ void test_geometry(std::string const& wkt)
 template <typename P>
 void test_all()
 {
-    test_geometry<boost::geometry::linestring<P> >("linestring(1 1,2 2,3 3,4 4,5 5)");
+    test_geometry<bg::model::linestring<P> >("linestring(1 1,2 2,3 3,4 4,5 5)");
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_2d>();
+    test_all<bg::model::point_2d>();
 
     return 0;
 }

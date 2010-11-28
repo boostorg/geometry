@@ -30,9 +30,8 @@
 template <typename P>
 void test_all()
 {
-    namespace bg = boost::geometry;
-    typedef bg::polygon<P> polygon;
-    typedef bg::multi_polygon<polygon> multi_polygon;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     test_one<multi_polygon, polygon>("three_triangles",
         "MULTIPOLYGON(((1 1,5 5,8 0,1 1)),((4 2,0 8,5 9,4 2)),((5 3,4 8,10 4,5 3)))" ,
@@ -63,7 +62,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

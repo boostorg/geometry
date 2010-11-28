@@ -14,30 +14,30 @@
 template <typename Point>
 void test_all()
 {
-    test_geometry<boost::geometry::linestring<Point> >(
+    test_geometry<bg::model::linestring<Point> >(
         "LINESTRING(0 0,1 1)",
         "LINESTRING(0 0,1 1)");
 
-    test_geometry<boost::geometry::linestring<Point> >(
+    test_geometry<bg::model::linestring<Point> >(
         "LINESTRING(0 0,1 1,1 1)",
         "LINESTRING(0 0,1 1)");
 
-    test_geometry<boost::geometry::linestring<Point> >(
+    test_geometry<bg::model::linestring<Point> >(
         "LINESTRING(0 0,0 0,1 1)",
         "LINESTRING(0 0,1 1)");
 
     // Consecutive points
-    test_geometry<boost::geometry::linestring<Point> >(
+    test_geometry<bg::model::linestring<Point> >(
         "LINESTRING(0 0,0 0,0 0,0 0,1 1,1 1,1 1)",
         "LINESTRING(0 0,1 1)");
 
     // Other types
-    test_geometry<boost::geometry::linear_ring<Point> >(
+    test_geometry<bg::model::linear_ring<Point> >(
         "POLYGON((0 0,0 1,1 1,1 1,1 1,1 0,0 0,0 0))",
         "POLYGON((0 0,0 1,1 1,1 0,0 0))");
 
     // With holes
-    test_geometry<boost::geometry::polygon<Point> >(
+    test_geometry<bg::model::polygon<Point> >(
         "POLYGON((0 0,0 10,10 10,10 10,10 10,10 0,0 0,0 0))",
         "POLYGON((0 0,0 10,10 10,10 0,0 0))");
 }
@@ -46,8 +46,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<int> >();
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

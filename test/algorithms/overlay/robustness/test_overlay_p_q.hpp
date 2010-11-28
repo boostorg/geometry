@@ -29,19 +29,19 @@
 
 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
-static bool test_overlay_p_q(std::string const& caseid, 
-            G1 const& p, G2 const& q, 
+static bool test_overlay_p_q(std::string const& caseid,
+            G1 const& p, G2 const& q,
             bool svg, double tolerance, bool force_output = false)
 {
     bool result = true;
 
-    typedef typename boost::geometry::coordinate_type<G1>::type coordinate_type;
-    typedef typename boost::geometry::point_type<G1>::type point_type;
-    typedef boost::geometry::detail::overlay::turn_info<point_type> turn_type;
+    typedef typename bg::coordinate_type<G1>::type coordinate_type;
+    typedef typename bg::point_type<G1>::type point_type;
+    typedef bg::detail::overlay::turn_info<point_type> turn_type;
 
-    typedef boost::geometry::strategy_intersection
+    typedef bg::strategy_intersection
         <
-            typename boost::geometry::cs_tag<point_type>::type,
+            typename bg::cs_tag<point_type>::type,
             G1,
             G2,
             turn_type,
@@ -50,25 +50,25 @@ static bool test_overlay_p_q(std::string const& caseid,
 
     std::vector<OutputType> out_i, out_u;
 
-    CalculationType area_p = boost::geometry::area(p);
-    CalculationType area_q = boost::geometry::area(q);
+    CalculationType area_p = bg::area(p);
+    CalculationType area_q = bg::area(q);
 
     CalculationType area_i = 0;
     CalculationType area_u = 0;
 
-    boost::geometry::intersection_inserter<OutputType>(p, q, std::back_inserter(out_i), strategy());
+    bg::intersection_inserter<OutputType>(p, q, std::back_inserter(out_i), strategy());
     for (typename std::vector<OutputType>::iterator it = out_i.begin();
             it != out_i.end();
             ++it)
     {
-        area_i += boost::geometry::area(*it);
+        area_i += bg::area(*it);
     }
-    boost::geometry::union_inserter<OutputType>(p, q, std::back_inserter(out_u), strategy());
+    bg::union_inserter<OutputType>(p, q, std::back_inserter(out_u), strategy());
     for (typename std::vector<OutputType>::iterator it = out_u.begin();
             it != out_u.end();
             ++it)
     {
-        area_u += boost::geometry::area(*it);
+        area_u += bg::area(*it);
     }
 
     double diff = (area_p + area_q) - area_u - area_i;
@@ -91,8 +91,8 @@ static bool test_overlay_p_q(std::string const& caseid,
             << " diff: " << diff
             << std::endl
             << std::setprecision(20)
-            << " p: " << boost::geometry::wkt(p) << std::endl
-            << " q: " << boost::geometry::wkt(q) << std::endl
+            << " p: " << bg::wkt(p) << std::endl
+            << " q: " << bg::wkt(q) << std::endl
             ;
 
     }
@@ -108,7 +108,7 @@ static bool test_overlay_p_q(std::string const& caseid,
 
         std::ofstream svg(filename.str().c_str());
 
-        boost::geometry::svg_mapper<point_type> mapper(svg, 500, 500);
+        bg::svg_mapper<point_type> mapper(svg, 500, 500);
 
         mapper.add(p);
         mapper.add(q);

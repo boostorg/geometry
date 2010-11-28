@@ -31,7 +31,7 @@ void test_distance(double lon1, double lat1,
                    double lon3, double lat3,
                    double radius, double expected, double tolerance)
 {
-    typedef boost::geometry::strategy::distance::cross_track
+    typedef bg::strategy::distance::cross_track
         <
             Point,
             Point
@@ -42,16 +42,16 @@ void test_distance(double lon1, double lat1,
 
     BOOST_CONCEPT_ASSERT
         (
-            (boost::geometry::concept::PointSegmentDistanceStrategy<strategy_type>)
+            (bg::concept::PointSegmentDistanceStrategy<strategy_type>)
         );
 
 
     strategy_type strategy(radius);
 
     Point p1, p2, p3;
-    boost::geometry::assign(p1, lon1, lat1);
-    boost::geometry::assign(p2, lon2, lat2);
-    boost::geometry::assign(p3, lon3, lat3);
+    bg::assign(p1, lon1, lat1);
+    bg::assign(p2, lon2, lat2);
+    bg::assign(p3, lon3, lat3);
     return_type d = strategy.apply(p1, p2, p3);
 
     BOOST_CHECK_CLOSE(d, return_type(expected), tolerance);
@@ -73,11 +73,11 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >();
+    test_all<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >();
 
 #if defined(HAVE_TTMATH)
     typedef ttmath::Big<1,4> tt;
-    test_all<boost::geometry::point<tt, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >();
+    test_all<bg::model::point<tt, 2, bg::cs::spherical<bg::degree> > >();
 #endif
 
 

@@ -38,29 +38,28 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
         std::size_t expected_hole_count, std::size_t expected_point_count,
         double expected_length_or_area, double percentage)
 {
-	namespace bg = boost::geometry;
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
 
     static const bool is_line = bg::geometry_id<GeometryOut>::type::value == 2;
 
-	std::vector<GeometryOut> dissolved_vector;
-	bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved_vector));
+    std::vector<GeometryOut> dissolved_vector;
+    bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved_vector));
 
-	typename bg::area_result<Geometry>::type length_or_area = 0;
-	//std::size_t holes = 0;
-	std::size_t count = 0;
+    typename bg::area_result<Geometry>::type length_or_area = 0;
+    //std::size_t holes = 0;
+    std::size_t count = 0;
 
-	BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
-	{
-	    bg::unique(dissolved);
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
+    {
+        bg::unique(dissolved);
 
 
-		length_or_area += 
+        length_or_area +=
             is_line ? bg::length(dissolved) : bg::area(dissolved);
 
-		//holes += bg::num_interior_rings(dissolved);
-		count += bg::num_points(dissolved);
-	}
+        //holes += bg::num_interior_rings(dissolved);
+        count += bg::num_points(dissolved);
+    }
 
     BOOST_CHECK_MESSAGE(count == expected_point_count,
             "dissolve: " << caseid
@@ -73,11 +72,11 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     //BOOST_CHECK_EQUAL(holes, expected_hole_count);
     BOOST_CHECK_CLOSE(length_or_area, expected_length_or_area, percentage);
 
-	// Compile check, it should also compile inplace, outputting to the same geometry
-	{
-		std::vector<GeometryOut> dissolved;
-		bg::dissolve(geometry, dissolved);
-	}
+    // Compile check, it should also compile inplace, outputting to the same geometry
+    {
+        std::vector<GeometryOut> dissolved;
+        bg::dissolve(geometry, dissolved);
+    }
 
 
 #if defined(TEST_WITH_SVG)
@@ -97,11 +96,11 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
         mapper.add(geometry);
 
         mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
-		BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
-		{
-		   mapper.map(dissolved, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
-	    }
-	}
+        BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
+        {
+           mapper.map(dissolved, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
+        }
+    }
 #endif
 }
 
@@ -112,7 +111,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
         double expected_length_or_area, double percentage = 0.001)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
     test_dissolve<GeometryOut>(caseid, geometry,
         expected_hole_count, expected_point_count,

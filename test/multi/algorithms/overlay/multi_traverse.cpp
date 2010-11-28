@@ -46,14 +46,13 @@ template <typename T>
 void test_all()
 {
 //goto wrong;
-    namespace bg = boost::geometry;
-    namespace ov = boost::geometry::detail::overlay;
+    namespace ov = bg::detail::overlay;
 
-    typedef bg::multi_polygon
+    typedef bg::model::multi_polygon
         <
-            bg::polygon
+            bg::model::polygon
                 <
-                    bg::point<T, 2, bg::cs::cartesian>
+                    bg::model::point<T, 2, bg::cs::cartesian>
                 >
         > multi_polygon;
 
@@ -426,7 +425,7 @@ void test_all()
             "case_106_multi", boost::make_tuple(1, 25),
             case_106_multi[0], case_106_multi[1]
         );
-    
+
 
     test_overlay<multi_polygon, multi_polygon,
         test_traverse<ov::operation_union>,  Tuple>

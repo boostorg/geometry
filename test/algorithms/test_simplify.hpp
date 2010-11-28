@@ -25,16 +25,16 @@ struct test_inserter
 };
 
 template <typename Geometry>
-struct test_inserter<boost::geometry::linestring_tag, Geometry>
+struct test_inserter<bg::linestring_tag, Geometry>
 {
     static void apply(Geometry& geometry, std::string const& expected, double distance)
     {
         Geometry simplified;
-        boost::geometry::simplify_inserter(geometry,
+        bg::simplify_inserter(geometry,
             std::back_inserter(simplified), distance);
 
         std::ostringstream out;
-        out << boost::geometry::wkt(simplified);
+        out << bg::wkt(simplified);
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
 };
@@ -47,46 +47,46 @@ void test_geometry(std::string const& wkt, std::string const& expected, double d
 
     // Generate polygon using only integer coordinates and obvious results
     // Polygon is a hexagon, having one extra point (2,1) on a line which should be filtered out.
-    boost::geometry::read_wkt(wkt, geometry);
-    boost::geometry::simplify(geometry, simplified, distance);
+    bg::read_wkt(wkt, geometry);
+    bg::simplify(geometry, simplified, distance);
 
     {
         std::ostringstream out;
-        out << boost::geometry::wkt(simplified);
+        out << bg::wkt(simplified);
 
         BOOST_CHECK_MESSAGE(out.str() == expected,
-            "simplify: " << boost::geometry::wkt(geometry)
+            "simplify: " << bg::wkt(geometry)
             << " expected " << expected
-            << " got " << boost::geometry::wkt(simplified));
+            << " got " << bg::wkt(simplified));
     }
 
     // Check using user-specified strategy
-    typedef typename boost::geometry::point_type<Geometry>::type point_type;
-    typedef typename boost::geometry::cs_tag<point_type>::type tag;
-    typedef boost::geometry::strategy::distance::projected_point
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef typename bg::cs_tag<point_type>::type tag;
+    typedef bg::strategy::distance::projected_point
         <
             point_type,
             point_type
         > strategy;
-    typedef boost::geometry::strategy::simplify::douglas_peucker
+    typedef bg::strategy::simplify::douglas_peucker
         <
             point_type,
             strategy
         > simplify_strategy_type;
 
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::SimplifyStrategy<simplify_strategy_type>) );
-    boost::geometry::simplify(geometry, simplified, distance, simplify_strategy_type());
+    BOOST_CONCEPT_ASSERT( (bg::concept::SimplifyStrategy<simplify_strategy_type>) );
+    bg::simplify(geometry, simplified, distance, simplify_strategy_type());
 
     {
         std::ostringstream out;
-        out << boost::geometry::wkt(simplified);
+        out << bg::wkt(simplified);
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
 
     // Check inserter (if applicable)
     test_inserter
         <
-            typename boost::geometry::tag<Geometry>::type,
+            typename bg::tag<Geometry>::type,
             Geometry
         >::apply(geometry, expected, distance);
 }

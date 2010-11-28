@@ -35,33 +35,32 @@
 
 
 template <typename GeometryOut, typename Geometry>
-void test_connect(std::string const& caseid, Geometry const& geometry, 
+void test_connect(std::string const& caseid, Geometry const& geometry,
         std::size_t expected_count, std::size_t expected_point_count,
         double expected_length, double limit = -1, double percentage = 0.001)
 {
-	namespace bg = boost::geometry;
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
 
-	std::vector<GeometryOut> connected_vector;
+    std::vector<GeometryOut> connected_vector;
     if (limit > 0)
     {
-	    bg::connect(geometry, connected_vector, limit);
+        bg::connect(geometry, connected_vector, limit);
     }
     else
     {
-	    bg::connect(geometry, connected_vector);
+        bg::connect(geometry, connected_vector);
     }
 
-	typename bg::length_result<Geometry>::type length = 0;
+    typename bg::length_result<Geometry>::type length = 0;
     std::size_t count = boost::size(connected_vector);
-	std::size_t point_count = 0;
+    std::size_t point_count = 0;
 
-	BOOST_FOREACH(GeometryOut& connected, connected_vector)
-	{
-	    bg::unique(connected);
-		length += bg::length(connected);
-		point_count += bg::num_points(connected);
-	}
+    BOOST_FOREACH(GeometryOut& connected, connected_vector)
+    {
+        bg::unique(connected);
+        length += bg::length(connected);
+        point_count += bg::num_points(connected);
+    }
 
     BOOST_CHECK_MESSAGE(count == expected_count,
             "connect: " << caseid
@@ -91,18 +90,18 @@ void test_connect(std::string const& caseid, Geometry const& geometry,
             > mapper(svg, 500, 500);
         mapper.add(geometry);
 
-        bg::box<typename bg::point_type<Geometry>::type> extent;
+        bg::model::box<typename bg::point_type<Geometry>::type> extent;
         bg::envelope(geometry, extent);
         bg::buffer(extent, extent, 0.1);
         mapper.add(extent);
 
 
         mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
-		BOOST_FOREACH(GeometryOut& connected, connected_vector)
-		{
-		   mapper.map(connected, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
-	    }
-	}
+        BOOST_FOREACH(GeometryOut& connected, connected_vector)
+        {
+           mapper.map(connected, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
+        }
+    }
 #endif
 }
 
@@ -113,7 +112,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
         double expected_length, double limit = -1, double percentage = 0.001)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
     test_connect<GeometryOut>(caseid, geometry,
         expected_count, expected_point_count,
@@ -142,7 +141,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
             out << "_" << index;
             geometry2.push_back(geometry[index]);
         }
-        test_connect<GeometryOut>(out.str(), geometry2, 
+        test_connect<GeometryOut>(out.str(), geometry2,
                 expected_point_count, expected_length, percentage);
     } while (std::next_permutation(indices.begin(), indices.end()));
 #endif
@@ -155,18 +154,17 @@ void test_one(std::string const& caseid, std::string const& wkt,
 template <typename P>
 void test_all()
 {
-    namespace bg = boost::geometry;
 
 
-    typedef bg::linestring<P> linestring;
-    typedef bg::multi_linestring<linestring> multi_linestring;
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::multi_linestring<linestring> multi_linestring;
 
     goto disconnected;
 
     test_one<multi_linestring, linestring>("ls_simplex",
         "MULTILINESTRING((0 0,1 1),(1 1,2 2))",
         1, 3, 2 * std::sqrt(2.0));
-    
+
     // Opposites, forming one line
     test_one<multi_linestring, linestring>("ls_simplex_opposite_to",
         "MULTILINESTRING((0 0,1 1),(2 2,1 1))",
@@ -205,7 +203,7 @@ disconnected:
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

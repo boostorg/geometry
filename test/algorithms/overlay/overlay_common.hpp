@@ -45,13 +45,13 @@ void test_overlay(std::string const& id, T const& expected,
     }
 
     G1 g1;
-    boost::geometry::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt1, g1);
 
     G2 g2;
-    boost::geometry::read_wkt(wkt2, g2);
+    bg::read_wkt(wkt2, g2);
 
-    //std::cout << boost::geometry::wkt(g1) << std::endl;
-    //std::cout << boost::geometry::wkt(g2) << std::endl;
+    //std::cout << bg::wkt(g1) << std::endl;
+    //std::cout << bg::wkt(g2) << std::endl;
 
     // Try the overlay-function in both ways
     std::string caseid = id;
@@ -83,9 +83,9 @@ void test_overlay(std::string const& id, T const& expected,
 template <typename P, typename Functor, typename T>
 void test_all(std::vector<T> const& expected)
 {
-    typedef boost::geometry::polygon<P> polygon;
-    typedef boost::geometry::linestring<P> linestring;
-    typedef boost::geometry::box<P> box;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::box<P> box;
 
     // compilation test only, will not output
     //test_overlay<box, polygon, Functor>("", "", "", "");

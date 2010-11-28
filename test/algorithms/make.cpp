@@ -19,47 +19,44 @@
 #include <test_common/test_point.hpp>
 
 
-using namespace boost::geometry;
-
 template <typename T, typename P>
 void test_point_2d()
 {
-    P p = make<P>((T) 123, (T) 456);
-    BOOST_CHECK_CLOSE( ((double) get<0>(p)), (double) 123, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) get<1>(p)), (double) 456, 1.0e-6);
-
+    P p = bg::make<P>((T) 123, (T) 456);
+    BOOST_CHECK_CLOSE( ((double) bg::get<0>(p)), (double) 123, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<1>(p)), (double) 456, 1.0e-6);
 }
 
 template <typename T, typename P>
 void test_point_3d()
 {
-    P p = make<P>((T) 123, (T) 456, (T) 789);
-    BOOST_CHECK_CLOSE( ((double) get<0>(p)), (double) 123, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) get<1>(p)), (double) 456, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) get<2>(p)), (double) 789, 1.0e-6);
+    P p = bg::make<P>((T) 123, (T) 456, (T) 789);
+    BOOST_CHECK_CLOSE( ((double) bg::get<0>(p)), (double) 123, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<1>(p)), (double) 456, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<2>(p)), (double) 789, 1.0e-6);
 }
 
 template <typename T, typename P>
 void test_box_2d()
 {
-    typedef box<P> B;
-    B b = make<B>((T) 123, (T) 456, (T) 789, (T) 1011);
-    BOOST_CHECK_CLOSE( ((double) get<min_corner, 0>(b)), (double) 123, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) get<min_corner, 1>(b)), (double) 456, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) get<max_corner, 0>(b)), (double) 789, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) get<max_corner, 1>(b)), (double) 1011, 1.0e-6);
+    typedef bg::model::box<P> B;
+    B b = bg::make<B>((T) 123, (T) 456, (T) 789, (T) 1011);
+    BOOST_CHECK_CLOSE( ((double) bg::get<bg::min_corner, 0>(b)), (double) 123, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<bg::min_corner, 1>(b)), (double) 456, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<bg::max_corner, 0>(b)), (double) 789, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<bg::max_corner, 1>(b)), (double) 1011, 1.0e-6);
 
-    b = make_inverse<B>();
+    b = bg::make_inverse<B>();
 }
 
 template <typename T, typename P>
 void test_linestring_2d()
 {
-    typedef linestring<P> L;
+    typedef bg::model::linestring<P> L;
 
     T coors[][2] = {{1,2}, {3,4}};
 
-    L line = make<L>(coors);
+    L line = bg::make<L>(coors);
 
     BOOST_CHECK_EQUAL(line.size(), 2u);
 }
@@ -67,11 +64,11 @@ void test_linestring_2d()
 template <typename T, typename P>
 void test_linestring_3d()
 {
-    typedef linestring<P> L;
+    typedef bg::model::linestring<P> L;
 
     T coors[][3] = {{1,2,3}, {4,5,6}};
 
-    L line = make<L>(coors);
+    L line = bg::make<L>(coors);
 
     BOOST_CHECK_EQUAL(line.size(), 2u);
     //std::cout << dsv(line) << std::endl;
@@ -114,12 +111,12 @@ int test_main(int, char* [])
     //test_2d<int[2]>();
     //test_2d<float[2]>();
     //test_2d<double[2]>();
-    test_2d<point<int, 2, cs::cartesian> >();
-    test_2d<point<float, 2, cs::cartesian> >();
-    test_2d<point<double, 2, cs::cartesian> >();
+    test_2d<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_2d<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
 
-    test_3d<point<double, 3, cs::cartesian> >();
+    test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

@@ -107,19 +107,18 @@ void test_areal()
 template <typename P>
 void test_all()
 {
-    namespace bg = boost::geometry;
 
     {
-        typedef bg::linear_ring<P> ring;
-        typedef bg::polygon<P> polygon;
-        typedef bg::multi_polygon<polygon> multi_polygon;
+        typedef bg::model::linear_ring<P> ring;
+        typedef bg::model::polygon<P> polygon;
+        typedef bg::model::multi_polygon<polygon> multi_polygon;
         test_areal<ring, polygon, multi_polygon>();
     }
 
     {
-        typedef bg::linear_ring<P, std::vector, false> ring_ccw;
-        typedef bg::polygon<P, std::vector, std::vector, false> polygon_ccw;
-        typedef bg::multi_polygon<polygon_ccw> multi_polygon_ccw;
+        typedef bg::model::linear_ring<P, false> ring_ccw;
+        typedef bg::model::polygon<P, false> polygon_ccw;
+        typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
         // TODO: ccw has issues with multi-touch
         //test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
     }
@@ -129,7 +128,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

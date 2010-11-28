@@ -20,16 +20,14 @@
 #include <test_common/test_point.hpp>
 
 
-using namespace boost::geometry;
-
 template <typename P>
 void test_all()
 {
     P p1;
-    boost::geometry::assign(p1, 1, 2, 3);
+    bg::assign(p1, 1, 2, 3);
     P p2;
-    boost::geometry::assign(p2, 4, 5, 6);
-    BOOST_CHECK(boost::geometry::dot_product(p1, p2) == 1*4 + 2*5 + 3*6);
+    bg::assign(p2, 4, 5, 6);
+    BOOST_CHECK(bg::dot_product(p1, p2) == 1*4 + 2*5 + 3*6);
 }
 
 int test_main(int, char* [])
@@ -38,9 +36,9 @@ int test_main(int, char* [])
     test_all<float[3]>();
     test_all<double[3]>();
     test_all<test::test_point>();
-    test_all<point<int, 3, boost::geometry::cs::cartesian> >();
-    test_all<point<float, 3, boost::geometry::cs::cartesian> >();
-    test_all<point<double, 3, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

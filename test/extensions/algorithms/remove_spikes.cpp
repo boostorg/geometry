@@ -28,19 +28,17 @@
 #endif
 
 template <typename Geometry>
-inline void test_remove_spikes(std::string const& id, 
-            Geometry const& geometry, 
+inline void test_remove_spikes(std::string const& id,
+            Geometry const& geometry,
             int expected_count)
 {
-    namespace bg = boost::geometry;
-
     typedef typename bg::point_type<Geometry>::type point_type;
 
     Geometry processed = geometry;
     //bg::remove_spikes(processed, bg::remove_elongated_spikes<point_type>());
     bg::remove_spikes(processed, bg::remove_by_normalized<point_type>());
     bg::unique(processed);
-    
+
 
     int detected = bg::num_points(processed);
 
@@ -68,7 +66,7 @@ template <typename Geometry>
 void test_geometry(std::string const& id, std::string const& wkt, int expected_count)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
     test_remove_spikes(id, geometry, expected_count);
 }
 
@@ -78,26 +76,26 @@ void test_geometry(std::string const& id, std::string const& wkt, int expected_c
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::linear_ring<P> ring;
-    typedef boost::geometry::polygon<P> polygon;
+    typedef bg::model::linear_ring<P> ring;
+    typedef bg::model::polygon<P> polygon;
 
-    test_geometry<polygon>("box", 
+    test_geometry<polygon>("box",
             "POLYGON((0 0,0 4,4 4,4 0,0 0))", 5);
-    test_geometry<polygon>("spike_right", 
+    test_geometry<polygon>("spike_right",
             "POLYGON((0 0,0 4,4 4,4 2,6 2,4 2,4 0,0 0))", 6);
-    test_geometry<polygon>("spike_at_first", 
+    test_geometry<polygon>("spike_at_first",
             "POLYGON((0 0,-1 3,0 0,0 4,4 4,4 0,0 0))", 5);
-    test_geometry<polygon>("spike_at_closing", 
+    test_geometry<polygon>("spike_at_closing",
             "POLYGON((-1 0,0 0,0 4,4 4,4 0,0 0,-1 0))", 5);
-    test_geometry<polygon>("double_spike", 
+    test_geometry<polygon>("double_spike",
             "POLYGON((0 0,0 4,4 4,4 2,6 2,5 2,4 2,4 0,0 0))", 6);
-    test_geometry<polygon>("three_double_spike", 
+    test_geometry<polygon>("three_double_spike",
             "POLYGON((0 0,0 4,4 4,4 2,6 2,5 2,4.5 2,4 2,4 0,0 0))", 6);
 }
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
     return 0;
 }
 #endif

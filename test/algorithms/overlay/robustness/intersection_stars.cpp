@@ -28,22 +28,16 @@
 #include <test_common/test_point.hpp>
 #include <test_common/with_pointer.hpp>
 
-// Two at the same time not (yet) supported
-#if defined(HAVE_CLN) && defined(HAVE_GMP)
-#undef HAVE_GMP
-#endif
-
-
 
 
 template <typename Polygon>
 inline void make_star(Polygon& polygon,
     int count, double factor1, double factor2, long double offset = 0)
 {
-    typedef typename boost::geometry::point_type<Polygon>::type p;
-    typedef typename boost::geometry::select_most_precise
+    typedef typename bg::point_type<Polygon>::type p;
+    typedef typename bg::select_most_precise
         <
-            typename boost::geometry::coordinate_type<Polygon>::type,
+            typename bg::coordinate_type<Polygon>::type,
             long double
         >::type coordinate_type;
 
@@ -73,10 +67,10 @@ inline void make_star(Polygon& polygon,
         coordinate_type c = cos(angle);
         coordinate_type x = cx + (even ? a1 : a2) * s;
         coordinate_type y = cy + (even ? b1 : b2) * c;
-        boost::geometry::exterior_ring(polygon).push_back(boost::geometry::make<p>(x, y));
+        bg::exterior_ring(polygon).push_back(bg::make<p>(x, y));
 
     }
-    boost::geometry::exterior_ring(polygon).push_back(boost::geometry::exterior_ring(polygon).front());
+    bg::exterior_ring(polygon).push_back(bg::exterior_ring(polygon).front());
 }
 
 
@@ -96,8 +90,8 @@ void test_star(std::string const& p_type, std::string const& c_type,
         << c_type << " (" << sizeof(CalculationType) << ")"
         << std::endl;
     boost::timer t;
-    typedef boost::geometry::point_xy<T> point_type;
-    typedef boost::geometry::polygon<point_type> polygon;
+    typedef bg::model::point_xy<T> point_type;
+    typedef bg::model::polygon<point_type> polygon;
 
     T area_i = 0;
     T area_a = 0;
@@ -115,8 +109,8 @@ void test_star(std::string const& p_type, std::string const& c_type,
         make_star(b, p * 2 + 1, 0.5, 1.0, rotation);
 
         area_i += test_intersection<polygon, CalculationType>(out.str(), a, b);
-        area_a += boost::geometry::area(a);
-        area_b += boost::geometry::area(b);
+        area_a += bg::area(a);
+        area_b += bg::area(b);
     }
 
     std::cout
@@ -141,12 +135,8 @@ void test_all(std::string const& p_type,
     test_star<T, long double>(p_type, "e", p_selection, c_selection,
                 min_points, max_points, rotation);
 
-#if defined(HAVE_CLN)
-    test_star<T, boost::numeric_adaptor::cln_value_type>(p_type, "c",
-                p_selection, c_selection, min_points, max_points, rotation);
-#endif
-#if defined(HAVE_GMP)
-    test_star<T, boost::numeric_adaptor::gmp_value_type>(p_type, "g",
+#if defined(HAVE_TTMATH)
+    test_star<T, ttmath_big>(p_type, "t",
                 p_selection, c_selection, min_points, max_points, rotation);
 #endif
 }
@@ -165,12 +155,8 @@ int main(int argc, char** argv)
         test_all<double>("d", p_selection, c_selection, min_points, max_points, rotation);
         test_all<long double>("e", p_selection, c_selection, min_points, max_points, rotation);
 
-#if defined(HAVE_CLN)
-        test_all<boost::numeric_adaptor::cln_value_type>("c",
-                    p_selection, c_selection, min_points, max_points, rotation);
-#endif
-#if defined(HAVE_GMP)
-        test_all<boost::numeric_adaptor::gmp_value_type>("g",
+#if defined(HAVE_TTMATH)
+        test_all<ttmath_big>("t",
                     p_selection, c_selection, min_points, max_points, rotation);
 #endif
     }
