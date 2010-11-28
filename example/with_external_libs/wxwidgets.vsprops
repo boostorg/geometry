@@ -15,6 +15,6 @@
 	/>
 	<UserMacro
 		Name="WXWIDGETS"
-		Value="c:\software\libraries\wxWidgets-2.8.11"
+		Value="c:\software\libraries\wxWidgets-2.8.10"
 	/>
 </VisualStudioPropertySheet>

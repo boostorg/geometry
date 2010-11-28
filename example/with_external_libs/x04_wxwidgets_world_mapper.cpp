@@ -241,7 +241,7 @@ HelloWorldCanvas::HelloWorldCanvas(wxFrame *frame)
     , m_focus(-1)
 {
     boost::geometry::assign_inverse(m_box);
-    read_wkt("data/world.wkt", m_countries, m_box);
+    read_wkt("../data/world.wkt", m_countries, m_box);
     m_orange = wxBrush(wxColour(255, 128, 0), wxSOLID);
 }
 

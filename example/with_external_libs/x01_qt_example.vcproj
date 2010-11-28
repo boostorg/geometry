@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\x01_qt_example"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\boost.vsprops;.\qt.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;.\qt.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -96,7 +96,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\x01_qt_example"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\boost.vsprops;.\qt.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;.\qt.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
