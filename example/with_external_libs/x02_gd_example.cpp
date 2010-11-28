@@ -70,7 +70,7 @@ inline void read_wkt(std::string const& filename, std::vector<Geometry>& geometr
 int main()
 {
     // Adapt if necessary
-    std::string filename = "../../data/world.wkt";
+    std::string filename = "../data/world.wkt";
 
 
     // The world is measured in latlong (degrees), so latlong (point_ll_deg) is appropriate.

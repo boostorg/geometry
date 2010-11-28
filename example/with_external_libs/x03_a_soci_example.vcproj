@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)/x03_a_soci_example"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\boost.vsprops;.\soci.vsprops;.\postgresql.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;.\soci.vsprops;.\postgresql.vsprops"
 			CharacterSet="0"
 			>
 			<Tool
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="../../../.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -93,7 +93,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\x03_a_soci_example"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\boost.vsprops;.\soci.vsprops;.\postgresql.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;.\soci.vsprops;.\postgresql.vsprops"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
@@ -114,7 +114,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="../../../.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"

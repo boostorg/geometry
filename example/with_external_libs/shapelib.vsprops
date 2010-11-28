@@ -2,15 +2,14 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="gd"
+	Name="shapelib"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(GD)&quot;"
-		PreprocessorDefinitions="NONDLL"
+		AdditionalIncludeDirectories="$(SHAPELIB)"
 	/>
 	<UserMacro
-		Name="GD"
-		Value="../../contrib/gd-2.0.35"
+		Name="SHAPELIB"
+		Value=".\contrib\shapelib-1.3.0b2"
 	/>
 </VisualStudioPropertySheet>

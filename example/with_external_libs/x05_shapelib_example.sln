@@ -1,7 +1,6 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x01_shapelib_example", "x01_shapelib_example.vcproj", "{92ECE1AC-1A5D-4554-A8AD-690AC266210D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x05_shapelib_example", "x05_shapelib_example.vcproj", "{92ECE1AC-1A5D-4554-A8AD-690AC266210D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
