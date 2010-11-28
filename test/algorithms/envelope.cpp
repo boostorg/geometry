@@ -16,16 +16,15 @@
 #include <test_common/test_point.hpp>
 
 
-
 template <typename P>
 void test_2d()
 {
     test_envelope<P>("POINT(1 1)", 1, 1, 1, 1);
-    test_envelope<boost::geometry::linestring<P> >("LINESTRING(1 1,2 2)", 1, 2, 1, 2);
-    test_envelope<boost::geometry::polygon<P> >("POLYGON((1 1,1 3,3 3,3 1,1 1))", 1, 3, 1, 3);
+    test_envelope<bg::model::linestring<P> >("LINESTRING(1 1,2 2)", 1, 2, 1, 2);
+    test_envelope<bg::model::polygon<P> >("POLYGON((1 1,1 3,3 3,3 1,1 1))", 1, 3, 1, 3);
 
-    test_envelope<boost::geometry::linear_ring<P> >("POLYGON((1 1,1 3,3 3,3 1,1 1))", 1, 3, 1, 3);
-    test_envelope<boost::geometry::box<P> >("BOX(1 1,3 3)", 1, 3, 1, 3);
+    test_envelope<bg::model::linear_ring<P> >("POLYGON((1 1,1 3,3 3,3 1,1 1))", 1, 3, 1, 3);
+    test_envelope<bg::model::box<P> >("BOX(1 1,3 3)", 1, 3, 1, 3);
 
     typedef std::pair<P, P> segment_type;
     test_envelope<segment_type>("SEGMENT(1 1,3 3)", 1, 3, 1, 3);
@@ -36,8 +35,8 @@ void test_3d()
 {
     test_envelope<P>("POINT(1 2 3)", 1, 1, 2, 2, 3, 3);
     test_envelope<P>("POINT(3 2 1)", 3, 3, 2, 2, 1, 1);
-    test_envelope<boost::geometry::linestring<P> >("LINESTRING(1 1 1,2 2 2)", 1, 2, 1, 2, 1, 2);
-    test_envelope<boost::geometry::box<P> >("BOX(1 1 1,3 3 3)", 1, 3, 1, 3, 1, 3);
+    test_envelope<bg::model::linestring<P> >("LINESTRING(1 1 1,2 2 2)", 1, 2, 1, 2, 1, 2);
+    test_envelope<bg::model::box<P> >("BOX(1 1 1,3 3 3)", 1, 3, 1, 3, 1, 3);
 }
 
 
@@ -47,9 +46,9 @@ int test_main(int, char* [])
     //test_2d<float[2]>();
     //test_2d<double[2]>();
     test_2d<boost::tuple<float, float> >();
-    test_2d<boost::geometry::point_xy<int> >();
-    test_2d<boost::geometry::point_xy<float> >();
-    test_2d<boost::geometry::point_xy<double> >();
+    test_2d<bg::model::point_xy<int> >();
+    test_2d<bg::model::point_xy<float> >();
+    test_2d<bg::model::point_xy<double> >();
 
     test_3d<test::test_point>();
 

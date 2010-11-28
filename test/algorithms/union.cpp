@@ -195,7 +195,7 @@ void test_areal()
     /***
     TODO: review this. Even on gcc the number of points are different.
     {
-        std::string tn = string_from_type<typename boost::geometry::coordinate_type<P>::type>::name();
+        std::string tn = string_from_type<typename bg::coordinate_type<P>::type>::name();
         //std::cout << tn << std::endl;
         test_one<Polygon, Polygon, Polygon>("isovist", isovist[0], isovist[1], 1, 0,
 
@@ -218,18 +218,18 @@ void test_areal()
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::polygon<P> polygon;
-    typedef boost::geometry::linear_ring<P> ring;
-    typedef boost::geometry::box<P> box;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::linear_ring<P> ring;
+    typedef bg::model::box<P> box;
 
     test_areal<ring, polygon>();
 
-    test_areal<boost::geometry::model::linear_ring<P, true, false>,
-            boost::geometry::model::polygon<P, true, false> >();
+    test_areal<bg::model::linear_ring<P, true, false>,
+            bg::model::polygon<P, true, false> >();
 /*
 TODO: ccw has one new error in 'wrapped' due to new approach, SOLVE THIS
-    test_areal<boost::geometry::model::linear_ring<P, false>,
-            boost::geometry::model::polygon<P, false> >();
+    test_areal<bg::model::linear_ring<P, false>,
+            bg::model::polygon<P, false> >();
 */
     test_one<polygon, box, polygon>("box_ring", example_box, example_ring,
         1, 1, 15, 6.38875);
@@ -271,12 +271,12 @@ TODO: ccw has one new error in 'wrapped' due to new approach, SOLVE THIS
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
-    //test_all<boost::geometry::point_xy<long double> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
+    //test_all<bg::model::point_xy<long double> >();
 
-#if defined(HAVE_CLN)
-    test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
+#if defined(HAVE_TTMATH)
+    test_all<bg::model::point_xy<ttmath_big> >();
 #endif
 
     return 0;

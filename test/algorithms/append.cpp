@@ -24,26 +24,27 @@
 #include <test_common/test_point.hpp>
 #include <test_geometries/wrapped_boost_array.hpp>
 
+
 template <typename G>
 void test_geometry()
 {
     G geometry;
-    typedef typename boost::geometry::point_type<G>::type P;
+    typedef typename bg::point_type<G>::type P;
 
-    boost::geometry::append(geometry, boost::geometry::make_zero<P>());
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(geometry), 1u);
+    bg::append(geometry, bg::make_zero<P>());
+    BOOST_CHECK_EQUAL(bg::num_points(geometry), 1u);
 
-    boost::geometry::clear(geometry);
-    BOOST_CHECK_EQUAL(boost::geometry::num_points(geometry), 0u);
+    bg::clear(geometry);
+    BOOST_CHECK_EQUAL(bg::num_points(geometry), 0u);
     //P p = boost::range::front(geometry);
 }
 
 template <typename P>
 void test_all()
 {
-    test_geometry<boost::geometry::linestring<P> >();
-    test_geometry<boost::geometry::linear_ring<P> >();
-    test_geometry<boost::geometry::polygon<P> >();
+    test_geometry<bg::model::linestring<P> >();
+    test_geometry<bg::model::linear_ring<P> >();
+    test_geometry<bg::model::polygon<P> >();
 
     test_geometry<std::vector<P> >();
     test_geometry<std::deque<P> >();
@@ -55,9 +56,9 @@ void test_all()
 int test_main(int, char* [])
 {
     test_all<test::test_point>();
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }

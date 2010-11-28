@@ -27,7 +27,7 @@
 template <typename G, typename Expected>
 void test_geometry()
 {
-    BOOST_CHECK_EQUAL(typeid(typename boost::geometry::coordinate_type<G>::type).name(),
+    BOOST_CHECK_EQUAL(typeid(typename bg::coordinate_type<G>::type).name(),
         typeid(Expected).name());
 }
 
@@ -35,13 +35,13 @@ template <typename P, typename Expected>
 void test_all()
 {
     test_geometry<P, Expected>();
-    test_geometry<const P, Expected>();
-    test_geometry<boost::geometry::linestring<P> , Expected>();
-    test_geometry<boost::geometry::linear_ring<P> , Expected>();
-    test_geometry<boost::geometry::polygon<P> , Expected>();
-    test_geometry<boost::geometry::box<P> , Expected>();
-    test_geometry<boost::geometry::segment<P> , Expected>();
-    test_geometry<boost::geometry::segment<const P> , Expected>();
+    test_geometry<P const, Expected>();
+    test_geometry<bg::model::linestring<P> , Expected>();
+    test_geometry<bg::model::linear_ring<P> , Expected>();
+    test_geometry<bg::model::polygon<P> , Expected>();
+    test_geometry<bg::model::box<P> , Expected>();
+    test_geometry<bg::model::segment<P> , Expected>();
+    test_geometry<bg::model::referring_segment<P const> , Expected>();
 
     test_geometry<std::vector<P>, Expected>();
     test_geometry<std::deque<P>, Expected>();
@@ -64,10 +64,10 @@ int test_main(int, char* [])
     test_geometry<boost::tuple<long double, long double>, long double>();
     test_geometry<boost::tuple<double, double, double>, double>();
 
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian>, int>();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian>, float>();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian>, double>();
-    test_all<boost::geometry::point<long double, 2, boost::geometry::cs::cartesian>, long double>();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian>, int>();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian>, float>();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian>, double>();
+    test_all<bg::model::point<long double, 2, bg::cs::cartesian>, long double>();
 
     return 0;
 }

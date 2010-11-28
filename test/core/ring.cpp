@@ -28,24 +28,24 @@
 
 template <typename P>
 void test_ring(std::string const& wkt,
-    std::size_t expected_main_count,
+    int expected_main_count,
     int expected_interior_ring_count,
-    std::size_t expected_first_interior_count)
+    int expected_first_interior_count)
 {
-    typedef boost::geometry::polygon<P> the_polygon;
-    typedef typename boost::geometry::ring_type<the_polygon>::type the_ring;
-    typedef typename boost::geometry::interior_type<the_polygon>::type the_interior;
+    typedef bg::model::polygon<P> the_polygon;
+    typedef typename bg::ring_type<the_polygon>::type the_ring;
+    typedef typename bg::interior_type<the_polygon>::type the_interior;
 
     the_polygon poly;
-    read_wkt(wkt, poly);
+    bg::read_wkt(wkt, poly);
 
-    the_ring ext = boost::geometry::exterior_ring(poly);
-    the_interior rings = boost::geometry::interior_rings(poly);
+    the_ring ext = bg::exterior_ring(poly);
+    the_interior rings = bg::interior_rings(poly);
 
-    BOOST_CHECK_EQUAL(boost::geometry::num_interior_rings(poly), expected_interior_ring_count);
+    BOOST_CHECK_EQUAL(bg::num_interior_rings(poly), std::size_t(expected_interior_ring_count));
     BOOST_CHECK_EQUAL(boost::size(rings), expected_interior_ring_count);
     BOOST_CHECK_EQUAL(boost::size(ext), expected_main_count);
-    if (boost::size(rings) > 0)
+    if (boost::size(rings))
     {
         BOOST_CHECK_EQUAL(boost::size(rings.front()), expected_first_interior_count);
     }
@@ -63,6 +63,6 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
     return 0;
 }

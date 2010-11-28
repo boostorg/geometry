@@ -17,13 +17,13 @@
 template <typename P, typename T>
 void test_area_circle()
 {
-    boost::geometry::nsphere<P, T> c;
+    bg::model::nsphere<P, T> c;
 
-    boost::geometry::set<0>(c.center(), 0);
-    boost::geometry::set<1>(c.center(), 0);
+    bg::set<0>(c.center(), 0);
+    bg::set<1>(c.center(), 0);
     c.radius(2);
 
-    double d = boost::geometry::area(c);
+    double d = bg::area(c);
     BOOST_CHECK_CLOSE(d, 4 * 3.1415926535897932384626433832795, 0.001);
 }
 
@@ -31,6 +31,6 @@ void test_area_circle()
 
 int test_main(int, char* [])
 {
-    test_area_circle<boost::geometry::point<double, 2, boost::geometry::cs::cartesian>, double>();
+    test_area_circle<bg::model::point<double, 2, bg::cs::cartesian>, double>();
     return 0;
 }

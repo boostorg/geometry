@@ -22,19 +22,18 @@
 #include <algorithms/test_relate.hpp>
 
 
-
 template <typename G1, typename G2>
 void test_disjoint(std::string const& id,
             std::string const& wkt1,
             std::string const& wkt2, bool expected)
 {
     G1 g1;
-    boost::geometry::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt1, g1);
 
     G2 g2;
-    boost::geometry::read_wkt(wkt2, g2);
+    bg::read_wkt(wkt2, g2);
 
-    bool detected = boost::geometry::disjoint(g1, g2);
+    bool detected = bg::disjoint(g1, g2);
     BOOST_CHECK_MESSAGE(detected == expected,
         "disjoint: " << id
         << " -> Expected: " << expected
@@ -46,7 +45,7 @@ void test_disjoint(std::string const& id,
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::box<P> box;
+    typedef bg::model::box<P> box;
 
     test_disjoint<P, P>("pp1", "point(1 1)", "point(1 1)", false);
     test_disjoint<P, P>("pp2", "point(1 1)", "point(1.001 1)", true);
@@ -76,8 +75,8 @@ void test_all()
     // Test triangles for polygons/rings, boxes
     // Note that intersections are tested elsewhere, they don't need
     // thorough test at this place
-    typedef boost::geometry::polygon<P> polygon;
-    typedef boost::geometry::linear_ring<P> ring;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::linear_ring<P> ring;
 
     // Four times same test with other types
     test_disjoint<polygon, polygon>("disjoint_simplex_pp", disjoint_simplex[0], disjoint_simplex[1], true);
@@ -100,8 +99,8 @@ void test_all()
     test_disjoint<ring, ring>("within_simplex_rr2", within_simplex[1], within_simplex[0], false);
 
     // Linear
-    typedef boost::geometry::linestring<P> ls;
-    typedef boost::geometry::model::segment<P> segment;
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::segment<P> segment;
     test_disjoint<ls, ls>("ls/ls 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
     test_disjoint<ls, ls>("ls/ls 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
     test_disjoint<segment, segment>("s/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
@@ -115,8 +114,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

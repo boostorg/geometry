@@ -19,14 +19,17 @@
 #include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
+
+
+
 // The closeable view should also work on normal std:: containers
 void test_non_geometry()
 {
-    typedef boost::geometry::closeable_view
+    typedef bg::closeable_view
         <
             std::vector<int> const, true
         > view_type;
-    
+
     std::vector<int> v;
     v.push_back(1);
     v.push_back(2);
@@ -76,7 +79,7 @@ void test_non_geometry()
 template <bool Close, typename Range>
 void test_optionally_closing(Range const& range, std::string const& expected)
 {
-    typedef boost::geometry::closeable_view<Range const, Close> view_type;
+    typedef bg::closeable_view<Range const, Close> view_type;
     typedef typename boost::range_iterator<view_type const>::type iterator;
 
     view_type view(range);
@@ -86,18 +89,17 @@ void test_optionally_closing(Range const& range, std::string const& expected)
     iterator end = boost::end(view);
     for (iterator it = boost::begin(view); it != end; ++it, first = false)
     {
-        out << (first ? "" : " ") << boost::geometry::dsv(*it);
+        out << (first ? "" : " ") << bg::dsv(*it);
     }
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
 
 
 template <typename Geometry>
-void test_geometry(std::string const& wkt, 
-            std::string const& expected_false, 
+void test_geometry(std::string const& wkt,
+            std::string const& expected_false,
             std::string const& expected_true)
 {
-    namespace bg = boost::geometry;
     Geometry geo;
     bg::read_wkt(wkt, geo);
 
@@ -109,8 +111,8 @@ void test_geometry(std::string const& wkt,
 template <typename P>
 void test_all()
 {
-    test_geometry<boost::geometry::linear_ring<P> >(
-            "POLYGON((1 1,1 4,4 4,4 1))", 
+    test_geometry<bg::model::linear_ring<P> >(
+            "POLYGON((1 1,1 4,4 4,4 1))",
             "(1, 1) (1, 4) (4, 4) (4, 1)",
             "(1, 1) (1, 4) (4, 4) (4, 1) (1, 1)");
 }
@@ -120,9 +122,8 @@ int test_main(int, char* [])
 {
     test_non_geometry();
 
-    namespace bg = boost::geometry;
-    test_all<bg::point_2d>();
-    test_all<bg::point<int, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point_2d>();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_all<boost::tuple<double, double> >();
 
     return 0;

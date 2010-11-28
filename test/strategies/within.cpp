@@ -25,13 +25,12 @@
 
 
 
-namespace bg = boost::geometry;
 
 
 
 template <typename Point, typename Polygon, typename Strategy>
-void test_point_in_polygon(std::string const& case_id, 
-            Point const& point, Polygon const& polygon, 
+void test_point_in_polygon(std::string const& case_id,
+            Point const& point, Polygon const& polygon,
             Strategy const& strategy, std::string const& strategy_id,
             bool expected)
 {
@@ -59,11 +58,11 @@ void test_geometry(std::string const& case_id, std::string const& wkt_point
     bg::read_wkt(wkt_polygon, polygon);
 
     namespace sw = bg::strategy::within;
-    test_point_in_polygon(case_id, point, polygon, sw::winding<Point>(), 
+    test_point_in_polygon(case_id, point, polygon, sw::winding<Point>(),
         "winding", expected);
-    test_point_in_polygon(case_id, point, polygon, sw::franklin<Point>(), 
+    test_point_in_polygon(case_id, point, polygon, sw::franklin<Point>(),
         "franklin", boost::contains(deviations, "f") ? !expected : expected);
-    test_point_in_polygon(case_id, point, polygon, sw::crossings_multiply<Point>(), 
+    test_point_in_polygon(case_id, point, polygon, sw::crossings_multiply<Point>(),
         "cross.mult", boost::contains(deviations, "c") ? !expected : expected);
 }
 
@@ -72,7 +71,7 @@ void test_geometry(std::string const& case_id, std::string const& wkt_point
 template <typename Point>
 void test_all()
 {
-    typedef bg::polygon<Point> polygon;
+    typedef bg::model::polygon<Point> polygon;
 
     std::string const box = "POLYGON((0 0,0 2,2 2,2 0,0 0))";
     std::string const triangle = "POLYGON((0 0,0 4,6 0,0 0))";
@@ -125,11 +124,11 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::point<float, 2, bg::cs::cartesian> >();
-    test_all<bg::point<double, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
 #if defined(HAVE_TTMATH)
-    test_all<bg::point<ttmath_big, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
 #endif
 
     return 0;

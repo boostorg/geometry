@@ -22,25 +22,25 @@
 template <typename P>
 void test_all()
 {
-    typedef typename boost::geometry::coordinate_type<P>::type coordinate_type;
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
 
     P p1(0, 0);
     P p2(2, 2);
-    boost::geometry::box<P> b1(p1, p2);
+    bg::model::box<P> b1(p1, p2);
 
-    boost::geometry::box<P> b2;
-    boost::geometry::buffer(b1, b2, coordinate_type(2));
+    bg::model::box<P> b2;
+    bg::buffer(b1, b2, coordinate_type(2));
 
     // TODO: Check if buffer is correct
-    // using boost::geometry::equals to compare boxes
+    // using bg::equals to compare boxes
     // (TODO: implement that)
 }
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }

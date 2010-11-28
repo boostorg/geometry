@@ -20,15 +20,15 @@
 template <typename Geometry>
 void test_area(Geometry const& geometry, long double expected_area)
 {
-    long double area = boost::geometry::area(geometry);
+    long double area = bg::area(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
-    out << typeid(typename boost::geometry::coordinate_type<Geometry>::type).name()
+    out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << " "
-        << typeid(typename boost::geometry::area_result<Geometry>::type).name()
+        << typeid(typename bg::area_result<Geometry>::type).name()
         << " "
-        << "area : " << boost::geometry::area(geometry)
+        << "area : " << bg::area(geometry)
         << std::endl;
     std::cout << out.str();
 #endif
@@ -36,20 +36,20 @@ void test_area(Geometry const& geometry, long double expected_area)
     BOOST_CHECK_CLOSE(area, expected_area, 0.0001);
 
     // Test with explicitly defined strategies
-    boost::geometry::strategy::area::by_triangles
+    bg::strategy::area::by_triangles
         <
-            typename boost::geometry::point_type<Geometry>::type
+            typename bg::point_type<Geometry>::type
         > strategy1;
 
-    area = boost::geometry::area(geometry, strategy1);
+    area = bg::area(geometry, strategy1);
 
-    boost::geometry::strategy::area::by_triangles
+    bg::strategy::area::by_triangles
         <
-            typename boost::geometry::point_type<Geometry>::type,
+            typename bg::point_type<Geometry>::type,
             long double
         > strategy2;
 
-    area = boost::geometry::area(geometry, strategy2);
+    area = bg::area(geometry, strategy2);
 
 }
 
@@ -57,7 +57,7 @@ template <typename Geometry>
 void test_geometry(std::string const& wkt, double expected_area)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
     test_area(geometry, expected_area);
 }
 

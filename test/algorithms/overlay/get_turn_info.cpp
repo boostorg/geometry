@@ -28,12 +28,11 @@ template <typename P, typename T>
 void test_with_point(std::string const& caseid,
                 T pi_x, T pi_y, T pj_x, T pj_y, T pk_x, T pk_y,
                 T qi_x, T qi_y, T qj_x, T qj_y, T qk_x, T qk_y,
-                boost::geometry::detail::overlay::method_type expected_method,
+                bg::detail::overlay::method_type expected_method,
                 T ip_x, T ip_y,
                 std::string const& expected,
                 T ip_x2, T ip_y2)
 {
-    namespace bg = boost::geometry;
     P pi = bg::make<P>(pi_x, pi_y);
     P pj = bg::make<P>(pj_x, pj_y);
     P pk = bg::make<P>(pk_x, pk_y);
@@ -53,7 +52,7 @@ void test_with_point(std::string const& caseid,
     if (info.size() == 0)
     {
         BOOST_CHECK_EQUAL(expected_method,
-                boost::geometry::detail::overlay::method_none);
+                bg::detail::overlay::method_none);
     }
 
     std::string detected;
@@ -99,7 +98,7 @@ void test_with_point(std::string const& caseid,
     {
         std::ostringstream filename;
         filename << "get_turn_info_" << caseid
-            << "_" << string_from_type<typename boost::geometry::coordinate_type<P>::type>::name()
+            << "_" << string_from_type<typename bg::coordinate_type<P>::type>::name()
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());
@@ -108,8 +107,8 @@ void test_with_point(std::string const& caseid,
         mapper.add(bg::make<P>(0, 0));
         mapper.add(bg::make<P>(10, 10));
 
-        bg::linestring<P> p; p.push_back(pi); p.push_back(pj); p.push_back(pk);
-        bg::linestring<P> q; q.push_back(qi); q.push_back(qj); q.push_back(qk);
+        bg::model::linestring<P> p; p.push_back(pi); p.push_back(pj); p.push_back(pk);
+        bg::model::linestring<P> q; q.push_back(qi); q.push_back(qj); q.push_back(qk);
         mapper.map(p, "opacity:0.8;stroke:rgb(0,192,0);stroke-width:3");
         mapper.map(q, "opacity:0.8;stroke:rgb(0,0,255);stroke-width:3");
 
@@ -164,8 +163,8 @@ template <typename P, typename T>
 void test_both(std::string const& caseid,
                 T pi_x, T pi_y, T pj_x, T pj_y, T pk_x, T pk_y,
                 T qi_x, T qi_y, T qj_x, T qj_y, T qk_x, T qk_y,
-                boost::geometry::detail::overlay::method_type method
-                    = boost::geometry::detail::overlay::method_none,
+                bg::detail::overlay::method_type method
+                    = bg::detail::overlay::method_none,
                 T ip_x = -1, T ip_y = -1,
                 std::string const& expected = "",
                 T ip_x2 = -1, T ip_y2 = -1)
@@ -198,7 +197,7 @@ void test_both(std::string const& caseid,
 template <typename P>
 void test_all()
 {
-    using namespace boost::geometry::detail::overlay;
+    using namespace bg::detail::overlay;
 
     // See powerpoint "doc/testcases/get_turn_info.ppt"
 
@@ -804,7 +803,7 @@ void test_all()
 
     /***
     TODO, work this out further / check this
-    // Case where 
+    // Case where
     test_both<P, double>("issue_buffer_mill",
             5.1983614873206241 , 6.7259025813913107 , 5.0499999999999998 , 6.4291796067500622 , 5.1983614873206241 , 6.7259025813913107, // p
             5.0499999999999998 , 6.4291796067500622 , 5.0499999999999998 , 6.4291796067500622 , 5.1983614873206241 , 6.7259025813913107, // q
@@ -822,22 +821,22 @@ void test_all()
 template <typename G>
 void test2(G const& geometry)
 {
-    typedef typename boost::geometry::point_type<G>::type P;
-    typedef typename boost::geometry::tag<G>::type T;
-    typedef typename boost::geometry::tag<P>::type PT;
+    typedef typename bg::point_type<G>::type P;
+    typedef typename bg::tag<G>::type T;
+    typedef typename bg::tag<P>::type PT;
     std::cout << typeid(G).name() << std::endl;
     std::cout << typeid(T).name() << std::endl;
     std::cout << typeid(P).name() << std::endl;
     std::cout << typeid(PT).name() << std::endl;
 
 
-    std::cout << boost::geometry::length(geometry) << std::endl;
+    std::cout << bg::length(geometry) << std::endl;
 
-    typedef boost::geometry::point<float, 3, boost::geometry::cs::cartesian> P2;
-    boost::geometry::linestring<P2> out;
-    boost::geometry::strategy::transform::scale_transformer<float[3], P2> scaler(5);
-    boost::geometry::transform(geometry, out, scaler);
-    std::cout << boost::geometry::dsv(out) << std::endl;
+    typedef bg::model::point<float, 3, bg::cs::cartesian> P2;
+    bg::model::linestring<P2> out;
+    bg::strategy::transform::scale_transformer<float[3], P2> scaler(5);
+    bg::transform(geometry, out, scaler);
+    std::cout << bg::dsv(out) << std::endl;
 }
 
 void test_f3()
@@ -852,6 +851,6 @@ void test_f3()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
     return 0;
 }

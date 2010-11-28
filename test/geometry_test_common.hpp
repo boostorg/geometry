@@ -80,5 +80,11 @@ template <> struct string_from_type<long double>
 #endif
 
 
+// For all tests:
+// - do NOT use "using namespace boost::geometry" to make clear what is Boost.Geometry
+// - use bg:: as short alias
+#include <boost/geometry/core/tag.hpp>
+namespace bg = boost::geometry;
+
 
 #endif // GEOMETRY_TEST_GEOMETRY_TEST_COMMON_HPP

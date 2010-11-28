@@ -28,12 +28,11 @@
 
 #include <test_common/test_point.hpp>
 
-using namespace boost::geometry;
 
 template <typename PRJ, typename XY, typename LL>
 void add_to_ring(PRJ const& prj, LL const& ll,
-                 boost::geometry::linear_ring<LL>& ring_ll,
-                 boost::geometry::linear_ring<XY>& ring_xy)
+                 bg::model::linear_ring<LL>& ring_ll,
+                 bg::model::linear_ring<XY>& ring_xy)
 {
     ring_ll.push_back(ll);
 
@@ -47,35 +46,35 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
 {
     BOOST_ASSERT(! (concave && hole) );
 
-    typedef typename coordinate_type<LL>::type T;
+    typedef typename bg::coordinate_type<LL>::type T;
 
     // Amsterdam, Rotterdam, The Hague, Utrecht,
     // these cities together are the city group "Randstad"
 
     LL a, r, h, u;
     // Amsterdam 52 22'23"N 4 53'32"E
-    a.lat(dms<north, T>(52, 22, 23));
-    a.lon(dms<east, T>(4, 53, 32));
+    a.lat(bg::dms<bg::north, T>(52, 22, 23));
+    a.lon(bg::dms<bg::east, T>(4, 53, 32));
 
     // Rotterdam 51 55'51"N 4 28'45"E
-    r.lat(dms<north, T>(51, 55, 51));
-    r.lon(dms<east, T>(4, 28, 45));
+    r.lat(bg::dms<bg::north, T>(51, 55, 51));
+    r.lon(bg::dms<bg::east, T>(4, 28, 45));
 
     // The hague: 52 4' 48" N, 4 18' 0" E
-    h.lat(dms<north, T>(52, 4, 48));
-    h.lon(dms<east, T>(4, 18, 0));
+    h.lat(bg::dms<bg::north, T>(52, 4, 48));
+    h.lon(bg::dms<bg::east, T>(4, 18, 0));
 
     // Utrecht
-    u.lat(dms<north, T>(52, 5, 36));
-    u.lon(dms<east, T>(5, 7, 10));
+    u.lat(bg::dms<bg::north, T>(52, 5, 36));
+    u.lon(bg::dms<bg::east, T>(5, 7, 10));
 
 
     // For checking calculated area, use the Dutch projection (RD), this is EPSG code 28992
-    projection::sterea_ellipsoid<LL, XY> dutch_prj(projection::init(28992));
+    bg::projection::sterea_ellipsoid<LL, XY> dutch_prj(bg::projection::init(28992));
 
     // Add them in clockwise direction
-    polygon<LL> randstad;
-    polygon<XY> randstad_xy;
+    bg::model::polygon<LL> randstad;
+    bg::model::polygon<XY> randstad_xy;
     add_to_ring(dutch_prj, a, randstad.outer(), randstad_xy.outer());
     add_to_ring(dutch_prj, u, randstad.outer(), randstad_xy.outer());
 
@@ -84,7 +83,9 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
     {
         // Add the city "Alphen" to create a concave case
         // Alphen 52 7' 48" N, 4 39' 0" E
-        LL alphen(latitude<T>(dms<north, T>(52, 7, 48)), longitude<T>(dms<east, T>(4, 39)));
+        LL alphen(
+            bg::latitude<T>(bg::dms<bg::north, T>(52, 7, 48)), 
+            bg::longitude<T>(bg::dms<bg::east, T>(4, 39)));
         add_to_ring(dutch_prj, alphen, randstad.outer(), randstad_xy.outer());
     }
 
@@ -96,19 +97,27 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
     if (hole)
     {
         // Gouda 52 1' 12" N, 4 42' 0" E
-        LL gouda(latitude<T>(dms<north, T>(52, 1, 12)), longitude<T>(dms<east, T>(4, 42)));
+        LL gouda(
+            bg::latitude<T>(bg::dms<bg::north, T>(52, 1, 12)), 
+            bg::longitude<T>(bg::dms<bg::east, T>(4, 42)));
         // Woerden 52 5' 9" N, 4 53' 0" E
-        LL woerden(latitude<T>(dms<north, T>(52, 5, 9)), longitude<T>(dms<east, T>(4, 53, 0)));
+        LL woerden(
+            bg::latitude<T>(bg::dms<bg::north, T>(52, 5, 9)), 
+            bg::longitude<T>(bg::dms<bg::east, T>(4, 53, 0)));
         // Uithoorn 52 13' 48" N, 4 49' 48" E
-        LL uithoorn(latitude<T>(dms<north, T>(52, 13, 48)), longitude<T>(dms<east, T>(4, 49, 48)));
+        LL uithoorn(bg::latitude<T>
+            (bg::dms<bg::north, T>(52, 13, 48)), 
+            bg::longitude<T>(bg::dms<bg::east, T>(4, 49, 48)));
         // Alphen 52 7' 48" N, 4 39' 0" E
-        LL alphen(latitude<T>(dms<north, T>(52, 7, 48)), longitude<T>(dms<east, T>(4, 39)));
+        LL alphen(bg::latitude<T>(
+            bg::dms<bg::north, T>(52, 7, 48)), 
+            bg::longitude<T>(bg::dms<bg::east, T>(4, 39)));
 
         randstad.inners().resize(1);
         randstad_xy.inners().resize(1);
 
-        typename polygon<LL>::ring_type& ring = randstad.inners()[0];
-        typename polygon<XY>::ring_type& ring_xy = randstad_xy.inners()[0];
+        typename bg::model::polygon<LL>::ring_type& ring = randstad.inners()[0];
+        typename bg::model::polygon<XY>::ring_type& ring_xy = randstad_xy.inners()[0];
 
         // Add them in counter-clockwise direction (see map of the Netherlands)
         add_to_ring(dutch_prj, gouda, ring, ring_xy);
@@ -121,8 +130,8 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
 
     // Check the area in square KM
     static const double KM2 = 1.0e6;
-    double d_ll = area(randstad) / KM2;
-    double d_xy = area(randstad_xy) / KM2;
+    double d_ll = bg::area(randstad) / KM2;
+    double d_xy = bg::area(randstad_xy) / KM2;
 
     BOOST_CHECK_CLOSE(d_ll, d_xy, 1.0);
     if (hole)
@@ -136,8 +145,8 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
         BOOST_CHECK_CLOSE(d_xy, concave ? 980.658 : 1360.140, perc);
 
         // No hole: area of outer should be equal to area of ring
-        double r_ll = area(randstad.outer()) / KM2;
-        double r_xy = area(randstad_xy.outer()) / KM2;
+        double r_ll = bg::area(randstad.outer()) / KM2;
+        double r_xy = bg::area(randstad_xy.outer()) / KM2;
 
         BOOST_CHECK_CLOSE(d_ll, r_ll, perc);
         BOOST_CHECK_CLOSE(d_xy, r_xy, perc);
@@ -145,8 +154,8 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
 
     // Calculate are using specified strategy, here with radius in KM
     // We then don't have to divide by KM*KM to get the same result
-    boost::geometry::strategy::area::huiller<LL, long double> strategy(6372.8);
-    d_ll = area(randstad, strategy);
+    bg::strategy::area::huiller<LL, long double> strategy(6372.8);
+    d_ll = bg::area(randstad, strategy);
     BOOST_CHECK_CLOSE(d_ll, d_xy, 1.0);
 }
 
@@ -155,13 +164,13 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
 template <typename T>
 void test_latlong(double perc)
 {
-    test_area_polygon_ll<point_xy<T>, point_ll<T, cs::geographic<degree> > >(false, false, perc);
+    test_area_polygon_ll<bg::model::point_xy<T>, bg::model::point_ll<T, bg::cs::geographic<bg::degree> > >(false, false, perc);
 
     // with concavities
-    test_area_polygon_ll<point_xy<T>, point_ll<T, cs::geographic<degree> > >(true, false, perc);
+    test_area_polygon_ll<bg::model::point_xy<T>, bg::model::point_ll<T, bg::cs::geographic<bg::degree> > >(true, false, perc);
 
     // with holes
-    test_area_polygon_ll<point_xy<T>, point_ll<T, cs::geographic<degree> > >(false, true, perc);
+    test_area_polygon_ll<bg::model::point_xy<T>, bg::model::point_ll<T, bg::cs::geographic<bg::degree> > >(false, true, perc);
 }
 
 int test_main(int, char* [])

@@ -44,16 +44,16 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 {
     std::vector<OutputType> clip;
 
-    typedef typename boost::geometry::coordinate_type<G1>::type coordinate_type;
-    typedef typename boost::geometry::point_type<G1>::type point_type;
+    typedef typename bg::coordinate_type<G1>::type coordinate_type;
+    typedef typename bg::point_type<G1>::type point_type;
 
     if (sym)
     {
-        boost::geometry::sym_difference<OutputType>(g1, g2, clip);
+        bg::sym_difference<OutputType>(g1, g2, clip);
     }
     else
     {
-        boost::geometry::difference<OutputType>(g1, g2, clip);
+        bg::difference<OutputType>(g1, g2, clip);
     }
 
     double area = 0;
@@ -66,11 +66,11 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         {
             // Get a correct point-count without duplicate points
             // (note that overlay might be adapted to avoid duplicates)
-            boost::geometry::unique(*it);
-            n += boost::geometry::num_points(*it);
+            bg::unique(*it);
+            n += bg::num_points(*it);
         }
 
-        area += boost::geometry::area(*it);
+        area += bg::area(*it);
     }
 
 
@@ -110,7 +110,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 
         std::ofstream svg(filename.str().c_str());
 
-        boost::geometry::svg_mapper<point_type> mapper(svg, 500, 500);
+        bg::svg_mapper<point_type> mapper(svg, 500, 500);
 
         mapper.add(g1);
         mapper.add(g2);
@@ -121,7 +121,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         for (typename std::vector<OutputType>::const_iterator it = clip.begin();
                 it != clip.end(); ++it)
         {
-            mapper.map(*it, sym 
+            mapper.map(*it, sym
                 ? "opacity:0.6;fill:rgb(255,255,0);stroke:rgb(255,0,0);stroke-width:5"
                 : "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
         }
@@ -136,23 +136,23 @@ static int counter = 0;
 
 
 template <typename OutputType, typename G1, typename G2>
-void test_one(std::string const& caseid, 
+void test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
-        std::size_t expected_count1, 
+        std::size_t expected_count1,
         std::size_t expected_point_count1,
         double expected_area1,
 
-        std::size_t expected_count2, 
+        std::size_t expected_count2,
         std::size_t expected_point_count2,
         double expected_area2,
 
         double percentage = 0.0001)
 {
     G1 g1;
-    boost::geometry::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt1, g1);
 
     G2 g2;
-    boost::geometry::read_wkt(wkt2, g2);
+    bg::read_wkt(wkt2, g2);
 
     test_difference<OutputType, void>(caseid + "_a", g1, g2,
         expected_count1, expected_point_count1,
@@ -161,9 +161,9 @@ void test_one(std::string const& caseid,
         expected_count2, expected_point_count2,
         expected_area2, percentage);
     test_difference<OutputType, void>(caseid + "_s", g1, g2,
-        expected_count1 + expected_count2, 
+        expected_count1 + expected_count2,
         expected_point_count1 + expected_point_count2,
-        expected_area1 + expected_area2, 
+        expected_area1 + expected_area2,
         percentage, true);
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
@@ -172,27 +172,27 @@ void test_one(std::string const& caseid,
         << "select " << counter++
         << ", '" << caseid << "' as caseid"
         << ", ST_NumPoints(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) " 
+        << "      ST_GeomFromText('" << wkt2 << "'))) "
         << ", ST_NumGeometries(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) " 
+        << "      ST_GeomFromText('" << wkt2 << "'))) "
         << ", ST_Area(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) " 
+        << "      ST_GeomFromText('" << wkt2 << "'))) "
         //<< ", " << expected_area1 << " as expected_area_a"
         //<< ", " << expected_count1 << " as expected_count_a"
         << ", ST_NumPoints(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) " 
+        << "      ST_GeomFromText('" << wkt1 << "'))) "
         << ", ST_NumGeometries(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) " 
+        << "      ST_GeomFromText('" << wkt1 << "'))) "
         << ", ST_Area(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) " 
+        << "      ST_GeomFromText('" << wkt1 << "'))) "
         //<< ", " << expected_area2 << " as expected_area_b"
         //<< ", " << expected_count2 << " as expected_count_b"
         << ", ST_NumPoints(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) " 
+        << "      ST_GeomFromText('" << wkt2 << "'))) "
         << ", ST_NumGeometries(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) " 
+        << "      ST_GeomFromText('" << wkt2 << "'))) "
         << ", ST_Area(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) " 
+        << "      ST_GeomFromText('" << wkt2 << "'))) "
         //<< ", " << expected_area1 + expected_area2 << " as expected_area_s"
         //<< ", " << expected_count1 + expected_count2 << " as expected_count_s"
         << std::endl;

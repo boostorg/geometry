@@ -18,15 +18,15 @@
 template <typename Geometry>
 void test_length(Geometry const& geometry, long double expected_length)
 {
-    long double length = boost::geometry::length(geometry);
+    long double length = bg::length(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
-    out << typeid(typename boost::geometry::coordinate_type<Geometry>::type).name()
+    out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << std::endl
-        << typeid(typename boost::geometry::length_result<Geometry>::type).name()
+        << typeid(typename bg::length_result<Geometry>::type).name()
         << std::endl
-        << "length : " << boost::geometry::length(geometry)
+        << "length : " << bg::length(geometry)
         << std::endl;
     std::cout << out.str();
 #endif
@@ -39,7 +39,7 @@ template <typename Geometry>
 void test_geometry(std::string const& wkt, double expected_length)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
     test_length(geometry, expected_length);
 }
 

@@ -24,7 +24,7 @@ namespace dispatch
 
 
 template <typename MultiPolygon>
-struct svg_map<boost::geometry::multi_polygon_tag, true, MultiPolygon>
+struct svg_map<bg::multi_polygon_tag, true, MultiPolygon>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
@@ -32,9 +32,9 @@ struct svg_map<boost::geometry::multi_polygon_tag, true, MultiPolygon>
                     MultiPolygon const& multi_polygon,
                     TransformStrategy const& strategy)
     {
-        boost::geometry::multi_polygon<boost::geometry::polygon<boost::geometry::point_xy<int> > > impoly;
-        boost::geometry::transform(multi_polygon, impoly, strategy);
-        stream << boost::geometry::svg(impoly, style, size) << std::endl;
+        bg::model::multi_polygon<bg::model::polygon<bg::model::point_xy<int> > > impoly;
+        bg::transform(multi_polygon, impoly, strategy);
+        stream << bg::svg(impoly, style, size) << std::endl;
     }
 };
 

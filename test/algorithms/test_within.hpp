@@ -24,7 +24,6 @@ template <typename Geometry1, typename Geometry2>
 void test_geometry(std::string const& wkt1,
         std::string const& wkt2, bool expected)
 {
-    namespace bg = boost::geometry;
     Geometry1 geometry1;
     Geometry2 geometry2;
 
@@ -45,8 +44,7 @@ template <typename Point, bool Clockwise, bool Closed>
 void test_ordered_ring(std::string const& wkt_point,
         std::string const& wkt_geometry, bool expected, bool on_border)
 {
-    namespace bg = boost::geometry;
-    typedef bg::linear_ring<Point, std::vector, Clockwise, Closed> ring_type;
+    typedef bg::model::linear_ring<Point, Clockwise, Closed> ring_type;
     ring_type ring;
     Point point;
 
@@ -115,7 +113,7 @@ void test_ring(std::string const& wkt_point,
     test_ordered_ring<Point, false, true>(wkt_point, wkt_geometry, expected, on_border);
     test_ordered_ring<Point, true, false>(wkt_point, wkt_geometry, expected, on_border);
     test_ordered_ring<Point, false, false>(wkt_point, wkt_geometry, expected, on_border);
-    test_geometry<Point, boost::geometry::polygon<Point> >(wkt_point, wkt_geometry, expected);
+    test_geometry<Point, bg::model::polygon<Point> >(wkt_point, wkt_geometry, expected);
 }
 
 #endif

@@ -13,17 +13,19 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+namespace bg = boost::geometry;
+
 namespace test
 {
     template <typename P, typename C>
 
     inline BOOST_CONCEPT_REQUIRES(
-        ((boost::geometry::concept::Point<P>))
-        ((boost::geometry::concept::ConstPoint<C>)),
+        ((bg::concept::Point<P>))
+        ((bg::concept::ConstPoint<C>)),
         (void))
     function_requiring_a_point(P& p1, const C& p2)
     {
-        boost::geometry::set<0>(p1, boost::geometry::get<0>(p2));
+        bg::set<0>(p1, bg::get<0>(p2));
     }
 }
 

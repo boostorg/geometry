@@ -75,7 +75,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("intersect_holes_intersect_and_touch",
         intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
         1, 23, 17.25);
-  
+
     test_one<Polygon, Polygon, Polygon>("intersect_holes_new_ring",
         intersect_holes_new_ring[0], intersect_holes_new_ring[1],
         2, 23, 122.1039);
@@ -123,16 +123,16 @@ void test_areal()
 
 
     test_one<Polygon, Polygon, Polygon>(
-            "polygon_pseudo_line", 
-            "Polygon((0 0,0 4,4 4,4 0,0 0))", 
-            "Polygon((2 -2,2 -1,2 6,2 -2))", 
+            "polygon_pseudo_line",
+            "Polygon((0 0,0 4,4 4,4 0,0 0))",
+            "Polygon((2 -2,2 -1,2 6,2 -2))",
             5, 22, 1.1901714);
 
 
     // Icovist (submitted by Brandon during Formal Review)
     // Test the FORWARD case
     {
-        std::string tn = string_from_type<typename boost::geometry::coordinate_type<Polygon>::type>::name();
+        std::string tn = string_from_type<typename bg::coordinate_type<Polygon>::type>::name();
         test_one<Polygon, Polygon, Polygon>("isovist",
             isovist1[0], isovist1[1],
             1,
@@ -156,7 +156,7 @@ void test_areal_clip()
 {
     test_one<Polygon, Box, Polygon>("boxring", example_box, example_ring,
         2, 12, 1.09125);
-    test_one<Polygon, Polygon, Box>("boxring2", example_ring,example_box, 
+    test_one<Polygon, Polygon, Box>("boxring2", example_ring,example_box,
         2, 12, 1.09125);
 
     test_one<Polygon, Box, Polygon>("boxpoly", example_box, example_polygon,
@@ -192,13 +192,13 @@ void test_areal_clip()
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::linestring<P> linestring;
-    typedef boost::geometry::model::polygon<P> polygon;
-    typedef boost::geometry::box<P> box;
-    typedef boost::geometry::model::segment<P> segment;
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::box<P> box;
+    typedef bg::model::segment<P> segment;
 
-    typedef boost::geometry::model::polygon<P, false> polygon_ccw;
-    typedef boost::geometry::model::polygon<P, true, false> polygon_open;
+    typedef bg::model::polygon<P, false> polygon_ccw;
+    typedef bg::model::polygon<P, true, false> polygon_open;
 
     std::string clip = "box(2 2,8 8)";
 
@@ -274,20 +274,20 @@ void test_pointer_version()
     p = new test::test_point_xy; p->x = 0; p->y = 0; ln.push_back(p);
     p = new test::test_point_xy; p->x = 10; p->y = 10; ln.push_back(p);
 
-    boost::geometry::box<boost::geometry::point_xy<double> > box;
-    boost::geometry::assign(box, 2, 2, 8, 8);
+    bg::model::box<bg::model::point_xy<double> > box;
+    bg::assign(box, 2, 2, 8, 8);
 
-    typedef boost::geometry::linestring<boost::geometry::point_xy<double> > output_type;
+    typedef bg::model::linestring<bg::model::point_xy<double> > output_type;
     std::vector<output_type> clip;
-    boost::geometry::intersection_inserter<output_type>(box, ln, std::back_inserter(clip));
+    bg::intersection_inserter<output_type>(box, ln, std::back_inserter(clip));
 
     double length = 0;
     int n = 0;
     for (std::vector<output_type>::const_iterator it = clip.begin();
             it != clip.end(); ++it)
     {
-        length += boost::geometry::length(*it);
-        n += boost::geometry::num_points(*it);
+        length += bg::length(*it);
+        n += bg::num_points(*it);
     }
 
     BOOST_CHECK_EQUAL(clip.size(), 1u);
@@ -306,16 +306,13 @@ void test_pointer_version()
 
 int test_main(int, char* [])
 {
-    //test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    //test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
-#if defined(HAVE_CLN)
-    test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
+#if defined(HAVE_TTMATH)
+    test_all<bg::model::point_xy<ttmath_big> >();
 #endif
 
-#if defined(HAVE_GMP)
-    //test_all<boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> >();
-#endif
     //test_pointer_version();
     return 0;
 }

@@ -32,13 +32,13 @@
 
 template <int E, typename P1, typename P2>
 void test_one(double lon, double lat,
-              typename boost::geometry::coordinate_type<P2>::type x,
-              typename boost::geometry::coordinate_type<P2>::type y)
+              typename bg::coordinate_type<P2>::type x,
+              typename bg::coordinate_type<P2>::type y)
 {
-    typedef typename boost::geometry::coordinate_type<P2>::type coord_type;
+    typedef typename bg::coordinate_type<P2>::type coord_type;
 
-    typedef boost::geometry::projection::epsg_traits<E, P1, P2> epsg_traits;
-    boost::geometry::projection::parameters par = boost::geometry::projection::detail::pj_init_plus(epsg_traits::par());
+    typedef bg::projection::epsg_traits<E, P1, P2> epsg_traits;
+    bg::projection::parameters par = bg::projection::detail::pj_init_plus(epsg_traits::par());
 
     typedef typename epsg_traits::type prj_type;
     prj_type prj(par);
@@ -50,15 +50,15 @@ void test_one(double lon, double lat,
     P2 xy;
     prj.forward(ll, xy);
 
-    BOOST_CHECK_CLOSE(boost::geometry::get<0>(xy), x, 0.001);
-    BOOST_CHECK_CLOSE(boost::geometry::get<1>(xy), y, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(xy), x, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(xy), y, 0.001);
 }
 
 template <typename D, typename P>
 void test_deg_rad(double factor)
 {
-    typedef typename boost::geometry::coordinate_type<P>::type coord_type;
-    typedef boost::geometry::point_ll<coord_type, boost::geometry::cs::geographic<D> > point_type;
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    typedef bg::model::point_ll<coord_type, bg::cs::geographic<D> > point_type;
 
     test_one<28992, point_type, P>(4.897000 * factor, 52.371000 * factor, 121590.388077, 487013.903377);
     test_one<29118, point_type, P>(4.897000 * factor, 52.371000 * factor, 4852882, 9129373);
@@ -67,8 +67,8 @@ void test_deg_rad(double factor)
 template <typename P>
 void test_all()
 {
-    test_deg_rad<boost::geometry::degree, P>(1.0);
-    test_deg_rad<boost::geometry::radian, P>(boost::geometry::math::d2r);
+    test_deg_rad<bg::degree, P>(1.0);
+    test_deg_rad<bg::radian, P>(bg::math::d2r);
 }
 
 int test_main(int, char* [])
@@ -77,10 +77,10 @@ int test_main(int, char* [])
     test_all<float[2]>();
     test_all<double[2]>();
     test_all<test::test_point>();
-    //test_all<boost::geometry::point_xy<int> >();
-    test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
-    test_all<boost::geometry::point_xy<long double> >();
+    //test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
+    test_all<bg::model::point_xy<long double> >();
 
     return 0;
 }

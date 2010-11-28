@@ -28,7 +28,7 @@ void test_non_geometry()
     v.push_back(2);
     v.push_back(3);
 
-    typedef boost::geometry::closing_iterator
+    typedef bg::closing_iterator
         <
             std::vector<int> const
         > closing_iterator;
@@ -53,8 +53,8 @@ template <typename Geometry>
 void test_geometry(std::string const& wkt)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
-    typedef boost::geometry::closing_iterator<Geometry const> closing_iterator;
+    bg::read_wkt(wkt, geometry);
+    typedef bg::closing_iterator<Geometry const> closing_iterator;
 
 
     // 1. Test normal behaviour
@@ -65,7 +65,7 @@ void test_geometry(std::string const& wkt)
         std::ostringstream out;
         for (; it != end; ++it)
         {
-            out << " " << boost::geometry::get<0>(*it) << boost::geometry::get<1>(*it);
+            out << " " << bg::get<0>(*it) << bg::get<1>(*it);
         }
         BOOST_CHECK_EQUAL(out.str(), " 11 14 44 41 11");
 
@@ -83,13 +83,13 @@ void test_geometry(std::string const& wkt)
 
         std::copy<closing_iterator>(
             closing_iterator(geometry),
-            closing_iterator(geometry, true), 
+            closing_iterator(geometry, true),
             std::back_inserter(copy));
 
         std::ostringstream out;
         for (normal_iterator cit = boost::begin(copy); cit != boost::end(copy); ++cit)
         {
-                out << " " << boost::geometry::get<0>(*cit) << boost::geometry::get<1>(*cit);
+                out << " " << bg::get<0>(*cit) << bg::get<1>(*cit);
         }
         BOOST_CHECK_EQUAL(out.str(), " 11 14 44 41 11");
     }
@@ -100,13 +100,13 @@ template <typename P>
 void test_all()
 {
     test_non_geometry();
-    test_geometry<boost::geometry::linear_ring<P> >("POLYGON((1 1,1 4,4 4,4 1))");
+    test_geometry<bg::model::linear_ring<P> >("POLYGON((1 1,1 4,4 4,4 1))");
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_2d>();
+    test_all<bg::model::point_2d>();
 
     return 0;
 }

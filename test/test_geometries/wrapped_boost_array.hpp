@@ -124,7 +124,7 @@ namespace boost { namespace geometry { namespace traits
     };
 
 
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 
 

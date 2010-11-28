@@ -34,7 +34,6 @@ void test_dissolve_plusmin(std::string const& caseid, Collection const& input,
             T const& expected_positive_area,
             T const& expected_negative_area)
 {
-    namespace bg = boost::geometry;
     typedef typename boost::range_value<GeometryOut>::type geometry_type;
     typedef typename bg::point_type<geometry_type>::type point_type;
 
@@ -102,7 +101,6 @@ void test_geometry(std::string const& caseid, std::string const& wkt,
             T const& expected_positive_area,
             T const& expected_negative_area = T())
 {
-    namespace bg = boost::geometry;
 
     MultiPolygon multi_polygon;
     bg::read_wkt(wkt, multi_polygon);
@@ -160,9 +158,8 @@ void test_geometry(std::string const& caseid, std::string const& wkt,
 template <typename Point>
 void test_all()
 {
-    namespace bg = boost::geometry;
-    typedef bg::polygon<Point> polygon;
-    typedef bg::multi_polygon<polygon> multi_polygon;
+    typedef bg::model::polygon<Point> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     test_geometry<multi_polygon>("simplex_one",
         "MULTIPOLYGON(((0 0,1 4,4 1,0 0)))",
@@ -212,7 +209,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
     return 0;
 }
 

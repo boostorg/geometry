@@ -22,7 +22,6 @@
 template <typename Segment>
 void test_geometry(std::string const& wkt, std::string const& expected)
 {
-    namespace bg = boost::geometry;
 
     Segment segment;
     bg::read_wkt(wkt, segment);
@@ -32,10 +31,10 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 
     {
         std::ostringstream out;
-        for (typename boost::range_iterator<range_type>::type it = boost::begin(range); 
+        for (typename boost::range_iterator<range_type>::type it = boost::begin(range);
             it != boost::end(range); ++it)
         {
-            out << " " << boost::geometry::get<0>(*it) << boost::geometry::get<1>(*it);
+            out << " " << bg::get<0>(*it) << bg::get<1>(*it);
         }
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
@@ -43,13 +42,13 @@ void test_geometry(std::string const& wkt, std::string const& expected)
     {
         // Check forward/backward behaviour
         std::ostringstream out;
-        typename boost::range_iterator<range_type>::type it = boost::begin(range); 
+        typename boost::range_iterator<range_type>::type it = boost::begin(range);
         it++;
         it--;
-        out << " " << boost::geometry::get<0>(*it) << boost::geometry::get<1>(*it);
+        out << " " << bg::get<0>(*it) << bg::get<1>(*it);
         typename boost::range_iterator<range_type>::type it2 = boost::end(range);
         it2--;
-        out << " " << boost::geometry::get<0>(*it2) << boost::geometry::get<1>(*it2);
+        out << " " << bg::get<0>(*it2) << bg::get<1>(*it2);
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
 
@@ -71,6 +70,6 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_2d>();
+    test_all<bg::model::point_2d>();
     return 0;
 }

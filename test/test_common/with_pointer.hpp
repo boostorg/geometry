@@ -75,7 +75,7 @@ struct access<test::test_point_xy*, 1>
 
 };
 
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 
 #endif // #ifndef GEOMETRY_TEST_COMMON_WITH_POINTER_HPP

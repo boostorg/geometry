@@ -55,15 +55,15 @@ template <typename G>
 void test_geometry(G const& geometry, int expected_size = 0)
 {
 #if defined(BOOST_GEOMETRY_TEST_RING)
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::ConstRing<G>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::ConstRing<G>) );
 #elif defined(BOOST_GEOMETRY_TEST_MULTI_POINT)
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::ConstMultiPoint<G>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::ConstMultiPoint<G>) );
 #else
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::ConstLinestring<G>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::ConstLinestring<G>) );
 #endif
 
-    typedef typename boost::geometry::point_type<G>::type P;
-    typedef typename boost::geometry::coordinate_type<P>::type C;
+    typedef typename bg::point_type<G>::type P;
+    typedef typename bg::coordinate_type<P>::type C;
 
     // Check range-like behaviour
     BOOST_CHECK_EQUAL(boost::size(geometry), expected_size);
@@ -93,13 +93,13 @@ int test_main(int, char* [])
 {
 /*    test_all<test::test_point>();
     test_all<boost::tuple<float, float> >();
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<long double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<long double, 2, bg::cs::cartesian> >();
 */
-    test_all<boost::geometry::point<double, 3, boost::geometry::cs::cartesian> >();
-    //test_all<boost::geometry::point<long double, 3, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<double, 3, bg::cs::cartesian> >();
+    //test_all<bg::model::point<long double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

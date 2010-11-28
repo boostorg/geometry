@@ -20,12 +20,12 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
 
-template <boost::geometry::iterate_direction Direction, typename Range>
+template <bg::iterate_direction Direction, typename Range>
 void test_forward_or_reverse(Range const& range, std::string const& expected)
 {
-    typedef boost::geometry::reversible_view
+    typedef bg::reversible_view
         <
-            Range const, 
+            Range const,
             Direction
         > view_type;
 
@@ -34,11 +34,11 @@ void test_forward_or_reverse(Range const& range, std::string const& expected)
     bool first = true;
     std::ostringstream out;
     for (typename boost::range_iterator<view_type const>::type
-        it = boost::begin(view); 
-        it != boost::end(view); 
+        it = boost::begin(view);
+        it != boost::end(view);
         ++it, first = false)
     {
-        out << (first ? "" : " ") << boost::geometry::dsv(*it);
+        out << (first ? "" : " ") << bg::dsv(*it);
     }
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -49,7 +49,6 @@ template <typename Geometry>
 void test_geometry(std::string const& wkt,
             std::string const& expected_forward, std::string const& expected_reverse)
 {
-    namespace bg = boost::geometry;
     Geometry geo;
     bg::read_wkt(wkt, geo);
 
@@ -61,8 +60,8 @@ void test_geometry(std::string const& wkt,
 template <typename P>
 void test_all()
 {
-    test_geometry<boost::geometry::linestring<P> >(
-            "linestring(1 1,2 2,3 3)", 
+    test_geometry<bg::model::linestring<P> >(
+            "linestring(1 1,2 2,3 3)",
             "(1, 1) (2, 2) (3, 3)",
             "(3, 3) (2, 2) (1, 1)");
 }
@@ -70,9 +69,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    namespace bg = boost::geometry;
-    test_all<bg::point_2d>();
-    test_all<bg::point<int, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point_2d>();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_all<boost::tuple<double, double> >();
 
     return 0;

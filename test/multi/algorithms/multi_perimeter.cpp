@@ -21,13 +21,13 @@
 template <typename P>
 void test_all()
 {
-    test_geometry<boost::geometry::multi_polygon<boost::geometry::polygon<P> > >(
+    test_geometry<bg::model::multi_polygon<bg::model::polygon<P> > >(
             "MULTIPOLYGON(((0 0,0 1,1 0,0 0)))", 1.0 + 1.0 + sqrt(2.0));
 }
 
 int test_main( int , char* [] )
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

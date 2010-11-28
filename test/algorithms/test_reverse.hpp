@@ -21,11 +21,11 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 {
     Geometry geometry;
 
-    boost::geometry::read_wkt(wkt, geometry);
-    boost::geometry::reverse(geometry);
+    bg::read_wkt(wkt, geometry);
+    bg::reverse(geometry);
 
     std::ostringstream out;
-    out << boost::geometry::wkt(geometry);
+    out << bg::wkt(geometry);
 
     BOOST_CHECK_MESSAGE(out.str() == expected,
         "reverse: " << wkt

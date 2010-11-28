@@ -23,7 +23,6 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 
-namespace bg = boost::geometry;
 
 template <typename P>
 void test_distance_result()
@@ -74,10 +73,10 @@ void test_distance_segment()
     P p4 = bg::make<P>(2.6, 2.4);
     P p5 = bg::make<P>(2.5, 2.5);
 
-    bg::segment<P const> const seg(s1, s2);
+    bg::model::referring_segment<P const> const seg(s1, s2);
 
-    double d1 = bg::comparable_distance(p1, seg); BOOST_CHECK_CLOSE(d1, 2.0, 0.001);
-    double d2 = bg::comparable_distance(p2, seg); BOOST_CHECK_CLOSE(d2, 1.0, 0.001);
+    double d1 = bg::comparable_distance(p1, seg); BOOST_CHECK_CLOSE(d1, 8.0, 0.001);
+    double d2 = bg::comparable_distance(p2, seg); BOOST_CHECK_CLOSE(d2, 2.0, 0.001);
     double d3 = bg::comparable_distance(p3, seg); BOOST_CHECK_CLOSE(d3, 0.02, 0.001);
     double d4 = bg::comparable_distance(p4, seg); BOOST_CHECK_CLOSE(d4, 0.02, 0.001);
     double d5 = bg::comparable_distance(p5, seg); BOOST_CHECK_CLOSE(d5, 0.0, 0.001);
@@ -90,7 +89,7 @@ void test_distance_segment()
 template <typename P>
 void test_distance_linestring()
 {
-    bg::linestring<P> points;
+    bg::model::linestring<P> points;
     points.push_back(bg::make<P>(1, 1));
     points.push_back(bg::make<P>(3, 3));
 
@@ -104,7 +103,7 @@ void test_distance_linestring()
     BOOST_CHECK_CLOSE(d, 2.828427, 0.001);
 
 
-    bg::linestring<P> line;
+    bg::model::linestring<P> line;
     line.push_back(bg::make<P>(1,1));
     line.push_back(bg::make<P>(2,2));
     line.push_back(bg::make<P>(3,3));
@@ -130,9 +129,9 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    //test_all<bg::point_xy<int> >();
-    test_all<bg::point_xy<float> >();
-    test_all<bg::point_xy<double> >();
+    //test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

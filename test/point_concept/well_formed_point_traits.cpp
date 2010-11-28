@@ -33,7 +33,7 @@ struct coordinate_type<point>
 template <>
 struct coordinate_system<point>
 {
-    typedef boost::geometry::cs::cartesian type;
+    typedef bg::cs::cartesian type;
 };
 
 template <>
@@ -71,7 +71,7 @@ struct access<point, 1>
 };
 
 
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 int main()
 {

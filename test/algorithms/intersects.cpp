@@ -23,10 +23,10 @@ void test_all()
     // intersect <=> ! disjoint
     // so most tests are done in disjoint test.
     // We only test compilation of one case.
-    test_geometry<P, boost::geometry::box<P> >("POINT(1 1)", "BOX(0 0,2 2)", true);
+    test_geometry<P, bg::model::box<P> >("POINT(1 1)", "BOX(0 0,2 2)", true);
 
     // self-intersecting is not tested in disjoint, so that is done here.
-    typedef boost::geometry::polygon<P> polygon;
+    typedef bg::model::polygon<P> polygon;
 
     // Just a normal polygon
     test_self_intersects<polygon>("POLYGON((0 0,0 4,1.5 2.5,2.5 1.5,4 0,0 0))", false);
@@ -70,13 +70,10 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
-#if defined(HAVE_CLN)
-    //test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
-#endif
-#if defined(HAVE_GMP)
-    //test_all<boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> >();
+#if defined(HAVE_TTMATH)
+    test_all<bg::model::point_xy<ttmath_big> >();
 #endif
 
     return 0;

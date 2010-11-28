@@ -33,7 +33,7 @@ struct modifying_functor
         p.x(1);
     }
 
-    inline void operator()(boost::geometry::segment<P>& s)
+    inline void operator()(bg::segment<P>& s)
     {
         s.first.x(1);
     }
@@ -50,7 +50,7 @@ struct const_functor
         sum += p.x();
     }
 
-    inline void operator()(boost::geometry::segment<P> const& s)
+    inline void operator()(bg::segment<P> const& s)
     {
         sum += s.first.x() - s.second.x();
     }
@@ -59,31 +59,31 @@ struct const_functor
 template <typename T, template<typename, typename> class V>
 void check_linestring()
 {
-    typedef boost::geometry::point_xy<T> P;
-    typedef boost::geometry::linestring<P, V, std::allocator> line_type;
+    typedef bg::model::point_xy<T> P;
+    typedef bg::model::linestring<P, V, std::allocator> line_type;
     line_type line;
     line.push_back(P(0,0));
     line.push_back(P(1,1));
 
-    typedef boost::geometry::multi_linestring<line_type, V, std::allocator> multi_line_type;
+    typedef bg::multi_linestring<line_type, V, std::allocator> multi_line_type;
     multi_line_type multi;
     multi.push_back(line);
 
-    double len = boost::geometry::length(line);
-    len = boost::geometry::length(multi);
-    double d = boost::geometry::distance(P(0,1), line);
-    //d = boost::geometry::distance(P(0,1), multi); not defined yet!
+    double len = bg::length(line);
+    len = bg::length(multi);
+    double d = bg::distance(P(0,1), line);
+    //d = bg::distance(P(0,1), multi); not defined yet!
 
     line_type simp;
-    boost::geometry::simplify(line, simp, 3);
+    bg::simplify(line, simp, 3);
     multi_line_type simpm;
-    boost::geometry::simplify(multi, simpm, 3);
+    bg::simplify(multi, simpm, 3);
 
-    typedef boost::geometry::box<P> box_type;
+    typedef bg::model::box<P> box_type;
     box_type box1;
-    boost::geometry::envelope(line, box1);
+    bg::envelope(line, box1);
     box_type box2;
-    boost::geometry::envelope(multi, box2);
+    bg::envelope(multi, box2);
 
     // FIXME: Where is output stream op for line/multi --mloskot
     //std::stringstream out;
@@ -98,20 +98,20 @@ void check_linestring()
     const line_type& cl = line;
     const multi_line_type& cm = multi;
 
-    boost::geometry::for_each_point(cl, cf);
-    boost::geometry::for_each_point(cm, cf);
-    boost::geometry::for_each_segment(cl, cf);
-    boost::geometry::for_each_segment(cm, cf);
+    bg::for_each_point(cl, cf);
+    bg::for_each_point(cm, cf);
+    bg::for_each_segment(cl, cf);
+    bg::for_each_segment(cm, cf);
 
     // For each, modifying
     modifying_functor<P> mf;
     line_type& ml = line;
     multi_line_type& mm = multi;
     std::for_each(line.begin(), line.end(), mf);
-    boost::geometry::for_each_point(ml, mf);
-    boost::geometry::for_each_point(mm, mf);
-    boost::geometry::for_each_segment(ml, mf);
-    boost::geometry::for_each_segment(mm, mf);
+    bg::for_each_point(ml, mf);
+    bg::for_each_point(mm, mf);
+    bg::for_each_segment(ml, mf);
+    bg::for_each_segment(mm, mf);
     */
 
 }
@@ -124,51 +124,51 @@ template
 >
 void check_polygon()
 {
-    typedef boost::geometry::point_xy<T> P;
-    typedef boost::geometry::polygon<P, VP, VR, true, std::allocator, std::allocator> Y;
+    typedef bg::model::point_xy<T> P;
+    typedef bg::model::polygon<P, VP, VR, true, std::allocator, std::allocator> Y;
     Y poly;
     poly.outer().push_back(P(0,0));
     poly.outer().push_back(P(2,0));
     poly.outer().push_back(P(2,2));
     poly.outer().push_back(P(0,2));
 
-    boost::geometry::correct(poly);
+    bg::correct(poly);
 
     // multi
-    typedef boost::geometry::multi_polygon<Y, VP, std::allocator> MY;
+    typedef bg::multi_polygon<Y, VP, std::allocator> MY;
     MY multi;
     multi.push_back(poly);
 
-    double a = boost::geometry::area(poly);
-    a = boost::geometry::area(multi);
+    double a = bg::area(poly);
+    a = bg::area(multi);
 
-    //double d = boost::geometry::distance(P(0,1), poly);
+    //double d = bg::distance(P(0,1), poly);
 
     Y simp;
-    boost::geometry::simplify(poly, simp, 3);
+    bg::simplify(poly, simp, 3);
     MY msimp;
-    boost::geometry::simplify(multi, msimp, 3);
+    bg::simplify(multi, msimp, 3);
 
-    typedef boost::geometry::box<P> box_type;
+    typedef bg::model::box<P> box_type;
     box_type box1;
-    boost::geometry::envelope(poly, box1);
+    bg::envelope(poly, box1);
     box_type box2;
-    boost::geometry::envelope(multi, box2);
+    bg::envelope(multi, box2);
 
     P ctr;
-    boost::geometry::centroid(poly, ctr);
+    bg::centroid(poly, ctr);
 
     // within
-    boost::geometry::point_2d circ_centre(10,10);
+    bg::model::point_2d circ_centre(10,10);
 
-    bool w = boost::geometry::within(P(1, 1), poly);
-    //w = boost::geometry::within(poly, b); tbd
-    w = boost::geometry::within(P(1, 1), multi);
+    bool w = bg::within(P(1, 1), poly);
+    //w = bg::within(poly, b); tbd
+    w = bg::within(P(1, 1), multi);
 
-    //boost::geometry::circle circ(circ_centre, 10);
-    //w = boost::geometry::within(poly, circ);
-    //w = boost::geometry::within(multi, circ);
-    //w = boost::geometry::within(multi, b); tbd
+    //bg::circle circ(circ_centre, 10);
+    //w = bg::within(poly, circ);
+    //w = bg::within(multi, circ);
+    //w = bg::within(multi, b); tbd
 
     // For each, const
     /* TODO: Fix for_each/functor
@@ -178,20 +178,20 @@ void check_polygon()
     const Y& cp = poly;
     const MY& cm = multi;
 
-    boost::geometry::for_each_point(cp, cf);
-    boost::geometry::for_each_point(cm, cf);
-    boost::geometry::for_each_segment(cp, cf);
-    boost::geometry::for_each_segment(cm, cf);
+    bg::for_each_point(cp, cf);
+    bg::for_each_point(cm, cf);
+    bg::for_each_segment(cp, cf);
+    bg::for_each_segment(cm, cf);
 
     // For each, modifying
     modifying_functor<P> mf;
     Y& mp = poly;
     MY& mm = multi;
     std::for_each(poly.outer().begin(), poly.outer().end(), mf);
-    boost::geometry::for_each_point(mp, mf);
-    boost::geometry::for_each_point(mm, mf);
-    boost::geometry::for_each_segment(mp, mf);
-    boost::geometry::for_each_segment(mm, mf);
+    bg::for_each_point(mp, mf);
+    bg::for_each_point(mm, mf);
+    bg::for_each_segment(mp, mf);
+    bg::for_each_segment(mm, mf);
     */
 }
 

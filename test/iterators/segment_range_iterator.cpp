@@ -24,13 +24,13 @@ template <typename Segment>
 void test_geometry(std::string const& wkt, std::string const& expected)
 {
     Segment segment;
-    boost::geometry::read_wkt(wkt, segment);
+    bg::read_wkt(wkt, segment);
 
     std::ostringstream out;
-    boost::geometry::segment_range_iterator<Segment> it(segment), end(segment, true);
+    bg::segment_range_iterator<Segment> it(segment), end(segment, true);
     for ( ; it != end; ++it)
     {
-        out << " " << boost::geometry::get<0>(*it) << boost::geometry::get<1>(*it);
+        out << " " << bg::get<0>(*it) << bg::get<1>(*it);
     }
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -46,7 +46,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_2d>();
+    test_all<bg::model::point_2d>();
 
     return 0;
 }

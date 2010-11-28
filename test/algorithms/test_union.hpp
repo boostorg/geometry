@@ -39,9 +39,9 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         std::size_t expected_point_count, double expected_area,
         double percentage)
 {
-    typedef typename boost::geometry::coordinate_type<G1>::type coordinate_type;
+    typedef typename bg::coordinate_type<G1>::type coordinate_type;
     std::vector<OutputType> clip;
-    boost::geometry::union_inserter<OutputType>(g1, g2, std::back_inserter(clip));
+    bg::union_inserter<OutputType>(g1, g2, std::back_inserter(clip));
 
     double area = 0;
     std::size_t n = 0;
@@ -49,14 +49,14 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end(); ++it)
     {
-        area += boost::geometry::area(*it);
-        holes += boost::geometry::num_interior_rings(*it);
+        area += bg::area(*it);
+        holes += bg::num_interior_rings(*it);
 
         // Get a correct point-count without duplicate points
         // (note that overlay might be adapted to avoid duplicates)
         OutputType simplified;
-        boost::geometry::unique(*it);
-        n += boost::geometry::num_points(*it, true);
+        bg::unique(*it);
+        n += bg::num_points(*it, true);
     }
 
 
@@ -83,12 +83,12 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 #if defined(TEST_WITH_SVG)
     {
-        bool const ccw = 
-            boost::geometry::point_order<G1>::value == boost::geometry::counterclockwise
-            || boost::geometry::point_order<G2>::value == boost::geometry::counterclockwise;
-        bool const open =            
-            boost::geometry::closure<G1>::value == boost::geometry::open
-            || boost::geometry::closure<G2>::value == boost::geometry::open;
+        bool const ccw =
+            bg::point_order<G1>::value == bg::counterclockwise
+            || bg::point_order<G2>::value == bg::counterclockwise;
+        bool const open =
+            bg::closure<G1>::value == bg::open
+            || bg::closure<G2>::value == bg::open;
 
         std::ostringstream filename;
         filename << "union_"
@@ -100,9 +100,9 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
         std::ofstream svg(filename.str().c_str());
 
-        boost::geometry::svg_mapper
+        bg::svg_mapper
             <
-                typename boost::geometry::point_type<G2>::type
+                typename bg::point_type<G2>::type
             > mapper(svg, 500, 500);
         mapper.add(g1);
         mapper.add(g2);
@@ -132,14 +132,14 @@ void test_one(std::string const& caseid, std::string const& wkt1, std::string co
         double percentage = 0.001)
 {
     G1 g1;
-    boost::geometry::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt1, g1);
 
     G2 g2;
-    boost::geometry::read_wkt(wkt2, g2);
+    bg::read_wkt(wkt2, g2);
 
     // Reverse if necessary
-    boost::geometry::correct(g1);
-    boost::geometry::correct(g2);
+    bg::correct(g1);
+    bg::correct(g2);
 
     test_union<OutputType>(caseid, g1, g2,
         expected_count, expected_hole_count, expected_point_count,

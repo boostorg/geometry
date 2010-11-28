@@ -35,7 +35,6 @@
 template <typename Polygon, typename Generator>
 inline void make_box(Polygon& polygon, Generator& generator)
 {
-    namespace bg = boost::geometry;
     typedef typename bg::point_type<Polygon>::type point_type;
     typedef typename bg::coordinate_type<Polygon>::type coordinate_type;
 
@@ -67,10 +66,9 @@ inline void make_box(Polygon& polygon, Generator& generator)
 
 template <typename MultiPolygon, typename Generator>
 bool test_recursive_boxes(MultiPolygon& result, int& index,
-            Generator& generator, 
+            Generator& generator,
             bool svg, int level = 3)
 {
-    namespace bg = boost::geometry;
     MultiPolygon p, q;
 
     // Generate two boxes
@@ -129,11 +127,11 @@ void test_all(int seed, int count, bool svg, int level)
     boost::variate_generator<base_generator_type&, boost::uniform_int<> >
         coordinate_generator(generator, random_coordinate);
 
-    typedef boost::geometry::polygon
+    typedef bg::model::polygon
         <
-            boost::geometry::point_xy<T>
+            bg::model::point_xy<T>
         > polygon;
-    typedef boost::geometry::multi_polygon<polygon> mp;
+    typedef bg::model::multi_polygon<polygon> mp;
 
 
     int index = 0;
@@ -143,7 +141,7 @@ void test_all(int seed, int count, bool svg, int level)
         test_recursive_boxes<mp>(p, index, coordinate_generator, svg, level);
     }
     std::cout
-        << "boxes " << index 
+        << "boxes " << index
         << " type: " << string_from_type<T>::name()
         << " time: " << t.elapsed()  << std::endl;
 }
@@ -163,11 +161,8 @@ int main(int argc, char** argv)
         //test_all<float>(seed, count, svg, 1e-3);
         test_all<double>(seed, count, svg, level);
 
-#if defined(HAVE_CLN)
-    //test_recursive_boxes<boost::numeric_adaptor::cln_value_type>("c",
-#endif
-#if defined(HAVE_GMP)
-   // test_recursive_boxes<boost::numeric_adaptor::gmp_value_type>(selection, "g");
+#if defined(HAVE_TTMATH)
+   // test_recursive_boxes<ttmath_big>(selection, "t");
 #endif
     }
     catch(std::exception const& e)

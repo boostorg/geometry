@@ -18,11 +18,10 @@
 #include <test_common/test_point.hpp>
 
 
-
 template <typename Point>
 void test_point_3d()
 {
-    boost::geometry::box<Point> b = boost::geometry::make_inverse<boost::geometry::box<Point> >();
+    bg::model::box<Point> b = bg::make_inverse<bg::model::box<Point> >();
 
     test_combine<Point>(b, "POINT(1 2 5)", "(1,2,5),(1,2,5)");
     test_combine<Point>(b, "POINT(3 4 6)", "(1,2,5),(3,4,6)");
@@ -44,8 +43,8 @@ void test_point_3d()
 template <typename Point>
 void test_box_3d()
 {
-    typedef boost::geometry::box<Point> box_type;
-    box_type b = boost::geometry::make_inverse<box_type>();
+    typedef bg::model::box<Point> box_type;
+    box_type b = bg::make_inverse<box_type>();
 
     test_combine<box_type>(b, "BOX(0 2 5,4 4 6)",   "(0,2,5),(4,4,6)");
     test_combine<box_type>(b, "BOX(0 1 5,4 6 6)",   "(0,1,5),(4,6,6)");
@@ -70,10 +69,10 @@ void test_3d()
 template <typename Point>
 void test_2d()
 {
-    typedef boost::geometry::box<Point> box_type;
+    typedef bg::model::box<Point> box_type;
     typedef std::pair<Point, Point> segment_type;
 
-    box_type b = boost::geometry::make_inverse<box_type>();
+    box_type b = bg::make_inverse<box_type>();
 
     test_combine<box_type>(b, "BOX(1 1,2 2)",   "(1,1),(2,2)");
 
@@ -87,7 +86,7 @@ void test_2d()
 template <typename Point>
 void test_spherical_degree()
 {
-    boost::geometry::box<Point> b = boost::geometry::make_inverse<boost::geometry::box<Point> >();
+    bg::model::box<Point> b = bg::make_inverse<bg::model::box<Point> >();
 
     test_combine<Point>(b, "POINT(179.73 71.56)",
             "(179.73,71.56),(179.73,71.56)");
@@ -106,7 +105,7 @@ void test_spherical_degree()
 template <typename Point>
 void test_spherical_radian()
 {
-    boost::geometry::box<Point> b = boost::geometry::make_inverse<boost::geometry::box<Point> >();
+    bg::model::box<Point> b = bg::make_inverse<bg::model::box<Point> >();
 
     test_combine<Point>(b, "POINT(3.128 1.249)",
             "(3.128,1.249),(3.128,1.249)");
@@ -123,29 +122,21 @@ void test_spherical_radian()
 
 int test_main(int, char* [])
 {
-    test_2d<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
+    test_2d<bg::model::point<int, 2, bg::cs::cartesian> >();
 
 
     test_3d<test::test_point>();
-    test_3d<boost::geometry::point<int, 3, boost::geometry::cs::cartesian> >();
-    test_3d<boost::geometry::point<float, 3, boost::geometry::cs::cartesian> >();
-    test_3d<boost::geometry::point<double, 3, boost::geometry::cs::cartesian> >();
+    test_3d<bg::model::point<int, 3, bg::cs::cartesian> >();
+    test_3d<bg::model::point<float, 3, bg::cs::cartesian> >();
+    test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
-    test_spherical_degree<boost::geometry::point<double, 2, boost::geometry::cs::spherical<boost::geometry::degree> > >();
-    test_spherical_radian<boost::geometry::point<double, 2, boost::geometry::cs::spherical<boost::geometry::radian> > >();
+    test_spherical_degree<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >();
+    test_spherical_radian<bg::model::point<double, 2, bg::cs::spherical<bg::radian> > >();
 
 
-/***
-GMP/CLN still fails, due to boost::numeric_limits<T>, waiting for solution
-#if defined(HAVE_CLN)
-    test_3d<boost::geometry::point<boost::numeric_adaptor::cln_value_type,
-            3, boost::geometry::cs::cartesian> >();
+#if defined(HAVE_TTMATH)
+    test_3d<bg::model::point<ttmath_big, 3, bg::cs::cartesian> >();
 #endif
-#if defined(HAVE_GMP)
-    test_3d<boost::geometry::point<boost::numeric_adaptor::gmp_value_type,
-            3, boost::geometry::cs::cartesian> >();
-#endif
-***/
 
     return 0;
 }

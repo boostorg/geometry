@@ -26,7 +26,7 @@
 template <typename G, typename Expected>
 void test_geometry()
 {
-    BOOST_CHECK_EQUAL(typeid(typename boost::geometry::point_type<G>::type).name(),
+    BOOST_CHECK_EQUAL(typeid(typename bg::point_type<G>::type).name(),
         typeid(Expected).name());
 }
 
@@ -34,13 +34,13 @@ template <typename P>
 void test_all()
 {
     test_geometry<P, P>();
-    test_geometry<const P, P>();
-    test_geometry<boost::geometry::linestring<P> , P>();
-    test_geometry<boost::geometry::linear_ring<P> , P>();
-    test_geometry<boost::geometry::polygon<P> , P>();
-    test_geometry<boost::geometry::box<P> , P>();
-    test_geometry<boost::geometry::segment<P> , P>();
-    test_geometry<boost::geometry::segment<const P> , P>();
+    test_geometry<P const, P>();
+    test_geometry<bg::model::linestring<P> , P>();
+    test_geometry<bg::model::linear_ring<P> , P>();
+    test_geometry<bg::model::polygon<P> , P>();
+    test_geometry<bg::model::box<P> , P>();
+    test_geometry<bg::model::segment<P> , P>();
+    test_geometry<bg::model::referring_segment<P const> , P>();
 
     test_geometry<std::vector<P>, P>();
     test_geometry<std::deque<P>, P>();
@@ -63,9 +63,9 @@ int test_main(int, char* [])
     test_geometry<boost::tuple<double, double, double>,
                 boost::tuple<double, double, double> >();
 
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }

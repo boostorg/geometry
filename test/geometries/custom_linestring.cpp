@@ -38,7 +38,7 @@ struct custom_linestring1 : std::vector<P> {};
 namespace boost { namespace geometry { namespace traits {
     template <typename P>
     struct tag< custom_linestring1<P> > { typedef linestring_tag type; };
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 // ----------------------------------------------------------------------------
 // Second custom linestring, decides to implement all edit operations itself
@@ -60,28 +60,28 @@ namespace boost { namespace geometry { namespace traits {
     };
 #endif
 
-}}} // namespace boost::geometry::traits
+}}} // namespace bg::traits
 
 // ----------------------------------------------------------------------------
 
 template <typename G>
 void test_linestring()
 {
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::Linestring<G>) );
-    BOOST_CONCEPT_ASSERT( (boost::geometry::concept::ConstLinestring<G>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::Linestring<G>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::ConstLinestring<G>) );
 
     G geometry;
-    typedef typename boost::geometry::point_type<G>::type P;
+    typedef typename bg::point_type<G>::type P;
 
-    boost::geometry::clear(geometry);
+    bg::clear(geometry);
     BOOST_CHECK_EQUAL(boost::size(geometry), 0);
 
-    boost::geometry::append(geometry, boost::geometry::make_zero<P>());
+    bg::append(geometry, bg::make_zero<P>());
     BOOST_CHECK_EQUAL(boost::size(geometry), 1);
 
     //std::cout << geometry << std::endl;
 
-    boost::geometry::clear(geometry);
+    bg::clear(geometry);
     BOOST_CHECK_EQUAL(boost::size(geometry), 0);
 
 
@@ -91,9 +91,9 @@ void test_linestring()
 template <typename P>
 void test_all()
 {
-    test_linestring<boost::geometry::linestring<P> >();
-    test_linestring<boost::geometry::linestring<P, std::vector> >();
-    test_linestring<boost::geometry::linestring<P, std::deque> >();
+    test_linestring<bg::model::linestring<P> >();
+    test_linestring<bg::model::linestring<P, std::vector> >();
+    test_linestring<bg::model::linestring<P, std::deque> >();
 
     test_linestring<custom_linestring1<P> >();
     test_linestring<custom_linestring2<P> >();
@@ -107,9 +107,9 @@ int test_main(int, char* [])
 {
     test_all<test::test_point>();
     test_all<boost::tuple<float, float> >();
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<float, 2, boost::geometry::cs::cartesian> >();
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }

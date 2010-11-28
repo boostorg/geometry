@@ -24,12 +24,12 @@ void test_combine(Box& box,
                   std::string const& expected)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
-    boost::geometry::combine(box, geometry);
+    bg::combine(box, geometry);
 
     std::ostringstream out;
-    out << boost::geometry::dsv(box, ",", "(", ")", ",", "", "");
+    out << bg::dsv(box, ",", "(", ")", ",", "", "");
 
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -40,13 +40,13 @@ void test_combine_other_strategy(Box& box,
                   std::string const& expected)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
 
-    boost::geometry::combine(box, geometry);
+    bg::combine(box, geometry);
 
     std::ostringstream out;
-    out << boost::geometry::dsv(box, ",", "(", ")", ",", "", "");
+    out << bg::dsv(box, ",", "(", ")", ",", "", "");
 
     BOOST_CHECK_EQUAL(out.str(), expected);
 }

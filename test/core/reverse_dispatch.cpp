@@ -18,7 +18,7 @@
 template <typename Geometry1, typename Geometry2, bool Expected>
 void test_reversed()
 {
-    BOOST_CHECK_EQUAL((boost::geometry::reverse_dispatch<Geometry1, Geometry2>::type::value),
+    BOOST_CHECK_EQUAL((bg::reverse_dispatch<Geometry1, Geometry2>::type::value),
                 Expected);
 }
 
@@ -28,11 +28,11 @@ void test_all()
 {
 
     test_reversed<P, P, false>();
-    test_reversed<P, boost::geometry::linestring<P>, false>();
-    test_reversed<boost::geometry::linestring<P>, P, true>();
-    test_reversed<boost::geometry::linear_ring<P>, P, true>();
-    test_reversed<boost::geometry::linestring<P>, boost::geometry::linear_ring<P>, false>();
-    test_reversed<boost::geometry::linear_ring<P>, boost::geometry::linestring<P>, true>();
+    test_reversed<P, bg::model::linestring<P>, false>();
+    test_reversed<bg::model::linestring<P>, P, true>();
+    test_reversed<bg::model::linear_ring<P>, P, true>();
+    test_reversed<bg::model::linestring<P>, bg::model::linear_ring<P>, false>();
+    test_reversed<bg::model::linear_ring<P>, bg::model::linestring<P>, true>();
 }
 
 template <typename P1, typename P2>
@@ -44,16 +44,16 @@ void test_mixed()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point<int, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_mixed
         <
-            boost::geometry::point<int, 2, boost::geometry::cs::cartesian>,
-            boost::geometry::point<int, 2, boost::geometry::cs::spherical<boost::geometry::degree> >
+            bg::model::point<int, 2, bg::cs::cartesian>,
+            bg::model::point<int, 2, bg::cs::spherical<bg::degree> >
         >();
     test_mixed
         <
-            boost::geometry::point<int, 2, boost::geometry::cs::spherical<boost::geometry::degree> >,
-            boost::geometry::point<int, 2, boost::geometry::cs::spherical<boost::geometry::radian> >
+            bg::model::point<int, 2, bg::cs::spherical<bg::degree> >,
+            bg::model::point<int, 2, bg::cs::spherical<bg::radian> >
         >();
     return 0;
 }

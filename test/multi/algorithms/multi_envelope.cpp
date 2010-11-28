@@ -28,12 +28,12 @@
 template <typename P>
 void test_2d()
 {
-    /*test_envelope<boost::geometry::multi_point<P> >(
+    /*test_envelope<bg::model::multi_point<P> >(
             "MULTIPOINT((1 1),(1 0),(1 2))", 1, 1, 0, 2);
-    test_envelope<boost::geometry::multi_linestring<boost::geometry::linestring<P> > >(
+    test_envelope<bg::model::multi_linestring<bg::model::linestring<P> > >(
             "MULTILINESTRING((0 0,1 1),(1 1,2 2),(2 2,3 3))", 0, 3, 0, 3);
 */
-    test_envelope<boost::geometry::multi_polygon<boost::geometry::polygon<P> > >(
+    test_envelope<bg::model::multi_polygon<bg::model::polygon<P> > >(
             "MULTIPOLYGON(((1 1,1 3,3 3,3 1,1 1)),((4 4,4 6,6 6,6 4,4 4)))", 1, 6, 1, 6);
 }
 
@@ -41,18 +41,18 @@ void test_2d()
 template <typename P>
 void test_3d()
 {
-    typedef boost::geometry::multi_point<P> mp;
+    typedef bg::model::multi_point<P> mp;
 }
 
 
 int test_main( int , char* [] )
 {
     test_2d<boost::tuple<float, float> >();
-    test_2d<boost::geometry::point_xy<float> >();
-    test_2d<boost::geometry::point_xy<double> >();
+    test_2d<bg::model::point_xy<float> >();
+    test_2d<bg::model::point_xy<double> >();
 
     test_3d<boost::tuple<float, float, float> >();
-    test_3d<boost::geometry::point<double, 3, boost::geometry::cs::cartesian> >();
+    test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

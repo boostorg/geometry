@@ -35,7 +35,6 @@ void test_offset(std::string const& caseid, Geometry const& geometry,
         double distance,
         double expected_length, double percentage)
 {
-	namespace bg = boost::geometry;
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
 
@@ -45,12 +44,12 @@ void test_offset(std::string const& caseid, Geometry const& geometry,
             point_type
         > join_strategy;
 
-	GeometryOut moved_by_offset;
-	bg::offset(geometry, moved_by_offset, join_strategy(2), distance);
+    GeometryOut moved_by_offset;
+    bg::offset(geometry, moved_by_offset, join_strategy(2), distance);
 
-	typename bg::length_result<Geometry>::type length 
+    typename bg::length_result<Geometry>::type length
                     = bg::length(moved_by_offset);
-	std::size_t count = bg::num_points(moved_by_offset);
+    std::size_t count = bg::num_points(moved_by_offset);
 
     /*
     BOOST_CHECK_MESSAGE(count == expected_point_count,
@@ -85,7 +84,7 @@ void test_offset(std::string const& caseid, Geometry const& geometry,
 
         mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
         mapper.map(moved_by_offset, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
-	}
+    }
 #endif
 }
 
@@ -95,7 +94,7 @@ void test_one(std::string const& caseid, std::string const& wkt, double distance
         double expected_length, double percentage = 0.001)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
     test_offset<Geometry>(caseid + "_a", geometry, distance, expected_length, percentage);
     test_offset<Geometry>(caseid + "_b", geometry, -distance, expected_length, percentage);
@@ -107,9 +106,8 @@ void test_one(std::string const& caseid, std::string const& wkt, double distance
 template <typename P>
 void test_all()
 {
-    namespace bg = boost::geometry;
 
-    typedef bg::linestring<P> linestring;
+    typedef bg::model::linestring<P> linestring;
 
     static std::string const simplex = "LINESTRING(0 0,1 1)";
     static std::string const one_bend = "LINESTRING(0 0,4 5,7 4)";
@@ -129,7 +127,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

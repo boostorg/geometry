@@ -27,21 +27,21 @@ void test_2d(double c, bool use_strategy)
     // normal order, east=x, north=y
     P p;
     parse(p, std::string("1dE"), std::string("2N"));
-    BOOST_CHECK_CLOSE( ((double) get<0>(p)), (double) 1 * c, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) get<1>(p)), (double) 2 * c, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<0>(p)), (double) 1 * c, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<1>(p)), (double) 2 * c, 1.0e-6);
 
     // reversed order, y,x -> should be interpreted correctly
     parse(p, std::string("1dN"), std::string("2E"));
-    BOOST_CHECK_CLOSE( ((double) get<0>(p)), (double) 2 * c, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) get<1>(p)), (double) 1 * c, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<0>(p)), (double) 2 * c, 1.0e-6);
+    BOOST_CHECK_CLOSE( ((double) bg::get<1>(p)), (double) 1 * c, 1.0e-6);
 
     if (use_strategy)
     {
         // DUTCH system NOZW, only for degrees
-        boost::geometry::strategy::dms_parser<false, 'N', 'O', 'Z', 'W'> strategy;
+        bg::strategy::dms_parser<false, 'N', 'O', 'Z', 'W'> strategy;
         parse(p, std::string("1dO"), std::string("2Z"), strategy);
-        BOOST_CHECK_CLOSE( ((double) get<0>(p)), (double) 1, 1.0e-6);
-        BOOST_CHECK_CLOSE( ((double) get<1>(p)), (double) -2, 1.0e-6);
+        BOOST_CHECK_CLOSE( ((double) bg::get<0>(p)), (double) 1, 1.0e-6);
+        BOOST_CHECK_CLOSE( ((double) bg::get<1>(p)), (double) -2, 1.0e-6);
     }
 
     // rest of DMS is checked in parse_dms
@@ -57,8 +57,8 @@ int test_main(int, char* [])
     //test_2d<point<int, 2, cs::geographic<radian> > >();
     //test_2d<point<float, 2, cs::geographic<radian> > >();
 
-    test_2d<point<double, 2, cs::geographic<degree> > >(1.0, true);
-    test_2d<point<double, 2, cs::geographic<radian> > >(boost::geometry::math::d2r, false);
+    test_2d<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >(1.0, true);
+    test_2d<bg::model::point<double, 2, bg::cs::geographic<bg::radian> > >(bg::math::d2r, false);
 
     return 0;
 }

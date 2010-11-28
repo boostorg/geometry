@@ -25,10 +25,10 @@ void test_dsv(std::string const& wkt, std::string const& dsv)
 {
     G geometry;
 
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
     std::ostringstream out;
-    out << boost::geometry::dsv(geometry);
+    out << bg::dsv(geometry);
     BOOST_CHECK_EQUAL(out.str(), dsv);
 }
 
@@ -38,7 +38,7 @@ template <typename T>
 void test_all()
 {
     using namespace boost::geometry;
-    typedef point<T, 2, boost::geometry::cs::cartesian> P;
+    typedef point<T, 2, bg::cs::cartesian> P;
 
     test_dsv<P >("POINT(1 2)", "(1, 2)");
     test_dsv<linestring<P> >(

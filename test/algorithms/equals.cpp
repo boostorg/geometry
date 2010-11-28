@@ -10,13 +10,15 @@
 #include <boost/geometry/geometries/geometries.hpp>
 
 
+
+
 template <typename P>
 void test_all()
 {
-    typedef boost::geometry::box<P> box;
-    typedef boost::geometry::linear_ring<P> ring;
-    typedef boost::geometry::polygon<P> polygon;
-    typedef boost::geometry::linestring<P> linestring;
+    typedef bg::model::box<P> box;
+    typedef bg::model::linear_ring<P> ring;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::linestring<P> linestring;
 
 
     test_geometry<P, P>("p1", "POINT(1 1)", "POINT(1 1)", true);
@@ -97,14 +99,11 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    test_all<boost::geometry::point_xy<int> >();
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::point_xy<double> >();
 
-#if defined(HAVE_CLN)
-//    test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
-#endif
-#if defined(HAVE_GMP)
-//    test_all<boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> >();
+#if defined(HAVE_TTMATH)
+    test_all<bg::model::point_xy<ttmath_big> >();
 #endif
 
     return 0;

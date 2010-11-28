@@ -36,7 +36,7 @@ template <> struct check_selection<void> : public boost::mpl::int_<98> {};
 template <typename T1, typename T2, typename TypeToBeSelected>
 void test()
 {
-    typedef typename boost::geometry::select_most_precise<T1, T2>::type type;
+    typedef typename bg::select_most_precise<T1, T2>::type type;
     BOOST_CHECK_EQUAL(check_selection<type>::type::value,
         check_selection<TypeToBeSelected>::type::value);
 }

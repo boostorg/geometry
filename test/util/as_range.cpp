@@ -25,7 +25,7 @@ double sum(Range const& range)
     for (typename boost::range_const_iterator<Range>::type it = boost::begin(range);
         it != boost::end(range); ++it)
     {
-        s += boost::geometry::get<D>(*it);
+        s += bg::get<D>(*it);
     }
     return s;
 }
@@ -37,14 +37,14 @@ void test_geometry(std::string const& wkt, double expected_x, double expected_y)
 
     // Declare a range-type, compatible with boost::range,
     // such that range_iterator etc could be called
-    typedef typename boost::geometry::range_type<G>::type range_type;
+    typedef typename bg::range_type<G>::type range_type;
 
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
 
-    double s = sum<0>(boost::geometry::as_range<range_type>(geometry));
+    double s = sum<0>(bg::as_range<range_type>(geometry));
     BOOST_CHECK_CLOSE(s, expected_x, 0.001);
 
-    s = sum<1>(boost::geometry::as_range<range_type>(geometry));
+    s = sum<1>(bg::as_range<range_type>(geometry));
     BOOST_CHECK_CLOSE(s, expected_y, 0.001);
 }
 
@@ -54,11 +54,11 @@ void test_all()
 {
     // As-range utility should consider a geometry as a range, so
     // linestring stays linestring
-    test_geometry<boost::geometry::linestring<P> >("LINESTRING(1 2,3 4)", 4, 6);
+    test_geometry<bg::model::linestring<P> >("LINESTRING(1 2,3 4)", 4, 6);
 
     // polygon will only be outer-ring
-    test_geometry<boost::geometry::polygon<P> >("POLYGON((1 2,3 4))", 4, 6);
-    test_geometry<boost::geometry::polygon<P> >("POLYGON((1 2,3 4),(5 6,7 8,9 10))", 4, 6);
+    test_geometry<bg::model::polygon<P> >("POLYGON((1 2,3 4))", 4, 6);
+    test_geometry<bg::model::polygon<P> >("POLYGON((1 2,3 4),(5 6,7 8,9 10))", 4, 6);
 
     // the utility is useful for:
     // - convex hull (holes do not count)
@@ -67,7 +67,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point<double, 2, boost::geometry::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }

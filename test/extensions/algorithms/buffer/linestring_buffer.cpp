@@ -40,10 +40,9 @@ static std::string const reallife1 = "LINESTRING(76396.40464822574 410095.679514
 template <typename P>
 void test_all()
 {
-    namespace bg = boost::geometry;
-    namespace buf = boost::geometry::strategy::buffer;
-    typedef bg::linestring<P> linestring;
-    typedef bg::polygon<P> polygon;
+    namespace buf = bg::strategy::buffer;
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::polygon<P> polygon;
 
     double factor = +1.0; // does NOT yet work for negative buffer
     double right = factor * 1.0;
@@ -82,9 +81,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    namespace bg = boost::geometry;
-    test_all<bg::point<double, 2, bg::cs::cartesian> >();
-    //test_all<bg::point<tt, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
 
 
     return 0;

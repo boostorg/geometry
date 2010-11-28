@@ -45,57 +45,57 @@ inline void check(double v, double ve, std::string const& name, std::string cons
 template <typename P>
 void test_forward(std::string const& name,
               double lon, double lat,
-              typename boost::geometry::coordinate_type<P>::type x,
-              typename boost::geometry::coordinate_type<P>::type y,
+              typename bg::coordinate_type<P>::type x,
+              typename bg::coordinate_type<P>::type y,
               std::string const& parameters)
 {
-    typedef typename boost::geometry::coordinate_type<P>::type coord_type;
-    typedef boost::geometry::point_ll<coord_type, boost::geometry::cs::geographic<boost::geometry::degree> > lonlat_type;
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    typedef bg::model::point_ll<coord_type, bg::cs::geographic<bg::degree> > lonlat_type;
 
     lonlat_type ll;
     ll.lon(lon);
     ll.lat(lat);
 
-    boost::geometry::projection::parameters params = boost::geometry::projection::detail::pj_init_plus(parameters);
-    boost::geometry::projection::factory<lonlat_type, P, boost::geometry::projection::parameters> pf;
+    bg::projection::parameters params = bg::projection::detail::pj_init_plus(parameters);
+    bg::projection::factory<lonlat_type, P, bg::projection::parameters> pf;
 
-    boost::shared_ptr<boost::geometry::projection::projection<lonlat_type, P> > prj(pf.create_new(params));
+    boost::shared_ptr<bg::projection::projection<lonlat_type, P> > prj(pf.create_new(params));
 
     P xy;
     prj->forward(ll, xy);
 
-    //std::cout << std::setprecision(16) << boost::geometry::get<0>(xy) << " " << boost::geometry::get<1>(xy) << std::endl;
+    //std::cout << std::setprecision(16) << bg::get<0>(xy) << " " << bg::get<1>(xy) << std::endl;
 
-    check(boost::geometry::get<0>(xy), x, name, "x");
-    check(boost::geometry::get<1>(xy), y, name, "y");
+    check(bg::get<0>(xy), x, name, "x");
+    check(bg::get<1>(xy), y, name, "y");
 }
 
 template <typename P>
 void test_inverse(std::string const& name,
-              typename boost::geometry::coordinate_type<P>::type x,
-              typename boost::geometry::coordinate_type<P>::type y,
+              typename bg::coordinate_type<P>::type x,
+              typename bg::coordinate_type<P>::type y,
               double lon, double lat,
               std::string const& parameters)
 {
-    typedef typename boost::geometry::coordinate_type<P>::type coord_type;
-    typedef boost::geometry::point_ll<coord_type, boost::geometry::cs::geographic<boost::geometry::degree> > lonlat_type;
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    typedef bg::model::point_ll<coord_type, bg::cs::geographic<bg::degree> > lonlat_type;
 
     P xy;
-    boost::geometry::set<0>(xy, x);
-    boost::geometry::set<1>(xy, y);
+    bg::set<0>(xy, x);
+    bg::set<1>(xy, y);
 
-    boost::geometry::projection::parameters params = boost::geometry::projection::detail::pj_init_plus(parameters);
-    boost::geometry::projection::factory<lonlat_type, P, boost::geometry::projection::parameters> pf;
+    bg::projection::parameters params = bg::projection::detail::pj_init_plus(parameters);
+    bg::projection::factory<lonlat_type, P, bg::projection::parameters> pf;
 
-    boost::shared_ptr<boost::geometry::projection::projection<lonlat_type, P> > prj(pf.create_new(params));
+    boost::shared_ptr<bg::projection::projection<lonlat_type, P> > prj(pf.create_new(params));
 
     lonlat_type ll;
     prj->inverse(xy, ll);
 
-    //std::cout << std::setprecision(16) << boost::geometry::get<0>(ll) << " " << boost::geometry::get<1>(ll) << std::endl;
+    //std::cout << std::setprecision(16) << bg::get<0>(ll) << " " << bg::get<1>(ll) << std::endl;
 
-    check(boost::geometry::get<0>(ll), lon, name, "lon");
-    check(boost::geometry::get<1>(ll), lat, name, "lat");
+    check(bg::get<0>(ll), lon, name, "lon");
+    check(bg::get<1>(ll), lat, name, "lat");
 }
 
 
@@ -347,12 +347,12 @@ int test_main(int, char* [])
     //test_all<float[2]>();
     //test_all<double[2]>();
     //test_all<test::test_point>();
-    //test_all<boost::geometry::point_xy<int> >();
-    //test_all<boost::geometry::point_xy<float> >();
-    //test_all<boost::geometry::point_xy<double> >();
+    //test_all<bg::model::point_xy<int> >();
+    //test_all<bg::model::point_xy<float> >();
+    //test_all<bg::model::point_xy<double> >();
 
     // Leave only one here, because this divides compilation time with 6 or 7
-    test_all<boost::geometry::point_xy<long double> >();
+    test_all<bg::model::point_xy<long double> >();
 
     return 0;
 }

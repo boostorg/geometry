@@ -20,6 +20,8 @@
 #include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
 
+namespace bg = boost::geometry;
+
 namespace { // anonymous
 
 typedef std::vector<boost::uint8_t> byte_vector;
@@ -28,40 +30,40 @@ template <typename Geometry>
 void test_geometry_wrong_wkb(std::string const& wkbhex, std::string const& wkt)
 {
     byte_vector wkb;
-    BOOST_CHECK( boost::geometry::hex2wkb(wkbhex, std::back_inserter(wkb)) );
+    BOOST_CHECK( bg::hex2wkb(wkbhex, std::back_inserter(wkb)) );
     Geometry g_wkb;
-    std::cout << boost::geometry::read_wkb(wkb.begin(), wkb.end(), g_wkb) << std::endl;
+    std::cout << bg::read_wkb(wkb.begin(), wkb.end(), g_wkb) << std::endl;
 }
 
 template <typename Geometry, bool IsEqual>
 void test_geometry_equals(std::string const& wkbhex, std::string const& wkt)
 {
     byte_vector wkb;
-    BOOST_CHECK( boost::geometry::hex2wkb(wkbhex, std::back_inserter(wkb)) );
+    BOOST_CHECK( bg::hex2wkb(wkbhex, std::back_inserter(wkb)) );
     Geometry g_wkb;
-    BOOST_CHECK( boost::geometry::read_wkb(wkb.begin(), wkb.end(), g_wkb) );
+    BOOST_CHECK( bg::read_wkb(wkb.begin(), wkb.end(), g_wkb) );
 
     Geometry g_expected;
-    boost::geometry::read_wkt(wkt, g_expected);
-    BOOST_CHECK( boost::geometry::equals(g_wkb, g_expected) == IsEqual );
+    bg::read_wkt(wkt, g_expected);
+    BOOST_CHECK( bg::equals(g_wkb, g_expected) == IsEqual );
 }
 
 //template <typename P, bool Result>
 //void test_polygon_wkt(std::string const& wkt)
 //{
-//    typedef boost::geometry::linestring<P> linestring_type;
-//    typedef boost::geometry::polygon<linestring_type> polygon_type;
+//    typedef bg::model::linestring<P> linestring_type;
+//    typedef bg::model::polygon<linestring_type> polygon_type;
 //
 //    polygon_type poly;
-//    boost::geometry::read_wkb(wkb, poly);
+//    bg::read_wkb(wkb, poly);
 //}
 
 } // namespace anonymous
 
 int test_main(int, char* [])
 {
-    typedef boost::geometry::point<double, 2, boost::geometry::cs::cartesian> point_type;
-    typedef boost::geometry::linestring<point_type> linestring_type;
+    typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::linestring<point_type> linestring_type;
 
     //
     // POINT

@@ -42,23 +42,23 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
         double percentage = 0.0001,
         bool make_unique = true)
 {
-    static const bool is_line = boost::geometry::geometry_id<OutputType>::type::value == 2;
+    static const bool is_line = bg::geometry_id<OutputType>::type::value == 2;
 
     std::vector<OutputType> clip;
 
-    typedef typename boost::geometry::coordinate_type<G1>::type coordinate_type;
-    typedef typename boost::geometry::point_type<G1>::type point_type;
+    typedef typename bg::coordinate_type<G1>::type coordinate_type;
+    typedef typename bg::point_type<G1>::type point_type;
 
-    typedef boost::geometry::strategy_intersection
+    typedef bg::strategy_intersection
         <
-            typename boost::geometry::cs_tag<point_type>::type,
+            typename bg::cs_tag<point_type>::type,
             G1,
             G2,
             point_type,
             CalculationType
         > strategy;
 
-    boost::geometry::intersection_inserter<OutputType>(g1, g2, std::back_inserter(clip), strategy());
+    bg::intersection_inserter<OutputType>(g1, g2, std::back_inserter(clip), strategy());
 
 
     double length_or_area = 0;
@@ -73,25 +73,25 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
             {
                 // Get a correct point-count without duplicate points
                 // (note that overlay might be adapted to avoid duplicates)
-                boost::geometry::unique(*it);
-                n += boost::geometry::num_points(*it, true);
+                bg::unique(*it);
+                n += bg::num_points(*it, true);
             }
             else
             {
-                n += boost::geometry::num_points(*it, true);
+                n += bg::num_points(*it, true);
             }
         }
 
         // instead of specialization we check it run-time here
         length_or_area += is_line
-            ? boost::geometry::length(*it)
-            : boost::geometry::area(*it);
+            ? bg::length(*it)
+            : bg::area(*it);
 
         /*
         std::cout << std::endl << "case " << caseid << " ";
         std::cout
             << std::setprecision(20)
-            << boost::geometry::dsv(*it) << std::endl;
+            << bg::dsv(*it) << std::endl;
         */
     }
 
@@ -124,11 +124,11 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 #if defined(TEST_WITH_SVG)
     {
         bool const ccw =
-            boost::geometry::point_order<G1>::value == boost::geometry::counterclockwise
-            || boost::geometry::point_order<G2>::value == boost::geometry::counterclockwise;
+            bg::point_order<G1>::value == bg::counterclockwise
+            || bg::point_order<G2>::value == bg::counterclockwise;
         bool const open =
-            boost::geometry::closure<G1>::value == boost::geometry::open
-            || boost::geometry::closure<G2>::value == boost::geometry::open;
+            bg::closure<G1>::value == bg::open
+            || bg::closure<G2>::value == bg::open;
 
         std::ostringstream filename;
         filename << "intersection_"
@@ -141,7 +141,7 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 
         std::ofstream svg(filename.str().c_str());
 
-        boost::geometry::svg_mapper<point_type> mapper(svg, 500, 500);
+        bg::svg_mapper<point_type> mapper(svg, 500, 500);
 
         mapper.add(g1);
         mapper.add(g2);
@@ -173,14 +173,14 @@ double test_one(std::string const& caseid, std::string const& wkt1, std::string 
         bool make_unique = true)
 {
     G1 g1;
-    boost::geometry::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt1, g1);
 
     G2 g2;
-    boost::geometry::read_wkt(wkt2, g2);
+    bg::read_wkt(wkt2, g2);
 
     // Reverse if necessary
-    boost::geometry::correct(g1);
-    boost::geometry::correct(g2);
+    bg::correct(g1);
+    bg::correct(g2);
 
     return test_intersection<OutputType, void>(caseid, g1, g2,
         expected_count, expected_point_count,

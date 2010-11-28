@@ -19,13 +19,13 @@
 template <typename P>
 void test_all()
 {
-    test_geometry<boost::geometry::multi_linestring<boost::geometry::linestring<P> > >
+    test_geometry<bg::model::multi_linestring<bg::model::linestring<P> > >
         ("MULTILINESTRING((0 0,3 4,4 3))", 5 + sqrt(2.0));
 }
 
 int test_main( int , char* [] )
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

@@ -24,7 +24,6 @@
 #  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
 #endif
 
-namespace bg = boost::geometry;
 
 
 template <typename P, typename PS, typename CalculationType>
@@ -37,7 +36,7 @@ void test_services()
     P p;
     bg::assign(p, 2, 0);
 
-    CalculationType const sqr_expected = 4; 
+    CalculationType const sqr_expected = 4;
     CalculationType const expected = 2;
 
 
@@ -66,7 +65,7 @@ void test_services()
 
 
     // 3: "comparable" to construct a "comparable strategy" for P1/P2
-    //    a "comparable strategy" is a strategy which does not calculate the exact distance, but 
+    //    a "comparable strategy" is a strategy which does not calculate the exact distance, but
     //    which returns results which can be mutually compared (e.g. avoid sqrt)
 
     // 3a: "comparable_type"
@@ -111,38 +110,41 @@ void test_all_2d()
 template <typename P>
 void test_all_2d()
 {
-    using bg::point;
-    using bg::cs::cartesian;
-
     //test_all_2d<P, int[2]>();
     //test_all_2d<P, float[2]>();
     //test_all_2d<P, double[2]>();
     //test_all_2d<P, test::test_point>();
-    test_all_2d<P, point<int, 2, cartesian> >();
-    test_all_2d<P, point<float, 2, cartesian> >();
-    test_all_2d<P, point<double, 2, cartesian> >();
-    test_all_2d<P, point<long double, 2, cartesian> >();
+    test_all_2d<P, bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all_2d<P, bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all_2d<P, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all_2d<P, bg::model::point<long double, 2, bg::cs::cartesian> >();
 }
 
 int test_main(int, char* [])
 {
-    using bg::point;
-    using bg::cs::cartesian;
-
     test_all_2d<int[2]>();
     test_all_2d<float[2]>();
     test_all_2d<double[2]>();
     //test_all_2d<test::test_point>();
 
-    test_all_2d<point<int, 2, cartesian> >();
-    test_all_2d<point<float, 2, cartesian> >();
-    test_all_2d<point<double, 2, cartesian> >();
+    test_all_2d<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all_2d<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
-    test_services<point<double, 2, cartesian>, point<float, 2, cartesian>, long double>();
+    test_services
+        <
+            bg::model::point<double, 2, bg::cs::cartesian>, 
+            bg::model::point<float, 2, bg::cs::cartesian>, 
+            long double
+        >();
 
 
 #if defined(HAVE_TTMATH)
-    test_all_2d<point<ttmath_big, 2, cartesian>, point<ttmath_big, 2, cartesian> >();
+    test_all_2d
+        <
+            bg::model::point<ttmath_big, 2, bg::cs::cartesian>, 
+            bg::model::point<ttmath_big, 2, bg::cs::cartesian> 
+        >();
 #endif
 
     return 0;

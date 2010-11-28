@@ -22,14 +22,13 @@
 #include <test_common/test_point.hpp>
 
 
-namespace bg = boost::geometry;
 
 
 template <int DimensionCount, typename Geometry>
 void test_sectionalize_part()
 {
     typedef typename bg::point_type<Geometry>::type point_type;
-    typedef bg::box<point_type> box_type;
+    typedef bg::model::box<point_type> box_type;
 
     typedef bg::sections<box_type, DimensionCount> sections_type;
     typedef typename boost::range_value<sections_type>::type section_type;
@@ -50,7 +49,7 @@ void test_sectionalize_part()
     int ndi = 0;
     sectionalize_part::apply(sections, section, index, ndi, geometry);
     // There should not yet be anything generated, because it is only ONE point
-    
+
     geometry.push_back(bg::make<point_type>(2, 2));
     sectionalize_part::apply(sections, section, index, ndi, geometry);
 
@@ -62,7 +61,7 @@ void test_sectionalize(G const& g, std::size_t section_count,
         std::string const& index_check, std::string const& dir_check)
 {
     typedef typename bg::point_type<G>::type point;
-    typedef bg::box<point> box;
+    typedef bg::model::box<point> box;
     typedef bg::sections<box, DimensionCount> sections;
 
     sections s;
@@ -149,9 +148,9 @@ void test_sectionalize(std::string const& wkt,
 template <typename P>
 void test_all()
 {
-    test_sectionalize_part<1, bg::linestring<P> >();
+    test_sectionalize_part<1, bg::model::linestring<P> >();
 
-    test_sectionalize<bg::linestring<P> >(
+    test_sectionalize<bg::model::linestring<P> >(
         "LINESTRING(1 1,2 2,3 0,5 0,5 8)",
         4, "0..1|1..2|2..3|3..4", "+ +|+ -|+ .|. +",
         2, "0..3|3..4", "+|.");
@@ -204,18 +203,18 @@ void test_all()
         6, "0..2|2..6|6..8|0..1|1..2|2..3", "-|+|-|-|+|.");
 
     // With duplicates
-    test_sectionalize<bg::linestring<P> >(
+    test_sectionalize<bg::model::linestring<P> >(
         "LINESTRING(1 1,2 2,3 0,3 0,5 0,5 8)",
         5, "0..1|1..2|2..3|3..4|4..5", "+ +|+ -|DUP DUP|+ .|. +",
         4, "0..2|2..3|3..4|4..5", "+|DUP|+|.");
     // With two subsequent duplicate segments
-    test_sectionalize<bg::linestring<P> >(
+    test_sectionalize<bg::model::linestring<P> >(
         "LINESTRING(1 1,2 2,3 0,3 0,3 0,5 0,5 0,5 0,5 0,5 8)",
         6, "0..1|1..2|2..4|4..5|5..8|8..9", "+ +|+ -|DUP DUP|+ .|DUP DUP|. +",
         5, "0..2|2..4|4..5|5..8|8..9", "+|DUP|+|DUP|.");
 
 
-    typedef bg::box<P> B;
+    typedef bg::model::box<P> B;
     test_sectionalize<2, B>(bg::make<B>(0,0,4,4),
             4, "0..1|1..2|2..3|3..4", ". +|+ .|. -|- .");
     test_sectionalize<1, B>(bg::make<B>(0,0,4,4),
@@ -231,8 +230,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    //test_all<bg::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    //test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

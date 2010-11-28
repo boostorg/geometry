@@ -21,27 +21,27 @@
 template <typename P>
 void test_all()
 {
-    typedef typename boost::geometry::coordinate_type<P>::type type;
+    typedef typename bg::coordinate_type<P>::type type;
 
-    P p1(boost::geometry::latitude<type>(boost::geometry::dms<boost::geometry::south, type>(12, 2, 36)),
-         boost::geometry::longitude<type>(boost::geometry::dms<boost::geometry::west, type>(77, 1, 42)));
+    P p1(bg::latitude<type>(bg::dms<bg::south, type>(12, 2, 36)),
+         bg::longitude<type>(bg::dms<bg::west, type>(77, 1, 42)));
 
     // Check decimal/degree conversion
-    BOOST_CHECK_CLOSE(boost::geometry::get<0>(p1), type(-77.0283), 0.001);
-    BOOST_CHECK_CLOSE(boost::geometry::get<1>(p1), type(-12.0433), 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(p1), type(-77.0283), 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(p1), type(-12.0433), 0.001);
 
     // Check degree/radian conversion
-    boost::geometry::point_ll<type, boost::geometry::cs::geographic<boost::geometry::radian> > p2;
-    boost::geometry::transform(p1, p2);
+    bg::model::point_ll<type, bg::cs::geographic<bg::radian> > p2;
+    bg::transform(p1, p2);
 
-    BOOST_CHECK_CLOSE(boost::geometry::get<0>(p2), type(-1.3444), 0.001);
-    BOOST_CHECK_CLOSE(boost::geometry::get<1>(p2), type(-0.210196), 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(p2), type(-1.3444), 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(p2), type(-0.210196), 0.001);
 
     // Check degree/radian conversion back
     P p3;
-    boost::geometry::transform(p2, p3);
-    BOOST_CHECK_CLOSE(boost::geometry::get<0>(p3), type(-77.0283), 0.001);
-    BOOST_CHECK_CLOSE(boost::geometry::get<1>(p3), type(-12.0433), 0.001);
+    bg::transform(p2, p3);
+    BOOST_CHECK_CLOSE(bg::get<0>(p3), type(-77.0283), 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(p3), type(-12.0433), 0.001);
 
 
     // Check decimal/degree conversion back
@@ -51,7 +51,7 @@ void test_all()
     bool positive;
     char cardinal;
 
-    boost::geometry::dms<boost::geometry::cd_lat, type> d1(boost::geometry::get<0>(p3));
+    bg::dms<bg::cd_lat, type> d1(bg::get<0>(p3));
     d1.get_dms(d, m, s, positive, cardinal);
 
     BOOST_CHECK(d == 77);
@@ -69,8 +69,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_ll<float> >();
-    test_all<boost::geometry::point_ll<double> >();
+    test_all<bg::model::point_ll<float> >();
+    test_all<bg::model::point_ll<double> >();
 
     return 0;
 }

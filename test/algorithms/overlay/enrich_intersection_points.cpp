@@ -43,14 +43,14 @@ struct test_enrich_intersection_points
     {
         //std::cout << "#" << id << std::endl;
 
-        typedef boost::geometry::detail::intersection::intersection_point
-            <typename boost::geometry::point_type<G2>::type> ip;
+        typedef bg::detail::intersection::intersection_point
+            <typename bg::point_type<G2>::type> ip;
         typedef typename boost::range_const_iterator<std::vector<ip> >::type iterator;
         std::vector<ip> ips;
 
-        boost::geometry::get_intersection_points(g1, g2, ips);
-        boost::geometry::merge_intersection_points(ips);
-        boost::geometry::enrich_intersection_points(ips, true);
+        bg::get_intersection_points(g1, g2, ips);
+        bg::merge_intersection_points(ips);
+        bg::enrich_intersection_points(ips, true);
 
         std::ostringstream out;
         out << std::setprecision(2);
@@ -78,7 +78,7 @@ struct test_enrich_intersection_points
 
             std::ofstream svg(filename.str().c_str());
 
-            boost::geometry::svg_mapper<typename boost::geometry::point_type<G2>::type> mapper(svg, 500, 500);
+            bg::svg_mapper<typename bg::point_type<G2>::type> mapper(svg, 500, 500);
             mapper.add(g1);
             mapper.add(g2);
 
@@ -171,8 +171,8 @@ int test_main(int, char* [])
     // ticket#17
     expected.push_back(boost::make_tuple(6, "LR,RL,LR,RL,RL,LR"));
 
-    //test_all<boost::geometry::point_xy<float>, test_enrich_intersection_points>(expected);
-    test_all<boost::geometry::point_xy<double>, test_enrich_intersection_points>(expected);
+    //test_all<bg::model::point_xy<float>, test_enrich_intersection_points>(expected);
+    test_all<bg::model::point_xy<double>, test_enrich_intersection_points>(expected);
     //test_all<boost::tuple<double, double>, test_enrich_intersection_points>(expected);
 
     */

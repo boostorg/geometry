@@ -17,35 +17,32 @@ void test_all()
     // 3-4-5 triangle
     //test_geometry<std::pair<P, P> >("LINESTRING(0 0,3 4)", 5);
 
-    test_geometry<boost::geometry::linear_ring<P> >(
+    test_geometry<bg::model::linear_ring<P> >(
             "POLYGON((0 0,0 1,1 1,1 0,0 0))", 4);
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
             "POLYGON((0 0,0 1,1 0,0 0))", 1.0 + 1.0 + sqrt(2.0));
-    test_geometry<boost::geometry::polygon<P> >(
+    test_geometry<bg::model::polygon<P> >(
             "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,2 1,2 2,1 2,1 1))", 20);
 }
 
 template <typename P>
 void test_open()
 {
-    typedef boost::geometry::polygon<P, std::vector, std::vector, true, false> open_polygon;
+    typedef bg::model::polygon<P, true, false> open_polygon;
     test_geometry<open_polygon>("POLYGON((0 0,0 1,1 1,1 0))", 4);
 }
 
 
 int test_main(int, char* [])
 {
-    //test_all<boost::geometry::point_xy<int> >();
-    test_all<boost::geometry::point_xy<float> >();
-    test_all<boost::geometry::point_xy<double> >();
+    //test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::point_xy<float> >();
+    test_all<bg::model::point_xy<double> >();
 
-    test_open<boost::geometry::point_xy<double> >();
+    test_open<bg::model::point_xy<double> >();
 
-#if defined(HAVE_CLN)
-    test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
-#endif
-#if defined(HAVE_GMP)
-    test_all<boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> >();
+#if defined(HAVE_TTMATH)
+    test_all<bg::model::point_xy<ttmath_big> >();
 #endif
 
     return 0;

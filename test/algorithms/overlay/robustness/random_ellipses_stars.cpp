@@ -51,10 +51,10 @@ struct star_params
 template <typename Polygon>
 inline void make_star(Polygon& polygon, star_params const& p)
 {
-    typedef typename boost::geometry::point_type<Polygon>::type P;
-    typedef typename boost::geometry::select_most_precise
+    typedef typename bg::point_type<Polygon>::type P;
+    typedef typename bg::select_most_precise
         <
-            typename boost::geometry::coordinate_type<Polygon>::type,
+            typename bg::coordinate_type<Polygon>::type,
             long double
         >::type coordinate_type;
 
@@ -83,10 +83,10 @@ inline void make_star(Polygon& polygon, star_params const& p)
         coordinate_type c = cos(angle);
         coordinate_type x = p.center_x + cx + (even ? a1 : a2) * s;
         coordinate_type y = p.center_y + cy + (even ? b1 : b2) * c;
-        boost::geometry::exterior_ring(polygon).push_back(boost::geometry::make<P>(x, y));
+        bg::exterior_ring(polygon).push_back(bg::make<P>(x, y));
 
     }
-    boost::geometry::exterior_ring(polygon).push_back(boost::geometry::exterior_ring(polygon).front());
+    bg::exterior_ring(polygon).push_back(bg::exterior_ring(polygon).front());
 }
 
 
@@ -94,8 +94,8 @@ template <typename T>
 void test_star_ellipse(int seed, int index, star_params const& par_p,
             star_params const& par_q, bool svg, double tolerance)
 {
-    typedef boost::geometry::point_xy<T> point_type;
-    typedef boost::geometry::polygon<point_type> polygon;
+    typedef bg::model::point_xy<T> point_type;
+    typedef bg::model::polygon<point_type> polygon;
 
     polygon p, q;
     make_star(p, par_p);
@@ -184,11 +184,8 @@ int main(int argc, char** argv)
         test_all<float>(seed, count, svg, 1e-3);
         //test_all<double>(seed, count, svg, 1e-6);
 
-#if defined(HAVE_CLN)
-    //test_star_ellipse<boost::numeric_adaptor::cln_value_type>("c",
-#endif
-#if defined(HAVE_GMP)
-   // test_star_ellipse<boost::numeric_adaptor::gmp_value_type>(selection, "g");
+#if defined(HAVE_TTMATH)
+   // test_star_ellipse<ttmath_big>(selection, "t");
 #endif
     }
     catch(std::exception const& e)

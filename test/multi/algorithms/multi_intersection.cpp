@@ -104,7 +104,7 @@ void test_areal_clip()
 template <typename LineString, typename MultiLineString, typename Box>
 void test_linear()
 {
-    typedef typename boost::geometry::point_type<MultiLineString>::type point;
+    typedef typename bg::point_type<MultiLineString>::type point;
     test_one<point, MultiLineString, MultiLineString>("case_multi_ml_ml_1",
         "MULTILINESTRING((0 0,1 1))", "MULTILINESTRING((0 1,1 0))",
         1, 1, 0);
@@ -116,14 +116,14 @@ void test_linear()
         "LINESTRING(0 0,1 1)", "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))",
         2, 2, 0);
     test_one<point, MultiLineString, LineString>("case_multi_ml_l",
-        "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))", "LINESTRING(0 0,1 1)", 
+        "MULTILINESTRING((0 1,1 0),(0.5 1,1.5 0))", "LINESTRING(0 0,1 1)",
         2, 2, 0);
 
     test_one<LineString, MultiLineString, Box>("case_multi_ml_b",
         "MULTILINESTRING((0 0,3 3)(1 0,4 3))", "POLYGON((1 1,3 2))",
         2, 4, 2 * std::sqrt(2.0));
     test_one<LineString, Box, MultiLineString>("case_multi_b_ml",
-        "POLYGON((1 1,3 2))", "MULTILINESTRING((0 0,3 3)(1 0,4 3))", 
+        "POLYGON((1 1,3 2))", "MULTILINESTRING((0 0,3 3)(1 0,4 3))",
         2, 4, 2 * std::sqrt(2.0));
 }
 
@@ -131,26 +131,23 @@ void test_linear()
 template <typename P>
 void test_all()
 {
-    namespace bg = boost::geometry;
-
-
-    typedef bg::box<P> box;
-    typedef bg::linear_ring<P> ring;
-    typedef bg::polygon<P> polygon;
-    typedef bg::multi_polygon<polygon> multi_polygon;
+    typedef bg::model::box<P> box;
+    typedef bg::model::linear_ring<P> ring;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
     test_areal<ring, polygon, multi_polygon>();
 return;
 
-    typedef bg::linear_ring<P, std::vector, false> ring_ccw;
-    typedef bg::polygon<P, std::vector, std::vector, false> polygon_ccw;
-    typedef bg::multi_polygon<polygon_ccw> multi_polygon_ccw;
+    typedef bg::model::linear_ring<P, false> ring_ccw;
+    typedef bg::model::polygon<P, false> polygon_ccw;
+    typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
     test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
 
     test_areal_clip<polygon, multi_polygon, box>();
     test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
 
-    typedef bg::linestring<P> linestring;
-    typedef bg::multi_linestring<linestring> multi_linestring;
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::multi_linestring<linestring> multi_linestring;
 
     test_linear<linestring, multi_linestring, box>();
 
@@ -162,7 +159,7 @@ return;
 
 int test_main(int, char* [])
 {
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<double> >();
 
     return 0;
 }

@@ -29,7 +29,6 @@ template <typename IntersectionPoints>
 static int check(IntersectionPoints const& is,
                 std::size_t index, double expected_x, double expected_y)
 {
-    namespace bg = boost::geometry;
     if (expected_x != -99 && expected_y != -99 && is.count > index)
     {
         double x = bg::get<0>(is.intersections[index]);
@@ -53,7 +52,6 @@ static void test_segment_intersection(std::string const& case_id,
                 int expected_x2 = -99, int expected_y2 = -99)
 
 {
-    namespace bg = boost::geometry;
 
 //#ifdef REPORT
     std::cout << "Case: " << case_id << std::endl;
@@ -243,7 +241,6 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    namespace bg = boost::geometry;
-    test_all<bg::point<double, 2, bg::cs::cartesian> >();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
     return 0;
 }

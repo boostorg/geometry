@@ -36,17 +36,17 @@ void test_all()
     test_ring<P>("POINT(3 3)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", false, true);
 
     // holes
-    test_geometry<P, boost::geometry::polygon<P> >("POINT(2 2)",
+    test_geometry<P, bg::model::polygon<P> >("POINT(2 2)",
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
 
 
-    test_geometry<P, boost::geometry::box<P> >("POINT(1 1)", "BOX(0 0,2 2)", true);
+    test_geometry<P, bg::model::box<P> >("POINT(1 1)", "BOX(0 0,2 2)", true);
 
     // Mixed point types
     test_geometry
         <
-            boost::geometry::point_xy<float>,
-            boost::geometry::polygon<P>
+            bg::model::point_xy<float>,
+            bg::model::polygon<P>
         >("POINT(1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
 
 
@@ -67,14 +67,11 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    test_all<boost::geometry::point_xy<int> >();
-    test_all<boost::geometry::point_xy<double> >();
+    test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::point_xy<double> >();
 
-#if defined(HAVE_CLN)
-    test_all<boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> >();
-#endif
-#if defined(HAVE_GMP)
-    test_all<boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> >();
+#if defined(HAVE_TTMATH)
+    test_all<bg::model::point_xy<ttmath_big> >();
 #endif
 
     return 0;
