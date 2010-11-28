@@ -16,7 +16,7 @@
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels (Geodan, Amsterdam)
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -47,11 +47,11 @@
 namespace boost { namespace geometry { namespace projection
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace omerc{ 
+    namespace detail { namespace omerc{
             static const double TOL = 1.e-7;
             static const double EPS = 1.e-10;
 
-                inline double TSFN0(double x) 
+                inline double TSFN0(double x)
                     {return tan(.5 * (HALFPI - (x))); }
 
 
@@ -61,8 +61,8 @@ namespace boost { namespace geometry { namespace projection
                 double  v_pole_n, v_pole_s, u_0;
                 int no_rot;
             };
-            
-            
+
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -82,7 +82,7 @@ namespace boost { namespace geometry { namespace projection
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  Q, S, T, U, V, temp, u, v;
-                
+
                     if (fabs(fabs(lp_lat) - HALFPI) > EPS) {
                         Q = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / Q;
@@ -95,7 +95,7 @@ namespace boost { namespace geometry { namespace projection
                         v = 0.5 * this->m_proj_parm.ArB * log((1. - U)/(1. + U));
                         temp = cos(this->m_proj_parm.B * lp_lon);
                         u = (fabs(temp) < TOL) ? this->m_proj_parm.AB * lp_lon :
-                            this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam) , temp); 
+                            this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam) , temp);
                     } else {
                         v = lp_lat > 0 ? this->m_proj_parm.v_pole_n : this->m_proj_parm.v_pole_s;
                         u = this->m_proj_parm.ArB * lp_lat;
@@ -113,7 +113,7 @@ namespace boost { namespace geometry { namespace projection
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  u, v, Qp, Sp, Tp, Vp, Up;
-                
+
                     if (this->m_proj_parm.no_rot) {
                         v = xy_y;
                         u = xy_x;
@@ -147,9 +147,9 @@ namespace boost { namespace geometry { namespace projection
                     gamma0, lamc, lam1, lam2, phi1, phi2, alpha_c;
                 int alp, gam, no_off = 0;
                 proj_parm.no_rot = pj_param(par.params, "tno_rot").i;
-                if (alp = pj_param(par.params, "talpha").i)
+                if ((alp = pj_param(par.params, "talpha").i))
                     alpha_c = pj_param(par.params, "ralpha").f;
-                if (gam = pj_param(par.params, "tgamma").i)
+                if ((gam = pj_param(par.params, "tgamma").i))
                     gamma = pj_param(par.params, "rgamma").f;
                 if (alp || gam) {
                     lamc    = pj_param(par.params, "rlonc").f;
@@ -239,7 +239,7 @@ namespace boost { namespace geometry { namespace projection
             }
 
         }} // namespace detail::omerc
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Oblique Mercator projection
@@ -286,7 +286,7 @@ namespace boost { namespace geometry { namespace projection
             factory.add_to_factory("omerc", new omerc_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projection

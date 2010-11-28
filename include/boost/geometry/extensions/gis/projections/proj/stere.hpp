@@ -16,7 +16,7 @@
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels (Geodan, Amsterdam)
 
 // Original copyright notice:
- 
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -47,7 +47,7 @@
 namespace boost { namespace geometry { namespace projection
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace stere{ 
+    namespace detail { namespace stere{
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-8;
             static const int NITER = 8;
@@ -90,7 +90,7 @@ namespace boost { namespace geometry { namespace projection
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double coslam, sinlam, sinX=0.0, cosX=0.0, X, A, sinphi;
-                
+
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
                     sinphi = sin(lp_lat);
@@ -126,7 +126,7 @@ namespace boost { namespace geometry { namespace projection
                 {
                     double cosphi, sinphi, tp=0.0, phi_l=0.0, rho, halfe=0.0, halfpi=0.0;
                     int i;
-                
+
                     rho = boost::math::hypot(xy_x, xy_y);
                     switch (this->m_proj_parm.mode) {
                     case OBLIQ:
@@ -137,7 +137,7 @@ namespace boost { namespace geometry { namespace projection
                             phi_l = asin(cosphi * this->m_proj_parm.sinX1);
                                 else
                             phi_l = asin(cosphi * this->m_proj_parm.sinX1 + (xy_y * sinphi * this->m_proj_parm.cosX1 / rho));
-                
+
                         tp = tan(.5 * (HALFPI + phi_l));
                         xy_x *= sinphi;
                         xy_y = rho * this->m_proj_parm.cosX1 * cosphi - xy_y * this->m_proj_parm.sinX1* sinphi;
@@ -185,7 +185,7 @@ namespace boost { namespace geometry { namespace projection
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  sinphi, cosphi, coslam, sinlam;
-                
+
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
@@ -216,7 +216,7 @@ namespace boost { namespace geometry { namespace projection
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  c, rh, sinc, cosc;
-                
+
                     sinc = sin(c = 2. * atan((rh = boost::math::hypot(xy_x, xy_y)) / this->m_proj_parm.akm1));
                     cosc = cos(c);
                     lp_lon = 0.;
@@ -316,7 +316,7 @@ namespace boost { namespace geometry { namespace projection
             void setup_stere(Parameters& par, par_stere& proj_parm)
             {
                 proj_parm.phits = pj_param(par.params, "tlat_ts").i ?
-                    proj_parm.phits = pj_param(par.params, "rlat_ts").f : HALFPI;
+                    pj_param(par.params, "rlat_ts").f : HALFPI;
                 setup(par, proj_parm);
             }
 
@@ -336,7 +336,7 @@ namespace boost { namespace geometry { namespace projection
             }
 
         }} // namespace detail::stere
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Stereographic projection
@@ -442,7 +442,7 @@ namespace boost { namespace geometry { namespace projection
             factory.add_to_factory("ups", new ups_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projection
