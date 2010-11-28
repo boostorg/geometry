@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)/x03_b_soci_example"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\boost.vsprops"
+			InheritedPropertySheets=".\boost.vsprops;.\soci.vsprops;.\postgresql.vsprops"
 			CharacterSet="0"
 			>
 			<Tool
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../..;&quot;contrib\soci-3.0.0\src\backends\postgresql&quot;;&quot;contrib\soci-3.0.0\src\core&quot;;&quot;c:\Program Files\PostgreSQL\8.3\include&quot;;c:\oraclexe\app\oracle\product\10.2.0\server\OCI\include;&quot;c:\Program Files\MySQL\MySQL Server 5.0\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;SOCI_USE_BOOST;BOOST_ALL_NO_LIB;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				DebugInformationFormat="1"
@@ -58,8 +58,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libpq.lib"
-				AdditionalLibraryDirectories="&quot;c:\Program Files\MySQL\MySQL Server 5.0\lib\opt&quot;;c:\oraclexe\app\oracle\product\10.2.0\server\OCI\lib\MSVC;&quot;C:\Program Files\PostgreSQL\8.3\lib&quot;"
+				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -94,7 +93,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\x03_b_soci_example"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\boost.vsprops"
+			InheritedPropertySheets=".\boost.vsprops;.\soci.vsprops;.\postgresql.vsprops"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
@@ -115,11 +114,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../..;&quot;contrib\soci-3.0.0\src\backends\postgresql&quot;;&quot;contrib\soci-3.0.0\src\core&quot;;&quot;c:\Program Files\PostgreSQL\8.3\include&quot;;c:\oraclexe\app\oracle\product\10.2.0\server\OCI\include;&quot;c:\Program Files\MySQL\MySQL Server 5.0\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;SOCI_USE_BOOST;BOOST_ALL_NO_LIB;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
-				
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -132,8 +130,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libpq.lib"
-				AdditionalLibraryDirectories="&quot;c:\Program Files\MySQL\MySQL Server 5.0\lib\opt&quot;;c:\oraclexe\app\oracle\product\10.2.0\server\OCI\lib\MSVC;&quot;C:\Program Files\PostgreSQL\8.3\lib&quot;"
+				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -173,7 +170,7 @@
 			Name="soci_postgresql"
 			>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\blob.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\blob.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -193,7 +190,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\common.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\common.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -213,7 +210,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\factory.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\factory.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -233,7 +230,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\row-id.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\row-id.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -253,7 +250,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\session.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\session.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -273,7 +270,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\standard-into-type.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\standard-into-type.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -293,7 +290,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\standard-use-type.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\standard-use-type.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -313,7 +310,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\statement.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\statement.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -333,7 +330,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\vector-into-type.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\vector-into-type.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -353,7 +350,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\backends\postgresql\vector-use-type.cpp"
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\vector-use-type.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -377,7 +374,7 @@
 			Name="soci_core"
 			>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\backend-loader.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\backend-loader.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -397,7 +394,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\blob.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\blob.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -417,7 +414,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\connection-pool.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\connection-pool.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -437,7 +434,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\error.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\error.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -457,7 +454,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\into-type.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\into-type.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -477,7 +474,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\once-temp-type.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\once-temp-type.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -497,7 +494,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\prepare-temp-type.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\prepare-temp-type.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -517,7 +514,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\procedure.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\procedure.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -537,7 +534,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\ref-counted-prepare-info.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\ref-counted-prepare-info.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -557,7 +554,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\ref-counted-statement.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\ref-counted-statement.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -577,7 +574,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\row.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\row.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -597,7 +594,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\rowid.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\rowid.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -617,7 +614,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\session.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\session.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -637,7 +634,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\statement.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\statement.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -657,7 +654,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\transaction.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\transaction.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -677,7 +674,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\use-type.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\use-type.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -697,7 +694,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="contrib\soci-3.0.0\src\core\values.cpp"
+				RelativePath="$(SOCI_ROOT)\src\core\values.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

@@ -19,17 +19,17 @@ int main()
 {
     using namespace boost::geometry;
 
-    point_2d p(1, 1);
-    point_2d p2;
+    model::point_2d p(1, 1);
+    model::point_2d p2;
 
     // Example: translate a point over (5,5)
-    strategy::transform::translate_transformer<point_2d, point_2d> translate(5, 5);
+    strategy::transform::translate_transformer<model::point_2d, model::point_2d> translate(5, 5);
 
     transform(p, p2, translate);
     std::cout << "transformed point " << boost::geometry::dsv(p2) << std::endl;
 
     // Transform a polygon
-    polygon_2d poly, poly2;
+    model::polygon_2d poly, poly2;
     const double coor[][2] = { {0, 0}, {0, 7}, {2, 2}, {2, 0}, {0, 0} };
     // note that for this syntax you have to include the two
     // include files above (c_array_cartesian.hpp, std_as_linestring.hpp)

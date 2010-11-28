@@ -1,7 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright Barend Gehrels 2007-2009, Geodan, Amsterdam, the Netherlands
-// Copyright Bruno Lalande 2008, 2009
+// Copyright Barend Gehrels 2007-2010, Geodan, Amsterdam, the Netherlands
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,50 +10,83 @@
 // GD is a well-known and often used graphic library to write GIF (and other formats)
 
 // To build and run this example:
-// 1) This example uses also shapelib, see 08_shapelib_example for necessary proceudre
-// 2) download GD from http://www.libgd.org
-// 3) add 11 files mentioned below to the project or makefile
-// 4) for windows, add define NONDLL to indicate GD is not used as a DLL
-// GD FILES necessary: gd.c, gd_gd.c, gd_gif_out.c, gd_io*.c, gd_security.c, gd_topal.c, gdhelpers.c, gdtables.c
-// Alternativelly, install GD using OSGeo4W installer from http://trac.osgeo.org/osgeo4w/
-// that provides Windows binary packages
+// 1) download GD from http://www.libgd.org (currently gd-2.0.35 is assumed)
+// 2) add 11 files 
+//          gd.c, gd_gd.c, gd_gif_out.c, gd_io*.c, gd_security.c, gd_topal.c, gdhelpers.c, gdtables.c
+//    to the project or makefile or jamfile  
+// 3) for windows, add define NONDLL to indicate GD is not used as a DLL
+//    (Note that steps 2 and 3 are done in the MSVC gd_example project file and property sheets)
 
 #include <cmath>
 #include <cstdio>
 #include <vector>
 
+#include <fstream>
+#include <sstream>
+
+
+#include <boost/foreach.hpp>
+
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
+#include <boost/geometry/extensions/gis/geographic/strategies/area_huiller_earth.hpp>
+
+#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+
 
 #include <gd.h>
-#include "shapelib_common.hpp"
+
+namespace bg = boost::geometry;
+
+
+// ----------------------------------------------------------------------------
+// Read an ASCII file containing WKT's 
+// (note this function is shared by various examples)
+// ----------------------------------------------------------------------------
+template <typename Geometry>
+inline void read_wkt(std::string const& filename, std::vector<Geometry>& geometries)
+{
+    std::ifstream cpp_file(filename.c_str());
+    if (cpp_file.is_open())
+    {
+        while (! cpp_file.eof() )
+        {
+            std::string line;
+            std::getline(cpp_file, line);
+            if (! line.empty())
+            {
+                Geometry geometry;
+                bg::read_wkt(line, geometry);
+                geometries.push_back(geometry);
+            }
+        }
+    }
+}
+
 
 int main()
 {
-    std::string filename = "c:/data/spatial/shape/world_free/world.shp";
+    // Adapt if necessary
+    std::string filename = "../../data/world.wkt";
 
-    // The world is measured in latlong (degrees), so latlong (point_ll_deg, ring_ll_deg) is appropriate.
-    // (It is possible to change this in point_xy)
-    // We ignore holes in this sample.
-    // So declare a ring_ll_deg (= closed ring, polygon without holes)
-    std::vector<boost::geometry::ring_ll_deg> rings;
 
-    // Open a shapefile, for example world countries
-    try
-    {
-        read_shapefile(filename, rings);
-    }
-    catch(const std::string& s)
-    {
-        std::cout << s << std::endl;
-        return 1;
-    }
+    // The world is measured in latlong (degrees), so latlong (point_ll_deg) is appropriate.
+    // We ignore holes in this sample (below)
+    typedef bg::model::polygon<bg::model::point_ll_deg> polygon_type;
+    typedef bg::model::multi_polygon<polygon_type> country_type;
+
+    std::vector<country_type> countries;
+
+    // Read (for example) world countries
+    read_wkt(filename, countries);
+
 
     // Create a GD image.
     // A world map, as world.shp, is usually mapped in latitude-longitude (-180..180 and -90..90)
-    // For this sample we use a very simple "transformation"
+    // For this example we use a very simple "transformation"
     // mapping to 0..720 and 0..360
     const double factor = 2.0;
     gdImagePtr im = gdImageCreateTrueColor(int(360 * factor), int(180 * factor));
@@ -64,35 +96,39 @@ int main()
     int green = gdImageColorResolve(im, 0, 255, 0);
     int black = gdImageColorResolve(im, 0, 0, 0);
 
-    // Paint background
+    // Paint background in blue
     gdImageFilledRectangle(im, 0, 0, im->sx, im->sy, blue);
 
-    // Paint all rings
-    for (std::vector<boost::geometry::ring_ll_deg>::const_iterator it = rings.begin(); it != rings.end(); ++it)
+    // Paint all countries in green
+    BOOST_FOREACH(country_type const& country, countries)
     {
-        const boost::geometry::ring_ll_deg& ring = *it;
-
-        // If wished, suppress too small polygons.
-        // (Note that even in latlong, area is calculated in square meters)
-        const double a = boost::geometry::area(ring);
-        if (std::fabs(a) > 5000.0e6)
+        BOOST_FOREACH(polygon_type const& polygon, country)
         {
-            const int n = ring.size();
-            gdPoint* points = new gdPoint[n];
+            // Ignore holes, so take only exterior ring
+            bg::model::ring_ll_deg const& ring = bg::exterior_ring(polygon);
 
-            for (int i = 0; i < n; i++)
+            // If wished, suppress too small polygons.
+            // (Note that even in latlong, area is calculated in square meters)
+            double const a = bg::area(ring);
+            if (std::fabs(a) > 5000.0e6)
             {
-                // Translate lon/lat or x/y to GD x/y points
-                points[i].x = int(factor * (boost::geometry::get<0>(ring[i]) + 180.0));
-                points[i].y = im->sy - int(factor * (boost::geometry::get<1>(ring[i]) + 90.0));
+                int const n = ring.size();
+                gdPoint* points = new gdPoint[n];
+
+                for (int i = 0; i < n; i++)
+                {
+                    // Translate lon/lat or x/y to GD x/y points
+                    points[i].x = int(factor * (bg::get<0>(ring[i]) + 180.0));
+                    points[i].y = im->sy - int(factor * (bg::get<1>(ring[i]) + 90.0));
+                }
+
+                // Draw the polygon...
+                gdImageFilledPolygon(im, points, n, green);
+                // .. and the outline in black...
+                gdImagePolygon(im, points, n, black);
+
+                delete[] points;
             }
-
-            // Draw the polygon...
-            gdImageFilledPolygon(im, points, n, green);
-            // .. and the outline...
-            gdImagePolygon(im, points, n, black);
-
-            delete[] points;
         }
     }
 

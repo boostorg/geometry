@@ -97,8 +97,8 @@ int main()
     //std::vector<ring_type> unioned;
     //boost::geometry::union<ring_type>(a, b, std::back_inserter(unioned));
 
-    std::vector<boost::geometry::ring_2d> unioned;
-    std::vector<boost::geometry::ring_2d> intersected;
+    std::vector<boost::geometry::model::ring_2d> unioned;
+    std::vector<boost::geometry::model::ring_2d> intersected;
 
     // Temporarily not working
     /*

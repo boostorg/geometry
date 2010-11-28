@@ -168,15 +168,15 @@
 			Name="SHAPELIB"
 			>
 			<File
-				RelativePath=".\contrib\shapelib-1.3.0b2\dbfopen.c"
+				RelativePath="$(SHAPELIB)\dbfopen.c"
 				>
 			</File>
 			<File
-				RelativePath=".\contrib\shapelib-1.3.0b2\safileio.c"
+				RelativePath="$(SHAPELIB)\safileio.c"
 				>
 			</File>
 			<File
-				RelativePath=".\contrib\shapelib-1.3.0b2\shpopen.c"
+				RelativePath="$(SHAPELIB)\shpopen.c"
 				>
 			</File>
 		</Filter>

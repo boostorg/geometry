@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\shapelib"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops;.\osgeo4w-libraries.vsprops"
+			InheritedPropertySheets="..\..\boost.vsprops;.\shapelib.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../../../boost;./contrib/shapelib-1.2.10;$(OSGEO4W_HOME)/include"
+				AdditionalIncludeDirectories="../../../../.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
@@ -96,7 +96,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\shapelib"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops;.\osgeo4w-libraries.vsprops"
+			InheritedPropertySheets="..\..\boost.vsprops;.\shapelib.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -121,7 +121,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../../../../../boost;./contrib/shapelib-1.2.10;$(OSGEO4W_HOME)/include"
+				AdditionalIncludeDirectories="../../../../.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -176,6 +176,22 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="SHAPELIB"
+			>
+			<File
+				RelativePath="$(SHAPELIB)\dbfopen.c"
+				>
+			</File>
+			<File
+				RelativePath="$(SHAPELIB)\safileio.c"
+				>
+			</File>
+			<File
+				RelativePath="$(SHAPELIB)\shpopen.c"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\x01_shapelib_example.cpp"
 			>

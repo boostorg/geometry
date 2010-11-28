@@ -27,13 +27,13 @@ int main(void)
     namespace bg = boost::geometry;
 
     // Define a polygons and fill the outer rings.
-    bg::linestring_2d ls;
+    bg::model::linestring_2d ls;
     {
         const double c[][2] = { {0, 1}, {2, 5}, {5, 3} };
         bg::assign(ls, c);
     }
 
-    bg::polygon_2d p;
+    bg::model::polygon_2d p;
     {
         const double c[][2] = { {3, 0}, {0, 3}, {4, 5}, {3, 0} };
         bg::assign(p, c);
@@ -42,7 +42,7 @@ int main(void)
 
     // Create SVG-mapper
     std::ofstream stream("05_b_overlay_linestring_polygon_example.svg");
-    bg::svg_mapper<bg::point_2d> svg(stream, 500, 500);
+    bg::svg_mapper<bg::model::point_2d> svg(stream, 500, 500);
     // Determine extend by adding geometries
     svg.add(p);
     svg.add(ls);
@@ -52,7 +52,7 @@ int main(void)
 
 
     // Calculate intersection points (turn points)
-    typedef bg::detail::overlay::turn_info<bg::point_2d> turn_info;
+    typedef bg::detail::overlay::turn_info<bg::model::point_2d> turn_info;
     std::vector<turn_info> turns;
     bg::detail::get_turns::no_interrupt_policy policy;
     bg::get_turns<bg::detail::overlay::assign_null_policy>(ls, p, turns, policy);
@@ -61,16 +61,16 @@ int main(void)
     BOOST_FOREACH(turn_info const& turn, turns)
     {
         std::string action = "intersecting";
-        if (turn.operations[0].operation 
+        if (turn.operations[0].operation
                 == bg::detail::overlay::operation_intersection)
         {
             action = "entering";
         }
-        else if (turn.operations[0].operation 
+        else if (turn.operations[0].operation
                 == bg::detail::overlay::operation_union)
         {
             action = "leaving";
-            
+
         }
         std::cout << action << " polygon at " << bg::dsv(turn.point) << std::endl;
         svg.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1");

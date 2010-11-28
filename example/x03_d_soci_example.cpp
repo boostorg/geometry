@@ -66,7 +66,7 @@ int main()
             if (!boost::geometry::hex2wkb(*it, std::back_inserter(wkb)))
                 throw std::runtime_error("hex2wkb translation failed");
 
-            boost::geometry::polygon_2d parcel;
+            boost::geometry::model::polygon_2d parcel;
             if (!boost::geometry::read_wkb(wkb.begin(), wkb.end(), parcel))
                 throw std::runtime_error("read_wkb failed");
 

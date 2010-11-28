@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\x02_gd_example"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops;.\osgeo4w-libraries.vsprops"
+			InheritedPropertySheets="..\..\boost.vsprops;.\gd.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;../../../../../boost;&quot;./contrib/shapelib-1.2.10&quot;;&quot;./contrib/gd-2.0.35&quot;;$(OSGEO4W_HOME)/include;$(OSGEO4W_HOME)/include/gd"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NONDLL"
+				AdditionalIncludeDirectories="../../../../.."
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -95,7 +95,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\x02_gd_example"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops;.\osgeo4w-libraries.vsprops"
+			InheritedPropertySheets="..\..\boost.vsprops;.\gd.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -120,8 +120,8 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;../../../../../boost;&quot;./contrib/shapelib-1.2.10&quot;;&quot;./contrib/gd-2.0.35&quot;;$(OSGEO4W_HOME)/include;$(OSGEO4W_HOME)/include/gd"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NONDLL"
+				AdditionalIncludeDirectories="../../../../.."
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				DebugInformationFormat="3"
@@ -174,6 +174,54 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="GD"
+			>
+			<File
+				RelativePath="$(GD)\gd.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gd_gd.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gd_gif_out.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gd_io.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gd_io_dp.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gd_io_file.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gd_io_ss.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gd_security.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gd_topal.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gdhelpers.c"
+				>
+			</File>
+			<File
+				RelativePath="$(GD)\gdtables.c"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\x02_gd_example.cpp"
 			>

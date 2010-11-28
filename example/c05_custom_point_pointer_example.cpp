@@ -86,16 +86,16 @@ int main()
 
     std::cout << boost::geometry::length(myline) << std::endl;
 
-    boost::geometry::box_2d cb(boost::geometry::point_2d(1.5, 1.5), boost::geometry::point_2d(4.5, 4.5));
+    boost::geometry::model::box_2d cb(boost::geometry::model::point_2d(1.5, 1.5), boost::geometry::model::point_2d(4.5, 4.5));
 
     // This will NOT work because would need dynamicly allocating memory for point* in algorithms:
     // std::vector<ln> clipped;
     //boost::geometry::intersection(cb, myline, std::back_inserter(clipped));
 
     // This works because outputs to a normal struct point, no point*
-    std::vector<boost::geometry::linestring_2d> clipped;
-    boost::geometry::strategy::intersection::liang_barsky<boost::geometry::box_2d, boost::geometry::point_2d> strategy;
-    boost::geometry::detail::intersection::clip_range_with_box<boost::geometry::linestring_2d>(cb,
+    std::vector<boost::geometry::model::linestring_2d> clipped;
+    boost::geometry::strategy::intersection::liang_barsky<boost::geometry::model::box_2d, boost::geometry::model::point_2d> strategy;
+    boost::geometry::detail::intersection::clip_range_with_box<boost::geometry::model::linestring_2d>(cb,
                     myline, std::back_inserter(clipped), strategy);
 
 

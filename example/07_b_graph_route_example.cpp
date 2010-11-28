@@ -248,12 +248,12 @@ inline void build_route(Graph const& graph,
 int main()
 {
     // Define a point in the Geographic coordinate system
-    typedef boost::geometry::point
+    typedef boost::geometry::model::point
         <
             double, 2, boost::geometry::cs::geographic<boost::geometry::degree> 
         > point_type;
 
-    typedef boost::geometry::linestring<point_type> line_type;
+    typedef boost::geometry::model::linestring<point_type> line_type;
 
     // Define the graph, lateron containing the road network
     // With this, specify bundled properties for vertex and edge,
@@ -269,7 +269,7 @@ int main()
 
 
     // Init a bounding box, lateron used to define SVG map
-    boost::geometry::box_2d box;
+    boost::geometry::model::box_2d box;
     boost::geometry::assign_inverse(box);
 
     graph_type graph;

@@ -71,13 +71,13 @@ int main(void)
 
     // Define a linestring, which is a vector of points, and add some points
     // (we add them deliberately in different ways)
-    linestring_2d ls;
+    model::linestring_2d ls;
 
     // points can be created using "make" and added to a linestring using the std:: "push_back"
-    ls.push_back(make<point_2d>(1.1, 1.1));
+    ls.push_back(make<model::point_2d>(1.1, 1.1));
 
     // points can also be assigned using "assign" and added to a linestring using "append"
-    point_2d lp;
+    model::point_2d lp;
     assign(lp, 2.5, 2.1);
     append(ls, lp);
 
@@ -85,7 +85,7 @@ int main(void)
     std::cout << boost::geometry::dsv(ls) << std::endl;
 
     // The bounding box of linestrings can be calculated
-    box_2d b;
+    model::box_2d b;
     envelope(ls, b);
     std::cout << boost::geometry::dsv(b) << std::endl;
 
@@ -102,13 +102,13 @@ int main(void)
     std::cout << "number of points 3: " << num_points(ls) << std::endl;
 
     // The distance from a point to a linestring can be calculated
-    point_2d p(1.9, 1.2);
+    model::point_2d p(1.9, 1.2);
     std::cout << "distance of " << boost::geometry::dsv(p)
         << " to line: " << distance(p, ls) << std::endl;
 
     // A linestring is a vector. However, some algorithms consider "segments",
     // which are the line pieces between two points of a linestring.
-    double d = distance(p, segment<point_2d >(ls.front(), ls.back()));
+    double d = distance(p, model::segment<model::point_2d >(ls.front(), ls.back()));
     std::cout << "distance: " << d << std::endl;
 
     // Add some three points more, let's do it using a classic array.
@@ -119,7 +119,7 @@ int main(void)
 
     // Output as iterator-pair on a vector
     {
-        std::vector<point_2d> v;
+        std::vector<model::point_2d> v;
         std::copy(ls.begin(), ls.end(), std::back_inserter(v));
 
         std::cout
@@ -139,7 +139,7 @@ int main(void)
     std::reverse(boost::begin(ls), boost::end(ls));
 
     // The other way, using a vector instead of a linestring, is also possible
-    std::vector<point_2d> pv(ls.begin(), ls.end());
+    std::vector<model::point_2d> pv(ls.begin(), ls.end());
     std::cout << "length: " << length(pv) << std::endl;
 
     // If there are double points in the line, you can use unique to remove them
@@ -148,22 +148,22 @@ int main(void)
         // (sidenote, we have to make copies, because
         // ls.push_back(ls.back()) often succeeds but
         // IS dangerous and erroneous!
-        point_2d last = ls.back(), first = ls.front();
+        model::point_2d last = ls.back(), first = ls.front();
         ls.push_back(last);
         ls.insert(ls.begin(), first);
     }
     std::cout << "extra duplicate points: " << boost::geometry::dsv(ls) << std::endl;
 
     {
-        linestring_2d ls_copy;
+        model::linestring_2d ls_copy;
         std::unique_copy(ls.begin(), ls.end(), std::back_inserter(ls_copy),
-            boost::geometry::equal_to<point_2d>());
+            boost::geometry::equal_to<model::point_2d>());
         ls = ls_copy;
         std::cout << "uniquecopy: " << boost::geometry::dsv(ls) << std::endl;
     }
 
     // Lines can be simplified. This removes points, but preserves the shape
-    linestring_2d ls_simplified;
+    model::linestring_2d ls_simplified;
     simplify(ls, ls_simplified, 0.5);
     std::cout << "simplified: " << boost::geometry::dsv(ls_simplified) << std::endl;
 
@@ -175,39 +175,39 @@ int main(void)
     // 4) loop is defined for geometries to visit segments
     //    with state apart, and to be able to break out (not shown here)
     {
-        linestring_2d lscopy = ls;
-        std::for_each(lscopy.begin(), lscopy.end(), translate_function<point_2d>);
-        for_each_point(lscopy, scale_functor<point_2d>());
-        for_each_point(lscopy, translate_function<point_2d>);
+        model::linestring_2d lscopy = ls;
+        std::for_each(lscopy.begin(), lscopy.end(), translate_function<model::point_2d>);
+        for_each_point(lscopy, scale_functor<model::point_2d>());
+        for_each_point(lscopy, translate_function<model::point_2d>);
         std::cout << "modified line: " << boost::geometry::dsv(lscopy) << std::endl;
     }
 
     // Lines can be clipped using a clipping box. Clipped lines are added to the output iterator
-    box_2d cb(point_2d(1.5, 1.5), point_2d(4.5, 2.5));
+    model::box_2d cb(model::point_2d(1.5, 1.5), model::point_2d(4.5, 2.5));
 
-    std::vector<linestring_2d> clipped;
-    intersection_inserter<linestring_2d> (cb, ls, std::back_inserter(clipped));
+    std::vector<model::linestring_2d> clipped;
+    intersection_inserter<model::linestring_2d> (cb, ls, std::back_inserter(clipped));
 
     // Also possible: clip-output to a vector of vectors
-    std::vector<std::vector<point_2d> > vector_out;
-    intersection_inserter<std::vector<point_2d> >(cb, ls, std::back_inserter(vector_out));
+    std::vector<std::vector<model::point_2d> > vector_out;
+    intersection_inserter<std::vector<model::point_2d> >(cb, ls, std::back_inserter(vector_out));
 
     std::cout << "clipped output as vector:" << std::endl;
-    for (std::vector<std::vector<point_2d> >::const_iterator it
+    for (std::vector<std::vector<model::point_2d> >::const_iterator it
             = vector_out.begin(); it != vector_out.end(); ++it)
     {
         std::cout << boost::geometry::dsv(*it) << std::endl;
     }
 
     // Calculate the convex hull of the linestring
-    polygon_2d hull;
+    model::polygon_2d hull;
     convex_hull(ls, hull);
     std::cout << "Convex hull:" << boost::geometry::dsv(hull) << std::endl;
 
     // All the above assumed 2D Cartesian linestrings. 3D is possible as well
     // Let's define a 3D point ourselves, this time using 'float'
-    typedef point<float, 3, cs::cartesian> point_type;
-    typedef linestring<point_type> line_type;
+    typedef model::point<float, 3, cs::cartesian> point_type;
+    typedef model::linestring<point_type> line_type;
     line_type line3d;
     line3d.push_back(make<point_type>(1,2,3));
     line3d.push_back(make<point_type>(4,5,6));

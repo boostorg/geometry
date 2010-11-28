@@ -68,8 +68,8 @@ struct shift_and_calc_distance
 };
 
 // 6: Define point types using this explicitly
-typedef boost::geometry::point<double, 2, cart> point1;
-typedef boost::geometry::point<double, 2, cart_shifted5> point2;
+typedef boost::geometry::model::point<double, 2, cart> point1;
+typedef boost::geometry::model::point<double, 2, cart_shifted5> point2;
 
 // 7: register the distance strategy
 namespace boost { namespace geometry { namespace strategy { namespace distance { namespace services 
@@ -110,7 +110,7 @@ int main()
     std::cout << d1 << " " << d2 << std::endl;
 
     // Transform from a to b:
-    boost::geometry::point<double, 2, cart_shifted5> p1_shifted;
+    boost::geometry::model::point<double, 2, cart_shifted5> p1_shifted;
     boost::geometry::transform(p1_a, p1_shifted); 
 
 
