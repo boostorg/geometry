@@ -71,8 +71,8 @@ struct svg_map<point_tag, false, Point>
                     Point const& point, TransformStrategy const& strategy)
     {
         model::point_xy<int> ipoint;
-        transform(point, ipoint, strategy);
-        stream << svg(ipoint, style, size) << std::endl;
+        geometry::transform(point, ipoint, strategy);
+        stream << geometry::svg(ipoint, style, size) << std::endl;
     }
 };
 
@@ -85,9 +85,9 @@ struct svg_map<box_tag, false, Box>
                     Box const& box, TransformStrategy const& strategy)
     {
         model::box<model::point_xy<int> > ibox;
-        transform(box, ibox, strategy);
+        geometry::transform(box, ibox, strategy);
 
-        stream << svg(ibox, style, size) << std::endl;
+        stream << geometry::svg(ibox, style, size) << std::endl;
     }
 };
 
@@ -101,8 +101,8 @@ struct svg_map_range
                 Range1 const& range, TransformStrategy const& strategy)
     {
         Range2 irange;
-        transform(range, irange, strategy);
-        stream << svg(irange, style, size) << std::endl;
+        geometry::transform(range, irange, strategy);
+        stream << geometry::svg(irange, style, size) << std::endl;
     }
 };
 
@@ -146,8 +146,8 @@ struct svg_map<polygon_tag, false, Polygon>
                     Polygon const& polygon, TransformStrategy const& strategy)
     {
         model::polygon<model::point_xy<int> > ipoly;
-        transform(polygon, ipoly, strategy);
-        stream << svg(ipoly, style, size) << std::endl;
+        geometry::transform(polygon, ipoly, strategy);
+        stream << geometry::svg(ipoly, style, size) << std::endl;
     }
 };
 
