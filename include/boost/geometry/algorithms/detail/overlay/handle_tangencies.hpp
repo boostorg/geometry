@@ -52,7 +52,7 @@ private :
 
     typedef typename Indexed::type turn_operation_type;
     typedef typename geometry::point_type<Geometry1>::type point_type;
-    typedef geometry::segment<point_type const> segment_type;
+    typedef model::referring_segment<point_type const> segment_type;
 
     // Determine how p/r and p/s are located.
     template <typename P>
@@ -97,6 +97,8 @@ private :
         ) const
     {
         if (skip) return;
+
+
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
         point_type pi, pj, ri, rj, si, sj;
         geometry::copy_segment_points(m_geometry1, m_geometry2,
@@ -111,7 +113,7 @@ private :
 
         bool prc = false, psc = false, rsc = false;
         overlap_info(pi, pj, ri, rj, si, sj, prc, psc, rsc);
-        
+
         int const side_ri_p = m_strategy.apply(pi, pj, ri);
         int const side_rj_p = m_strategy.apply(pi, pj, rj);
         int const side_si_p = m_strategy.apply(pi, pj, si);
@@ -130,7 +132,7 @@ private :
         std::cout << " s//r: " << side_si_r << " / " << side_sj_r << std::endl;
 #endif
 
-        std::cout << header 
+        std::cout << header
                 //<< " order: " << order
                 << " ops: " << operation_char(left.subject.operation)
                     << "/" << operation_char(right.subject.operation)
@@ -244,17 +246,19 @@ private :
     inline bool consider_iu_iu(Indexed const& left, Indexed const& right,
                     std::string const& header) const
     {
-        debug_consider(0, left, right, header);
+        //debug_consider(0, left, right, header);
 
         // In general, order it like "union, intersection".
         if (left.subject.operation == operation_intersection
             && right.subject.operation == operation_union)
         {
+            //debug_consider(0, left, right, header, false, "i,u", false);
             return false;
         }
         else if (left.subject.operation == operation_union
             && right.subject.operation == operation_intersection)
         {
+            //debug_consider(0, left, right, header, false, "u,i", true);
             return true;
         }
 
@@ -294,7 +298,7 @@ private :
 
             {
                 ret = side_ri_p == 1; // #100
-                //debug_consider(0, left, right, header, false, "coming from opposite", ret);
+                debug_consider(0, left, right, header, false, "opp.", ret);
                 return ret;
             }
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
@@ -322,7 +326,7 @@ private :
                 ret = side_si_r == 1;
             }
 
-            //debug_consider(0, left, right, header, false, "other", ret);
+            debug_consider(0, left, right, header, false, "left or right", ret);
             return ret;
         }
 
@@ -334,18 +338,18 @@ private :
             // Take the one NOT overlapping
             bool ret = false;
             bool found = false;
-            if (pr_ov && ! ps_ov) 
+            if (pr_ov && ! ps_ov)
             {
                 ret = true;
                 found = true;
             }
-            else if (!pr_ov && ps_ov) 
+            else if (!pr_ov && ps_ov)
             {
                 ret = false;
                 found = true;
             }
 
-            //debug_consider(0, left, right, header, false, "aligned", ret);
+            debug_consider(0, left, right, header, false, "aligned", ret);
             if (found)
             {
                 return ret;

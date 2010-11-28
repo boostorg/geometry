@@ -45,7 +45,7 @@ struct get_turns
     {
         typedef typename geometry::sections
             <
-                geometry::box <typename geometry::point_type<Geometry>::type>,
+                model::box <typename geometry::point_type<Geometry>::type>,
                 1
             > sections_type;
 

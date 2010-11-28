@@ -603,7 +603,7 @@ std::cout << "assemble" << std::endl;
 
         //if (! only_positive)
         {
-            typedef geometry::box<point_type> box_type;
+            typedef model::box<point_type> box_type;
             box_type total = geometry::make_envelope<box_type>(geometry1);
             geometry::combine(total,
                         geometry::make_envelope<box_type>(geometry2));
@@ -627,7 +627,7 @@ std::cout << "assemble.enrich containment" << std::endl;
                     Geometry1,
                     Geometry2,
                     std::vector<ring_type>,
-                    geometry::box<point_type>
+                    model::box<point_type>
                 >::apply(ring_properties_container,
                         geometry1, geometry2, rings, direction, dissolve, total);
 

@@ -42,8 +42,8 @@ struct strategy_intersection
 private :
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
-    typedef typename geometry::segment<point1_type const> segment1_type;
-    typedef typename geometry::segment<point2_type const> segment2_type;
+    typedef typename model::referring_segment<point1_type const> segment1_type;
+    typedef typename model::referring_segment<point2_type const> segment2_type;
 
     typedef segment_intersection_points
         <

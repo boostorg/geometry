@@ -238,8 +238,8 @@ public :
 private :
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
-    typedef typename geometry::segment<point1_type const> segment1_type;
-    typedef typename geometry::segment<point2_type const> segment2_type;
+    typedef typename model::referring_segment<point1_type const> segment1_type;
+    typedef typename model::referring_segment<point2_type const> segment2_type;
 
 
     template <size_t Dim, typename Point, typename Box>
@@ -283,9 +283,9 @@ private :
     // So we mimic it here
     template <typename Range, typename Section, typename Box>
     static inline void get_start_point_iterator(Section & section,
-            Range const& range, 
-            typename boost::range_iterator<Range const>::type& it, 
-            typename boost::range_iterator<Range const>::type& prev, 
+            Range const& range,
+            typename boost::range_iterator<Range const>::type& it,
+            typename boost::range_iterator<Range const>::type& prev,
             typename boost::range_iterator<Range const>::type& end,
             int& index, int& ndi,
             int dir, Box const& other_bounding_box)
@@ -478,8 +478,8 @@ public:
         // (to enable input-pointer-point-types)
         typedef typename boost::range_value<Turns>::type ip_type;
         typedef typename ip_type::point_type point_type;
-        typedef typename geometry::sections<geometry::box<point_type>, 1> sections1_type;
-        typedef typename geometry::sections<geometry::box<point_type>, 1> sections2_type;
+        typedef typename geometry::sections<model::box<point_type>, 1> sections1_type;
+        typedef typename geometry::sections<model::box<point_type>, 1> sections2_type;
 
         sections1_type sec1;
         sections2_type sec2;
@@ -488,7 +488,7 @@ public:
         geometry::sectionalize(geometry2, sec2);
 
         // Divide and conquer
-        geometry::box<point_type> box;
+        model::box<point_type> box;
         geometry::assign_inverse(box);
         add_sections(box, sec1);
         add_sections(box, sec2);
@@ -589,7 +589,7 @@ struct get_turns_cs
             if (true)
             {
                 get_turns_with_box(seg_id, source_id2,
-                        *prev, *it, *next, 
+                        *prev, *it, *next,
                         bp[0], bp[i1], bp[2], bp[i3], // note the "i" here
                         turns);
                 // TODO: call the interrupt policy if applicable
@@ -620,14 +620,14 @@ private:
 
     static inline void get_turns_with_box(segment_identifier const& seg_id, int source_id2,
             // Points from a range:
-            point_type const& rp0, 
-            point_type const& rp1, 
+            point_type const& rp0,
+            point_type const& rp1,
             point_type const& rp2,
             // Points from the box
-            box_point_type const& bp0, 
-            box_point_type const& bp1, 
+            box_point_type const& bp0,
+            box_point_type const& bp1,
             box_point_type const& bp2,
-            box_point_type const& bp3, 
+            box_point_type const& bp3,
             // Output
             Turns& turns)
     {
@@ -695,7 +695,7 @@ struct get_turns_polygon_cs
 
         intersector_type::apply(
                 source_id1, geometry::exterior_ring(polygon),
-                source_id2, box, turns, interrupt_policy, 
+                source_id2, box, turns, interrupt_policy,
                 multi_index, -1);
 
         int i = 0;
@@ -705,7 +705,7 @@ struct get_turns_polygon_cs
         {
             intersector_type::apply(
                     source_id1, *it,
-                    source_id2, box, turns, interrupt_policy, 
+                    source_id2, box, turns, interrupt_policy,
                     multi_index, i);
         }
 
@@ -752,7 +752,7 @@ template
 >
 struct get_turns
     <
-        polygon_tag, box_tag, 
+        polygon_tag, box_tag,
         Polygon, Box,
         Turns,
         TurnPolicy,
@@ -775,7 +775,7 @@ template
 >
 struct get_turns
     <
-        ring_tag, box_tag, 
+        ring_tag, box_tag,
         Ring, Box,
         Turns,
         TurnPolicy,

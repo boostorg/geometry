@@ -49,12 +49,12 @@ struct get_turn_without_info
                 TurnInfo const& tp_model,
                 OutputIterator out)
     {
-        typedef segment<Point1 const> segment_type1;
-        typedef segment<Point1 const> segment_type2;
+        typedef model::referring_segment<Point1 const> segment_type1;
+        typedef model::referring_segment<Point1 const> segment_type2;
         segment_type1 p1(pi, pj), p2(pj, pk);
         segment_type2 q1(qi, qj), q2(qj, qk);
 
-        // 
+        //
         typename strategy::return_type result = strategy::apply(p1, q1);
 
         for (std::size_t i = 0; i < result.template get<0>().count; i++)

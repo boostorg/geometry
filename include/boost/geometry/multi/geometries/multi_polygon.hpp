@@ -21,6 +21,9 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
 /*!
     \brief multi_polygon, a collection of polygons
     \details Multi-polygon can be used to group polygons belonging to each other,
@@ -38,6 +41,10 @@ struct multi_polygon : public V<P, A<P> >
     BOOST_CONCEPT_ASSERT( (concept::Polygon<P>) );
 };
 
+
+} // namespace model
+
+
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
@@ -48,7 +55,7 @@ template
     template<typename, typename> class V,
     template<typename> class A
 >
-struct tag< multi_polygon<P, V, A> >
+struct tag< model::multi_polygon<P, V, A> >
 {
     typedef multi_polygon_tag type;
 };

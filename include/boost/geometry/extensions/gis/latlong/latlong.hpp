@@ -21,6 +21,9 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
 typedef point_ll<double, cs::geographic<degree> > point_ll_deg;
 typedef linestring<point_ll_deg> linestring_ll_deg;
 typedef linear_ring<point_ll_deg> ring_ll_deg;
@@ -34,6 +37,9 @@ typedef linear_ring<point_ll_rad> ring_ll_rad;
 typedef polygon<point_ll_rad> polygon_ll_rad;
 typedef box<point_ll_rad> box_ll_rad;
 typedef segment<point_ll_rad> segment_ll_rad;
+
+} // namespace model
+
 
 }} // namespace boost::geometry
 

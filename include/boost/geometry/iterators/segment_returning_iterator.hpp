@@ -34,7 +34,7 @@ struct segment_returning_iterator
 {
     typedef Base base_type;
     typedef Point point_type;
-    typedef typename geometry::segment<Point> segment_type;
+    typedef typename model::referring_segment<Point> segment_type;
 
     typedef std::input_iterator_tag iterator_category;
     typedef typename std::iterator_traits<Base>::difference_type difference_type;

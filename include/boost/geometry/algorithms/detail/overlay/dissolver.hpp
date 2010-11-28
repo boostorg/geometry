@@ -277,7 +277,7 @@ struct dissolver_generic
     {
         typedef typename boost::range_value<Vector>::type value_type;
         typedef typename geometry::point_type<value_type>::type point_type;
-        typedef geometry::box<point_type> box_type;
+        typedef model::box<point_type> box_type;
         for(typename boost::range_iterator<Vector const>::type
             it = boost::begin(v);
             it != boost::end(v);
@@ -482,7 +482,7 @@ struct dissolver_generic
         typedef typename boost::range_value<OutputCollection>::type output_type;
 
         typedef typename geometry::point_type<output_type>::type point_type;
-        typedef geometry::box<point_type> box_type;
+        typedef model::box<point_type> box_type;
         typedef dissolve_helper<box_type> dissolve_helper_type;
         typedef std::vector<dissolve_helper_type> helper_vector_type;
 

@@ -15,7 +15,12 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
 typedef nsphere<point_2d, double> circle;
+
+}
 
 }} // namespace boost::geometry
 

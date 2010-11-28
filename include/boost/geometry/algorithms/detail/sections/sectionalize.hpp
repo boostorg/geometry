@@ -239,7 +239,7 @@ template
 >
 struct sectionalize_part
 {
-    typedef geometry::segment<Point const> segment_type;
+    typedef model::referring_segment<Point const> segment_type;
     typedef typename boost::range_value<Sections>::type section_type;
 
     typedef typename boost::range_iterator<Range const>::type iterator_type;
@@ -362,7 +362,7 @@ struct sectionalize_range
     static inline void apply(Range const& range, Sections& sections,
                 int ring_index = -1, int multi_index = -1)
     {
-        typedef segment<Point const> segment_type;
+        typedef model::referring_segment<Point const> segment_type;
 
         view_type view(range);
 
@@ -387,7 +387,7 @@ struct sectionalize_range
 
         sectionalize_part
             <
-                view_type, Point, Sections, 
+                view_type, Point, Sections,
                 DimensionCount, MaxCount
             >::apply(sections, section, index, ndi,
                         view, ring_index, multi_index);

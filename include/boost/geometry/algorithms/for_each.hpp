@@ -92,7 +92,7 @@ struct fe_range_per_segment
         iterator_type previous = it++;
         while(it != boost::end(range))
         {
-            segment<point_type> s(*previous, *it);
+            model::referring_segment<point_type> s(*previous, *it);
             f(s);
             previous = it++;
         }

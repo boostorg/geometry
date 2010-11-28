@@ -24,6 +24,9 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
 /*!
     \brief A linestring (named so by OGC) is a collection (default a vector) of points.
     \ingroup geometries
@@ -46,6 +49,8 @@ class linestring : public V<P, A<P> >
     BOOST_CONCEPT_ASSERT( (concept::Point<P>) );
 };
 
+} // namespace model
+
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
@@ -56,7 +61,7 @@ template
     template<typename,typename> class V,
     template<typename> class A
 >
-struct tag<linestring<P, V, A> >
+struct tag<model::linestring<P, V, A> >
 {
     typedef linestring_tag type;
 };

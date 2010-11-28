@@ -79,7 +79,7 @@ private :
 
     // A projected point of points in Integer coordinates must be able to be
     // represented in FP.
-    typedef boost::geometry::point
+    typedef model::point
         <
             fp_type,
             dimension<PointOfSegment>::value,

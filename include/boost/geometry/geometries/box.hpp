@@ -20,6 +20,10 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
+
 /*!
     \brief Class box: defines a box made of two describing points
     \ingroup geometries
@@ -64,50 +68,53 @@ private:
 };
 
 
+} // namespace model
+
+
 // Traits specializations for box above
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
 
 template <typename Point>
-struct tag<box<Point> >
+struct tag<model::box<Point> >
 {
     typedef box_tag type;
 };
 
 template <typename Point>
-struct point_type<box<Point> >
+struct point_type<model::box<Point> >
 {
     typedef Point type;
 };
 
 template <typename Point, std::size_t Dimension>
-struct indexed_access<box<Point>, min_corner, Dimension>
+struct indexed_access<model::box<Point>, min_corner, Dimension>
 {
     typedef typename geometry::coordinate_type<Point>::type coordinate_type;
 
-    static inline coordinate_type get(box<Point> const& b)
+    static inline coordinate_type get(model::box<Point> const& b)
     {
         return geometry::get<Dimension>(b.min_corner());
     }
 
-    static inline void set(box<Point>& b, coordinate_type const& value)
+    static inline void set(model::box<Point>& b, coordinate_type const& value)
     {
         geometry::set<Dimension>(b.min_corner(), value);
     }
 };
 
 template <typename Point, std::size_t Dimension>
-struct indexed_access<box<Point>, max_corner, Dimension>
+struct indexed_access<model::box<Point>, max_corner, Dimension>
 {
     typedef typename geometry::coordinate_type<Point>::type coordinate_type;
 
-    static inline coordinate_type get(box<Point> const& b)
+    static inline coordinate_type get(model::box<Point> const& b)
     {
         return geometry::get<Dimension>(b.max_corner());
     }
 
-    static inline void set(box<Point>& b, coordinate_type const& value)
+    static inline void set(model::box<Point>& b, coordinate_type const& value)
     {
         geometry::set<Dimension>(b.max_corner(), value);
     }

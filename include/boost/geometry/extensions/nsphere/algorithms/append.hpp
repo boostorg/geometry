@@ -25,8 +25,10 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 
-template <typename TagRoP, typename N, typename RoP, bool Std>
-struct append<nsphere_tag, TagRoP, N, RoP, Std> {};
+// This file is probably obsolete
+
+//template <typename TagRoP, typename N, typename RoP, bool Std>
+//struct append<nsphere_tag, TagRoP, N, RoP, Std> {};
 
 
 } // namespace dispatch
