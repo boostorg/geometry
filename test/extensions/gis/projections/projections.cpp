@@ -33,7 +33,7 @@
 
 inline void check(double v, double ve, std::string const& name, std::string const& axis)
 {
-    if (! boost::test_tools::check_is_close(v, ve, boost::test_tools::percent_tolerance(0.001)))
+    if (! boost::test_tools::check_is_close(v, ve, 0.001))
     {
         std::ostringstream out;
         out << "\n" << name << " " << axis << " -> " << v << " != " << ve;
