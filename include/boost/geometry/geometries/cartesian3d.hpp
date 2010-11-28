@@ -15,11 +15,18 @@
 
 namespace boost { namespace geometry
 {
+
+namespace model
+{
+
 typedef point<double, 3, cs::cartesian> point_3d;
 typedef linestring<point_3d> linestring_3d;
 typedef linear_ring<point_3d> ring_3d;
 typedef polygon<point_3d> polygon_3d;
 typedef box<point_3d> box_3d;
+
+} // namespace model
+
 
 }} // namespace boost::geometry
 

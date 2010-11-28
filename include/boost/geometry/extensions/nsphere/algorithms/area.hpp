@@ -61,8 +61,8 @@ namespace dispatch
 {
 
 
-template <typename Geometry, order_selector Order, typename Strategy>
-struct area<nsphere_tag, Geometry, Order, Strategy>
+template <typename Geometry, typename Strategy>
+struct area<nsphere_tag, Geometry, Strategy>
     : detail::area::circle_area<Geometry, Strategy>
 {};
 

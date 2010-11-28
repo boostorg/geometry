@@ -26,7 +26,7 @@ template <typename Point>
 struct ring_properties
 {
     typedef Point point_type;
-    typedef geometry::box<Point> box_type;
+    typedef model::box<Point> box_type;
 
     ring_identifier ring_id;
     typename area_result<Point>::type area;

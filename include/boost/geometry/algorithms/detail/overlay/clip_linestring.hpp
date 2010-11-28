@@ -42,7 +42,7 @@ template<typename Box, typename Point>
 class liang_barsky
 {
 private:
-    typedef geometry::segment<Point> segment_type;
+    typedef model::referring_segment<Point> segment_type;
 
     template <typename T>
     inline bool check_edge(T const& p, T const& q, T& t1, T& t2) const
@@ -197,7 +197,7 @@ OutputIterator clip_range_with_box(Box const& b, Range const& range,
 
         bool c1 = false;
         bool c2 = false;
-        segment<point_type> s(p1, p2);
+        model::referring_segment<point_type> s(p1, p2);
 
         if (!strategy.clip_segment(b, s, c1, c2))
         {

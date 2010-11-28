@@ -47,31 +47,31 @@ struct replace_point_type<point_tag, Geometry, NewPointType>
 template <typename Geometry, typename NewPointType>
 struct replace_point_type<linestring_tag, Geometry, NewPointType>
 {
-    typedef linestring<NewPointType> type;
+    typedef model::linestring<NewPointType> type;
 };
 
 template <typename Geometry, typename NewPointType>
 struct replace_point_type<segment_tag, Geometry, NewPointType>
 {
-    typedef segment<NewPointType> type;
+    typedef model::segment<NewPointType> type;
 };
 
 template <typename Geometry, typename NewPointType>
 struct replace_point_type<ring_tag, Geometry, NewPointType>
 {
-    typedef linear_ring<NewPointType> type;
+    typedef model::linear_ring<NewPointType> type;
 };
 
 template <typename Geometry, typename NewPointType>
 struct replace_point_type<box_tag, Geometry, NewPointType>
 {
-    typedef box<NewPointType> type;
+    typedef model::box<NewPointType> type;
 };
 
 template <typename Geometry, typename NewPointType>
 struct replace_point_type<polygon_tag, Geometry, NewPointType>
 {
-    typedef polygon<NewPointType> type;
+    typedef model::polygon<NewPointType> type;
 };
 
 

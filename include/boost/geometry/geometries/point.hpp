@@ -23,6 +23,10 @@
 namespace boost { namespace geometry
 {
 
+
+namespace model
+{
+
 /*!
 \brief Basic point class, having coordinates defined in a neutral way
 \ingroup geometries
@@ -86,6 +90,8 @@ private:
 };
 
 
+} // namespace model
+
 // Adapt the point to the concept
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
@@ -96,7 +102,7 @@ template
     std::size_t DimensionCount,
     typename CoordinateSystem
 >
-struct tag<point<CoordinateType, DimensionCount, CoordinateSystem> >
+struct tag<model::point<CoordinateType, DimensionCount, CoordinateSystem> >
 {
     typedef point_tag type;
 };
@@ -107,7 +113,7 @@ template
     std::size_t DimensionCount,
     typename CoordinateSystem
 >
-struct coordinate_type<point<CoordinateType, DimensionCount, CoordinateSystem> >
+struct coordinate_type<model::point<CoordinateType, DimensionCount, CoordinateSystem> >
 {
     typedef CoordinateType type;
 };
@@ -118,7 +124,7 @@ template
     std::size_t DimensionCount,
     typename CoordinateSystem
 >
-struct coordinate_system<point<CoordinateType, DimensionCount, CoordinateSystem> >
+struct coordinate_system<model::point<CoordinateType, DimensionCount, CoordinateSystem> >
 {
     typedef CoordinateSystem type;
 };
@@ -129,7 +135,7 @@ template
     std::size_t DimensionCount,
     typename CoordinateSystem
 >
-struct dimension<point<CoordinateType, DimensionCount, CoordinateSystem> >
+struct dimension<model::point<CoordinateType, DimensionCount, CoordinateSystem> >
     : boost::mpl::int_<DimensionCount>
 {};
 
@@ -140,16 +146,16 @@ template
     typename CoordinateSystem,
     std::size_t Dimension
 >
-struct access<point<CoordinateType, DimensionCount, CoordinateSystem>, Dimension>
+struct access<model::point<CoordinateType, DimensionCount, CoordinateSystem>, Dimension>
 {
     static inline CoordinateType get(
-        point<CoordinateType, DimensionCount, CoordinateSystem> const& p)
+        model::point<CoordinateType, DimensionCount, CoordinateSystem> const& p)
     {
         return p.template get<Dimension>();
     }
 
     static inline void set(
-        point<CoordinateType, DimensionCount, CoordinateSystem>& p,
+        model::point<CoordinateType, DimensionCount, CoordinateSystem>& p,
         CoordinateType const& value)
     {
         p.template set<Dimension>(value);

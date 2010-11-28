@@ -191,7 +191,7 @@ struct wkt_box
                 Box const& box)
     {
         // Convert to linear ring, then stream
-        typedef linear_ring<point_type> ring_type;
+        typedef model::linear_ring<point_type> ring_type;
         ring_type ring;
         geometry::convert(box, ring);
         os << "POLYGON(";

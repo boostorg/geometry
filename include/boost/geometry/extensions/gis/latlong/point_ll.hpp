@@ -25,6 +25,10 @@
 namespace boost { namespace geometry
 {
 
+
+namespace model
+{
+
 /*!
     \brief Point using spherical coordinates \a lat and \a lon, on Earth
     \ingroup Geometry
@@ -101,6 +105,9 @@ public:
     }
 };
 
+
+} // namespace model
+
 // Adapt the point_ll to the concept
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
@@ -112,7 +119,7 @@ template
     typename CoordinateSystem,
     std::size_t DimensionCount
 >
-struct tag<point_ll<CoordinateType, CoordinateSystem, DimensionCount> >
+struct tag<model::point_ll<CoordinateType, CoordinateSystem, DimensionCount> >
 {
     typedef point_tag type;
 };
@@ -125,7 +132,7 @@ template
 >
 struct coordinate_type
     <
-        point_ll<CoordinateType, CoordinateSystem, DimensionCount>
+        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>
     >
 {
     typedef CoordinateType type;
@@ -139,7 +146,7 @@ template
 >
 struct coordinate_system
     <
-        point_ll<CoordinateType, CoordinateSystem, DimensionCount>
+        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>
     >
 {
     typedef CoordinateSystem type;
@@ -153,7 +160,7 @@ template
 >
 struct dimension
     <
-        point_ll<CoordinateType, CoordinateSystem, DimensionCount>
+        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>
     >
     : boost::mpl::int_<DimensionCount>
 {};
@@ -167,17 +174,17 @@ template
 >
 struct access
     <
-        point_ll<CoordinateType, CoordinateSystem, DimensionCount>, Dimension
+        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>, Dimension
     >
 {
     static inline CoordinateType get(
-        point_ll<CoordinateType, CoordinateSystem, DimensionCount> const& p)
+        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount> const& p)
     {
         return p.template get<Dimension>();
     }
 
     static inline void set(
-        point_ll<CoordinateType, CoordinateSystem, DimensionCount>& p,
+        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>& p,
         CoordinateType const& value)
     {
         p.template set<Dimension>(value);

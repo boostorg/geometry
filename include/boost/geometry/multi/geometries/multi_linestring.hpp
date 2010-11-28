@@ -21,6 +21,10 @@
 namespace boost { namespace geometry
 {
 
+
+namespace model
+{
+
 /*!
     \brief multi_line, a collection of linestring
     \details Multi-linestring can be used to group lines belonging to each other,
@@ -39,6 +43,9 @@ struct multi_linestring : public V<L, A<L> >
 };
 
 
+} // namespace model
+
+
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
@@ -49,7 +56,7 @@ template
     template<typename, typename> class V,
     template<typename> class A
 >
-struct tag< multi_linestring<L, V, A> >
+struct tag< model::multi_linestring<L, V, A> >
 {
     typedef multi_linestring_tag type;
 };

@@ -63,31 +63,31 @@ struct svg_map
 
 
 template <typename Point>
-struct svg_map<boost::geometry::point_tag, false, Point>
+struct svg_map<point_tag, false, Point>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
                     std::string const& style, int size,
                     Point const& point, TransformStrategy const& strategy)
     {
-        boost::geometry::point_xy<int> ipoint;
-        boost::geometry::transform(point, ipoint, strategy);
-        stream << boost::geometry::svg(ipoint, style, size) << std::endl;
+        model::point_xy<int> ipoint;
+        transform(point, ipoint, strategy);
+        stream << svg(ipoint, style, size) << std::endl;
     }
 };
 
 template <typename Box>
-struct svg_map<boost::geometry::box_tag, false, Box>
+struct svg_map<box_tag, false, Box>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
                     std::string const& style, int size,
                     Box const& box, TransformStrategy const& strategy)
     {
-        boost::geometry::box<boost::geometry::point_xy<int> > ibox;
-        boost::geometry::transform(box, ibox, strategy);
+        model::box<model::point_xy<int> > ibox;
+        transform(box, ibox, strategy);
 
-        stream << boost::geometry::svg(ibox, style, size) << std::endl;
+        stream << svg(ibox, style, size) << std::endl;
     }
 };
 
@@ -101,53 +101,53 @@ struct svg_map_range
                 Range1 const& range, TransformStrategy const& strategy)
     {
         Range2 irange;
-        boost::geometry::transform(range, irange, strategy);
-        stream << boost::geometry::svg(irange, style, size) << std::endl;
+        transform(range, irange, strategy);
+        stream << svg(irange, style, size) << std::endl;
     }
 };
 
 template <typename Segment>
-struct svg_map<boost::geometry::segment_tag, false, Segment>
+struct svg_map<segment_tag, false, Segment>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
                     std::string const& style, int size,
                     Segment const& segment, TransformStrategy const& strategy)
     {
-        typedef boost::geometry::segment_range<Segment> range_type;
+        typedef segment_range<Segment> range_type;
         range_type range(segment);
         svg_map_range
             <
-                range_type, 
-                boost::geometry::linestring<boost::geometry::point_xy<int> >
+                range_type,
+                model::linestring<model::point_xy<int> >
             >::apply(stream, style, size, range, strategy);
     }
 };
 
 
 template <typename Ring>
-struct svg_map<boost::geometry::ring_tag, false, Ring>
-    : svg_map_range<Ring, boost::geometry::linear_ring<boost::geometry::point_xy<int> > >
+struct svg_map<ring_tag, false, Ring>
+    : svg_map_range<Ring, model::linear_ring<model::point_xy<int> > >
 {};
 
 
 template <typename Linestring>
-struct svg_map<boost::geometry::linestring_tag, false, Linestring>
-    : svg_map_range<Linestring, boost::geometry::linestring<boost::geometry::point_xy<int> > >
+struct svg_map<linestring_tag, false, Linestring>
+    : svg_map_range<Linestring, model::linestring<model::point_xy<int> > >
 {};
 
 
 template <typename Polygon>
-struct svg_map<boost::geometry::polygon_tag, false, Polygon>
+struct svg_map<polygon_tag, false, Polygon>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
                     std::string const& style, int size,
                     Polygon const& polygon, TransformStrategy const& strategy)
     {
-        boost::geometry::polygon<boost::geometry::point_xy<int> > ipoly;
-        boost::geometry::transform(polygon, ipoly, strategy);
-        stream << boost::geometry::svg(ipoly, style, size) << std::endl;
+        model::polygon<model::point_xy<int> > ipoly;
+        transform(polygon, ipoly, strategy);
+        stream << svg(ipoly, style, size) << std::endl;
     }
 };
 
@@ -167,7 +167,7 @@ struct svg_map<Tag, true, Multi>
         {
             svg_map
                 <
-                    typename boost::geometry::single_tag<Tag>::type,
+                    typename single_tag<Tag>::type,
                     false,
                     typename boost::range_value<Multi>::type
                 >::apply(stream, style, size, *it, strategy);
@@ -187,8 +187,8 @@ inline void svg_map(std::ostream& stream,
 {
     dispatch::svg_map
         <
-            typename boost::geometry::tag<Geometry>::type,
-            boost::geometry::is_multi<Geometry>::type::value,
+            typename tag<Geometry>::type,
+            is_multi<Geometry>::type::value,
             typename boost::remove_const<Geometry>::type
         >::apply(stream, style, size, geometry, strategy);
 }
@@ -197,8 +197,8 @@ inline void svg_map(std::ostream& stream,
 template <typename Point, bool SameScale = true>
 class svg_mapper : boost::noncopyable
 {
-    typedef boost::geometry::point_xy<int> map_point_type;
-    typedef boost::geometry::strategy::transform::map_transformer
+    typedef model::point_xy<int> map_point_type;
+    typedef strategy::transform::map_transformer
         <
             Point,
             map_point_type,
@@ -206,7 +206,7 @@ class svg_mapper : boost::noncopyable
             SameScale
         > transformer_type;
 
-    boost::geometry::box<Point> m_bounding_box;
+    model::box<Point> m_bounding_box;
     boost::scoped_ptr<transformer_type> m_matrix;
     std::ostream& m_stream;
     int m_width, m_height;
@@ -237,7 +237,7 @@ public :
         , m_width(w)
         , m_height(h)
     {
-        boost::geometry::assign_inverse(m_bounding_box);
+        assign_inverse(m_bounding_box);
     }
 
     virtual ~svg_mapper()
@@ -248,12 +248,12 @@ public :
     template <typename Geometry>
     void add(Geometry const& geometry)
     {
-        if (boost::geometry::num_points(geometry) > 0)
+        if (num_points(geometry) > 0)
         {
-            boost::geometry::combine(m_bounding_box,
-                boost::geometry::make_envelope
+            combine(m_bounding_box,
+                make_envelope
                     <
-                        boost::geometry::box<Point>
+                        model::box<Point>
                     >(geometry));
         }
     }
@@ -266,11 +266,11 @@ public :
         (
             ( boost::is_same
                 <
-                    Point, 
-                    typename boost::geometry::point_type<Geometry>::type
+                    Point,
+                    typename point_type<Geometry>::type
                 >::value )
             , POINT_TYPES_ARE_NOT_SAME_FOR_MAPPER_AND_MAP
-            , (types<Point, typename boost::geometry::point_type<Geometry>::type>)
+            , (types<Point, typename point_type<Geometry>::type>)
         );
 
 
@@ -285,11 +285,11 @@ public :
     {
         init_matrix();
         map_point_type map_point;
-        boost::geometry::transform(point, map_point, *m_matrix);
+        transform(point, map_point, *m_matrix);
         m_stream
             << "<text style=\"" << style << "\""
-            << " x=\"" << boost::geometry::get<0>(map_point) + offset_x << "\""
-            << " y=\"" << boost::geometry::get<1>(map_point) + offset_y << "\""
+            << " x=\"" << get<0>(map_point) + offset_x << "\""
+            << " y=\"" << get<1>(map_point) + offset_y << "\""
             << ">";
         if (s.find("\n") == std::string::npos)
         {
@@ -307,9 +307,9 @@ public :
                 ++it, offset_y += lineheight)
             {
                  m_stream
-                    << "<tspan x=\"" << boost::geometry::get<0>(map_point) + offset_x
+                    << "<tspan x=\"" << get<0>(map_point) + offset_x
                     << "\""
-                    << " y=\"" << boost::geometry::get<1>(map_point) + offset_y
+                    << " y=\"" << get<1>(map_point) + offset_y
                     << "\""
                     << ">" << *it << "</tspan>";
             }

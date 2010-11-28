@@ -22,6 +22,10 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
+
 /*!
     \brief Class nsphere: defines a circle or a sphere: a point with radius
     \ingroup Geometry
@@ -68,33 +72,36 @@ private:
     T m_radius;
 };
 
+
+} // namespace model
+
 // Traits specializations for n-sphere above
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
 
 template <typename Point, typename RadiusType>
-struct tag< nsphere<Point, RadiusType> >
+struct tag<model::nsphere<Point, RadiusType> >
 {
     typedef nsphere_tag type;
 };
 
 template <typename Point, typename RadiusType>
-struct point_type<nsphere<Point, RadiusType> >
+struct point_type<model::nsphere<Point, RadiusType> >
 {
     typedef Point type;
 };
 
 template <typename Point, typename RadiusType>
-struct radius_type<nsphere<Point, RadiusType> >
+struct radius_type<model::nsphere<Point, RadiusType> >
 {
     typedef RadiusType type;
 };
 
 template <typename Point, typename CoordinateType, std::size_t Dimension>
-struct access<nsphere<Point, CoordinateType>,  Dimension>
+struct access<model::nsphere<Point, CoordinateType>,  Dimension>
 {
-    typedef nsphere<Point, CoordinateType> nsphere_type;
+    typedef model::nsphere<Point, CoordinateType> nsphere_type;
 
     static inline CoordinateType get(nsphere_type const& s)
     {
@@ -108,9 +115,9 @@ struct access<nsphere<Point, CoordinateType>,  Dimension>
 };
 
 template <typename Point, typename RadiusType>
-struct radius_access<nsphere<Point, RadiusType>, RadiusType, 0>
+struct radius_access<model::nsphere<Point, RadiusType>, RadiusType, 0>
 {
-    typedef nsphere<Point, RadiusType> nsphere_type;
+    typedef model::nsphere<Point, RadiusType> nsphere_type;
 
     static inline RadiusType get(nsphere_type const& s)
     {

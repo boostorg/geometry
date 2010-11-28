@@ -27,7 +27,7 @@ namespace dispatch
 
 
 template <typename Geometry>
-struct clear<nsphere_tag, true, Geometry>
+struct clear<nsphere_tag, Geometry>
     : detail::clear::no_action<Geometry>
 {};
 

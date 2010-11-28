@@ -20,6 +20,32 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
+/*!
+\brief Class segment: small class containing two points
+\ingroup geometries
+\details From Wikipedia: In geometry, a line segment is a part of a line that is bounded
+ by two distinct end points, and contains every point on the line between its end points.
+\note There is also a point-referring-segment, class referring_segment,
+   containing point references, where points are NOT copied
+*/
+template<typename Point>
+class segment : public std::pair<Point, Point>
+{
+public :
+    inline segment()
+    {}
+
+    inline segment(Point const& p1, Point const& p2)
+    {
+        this->first = p1;
+        this->second = p2;
+    }
+};
+
+
 /*!
 \brief Class segment: small class containing two (templatized) point references
 \ingroup geometries
@@ -34,7 +60,7 @@ reference assignments.
 \tparam ConstOrNonConstPoint point type of the segment, maybe a point or a const point
 */
 template<typename ConstOrNonConstPoint>
-class segment
+class referring_segment
 {
     BOOST_CONCEPT_ASSERT( (
         typename boost::mpl::if_
@@ -52,47 +78,12 @@ public:
     point_type& first;
     point_type& second;
 
-    inline segment(point_type& p1, point_type& p2)
+    inline referring_segment(point_type& p1, point_type& p2)
         : first(p1)
         , second(p2)
     {}
 };
 
-
-// Namespace model
-// Anticipates for all geometries, which will be moved to namespace "model":
-
-/*
-Bruno:
-However maybe an even better name
-would be "model", since those geometries model the concepts GGL
-defines. It would state more clearly that those shapes are not mere
-shapes but are also examples of models for our concepts.
-
-Barend:   
-I agree that model is a better name. Very good.
-So that is the new proposal :-)
-*/
-
-namespace model
-{
-
-/*!
-\brief segment: segment owning two points
-\note Might be merged with "segment", while "segment" be used as segment<P&>
-*/
-template<typename Point>
-struct segment : public std::pair<Point, Point>
-{
-    inline segment() 
-    {}
-
-    inline segment(Point const& p1, Point const& p2)
-    {
-        this->first = p1;
-        this->second = p2;
-    }
-};
 
 } // namespace model
 
@@ -101,54 +92,6 @@ struct segment : public std::pair<Point, Point>
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
-
-template <typename ConstOrNonConstPoint>
-struct tag<segment<ConstOrNonConstPoint> >
-{
-    typedef segment_tag type;
-};
-
-template <typename ConstOrNonConstPoint>
-struct point_type<segment<ConstOrNonConstPoint> >
-{
-    typedef ConstOrNonConstPoint type;
-};
-
-template <typename ConstOrNonConstPoint, std::size_t Dimension>
-struct indexed_access<segment<ConstOrNonConstPoint>, 0, Dimension>
-{
-    typedef segment<ConstOrNonConstPoint> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
-
-    static inline coordinate_type get(segment_type const& s)
-    {
-        return geometry::get<Dimension>(s.first);
-    }
-
-    static inline void set(segment_type& s, coordinate_type const& value)
-    {
-        geometry::set<Dimension>(s.first, value);
-    }
-};
-
-
-template <typename ConstOrNonConstPoint, std::size_t Dimension>
-struct indexed_access<segment<ConstOrNonConstPoint>, 1, Dimension>
-{
-    typedef segment<ConstOrNonConstPoint> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
-
-    static inline coordinate_type get(segment_type const& s)
-    {
-        return geometry::get<Dimension>(s.second);
-    }
-
-    static inline void set(segment_type& s, coordinate_type const& value)
-    {
-        geometry::set<Dimension>(s.second, value);
-    }
-};
-
 
 template <typename Point>
 struct tag<model::segment<Point> >
@@ -184,6 +127,54 @@ template <typename Point, std::size_t Dimension>
 struct indexed_access<model::segment<Point>, 1, Dimension>
 {
     typedef model::segment<Point> segment_type;
+    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+
+    static inline coordinate_type get(segment_type const& s)
+    {
+        return geometry::get<Dimension>(s.second);
+    }
+
+    static inline void set(segment_type& s, coordinate_type const& value)
+    {
+        geometry::set<Dimension>(s.second, value);
+    }
+};
+
+
+template <typename ConstOrNonConstPoint>
+struct tag<model::referring_segment<ConstOrNonConstPoint> >
+{
+    typedef segment_tag type;
+};
+
+template <typename ConstOrNonConstPoint>
+struct point_type<model::referring_segment<ConstOrNonConstPoint> >
+{
+    typedef ConstOrNonConstPoint type;
+};
+
+template <typename ConstOrNonConstPoint, std::size_t Dimension>
+struct indexed_access<model::referring_segment<ConstOrNonConstPoint>, 0, Dimension>
+{
+    typedef model::referring_segment<ConstOrNonConstPoint> segment_type;
+    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+
+    static inline coordinate_type get(segment_type const& s)
+    {
+        return geometry::get<Dimension>(s.first);
+    }
+
+    static inline void set(segment_type& s, coordinate_type const& value)
+    {
+        geometry::set<Dimension>(s.first, value);
+    }
+};
+
+
+template <typename ConstOrNonConstPoint, std::size_t Dimension>
+struct indexed_access<model::referring_segment<ConstOrNonConstPoint>, 1, Dimension>
+{
+    typedef model::referring_segment<ConstOrNonConstPoint> segment_type;
     typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
 
     static inline coordinate_type get(segment_type const& s)

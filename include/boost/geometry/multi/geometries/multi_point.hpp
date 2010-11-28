@@ -21,6 +21,10 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
+
 /*!
     \brief multi_point, a collection of points
     \details Multipoint can be used to group points belonging to each other,
@@ -38,6 +42,9 @@ struct multi_point : public V<P, A<P> >
     BOOST_CONCEPT_ASSERT( (concept::Point<P>) );
 };
 
+} // namespace model
+
+
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
@@ -48,7 +55,7 @@ template
     template<typename, typename> class V,
     template<typename> class A
 >
-struct tag< multi_point<P, V, A> >
+struct tag< model::multi_point<P, V, A> >
 {
     typedef multi_point_tag type;
 };

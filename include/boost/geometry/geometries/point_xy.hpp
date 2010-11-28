@@ -19,6 +19,9 @@
 namespace boost { namespace geometry
 {
 
+namespace model
+{
+
 /*!
     \brief 2D point in Cartesian coordinate system
     \ingroup geometries
@@ -52,44 +55,48 @@ public:
     { this->template set<1>(v); }
 };
 
+
+} // namespace model
+
+
 // Adapt the point_xy to the concept
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
 
 template <typename CoordinateType, typename CoordinateSystem>
-struct tag<point_xy<CoordinateType, CoordinateSystem> >
+struct tag<model::point_xy<CoordinateType, CoordinateSystem> >
 {
     typedef point_tag type;
 };
 
 template<typename CoordinateType, typename CoordinateSystem>
-struct coordinate_type<point_xy<CoordinateType, CoordinateSystem> >
+struct coordinate_type<model::point_xy<CoordinateType, CoordinateSystem> >
 {
     typedef CoordinateType type;
 };
 
 template<typename CoordinateType, typename CoordinateSystem>
-struct coordinate_system<point_xy<CoordinateType, CoordinateSystem> >
+struct coordinate_system<model::point_xy<CoordinateType, CoordinateSystem> >
 {
     typedef CoordinateSystem type;
 };
 
 template<typename CoordinateType, typename CoordinateSystem>
-struct dimension<point_xy<CoordinateType, CoordinateSystem> >
+struct dimension<model::point_xy<CoordinateType, CoordinateSystem> >
     : boost::mpl::int_<2>
 {};
 
 template<typename CoordinateType, typename CoordinateSystem, std::size_t Dimension>
-struct access<point_xy<CoordinateType, CoordinateSystem>, Dimension >
+struct access<model::point_xy<CoordinateType, CoordinateSystem>, Dimension >
 {
     static inline CoordinateType get(
-        point_xy<CoordinateType, CoordinateSystem> const& p)
+        model::point_xy<CoordinateType, CoordinateSystem> const& p)
     {
         return p.template get<Dimension>();
     }
 
-    static inline void set(point_xy<CoordinateType, CoordinateSystem>& p,
+    static inline void set(model::point_xy<CoordinateType, CoordinateSystem>& p,
         CoordinateType const& value)
     {
         p.template set<Dimension>(value);
