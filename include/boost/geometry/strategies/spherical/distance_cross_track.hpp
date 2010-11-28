@@ -9,8 +9,10 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISTANCE_CROSS_TRACK_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISTANCE_CROSS_TRACK_HPP
 
-#include <boost/concept/requires.hpp>
 
+#include <boost/concept_check.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -23,7 +25,11 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/math.hpp>
 
-//#include <boost/geometry/util/write_dsv.hpp>
+//#define BOOST_GEOMETRY_DEBUG_CROSS_TRACK
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK
+#  include <boost/geometry/util/write_dsv.hpp>
+#endif
+
 
 
 namespace boost { namespace geometry
@@ -60,10 +66,22 @@ public :
                 >::type
         >::type return_type;
 
-    inline cross_track(return_type const& r = 1.0)
+    inline cross_track()
+    {
+        m_strategy = Strategy();
+        m_radius = m_strategy.radius();
+    }
+
+    inline cross_track(return_type const& r)
         : m_radius(r)
-        , m_strategy(1.0) // Keep this 1.0 and not r
+        , m_strategy(r)
     {}
+
+    inline cross_track(Strategy const& s)
+        : m_strategy(s)
+    {
+        m_radius = m_strategy.radius();
+    }
 
 
     // It might be useful in the future
@@ -82,15 +100,17 @@ public :
 
         return_type crs_AD = course(sp1, p);
         return_type crs_AB = course(sp1, sp2);
-        return_type XTD = geometry::math::abs(asin(sin(d1) * sin(crs_AD - crs_AB)));
+        return_type XTD = m_radius * geometry::math::abs(asin(sin(d1 / m_radius) * sin(crs_AD - crs_AB)));
 
-//std::cout << "Course " << dsv(sp1) << " to " << dsv(p) << " " << crs_AD * geometry::math::r2d << std::endl;
-//std::cout << "Course " << dsv(sp1) << " to " << dsv(sp2) << " " << crs_AB * geometry::math::r2d << std::endl;
-//std::cout << "XTD: " << (XTD * 6373.0) << " d1: " <<  (d1 * 6373.0)  << " d2: " <<  (d2 * 6373.0)  << std::endl;
+#ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK
+std::cout << "Course " << dsv(sp1) << " to " << dsv(p) << " " << crs_AD * geometry::math::r2d << std::endl;
+std::cout << "Course " << dsv(sp1) << " to " << dsv(sp2) << " " << crs_AB * geometry::math::r2d << std::endl;
+std::cout << "XTD: " << XTD << " d1: " <<  d1  << " d2: " <<  d2  << std::endl;
+#endif
 
 
         // Return shortest distance, either to projected point on segment sp1-sp2, or to sp1, or to sp2
-        return return_type(m_radius * (std::min)((std::min)(d1, d2), XTD));
+        return return_type((std::min)((std::min)(d1, d2), XTD));
     }
 
     inline return_type radius() const { return m_radius; }
@@ -229,18 +249,26 @@ struct strategy_point_point<cross_track<Point, PointOfSegment, CalculationType, 
 
 
 
-template <typename Point, typename PointOfSegment>
-struct default_strategy<segment_tag, Point, PointOfSegment, spherical_tag, spherical_tag>
-{
-    typedef cross_track<Point, PointOfSegment> type;
-};
 
-
-// Use this point-segment for geographic as well. TODO: change this, extension!
-template <typename Point, typename PointOfSegment>
-struct default_strategy<segment_tag, Point, PointOfSegment, geographic_tag, geographic_tag>
+template <typename Point, typename PointOfSegment, typename Strategy>
+struct default_strategy<segment_tag, Point, PointOfSegment, spherical_tag, spherical_tag, Strategy>
 {
-    typedef cross_track<Point, PointOfSegment> type;
+    typedef cross_track
+        <
+            Point,
+            PointOfSegment,
+            void,
+            typename boost::mpl::if_
+                <
+                    boost::is_void<Strategy>,
+                    typename default_strategy
+                        <
+                            point_tag, Point, PointOfSegment,
+                            spherical_tag, spherical_tag
+                        >::type,
+                    Strategy
+                >::type
+        > type;
 };
 
 

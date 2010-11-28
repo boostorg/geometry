@@ -85,6 +85,11 @@ class andoyer
             return m_ellipsoid;
         }
 
+        inline calculation_type radius() const
+        {
+            return m_ellipsoid.a();
+        }
+
 
     private :
         geometry::detail::ellipsoid<calculation_type> m_ellipsoid;

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="x02_numeric_adaptor_example"
-	ProjectGUID="{242C6ADC-3A10-4B69-81F7-5669E0582A8B}"
-	RootNamespace="x02_numeric_adaptor_example"
+	Name="cross_track"
+	ProjectGUID="{572678FB-A286-4F68-B2D5-F9C9EAC392FE}"
+	RootNamespace="cross_track"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,9 +18,9 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\x02_numeric_adaptor_example"
+			IntermediateDirectory="$(ConfigurationName)\cross_track"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops"
+			InheritedPropertySheets="..\..\..\boost.vsprops;..\..\..\ttmath.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,14 +41,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				
-				BasicRuntimeChecks="3"
-				
+				AdditionalIncludeDirectories="../../../../../..;../../.."
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				ExceptionHandling="2"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="1"
 			/>
 			<Tool
@@ -62,9 +59,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gmp.lib"
-				\
-				AdditionalLibraryDirectories="&quot;C:\gmp\gmp-dynamic&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -97,9 +91,9 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\x02_numeric_adaptor_example"
+			IntermediateDirectory="$(ConfigurationName)\cross_track"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops"
+			InheritedPropertySheets="..\..\..\boost.vsprops;..\..\..\ttmath.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -120,13 +114,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				
+				AdditionalIncludeDirectories="../../../../../..;../../.."
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -139,10 +130,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gmp.lib"
-				\
-				AdditionalLibraryDirectories="&quot;C:\gmp\gmp-dynamic&quot;"
-				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -178,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\x02_numeric_adaptor_example.cpp"
+			RelativePath=".\cross_track.cpp"
 			>
 		</File>
 	</Files>
