@@ -98,6 +98,7 @@ void example_for_main_page()
 
     //` Other often used algorithms are point-in-polygon:
     double points[][2] = {{2.0, 1.3}, {4.1, 3.0}, {5.3, 2.6}, {2.9, 0.7}, {2.0, 1.3}};
+    model::polygon_2d poly;
     append(poly, points);
     boost::tuple<double, double> p = boost::make_tuple(3.7, 2.0);
     std::cout << "Point p is in polygon? " << (within(p, poly) ? "YES" : "NO")  << std::endl;
@@ -134,8 +135,8 @@ void example_for_transform()
 {
     using namespace boost::geometry;
 
-    typedef point<double, 3, cs::cartesian> XYZ;
-    typedef point<double, 3, cs::spherical<degree> >  SPH;
+    typedef model::point<double, 3, cs::cartesian> XYZ;
+    typedef model::point<double, 3, cs::spherical<degree> >  SPH;
     XYZ p;
 
     SPH sph1, sph2;
@@ -147,8 +148,8 @@ void example_for_transform()
 
     std::cout << dsv(p) << " <-> " << dsv(sph2) << std::endl;
 
-    typedef point_xy<double> XY;
-    typedef point_xy<int> PIXEL;
+    typedef model::point_xy<double> XY;
+    typedef model::point_xy<int> PIXEL;
     XY xy(50, 50);
     strategy::transform::map_transformer<XY, PIXEL, false> map(0, 0, 100, 100, 1024, 768);
     PIXEL pix;

@@ -1,3 +1,5 @@
+OBSOLETE
+
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
 // Copyright Barend Gehrels 2007-2009, Geodan, Amsterdam, the Netherlands
