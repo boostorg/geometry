@@ -49,6 +49,15 @@ void test_all()
     test_andoyer<P1, P2>(0, 90, 1, 80, 1116.814237); // polar
     test_andoyer<P1, P2>(4, 52, 4, 52, 0.0); // no point difference
     test_andoyer<P1, P2>(4, 52, 3, 40, 1336.039890); // normal case
+
+    /* SQL Server gives:
+        1116.82586908528, 0, 1336.02721932545
+
+       with:
+SELECT 0.001 * geography::STGeomFromText('POINT(0 90)', 4326).STDistance(geography::STGeomFromText('POINT(1 80)', 4326))	
+union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(4 52)', 4326))	
+union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(3 40)', 4326))	
+     */
 }
 
 template <typename P>

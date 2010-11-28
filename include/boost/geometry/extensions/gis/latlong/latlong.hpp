@@ -9,7 +9,7 @@
 #ifndef BOOST_GEOMETRY_LATLONG_HPP
 #define BOOST_GEOMETRY_LATLONG_HPP
 
-// Predeclare common Cartesian 3D points for convenience
+// Predeclare common latlong points for convenience
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
@@ -17,6 +17,7 @@
 
 #include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
 #include <boost/geometry/extensions/gis/geographic/strategies/vincenty.hpp>
+#include <boost/geometry/extensions/gis/geographic/strategies/distance_cross_track.hpp>
 
 namespace boost { namespace geometry
 {
