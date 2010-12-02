@@ -32,7 +32,7 @@ struct svg_map<bg::multi_polygon_tag, true, MultiPolygon>
                     MultiPolygon const& multi_polygon,
                     TransformStrategy const& strategy)
     {
-        bg::model::multi_polygon<bg::model::polygon<bg::model::point_xy<int> > > impoly;
+        bg::model::multi_polygon<bg::model::polygon<bg::model::d2::point_xy<int> > > impoly;
         bg::transform(multi_polygon, impoly, strategy);
         stream << bg::svg(impoly, style, size) << std::endl;
     }

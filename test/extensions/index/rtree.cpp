@@ -23,6 +23,6 @@ int test_main(int, char* [])
     // TODO: mloskot - This is ONLY compilation test and
     // placeholder to implement real test.
 
-    bg::index::rtree<bg::model::box_2d, std::size_t> si(1, 6);
+    bg::index::rtree<bg::model::d2::box, std::size_t> si(1, 6);
 x    return 0;
 }

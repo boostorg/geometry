@@ -45,7 +45,7 @@ void test_all()
     // Mixed point types
     test_geometry
         <
-            bg::model::point_xy<float>,
+            bg::model::d2::point_xy<float>,
             bg::model::polygon<P>
         >("POINT(1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
 
@@ -67,11 +67,11 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    test_all<bg::model::point_xy<int> >();
-    test_all<bg::model::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<int> >();
+    test_all<bg::model::d2::point_xy<double> >();
 
 #if defined(HAVE_TTMATH)
-    test_all<bg::model::point_xy<ttmath_big> >();
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     return 0;

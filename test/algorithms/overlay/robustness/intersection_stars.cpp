@@ -90,7 +90,7 @@ void test_star(std::string const& p_type, std::string const& c_type,
         << c_type << " (" << sizeof(CalculationType) << ")"
         << std::endl;
     boost::timer t;
-    typedef bg::model::point_xy<T> point_type;
+    typedef bg::model::d2::point_xy<T> point_type;
     typedef bg::model::polygon<point_type> polygon;
 
     T area_i = 0;

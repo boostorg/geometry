@@ -46,9 +46,9 @@ int test_main(int, char* [])
     //test_2d<float[2]>();
     //test_2d<double[2]>();
     test_2d<boost::tuple<float, float> >();
-    test_2d<bg::model::point_xy<int> >();
-    test_2d<bg::model::point_xy<float> >();
-    test_2d<bg::model::point_xy<double> >();
+    test_2d<bg::model::d2::point_xy<int> >();
+    test_2d<bg::model::d2::point_xy<float> >();
+    test_2d<bg::model::d2::point_xy<double> >();
 
     test_3d<test::test_point>();
 

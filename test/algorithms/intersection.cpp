@@ -274,10 +274,10 @@ void test_pointer_version()
     p = new test::test_point_xy; p->x = 0; p->y = 0; ln.push_back(p);
     p = new test::test_point_xy; p->x = 10; p->y = 10; ln.push_back(p);
 
-    bg::model::box<bg::model::point_xy<double> > box;
+    bg::model::box<bg::model::d2::point_xy<double> > box;
     bg::assign(box, 2, 2, 8, 8);
 
-    typedef bg::model::linestring<bg::model::point_xy<double> > output_type;
+    typedef bg::model::linestring<bg::model::d2::point_xy<double> > output_type;
     std::vector<output_type> clip;
     bg::intersection_inserter<output_type>(box, ln, std::back_inserter(clip));
 
@@ -306,11 +306,11 @@ void test_pointer_version()
 
 int test_main(int, char* [])
 {
-    //test_all<bg::model::point_xy<float> >();
-    test_all<bg::model::point_xy<double> >();
+    //test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<double> >();
 
 #if defined(HAVE_TTMATH)
-    test_all<bg::model::point_xy<ttmath_big> >();
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     //test_pointer_version();

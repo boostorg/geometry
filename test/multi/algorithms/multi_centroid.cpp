@@ -96,11 +96,11 @@ void test_2d(bool is_integer = false)
 
 int test_main(int, char* [])
 {
-    //test_2d<bg::model::point_xy<float> >();
-    test_2d<bg::model::point_xy<double> >();
-    test_2d<bg::model::point_xy<long int> >(true);
-    //test_2d<bg::model::point_xy<long long> >(true);
-    test_2d<bg::model::point_xy<long double> >();
+    //test_2d<bg::model::d2::point_xy<float> >();
+    test_2d<bg::model::d2::point_xy<double> >();
+    test_2d<bg::model::d2::point_xy<long int> >(true);
+    //test_2d<bg::model::d2::point_xy<long long> >(true);
+    test_2d<bg::model::d2::point_xy<long double> >();
 
     return 0;
 }

@@ -198,6 +198,6 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<double> >();
     return 0;
 }

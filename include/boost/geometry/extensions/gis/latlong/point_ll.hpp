@@ -1,13 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright Barend Gehrels 2007-2009, Geodan, Amsterdam, the Netherlands.
+// Copyright Barend Gehrels 2007-2010, Geodan, Amsterdam, the Netherlands.
 // Copyright Bruno Lalande 2008, 2009
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_GEOMETRIES_POINT_LL_HPP
-#define BOOST_GEOMETRY_GEOMETRIES_POINT_LL_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_LATLONG_POINT_LL_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_GIS_LATLONG_POINT_LL_HPP
 
 #include <cstddef>
 #include <sstream>
@@ -26,7 +26,7 @@ namespace boost { namespace geometry
 {
 
 
-namespace model
+namespace model { namespace ll
 {
 
 /*!
@@ -36,11 +36,12 @@ namespace model
     It can be constructed using latitude and longitude classes. The latlong
     class can be defined in degrees or in radians. There is a conversion method
     from degree to radian, and from radian to degree.
-    \tparam T coordinate type, double (the default) or float
+    \tparam Units units,defaults to degree
+    \tparam CoordinateType coordinate type, double (the default) or float
         (it might be int as well)
-    \tparam C coordinate system, optional, should includes degree/radian
-        indication, defaults to geographic<degree>
-    \tparam D dimensions, optional, defaults to 2
+    \tparam CoordinateSystem coordinate system, optional, should include NOT degree/radian
+        indication, should be e.g. cs::geographic or cs::spherical
+    \tparam Dimensions dimensions, optional, defaults to 2
     \note There is NO constructor with two values to avoid
         exchanging lat and long
     \note Construction with latitude and longitude can be done in both orders,
@@ -56,57 +57,78 @@ namespace model
 */
 template
 <
-    typename T = double,
-    typename C = cs::geographic<degree>,
-    std::size_t D = 2
+    typename Units = degree,
+    typename CoordinateType = double,
+    template<typename> class CoordinateSystem = cs::geographic,
+    std::size_t Dimensions = 2
 >
-class point_ll : public point<T, D, C>
+class point : public model::point
+                <
+                    CoordinateType,
+                    Dimensions,
+                    CoordinateSystem<Units>
+                >
 {
+    typedef model::point
+        <
+            CoordinateType,
+            Dimensions,
+            CoordinateSystem<Units>
+        >
+        base_type;
 public:
 
     /// Default constructor, does not initialize anything
-    inline point_ll() : point<T, D, C>() {}
+    inline point() : base_type() {}
 
     /// Constructor with longitude/latitude
-    inline point_ll(longitude<T> const& lo, latitude<T> const& la)
-        : point<T, D, C>(lo, la) {}
+    inline point(longitude<CoordinateType> const& lo,
+                latitude<CoordinateType> const& la)
+        : base_type(lo, la) {}
 
     /// Constructor with latitude/longitude
-    inline point_ll(latitude<T> const& la, longitude<T> const& lo)
-        : point<T, D, C>(lo, la) {}
+    inline point(latitude<CoordinateType> const& la,
+                longitude<CoordinateType> const& lo)
+        : base_type(lo, la) {}
 
     /// Get longitude
-    inline T const& lon() const { return this->template get<0>(); }
+    inline CoordinateType const& lon() const
+    { return this->template get<0>(); }
+
     /// Get latitude
-    inline T const& lat() const { return this->template get<1>(); }
+    inline CoordinateType const& lat() const
+    { return this->template get<1>(); }
 
     /// Set longitude
-    inline void lon(T const& v) { this->template set<0>(v); }
+    inline void lon(CoordinateType const& v)
+    { this->template set<0>(v); }
+
     /// Set latitude
-    inline void lat(T const& v) { this->template set<1>(v); }
+    inline void lat(CoordinateType const& v)
+    { this->template set<1>(v); }
 
     /// Set longitude using dms class
-    inline void lon(dms<east, T> const& v)
+    inline void lon(dms<east, CoordinateType> const& v)
     {
         this->template set<0>(v.as_value());
     }
-    inline void lon(dms<west, T> const& v)
+    inline void lon(dms<west, CoordinateType> const& v)
     {
         this->template set<0>(v.as_value());
     }
 
-    inline void lat(dms<north, T> const& v)
+    inline void lat(dms<north, CoordinateType> const& v)
     {
         this->template set<1>(v.as_value());
     }
-    inline void lat(dms<south, T> const& v)
+    inline void lat(dms<south, CoordinateType> const& v)
     {
         this->template set<1>(v.as_value());
     }
 };
 
 
-} // namespace model
+}} // namespace model::ll
 
 // Adapt the point_ll to the concept
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -115,77 +137,121 @@ namespace traits
 
 template
 <
+    typename Units,
     typename CoordinateType,
-    typename CoordinateSystem,
+    template<typename> class CoordinateSystem,
     std::size_t DimensionCount
 >
-struct tag<model::point_ll<CoordinateType, CoordinateSystem, DimensionCount> >
+struct tag
+        <
+            model::ll::point
+            <
+                Units,
+                CoordinateType,
+                CoordinateSystem,
+                DimensionCount
+            >
+        >
 {
     typedef point_tag type;
 };
 
 template
 <
+    typename Units,
     typename CoordinateType,
-    typename CoordinateSystem,
+    template<typename> class CoordinateSystem,
     std::size_t DimensionCount
 >
 struct coordinate_type
-    <
-        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>
-    >
+        <
+            model::ll::point
+            <
+                Units,
+                CoordinateType,
+                CoordinateSystem,
+                DimensionCount
+            >
+        >
 {
     typedef CoordinateType type;
 };
 
 template
 <
+    typename Units,
     typename CoordinateType,
-    typename CoordinateSystem,
+    template<typename> class CoordinateSystem,
     std::size_t DimensionCount
 >
 struct coordinate_system
-    <
-        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>
-    >
+        <
+            model::ll::point
+            <
+                Units,
+                CoordinateType,
+                CoordinateSystem,
+                DimensionCount
+            >
+        >
 {
-    typedef CoordinateSystem type;
+    typedef CoordinateSystem<Units> type;
 };
 
 template
 <
+    typename Units,
     typename CoordinateType,
-    typename CoordinateSystem,
+    template<typename> class CoordinateSystem,
     std::size_t DimensionCount
 >
 struct dimension
-    <
-        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>
-    >
+        <
+            model::ll::point
+            <
+                Units,
+                CoordinateType,
+                CoordinateSystem,
+                DimensionCount
+            >
+        >
     : boost::mpl::int_<DimensionCount>
 {};
 
 template
 <
+    typename Units,
     typename CoordinateType,
-    typename CoordinateSystem,
+    template<typename> class CoordinateSystem,
     std::size_t DimensionCount,
     std::size_t Dimension
 >
 struct access
-    <
-        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>, Dimension
-    >
+        <
+            model::ll::point
+            <
+                Units,
+                CoordinateType,
+                CoordinateSystem,
+                DimensionCount
+            >,
+            Dimension
+        >
 {
-    static inline CoordinateType get(
-        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount> const& p)
+    typedef model::ll::point
+            <
+                Units,
+                CoordinateType,
+                CoordinateSystem,
+                DimensionCount
+            > type;
+
+    static inline CoordinateType get(type const& p)
     {
         return p.template get<Dimension>();
     }
 
-    static inline void set(
-        model::point_ll<CoordinateType, CoordinateSystem, DimensionCount>& p,
-        CoordinateType const& value)
+    static inline void set(type& p, CoordinateType const& value)
     {
         p.template set<Dimension>(value);
     }
@@ -196,4 +262,4 @@ struct access
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_GEOMETRIES_POINT_LL_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_LATLONG_POINT_LL_HPP

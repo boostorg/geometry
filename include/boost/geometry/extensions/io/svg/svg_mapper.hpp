@@ -70,7 +70,7 @@ struct svg_map<point_tag, false, Point>
                     std::string const& style, int size,
                     Point const& point, TransformStrategy const& strategy)
     {
-        model::point_xy<int> ipoint;
+        model::d2::point_xy<int> ipoint;
         geometry::transform(point, ipoint, strategy);
         stream << geometry::svg(ipoint, style, size) << std::endl;
     }
@@ -84,7 +84,7 @@ struct svg_map<box_tag, false, Box>
                     std::string const& style, int size,
                     Box const& box, TransformStrategy const& strategy)
     {
-        model::box<model::point_xy<int> > ibox;
+        model::box<model::d2::point_xy<int> > ibox;
         geometry::transform(box, ibox, strategy);
 
         stream << geometry::svg(ibox, style, size) << std::endl;
@@ -119,7 +119,7 @@ struct svg_map<segment_tag, false, Segment>
         svg_map_range
             <
                 range_type,
-                model::linestring<model::point_xy<int> >
+                model::linestring<model::d2::point_xy<int> >
             >::apply(stream, style, size, range, strategy);
     }
 };
@@ -127,13 +127,13 @@ struct svg_map<segment_tag, false, Segment>
 
 template <typename Ring>
 struct svg_map<ring_tag, false, Ring>
-    : svg_map_range<Ring, model::linear_ring<model::point_xy<int> > >
+    : svg_map_range<Ring, model::linear_ring<model::d2::point_xy<int> > >
 {};
 
 
 template <typename Linestring>
 struct svg_map<linestring_tag, false, Linestring>
-    : svg_map_range<Linestring, model::linestring<model::point_xy<int> > >
+    : svg_map_range<Linestring, model::linestring<model::d2::point_xy<int> > >
 {};
 
 
@@ -145,7 +145,7 @@ struct svg_map<polygon_tag, false, Polygon>
                     std::string const& style, int size,
                     Polygon const& polygon, TransformStrategy const& strategy)
     {
-        model::polygon<model::point_xy<int> > ipoly;
+        model::polygon<model::d2::point_xy<int> > ipoly;
         geometry::transform(polygon, ipoly, strategy);
         stream << geometry::svg(ipoly, style, size) << std::endl;
     }
@@ -197,7 +197,7 @@ inline void svg_map(std::ostream& stream,
 template <typename Point, bool SameScale = true>
 class svg_mapper : boost::noncopyable
 {
-    typedef model::point_xy<int> map_point_type;
+    typedef model::d2::point_xy<int> map_point_type;
     typedef strategy::transform::map_transformer
         <
             Point,

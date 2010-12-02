@@ -70,7 +70,7 @@ void example_area_polygon()
     //[area_polygon
     //` Calculate the area of a polygon
     namespace bg = boost::geometry;
-    bg::model::polygon<bg::model::point_xy<double> > poly; /*< Declare >*/
+    bg::model::polygon<bg::model::d2::point_xy<double> > poly; /*< Declare >*/
     bg::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly); /*< Fill, in this case with WKT >*/
     double area = bg::area(poly); /*< Calculate area >*/
     //]
@@ -107,7 +107,7 @@ void example_area_polygon_strategy()
 
 void example_as_wkt_point()
 {
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     P p(5.12, 6.34);
     // Points can be streamed like this:
     std::cout << boost::geometry::dsv<P>(p) << std::endl;
@@ -121,8 +121,8 @@ void example_as_wkt_point()
 
 void example_as_wkt_vector()
 {
-    std::vector<boost::geometry::model::point_xy<int> > v;
-    boost::geometry::read_wkt<boost::geometry::model::point_xy<int> >("linestring(1 1,2 2,3 3,4 4)", std::back_inserter(v));
+    std::vector<boost::geometry::model::d2::point_xy<int> > v;
+    boost::geometry::read_wkt<boost::geometry::model::d2::point_xy<int> >("linestring(1 1,2 2,3 3,4 4)", std::back_inserter(v));
 
     std::cout << boost::geometry::dsv(std::make_pair(v.begin(), v.end())) << std::endl;
 }
@@ -130,10 +130,10 @@ void example_as_wkt_vector()
 
 void example_centroid_polygon()
 {
-    boost::geometry::model::polygon<boost::geometry::model::point_xy<double> > poly;
+    boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double> > poly;
     boost::geometry::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
     // Center of polygon might have different type than points of polygon
-    boost::geometry::model::point_xy<float> center;
+    boost::geometry::model::d2::point_xy<float> center;
     boost::geometry::centroid(poly, center);
     std::cout << "Centroid: " << boost::geometry::dsv(center) << std::endl;
 }
@@ -141,8 +141,8 @@ void example_centroid_polygon()
 
 void example_distance_point_point()
 {
-    boost::geometry::model::point_xy<double> p1(1, 1);
-    boost::geometry::model::point_xy<double> p2(2, 3);
+    boost::geometry::model::d2::point_xy<double> p1(1, 1);
+    boost::geometry::model::d2::point_xy<double> p2(2, 3);
     std::cout << "Distance p1-p2 is "
         << boost::geometry::distance(p1, p2)
         << " units" << std::endl;
@@ -179,28 +179,28 @@ void example_distance_point_point_strategy()
 
 void example_from_wkt_point()
 {
-    boost::geometry::model::point_xy<int> point;
+    boost::geometry::model::d2::point_xy<int> point;
     boost::geometry::read_wkt("Point(1 2)", point);
     std::cout << point.x() << "," << point.y() << std::endl;
 }
 
 void example_from_wkt_output_iterator()
 {
-    std::vector<boost::geometry::model::point_xy<int> > v;
-    boost::geometry::read_wkt<boost::geometry::model::point_xy<int> >("linestring(1 1,2 2,3 3,4 4)", std::back_inserter(v));
+    std::vector<boost::geometry::model::d2::point_xy<int> > v;
+    boost::geometry::read_wkt<boost::geometry::model::d2::point_xy<int> >("linestring(1 1,2 2,3 3,4 4)", std::back_inserter(v));
     std::cout << "vector has " << v.size() << " coordinates" << std::endl;
 }
 
 void example_from_wkt_linestring()
 {
-    boost::geometry::model::linestring<boost::geometry::model::point_xy<double> > line;
+    boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double> > line;
     boost::geometry::read_wkt("linestring(1 1,2 2,3 3,4 4)", line);
     std::cout << "linestring has " << line.size() << " coordinates" << std::endl;
 }
 
 void example_from_wkt_polygon()
 {
-    boost::geometry::model::polygon<boost::geometry::model::point_xy<double> > poly;
+    boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double> > poly;
     boost::geometry::read_wkt("POLYGON((0 0,0 1,1 1,1 0,0 0))", poly);
     std::cout << "Polygon has " << poly.outer().size() << " coordinates in outer ring" << std::endl;
 }
@@ -220,7 +220,7 @@ void example_point_ll_convert()
 void example_intersection_linestring()
 {
     //[intersection_linestring
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     std::vector<P> line1, line2;
     boost::geometry::read_wkt("linestring(1 1,2 2)", line1);
     boost::geometry::read_wkt("linestring(2 1,1 2)", line2);
@@ -234,7 +234,7 @@ void example_intersects_linestring()
 {
     //[intersects_linestring
     //` Check  if two linestrings (here: vectors) intersect each other
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     std::vector<P> line1, line2;
     boost::geometry::read_wkt("linestring(1 1,2 2)", line1);
     boost::geometry::read_wkt("linestring(2 1,1 2)", line2);
@@ -248,7 +248,7 @@ void example_intersects_linestring()
 void example_intersection_segment()
 {
     //[intersection_segment
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     boost::geometry::model::segment<P> segment1, segment2;
     boost::geometry::read_wkt("linestring(1 1,2 2)", segment1);
     boost::geometry::read_wkt("linestring(2 1,1 2)", segment2);
@@ -262,7 +262,7 @@ void example_intersection_inserter_segment()
 {
     //[intersection_segment_inserter
 
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     boost::geometry::model::segment<P> segment1, segment2;
     boost::geometry::read_wkt("linestring(1 1,2 2)", segment1);
     boost::geometry::read_wkt("linestring(2 1,1 2)", segment2);
@@ -280,7 +280,7 @@ void example_intersects_segment()
 {
     //[intersects_segment
     //` Check if two segments intersect each other
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     boost::geometry::model::segment<P> line1, line2;
     boost::geometry::read_wkt("linestring(1 1,2 2)", line1);
     boost::geometry::read_wkt("linestring(2 1,1 2)", line2);
@@ -292,7 +292,7 @@ void example_intersects_segment()
 
 void example_clip_linestring1()
 {
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     boost::geometry::model::linestring<P> line;
     boost::geometry::read_wkt("linestring(1.1 1.1, 2.5 2.1, 3.1 3.1, 4.9 1.1, 3.1 1.9)", line);
     boost::geometry::model::box<P> cb(P(1.5, 1.5), P(4.5, 2.5));
@@ -304,7 +304,7 @@ void example_clip_linestring1()
 
 void example_clip_linestring2()
 {
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     std::vector<P> vector_in;
     boost::geometry::read_wkt<P>("linestring(1.1 1.1, 2.5 2.1, 3.1 3.1, 4.9 1.1, 3.1 1.9)",
                     std::back_inserter(vector_in));
@@ -328,7 +328,7 @@ void example_clip_linestring2()
 
 void example_intersection_polygon1()
 {
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     typedef std::vector<boost::geometry::model::polygon<P> > PV;
 
     boost::geometry::model::box<P> cb(P(1.5, 1.5), P(4.5, 2.5));
@@ -350,7 +350,7 @@ void example_simplify_linestring1()
 {
     //[simplify
     //` Simplify a linestring
-    boost::geometry::model::linestring<boost::geometry::model::point_xy<double> > line, simplified;
+    boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double> > line, simplified;
     boost::geometry::read_wkt("linestring(1.1 1.1, 2.5 2.1, 3.1 3.1, 4.9 1.1, 3.1 1.9)", line);
     boost::geometry::simplify(line, simplified, 0.5); /*< Simplify it, using distance of 0.5 units >*/
     std::cout
@@ -363,7 +363,7 @@ void example_simplify_linestring2()
 {
     //[simplify_inserter
     //` Simplify a linestring using an output iterator
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     typedef boost::geometry::model::linestring<P> L;
     L line;
 
@@ -379,9 +379,9 @@ void example_simplify_linestring2()
 
 void example_within()
 {
-    boost::geometry::model::polygon<boost::geometry::model::point_xy<double> > poly;
+    boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double> > poly;
     boost::geometry::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
-    boost::geometry::model::point_xy<float> point(3, 3);
+    boost::geometry::model::d2::point_xy<float> point(3, 3);
     std::cout << "Point is "
         << (boost::geometry::within(point, poly) ? "IN" : "NOT in")
         << " polygon"
@@ -392,7 +392,7 @@ void example_within()
 void example_within_strategy()
 {
     // TO BE UPDATED/FINISHED
-    typedef boost::geometry::model::point_xy<double> P;
+    typedef boost::geometry::model::d2::point_xy<double> P;
     typedef boost::geometry::model::polygon<P> POLY;
     P p;
     std::cout << within(p, poly, strategy::within::cross_count<P>) << std::endl;
@@ -404,7 +404,7 @@ void example_length_linestring()
     //[length
     //` The following simple example shows the calculation of the length of a linestring containing three points
     using namespace boost::geometry;
-    model::linestring<model::point_xy<double> > line;
+    model::linestring<model::d2::point_xy<double> > line;
     read_wkt("linestring(0 0,1 1,4 8,3 2)", line);
     std::cout << "linestring length is "
         << length(line)
@@ -434,8 +434,8 @@ void example_length_linestring()
 
 void example_length_linestring_iterators2()
 {
-    std::vector<boost::geometry::model::point_xy<double> > line;
-    boost::geometry::read_wkt<boost::geometry::model::point_xy<double> >("linestring(0 0,1 1,4 8,3 2)", std::back_inserter(line));
+    std::vector<boost::geometry::model::d2::point_xy<double> > line;
+    boost::geometry::read_wkt<boost::geometry::model::d2::point_xy<double> >("linestring(0 0,1 1,4 8,3 2)", std::back_inserter(line));
     std::cout << "linestring length is "
         << boost::geometry::length(line)
         << " units" << std::endl;
@@ -477,9 +477,9 @@ void example_length_linestring_strategy()
 
 void example_envelope_linestring()
 {
-    boost::geometry::model::linestring<boost::geometry::model::point_xy<double> > line;
+    boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double> > line;
     boost::geometry::read_wkt("linestring(0 0,1 1,4 8,3 2)", line);
-    boost::geometry::model::box<boost::geometry::model::point_xy<double> > box;
+    boost::geometry::model::box<boost::geometry::model::d2::point_xy<double> > box;
     boost::geometry::envelope(line, box);
 
     std::cout << "envelope is " << boost::geometry::dsv(box) << std::endl;

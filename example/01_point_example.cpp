@@ -25,7 +25,7 @@ int main()
     model::point<double, 2, cs::cartesian> pt1;
 
     // 2: it's own type targetted to Cartesian (x,y) coordinates
-    model::point_2d pt2;
+    model::d2::point pt2;
 
     // 3: it supports Boost tuple's (by including the headerfile)
     boost::tuple<double, double> pt3;
@@ -53,16 +53,16 @@ int main()
 
     // Several ways of construction and setting point values
     // 1: default, empty constructor, causing no initialization at all
-    model::point_2d p1;
+    model::d2::point p1;
 
     // 2: as shown above, assign
-    model::point_2d p2;
+    model::d2::point p2;
     assign(p2, 1, 1);
 
     // 3: using "set" function
     //    set uses the concepts behind, such that it can be applied for
     //    every point-type (like assign)
-    model::point_2d p3;
+    model::d2::point p3;
     set<0>(p3, 1);
     set<1>(p3, 1);
     // set<2>(p3, 1); //will result in compile-error
@@ -71,11 +71,11 @@ int main()
     // 3: for any point type, and other geometry objects:
     //    there is the "make" object generator
     //    (this one requires to specify the point-type).
-    model::point_2d p4 = make<model::point_2d>(1,1);
+    model::d2::point p4 = make<model::d2::point>(1,1);
 
 
-    // 5: for the point_2d type only: constructor with two values
-    model::point_2d p5(1,1);
+    // 5: for the d2::point type only: constructor with two values
+    model::d2::point p5(1,1);
 
     // 6: for boost tuples you can of course use make_tuple
 

@@ -129,7 +129,7 @@ void test_all(int seed, int count, bool svg, int level)
 
     typedef bg::model::polygon
         <
-            bg::model::point_xy<T>
+            bg::model::d2::point_xy<T>
         > polygon;
     typedef bg::model::multi_polygon<polygon> mp;
 

@@ -26,13 +26,13 @@ int main()
     // Construct a Robinson projection, using specified point types
     // (This delivers a projection without virtual methods. Note that in p02 example
     //  the projection is created using a factory, which delivers a projection with virtual methods)
-    projection::robin_spheroid<model::point_ll_deg, model::point_2d> prj(par);
+    projection::robin_spheroid<model::point_ll_deg, model::d2::point> prj(par);
 
     // Define Amsterdam / Barcelona in decimal degrees / degrees/minutes
     model::point_ll_deg amsterdam = parse<model::point_ll_deg>("52.4N", "5.9E");
     model::point_ll_deg barcelona = parse<model::point_ll_deg>("41 23'N", "2 11'E");
 
-    model::point_2d pa, pb;
+    model::d2::point pa, pb;
 
     // Now do the projection. "Forward" means from latlong to meters.
     // (Note that a map projection might fail. This is not 'exceptional'.

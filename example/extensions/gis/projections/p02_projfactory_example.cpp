@@ -28,8 +28,8 @@ int main()
     // Note that this is the only difference from p01_projection_example. It constructs a projection
     // with virtual methods, which can be used polymorphically. Therefore it is a pointer. For
     // convenience we use a boost shared pointer here.
-    projection::factory<model::point_ll_deg, model::point_2d> fac;
-    boost::shared_ptr<projection::projection<model::point_ll_deg, model::point_2d> > prj(fac.create_new(par));
+    projection::factory<model::point_ll_deg, model::d2::point> fac;
+    boost::shared_ptr<projection::projection<model::point_ll_deg, model::d2::point> > prj(fac.create_new(par));
 
     // Define Amsterdam / Barcelona in decimal degrees / degrees/minutes
     model::point_ll_deg amsterdam(longitude<>(5.9), latitude<>(52.4));
@@ -38,7 +38,7 @@ int main()
         longitude<>(dms<east>(2, 11))
         );
 
-    model::point_2d pa, pb;
+    model::d2::point pa, pb;
 
     // Do the forward projection
     if (prj->forward(amsterdam, pa) && prj->forward(barcelona, pb))

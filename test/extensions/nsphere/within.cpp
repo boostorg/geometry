@@ -18,7 +18,7 @@
 template <typename Geometry>
 void test_circle(std::string const& wkt_geometry, bool expected)
 {
-    bg::model::circle circle;
+    bg::model::d2::circle circle;
     bg::assign(circle, 1.0, 1.0, 3.0);
 
     Geometry geometry;
@@ -49,7 +49,7 @@ void test_circles()
 
 int test_main( int , char* [] )
 {
-    test_circles<bg::model::point_xy<double> >();
+    test_circles<bg::model::d2::point_xy<double> >();
 
     return 0;
 }

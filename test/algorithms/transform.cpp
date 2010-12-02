@@ -99,9 +99,9 @@ void test_transformations(double phi, double theta, double r)
 
 int test_main(int, char* [])
 {
-    typedef bg::model::point_xy<double > P;
+    typedef bg::model::d2::point_xy<double > P;
     test_all<P, P>();
-    test_all<bg::model::point_xy<int>, bg::model::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<int>, bg::model::d2::point_xy<float> >();
 
     test_all<bg::model::point<double, 2, bg::cs::spherical<bg::degree> >,
         bg::model::point<double, 2, bg::cs::spherical<bg::radian> > >(bg::math::d2r);

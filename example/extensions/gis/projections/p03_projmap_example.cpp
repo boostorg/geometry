@@ -55,28 +55,28 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
 
     // Our latlong polygon collection will be projected into this vector
     // (Of course it is also possible to do this while reading and have one vector)
-    std::vector<model::polygon_2d> xy_polygons;
+    std::vector<model::d2::polygon> xy_polygons;
 
     // Declare transformation strategy which contains a projection
     projection::project_transformer
         <
             model::point_ll_deg,
-            model::point_2d
+            model::d2::point
         > projection(projection_parameters);
 
     // Project the polygons, and at the same time get the bounding box (in xy)
-    model::box_2d bbox;
+    model::d2::box bbox;
     assign_inverse(bbox);
     for (std::vector<model::polygon_ll_deg>::const_iterator it = ll_polygons.begin();
          it != ll_polygons.end();
          ++it)
     {
-        model::polygon_2d xy_polygon;
+        model::d2::polygon xy_polygon;
 
         if (transform(*it, xy_polygon, projection))
         {
             // Update bbox with box of this projected polygon
-            combine(bbox, make_envelope<model::box_2d>(xy_polygon));
+            combine(bbox, make_envelope<model::d2::box>(xy_polygon));
 
             // Add projected polygon
             xy_polygons.push_back(xy_polygon);
@@ -95,10 +95,10 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     // Setup the transformation to SVG
     // (alternatively this could be skipped because SVG can transform itself,
     // but this example shows it like this)
-    typedef boost::geometry::model::point_xy<int> svg_point;
+    typedef boost::geometry::model::d2::point_xy<int> svg_point;
     boost::geometry::strategy::transform::map_transformer
         <
-            model::point_2d,
+            model::d2::point,
             svg_point,
             true,
             true
@@ -110,7 +110,7 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     boost::geometry::assign(box, 0, 0, 800, 600);
     out << boost::geometry::svg(box, "fill:rgb(0,0,255)") << std::endl;
 
-    for (std::vector<model::polygon_2d>::const_iterator it = xy_polygons.begin();
+    for (std::vector<model::d2::polygon>::const_iterator it = xy_polygons.begin();
          it != xy_polygons.end();
          ++it)
     {

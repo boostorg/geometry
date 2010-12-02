@@ -96,7 +96,7 @@ void test_traverse(std::string const& caseid, G1 const& g1, G2 const& g2)
         std::ofstream svg(filename.str().c_str());
 
         // Trick to have this always LongDouble
-        //typedef bg::model::point_xy<long double> P;
+        //typedef bg::model::d2::point_xy<long double> P;
         typedef typename bg::point_type<G1>::type P;
         //typename bg::replace_point_type<G1, P>::type rg1;
         //typename bg::replace_point_type<G2, P>::type rg2;
@@ -184,17 +184,17 @@ int main(int argc, char** argv)
     switch(mode)
     {
         case 1 :
-            test_traverse_gmp<bg::model::point_xy<float> >("float");
+            test_traverse_gmp<bg::model::d2::point_xy<float> >("float");
             break;
         case 2 :
-            test_traverse_gmp<bg::model::point_xy<double> >("double");
+            test_traverse_gmp<bg::model::d2::point_xy<double> >("double");
             break;
         case 3 :
-            test_traverse_gmp<bg::model::point_xy<long double> >("long double");
+            test_traverse_gmp<bg::model::d2::point_xy<long double> >("long double");
             break;
         case 4 :
             #if defined(HAVE_TTMATH)
-                test_traverse_gmp<bg::model::point_xy<ttmath_big> >("ttmath_big");
+                test_traverse_gmp<bg::model::d2::point_xy<ttmath_big> >("ttmath_big");
             #endif
             break;
     }

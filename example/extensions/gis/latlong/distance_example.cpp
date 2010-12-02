@@ -28,7 +28,7 @@
 #endif
 
 // BSG 28-10-2010
-// TODO: celar up this test
+// TODO: clear up this test
 // it is more a test than an example
 // the results are sometimes WRONG
 
@@ -37,7 +37,7 @@ int main()
 
     using namespace boost::geometry;
 
-    typedef model::point_ll_deg latlon_point;
+    typedef model::ll::point<degree> latlon_point;
 
     latlon_point city1;
     // Amsterdam 52 22'23"N 4 53'32"E
@@ -58,30 +58,30 @@ int main()
     latlon_point city3(longitude<>(dms<east>(2, 11, 0)), latitude<>(dms<north>(41, 23, 0)));
 
 
-    model::point_ll_rad a_rad, r_rad, h_rad;
-    transform(city1, a_rad);
-    transform(city2, r_rad);
-    transform(city3, h_rad);
+    model::ll::point<radian> city1_rad, city2_rad, city3_rad;
+    transform(city1, city1_rad);
+    transform(city2, city2_rad);
+    transform(city3, city3_rad);
 
 #ifndef NO_PROJECTION
     /*
-    projection::sterea_ellipsoid<model::point_ll_rad, model::point_2d> proj
+    projection::sterea_ellipsoid<model::ll::point<radian>, model::d2::point> proj
         (projection::init(
         "+lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m"));
     */
-    projection::laea_ellipsoid<model::point_ll_rad, model::point_2d> proj
+    projection::laea_ellipsoid<model::ll::point<radian>, model::d2::point> proj
         (projection::init(
         " +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m"));
 
 
-    model::point_2d a_rd, r_rd, h_rd;
-    proj.forward(a_rad, a_rd);
-    proj.forward(h_rad, h_rd);
-    proj.forward(r_rad, r_rd);
+    model::d2::point city1_prj, city2_prj, city3_prj;
+    proj.forward(city1_rad, city1_prj);
+    proj.forward(city3_rad, city3_prj);
+    proj.forward(city2_rad, city2_prj);
 #else
-    model::point_2d a_rd(121267, 487245);
-    model::point_2d r_rd(92526.2, 438324);
-    model::point_2d h_rd(80454.2, 455086);
+    model::d2::point city1_prj(121267, 487245);
+    model::d2::point city2_prj(92526.2, 438324);
+    model::d2::point city3_prj(80454.2, 455086);
 #endif
 
     // ------------------------------------------------------------------------------------------
@@ -90,12 +90,12 @@ int main()
 
     std::cout << "Distance " << city1_name << "-" << city2_name << ": " << std::endl;
     std::cout << "haversine:              " << 0.001 * distance(city1, city2) << " km" << std::endl;
-    std::cout << "haversine rad:          " << 0.001 * distance(a_rad, r_rad) << " km" << std::endl;
+    std::cout << "haversine rad:          " << 0.001 * distance(city1_rad, city2_rad) << " km" << std::endl;
     std::cout << "haversine other radius: " << distance(city1, city2, strategy::distance::haversine<latlon_point>(6371.0) ) << " km" << std::endl;
     std::cout << "andoyer:                " << 0.001 * distance(city1, city2, strategy::distance::andoyer<latlon_point>() ) << " km" << std::endl;
     std::cout << "vincenty:               " << 0.001 * distance(city1, city2, strategy::distance::vincenty<latlon_point>() ) << " km" << std::endl;
-    std::cout << "vincenty rad:           " << 0.001 * distance(a_rad, r_rad, strategy::distance::vincenty<model::point_ll_rad>() ) << " km" << std::endl;
-    std::cout << "Projected, pythagoras:  " << 0.001 * distance(a_rd, r_rd) << " km" << std::endl;
+    std::cout << "vincenty rad:           " << 0.001 * distance(city1_rad, city2_rad, strategy::distance::vincenty<model::ll::point<radian>>() ) << " km" << std::endl;
+    std::cout << "Projected, pythagoras:  " << 0.001 * distance(city1_prj, city2_prj) << " km" << std::endl;
 
     std::cout << std::endl;
     std::cout << "Distance " << city1_name << "-" << city3_name << ": " << std::endl;
@@ -108,35 +108,35 @@ int main()
     // ------------------------------------------------------------------------------------------
     std::cout << std::endl << city3_name << " - line " << city1_name << "," << city2_name << std::endl;
 
-    model::segment_2d ar_xy(a_rd, r_rd);
+    model::d2::segment ar_xy(city1_prj, city2_prj);
 
-    double dr = distance(h_rd, ar_xy);
-    std::cout << "in RD: " << 0.001 * dr << std::endl;
+    double dr = distance(city3_prj, ar_xy);
+    std::cout << "projected: " << 0.001 * dr << std::endl;
 
     double const radius = 6378137.0;
 
-    dr = distance(city3, model::segment_ll_deg(city1, city2));
+    dr = distance(city3, model::segment<latlon_point>(city1, city2));
     std::cout << "in LL: " << 0.001 * dr << std::endl;
 
     std::cout << std::endl << city2_name << " - line " << city1_name << "," << city3_name << std::endl;
-    dr = distance(r_rd, model::segment_2d(a_rd, h_rd));
-    std::cout << "in RD: " << 0.001 * dr << std::endl;
-    dr = distance(city2, model::segment_ll_deg(city1, city3));
+    dr = distance(city2_prj, model::d2::segment(city1_prj, city3_prj));
+    std::cout << "projected: " << 0.001 * dr << std::endl;
+    dr = distance(city2, model::segment<latlon_point>(city1, city3));
     std::cout << "in LL: " << 0.001 * dr << std::endl;
     std::cout << std::endl;
-    
+
 
     // ------------------------------------------------------------------------------------------
     // Compilation
     // ------------------------------------------------------------------------------------------
     // Next line does not compile because Vincenty cannot work on xy-points
-    //std::cout << "vincenty on xy:         " << 0.001 * distance(a_rd, r_rd, formulae::distance::vincenty<>() ) << " km" << std::endl;
+    //std::cout << "vincenty on xy:         " << 0.001 * distance(city1_prj, city2_prj, formulae::distance::vincenty<>() ) << " km" << std::endl;
 
     // Next line does not compile because you cannot (yet) assign degree to radian directly
-    //point_ll_rad a_rad2 = city1;
+    //ll::point<radian> a_rad2 = city1;
 
     // Next line does not compile because you cannot assign latlong to xy
-    // point_2d axy = city1;
+    // d2::point axy = city1;
 
     // ------------------------------------------------------------------------------------------
     // Length
@@ -144,15 +144,15 @@ int main()
     // Length calculations use distances internally. The lines below take automatically the default
     // formulae for distance. However, you can also specify city1 formula explicitly.
 
-    model::linestring_ll_deg line1;
+    model::linestring<latlon_point> line1;
     append(line1, city1);
     append(line1, city2);
     std::cout << "length: " << length(line1) << std::endl;
     std::cout << "length using Vincenty: " << length(line1, strategy::distance::vincenty<latlon_point>()) << std::endl;
 
-    model::linestring_2d line2;
-    append(line2, a_rd);
-    append(line2, r_rd);
+    model::d2::linestring line2;
+    append(line2, city1_prj);
+    append(line2, city2_prj);
     std::cout << "length: " << length(line2) << std::endl;
 
     return 0;

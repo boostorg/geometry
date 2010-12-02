@@ -113,36 +113,36 @@ int main()
         svg_output<std::ofstream> svg(ofs, 0.5);
 
         // G1 - create subject for affine transformations
-        model::polygon_2d g1;
+        model::d2::polygon g1;
         read_wkt("POLYGON((50 250, 400 250, 150 50, 50 250))", g1);
         std::clog << "source box:\t" << boost::geometry::dsv(g1) << std::endl;
         svg.put(g1, "g1");
 
         // G1 - Translate -> G2
-        translate_transformer<model::point_2d, model::point_2d> translate(0, 250);
-        model::polygon_2d g2;
+        translate_transformer<model::d2::point, model::d2::point> translate(0, 250);
+        model::d2::polygon g2;
         transform(g1, g2, translate);
         std::clog << "translated:\t" << boost::geometry::dsv(g2) << std::endl;
         svg.put(g2, "g2=g1.translate(0,250)");
 
         // G2 - Scale -> G3
-        scale_transformer<model::point_2d, model::point_2d> scale(0.5, 0.5);
-        model::polygon_2d g3;
+        scale_transformer<model::d2::point, model::d2::point> scale(0.5, 0.5);
+        model::d2::polygon g3;
         transform(g2, g3, scale);
         std::clog << "scaled:\t" << boost::geometry::dsv(g3) << std::endl;
         svg.put(g3, "g3=g2.scale(0.5,0.5)");
 
         // G3 - Combine rotate and translate -> G4
-        rotate_transformer<model::point_2d, model::point_2d, degree> rotate(45);
+        rotate_transformer<model::d2::point, model::d2::point, degree> rotate(45);
 
         // Compose matrix for the two transformation
         // Create transformer attached to the transformation matrix
-        ublas_transformer<model::point_2d, model::point_2d, 2, 2>
+        ublas_transformer<model::d2::point, model::d2::point, 2, 2>
                 combined(boost::numeric::ublas::prod(rotate.matrix(), translate.matrix()));
                 //combined(rotate.matrix());
 
         // Apply transformation to subject geometry point-by-point
-        model::polygon_2d g4;
+        model::d2::polygon g4;
         transform(g3, g4, combined);
 
         std::clog << "rotated & translated:\t" << boost::geometry::dsv(g4) << std::endl;

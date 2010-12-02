@@ -94,7 +94,7 @@ template <typename T>
 void test_star_ellipse(int seed, int index, star_params const& par_p,
             star_params const& par_q, bool svg, double tolerance)
 {
-    typedef bg::model::point_xy<T> point_type;
+    typedef bg::model::d2::point_xy<T> point_type;
     typedef bg::model::polygon<point_type> polygon;
 
     polygon p, q;

@@ -53,7 +53,7 @@ template <typename P>
 void test_all()
 {
     typedef typename bg::coordinate_type<P>::type coord_type;
-    typedef bg::model::point_ll<coord_type, bg::cs::geographic<bg::degree> > point_type;
+    typedef bg::model::ll::point<bg::degree, coord_type> point_type;
 
     // aea
     test_one<bg::projection::aea_ellipsoid<point_type, P>, point_type, P>
@@ -67,10 +67,10 @@ int test_main(int, char* [])
     test_all<float[2]>();
     test_all<double[2]>();
     test_all<test::test_point>();
-    //test_all<bg::model::point_xy<int> >();
-    test_all<bg::model::point_xy<float> >();
-    test_all<bg::model::point_xy<double> >();
-    test_all<bg::model::point_xy<long double> >();
+    //test_all<bg::model::d2::point_xy<int> >();
+    test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<long double> >();
 
     return 0;
 }

@@ -27,10 +27,10 @@ int main(void)
     namespace bg = boost::geometry;
 
     std::ofstream stream("05_a_intersection_polygon_example.svg");
-    bg::svg_mapper<bg::model::point_2d> svg(stream, 500, 500);
+    bg::svg_mapper<bg::model::d2::point> svg(stream, 500, 500);
 
     // Define a polygons and fill the outer rings.
-    bg::model::polygon_2d a;
+    bg::model::d2::polygon a;
     {
         const double c[][2] = {
             {160, 330}, {60, 260}, {20, 150}, {60, 40}, {190, 20}, {270, 130}, {260, 250}, {160, 330}
@@ -41,7 +41,7 @@ int main(void)
     std::cout << "A: " << bg::dsv(a) << std::endl;
     svg.add(a);
 
-    bg::model::polygon_2d b;
+    bg::model::d2::polygon b;
     {
         const double c[][2] = {
             {300, 330}, {190, 270}, {150, 170}, {150, 110}, {250, 30}, {380, 50}, {380, 250}, {300, 330}
@@ -57,11 +57,11 @@ int main(void)
 
 
     // Calculate interesection(s)
-    std::vector<bg::model::polygon_2d > intersection;
-    bg::intersection<bg::model::polygon_2d>(a, b, intersection);
+    std::vector<bg::model::d2::polygon > intersection;
+    bg::intersection<bg::model::d2::polygon>(a, b, intersection);
 
     std::cout << "Intersection of polygons A and B" << std::endl;
-    BOOST_FOREACH(bg::model::polygon_2d const& polygon, intersection)
+    BOOST_FOREACH(bg::model::d2::polygon const& polygon, intersection)
     {
         std::cout << bg::dsv(polygon) << std::endl;
         svg.map(polygon, "opacity:0.5;fill:none;stroke:rgb(255,0,0);stroke-width:6");

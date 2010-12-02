@@ -6,10 +6,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_LATLONG_HPP
-#define BOOST_GEOMETRY_LATLONG_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_LATLONG_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_GIS_LATLONG_HPP
 
-// Predeclare common latlong points for convenience
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
@@ -22,6 +21,8 @@
 namespace boost { namespace geometry
 {
 
+/*
+DEPRECATED
 namespace model
 {
 
@@ -40,9 +41,9 @@ typedef box<point_ll_rad> box_ll_rad;
 typedef segment<point_ll_rad> segment_ll_rad;
 
 } // namespace model
-
+*/
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_LATLONG_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_LATLONG_HPP

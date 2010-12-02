@@ -129,13 +129,13 @@ void test_mixed()
 int test_main( int , char* [] )
 {
     test_2d<boost::tuple<float, float> >();
-    test_2d<bg::model::point_xy<float> >();
-    test_2d<bg::model::point_xy<double> >();
+    test_2d<bg::model::d2::point_xy<float> >();
+    test_2d<bg::model::d2::point_xy<double> >();
 
     test_3d<boost::tuple<float, float, float> >();
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
-    test_mixed<bg::model::point_xy<float>, bg::model::point_xy<double> >();
+    test_mixed<bg::model::d2::point_xy<float>, bg::model::d2::point_xy<double> >();
 
     return 0;
 }

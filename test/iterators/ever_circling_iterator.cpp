@@ -84,7 +84,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point_2d>();
+    test_all<bg::model::d2::point>();
 
     return 0;
 }
