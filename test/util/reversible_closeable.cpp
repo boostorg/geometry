@@ -166,7 +166,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point_2d>();
+    test_all<bg::model::d2::point>();
     test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_all<boost::tuple<double, double> >();
 

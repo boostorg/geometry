@@ -137,7 +137,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
             bool multi, bool multi_st, bool svg)
 {
     boost::timer t;
-    typedef bg::model::point_xy<T> point_type;
+    typedef bg::model::d2::point_xy<T> point_type;
     typedef bg::model::polygon<point_type> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 

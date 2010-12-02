@@ -65,14 +65,14 @@ void test_3d()
 
 int test_main(int, char* [])
 {
-    test_2d<bg::model::point_xy<double> >();
+    test_2d<bg::model::d2::point_xy<double> >();
     test_2d<boost::tuple<float, float> >();
-    test_2d<bg::model::point_xy<float> >();
+    test_2d<bg::model::d2::point_xy<float> >();
 
     test_3d<boost::tuple<double, double, double> >();
 
 #if defined(HAVE_TTMATH)
-    test_2d<bg::model::point_xy<ttmath_big> >();
+    test_2d<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     return 0;

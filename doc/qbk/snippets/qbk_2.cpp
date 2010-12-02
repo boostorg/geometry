@@ -90,7 +90,7 @@ void example_for_main_page()
     //` Snippets below assume the namespace boost::geometry is known
     using namespace boost::geometry;
 
-    //` It should be possible to use a very small part of the library, for example only the distance between two points. 
+    //` It should be possible to use a very small part of the library, for example only the distance between two points.
     int a[2] = {1,1};
     int b[2] = {2,3};
     double d = distance(a, b);
@@ -98,15 +98,15 @@ void example_for_main_page()
 
     //` Other often used algorithms are point-in-polygon:
     double points[][2] = {{2.0, 1.3}, {4.1, 3.0}, {5.3, 2.6}, {2.9, 0.7}, {2.0, 1.3}};
-    model::polygon_2d poly;
+    model::d2::polygon poly;
     append(poly, points);
     boost::tuple<double, double> p = boost::make_tuple(3.7, 2.0);
     std::cout << "Point p is in polygon? " << (within(p, poly) ? "YES" : "NO")  << std::endl;
 
-    //` or area: 
+    //` or area:
     std::cout << "Area: " << area(poly) << std::endl;
 
-    //` It is possible, by the nature of a template library, to mix the point types declared above: 
+    //` It is possible, by the nature of a template library, to mix the point types declared above:
     double d2 = distance(a, p);
     std::cout << "Distance a-p is:" << d2 << std::endl;
 
@@ -148,8 +148,8 @@ void example_for_transform()
 
     std::cout << dsv(p) << " <-> " << dsv(sph2) << std::endl;
 
-    typedef model::point_xy<double> XY;
-    typedef model::point_xy<int> PIXEL;
+    typedef model::d2::point_xy<double> XY;
+    typedef model::d2::point_xy<int> PIXEL;
     XY xy(50, 50);
     strategy::transform::map_transformer<XY, PIXEL, false> map(0, 0, 100, 100, 1024, 768);
     PIXEL pix;

@@ -58,7 +58,7 @@ template <typename D, typename P>
 void test_deg_rad(double factor)
 {
     typedef typename bg::coordinate_type<P>::type coord_type;
-    typedef bg::model::point_ll<coord_type, bg::cs::geographic<D> > point_type;
+    typedef bg::model::ll::point<D, coord_type> point_type;
 
     test_one<28992, point_type, P>(4.897000 * factor, 52.371000 * factor, 121590.388077, 487013.903377);
     test_one<29118, point_type, P>(4.897000 * factor, 52.371000 * factor, 4852882, 9129373);
@@ -77,10 +77,10 @@ int test_main(int, char* [])
     test_all<float[2]>();
     test_all<double[2]>();
     test_all<test::test_point>();
-    //test_all<bg::model::point_xy<int> >();
-    test_all<bg::model::point_xy<float> >();
-    test_all<bg::model::point_xy<double> >();
-    test_all<bg::model::point_xy<long double> >();
+    //test_all<bg::model::d2::point_xy<int> >();
+    test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<long double> >();
 
     return 0;
 }

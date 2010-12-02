@@ -129,7 +129,7 @@ void generate()
                     std::string ps = "POLYGON(" + exteriors[pe] + "," + interiors[pi] + ")";
                     std::string qs = "POLYGON(" + exteriors[qe] + "," + interiors[qi] + ")";
 
-                    bg::model::polygon_2d p, q;
+                    bg::model::d2::polygon p, q;
                     bg::read_wkt(ps, p);
                     bg::read_wkt(qs, q);
                     bg::correct(p);

@@ -31,7 +31,7 @@ void test_all()
     BOOST_CHECK_CLOSE(bg::get<1>(p1), type(-12.0433), 0.001);
 
     // Check degree/radian conversion
-    bg::model::point_ll<type, bg::cs::geographic<bg::radian> > p2;
+    bg::model::ll::point<bg::radian, type> p2;
     bg::transform(p1, p2);
 
     BOOST_CHECK_CLOSE(bg::get<0>(p2), type(-1.3444), 0.001);
@@ -69,8 +69,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point_ll<float> >();
-    test_all<bg::model::point_ll<double> >();
+    test_all<bg::model::ll::point<bg::degree, float> >();
+    test_all<bg::model::ll::point<bg::degree, double> >();
 
     return 0;
 }

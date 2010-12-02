@@ -22,7 +22,7 @@
 
 int test_main( int , char* [] )
 {
-    typedef bg::model::point_xy<double> gl_point;
+    typedef bg::model::d2::point_xy<double> gl_point;
     typedef bg::circle gl_circle;
     typedef bg::model::linear_ring<gl_point> gl_ring;
     typedef bg::model::polygon<gl_point> gl_polygon;

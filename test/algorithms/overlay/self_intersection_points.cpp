@@ -227,7 +227,7 @@ void test_self_all()
 #if ! defined(GEOMETRY_TEST_MULTI)
 int test_main(int, char* [])
 {
-    test_self_all<bg::model::point_xy<double> >();
+    test_self_all<bg::model::d2::point_xy<double> >();
     return 0;
 }
 #endif

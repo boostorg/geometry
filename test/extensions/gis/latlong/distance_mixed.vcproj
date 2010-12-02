@@ -20,6 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\distance_mixed"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\..\boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -42,6 +43,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="../../../../../..;../../.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NOMINMAX"
+				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -92,6 +94,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\distance_mixed"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\..\boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

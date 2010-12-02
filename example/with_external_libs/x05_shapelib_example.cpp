@@ -84,11 +84,11 @@ int main()
 {
     std::string filename = "c:/data/spatial/shape/world_free/world.shp";
 
-    std::vector<model::polygon_2d> polygons;
+    std::vector<model::d2::polygon> polygons;
 
     try
     {
-        read_shapefile(filename, polygons, convert<model::polygon_2d>);
+        read_shapefile(filename, polygons, convert<model::d2::polygon>);
     }
     catch(const std::string& s)
     {
@@ -97,9 +97,9 @@ int main()
     }
 
     // Do something with the polygons, for example simplify them
-    for (std::vector<model::polygon_2d>::iterator it = polygons.begin(); it != polygons.end(); it++)
+    for (std::vector<model::d2::polygon>::iterator it = polygons.begin(); it != polygons.end(); it++)
     {
-        model::polygon_2d p;
+        model::d2::polygon p;
         simplify(*it, p, 0.01);
         std::cout << it->outer().size() << "," << p.outer().size() << std::endl;
         *it = p;
@@ -107,7 +107,7 @@ int main()
     std::cout << "Simplified " << polygons.size() << std::endl;
 
     double sum = 0;
-    for (std::vector<model::polygon_2d>::const_iterator it = polygons.begin(); it != polygons.end(); it++)
+    for (std::vector<model::d2::polygon>::const_iterator it = polygons.begin(); it != polygons.end(); it++)
     {
         sum += area(*it);
     }

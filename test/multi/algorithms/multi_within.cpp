@@ -41,11 +41,11 @@ void test_all()
 
 int test_main( int , char* [] )
 {
-    //test_all<bg::model::point_xy<int> >();
-    test_all<bg::model::point_xy<double> >();
+    //test_all<bg::model::d2::point_xy<int> >();
+    test_all<bg::model::d2::point_xy<double> >();
 
 #if defined(HAVE_TTMATH)
-    test_all<bg::model::point_xy<ttmath_big> >();
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     return 0;

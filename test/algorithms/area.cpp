@@ -106,7 +106,7 @@ int test_main(int, char* [])
     test_open_ccw<bg::model::point<double, 2, bg::cs::cartesian> >();
 
 #ifdef HAVE_TTMATH
-    test_all<bg::model::point_xy<ttmath_big> >();
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     return 0;

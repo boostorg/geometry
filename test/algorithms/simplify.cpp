@@ -83,10 +83,10 @@ void test_spherical()
 int test_main(int, char* [])
 {
     // Integer compiles, but simplify-process fails (due to distances)
-    //test_all<bg::model::point_xy<int> >();
+    //test_all<bg::model::d2::point_xy<int> >();
 
-    test_all<bg::model::point_xy<float> >();
-    test_all<bg::model::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<double> >();
 
     test_spherical<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >();
 

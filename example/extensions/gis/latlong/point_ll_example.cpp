@@ -62,8 +62,7 @@ int main()
 {
     using namespace boost::geometry;
 
-    // Declare a latlong point, using doubles and degrees (= default)
-    typedef model::point_ll_deg latlon_point;
+    typedef model::ll::point<degree> latlon_point;
     
     latlon_point paris;
 
@@ -104,11 +103,11 @@ int main()
 
     // Convert a latlong point to radians. This might be convenient, although algorithms
     // are transparent on degree/radians
-    model::point_ll_rad paris_rad;
+    model::ll::point<radian> paris_rad;
     transform(paris, paris_rad);
     std::cout << "Paris in radians: " << boost::geometry::dsv(paris_rad) << std::endl;
 
-    model::point_ll_rad amsterdam_rad;
+    model::ll::point<radian> amsterdam_rad;
     transform(amsterdam, amsterdam_rad);
     std::cout << "Amsterdam in radians: " << boost::geometry::dsv(amsterdam_rad) << std::endl;
 

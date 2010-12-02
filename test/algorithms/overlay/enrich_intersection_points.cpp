@@ -171,8 +171,8 @@ int test_main(int, char* [])
     // ticket#17
     expected.push_back(boost::make_tuple(6, "LR,RL,LR,RL,RL,LR"));
 
-    //test_all<bg::model::point_xy<float>, test_enrich_intersection_points>(expected);
-    test_all<bg::model::point_xy<double>, test_enrich_intersection_points>(expected);
+    //test_all<bg::model::d2::point_xy<float>, test_enrich_intersection_points>(expected);
+    test_all<bg::model::d2::point_xy<double>, test_enrich_intersection_points>(expected);
     //test_all<boost::tuple<double, double>, test_enrich_intersection_points>(expected);
 
     */

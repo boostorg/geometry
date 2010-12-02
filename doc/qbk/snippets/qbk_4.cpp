@@ -87,7 +87,7 @@ void svg_simplify_road()
         //"LINESTRING(-122.193 47.5075,-122.192 47.5108,-122.192 47.5147,-122.192 47.5184,-122.192 47.5224,-122.192 47.5265,-122.192 47.5307,-122.192 47.5327,-122.191 47.5348,-122.19 47.5395,-122.189 47.5443,-122.188 47.549,-122.187 47.5538,-122.185 47.5584,-122.183 47.5609,-122.182 47.563,-122.18 47.5667,-122.179 47.5676,-122.178 47.5711,-122.177 47.5726,-122.177 47.5742,-122.177 47.5762,-122.176 47.5781,-122.176 47.5801)"
     };
 
-    typedef boost::geometry::model::point_xy<double> point_type;
+    typedef boost::geometry::model::d2::point_xy<double> point_type;
 
     std::ofstream svg("simplify_road.svg");
     boost::geometry::svg_mapper<point_type> mapper(svg, 300, 300);
@@ -119,7 +119,7 @@ void svg_simplify_road()
 void svg_simplify_country()
 {
 
-    typedef boost::geometry::model::point_xy<double> point_type;
+    typedef boost::geometry::model::d2::point_xy<double> point_type;
 
     std::ofstream svg("simplify_country.svg");
     boost::geometry::svg_mapper<point_type> mapper(svg, 300, 300);
@@ -150,7 +150,7 @@ void svg_simplify_country()
 void svg_convex_hull_country()
 {
 
-    typedef boost::geometry::model::point_xy<double> point_type;
+    typedef boost::geometry::model::d2::point_xy<double> point_type;
 
     std::ofstream svg("convex_hull_country.svg");
     boost::geometry::svg_mapper<point_type> mapper(svg, 300, 300);
@@ -183,7 +183,7 @@ void svg_convex_hull_country()
 void svg_convex_hull_cities()
 {
 
-    typedef boost::geometry::model::point_xy<double> point_type;
+    typedef boost::geometry::model::d2::point_xy<double> point_type;
 
     std::ofstream svg("convex_hull_cities.svg");
     boost::geometry::svg_mapper<point_type> mapper(svg, 300, 300);
@@ -215,7 +215,7 @@ void svg_convex_hull_cities()
 void svg_intersection_roads()
 {
     // Read the road network
-    typedef boost::geometry::model::point_xy<double> point_type;
+    typedef boost::geometry::model::d2::point_xy<double> point_type;
     typedef boost::geometry::model::linestring<point_type> line_type;
 
     typedef boost::tuple<line_type, std::string> road_type;
@@ -262,7 +262,7 @@ void svg_intersection_roads()
 void svg_intersection_countries()
 {
     // Read the road network
-    typedef boost::geometry::model::point_xy<double> point_type;
+    typedef boost::geometry::model::d2::point_xy<double> point_type;
     typedef boost::geometry::model::polygon<point_type> poly_type;
     typedef boost::geometry::model::multi_polygon<poly_type> mp_type;
 

@@ -84,7 +84,7 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
         // Add the city "Alphen" to create a concave case
         // Alphen 52 7' 48" N, 4 39' 0" E
         LL alphen(
-            bg::latitude<T>(bg::dms<bg::north, T>(52, 7, 48)), 
+            bg::latitude<T>(bg::dms<bg::north, T>(52, 7, 48)),
             bg::longitude<T>(bg::dms<bg::east, T>(4, 39)));
         add_to_ring(dutch_prj, alphen, randstad.outer(), randstad_xy.outer());
     }
@@ -98,19 +98,19 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
     {
         // Gouda 52 1' 12" N, 4 42' 0" E
         LL gouda(
-            bg::latitude<T>(bg::dms<bg::north, T>(52, 1, 12)), 
+            bg::latitude<T>(bg::dms<bg::north, T>(52, 1, 12)),
             bg::longitude<T>(bg::dms<bg::east, T>(4, 42)));
         // Woerden 52 5' 9" N, 4 53' 0" E
         LL woerden(
-            bg::latitude<T>(bg::dms<bg::north, T>(52, 5, 9)), 
+            bg::latitude<T>(bg::dms<bg::north, T>(52, 5, 9)),
             bg::longitude<T>(bg::dms<bg::east, T>(4, 53, 0)));
         // Uithoorn 52 13' 48" N, 4 49' 48" E
         LL uithoorn(bg::latitude<T>
-            (bg::dms<bg::north, T>(52, 13, 48)), 
+            (bg::dms<bg::north, T>(52, 13, 48)),
             bg::longitude<T>(bg::dms<bg::east, T>(4, 49, 48)));
         // Alphen 52 7' 48" N, 4 39' 0" E
         LL alphen(bg::latitude<T>(
-            bg::dms<bg::north, T>(52, 7, 48)), 
+            bg::dms<bg::north, T>(52, 7, 48)),
             bg::longitude<T>(bg::dms<bg::east, T>(4, 39)));
 
         randstad.inners().resize(1);
@@ -164,13 +164,13 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
 template <typename T>
 void test_latlong(double perc)
 {
-    test_area_polygon_ll<bg::model::point_xy<T>, bg::model::point_ll<T, bg::cs::geographic<bg::degree> > >(false, false, perc);
+    test_area_polygon_ll<bg::model::d2::point_xy<T>, bg::model::ll::point<bg::degree, T> >(false, false, perc);
 
     // with concavities
-    test_area_polygon_ll<bg::model::point_xy<T>, bg::model::point_ll<T, bg::cs::geographic<bg::degree> > >(true, false, perc);
+    test_area_polygon_ll<bg::model::d2::point_xy<T>, bg::model::ll::point<bg::degree, T> >(true, false, perc);
 
     // with holes
-    test_area_polygon_ll<bg::model::point_xy<T>, bg::model::point_ll<T, bg::cs::geographic<bg::degree> > >(false, true, perc);
+    test_area_polygon_ll<bg::model::d2::point_xy<T>, bg::model::ll::point<bg::degree, T> >(false, true, perc);
 }
 
 int test_main(int, char* [])

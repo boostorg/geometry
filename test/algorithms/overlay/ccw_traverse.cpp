@@ -188,7 +188,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(std::string const
 template <typename T>
 inline void test_polygon(std::string const& wkt1, std::string const& wkt2, std::string const& name)
 {
-    typedef bg::model::point_xy<T> point;
+    typedef bg::model::d2::point_xy<T> point;
     typedef bg::model::polygon<point> clock;
     typedef bg::model::polygon<point, false> counter;
 
@@ -205,7 +205,7 @@ inline void test_polygon(std::string const& wkt1, std::string const& wkt2, std::
 template <typename T>
 inline void test_box_polygon(std::string const& wkt1, std::string const& wkt2, std::string const& name)
 {
-    typedef bg::model::point_xy<T> point;
+    typedef bg::model::d2::point_xy<T> point;
     typedef bg::model::box<point> box;
     typedef bg::model::polygon<point> clock;
     typedef bg::model::polygon<point, false> counter;

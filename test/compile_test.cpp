@@ -59,7 +59,7 @@ struct const_functor
 template <typename T, template<typename, typename> class V>
 void check_linestring()
 {
-    typedef bg::model::point_xy<T> P;
+    typedef bg::model::d2::point_xy<T> P;
     typedef bg::model::linestring<P, V, std::allocator> line_type;
     line_type line;
     line.push_back(P(0,0));
@@ -124,7 +124,7 @@ template
 >
 void check_polygon()
 {
-    typedef bg::model::point_xy<T> P;
+    typedef bg::model::d2::point_xy<T> P;
     typedef bg::model::polygon<P, VP, VR, true, std::allocator, std::allocator> Y;
     Y poly;
     poly.outer().push_back(P(0,0));
@@ -159,7 +159,7 @@ void check_polygon()
     bg::centroid(poly, ctr);
 
     // within
-    bg::model::point_2d circ_centre(10,10);
+    bg::model::d2::point circ_centre(10,10);
 
     bool w = bg::within(P(1, 1), poly);
     //w = bg::within(poly, b); tbd

@@ -19,7 +19,7 @@
 namespace boost { namespace geometry
 {
 
-namespace model
+namespace model { namespace d2
 {
 
 /*!
@@ -27,36 +27,38 @@ namespace model
     \ingroup geometries
     \tparam T numeric type, arguments can be, for example, double, float, int
 */
-template<typename T, typename C = cs::cartesian>
-class point_xy : public point<T, 2, C>
+template<typename CoordinateType, typename CoordinateSystem = cs::cartesian>
+class point_xy : public model::point<CoordinateType, 2, CoordinateSystem>
 {
 public:
 
     /// Default constructor, does not initialize anything
-    inline point_xy() : point<T, 2, C>() {}
+    inline point_xy()
+        : model::point<CoordinateType, 2, CoordinateSystem>() {}
 
     /// Constructor with x/y values
-    inline point_xy(T const& x, T const& y) : point<T, 2, C>(x, y) {}
+    inline point_xy(CoordinateType const& x, CoordinateType const& y)
+        : model::point<CoordinateType, 2, CoordinateSystem>(x, y) {}
 
     /// Get x-value
-    inline T const& x() const
+    inline CoordinateType const& x() const
     { return this->template get<0>(); }
 
     /// Get y-value
-    inline T const& y() const
+    inline CoordinateType const& y() const
     { return this->template get<1>(); }
 
     /// Set x-value
-    inline void x(T const& v)
+    inline void x(CoordinateType const& v)
     { this->template set<0>(v); }
 
     /// Set y-value
-    inline void y(T const& v)
+    inline void y(CoordinateType const& v)
     { this->template set<1>(v); }
 };
 
 
-} // namespace model
+}} // namespace model::xy
 
 
 // Adapt the point_xy to the concept
@@ -65,38 +67,38 @@ namespace traits
 {
 
 template <typename CoordinateType, typename CoordinateSystem>
-struct tag<model::point_xy<CoordinateType, CoordinateSystem> >
+struct tag<model::d2::point_xy<CoordinateType, CoordinateSystem> >
 {
     typedef point_tag type;
 };
 
 template<typename CoordinateType, typename CoordinateSystem>
-struct coordinate_type<model::point_xy<CoordinateType, CoordinateSystem> >
+struct coordinate_type<model::d2::point_xy<CoordinateType, CoordinateSystem> >
 {
     typedef CoordinateType type;
 };
 
 template<typename CoordinateType, typename CoordinateSystem>
-struct coordinate_system<model::point_xy<CoordinateType, CoordinateSystem> >
+struct coordinate_system<model::d2::point_xy<CoordinateType, CoordinateSystem> >
 {
     typedef CoordinateSystem type;
 };
 
 template<typename CoordinateType, typename CoordinateSystem>
-struct dimension<model::point_xy<CoordinateType, CoordinateSystem> >
+struct dimension<model::d2::point_xy<CoordinateType, CoordinateSystem> >
     : boost::mpl::int_<2>
 {};
 
 template<typename CoordinateType, typename CoordinateSystem, std::size_t Dimension>
-struct access<model::point_xy<CoordinateType, CoordinateSystem>, Dimension >
+struct access<model::d2::point_xy<CoordinateType, CoordinateSystem>, Dimension >
 {
     static inline CoordinateType get(
-        model::point_xy<CoordinateType, CoordinateSystem> const& p)
+        model::d2::point_xy<CoordinateType, CoordinateSystem> const& p)
     {
         return p.template get<Dimension>();
     }
 
-    static inline void set(model::point_xy<CoordinateType, CoordinateSystem>& p,
+    static inline void set(model::d2::point_xy<CoordinateType, CoordinateSystem>& p,
         CoordinateType const& value)
     {
         p.template set<Dimension>(value);

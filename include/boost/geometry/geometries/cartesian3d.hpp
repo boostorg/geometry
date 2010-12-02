@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_CARTESIAN3D_HPP
-#define BOOST_GEOMETRY_CARTESIAN3D_HPP
+#ifndef BOOST_GEOMETRY_GEOMETRIES_CARTESIAN3D_HPP
+#define BOOST_GEOMETRY_GEOMETRIES_CARTESIAN3D_HPP
 
 // Predeclare common Cartesian 3D points for convenience
 
@@ -16,19 +16,22 @@
 namespace boost { namespace geometry
 {
 
-namespace model
+namespace model { namespace d3
 {
 
-typedef point<double, 3, cs::cartesian> point_3d;
-typedef linestring<point_3d> linestring_3d;
-typedef linear_ring<point_3d> ring_3d;
-typedef polygon<point_3d> polygon_3d;
-typedef box<point_3d> box_3d;
+// Todo: create point_xyz in between to enable methods .x(), .y(), .z()
+// the same way as d2::point has
 
-} // namespace model
+typedef model::point<double, 3, cs::cartesian> point;
+typedef model::linestring<point> linestring;
+typedef model::linear_ring<point> ring;
+typedef model::polygon<point> polygon;
+typedef model::box<point> box;
+
+}} // namespace model::d3
 
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_CARTESIAN3D_HPP
+#endif // BOOST_GEOMETRY_GEOMETRIES_CARTESIAN3D_HPP

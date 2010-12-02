@@ -250,7 +250,7 @@ int main()
     // Define a point in the Geographic coordinate system
     typedef boost::geometry::model::point
         <
-            double, 2, boost::geometry::cs::geographic<boost::geometry::degree> 
+            double, 2, boost::geometry::cs::geographic<boost::geometry::degree>
         > point_type;
 
     typedef boost::geometry::model::linestring<point_type> line_type;
@@ -269,7 +269,7 @@ int main()
 
 
     // Init a bounding box, lateron used to define SVG map
-    boost::geometry::model::box_2d box;
+    boost::geometry::model::d2::box box;
     boost::geometry::assign_inverse(box);
 
     graph_type graph;
@@ -352,19 +352,19 @@ int main()
 
     BOOST_FOREACH(road_type const& road, roads)
     {
-        mapper.map(road.get<0>(), 
+        mapper.map(road.get<0>(),
                 "stroke:rgb(128,128,128);stroke-width:1");
     }
 
-    mapper.map(route, 
+    mapper.map(route,
             "stroke:rgb(0, 255, 0);stroke-width:6;opacity:0.5");
 
     // Map cities
     BOOST_FOREACH(city_type const& city, cities)
     {
-        mapper.map(city.get<0>(), 
+        mapper.map(city.get<0>(),
                 "fill:rgb(255,255,0);stroke:rgb(0,0,0);stroke-width:1");
-        mapper.text(city.get<0>(), city.get<1>(), 
+        mapper.text(city.get<0>(), city.get<1>(),
                 "fill:rgb(0,0,0);font-family:Arial;font-size:10px", 5, 5);
     }
 

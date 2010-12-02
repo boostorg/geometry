@@ -165,8 +165,8 @@ void test_all()
     test_distance_segment<P>();
     test_distance_array_as_linestring<P>();
 
-    test_geometry<P, test::custom_segment>("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
-    test_geometry<P, test::custom_segment>("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    test_geometry<P, bg::model::segment<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    test_geometry<P, bg::model::segment<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_geometry<P, P>("POINT(1 1)", "POINT(2 2)", sqrt(2.0));
     test_geometry<P, P>("POINT(0 0)", "POINT(0 3)", 3.0);
@@ -217,10 +217,10 @@ int test_main(int, char* [])
     //test_all<test::test_point>(); // located here because of 3D
 #endif
 
-    test_all<bg::model::point_xy<int> >();
+    test_all<bg::model::d2::point_xy<int> >();
     test_all<boost::tuple<float, float> >();
-    test_all<bg::model::point_xy<float> >();
-    test_all<bg::model::point_xy<double> >();
+    test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<double> >();
 
     return 0;
 }

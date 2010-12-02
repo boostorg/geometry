@@ -41,7 +41,7 @@
 
 
 typedef boost::geometry::model::multi_polygon
-    <boost::geometry::model::polygon_2d> country_type;
+    <boost::geometry::model::d2::polygon> country_type;
 
 // Adapt wxWidgets points to Boost.Geometry points such that they can be used
 // in e.g. transformations (see below)
@@ -157,19 +157,19 @@ private:
 
     typedef boost::geometry::strategy::transform::map_transformer
         <
-            boost::geometry::model::point_2d, wxPoint,
+            boost::geometry::model::d2::point, wxPoint,
             true, true
         > map_transformer_type;
 
     typedef boost::geometry::strategy::transform::inverse_transformer
         <
-            wxPoint, boost::geometry::model::point_2d
+            wxPoint, boost::geometry::model::d2::point
         > inverse_transformer_type;
 
     boost::shared_ptr<map_transformer_type> m_map_transformer;
     boost::shared_ptr<inverse_transformer_type> m_inverse_transformer;
 
-    boost::geometry::model::box_2d m_box;
+    boost::geometry::model::d2::box m_box;
     std::vector<country_type> m_countries;
     int m_focus;
 
@@ -259,7 +259,7 @@ void HelloWorldCanvas::OnMouseMove(wxMouseEvent &event)
         m_owner->PrepareDC(dc);
 
         // Transform the point to Lon/Lat
-        bg::model::point_2d point;
+        bg::model::d2::point point;
         bg::transform(event.GetPosition(), point, *m_inverse_transformer);
 
         // Determine selected object
@@ -353,7 +353,7 @@ void HelloWorldCanvas::DrawCountry(wxDC& dc, country_type const& country)
 {
     namespace bg = boost::geometry;
 
-    BOOST_FOREACH(bg::model::polygon_2d const& poly, country)
+    BOOST_FOREACH(bg::model::d2::polygon const& poly, country)
     {
         // Use only outer, holes are (for the moment) ignored. This would need
         // a holey-polygon compatible wx object

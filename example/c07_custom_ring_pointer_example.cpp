@@ -97,20 +97,20 @@ int main()
     //std::vector<ring_type> unioned;
     //boost::geometry::union<ring_type>(a, b, std::back_inserter(unioned));
 
-    std::vector<boost::geometry::model::ring_2d> unioned;
-    std::vector<boost::geometry::model::ring_2d> intersected;
+    std::vector<boost::geometry::model::d2::ring> unioned;
+    std::vector<boost::geometry::model::d2::ring> intersected;
 
     // Temporarily not working
     /*
-    boost::geometry::intersection_inserter<boost::geometry::ring_2d>(a, b, std::back_inserter(intersected));
-    boost::geometry::union_inserter<boost::geometry::ring_2d>(a, b, std::back_inserter(unioned));
+    boost::geometry::intersection_inserter<boost::geometry::d2::ring>(a, b, std::back_inserter(intersected));
+    boost::geometry::union_inserter<boost::geometry::d2::ring>(a, b, std::back_inserter(unioned));
 
     double ai = 0, au = 0;
-    BOOST_FOREACH(boost::geometry::ring_2d const& ring, intersected)
+    BOOST_FOREACH(boost::geometry::d2::ring const& ring, intersected)
     {
         ai += boost::geometry::area(ring);
     }
-    BOOST_FOREACH(boost::geometry::ring_2d const& ring, unioned)
+    BOOST_FOREACH(boost::geometry::d2::ring const& ring, unioned)
     {
         au += boost::geometry::area(ring);
     }

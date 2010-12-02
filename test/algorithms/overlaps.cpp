@@ -51,11 +51,11 @@ void test_3d()
 
 int test_main( int , char* [] )
 {
-    test_2d<bg::model::point_xy<int> >();
-    test_2d<bg::model::point_xy<double> >();
+    test_2d<bg::model::d2::point_xy<int> >();
+    test_2d<bg::model::d2::point_xy<double> >();
 
 #if defined(HAVE_TTMATH)
-    test_2d<bg::model::point_xy<ttmath_big> >();
+    test_2d<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
    //test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
