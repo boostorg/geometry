@@ -26,11 +26,12 @@ int main()
     // Construct a Robinson projection, using specified point types
     // (This delivers a projection without virtual methods. Note that in p02 example
     //  the projection is created using a factory, which delivers a projection with virtual methods)
-    projection::robin_spheroid<model::point_ll_deg, model::d2::point> prj(par);
+    typedef model::ll::point<degree> point_ll_deg;
+    projection::robin_spheroid<point_ll_deg, model::d2::point> prj(par);
 
     // Define Amsterdam / Barcelona in decimal degrees / degrees/minutes
-    model::point_ll_deg amsterdam = parse<model::point_ll_deg>("52.4N", "5.9E");
-    model::point_ll_deg barcelona = parse<model::point_ll_deg>("41 23'N", "2 11'E");
+    point_ll_deg amsterdam = parse<point_ll_deg>("52.4N", "5.9E");
+    point_ll_deg barcelona = parse<point_ll_deg>("41 23'N", "2 11'E");
 
     model::d2::point pa, pb;
 
@@ -47,7 +48,7 @@ int main()
         // Do the inverse projection. "Inverse" means from meters to latlong
         // It also might fail or might not exist, not all projections
         // have their inverse implemented
-        model::point_ll_deg a1;
+        point_ll_deg a1;
         if (prj.inverse(pa, a1))
         {
             std::cout << "Amsterdam (original): " << amsterdam  << std::endl

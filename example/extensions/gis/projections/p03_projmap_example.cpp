@@ -27,7 +27,9 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     using namespace boost::geometry;
 
     // Declare a vector containing the world countries
-    std::vector<model::polygon_ll_deg> ll_polygons;
+    typedef model::ll::point<degree> point_ll_deg;
+    typedef model::polygon<point_ll_deg> polygon_ll_deg;
+    std::vector<polygon_ll_deg> ll_polygons;
 
     // Read polygons from a Well-Known Text file using the ggl parser
     std::ifstream cpp_file(wkt_filename.c_str());
@@ -42,7 +44,7 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
         std::getline(cpp_file, line);
         if (boost::starts_with(line, "MULTIPOLYGON"))
         {
-            typedef boost::geometry::model::multi_polygon<boost::geometry::model::polygon<model::point_ll_deg> > mp_type;
+            typedef boost::geometry::model::multi_polygon<boost::geometry::model::polygon<point_ll_deg> > mp_type;
             mp_type mp;
             boost::geometry::read_wkt(line, mp);
             for (mp_type::const_iterator it = boost::begin(mp);
@@ -60,14 +62,14 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     // Declare transformation strategy which contains a projection
     projection::project_transformer
         <
-            model::point_ll_deg,
-            model::d2::point
+            point_ll_deg,
+            model::d2::point_xy<double>
         > projection(projection_parameters);
 
     // Project the polygons, and at the same time get the bounding box (in xy)
     model::d2::box bbox;
     assign_inverse(bbox);
-    for (std::vector<model::polygon_ll_deg>::const_iterator it = ll_polygons.begin();
+    for (std::vector<polygon_ll_deg>::const_iterator it = ll_polygons.begin();
          it != ll_polygons.end();
          ++it)
     {
