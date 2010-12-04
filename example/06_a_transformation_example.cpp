@@ -11,7 +11,6 @@
 #include <iostream>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 
@@ -19,17 +18,18 @@ int main()
 {
     using namespace boost::geometry;
 
-    model::d2::point p(1, 1);
-    model::d2::point p2;
+    typedef model::d2::point_xy<double> point_2d;
+    point_2d p(1, 1);
+    point_2d p2;
 
     // Example: translate a point over (5,5)
-    strategy::transform::translate_transformer<model::d2::point, model::d2::point> translate(5, 5);
+    strategy::transform::translate_transformer<point_2d, point_2d> translate(5, 5);
 
     transform(p, p2, translate);
     std::cout << "transformed point " << boost::geometry::dsv(p2) << std::endl;
 
     // Transform a polygon
-    model::d2::polygon poly, poly2;
+    model::polygon<point_2d> poly, poly2;
     const double coor[][2] = { {0, 0}, {0, 7}, {2, 2}, {2, 0}, {0, 0} };
     // note that for this syntax you have to include the two
     // include files above (c_array_cartesian.hpp, std_as_linestring.hpp)

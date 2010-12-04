@@ -16,7 +16,6 @@
 
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
@@ -26,11 +25,15 @@ int main(void)
 {
     namespace bg = boost::geometry;
 
+    typedef bg::model::d2::point_xy<double> point_2d;
+    typedef bg::model::polygon<point_2d> polygon_2d;
+
+
     std::ofstream stream("05_a_intersection_polygon_example.svg");
-    bg::svg_mapper<bg::model::d2::point> svg(stream, 500, 500);
+    bg::svg_mapper<point_2d> svg(stream, 500, 500);
 
     // Define a polygons and fill the outer rings.
-    bg::model::d2::polygon a;
+    polygon_2d a;
     {
         const double c[][2] = {
             {160, 330}, {60, 260}, {20, 150}, {60, 40}, {190, 20}, {270, 130}, {260, 250}, {160, 330}
@@ -41,7 +44,7 @@ int main(void)
     std::cout << "A: " << bg::dsv(a) << std::endl;
     svg.add(a);
 
-    bg::model::d2::polygon b;
+    polygon_2d b;
     {
         const double c[][2] = {
             {300, 330}, {190, 270}, {150, 170}, {150, 110}, {250, 30}, {380, 50}, {380, 250}, {300, 330}
@@ -57,11 +60,11 @@ int main(void)
 
 
     // Calculate interesection(s)
-    std::vector<bg::model::d2::polygon > intersection;
-    bg::intersection<bg::model::d2::polygon>(a, b, intersection);
+    std::vector<polygon_2d> intersection;
+    bg::intersection(a, b, intersection);
 
     std::cout << "Intersection of polygons A and B" << std::endl;
-    BOOST_FOREACH(bg::model::d2::polygon const& polygon, intersection)
+    BOOST_FOREACH(polygon_2d const& polygon, intersection)
     {
         std::cout << bg::dsv(polygon) << std::endl;
         svg.map(polygon, "opacity:0.5;fill:none;stroke:rgb(255,0,0);stroke-width:6");
