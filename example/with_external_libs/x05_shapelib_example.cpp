@@ -20,7 +20,6 @@
 #include "shapefil.h"
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/stream_wkt.hpp>
 
 using namespace boost::geometry;
@@ -84,11 +83,12 @@ int main()
 {
     std::string filename = "c:/data/spatial/shape/world_free/world.shp";
 
-    std::vector<model::d2::polygon> polygons;
+    typedef model::polygon<model::d2::point_xy<double> > polygon_2d;
+    std::vector<polygon_2d> polygons;
 
     try
     {
-        read_shapefile(filename, polygons, convert<model::d2::polygon>);
+        read_shapefile(filename, polygons, convert<polygon_2d>);
     }
     catch(const std::string& s)
     {
@@ -97,9 +97,9 @@ int main()
     }
 
     // Do something with the polygons, for example simplify them
-    for (std::vector<model::d2::polygon>::iterator it = polygons.begin(); it != polygons.end(); it++)
+    for (std::vector<polygon_2d>::iterator it = polygons.begin(); it != polygons.end(); it++)
     {
-        model::d2::polygon p;
+        polygon_2d p;
         simplify(*it, p, 0.01);
         std::cout << it->outer().size() << "," << p.outer().size() << std::endl;
         *it = p;
@@ -107,7 +107,7 @@ int main()
     std::cout << "Simplified " << polygons.size() << std::endl;
 
     double sum = 0;
-    for (std::vector<model::d2::polygon>::const_iterator it = polygons.begin(); it != polygons.end(); it++)
+    for (std::vector<polygon_2d>::const_iterator it = polygons.begin(); it != polygons.end(); it++)
     {
         sum += area(*it);
     }

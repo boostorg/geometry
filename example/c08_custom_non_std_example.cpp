@@ -72,7 +72,7 @@ class my_polygon
 };
 
 // ----------------------------------------------------------------------------
-// Adaption: implement iterator and range-extension, and register with GGL
+// Adaption: implement iterator and range-extension, and register with Boost.Geometry
 
 // 1) implement iterator (const and non-const versions)
 template <bool IsConst>
@@ -244,7 +244,7 @@ namespace std
 }
 
 
-// 4) register with GGL
+// 4) register with Boost.Geometry
 BOOST_GEOMETRY_REGISTER_POINT_2D(my_point, double, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_RING(my_polygon)
 
@@ -297,14 +297,14 @@ int main()
     std::cout << "Walk using Boost.Range extension" << std::endl << std::endl;
     walk_using_range(container1);
 
-    std::cout << "Use it by GGL" << std::endl;
+    std::cout << "Use it by Boost.Geometry" << std::endl;
     std::cout << "Area: " << boost::geometry::area(container1) << std::endl;
 
-    // Container 2 will be modified by GGL. Add all points but the last one.
+    // Container 2 will be modified by Boost.Geometry. Add all points but the last one.
     my_polygon container2;
     for (int i = 0; i < n; i++)
     {
-        // Use here the std::/GGL way of inserting (but the my_polygon way of getting)
+        // Use here the std:: / Boost.Geometry way of inserting (but the my_polygon way of getting)
         *(std::back_inserter(container2)++) = container1.get_point(i);
     }
 

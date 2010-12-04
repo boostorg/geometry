@@ -6,7 +6,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-// Example showing GGL combined with Boost.Graph, calculating shortest routes
+// Example showing Boost.Geometry combined with Boost.Graph, calculating shortest routes
 // input: two WKT's, provided in subfolder data
 // output: text, + an SVG, displayable in e.g. Firefox)
 

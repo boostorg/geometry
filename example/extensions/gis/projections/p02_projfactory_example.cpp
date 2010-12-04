@@ -9,7 +9,6 @@
 // Projection example 2, using factory
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/stream_wkt.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
@@ -29,8 +28,9 @@ int main()
     // with virtual methods, which can be used polymorphically. Therefore it is a pointer. For
     // convenience we use a boost shared pointer here.
     typedef model::ll::point<degree> point_ll_deg;
-    projection::factory<point_ll_deg, model::d2::point> fac;
-    boost::shared_ptr<projection::projection<point_ll_deg, model::d2::point> > prj(fac.create_new(par));
+    typedef model::d2::point_xy<double> point_xy;
+    projection::factory<point_ll_deg, point_xy> fac;
+    boost::shared_ptr<projection::projection<point_ll_deg, point_xy> > prj(fac.create_new(par));
 
     // Define Amsterdam / Barcelona in decimal degrees / degrees/minutes
     point_ll_deg amsterdam(longitude<>(5.9), latitude<>(52.4));
@@ -39,7 +39,7 @@ int main()
         longitude<>(dms<east>(2, 11))
         );
 
-    model::d2::point pa, pb;
+    point_xy pa, pb;
 
     // Do the forward projection
     if (prj->forward(amsterdam, pa) && prj->forward(barcelona, pb))

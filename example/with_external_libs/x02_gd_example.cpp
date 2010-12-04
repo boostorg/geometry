@@ -11,9 +11,9 @@
 
 // To build and run this example:
 // 1) download GD from http://www.libgd.org (currently gd-2.0.35 is assumed)
-// 2) add 11 files 
+// 2) add 11 files
 //          gd.c, gd_gd.c, gd_gif_out.c, gd_io*.c, gd_security.c, gd_topal.c, gdhelpers.c, gdtables.c
-//    to the project or makefile or jamfile  
+//    to the project or makefile or jamfile
 // 3) for windows, add define NONDLL to indicate GD is not used as a DLL
 //    (Note that steps 2 and 3 are done in the MSVC gd_example project file and property sheets)
 
@@ -30,7 +30,6 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/geographic/strategies/area_huiller_earth.hpp>
 
@@ -43,7 +42,7 @@ namespace bg = boost::geometry;
 
 
 // ----------------------------------------------------------------------------
-// Read an ASCII file containing WKT's 
+// Read an ASCII file containing WKT's
 // (note this function is shared by various examples)
 // ----------------------------------------------------------------------------
 template <typename Geometry>
@@ -73,9 +72,10 @@ int main()
     std::string filename = "../data/world.wkt";
 
 
-    // The world is measured in latlong (degrees), so latlong (point_ll_deg) is appropriate.
+    // The world is measured in latlong (degrees), so latlong is appropriate.
     // We ignore holes in this sample (below)
-    typedef bg::model::polygon<bg::model::point_ll_deg> polygon_type;
+    typedef bg::model::ll::point<bg::degree> point_type;
+    typedef bg::model::polygon<point_type> polygon_type;
     typedef bg::model::multi_polygon<polygon_type> country_type;
 
     std::vector<country_type> countries;
@@ -105,7 +105,7 @@ int main()
         BOOST_FOREACH(polygon_type const& polygon, country)
         {
             // Ignore holes, so take only exterior ring
-            bg::model::ring_ll_deg const& ring = bg::exterior_ring(polygon);
+            bg::model::linear_ring<point_type> const& ring = bg::exterior_ring(polygon);
 
             // If wished, suppress too small polygons.
             // (Note that even in latlong, area is calculated in square meters)

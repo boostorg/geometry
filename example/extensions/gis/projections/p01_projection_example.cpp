@@ -10,7 +10,6 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/parse.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/stream_wkt.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
@@ -27,13 +26,14 @@ int main()
     // (This delivers a projection without virtual methods. Note that in p02 example
     //  the projection is created using a factory, which delivers a projection with virtual methods)
     typedef model::ll::point<degree> point_ll_deg;
-    projection::robin_spheroid<point_ll_deg, model::d2::point> prj(par);
+    typedef model::d2::point_xy<double> point_xy;
+    projection::robin_spheroid<point_ll_deg, point_xy> prj(par);
 
     // Define Amsterdam / Barcelona in decimal degrees / degrees/minutes
     point_ll_deg amsterdam = parse<point_ll_deg>("52.4N", "5.9E");
     point_ll_deg barcelona = parse<point_ll_deg>("41 23'N", "2 11'E");
 
-    model::d2::point pa, pb;
+    point_xy pa, pb;
 
     // Now do the projection. "Forward" means from latlong to meters.
     // (Note that a map projection might fail. This is not 'exceptional'.

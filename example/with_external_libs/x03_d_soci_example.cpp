@@ -30,7 +30,6 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/utility.hpp>

@@ -188,11 +188,11 @@ int main(void)
     box_2d cb(point_2d(1.5, 1.5), point_2d(4.5, 2.5));
 
     std::vector<linestring_2d> clipped;
-    intersection_inserter<linestring_2d> (cb, ls, std::back_inserter(clipped));
+    intersection(cb, ls, clipped);
 
     // Also possible: clip-output to a vector of vectors
     std::vector<std::vector<point_2d> > vector_out;
-    intersection_inserter<std::vector<point_2d> >(cb, ls, std::back_inserter(vector_out));
+    intersection(cb, ls, vector_out);
 
     std::cout << "clipped output as vector:" << std::endl;
     for (std::vector<std::vector<point_2d> >::const_iterator it
