@@ -16,7 +16,7 @@
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
@@ -86,16 +86,19 @@ int main()
 
     std::cout << boost::geometry::length(myline) << std::endl;
 
-    boost::geometry::model::d2::box cb(boost::geometry::model::d2::point(1.5, 1.5), boost::geometry::model::d2::point(4.5, 4.5));
+    typedef boost::geometry::model::d2::point_xy<double> point_2d;
+    typedef boost::geometry::model::box<point_2d> box_2d;
+    box_2d cb(point_2d(1.5, 1.5), point_2d(4.5, 4.5));
 
     // This will NOT work because would need dynamicly allocating memory for point* in algorithms:
     // std::vector<ln> clipped;
-    //boost::geometry::intersection(cb, myline, std::back_inserter(clipped));
+    //boost::geometry::intersection(cb, myline, clipped);
 
     // This works because outputs to a normal struct point, no point*
-    std::vector<boost::geometry::model::d2::linestring> clipped;
-    boost::geometry::strategy::intersection::liang_barsky<boost::geometry::model::d2::box, boost::geometry::model::d2::point> strategy;
-    boost::geometry::detail::intersection::clip_range_with_box<boost::geometry::model::d2::linestring>(cb,
+    typedef boost::geometry::model::linestring<point_2d> linestring_2d;
+    std::vector<linestring_2d> clipped;
+    boost::geometry::strategy::intersection::liang_barsky<box_2d, point_2d> strategy;
+    boost::geometry::detail::intersection::clip_range_with_box<linestring_2d>(cb,
                     myline, std::back_inserter(clipped), strategy);
 
 

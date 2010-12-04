@@ -11,7 +11,6 @@
 #include <fstream>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/adapted/std_as_ring.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
@@ -30,6 +29,8 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     typedef model::ll::point<degree> point_ll_deg;
     typedef model::polygon<point_ll_deg> polygon_ll_deg;
     std::vector<polygon_ll_deg> ll_polygons;
+
+    typedef model::d2::point_xy<double> point_xy;
 
     // Read polygons from a Well-Known Text file using the ggl parser
     std::ifstream cpp_file(wkt_filename.c_str());
@@ -57,28 +58,28 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
 
     // Our latlong polygon collection will be projected into this vector
     // (Of course it is also possible to do this while reading and have one vector)
-    std::vector<model::d2::polygon> xy_polygons;
+    std::vector<model::polygon<point_xy> > xy_polygons;
 
     // Declare transformation strategy which contains a projection
     projection::project_transformer
         <
             point_ll_deg,
-            model::d2::point_xy<double>
+            point_xy
         > projection(projection_parameters);
 
     // Project the polygons, and at the same time get the bounding box (in xy)
-    model::d2::box bbox;
+    model::box<point_xy> bbox;
     assign_inverse(bbox);
     for (std::vector<polygon_ll_deg>::const_iterator it = ll_polygons.begin();
          it != ll_polygons.end();
          ++it)
     {
-        model::d2::polygon xy_polygon;
+        model::polygon<point_xy> xy_polygon;
 
         if (transform(*it, xy_polygon, projection))
         {
             // Update bbox with box of this projected polygon
-            combine(bbox, make_envelope<model::d2::box>(xy_polygon));
+            combine(bbox, make_envelope<model::box<point_xy> >(xy_polygon));
 
             // Add projected polygon
             xy_polygons.push_back(xy_polygon);
@@ -100,7 +101,7 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     typedef boost::geometry::model::d2::point_xy<int> svg_point;
     boost::geometry::strategy::transform::map_transformer
         <
-            model::d2::point,
+            point_xy,
             svg_point,
             true,
             true
@@ -112,7 +113,7 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     boost::geometry::assign(box, 0, 0, 800, 600);
     out << boost::geometry::svg(box, "fill:rgb(0,0,255)") << std::endl;
 
-    for (std::vector<model::d2::polygon>::const_iterator it = xy_polygons.begin();
+    for (std::vector<model::polygon<point_xy> >::const_iterator it = xy_polygons.begin();
          it != xy_polygons.end();
          ++it)
     {

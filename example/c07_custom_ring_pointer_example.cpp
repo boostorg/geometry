@@ -13,7 +13,6 @@
 
 #include <boost/geometry/geometry.hpp>
 
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/adapted/std_as_ring.hpp>
 
 // Sample point, having x/y
@@ -95,22 +94,22 @@ int main()
 
     // This will NOT work because would need dynamicly allocating memory for point* in algorithms:
     //std::vector<ring_type> unioned;
-    //boost::geometry::union<ring_type>(a, b, std::back_inserter(unioned));
+    //boost::geometry::union<ring_type>(a, b, unioned);
 
-    std::vector<boost::geometry::model::d2::ring> unioned;
-    std::vector<boost::geometry::model::d2::ring> intersected;
+    /* This once worked, using pointers, but has to be fixed or deprecated
+    typedef boost::geometry::model::linear_ring<boost::geometry::model::d2::point_xy<double> > ring_2d;
+    std::vector<ring_2d> unioned;
+    std::vector<ring_2d> intersected;
 
-    // Temporarily not working
-    /*
-    boost::geometry::intersection_inserter<boost::geometry::d2::ring>(a, b, std::back_inserter(intersected));
-    boost::geometry::union_inserter<boost::geometry::d2::ring>(a, b, std::back_inserter(unioned));
+    boost::geometry::intersection(a, b, intersected);
+    boost::geometry::union_(a, b, unioned);
 
     double ai = 0, au = 0;
-    BOOST_FOREACH(boost::geometry::d2::ring const& ring, intersected)
+    BOOST_FOREACH(ring_2d const& ring, intersected)
     {
         ai += boost::geometry::area(ring);
     }
-    BOOST_FOREACH(boost::geometry::d2::ring const& ring, unioned)
+    BOOST_FOREACH(ring_2d const& ring, unioned)
     {
         au += boost::geometry::area(ring);
     }

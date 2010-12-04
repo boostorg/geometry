@@ -54,7 +54,7 @@ struct gps_track : std::vector<gps_point>
 };
 
 
-// Register this point as being a recognizable point by the GGL
+// Register this point as being a recognizable point by Boost.Geometry
 BOOST_GEOMETRY_REGISTER_POINT_2D(gps_point, double, cs::geographic<degree>, longitude, latitude)
 
 

@@ -13,6 +13,7 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_array_cartesian.hpp>
 
 
 int main()
@@ -32,11 +33,16 @@ int main()
     // 4: it supports normal arrays
     double pt4[2];
 
-    // 5: in the past there was a typedef. But users can do that themselves:
-    typedef model::d2::point_xy<double> point_2d;
-    point_2d pt5;
+    // 5: it supports boost arrays
+    boost::array<double, 2> pt5;
 
-    // 6: there are more variants, and you can create your own.
+    // 6: in the past there was a typedef point_2d
+    //    But users are now supposted to do that themselves:
+    typedef model::d2::point_xy<double> point_2d;
+    point_2d pt6;
+
+
+    // 7: there are more variants, and you can create your own.
     //    (see therefore the custom_point example)
 
     // All these types are handled the same way. We show here
@@ -45,10 +51,14 @@ int main()
     assign(pt2, 2, 2);
     assign(pt3, 3, 3);
     assign(pt4, 4, 4);
+    assign(pt5, 5, 5);
+    assign(pt6, 6, 6);
 
     double d1 = distance(pt1, pt2);
     double d2 = distance(pt3, pt4);
-    std::cout << "Distances: " << d1 << " and " << d2 << std::endl;
+    double d3 = distance(pt5, pt6);
+    std::cout << "Distances: " 
+        << d1 << " and " << d2 << " and " << d3 << std::endl;
 
     // (in case you didn't note, distances can be calculated
     //  from points with different point-types)
@@ -74,7 +84,7 @@ int main()
     // 3: for any point type, and other geometry objects:
     //    there is the "make" object generator
     //    (this one requires to specify the point-type).
-    model::d2::point_xy<double> p4 = make<model::d2::point_xy<double>>(1,1);
+    model::d2::point_xy<double> p4 = make<model::d2::point_xy<double> >(1,1);
 
 
     // 5: for the d2::point_xy<...> type only: constructor with two values
@@ -88,13 +98,13 @@ int main()
     // 1: using the "get" function following the concepts behind
     std::cout << get<0>(p2) << "," << get<1>(p2) << std::endl;
 
-    // 2: for point-2d only
+    // 2: for point_xy only
     std::cout << p2.x() << "," << p2.y() << std::endl;
 
     // 3: using boost-tuples you of course can boost-tuple-methods
     std::cout << pt3.get<0>() << "," << pt3.get<1>() << std::endl;
 
-    // 4: GGL supports various output formats, e.g. DSV
+    // 4: Boost.Geometry supports various output formats, e.g. DSV
     //    (delimiter separated values)
     std::cout << dsv(pt3) << std::endl;
 
