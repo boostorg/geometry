@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="../../../.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -60,9 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				
 				AdditionalLibraryDirectories=""
-				
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -117,7 +115,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="../../../.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -133,9 +131,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				
 				AdditionalLibraryDirectories=""
-				
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
