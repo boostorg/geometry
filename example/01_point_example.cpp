@@ -13,19 +13,18 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 
 
 int main()
 {
     using namespace boost::geometry;
 
-    // GGL contains several point types:
-    // 1: it's own generic type
+    // Boost.Geometry contains several point types:
+    // 1: its own generic type
     model::point<double, 2, cs::cartesian> pt1;
 
-    // 2: it's own type targetted to Cartesian (x,y) coordinates
-    model::d2::point pt2;
+    // 2: its own type targetted to Cartesian (x,y) coordinates
+    model::d2::point_xy<double> pt2;
 
     // 3: it supports Boost tuple's (by including the headerfile)
     boost::tuple<double, double> pt3;
@@ -33,7 +32,11 @@ int main()
     // 4: it supports normal arrays
     double pt4[2];
 
-    // 5: there are more variants, and you can create your own.
+    // 5: in the past there was a typedef. But users can do that themselves:
+    typedef model::d2::point_xy<double> point_2d;
+    point_2d pt5;
+
+    // 6: there are more variants, and you can create your own.
     //    (see therefore the custom_point example)
 
     // All these types are handled the same way. We show here
@@ -53,16 +56,16 @@ int main()
 
     // Several ways of construction and setting point values
     // 1: default, empty constructor, causing no initialization at all
-    model::d2::point p1;
+    model::d2::point_xy<double> p1;
 
     // 2: as shown above, assign
-    model::d2::point p2;
+    model::d2::point_xy<double> p2;
     assign(p2, 1, 1);
 
     // 3: using "set" function
     //    set uses the concepts behind, such that it can be applied for
     //    every point-type (like assign)
-    model::d2::point p3;
+    model::d2::point_xy<double> p3;
     set<0>(p3, 1);
     set<1>(p3, 1);
     // set<2>(p3, 1); //will result in compile-error
@@ -71,11 +74,11 @@ int main()
     // 3: for any point type, and other geometry objects:
     //    there is the "make" object generator
     //    (this one requires to specify the point-type).
-    model::d2::point p4 = make<model::d2::point>(1,1);
+    model::d2::point_xy<double> p4 = make<model::d2::point_xy<double>>(1,1);
 
 
-    // 5: for the d2::point type only: constructor with two values
-    model::d2::point p5(1,1);
+    // 5: for the d2::point_xy<...> type only: constructor with two values
+    model::d2::point_xy<double> p5(1,1);
 
     // 6: for boost tuples you can of course use make_tuple
 

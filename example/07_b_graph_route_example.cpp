@@ -26,7 +26,6 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 
 
 // Yes, this example currently uses some extensions:
@@ -269,7 +268,7 @@ int main()
 
 
     // Init a bounding box, lateron used to define SVG map
-    boost::geometry::model::d2::box box;
+    boost::geometry::model::box<point_type> box;
     boost::geometry::assign_inverse(box);
 
     graph_type graph;

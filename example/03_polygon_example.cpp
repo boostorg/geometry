@@ -13,7 +13,6 @@
 #include <string>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 #include <boost/geometry/multi/multi.hpp>
@@ -27,9 +26,13 @@ int main(void)
 {
     using namespace boost::geometry;
 
+    typedef model::d2::point_xy<double> point_2d;
+    typedef model::polygon<point_2d> polygon_2d;
+    typedef model::box<point_2d> box_2d;
+
     // Define a polygon and fill the outer ring.
     // In most cases you will read it from a file or database
-    model::d2::polygon poly;
+    polygon_2d poly;
     {
         const double coor[][2] = {
             {2.0, 1.3}, {2.4, 1.7}, {2.8, 1.8}, {3.4, 1.2}, {3.7, 1.6},
@@ -48,7 +51,7 @@ int main(void)
     std::cout << dsv(poly) << std::endl;
 
     // As with lines, bounding box of polygons can be calculated
-    model::d2::box b;
+    box_2d b;
     envelope(poly, b);
     std::cout << dsv(b) << std::endl;
 
@@ -56,7 +59,7 @@ int main(void)
     std::cout << "area: " << area(poly) << std::endl;
 
     // And the centroid, which is the center of gravity
-    model::d2::point cent;
+    point_2d cent;
     centroid(poly, cent);
     std::cout << "centroid: " << dsv(cent) << std::endl;
 
@@ -65,11 +68,11 @@ int main(void)
     // or per polygon (using num_points)
     std::cout << "number of points in outer ring: " << poly.outer().size() << std::endl;
 
-    // Polygons can have one or more inner rings, also called holes, donuts, islands, interior rings.
+    // Polygons can have one or more inner rings, also called holes, islands, interior rings.
     // Let's add one
     {
         poly.inners().resize(1);
-        model::linear_ring<model::d2::point>& inner = poly.inners().back();
+        model::linear_ring<point_2d>& inner = poly.inners().back();
 
         const double coor[][2] = { {4.0, 2.0}, {4.2, 1.4}, {4.8, 1.9}, {4.4, 2.2}, {4.0, 2.0} };
         assign(inner, coor);
@@ -85,18 +88,18 @@ int main(void)
 
     // You can test whether points are within a polygon
     std::cout << "point in polygon:"
-        << " p1: "  << boolstr(within(make<model::d2::point>(3.0, 2.0), poly))
-        << " p2: "  << boolstr(within(make<model::d2::point>(3.7, 2.0), poly))
-        << " p3: "  << boolstr(within(make<model::d2::point>(4.4, 2.0), poly))
+        << " p1: "  << boolstr(within(make<point_2d>(3.0, 2.0), poly))
+        << " p2: "  << boolstr(within(make<point_2d>(3.7, 2.0), poly))
+        << " p3: "  << boolstr(within(make<point_2d>(4.4, 2.0), poly))
         << std::endl;
 
     // As with linestrings and points, you can derive from polygon to add, for example,
     // fill color and stroke color. Or SRID (spatial reference ID). Or Z-value. Or a property map.
     // We don't show this here.
 
-    // Clip the polygon using a bounding box
-    model::d2::box cb(make<model::d2::point>(1.5, 1.5), make<model::d2::point>(4.5, 2.5));
-    typedef std::vector<model::d2::polygon> polygon_list;
+    // Clip the polygon using a box
+    box_2d cb(make<point_2d>(1.5, 1.5), make<point_2d>(4.5, 2.5));
+    typedef std::vector<polygon_2d> polygon_list;
     polygon_list v;
 
     intersection(cb, poly, v);
@@ -106,11 +109,11 @@ int main(void)
         std::cout << dsv(*it) << std::endl;
     }
 
-    typedef model::multi_polygon<model::d2::polygon> polygon_set;
+    typedef model::multi_polygon<polygon_2d> polygon_set;
     polygon_set ps;
     union_(cb, poly, ps);
 
-    model::d2::polygon hull;
+    polygon_2d hull;
     convex_hull(poly, hull);
     std::cout << "Convex hull:" << dsv(hull) << std::endl;
 
@@ -118,14 +121,14 @@ int main(void)
     //   You don't have to use a vector, you can define a polygon with a deque
     //   You can specify the container for the points and for the inner rings independantly
 
-    typedef model::polygon<model::d2::point, true, true, std::deque, std::deque> polygon_type;
-    polygon_type poly2;
-    ring_type<polygon_type>::type& ring = exterior_ring(poly2);
-    append(ring, make<model::d2::point>(2.8, 1.9));
-    append(ring, make<model::d2::point>(2.9, 2.4));
-    append(ring, make<model::d2::point>(3.3, 2.2));
-    append(ring, make<model::d2::point>(3.2, 1.8));
-    append(ring, make<model::d2::point>(2.8, 1.9));
+    typedef model::polygon<point_2d, true, true, std::deque, std::deque> deque_polygon;
+    deque_polygon poly2;
+    ring_type<deque_polygon>::type& ring = exterior_ring(poly2);
+    append(ring, make<point_2d>(2.8, 1.9));
+    append(ring, make<point_2d>(2.9, 2.4));
+    append(ring, make<point_2d>(3.3, 2.2));
+    append(ring, make<point_2d>(3.2, 1.8));
+    append(ring, make<point_2d>(2.8, 1.9));
     std::cout << dsv(poly2) << std::endl;
 
     return 0;
