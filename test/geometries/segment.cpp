@@ -29,7 +29,7 @@
 template <typename P>
 void test_all()
 {
-    typedef bg::segment<P> S;
+    typedef bg::model::referring_segment<P> S;
 
     P p1;
     P p2;
@@ -47,7 +47,7 @@ void test_all()
 
     //std::cout << sizeof(typename coordinate_type<S>::type) << std::endl;
 
-    typedef bg::segment<P const> CS;
+    typedef bg::model::referring_segment<P const> CS;
     //BOOST_CONCEPT_ASSERT( (concept::ConstSegment<CS>) );
 
     CS cs(p1, p2);
