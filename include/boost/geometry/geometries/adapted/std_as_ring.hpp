@@ -23,6 +23,8 @@
 #include <list>
 #include <utility>
 
+#include <boost/geometry/core/tags.hpp>
+
 namespace boost { namespace geometry
 {
 
