@@ -105,8 +105,6 @@ int main()
     double dr = distance(city3_prj, ar_xy);
     std::cout << "projected: " << 0.001 * dr << std::endl;
 
-    double const radius = 6378137.0;
-
     dr = distance(city3, model::segment<latlon_point>(city1, city2));
     std::cout << "in LL: " << 0.001 * dr << std::endl;
 

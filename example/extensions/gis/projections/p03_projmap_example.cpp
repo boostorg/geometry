@@ -107,8 +107,7 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
             true
         > svg_transformer(bbox, 800, 600);
 
-    // Create the background. Because projections might reverse the world,
-    // so we use SVG-coordinates here
+    // Create the background
     boost::geometry::model::box<svg_point> box;
     boost::geometry::assign(box, 0, 0, 800, 600);
     out << boost::geometry::svg(box, "fill:rgb(0,0,255)") << std::endl;

@@ -14,6 +14,7 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/boost_array_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon.hpp>
 
 
 int main()
@@ -27,19 +28,22 @@ int main()
     // 2: its own type targetted to Cartesian (x,y) coordinates
     model::d2::point_xy<double> pt2;
 
-    // 3: it supports Boost tuple's (by including the headerfile)
+    // 3: it supports Boost tuple's
     boost::tuple<double, double> pt3;
 
     // 4: it supports normal arrays
     double pt4[2];
 
-    // 5: it supports boost arrays
+    // 5: it supports arrays-as-points from Boost.Array
     boost::array<double, 2> pt5;
 
-    // 6: in the past there was a typedef point_2d
+    // 6: it supports points from Boost.Polygon
+    boost::polygon::point_data<double> pt6;
+
+    // 7: in the past there was a typedef point_2d
     //    But users are now supposted to do that themselves:
     typedef model::d2::point_xy<double> point_2d;
-    point_2d pt6;
+    point_2d pt7;
 
 
     // 7: there are more variants, and you can create your own.
@@ -53,6 +57,8 @@ int main()
     assign(pt4, 4, 4);
     assign(pt5, 5, 5);
     assign(pt6, 6, 6);
+    assign(pt7, 7, 7);
+
 
     double d1 = distance(pt1, pt2);
     double d2 = distance(pt3, pt4);
