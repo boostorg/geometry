@@ -9,6 +9,7 @@
 #define BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_POLYGON_RING_HPP
 
 // Adapts Geometries from Boost.Polygon for usage in Boost.Geometry
+// boost::polygon::polygon_data -> boost::geometry::ring
 
 #include <cstddef>
 
@@ -40,32 +41,15 @@ struct tag<boost::polygon::polygon_data<CoordinateType> >
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
 
-// ----------------------------------------------------------------------------
-// Boost.Polygon's polygon is not Boost.Range compatible so we have to add support here
-// 1. range_value<...>::type
-// 2. iterators
-// ----------------------------------------------------------------------------
-
-// range_value<...>::type -> avoid this to provide direct support within Boost.Geometry
-namespace core_dispatch
-{
-
-template <typename CoordinateType>
-struct point_type<ring_tag, boost::polygon::polygon_data<CoordinateType> >
-{
-    typedef typename boost::polygon::polygon_traits
-        <
-            boost::polygon::polygon_data<CoordinateType>
-        >::point_type type;
-};
-
-} // namespace core_dispatch
-
-
 }} // namespace boost::geometry
 
 
-// 2. iterators, adapt Boost.Polygon to Boost.Range
+
+// ----------------------------------------------------------------------------
+// Boost.Polygon's polygon is not Boost.Range compatible 
+// So support below
+// ----------------------------------------------------------------------------
+
 namespace boost
 {
     template<typename CoordinateType>
@@ -96,7 +80,7 @@ namespace boost
 } // namespace 'boost'
 
 
-// 2b. free-standing function for Boost.Range ADP
+// Free-standing function for Boost.Range ADP
 template<typename CoordinateType>
 inline typename boost::polygon::polygon_traits
         <
