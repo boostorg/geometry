@@ -396,7 +396,7 @@ class get_turns_generic
     }
 
 
-    // Divide and conquer (suggested by Luke during GGL Formal Review)
+    // Divide and conquer (suggested by Luke during Boost.Geometry Formal Review)
     template
         <
             std::size_t Dimension,
