@@ -38,19 +38,19 @@ template <typename T>
 void test_all()
 {
     using namespace boost::geometry;
-    typedef point<T, 2, bg::cs::cartesian> P;
+    typedef model::point<T, 2, cs::cartesian> P;
 
     test_dsv<P >("POINT(1 2)", "(1, 2)");
-    test_dsv<linestring<P> >(
+    test_dsv<model::linestring<P> >(
         "LINESTRING(1 1,2 2,3 3)",
         "((1, 1), (2, 2), (3, 3))");
-    test_dsv<polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))",
+    test_dsv<model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))",
         "(((0, 0), (0, 4), (4, 4), (4, 0), (0, 0)))");
 
-    test_dsv<linear_ring<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))",
+    test_dsv<model::linear_ring<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))",
         "((0, 0), (0, 4), (4, 4), (4, 0), (0, 0))");
 
-    test_dsv<box<P> >("BOX(0 0,1 1)",
+    test_dsv<model::box<P> >("BOX(0 0,1 1)",
         "((0, 0), (1, 1))");
 }
 #endif

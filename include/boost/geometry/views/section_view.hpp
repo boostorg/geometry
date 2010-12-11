@@ -45,6 +45,7 @@ public :
     iterator end() { return m_end; }
 
 private :
+    // Might be replaced declaring as BOOST_AUTO
     typedef typename boost::range_iterator
         <
             typename add_const_if_c

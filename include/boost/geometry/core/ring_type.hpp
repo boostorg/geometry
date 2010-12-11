@@ -11,11 +11,14 @@
 #define BOOST_GEOMETRY_CORE_RING_TYPE_HPP
 
 
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/if.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/util/ensure_const_reference.hpp>
 
 
 namespace boost { namespace geometry
@@ -37,7 +40,11 @@ namespace traits
 template <typename Geometry>
 struct ring_type
 {
-    // should define type
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
 };
 
 
@@ -63,6 +70,32 @@ struct ring_type<ring_tag, Ring>
 
 template <typename Polygon>
 struct ring_type<polygon_tag, Polygon>
+{
+    typedef typename boost::remove_reference
+        <
+            typename traits::ring_type
+                <
+                    typename boost::remove_const<Polygon>::type
+                >::type
+        >::type type;
+};
+
+
+
+template <typename GeometryTag, typename Geometry>
+struct ring_return_type
+{};
+
+
+template <typename Ring>
+struct ring_return_type<ring_tag, Ring>
+{
+    typedef Ring type;
+};
+
+
+template <typename Polygon>
+struct ring_return_type<polygon_tag, Polygon>
 {
     typedef typename traits::ring_type
         <
@@ -91,6 +124,25 @@ struct ring_type
             typename tag<Geometry>::type,
             Geometry
         >::type type;
+};
+
+
+template <typename Geometry>
+struct ring_return_type
+{
+    typedef typename core_dispatch::ring_return_type
+        <
+            typename tag<Geometry>::type,
+            Geometry
+        >::type rr_type;
+
+    typedef typename mpl::if_
+        <
+            boost::is_const<Geometry>,
+            typename ensure_const_reference<rr_type>::type,
+            rr_type
+        >::type type;
+
 };
 
 

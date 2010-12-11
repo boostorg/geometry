@@ -34,7 +34,7 @@ void test_ring(std::string const& wkt,
 {
     typedef bg::model::polygon<P> the_polygon;
     typedef typename bg::ring_type<the_polygon>::type the_ring;
-    typedef typename bg::interior_type<the_polygon>::type the_interior;
+    typedef typename bg::interior_return_type<the_polygon const>::type the_interior;
 
     the_polygon poly;
     bg::read_wkt(wkt, poly);
