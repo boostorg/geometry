@@ -15,6 +15,7 @@
 #include <boost/config.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -131,17 +132,12 @@ struct svg_poly
 
         // Inner rings:
         {
-            typedef typename boost::range_iterator
-                <
-                    typename geometry::interior_type<Polygon>::type const
-                >::type ring_iterator_type;
-            for (ring_iterator_type rit = boost::begin(interior_rings(polygon));
+            for (BOOST_AUTO(rit, boost::begin(interior_rings(polygon)));
                  rit != boost::end(interior_rings(polygon));
                  ++rit)
             {
                 first = true;
-                for (iterator_type it = boost::begin(*rit);
-                    it != boost::end(*rit);
+                for (BOOST_AUTO(it, boost::begin(*rit)); it != boost::end(*rit);
                     ++it, first = false)
                 {
                     os << (first ? "M" : " L") << " "

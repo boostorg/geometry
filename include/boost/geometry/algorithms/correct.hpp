@@ -16,6 +16,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -159,22 +160,18 @@ struct correct_polygon
     {
         correct_ring
             <
-                ring_type, 
-                std::less<coordinate_type> 
+                ring_type,
+                std::less<coordinate_type>
             >::apply(exterior_ring(poly));
 
-        typedef typename boost::range_iterator
-            <
-                typename interior_type<Polygon>::type
-            >::type iterator_type;
-
-        for (iterator_type it = boost::begin(interior_rings(poly));
-             it != boost::end(interior_rings(poly)); ++it)
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
+             it != boost::end(interior_rings(poly));
+             ++it)
         {
             correct_ring
                 <
-                    ring_type, 
-                    std::greater<coordinate_type> 
+                    ring_type,
+                    std::greater<coordinate_type>
                 >::apply(*it);
         }
     }

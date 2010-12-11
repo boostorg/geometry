@@ -10,6 +10,7 @@
 
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 namespace boost { namespace geometry
 {
@@ -32,10 +33,7 @@ struct calculate_polygon_sum
     {
         ReturnType sum = Policy::apply(exterior_ring(poly), strategy);
 
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type const
-                >::type it = boost::begin(interior_rings(poly));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
              it != boost::end(interior_rings(poly));
              ++it)
         {

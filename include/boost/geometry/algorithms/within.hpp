@@ -12,8 +12,9 @@
 
 #include <cstddef>
 
-#include <boost/range.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
 
@@ -216,10 +217,7 @@ struct point_in_polygon
 
         if (code == 1)
         {
-            for (typename boost::range_iterator
-                    <
-                        typename interior_type<Polygon>::type const
-                    >::type it = boost::begin(interior_rings(poly));
+            for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
                  it != boost::end(interior_rings(poly));
                  ++it)
             {

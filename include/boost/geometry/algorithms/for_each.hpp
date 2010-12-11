@@ -13,6 +13,7 @@
 #include <algorithm>
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -109,12 +110,6 @@ struct fe_polygon_per_point
                 typename add_const_if_c<IsConst, Polygon>::type& poly,
                 Functor f)
     {
-        typedef typename range_iterator_const_if_c
-            <
-                IsConst,
-                typename interior_type<Polygon>::type
-            >::type iterator_type;
-
         typedef fe_range_per_point
                 <
                     typename ring_type<Polygon>::type,
@@ -124,7 +119,7 @@ struct fe_polygon_per_point
 
         f = per_ring::apply(exterior_ring(poly), f);
 
-        for (iterator_type it = boost::begin(interior_rings(poly));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
              it != boost::end(interior_rings(poly));
              ++it)
         {
@@ -144,12 +139,6 @@ struct fe_polygon_per_segment
                 typename add_const_if_c<IsConst, Polygon>::type& poly,
                 Functor f)
     {
-        typedef typename range_iterator_const_if_c
-            <
-                IsConst,
-                typename interior_type<Polygon>::type
-            >::type iterator_type;
-
         typedef fe_range_per_segment
             <
                 typename ring_type<Polygon>::type,
@@ -159,7 +148,7 @@ struct fe_polygon_per_segment
 
         f = per_ring::apply(exterior_ring(poly), f);
 
-        for (iterator_type it = boost::begin(interior_rings(poly));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
              it != boost::end(interior_rings(poly));
              ++it)
         {

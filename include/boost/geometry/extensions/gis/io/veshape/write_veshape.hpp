@@ -162,8 +162,6 @@ struct veshape_poly
     static inline void stream(std::basic_ostream<Char, Traits>& os, P const& poly)
     {
         typedef typename ring_type<P>::type ring;
-        typedef typename boost::range_const_iterator<
-                    typename interior_type<P>::type>::type iterator;
 
         veshape_range<ring, Policy>::stream(os, exterior_ring(poly));
 

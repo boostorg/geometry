@@ -14,6 +14,7 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -258,10 +259,7 @@ struct centroid_polygon_state
 
         per_ring::apply(exterior_ring(poly), strategy, state);
 
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type const
-                >::type it = boost::begin(interior_rings(poly));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
              it != boost::end(interior_rings(poly));
              ++it)
         {

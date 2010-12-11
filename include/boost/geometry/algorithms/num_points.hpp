@@ -13,6 +13,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/is_linear.hpp>
@@ -73,12 +74,7 @@ struct polygon_count
         std::size_t n = range_count<ring_type>::apply(
                     exterior_ring(poly), add_for_open);
 
-        typedef typename boost::range_iterator
-            <
-                typename interior_type<Polygon>::type const
-            >::type iterator;
-
-        for (iterator it = boost::begin(interior_rings(poly));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
              it != boost::end(interior_rings(poly));
              ++it)
         {

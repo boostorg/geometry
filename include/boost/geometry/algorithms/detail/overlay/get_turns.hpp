@@ -15,6 +15,7 @@
 #include <boost/array.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/tuple/tuple.hpp>
 
@@ -679,11 +680,6 @@ struct get_turns_polygon_cs
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
 
-        typedef typename boost::range_iterator
-            <
-                typename interior_type<Polygon>::type const
-            >::type iterator_type;
-
         typedef detail::get_turns::get_turns_cs
             <
                 ring_type,
@@ -699,7 +695,7 @@ struct get_turns_polygon_cs
                 multi_index, -1);
 
         int i = 0;
-        for (iterator_type it = boost::begin(interior_rings(polygon));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
              it != boost::end(interior_rings(polygon));
              ++it, ++i)
         {

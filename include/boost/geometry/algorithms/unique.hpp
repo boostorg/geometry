@@ -11,6 +11,7 @@
 #include <algorithm>
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -56,10 +57,7 @@ struct polygon_unique
         typedef range_unique<ring_type, ComparePolicy> per_range;
         per_range::apply(exterior_ring(polygon), policy);
 
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type
-                >::type it = boost::begin(interior_rings(polygon));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
              it != boost::end(interior_rings(polygon));
              ++it)
         {

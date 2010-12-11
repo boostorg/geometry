@@ -15,6 +15,7 @@
 #include <string>
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
@@ -25,10 +26,9 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/intersects.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
+
 
 #if defined(BOOST_GEOMETRY_DEBUG_SPLIT_RINGS) || defined(BOOST_GEOMETRY_CHECK_SPLIT_RINGS)
 #  include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
@@ -182,11 +182,9 @@ struct insert_rings<polygon_tag, RingCollection, Polygon>
 {
     static inline void apply(RingCollection& ring_collection, Polygon const& polygon)
     {
-       ring_collection.push_back(exterior_ring(polygon));
-       for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type const
-                >::type it = boost::begin(interior_rings(polygon));
+        ring_collection.push_back(exterior_ring(polygon));
+
+        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
              it != boost::end(interior_rings(polygon));
              ++it)
         {
@@ -496,10 +494,7 @@ struct polygon_split_rings
     static inline void apply(Polygon const& polygon, RingCollection& ring_collection)
     {
         per_ring::apply(exterior_ring(polygon), ring_collection);
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type const
-                >::type it = boost::begin(interior_rings(polygon));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
              it != boost::end(interior_rings(polygon));
              ++it)
         {

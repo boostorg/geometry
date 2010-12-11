@@ -38,7 +38,8 @@ struct polygon_remove_holes_if
 {
     static inline void apply(Polygon& poly, Predicate const& predicate)
     {
-        typename interior_type<Polygon>::type& rings = interior_rings(poly);
+        // TODO: evaluate this behaviour w.r.t. writable concepts
+        typename interior_return_type<Polygon>::type rings = interior_rings(poly);
 
         // Remove rings using erase-remove-idiom
         // http://en.wikipedia.org/wiki/Erase-remove_idiom

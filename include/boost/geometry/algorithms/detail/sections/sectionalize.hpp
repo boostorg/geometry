@@ -14,6 +14,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/combine.hpp>
@@ -24,7 +25,6 @@
 #include <boost/geometry/core/point_order.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/closeable_view.hpp>
 #include <boost/geometry/geometries/segment.hpp>
@@ -420,15 +420,10 @@ struct sectionalize_polygon
                 point_type, Sections, DimensionCount, MaxCount
             > sectionalizer_type;
 
-        typedef typename boost::range_iterator
-            <
-                typename interior_type<Polygon>::type const
-            >::type iterator_type;
-
         sectionalizer_type::apply(exterior_ring(poly), sections, -1, multi_index);
 
         int i = 0;
-        for (iterator_type it = boost::begin(interior_rings(poly));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
              it != boost::end(interior_rings(poly));
              ++it, ++i)
         {
