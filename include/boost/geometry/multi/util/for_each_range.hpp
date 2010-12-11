@@ -11,9 +11,9 @@
 
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/util/for_each_range.hpp>
-#include <boost/geometry/util/range_iterator_const_if_c.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 
@@ -34,10 +34,7 @@ struct fe_range_multi
                     typename add_const_if_c<IsConst, Multi>::type& multi,
                     Actor& actor)
     {
-        for (typename range_iterator_const_if_c<IsConst, Multi>::type
-                it = boost::begin(multi);
-            it != boost::end(multi);
-            ++it)
+        for(BOOST_AUTO(it, boost::begin(multi)); it != boost::end(multi); ++it)
         {
             geometry::for_each_range(*it, actor);
         }
