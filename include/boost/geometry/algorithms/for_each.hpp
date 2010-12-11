@@ -24,7 +24,6 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/util/add_const_if_c.hpp>
-#include <boost/geometry/util/range_iterator_const_if_c.hpp>
 
 
 namespace boost { namespace geometry
@@ -77,20 +76,14 @@ struct fe_range_per_segment
                 typename add_const_if_c<IsConst, Range>::type& range,
                 Functor f)
     {
-        typedef typename range_iterator_const_if_c
-            <
-                IsConst,
-                Range
-            >::type iterator_type;
-
         typedef typename add_const_if_c
             <
                 IsConst,
                 typename point_type<Range>::type
             >::type point_type;
 
-        iterator_type it = boost::begin(range);
-        iterator_type previous = it++;
+        BOOST_AUTO(it, boost::begin(range));
+        BOOST_AUTO(previous, it++);
         while(it != boost::end(range))
         {
             model::referring_segment<point_type> s(*previous, *it);

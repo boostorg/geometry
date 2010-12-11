@@ -10,6 +10,7 @@
 
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/is_multi.hpp>
@@ -43,15 +44,7 @@ struct for_each_multi
                     typename add_const_if_c<IsConst, MultiGeometry>::type& multi,
                     Functor f)
     {
-        typedef typename range_iterator_const_if_c
-            <
-                IsConst,
-                MultiGeometry
-            >::type iterator_type;
-
-        for(iterator_type it = boost::begin(multi);
-            it != boost::end(multi);
-            ++it)
+        for(BOOST_AUTO(it, boost::begin(multi)); it != boost::end(multi); ++it)
         {
             f = Policy::apply(*it, f);
         }
