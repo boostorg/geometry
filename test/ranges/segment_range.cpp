@@ -12,11 +12,10 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/geometries/cartesian2d.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/ranges/segment_range.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 
-#include <test_geometries/custom_segment.hpp>
 
 
 template <typename Segment>
@@ -63,13 +62,13 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 template <typename P>
 void test_all()
 {
-    test_geometry<test::custom_segment>("linestring(1 1,2 2)", " 11 22");
-    test_geometry<test::custom_segment>("linestring(4 4,3 3)", " 44 33");
+    test_geometry<bg::model::segment<P> >("linestring(1 1,2 2)", " 11 22");
+    test_geometry<bg::model::segment<P> >("linestring(4 4,3 3)", " 44 33");
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point>();
+    test_all<bg::model::d2::point_xy<double> >();
     return 0;
 }

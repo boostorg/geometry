@@ -16,8 +16,8 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
-#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/iterators/segment_returning_iterator.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
@@ -56,7 +56,7 @@ void test_linestring(std::string const& wkt, std::string const& expected)
 int test_main(int, char* [])
 {
     // Test std::vector
-    typedef std::vector<bg::model::d2::point> points_v;
+    typedef std::vector<bg::model::d2::point_xy<double> > points_v;
     test_linestring<points_v>("linestring empty", "");
     test_linestring<points_v>("linestring ()", "");
     test_linestring<points_v>("linestring (1 1)", "");
@@ -65,7 +65,7 @@ int test_main(int, char* [])
     test_linestring<points_v>("linestring (1 1, 2 2, 3 3, 4 4, 5 5, 6 6)", "11222233334444555566");
 
     // Test std::list
-    typedef std::list<bg::model::d2::point> points_l;
+    typedef std::list<bg::model::d2::point_xy<double> > points_l;
     test_linestring<points_l>("linestring empty", "");
     test_linestring<points_l>("linestring ()", "");
     test_linestring<points_l>("linestring (1 1)", "");

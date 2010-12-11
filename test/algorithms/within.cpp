@@ -8,13 +8,7 @@
 #include <algorithms/test_within.hpp>
 
 
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 
 
 template <typename P>

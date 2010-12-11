@@ -12,7 +12,8 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/geometries/cartesian2d.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/ranges/box_range.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 
@@ -64,6 +65,6 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point>();
+    test_all<bg::model::d2::point_xy<double> >();
     return 0;
 }

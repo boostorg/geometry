@@ -11,7 +11,7 @@
 #include <boost/test/included/test_exec_monitor.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
@@ -23,6 +23,6 @@ int test_main(int, char* [])
     // TODO: mloskot - This is ONLY compilation test and
     // placeholder to implement real test.
 
-    bg::index::rtree<bg::model::d2::box, std::size_t> si(1, 6);
-x    return 0;
+    bg::index::rtree<bg::model::box<bg::model::d2::point_xy<double> >, std::size_t> si(1, 6);
+    return 0;
 }

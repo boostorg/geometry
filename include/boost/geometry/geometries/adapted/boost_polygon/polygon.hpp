@@ -24,9 +24,9 @@
 #include <boost/polygon/polygon.hpp>
 
 
-#include <boost/geometry/geometries/adapted/boost_polygon_polygon_ring.hpp>
-#include <boost/geometry/geometries/adapted/boost_polygon_polygon_iterator.hpp>
-#include <boost/geometry/geometries/adapted/boost_polygon_polygon_interiors.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/ring_type.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/iterator.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/interior_rings.hpp>
 
 
 namespace boost { namespace geometry
@@ -48,7 +48,7 @@ struct tag<boost::polygon::polygon_with_holes_data<CoordinateType> >
 template <typename CoordinateType>
 struct ring_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
-    typedef typename bp_ring<boost::polygon::polygon_data<CoordinateType> > type;
+    typedef bp_ring<boost::polygon::polygon_data<CoordinateType> > type;
 };
 
 

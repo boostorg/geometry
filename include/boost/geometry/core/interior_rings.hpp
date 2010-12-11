@@ -12,33 +12,21 @@
 
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/interior_type.hpp>
 #include <boost/geometry/util/add_const_if_c.hpp>
+#include <boost/geometry/util/ensure_const_reference.hpp>
 
 namespace boost { namespace geometry
 {
 
 namespace traits
 {
-
-/*!
-    \brief Traits class indicating interior container type of a polygon
-    \details defines inner container type, so the container containing
-            the interior rings
-    \ingroup traits
-    \par Geometries:
-        - polygon
-    \par Specializations should provide:
-        - typedef X type ( e.g. std::vector&lt;myring&lt;P&gt;&gt; )
-    \tparam Geometry geometry
-*/
-template <typename Geometry>
-struct interior_type
-{};
 
 
 /*!
@@ -54,7 +42,13 @@ struct interior_type
 */
 template <typename Geometry>
 struct interior_rings
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
 
 
 } // namespace traits
@@ -66,47 +60,20 @@ struct interior_rings
 namespace core_dispatch
 {
 
-
-template <typename GeometryTag, typename Geometry>
-struct interior_type
-{};
-
-
-template <typename Polygon>
-struct interior_type<polygon_tag, Polygon>
-{
-    typedef typename traits::interior_type
-        <
-            typename boost::remove_const<Polygon>::type
-        >::type type;
-};
-
-
 template
 <
     typename GeometryTag,
-    typename Geometry,
-    bool IsConst
+    typename Geometry
 >
 struct interior_rings {};
 
 
-template <typename Polygon, bool IsConst>
-struct interior_rings<polygon_tag, Polygon, IsConst>
+template <typename Polygon>
+struct interior_rings<polygon_tag, Polygon>
 {
-    static inline typename add_const_if_c
-        <
-            IsConst,
-            typename interior_type
-                    <
-                        polygon_tag,
-                        Polygon
-                    >::type
-        >::type& apply(typename add_const_if_c
-            <
-                IsConst,
-                Polygon
-            >::type& polygon)
+    static
+    typename geometry::interior_return_type<Polygon>::type
+                apply(Polygon& polygon)
     {
         return traits::interior_rings
             <
@@ -138,7 +105,7 @@ struct num_interior_rings<polygon_tag, Polygon>
     {
         return boost::size(interior_rings
             <
-                polygon_tag, Polygon, true
+                polygon_tag, Polygon const
             >::apply(polygon));
     }
 
@@ -149,25 +116,6 @@ struct num_interior_rings<polygon_tag, Polygon>
 #endif
 
 
-/*!
-    \brief Meta-function defining container type
-        of inner rings of (multi)polygon geometriy
-    \details the interior rings should be organized as a container
-        (std::vector, std::deque, boost::array) with
-        boost range support. This meta function defines the type
-            of that container.
-    \ingroup core
-*/
-template <typename Geometry>
-struct interior_type
-{
-    typedef typename core_dispatch::interior_type
-        <
-            typename tag<Geometry>::type,
-            Geometry
-        >::type type;
-};
-
 
 /*!
     \brief Function to get the interior rings of a polygon (non const version)
@@ -175,16 +123,16 @@ struct interior_type
     \note OGC compliance: instead of InteriorRingN
     \tparam P polygon type
     \param polygon the polygon to get the interior rings from
-    \return a reference to the interior rings
+    \return the interior rings (possibly a reference)
 */
+
 template <typename Polygon>
-inline typename interior_type<Polygon>::type& interior_rings(Polygon& polygon)
+inline typename interior_return_type<Polygon>::type interior_rings(Polygon& polygon)
 {
     return core_dispatch::interior_rings
         <
             typename tag<Polygon>::type,
-            Polygon,
-            false
+            Polygon
         >::apply(polygon);
 }
 
@@ -195,20 +143,18 @@ inline typename interior_type<Polygon>::type& interior_rings(Polygon& polygon)
     \note OGC compliance: instead of InteriorRingN
     \tparam P polygon type
     \param polygon the polygon to get the interior rings from
-    \return a const reference to the interior rings
+    \return the interior rings (possibly a const reference)
 */
 template <typename Polygon>
-inline typename interior_type<Polygon>::type const& interior_rings(
+inline typename interior_return_type<Polygon const>::type interior_rings(
             Polygon const& polygon)
 {
     return core_dispatch::interior_rings
         <
             typename tag<Polygon>::type,
-            Polygon,
-            true
+            Polygon const
         >::apply(polygon);
 }
-
 
 
 /*!

@@ -51,23 +51,18 @@ namespace core_dispatch
 {
 
 
-template <typename Tag, typename Geometry, bool IsConst>
+template <typename Tag, typename Geometry>
 struct exterior_ring {};
 
 
-template <typename Polygon, bool IsConst>
-struct exterior_ring<polygon_tag, Polygon, IsConst>
+template <typename Polygon>
+struct exterior_ring<polygon_tag, Polygon>
 {
-    static inline typename add_const_if_c
-        <
-            IsConst,
-            typename geometry::ring_type
-                    <
-                        Polygon
-                    >::type
-        >::type& apply(typename add_const_if_c
+    static
+    typename geometry::ring_return_type<Polygon>::type
+        apply(typename add_const_if_c
             <
-                IsConst,
+                boost::is_const<Polygon>::type::value,
                 Polygon
             >::type& polygon)
     {
@@ -92,13 +87,12 @@ struct exterior_ring<polygon_tag, Polygon, IsConst>
     \return a reference to the exterior ring
 */
 template <typename Polygon>
-inline typename ring_type<Polygon>::type& exterior_ring(Polygon& polygon)
+inline typename ring_return_type<Polygon>::type exterior_ring(Polygon& polygon)
 {
     return core_dispatch::exterior_ring
         <
             typename tag<Polygon>::type,
-            Polygon,
-            false
+            Polygon
         >::apply(polygon);
 }
 
@@ -112,14 +106,13 @@ inline typename ring_type<Polygon>::type& exterior_ring(Polygon& polygon)
     \return a const reference to the exterior ring
 */
 template <typename Polygon>
-inline typename ring_type<Polygon>::type const& exterior_ring(
+inline typename ring_return_type<Polygon const>::type exterior_ring(
         Polygon const& polygon)
 {
     return core_dispatch::exterior_ring
         <
             typename tag<Polygon>::type,
-            Polygon,
-            true
+            Polygon const
         >::apply(polygon);
 }
 

@@ -1,6 +1,5 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library) test file
 //
-// Copyright Alfredo Correa 2010
 // Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,10 +9,10 @@
 
 
 #include<boost/geometry/geometry.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon_point.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon_box.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon_ring.hpp>
-// not finished: #include<boost/geometry/geometries/adapted/boost_polygon_polygon.hpp>
+#include<boost/geometry/geometries/adapted/boost_polygon/point.hpp>
+#include<boost/geometry/geometries/adapted/boost_polygon/box.hpp>
+#include<boost/geometry/geometries/adapted/boost_polygon/ring.hpp>
+#include<boost/geometry/geometries/adapted/boost_polygon/polygon.hpp>
 #include<boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #include<iostream>
 
@@ -100,10 +99,21 @@ int test_main(int, char* [])
 
     poly1.set_holes(holes.begin(), holes.end());
 
-    a1 = boost::polygon::area(poly1);
-    std::cout << boost::polygon::size(poly1) << std::endl;
+    // Using Boost.Polygon
+    a1 = bg::area(poly1);
+    a2 = boost::polygon::area(poly1);
+    BOOST_CHECK_CLOSE(a1, a2, 0.001);
 
-    // not finished: a1 = bg::area(poly1);
+    bg::model::polygon<bg_point> poly2;
+    bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,2 1,2 2,1 2,1 1),(3 3,4 3,4 4,3 4,3 3))", poly2);
+
+    a2 = bg::area(poly2);
+    BOOST_CHECK_CLOSE(a1, a2, 0.001);
+
+
+    // Not finished:
+    //bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,2 1,2 2,1 2,1 1),(3 3,4 3,4 4,3 4,3 3))", poly1);
+
 
     return 0;
 }

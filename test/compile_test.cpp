@@ -19,7 +19,6 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/multi/multi.hpp>
 
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
 template<typename P>
@@ -159,7 +158,7 @@ void check_polygon()
     bg::centroid(poly, ctr);
 
     // within
-    bg::model::d2::point circ_centre(10,10);
+    bg::model::d2::point_xy<double> circ_centre(10,10);
 
     bool w = bg::within(P(1, 1), poly);
     //w = bg::within(poly, b); tbd

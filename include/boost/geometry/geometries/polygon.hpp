@@ -136,7 +136,7 @@ struct ring_type
             Point, ClockWise, Closed,
             PointList, RingList,
             PointAlloc, RingAlloc
-        >::ring_type type;
+        >::ring_type& type;
 };
 
 template
@@ -163,7 +163,7 @@ struct interior_type
             Point, ClockWise, Closed,
             PointList, RingList,
             PointAlloc, RingAlloc
-        >::inner_container_type type;
+        >::inner_container_type& type;
 };
 
 template

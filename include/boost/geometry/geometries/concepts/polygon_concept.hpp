@@ -52,28 +52,24 @@ class Polygon
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
     typedef typename point_type<Geometry>::type point_type;
     typedef typename ring_type<Geometry>::type ring_type;
-    typedef typename interior_type<Geometry>::type interior_type;
+    typedef typename ring_return_type<Geometry>::type ring_return_type;
+    typedef typename interior_return_type<Geometry>::type interior_type;
 
     BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (concept::Ring<ring_type>) );
 
-    BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<interior_type>) );
+    //BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<interior_type>) );
 
     struct checker
     {
         static inline void apply()
         {
             Geometry* poly;
-            ring_type& e = exterior_ring(*poly);
-            ring_type const& ce = exterior_ring(*poly);
-
-            interior_type& i = interior_rings(*poly);
-            interior_type const& ci = interior_rings(*poly);
+            ring_return_type e = exterior_ring(*poly);
+            interior_type i = interior_rings(*poly);
 
             boost::ignore_unused_variable_warning(e);
-            boost::ignore_unused_variable_warning(ce);
             boost::ignore_unused_variable_warning(i);
-            boost::ignore_unused_variable_warning(ci);
             boost::ignore_unused_variable_warning(poly);
         }
 
@@ -110,20 +106,21 @@ class ConstPolygon
 
     typedef typename point_type<Geometry>::type point_type;
     typedef typename ring_type<Geometry>::type ring_type;
-    typedef typename interior_type<Geometry>::type interior_type;
+    typedef typename ring_return_type<Geometry const>::type ring_return_type;
+    typedef typename interior_return_type<Geometry const>::type interior_type;
 
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<point_type>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstRing<ring_type>) );
 
-    BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<interior_type>) );
+    ////BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<interior_type>) );
 
     struct checker
     {
         static inline void apply()
         {
-            Geometry* poly;
-            ring_type const& ce = exterior_ring(*poly);
-            interior_type const& ci = interior_rings(*poly);
+            Geometry const* poly;
+            ring_return_type ce = exterior_ring(*poly);
+            interior_type ci = interior_rings(*poly);
 
             boost::ignore_unused_variable_warning(ce);
             boost::ignore_unused_variable_warning(ci);

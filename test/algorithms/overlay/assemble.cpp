@@ -20,7 +20,7 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/geometries/cartesian2d.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
@@ -129,7 +129,8 @@ void generate()
                     std::string ps = "POLYGON(" + exteriors[pe] + "," + interiors[pi] + ")";
                     std::string qs = "POLYGON(" + exteriors[qe] + "," + interiors[qi] + ")";
 
-                    bg::model::d2::polygon p, q;
+                    typedef bg::model::d2::point_xy<double> point_type;
+                    bg::model::polygon<point_type> p, q;
                     bg::read_wkt(ps, p);
                     bg::read_wkt(qs, q);
                     bg::correct(p);

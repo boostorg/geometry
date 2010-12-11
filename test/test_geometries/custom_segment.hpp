@@ -46,7 +46,7 @@ struct custom_segment_4
 } // namespace test
 
 
-BOOST_GEOMETRY_REGISTER_POINT_2D(test::custom_point_for_segment, double, bg::cs::cartesian, x, y)
+BOOST_GEOMETRY_REGISTER_POINT_2D(test::custom_point_for_segment, double, cs::cartesian, x, y)
 
 BOOST_GEOMETRY_REGISTER_SEGMENT(test::custom_segment, test::custom_point_for_segment, one, two)
 BOOST_GEOMETRY_REGISTER_SEGMENT_TEMPLATIZED(test::custom_segment_of, p1, p2)
