@@ -16,7 +16,6 @@
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/util/add_const_if_c.hpp>
 #include <boost/geometry/util/ensure_const_reference.hpp>
 
 namespace boost { namespace geometry
@@ -125,7 +124,7 @@ struct interior_type
         >::type type;
 };
 
-template <typename Geometry, bool IsConst>
+template <typename Geometry>
 struct interior_return_type
 {
     typedef typename core_dispatch::interior_return_type
@@ -134,9 +133,9 @@ struct interior_return_type
             Geometry
         >::type ir_type;
 
-    typedef typename mpl::if_c
+    typedef typename mpl::if_
         <
-            IsConst,
+            boost::is_const<Geometry>,
             typename ensure_const_reference<ir_type>::type,
             ir_type
         >::type type;
