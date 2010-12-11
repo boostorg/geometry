@@ -23,8 +23,8 @@ namespace boost { namespace geometry
         will be defined as const, otherwise it will be defined as it was.
         This meta-function is used to have one implementation for both
         const and non const references
-    \note This traits class is completely independant from GGL and might be a
-        separate addition to Boost
+    \note This traits class is completely independant from Boost.Geometry
+        and might be a separate addition to Boost
     \note Used in a.o. for_each, interior_rings, exterior_ring
     \par Example
     \code
