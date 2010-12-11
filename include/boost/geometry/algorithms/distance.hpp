@@ -12,6 +12,7 @@
 
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/static_assert.hpp>
 
@@ -212,10 +213,7 @@ struct point_to_polygon
         distance_containment dc = per_ring::apply(point,
                         exterior_ring(polygon), pp_strategy, ps_strategy);
 
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type const
-                >::type it = boost::begin(interior_rings(polygon));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
              it != boost::end(interior_rings(polygon));
              ++it)
         {

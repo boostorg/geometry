@@ -11,6 +11,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 
 #include <boost/geometry/core/tags.hpp>
@@ -95,10 +96,7 @@ struct add_to_containment<polygon_tag, Polygon>
 
         policy::apply(container, copy, exterior_ring(polygon), map, dissolve);
         copy.ring_index = 0;
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type const
-                >::type it = boost::begin(interior_rings(polygon));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
             it != boost::end(interior_rings(polygon));
             ++it, ++copy.ring_index)
         {

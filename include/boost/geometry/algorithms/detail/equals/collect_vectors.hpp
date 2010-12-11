@@ -13,6 +13,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 
@@ -180,10 +181,7 @@ struct polygon_collect_vectors
         typedef range_collect_vectors<ring_type, Collection> per_range;
         per_range::apply(collection, exterior_ring(polygon));
 
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<Polygon>::type const
-                >::type it = boost::begin(interior_rings(polygon));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
              it != boost::end(interior_rings(polygon));
              ++it)
         {

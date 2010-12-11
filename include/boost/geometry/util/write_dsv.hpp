@@ -15,6 +15,7 @@
 
 #include <boost/concept_check.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 
@@ -206,15 +207,11 @@ struct dsv_poly
                 dsv_settings const& settings)
     {
         typedef typename ring_type<Polygon>::type ring;
-        typedef typename boost::range_iterator
-            <
-                typename interior_type<Polygon>::type const
-            >::type iterator_type;
 
         os << settings.list_open;
 
         dsv_range<ring>::apply(os, exterior_ring(poly), settings);
-        for (iterator_type it = boost::begin(interior_rings(poly));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
             it != boost::end(interior_rings(poly));
             ++it)
         {

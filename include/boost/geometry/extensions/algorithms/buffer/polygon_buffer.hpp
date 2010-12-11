@@ -13,6 +13,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 
@@ -203,10 +204,7 @@ struct polygon_buffer
 #endif
                 );
 
-        for (typename boost::range_iterator
-                <
-                    typename interior_type<PolygonInput>::type const
-                >::type it = boost::begin(interior_rings(polygon));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
              it != boost::end(interior_rings(polygon));
              ++it)
         {

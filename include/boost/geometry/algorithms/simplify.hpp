@@ -13,6 +13,7 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/ring_type.hpp>
@@ -20,7 +21,6 @@
 #include <boost/geometry/core/interior_rings.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-
 #include <boost/geometry/strategies/agnostic/simplify_douglas_peucker.hpp>
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
 
@@ -116,15 +116,6 @@ struct simplify_polygon
     {
         typedef typename ring_type<Polygon>::type ring_type;
 
-        typedef typename boost::range_iterator
-            <
-                typename interior_type<Polygon>::type
-            >::type iterator_type;
-        typedef typename boost::range_iterator
-            <
-                typename interior_type<Polygon>::type const
-            >::type const_iterator_type;
-
         // Note that if there are inner rings, and distance is too large,
         // they might intersect with the outer ring in the output,
         // while it didn't in the input.
@@ -133,12 +124,11 @@ struct simplify_polygon
                         max_distance, strategy);
 
         // Note: here a resizeable container is assumed.
-        // Maybe we should make this part of the concept.
+        // TODO: we should make this part of the concept.
         interior_rings(poly_out).resize(num_interior_rings(poly_in));
 
-        iterator_type it_out = boost::begin(interior_rings(poly_out));
-
-        for (const_iterator_type it_in = boost::begin(interior_rings(poly_in));
+        BOOST_AUTO(it_out, boost::begin(interior_rings(poly_out)));
+        for (BOOST_AUTO(it_in,  boost::begin(interior_rings(poly_in)));
             it_in != boost::end(interior_rings(poly_in));
             ++it_in, ++it_out)
         {

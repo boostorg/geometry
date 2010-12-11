@@ -13,6 +13,7 @@
 #include <iterator>
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
@@ -21,9 +22,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
-
 #include <boost/geometry/strategies/transform.hpp>
 
 
@@ -122,8 +121,6 @@ struct transform_polygon
     static inline bool apply(Polygon1 const& poly1, Polygon2& poly2,
                 Strategy const& strategy)
     {
-        typedef typename interior_type<Polygon1>::type interior1_type;
-        typedef typename interior_type<Polygon2>::type interior2_type;
         typedef typename ring_type<Polygon1>::type ring1_type;
         typedef typename ring_type<Polygon2>::type ring2_type;
         typedef typename point_type<Polygon2>::type point2_type;
@@ -136,21 +133,13 @@ struct transform_polygon
             return false;
         }
 
+        // Note: here a resizeable container is assumed.
+        // TODO: we should make this part of the concept.
         interior_rings(poly2).resize(num_interior_rings(poly1));
 
-        typedef typename boost::range_iterator
-            <
-                interior1_type const
-            >::type iterator1_type;
-        typedef typename boost::range_iterator
-            <
-                interior2_type
-            >::type iterator2_type;
-
-        iterator1_type it1 = boost::begin(interior_rings(poly1));
-        iterator2_type it2 = boost::begin(interior_rings(poly2));
-        for ( ; it1 != boost::end(interior_rings(poly1));
-            ++it1, ++it2)
+        BOOST_AUTO(it1, boost::begin(interior_rings(poly1)));
+        BOOST_AUTO(it2, boost::begin(interior_rings(poly2)));
+        for ( ; it1 != boost::end(interior_rings(poly1)); ++it1, ++it2)
         {
             if (!transform_range_out<point2_type>(*it1,
                 std::back_inserter(*it2), strategy))

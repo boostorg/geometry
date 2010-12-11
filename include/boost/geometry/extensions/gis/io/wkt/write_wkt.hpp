@@ -13,6 +13,7 @@
 
 #include <boost/concept/assert.hpp>
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 
 #include <boost/geometry/algorithms/convert.hpp>
@@ -160,16 +161,12 @@ struct wkt_poly
                 Polygon const& poly)
     {
         typedef typename ring_type<Polygon>::type ring;
-        typedef typename boost::range_iterator
-            <
-                typename interior_type<Polygon>::type const
-            >::type iterator;
 
         os << PrefixPolicy::apply();
         // TODO: check EMPTY here
         os << "(";
         wkt_sequence<ring>::apply(os, exterior_ring(poly));
-        for (iterator it = boost::begin(interior_rings(poly));
+        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
             it != boost::end(interior_rings(poly));
             ++it)
         {
