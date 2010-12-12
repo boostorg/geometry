@@ -27,7 +27,7 @@ void test_non_geometry()
 {
     typedef bg::closeable_view
         <
-            std::vector<int> const, true
+            std::vector<int> const, bg::open
         >::type view_type;
 
     std::vector<int> v;
@@ -76,10 +76,10 @@ void test_non_geometry()
 }
 
 
-template <bool Close, typename Range>
+template <bg::closure_selector Closure, typename Range>
 void test_optionally_closing(Range const& range, std::string const& expected)
 {
-    typedef bg::closeable_view<Range const, Close>::type view_type;
+    typedef bg::closeable_view<Range const, Closure>::type view_type;
     typedef typename boost::range_iterator<view_type const>::type iterator;
 
     view_type view(range);
@@ -103,8 +103,8 @@ void test_geometry(std::string const& wkt,
     Geometry geo;
     bg::read_wkt(wkt, geo);
 
-    test_optionally_closing<false>(geo, expected_false);
-    test_optionally_closing<true>(geo, expected_true);
+    test_optionally_closing<bg::closed>(geo, expected_false);
+    test_optionally_closing<bg::open>(geo, expected_true);
 }
 
 
