@@ -14,20 +14,36 @@
 
 #include <boost/geometry/util/reversible_view.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+
+namespace boost { namespace geometry
+{
+
+namespace traits 
+{
+
+template<typename Geometry>
+struct tag<boost::range_detail::reverse_range<Geometry> >
+{
+    typedef typename geometry::tag<Geometry>::type type;
+};
+
+}
+
+}}
 
 
 template <bg::iterate_direction Direction, typename Range>
 void test_forward_or_reverse(Range const& range, std::string const& expected)
 {
-    typedef bg::reversible_view
+    typedef typename bg::reversible_view
         <
             Range const,
             Direction
-        > view_type;
+        >::type view_type;
 
     view_type view(range);
 
@@ -58,8 +74,20 @@ void test_geometry(std::string const& wkt,
 
 
 template <typename P>
+void test_range_adaptor()
+{
+    bg::model::linestring<P> ls;
+    bg::read_wkt("linestring(1 1,2 2,3 3, 4 4)", ls);
+    std::cout << bg::wkt(ls) << std::endl;
+    std::cout << bg::wkt(ls  | boost::adaptors::reversed) << std::endl;
+    std::cout << bg::wkt(boost::range_detail::reverse_range<bg::model::linestring<P> >(ls)) << std::endl;
+}
+
+
+template <typename P>
 void test_all()
 {
+    //test_range_adaptor<P>();
     test_geometry<bg::model::linestring<P> >(
             "linestring(1 1,2 2,3 3)",
             "(1, 1) (2, 2) (3, 3)",
