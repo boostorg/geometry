@@ -19,12 +19,12 @@ project boost-geometry-test
 
 build-project core ;
 build-project point_concept ; 
-# build-project geometries ;
+build-project geometries ;
 build-project arithmetic ;
 build-project algorithms ;
 build-project iterators ;
 build-project ranges ;
 build-project strategies ;
 build-project policies ;
-# build-project util ;
+build-project util ;
 build-project multi ;
