@@ -5,6 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define _HAS_ITERATOR_DEBUGGING 0
+
 #include <algorithm>
 #include <iterator>
 #include <sstream>
@@ -24,14 +26,18 @@
 template <typename View, typename Range>
 void test_option(Range const& range, std::string const& expected)
 {
-    View view(range);
+    View const view(range);
 
     bool first = true;
     std::ostringstream out;
 
     typedef typename boost::range_iterator<View const>::type iterator;
+
     ////std::cout << typeid(iterator).name() << std::endl;
+
+    // The commented case below crashes here in specific circumstances:
     iterator end = boost::end(view);
+
     for (iterator it = boost::begin(view); it != end; ++it, first = false)
     {
         out << (first ? "" : " ") << bg::dsv(*it);
@@ -120,8 +126,18 @@ void test_geometry(std::string const& wkt,
     test_close_reverse<bg::open, bg::iterate_forward>(geo, expected_n + closing);
     test_close_reverse<bg::closed, bg::iterate_reverse>(geo, expected_r);
 
-#if ! defined(_MSC_VER)
+#if ! defined(_MSC_VER) || ! defined(_HAS_ITERATOR_DEBUGGING)
     // 13-12-2010, Currently problematic in MSVC
+    // I've got no idea why this is.
+    // 1) if I go back to the original versions (without reverse_range / metafunctions, as in boost-geometry-0.7.0)
+    //    the problem DISAPPEARS. 
+    // 2) if I use the original version of closeable_view, but the shortened version of reversible_view
+    //    (with typedef Range type and typedef reversed_range type) the problem IS MUCH LARGER
+    // 3) if I use the shortened versions (so new versions of closeable and reversible_view),
+    //    it is only in the next "test_close_reverse"
+    // Runtime Exception Message: "vector iterators incompatible"
+    // Tested in MSVC 2005 and MSVC 2010. In GCC no problems detected.
+    // If I define _HAS_ITERATOR_DEBUGGING, the problem "disappears"
     test_close_reverse<bg::open, bg::iterate_reverse>(geo, expected_r + rclosing);
 #endif
 
