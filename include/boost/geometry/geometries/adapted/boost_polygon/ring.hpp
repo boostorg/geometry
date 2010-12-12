@@ -12,7 +12,7 @@
 // boost::polygon::polygon_data -> boost::geometry::ring
 
 #include <cstddef>
-
+#include <boost/polygon/polygon.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -20,7 +20,6 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/polygon/polygon.hpp>
 
 namespace boost { namespace geometry
 {
@@ -29,6 +28,7 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 namespace traits
 {
+
 
 template <typename CoordinateType>
 struct tag<boost::polygon::polygon_data<CoordinateType> >
@@ -44,12 +44,7 @@ struct tag<boost::polygon::polygon_data<CoordinateType> >
 }} // namespace boost::geometry
 
 
-
-// ----------------------------------------------------------------------------
-// Boost.Polygon's polygon is not Boost.Range compatible 
-// So support below
-// ----------------------------------------------------------------------------
-
+// Adapt Boost.Polygon's polygon_data to Boost.Range
 namespace boost
 {
     template<typename CoordinateType>
@@ -77,53 +72,56 @@ namespace boost
         typedef std::size_t type;
     };
 
-} // namespace 'boost'
+} // namespace boost
 
 
-// Free-standing function for Boost.Range ADP
+// Support Boost.Polygon's polygon_data for Boost.Range ADP
+namespace boost { namespace polygon
+{
+
 template<typename CoordinateType>
-inline typename boost::polygon::polygon_traits
+inline typename polygon_traits
         <
-            boost::polygon::polygon_data<CoordinateType>
-        >::iterator_type range_begin(boost::polygon::polygon_data<CoordinateType>& polygon)
+            polygon_data<CoordinateType>
+        >::iterator_type range_begin(polygon_data<CoordinateType>& polygon)
 {
     return polygon.begin();
 }
 
 template<typename CoordinateType>
-inline typename boost::polygon::polygon_traits
+inline typename polygon_traits
         <
-            boost::polygon::polygon_data<CoordinateType>
-        >::iterator_type range_begin(boost::polygon::polygon_data<CoordinateType> const& polygon)
+            polygon_data<CoordinateType>
+        >::iterator_type range_begin(polygon_data<CoordinateType> const& polygon)
 {
     return polygon.begin();
 }
 
 template<typename CoordinateType>
-inline typename boost::polygon::polygon_traits
+inline typename polygon_traits
         <
-            boost::polygon::polygon_data<CoordinateType>
-        >::iterator_type range_end(boost::polygon::polygon_data<CoordinateType>& polygon)
+            polygon_data<CoordinateType>
+        >::iterator_type range_end(polygon_data<CoordinateType>& polygon)
 {
     return polygon.end();
 }
 
 template<typename CoordinateType>
-inline typename boost::polygon::polygon_traits
+inline typename polygon_traits
         <
-            boost::polygon::polygon_data<CoordinateType>
-        >::iterator_type range_end(boost::polygon::polygon_data<CoordinateType> const& polygon)
+            polygon_data<CoordinateType>
+        >::iterator_type range_end(polygon_data<CoordinateType> const& polygon)
 {
     return polygon.end();
 }
 
 // RangeEx
 template<typename CoordinateType>
-inline std::size_t range_size(boost::polygon::polygon_data<CoordinateType> const& polygon)
+inline std::size_t range_size(polygon_data<CoordinateType> const& polygon)
 {
     return polygon.size();
 }
 
+}}
 
 #endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_POLYGON_RING_HPP
-
