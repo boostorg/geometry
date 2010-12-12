@@ -8,8 +8,9 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_POLYGON_POINT_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_POLYGON_POINT_HPP
 
+// Adapts Geometries from Boost.Polygon for usage in Boost.Geometry
+// boost::polygon::point_data -> boost::geometry::point
 
-#include <cstddef>
 
 #include <boost/polygon/polygon.hpp>
 
@@ -19,7 +20,6 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/polygon/polygon.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,8 +30,6 @@ namespace traits
 {
 
 
-
-// Assign the point-tag, preventing arrays of points getting a point-tag
 template <typename CoordinateType>
 struct tag<boost::polygon::point_data<CoordinateType> >
 {
@@ -45,6 +43,7 @@ struct coordinate_type<boost::polygon::point_data<CoordinateType> >
     typedef CoordinateType type;
 };
 
+
 template <typename CoordinateType>
 struct coordinate_system<boost::polygon::point_data<CoordinateType> >
 {
@@ -53,34 +52,39 @@ struct coordinate_system<boost::polygon::point_data<CoordinateType> >
 
 
 template <typename CoordinateType>
-struct dimension<boost::polygon::point_data<CoordinateType> >: boost::mpl::int_<2> {};
+struct dimension<boost::polygon::point_data<CoordinateType> >
+            : boost::mpl::int_<2>
+{};
 
 
 template <typename CoordinateType>
 struct access<boost::polygon::point_data<CoordinateType>, 0>
 {
-    static inline CoordinateType get(boost::polygon::point_data<CoordinateType> const& p)
+    typedef boost::polygon::point_data<CoordinateType> point_type;
+
+    static inline CoordinateType get(point_type const& p)
     {
         return p.x();
     }
 
-    static inline void set(boost::polygon::point_data<CoordinateType>& p,
-        CoordinateType const& value)
+    static inline void set(point_type& p, CoordinateType const& value)
     {
         p.x(value);
     }
 };
 
+
 template <typename CoordinateType>
 struct access<boost::polygon::point_data<CoordinateType>, 1>
 {
-    static inline CoordinateType get(boost::polygon::point_data<CoordinateType> const& p)
+    typedef boost::polygon::point_data<CoordinateType> point_type;
+
+    static inline CoordinateType get(point_type const& p)
     {
         return p.y();
     }
 
-    static inline void set(boost::polygon::point_data<CoordinateType>& p,
-        CoordinateType const& value)
+    static inline void set(point_type& p, CoordinateType const& value)
     {
         p.y(value);
     }
@@ -93,5 +97,5 @@ struct access<boost::polygon::point_data<CoordinateType>, 1>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_POLYGON_POINT_HPP
 
+#endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_POLYGON_POINT_HPP

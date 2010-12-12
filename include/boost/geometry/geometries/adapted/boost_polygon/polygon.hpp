@@ -11,22 +11,16 @@
 // Adapts Geometries from Boost.Polygon for usage in Boost.Geometry
 // boost::polygon::polygon_with_holes_data -> boost::geometry::polygon
 
-
-#include <cstddef>
-
-
+#include <boost/polygon/polygon.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
-#include <boost/polygon/polygon.hpp>
-
-
-#include <boost/geometry/geometries/adapted/boost_polygon/ring_type.hpp>
-#include <boost/geometry/geometries/adapted/boost_polygon/iterator.hpp>
-#include <boost/geometry/geometries/adapted/boost_polygon/interior_rings.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/ring_proxy.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/hole_iterator.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/holes_proxy.hpp>
 
 
 namespace boost { namespace geometry
@@ -48,16 +42,14 @@ struct tag<boost::polygon::polygon_with_holes_data<CoordinateType> >
 template <typename CoordinateType>
 struct ring_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
-    typedef bp_ring<boost::polygon::polygon_data<CoordinateType> > type;
+    typedef adapt::bp::ring_proxy<boost::polygon::polygon_data<CoordinateType> > type;
 };
 
 
 template <typename CoordinateType>
 struct interior_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
-    // TEMPORARY! This meta-function will be removed, because it is always used in
-    // the concept of "range-iterator<interior_type>" so it should define the range-iterator
-    typedef typename bp_interiors<boost::polygon::polygon_with_holes_data<CoordinateType> > type;
+    typedef adapt::bp::holes_proxy<boost::polygon::polygon_with_holes_data<CoordinateType> > type;
 };
 
 
@@ -65,16 +57,16 @@ template <typename CoordinateType>
 struct exterior_ring<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
     typedef boost::polygon::polygon_with_holes_data<CoordinateType> polygon_type;
-    typedef bp_ring<boost::polygon::polygon_data<CoordinateType> > r_type;
+    typedef adapt::bp::ring_proxy<boost::polygon::polygon_data<CoordinateType> > proxy;
 
-    static inline r_type get(polygon_type& p)
+    static inline proxy get(polygon_type& p)
     {
-        return r_type(p);
+        return proxy(boost::polygon::begin_points(p), boost::polygon::end_points(p));
     }
 
-    static inline r_type get(polygon_type const& p)
+    static inline proxy get(polygon_type const& p)
     {
-        return r_type(p);
+        return proxy(boost::polygon::begin_points(p), boost::polygon::end_points(p));
     }
 };
 
@@ -82,16 +74,16 @@ template <typename CoordinateType>
 struct interior_rings<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
     typedef boost::polygon::polygon_with_holes_data<CoordinateType> polygon_type;
-    typedef typename bp_interiors<polygon_type> itype;
+    typedef adapt::bp::holes_proxy<polygon_type> proxy;
 
-    static inline itype get(polygon_type& p)
+    static inline proxy get(polygon_type& p)
     {
-        return bp_interiors<polygon_type>(p);
+        return proxy(p);
     }
 
-    static inline typename itype const get(polygon_type const& p)
+    static inline proxy get(polygon_type const& p)
     {
-        return bp_interiors<polygon_type>(p);
+        return proxy(p);
     }
 };
 
