@@ -27,7 +27,7 @@ namespace detail
 template <typename Range>
 struct closing_view
 {
-    explicit closing_view(Range& r)
+    inline closing_view(Range& r)
         : m_range(r)
     {}
 
