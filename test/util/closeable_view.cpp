@@ -79,7 +79,7 @@ void test_non_geometry()
 template <bg::closure_selector Closure, typename Range>
 void test_optionally_closing(Range const& range, std::string const& expected)
 {
-    typedef bg::closeable_view<Range const, Closure>::type view_type;
+    typedef typename bg::closeable_view<Range const, Closure>::type view_type;
     typedef typename boost::range_iterator<view_type const>::type iterator;
 
     view_type view(range);
