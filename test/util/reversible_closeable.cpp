@@ -20,21 +20,17 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
-//// BSG 12-10-2010
-//// Currently not compiles because of changes in ring behaviour.
-//// TODO: fix this.
-
 
 template <typename View, typename Range>
 void test_option(Range const& range, std::string const& expected)
 {
-
     View view(range);
 
     bool first = true;
     std::ostringstream out;
 
     typedef typename boost::range_iterator<View const>::type iterator;
+    ////std::cout << typeid(iterator).name() << std::endl;
     iterator end = boost::end(view);
     for (iterator it = boost::begin(view); it != end; ++it, first = false)
     {
@@ -43,44 +39,35 @@ void test_option(Range const& range, std::string const& expected)
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
 
-////
-/*
-template <bool Close, bg::iterate_direction Direction, typename Range>
+template <bg::closure_selector Closure, bg::iterate_direction Direction, typename Range>
 void test_close_reverse(Range const& range, std::string const& expected)
 {
     test_option
         <
-            bg::closeable_view
+            typename bg::closeable_view
                 <
-                    bg::reversible_view<Range const, Direction> const,
-                    Close
-                >
+                    typename bg::reversible_view<Range const, Direction>::type const,
+                    Closure
+                >::type
         >(range, expected);
 }
-*/
-////
 
-/*
 
-This should NOT compile, or at least not instantiate
-Use the code as above, so reversible_view should be nested inside closeable_view
-
-template <bg::iterate_direction Direction, bool Close, typename Range>
+template <bg::iterate_direction Direction, bg::closure_selector Close, typename Range>
 void test_reverse_close(Range const& range, std::string const& expected)
 {
     test_option
         <
-            bg::reversible_view
+            typename bg::reversible_view
                 <
-                    bg::closeable_view<Range const, Close> const,
+                    typename bg::closeable_view<Range const, Close>::type const,
                     Direction
-                >
+                >::type
         >(range, expected);
 }
-*/
 
-////
-/*template
+
+template
 <
     bg::iterate_direction Direction1,
     bg::iterate_direction Direction2,
@@ -90,72 +77,71 @@ void test_reverse_reverse(Range const& range, std::string const& expected)
 {
     test_option
         <
-            bg::reversible_view
+            typename bg::reversible_view
                 <
-                    bg::reversible_view<Range const, Direction2> const,
+                    typename bg::reversible_view<Range const, Direction2>::type const,
                     Direction1
-                >
+                >::type
         >(range, expected);
-}*/
-////
+}
 
 template
 <
-    bool Close1,
-    bool Close2,
+    bg::closure_selector Close1,
+    bg::closure_selector Close2,
     typename Range
 >
 void test_close_close(Range const& range, std::string const& expected)
 {
     test_option
         <
-            bg::closeable_view
+            typename bg::closeable_view
                 <
-                    bg::closeable_view<Range const, Close2> const,
+                    typename bg::closeable_view<Range const, Close2>::type const,
                     Close1
-                >
+                >::type
         >(range, expected);
 }
 
 
 template <typename Geometry>
 void test_geometry(std::string const& wkt,
-            std::string const& expected_1,
-            std::string const& expected_2,
-            std::string const& expected_3,
-            std::string const& expected_4,
-            std::string const& expected_cc
+            std::string const& expected_n,
+            std::string const& expected_r,
+            std::string const& closing,
+            std::string const& rclosing
             )
 {
+    std::string expected;
     Geometry geo;
     bg::read_wkt(wkt, geo);
 
-    ////test_close_reverse<false, bg::iterate_forward>(geo, expected_1);
-    ////test_close_reverse<true, bg::iterate_forward>(geo, expected_2);
-    ////test_close_reverse<false, bg::iterate_reverse>(geo, expected_3);
-    ////test_close_reverse<true, bg::iterate_reverse>(geo, expected_4);
+    test_close_reverse<bg::closed, bg::iterate_forward>(geo, expected_n);
+    test_close_reverse<bg::open, bg::iterate_forward>(geo, expected_n + closing);
+    test_close_reverse<bg::closed, bg::iterate_reverse>(geo, expected_r);
 
-    /*
-    This should NOT compile on purpose
-    Because the closing_iterator can only be used forward
-    test_reverse_close<bg::iterate_forward, false>(geo, expected_1);
-    test_reverse_close<bg::iterate_forward, true>(geo, expected_2);
-    test_reverse_close<bg::iterate_reverse, false>(geo, expected_3);
-    test_reverse_close<bg::iterate_reverse, true>(geo, expected_4);
-    */
+#if ! defined(_MSC_VER)
+    // 13-12-2010, Currently problematic in MSVC
+    test_close_reverse<bg::open, bg::iterate_reverse>(geo, expected_r + rclosing);
+#endif
 
-    ////test_reverse_reverse<bg::iterate_forward, bg::iterate_forward>(geo, expected_1);
-    ////test_reverse_reverse<bg::iterate_reverse, bg::iterate_reverse>(geo, expected_1);
+    test_reverse_close<bg::iterate_forward, bg::closed>(geo, expected_n);
+    test_reverse_close<bg::iterate_forward, bg::open>(geo, expected_n + closing);
+    test_reverse_close<bg::iterate_reverse, bg::closed>(geo, expected_r);
 
-    ////test_close_close<false, false>(geo, expected_1);
-    ////test_close_close<true, false>(geo, expected_2);
-    ////test_close_close<false, true>(geo, expected_2);
+    // first closed, then reversed: 
+    expected = boost::trim_copy(closing + " " + expected_r); 
+    test_reverse_close<bg::iterate_reverse, bg::open>(geo, expected);
 
-    // Does not compile - no assignment operator
-    // Ranges basically support nesting, but the closing iterator does not.
-    // It is not necessary for the closing iterator to do so.
+    test_reverse_reverse<bg::iterate_forward, bg::iterate_forward>(geo, expected_n);
+    test_reverse_reverse<bg::iterate_reverse, bg::iterate_reverse>(geo, expected_n);
+    test_reverse_reverse<bg::iterate_forward, bg::iterate_reverse>(geo, expected_r);
+    test_reverse_reverse<bg::iterate_reverse, bg::iterate_forward>(geo, expected_r);
 
-    //test_close_close<true, true>(geo, expected_cc);
+    test_close_close<bg::closed, bg::closed>(geo, expected_n);
+    test_close_close<bg::open, bg::closed>(geo, expected_n + closing);
+    test_close_close<bg::closed, bg::open>(geo, expected_n + closing);
+    test_close_close<bg::open, bg::open>(geo, expected_n + closing + closing);
 }
 
 
@@ -165,10 +151,9 @@ void test_all()
     test_geometry<bg::model::linear_ring<P> >(
             "POLYGON((1 1,1 4,4 4,4 1))",
             "(1, 1) (1, 4) (4, 4) (4, 1)",
-            "(1, 1) (1, 4) (4, 4) (4, 1) (1, 1)",
             "(4, 1) (4, 4) (1, 4) (1, 1)",
-            "(4, 1) (4, 4) (1, 4) (1, 1) (4, 1)",
-            "(1, 1) (1, 4) (4, 4) (4, 1) (1, 1) (1, 1)" // closed twice, not used
+            " (1, 1)", // closing
+            " (4, 1)" // rclosing
             );
 }
 
