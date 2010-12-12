@@ -34,11 +34,11 @@ namespace detail { namespace section
 template <typename Range, typename Section>
 struct full_section_range
 {
-    typedef closeable_view
+    typedef typename closeable_view
         <
             Range const,
-            closure<Range>::value == open // close it if it is open
-        > view_type;
+            closure<Range>::value
+        >::type view_type;
 
     static inline view_type apply(Range const& range, Section const& section)
     {
@@ -51,11 +51,11 @@ template <typename Polygon, typename Section>
 struct full_section_polygon
 {
     typedef typename geometry::ring_type<Polygon>::type ring_type;
-    typedef closeable_view
+    typedef typename closeable_view
         <
             ring_type const,
-            closure<ring_type>::value == open // close it if it is open
-        > view_type;
+            closure<ring_type>::value
+        >::type view_type;
 
     static inline view_type apply(Polygon const& polygon, Section const& section)
     {

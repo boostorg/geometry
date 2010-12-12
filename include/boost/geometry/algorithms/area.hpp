@@ -92,12 +92,11 @@ struct ring_area
             return type();
         }
 
-        typedef reversible_view<Ring const, Direction> rview_type;
-        typedef closeable_view
+        typedef typename reversible_view<Ring const, Direction>::type rview_type;
+        typedef typename closeable_view
             <
-                rview_type const,
-                Closure == open // close it if it is open
-            > view_type;
+                rview_type const, Closure
+            >::type view_type;
         typedef typename boost::range_iterator<view_type const>::type iterator_type;
 
         rview_type rview(ring);

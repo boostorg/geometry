@@ -11,6 +11,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -20,37 +21,13 @@
 namespace boost { namespace geometry
 {
 
-
-
-template <typename Range, bool Close>
-struct closeable_view {};
-
-
+namespace detail
+{
 
 template <typename Range>
-struct closeable_view<Range, false>
+struct closing_view
 {
-    closeable_view(Range& r)
-        : m_range(r)
-    {}
-
-    typedef typename boost::range_iterator<Range const>::type const_iterator;
-    typedef typename boost::range_iterator<Range>::type iterator;
-
-    const_iterator begin() const { return boost::begin(m_range); }
-    const_iterator end() const { return boost::end(m_range); }
-
-    iterator begin() { return boost::begin(m_range); }
-    iterator end() { return boost::end(m_range); }
-private :
-    Range& m_range;
-};
-
-
-template <typename Range>
-struct closeable_view<Range, true>
-{
-    explicit closeable_view(Range& r)
+    explicit closing_view(Range& r)
         : m_range(r)
     {}
 
@@ -58,13 +35,34 @@ struct closeable_view<Range, true>
     typedef closing_iterator<Range> iterator;
     typedef closing_iterator<Range const> const_iterator;
 
-    const_iterator begin() const { return const_iterator(m_range); }
-    const_iterator end() const { return const_iterator(m_range, true); }
+    inline const_iterator begin() const { return const_iterator(m_range); }
+    inline const_iterator end() const { return const_iterator(m_range, true); }
 
-    iterator begin() { return iterator(m_range); }
-    iterator end() { return iterator(m_range, true); }
+    inline iterator begin() { return iterator(m_range); }
+    inline iterator end() { return iterator(m_range, true); }
 private :
     Range& m_range;
+};
+
+}
+
+
+template <typename Range, closure_selector Close>
+struct closeable_view {};
+
+
+
+template <typename Range>
+struct closeable_view<Range, closed>
+{
+    typedef Range type;
+};
+
+
+template <typename Range>
+struct closeable_view<Range, open>
+{
+    typedef detail::closing_view<Range> type;
 };
 
 

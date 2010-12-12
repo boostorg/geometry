@@ -353,11 +353,7 @@ template
 >
 struct sectionalize_range
 {
-    typedef closeable_view
-        <
-            Range const,
-            Closure == open // close it if it is open
-        > view_type;
+    typedef typename closeable_view<Range const, Closure>::type view_type;
 
     static inline void apply(Range const& range, Sections& sections,
                 int ring_index = -1, int multi_index = -1)
