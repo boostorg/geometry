@@ -5,7 +5,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define _HAS_ITERATOR_DEBUGGING 0
 
 #include <algorithm>
 #include <iterator>
@@ -23,21 +22,16 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
 
-template <typename View, typename Range>
-void test_option(Range const& range, std::string const& expected)
+template <typename View>
+void test_option(View const& view, std::string const& expected)
 {
-    View const view(range);
 
     bool first = true;
     std::ostringstream out;
 
     typedef typename boost::range_iterator<View const>::type iterator;
 
-    ////std::cout << typeid(iterator).name() << std::endl;
-
-    // The commented case below crashes here in specific circumstances:
     iterator end = boost::end(view);
-
     for (iterator it = boost::begin(view); it != end; ++it, first = false)
     {
         out << (first ? "" : " ") << bg::dsv(*it);
@@ -48,28 +42,25 @@ void test_option(Range const& range, std::string const& expected)
 template <bg::closure_selector Closure, bg::iterate_direction Direction, typename Range>
 void test_close_reverse(Range const& range, std::string const& expected)
 {
-    test_option
-        <
-            typename bg::closeable_view
-                <
-                    typename bg::reversible_view<Range const, Direction>::type const,
-                    Closure
-                >::type
-        >(range, expected);
+    typedef typename bg::reversible_view<Range const, Direction>::type rview;
+    typedef typename bg::closeable_view<rview const, Closure>::type cview;
+
+    rview view1(range);
+    cview view2(view1);
+
+    test_option(view2, expected);
 }
 
 
-template <bg::iterate_direction Direction, bg::closure_selector Close, typename Range>
+template <bg::iterate_direction Direction, bg::closure_selector Closure, typename Range>
 void test_reverse_close(Range const& range, std::string const& expected)
 {
-    test_option
-        <
-            typename bg::reversible_view
-                <
-                    typename bg::closeable_view<Range const, Close>::type const,
-                    Direction
-                >::type
-        >(range, expected);
+    typedef typename bg::closeable_view<Range const, Closure>::type cview;
+    typedef typename bg::reversible_view<cview const, Direction>::type rview;
+
+    cview view1(range);
+    rview view2(view1);
+    test_option(view2, expected);
 }
 
 
@@ -81,32 +72,28 @@ template
 >
 void test_reverse_reverse(Range const& range, std::string const& expected)
 {
-    test_option
-        <
-            typename bg::reversible_view
-                <
-                    typename bg::reversible_view<Range const, Direction2>::type const,
-                    Direction1
-                >::type
-        >(range, expected);
+    typedef typename bg::reversible_view<Range const, Direction1>::type rview1;
+    typedef typename bg::reversible_view<rview1 const, Direction2>::type rview2;
+
+    rview1 view1(range);
+    rview2 view2(view1);
+    test_option(view2, expected);
 }
 
 template
 <
-    bg::closure_selector Close1,
-    bg::closure_selector Close2,
+    bg::closure_selector Closure1,
+    bg::closure_selector Closure2,
     typename Range
 >
 void test_close_close(Range const& range, std::string const& expected)
 {
-    test_option
-        <
-            typename bg::closeable_view
-                <
-                    typename bg::closeable_view<Range const, Close2>::type const,
-                    Close1
-                >::type
-        >(range, expected);
+    typedef typename bg::closeable_view<Range const, Closure1>::type cview1;
+    typedef typename bg::closeable_view<cview1 const, Closure2>::type cview2;
+
+    cview1 view1(range);
+    cview2 view2(view1);
+    test_option(view2, expected);
 }
 
 
@@ -126,20 +113,9 @@ void test_geometry(std::string const& wkt,
     test_close_reverse<bg::open, bg::iterate_forward>(geo, expected_n + closing);
     test_close_reverse<bg::closed, bg::iterate_reverse>(geo, expected_r);
 
-#if ! defined(_MSC_VER) || ! defined(_HAS_ITERATOR_DEBUGGING)
-    // 13-12-2010, Currently problematic in MSVC
-    // I've got no idea why this is.
-    // 1) if I go back to the original versions (without reverse_range / metafunctions, as in boost-geometry-0.7.0)
-    //    the problem DISAPPEARS. 
-    // 2) if I use the original version of closeable_view, but the shortened version of reversible_view
-    //    (with typedef Range type and typedef reversed_range type) the problem IS MUCH LARGER
-    // 3) if I use the shortened versions (so new versions of closeable and reversible_view),
-    //    it is only in the next "test_close_reverse"
-    // Runtime Exception Message: "vector iterators incompatible"
-    // Tested in MSVC 2005 and MSVC 2010. In GCC no problems detected.
-    // If I define _HAS_ITERATOR_DEBUGGING, the problem "disappears"
+    // 13-12-2010, this case was problematic in MSVC
+    // SOLVED: caused by IMPLICIT constructor! It is now explicit and should be kept like that.
     test_close_reverse<bg::open, bg::iterate_reverse>(geo, expected_r + rclosing);
-#endif
 
     test_reverse_close<bg::iterate_forward, bg::closed>(geo, expected_n);
     test_reverse_close<bg::iterate_forward, bg::open>(geo, expected_n + closing);
