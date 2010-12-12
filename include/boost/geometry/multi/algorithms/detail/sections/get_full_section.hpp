@@ -35,11 +35,10 @@ template
 struct full_section_multi
 {
     typedef typename geometry::ring_type<MultiGeometry>::type ring_type;
-    typedef closeable_view
+    typedef typename closeable_view
         <
-            ring_type const,
-            closure<MultiGeometry>::value == open // close it if it is open
-        > view_type;
+            ring_type const, closure<MultiGeometry>::value
+        >::type view_type;
 
     static inline view_type apply(MultiGeometry const& multi,
                 Section const& section)

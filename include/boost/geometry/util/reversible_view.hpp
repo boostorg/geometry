@@ -10,6 +10,7 @@
 
 
 #include <boost/range.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -21,51 +22,23 @@ namespace boost { namespace geometry
 
 enum iterate_direction { iterate_forward, iterate_reverse };
 
-
+// BSG 13-12-2010, changed into meta-function
 template <typename Range, iterate_direction Direction>
 struct reversible_view {};
-
 
 
 template <typename Range>
 struct reversible_view<Range, iterate_forward>
 {
-    explicit reversible_view(Range& r)
-        : m_range(r)
-    {}
-
-    typedef typename boost::range_iterator<Range const>::type const_iterator;
-    typedef typename boost::range_iterator<Range>::type iterator;
-
-    const_iterator begin() const { return boost::begin(this->m_range); }
-    const_iterator end() const { return boost::end(this->m_range); }
-
-    iterator begin() { return boost::begin(this->m_range); }
-    iterator end() { return boost::end(this->m_range); }
-private :
-    Range& m_range;
+    typedef Range type;
 };
 
 
 template <typename Range>
-struct reversible_view<Range, iterate_reverse>
+struct reversible_view<Range, iterate_reverse> 
 {
-    reversible_view(Range& r)
-        : m_range(r)
-    {}
-
-    typedef typename boost::range_reverse_iterator<Range const>::type const_iterator;
-    typedef typename boost::range_reverse_iterator<Range>::type iterator;
-
-    const_iterator begin() const { return boost::rbegin(this->m_range); }
-    const_iterator end() const { return boost::rend(this->m_range); }
-
-    iterator begin() { return boost::rbegin(this->m_range); }
-    iterator end() { return boost::rend(this->m_range); }
-private :
-    Range& m_range;
+    typedef boost::range_detail::reverse_range<Range> type;
 };
-
 
 }} // namespace boost::geometry
 

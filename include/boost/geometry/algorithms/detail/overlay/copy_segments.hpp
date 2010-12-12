@@ -42,11 +42,11 @@ namespace detail { namespace copy_segments
 template <typename Ring, typename SegmentIdentifier, typename RangeOut>
 struct copy_segments_ring
 {
-    typedef closeable_view
+    typedef typename closeable_view
         <
             Ring const,
-            closure<Ring>::value == open
-        > view_type;
+            closure<Ring>::value
+        >::type view_type;
 
     static inline void apply(Ring const& ring,
             SegmentIdentifier const& seg_id, int to_index,
@@ -57,7 +57,7 @@ struct copy_segments_ring
 
         typedef geometry::ever_circling_iterator<iterator> ec_iterator;
 
-        // The problem: sometimes we want to from "3" to "2" 
+        // The problem: sometimes we want to from "3" to "2"
         // -> end = "3" -> end == begin
         // This is not convenient with iterators.
 
@@ -117,11 +117,11 @@ struct copy_segments_polygon
 };
 
 
-template 
+template
 <
-    typename Box, 
-    typename SegmentIdentifier, 
-    typename RangeOut, 
+    typename Box,
+    typename SegmentIdentifier,
+    typename RangeOut,
     order_selector Order
 >
 struct copy_segments_box
@@ -151,7 +151,7 @@ struct copy_segments_box
         point_index[3] = reverse ? 1 : 3;
         point_index[4] = 0;
 
-        // 3: (possibly cyclic) copy to output 
+        // 3: (possibly cyclic) copy to output
         //    (see comments in ring-version)
         for (int i = 0; i < count; ++i)
         {
@@ -180,7 +180,7 @@ template
     typename GeometryIn,
     typename SegmentIdentifier,
     typename RangeOut,
-    order_selector Order 
+    order_selector Order
 >
 struct copy_segments
 {
@@ -192,11 +192,11 @@ struct copy_segments
 };
 
 
-template 
+template
 <
-    typename Ring, 
-    typename SegmentIdentifier, 
-    typename RangeOut, 
+    typename Ring,
+    typename SegmentIdentifier,
+    typename RangeOut,
     order_selector Order
 >
 struct copy_segments<ring_tag, Ring, SegmentIdentifier, RangeOut, Order>
@@ -207,11 +207,11 @@ struct copy_segments<ring_tag, Ring, SegmentIdentifier, RangeOut, Order>
 {};
 
 
-template 
+template
 <
-    typename Polygon, 
-    typename SegmentIdentifier, 
-    typename RangeOut, 
+    typename Polygon,
+    typename SegmentIdentifier,
+    typename RangeOut,
     order_selector Order
 >
 struct copy_segments<polygon_tag, Polygon, SegmentIdentifier, RangeOut, Order>
@@ -222,11 +222,11 @@ struct copy_segments<polygon_tag, Polygon, SegmentIdentifier, RangeOut, Order>
 {};
 
 
-template 
+template
 <
-    typename Box, 
-    typename SegmentIdentifier, 
-    typename RangeOut, 
+    typename Box,
+    typename SegmentIdentifier,
+    typename RangeOut,
     order_selector Order
 >
 struct copy_segments<box_tag, Box, SegmentIdentifier, RangeOut, Order>
@@ -249,9 +249,9 @@ struct copy_segments<box_tag, Box, SegmentIdentifier, RangeOut, Order>
  */
 template
 <
-    order_selector Order, 
-    typename Geometry, 
-    typename SegmentIdentifier, 
+    order_selector Order,
+    typename Geometry,
+    typename SegmentIdentifier,
     typename RangeOut
 >
 inline void copy_segments(Geometry const& geometry,

@@ -102,11 +102,7 @@ struct point_to_range
             return zero;
         }
 
-        typedef closeable_view
-            <
-                Range const,
-                Closure == open
-            > view_type;
+        typedef typename closeable_view<Range const, Closure>::type view_type;
 
         view_type view(range);
 

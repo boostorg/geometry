@@ -214,7 +214,14 @@ namespace dispatch
 {
 
 template <typename Tag, typename Geometry>
-struct wkt {};
+struct wkt 
+{
+   BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
 
 
 template <typename Point>

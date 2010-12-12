@@ -17,6 +17,7 @@
 #include <boost/type_traits.hpp>
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/closure.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -56,7 +57,7 @@ struct segment_length
 \note for_each could be used here, now that point_type is changed by boost
     range iterator
 */
-template<typename Range, typename Strategy, bool Close>
+template<typename Range, typename Strategy, closure_selector Closure>
 struct range_length
 {
     typedef typename length_result<Range>::type return_type;
@@ -64,7 +65,7 @@ struct range_length
     static inline return_type apply(
             Range const& range, Strategy const& strategy)
     {
-        typedef closeable_view<Range const, Close> view_type;
+        typedef typename closeable_view<Range const, Closure>::type view_type;
         typedef typename boost::range_iterator
             <
                 view_type const
@@ -111,7 +112,7 @@ struct length : detail::calculate_null
 
 template <typename Geometry, typename Strategy>
 struct length<linestring_tag, Geometry, Strategy>
-    : detail::length::range_length<Geometry, Strategy, false>
+    : detail::length::range_length<Geometry, Strategy, closed>
 {};
 
 

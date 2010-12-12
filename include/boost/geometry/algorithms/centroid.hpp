@@ -157,11 +157,7 @@ struct centroid_ring_state
     static inline void apply(Ring const& ring,
             Strategy const& strategy, typename Strategy::state_type& state)
     {
-        typedef closeable_view
-            <
-                Ring const,
-                Closure == open // close it if it is open
-            > view_type;
+        typedef typename closeable_view<Ring const, Closure>::type view_type;
 
         typedef typename boost::range_iterator<view_type const>::type iterator_type;
 

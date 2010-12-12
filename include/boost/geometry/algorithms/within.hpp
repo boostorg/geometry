@@ -160,12 +160,11 @@ struct point_in_ring
             return -1;
         }
 
-        typedef reversible_view<Ring const, Direction> rev_view_type;
-        typedef closeable_view
+        typedef typename reversible_view<Ring const, Direction>::type rev_view_type;
+        typedef typename closeable_view
             <
-                rev_view_type const,
-                Closure == open // close it if it is open
-            > cl_view_type;
+                rev_view_type const, Closure
+            >::type cl_view_type;
         typedef typename boost::range_iterator<cl_view_type const>::type iterator_type;
 
         rev_view_type rev_view(ring);

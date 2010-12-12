@@ -90,16 +90,16 @@ template
 >
 class get_turns_in_sections
 {
-    typedef closeable_view
+    typedef typename closeable_view
         <
             typename range_type<Geometry1>::type const,
-            closure<Geometry1>::value == open
-        > view_type1;
-    typedef closeable_view
+            closure<Geometry1>::value
+        >::type view_type1;
+    typedef typename closeable_view
         <
             typename range_type<Geometry2>::type const,
-            closure<Geometry2>::value == open
-        > view_type2;
+            closure<Geometry2>::value
+        >::type view_type2;
 
     typedef typename boost::range_iterator
         <
