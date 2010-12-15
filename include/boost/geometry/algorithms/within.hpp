@@ -216,9 +216,11 @@ struct point_in_polygon
 
         if (code == 1)
         {
-            for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-                 it != boost::end(interior_rings(poly));
-                 ++it)
+            typename interior_return_type<Polygon const>::type rings
+                        = interior_rings(poly);
+            for (BOOST_AUTO(it, boost::begin(rings));
+                it != boost::end(rings);
+                ++it)
             {
                 int const interior_code = point_in_ring
                     <

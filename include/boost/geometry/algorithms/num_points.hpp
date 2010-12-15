@@ -74,9 +74,9 @@ struct polygon_count
         std::size_t n = range_count<ring_type>::apply(
                     exterior_ring(poly), add_for_open);
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-             it != boost::end(interior_rings(poly));
-             ++it)
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(poly);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             n += range_count<ring_type>::apply(*it, add_for_open);
         }

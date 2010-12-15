@@ -96,8 +96,10 @@ struct add_to_containment<polygon_tag, Polygon>
 
         policy::apply(container, copy, exterior_ring(polygon), map, dissolve);
         copy.ring_index = 0;
-        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
-            it != boost::end(interior_rings(polygon));
+
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(polygon);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings);
             ++it, ++copy.ring_index)
         {
             policy::apply(container, copy, *it, map, dissolve);

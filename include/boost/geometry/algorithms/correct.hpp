@@ -164,9 +164,9 @@ struct correct_polygon
                 std::less<coordinate_type>
             >::apply(exterior_ring(poly));
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-             it != boost::end(interior_rings(poly));
-             ++it)
+        typename interior_return_type<Polygon>::type rings
+                    = interior_rings(poly);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             correct_ring
                 <

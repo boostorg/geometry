@@ -184,9 +184,9 @@ struct insert_rings<polygon_tag, RingCollection, Polygon>
     {
         ring_collection.push_back(exterior_ring(polygon));
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
-             it != boost::end(interior_rings(polygon));
-             ++it)
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(polygon);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_SPLIT_RINGS
 std::cout << geometry::wkt(*it)

@@ -132,9 +132,10 @@ struct svg_poly
 
         // Inner rings:
         {
-            for (BOOST_AUTO(rit, boost::begin(interior_rings(polygon)));
-                 rit != boost::end(interior_rings(polygon));
-                 ++rit)
+            typename interior_return_type<Polygon const>::type rings
+                        = interior_rings(polygon);
+            for (BOOST_AUTO(rit, boost::begin(rings));
+                rit != boost::end(rings); ++rit)
             {
                 first = true;
                 for (BOOST_AUTO(it, boost::begin(*rit)); it != boost::end(*rit);

@@ -204,9 +204,9 @@ struct polygon_buffer
 #endif
                 );
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
-             it != boost::end(interior_rings(polygon));
-             ++it)
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(polygon);
+        for (BOOST_AUTO(it, boost::begin(rings); it != boost::end(rings); ++it)
         {
             output_ring_type ring;
             policy::apply(*it, ring, distance, join_strategy

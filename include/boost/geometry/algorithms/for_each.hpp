@@ -99,9 +99,9 @@ struct fe_range_per_segment
 template <typename Polygon, typename Functor, bool IsConst>
 struct fe_polygon_per_point
 {
-    static inline Functor apply(
-                typename add_const_if_c<IsConst, Polygon>::type& poly,
-                Functor f)
+    typedef typename add_const_if_c<IsConst, Polygon>::type poly_type;
+
+    static inline Functor apply(poly_type& poly, Functor f)
     {
         typedef fe_range_per_point
                 <
@@ -112,9 +112,9 @@ struct fe_polygon_per_point
 
         f = per_ring::apply(exterior_ring(poly), f);
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-             it != boost::end(interior_rings(poly));
-             ++it)
+        typename interior_return_type<poly_type>::type rings
+                    = interior_rings(poly);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             f = per_ring::apply(*it, f);
         }
@@ -128,9 +128,9 @@ struct fe_polygon_per_point
 template <typename Polygon, typename Functor, bool IsConst>
 struct fe_polygon_per_segment
 {
-    static inline Functor apply(
-                typename add_const_if_c<IsConst, Polygon>::type& poly,
-                Functor f)
+    typedef typename add_const_if_c<IsConst, Polygon>::type poly_type;
+
+    static inline Functor apply(poly_type& poly, Functor f)
     {
         typedef fe_range_per_segment
             <
@@ -141,9 +141,9 @@ struct fe_polygon_per_segment
 
         f = per_ring::apply(exterior_ring(poly), f);
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-             it != boost::end(interior_rings(poly));
-             ++it)
+        typename interior_return_type<poly_type>::type rings
+                    = interior_rings(poly);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             f = per_ring::apply(*it, f);
         }

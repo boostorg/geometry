@@ -211,9 +211,10 @@ struct dsv_poly
         os << settings.list_open;
 
         dsv_range<ring>::apply(os, exterior_ring(poly), settings);
-        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-            it != boost::end(interior_rings(poly));
-            ++it)
+
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(poly);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             os << settings.list_separator;
             dsv_range<ring>::apply(os, *it, settings);

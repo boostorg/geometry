@@ -166,9 +166,10 @@ struct wkt_poly
         // TODO: check EMPTY here
         os << "(";
         wkt_sequence<ring>::apply(os, exterior_ring(poly));
-        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-            it != boost::end(interior_rings(poly));
-            ++it)
+
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(poly);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             os << ",";
             wkt_sequence<ring>::apply(os, *it);
@@ -214,7 +215,7 @@ namespace dispatch
 {
 
 template <typename Tag, typename Geometry>
-struct wkt 
+struct wkt
 {
    BOOST_MPL_ASSERT_MSG
         (

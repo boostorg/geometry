@@ -181,9 +181,9 @@ struct polygon_collect_vectors
         typedef range_collect_vectors<ring_type, Collection> per_range;
         per_range::apply(collection, exterior_ring(polygon));
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
-             it != boost::end(interior_rings(polygon));
-             ++it)
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(polygon);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             per_range::apply(collection, *it);
         }
