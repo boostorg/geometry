@@ -137,8 +137,12 @@ struct transform_polygon
         // TODO: we should make this part of the concept.
         interior_rings(poly2).resize(num_interior_rings(poly1));
 
-        BOOST_AUTO(it1, boost::begin(interior_rings(poly1)));
-        BOOST_AUTO(it2, boost::begin(interior_rings(poly2)));
+        typename interior_return_type<Polygon1 const>::type rings1
+                    = interior_rings(poly1);
+        typename interior_return_type<Polygon2>::type rings2
+                    = interior_rings(poly2);
+        BOOST_AUTO(it1, boost::begin(rings1));
+        BOOST_AUTO(it2, boost::begin(rings2));
         for ( ; it1 != boost::end(interior_rings(poly1)); ++it1, ++it2)
         {
             if (!transform_range_out<point2_type>(*it1,

@@ -695,9 +695,11 @@ struct get_turns_polygon_cs
                 multi_index, -1);
 
         int i = 0;
-        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
-             it != boost::end(interior_rings(polygon));
-             ++it, ++i)
+
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(polygon);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings);
+            ++it, ++i)
         {
             intersector_type::apply(
                     source_id1, *it,

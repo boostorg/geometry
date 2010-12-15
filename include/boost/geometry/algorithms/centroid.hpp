@@ -255,9 +255,9 @@ struct centroid_polygon_state
 
         per_ring::apply(exterior_ring(poly), strategy, state);
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-             it != boost::end(interior_rings(poly));
-             ++it)
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(poly);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             per_ring::apply(*it, strategy, state);
         }

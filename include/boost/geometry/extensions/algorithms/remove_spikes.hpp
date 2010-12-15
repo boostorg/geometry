@@ -128,9 +128,9 @@ struct polygon_remove_spikes
         typedef range_remove_spikes<ring_type, Policy> per_range;
         per_range::apply(exterior_ring(polygon), policy);
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
-             it != boost::end(interior_rings(polygon));
-             ++it)
+        typename interior_return_type<Polygon>::type rings
+                    = interior_rings(polygon);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             per_range::apply(*it, policy);
         }

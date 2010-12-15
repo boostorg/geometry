@@ -419,8 +419,10 @@ struct sectionalize_polygon
         sectionalizer_type::apply(exterior_ring(poly), sections, -1, multi_index);
 
         int i = 0;
-        for (BOOST_AUTO(it, boost::begin(interior_rings(poly)));
-             it != boost::end(interior_rings(poly));
+
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(poly);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings);
              ++it, ++i)
         {
             sectionalizer_type::apply(*it, sections, i, multi_index);

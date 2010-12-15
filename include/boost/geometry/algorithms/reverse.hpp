@@ -46,9 +46,9 @@ struct polygon_reverse
         typedef range_reverse<ring_type> per_range;
         per_range::apply(exterior_ring(polygon));
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
-             it != boost::end(interior_rings(polygon));
-             ++it)
+        typename interior_return_type<Polygon>::type rings
+                    = interior_rings(polygon);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             per_range::apply(*it);
         }

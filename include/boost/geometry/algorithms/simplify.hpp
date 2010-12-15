@@ -127,9 +127,13 @@ struct simplify_polygon
         // TODO: we should make this part of the concept.
         interior_rings(poly_out).resize(num_interior_rings(poly_in));
 
-        BOOST_AUTO(it_out, boost::begin(interior_rings(poly_out)));
-        for (BOOST_AUTO(it_in,  boost::begin(interior_rings(poly_in)));
-            it_in != boost::end(interior_rings(poly_in));
+        typename interior_return_type<Polygon const>::type rings_in
+                    = interior_rings(poly_in);
+        typename interior_return_type<Polygon>::type rings_out
+                    = interior_rings(poly_out);
+        BOOST_AUTO(it_out, boost::begin(rings_out));
+        for (BOOST_AUTO(it_in,  boost::begin(rings_in));
+            it_in != boost::end(rings_in);
             ++it_in, ++it_out)
         {
             simplify_range<ring_type, Strategy, 4>::apply(*it_in,

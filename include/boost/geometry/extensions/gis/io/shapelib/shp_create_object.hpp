@@ -100,9 +100,9 @@ struct shape_create_polygon
         parts[ring++] = offset;
         offset = range_to_part(geometry::exterior_ring(polygon), xp, yp, offset);
 
-        for (BOOST_AUTO(it, boost::begin(interior_rings(polygon)));
-             it != boost::end(interior_rings(polygon));
-             ++it)
+        typename interior_return_type<Polygon const>::type rings
+                    = interior_rings(polygon);
+        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             parts[ring++] = offset;
             offset = range_to_part(*it, xp, yp, offset);
