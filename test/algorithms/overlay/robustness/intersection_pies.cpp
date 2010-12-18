@@ -149,7 +149,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
         polygon p;
         make_pie(p, a, 0, 0, factor_p, total_segment_count);
 
-        holify(p);
+        //holify(p);
 
         for (int b = 2; b < total_segment_count; b++)
         {
@@ -163,7 +163,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
 
                     if (! multi)
                     {
-                        holify(q);
+                        //holify(q);
 
                         std::ostringstream out;
                         out << "pie_" << a << "_" << b << "_" << offset << "_" << y;
@@ -200,7 +200,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
                                 {
                                     q1.outer().push_back(q2.outer()[i]);
                                 }
-                                holify(q1);
+                                //holify(q1);
                                 good = test_overlay_p_q<polygon, T>(out.str(), p, q1, svg, 0.01);
                             }
                             else
@@ -208,7 +208,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
                                 multi_polygon mq;
                                 mq.push_back(q);
                                 mq.push_back(q2);
-                                holify_multi(mq);
+                                //holify_multi(mq);
                                 good = test_overlay_p_q<polygon, T>(out.str(), p, mq, svg, 0.01);
                             }
 
@@ -246,7 +246,7 @@ int main(int argc, char** argv)
         bool svg = argc > 1 && std::string(argv[1]) == std::string("svg");
 
         //test_all<float>();
-        test_all<double>(true, true, svg);
+        test_all<double>(true, false, svg);
         //test_all<long double>();
     }
     catch(std::exception const& e)

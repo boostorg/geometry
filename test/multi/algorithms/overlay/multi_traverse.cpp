@@ -15,16 +15,19 @@
 
 
 
+#include <boost/geometry/multi/core/geometry_id.hpp>
 #include <boost/geometry/multi/core/ring_type.hpp>
 
 #include <boost/geometry/multi/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/get_full_section.hpp>
+#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
+
+#include <boost/geometry/multi/iterators/range_type.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
 

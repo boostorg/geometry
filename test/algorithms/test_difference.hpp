@@ -115,15 +115,15 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         mapper.add(g1);
         mapper.add(g2);
 
-        mapper.map(g1, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
-        mapper.map(g2, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
+        mapper.map(g1, "fill-opacity:0.3;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:3");
+        mapper.map(g2, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:3");
 
         for (typename std::vector<OutputType>::const_iterator it = clip.begin();
                 it != clip.end(); ++it)
         {
-            mapper.map(*it, sym
-                ? "opacity:0.6;fill:rgb(255,255,0);stroke:rgb(255,0,0);stroke-width:5"
-                : "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
+            mapper.map(*it, 
+                //sym ? "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,255,0);stroke:rgb(255,0,255);stroke-width:8" :
+                "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);stroke:rgb(255,0,255);stroke-width:8");
         }
     }
 #endif

@@ -136,15 +136,23 @@ void test_all()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
     test_areal<ring, polygon, multi_polygon>();
-return;
 
     typedef bg::model::linear_ring<P, false> ring_ccw;
     typedef bg::model::polygon<P, false> polygon_ccw;
     typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
-    test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
+    // TODO: fix this one
+    //test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
+
+    /* TODO: enable next combination
+    typedef bg::model::linear_ring<P, true, false> ring_open;
+    typedef bg::model::polygon<P, true, false> polygon_open;
+    typedef bg::model::multi_polygon<polygon_open> multi_polygon_open;
+    test_areal<ring_open, polygon_open, multi_polygon_open>();
+    */
+
 
     test_areal_clip<polygon, multi_polygon, box>();
-    test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
+    //test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
 
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::multi_linestring<linestring> multi_linestring;
