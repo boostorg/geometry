@@ -15,6 +15,12 @@
 
 #include <boost/range.hpp>
 
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+#  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
+#  include <boost/geometry/util/write_dsv.hpp>
+#endif
+
+
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/convert_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/add_to_containment.hpp>
@@ -33,9 +39,6 @@
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 
 
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-#  include <boost/geometry/util/write_dsv.hpp>
-#endif
 
 
 namespace boost { namespace geometry
