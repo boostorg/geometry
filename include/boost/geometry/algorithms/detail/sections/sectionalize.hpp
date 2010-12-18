@@ -26,8 +26,8 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/closeable_view.hpp>
-#include <boost/geometry/util/reversible_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
 
@@ -357,7 +357,7 @@ struct sectionalize_range
     typedef typename closeable_view<Range const, Closure>::type cview_type;
     typedef typename reversible_view
         <
-            cview_type const, 
+            cview_type const,
             Reverse ? iterate_reverse : iterate_forward
         >::type view_type;
 
@@ -540,7 +540,7 @@ struct sectionalize<box_tag, Box, Reverse, Sections, DimensionCount, MaxCount>
 
 template
 <
-    typename LineString, 
+    typename LineString,
     typename Sections,
     std::size_t DimensionCount,
     std::size_t MaxCount

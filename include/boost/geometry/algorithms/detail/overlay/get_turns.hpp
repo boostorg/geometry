@@ -30,8 +30,8 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/closeable_view.hpp>
-#include <boost/geometry/util/reversible_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 
@@ -48,7 +48,7 @@
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
 
-#include <boost/geometry/algorithms/detail/sections/get_full_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 
 #include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
@@ -106,12 +106,12 @@ class get_turns_in_sections
 
     typedef typename reversible_view
         <
-            cview_type1 const, 
+            cview_type1 const,
             Reverse1 ? iterate_reverse : iterate_forward
         >::type view_type1;
     typedef typename reversible_view
         <
-            cview_type2 const, 
+            cview_type2 const,
             Reverse2 ? iterate_reverse : iterate_forward
         >::type view_type2;
 

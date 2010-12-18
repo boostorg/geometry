@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_UTIL_ORDER_AS_DIRECTION_HPP
 
 #include <boost/geometry/core/point_order.hpp>
-#include <boost/geometry/util/reversible_view.hpp>
 
 
 namespace boost { namespace geometry

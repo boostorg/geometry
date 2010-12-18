@@ -29,8 +29,8 @@
 #include <boost/geometry/strategies/within.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
-#include <boost/geometry/util/closeable_view.hpp>
-#include <boost/geometry/util/reversible_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
 
 
 namespace boost { namespace geometry
