@@ -12,7 +12,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/algorithms/detail/sections/get_full_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/iterators/range_type.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
@@ -38,7 +38,7 @@ void test_sectionalize(std::string const caseid, Geometry const& geometry, std::
         >::type cview_type;
     typedef typename bg::reversible_view
         <
-            cview_type const, 
+            cview_type const,
             Reverse ? bg::iterate_reverse : bg::iterate_forward
         >::type view_type;
     typedef typename boost::range_iterator
