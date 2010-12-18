@@ -31,7 +31,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/util/closeable_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/util/math.hpp>
 
 

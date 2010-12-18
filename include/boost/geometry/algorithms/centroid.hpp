@@ -28,7 +28,7 @@
 #include <boost/geometry/iterators/segment_returning_iterator.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
-#include <boost/geometry/util/closeable_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/util/copy.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
 

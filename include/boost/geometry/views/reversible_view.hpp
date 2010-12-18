@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_UTIL_REVERSIBLE_VIEW_HPP
-#define BOOST_GEOMETRY_UTIL_REVERSIBLE_VIEW_HPP
+#ifndef BOOST_GEOMETRY_VIEWS_REVERSIBLE_VIEW_HPP
+#define BOOST_GEOMETRY_VIEWS_REVERSIBLE_VIEW_HPP
 
 
 #include <boost/range.hpp>
@@ -16,6 +16,7 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/views/identity_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,12 +31,12 @@ struct reversible_view {};
 template <typename Range>
 struct reversible_view<Range, iterate_forward>
 {
-    typedef Range type;
+    typedef identity_view<Range> type;
 };
 
 
 template <typename Range>
-struct reversible_view<Range, iterate_reverse> 
+struct reversible_view<Range, iterate_reverse>
 {
     typedef boost::range_detail::reverse_range<Range> type;
 };
@@ -43,4 +44,4 @@ struct reversible_view<Range, iterate_reverse>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_UTIL_REVERSIBLE_VIEW_HPP
+#endif // BOOST_GEOMETRY_VIEWS_REVERSIBLE_VIEW_HPP

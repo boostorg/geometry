@@ -15,7 +15,7 @@
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/iterators/range_type.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/sections/get_full_section.hpp>
+#include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 
 

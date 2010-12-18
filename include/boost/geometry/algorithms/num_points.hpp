@@ -39,7 +39,7 @@ struct range_count
     static inline std::size_t apply(Range const& range, bool add_for_open)
     {
         std::size_t n = boost::size(range);
-        if (add_for_open)
+        if (add_for_open && n > 0)
         {
             closure_selector const s = geometry::closure<Range>::value;
 

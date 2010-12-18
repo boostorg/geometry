@@ -23,7 +23,7 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
-#include <boost/geometry/util/closeable_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/length_result.hpp>
 

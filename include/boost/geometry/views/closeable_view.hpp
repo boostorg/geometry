@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_UTIL_CLOSEABLE_VIEW_HPP
-#define BOOST_GEOMETRY_UTIL_CLOSEABLE_VIEW_HPP
+#ifndef BOOST_GEOMETRY_VIEWS_CLOSEABLE_VIEW_HPP
+#define BOOST_GEOMETRY_VIEWS_CLOSEABLE_VIEW_HPP
 
 
 #include <boost/range.hpp>
@@ -17,6 +17,7 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/iterators/closing_iterator.hpp>
 
+#include <boost/geometry/views/identity_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -56,7 +57,7 @@ struct closeable_view {};
 template <typename Range>
 struct closeable_view<Range, closed>
 {
-    typedef Range type;
+    typedef identity_view<Range> type;
 };
 
 
@@ -70,4 +71,4 @@ struct closeable_view<Range, open>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_UTIL_CLOSEABLE_VIEW_HPP
+#endif // BOOST_GEOMETRY_VIEWS_CLOSEABLE_VIEW_HPP
