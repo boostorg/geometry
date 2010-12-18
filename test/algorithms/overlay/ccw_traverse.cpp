@@ -37,7 +37,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     std::vector<turn_info> turns;
 
     bg::detail::get_turns::no_interrupt_policy policy;
-    bg::get_turns<bg::detail::overlay::calculate_distance_policy>(g1, g2, turns, policy);
+    bg::get_turns<false, false, bg::detail::overlay::calculate_distance_policy>(g1, g2, turns, policy);
 
     bool const reverse =
         bg::point_order<Geometry1>::value == bg::counterclockwise
@@ -53,7 +53,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     typedef std::vector<ring_type> out_vector;
     out_vector v;
 
-    bg::traverse<bg::point_order<Geometry2>::value>(g1, g2, op, turns, v);
+    bg::traverse<bg::point_order<Geometry2>::value, false, false>(g1, g2, op, turns, v);
 
     if (reverse)
     {

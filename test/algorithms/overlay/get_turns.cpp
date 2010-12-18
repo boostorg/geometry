@@ -48,7 +48,7 @@ struct test_get_turns
         std::vector<turn_info> turns;
 
         bg::detail::get_turns::no_interrupt_policy policy;
-        bg::get_turns<bg::detail::overlay::assign_null_policy>(g1, g2, turns, policy);
+        bg::get_turns<false, false, bg::detail::overlay::assign_null_policy>(g1, g2, turns, policy);
 
         BOOST_CHECK_MESSAGE(
             expected_count_and_center.get<0>() == boost::size(turns),

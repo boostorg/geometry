@@ -223,14 +223,11 @@ void test_all()
     typedef bg::model::box<P> box;
 
     test_areal<ring, polygon>();
+    // Open
+    //test_areal<bg::model::linear_ring<P, true, false>, bg::model::polygon<P, true, false> >();
+    // Counter clockwise
+    test_areal<bg::model::linear_ring<P, false>, bg::model::polygon<P, false> >();
 
-    test_areal<bg::model::linear_ring<P, true, false>,
-            bg::model::polygon<P, true, false> >();
-/*
-TODO: ccw has one new error in 'wrapped' due to new approach, SOLVE THIS
-    test_areal<bg::model::linear_ring<P, false>,
-            bg::model::polygon<P, false> >();
-*/
     test_one<polygon, box, polygon>("box_ring", example_box, example_ring,
         1, 1, 15, 6.38875);
 

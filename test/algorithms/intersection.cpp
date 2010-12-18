@@ -199,6 +199,7 @@ void test_all()
 
     typedef bg::model::polygon<P, false> polygon_ccw;
     typedef bg::model::polygon<P, true, false> polygon_open;
+    typedef bg::model::polygon<P, false, false> polygon_ccw_open;
 
     std::string clip = "box(2 2,8 8)";
 
@@ -206,12 +207,14 @@ void test_all()
     test_areal<polygon>();
     test_areal<polygon_ccw>();
     test_areal<polygon_open>();
+    test_areal<polygon_ccw_open>();
 
     test_areal_clip<polygon, box>();
-    test_areal_clip<polygon_ccw, box>();
+    //test_areal_clip<polygon_ccw, box>();
 
 #if defined(TEST_FAIL_DIFFERENT_ORIENTATIONS)
     // Should NOT compile
+    // NOTE: this can probably be relaxed later on.        
     test_one<polygon, polygon_ccw, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         1, 7, 5.47363293);

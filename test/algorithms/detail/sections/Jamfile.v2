@@ -9,4 +9,5 @@
 test-suite boost-geometry-algorithms-detail-sections
     : 
     [ run sectionalize.cpp ]
+    [ run range_by_section.cpp ]
      ;

@@ -81,6 +81,8 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
     }
     else
     {
+        bg::correct(p);
+        bg::correct(q);
         if (! test_recursive_boxes(p, index, generator, svg, level - 1)
             || ! test_recursive_boxes(q, index, generator, svg, level - 1))
         {
@@ -130,6 +132,7 @@ void test_all(int seed, int count, bool svg, int level)
     typedef bg::model::polygon
         <
             bg::model::d2::point_xy<T>
+            //, true, false
         > polygon;
     typedef bg::model::multi_polygon<polygon> mp;
 

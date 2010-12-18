@@ -68,7 +68,7 @@ void test_traverse(std::string const& caseid, G1 const& g1, G2 const& g2)
     typedef typename boost::range_iterator<const std::vector<turn_info> >::type iterator;
     std::vector<turn_info> ips;
 
-    bg::get_turns<bg::detail::overlay::calculate_distance_policy>(g1, g2, ips);
+    bg::get_turns<false, false, bg::detail::overlay::calculate_distance_policy>(g1, g2, ips);
     bg::enrich_intersection_points(ips, g1, g2, strategy_type());
 
     typedef bg::model::linear_ring<typename bg::point_type<G2>::type> ring_type;

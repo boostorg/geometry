@@ -57,7 +57,12 @@
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
 
-template <bg::detail::overlay::operation_type Direction>
+template 
+<
+    bg::detail::overlay::operation_type Direction, 
+    bool Reverse1 = false, 
+    bool Reverse2 = false
+>
 struct test_traverse
 {
     static inline std::string operation(int d)
@@ -128,7 +133,7 @@ struct test_traverse
         std::vector<turn_info> turns;
 
         bg::detail::get_turns::no_interrupt_policy policy;
-        bg::get_turns<bg::detail::overlay::calculate_distance_policy>(g1, g2, turns, policy);
+        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, turns, policy);
         bg::enrich_intersection_points(turns,
                     Direction == 1 ? bg::detail::overlay::operation_union
                     : bg::detail::overlay::operation_intersection,
@@ -139,7 +144,7 @@ struct test_traverse
         out_vector v;
 
 
-        bg::traverse<bg::clockwise>(g1, g2, Direction, turns, v);
+        bg::traverse<bg::clockwise, Reverse1, Reverse2>(g1, g2, Direction, turns, v);
 
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count_area.get<0>() == boost::size(v),
@@ -847,12 +852,29 @@ void test_open()
         open_case_1[0], open_case_1[1]);
 }
 
+template <typename T>
+void test_ccw()
+{
+    using namespace bg::detail::overlay;
+
+    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
+    typedef bg::model::polygon<P, false, true> polygon;
+    typedef boost::tuple<int, double> Tuple;
+
+    test_overlay<polygon, polygon, test_traverse<operation_intersection, true, true>,  Tuple>("ccw_1", boost::make_tuple(1, 5.4736),
+        ccw_case_1[0], ccw_case_1[1]);
+    test_overlay<polygon, polygon, test_traverse<operation_union, true, true>,  Tuple>("ccw_1", boost::make_tuple(1, 11.5264),
+        ccw_case_1[0], ccw_case_1[1]);
+}
+
+
 
 int test_main(int, char* [])
 {
     //test_all<float>();
     test_all<double>();
-    //test_open<double>();
+    test_open<double>();
+    test_ccw<double>();
 
 #if ! defined(_MSC_VER)
     test_all<long double>();
