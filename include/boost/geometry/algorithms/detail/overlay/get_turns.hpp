@@ -30,6 +30,8 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/closeable_view.hpp>
+#include <boost/geometry/util/reversible_view.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 
@@ -83,6 +85,7 @@ struct no_interrupt_policy
 template
 <
     typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename Section1, typename Section2,
     typename Turns,
     typename TurnPolicy,
@@ -94,11 +97,22 @@ class get_turns_in_sections
         <
             typename range_type<Geometry1>::type const,
             closure<Geometry1>::value
-        >::type view_type1;
+        >::type cview_type1;
     typedef typename closeable_view
         <
             typename range_type<Geometry2>::type const,
             closure<Geometry2>::value
+        >::type cview_type2;
+
+    typedef typename reversible_view
+        <
+            cview_type1 const, 
+            Reverse1 ? iterate_reverse : iterate_forward
+        >::type view_type1;
+    typedef typename reversible_view
+        <
+            cview_type2 const, 
+            Reverse2 ? iterate_reverse : iterate_forward
         >::type view_type2;
 
     typedef typename boost::range_iterator
@@ -121,8 +135,10 @@ public :
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
-        view_type1 view1 = get_full_section<view_type1>(geometry1, sec1);
-        view_type2 view2 = get_full_section<view_type2>(geometry2, sec2);
+        cview_type1 cview1(range_by_section(geometry1, sec1));
+        cview_type2 cview2(range_by_section(geometry2, sec2));
+        view_type1 view1(cview1);
+        view_type2 view2(cview2);
 
         range1_iterator begin_range_1 = boost::begin(view1);
         range1_iterator end_range_1 = boost::end(view1);
@@ -309,8 +325,8 @@ private :
 
 template
 <
-    typename Geometry1,
-    typename Geometry2,
+    typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -376,6 +392,7 @@ class get_turns_generic
                                 <
                                     Geometry1,
                                     Geometry2,
+                                    Reverse1, Reverse2,
                                     typename boost::range_value<Sections1>::type,
                                     typename boost::range_value<Sections2>::type,
                                     Turns,
@@ -485,8 +502,8 @@ public:
         sections1_type sec1;
         sections2_type sec2;
 
-        geometry::sectionalize(geometry1, sec1);
-        geometry::sectionalize(geometry2, sec2);
+        geometry::sectionalize<Reverse1>(geometry1, sec1);
+        geometry::sectionalize<Reverse2>(geometry2, sec2);
 
         // Divide and conquer
         model::box<point_type> box;
@@ -724,6 +741,7 @@ template
 <
     typename GeometryTag1, typename GeometryTag2,
     typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -731,8 +749,8 @@ template
 struct get_turns
     : detail::get_turns::get_turns_generic
         <
-            Geometry1,
-            Geometry2,
+            Geometry1, Geometry2,
+            Reverse1, Reverse2,
             Turns,
             TurnPolicy,
             InterruptPolicy
@@ -742,8 +760,8 @@ struct get_turns
 
 template
 <
-    typename Polygon,
-    typename Box,
+    typename Polygon, typename Box,
+    bool ReversePolygon, bool ReverseBox,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -752,6 +770,7 @@ struct get_turns
     <
         polygon_tag, box_tag,
         Polygon, Box,
+        ReversePolygon, ReverseBox,
         Turns,
         TurnPolicy,
         InterruptPolicy
@@ -765,8 +784,8 @@ struct get_turns
 
 template
 <
-    typename Ring,
-    typename Box,
+    typename Ring, typename Box,
+    bool ReverseRing, bool ReverseBox,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -775,6 +794,7 @@ struct get_turns
     <
         ring_tag, box_tag,
         Ring, Box,
+        ReverseRing, ReverseBox,
         Turns,
         TurnPolicy,
         InterruptPolicy
@@ -791,6 +811,7 @@ template
 <
     typename GeometryTag1, typename GeometryTag2,
     typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -806,6 +827,7 @@ struct get_turns_reversed
             <
                 GeometryTag2, GeometryTag1,
                 Geometry2, Geometry1,
+                Reverse2, Reverse1,
                 Turns, TurnPolicy,
                 InterruptPolicy
             >::apply(source_id2, g2, source_id1, g1, turns, interrupt_policy);
@@ -832,6 +854,7 @@ struct get_turns_reversed
  */
 template
 <
+    bool Reverse1, bool Reverse2,
     typename AssignPolicy,
     typename Geometry1,
     typename Geometry2,
@@ -868,8 +891,8 @@ inline void get_turns(Geometry1 const& geometry1,
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
-                Geometry1,
-                Geometry2,
+                Geometry1, Geometry2,
+                Reverse1, Reverse2,
                 Turns, TurnPolicy,
                 InterruptPolicy
             >,
@@ -877,8 +900,8 @@ inline void get_turns(Geometry1 const& geometry1,
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
-                Geometry1,
-                Geometry2,
+                Geometry1, Geometry2,
+                Reverse1, Reverse2,
                 Turns, TurnPolicy,
                 InterruptPolicy
             >

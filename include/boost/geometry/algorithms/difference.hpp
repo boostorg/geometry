@@ -10,10 +10,7 @@
 
 #include <algorithm>
 
-
 #include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/algorithms/reverse.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -37,14 +34,27 @@ template
     typename Collection
 >
 inline void difference(Geometry1 const& geometry1,
-            Geometry2 geometry2, Collection& output_collection)
+            Geometry2 const& geometry2, Collection& output_collection)
 {
     concept::check<Geometry1 const>();
-    concept::check<Geometry2>();
+    concept::check<Geometry2 const>();
 
-    reverse(geometry2);
+    typedef typename boost::range_value<Collection>::type geometry_out;
+    concept::check<geometry_out>();
 
-    intersection(geometry1, geometry2, output_collection);
+    typedef strategy_intersection
+        <
+            typename cs_tag<geometry_out>::type,
+            Geometry1,
+            Geometry2,
+            typename geometry::point_type<geometry_out>::type
+        > strategy;
+
+
+    detail::intersection::inserter<geometry_out, false, true>(
+            geometry1, geometry2, 
+            std::back_inserter(output_collection),
+            strategy());
 }
 
 

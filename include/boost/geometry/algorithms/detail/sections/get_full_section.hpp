@@ -17,7 +17,6 @@
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/util/closeable_view.hpp>
 
 
 
@@ -29,20 +28,12 @@ namespace detail { namespace section
 {
 
 
-
-
 template <typename Range, typename Section>
 struct full_section_range
 {
-    typedef typename closeable_view
-        <
-            Range const,
-            closure<Range>::value
-        >::type view_type;
-
-    static inline view_type apply(Range const& range, Section const& section)
+    static inline Range const& apply(Range const& range, Section const& section)
     {
-        return view_type(range);
+        return range;
     }
 };
 
@@ -51,20 +42,12 @@ template <typename Polygon, typename Section>
 struct full_section_polygon
 {
     typedef typename geometry::ring_type<Polygon>::type ring_type;
-    typedef typename closeable_view
-        <
-            ring_type const,
-            closure<ring_type>::value
-        >::type view_type;
 
-    static inline view_type apply(Polygon const& polygon, Section const& section)
+    static inline typename ring_return_type<Polygon const>::type apply(Polygon const& polygon, Section const& section)
     {
-
-        ring_type const& ring = section.ring_index < 0
+        return section.ring_index < 0
             ? geometry::exterior_ring(polygon)
             : geometry::interior_rings(polygon)[section.ring_index];
-
-        return view_type(ring);
     }
 };
 
@@ -84,7 +67,7 @@ template
     typename Geometry,
     typename Section
 >
-struct get_full_section
+struct range_by_section
 {
     BOOST_MPL_ASSERT_MSG
         (
@@ -95,19 +78,19 @@ struct get_full_section
 
 
 template <typename LineString, typename Section>
-struct get_full_section<linestring_tag, LineString, Section>
+struct range_by_section<linestring_tag, LineString, Section>
     : detail::section::full_section_range<LineString, Section>
 {};
 
 
 template <typename Ring, typename Section>
-struct get_full_section<ring_tag, Ring, Section>
+struct range_by_section<ring_tag, Ring, Section>
     : detail::section::full_section_range<Ring, Section>
 {};
 
 
 template <typename Polygon, typename Section>
-struct get_full_section<polygon_tag, Polygon, Section>
+struct range_by_section<polygon_tag, Polygon, Section>
     : detail::section::full_section_polygon<Polygon, Section>
 {};
 
@@ -117,23 +100,21 @@ struct get_full_section<polygon_tag, Polygon, Section>
 
 
 /*!
-    \brief Get a closeable view indicated by the specified section
+    \brief Get full ring (exterior, one of interiors, one from multi)
+        indicated by the specified section
     \ingroup sectionalize
     \tparam Geometry type
     \tparam Section type of section to get from
     \param geometry geometry to take section of
     \param section structure with section
-    \param begin begin-iterator (const iterator over points of section)
-    \param end end-iterator (const iterator over points of section)
-    \todo Create non-const version as well
-
  */
-template <typename Range, typename Geometry, typename Section>
-inline Range get_full_section(Geometry const& geometry, Section const& section)
+template <typename Geometry, typename Section>
+inline typename ring_return_type<Geometry const>::type 
+            range_by_section(Geometry const& geometry, Section const& section)
 {
     concept::check<Geometry const>();
 
-    return dispatch::get_full_section
+    return dispatch::range_by_section
         <
             typename tag<Geometry>::type,
             Geometry,

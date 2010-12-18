@@ -9,7 +9,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSEMBLE_HPP
 
 
-#include <deque>
 #include <map>
 #include <vector>
 
@@ -571,7 +570,7 @@ std::cout << "assemble" << std::endl;
         // Add all produced rings using source index 2
         {
             ring_identifier id(2, 0, -1);
-            for (typename std::vector<ring_type>::const_iterator
+            for (typename boost::range_iterator<Rings const>::type
                     it = boost::begin(rings);
                     it != boost::end(rings);
                     ++it, ++id.multi_index)
@@ -629,7 +628,7 @@ std::cout << "assemble.enrich containment" << std::endl;
                     ring_properties_container_type,
                     Geometry1,
                     Geometry2,
-                    std::vector<ring_type>,
+                    Rings,
                     model::box<point_type>
                 >::apply(ring_properties_container,
                         geometry1, geometry2, rings, direction, dissolve, total);

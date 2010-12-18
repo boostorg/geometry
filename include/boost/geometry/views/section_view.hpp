@@ -8,11 +8,12 @@
 #ifndef BOOST_GEOMETRY_VIEWS_SECTION_VIEW_HPP
 #define BOOST_GEOMETRY_VIEWS_SECTION_VIEW_HPP
 
+// Note the addition of this whole file was committed to SVN by accident,
+// probably obsolete
 
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/algorithms/detail/sections/get_section.hpp>
 #include <boost/geometry/util/add_const_if_c.hpp>
 
 

@@ -111,8 +111,8 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
-                Geometry1,
-                Geometry2,
+                Geometry1, Geometry2,
+                false, false,
                 Turns, TurnPolicy,
                 //segment_intersection_strategy_type,
                 detail::get_turns::no_interrupt_policy
@@ -121,8 +121,8 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
-                Geometry1,
-                Geometry2,
+                Geometry1, Geometry2,
+                false, false,
                 Turns, TurnPolicy,
                 //segment_intersection_strategy_type,
                 detail::get_turns::no_interrupt_policy

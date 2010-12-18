@@ -116,11 +116,11 @@ template
     // tag dispatching:
     typename TagIn1, typename TagIn2, typename TagOut,
     // orientation 
-    order_selector Order1, order_selector Order2, order_selector OrderOut,
     // metafunction finetuning helpers:
     bool Areal1, bool Areal2, bool ArealOut, 
     // real types
     typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename OutputIterator,
     typename GeometryOut,
     typename Strategy
@@ -139,6 +139,7 @@ template
 <
     typename TagIn1, typename TagIn2, typename TagOut,
     typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename OutputIterator,
     typename GeometryOut,
     typename Strategy
@@ -146,44 +147,22 @@ template
 struct intersection_inserter
     <
         TagIn1, TagIn2, TagOut,
-        clockwise, clockwise, clockwise,
         true, true, true,
         Geometry1, Geometry2,
+        Reverse1, Reverse2,
         OutputIterator, GeometryOut,
         Strategy
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, clockwise, Strategy>
+        <Geometry1, Geometry2, Reverse1, Reverse2, OutputIterator, GeometryOut, -1, clockwise, Strategy>
 {};
 
 
-// All counter clockwise:
-template
-<
-    typename TagIn1, typename TagIn2, typename TagOut,
-    typename Geometry1, typename Geometry2,
-    typename OutputIterator,
-    typename GeometryOut,
-    typename Strategy
->
-struct intersection_inserter
-    <
-        TagIn1, TagIn2, TagOut,
-        counterclockwise, counterclockwise, counterclockwise,
-        true, true, true,
-        Geometry1, Geometry2,
-        OutputIterator, GeometryOut,
-        Strategy
-    > : detail::overlay::overlay
-        <Geometry1, Geometry2, OutputIterator, GeometryOut, -1, counterclockwise, Strategy>
-{};
-
-
-// Boxes are never counter clockwise.
-// Any counter areal type with box:
+// Any areal type with box:
 template
 <
     typename TagIn, typename TagOut,
     typename Geometry, typename Box,
+    bool Reverse1, bool Reverse2, 
     typename OutputIterator,
     typename GeometryOut,
     typename Strategy
@@ -191,28 +170,29 @@ template
 struct intersection_inserter
     <
         TagIn, box_tag, TagOut,
-        counterclockwise, clockwise, counterclockwise,
         true, true, true,
         Geometry, Box,
+        Reverse1, Reverse2,
         OutputIterator, GeometryOut,
         Strategy
     > : detail::overlay::overlay
-        <Geometry, Box, OutputIterator, GeometryOut, -1, counterclockwise, Strategy>
+        <Geometry, Box, Reverse1, Reverse2, OutputIterator, GeometryOut, -1, clockwise, Strategy>
 {};
 
 
 template
 <
     typename Segment1, typename Segment2,
+    bool Reverse1, bool Reverse2,
     typename OutputIterator, typename GeometryOut,
     typename Strategy
 >
 struct intersection_inserter
     <
         segment_tag, segment_tag, point_tag,
-        clockwise, clockwise, clockwise,
         false, false, false,
         Segment1, Segment2,
+        Reverse1, Reverse2,
         OutputIterator, GeometryOut,
         Strategy
     > : detail::intersection::intersection_segment_segment_point
@@ -227,15 +207,16 @@ struct intersection_inserter
 template
 <
     typename Linestring1, typename Linestring2,
+    bool Reverse1, bool Reverse2,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy, order_selector Order
+    typename Strategy
 >
 struct intersection_inserter
     <
         linestring_tag, linestring_tag, point_tag,
-        Order, Order, Order,
         false, false, false,
         Linestring1, Linestring2,
+        Reverse1, Reverse2,
         OutputIterator, GeometryOut,
         Strategy
     > : detail::intersection::intersection_linestring_linestring_point
@@ -250,15 +231,16 @@ struct intersection_inserter
 template
 <
     typename Linestring, typename Box,
+    bool Reverse1, bool Reverse2,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy, order_selector Order
+    typename Strategy
 >
 struct intersection_inserter
     <
         linestring_tag, box_tag, linestring_tag,
-        Order, Order, Order,
         false, true, false,
         Linestring, Box,
+        Reverse1, Reverse2,
         OutputIterator, GeometryOut,
         Strategy
     >
@@ -276,15 +258,16 @@ struct intersection_inserter
 template
 <
     typename Segment, typename Box,
+    bool Reverse1, bool Reverse2,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy, order_selector Order
+    typename Strategy
 >
 struct intersection_inserter
     <
         segment_tag, box_tag, linestring_tag,
-        Order, Order, Order,
         false, true, false,
         Segment, Box,
+        Reverse1, Reverse2,
         OutputIterator, GeometryOut,
         Strategy
     >
@@ -306,9 +289,9 @@ struct intersection_inserter
 template
 <
     typename GeometryTag1, typename GeometryTag2, typename GeometryTag3,
-    order_selector Order1, order_selector Order2, order_selector OrderOut,
     bool Areal1, bool Areal2, bool ArealOut, 
     typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename OutputIterator, typename GeometryOut,
     typename Strategy
 >
@@ -321,9 +304,9 @@ struct intersection_inserter_reversed
         return intersection_inserter
             <
                 GeometryTag2, GeometryTag1, GeometryTag3,
-                Order2, Order1, OrderOut,
                 Areal2, Areal1, ArealOut, 
                 Geometry2, Geometry1,
+                Reverse1, Reverse2,
                 OutputIterator, GeometryOut,
                 Strategy
             >::apply(g2, g1, out, strategy);
@@ -334,6 +317,69 @@ struct intersection_inserter_reversed
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
+
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace intersection
+{
+
+
+template
+<
+    typename GeometryOut,
+    bool Reverse1, bool Reverse2,
+    typename Geometry1, typename Geometry2,
+    typename OutputIterator,
+    typename Strategy
+>
+inline OutputIterator inserter(Geometry1 const& geometry1,
+            Geometry2 const& geometry2,
+            OutputIterator out,
+            Strategy const& strategy)
+{
+    return boost::mpl::if_c
+        <
+            geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
+            geometry::dispatch::intersection_inserter_reversed
+            <
+                typename geometry::tag<Geometry1>::type,
+                typename geometry::tag<Geometry2>::type,
+                typename geometry::tag<GeometryOut>::type,
+                ////point_order<Geometry1>::value,
+                ////point_order<Geometry2>::value,
+                ////point_order<GeometryOut>::value,
+                geometry::is_areal<Geometry1>::value,
+                geometry::is_areal<Geometry2>::value,
+                geometry::is_areal<GeometryOut>::value,
+                Geometry1, Geometry2,
+                overlay::do_reverse<point_order<Geometry1>::value, Reverse1>::value, 
+                overlay::do_reverse<point_order<Geometry2>::value, Reverse2>::value, 
+                OutputIterator, GeometryOut,
+                Strategy
+            >,
+            geometry::dispatch::intersection_inserter
+            <
+                typename geometry::tag<Geometry1>::type,
+                typename geometry::tag<Geometry2>::type,
+                typename geometry::tag<GeometryOut>::type,
+                ////point_order<Geometry1>::value,
+                ///point_order<Geometry2>::value,
+                ///point_order<GeometryOut>::value,
+                geometry::is_areal<Geometry1>::value,
+                geometry::is_areal<Geometry2>::value,
+                geometry::is_areal<GeometryOut>::value,
+                Geometry1, Geometry2,
+                overlay::do_reverse<point_order<Geometry1>::value, Reverse1>::value, 
+                overlay::do_reverse<point_order<Geometry2>::value, Reverse2>::value, 
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+        >::type::apply(geometry1, geometry2, out, strategy);
+}
+
+
+}} // namespace detail::intersection
+#endif // DOXYGEN_NO_DETAIL
 
 /*!
 \brief \brief_calc2{intersection} \brief_strategy
@@ -372,42 +418,8 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return boost::mpl::if_c
-        <
-            reverse_dispatch<Geometry1, Geometry2>::type::value,
-            dispatch::intersection_inserter_reversed
-            <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
-                typename tag<GeometryOut>::type,
-                point_order<Geometry1>::value,
-                point_order<Geometry2>::value,
-                point_order<GeometryOut>::value,
-                is_areal<Geometry1>::value,
-                is_areal<Geometry2>::value,
-                is_areal<GeometryOut>::value,
-                Geometry1,
-                Geometry2,
-                OutputIterator, GeometryOut,
-                Strategy
-            >,
-            dispatch::intersection_inserter
-            <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
-                typename tag<GeometryOut>::type,
-                point_order<Geometry1>::value,
-                point_order<Geometry2>::value,
-                point_order<GeometryOut>::value,
-                is_areal<Geometry1>::value,
-                is_areal<Geometry2>::value,
-                is_areal<GeometryOut>::value,
-                Geometry1,
-                Geometry2,
-                OutputIterator, GeometryOut,
-                Strategy
-            >
-        >::type::apply(geometry1, geometry2, out, strategy);
+    return detail::intersection::inserter<GeometryOut, false, false>(
+            geometry1, geometry2, out, strategy);
 }
 
 

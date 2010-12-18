@@ -83,7 +83,7 @@ struct dissolve_ring_or_polygon
 
 
             // Traverse the polygons twice in two different directions
-            traverse<point_order<Geometry>::value>(geometry, geometry,
+            traverse<point_order<Geometry>::value, false, false>(geometry, geometry,
                             detail::overlay::operation_union,
                             turns, rings);
 
@@ -95,7 +95,7 @@ struct dissolve_ring_or_polygon
                         side_strategy_type());
 
 
-            traverse<point_order<Geometry>::value>(geometry, geometry,
+            traverse<point_order<Geometry>::value, false, false>(geometry, geometry,
                             detail::overlay::operation_intersection,
                             turns, rings);
 

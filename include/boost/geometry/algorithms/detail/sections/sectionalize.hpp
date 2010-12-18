@@ -27,6 +27,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/closeable_view.hpp>
+#include <boost/geometry/util/reversible_view.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
 
@@ -345,7 +346,7 @@ struct sectionalize_part
 
 template
 <
-    typename Range, closure_selector Closure,
+    typename Range, closure_selector Closure, bool Reverse,
     typename Point,
     typename Sections,
     std::size_t DimensionCount,
@@ -353,14 +354,20 @@ template
 >
 struct sectionalize_range
 {
-    typedef typename closeable_view<Range const, Closure>::type view_type;
+    typedef typename closeable_view<Range const, Closure>::type cview_type;
+    typedef typename reversible_view
+        <
+            cview_type const, 
+            Reverse ? iterate_reverse : iterate_forward
+        >::type view_type;
 
     static inline void apply(Range const& range, Sections& sections,
                 int ring_index = -1, int multi_index = -1)
     {
         typedef model::referring_segment<Point const> segment_type;
 
-        view_type view(range);
+        cview_type cview(range);
+        view_type view(cview);
 
         std::size_t const n = boost::size(view);
         if (n == 0)
@@ -399,6 +406,7 @@ struct sectionalize_range
 template
 <
     typename Polygon,
+    bool Reverse,
     typename Sections,
     std::size_t DimensionCount,
     std::size_t MaxCount
@@ -412,7 +420,7 @@ struct sectionalize_polygon
         typedef typename ring_type<Polygon>::type ring_type;
         typedef sectionalize_range
             <
-                ring_type, closure<Polygon>::value,
+                ring_type, closure<Polygon>::value, Reverse,
                 point_type, Sections, DimensionCount, MaxCount
             > sectionalizer_type;
 
@@ -463,7 +471,7 @@ struct sectionalize_box
 
         sectionalize_range
             <
-                std::vector<point_type>, closed,
+                std::vector<point_type>, closed, false,
                 point_type,
                 Sections,
                 DimensionCount,
@@ -498,6 +506,7 @@ template
 <
     typename Tag,
     typename Geometry,
+    bool Reverse,
     typename Sections,
     std::size_t DimensionCount,
     std::size_t MaxCount
@@ -514,11 +523,12 @@ struct sectionalize
 template
 <
     typename Box,
+    bool Reverse,
     typename Sections,
     std::size_t DimensionCount,
     std::size_t MaxCount
 >
-struct sectionalize<box_tag, Box, Sections, DimensionCount, MaxCount>
+struct sectionalize<box_tag, Box, Reverse, Sections, DimensionCount, MaxCount>
     : detail::sectionalize::sectionalize_box
         <
             Box,
@@ -530,8 +540,8 @@ struct sectionalize<box_tag, Box, Sections, DimensionCount, MaxCount>
 
 template
 <
-    typename LineString, typename
-    Sections,
+    typename LineString, 
+    typename Sections,
     std::size_t DimensionCount,
     std::size_t MaxCount
 >
@@ -539,13 +549,14 @@ struct sectionalize
     <
         linestring_tag,
         LineString,
+        false,
         Sections,
         DimensionCount,
         MaxCount
     >
     : detail::sectionalize::sectionalize_range
         <
-            LineString, closed,
+            LineString, closed, false,
             typename point_type<LineString>::type,
             Sections,
             DimensionCount,
@@ -556,14 +567,15 @@ struct sectionalize
 template
 <
     typename Ring,
+    bool Reverse,
     typename Sections,
     std::size_t DimensionCount,
     std::size_t MaxCount
 >
-struct sectionalize<ring_tag, Ring, Sections, DimensionCount, MaxCount>
+struct sectionalize<ring_tag, Ring, Reverse, Sections, DimensionCount, MaxCount>
     : detail::sectionalize::sectionalize_range
         <
-            Ring, geometry::closure<Ring>::value,
+            Ring, geometry::closure<Ring>::value, Reverse,
             typename point_type<Ring>::type,
             Sections,
             DimensionCount,
@@ -574,14 +586,15 @@ struct sectionalize<ring_tag, Ring, Sections, DimensionCount, MaxCount>
 template
 <
     typename Polygon,
+    bool Reverse,
     typename Sections,
     std::size_t DimensionCount,
     std::size_t MaxCount
 >
-struct sectionalize<polygon_tag, Polygon, Sections, DimensionCount, MaxCount>
+struct sectionalize<polygon_tag, Polygon, Reverse, Sections, DimensionCount, MaxCount>
     : detail::sectionalize::sectionalize_polygon
         <
-            Polygon, Sections, DimensionCount, MaxCount
+            Polygon, Reverse, Sections, DimensionCount, MaxCount
         >
 {};
 
@@ -598,7 +611,7 @@ struct sectionalize<polygon_tag, Polygon, Sections, DimensionCount, MaxCount>
     \param sections structure with sections
 
  */
-template<typename Geometry, typename Sections>
+template<bool Reverse, typename Geometry, typename Sections>
 inline void sectionalize(Geometry const& geometry, Sections& sections)
 {
     concept::check<Geometry const>();
@@ -609,6 +622,7 @@ inline void sectionalize(Geometry const& geometry, Sections& sections)
         <
             typename tag<Geometry>::type,
             Geometry,
+            Reverse,
             Sections,
             Sections::value,
             max_segments_per_section

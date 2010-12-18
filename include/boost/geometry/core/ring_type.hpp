@@ -87,6 +87,13 @@ struct ring_return_type
 {};
 
 
+template <typename LineString>
+struct ring_return_type<linestring_tag, LineString>
+{
+    typedef LineString type;
+};
+
+
 template <typename Ring>
 struct ring_return_type<ring_tag, Ring>
 {
