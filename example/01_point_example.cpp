@@ -14,7 +14,7 @@
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/boost_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/boost_polygon_point.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/point.hpp>
 
 
 int main()
