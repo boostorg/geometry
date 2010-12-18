@@ -13,8 +13,8 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/util/closeable_view.hpp>
-#include <boost/geometry/util/reversible_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
@@ -121,8 +121,8 @@ void test_geometry(std::string const& wkt,
     test_reverse_close<bg::iterate_forward, bg::open>(geo, expected_n + closing);
     test_reverse_close<bg::iterate_reverse, bg::closed>(geo, expected_r);
 
-    // first closed, then reversed: 
-    expected = boost::trim_copy(closing + " " + expected_r); 
+    // first closed, then reversed:
+    expected = boost::trim_copy(closing + " " + expected_r);
     test_reverse_close<bg::iterate_reverse, bg::open>(geo, expected);
 
     test_reverse_reverse<bg::iterate_forward, bg::iterate_forward>(geo, expected_n);

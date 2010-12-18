@@ -27,4 +27,5 @@ build-project ranges ;
 build-project strategies ;
 build-project policies ;
 build-project util ;
+build-project views ;
 build-project multi ;
