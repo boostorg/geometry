@@ -12,7 +12,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/util/closeable_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/util/write_dsv.hpp>

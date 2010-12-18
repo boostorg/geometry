@@ -12,7 +12,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/util/reversible_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
