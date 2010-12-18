@@ -128,6 +128,7 @@ class plusmin_policy
         detail::disjoint::disjoint_interrupt_policy policy;
         geometry::get_turns
             <
+                false, false,
                 overlay::assign_null_policy
             >(a, b, turns, policy);
 

@@ -54,6 +54,7 @@ struct disjoint_linear
         disjoint_interrupt_policy policy;
         geometry::get_turns
             <
+                false, false,
                 overlay::assign_null_policy
             >(geometry1, geometry2, turns, policy);
         if (policy.has_intersections)

@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_CORE_GEOMETRY_ID_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/type_traits.hpp>
 
@@ -28,7 +29,14 @@ namespace core_dispatch
 {
 
 template <typename GeometryTag>
-struct geometry_id {};
+struct geometry_id
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<GeometryTag>)
+        );
+};
 
 
 template <>

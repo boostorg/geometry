@@ -34,6 +34,15 @@ struct ring_type<multi_polygon_tag, MultiPolygon>
         >::type type;
 };
 
+template <typename MultiPolygon>
+struct ring_return_type<multi_polygon_tag, MultiPolygon>
+{
+    typedef typename ring_return_type
+        <
+            polygon_tag,
+            typename boost::range_value<MultiPolygon>::type
+        >::type type;
+};
 
 
 

@@ -11,7 +11,6 @@
 
 #include <deque>
 #include <map>
-#include <vector>
 
 #include <boost/range.hpp>
 #include <boost/mpl/assert.hpp>
@@ -29,6 +28,7 @@
 
 
 #include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/reverse.hpp>
 
 #include <boost/geometry/iterators/range_type.hpp>
 
@@ -51,6 +51,7 @@ namespace detail { namespace overlay
 template
 <
     typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename OutputIterator, typename GeometryOut,
     int Direction, order_selector Order,
     typename Strategy
@@ -76,6 +77,7 @@ struct overlay
         // for ring, it is the ring itself. That is what is
         // for multi-polygon, it is also the type of the ring.
         typedef typename geometry::range_type<GeometryOut>::type ring_type;
+        typedef std::deque<ring_type> ring_container_type;
 
         // If one input is empty, output the other one for a union.
         // For an intersection, the intersection is empty.
@@ -85,7 +87,7 @@ struct overlay
             if (Direction == 1)
             {
                 std::map<ring_identifier, int> map;
-                std::vector<ring_type> rings;
+                ring_container_type rings;
                 return assemble<GeometryOut>(rings, map,
                                 geometry1, geometry2, Direction, false, false, out);
             }
@@ -100,6 +102,7 @@ std::cout << "get turns" << std::endl;
         detail::get_turns::no_interrupt_policy policy;
         boost::geometry::get_turns
             <
+                Reverse1, Reverse2,
                 detail::overlay::calculate_distance_policy
             >(geometry1, geometry2, turn_points, policy);
 
@@ -122,13 +125,26 @@ std::cout << "enrich" << std::endl;
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;
 #endif
-        std::vector<ring_type> rings;
-        geometry::traverse<Order>(geometry1, geometry2,
+        ring_container_type rings;
+        geometry::traverse<Order, Reverse1, Reverse2>(geometry1, geometry2,
                 Direction == -1
                     ? boost::geometry::detail::overlay::operation_intersection
                     : boost::geometry::detail::overlay::operation_union
                     ,
                 turn_points, rings);
+
+        // TEMP condition, reversal should be done in traverse by calling "push_front"
+        if (Reverse1 && Reverse2)
+        {
+            for (typename boost::range_iterator<ring_container_type>::type
+                    it = boost::begin(rings);
+                    it != boost::end(rings);
+                    ++it)
+            {
+                geometry::reverse(*it);
+            }
+        }
+
 
         std::map<ring_identifier, int> map;
         map_turns(map, turn_points);
@@ -136,6 +152,24 @@ std::cout << "traverse" << std::endl;
                         geometry1, geometry2, Direction, false, false, out);
     }
 };
+
+
+// Metafunction helper for intersection and union
+template <order_selector Selector, bool Reverse>
+struct do_reverse {};
+
+template <>
+struct do_reverse<clockwise, false> : boost::false_type {};
+
+template <>
+struct do_reverse<clockwise, true> : boost::true_type {};
+
+template <>
+struct do_reverse<counterclockwise, false> : boost::true_type {};
+
+template <>
+struct do_reverse<counterclockwise, true> : boost::false_type {};
+
 
 
 }} // namespace detail::overlay

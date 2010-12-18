@@ -53,8 +53,15 @@ namespace dispatch
 {
 
 
-template <typename MultiPolygon, typename Sections, std::size_t DimensionCount, std::size_t MaxCount>
-struct sectionalize<multi_polygon_tag, MultiPolygon, Sections, DimensionCount, MaxCount>
+template 
+<
+    typename MultiPolygon, 
+    bool Reverse,
+    typename Sections, 
+    std::size_t DimensionCount, 
+    std::size_t MaxCount
+>
+struct sectionalize<multi_polygon_tag, MultiPolygon, Reverse, Sections, DimensionCount, MaxCount>
     : detail::sectionalize::sectionalize_multi
         <
             MultiPolygon,
@@ -63,6 +70,7 @@ struct sectionalize<multi_polygon_tag, MultiPolygon, Sections, DimensionCount, M
             detail::sectionalize::sectionalize_polygon
                 <
                     typename boost::range_value<MultiPolygon>::type,
+                    Reverse,
                     Sections,
                     DimensionCount,
                     MaxCount

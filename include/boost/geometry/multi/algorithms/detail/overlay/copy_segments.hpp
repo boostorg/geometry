@@ -66,6 +66,7 @@ namespace dispatch
 template
 <
     typename MultiPolygon,
+    bool Reverse,
     typename SegmentIdentifier,
     typename RangeOut,
     order_selector Order
@@ -74,6 +75,7 @@ struct copy_segments
     <
         multi_polygon_tag,
         MultiPolygon,
+        Reverse,
         SegmentIdentifier,
         RangeOut,
         Order
@@ -86,6 +88,7 @@ struct copy_segments
             detail::copy_segments::copy_segments_polygon
                 <
                     typename boost::range_value<MultiPolygon>::type,
+                    Reverse,
                     SegmentIdentifier,
                     RangeOut
                 >

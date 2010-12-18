@@ -15,6 +15,7 @@
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/iterators/range_type.hpp>
 
+#include <boost/geometry/multi/algorithms/detail/sections/get_full_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 
 
@@ -76,6 +77,7 @@ template
 <
     typename MultiPolygon,
     typename Box,
+    bool ReverseMultiPolygon, bool ReverseBox,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -84,6 +86,7 @@ struct get_turns
     <
         multi_polygon_tag, box_tag,
         MultiPolygon, Box,
+        ReverseMultiPolygon, ReverseBox,
         Turns,
         TurnPolicy, InterruptPolicy
     >

@@ -50,7 +50,7 @@ struct get_turns
             > sections_type;
 
         sections_type sec;
-        geometry::sectionalize(geometry, sec);
+        geometry::sectionalize<false>(geometry, sec);
 
         for (typename boost::range_iterator<sections_type const>::type
                     it1 = sec.begin();
@@ -71,6 +71,7 @@ struct get_turns
                     if (! geometry::detail::get_turns::get_turns_in_sections
                         <
                             Geometry, Geometry,
+                            false, false,
                             typename boost::range_value<sections_type>::type,
                             typename boost::range_value<sections_type>::type,
                             Turns, TurnPolicy,

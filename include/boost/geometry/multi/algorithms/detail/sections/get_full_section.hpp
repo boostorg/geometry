@@ -34,14 +34,8 @@ template
 >
 struct full_section_multi
 {
-    typedef typename geometry::ring_type<MultiGeometry>::type ring_type;
-    typedef typename closeable_view
-        <
-            ring_type const, closure<MultiGeometry>::value
-        >::type view_type;
-
-    static inline view_type apply(MultiGeometry const& multi,
-                Section const& section)
+    static inline typename ring_return_type<MultiGeometry const>::type apply(
+                MultiGeometry const& multi, Section const& section)
     {
         BOOST_ASSERT
             (
@@ -65,7 +59,7 @@ namespace dispatch
 
 
 template <typename MultiPolygon, typename Section>
-struct get_full_section<multi_polygon_tag, MultiPolygon, Section>
+struct range_by_section<multi_polygon_tag, MultiPolygon, Section>
     : detail::section::full_section_multi
         <
             MultiPolygon,

@@ -22,12 +22,11 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
-
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
-
 #include <boost/geometry/iterators/range_type.hpp>
+#include <boost/geometry/util/closeable_view.hpp>
+#include <boost/geometry/util/reversible_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -39,23 +38,30 @@ namespace detail { namespace copy_segments
 {
 
 
-template <typename Ring, typename SegmentIdentifier, typename RangeOut>
+template <typename Ring, bool Reverse, typename SegmentIdentifier, typename RangeOut>
 struct copy_segments_ring
 {
     typedef typename closeable_view
         <
             Ring const,
             closure<Ring>::value
-        >::type view_type;
+        >::type cview_type;
+
+    typedef typename reversible_view
+        <
+            cview_type const,
+            Reverse ? iterate_reverse : iterate_forward
+        >::type rview_type;
+
+    typedef typename boost::range_iterator<rview_type const>::type iterator;
+    typedef geometry::ever_circling_iterator<iterator> ec_iterator;
 
     static inline void apply(Ring const& ring,
             SegmentIdentifier const& seg_id, int to_index,
             RangeOut& current_output)
     {
-        view_type view(ring);
-        typedef typename boost::range_iterator<view_type const>::type iterator;
-
-        typedef geometry::ever_circling_iterator<iterator> ec_iterator;
+        cview_type cview(ring);
+        rview_type view(cview);
 
         // The problem: sometimes we want to from "3" to "2"
         // -> end = "3" -> end == begin
@@ -92,7 +98,7 @@ struct copy_segments_ring
 };
 
 
-template <typename Polygon, typename SegmentIdentifier, typename RangeOut>
+template <typename Polygon, bool Reverse, typename SegmentIdentifier, typename RangeOut>
 struct copy_segments_polygon
 {
     static inline void apply(Polygon const& polygon,
@@ -103,6 +109,7 @@ struct copy_segments_polygon
         copy_segments_ring
             <
                 typename geometry::ring_type<Polygon>::type,
+                Reverse,
                 SegmentIdentifier,
                 RangeOut
             >::apply
@@ -178,6 +185,7 @@ template
 <
     typename Tag,
     typename GeometryIn,
+    bool Reverse,
     typename SegmentIdentifier,
     typename RangeOut,
     order_selector Order
@@ -195,14 +203,15 @@ struct copy_segments
 template
 <
     typename Ring,
+    bool Reverse,
     typename SegmentIdentifier,
     typename RangeOut,
     order_selector Order
 >
-struct copy_segments<ring_tag, Ring, SegmentIdentifier, RangeOut, Order>
+struct copy_segments<ring_tag, Ring, Reverse, SegmentIdentifier, RangeOut, Order>
     : detail::copy_segments::copy_segments_ring
         <
-            Ring, SegmentIdentifier, RangeOut
+            Ring, Reverse, SegmentIdentifier, RangeOut
         >
 {};
 
@@ -210,14 +219,15 @@ struct copy_segments<ring_tag, Ring, SegmentIdentifier, RangeOut, Order>
 template
 <
     typename Polygon,
+    bool Reverse,
     typename SegmentIdentifier,
     typename RangeOut,
     order_selector Order
 >
-struct copy_segments<polygon_tag, Polygon, SegmentIdentifier, RangeOut, Order>
+struct copy_segments<polygon_tag, Polygon, Reverse, SegmentIdentifier, RangeOut, Order>
     : detail::copy_segments::copy_segments_polygon
         <
-            Polygon, SegmentIdentifier, RangeOut
+            Polygon, Reverse, SegmentIdentifier, RangeOut
         >
 {};
 
@@ -225,11 +235,12 @@ struct copy_segments<polygon_tag, Polygon, SegmentIdentifier, RangeOut, Order>
 template
 <
     typename Box,
+    bool Reverse,
     typename SegmentIdentifier,
     typename RangeOut,
     order_selector Order
 >
-struct copy_segments<box_tag, Box, SegmentIdentifier, RangeOut, Order>
+struct copy_segments<box_tag, Box, Reverse, SegmentIdentifier, RangeOut, Order>
     : detail::copy_segments::copy_segments_box
         <
             Box, SegmentIdentifier, RangeOut, Order
@@ -250,6 +261,7 @@ struct copy_segments<box_tag, Box, SegmentIdentifier, RangeOut, Order>
 template
 <
     order_selector Order,
+    bool Reverse,
     typename Geometry,
     typename SegmentIdentifier,
     typename RangeOut
@@ -264,6 +276,7 @@ inline void copy_segments(Geometry const& geometry,
         <
             typename tag<Geometry>::type,
             Geometry,
+            Reverse,
             SegmentIdentifier,
             RangeOut,
             Order

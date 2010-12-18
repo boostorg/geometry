@@ -9,11 +9,13 @@
 #define BOOST_GEOMETRY_VIEWS_ENVELOPED_VIEW_HPP
 
 
+// Note the addition of this whole file was committed to SVN by accident,
+// probably obsolete
+
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/algorithms/detail/sections/get_section.hpp>
 
 
 namespace boost { namespace geometry
@@ -94,7 +96,7 @@ private :
         if (begin != end)
         {
             iterator it = begin;
-            iterator prev = it++; 
+            iterator prev = it++;
             for(; it != end && ! exceeding(dir, *prev, box); ++it, ++prev) {}
             if (it == end && prev != end && preceding(dir, *prev, box))
             {
