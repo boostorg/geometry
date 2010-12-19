@@ -210,7 +210,7 @@ void test_all()
     test_areal<polygon_ccw_open>();
 
     test_areal_clip<polygon, box>();
-    //test_areal_clip<polygon_ccw, box>();
+    test_areal_clip<polygon_ccw, box>();
 
 #if defined(TEST_FAIL_DIFFERENT_ORIENTATIONS)
     // Should NOT compile

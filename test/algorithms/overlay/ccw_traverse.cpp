@@ -18,7 +18,9 @@
 
 #include <algorithms/overlay/overlay_cases.hpp>
 
-
+template <typename Geometry>
+struct rev : boost::mpl::if_c<bg::point_order<Geometry>::value == bg::counterclockwise, boost::true_type, boost::false_type>::type
+{};
 
 template <typename Geometry1, typename Geometry2>
 inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& g1, Geometry2 const& g2, std::string const& name,
@@ -37,31 +39,22 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     std::vector<turn_info> turns;
 
     bg::detail::get_turns::no_interrupt_policy policy;
-    bg::get_turns<false, false, bg::detail::overlay::calculate_distance_policy>(g1, g2, turns, policy);
+    bg::get_turns
+        <
+            rev<Geometry1>::value, 
+            rev<Geometry2>::value, 
+            bg::detail::overlay::calculate_distance_policy
+        >(g1, g2, turns, policy);
 
-    bool const reverse =
-        bg::point_order<Geometry1>::value == bg::counterclockwise
-        || bg::point_order<Geometry2>::value == bg::counterclockwise;
-    if (reverse)
-    {
-        bg::detail::overlay::reverse_operations(turns);
-    }
     bg::enrich_intersection_points(turns, bg::detail::overlay::operation_intersection,
         g1, g2, side_strategy_type());
 
     typedef bg::model::linear_ring<typename bg::point_type<Geometry1>::type> ring_type;
-    typedef std::vector<ring_type> out_vector;
+    typedef std::deque<ring_type> out_vector;
     out_vector v;
 
-    bg::traverse<bg::point_order<Geometry2>::value, false, false>(g1, g2, op, turns, v);
+    bg::traverse<rev<Geometry1>::value, rev<Geometry2>::value>(g1, g2, op, turns, v);
 
-    if (reverse)
-    {
-        BOOST_FOREACH(ring_type& ring, v)
-        {
-            bg::reverse(ring);
-        }
-    }
     typename bg::coordinate_type<Geometry1>::type result = 0.0;
     BOOST_FOREACH(ring_type& ring, v)
     {
@@ -74,7 +67,8 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
         filename
             << name << "_"
             << (op == bg::detail::overlay::operation_intersection ? "i" : "u")
-            << (reverse ? "_ccw" : "")
+            << "_" << (rev<Geometry1>::value ? "ccw" : "cw")
+            << "_" << (rev<Geometry2>::value ? "ccw" : "cw")
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());
@@ -195,11 +189,21 @@ inline void test_polygon(std::string const& wkt1, std::string const& wkt2, std::
     namespace ov = bg::detail::overlay;
     T area1 = intersect<clock, clock>(wkt1, wkt2, name, ov::operation_intersection);
     T area2 = intersect<counter, counter>(wkt1, wkt2, name, ov::operation_intersection);
-    T area3 = intersect<clock, clock>(wkt1, wkt2, name, ov::operation_union);
-    T area4 = intersect<counter, counter>(wkt1, wkt2, name, ov::operation_union);
-
+    T area3 = intersect<clock, counter>(wkt1, wkt2, name, ov::operation_intersection);
+    T area4 = intersect<counter, clock>(wkt1, wkt2, name, ov::operation_intersection);
     BOOST_CHECK_CLOSE(area1, area2, 0.001);
     BOOST_CHECK_CLOSE(area3, area4, 0.001);
+    BOOST_CHECK_CLOSE(area1, area3, 0.001);
+    BOOST_CHECK_CLOSE(area2, area4, 0.001);
+
+    area1 = intersect<clock, clock>(wkt1, wkt2, name, ov::operation_union);
+    area2 = intersect<counter, counter>(wkt1, wkt2, name, ov::operation_union);
+    area3 = intersect<clock, counter>(wkt1, wkt2, name, ov::operation_union);
+    area4 = intersect<counter, clock>(wkt1, wkt2, name, ov::operation_union);
+    BOOST_CHECK_CLOSE(area1, area2, 0.001);
+    BOOST_CHECK_CLOSE(area3, area4, 0.001);
+    BOOST_CHECK_CLOSE(area1, area3, 0.001);
+    BOOST_CHECK_CLOSE(area2, area4, 0.001);
 }
 
 template <typename T>
@@ -211,9 +215,23 @@ inline void test_box_polygon(std::string const& wkt1, std::string const& wkt2, s
     typedef bg::model::polygon<point, false> counter;
 
     namespace ov = bg::detail::overlay;
-    T area1 = intersect<box, clock>(wkt1, wkt2, name, ov::operation_intersection);
-    T area2 = intersect<box, counter>(wkt1, wkt2, name, ov::operation_intersection);
+    T area1 = intersect<box, clock>(wkt1, wkt2, name + "_bp", ov::operation_intersection);
+    T area2 = intersect<box, counter>(wkt1, wkt2, name + "_bp", ov::operation_intersection);
+    T area3 = intersect<clock, box>(wkt2, wkt1, name + "_pb", ov::operation_intersection);
+    T area4 = intersect<counter, box>(wkt2, wkt1, name + "_pb", ov::operation_intersection);
     BOOST_CHECK_CLOSE(area1, area2, 0.001);
+    BOOST_CHECK_CLOSE(area3, area4, 0.001);
+    BOOST_CHECK_CLOSE(area1, area3, 0.001);
+    BOOST_CHECK_CLOSE(area2, area4, 0.001);
+
+    area1 = intersect<box, clock>(wkt1, wkt2, name + "_bp", ov::operation_union);
+    area2 = intersect<box, counter>(wkt1, wkt2, name + "_bp", ov::operation_union);
+    area3 = intersect<clock, box>(wkt2, wkt1, name + "_pb", ov::operation_union);
+    area4 = intersect<counter, box>(wkt2, wkt1, name + "_pb", ov::operation_union);
+    BOOST_CHECK_CLOSE(area1, area2, 0.001);
+    BOOST_CHECK_CLOSE(area3, area4, 0.001);
+    BOOST_CHECK_CLOSE(area1, area3, 0.001);
+    BOOST_CHECK_CLOSE(area2, area4, 0.001);
 }
 
 int test_main(int, char* [])
