@@ -104,7 +104,6 @@ inline void set_visited_for_continue(Info& info, Turn const& turn)
 
 template
 <
-    order_selector Order,
     bool Reverse1, bool Reverse2,
     typename GeometryOut,
     typename G1,
@@ -132,13 +131,13 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
 
         if (info.seg_id.source_index == 0)
         {
-            geometry::copy_segments<Order, Reverse1>(g1, info.seg_id,
+            geometry::copy_segments<Reverse1>(g1, info.seg_id,
                     info.enriched.travels_to_vertex_index,
                     current_output);
         }
         else
         {
-            geometry::copy_segments<Order, Reverse2>(g2, info.seg_id,
+            geometry::copy_segments<Reverse2>(g2, info.seg_id,
                     info.enriched.travels_to_vertex_index,
                     current_output);
         }
@@ -303,7 +302,6 @@ inline void backtrack(std::size_t size_at_start, bool& fail,
  */
 template
 <
-    order_selector Order,
     bool Reverse1, bool Reverse2,
     typename Geometry1,
     typename Geometry2,
@@ -355,7 +353,7 @@ inline void traverse(Geometry1 const& geometry1,
                         turn_operation_iterator_type current_iit = iit;
                         segment_identifier current_seg_id;
 
-                        if (! detail::overlay::assign_next_ip<Order, Reverse1, Reverse2>(
+                        if (! detail::overlay::assign_next_ip<Reverse1, Reverse2>(
                                     geometry1, geometry2,
                                     turns,
                                     current, current_output,
@@ -416,7 +414,7 @@ inline void traverse(Geometry1 const& geometry1,
                                     // will continue with the next one.
 
                                     // Below three reasons to stop.
-                                    detail::overlay::assign_next_ip<Order, Reverse1, Reverse2>(
+                                    detail::overlay::assign_next_ip<Reverse1, Reverse2>(
                                         geometry1, geometry2,
                                         turns, current, current_output,
                                         *current_iit, current_seg_id);

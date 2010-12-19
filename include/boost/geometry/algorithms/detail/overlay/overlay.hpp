@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/algorithms/detail/overlay/reverse_operations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -51,9 +50,9 @@ namespace detail { namespace overlay
 template
 <
     typename Geometry1, typename Geometry2,
-    bool Reverse1, bool Reverse2,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    int Direction, order_selector Order,
+    int Direction, 
     typename Strategy
 >
 struct overlay
@@ -106,11 +105,6 @@ std::cout << "get turns" << std::endl;
                 detail::overlay::calculate_distance_policy
             >(geometry1, geometry2, turn_points, policy);
 
-        if (Order == counterclockwise)
-        {
-            detail::overlay::reverse_operations(turn_points);
-        }
-
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
@@ -126,7 +120,7 @@ std::cout << "enrich" << std::endl;
 std::cout << "traverse" << std::endl;
 #endif
         ring_container_type rings;
-        geometry::traverse<Order, Reverse1, Reverse2>(geometry1, geometry2,
+        geometry::traverse<Reverse1, Reverse2>(geometry1, geometry2,
                 Direction == -1
                     ? boost::geometry::detail::overlay::operation_intersection
                     : boost::geometry::detail::overlay::operation_union
@@ -134,7 +128,7 @@ std::cout << "traverse" << std::endl;
                 turn_points, rings);
 
         // TEMP condition, reversal should be done in traverse by calling "push_front"
-        if (Reverse1 && Reverse2)
+        if (ReverseOut && (Reverse1 || Reverse2))
         {
             for (typename boost::range_iterator<ring_container_type>::type
                     it = boost::begin(rings);

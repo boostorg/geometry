@@ -68,8 +68,7 @@ template
     typename MultiPolygon,
     bool Reverse,
     typename SegmentIdentifier,
-    typename RangeOut,
-    order_selector Order
+    typename RangeOut
 >
 struct copy_segments
     <
@@ -77,8 +76,7 @@ struct copy_segments
         MultiPolygon,
         Reverse,
         SegmentIdentifier,
-        RangeOut,
-        Order
+        RangeOut
     >
     : detail::copy_segments::copy_segments_multi
         <
