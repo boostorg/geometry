@@ -128,8 +128,7 @@ template
 <
     typename Box,
     typename SegmentIdentifier,
-    typename RangeOut,
-    order_selector Order
+    typename RangeOut
 >
 struct copy_segments_box
 {
@@ -144,29 +143,18 @@ struct copy_segments_box
             ? to_index - index + 1
             : 5 - index + to_index + 1;
 
-        boost::array<typename point_type<Box>::type, 4> bp;
-        boost::array<int, 5> point_index;
+		// Create array of points, the fifth one closes it
+        boost::array<typename point_type<Box>::type, 5> bp;
 
-        // 1: They are retrieved by "assign_box_order" in order ll, lr, ul, ur
+        // Points are retrieved by "assign_box_order" in order ll, lr, ul, ur
         assign_box_corners(box, bp[0], bp[3], bp[1], bp[2]);
+        bp[4] = bp[0];
 
-        // 2: set indexes, reverse direction if necessary
-        bool const reverse = Order == counterclockwise;
-        point_index[0] = 0;
-        point_index[1] = reverse ? 3 : 1;
-        point_index[2] = 2;
-        point_index[3] = reverse ? 1 : 3;
-        point_index[4] = 0;
-
-        // 3: (possibly cyclic) copy to output
+        // (possibly cyclic) copy to output
         //    (see comments in ring-version)
-        for (int i = 0; i < count; ++i)
+        for (int i = 0; i < count; i++, index++)
         {
-            geometry::append(current_output, bp[point_index[index++]]);
-            if (index == 5)
-            {
-                index = 0;
-            }
+            geometry::append(current_output, bp[index % 5]);
         }
     }
 };
@@ -180,15 +168,13 @@ struct copy_segments_box
 namespace dispatch
 {
 
-// Note: Order is specified explicitly, because Box does not have an own direction
 template
 <
     typename Tag,
     typename GeometryIn,
     bool Reverse,
     typename SegmentIdentifier,
-    typename RangeOut,
-    order_selector Order
+    typename RangeOut
 >
 struct copy_segments
 {
@@ -205,10 +191,9 @@ template
     typename Ring,
     bool Reverse,
     typename SegmentIdentifier,
-    typename RangeOut,
-    order_selector Order
+    typename RangeOut
 >
-struct copy_segments<ring_tag, Ring, Reverse, SegmentIdentifier, RangeOut, Order>
+struct copy_segments<ring_tag, Ring, Reverse, SegmentIdentifier, RangeOut>
     : detail::copy_segments::copy_segments_ring
         <
             Ring, Reverse, SegmentIdentifier, RangeOut
@@ -221,10 +206,9 @@ template
     typename Polygon,
     bool Reverse,
     typename SegmentIdentifier,
-    typename RangeOut,
-    order_selector Order
+    typename RangeOut
 >
-struct copy_segments<polygon_tag, Polygon, Reverse, SegmentIdentifier, RangeOut, Order>
+struct copy_segments<polygon_tag, Polygon, Reverse, SegmentIdentifier, RangeOut>
     : detail::copy_segments::copy_segments_polygon
         <
             Polygon, Reverse, SegmentIdentifier, RangeOut
@@ -237,13 +221,12 @@ template
     typename Box,
     bool Reverse,
     typename SegmentIdentifier,
-    typename RangeOut,
-    order_selector Order
+    typename RangeOut
 >
-struct copy_segments<box_tag, Box, Reverse, SegmentIdentifier, RangeOut, Order>
+struct copy_segments<box_tag, Box, Reverse, SegmentIdentifier, RangeOut>
     : detail::copy_segments::copy_segments_box
         <
-            Box, SegmentIdentifier, RangeOut, Order
+            Box, SegmentIdentifier, RangeOut
         >
 {};
 
@@ -260,7 +243,6 @@ struct copy_segments<box_tag, Box, Reverse, SegmentIdentifier, RangeOut, Order>
  */
 template
 <
-    order_selector Order,
     bool Reverse,
     typename Geometry,
     typename SegmentIdentifier,
@@ -278,8 +260,7 @@ inline void copy_segments(Geometry const& geometry,
             Geometry,
             Reverse,
             SegmentIdentifier,
-            RangeOut,
-            Order
+            RangeOut
         >::apply(geometry, seg_id, to_index, range_out);
 }
 

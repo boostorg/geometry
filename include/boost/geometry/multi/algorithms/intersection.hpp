@@ -144,17 +144,16 @@ namespace dispatch
 template
 <
     typename MultiLinestring1, typename MultiLinestring2,
-    bool Reverse1, bool Reverse2,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy//, order_selector Order
+    typename Strategy
 >
 struct intersection_inserter
     <
         multi_linestring_tag, multi_linestring_tag, point_tag,
-        ////Order, Order, Order,
         false, false, false,
         MultiLinestring1, MultiLinestring2,
-        Reverse1, Reverse2,
+        Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
         Strategy
     > : detail::intersection::intersection_multi_linestring_multi_linestring_point
@@ -170,16 +169,15 @@ template
 <
     typename Linestring, typename MultiLinestring,
     typename OutputIterator, typename GeometryOut,
-    bool Reverse1, bool Reverse2,
-    typename Strategy//, order_selector Order
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename Strategy
 >
 struct intersection_inserter
     <
         linestring_tag, multi_linestring_tag, point_tag,
-        ////Order, Order, Order,
         false, false, false,
         Linestring, MultiLinestring,
-        Reverse1, Reverse2,
+        Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
         Strategy
     > : detail::intersection::intersection_linestring_multi_linestring_point
@@ -194,17 +192,16 @@ struct intersection_inserter
 template
 <
     typename MultiLinestring, typename Box,
-    bool Reverse1, bool Reverse2,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy//, order_selector Order
+    typename Strategy
 >
 struct intersection_inserter
     <
         multi_linestring_tag, box_tag, linestring_tag,
-        ////Order, Order, Order,
         false, true, false,
         MultiLinestring, Box,
-        Reverse1, Reverse2,
+        Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
         Strategy
     > : detail::intersection::clip_multi_linestring

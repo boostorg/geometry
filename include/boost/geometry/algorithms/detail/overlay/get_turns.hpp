@@ -524,6 +524,7 @@ public:
 template
 <
     typename Range,
+    bool Reverse,
     typename Box,
     typename Turns,
     typename TurnPolicy,
@@ -534,6 +535,24 @@ struct get_turns_cs
     typedef typename boost::range_value<Turns>::type turn_info;
     typedef typename geometry::point_type<Range>::type point_type;
     typedef typename geometry::point_type<Box>::type box_point_type;
+
+    typedef typename closeable_view
+        <
+            Range const,
+            closure<Range>::value
+        >::type cview_type;
+
+    typedef typename reversible_view
+        <
+            cview_type const,
+            Reverse ? iterate_reverse : iterate_forward
+        >::type view_type;
+
+    typedef typename boost::range_iterator
+        <
+            view_type const
+        >::type iterator_type;
+
 
     static inline void apply(
                 int source_id1, Range const& range,
@@ -547,24 +566,20 @@ struct get_turns_cs
             return;
         }
 
-        // Box-points in order ll, ul, ur, lr
+        // Box-points in clockwise order ll, ul, ur, lr
         boost::array<box_point_type,4> bp;
 
-        // They are retrieved by "assign_box_order" in order ll, lr, ul, ur
+        // Points are retrieved by "assign_box_order" in order ll, lr, ul, ur,
+        // so make them clockwise here
         assign_box_corners(box, bp[0], bp[3], bp[1], bp[2]);
 
-        // The arrangement is now OK for clockwise,
-        // for counter clockwise we only need to swap ul with lr (== 1 with 3)
-        // Note we swap the index, not the point itself.
-        int const i1 = point_order<Range>::value == clockwise ? 1 : 3;
-        int const i3 = point_order<Range>::value == clockwise ? 3 : 1;
+        cview_type cview(range);
+        view_type view(cview);
 
-        typedef typename boost::range_iterator
-            <Range const>::type iterator_type;
-        iterator_type it = boost::begin(range);
+        iterator_type it = boost::begin(view);
 
-        ever_circling_iterator<iterator_type> next(boost::begin(range),
-            boost::end(range), it, true);
+        ever_circling_iterator<iterator_type> next(
+                boost::begin(view), boost::end(view), it, true);
         next++;
         next++;
 
@@ -575,7 +590,7 @@ struct get_turns_cs
         int index = 0;
 
         for (iterator_type prev = it++;
-            it != boost::end(range);
+            it != boost::end(view);
             prev = it++, next++, index++)
         {
             segment_identifier seg_id(source_id1,
@@ -608,7 +623,7 @@ struct get_turns_cs
             {
                 get_turns_with_box(seg_id, source_id2,
                         *prev, *it, *next,
-                        bp[0], bp[i1], bp[2], bp[i3], // note the "i" here
+                        bp[0], bp[1], bp[2], bp[3],
                         turns);
                 // TODO: call the interrupt policy if applicable
             }
@@ -681,7 +696,7 @@ private:
 
 template
 <
-    typename Polygon,
+    typename Polygon, bool Reverse,
     typename Box,
     typename Turns,
     typename TurnPolicy,
@@ -699,7 +714,7 @@ struct get_turns_polygon_cs
 
         typedef detail::get_turns::get_turns_cs
             <
-                ring_type,
+                ring_type, Reverse,
                 Box,
                 Turns,
                 TurnPolicy,
@@ -776,7 +791,8 @@ struct get_turns
         InterruptPolicy
     > : detail::get_turns::get_turns_polygon_cs
             <
-                Polygon, Box,
+                Polygon, ReversePolygon,
+                Box,
                 Turns, TurnPolicy, InterruptPolicy
             >
 {};
@@ -800,7 +816,7 @@ struct get_turns
         InterruptPolicy
     > : detail::get_turns::get_turns_cs
             <
-                Ring, Box,
+                Ring, ReverseRing, Box,
                 Turns, TurnPolicy, InterruptPolicy
             >
 

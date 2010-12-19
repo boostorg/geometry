@@ -51,7 +51,7 @@ inline void difference(Geometry1 const& geometry1,
         > strategy;
 
 
-    detail::intersection::inserter<geometry_out, false, true>(
+    detail::intersection::inserter<geometry_out, false, true, false>(
             geometry1, geometry2, 
             std::back_inserter(output_collection),
             strategy());

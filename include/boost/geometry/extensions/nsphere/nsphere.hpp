@@ -18,8 +18,6 @@
 #include <boost/geometry/extensions/nsphere/geometries/concepts/check.hpp>
 #include <boost/geometry/extensions/nsphere/geometries/concepts/nsphere_concept.hpp>
 
-#include <boost/geometry/extensions/nsphere/geometries/cartesian2d.hpp>
-#include <boost/geometry/extensions/nsphere/geometries/cartesian3d.hpp>
 #include <boost/geometry/extensions/nsphere/geometries/nsphere.hpp>
 
 #include <boost/geometry/extensions/nsphere/algorithms/append.hpp>
