@@ -224,7 +224,7 @@ void test_all()
 
     test_areal<ring, polygon>();
     // Open
-    //test_areal<bg::model::linear_ring<P, true, false>, bg::model::polygon<P, true, false> >();
+    test_areal<bg::model::linear_ring<P, true, false>, bg::model::polygon<P, true, false> >();
     // Counter clockwise
     test_areal<bg::model::linear_ring<P, false>, bg::model::polygon<P, false> >();
 

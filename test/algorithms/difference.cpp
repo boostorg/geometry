@@ -47,27 +47,21 @@ void test_all()
         3, 3, 2.52636706856656,
         3, 3, 3.52636706856656);
 
-    //TODO: erroneous in assemble
-    /*
-    test_one<polygon, polygon, polygon>("fitting",
-        fitting[0], fitting[1],
-        1, 0, 21.0,
-        1, 0, 4.0);
-    */
-
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
         1, 10, 7.0,
         1, 10, 14.0);
 
-    // TODO: erroneous in assemble
-    /*
-//wrong:
+    //TODO: erroneous in assemble
+    /* 
+    test_one<polygon, polygon, polygon>("fitting",
+        fitting[0], fitting[1],
+        1, 0, 21.0,
+        1, 0, 4.0);
     test_one<polygon, polygon, polygon>("intersect_holes_disjoint",
         intersect_holes_disjoint[0], intersect_holes_disjoint[1],
         2, 15, 16.0,
         2, 15, 6.0);
-//return;    
     */
 
     test_one<polygon, polygon, polygon>("intersect_holes_intersect",

@@ -24,7 +24,7 @@
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
-void test_areal()
+void test_areal(bool skip = false)
 {
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
@@ -86,9 +86,14 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
         1, 47, 90.0); // Area from SQL Server
-    test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
-        case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-        19, 87, 12.5); // Area from SQL Server
+
+    // TODO: fix for CCW
+    if (! skip)
+    {
+        test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
+            case_recursive_boxes_3[0], case_recursive_boxes_3[1],
+            19, 87, 12.5); // Area from SQL Server
+    }
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>
@@ -140,19 +145,17 @@ void test_all()
     typedef bg::model::linear_ring<P, false> ring_ccw;
     typedef bg::model::polygon<P, false> polygon_ccw;
     typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
-    // TODO: fix this one
-    //test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
 
-    /* TODO: enable next combination
+    test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>(true);
+
     typedef bg::model::linear_ring<P, true, false> ring_open;
     typedef bg::model::polygon<P, true, false> polygon_open;
     typedef bg::model::multi_polygon<polygon_open> multi_polygon_open;
-    test_areal<ring_open, polygon_open, multi_polygon_open>();
-    */
-
-
+    // TODO: enable next combination (bug somewhere in get_turns with open polygon)
+    //test_areal<ring_open, polygon_open, multi_polygon_open>();
+    
     test_areal_clip<polygon, multi_polygon, box>();
-    //test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
+    test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
 
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::multi_linestring<linestring> multi_linestring;
