@@ -79,8 +79,8 @@ template
 <
     typename TurnPoints,
     typename Indexed,
-    typename Geometry1,
-    typename Geometry2,
+    typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename Strategy
 >
 struct sort_on_segment_and_distance
@@ -112,13 +112,13 @@ private :
         typedef typename geometry::point_type<Geometry1>::type point_type;
         point_type pi, pj, ri, rj, si, sj;
 
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.seg_id,
             pi, pj);
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.other_id,
             ri, rj);
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
 
@@ -196,10 +196,10 @@ inline void update_discarded(Turns& turn_points, Operations& operations)
 template
 <
     typename IndexType,
+    bool Reverse1, bool Reverse2,
     typename Container,
     typename TurnPoints,
-    typename Geometry1,
-    typename Geometry2,
+    typename Geometry1, typename Geometry2,
     typename Strategy
 >
 inline void enrich_sort(Container& operations,
@@ -218,6 +218,7 @@ inline void enrich_sort(Container& operations,
                         TurnPoints,
                         IndexType,
                         Geometry1, Geometry2,
+                        Reverse1, Reverse2,
                         Strategy
                     >(turn_points, geometry1, geometry2, strategy, clustered));
 
@@ -252,14 +253,14 @@ inline void enrich_sort(Container& operations,
             }
             else if (begin_cluster != boost::end(operations))
             {
-                handle_cluster<IndexType>(begin_cluster, it, turn_points,
+                handle_cluster<IndexType, Reverse1, Reverse2>(begin_cluster, it, turn_points,
                         for_operation, geometry1, geometry2, strategy);
                 begin_cluster = boost::end(operations);
             }
         }
         if (begin_cluster != boost::end(operations))
         {
-            handle_cluster<IndexType>(begin_cluster, it, turn_points,
+            handle_cluster<IndexType, Reverse1, Reverse2>(begin_cluster, it, turn_points,
                     for_operation, geometry1, geometry2, strategy);
         }
     }
@@ -429,9 +430,9 @@ inline void create_map(TurnPoints const& turn_points, MappedVector& mapped_vecto
  */
 template
 <
+    bool Reverse1, bool Reverse2,
     typename TurnPoints,
-    typename Geometry1,
-    typename Geometry2,
+    typename Geometry1, typename Geometry2,
     typename Strategy
 >
 inline void enrich_intersection_points(TurnPoints& turn_points,
@@ -486,7 +487,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
     std::cout << "ENRICH-sort Ring "
         << mit->first << std::endl;
 #endif
-        detail::overlay::enrich_sort<indexed_turn_operation>(mit->second, turn_points, for_operation,
+        detail::overlay::enrich_sort<indexed_turn_operation, Reverse1, Reverse2>(mit->second, turn_points, for_operation,
                     geometry1, geometry2, strategy);
     }
 

@@ -62,6 +62,7 @@ namespace dispatch
 template
 <
     typename MultiGeometry,
+    bool Reverse,
     typename SegmentIdentifier,
     typename PointOut
 >
@@ -69,6 +70,7 @@ struct copy_segment_point
     <
         multi_polygon_tag,
         MultiGeometry,
+        Reverse,
         SegmentIdentifier,
         PointOut
     >
@@ -80,6 +82,7 @@ struct copy_segment_point
             detail::copy_segments::copy_segment_point_polygon
                 <
                     typename boost::range_value<MultiGeometry>::type,
+                    Reverse,
                     SegmentIdentifier,
                     PointOut
                 >

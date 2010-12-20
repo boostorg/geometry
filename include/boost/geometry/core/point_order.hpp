@@ -9,6 +9,7 @@
 #define BOOST_GEOMETRY_CORE_POINT_ORDER_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
@@ -43,6 +44,21 @@ struct point_order
 } // namespace traits
 
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace point_order
+{
+
+struct clockwise
+{
+    static const order_selector value = geometry::clockwise;
+};
+
+
+}} // namespace detail::point_order
+#endif // DOXYGEN_NO_DETAIL
+
+
+
 #ifndef DOXYGEN_NO_DISPATCH
 namespace core_dispatch
 {
@@ -50,9 +66,29 @@ namespace core_dispatch
 template <typename Tag, typename Geometry>
 struct point_order
 {
-    static const order_selector value = clockwise;
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
 };
 
+template <typename Point>
+struct point_order<point_tag, Point> 
+    : public detail::point_order::clockwise {};
+
+template <typename Segment>
+struct point_order<segment_tag, Segment> 
+    : public detail::point_order::clockwise {};
+
+
+template <typename Box>
+struct point_order<box_tag, Box> 
+    : public detail::point_order::clockwise {};
+
+template <typename LineString>
+struct point_order<linestring_tag, LineString>  
+    : public detail::point_order::clockwise {};
 
 
 template <typename Ring>

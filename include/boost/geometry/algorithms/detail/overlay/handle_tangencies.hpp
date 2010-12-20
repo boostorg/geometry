@@ -27,8 +27,8 @@ template
 <
     typename TurnPoints,
     typename Indexed,
-    typename Geometry1,
-    typename Geometry2,
+    typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
     typename Strategy
 >
 struct sort_in_cluster
@@ -101,13 +101,13 @@ private :
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
         point_type pi, pj, ri, rj, si, sj;
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.seg_id,
             pi, pj);
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.other_id,
             ri, rj);
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
 
@@ -121,8 +121,8 @@ private :
         int const side_si_r = m_strategy.apply(ri, rj, si);
         int const side_sj_r = m_strategy.apply(ri, rj, sj);
 
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
         std::cout << "Case: " << header << " for " << left.index << " / " << right.index << std::endl;
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH_MORE
         std::cout << " Segment p:" << geometry::wkt(pi) << " .. " << geometry::wkt(pj) << std::endl;
         std::cout << " Segment r:" << geometry::wkt(ri) << " .. " << geometry::wkt(rj) << std::endl;
         std::cout << " Segment s:" << geometry::wkt(si) << " .. " << geometry::wkt(sj) << std::endl;
@@ -174,9 +174,9 @@ private :
         }
         else
         {
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+//#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
             std::cout << "ux/ux unhandled" << std::endl;
-#endif
+//#endif
         }
 
         //debug_consider(0, left, right, header, false, "-> return ", ret);
@@ -217,9 +217,9 @@ private :
         }
         else
         {
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+//#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
             std::cout << " iu/ux unhandled" << std::endl;
-#endif
+//#endif
             ret = order == 1;
         }
 
@@ -263,13 +263,13 @@ private :
         }
 
         point_type pi, pj, ri, rj, si, sj;
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.seg_id,
             pi, pj);
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.other_id,
             ri, rj);
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
 
@@ -301,9 +301,9 @@ private :
                 debug_consider(0, left, right, header, false, "opp.", ret);
                 return ret;
             }
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+//#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
             std::cout << " iu/iu coming from opposite unhandled" << std::endl;
-#endif
+//#endif
         }
 
         // We need EXTRA information here: are p/r/s overlapping?
@@ -369,13 +369,13 @@ private :
         debug_consider(0, left, right, header);
 
         point_type pi, pj, ri, rj, si, sj;
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.seg_id,
             pi, pj);
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.other_id,
             ri, rj);
-        geometry::copy_segment_points(m_geometry1, m_geometry2,
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
 
@@ -482,7 +482,8 @@ public :
                 << operation_char(m_turn_points[left.index].operations[1].operation)
                 << "/" << operation_char(m_turn_points[right.index].operations[0].operation)
                 << operation_char(m_turn_points[right.index].operations[1].operation)
-                << " " << " Take " << left.index << " < " << right.index;
+                << " " << " Take " << left.index << " < " << right.index
+                << std::cout;
 #endif
 
         return default_order;
@@ -586,6 +587,7 @@ inline void inspect_cluster(Iterator begin_cluster, Iterator end_cluster,
 template
 <
     typename IndexType,
+    bool Reverse1, bool Reverse2,
     typename Iterator,
     typename TurnPoints,
     typename Geometry1,
@@ -610,6 +612,7 @@ inline void handle_cluster(Iterator begin_cluster, Iterator end_cluster,
                         TurnPoints,
                         IndexType,
                         Geometry1, Geometry2,
+                        Reverse1, Reverse2,
                         Strategy
                     >(turn_points, geometry1, geometry2, strategy));
 

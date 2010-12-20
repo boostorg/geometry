@@ -109,7 +109,7 @@ std::cout << "get turns" << std::endl;
 std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
-        geometry::enrich_intersection_points(turn_points, 
+        geometry::enrich_intersection_points<Reverse1, Reverse2>(turn_points, 
                 Direction == -1
                     ? boost::geometry::detail::overlay::operation_intersection
                     : boost::geometry::detail::overlay::operation_union,
