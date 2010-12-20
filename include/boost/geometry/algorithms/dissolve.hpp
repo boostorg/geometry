@@ -76,7 +76,7 @@ struct dissolve_ring_or_polygon
                 typename cs_tag<Geometry>::type
             >::type side_strategy_type;
 
-            enrich_intersection_points(turns,
+            enrich_intersection_points<false, false>(turns,
                         detail::overlay::operation_union,
                         geometry, geometry,
                         side_strategy_type());
@@ -89,7 +89,7 @@ struct dissolve_ring_or_polygon
 
             clear_visit_info(turns);
 
-            enrich_intersection_points(turns,
+            enrich_intersection_points<false, false>(turns,
                         detail::overlay::operation_intersection,
                         geometry, geometry,
                         side_strategy_type());

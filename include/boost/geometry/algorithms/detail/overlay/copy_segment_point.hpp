@@ -17,7 +17,8 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/iterators/range_type.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -29,9 +30,21 @@ namespace detail { namespace copy_segments
 {
 
 
-template <typename Range, typename SegmentIdentifier, typename PointOut>
+template <typename Range, bool Reverse, typename SegmentIdentifier, typename PointOut>
 struct copy_segment_point_range
 {
+    typedef typename closeable_view
+        <
+            Range const,
+            closure<Range>::value
+        >::type cview_type;
+
+    typedef typename reversible_view
+        <
+            cview_type const,
+            Reverse ? iterate_reverse : iterate_forward
+        >::type rview_type;
+
     static inline bool apply(Range const& range,
             SegmentIdentifier const& seg_id, bool second,
             PointOut& point)
@@ -52,13 +65,17 @@ struct copy_segment_point_range
             return false;
         }
 
-        geometry::copy_coordinates(range[index], point);
+        cview_type cview(range);
+        rview_type view(cview);
+
+
+        geometry::copy_coordinates(*(boost::begin(view) + index), point);
         return true;
     }
 };
 
 
-template <typename Polygon, typename SegmentIdentifier, typename PointOut>
+template <typename Polygon, bool Reverse, typename SegmentIdentifier, typename PointOut>
 struct copy_segment_point_polygon
 {
     static inline bool apply(Polygon const& polygon,
@@ -69,6 +86,7 @@ struct copy_segment_point_polygon
         return copy_segment_point_range
             <
                 typename geometry::ring_type<Polygon>::type,
+                Reverse,
                 SegmentIdentifier,
                 PointOut
             >::apply
@@ -126,6 +144,7 @@ template
 <
     typename Tag,
     typename GeometryIn,
+    bool Reverse,
     typename SegmentIdentifier,
     typename PointOut
 >
@@ -139,34 +158,34 @@ struct copy_segment_point
 };
 
 
-template <typename LineString, typename SegmentIdentifier, typename PointOut>
-struct copy_segment_point<linestring_tag, LineString, SegmentIdentifier, PointOut>
+template <typename LineString, bool Reverse, typename SegmentIdentifier, typename PointOut>
+struct copy_segment_point<linestring_tag, LineString, Reverse, SegmentIdentifier, PointOut>
     : detail::copy_segments::copy_segment_point_range
         <
-            LineString, SegmentIdentifier, PointOut
+            LineString, Reverse, SegmentIdentifier, PointOut
         >
 {};
 
 
-template <typename Ring, typename SegmentIdentifier, typename PointOut>
-struct copy_segment_point<ring_tag, Ring, SegmentIdentifier, PointOut>
+template <typename Ring, bool Reverse, typename SegmentIdentifier, typename PointOut>
+struct copy_segment_point<ring_tag, Ring, Reverse, SegmentIdentifier, PointOut>
     : detail::copy_segments::copy_segment_point_range
         <
-            Ring, SegmentIdentifier, PointOut
+            Ring, Reverse, SegmentIdentifier, PointOut
         >
 {};
 
-template <typename Polygon, typename SegmentIdentifier, typename PointOut>
-struct copy_segment_point<polygon_tag, Polygon, SegmentIdentifier, PointOut>
+template <typename Polygon, bool Reverse, typename SegmentIdentifier, typename PointOut>
+struct copy_segment_point<polygon_tag, Polygon, Reverse, SegmentIdentifier, PointOut>
     : detail::copy_segments::copy_segment_point_polygon
         <
-            Polygon, SegmentIdentifier, PointOut
+            Polygon, Reverse, SegmentIdentifier, PointOut
         >
 {};
 
 
-template <typename Box, typename SegmentIdentifier, typename PointOut>
-struct copy_segment_point<box_tag, Box, SegmentIdentifier, PointOut>
+template <typename Box, bool Reverse, typename SegmentIdentifier, typename PointOut>
+struct copy_segment_point<box_tag, Box, Reverse, SegmentIdentifier, PointOut>
     : detail::copy_segments::copy_segment_point_box
         <
             Box, SegmentIdentifier, PointOut
@@ -186,7 +205,7 @@ struct copy_segment_point<box_tag, Box, SegmentIdentifier, PointOut>
     \brief Helper function, copies a point from a segment
     \ingroup overlay
  */
-template<typename Geometry, typename SegmentIdentifier, typename PointOut>
+template<bool Reverse, typename Geometry, typename SegmentIdentifier, typename PointOut>
 inline bool copy_segment_point(Geometry const& geometry,
             SegmentIdentifier const& seg_id, bool second,
             PointOut& point_out)
@@ -197,6 +216,7 @@ inline bool copy_segment_point(Geometry const& geometry,
         <
             typename tag<Geometry>::type,
             Geometry,
+            Reverse,
             SegmentIdentifier,
             PointOut
         >::apply(geometry, seg_id, second, point_out);
@@ -210,8 +230,8 @@ inline bool copy_segment_point(Geometry const& geometry,
  */
 template
 <
-    typename Geometry1,
-    typename Geometry2,
+    bool Reverse1, bool Reverse2,
+    typename Geometry1, typename Geometry2,
     typename SegmentIdentifier,
     typename PointOut
 >
@@ -228,6 +248,7 @@ inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geom
             <
                 typename tag<Geometry1>::type,
                 Geometry1,
+                Reverse1,
                 SegmentIdentifier,
                 PointOut
             >::apply(geometry1, seg_id, second, point_out);
@@ -238,6 +259,7 @@ inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geom
             <
                 typename tag<Geometry2>::type,
                 Geometry2,
+                Reverse2,
                 SegmentIdentifier,
                 PointOut
             >::apply(geometry2, seg_id, second, point_out);
@@ -254,8 +276,8 @@ inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geom
  */
 template
 <
-    typename Geometry1,
-    typename Geometry2,
+    bool Reverse1, bool Reverse2,
+    typename Geometry1, typename Geometry2,
     typename SegmentIdentifier,
     typename PointOut
 >
@@ -266,8 +288,8 @@ inline bool copy_segment_points(Geometry1 const& geometry1, Geometry2 const& geo
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return copy_segment_point(geometry1, geometry2, seg_id, false, point1)
-        && copy_segment_point(geometry1, geometry2, seg_id, true,  point2);
+    return copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, false, point1)
+        && copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, seg_id, true,  point2);
 }
 
 

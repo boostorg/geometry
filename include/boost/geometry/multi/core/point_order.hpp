@@ -23,6 +23,15 @@ namespace boost { namespace geometry
 namespace core_dispatch
 {
 
+template <typename Multi>
+struct point_order<multi_point_tag, Multi>  
+    : public detail::point_order::clockwise {};
+
+template <typename Multi>
+struct point_order<multi_linestring_tag, Multi>  
+    : public detail::point_order::clockwise {};
+
+
 // Specialization for multi_polygon: the order is the order of its polygons
 template <typename MultiPolygon>
 struct point_order<multi_polygon_tag, MultiPolygon>
