@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 
+// #define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 
 #include <algorithms/test_intersection.hpp>
 #include <algorithms/test_overlay.hpp>
@@ -24,7 +25,7 @@
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
-void test_areal(bool skip = false)
+void test_areal()
 {
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
@@ -79,7 +80,9 @@ void test_areal(bool skip = false)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_102_multi",
         case_102_multi[0], case_102_multi[1],
         3, 26, 19.75);
-
+    test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
+        case_107_multi[0], case_107_multi[1],
+        2, 10, 1.5);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
         10, 97, 47.0);
@@ -87,13 +90,9 @@ void test_areal(bool skip = false)
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
         1, 47, 90.0); // Area from SQL Server
 
-    // TODO: fix for CCW
-    if (! skip)
-    {
-        test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
-            case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-            19, 87, 12.5); // Area from SQL Server
-    }
+     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
+         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
+         19, 87, 12.5); // Area from SQL Server
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>
@@ -146,7 +145,7 @@ void test_all()
     typedef bg::model::polygon<P, false> polygon_ccw;
     typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
 
-    test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>(true);
+    test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
 
     typedef bg::model::linear_ring<P, true, false> ring_open;
     typedef bg::model::polygon<P, true, false> polygon_open;

@@ -111,9 +111,14 @@ struct test_traverse
         ***/
 
 #if defined(BOOST_GEOMETRY_DEBUG_OVERLAY) || defined(BOOST_GEOMETRY_DEBUG_ENRICH)
+        bool const ccw =
+            bg::point_order<G1>::value == bg::counterclockwise
+            || bg::point_order<G2>::value == bg::counterclockwise;
+
         std::cout << std::endl
             << "TRAVERSE"
             << " " << id
+            << (ccw ? "_ccw" : "")
             << " " << string_from_type<typename bg::coordinate_type<G1>::type>::name()
             << "("  << operation(Direction) << ")" << std::endl;
 
@@ -134,7 +139,7 @@ struct test_traverse
 
         bg::detail::get_turns::no_interrupt_policy policy;
         bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, turns, policy);
-        bg::enrich_intersection_points(turns,
+        bg::enrich_intersection_points<Reverse1, Reverse2>(turns,
                     Direction == 1 ? bg::detail::overlay::operation_union
                     : bg::detail::overlay::operation_intersection,
             g1, g2, side_strategy_type());

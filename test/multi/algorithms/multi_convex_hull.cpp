@@ -16,6 +16,7 @@
 
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 
+#include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 
 #include <boost/geometry/multi/iterators/range_type.hpp>
