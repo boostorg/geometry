@@ -44,6 +44,8 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 {
     static const bool is_line = bg::geometry_id<OutputType>::type::value == 2;
 
+    //std::cout << caseid << std::endl;
+
     std::vector<OutputType> clip;
 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;

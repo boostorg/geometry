@@ -15,6 +15,7 @@
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
+#include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>

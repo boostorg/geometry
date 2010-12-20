@@ -9,6 +9,7 @@
 
 #include <algorithms/test_centroid.hpp>
 
+#include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/algorithms/centroid.hpp>
 #include <boost/geometry/multi/strategies/centroid.hpp>
 #include <boost/geometry/multi/strategies/cartesian/centroid_average.hpp>

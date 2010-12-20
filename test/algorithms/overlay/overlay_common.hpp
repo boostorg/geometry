@@ -19,6 +19,7 @@
 
 
 
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
@@ -49,6 +50,9 @@ void test_overlay(std::string const& id, T const& expected,
 
     G2 g2;
     bg::read_wkt(wkt2, g2);
+
+    bg::correct(g1);
+    bg::correct(g2);
 
     //std::cout << bg::wkt(g1) << std::endl;
     //std::cout << bg::wkt(g2) << std::endl;
