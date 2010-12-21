@@ -5,13 +5,15 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_CORE_POINT_ORDER_HPP
-#define BOOST_GEOMETRY_MULTI_CORE_POINT_ORDER_HPP
+#ifndef BOOST_GEOMETRY_MULTI_CORE_CLOSURE_HPP
+#define BOOST_GEOMETRY_MULTI_CORE_CLOSURE_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
+#include <boost/type_traits/remove_const.hpp>
 
-#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
 namespace boost { namespace geometry
@@ -22,25 +24,18 @@ namespace boost { namespace geometry
 namespace core_dispatch
 {
 
-template <typename Multi>
-struct point_order<multi_point_tag, Multi>
-    : public detail::point_order::clockwise {};
 
-template <typename Multi>
-struct point_order<multi_linestring_tag, Multi>
-    : public detail::point_order::clockwise {};
-
-
-// Specialization for multi_polygon: the order is the order of its polygons
+// Specialization for polygon: the closure is the closure of its rings
 template <typename MultiPolygon>
-struct point_order<multi_polygon_tag, MultiPolygon>
+struct closure<multi_polygon_tag, MultiPolygon>
 {
-    static const order_selector value = core_dispatch::point_order
+    static const closure_selector value = core_dispatch::closure
         <
             polygon_tag,
             typename boost::range_value<MultiPolygon>::type
         >::value ;
 };
+
 
 } // namespace core_dispatch
 #endif // DOXYGEN_NO_DISPATCH
@@ -48,4 +43,5 @@ struct point_order<multi_polygon_tag, MultiPolygon>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_MULTI_CORE_POINT_ORDER_HPP
+
+#endif // BOOST_GEOMETRY_MULTI_CORE_CLOSURE_HPP

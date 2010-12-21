@@ -41,6 +41,7 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/convex_hull.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/dissolve.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
@@ -53,6 +54,7 @@
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
+#include <boost/geometry/algorithms/sym_difference.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/algorithms/unique.hpp>

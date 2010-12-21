@@ -11,10 +11,13 @@
 #define BOOST_GEOMETRY_MULTI_HPP
 
 
+#include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
+#include <boost/geometry/multi/core/is_areal.hpp>
 #include <boost/geometry/multi/core/is_multi.hpp>
 #include <boost/geometry/multi/core/interior_rings.hpp>
 #include <boost/geometry/multi/core/num_geometries.hpp>
+#include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 #include <boost/geometry/multi/core/ring_type.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
@@ -23,6 +26,7 @@
 
 #include <boost/geometry/multi/algorithms/area.hpp>
 #include <boost/geometry/multi/algorithms/centroid.hpp>
+#include <boost/geometry/multi/algorithms/clear.hpp>
 #include <boost/geometry/multi/algorithms/convex_hull.hpp>
 #include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/multi/algorithms/dissolve.hpp>
@@ -34,6 +38,7 @@
 #include <boost/geometry/multi/algorithms/length.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/perimeter.hpp>
+#include <boost/geometry/multi/algorithms/reverse.hpp>
 #include <boost/geometry/multi/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/transform.hpp>
 #include <boost/geometry/multi/algorithms/union.hpp>
@@ -43,9 +48,14 @@
 #include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
 
+#include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 
+#include <boost/geometry/multi/algorithms/detail/overlay/add_to_containment.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/get_ring.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
