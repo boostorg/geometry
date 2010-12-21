@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="recursive_boxes"
+	Name="recursive_polygons"
 	ProjectGUID="{E1AA569C-858C-4789-A6FF-5CDFB41C59D7}"
-	RootNamespace="recursive_boxes"
+	RootNamespace="recursive_polygons"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\recursive_boxes"
+			IntermediateDirectory="$(ConfigurationName)\recursive_polygons"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\..\boost.vsprops"
 			CharacterSet="1"
@@ -94,7 +94,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\recursive_boxes"
+			IntermediateDirectory="$(ConfigurationName)\recursive_polygons"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\..\boost.vsprops"
 			CharacterSet="1"
@@ -170,7 +170,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\recursive_boxes.cpp"
+			RelativePath=".\recursive_polygons.cpp"
 			>
 		</File>
 	</Files>
