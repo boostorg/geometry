@@ -54,11 +54,6 @@ struct closed
     static const closure_selector value = geometry::closed;
 };
 
-struct open
-{
-    static const closure_selector value = geometry::open;
-};
-
 
 }} // namespace detail::point_order
 #endif // DOXYGEN_NO_DETAIL
@@ -80,16 +75,16 @@ struct closure
 };
 
 template <typename Box>
-struct closure<point_tag, Box> : public core_detail::closure::open {};
+struct closure<point_tag, Box> : public core_detail::closure::closed {};
 
 template <typename Box>
 struct closure<box_tag, Box> : public core_detail::closure::closed {};
 
 template <typename Box>
-struct closure<segment_tag, Box> : public core_detail::closure::open {};
+struct closure<segment_tag, Box> : public core_detail::closure::closed {};
 
 template <typename LineString>
-struct closure<linestring_tag, LineString> : public core_detail::closure::open {};
+struct closure<linestring_tag, LineString> : public core_detail::closure::closed {};
 
 
 template <typename Ring>
