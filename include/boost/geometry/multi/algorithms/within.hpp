@@ -13,6 +13,8 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/multi/core/closure.hpp>
+#include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
 namespace boost { namespace geometry

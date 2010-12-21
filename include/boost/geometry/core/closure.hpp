@@ -45,6 +45,26 @@ struct closure
 } // namespace traits
 
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace core_detail { namespace closure
+{
+
+struct closed
+{
+    static const closure_selector value = geometry::closed;
+};
+
+struct open
+{
+    static const closure_selector value = geometry::open;
+};
+
+
+}} // namespace detail::point_order
+#endif // DOXYGEN_NO_DETAIL
+
+
+
 #ifndef DOXYGEN_NO_DISPATCH
 namespace core_dispatch
 {
@@ -58,6 +78,18 @@ struct closure
             , (types<Geometry>)
         );
 };
+
+template <typename Box>
+struct closure<point_tag, Box> : public core_detail::closure::open {};
+
+template <typename Box>
+struct closure<box_tag, Box> : public core_detail::closure::closed {};
+
+template <typename Box>
+struct closure<segment_tag, Box> : public core_detail::closure::open {};
+
+template <typename LineString>
+struct closure<linestring_tag, LineString> : public core_detail::closure::open {};
 
 
 template <typename Ring>

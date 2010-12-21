@@ -24,6 +24,11 @@ namespace boost { namespace geometry
 namespace core_dispatch
 {
 
+template <typename Multi>
+struct closure<multi_point_tag, Multi> : public core_detail::closure::closed {};
+
+template <typename Multi>
+struct closure<multi_linestring_tag, Multi> : public core_detail::closure::closed {};
 
 // Specialization for polygon: the closure is the closure of its rings
 template <typename MultiPolygon>
