@@ -15,6 +15,7 @@
 
 
 
+#include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/ring_type.hpp>
