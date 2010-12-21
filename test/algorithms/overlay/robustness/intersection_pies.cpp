@@ -58,6 +58,7 @@ inline void make_pie(Polygon& polygon,
         bg::exterior_ring(polygon).push_back(bg::make<p>(int(x), int(y)));
     }
     bg::exterior_ring(polygon).push_back(bg::make<p>(int(cx), int(cy)));
+    bg::correct(polygon);
 }
 
 
@@ -132,13 +133,13 @@ inline void holify_multi(MultiPolygon& multi_polygon)
 
 
 
-template <typename T>
+template <typename T, bool Clockwise, bool Closed>
 void test_pie(int total_segment_count, T factor_p, T factor_q,
-            bool multi, bool multi_st, bool svg)
+            bool multi, bool single_selftangent, bool svg)
 {
     boost::timer t;
     typedef bg::model::d2::point_xy<T> point_type;
-    typedef bg::model::polygon<point_type> polygon;
+    typedef bg::model::polygon<point_type, Clockwise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     int good_count = 0;
@@ -193,7 +194,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
                             bool good = false;
 
                             // Represent as either multi-polygon, or as single-self-touching-polygon (INVALID)
-                            if (multi_st)
+                            if (single_selftangent)
                             {
                                 polygon q1 = q;
                                 for (unsigned int i = 1; i < q2.outer().size(); i++)
@@ -233,10 +234,10 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
 }
 
 
-template <typename T>
-void test_all(bool multi, bool multi_st, bool svg)
+template <typename T, bool Clockwise, bool Closed>
+void test_all(bool multi, bool single_selftangent, bool svg)
 {
-    test_pie<T>(24, 0.55, 0.45, multi, multi_st, svg);
+    test_pie<T, Clockwise, Closed>(24, 0.55, 0.45, multi, single_selftangent, svg);
 }
 
 int main(int argc, char** argv)
@@ -244,9 +245,19 @@ int main(int argc, char** argv)
     try
     {
         bool svg = argc > 1 && std::string(argv[1]) == std::string("svg");
+        bool multi = argc > 2 && std::string(argv[2]) == std::string("multi");
+        bool ccw = argc > 3 && std::string(argv[3]) == std::string("ccw");
+        bool single_selftangent = false; // keep false, true does not work!
 
-        //test_all<float>();
-        test_all<double>(true, false, svg);
+        // template par's are: CoordinateType, Clockwise, Closed
+        if (ccw)
+        {
+            test_all<double, false, true>(multi, single_selftangent, svg);
+        }
+        else
+        {
+            test_all<double, true, true>(multi, single_selftangent, svg);
+        }
         //test_all<long double>();
     }
     catch(std::exception const& e)

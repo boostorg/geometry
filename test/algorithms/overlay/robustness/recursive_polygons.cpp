@@ -26,14 +26,13 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/multi/multi.hpp>
-//#include <boost/geometry/multi/algorithms/detail/overlay/assemble.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
 
 template <typename Polygon, typename Generator>
-inline void make_box(Polygon& polygon, Generator& generator)
+inline void make_polygon(Polygon& polygon, Generator& generator)
 {
     typedef typename bg::point_type<Polygon>::type point_type;
     typedef typename bg::coordinate_type<Polygon>::type coordinate_type;
@@ -76,8 +75,10 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
     {
         p.resize(1);
         q.resize(1);
-        make_box(p.front(), generator);
-        make_box(q.front(), generator);
+        make_polygon(p.front(), generator);
+        make_polygon(q.front(), generator);
+        bg::correct(p);
+        bg::correct(q);
     }
     else
     {
@@ -112,11 +113,12 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
     bg::unique(mp);
     //result = mp;
     bg::simplify(mp, result, 0.01);
+    bg::correct(mp);
     return true;
 }
 
 
-template <typename T>
+template <typename T, bool Clockwise>
 void test_all(int seed, int count, bool svg, int level)
 {
     boost::timer t;
@@ -131,7 +133,7 @@ void test_all(int seed, int count, bool svg, int level)
 
     typedef bg::model::polygon
         <
-            bg::model::d2::point_xy<T>
+            bg::model::d2::point_xy<T>, Clockwise
             //, true, false
         > polygon;
     typedef bg::model::multi_polygon<polygon> mp;
@@ -153,6 +155,8 @@ int main(int argc, char** argv)
 {
     try
     {
+        // Arguments:
+        // {count} {seed} {"svg"} {level}
         int count = argc > 1 ? boost::lexical_cast<int>(argv[1]) : 10;
         int seed = (argc > 2 && std::string(argv[2]) != std::string("#"))
             ? boost::lexical_cast<int>(argv[2])
@@ -162,7 +166,7 @@ int main(int argc, char** argv)
             ? boost::lexical_cast<int>(argv[4]): 3;
 
         //test_all<float>(seed, count, svg, 1e-3);
-        test_all<double>(seed, count, svg, level);
+        test_all<double, false>(seed, count, svg, level);
 
 #if defined(HAVE_TTMATH)
    // test_recursive_boxes<ttmath_big>(selection, "t");

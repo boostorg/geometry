@@ -27,6 +27,9 @@ static std::string identical[2] =
     {"POLYGON((0 0,0 1,1 1,1 0,0 0))",
     "POLYGON((1 1,1 0,0 0,0 1,1 1))"};
 
+static std::string disjoint[2] =
+    {"POLYGON((3 0,3 1,4 1,4 0,3 0))",
+    "POLYGON((3 4,3 5,4 5,4 4,3 4))"};
 
 static std::string new_hole[2] =
     {"POLYGON((2 2,2 5,5 5,5 2,2 2))",
