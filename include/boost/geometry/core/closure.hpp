@@ -9,6 +9,7 @@
 #define BOOST_GEOMETRY_CORE_CLOSURE_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
@@ -51,7 +52,11 @@ namespace core_dispatch
 template <typename Tag, typename Geometry>
 struct closure
 {
-    static const closure_selector value = closed;
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
 };
 
 
