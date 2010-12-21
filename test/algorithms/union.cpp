@@ -61,6 +61,10 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("identical",
         identical[0], identical[1], 1, 0, 5, 1.0);
 
+    // disjoint
+    test_one<Polygon, Polygon, Polygon>("disjoint",
+        disjoint[0], disjoint[1], 2, 0, 10, 2.0);
+
     // inside each other, having intersections; holes separate intersections
     test_one<Polygon, Polygon, Polygon>("intersect_holes_intersect",
         intersect_holes_intersect[0], intersect_holes_intersect[1],
@@ -223,8 +227,10 @@ void test_all()
     typedef bg::model::box<P> box;
 
     test_areal<ring, polygon>();
+
     // Open
     test_areal<bg::model::linear_ring<P, true, false>, bg::model::polygon<P, true, false> >();
+
     // Counter clockwise
     test_areal<bg::model::linear_ring<P, false>, bg::model::polygon<P, false> >();
 

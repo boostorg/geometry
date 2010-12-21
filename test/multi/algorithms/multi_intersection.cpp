@@ -150,7 +150,7 @@ void test_all()
     typedef bg::model::linear_ring<P, true, false> ring_open;
     typedef bg::model::polygon<P, true, false> polygon_open;
     typedef bg::model::multi_polygon<polygon_open> multi_polygon_open;
-    // TODO: enable next combination (bug somewhere in get_turns with open polygon)
+    // TODO: fix next combination (bug somewhere in probably assemble, with open polygon)
     //test_areal<ring_open, polygon_open, multi_polygon_open>();
     
     test_areal_clip<polygon, multi_polygon, box>();

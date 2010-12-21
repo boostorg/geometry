@@ -37,42 +37,35 @@ static bool test_overlay_p_q(std::string const& caseid,
 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;
-    typedef bg::detail::overlay::turn_info<point_type> turn_type;
 
-    typedef bg::strategy_intersection
-        <
-            typename bg::cs_tag<point_type>::type,
-            G1,
-            G2,
-            turn_type,
-            CalculationType
-        > strategy;
-
-    std::vector<OutputType> out_i, out_u;
+    bg::model::multi_polygon<OutputType> out_i, out_u, out_d;
 
     CalculationType area_p = bg::area(p);
     CalculationType area_q = bg::area(q);
 
-    CalculationType area_i = 0;
-    CalculationType area_u = 0;
+    bg::intersection(p, q, out_i);
+    CalculationType area_i = bg::area(out_i);
 
-    bg::intersection_inserter<OutputType>(p, q, std::back_inserter(out_i), strategy());
-    for (typename std::vector<OutputType>::iterator it = out_i.begin();
-            it != out_i.end();
-            ++it)
-    {
-        area_i += bg::area(*it);
-    }
-    bg::union_inserter<OutputType>(p, q, std::back_inserter(out_u), strategy());
-    for (typename std::vector<OutputType>::iterator it = out_u.begin();
-            it != out_u.end();
-            ++it)
-    {
-        area_u += bg::area(*it);
-    }
+    bg::union_(p, q, out_u);
+    CalculationType area_u = bg::area(out_u);
 
-    double diff = (area_p + area_q) - area_u - area_i;
-    bool wrong = std::abs(diff) > tolerance;
+    double sum = (area_p + area_q) - area_u - area_i;
+
+    bool wrong = std::abs(sum) > tolerance;
+
+#ifdef USE_DIFFERENCE
+    bg::difference(p, q, out_d);
+    CalculationType area_d = bg::area(out_d);
+    double sum_d = (area_u - area_q) - area_d;
+    bool wrong_d = std::abs(sum_d) > tolerance;
+    
+    if (wrong_d)
+    {
+        wrong = true;
+    }
+#endif
+
+
     if (wrong || force_output)
     {
         if (wrong)
@@ -88,7 +81,11 @@ static bool test_overlay_p_q(std::string const& caseid,
             << " area u: " << area_u
             << " area p: " << area_p
             << " area q: " << area_q
-            << " diff: " << diff
+            << " sum: " << sum
+#ifdef USE_DIFFERENCE
+            << " area d: " << area_d
+            << " sum d: " << sum_d
+#endif
             << std::endl
             << std::setprecision(20)
             << " p: " << bg::wkt(p) << std::endl
@@ -119,19 +116,23 @@ static bool test_overlay_p_q(std::string const& caseid,
         mapper.map(q, "fill-opacity:0.3;fill:rgb(51,51,153);"
                 "stroke:rgb(51,51,153);stroke-width:3");
 
-        for (typename std::vector<OutputType>::const_iterator it = out_i.begin();
-                it != out_i.end(); ++it)
+        for (BOOST_AUTO(it, out_i.begin()); it != out_i.end(); ++it)
         {
             mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
                     "stroke:rgb(255,0,0);stroke-width:4");
         }
-        for (typename std::vector<OutputType>::const_iterator it = out_u.begin();
-                it != out_u.end(); ++it)
+        for (BOOST_AUTO(it, out_u.begin()); it != out_u.end(); ++it)
         {
             mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
                     "stroke:rgb(255,0,255);stroke-width:4");
-
         }
+#ifdef USE_DIFFERENCE
+        for (BOOST_AUTO(it, out_d.begin()); it != out_d.end(); ++it)
+        {
+            mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,255,0);"
+                    "stroke:rgb(255,255,0);stroke-width:4");
+        }
+#endif
     }
     return result;
 }
