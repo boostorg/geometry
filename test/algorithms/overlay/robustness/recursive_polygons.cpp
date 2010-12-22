@@ -111,7 +111,6 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
         >(p, q, std::back_inserter(mp));
 
     bg::unique(mp);
-    //result = mp;
     bg::simplify(mp, result, 0.01);
     bg::correct(mp);
     return true;
@@ -119,7 +118,7 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
 
 
 template <typename T, bool Clockwise, bool Closed>
-void test_all(int seed, int count, bool svg, int level)
+void test_all(int seed, int count, int fieldsize, bool svg, int level)
 {
     boost::timer t;
 
@@ -127,14 +126,13 @@ void test_all(int seed, int count, bool svg, int level)
 
     base_generator_type generator(seed);
 
-    boost::uniform_int<> random_coordinate(0, 9);
+    boost::uniform_int<> random_coordinate(0, fieldsize);
     boost::variate_generator<base_generator_type&, boost::uniform_int<> >
         coordinate_generator(generator, random_coordinate);
 
     typedef bg::model::polygon
         <
             bg::model::d2::point_xy<T>, Clockwise, Closed
-            //, true, false
         > polygon;
     typedef bg::model::multi_polygon<polygon> mp;
 
@@ -165,11 +163,13 @@ int main(int argc, char** argv)
         int level = argc > 4 && std::string(argv[4]) != std::string("#")
             ? boost::lexical_cast<int>(argv[4]): 3;
 
-        //test_all<float>(seed, count, svg, 1e-3);
-        test_all<double, false, false>(seed, count, svg, level);
+        int fieldsize = argc > 5 && std::string(argv[5]) != std::string("#")
+            ? boost::lexical_cast<int>(argv[5]): 9;
+
+        test_all<double, true, true>(seed, count, fieldsize, svg, level);
 
 #if defined(HAVE_TTMATH)
-   // test_recursive_boxes<ttmath_big>(selection, "t");
+        // test_all<ttmath_big, true, true>(seed, count, max, svg, level);
 #endif
     }
     catch(std::exception const& e)
