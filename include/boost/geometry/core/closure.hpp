@@ -10,6 +10,7 @@
 
 
 #include <boost/mpl/assert.hpp>
+#include <boost/mpl/int.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
@@ -53,6 +54,18 @@ struct closed
 {
     static const closure_selector value = geometry::closed;
 };
+
+
+/// Metafunction to define the minimum size of a ring:
+/// 3 for open rings, 4 for closed rings
+template <closure_selector Closure>
+struct minimum_ring_size {};
+
+template <>
+struct minimum_ring_size<geometry::closed> : boost::mpl::int_<4> {};
+
+template <>
+struct minimum_ring_size<geometry::open> : boost::mpl::int_<3> {};
 
 
 }} // namespace detail::point_order
