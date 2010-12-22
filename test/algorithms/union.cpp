@@ -234,6 +234,9 @@ void test_all()
     // Counter clockwise
     test_areal<bg::model::linear_ring<P, false>, bg::model::polygon<P, false> >();
 
+    // Counter clockwise and open
+    test_areal<bg::model::linear_ring<P, false, false>, bg::model::polygon<P, false, false> >();
+
     test_one<polygon, box, polygon>("box_ring", example_box, example_ring,
         1, 1, 15, 6.38875);
 

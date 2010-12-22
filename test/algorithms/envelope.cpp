@@ -26,6 +26,14 @@ void test_2d()
     test_envelope<bg::model::linear_ring<P> >("POLYGON((1 1,1 3,3 3,3 1,1 1))", 1, 3, 1, 3);
     test_envelope<bg::model::box<P> >("BOX(1 1,3 3)", 1, 3, 1, 3);
 
+    // Triangle, closed and open, and CCW. 
+    // Note that for the envelope algorithm, 
+    // these combinations should theoretically not differ
+    test_envelope<bg::model::linear_ring<P> >("POLYGON((4 1,0 7,7 9,4 1))", 0, 7, 1, 9);
+    test_envelope<bg::model::linear_ring<P, true, false> >("POLYGON((4 1,0 7,7 9))", 0, 7, 1, 9);
+    test_envelope<bg::model::linear_ring<P, false> >("POLYGON((4 1,7 9,0 7,4 1))", 0, 7, 1, 9);
+    test_envelope<bg::model::linear_ring<P, false, false> >("POLYGON((4 1,7 9,0 7))", 0, 7, 1, 9);
+
     typedef std::pair<P, P> segment_type;
     test_envelope<segment_type>("SEGMENT(1 1,3 3)", 1, 3, 1, 3);
 }
