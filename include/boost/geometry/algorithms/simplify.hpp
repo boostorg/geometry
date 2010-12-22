@@ -16,6 +16,7 @@
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -86,8 +87,8 @@ struct simplify_range
             the output ring might be self intersecting while the input ring is
             not, although chances are low in normal polygons
 
-            Finally the inputring might have 4 points (=correct),
-                the output < 4(=wrong)
+            Finally the inputring might have 3 (open) or 4 (closed) points (=correct),
+                the output < 3 or 4(=wrong)
         */
 
         if (boost::size(range) <= int(Minimum) || max_distance < 0.0)
@@ -116,10 +117,15 @@ struct simplify_polygon
     {
         typedef typename ring_type<Polygon>::type ring_type;
 
+        int const Minimum = core_detail::closure::minimum_ring_size
+            <
+                geometry::closure<Polygon>::value
+            >::value;
+
         // Note that if there are inner rings, and distance is too large,
         // they might intersect with the outer ring in the output,
         // while it didn't in the input.
-        simplify_range<ring_type, Strategy, 4>::apply(exterior_ring(poly_in),
+        simplify_range<ring_type, Strategy, Minimum>::apply(exterior_ring(poly_in),
                         exterior_ring(poly_out),
                         max_distance, strategy);
 
@@ -136,7 +142,7 @@ struct simplify_polygon
             it_in != boost::end(rings_in);
             ++it_in, ++it_out)
         {
-            simplify_range<ring_type, Strategy, 4>::apply(*it_in,
+            simplify_range<ring_type, Strategy, Minimum>::apply(*it_in,
                         *it_out, max_distance, strategy);
         }
     }
@@ -184,7 +190,10 @@ struct simplify<ring_tag, Ring, Strategy>
             <
                 Ring,
                 Strategy,
-                4
+                core_detail::closure::minimum_ring_size
+                    <
+                        geometry::closure<Ring>::value
+                    >::value
             >
 {};
 

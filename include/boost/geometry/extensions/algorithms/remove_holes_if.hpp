@@ -14,11 +14,13 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>
 
@@ -122,7 +124,8 @@ struct elongated_hole
 
     inline bool operator()(Ring const& ring) const
     {
-        if (ring.size() >= 4)
+        if (ring.size() >=
+                core_detail::closure::minimum_ring_size<Closure>::value)
         {
             double a = area(ring);
             double p = perimeter(ring);
@@ -142,7 +145,8 @@ struct invalid_hole
 {
     inline bool operator()(Ring const& ring) const
     {
-        return ring.size() < 4;
+        return ring.size()
+                < core_detail::closure::minimum_ring_size<Closure>::value;
     }
 };
 
