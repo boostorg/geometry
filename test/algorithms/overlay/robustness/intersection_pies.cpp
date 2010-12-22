@@ -247,12 +247,21 @@ int main(int argc, char** argv)
         bool svg = argc > 1 && std::string(argv[1]) == std::string("svg");
         bool multi = argc > 2 && std::string(argv[2]) == std::string("multi");
         bool ccw = argc > 3 && std::string(argv[3]) == std::string("ccw");
+        bool open = argc > 4 && std::string(argv[4]) == std::string("open");
         bool single_selftangent = false; // keep false, true does not work!
 
         // template par's are: CoordinateType, Clockwise, Closed
-        if (ccw)
+        if (ccw && open)
+        {
+            test_all<double, false, false>(multi, single_selftangent, svg);
+        }
+        else if (ccw)
         {
             test_all<double, false, true>(multi, single_selftangent, svg);
+        }
+        else if (open)
+        {
+            test_all<double, true, false>(multi, single_selftangent, svg);
         }
         else
         {

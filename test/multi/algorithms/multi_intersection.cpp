@@ -144,15 +144,18 @@ void test_all()
     typedef bg::model::linear_ring<P, false> ring_ccw;
     typedef bg::model::polygon<P, false> polygon_ccw;
     typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
-
     test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
 
     typedef bg::model::linear_ring<P, true, false> ring_open;
     typedef bg::model::polygon<P, true, false> polygon_open;
     typedef bg::model::multi_polygon<polygon_open> multi_polygon_open;
-    // TODO: fix next combination (bug somewhere in probably assemble, with open polygon)
-    //test_areal<ring_open, polygon_open, multi_polygon_open>();
-    
+    test_areal<ring_open, polygon_open, multi_polygon_open>();
+
+    typedef bg::model::linear_ring<P, false, false> ring_open_ccw;
+    typedef bg::model::polygon<P, false, false> polygon_open_ccw;
+    typedef bg::model::multi_polygon<polygon_open_ccw> multi_polygon_open_ccw;
+    test_areal<ring_open_ccw, polygon_open_ccw, multi_polygon_open_ccw>();
+
     test_areal_clip<polygon, multi_polygon, box>();
     test_areal_clip<polygon_ccw, multi_polygon_ccw, box>();
 

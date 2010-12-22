@@ -118,7 +118,7 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
 }
 
 
-template <typename T, bool Clockwise>
+template <typename T, bool Clockwise, bool Closed>
 void test_all(int seed, int count, bool svg, int level)
 {
     boost::timer t;
@@ -133,7 +133,7 @@ void test_all(int seed, int count, bool svg, int level)
 
     typedef bg::model::polygon
         <
-            bg::model::d2::point_xy<T>, Clockwise
+            bg::model::d2::point_xy<T>, Clockwise, Closed
             //, true, false
         > polygon;
     typedef bg::model::multi_polygon<polygon> mp;
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
             ? boost::lexical_cast<int>(argv[4]): 3;
 
         //test_all<float>(seed, count, svg, 1e-3);
-        test_all<double, false>(seed, count, svg, level);
+        test_all<double, false, false>(seed, count, svg, level);
 
 #if defined(HAVE_TTMATH)
    // test_recursive_boxes<ttmath_big>(selection, "t");
