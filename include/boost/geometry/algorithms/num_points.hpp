@@ -144,6 +144,7 @@ struct num_points<polygon_tag, false, Geometry>
 \details \details_calc{num_points, number of points}.
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
+\param add_for_open add one for open geometries (i.e. polygon types which are not closed)
 \return \return_calc{number of points}
 
 \qbk{behavior,__point__:[qbk_ret 1]}

@@ -185,7 +185,7 @@ EXCLUDE                = ../../../boost/geometry/util/builder.hpp \
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXCLUDE_SYMBOLS        = 
-EXAMPLE_PATH           = . .. ../example \
+EXAMPLE_PATH           = . .. ../example ../example/with_external_libs \
 			doxygen_input/sourcecode \
 			../../../boost/geometry/geometries \
 			../../../boost/geometry/strategies \

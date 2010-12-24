@@ -220,6 +220,17 @@ of a geometry.
 
 */
 
+// BSG 24-12-2010: re-added to silence Doxygen warnings:
+/*!
+\page WKT WKT (Well-Known Text)
+WKT is a textual representation of a geometry, explained here: http://en.wikipedia.org/wiki/Well-known_text
+WKT can represent a point, a linestring, a polygon, or multi versions of those.
+
+It is currently just a utility in the library, used in samples and tests, to get some textual output
+of a geometry.
+
+*/
+
 //---------------------------------------------------------------------------------------------------
 
 
@@ -241,22 +252,22 @@ Therefore this library is not an OGC implementation in the strict sense.
 \section Classes
 OGC defines the following geometry classes,
 which are implemented as concepts (and as geometries) in the Generic Geometry Library:
-- \ref boost::geometry::point "point": a point. The point defined here is dimensionally agnostic.
+- \ref boost::geometry::model::point "point": a point. The point defined here is dimensionally agnostic.
 Library users does not have to use this point, they might also use their own points as long as it meets the concepts.
-- \ref boost::geometry::linestring "linestring": Sequence of point values with linear interpolation
+- \ref boost::geometry::model::linestring "linestring": Sequence of point values with linear interpolation
 between points. Note that library users does not have to use this type. Algorithms works on iterators, so
 all algorithms also accept iterators on a vector (or other container) of points.
-- \ref boost::geometry::linear_ring "linear_ring": Sequence of point values with linear interpolation
+- \ref boost::geometry::model::linear_ring "linear_ring": Sequence of point values with linear interpolation
 between points, which is closed and not self-intersecting
-- \ref boost::geometry::polygon "polygon": Plane figure, consisting of an outer ring and zero or more
+- \ref boost::geometry::model::polygon "polygon": Plane figure, consisting of an outer ring and zero or more
 inner rings. So basically a polygon which might have holes.
 <em>Note that this definition is different from several other polygon definitions and libraries,
 where polygons are not allowed to have holes. These polygons are comparable to the linear_ring above</em>
 
 And multi-geometries:
-- \ref boost::geometry::multi_point "multi_point": collection of points
-- \ref boost::geometry::multi_linestring "multi_linestring": collection of linestrings
-- \ref boost::geometry::multi_polygon "multi_polygon": collection of polygons
+- \ref boost::geometry::model::multi_point "multi_point": collection of points
+- \ref boost::geometry::model::multi_linestring "multi_linestring": collection of linestrings
+- \ref boost::geometry::model::multi_polygon "multi_polygon": collection of polygons
 
 The naming of these classes is used in:
 - WKT (Well-Known Text)
@@ -272,8 +283,8 @@ and in many databases:
 - MonetDB
 
 Besides this the Generic Geometry Library provides the following additional classes:
-- \ref boost::geometry::box "box": Box, used for selections and for envelopes (bounding boxes)
-- \ref boost::geometry::segment "segment": Segment, helper class, used for e.g. intersections
+- \ref boost::geometry::model::box "box": Box, used for selections and for envelopes (bounding boxes)
+- \ref boost::geometry::model::segment "segment": Segment, helper class, used for e.g. intersections
 
 Finally geometry types can be added as extensions. This is e.g. done with an
 "n-sphere" meaning "circle" and "sphere". Circle is convenient for selections.
