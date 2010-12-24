@@ -201,18 +201,6 @@ The example, code shown below, results in this window-output:
 */
 
 
-//---------------------------------------------------------------------------------------------------
- /*!
-\example x02_numeric_adaptor_example.cpp
-
-The Numeric Adaptor is recently introduced to the Boost mailing list It is a proxy to high precision
-arithmetic libraries such as GMP or CLN.
-However, it might be that the same effect can be used using the Boost.Math bindings.
-
-This example shows how the GGL can be combined with non-numeric value types such as
-from the Numeric Adaptor
-\image html x02_numeric_adaptor_example_output.png
-*/
 
 
 
