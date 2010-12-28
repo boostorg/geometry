@@ -22,7 +22,11 @@ namespace traits
 {
 
 template<typename Filter, typename Geometry, bool DefaultPass>
+#if BOOST_VERSION > 104500
+struct tag<boost::range_detail::adjacent_filtered_range<Filter, Geometry, DefaultPass> >
+#else
 struct tag<boost::range_detail::adjacent_filter_range<Filter, Geometry, DefaultPass> >
+#endif
 {
     typedef typename geometry::tag<Geometry>::type type;
 };
