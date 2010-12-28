@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_CORE_COORDINATE_TYPE_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
@@ -30,8 +31,14 @@ namespace traits
     \par Specializations should provide:
         - typedef T type; (double,float,int,etc)
 */
-template <typename P>
-struct coordinate_type {};
+template <typename Point>
+struct coordinate_type 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Point>)
+        );
+};
 
 } // namespace traits
 
