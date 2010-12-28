@@ -29,6 +29,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/geometry_id.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -692,20 +693,21 @@ Small example showing how to use read_wkt with an output iterator
 \line {
 \until }
 */
-template <typename Point, typename OutputIterator>
+template <typename Geometry, typename OutputIterator>
 inline void read_wkt(std::string const& wkt, OutputIterator out)
 {
-    geometry::concept::check<Point>();
+    geometry::concept::check<Geometry>();
 
-    // Todo: maybe take this from the string, or do not call initialize, such that
-    // any coordinate string is parsed and outputted
-    std::string const& tag = "linestring";
+    typedef typename point_type<Geometry>::type point_type;
+
+    std::string const& tag =
+        geometry_id<Geometry>::value == 2 ? "linestring" : "polygon";
 
     detail::wkt::tokenizer tokens(wkt, boost::char_separator<char>(" ", ",()"));
     detail::wkt::tokenizer::iterator it;
-    if (detail::wkt::initialize<Point>(tokens, tag, wkt, it))
+    if (detail::wkt::initialize<point_type>(tokens, tag, wkt, it))
     {
-        detail::wkt::container_inserter<Point>::apply(it, tokens.end(), wkt, out);
+        detail::wkt::container_inserter<point_type>::apply(it, tokens.end(), wkt, out);
     }
 }
 
