@@ -188,6 +188,24 @@ void test_areal_clip()
             "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))", 1, 4, 0.75);
 }
 
+template <typename Box>
+void test_boxes(std::string const& wkt1, std::string const& wkt2, double expected_area, bool expected_result)
+{
+    Box box1, box2;
+    bg::read_wkt(wkt1, box1);
+    bg::read_wkt(wkt2, box2);
+
+    Box box_out;
+    bool detected = bg::intersection(box1, box2, box_out);
+    double area = bg::area(box_out);
+
+    BOOST_CHECK_EQUAL(detected, expected_result);
+    if (detected && expected_result)
+    {
+        BOOST_CHECK_CLOSE(area, expected_area, 0.01);
+    }
+}
+
 
 template <typename P>
 void test_all()
@@ -224,7 +242,7 @@ void test_all()
         1, 7, 5.47363293);
 #endif
 
-    // Basic check: box/linestring, is clipping OK? should compile in any order
+       // Basic check: box/linestring, is clipping OK? should compile in any order
     test_one<linestring, linestring, box>("llb", "LINESTRING(0 0,10 10)", clip, 1, 2, sqrt(2.0 * 6.0 * 6.0));
     test_one<linestring, box, linestring>("lbl", clip, "LINESTRING(0 0,10 10)", 1, 2, sqrt(2.0 * 6.0 * 6.0));
 
@@ -248,7 +266,7 @@ void test_all()
     // Outputting two lines (because of 3-4-5 constructions (0.3,0.4,0.5)
     // which occur 4 times, the length is expected to be 2.0)
     test_one<linestring, linestring, box>("llb_2", "LINESTRING(1.7 1.6,2.3 2.4,2.9 1.6,3.5 2.4,4.1 1.6)", clip, 2, 6, 4 * 0.5);
-
+    
 
 
 
@@ -260,6 +278,10 @@ void test_all()
     // polygons outputing points
     //test_one<P, polygon, polygon>("ppp1", simplex_normal[0], simplex_normal[1], 1, 7, 5.47363293);
 
+    test_boxes<box>("box(2 2,8 8)", "box(4 4,10 10)", 16, true);
+    test_boxes<box>("box(2 2,8 7)", "box(4 4,10 10)", 12, true);
+    test_boxes<box>("box(2 2,8 7)", "box(14 4,20 10)", 0, false);
+    test_boxes<box>("box(2 2,4 4)", "box(4 4,8 8)", 0, true);
 
 
     /*
@@ -319,3 +341,4 @@ int test_main(int, char* [])
     //test_pointer_version();
     return 0;
 }
+

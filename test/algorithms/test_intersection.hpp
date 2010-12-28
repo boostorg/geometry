@@ -46,7 +46,6 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     //std::cout << caseid << std::endl;
 
-    std::vector<OutputType> clip;
 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;
@@ -60,6 +59,12 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
             CalculationType
         > strategy;
 
+    // Check both normal behaviour, and _inserter behaviour
+    {
+        std::vector<OutputType> out;
+        bg::intersection(g1, g2, out);
+    }
+    std::vector<OutputType> clip;
     bg::intersection_inserter<OutputType>(g1, g2, std::back_inserter(clip), strategy());
 
 

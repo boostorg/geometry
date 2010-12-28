@@ -94,6 +94,14 @@ static bool test_overlay_p_q(std::string const& caseid,
 
     }
 
+    // For POSTGIS output
+    /***
+    std::cout 
+        << "union select " << area_i << " as bg,ST_area(ST_Intersection(ST_GeomFromText('" << bg::wkt(p) << "'), ST_GeomFromText('" << bg::wkt(q) << "'))) as pg" << std::endl
+        << "union select " << area_u << " as bg,ST_area(ST_Union(ST_GeomFromText('" << bg::wkt(p) << "'), ST_GeomFromText('" << bg::wkt(q) << "'))) as pg" << std::endl
+        << std::endl;
+    ***/
+
 
     if(svg)
     {
@@ -109,6 +117,9 @@ static bool test_overlay_p_q(std::string const& caseid,
 
         mapper.add(p);
         mapper.add(q);
+
+        //mapper.add(point_type(0,0));
+        //mapper.add(point_type(3,3));
 
         // Input shapes in green/blue
         mapper.map(p, "fill-opacity:0.5;fill:rgb(153,204,0);"
