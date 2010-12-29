@@ -52,7 +52,7 @@ template
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    int Direction, 
+    overlay_type Direction, 
     typename Strategy
 >
 struct overlay
@@ -80,10 +80,11 @@ struct overlay
 
         // If one input is empty, output the other one for a union.
         // For an intersection, the intersection is empty.
+        // TODO: for a difference, take one of them.
         if (geometry::num_points(geometry1) == 0
             || geometry::num_points(geometry2) == 0)
         {
-            if (Direction == 1)
+            if (Direction == overlay_union)
             {
                 std::map<ring_identifier, int> map;
                 ring_container_type rings;
@@ -110,9 +111,9 @@ std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
         geometry::enrich_intersection_points<Reverse1, Reverse2>(turn_points, 
-                Direction == -1
-                    ? boost::geometry::detail::overlay::operation_intersection
-                    : boost::geometry::detail::overlay::operation_union,
+                Direction == overlay_union
+                    ? boost::geometry::detail::overlay::operation_union
+                    : boost::geometry::detail::overlay::operation_intersection,
                     geometry1, geometry2,
                     side_strategy);
 
@@ -121,10 +122,9 @@ std::cout << "traverse" << std::endl;
 #endif
         ring_container_type rings;
         geometry::traverse<Reverse1, Reverse2>(geometry1, geometry2,
-                Direction == -1
-                    ? boost::geometry::detail::overlay::operation_intersection
-                    : boost::geometry::detail::overlay::operation_union
-                    ,
+                Direction == overlay_union
+                    ? boost::geometry::detail::overlay::operation_union
+                    : boost::geometry::detail::overlay::operation_intersection,
                 turn_points, rings);
 
         // TEMP condition, reversal should be done in traverse by calling "push_front"

@@ -103,7 +103,7 @@ struct dissolve_ring_or_polygon
             std::map<ring_identifier, int> map;
             map_turns(map, turns);
             return detail::overlay::assemble<GeometryOut>(rings, map,
-                            geometry, geometry, 1, true, false, out);
+                            geometry, geometry, overlay_dissolve, true, false, out);
         }
         else
         {

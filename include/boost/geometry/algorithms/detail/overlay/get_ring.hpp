@@ -71,7 +71,7 @@ template<>
 struct get_ring<polygon_tag>
 {
     template<typename Polygon>
-    static inline typename ring_type<Polygon>::type const& apply(
+    static inline typename ring_return_type<Polygon const>::type const apply(
                 ring_identifier const& id,
                 Polygon const& polygon)
     {

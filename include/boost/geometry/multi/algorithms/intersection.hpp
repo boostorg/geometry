@@ -147,6 +147,7 @@ template
     typename MultiLinestring1, typename MultiLinestring2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -156,6 +157,7 @@ struct intersection_inserter
         MultiLinestring1, MultiLinestring2,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
+        OverlayType,
         Strategy
     > : detail::intersection::intersection_multi_linestring_multi_linestring_point
             <
@@ -171,6 +173,7 @@ template
     typename Linestring, typename MultiLinestring,
     typename OutputIterator, typename GeometryOut,
     bool Reverse1, bool Reverse2, bool ReverseOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -180,6 +183,7 @@ struct intersection_inserter
         Linestring, MultiLinestring,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
+        OverlayType,
         Strategy
     > : detail::intersection::intersection_linestring_multi_linestring_point
             <
@@ -195,6 +199,7 @@ template
     typename MultiLinestring, typename Box,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -204,6 +209,7 @@ struct intersection_inserter
         MultiLinestring, Box,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
+        OverlayType,
         Strategy
     > : detail::intersection::clip_multi_linestring
             <

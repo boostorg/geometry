@@ -10,7 +10,7 @@
 
 #include <algorithm>
 
-#include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/algorithms/intersection_inserter.hpp>
 
 namespace boost { namespace geometry
 {
@@ -51,7 +51,7 @@ inline void difference(Geometry1 const& geometry1,
         > strategy;
 
 
-    detail::intersection::inserter<geometry_out, false, true, false>(
+    detail::intersection::inserter<geometry_out, false, true, false, overlay_difference>(
             geometry1, geometry2, 
             std::back_inserter(output_collection),
             strategy());
