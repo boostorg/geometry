@@ -23,7 +23,7 @@ namespace traits
 
 template<typename Geometry>
 #if BOOST_VERSION > 104500
-struct tag<boost::range_detail::uniqued_range<Geometry> >
+struct tag<boost::uniqued_range<Geometry> >
 #else
 struct tag<boost::range_detail::unique_range<Geometry> >
 #endif

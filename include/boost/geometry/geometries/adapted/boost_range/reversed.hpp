@@ -23,7 +23,7 @@ namespace traits
 
 template<typename Geometry>
 #if BOOST_VERSION > 104500
-struct tag<boost::range_detail::reversed_range<Geometry> >
+struct tag<boost::reversed_range<Geometry> >
 #else
 struct tag<boost::range_detail::reverse_range<Geometry> >
 #endif
