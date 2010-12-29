@@ -63,20 +63,15 @@ void test_all()
         "POLYGON((0 0,0 1,0 1,0 1,0 2,0 2,0 3,0 3,0 3,0 3,0 4,2 4,2 4,4 4,4 0,4 0,3 0,3 0,3 0,3 0,3 0,0 0))",
         0, 10, 16);
 
-
     // Hole: interior tangent to exterior
     test_one<polygon, polygon>("h1",
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 2,2 4,3 2,1 2))",
         0, 6, 16);
 
     // Hole: interior intersecting exterior
-    // TODO: fix this one
-    /*
     test_one<polygon, polygon>("h2",
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 3,5 4,1 1))",
         0, 8, 16.25);
-    */
-
 
     // Hole: two intersecting holes
     test_one<polygon, polygon>("h3",
