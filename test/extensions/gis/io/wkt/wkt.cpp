@@ -103,6 +103,14 @@ void test_wrong_wkt(std::string const& wkt, std::string const& start)
                 << start << " Got:" << e << " with WKT: " << wkt);
 }
 
+template <typename G>
+void test_wkt_output_iterator(std::string const& wkt)
+{
+    G geometry;
+    bg::read_wkt<G>(wkt, std::back_inserter(geometry));
+}
+
+
 
 #ifndef GEOMETRY_TEST_MULTI
 template <typename T>
@@ -168,6 +176,8 @@ void test_all()
         test_wkt<P>("POINT(1.1 2.1)", 1);
     }
 
+    test_wkt_output_iterator<bg::model::linestring<P> >("LINESTRING(1 1,2 2,3 3)");
+    test_wkt_output_iterator<bg::model::linear_ring<P> >("POLYGON((1 1,2 2,3 3))");
 }
 #endif
 

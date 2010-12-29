@@ -11,6 +11,9 @@
 #include <fstream>
 #include <iomanip>
 
+// #define BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
+
+
 // For mixing int/float
 #if defined(_MSC_VER)
 #pragma warning( disable : 4244 )
@@ -19,6 +22,7 @@
 
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/multi/multi.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
@@ -53,7 +57,7 @@ static bool test_overlay_p_q(std::string const& caseid,
 
     bool wrong = std::abs(sum) > tolerance;
 
-#ifdef USE_DIFFERENCE
+#ifdef BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
     bg::difference(p, q, out_d);
     CalculationType area_d = bg::area(out_d);
     double sum_d = (area_u - area_q) - area_d;
@@ -82,7 +86,7 @@ static bool test_overlay_p_q(std::string const& caseid,
             << " area p: " << area_p
             << " area q: " << area_q
             << " sum: " << sum
-#ifdef USE_DIFFERENCE
+#ifdef BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
             << " area d: " << area_d
             << " sum d: " << sum_d
 #endif
@@ -127,6 +131,13 @@ static bool test_overlay_p_q(std::string const& caseid,
         mapper.map(q, "fill-opacity:0.3;fill:rgb(51,51,153);"
                 "stroke:rgb(51,51,153);stroke-width:3");
 
+#ifdef BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
+        for (BOOST_AUTO(it, out_d.begin()); it != out_d.end(); ++it)
+        {
+            mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,255,0);"
+                    "stroke:rgb(255,255,0);stroke-width:4");
+        }
+#else
         for (BOOST_AUTO(it, out_i.begin()); it != out_i.end(); ++it)
         {
             mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
@@ -136,12 +147,6 @@ static bool test_overlay_p_q(std::string const& caseid,
         {
             mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
                     "stroke:rgb(255,0,255);stroke-width:4");
-        }
-#ifdef USE_DIFFERENCE
-        for (BOOST_AUTO(it, out_d.begin()); it != out_d.end(); ++it)
-        {
-            mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,255,0);"
-                    "stroke:rgb(255,255,0);stroke-width:4");
         }
 #endif
     }

@@ -123,6 +123,10 @@ static std::string fitting[2] =
     {"POLYGON((0 0,0 5,5 5,5 0,0 0),(4 1,3 4,1 2,4 1))",
     "POLYGON((1 2,3 4,4 1,1 2))"};
 
+static std::string crossed[2] =
+    {"POLYGON((0 0,0 5,5 5,5 0,0 0),(4 1,3 4,1 2,4 1))",
+    "POLYGON((2 1,1 4,4 3,2 1))"};
+
 // == case 53
 static std::string wrapped[3] = {
         "POLYGON((2 2,2 3,3 3,3 2,2 2))",

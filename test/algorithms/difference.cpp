@@ -24,13 +24,10 @@ void test_all()
 {
     typedef bg::model::polygon<P> polygon;
 
-    //goto wrong;
-
     test_one<polygon, polygon, polygon>(
             "star_ring", example_star, example_ring,
             5, 22, 1.1901714,
             5, 27, 1.6701714);
-//return;
 
     test_one<polygon, polygon, polygon>("two_bends",
         two_bends[0], two_bends[1],
@@ -52,17 +49,24 @@ void test_all()
         1, 10, 7.0,
         1, 10, 14.0);
 
-    //TODO: erroneous in assemble
-    /* 
     test_one<polygon, polygon, polygon>("fitting",
         fitting[0], fitting[1],
         1, 0, 21.0,
         1, 0, 4.0);
+
+    test_one<polygon, polygon, polygon>("crossed",
+        crossed[0], crossed[1],
+        1, 0, 19.5,
+        1, 0, 2.5);
+    test_one<polygon, polygon, polygon>("first_within_second",
+        first_within_second[1], first_within_second[0],
+        1, 1, 24,
+        0, 0, 0);
+
     test_one<polygon, polygon, polygon>("intersect_holes_disjoint",
         intersect_holes_disjoint[0], intersect_holes_disjoint[1],
         2, 15, 16.0,
         2, 15, 6.0);
-    */
 
     test_one<polygon, polygon, polygon>("intersect_holes_intersect",
         intersect_holes_intersect[0], intersect_holes_intersect[1],
@@ -80,18 +84,7 @@ void test_all()
             7, 27, 3.18452380952381);
 
     /***
-    Test is not relevant
-    test_one<polygon, polygon, polygon>(
-            "positive_negative",
-            "POLYGON((0 0,0 4,4 4,4 0,0 0))",
-            //"POLYGON((2 2,6 2,6 3,2 3,2 2))",
-            "POLYGON((2 2,2 3,6 3,6 2,2 2))",
-            5, 22, 1.1901714,
-            5, 27, 1.6701714);
-    ***/
-
-    /***
-    Experimental, does not work: 
+    Experimental (cut), does not work: 
     test_one<polygon, polygon, polygon>(
             "polygon_pseudo_line",
             "POLYGON((0 0,0 4,4 4,4 0,0 0))",
@@ -99,17 +92,6 @@ void test_all()
             5, 22, 1.1901714,
             5, 27, 1.6701714);
     ***/
-
-    /***
-    Test can be omitted, polygons are CCW
-    test_one<polygon, polygon, polygon>(
-            "reverse",
-            "POLYGON((0 0,4 0,4 4,0 4,0 0))",
-            "POLYGON((2 2,2 3,6 3,6 2,2 2))",
-            5, 22, 1.1901714,
-            5, 27, 1.6701714);
-    ***/
-
 }
 
 
