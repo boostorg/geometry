@@ -22,7 +22,7 @@ namespace traits
 {
 
 template<typename Geometry>
-struct tag<boost::range_detail::strided_range<Geometry> >
+struct tag<boost::strided_range<Geometry> >
 {
     typedef typename geometry::tag<Geometry>::type type;
 };

@@ -23,7 +23,7 @@ namespace traits
 
 template<typename Filter, typename Geometry>
 #if BOOST_VERSION > 104500
-struct tag<boost::range_detail::filtered_range<Filter, Geometry> >
+struct tag<boost::filtered_range<Filter, Geometry> >
 #else
 struct tag<boost::range_detail::filter_range<Filter, Geometry> >
 #endif
