@@ -121,6 +121,7 @@ template
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator,
     typename GeometryOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -140,6 +141,7 @@ template
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator,
     typename GeometryOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -149,9 +151,10 @@ struct intersection_inserter
         Geometry1, Geometry2,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
+        OverlayType,
         Strategy
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, -1, Strategy>
+        <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, OverlayType, Strategy>
 {};
 
 
@@ -163,6 +166,7 @@ template
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator,
     typename GeometryOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -172,38 +176,19 @@ struct intersection_inserter
         Geometry, Box,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
+        OverlayType,
         Strategy
     > : detail::overlay::overlay
-        <Geometry, Box, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, -1, Strategy>
+        <Geometry, Box, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, OverlayType, Strategy>
 {};
 
-/*// box/box
-template
-<
-    typename Box1, typename Box2,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
-    typename OutputIterator,
-    typename BoxOut,
-    typename Strategy
->
-struct intersection_inserter
-    <
-        box_tag, box_tag, box_tag,
-        true, true, true,
-        Box1, Box2,
-        Reverse1, Reverse2, ReverseOut,
-        OutputIterator, BoxOut,
-        Strategy
-    > : detail::intersection::intersection_box_box
-        <Box1, Box2, OutputIterator, BoxOut, Strategy>
-{};
-*/
 
 template
 <
     typename Segment1, typename Segment2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -213,7 +198,7 @@ struct intersection_inserter
         Segment1, Segment2,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
-        Strategy
+        OverlayType, Strategy
     > : detail::intersection::intersection_segment_segment_point
             <
                 Segment1, Segment2,
@@ -228,6 +213,7 @@ template
     typename Linestring1, typename Linestring2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -237,7 +223,7 @@ struct intersection_inserter
         Linestring1, Linestring2,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
-        Strategy
+        OverlayType, Strategy
     > : detail::intersection::intersection_linestring_linestring_point
             <
                 Linestring1, Linestring2,
@@ -252,6 +238,7 @@ template
     typename Linestring, typename Box,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType, 
     typename Strategy
 >
 struct intersection_inserter
@@ -261,6 +248,7 @@ struct intersection_inserter
         Linestring, Box,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
+        OverlayType, 
         Strategy
     >
 {
@@ -279,6 +267,7 @@ template
     typename Segment, typename Box,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType, 
     typename Strategy
 >
 struct intersection_inserter
@@ -288,6 +277,7 @@ struct intersection_inserter
         Segment, Box,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
+        OverlayType, 
         Strategy
     >
 {
@@ -312,6 +302,7 @@ template
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType, 
     typename Strategy
 >
 struct intersection_inserter_reversed
@@ -327,6 +318,7 @@ struct intersection_inserter_reversed
                 Geometry2, Geometry1,
                 Reverse2, Reverse1, ReverseOut,
                 OutputIterator, GeometryOut,
+                OverlayType, 
                 Strategy
             >::apply(g2, g1, out, strategy);
     }
@@ -347,6 +339,7 @@ template
 <
     typename GeometryOut,
     bool Reverse1, bool Reverse2, bool ReverseOut,
+    overlay_type OverlayType, 
     typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename Strategy
@@ -372,6 +365,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
                 overlay::do_reverse<geometry::point_order<Geometry2>::value, Reverse2>::value,
                 ReverseOut,
                 OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >,
             geometry::dispatch::intersection_inserter
@@ -387,6 +381,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
                 overlay::do_reverse<geometry::point_order<Geometry2>::value, Reverse2>::value,
                 ReverseOut,
                 OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >
         >::type::apply(geometry1, geometry2, out, strategy);
@@ -433,7 +428,7 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return detail::intersection::inserter<GeometryOut, false, false, true>(
+    return detail::intersection::inserter<GeometryOut, false, false, true, overlay_intersection>(
             geometry1, geometry2, out, strategy);
 }
 

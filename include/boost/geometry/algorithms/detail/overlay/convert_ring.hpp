@@ -11,7 +11,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
-
+#include <boost/range/algorithm/reverse.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -45,11 +45,15 @@ struct convert_ring<ring_tag>
 {
     template<typename Destination, typename Source>
     static inline void apply(Destination& destination, Source const& source,
-                bool append = false)
+                bool append, bool reverse)
     {
         if (! append)
         {
             geometry::convert(source, destination);
+            if (reverse)
+            {
+                boost::reverse(destination);
+            }
         }
     }
 };
@@ -60,17 +64,25 @@ struct convert_ring<polygon_tag>
 {
     template<typename Destination, typename Source>
     static inline void apply(Destination& destination, Source const& source,
-                bool append = false)
+                bool append, bool reverse)
     {
         if (! append)
         {
             geometry::convert(source, exterior_ring(destination));
+            if (reverse)
+            {
+                boost::reverse(exterior_ring(destination));
+            }
         }
         else
         {
             interior_rings(destination).resize(
                         interior_rings(destination).size() + 1);
             geometry::convert(source, interior_rings(destination).back());
+            if (reverse)
+            {
+                boost::reverse(interior_rings(destination).back());
+            }
         }
     }
 };

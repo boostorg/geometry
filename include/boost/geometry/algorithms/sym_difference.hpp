@@ -53,12 +53,12 @@ inline void sym_difference(Geometry1 const& geometry1,
         > strategy;
 
 
-    detail::intersection::inserter<geometry_out, false, true, false>(
+    detail::intersection::inserter<geometry_out, false, true, false, overlay_difference>(
             geometry1, geometry2, 
             std::back_inserter(output_collection),
             strategy());
-    detail::intersection::inserter<geometry_out, true, false, false>(
-            geometry1, geometry2, 
+    detail::intersection::inserter<geometry_out, false, true, false, overlay_difference>(
+            geometry2, geometry1, 
             std::back_inserter(output_collection),
             strategy());
 }
