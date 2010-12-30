@@ -1,3 +1,0 @@
-/*!
-\defgroup iterators iterators: iterators
-*/
