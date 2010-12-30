@@ -32,7 +32,7 @@ template
 struct intersection_box_box
 {
     static inline bool apply(Box1 const& box1,
-            Box2 const& box2, BoxOut& box_out, 
+            Box2 const& box2, BoxOut& box_out,
             Strategy const& strategy)
     {
         typedef typename coordinate_type<BoxOut>::type ct;
@@ -131,12 +131,12 @@ template
 >
 struct intersection
     <
-        box_tag, box_tag, box_tag, 
-        Box1, Box2, BoxOut, 
+        box_tag, box_tag, box_tag,
+        Box1, Box2, BoxOut,
         Strategy
     > : public detail::intersection::intersection_box_box
             <
-                Box1, Box2, BoxOut, 
+                Box1, Box2, BoxOut,
                 Strategy,
                 0, geometry::dimension<Box1>::value
             >
@@ -183,7 +183,8 @@ struct intersection_reversed
     the value_type (below referred to as 'GeometryOut') fulfills a \p_l_or_c concept.
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
-\param output_collection The collection being filled or extended by the algorithm
+\param geometry_out The output geometry, either a multi_point, multi_polygon,
+    multi_linestring, or a box (for intersection of two boxes)
 
 \qbk{example,intersection_linestring}
 \qbk{example,intersection_segment}
