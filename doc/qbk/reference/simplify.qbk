@@ -121,6 +121,9 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
+[heading Examples]
+[simplify_inserter]
+
 
 [endsect]
 

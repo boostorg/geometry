@@ -6,7 +6,6 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-# Experimental!
 
 project geometry/doc ;
 
@@ -25,7 +24,7 @@ boostbook geometry
 	<xsl:param>toc.max.depth=2
 	<xsl:param>generate.section.toc.level=4
 	<xsl:param>boost.root=../../../..
-	  <xsl:param>callout.graphics.path=../../../../doc/html/images/callouts/
+	  <xsl:param>callout.graphics.path=../../../../../doc/src/images/callouts/
 	;
 
 

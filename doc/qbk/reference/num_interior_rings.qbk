@@ -4,6 +4,9 @@
 
 Calculates the number of interior rings of a geometry. 
 
+[heading Description]
+The free function num_interior_rings calculates the number of interior rings of a geometry. 
+
 [heading Synopsis]
 ``template<typename Geometry>
 std::size_t num_interior_rings (Geometry const &geometry)``

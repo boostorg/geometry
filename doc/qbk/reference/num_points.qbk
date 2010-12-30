@@ -9,13 +9,14 @@ The free function num_points calculates the number of points of a geometry.
 
 [heading Synopsis]
 ``template<typename Geometry>
-std::size_t num_points (Geometry const &geometry)``
+std::size_t num_points (Geometry const &geometry, bool add_for_open=false)``
 
 [heading Parameters]
 
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
+[[bool] [] [add_for_open] [add one for open geometries (i.e. polygon types which are not closed) ]]
 ]
 
 
