@@ -1,0 +1,172 @@
+[/==============================================================================
+    Copyright (c) 1995-2010 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+    Copyright (c) 2008-2010 Bruno Lalande, Paris, France.
+    Copyright (c) 2009-2010 Mateusz Loskot (mateusz@loskot.net), London, UK
+
+    Use, modification and distribution is subject to the Boost Software License,
+    Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+===============================================================================/]
+
+[section:misc Miscellaneous]
+['TODO: long misc stories here...]
+
+[section:release Release Notes (?)] [/TODO: current status]
+['TODO: about giving birth here...]
+[endsect] [/ end of Release Notes]
+
+[section Compilation]
+
+__boost_geometry__ is a headers-only library. Users only need to include the library
+headers in their programs in order to be able to access definitions and algorithms
+provided by the __boost_geometry__ library. No linking against any binaries is required.
+
+__boost_geometry__ is only dependant on headers-only __boost__ libraries.
+It does not introduce indirect dependencies on any binary libraries.
+
+In order to be able to use __boost_geometry__, the only thing users need to do is to
+install __boost_cpp_lib__  and specify location to include directories, so `include`
+directives of this scheme will work:
+
+    #include <boost/...>
+
+[heading Supported Compilers]
+
+__boost_geometry__ library has been successfully tested with the following compilers:
+
+* __msvc__ (including Express Edition)
+  *  9.0 (__msvs__ 2008)
+  *  8.0 (__msvs__ 2005)
+* __gcc__
+  * 4.x (confirmed versoins 4.1, 4.2, 4.4)
+  * 3.4
+
+For __msvs__, the examples contains some project files (for 2005). However, because the library
+is header only, it will be no problem to integrate it in your own project files.
+
+__boost_geometry__ uses __boost_bb__, a text-based system for developing and testing software, to 
+configure, build and execute unit tests and example programs. The build configuration is provided 
+as a collection of `Jamfile.v2` files.
+
+For __gcc__ , flag `-Wno-long-long` can be used to surpress some warnings originating from Boost.
+
+[heading Basic Includes]
+
+This section concentrates on how to include __boost_geometry__ headers efficiently.
+
+['TODO: link header names to files? --mloskot]
+
+The most convenient headerfile including all algorithms and strategies is `geometry.hpp`:
+
+    #include <boost/geometry/geometry.hpp>
+
+This is the main header of the __boost_geometry__ library and it is recommended to include this file.
+
+Alternatively, it is possible to include __boost_geometry__ header files separately. However,
+this may be inconvenient as header files might be renamed or moved occasionaly in future.
+
+Another often used header is `geometries.hpp`:
+
+    #include <boost/geometry/geometries/geometries.hpp>
+
+This includes definitions of all provided geometry tyoes: __model_point__, linestring, polygon,
+linear_ring, box. The `geometries.hpp` is not included in the `geometry.hpp` headerfile because
+users should be given the liberty to use their own geometries and not the provided ones.
+However, for the __boost_geometry__ users who want to use the provided geometries it is
+useful to include it.
+
+For users using only Cartesian points, with floating point coordinates (of C++ type `double`),
+in 2D or 3D, you can use instead:
+
+    #include <boost/geometry/geometries/cartesian2d.hpp>
+
+This includes all 2D Cartesian geometries: point_2d, linestring_2d, etc.
+Using this header file, the library seems to be a non-template library, so it is convenient
+for users who do not feel strong with using and specializing C++ templates on their own.
+
+For users using multi-geometries:
+
+    #include <boost/geometry/multi/multi.hpp>
+
+[heading Advanced Includes]
+
+This section is for users who have their own geometries and want to use algorithms from
+the __boost_geometry__ library.
+
+If you want to use your own points it makes sense to use the registration macro's:
+
+    #include <boost/geometry/geometries/register/point.hpp>
+
+Defines preprocessor macros for point geometry types registration.
+
+    #include <boost/geometry/geometries/register/box.hpp>
+
+Defines preprocessor macros for box geometry type registration.
+
+If you are using standard containers containing points and want to handle them as a linestring.
+
+    #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
+
+Allows you to use things like `std::vector<point_2d>` and put them as parameters into algorithms.
+
+If you are using boost tuples and want to handle them as Cartesian points
+
+    #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+
+[heading Extensions]
+
+['TODO: Do we want this sub-section here? or moving completely to the Extensions node? --mloskot]
+
+[section Hints]
+
+[heading Performance]
+
+The enumeration below is not exhaustive but can contain hints to improve the performance:
+
+* For Microsoft __msvc__, set define `_SECURE_SCL=0` for preprocessor.
+* For Microsoft __msvc__, set define `_HAS_ITERATOR_DEBUGGING=0` for preprocessor.
+* Our measurements indicate that Visual C++ 8.0 generates faster code than Visual C++ 9.0
+* Use of __stlport__, a very popular open-source implementation of the STL, may result in
+  significantly faster code than use of the C++ standard library provided by __msvc__ compiler.
+* Turn on compiler optimizations, compile in release mode.
+
+[endsect] [/ end of Hints]
+
+[section:issues Known Problems]
+
+[heading Problems with Intellisense]
+
+Both versions of __msvs__, 2005 and 2008  (including Express Edition) can hang trying to resolve
+symbols and give [@http://en.wikipedia.org/wiki/IntelliSense IntelliSense] suggestions while
+typing in a bracket or angle bracket.
+This is not directly related to __boost_geometry__, but is caused by problems with handling by this
+IDE large C++ code base with intensively used templates, such as Boost and __boost_geometry__.
+If this is inconvenient, IntelliSense can easily be turned off:
+
+[:['["(...)disabling IntelliSense in VC++. There is a file called `feacp.dll` in
+`<VS8INSTALL>/VC/vcpackages` folder. Renaming this file will disable Intellisense feature.]]
+
+-- [@http://blogs.msdn.com/yash/archive/2007/09/19/intellisense-issues-in-visual-c-2005.aspx Intellisense issues in Visual C++ 2005] 
+]
+
+[endsect] [/ end of Problems]
+
+[endsect] [/ end of Compilation]
+
+[section Performance (?)]
+['TODO: how fast we are here...]
+[endsect] [/ end of Performance]
+
+[section:users Who uses Boost.Geometry (?)]
+['TODO: users here...]
+[endsect] [/ end of Who Uses]
+
+[section:future Future Work (?)] [/TODO: Roadmap? --mloskot]
+['TODO: roadmap here...]
+[endsect] [/ end of ]
+
+[section Acknowledgments (?)]
+['TODO: who is who here...]
+[endsect] [/ end of Acknowledgments]
+
+[endsect] [/ end of Miscellaneous]

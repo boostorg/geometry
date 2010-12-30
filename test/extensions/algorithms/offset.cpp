@@ -1,0 +1,133 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library) test file
+//
+// Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+#include <iostream>
+#include <string>
+
+#include <geometry_test_common.hpp>
+
+#include <boost/geometry/geometries/geometries.hpp>
+
+#include <boost/geometry/algorithms/length.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/unique.hpp>
+#include <boost/geometry/extensions/algorithms/offset.hpp>
+#include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
+
+#include <boost/geometry/strategies/strategies.hpp>
+
+#include <boost/geometry/strategies/buffer.hpp>
+
+
+#if defined(TEST_WITH_SVG)
+#  include <boost/geometry/multi/algorithms/envelope.hpp>
+#  include <boost/geometry/multi/core/is_multi.hpp>
+#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#endif
+
+
+template <typename GeometryOut, typename Geometry>
+void test_offset(std::string const& caseid, Geometry const& geometry,
+        double distance,
+        double expected_length, double percentage)
+{
+    typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
+    typedef typename bg::point_type<Geometry>::type point_type;
+
+    typedef bg::strategy::buffer::join_round
+        <
+            point_type,
+            point_type
+        > join_strategy;
+
+    GeometryOut moved_by_offset;
+    bg::offset(geometry, moved_by_offset, join_strategy(2), distance);
+
+    typename bg::length_result<Geometry>::type length
+                    = bg::length(moved_by_offset);
+    std::size_t count = bg::num_points(moved_by_offset);
+
+    /*
+    BOOST_CHECK_MESSAGE(count == expected_point_count,
+            "offset: " << caseid
+            << " #points expected: " << expected_point_count
+            << " detected: " << count
+            << " type: " << string_from_type<coordinate_type>::name()
+            );
+    */
+
+
+    //BOOST_CHECK_EQUAL(holes, expected_hole_count);
+    BOOST_CHECK_CLOSE(length, expected_length, percentage);
+
+
+#if defined(TEST_WITH_SVG)
+    {
+        std::ostringstream filename;
+        filename << "offset_"
+            << caseid << "_"
+            << string_from_type<coordinate_type>::name()
+            << ".svg";
+
+        std::ofstream svg(filename.str().c_str());
+
+        bg::svg_mapper
+            <
+                typename bg::point_type<Geometry>::type
+            > mapper(svg, 500, 500);
+        mapper.add(geometry);
+        mapper.add(moved_by_offset);
+
+        mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
+        mapper.map(moved_by_offset, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
+    }
+#endif
+}
+
+
+template <typename Geometry>
+void test_one(std::string const& caseid, std::string const& wkt, double distance,
+        double expected_length, double percentage = 0.001)
+{
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+
+    test_offset<Geometry>(caseid + "_a", geometry, distance, expected_length, percentage);
+    test_offset<Geometry>(caseid + "_b", geometry, -distance, expected_length, percentage);
+}
+
+
+
+
+template <typename P>
+void test_all()
+{
+
+    typedef bg::model::linestring<P> linestring;
+
+    static std::string const simplex = "LINESTRING(0 0,1 1)";
+    static std::string const one_bend = "LINESTRING(0 0,4 5,7 4)";
+    static std::string const two_bends = "LINESTRING(0 0,4 5,7 4,10 6)";
+    static std::string const overlapping = "LINESTRING(0 0,4 5,7 4,10 6, 10 2,2 2)";
+    static std::string const curve = "LINESTRING(2 7,3 5,5 4,7 5,8 7)";
+    static std::string const reallife1 = "LINESTRING(76396.40464822574 410095.6795147947,76397.85016212701 410095.211865792,76401.30666443033 410095.0466387949,76405.05892643372 410096.1007777959,76409.45103273794 410098.257640797,76412.96309264141 410101.6522238015)";
+
+    test_one<linestring>("ls_simplex", simplex, 0.5, std::sqrt(2.0));
+    test_one<linestring>("one_bend", one_bend, 0.5, std::sqrt(2.0));
+    test_one<linestring>("two_bends", two_bends, 0.5, std::sqrt(2.0));
+    test_one<linestring>("overlapping", overlapping, 0.5, std::sqrt(2.0));
+    test_one<linestring>("curve", curve, 0.5, std::sqrt(2.0));
+    test_one<linestring>("reallife1", reallife1, 16.5, std::sqrt(2.0));
+}
+
+
+int test_main(int, char* [])
+{
+    test_all<bg::model::d2::point_xy<double> >();
+
+    return 0;
+}

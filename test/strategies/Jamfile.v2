@@ -1,0 +1,17 @@
+# test/strategies/Jamfile.v2 
+#
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite boost-geometry-strategies
+    :
+    [ run cross_track.cpp ]
+    [ run haversine.cpp ]
+    [ run projected_point.cpp ]
+    [ run pythagoras.cpp ]
+    [ run transformer.cpp ]
+    [ run within.cpp ]
+    ;

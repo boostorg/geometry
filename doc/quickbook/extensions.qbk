@@ -1,0 +1,50 @@
+[/==============================================================================
+    Copyright (c) 1995-2010 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+    Copyright (c) 2008-2010 Bruno Lalande, Paris, France.
+    Copyright (c) 2009-2010 Mateusz Loskot (mateusz@loskot.net), London, UK
+
+    Use, modification and distribution is subject to the Boost Software License,
+    Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+===============================================================================/]
+
+[section Extensions (?)]
+['TODO: long story about extensions here...]
+
+[section:io I/O]
+['TODO: input/output extensions here...]
+
+[section DSV]
+[endsect] [/ end of DSV]
+
+[section SVG]
+[endsect] [/ end of SVG]
+
+['TODO: end of input/output extensions here...]
+[endsect] [/ end of I/O]
+
+[section:spatialindex Spatial Index]
+['TODO: spatial indexes here...]
+
+[section:rtree R-tree]
+['TODO: r-tree index here...]
+[endsect] [/ end of R-tree]
+
+['TODO: end of spatial indexes here...]
+[endsect] [/ end of Spatial Index]
+
+[section GIS]   
+
+[section:io I/O]
+['TODO: gis specific input/output here...]
+[endsect] [/ end of I/O]
+
+[section Projections]
+['TODO: projections here...]
+[endsect] [/ end of Projections]
+
+['TODO: end of long GIS story here...]
+[endsect] [/ end of GIS]
+
+['TODO: end of long story about extensions here...]
+[endsect] [/ end of section Extensions]
