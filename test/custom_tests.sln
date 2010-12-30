@@ -1,0 +1,37 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "point_concept_well_formed_point", "point_concept\well_formed_point.vcproj", "{B63710DE-960E-4C00-B79A-7C8F80D6BC15}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "point_concept_well_formed_point_traits", "point_concept\well_formed_point_traits.vcproj", "{4F767915-5FC0-4BEB-8948-F371896BBD59}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "point_concept_array_point", "point_concept\array_point.vcproj", "{436E02F5-A4E6-40F8-8E41-57560875D67F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "point_concept_point_with_incorrect_coord_count", "point_concept\point_with_incorrect_coord_count.vcproj", "{B696EDCA-4602-4962-8A1C-043B3F44B978}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B63710DE-960E-4C00-B79A-7C8F80D6BC15}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B63710DE-960E-4C00-B79A-7C8F80D6BC15}.Debug|Win32.Build.0 = Debug|Win32
+		{B63710DE-960E-4C00-B79A-7C8F80D6BC15}.Release|Win32.ActiveCfg = Release|Win32
+		{B63710DE-960E-4C00-B79A-7C8F80D6BC15}.Release|Win32.Build.0 = Release|Win32
+		{4F767915-5FC0-4BEB-8948-F371896BBD59}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4F767915-5FC0-4BEB-8948-F371896BBD59}.Debug|Win32.Build.0 = Debug|Win32
+		{4F767915-5FC0-4BEB-8948-F371896BBD59}.Release|Win32.ActiveCfg = Release|Win32
+		{4F767915-5FC0-4BEB-8948-F371896BBD59}.Release|Win32.Build.0 = Release|Win32
+		{436E02F5-A4E6-40F8-8E41-57560875D67F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{436E02F5-A4E6-40F8-8E41-57560875D67F}.Debug|Win32.Build.0 = Debug|Win32
+		{436E02F5-A4E6-40F8-8E41-57560875D67F}.Release|Win32.ActiveCfg = Release|Win32
+		{436E02F5-A4E6-40F8-8E41-57560875D67F}.Release|Win32.Build.0 = Release|Win32
+		{B696EDCA-4602-4962-8A1C-043B3F44B978}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B696EDCA-4602-4962-8A1C-043B3F44B978}.Debug|Win32.Build.0 = Debug|Win32
+		{B696EDCA-4602-4962-8A1C-043B3F44B978}.Release|Win32.ActiveCfg = Release|Win32
+		{B696EDCA-4602-4962-8A1C-043B3F44B978}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,29 @@
+# test/arithmetic/Jamfile.v2 
+#
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite boost-geometry-multi-algorithms
+    :
+    [ run multi_area.cpp ]
+    [ run multi_centroid.cpp ]
+    [ run multi_convex_hull.cpp ]
+    [ run multi_correct.cpp ]
+    [ run multi_envelope.cpp ]
+    [ run multi_equals.cpp ]
+    [ run multi_for_each.cpp ]
+    [ run multi_intersection.cpp ]
+    [ run multi_length.cpp ]
+    [ run multi_perimeter.cpp ]
+    [ run multi_reverse.cpp ]
+    [ run multi_simplify.cpp ]
+    [ run multi_union.cpp ]
+    [ run multi_unique.cpp ]
+    [ run multi_within.cpp ]
+    ;
+
+build-project overlay 
+    ;

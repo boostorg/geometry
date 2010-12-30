@@ -1,0 +1,20 @@
+# test/algorithms/Jamfile.v2 
+#
+# Copyright (c) 2010 Barend Gehrels
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite boost-geometry-algorithms-overlay
+    : 
+    [ run assemble.cpp ]
+#    [ run ccw_traverse.cpp ]
+#    [ run dissolver.cpp ]
+    [ run get_turn_info.cpp ]
+    [ run get_turns.cpp ]
+#    [ run relative_order.cpp ]
+#    [ run self_intersection_points.cpp ]
+#    [ run split_rings.cpp ]
+    [ run traverse.cpp ]
+     ;

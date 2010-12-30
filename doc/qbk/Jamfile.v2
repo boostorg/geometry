@@ -1,0 +1,31 @@
+# doc/quickbook/Jamfile.v2 builds Quickbook documentation for Geometry library
+#
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+# Copyright (c) 2010 Barend Gehrels
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+# Experimental!
+
+project geometry/doc ;
+
+import boostbook ;
+import quickbook ;
+
+
+boostbook geometry 
+	: geometry.qbk
+	: <dependency>Jamfile.v2	  
+		<dependency>quickref.xml
+		<dependency>reference/point.qbk
+        : <xsl:param>chunk.section.depth=4
+	<xsl:param>chunk.first.sections=1
+	<xsl:param>toc.section.depth=3
+	<xsl:param>toc.max.depth=2
+	<xsl:param>generate.section.toc.level=4
+	<xsl:param>boost.root=../../../..
+	  <xsl:param>callout.graphics.path=../../../../doc/html/images/callouts/
+	;
+
+

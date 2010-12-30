@@ -1,0 +1,20 @@
+# test/point_concept/Jamfile.v2 
+#
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite ggl-point-concept
+    :
+    [ compile concept_checker.cpp ]
+    [ compile well_formed_point.cpp ]
+    [ compile well_formed_point_traits.cpp ]
+    [ compile array_point.cpp ]
+    [ compile-fail point_without_coordinate_type.cpp ]
+    [ compile-fail point_without_dimension.cpp ]
+    [ compile-fail point_without_getter.cpp ]
+    [ compile-fail point_without_setter.cpp ]
+    [ compile-fail point_with_incorrect_dimension.cpp ]
+    ;

@@ -1,0 +1,24 @@
+# test/core/Jamfile.v2 
+#
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite ggl-core
+    :
+    [ run access.cpp ]
+    [ run coordinate_dimension.cpp ]
+    [ run coordinate_system.cpp ]
+    [ run coordinate_type.cpp ]
+    [ run geometry_id.cpp ]
+    [ run point_type.cpp ]
+    [ run radian_access.cpp ]
+#    [ run reverse_dispatch.cpp ]
+    [ run ring.cpp ]
+    [ run tag.cpp ]
+    [ run topological_dimension.cpp ]
+    ;
+
+# The reverse_dispatch somehow asks for UAC-control on MinGW...

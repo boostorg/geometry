@@ -1,0 +1,21 @@
+[/==============================================================================
+    Copyright (c) 1995-2010 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+    Copyright (c) 2008-2010 Bruno Lalande, Paris, France.
+    Copyright (c) 2009-2010 Mateusz Loskot (mateusz@loskot.net), London, UK
+
+    Use, modification and distribution is subject to the Boost Software License,
+    Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+===============================================================================/]
+
+[section:overview Overview]
+
+[include design_rationale.qbk]
+[include strategy_rationale.qbk]
+[include boolean.qbk]
+
+[section Robustness (?)]
+['TODO: how robust we are here...]
+[endsect]
+
+[endsect] [/ end of section Library Overview]

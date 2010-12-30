@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "circle", "circle.vcproj", "{E19B65F6-FAF0-47FD-84A2-3BAE1B703967}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "area", "area.vcproj", "{8223B570-E7E1-4621-BE02-C2F9B5CF278D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "within", "within.vcproj", "{3659D050-0E76-4679-BB87-369CC8FA31E9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E19B65F6-FAF0-47FD-84A2-3BAE1B703967}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E19B65F6-FAF0-47FD-84A2-3BAE1B703967}.Debug|Win32.Build.0 = Debug|Win32
+		{E19B65F6-FAF0-47FD-84A2-3BAE1B703967}.Release|Win32.ActiveCfg = Release|Win32
+		{E19B65F6-FAF0-47FD-84A2-3BAE1B703967}.Release|Win32.Build.0 = Release|Win32
+		{8223B570-E7E1-4621-BE02-C2F9B5CF278D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8223B570-E7E1-4621-BE02-C2F9B5CF278D}.Debug|Win32.Build.0 = Debug|Win32
+		{8223B570-E7E1-4621-BE02-C2F9B5CF278D}.Release|Win32.ActiveCfg = Release|Win32
+		{8223B570-E7E1-4621-BE02-C2F9B5CF278D}.Release|Win32.Build.0 = Release|Win32
+		{3659D050-0E76-4679-BB87-369CC8FA31E9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3659D050-0E76-4679-BB87-369CC8FA31E9}.Debug|Win32.Build.0 = Debug|Win32
+		{3659D050-0E76-4679-BB87-369CC8FA31E9}.Release|Win32.ActiveCfg = Release|Win32
+		{3659D050-0E76-4679-BB87-369CC8FA31E9}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

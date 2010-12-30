@@ -1,0 +1,43 @@
+# test/algorithms/Jamfile.v2 
+#
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+test-suite boost-geometry-algorithms
+    :
+    [ run append.cpp ]
+    [ run area.cpp ]
+    [ run assign.cpp ]
+    [ run centroid.cpp ]
+    [ run combine.cpp ]
+    [ run convert.cpp ]
+    [ run convex_hull.cpp ]
+    [ run correct.cpp ]
+    [ run disjoint.cpp ]
+    [ run dissolve.cpp ]
+    [ run equals.cpp ]
+    [ run distance.cpp ]
+    [ run envelope.cpp ]
+    [ run for_each.cpp ]
+    [ run intersection.cpp ]
+    [ run intersects.cpp ]
+    [ run length.cpp ]
+    [ run make.cpp ]
+    [ run overlaps.cpp ]
+    [ run perimeter.cpp ]
+    [ run reverse.cpp ]
+    [ run simplify.cpp ]
+    [ run transform.cpp ]
+    [ run union.cpp ]
+    [ run unique.cpp ]
+    [ run within.cpp ]
+    ;
+
+build-project overlay 
+    ;
+    
+build-project detail 
+    ;
