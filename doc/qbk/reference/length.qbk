@@ -44,6 +44,9 @@ Or
 [heading Complexity]
 Linear
 
+[heading Examples]
+[length_strategy]
+
 
 [endsect]
 
@@ -89,6 +92,9 @@ Or
 
 [heading Complexity]
 Linear
+
+[heading Examples]
+[length]
 
 
 [endsect]

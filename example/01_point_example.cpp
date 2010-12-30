@@ -114,6 +114,13 @@ int main()
     //    (delimiter separated values)
     std::cout << dsv(pt3) << std::endl;
 
+    // There are 3-dimensional points too
+    model::point<double, 3, cs::cartesian> d3a, d3b;
+    assign(d3a, 1, 2, 3);
+    assign(d3b, 4, 5, 6);
+    d3 = distance(d3a, d3b);
+
+
 
     // Other examples show other types of points, geometries and more algorithms
 

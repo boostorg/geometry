@@ -170,6 +170,7 @@ INPUT                  = . .. ../../../boost/geometry/core \
 			../../../boost/geometry/strategies/spherical \
 			../../../boost/geometry/strategies/transform \
 			../../../boost/geometry/util \
+			../../../boost/geometry/views \
 			../../../boost/geometry/extensions/io/svg \
 			./doxygen_input/pages \
 			./doxygen_input/groups

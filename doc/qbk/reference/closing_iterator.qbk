@@ -37,15 +37,28 @@ class closing_iterator
 
 
 ]]
+[[``closing_iterator ()``
+
+] [Default constructor. ] [
+
+
+]]
+]
+
+[heading Member Function(s)]
+[table
+[[Function] [Description] [Parameters] [Returns] ]
+[[``< Range > & operator= (closing_iterator< Range > const &source)``
+
+] [] [[* < Range > const &]: ['source]:  
+
+
+
+
+]]
 ]
 
 [heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
 `#include <boost/geometry/iterators/closing_iterator.hpp>`
 
 [endsect]
