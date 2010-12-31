@@ -10,64 +10,41 @@
 #  http://www.boost.org/LICENSE_1_0.txt)9
 # ============================================================================
 
-# Note, all of this is very experimental
-# BSG, Aug 1, 2010
 
-import os
+import os, sys
 
-# if a%1 == askip_doxygen goto skip_doxygen
-
-os.chdir("doxy");
-os.system("doxygen")
-os.chdir("..")
-
-#skip_doxygen
 
 cmd="doxygen_xml2qbk  doxy/doxygen_output/xml/%s.xml ../../../../ boost/geometry/geometry.hpp boost/geometry/geometries/geometries.hpp boost/geometry/multi/multi.hpp > reference/%s.qbk"
 
-# Algorithms
-os.system(cmd % ("group__area", "area"))
-os.system(cmd % ("group__buffer", "buffer"))
-os.system(cmd % ("group__centroid", "centroid"));
-os.system(cmd % ("group__convex__hull", "convex_hull"))
-os.system(cmd % ("group__dissolve", "dissolve"))
-os.system(cmd % ("group__envelope", "envelope"))
-os.system(cmd % ("group__length", "length"))
-os.system(cmd % ("group__num__geometries", "num_geometries"))
-os.system(cmd % ("group__num__interior__rings", "num_interior_rings"))
-os.system(cmd % ("group__num__points", "num_points"))
-os.system(cmd % ("group__perimeter", "perimeter"))
-os.system(cmd % ("group__reverse", "reverse"))
-os.system(cmd % ("group__simplify", "simplify"))
-os.system(cmd % ("group__unique", "unique"))
+def call_doxygen():
+	os.chdir("doxy");
+	os.system("doxygen")
+	os.chdir("..")
 
-# os.system(cmd % ("group__access", "access"))
-os.system(cmd % ("group__combine", "combine"))
-os.system(cmd % ("group__convert", "convert"))
-os.system(cmd % ("group__difference", "difference"))
-os.system(cmd % ("group__disjoint", "disjoint"))
+def group_to_quickbook(section):
+	os.system(cmd % ("group__" + section, section))
 
-os.system(cmd % ("group__distance", "distance"))
+def xml_to_quickbook(xml, section):
+	os.system(cmd % (xml, section))
 
-os.system(cmd % ("group__equals", "equals"))
-os.system(cmd % ("group__for__each", "for_each"))
 
-os.system(cmd % ("group__intersection", "intersection"))
-os.system(cmd % ("group__intersects", "intersects"))
+call_doxygen()
 
-os.system(cmd % ("group__overlaps", "overlaps"))
-os.system(cmd % ("group__sym__difference", "sym_difference"))
-os.system(cmd % ("group__transform", "transform"))
-os.system(cmd % ("group__union", "union"))
+algorithms = ["area", "buffer", "centroid", "combine", "convert" 
+	, "convex_hull", "difference", "disjoint", "dissolve", "distance" 
+	, "envelope", "equals", "for_each", "intersection", "intersects" 
+	, "length", "num_geometries", "num_interior_rings", "num_points" 
+	, "overlaps", "perimeter", "reverse", "simplify", "sym_difference" 
+	, "transform", "union", "unique", "within"]
 
-os.system(cmd % ("group__within", "within"))
-os.system(cmd % ("group__register", "register"))
+for a in algorithms:
+	group_to_quickbook(a)
 
-os.system(cmd % ("classboost_1_1geometry_1_1point", "point"))
-os.system(cmd % ("classboost_1_1geometry_1_1point__xy", "point_xy"))
+group_to_quickbook("register")
 
-os.system(cmd % ("classboost_1_1geometry_1_1concept_1_1_point", "concept_point"))
+xml_to_quickbook("classboost_1_1geometry_1_1point", "point")
+xml_to_quickbook("classboost_1_1geometry_1_1point__xy", "point_xy")
 
-os.system(cmd % ("structboost_1_1geometry_1_1closing__iterator", "closing_iterator"))
+xml_to_quickbook("structboost_1_1geometry_1_1closing__iterator", "closing_iterator")
 
 os.system("bjam") 

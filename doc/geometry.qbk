@@ -67,5 +67,6 @@
 [include introduction.qbk]
 [include quickstart.qbk]
 
+[include design_rationale.qbk]
 [include matrix.qbk]
 [include reference.qbk]
