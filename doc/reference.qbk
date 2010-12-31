@@ -108,11 +108,8 @@
 
 
 [section:concepts Concepts]
-
-[section:concept_point point]
-[include reference/concept_point.qbk]
-[endsect]
-
+[include concept/point.qbk]
+[include concept/box.qbk]
 [endsect]
 
 
