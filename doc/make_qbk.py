@@ -41,24 +41,24 @@ os.system(cmd % ("group__reverse", "reverse"))
 os.system(cmd % ("group__simplify", "simplify"))
 os.system(cmd % ("group__unique", "unique"))
 
-# os.system(cmd % ("group__access.xml", "access"))
-# os.system(cmd % ("group__combine.xml", "combine"))
-# os.system(cmd % ("group__convert.xml", "convert"))
-os.system(cmd % ("group__difference.xml", "difference"))
-# os.system(cmd % ("group__disjoint.xml", "disjoint"))
+# os.system(cmd % ("group__access", "access"))
+os.system(cmd % ("group__combine", "combine"))
+os.system(cmd % ("group__convert", "convert"))
+os.system(cmd % ("group__difference", "difference"))
+os.system(cmd % ("group__disjoint", "disjoint"))
 
 os.system(cmd % ("group__distance", "distance"))
 
-# os.system(cmd % ("group__equals.xml", "equals"))
-# os.system(cmd % ("group__for__each.xml", "for_each"))
+os.system(cmd % ("group__equals", "equals"))
+os.system(cmd % ("group__for__each", "for_each"))
 
 os.system(cmd % ("group__intersection", "intersection"))
 os.system(cmd % ("group__intersects", "intersects"))
 
-os.system(cmd % ("group__overlaps.xml", "overlaps"))
-os.system(cmd % ("group__sym__difference.xml", "sym_difference"))
-os.system(cmd % ("group__transform.xml", "transform"))
-os.system(cmd % ("group__union.xml", "union"))
+os.system(cmd % ("group__overlaps", "overlaps"))
+os.system(cmd % ("group__sym__difference", "sym_difference"))
+os.system(cmd % ("group__transform", "transform"))
+os.system(cmd % ("group__union", "union"))
 
 os.system(cmd % ("group__within", "within"))
 os.system(cmd % ("group__register", "register"))
@@ -66,7 +66,7 @@ os.system(cmd % ("group__register", "register"))
 os.system(cmd % ("classboost_1_1geometry_1_1point", "point"))
 os.system(cmd % ("classboost_1_1geometry_1_1point__xy", "point_xy"))
 
-os.system(cmd % ("classboost_1_1geometry_1_1concept_1_1_point.xml", "concept_point"))
+os.system(cmd % ("classboost_1_1geometry_1_1concept_1_1_point", "concept_point"))
 
 os.system(cmd % ("structboost_1_1geometry_1_1closing__iterator", "closing_iterator"))
 

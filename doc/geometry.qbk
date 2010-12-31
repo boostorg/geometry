@@ -13,13 +13,14 @@
     [version 1.0]
     [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz]]
     [copyright 2010 Barend Gehrels, Bruno Lalande, Mateusz Loskot]
-    [purpose A generic library for geometry]
+    [purpose Documentation of Boost.Geometry library]
     [license
         Distributed under the Boost Software License, Version 1.0.
         (See accompanying file LICENSE_1_0.txt or copy at
         [@http://www.boost.org/LICENSE_1_0.txt])
     ]
     [id geometry]
+    [category geometry]
 ]
 
 [/Behavior]
@@ -57,17 +58,14 @@
 
 [*In progress]
 
-
 [import snippets/qbk_1.cpp]
 [import snippets/qbk_2.cpp]
 [import snippets/qbk_3.cpp]
 [import snippets/qbk_4.cpp]
 [import snippets/qbk_5.cpp]
 
-
 [include introduction.qbk]
 [include quickstart.qbk]
 
 [include matrix.qbk]
 [include reference.qbk]
-

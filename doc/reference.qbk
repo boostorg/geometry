@@ -1,8 +1,6 @@
 [section:reference Reference]
 
-
 [section:algorithms Algorithms]
-
 
 [section:area area]
 [include reference/area.qbk]
@@ -16,13 +14,13 @@
 [include reference/centroid.qbk]
 [endsect]
 
-[/section:combine combine]
-[/include reference/combine.qbk]
-[/endsect]
+[section:combine combine]
+[include reference/combine.qbk]
+[endsect]
 
-[/section:convert convert]
-[/include reference/convert.qbk]
-[/endsect]
+[section:convert convert]
+[include reference/convert.qbk]
+[endsect]
 
 [section:convex_hull convex_hull]
 [include reference/convex_hull.qbk]
@@ -32,9 +30,9 @@
 [include reference/difference.qbk]
 [endsect]
 
-[/section:disjoint disjoint]
-[/include reference/disjoint.qbk]
-[/endsect]
+[section:disjoint disjoint]
+[include reference/disjoint.qbk]
+[endsect]
 
 [section:dissolve dissolve]
 [include reference/dissolve.qbk]
@@ -49,13 +47,13 @@
 [include reference/envelope.qbk]
 [endsect]
 
-[/section:equals equals]
-[/include reference/equals.qbk]
-[/endsect]
+[section:equals equals]
+[include reference/equals.qbk]
+[endsect]
 
-[/ section:for_each for_each]
-[/ include reference/for_each.qbk]
-[/ endsect]
+[/section:for_each for_each]
+[/include reference/for_each.qbk]
+[/endsect]
 
 [section:intersection intersection]
 [include reference/intersection.qbk]
@@ -105,7 +103,7 @@
 [endsect]
 
 
-[endsect]
+[endsect] [/algorithms]
 
 
 
@@ -135,7 +133,6 @@
 [include reference/closing_iterator.qbk]
 
 
-[endsect]
+[endsect] 
 
-
-[endsect]
+[endsect] [/reference]
