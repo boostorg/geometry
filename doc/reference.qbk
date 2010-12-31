@@ -28,13 +28,18 @@
 [include reference/convex_hull.qbk]
 [endsect]
 
-[/section:difference difference]
-[/include reference/difference.qbk]
-[/endsect]
+[section:difference difference]
+[include reference/difference.qbk]
+[endsect]
 
 [/section:disjoint disjoint]
 [/include reference/disjoint.qbk]
 [/endsect]
+
+[section:dissolve dissolve]
+[include reference/dissolve.qbk]
+[endsect]
+
 
 [section:distance distance]
 [include reference/distance.qbk]
@@ -66,9 +71,9 @@
 
 [include reference/num_points.qbk]
 
-[/section:overlaps overlaps]
-[/include reference/overlaps.qbk]
-[/endsect]
+[section:overlaps overlaps]
+[include reference/overlaps.qbk]
+[endsect]
 
 [section:perimeter perimeter]
 [include reference/perimeter.qbk]
@@ -80,18 +85,18 @@
 [include reference/simplify.qbk]
 [endsect]
 
-[/section:sym_difference sym_difference]
-[/include reference/sym_difference.qbk]
-[/endsect]
+[section:sym_difference sym_difference]
+[include reference/sym_difference.qbk]
+[endsect]
 
-[/section:transform transform]
-[/include reference/transform.qbk]
-[/endsect]
+[section:transform transform]
+[include reference/transform.qbk]
+[endsect]
 
 
-[/section:union union]
-[/include reference/union.qbk]
-[/endsect]
+[section:union union]
+[include reference/union.qbk]
+[endsect]
 
 [include reference/unique.qbk]
 
@@ -101,9 +106,6 @@
 
 
 [endsect]
-
-
-
 
 
 
