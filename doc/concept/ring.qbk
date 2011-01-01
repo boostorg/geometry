@@ -10,10 +10,12 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section:concept_box Box]
+[section:concept_ring Ring]
 
 [heading Description]
-Stub
+Ring 
+
+Note: also called linear ring, but we explicitly refer to a filled feature here.
+
 
 [endsect]
-

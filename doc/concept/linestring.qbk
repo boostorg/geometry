@@ -10,10 +10,9 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section:concept_box Box]
+[section:concept_linestring Linestring]
 
 [heading Description]
 Stub
 
 [endsect]
-

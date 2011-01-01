@@ -30,24 +30,24 @@
     <bridgehead renderas="sect3">0-dimensional</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.concepts.concept_point">Point</link></member>
-     <member><link linkend="geometry.reference.concepts.concept_multi_point">Multi-Point</link></member>
+     <member><link linkend="geometry.reference.concepts.concept_multi_point">MultiPoint</link></member>
       </simplelist>
     </entry>
     <entry valign="top">
     <bridgehead renderas="sect3">1-dimensional</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.concept.concept_segment">Segment</link></member>
-     <member><link linkend="geometry.concept.concept_linestring">Linestring</link></member>
-     <member><link linkend="geometry.concept.concept_multi_linestring">Multi-Linestring</link></member>
+     <member><link linkend="geometry.reference.concepts.concept_segment">Segment</link></member>
+     <member><link linkend="geometry.reference.concepts.concept_linestring">Linestring</link></member>
+     <member><link linkend="geometry.reference.concepts.concept_multi_linestring">MultiLinestring</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">2-dimensional</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.concept.conceptbox">Box</link></member>
-     <member><link linkend="geometry.concept.concept_ring">Ring</link></member>
-     <member><link linkend="geometry.concept.concept_polygon">Polygon</link></member>
-     <member><link linkend="geometry.concept.concept_multi_polygon">Mulit-Polygon</link></member>
+     <member><link linkend="geometry.reference.concept.concept_box">Box</link></member>
+     <member><link linkend="geometry.reference.concepts.concept_ring">Ring</link></member>
+     <member><link linkend="geometry.reference.concepts.concept_polygon">Polygon</link></member>
+     <member><link linkend="geometry.reference.concepts.concept_multi_polygon">MultiPolygon</link></member>
     </simplelist>
    </entry>
   </row>
