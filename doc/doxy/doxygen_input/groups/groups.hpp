@@ -18,6 +18,11 @@
 */
 
 /*!
+\defgroup correct correct: correct geometries
+*/
+
+
+/*!
 \defgroup get get: get geometries
 */
 
@@ -43,4 +48,12 @@
 
 /*!
 \defgroup interior_rings interior_rings: interior_rings
+*/
+
+/*!
+\defgroup ranges ranges: ranges
+*/
+
+/*!
+\defgroup strategies strategies: strategies
 */

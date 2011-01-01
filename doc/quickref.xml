@@ -2,12 +2,16 @@
 <!DOCTYPE library PUBLIC "-//Boost//DTD BoostBook XML V1.0//EN"
     "../../../tools/boostbook/dtd/boostbook.dtd">
 
-
 <!--
-  Copyright (c) 2010 Mateusz Loskot (mateusz at loskot dot net)
+  Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+  Copyright (c) 2009-2011 Mateusz Loskot (mateusz@loskot.net)
+  Copyright (c) 2009-2011 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2011 Bruno Lalande, Paris, France.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
 -->
 
 <informaltable frame="all">
@@ -127,22 +131,26 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Metafunctions</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.cs_tag">cs_tag</link></member>
-     <member><link linkend="geometry.reference.coordinate_type">coordinate_type</link></member>
-     <member><link linkend="geometry.reference.coordinate_system">coordinate_system</link></member>
-     <member><link linkend="geometry.reference.dimension">dimension</link></member>
-     <member><link linkend="geometry.reference.geometry_id">geometry_id</link></member>
-     <member><link linkend="geometry.reference.interior_type">interior_type</link></member>
-     <member><link linkend="geometry.reference.is_linear">is_linear</link></member>
-     <member><link linkend="geometry.reference.is_multi">is_multi</link></member>
-     <member><link linkend="geometry.reference.is_radian">is_radian</link></member>
-     <member><link linkend="geometry.reference.point_order">point_order</link></member>
-     <member><link linkend="geometry.reference.point_type">point_type</link></member>
-     <member><link linkend="geometry.reference.ring_type">ring_type</link></member>
-     <member><link linkend="geometry.reference.replace_point_type">replace_point_type</link></member>
-     <member><link linkend="geometry.reference.reverse_dispatch">reverse_dispatch</link></member>
-     <member><link linkend="geometry.reference.tag">tag</link></member>
-     <member><link linkend="geometry.reference.topological_dimension">topological_dimension</link></member>
+     <member><link linkend="geometry.reference.core.cs_tag">cs_tag</link></member>
+     <member><link linkend="geometry.reference.core.coordinate_type">coordinate_type</link></member>
+     <member><link linkend="geometry.reference.core.coordinate_system">coordinate_system</link></member>
+     <member><link linkend="geometry.reference.core.dimension">dimension</link></member>
+     <member><link linkend="geometry.reference.core.geometry_id">geometry_id</link></member>
+     <member><link linkend="geometry.reference.core.interior_type">interior_type</link></member>
+     <!-- will be replaced by tag inheritance
+     <member><link linkend="geometry.reference.core.is_linear">is_linear</link></member>
+     <member><link linkend="geometry.reference.core.is_multi">is_multi</link></member>
+     -->
+     <member><link linkend="geometry.reference.core.is_radian">is_radian</link></member>
+     <member><link linkend="geometry.reference.core.point_order">point_order</link></member>
+     <member><link linkend="geometry.reference.core.point_type">point_type</link></member>
+     <member><link linkend="geometry.reference.core.ring_type">ring_type</link></member>
+     <!-- for internal use only (detail?)
+     <member><link linkend="geometry.reference.core.replace_point_type">replace_point_type</link></member>
+     <member><link linkend="geometry.reference.core.reverse_dispatch">reverse_dispatch</link></member>
+     -->
+     <member><link linkend="geometry.reference.core.tag">tag</link></member>
+     <member><link linkend="geometry.reference.core.topological_dimension">topological_dimension</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
@@ -167,14 +175,18 @@
  </tbody>
 </tgroup>
 
-<!-- ###### CONSTANTS ########################################################################## -->
+<!-- ###### CONSTANTS / COORDINATE SYSTEMS ################################ -->
 <tgroup cols="2">
  <colspec colname="a"/>
  <colspec colname="b"/>
+ <colspec colname="c"/>
   <thead>
   <row>
    <entry valign="center" namest="a" nameend="b">
     <bridgehead renderas="sect2">Constants</bridgehead>
+   </entry>
+   <entry valign="center" namest="b" nameend="c">
+    <bridgehead renderas="sect2">Coordinate Systems</bridgehead>
    </entry>
   </row>
  </thead>
@@ -195,27 +207,6 @@
     <member><link linkend="geometry.reference.radian">radian</link></member>
     </simplelist>
    </entry>
-  </row>
- </tbody>
-</tgroup>
-
-<!-- ###### COORDINATE SYSTEMS / ITERATORS ##################################################### -->
-<tgroup cols="2">
- <colspec colname="a"/>
- <colspec colname="b"/>
- <colspec colname="c"/>
-  <thead>
-  <row>
-   <entry valign="center" namest="a" nameend="a">
-    <bridgehead renderas="sect2">Coordinate Systems</bridgehead>
-   </entry>
-   <entry valign="center" namest="b" nameend="c">
-    <bridgehead renderas="sect2">Iterators</bridgehead>
-   </entry>
-  </row>
- </thead>
- <tbody>
-  <row>
    <entry valign="top">
     <bridgehead renderas="sect3">Classes</bridgehead>
     <simplelist type="vert" columns="1">
@@ -225,24 +216,42 @@
     <member><link linkend="geometry.reference.cs__spherical">cs::spherical</link></member>
     </simplelist>
    </entry>
+  </row>
+ </tbody>
+</tgroup>
+
+<!-- ###### ITERATORS / RANGES ##################################################### -->
+<tgroup cols="2">
+ <colspec colname="a"/>
+ <colspec colname="b"/>
+  <thead>
+  <row>
+   <entry valign="center" namest="a" nameend="a">
+    <bridgehead renderas="sect2">Iterators</bridgehead>
+   </entry>
+   <entry valign="center" namest="b" nameend="b">
+    <bridgehead renderas="sect2">Ranges</bridgehead>
+   </entry>
+  </row>
+ </thead>
+ <tbody>
+  <row>
    <entry valign="top">
-    <bridgehead renderas="sect3">Metafunctions</bridgehead>
     <simplelist type="vert" columns="1">
-    <member><link linkend="geometry.reference.range_type">range_type</link></member>
-    </simplelist>
-    <bridgehead renderas="sect3">Classes</bridgehead>
-    <simplelist type="vert" columns="1">
-    <member><link linkend="geometry.reference.circular_iterator">circular_iterator</link></member>
-    <member><link linkend="geometry.reference.ever_circling_iterator">ever_circling_iterator</link></member>
-    <member><link linkend="geometry.reference.one_section_segment_iterator">one_section_segment_iterator</link></member>
-    <member><link linkend="geometry.reference.section_iterator">section_iterator</link></member>
-    <member><link linkend="geometry.reference.segment_iterator">segment_iterator</link></member>
+    <member><link linkend="geometry.reference.iterators.closing_iterator">closing_iterator</link></member>
+    <member><link linkend="geometry.reference.iterators.circular_iterator">circular_iterator</link></member>
+    <member><link linkend="geometry.reference.iterators.ever_circling_iterator">ever_circling_iterator</link></member>
+    <member><link linkend="geometry.reference.iterators.box_iterator">one_section_segment_iterator</link></member>
+    <member><link linkend="geometry.reference.iterators.segment_range_iterator">segment_range_iterator</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
-    <bridgehead renderas="sect3">Functions</bridgehead>
     <simplelist type="vert" columns="1">
-    <member><link linkend="geometry.reference.make_segment_iterator">make_segment_iterator</link></member>
+    <member><link linkend="geometry.reference.ranges.box_range">box_range</link></member>
+    <member><link linkend="geometry.reference.ranges.segment_range">segment_range</link></member>
+    <member><link linkend="geometry.reference.ranges.closeable_view">closeable_view</link></member>
+    <member><link linkend="geometry.reference.ranges.reversible_view">reversible_view</link></member>
+    <member><link linkend="geometry.reference.ranges.identity_view">identity_view</link></member>
     </simplelist>
    </entry>
   </row>
@@ -438,18 +447,15 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Area</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategy_area">strategy_area</link></member>
-     <member><link linkend="geometry.reference.area_result">area_result</link></member>
-     <member><link linkend="geometry.reference.strategy__area__by_triangles">strategy::area::by_triangles</link></member>
-     <member><link linkend="geometry.reference.strategy__area__huiller">strategy::area::huiller</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_area_by_triangles">strategy::area::by_triangles</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_area_huiller">strategy::area::huiller</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">Centroid</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategy_centroid">strategy_centroid</link></member>
-     <member><link linkend="geometry.reference.strategy__centroid___bashein_detmer">strategy::centroid_::bashein_detmer</link></member>
-     <member><link linkend="geometry.reference.strategy__centroid___centroid_average">strategy::centroid_::centroid_average</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_centroid_bashein_detmer">strategy::centroid_::bashein_detmer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_centroid_centroid_average">strategy::centroid_::centroid_average</link></member>
     </simplelist>
    </entry>
   </row>
@@ -457,10 +463,16 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Distance</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategy__distance__projected_point">strategy::distance::projected_point</link></member>
-     <member><link linkend="geometry.reference.strategy__distance__pythagoras">strategy::distance::pythagoras</link></member>
-     <member><link linkend="geometry.reference.strategy__distance__cross_track">strategy::distance::cross_track</link></member>
-     <member><link linkend="geometry.reference.strategy__distance__haversine">strategy::distance::haversine</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_distance_projected_point">strategy::distance::projected_point</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_distance_pythagoras">strategy::distance::pythagoras</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_distance_cross_track">strategy::distance::cross_track</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_distance_haversine">strategy::distance::haversine</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Convex Hull</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.strategies.strategy_convex_hull_graham_andrew">strategy::convex_hull::graham_andrew</link></member>
     </simplelist>
    </entry>
   </row>
@@ -468,15 +480,14 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Side</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategy__side__course">strategy::side::course</link></member>
-     <member><link linkend="geometry.reference.strategy__side__side_by_triangle">strategy::side::side_by_triangle</link></member>
-     <member><link linkend="geometry.reference.strategy__side__side_by_cross_track">strategy::side::side_by_cross_track</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_side_side_by_triangle">strategy::side::side_by_triangle</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_side_side_by_cross_track">strategy::side::side_by_cross_track</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">Simplify</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategy__simplify__douglas_peucker">strategy::simplify::douglas_peucker</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_simplify_douglas_peucker">strategy::simplify::douglas_peucker</link></member>
     </simplelist>
    </entry>
   </row>
@@ -484,20 +495,20 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Transform</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategy__transform__inverse_transformer">strategy::inverse_transformer</link></member>
-     <member><link linkend="geometry.reference.strategy__transform__map_transformer">strategy::map_transformer</link></member>
-     <member><link linkend="geometry.reference.strategy__transform__ublas_transformer">strategy::ublas_transformer</link></member>
-     <member><link linkend="geometry.reference.strategy__transform__translate_transformer">strategy::translate_transformer</link></member>
-     <member><link linkend="geometry.reference.strategy__transform__scale_transformer">strategy::scale_transformer</link></member>
-     <member><link linkend="geometry.reference.strategy__transform__rotate_transformer">strategy::rotate_transformer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_transform_inverse_transformer">strategy::transform::inverse_transformer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_transform_map_transformer">strategy::transform::map_transformer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_transform_ublas_transformer">strategy::transform::ublas_transformer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_transform_translate_transformer">strategy::transform::translate_transformer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_transform_scale_transformer">strategy::transform::scale_transformer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_transform_rotate_transformer">strategy::transform::rotate_transformer</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">Within</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategy__within__winding">strategy::winding</link></member>
-     <member><link linkend="geometry.reference.strategy__within__crossings_multiply">strategy::crossings_multiply</link></member>
-     <member><link linkend="geometry.reference.strategy__within__franklin">strategy::franklin</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_within_winding">strategy::winding</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_within_crossings_multiply">strategy::crossings_multiply</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_within_franklin">strategy::franklin</link></member>
     </simplelist>
    </entry>
   </row>
