@@ -10,7 +10,6 @@
 
 
 #include<boost/geometry/geometry.hpp>
-#include<boost/geometry/geometries/cartesian3d.hpp>
 #include<boost/geometry/geometries/adapted/boost_array_cartesian.hpp>
 #include<boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include<boost/geometry/geometries/adapted/tuple_cartesian.hpp>
