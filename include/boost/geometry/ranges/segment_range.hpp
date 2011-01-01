@@ -18,6 +18,11 @@ namespace boost { namespace geometry
 {
 
 
+/*!
+\brief Range, walking over the two points of a segment
+\tparam Segment segment type
+\ingroup ranges
+*/
 template <typename Segment>
 class segment_range
 {
@@ -43,6 +48,8 @@ private :
 };
 
 
+#ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
+
 // All segment ranges can be handled as linestrings
 namespace traits
 {
@@ -52,6 +59,8 @@ namespace traits
         typedef linestring_tag type;
     };
 }
+
+#endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
 
 

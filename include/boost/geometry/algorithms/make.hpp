@@ -18,7 +18,7 @@ namespace boost { namespace geometry
 
 /*!
     \brief Make a geometry
-    \ingroup access
+    \ingroup make
     \details the Generic Geometry Library uses concepts for all its geometries. Therefore it does not rely
     on constructors. The "make" functions are object generators creating geometries. There are overloads
     with two, three, four or six values, which are implemented depending on the geometry specified.
@@ -44,7 +44,7 @@ inline Geometry make(T const& c1, T const& c2)
 
 /*!
     \brief Make a geometry
-    \ingroup access
+    \ingroup make
     \return a 3D point
  */
 template <typename Geometry, typename T>
@@ -92,7 +92,7 @@ inline Geometry make(Range const& range)
 
 /*!
     \brief Create a box with inverse infinite coordinates
-    \ingroup access
+    \ingroup make
     \details The make_inverse function initialize a 2D or 3D box with large coordinates, the
     min corner is very large, the max corner is very small
     \tparam Geometry the geometry type
@@ -114,7 +114,7 @@ inline Geometry make_inverse()
 
 /*!
     \brief Create a geometry with "zero" coordinates
-    \ingroup access
+    \ingroup make
     \details The make_zero function initializes a 2D or 3D point or box with coordinates of zero
     \tparam Geometry the geometry type
     \return the geometry

@@ -64,12 +64,11 @@ namespace comparable
 {
 
 /*!
-    \brief Strategy for comparable distance point to point: comparable_pythagoras
-    \ingroup distance
-    \tparam Point1 first point type
-    \tparam Point2 optional, second point type, defaults to first point type
-    \par Concepts for Point1 and Point2:
-    - specialized point_traits class
+\brief Strategy for comparable distance point to point: comparable_pythagoras
+\ingroup strategies
+\tparam Point1 first point type
+\tparam Point2 optional, second point type, defaults to first point type
+\tparam CalculationType optional, specify type of calculation
 */
 template
 <
@@ -77,8 +76,9 @@ template
     typename Point2 = Point1,
     typename CalculationType = void
 >
-struct pythagoras
+class pythagoras
 {
+public :
     typedef typename select_calculation_type
             <
                 Point1,
@@ -109,12 +109,11 @@ struct pythagoras
 
 
 /*!
-    \brief Strategy for distance point to point: pythagoras
-    \ingroup distance
-    \tparam Point1 first point type
-    \tparam Point2 optional, second point type, defaults to first point type
-    \par Concepts for Point1 and Point2:
-    - specialized point_traits class
+\brief Strategy for distance point to point: pythagoras
+\ingroup strategies
+\tparam Point1 first point type
+\tparam Point2 optional, second point type, defaults to first point type
+\tparam CalculationType optional, specify type of calculation
 */
 template
 <
@@ -122,9 +121,10 @@ template
     typename Point2 = Point1,
     typename CalculationType = void
 >
-struct pythagoras
+class pythagoras
 {
     typedef comparable::pythagoras<Point1, Point2, CalculationType> comparable_type;
+public :
     typedef typename promote_floating_point
         <
             typename services::return_type<comparable_type>::type

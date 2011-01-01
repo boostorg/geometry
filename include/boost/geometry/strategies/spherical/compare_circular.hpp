@@ -51,10 +51,10 @@ struct shift<radian>
 #endif
 
 /*!
-    \brief Compare (in one direction) strategy for spherical coordinates
-    \ingroup util
-    \tparam Point point-type
-    \tparam Dimension dimension
+\brief Compare (in one direction) strategy for spherical coordinates
+\ingroup strategies
+\tparam Point point-type
+\tparam Dimension dimension
 */
 template <typename CoordinateType, typename Units, typename Compare>
 struct circular_comparator

@@ -16,6 +16,11 @@ namespace boost { namespace geometry
 {
 
 
+/*!
+\brief View on a range, not modifying anything
+\tparam Range original range
+\ingroup ranges
+*/
 template <typename Range>
 struct identity_view
 {

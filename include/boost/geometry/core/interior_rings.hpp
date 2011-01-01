@@ -118,12 +118,12 @@ struct num_interior_rings<polygon_tag, Polygon>
 
 
 /*!
-    \brief Function to get the interior rings of a polygon (non const version)
-    \ingroup access
-    \note OGC compliance: instead of InteriorRingN
-    \tparam P polygon type
-    \param polygon the polygon to get the interior rings from
-    \return the interior rings (possibly a reference)
+\brief Function to get the interior rings of a polygon (non const version)
+\ingroup interior_rings
+\note OGC compliance: instead of InteriorRingN
+\tparam Polygon polygon type
+\param polygon the polygon to get the interior rings from
+\return the interior rings (possibly a reference)
 */
 
 template <typename Polygon>
@@ -138,12 +138,14 @@ inline typename interior_return_type<Polygon>::type interior_rings(Polygon& poly
 
 
 /*!
-    \brief Function to get the interior rings of a polygon (const version)
-    \ingroup access
-    \note OGC compliance: instead of InteriorRingN
-    \tparam P polygon type
-    \param polygon the polygon to get the interior rings from
-    \return the interior rings (possibly a const reference)
+\brief Function to get the interior rings of a polygon (const version)
+\ingroup interior_rings
+\note OGC compliance: instead of InteriorRingN
+\tparam Polygon polygon type
+\param polygon the polygon to get the interior rings from
+\return the interior rings (possibly a const reference)
+
+\qbk{distinguish,const version}
 */
 template <typename Polygon>
 inline typename interior_return_type<Polygon const>::type interior_rings(

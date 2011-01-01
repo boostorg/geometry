@@ -22,6 +22,8 @@
 namespace boost { namespace geometry
 {
 
+#ifndef DOXYGEN_NO_DETAIL
+
 namespace detail
 {
 
@@ -48,11 +50,20 @@ private :
 
 }
 
+#endif // DOXYGEN_NO_DETAIL
 
+
+/*!
+\brief View on a range, either closing or not closing
+\tparam Range original range
+\tparam Close specifying if it should be closed or not
+\ingroup ranges
+*/
 template <typename Range, closure_selector Close>
 struct closeable_view {};
 
 
+#ifndef DOXYGEN_NO_SPECIALIZATIONS
 
 template <typename Range>
 struct closeable_view<Range, closed>
@@ -66,6 +77,9 @@ struct closeable_view<Range, open>
 {
     typedef detail::closing_view<Range> type;
 };
+
+#endif // DOXYGEN_NO_SPECIALIZATIONS
+
 
 
 }} // namespace boost::geometry

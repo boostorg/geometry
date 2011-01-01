@@ -27,21 +27,22 @@ namespace strategy { namespace area
 
 
 /*!
-    \brief Area calculation by spherical excess / Huiller's formula
-    \tparam P type of points of rings/polygons
-    \author Barend Gehrels. Adapted from:
-    - http://www.soe.ucsc.edu/~pang/160/f98/Gems/GemsIV/sph_poly.c
-    - http://williams.best.vwh.net/avform.htm
-    \note The version in Gems didn't account for polygons crossing the 180 meridian.
-    \note This version works for convex and non-convex polygons, for 180 meridian
-    crossing polygons and for polygons with holes. However, some cases (especially
-    180 meridian cases) must still be checked.
-    \note The version which sums angles, which is often seen, doesn't handle non-convex
-    polygons correctly.
-    \note The version which sums longitudes, see
-    http://trs-new.jpl.nasa.gov/dspace/bitstream/2014/40409/1/07-03.pdf, is simple
-    and works well in most cases but not in 180 meridian crossing cases. This probably
-    could be solved.
+\brief Area calculation by spherical excess / Huiller's formula
+\ingroup strategies
+\tparam P type of points of rings/polygons
+\author Barend Gehrels. Adapted from:
+- http://www.soe.ucsc.edu/~pang/160/f98/Gems/GemsIV/sph_poly.c
+- http://williams.best.vwh.net/avform.htm
+\note The version in Gems didn't account for polygons crossing the 180 meridian.
+\note This version works for convex and non-convex polygons, for 180 meridian
+crossing polygons and for polygons with holes. However, some cases (especially
+180 meridian cases) must still be checked.
+\note The version which sums angles, which is often seen, doesn't handle non-convex
+polygons correctly.
+\note The version which sums longitudes, see
+http://trs-new.jpl.nasa.gov/dspace/bitstream/2014/40409/1/07-03.pdf, is simple
+and works well in most cases but not in 180 meridian crossing cases. This probably
+could be solved.
 */
 template
 <

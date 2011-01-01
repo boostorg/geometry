@@ -27,13 +27,14 @@ namespace strategy { namespace within
 {
 
 /*!
-    \brief Within detection using winding rule
-    \tparam Point point type of point to examine
-    \tparam PointOfSegment point type of segments, defaults to Point
-    \author Barend Gehrels
-    \note The implementation is inspired by terralib http://www.terralib.org (LGPL)
-    \note but totally revised afterwards, especially for cases on segments
-    \note Only dependant on "side", -> agnostic, suitable for spherical/latlong
+\brief Within detection using winding rule
+\ingroup strategies
+\tparam Point point type of point to examine
+\tparam PointOfSegment point type of segments, defaults to Point
+\author Barend Gehrels
+\note The implementation is inspired by terralib http://www.terralib.org (LGPL)
+\note but totally revised afterwards, especially for cases on segments
+\note Only dependant on "side", -> agnostic, suitable for spherical/latlong
  */
 template
 <
