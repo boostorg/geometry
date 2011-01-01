@@ -1,4 +1,37 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2009-2011 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2011 Mateusz Loskot (mateusz@loskot.net)
+  Copyright (c) 2009-2011 Bruno Lalande, Paris, France.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
 [section:reference Reference]
+
+[section:core Core Metafunctions]
+[include reference/closure.qbk]
+[include reference/coordinate_system.qbk]
+[include reference/coordinate_type.qbk]
+[include reference/cs_tag.qbk]
+[include reference/dimension.qbk]
+[include reference/exception.qbk]
+[include reference/geometry_id.qbk]
+[include reference/interior_type.qbk]
+[include reference/is_areal.qbk]
+[include reference/is_linear.qbk]
+[include reference/is_multi.qbk]
+[include reference/is_radian.qbk]
+[include reference/point_order.qbk]
+[include reference/point_type.qbk]
+[include reference/ring_type.qbk]
+[include reference/tag.qbk]
+[include reference/topological_dimension.qbk]
+[endsect] [/core metafunctions]
+
 
 [section:algorithms Algorithms]
 
@@ -37,6 +70,9 @@
 [section:convex_hull convex_hull]
 [include reference/convex_hull.qbk]
 [endsect]
+
+[include reference/correct.qbk]
+
 
 [section:difference difference]
 [include reference/difference.qbk]
@@ -171,10 +207,46 @@
 [include reference/register.qbk]
 [endsect]
 
+[section:strategies Strategies]
+[include reference/distance_pythagoras.qbk]
+[include reference/distance_haversine.qbk]
+[include reference/distance_projected_point.qbk]
+[include reference/distance_cross_track.qbk]
+[include reference/area_by_triangles.qbk]
+[include reference/area_huiller.qbk]
+[include reference/centroid_bashein_detmer.qbk]
+[include reference/convex_hull_graham_andrew.qbk]
+[include reference/side_side_by_triangle.qbk]
+[include reference/side_side_by_cross_track.qbk]
+[include reference/simplify_douglas_peucker.qbk]
+[include reference/transform_inverse_transformer.qbk]
+[include reference/transform_map_transformer.qbk]
+[include reference/transform_rotate_transformer.qbk]
+[include reference/transform_scale_transformer.qbk]
+[include reference/transform_translate_transformer.qbk]
+[include reference/transform_ublas_transformer.qbk]
+[include reference/within_winding.qbk]
+[include reference/within_franklin.qbk]
+[include reference/within_crossings_multiply.qbk]
+[endsect] 
+
+
 
 
 [section:iterators Iterators]
 [include reference/closing_iterator.qbk]
+[include reference/box_iterator.qbk]
+[include reference/circular_iterator.qbk]
+[include reference/ever_circling_iterator.qbk]
+[include reference/segment_range_iterator.qbk]
+[endsect] 
+
+[section:ranges Ranges]
+[include reference/box_range.qbk]
+[include reference/segment_range.qbk]
+[include reference/closeable_view.qbk]
+[include reference/reversible_view.qbk]
+[include reference/identity_view.qbk]
 [endsect] 
 
 [section:arithmetic Arithmetic]
