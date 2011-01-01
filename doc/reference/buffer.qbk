@@ -23,6 +23,12 @@ void buffer (Input const &geometry_in, Output &geometry_out, Distance const &dis
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/buffer.hpp>`
 
 [heading Behavior]
@@ -62,6 +68,12 @@ Output make_buffer (Input const &geometry, T const &distance, T const &chord_len
 The calculated buffer 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/buffer.hpp>`
 
 

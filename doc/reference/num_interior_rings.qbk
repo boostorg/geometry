@@ -23,6 +23,12 @@ std::size_t num_interior_rings (Geometry const &geometry)``
 The calculated number of interior rings
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/core/interior_rings.hpp>`
 
 [heading Behavior]

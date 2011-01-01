@@ -21,6 +21,12 @@ void convex_hull (Geometry1 const &geometry, Geometry2 &hull)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/convex_hull.hpp>`
 
 
@@ -45,6 +51,12 @@ OutputIterator convex_hull_inserter (Geometry const &geometry, OutputIterator ou
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/convex_hull.hpp>`
 
 

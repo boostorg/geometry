@@ -20,6 +20,12 @@ void unique (Geometry &geometry)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/unique.hpp>`
 
 

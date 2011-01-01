@@ -19,12 +19,18 @@ void simplify (Geometry const &geometry, Geometry &out, Distance const &max_dist
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
 
 [endsect]
 
-[section:simplify_4 simplify (with strategy)]
+[section:simplify_4_with_strategy simplify (with strategy)]
 
 Simplify a geometry using a specified strategy. 
 
@@ -44,6 +50,12 @@ void simplify (Geometry const &geometry, Geometry &out, Distance const &max_dist
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
 [heading Image(s)]
@@ -70,12 +82,18 @@ void simplify_inserter (Geometry const &geometry, OutputIterator out, Distance c
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
 
 [endsect]
 
-[section:simplify_inserter_4 simplify_inserter (with strategy)]
+[section:simplify_inserter_4_with_strategy simplify_inserter (with strategy)]
 
 Simplify a geometry, using an output iterator and a specified strategy. 
 
@@ -95,6 +113,12 @@ void simplify_inserter (Geometry const &geometry, OutputIterator out, Distance c
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
 [heading Examples]

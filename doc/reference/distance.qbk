@@ -53,12 +53,18 @@ distance_result<Geometry1, Geometry2>::type distance (Geometry1 const &geometry1
 The calculated distance 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/distance.hpp>`
 
 
 [endsect]
 
-[section:distance_3 distance (with strategy)]
+[section:distance_3_with_strategy distance (with strategy)]
 
 Calculate the distance of two geometries using the specified strategy. 
 
@@ -83,6 +89,12 @@ strategy::distance::services::return_type<Strategy>::type distance (Geometry1 co
 The calculated distance 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/distance.hpp>`
 
 

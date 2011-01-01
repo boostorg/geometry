@@ -17,6 +17,12 @@ void reverse (Geometry &geometry)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/reverse.hpp>`
 
 

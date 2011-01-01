@@ -21,6 +21,12 @@ void envelope (Geometry const &geometry, Box &mbr)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/envelope.hpp>`
 
 
@@ -50,6 +56,12 @@ Box make_envelope (Geometry const &geometry)``
 The calculated envelope 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/envelope.hpp>`
 
 

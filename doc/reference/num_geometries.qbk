@@ -23,6 +23,12 @@ std::size_t num_geometries (Geometry const &geometry)``
 The calculated number of geometries
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/core/num_geometries.hpp>`
 
 [heading Behavior]

@@ -6,12 +6,24 @@
 [include reference/area.qbk]
 [endsect]
 
+[section:assign assign]
+[include reference/assign.qbk]
+[endsect]
+[section:append append]
+[include reference/append.qbk]
+[endsect]
+
+
 [section:buffer buffer]
 [include reference/buffer.qbk]
 [endsect]
 
 [section:centroid centroid]
 [include reference/centroid.qbk]
+[endsect]
+
+[section:clear clear]
+[include reference/clear.qbk]
 [endsect]
 
 [section:combine combine]
@@ -67,6 +79,10 @@
 [include reference/length.qbk]
 [endsect]
 
+[section:make make]
+[include reference/make.qbk]
+[endsect]
+
 [include reference/num_points.qbk]
 
 [section:overlaps overlaps]
@@ -102,14 +118,38 @@
 [include reference/within.qbk]
 [endsect]
 
-
 [endsect] [/algorithms]
 
+[section:access Access Functions]
+
+[section:exterior_ring exterior_ring]
+[include reference/exterior_ring.qbk]
+[endsect]
+
+[include reference/get.qbk]
+
+[section:interior_rings interior_rings]
+[include reference/interior_rings.qbk]
+[endsect]
+
+[include reference/num_points.qbk]
+[include reference/num_interior_rings.qbk]
+[include reference/set.qbk]
+
+
+[endsect] [/access functions]
 
 
 [section:concepts Concepts]
 [include concept/point.qbk]
+[include concept/linestring.qbk]
+[include concept/polygon.qbk]
+[include concept/multi_point.qbk]
+[include concept/multi_linestring.qbk]
+[include concept/multi_polygon.qbk]
 [include concept/box.qbk]
+[include concept/ring.qbk]
+[include concept/segment.qbk]
 [endsect]
 
 
@@ -117,19 +157,29 @@
 
 [include reference/point.qbk]
 [include reference/point_xy.qbk]
+[include reference/linestring.qbk]
+[include reference/polygon.qbk]
+[include reference/multi_point.qbk]
+[include reference/multi_linestring.qbk]
+[include reference/multi_polygon.qbk]
+[include reference/box.qbk]
+[include reference/ring.qbk]
+[include reference/segment.qbk]
+[endsect]
 
-[section:register register (adaptation)]
+[section:register Adaption and adapted models]
 [include reference/register.qbk]
 [endsect]
 
-[endsect]
 
 
 [section:iterators Iterators]
-
 [include reference/closing_iterator.qbk]
-
-
 [endsect] 
+
+[section:arithmetic Arithmetic]
+[include reference/arithmetic.qbk]
+[endsect] 
+
 
 [endsect] [/reference]
