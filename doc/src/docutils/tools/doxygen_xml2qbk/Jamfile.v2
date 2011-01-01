@@ -1,0 +1,17 @@
+# Controls building of doxygen_xml2qbk
+#
+# Copyright Barend Gehrels, Geodan Holding B.V. Amsterdam, the Netherlands.
+# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+
+project doxygen_xml2qbk
+    : requirements
+        <include>.
+        <include>contrib/rapidxml-1.13
+    ;
+
+exe doxygen_xml2qbk : doxygen_xml2qbk.cpp ;
+
