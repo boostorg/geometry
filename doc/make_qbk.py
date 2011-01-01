@@ -14,7 +14,7 @@
 import os, sys
 
 
-cmd="doxygen_xml2qbk  doxy/doxygen_output/xml/%s.xml ../../../../ boost/geometry/geometry.hpp boost/geometry/geometries/geometries.hpp boost/geometry/multi/multi.hpp > reference/%s.qbk"
+cmd="doxygen_xml2qbk  doxy/doxygen_output/xml/%s.xml ../../../ boost/geometry/geometry.hpp boost/geometry/geometries/geometries.hpp boost/geometry/multi/multi.hpp > reference/%s.qbk"
 
 def call_doxygen():
 	os.chdir("doxy");
@@ -42,8 +42,10 @@ for a in algorithms:
 
 group_to_quickbook("register")
 
-xml_to_quickbook("classboost_1_1geometry_1_1point", "point")
-xml_to_quickbook("classboost_1_1geometry_1_1point__xy", "point_xy")
+xml_to_quickbook("classboost_1_1geometry_1_1model_1_1point", "point")
+xml_to_quickbook("classboost_1_1geometry_1_1model_1_1d2_1_1point__xy", "point_xy")
+xml_to_quickbook("classboost_1_1geometry_1_1model_1_1linestring", "linestring")
+xml_to_quickbook("classboost_1_1geometry_1_1model_1_1box", "box")
 
 xml_to_quickbook("structboost_1_1geometry_1_1closing__iterator", "closing_iterator")
 
