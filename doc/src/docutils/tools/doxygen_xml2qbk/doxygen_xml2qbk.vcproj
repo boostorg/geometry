@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="doxygen_xml2qbk"
 	ProjectGUID="{81BDA0FD-D3BC-4693-A389-D3ABFAD19214}"
+	RootNamespace="doxygen_xml2qbk"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -19,6 +20,7 @@
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
+			InheritedPropertySheets=".\boost.vsprops;.\deployment_path.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -39,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;contrib/rapidxml-1.13"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE; _CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -87,6 +89,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -94,6 +97,7 @@
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
+			InheritedPropertySheets=".\boost.vsprops;.\deployment_path.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -113,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".;contrib/rapidxml-1.13"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE; _CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -161,6 +165,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy $(OutDir)\doxygen_xml2qbk.exe $(DEPLOYMENT_PATH)"
 			/>
 		</Configuration>
 	</Configurations>

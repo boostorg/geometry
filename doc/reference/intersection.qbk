@@ -23,6 +23,12 @@ bool intersection (Geometry1 const &geometry1, Geometry2 const &geometry2, Geome
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/intersection.hpp>`
 
 [heading Behavior]
@@ -84,7 +90,7 @@ The output iterator
 
 [endsect]
 
-[section:intersection_inserter_4 intersection_inserter (with strategy)]
+[section:intersection_inserter_4_with_strategy intersection_inserter (with strategy)]
 
 Calculate the intersection of two geometries using the specified strategy. 
 

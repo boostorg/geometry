@@ -19,6 +19,12 @@ void sym_difference (Geometry1 const &geometry1, Geometry2 const &geometry2, Col
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/sym_difference.hpp>`
 
 

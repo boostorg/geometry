@@ -24,6 +24,12 @@ std::size_t num_points (Geometry const &geometry, bool add_for_open=false)``
 The calculated number of points
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/num_points.hpp>`
 
 [heading Behavior]

@@ -21,6 +21,12 @@ void centroid (Geometry const &geometry, Point &c)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
 [heading Behavior]
@@ -39,7 +45,7 @@ Linear
 
 [endsect]
 
-[section:centroid_3 centroid (with strategy)]
+[section:centroid_3_with_strategy centroid (with strategy)]
 
 Calculates the centroid of a geometry using the specified strategy. 
 
@@ -61,12 +67,18 @@ void centroid (Geometry const &geometry, Point &c, Strategy const &strategy)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
 
 [endsect]
 
-[section:make_centroid_2 make_centroid (with strategy)]
+[section:make_centroid_2_with_strategy make_centroid (with strategy)]
 
 Calculates the centroid of a geometry using the specified strategy. 
 
@@ -91,6 +103,12 @@ Point make_centroid (Geometry const &geometry, Strategy const &strategy)``
 The calculated centroid
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
 
@@ -120,6 +138,12 @@ Point make_centroid (Geometry const &geometry)``
 The calculated centroid 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
 

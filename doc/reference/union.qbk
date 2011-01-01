@@ -19,6 +19,12 @@ void union_ (Geometry1 const &geometry1, Geometry2 const &geometry2, Collection 
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/union.hpp>`
 
 
@@ -47,6 +53,12 @@ OutputIterator union_inserter (Geometry1 const &geometry1, Geometry2 const &geom
 the output iterator 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/union.hpp>`
 
 
@@ -76,6 +88,12 @@ OutputIterator union_inserter (Geometry1 const &geometry1, Geometry2 const &geom
 the output iterator 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/union.hpp>`
 
 

@@ -21,6 +21,12 @@ Functor for_each_point (Geometry &geometry, Functor f)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/for_each.hpp>`
 
 
@@ -47,6 +53,12 @@ Functor for_each_point (Geometry const &geometry, Functor f)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/for_each.hpp>`
 
 
@@ -73,6 +85,12 @@ Functor for_each_segment (Geometry &geometry, Functor f)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/for_each.hpp>`
 
 
@@ -99,6 +117,12 @@ Functor for_each_segment (Geometry const &geometry, Functor f)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/for_each.hpp>`
 
 

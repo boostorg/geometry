@@ -709,8 +709,15 @@ void quickbook_heading_string(std::string const& heading,
     }
 }
 
+inline std::string to_section_name(std::string const& name)
+{
+    // Make section-name lowercase and remove :: because these are filenames
+    return boost::to_lower_copy(boost::replace_all_copy(name, "::", "_"));
+}
 
-void quickbook_output(function const& f, configuration const& headerfiles, std::ostream& out)
+
+
+void quickbook_output(function const& f, configuration const& config, std::ostream& out)
 {
     // Write the parsed function
     int arity = (int)f.parameters.size();
@@ -724,10 +731,15 @@ void quickbook_output(function const& f, configuration const& headerfiles, std::
         additional_description += ")";
     }
 
-    out << "[section:" << f.name;
+    out << "[section:" << to_section_name(f.name);
+    // Make section name unique if necessary by arity and additional description
     if (! f.unique)
     {
         out << "_" << arity;
+        if (! f.additional_description.empty())
+        {
+            out << "_" << boost::to_lower_copy(boost::replace_all_copy(f.additional_description, " ", "_"));
+        }
     }
     out << " " << f.name
         << additional_description
@@ -788,7 +800,7 @@ void quickbook_output(function const& f, configuration const& headerfiles, std::
     quickbook_heading_string("Returns", f.return_description, out);
     //quickbook_heading_string("Model of", f.model_of, out);
 
-    quickbook_header(f.location, headerfiles, out);
+    quickbook_header(f.location, config, out);
     quickbook_behaviors(f.behaviors, out);
 
     quickbook_heading_string("Complexity", f.complexity, out);
@@ -843,14 +855,14 @@ void quickbook_short_output(function const& f, std::ostream& out)
     out << std::endl;
 }
 
-void quickbook_output(class_or_struct const& cos, configuration const& headerfiles, std::ostream& out)
+void quickbook_output(class_or_struct const& cos, configuration const& config, std::ostream& out)
 {
     // Boost.Geometry specific, to make generic: make this namespace-to-be-skipped configurable
-    std::string short_name = boost::replace_all_copy(cos.fullname, "boost::geometry::", "");
-    
+    std::string short_name = 
+            boost::replace_all_copy(cos.fullname, "boost::geometry::", "");
 
     // Write the parsed function
-    out << "[section:" << short_name << " " << short_name << "]" << std::endl
+    out << "[section:" << to_section_name(short_name) << " " << short_name << "]" << std::endl
         << std::endl;
 
     quickbook_heading_string("Description", cos.detailed_description, out);
@@ -927,7 +939,7 @@ void quickbook_output(class_or_struct const& cos, configuration const& headerfil
             << std::endl;
     }
 
-    quickbook_header(cos.location, headerfiles, out);
+    quickbook_header(cos.location, config, out);
     quickbook_examples(cos.examples, out);
 
     out << "[endsect]" << std::endl
@@ -985,6 +997,8 @@ int main(int argc, char** argv)
             {
                 // It is not a unique function, so e.g. an overload,
                 // so a description must distinguish them.
+                // Difference is either the number of parameters, or a const / non-const version
+                // Use the "\qbk{distinguish,with strategy}" in the source code to distinguish
                 f1.unique = false;
                 f2.unique = false;
             }

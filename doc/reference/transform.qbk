@@ -21,6 +21,12 @@ bool transform (Geometry1 const &geometry1, Geometry2 &geometry2)``
 true if the transformation could be done 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/transform.hpp>`
 
 
@@ -45,6 +51,12 @@ bool transform (Geometry1 const &geometry1, Geometry2 &geometry2, Strategy const
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/transform.hpp>`
 
 

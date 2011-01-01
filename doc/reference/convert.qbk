@@ -21,6 +21,12 @@ void convert (Geometry1 const &geometry1, Geometry2 &geometry2)``
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/convert.hpp>`
 
 

@@ -22,6 +22,12 @@ void difference (Geometry1 const &geometry1, Geometry2 const &geometry2, Collect
 
 
 [heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
 `#include <boost/geometry/algorithms/difference.hpp>`
 
 
