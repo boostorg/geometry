@@ -18,6 +18,11 @@ namespace boost { namespace geometry
 {
 
 
+/*!
+\brief Range, walking over the four points of a box
+\tparam Box box type
+\ingroup ranges
+*/
 template <typename Box>
 class box_range
 {
@@ -43,6 +48,8 @@ private :
 };
 
 
+#ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
+
 // All box ranges can be handled as rings
 namespace traits
 {
@@ -53,6 +60,7 @@ namespace traits
     };
 }
 
+#endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
 
 }} // namespace boost::geometry

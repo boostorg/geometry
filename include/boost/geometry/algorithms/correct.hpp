@@ -230,6 +230,14 @@ struct correct<polygon_tag, Polygon>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+
+/*!
+\brief Corrects a geometry
+\details Corrects a geometry
+\ingroup correct
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+*/
 template <typename Geometry>
 inline void correct(Geometry& geometry)
 {

@@ -170,7 +170,7 @@ struct signature_getset_index_dimension {};
 // Note the comments below tell Doxygen to create one function with doc for both
 
 /// @brief get coordinate value of a Point ( / Sphere)
-/// @ingroup access
+/// @ingroup get
 /// @tparam Dimension dimension
 /// @tparam Geometry geometry
 /// @param geometry geometry to query coordinate value from
@@ -203,7 +203,7 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 /// @tparam Geometry geometry
 /// @param geometry geometry to assign coordinate to
 /// @param value coordinate value to assign
-/// @ingroup access
+/// @ingroup set
 template <std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
         , typename coordinate_type<Geometry>::type const& value
@@ -238,7 +238,7 @@ inline void set(Geometry& geometry
 /// @tparam Geometry geometry
 /// @param geometry geometry to query coordinate value from
 /// @return coordinate value
-/// @ingroup access
+/// @ingroup get
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -271,7 +271,7 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 /// @tparam Geometry geometry
 /// @param geometry geometry to assign coordinate to
 /// @param value coordinate value to assign
-/// @ingroup access
+/// @ingroup set
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
         , typename coordinate_type<Geometry>::type const& value

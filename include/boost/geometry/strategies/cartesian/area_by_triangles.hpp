@@ -23,9 +23,10 @@ namespace strategy { namespace area
 {
 
 /*!
-    \brief Strategy functor for area calculation on point_xy points
-    \details Calculates area using well-known triangulation algorithm
-    \tparam PointOfSegment point type of segments
+\brief Strategy functor for area calculation on point_xy points
+\ingroup strategies
+\details Calculates area using well-known triangulation algorithm
+\tparam PointOfSegment point type of segments
 */
 template
 <

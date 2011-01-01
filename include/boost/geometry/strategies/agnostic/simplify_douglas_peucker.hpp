@@ -67,19 +67,19 @@ namespace detail
 
 
 /*!
-    \brief Implements the simplify algorithm.
-    \ingroup simplify
-    \details The douglas_peucker strategy simplifies a linestring, ring or
-        vector of points using the well-known Douglas-Peucker algorithm.
-        For the algorithm, see for example:
-    \see http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
-    \see http://www2.dcs.hull.ac.uk/CISRG/projects/Royal-Inst/demos/dp.html
-    \tparam Point the point type
-    \tparam PointDistanceStrategy point-segment distance strategy to be used
-    \note This strategy uses itself a point-segment-distance strategy which
-        can be specified
-    \author Barend and Maarten, 1995/1996
-    \author Barend, revised for Generic Geometry Library, 2008
+\brief Implements the simplify algorithm.
+\ingroup strategies
+\details The douglas_peucker strategy simplifies a linestring, ring or
+    vector of points using the well-known Douglas-Peucker algorithm.
+    For the algorithm, see for example:
+\see http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
+\see http://www2.dcs.hull.ac.uk/CISRG/projects/Royal-Inst/demos/dp.html
+\tparam Point the point type
+\tparam PointDistanceStrategy point-segment distance strategy to be used
+\note This strategy uses itself a point-segment-distance strategy which
+    can be specified
+\author Barend and Maarten, 1995/1996
+\author Barend, revised for Generic Geometry Library, 2008
 */
 template
 <

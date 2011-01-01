@@ -22,12 +22,24 @@
 namespace boost { namespace geometry
 {
 
+/*!
+\brief Flag for iterating a reversible_view in forward or reverse direction
+\ingroup ranges
+*/
 enum iterate_direction { iterate_forward, iterate_reverse };
 
-// BSG 13-12-2010, changed into meta-function
+/*!
+\brief View on a range, reversing direction if necessary
+\tparam Range original range
+\tparam Direction direction of iteration
+\ingroup ranges
+*/
 template <typename Range, iterate_direction Direction>
 struct reversible_view {};
 
+
+
+#ifndef DOXYGEN_NO_SPECIALIZATIONS
 
 template <typename Range>
 struct reversible_view<Range, iterate_forward>
@@ -46,6 +58,9 @@ struct reversible_view<Range, iterate_reverse>
     typedef boost::range_detail::reverse_range<Range> type;
 #endif
 };
+
+#endif // DOXYGEN_NO_SPECIALIZATIONS
+
 
 }} // namespace boost::geometry
 

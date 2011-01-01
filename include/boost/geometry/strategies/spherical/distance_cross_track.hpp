@@ -39,12 +39,12 @@ namespace strategy { namespace distance
 {
 
 /*!
-    \brief Strategy functor for distance point to segment calculation
-    \ingroup distance
-    \details Class which calculates the distance of a point to a segment, using latlong points
-    \see http://williams.best.vwh.net/avform.htm
-    \tparam Point point type
-    \tparam PointOfSegment type of point-of-segment
+\brief Strategy functor for distance point to segment calculation
+\ingroup strategies
+\details Class which calculates the distance of a point to a segment, using latlong points
+\see http://williams.best.vwh.net/avform.htm
+\tparam Point point type
+\tparam PointOfSegment type of point-of-segment
 */
 template
 <

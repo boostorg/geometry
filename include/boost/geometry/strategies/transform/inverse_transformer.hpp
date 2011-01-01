@@ -26,17 +26,18 @@ namespace strategy { namespace transform
 {
 
 /*!
-    \brief Transformation strategy to do an inverse ransformation in Cartesian system
-    \ingroup transform
-    \tparam P1 first point type
-    \tparam P2 second point type
+\brief Transformation strategy to do an inverse ransformation in Cartesian system
+\ingroup strategies
+\tparam P1 first point type
+\tparam P2 second point type
  */
 template <typename P1, typename P2>
-struct inverse_transformer
-    : ublas_transformer<P1, P2, dimension<P1>::type::value, dimension<P2>::type::value>
+class inverse_transformer
+    : public ublas_transformer<P1, P2, dimension<P1>::type::value, dimension<P2>::type::value>
 {
     typedef typename select_coordinate_type<P1, P2>::type T;
 
+public :
     template <typename Transformer>
     inline inverse_transformer(Transformer const& input)
     {

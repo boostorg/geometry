@@ -36,7 +36,7 @@ template
     template<typename, typename> class V = std::vector,
     template<typename> class A = std::allocator
 >
-struct multi_polygon : public V<P, A<P> >
+class multi_polygon : public V<P, A<P> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Polygon<P>) );
 };

@@ -20,9 +20,10 @@ namespace strategy { namespace within
 {
 
 /*!
-    \brief Within detection using cross counting,
-    \see http://tog.acm.org/resources/GraphicsGems/gemsiv/ptpoly_haines/ptinpoly.c
-    \note Does NOT work correctly for point ON border
+\brief Within detection using cross counting,
+\ingroup strategies
+\see http://tog.acm.org/resources/GraphicsGems/gemsiv/ptpoly_haines/ptinpoly.c
+\note Does NOT work correctly for point ON border
  */
 
 template

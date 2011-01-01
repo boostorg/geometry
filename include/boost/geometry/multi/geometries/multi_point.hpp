@@ -37,7 +37,7 @@ template
     template<typename, typename> class V = std::vector,
     template<typename> class A = std::allocator
 >
-struct multi_point : public V<P, A<P> >
+class multi_point : public V<P, A<P> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<P>) );
 };

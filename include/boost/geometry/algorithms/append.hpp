@@ -147,7 +147,7 @@ struct append<polygon_tag, point_tag, Polygon, Point>
 
 /*!
     \brief Appends one or more points to a linestring, ring, polygon, multi
-    \ingroup access
+    \ingroup append
     \param geometry a geometry
     \param range_or_point the point or range to add
     \param ring_index the index of the ring in case of a polygon:

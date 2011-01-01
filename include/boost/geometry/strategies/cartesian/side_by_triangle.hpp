@@ -24,12 +24,17 @@ namespace boost { namespace geometry
 namespace strategy { namespace side
 {
 
-// Check at which side of a segment a point lies:
-// left of segment (> 0), right of segment (< 0), on segment (0)
-// In fact this is twice the area of a triangle
+/*!
+\brief Check at which side of a segment a point lies:
+\details left of segment (> 0), right of segment (< 0), on segment (0)
+         In fact this is twice the area of a triangle
+\ingroup strategies
+\tparam CalculationType CalculationType
+ */
 template <typename CalculationType>
-struct side_by_triangle
+class side_by_triangle
 {
+public :
 
     // Template member function, because it is not always trivial
     // or convenient to explicitly mention the typenames in the

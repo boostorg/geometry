@@ -43,17 +43,17 @@ namespace strategy { namespace distance
 
 
 /*!
-    \brief Strategy for distance point to segment
-    \ingroup distance
-    \details Calculates distance using projected-point method, and (optionally) Pythagoras
-    \author Adapted from: http://geometryalgorithms.com/Archive/algorithm_0102/algorithm_0102.htm
-    \tparam P point type
-    \tparam PointOfSegment segment type
-    \tparam Strategy strategy, optional, defaults to pythagoras
-    \par Concepts for Strategy:
-    - cartesian_distance operator(Point,Point)
-    \note If the Strategy is a "comparable::pythagoras", this strategy
-        automatically is a comparable projected_point strategy (so without sqrt)
+\brief Strategy for distance point to segment
+\ingroup strategies
+\details Calculates distance using projected-point method, and (optionally) Pythagoras
+\author Adapted from: http://geometryalgorithms.com/Archive/algorithm_0102/algorithm_0102.htm
+\tparam P point type
+\tparam PointOfSegment segment type
+\tparam Strategy strategy, optional, defaults to pythagoras
+\par Concepts for Strategy:
+- cartesian_distance operator(Point,Point)
+\note If the Strategy is a "comparable::pythagoras", this strategy
+    automatically is a comparable projected_point strategy (so without sqrt)
 */
 template
 <

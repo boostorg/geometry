@@ -80,7 +80,7 @@ struct exterior_ring<polygon_tag, Polygon>
 
 /*!
     \brief Function to get the exterior_ring ring of a polygon
-    \ingroup access
+    \ingroup exterior_ring
     \note OGC compliance: instead of ExteriorRing
     \tparam P polygon type
     \param polygon the polygon to get the exterior ring from
@@ -98,12 +98,14 @@ inline typename ring_return_type<Polygon>::type exterior_ring(Polygon& polygon)
 
 
 /*!
-    \brief Function to get the exterior ring of a polygon (const version)
-    \ingroup access
-    \note OGC compliance: instead of ExteriorRing
-    \tparam Polygon polygon type
-    \param polygon the polygon to get the exterior ring from
-    \return a const reference to the exterior ring
+\brief Function to get the exterior ring of a polygon (const version)
+\ingroup exterior_ring
+\note OGC compliance: instead of ExteriorRing
+\tparam Polygon polygon type
+\param polygon the polygon to get the exterior ring from
+\return a const reference to the exterior ring
+
+\qbk{distinguish,const version}
 */
 template <typename Polygon>
 inline typename ring_return_type<Polygon const>::type exterior_ring(

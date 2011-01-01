@@ -29,6 +29,10 @@ namespace boost { namespace geometry
 namespace strategy { namespace side
 {
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
+
 /// Calculate course (bearing) between two points. Might be moved to a "course formula" ...
 template <typename Point>
 static inline double course(Point const& p1, Point const& p2)
@@ -43,19 +47,23 @@ static inline double course(Point const& p1, Point const& p2)
         - sin(get_as_radian<1>(p1)) * cos_p2lat * cos(dlon));
 }
 
+}
+#endif // DOXYGEN_NO_DETAIL
 
 
 
-// Check at which side of a segment a point lies
-// from a Great Circle segment between two points:
-// left of segment (> 0), right of segment (< 0), on segment (0)
+/*!
+\brief Check at which side of a segment a point lies:
+\details from a Great Circle segment between two points:
+         left of segment (> 0), right of segment (< 0), on segment (0)
+\ingroup strategies
+\tparam CalculationType CalculationType
+ */
 template <typename CalculationType>
-struct side_by_cross_track
+class side_by_cross_track
 {
 
-    // Types can be all three different. Therefore it is
-    // not implemented (anymore) as "segment"
-
+public :
     template <typename P1, typename P2, typename P>
     static inline int apply(P1 const& p1, P2 const& p2, P const& p)
     {
@@ -78,8 +86,8 @@ struct side_by_cross_track
         // That is also applicable on the spherical earth. A radius is not necessary.
 
         double d1 = 0.001; // m_strategy.apply(sp1, p);
-        double crs_AD = course(p1, p);
-        double crs_AB = course(p1, p2);
+        double crs_AD = detail::course(p1, p);
+        double crs_AB = detail::course(p1, p2);
         double XTD = geometry::math::abs(asin(sin(d1) * sin(crs_AD - crs_AB)));
 
         return math::equals(XTD, 0) ? 0 : XTD > 0 ? 1 : -1;

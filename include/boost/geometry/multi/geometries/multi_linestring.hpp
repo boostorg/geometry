@@ -37,7 +37,7 @@ template
     template<typename, typename> class V = std::vector,
     template<typename> class A = std::allocator
 >
-struct multi_linestring : public V<L, A<L> >
+class multi_linestring : public V<L, A<L> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Linestring<L>) );
 };
