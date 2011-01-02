@@ -40,6 +40,10 @@ def strategy_to_quickbook(section):
 	os.system(cmd % ("classboost_1_1geometry_1_1strategy_1_1" 
 		+ ns.replace("_", "__") + "_1_1" + strategy.replace("_", "__"), 
 		ns + "_" + strategy))
+		
+def cs_to_quickbook(section):
+	os.system(cmd % ("structboost_1_1geometry_1_1cs_1_1" + section.replace("_", "__"), section))
+		
 
 call_doxygen()
 
@@ -68,7 +72,7 @@ strategies = ["distance::pythagoras", "distance::haversine"
 	, "distance::cross_track", "distance::projected_point"
 	, "within::winding", "within::franklin", "within::crossings_multiply"
 	, "area::by_triangles", "area::huiller"
-	, "centroid::bashein_detmer"
+	, "centroid::bashein_detmer", "centroid::average"
 	, "convex_hull::graham_andrew"
 	, "simplify::douglas_peucker"
 	, "side::side_by_triangle", "side::side_by_cross_track"
@@ -76,6 +80,9 @@ strategies = ["distance::pythagoras", "distance::haversine"
 	, "transform::rotate_transformer", "transform::scale_transformer"
 	, "transform::translate_transformer", "transform::ublas_transformer"
 	]
+	
+coordinate_systems = ["cartesian", "geographic", "polar", "spherical"]
+
 
 
 for a in algorithms:
@@ -98,6 +105,9 @@ for a in ranges:
 
 for a in strategies:
 	strategy_to_quickbook(a)
+
+for a in coordinate_systems:
+	cs_to_quickbook(a)
 	
 
 group_to_quickbook("arithmetic")

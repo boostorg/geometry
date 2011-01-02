@@ -65,45 +65,6 @@ void foo()
 } // namespace
 
 
-void example_area_polygon()
-{
-    //[area_polygon
-    //` Calculate the area of a polygon
-    namespace bg = boost::geometry;
-    bg::model::polygon<bg::model::d2::point_xy<double> > poly; /*< Declare >*/
-    bg::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly); /*< Fill, in this case with WKT >*/
-    double area = bg::area(poly); /*< Calculate area >*/
-    //]
-}
-
-void example_area_polygon_spherical()
-{
-    //[area_polygon_spherical
-    //` Calculate the area of a [*spherical] polygon
-    namespace bg = boost::geometry;
-    bg::model::polygon<bg::model::point<float, 2, bg::cs::spherical<bg::degree> > > sph_poly;
-    bg::read_wkt("POLYGON((0 0,0 45,45 0,0 0))", sph_poly);
-    double area = bg::area(sph_poly);
-    //]
-}
-
-void example_area_polygon_strategy()
-{
-    //[area_polygon_strategy
-    //` Calculate the area of a polygon specifying a strategy
-    namespace bg = boost::geometry;
-    typedef bg::model::point<float, 2, bg::cs::spherical<bg::degree> > pnt_type;
-    bg::model::polygon<pnt_type> hawaii;
-    bg::read_wkt("POLYGON((-155.86 18.93,-155.84 20.30,-154.80 19.52,-155.86 18.93))" /*< [@http://en.wikipedia.org/wiki/Hawaii_%28island%29 Rough appromation of Hawaii Island] >*/
-        , hawaii);
-    double const mean_radius = 6371.0; /*< [@http://en.wikipedia.org/wiki/Earth_radius Wiki]  >*/
-    bg::strategy::area::huiller<pnt_type> in_square_kilometers(mean_radius);
-    double area = bg::area(hawaii, in_square_kilometers);
-
-    //]
-}
-
-
 
 void example_as_wkt_point()
 {

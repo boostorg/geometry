@@ -160,6 +160,7 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/multi/geometries \
 			../../../../boost/geometry/multi/geometries/concepts \
 			../../../../boost/geometry/multi/iterators \
+			../../../../boost/geometry/multi/strategies/cartesian \
 			../../../../boost/geometry/policies \
 			../../../../boost/geometry/policies/relate \
 			../../../../boost/geometry/ranges \

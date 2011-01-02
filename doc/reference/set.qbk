@@ -30,3 +30,36 @@ Or
 
 [endsect]
 
+[section:set_from_radian set_from_radian]
+
+set coordinate value (in radian) to a point 
+
+[heading Description]
+Coordinate value will be set correctly, if coordinate system of point is in Degree, Radian value will be converted to Degree
+
+[heading Synopsis]
+``template<std::size_t Dimension, typename Geometry>
+void set_from_radian (Geometry &geometry, typename fp_coordinate_type< Geometry >::type const &radians)``
+
+[heading Parameters]
+
+[table
+[[Type] [Concept] [Name] [Description] ]
+[[Dimension] [dimension ] [ - ] [Must be specified]]
+[[Geometry &] [geometry ] [geometry] [geometry to assign coordinate to ]]
+[[typename fp_coordinate_type< Geometry >::type const &] [] [radians] [coordinate value to assign ]]
+]
+
+
+[heading Header]
+Either
+
+`#include <boost/geometry/geometry.hpp>`
+
+Or
+
+`#include <boost/geometry/core/radian_access.hpp>`
+
+
+[endsect]
+
