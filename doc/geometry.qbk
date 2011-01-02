@@ -60,6 +60,10 @@
 
 [*In progress]
 
+[import src/examples/algorithms/area.cpp]
+[import src/examples/algorithms/area_with_strategy.cpp]
+
+[/obsolete structure]
 [import snippets/qbk_1.cpp]
 [import snippets/qbk_2.cpp]
 [import snippets/qbk_3.cpp]

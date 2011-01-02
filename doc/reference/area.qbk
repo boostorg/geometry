@@ -48,7 +48,8 @@ Or
 Linear
 
 [heading Examples]
-[area_polygon_strategy]
+[area_with_strategy]
+[area_with_strategy_output]
 
 
 [endsect]
@@ -104,8 +105,8 @@ Or
 Linear
 
 [heading Examples]
-[area_polygon]
-[area_polygon_spherical]
+[area]
+[area_output]
 
 
 [endsect]

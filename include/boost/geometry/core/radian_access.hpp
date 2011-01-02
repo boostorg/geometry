@@ -101,16 +101,16 @@ struct radian_access<1, Geometry, CoordinateSystem<degree> >
 
 
 /*!
-    \brief get coordinate value of a point, result is in Radian
-    \details Result is in Radian, even if source coordinate system
-        is in Degrees
-    \return coordinate value
-    \ingroup access
-    \tparam Dimension dimension
-    \tparam Geometry geometry
-    \param geometry geometry to get coordinate value from
-    \note Only applicable to coordinate systems templatized by units,
-        e.g. spherical or geographic coordinate systems
+\brief get coordinate value of a point, result is in Radian
+\details Result is in Radian, even if source coordinate system
+    is in Degrees
+\return coordinate value
+\ingroup get
+\tparam Dimension dimension
+\tparam Geometry geometry
+\param geometry geometry to get coordinate value from
+\note Only applicable to coordinate systems templatized by units,
+    e.g. spherical or geographic coordinate systems
 */
 template <std::size_t Dimension, typename Geometry>
 inline typename fp_coordinate_type<Geometry>::type get_as_radian(Geometry const& geometry)
@@ -121,16 +121,16 @@ inline typename fp_coordinate_type<Geometry>::type get_as_radian(Geometry const&
 
 
 /*!
-    \brief set coordinate value (in radian) to a point
-    \details Coordinate value will be set correctly, if coordinate system of
-        point is in Degree, Radian value will be converted to Degree
-    \ingroup access
-    \tparam Dimension dimension
-    \tparam Geometry geometry
-    \param geometry geometry to assign coordinate to
-    \param radians coordinate value to assign
-    \note Only applicable to coordinate systems templatized by units,
-        e.g. spherical or geographic coordinate systems
+\brief set coordinate value (in radian) to a point
+\details Coordinate value will be set correctly, if coordinate system of
+    point is in Degree, Radian value will be converted to Degree
+\ingroup set
+\tparam Dimension dimension
+\tparam Geometry geometry
+\param geometry geometry to assign coordinate to
+\param radians coordinate value to assign
+\note Only applicable to coordinate systems templatized by units,
+    e.g. spherical or geographic coordinate systems
 */
 template <std::size_t Dimension, typename Geometry>
 inline void set_from_radian(Geometry& geometry,

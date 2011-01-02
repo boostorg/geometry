@@ -210,10 +210,9 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Classes</bridgehead>
     <simplelist type="vert" columns="1">
-    <member><link linkend="geometry.reference.cs__cartesian">cs::cartesian</link></member>
-    <member><link linkend="geometry.reference.cs__geographic">cs::geographic</link></member>
-    <member><link linkend="geometry.reference.cs__polar">cs::polar</link></member>
-    <member><link linkend="geometry.reference.cs__spherical">cs::spherical</link></member>
+    <member><link linkend="geometry.reference.cs.cs_cartesian">cs::cartesian</link></member>
+    <member><link linkend="geometry.reference.cs.cs_spherical">cs::spherical</link></member>
+    <member><link linkend="geometry.reference.cs.cs_geographic">cs::geographic</link></member>
     </simplelist>
    </entry>
   </row>
@@ -395,6 +394,7 @@
 </tgroup>
 
 <!-- ###### POLICIES ########################################################################### -->
+<!-- to be documented (some of them)
 <tgroup cols="2">
  <colspec colname="a"/>
  <colspec colname="b"/>
@@ -428,7 +428,7 @@
   </row>
  </tbody>
 </tgroup>
-
+-->
 
 <!-- ###### STRATEGIES ######################################################################### -->
 <tgroup cols="3">
@@ -454,8 +454,8 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Centroid</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategies.strategy_centroid_bashein_detmer">strategy::centroid_::bashein_detmer</link></member>
-     <member><link linkend="geometry.reference.strategies.strategy_centroid_centroid_average">strategy::centroid_::centroid_average</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_centroid_bashein_detmer">strategy::centroid::bashein_detmer</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_centroid_average">strategy::centroid::centroid_average</link></member>
     </simplelist>
    </entry>
   </row>

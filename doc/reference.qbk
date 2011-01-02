@@ -32,6 +32,12 @@
 [include reference/topological_dimension.qbk]
 [endsect] [/core metafunctions]
 
+[section:cs Coordinate Systems]
+[include reference/cartesian.qbk]
+[include reference/spherical.qbk]
+[include reference/geographic.qbk]
+[endsect] [/coordinate systems]
+
 
 [section:algorithms Algorithms]
 
@@ -214,6 +220,7 @@
 [include reference/distance_cross_track.qbk]
 [include reference/area_by_triangles.qbk]
 [include reference/area_huiller.qbk]
+[include reference/centroid_average.qbk]
 [include reference/centroid_bashein_detmer.qbk]
 [include reference/convex_hull_graham_andrew.qbk]
 [include reference/side_side_by_triangle.qbk]
