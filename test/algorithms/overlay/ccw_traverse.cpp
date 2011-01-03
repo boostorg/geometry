@@ -1,3 +1,9 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library) test file
+//
+// Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
 
 #include <fstream>
 #include <iostream>
@@ -41,8 +47,8 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     bg::detail::get_turns::no_interrupt_policy policy;
     bg::get_turns
         <
-            rev<Geometry1>::value, 
-            rev<Geometry2>::value, 
+            rev<Geometry1>::value,
+            rev<Geometry2>::value,
             bg::detail::overlay::calculate_distance_policy
         >(g1, g2, turns, policy);
 
