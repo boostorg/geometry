@@ -54,9 +54,9 @@ void test_all()
         1116.82586908528, 0, 1336.02721932545
 
        with:
-SELECT 0.001 * geography::STGeomFromText('POINT(0 90)', 4326).STDistance(geography::STGeomFromText('POINT(1 80)', 4326))	
-union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(4 52)', 4326))	
-union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(3 40)', 4326))	
+SELECT 0.001 * geography::STGeomFromText('POINT(0 90)', 4326).STDistance(geography::STGeomFromText('POINT(1 80)', 4326))
+union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(4 52)', 4326))
+union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(3 40)', 4326))
      */
 }
 

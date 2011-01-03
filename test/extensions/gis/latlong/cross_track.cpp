@@ -28,14 +28,14 @@
 
 template <typename Point>
 void test_distance(
-            typename bg::coordinate_type<Point>::type const& lon1, 
+            typename bg::coordinate_type<Point>::type const& lon1,
             typename bg::coordinate_type<Point>::type const& lat1,
-            typename bg::coordinate_type<Point>::type const& lon2, 
+            typename bg::coordinate_type<Point>::type const& lon2,
             typename bg::coordinate_type<Point>::type const& lat2,
-            typename bg::coordinate_type<Point>::type const& lon3, 
+            typename bg::coordinate_type<Point>::type const& lon3,
             typename bg::coordinate_type<Point>::type const& lat3,
-            typename bg::coordinate_type<Point>::type const& radius, 
-            typename bg::coordinate_type<Point>::type const&expected, 
+            typename bg::coordinate_type<Point>::type const& radius,
+            typename bg::coordinate_type<Point>::type const&expected,
             typename bg::coordinate_type<Point>::type const&tolerance)
 {
     typedef bg::strategy::distance::cross_track
@@ -78,7 +78,7 @@ void test_all()
 {
     double const average_earth_radius = 6372795.0;
 
-    // distance (Paris <-> Amsterdam/Barcelona), 
+    // distance (Paris <-> Amsterdam/Barcelona),
     // with coordinates rounded as below ~87 km
     // should be is equal
     // to distance (Paris <-> Barcelona/Amsterdam)
@@ -93,15 +93,15 @@ void test_all()
         SQL Server queries:
             SELECT 'Am*dam-Barcelona - Paris' as dist, 0.001 * geography::STGeomFromText('LINESTRING(4.9 52.36667, 2.183333 41.383333)', 4326)
             .STDistance(geography::STGeomFromText('POINT(2.350833 48.856667)', 4326))
-            union	
+            union
             SELECT 'London-Vienna - Paris' as dist, 0.001 * geography::STGeomFromText('LINESTRING(-0.1275 51.507222, 16.373056 48.208333)', 4326)
             .STDistance(geography::STGeomFromText('POINT(2.350833 48.856667)', 4326))
         -> 112.377543374738 252.655192414418
-    
+
         PostGis Queries:
             SELECT 'Am*dam-Barcelona - Paris' as dist, 0.001 * ST_Distance(ST_GeographyFromText('LINESTRING(4.9 52.36667, 2.183333 41.383333)')
             , ST_GeographyFromText('POINT(2.350833 48.856667)'))
-            union	
+            union
             SELECT 'London-Vienna - Paris' as dist, 0.001 * ST_Distance(ST_GeographyFromText('LINESTRING(-0.1275 51.507222, 16.373056 48.208333)')
             , ST_GeographyFromText('POINT(2.350833 48.856667)'))
 
