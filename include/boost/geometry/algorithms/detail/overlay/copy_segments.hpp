@@ -143,7 +143,7 @@ struct copy_segments_box
             ? to_index - index + 1
             : 5 - index + to_index + 1;
 
-		// Create array of points, the fifth one closes it
+        // Create array of points, the fifth one closes it
         boost::array<typename point_type<Box>::type, 5> bp;
 
         // Points are retrieved by "assign_box_order" in order ll, lr, ul, ur

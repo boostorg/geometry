@@ -34,15 +34,15 @@ struct shape_create_multi_point
 {
     static inline SHPObject* apply(MultiPoint const& multi)
     {
-		int const n = boost::size(multi);
+        int const n = boost::size(multi);
         boost::scoped_array<double> x(new double[n]);
         boost::scoped_array<double> y(new double[n]);
 
-		range_to_part(multi, x.get(), y.get());
-	
-		int const parts = 0;
-		return ::SHPCreateObject(SHPT_MULTIPOINT, -1, 1, &parts, NULL,
-									n, x.get(), y.get(), NULL, NULL);
+        range_to_part(multi, x.get(), y.get());
+
+        int const parts = 0;
+        return ::SHPCreateObject(SHPT_MULTIPOINT, -1, 1, &parts, NULL,
+                                    n, x.get(), y.get(), NULL, NULL);
     }
 };
 
@@ -54,26 +54,26 @@ struct shape_create_multi_linestring
     static inline SHPObject* apply(MultiLinestring const& multi)
     {
         int const n = geometry::num_points(multi);
-		int const part_count = boost::size(multi);
+        int const part_count = boost::size(multi);
 
         boost::scoped_array<double> x(new double[n]);
         boost::scoped_array<double> y(new double[n]);
-		boost::scoped_array<int> parts(new int[part_count]);
+        boost::scoped_array<int> parts(new int[part_count]);
 
-		int ring = 0;
-		int offset = 0;
+        int ring = 0;
+        int offset = 0;
 
         for (typename boost::range_iterator<MultiLinestring const>::type
                     it = boost::begin(multi);
             it != boost::end(multi);
             ++it)
-		{
-			parts[ring++] = offset;
-			offset = range_to_part(*it, x.get(), y.get(), offset);
-		}	        
+        {
+            parts[ring++] = offset;
+            offset = range_to_part(*it, x.get(), y.get(), offset);
+        }
 
-		return ::SHPCreateObject(SHPT_ARC, -1, part_count, parts.get(), NULL,
-									n, x.get(), y.get(), NULL, NULL);
+        return ::SHPCreateObject(SHPT_ARC, -1, part_count, parts.get(), NULL,
+                                    n, x.get(), y.get(), NULL, NULL);
     }
 };
 
@@ -84,27 +84,27 @@ struct shape_create_multi_polygon
     static inline SHPObject* apply(MultiPolygon const& multi)
     {
         int const n = geometry::num_points(multi);
-		int const ring_count = boost::size(multi) + geometry::num_interior_rings(multi);
+        int const ring_count = boost::size(multi) + geometry::num_interior_rings(multi);
 
         boost::scoped_array<double> x(new double[n]);
         boost::scoped_array<double> y(new double[n]);
-		boost::scoped_array<int> parts(new int[ring_count]);
+        boost::scoped_array<int> parts(new int[ring_count]);
 
-		int ring = 0;
-		int offset = 0;
+        int ring = 0;
+        int offset = 0;
 
-		typedef typename boost::range_value<MultiPolygon>::type polygon_type;
+        typedef typename boost::range_value<MultiPolygon>::type polygon_type;
         for (typename boost::range_iterator<MultiPolygon const>::type
                     it = boost::begin(multi);
             it != boost::end(multi);
             ++it)
-		{
-			shape_create_polygon<polygon_type>::process_polygon(*it, x.get(), y.get(), parts.get(),
-				offset, ring);
-		}	        
+        {
+            shape_create_polygon<polygon_type>::process_polygon(*it, x.get(), y.get(), parts.get(),
+                offset, ring);
+        }
 
-		return ::SHPCreateObject(SHPT_POLYGON, -1, ring_count, parts.get(), NULL,
-									n, x.get(), y.get(), NULL, NULL);
+        return ::SHPCreateObject(SHPT_POLYGON, -1, ring_count, parts.get(), NULL,
+                                    n, x.get(), y.get(), NULL, NULL);
     }
 };
 
