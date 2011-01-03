@@ -240,7 +240,7 @@
     <member><link linkend="geometry.reference.iterators.closing_iterator">closing_iterator</link></member>
     <member><link linkend="geometry.reference.iterators.circular_iterator">circular_iterator</link></member>
     <member><link linkend="geometry.reference.iterators.ever_circling_iterator">ever_circling_iterator</link></member>
-    <member><link linkend="geometry.reference.iterators.box_iterator">one_section_segment_iterator</link></member>
+    <member><link linkend="geometry.reference.iterators.box_iterator">box_iterator</link></member>
     <member><link linkend="geometry.reference.iterators.segment_range_iterator">segment_range_iterator</link></member>
     </simplelist>
    </entry>

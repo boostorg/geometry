@@ -55,7 +55,7 @@ For convenience three other concepts are defined:
 - a segment: a part of line bounded by two points, to calculate e.g. distances and intersections
 
 Besides defining custom types, library users can make specializations of algorithms for their geometry types and in such way implement support for, for example, triangles. This will be worked out below.
-The Boost Concept Check Library (BCCL) is used internally to check if the developer’s input follows the concepts expected by the library.
+The Boost Concept Check Library (BCCL) is used internally to check if the developer's input follows the concepts expected by the library.
 
 
 
@@ -90,7 +90,7 @@ The Generic Geometry Library provides a generic transform algorithm which can tr
 
 \section art09_types Types And Strategies
 
-Algorithms depend on coordinate system. Let’s take, for example, the distance calculation between two points. For points in a Cartesian coordinate space the simple and well known Pythagorean theorem applies. For points in the geographic coordinate system (latitude longitude, also known as latlong, lola or ll) the distance can be calculated using the haversine formula (it is possible to select other formulas as well, which is described below).
+Algorithms depend on coordinate system. Let's take, for example, the distance calculation between two points. For points in a Cartesian coordinate space the simple and well known Pythagorean theorem applies. For points in the geographic coordinate system (latitude longitude, also known as latlong, lola or ll) the distance can be calculated using the haversine formula (it is possible to select other formulas as well, which is described below).
 The Generic Geometry Library provides a tag dispatching system which selects strategies based on coordinate system. So distances and areas for spherical coordinates are internally calculated differently then distances and areas for Cartesian coordinates. This is, by default, not visible for the library user, it is an automatic tag dispatching system.
 The tag dispatching system is also used to distinguish geometry types internally. So the generic distance algorithm can get two points (in any coordinate system) as input, but also a point and a linestring, a point and a polygon, et cetera.
 
@@ -118,7 +118,7 @@ Algorithms as simplification (removing non important points from point sequences
 
 
 \section art09_specializations Specializations
-Besides strategies, library users have also other options for customization. For example: the Generic Geometry Library itself does not support triangles. Instead it supports polygons (which might contain holes) and linear rings. However, if the library user wants to use triangles directly, he can implement his own type. Let’s work this example out. A triangle can be represented by three coordinate pairs. The library user can make a triangle of his own points (in this case: custom_point), using e.g. a boost::array.
+Besides strategies, library users have also other options for customization. For example: the Generic Geometry Library itself does not support triangles. Instead it supports polygons (which might contain holes) and linear rings. However, if the library user wants to use triangles directly, he can implement his own type. Let's work this example out. A triangle can be represented by three coordinate pairs. The library user can make a triangle of his own points (in this case: custom_point), using e.g. a boost::array.
 \code
 struct triangle : public    boost::array<custom_point, 3>
 {};
@@ -135,7 +135,7 @@ namespace ggl
 }
 \endcode
 As soon as this is done, the library will automatically select the ring specializations for all triangle algorithms. Because the Generic Geometry Library handles a ring as being a range, the user does not have to provide anything more.  The Boost Range library concepts are used internally for all iterations.
-So the area of the user’s custom-points-triangle will be calculated correctly, using internally an iterator which walks through the point coordinates.
+So the area of the user's custom-points-triangle will be calculated correctly, using internally an iterator which walks through the point coordinates.
 But wait, for triangle that is not as efficient as possible! No problem, the developer can, if desired, implement a specialization for the area function:
 \code
 template<>
@@ -148,7 +148,7 @@ double area<triangle>(const triangle& t)
 }
 \endcode
 
-Now this specialization will be used to calculate the area of the developer’s triangles, while for other algorithms (centroid, within, intersection, et cetera) the generic ring versions still being used.
+Now this specialization will be used to calculate the area of the developer's triangles, while for other algorithms (centroid, within, intersection, et cetera) the generic ring versions still being used.
 The Generic Geometry Library also provides a second way to specialize. Within the dispatch namespace, structs are available for all operations. They can be partially specialized such that, for example, a triangle templatized by point type will be handled correctly by the library.
 
 
