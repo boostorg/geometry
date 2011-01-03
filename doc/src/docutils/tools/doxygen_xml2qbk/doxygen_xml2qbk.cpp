@@ -40,38 +40,38 @@
 // -------------------------------------------------------------
 class xml_doc : public rapidxml::xml_document<>
 {
-	public :
-		xml_doc(const char* xml)
-		{
-			// Make a copy because rapidxml destructs string
-			m_copy = new char[strlen(xml) + 1];
-			strcpy(m_copy, xml);
-			this->parse<0>(m_copy);    
-		};
-		virtual ~xml_doc()
-		{
-			delete[] m_copy;
-		}
-	private :
-		char* m_copy;
+    public :
+        xml_doc(const char* xml)
+        {
+            // Make a copy because rapidxml destructs string
+            m_copy = new char[strlen(xml) + 1];
+            strcpy(m_copy, xml);
+            this->parse<0>(m_copy);
+        };
+        virtual ~xml_doc()
+        {
+            delete[] m_copy;
+        }
+    private :
+        char* m_copy;
 
 };
 
 inline std::string get_attribute(rapidxml::xml_node<>* node, const char* name)
 {
-	rapidxml::xml_attribute<> *attr = node->first_attribute(name);
-	std::string value;
-	if (attr)
-	{
-		value = attr->value();
-	}
-	return value;
+    rapidxml::xml_attribute<> *attr = node->first_attribute(name);
+    std::string value;
+    if (attr)
+    {
+        value = attr->value();
+    }
+    return value;
 }
 
 inline void get_contents(rapidxml::xml_node<>* node, std::string& contents)
 {
     if (node != NULL && node->type() == rapidxml::node_element)
-	{
+    {
         contents += node->value();
         get_contents(node->first_node(), contents);
         get_contents(node->next_sibling(), contents);
@@ -120,9 +120,9 @@ struct element
     std::vector<std::string> images;
     std::string complexity;
 
-    // To distinguish overloads: unary, binary etc, 
+    // To distinguish overloads: unary, binary etc,
     // Filled with: \qbk{distinguish,<A discerning description>}
-    std::string additional_description; 
+    std::string additional_description;
 
     std::vector<param> template_parameters;
     std::vector<param> parameters;
@@ -232,12 +232,12 @@ static inline void add_or_set(std::vector<param>& parameters, param const& p)
 // -------------------------------------------------------------
 static void parse_parameter(rapidxml::xml_node<>* node, param& p)
 {
-	if (node != NULL)
-	{
+    if (node != NULL)
+    {
         std::string name = node->name();
-        if (name == "type") 
-        {   
-            p.fulltype = node->value(); 
+        if (name == "type")
+        {
+            p.fulltype = node->value();
             p.type = p.fulltype;
             boost::replace_all(p.type, " const", "");
             boost::trim(p.type);
@@ -260,11 +260,11 @@ static void parse_parameter(rapidxml::xml_node<>* node, param& p)
 template <typename Parameters>
 static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& parameters)
 {
-	if (node != NULL)
-	{
+    if (node != NULL)
+    {
         std::string name = node->name();
 
-		if (name == "parameteritem") 
+        if (name == "parameteritem")
         {
             param p;
             parse_parameter(node->first_node(), p);
@@ -283,7 +283,7 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
                 }
             }
         }
-		else if (name == "param") 
+        else if (name == "param")
         {
             // Element of 'templateparamlist.param (.type,.declname,.defname)'
             param p;
@@ -323,8 +323,8 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
 template <typename Element>
 static void parse_element(rapidxml::xml_node<>* node, std::string const& parent, Element& el)
 {
-	if (node != NULL)
-	{
+    if (node != NULL)
+    {
         std::string name = node->name();
         std::string full = parent + "." + name;
 
@@ -375,7 +375,7 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
             el.additional_description = node->value();
             boost::trim(el.additional_description);
         }
-        else if (full == ".templateparamlist") 
+        else if (full == ".templateparamlist")
         {
             parse_parameter_list(node->first_node(), el.template_parameters);
         }
@@ -391,7 +391,7 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
                 parse_parameter_list(node->first_node(), el.template_parameters);
             }
         }
-        
+
         parse_element(node->first_node(), full, el);
         parse_element(node->next_sibling(), parent, el);
     }
@@ -399,14 +399,14 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
 
 static void parse_function(rapidxml::xml_node<>* node, std::string const& parent, function& f)
 {
-	if (node != NULL)
-	{
+    if (node != NULL)
+    {
         std::string name = node->name();
         std::string full = parent + "." + name;
 
-		if (full == ".name") f.name = node->value();
+        if (full == ".name") f.name = node->value();
         else if (full == ".argsstring") f.argsstring = node->value();
-        else if (full == ".definition") 
+        else if (full == ".definition")
         {
             f.definition = node->value();
             // Boost.Geometry specific, to make generic: make this namespace-to-be-skipped configurable
@@ -442,7 +442,7 @@ static void parse_function(rapidxml::xml_node<>* node, std::string const& parent
                 f.images.push_back(image);
             }
         }
-        
+
         parse_function(node->first_node(), full, f);
         parse_function(node->next_sibling(), parent, f);
     }
@@ -450,17 +450,17 @@ static void parse_function(rapidxml::xml_node<>* node, std::string const& parent
 
 static void parse(rapidxml::xml_node<>* node, documentation& doc, bool member = false)
 {
-	if (node != NULL)
-	{
+    if (node != NULL)
+    {
         bool recurse = false;
         bool is_member = member;
 
         std::string nodename = node->name();
 
-		if (nodename == "doxygen")
-		{
+        if (nodename == "doxygen")
+        {
             recurse = true;
-		}
+        }
         else if (nodename == "sectiondef")
         {
             std::string kind = get_attribute(node, "kind");
@@ -493,8 +493,8 @@ static void parse(rapidxml::xml_node<>* node, documentation& doc, bool member = 
                 parse_element(node->first_node(), "", doc.cos);
             }
         }
-		else if (nodename == "memberdef")
-		{
+        else if (nodename == "memberdef")
+        {
             std::string kind = get_attribute(node, "kind");
             if (kind == "function" || kind == "define")
             {
@@ -517,7 +517,7 @@ static void parse(rapidxml::xml_node<>* node, documentation& doc, bool member = 
                     doc.functions.push_back(f);
                 }
             }
-		}
+        }
         else if (nodename == "compoundname")
         {
             std::string name = node->value();
@@ -538,11 +538,11 @@ static void parse(rapidxml::xml_node<>* node, documentation& doc, bool member = 
 
         if (recurse)
         {
-		    // First recurse into childnodes, then handle next siblings
-		    parse(node->first_node(), doc, is_member);
+            // First recurse into childnodes, then handle next siblings
+            parse(node->first_node(), doc, is_member);
         }
         parse(node->next_sibling(), doc, is_member);
-	}
+    }
 }
 
 void quickbook_template_parameter_list(std::vector<param> const& parameters, std::ostream& out, bool name = false)
@@ -626,7 +626,7 @@ inline bool includes(std::string const& filename, std::string const& header)
 }
 
 
-void quickbook_header(std::string const& location, 
+void quickbook_header(std::string const& location,
     configuration const& config,
     std::ostream& out)
 {
@@ -653,7 +653,7 @@ void quickbook_header(std::string const& location,
             {
                 out << "`#include <" << headerfile << ">`" << std::endl;
             }
-            
+
             out << std::endl << "Or" << std::endl << std::endl;
         }
         out << "`#include <" << location << ">`" << std::endl;
@@ -679,7 +679,7 @@ void quickbook_behaviors(std::vector<std::string> const& behaviors, std::ostream
     if (! behaviors.empty())
     {
         out << "[heading Behavior]" << std::endl
-            << "[table" << std::endl 
+            << "[table" << std::endl
             << "[[Case] [Behavior] ]" << std::endl;
         BOOST_FOREACH(std::string const& behavior, behaviors)
         {
@@ -698,7 +698,7 @@ void quickbook_behaviors(std::vector<std::string> const& behaviors, std::ostream
     }
 }
 
-void quickbook_heading_string(std::string const& heading, 
+void quickbook_heading_string(std::string const& heading,
             std::string const& contents, std::ostream& out)
 {
     if (! contents.empty())
@@ -723,7 +723,7 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
     int arity = (int)f.parameters.size();
 
     std::string additional_description;
-    
+
     if (! f.additional_description.empty())
     {
         additional_description = " (";
@@ -784,13 +784,13 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
 
         if (f.type != function_define)
         {
-            out << "[" << p.fulltype 
-                << "] [" << (it == f.template_parameters.end() ? "" : it->description) 
+            out << "[" << p.fulltype
+                << "] [" << (it == f.template_parameters.end() ? "" : it->description)
                 << "] ";
         }
-        out << "[" << p.name 
-            << "] [" << p.description 
-            << "]]" 
+        out << "[" << p.name
+            << "] [" << p.description
+            << "]]"
             << std::endl;
     }
     out << "]" << std::endl
@@ -858,7 +858,7 @@ void quickbook_short_output(function const& f, std::ostream& out)
 void quickbook_output(class_or_struct const& cos, configuration const& config, std::ostream& out)
 {
     // Boost.Geometry specific, to make generic: make this namespace-to-be-skipped configurable
-    std::string short_name = 
+    std::string short_name =
             boost::replace_all_copy(cos.fullname, "boost::geometry::", "");
 
     // Write the parsed function
@@ -886,7 +886,7 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
         {
             out << "[[" << p.fulltype << "] [" << p.description << "]]" << std::endl;
         }
-        out << "]" << std::endl 
+        out << "]" << std::endl
             << std::endl;
     }
 
@@ -910,11 +910,11 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
                 out << "[[";
                 quickbook_synopsis(f, out);
                 out << "] [" << f.brief_description << "] [";
-                quickbook_short_output(f, out);   
+                quickbook_short_output(f, out);
                 out << "]]" << std::endl;
             }
         }
-        out << "]" << std::endl 
+        out << "]" << std::endl
             << std::endl;
     }
 
@@ -931,11 +931,11 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
                 out << "[[";
                 quickbook_synopsis(f, out);
                 out << "] [" << f.brief_description << "] [";
-                quickbook_short_output(f, out);   
+                quickbook_short_output(f, out);
                 out << "]]" << std::endl;
             }
         }
-        out << "]" << std::endl 
+        out << "]" << std::endl
             << std::endl;
     }
 
@@ -957,7 +957,7 @@ int main(int argc, char** argv)
 {
     if (argc < 2)
     {
-        std::cerr 
+        std::cerr
             << "Usage: doxygen_xml2qbk [XML-filename] {prefix CH} {convenience header (CH) 1} {CH 2} ..." << std::endl
             << "   where the XML refers to an XML written by Doxygen" << std::endl;
         return 1;
@@ -967,7 +967,7 @@ int main(int argc, char** argv)
     std::string xml_string = file_to_string(filename);
 
     xml_doc xml(xml_string.c_str());
-    
+
     documentation doc;
     parse(xml.first_node(), doc);
 
@@ -1015,23 +1015,39 @@ int main(int argc, char** argv)
         }
     }
 
-    std::cout 
+    // Keep inspect silent. TODO: read this block from a file.
+    std::cout
+        << "[/============================================================================" << std::endl
+        << "  Boost.Geometry (aka GGL, Generic Geometry Library)" << std::endl
+        << std::endl
+        << "  Copyright (c) 2009-2011 Barend Gehrels, Geodan, Amsterdam, the Netherlands." << std::endl
+        << "  Copyright (c) 2009-2011 Mateusz Loskot (mateusz@loskot.net)" << std::endl
+        << "  Copyright (c) 2009-2011 Bruno Lalande, Paris, France." << std::endl
+        << std::endl
+        << "  Use, modification and distribution is subject to the Boost Software License," << std::endl
+        << "  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at" << std::endl
+        << "  http://www.boost.org/LICENSE_1_0.txt)" << std::endl
+        << "=============================================================================/]" << std::endl
+        << std::endl
+        << std::endl;
+
+    std::cout
         << "[/ Generated by doxygen_xml2qbk, don't change, it will be overwritten automatically]" << std::endl
         << "[/ Generated from " << filename << "]" << std::endl;
 
     BOOST_FOREACH(function const& f, doc.functions)
     {
-        quickbook_output(f, config, std::cout);        
+        quickbook_output(f, config, std::cout);
     }
     BOOST_FOREACH(function const& f, doc.defines)
     {
-        quickbook_output(f, config, std::cout);        
+        quickbook_output(f, config, std::cout);
     }
 
     if (! doc.cos.name.empty())
     {
         std::sort(doc.cos.functions.begin(), doc.cos.functions.end(), sort_on_line<function>());
-        quickbook_output(doc.cos, config, std::cout);        
+        quickbook_output(doc.cos, config, std::cout);
     }
 
     return 0;

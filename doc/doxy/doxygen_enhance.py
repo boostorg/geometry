@@ -1,8 +1,18 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+# ===========================================================================
+#  Copyright (c) 2010 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+# 
+#  Use, modification and distribution is subject to the Boost Software License,
+#  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+#  http://www.boost.org/LICENSE_1_0.txt)9
+# ============================================================================
+
 import sys
 
 args = sys.argv[1:]
 if len(args) != 1:
-	raise SystemExit("Usage: doxygen_enhance <html filename>")
+    raise SystemExit("Usage: doxygen_enhance <html filename>")
 
 
 # 1) set variable for doxygen_contents to be posted
