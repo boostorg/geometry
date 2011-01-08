@@ -60,7 +60,8 @@
 \param Field0 \param_macro_member{\macro_x}
 \param Field1 \param_macro_member{\macro_y}
 
-\qbk{example, boost_geometry_register_point_2d}
+\qbk{example, register_point_2d}
+\qbk{example, register_point_2d_output}
 \qbk{admonition, [caution Use the macro outside any namespace]}
 \qbk{admonition, [note A point can include a namespace]}
 */

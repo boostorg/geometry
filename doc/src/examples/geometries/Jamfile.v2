@@ -7,9 +7,10 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 
-project boost-geometry-doc-example-algorithms
+project boost-geometry-doc-src-example-geometries
     : # requirements
     ;
 
-exe area : area.cpp ;
-exe area_with_strategy : area_with_strategy.cpp ;
+exe point : point.cpp ;
+
+build-project register ;

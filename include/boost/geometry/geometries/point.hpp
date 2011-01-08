@@ -35,6 +35,7 @@ namespace model
 \tparam CoordinateSystem coordinate system, for example cs::cartesian
 
 \qbk{example,point}
+\qbk{example,point_output}
 
 \details Defines a neutral point class, fulfilling the Point Concept.
     Library users can use this point class, or use their own point classes.

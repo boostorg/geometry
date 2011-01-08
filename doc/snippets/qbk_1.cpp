@@ -16,7 +16,6 @@
 #endif // defined(_MSC_VER)
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/register/segment.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
@@ -24,45 +23,7 @@
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
 
-void example_point()
-{
-    struct custom_cs {};
 
-    //[point
-    //` Declaration and use of the basic Boost.Geometry point
-    namespace bg = boost::geometry;
-    bg::model::point<double, 2, bg::cs::cartesian> point1;
-    bg::model::point<double, 3, bg::cs::cartesian> point2(1.0, 2.0, 3.0); /*< Construct, assigning three coordinates >*/
-    bg::model::point<int, 4, custom_cs> point3;
-    point1.set<0>(1.0); /*< Set a coordinate. [*Note]: prefer using `bg::set<0>(point1, 1.0);` >*/
-    point1.set<1>(2.0);
-
-    double x = point1.get<0>(); /*< Get a coordinate. [*Note]: prefer using `x = bg::get<0>(point1);` >*/
-    double y = point1.get<1>();
-    //]
-}
-
-//[boost_geometry_register_point_2d
-struct legacy_point /*< Somewhere, any legacy point struct is available >*/
-{
-    double x, y;
-};
-
-BOOST_GEOMETRY_REGISTER_POINT_2D(legacy_point, double, boost::geometry::cs::cartesian, x, y); /*< The magic: adapt it to Boost.Geometry Point Concept >*/
-
-/*<-*/ namespace boost_geometry_register_point_2d { /*->*/
-void foo()
-{
-    legacy_point p1, p2;
-
-    /*< Any Boost.Geometry function can be used. Here: assign and distance >*/
-    namespace bg = boost::geometry;
-    bg::assign(p1, 1, 1);
-    bg::assign(p2, 2, 2);
-    double d = bg::distance(p1, p2);
-}
-//]
-} // namespace
 
 
 
@@ -523,11 +484,6 @@ void example_point_ll_construct()
 
 int main(void)
 {
-    example_point();
-
-    example_area_polygon();
-    example_area_polygon_spherical();
-    example_area_polygon_strategy();
 
     example_centroid_polygon();
 
@@ -569,8 +525,6 @@ int main(void)
     example_point_ll_construct();
     example_dms();
 
-
-    boost_geometry_register_point_2d::foo();
 
     return 0;
 }
