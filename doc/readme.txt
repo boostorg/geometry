@@ -10,17 +10,20 @@
 
 Procedure to create documentation using Doxygen, QuickBook and doxygen_xml2qbk
 
+Note that doxygen_xml2qbk is a tool currently (slightly) specific to Boost.Geometry,
+and that it translates from Doxygen-XML output to Quickbook (without xslt)
+
 1) install Doxygen
-2) install QuickBook using http://www.boost.org/doc/libs/1_44_0/doc/html/quickbook/install.html#quickbook.install.linux
-3) compile doxygen_xml2qbk, in .../boost/sandbox/geometry/other/programs/doxygen_xml2qbk
+2) install QuickBook using http://www.boost.org/doc/libs/1_45_0/doc/html/quickbook/install.html#quickbook.install.linux
+3) compile doxygen_xml2qbk, in src/docutils/tools/doxygen_xml2qbk
 4) put binary somewhere, e.g. in /usr/local/bin/doxygen_xml2qbk
 5) execute python file "make_qbk.py" (calling doxygen, doxygen_xml2qbk, bjam)
 
 Folders in this folder:
+concept: manually written documentation  QBK files, on concept
 doxy: folders and files needed for doxygen input and output
-other: older documentation (subject to update or deletion)
-snippets: code snippets (might be renamed to examples and contain fully runnable examples)
-
-reference: contains generated QBK files (by doxygen_xml2qbk)
 html: contains generated HTML files
+other: older documentation (subject to update or deletion)
+reference: generated documentation QBK files (by doxygen_xml2qbk)
+src: examples used in documentation and tools (doxygen_xml2qbk)
 
