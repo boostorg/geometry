@@ -62,6 +62,8 @@
 
 [import src/examples/algorithms/area.cpp]
 [import src/examples/algorithms/area_with_strategy.cpp]
+[import src/examples/geometries/point.cpp]
+[import src/examples/geometries/register/point.cpp]
 
 [/obsolete structure]
 [import snippets/qbk_1.cpp]
