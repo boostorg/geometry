@@ -89,7 +89,7 @@ struct sort_on_segment_and_distance
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
             , Strategy const& strategy
-            , bool& clustered)
+            , bool* clustered)
         : m_turn_points(turn_points)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
@@ -104,7 +104,7 @@ private :
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     Strategy const& m_strategy;
-    mutable bool& m_clustered;
+    mutable bool* m_clustered;
 
     inline bool consider_relative_order(Indexed const& left,
                     Indexed const& right) const
@@ -155,7 +155,7 @@ public :
 
             // If that is not the case, cluster it later on.
             // Indicate that this is necessary.
-            m_clustered = true;
+            *m_clustered = true;
 
             return left.index < right.index;
         }
@@ -220,7 +220,7 @@ inline void enrich_sort(Container& operations,
                         Geometry1, Geometry2,
                         Reverse1, Reverse2,
                         Strategy
-                    >(turn_points, geometry1, geometry2, strategy, clustered));
+                    >(turn_points, geometry1, geometry2, strategy, &clustered));
 
     // DONT'T discard xx / (for union) ix / ii / (for intersection) ux / uu here
     // It would give way to "lonely" ui turn points, traveling all
