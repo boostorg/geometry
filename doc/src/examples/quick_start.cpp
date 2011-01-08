@@ -18,7 +18,6 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/cartesian2d.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>

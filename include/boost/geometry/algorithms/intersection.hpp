@@ -186,8 +186,10 @@ struct intersection_reversed
 \param geometry_out The output geometry, either a multi_point, multi_polygon,
     multi_linestring, or a box (for intersection of two boxes)
 
-\qbk{example,intersection_linestring}
+\qbk{example,intersection_ls_ls_point}
+\qbk{example,intersection_ls_ls_point_output}
 \qbk{example,intersection_segment}
+\qbk{example,intersection_segment_output}
 */
 template
 <

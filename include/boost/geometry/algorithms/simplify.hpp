@@ -286,13 +286,8 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 \param max_distance distance (in units of input coordinates) of a vertex
     to other segments to be removed
 
-\par Example:
-Simplify can be used as following:
-\dontinclude doxygen_1.cpp
-\skip example_simplify_linestring1
-\line {
-\until }
-
+\qbk{example,simplify}
+\qbk{example,simplify_output}
  */
 template<typename Geometry, typename Distance>
 inline void simplify(Geometry const& geometry, Geometry& out,
@@ -326,15 +321,8 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     to other segments to be removed
 \param strategy simplify strategy to be used for simplification,
     might include point-distance strategy
-\par Example:
-simplify_inserter with strategy is used as following:
-\dontinclude doxygen_1.cpp
-\skip example_simplify_linestring2
-\line {
-\until }
 
 \qbk{distinguish,with strategy}
-\qbk{example,simplify_inserter}
  */
 template<typename Geometry, typename OutputIterator, typename Distance, typename Strategy>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
@@ -360,6 +348,8 @@ inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
 \param max_distance distance (in units of input coordinates) of a vertex
     to other segments to be removed
 
+\qbk{example,simplify_inserter}
+\qbk{example,simplify_inserter_output}
  */
 template<typename Geometry, typename OutputIterator, typename Distance>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,

@@ -58,7 +58,8 @@ Or
 Linear
 
 [heading Examples]
-[length_strategy]
+[length_with_strategy]
+[length_with_strategy_output]
 
 
 [endsect]
@@ -108,6 +109,7 @@ Linear
 
 [heading Examples]
 [length]
+[length_output]
 
 
 [endsect]
