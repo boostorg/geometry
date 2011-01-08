@@ -60,6 +60,10 @@
 
 [*In progress]
 
+Examples of documentation:
+Area algorithm [link geometry.reference.algorithms.area.area_1 here]
+Simplify algorithm [link geometry.reference.algorithms.simplify.simplify_3 here]
+
 [import src/examples/quick_start.cpp]
 [import src/examples/algorithms/area.cpp]
 [import src/examples/algorithms/area_with_strategy.cpp]
