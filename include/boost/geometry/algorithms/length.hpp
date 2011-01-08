@@ -143,6 +143,7 @@ struct length<segment_tag, Geometry, Strategy>
 \qbk{complexity,Linear}
 \qbk{compliance,__ogc__}
 \qbk{example,length}
+\qbk{example,length_output}
  */
 template<typename Geometry>
 inline typename length_result<Geometry>::type length(
@@ -175,7 +176,8 @@ inline typename length_result<Geometry>::type length(
 \return \return_calc{length}
 
 \qbk{distinguish,with strategy}
-\qbk{example,length_strategy}
+\qbk{example,length_with_strategy}
+\qbk{example,length_with_strategy_output}
  */
 template<typename Geometry, typename Strategy>
 inline typename length_result<Geometry>::type length(

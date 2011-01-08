@@ -82,7 +82,7 @@ inline bool intersects(Geometry const& geometry)
 
 \qbk{distinguish,two geometries}
 \qbk{example,intersects_linestring}
-\qbk{example,intersects_segment}
+\qbk{example,intersects_linestring_output}
  */
 template <typename Geometry1, typename Geometry2>
 inline bool intersects(Geometry1 const& geometry1, Geometry2 const& geometry2)

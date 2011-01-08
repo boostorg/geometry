@@ -60,17 +60,18 @@
 
 [*In progress]
 
+[import src/examples/quick_start.cpp]
 [import src/examples/algorithms/area.cpp]
 [import src/examples/algorithms/area_with_strategy.cpp]
+[import src/examples/algorithms/length.cpp]
+[import src/examples/algorithms/length_with_strategy.cpp]
+[import src/examples/algorithms/intersection_ls_ls_point.cpp]
+[import src/examples/algorithms/intersection_segment.cpp]
+[import src/examples/algorithms/intersects_linestring.cpp]
+[import src/examples/algorithms/simplify.cpp]
+[import src/examples/algorithms/simplify_inserter.cpp]
 [import src/examples/geometries/point.cpp]
 [import src/examples/geometries/register/point.cpp]
-
-[/obsolete structure]
-[import snippets/qbk_1.cpp]
-[import snippets/qbk_2.cpp]
-[import snippets/qbk_3.cpp]
-[import snippets/qbk_4.cpp]
-[import snippets/qbk_5.cpp]
 
 [include introduction.qbk]
 [include quickstart.qbk]

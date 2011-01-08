@@ -44,7 +44,7 @@ Or
 
 [heading Examples]
 [intersects_linestring]
-[intersects_segment]
+[intersects_linestring_output]
 
 
 [endsect]
