@@ -22,7 +22,7 @@ BOOST_GEOMETRY_REGISTER_POINT_2D(point, float, cs::cartesian, get<0>(), get<1>()
 int main()
 {
     point p1;
-    const point p2;
+    point const p2 = point();
     test::function_requiring_a_point(p1, p2);
     return 0;
 }
