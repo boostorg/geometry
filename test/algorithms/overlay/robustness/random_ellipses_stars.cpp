@@ -8,7 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <iomanip>
+#include <boost/detail/iomanip.hpp>
 #include <string>
 
 #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR

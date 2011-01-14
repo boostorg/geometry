@@ -25,7 +25,7 @@
 #endif
 
 #include <fstream>
-#include <iomanip>
+#include <boost/detail/iomanip.hpp>
 
 #include <boost/foreach.hpp>
 #include <geometry_test_common.hpp>

@@ -7,7 +7,7 @@
 
 
 #include <iostream>
-#include <iomanip>
+#include <boost/detail/iomanip.hpp>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -104,7 +104,7 @@ struct test_traverse
             G2 cg2 = g2;
             bg::correct(cg1);
             bg::correct(cg2);
-            std::cout << std::setprecision(12)
+            std::cout << boost::detail::setprecision(12)
                 << bg::wkt(cg1) << std::endl
                 << bg::wkt(cg2) << std::endl;
         }
@@ -269,7 +269,7 @@ struct test_traverse
 
                     /*out
 
-                        << std::setprecision(3)
+                        << boost::detail::setprecision(3)
                         << "dist: " << boost::numeric_cast<double>(turn.operations[0].enriched.distance)
                         << " / "  << boost::numeric_cast<double>(turn.operations[1].enriched.distance)
                         << std::endl
@@ -304,7 +304,7 @@ struct test_traverse
                             << "/"  << turn.operations[1].enriched.travels_to_vertex_index
                             << std::endl
 
-                            << std::setprecision(3)
+                            << boost::detail::setprecision(3)
                             << "dist: " << turn.operations[0].enriched.distance
                             << " / "  << turn.operations[1].enriched.distance
                             << std::endl
