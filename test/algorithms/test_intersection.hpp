@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_TEST_INTERSECTION_HPP
 
 #include <fstream>
-#include <iomanip>
+#include <boost/detail/iomanip.hpp>
 
 #include <boost/foreach.hpp>
 #include <geometry_test_common.hpp>
@@ -97,7 +97,7 @@ double test_intersection(std::string const& caseid, G1 const& g1, G2 const& g2,
         /*
         std::cout << std::endl << "case " << caseid << " ";
         std::cout
-            << std::setprecision(20)
+            << boost::detail::setprecision(20)
             << bg::dsv(*it) << std::endl;
         */
     }

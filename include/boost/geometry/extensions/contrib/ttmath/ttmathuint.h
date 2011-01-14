@@ -47,7 +47,7 @@
 */
 
 #include <iostream>
-#include <iomanip>
+#include <boost/detail/iomanip.hpp>
 
 
 #include "ttmathtypes.h"
@@ -102,12 +102,12 @@ public:
         int c = 1;
         for(int i=value_size-1 ; i>=0 ; --i)
         {
-            output << "0x" << std::setfill('0');
+            output << "0x" << boost::detail::setfill('0');
 
             #ifdef TTMATH_PLATFORM32
-                output << std::setw(8);
+                output << boost::detail::setw(8);
             #else
-                output << std::setw(16);
+                output << boost::detail::setw(16);
             #endif
 
             output << std::hex << table[i];

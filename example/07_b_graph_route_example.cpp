@@ -16,7 +16,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
+#include <boost/detail/iomanip.hpp>
 #include <limits>
 
 #include <boost/tuple/tuple.hpp>
@@ -289,7 +289,7 @@ int main()
 
     double const km = 1000.0;
     std::cout << "distances, all in KM" << std::endl
-        << std::fixed << std::setprecision(0);
+        << std::fixed << boost::detail::setprecision(0);
 
     // Main functionality: calculate shortest routes from/to all cities
 
@@ -320,12 +320,12 @@ int main()
                 double acof = boost::geometry::distance(city1.get<0>(), city2.get<0>()) / km;
 
                 std::cout
-                    << std::setiosflags (std::ios_base::left) << std::setw(15)
+                    << boost::detail::setiosflags (std::ios_base::left) << boost::detail::setw(15)
                         << city1.get<1>() << " - "
-                    << std::setiosflags (std::ios_base::left) << std::setw(15)
+                    << boost::detail::setiosflags (std::ios_base::left) << boost::detail::setw(15)
                         << city2.get<1>()
-                    << " -> through the air: " << std::setw(4) << acof
-                    << " , over the road: " << std::setw(4) << distance
+                    << " -> through the air: " << boost::detail::setw(4) << acof
+                    << " , over the road: " << boost::detail::setw(4) << distance
                     << std::endl;
 
                 if (first)
