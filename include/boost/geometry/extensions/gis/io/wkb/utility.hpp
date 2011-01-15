@@ -8,7 +8,7 @@
 #ifndef BOOST_GEOMETRY_IO_WKB_UTILITY_HPP
 #define BOOST_GEOMETRY_IO_WKB_UTILITY_HPP
 
-#include <boost/detail/iomanip.hpp>
+#include <iomanip>
 #include <iterator>
 #include <sstream>
 #include <string>
@@ -71,7 +71,7 @@ bool wkb2hex(Iterator begin, Iterator end, std::string& hex)
         hexbyte[0] = hexalpha[(byte >> 4) & 0xf];
         hexbyte[1] = hexalpha[byte & 0xf];
         hexbyte[2] = '\0';
-        oss << boost::detail::setw(2) << hexbyte;
+        oss << std::setw(2) << hexbyte;
         ++it;
     }
 

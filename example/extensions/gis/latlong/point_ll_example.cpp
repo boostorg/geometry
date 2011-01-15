@@ -9,7 +9,7 @@
 // Point Example - showing geographic (latitude longitude) points
 
 #include <iostream>
-#include <boost/detail/iomanip.hpp>
+#include <iomanip>
 
 #include <boost/geometry/geometry.hpp>
 
@@ -86,7 +86,7 @@ int main()
     std::cout << "Amsterdam: " << boost::geometry::dsv(amsterdam) << std::endl;
 
     // Calculate the distance using the default strategy (Andoyer), and Vincenty
-    std::cout << boost::detail::setprecision(9);
+    std::cout << std::setprecision(9);
     std::cout << "Distance Paris-Lima, Andoyer (default) "
         << 0.001 * distance(paris, lima)
         << " km" << std::endl;

@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_TEST_DIFFERENCE_HPP
 
 #include <fstream>
-#include <boost/detail/iomanip.hpp>
+#include <iomanip>
 
 #include <boost/foreach.hpp>
 #include <geometry_test_common.hpp>

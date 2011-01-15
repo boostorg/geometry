@@ -7,7 +7,7 @@
 
 #include <fstream>
 #include <iostream>
-#include <boost/detail/iomanip.hpp>
+#include <iomanip>
 
 #include <boost/foreach.hpp>
 
@@ -151,7 +151,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
 
                 out
 
-                    << boost::detail::setprecision(3)
+                    << std::setprecision(3)
                     << "dist: " << turn.operations[0].enriched.distance
                     << " / "  << turn.operations[1].enriched.distance
                     << std::endl;
