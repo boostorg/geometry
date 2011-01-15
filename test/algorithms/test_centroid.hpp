@@ -59,7 +59,7 @@ void test_with_other_calculation_type(Geometry const& geometry, Point& c1)
     bg::centroid(geometry, c2,
         bg::strategy::centroid::bashein_detmer<point_type, point_type, CalculationType>());
 
-    std::cout << typeid(CalculationType).name() << ": " << boost::detail::setprecision(20)
+    std::cout << typeid(CalculationType).name() << ": " << std::setprecision(20)
         << bg::get<0>(c2) << " " << bg::get<1>(c2)
         << " -> difference: " << bg::distance(c1, c2)
         << std::endl;
@@ -76,7 +76,7 @@ void test_centroid(std::string const& wkt, T const& x, T const& y, T const& z = 
     check_result<bg::dimension<Geometry>::type::value>::apply(c1, x, y, z);
 
 #ifdef REPORT_RESULTS
-    std::cout << "normal: " << boost::detail::setprecision(20) << bg::get<0>(c1) << " " << bg::get<1>(c1) << std::endl;
+    std::cout << "normal: " << std::setprecision(20) << bg::get<0>(c1) << " " << bg::get<1>(c1) << std::endl;
 
     //test_with_other_calculation_type<long long>(geometry, c1);
     test_with_other_calculation_type<float>(geometry, c1);

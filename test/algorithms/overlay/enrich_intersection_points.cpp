@@ -53,7 +53,7 @@ struct test_enrich_intersection_points
         bg::enrich_intersection_points(ips, true);
 
         std::ostringstream out;
-        out << boost::detail::setprecision(2);
+        out << std::setprecision(2);
 
         bool first = true;
         for (iterator it = boost::begin(ips); it != boost::end(ips); ++it, first = false)

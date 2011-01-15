@@ -201,7 +201,7 @@ void test_big_2d_with(AssignType const& x1, AssignType const& y1,
 
     /***
     std::cout << typeid(CalculationType).name()
-        << " " << std::fixed << boost::detail::setprecision(20) << d
+        << " " << std::fixed << std::setprecision(20) << d
         << std::endl << std::endl;
     ***/
 

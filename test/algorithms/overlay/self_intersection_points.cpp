@@ -7,7 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <iostream>
-#include <boost/detail/iomanip.hpp>
+#include <iomanip>
 #include <string>
 
 #include <geometry_test_common.hpp>
@@ -65,7 +65,7 @@ struct test_self_intersection_points
             x /= n;
             y /= n;
         }
-        /*std::cout << boost::detail::setprecision(8) << x << ", " << y << " "
+        /*std::cout << std::setprecision(8) << x << ", " << y << " "
             << expected_count_and_center.get<1>()
             << " " << expected_count_and_center.get<2>()
             << std::endl;

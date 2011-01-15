@@ -70,7 +70,7 @@ void test_forward(std::string const& name,
     P xy;
     prj->forward(ll, xy);
 
-    //std::cout << boost::detail::setprecision(16) << bg::get<0>(xy) << " " << bg::get<1>(xy) << std::endl;
+    //std::cout << std::setprecision(16) << bg::get<0>(xy) << " " << bg::get<1>(xy) << std::endl;
 
     check(bg::get<0>(xy), x, name, "x");
     check(bg::get<1>(xy), y, name, "y");
@@ -98,7 +98,7 @@ void test_inverse(std::string const& name,
     lonlat_type ll;
     prj->inverse(xy, ll);
 
-    //std::cout << boost::detail::setprecision(16) << bg::get<0>(ll) << " " << bg::get<1>(ll) << std::endl;
+    //std::cout << std::setprecision(16) << bg::get<0>(ll) << " " << bg::get<1>(ll) << std::endl;
 
     check(bg::get<0>(ll), lon, name, "lon");
     check(bg::get<1>(ll), lat, name, "lat");

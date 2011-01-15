@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_TEST_OVERLAY_P_Q_HPP
 
 #include <fstream>
-#include <boost/detail/iomanip.hpp>
+#include <iomanip>
 
 // #define BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
 
@@ -91,7 +91,7 @@ static bool test_overlay_p_q(std::string const& caseid,
             << " sum d: " << sum_d
 #endif
             << std::endl
-            << boost::detail::setprecision(20)
+            << std::setprecision(20)
             << " p: " << bg::wkt(p) << std::endl
             << " q: " << bg::wkt(q) << std::endl
             ;

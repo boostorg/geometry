@@ -15,7 +15,7 @@
 
 
 #include <iostream>
-#include <boost/detail/iomanip.hpp>
+#include <iomanip>
 #include <string>
 #include <fstream>
 
@@ -158,9 +158,9 @@ void test_traverse_gmp(std::string const& caseid)
 {
     typedef bg::model::polygon<P> polygon;
     std::cout << typeid(typename bg::coordinate_type<P>::type).name() << std::endl;
-    std::cout << boost::detail::setprecision(30) << std::numeric_limits<float>::epsilon() << std::endl;
-    std::cout << boost::detail::setprecision(30) << std::numeric_limits<double>::epsilon() << std::endl;
-    std::cout << boost::detail::setprecision(30) << std::numeric_limits<long double>::epsilon() << std::endl;
+    std::cout << std::setprecision(30) << std::numeric_limits<float>::epsilon() << std::endl;
+    std::cout << std::setprecision(30) << std::numeric_limits<double>::epsilon() << std::endl;
+    std::cout << std::setprecision(30) << std::numeric_limits<long double>::epsilon() << std::endl;
 
     static std::string brandon[3] =
         {
