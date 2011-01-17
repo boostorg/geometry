@@ -213,16 +213,8 @@ and Geographic as well.
 \param geometry \param_geometry
 \return \return_calc{area}
 
-\qbk{example,area}
-\qbk{example,area_output}
-\qbk{behavior,__0dim__:[qbk_ret 0]}
-\qbk{behavior,__1dim__:[qbk_ret 0]}
-\qbk{behavior,__2dim__:[qbk_ret the area]}
-\qbk{behavior,__cart__:[qbk_ret the area] __cs_units__}
-\qbk{behavior,__sph__:[qbk_ret the area] __sph1__}
-\qbk{behavior,__rev__:[qbk_ret the negative area]}
-\qbk{complexity,Linear}
-\qbk{compliance,__ogc__}
+\qbk{include,ref/algorithms/area.qbk}
+\qbk{include,ref/algorithms/area_example.qbk}
 */
 template <typename Geometry>
 inline typename area_result<Geometry>::type area(Geometry const& geometry)
@@ -255,8 +247,8 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 \return \return_calc{area}
 
 \qbk{distinguish,with strategy}
-\qbk{example,area_with_strategy}
-\qbk{example,area_with_strategy_output}
+\qbk{include,ref/algorithms/area.qbk}
+\qbk{include,ref/algorithms/area_example_with_strategy.qbk}
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(

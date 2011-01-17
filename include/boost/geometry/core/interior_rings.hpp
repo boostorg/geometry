@@ -167,11 +167,7 @@ inline typename interior_return_type<Polygon const>::type interior_rings(
 \param geometry \param_geometry
 \return \return_calc{number of interior rings}
 
-\qbk{behavior,__polygon__:[qbk_ret number of its interior rings]}
-\qbk{behavior,__multi_polygon__:[qbk_ret number of the interior rings of all polygons]}
-\qbk{behavior,__other__:[qbk_ret 0]}
-\qbk{compliance,__ogc__: numInteriorRing}
-\qbk{complexity,Constant}
+\qbk{include,ref/algorithms/num_interior_rings.qbk}
 
 \note Defined by OGC as "numInteriorRing". To be consistent with "numPoints"
     letter "s" is appended

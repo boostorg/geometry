@@ -44,18 +44,7 @@ Or
 
 `#include <boost/geometry/core/interior_rings.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__polygon__][[qbk_ret number of its interior rings]]]
-[[__multi_polygon__][[qbk_ret number of the interior rings of all polygons]]]
-[[__other__][[qbk_ret 0]]]
-]
-
-
-[heading Complexity]
-Constant
-
+[include ref/algorithms/num_interior_rings.qbk]
 
 [endsect]
 

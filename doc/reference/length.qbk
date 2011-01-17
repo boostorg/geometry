@@ -45,22 +45,8 @@ Or
 
 `#include <boost/geometry/algorithms/length.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__0dim__][[qbk_ret 0]]]
-[[__1dim__][[qbk_ret the length]]]
-[[__2dim__][[qbk_ret 0]]]
-]
-
-
-[heading Complexity]
-Linear
-
-[heading Examples]
-[length_with_strategy]
-[length_with_strategy_output]
-
+[include ref/algorithms/length.qbk]
+[include ref/algorithms/length_example_with_strategy.qbk]
 
 [endsect]
 
@@ -95,22 +81,8 @@ Or
 
 `#include <boost/geometry/algorithms/length.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__0dim__][[qbk_ret 0]]]
-[[__1dim__][[qbk_ret the length]]]
-[[__2dim__][[qbk_ret 0]]]
-]
-
-
-[heading Complexity]
-Linear
-
-[heading Examples]
-[length]
-[length_output]
-
+[include ref/algorithms/length.qbk]
+[include ref/algorithms/length_example.qbk]
 
 [endsect]
 

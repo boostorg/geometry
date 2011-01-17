@@ -45,25 +45,8 @@ Or
 
 `#include <boost/geometry/algorithms/area.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__0dim__][[qbk_ret 0]]]
-[[__1dim__][[qbk_ret 0]]]
-[[__2dim__][[qbk_ret the area]]]
-[[__cart__][[qbk_ret the area] __cs_units__]]
-[[__sph__][[qbk_ret the area] __sph1__]]
-[[__rev__][[qbk_ret the negative area]]]
-]
-
-
-[heading Complexity]
-Linear
-
-[heading Examples]
-[area_with_strategy]
-[area_with_strategy_output]
-
+[include ref/algorithms/area.qbk]
+[include ref/algorithms/area_example_with_strategy.qbk]
 
 [endsect]
 
@@ -102,25 +85,8 @@ Or
 
 `#include <boost/geometry/algorithms/area.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__0dim__][[qbk_ret 0]]]
-[[__1dim__][[qbk_ret 0]]]
-[[__2dim__][[qbk_ret the area]]]
-[[__cart__][[qbk_ret the area] __cs_units__]]
-[[__sph__][[qbk_ret the area] __sph1__]]
-[[__rev__][[qbk_ret the negative area]]]
-]
-
-
-[heading Complexity]
-Linear
-
-[heading Examples]
-[area]
-[area_output]
-
+[include ref/algorithms/area.qbk]
+[include ref/algorithms/area_example.qbk]
 
 [endsect]
 

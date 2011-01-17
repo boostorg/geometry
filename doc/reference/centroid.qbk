@@ -42,19 +42,7 @@ Or
 
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__0dim__][Calculates centroid]]
-[[__1dim__][Calculates centroid]]
-[[__2dim__][Calculates centroid]]
-[[__empty__][Throws a centroid_exception]]
-]
-
-
-[heading Complexity]
-Linear
-
+[include ref/algorithms/centroid.qbk]
 
 [endsect]
 
@@ -88,6 +76,7 @@ Or
 
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
+[include ref/algorithms/centroid.qbk]
 
 [endsect]
 
@@ -124,6 +113,7 @@ Or
 
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
+[include ref/algorithms/centroid.qbk]
 
 [endsect]
 
@@ -148,7 +138,7 @@ Point make_centroid (Geometry const &geometry)``
 
 
 [heading Returns]
-The calculated centroid 
+The calculated centroid  
 
 [heading Header]
 Either

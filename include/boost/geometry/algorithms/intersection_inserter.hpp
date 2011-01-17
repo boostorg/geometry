@@ -238,7 +238,7 @@ template
     typename Linestring, typename Box,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    overlay_type OverlayType, 
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -248,7 +248,7 @@ struct intersection_inserter
         Linestring, Box,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
-        OverlayType, 
+        OverlayType,
         Strategy
     >
 {
@@ -267,7 +267,7 @@ template
     typename Segment, typename Box,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    overlay_type OverlayType, 
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter
@@ -277,7 +277,7 @@ struct intersection_inserter
         Segment, Box,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
-        OverlayType, 
+        OverlayType,
         Strategy
     >
 {
@@ -302,7 +302,7 @@ template
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    overlay_type OverlayType, 
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_inserter_reversed
@@ -318,7 +318,7 @@ struct intersection_inserter_reversed
                 Geometry2, Geometry1,
                 Reverse2, Reverse1, ReverseOut,
                 OutputIterator, GeometryOut,
-                OverlayType, 
+                OverlayType,
                 Strategy
             >::apply(g2, g1, out, strategy);
     }
@@ -339,7 +339,7 @@ template
 <
     typename GeometryOut,
     bool Reverse1, bool Reverse2, bool ReverseOut,
-    overlay_type OverlayType, 
+    overlay_type OverlayType,
     typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename Strategy
@@ -408,9 +408,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
 \return \return_out
 
 \qbk{distinguish,with strategy}
-\qbk{behavior,[qbk_out __point__]:Calculates intersection points of input geometries}
-\qbk{behavior,[qbk_out __linestring__]:Calculates intersection linestrings of input geometries (NYI)}
-\qbk{behavior,[qbk_out __polygon__]:Calculates intersection polygons input (multi)polygons and/or boxes}
+\qbk{include,ref/algorithms/intersection.qbk}
 */
 template
 <
@@ -446,7 +444,7 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 \param out \param_out{intersection}
 \return \return_out
 
-\qbk{example,intersection_segment_inserter}
+\qbk{include,ref/algorithms/intersection.qbk}
 */
 template
 <

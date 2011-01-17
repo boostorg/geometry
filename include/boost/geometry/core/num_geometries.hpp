@@ -50,10 +50,7 @@ struct num_geometries
 \param geometry \param_geometry
 \return \return_calc{number of geometries}
 
-\qbk{behavior,__single__:[qbk_ret 1]}
-\qbk{behavior,__multi__:Returns boost::size(geometry); the input is considered as a range}
-\qbk{compliance,__ogc__}
-\qbk{complexity,Constant}
+\qbk{include,ref/algorithms/num_geometries.qbk}
 */
 template <typename Geometry>
 inline std::size_t num_geometries(Geometry const& geometry)

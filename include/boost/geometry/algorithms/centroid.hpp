@@ -358,6 +358,7 @@ struct centroid<polygon_tag, Polygon, Point, Strategy>
 \param strategy \param_strategy{centroid}
 
 \qbk{distinguish,with strategy}
+\qbk{include,ref/algorithms/centroid.qbk}
 */
 template<typename Geometry, typename Point, typename Strategy>
 inline void centroid(Geometry const& geometry, Point& c,
@@ -390,12 +391,7 @@ inline void centroid(Geometry const& geometry, Point& c,
 \param geometry \param_geometry
 \param c the calculated centroid will be assigned to this point reference
 
-\qbk{behavior,__0dim__:Calculates centroid}
-\qbk{behavior,__1dim__:Calculates centroid}
-\qbk{behavior,__2dim__:Calculates centroid}
-\qbk{behavior,__empty__:Throws a centroid_exception}
-\qbk{complexity,Linear}
-\qbk{compliance,__ogc__}
+\qbk{include,ref/algorithms/centroid.qbk}
  */
 template<typename Geometry, typename Point>
 inline void centroid(Geometry const& geometry, Point& c)
@@ -423,6 +419,7 @@ inline void centroid(Geometry const& geometry, Point& c)
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \return \return_calc{centroid}
+\qbk{include,ref/algorithms/centroid.qbk}
  */
 template<typename Point, typename Geometry>
 inline Point make_centroid(Geometry const& geometry)
@@ -446,6 +443,7 @@ inline Point make_centroid(Geometry const& geometry)
 \return \return_calc{centroid}
 
 \qbk{distinguish,with strategy}
+\qbk{include,ref/algorithms/centroid.qbk}
  */
 template<typename Point, typename Geometry, typename Strategy>
 inline Point make_centroid(Geometry const& geometry, Strategy const& strategy)

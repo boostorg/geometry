@@ -179,17 +179,14 @@ struct intersection_reversed
 \details \details_calc2{intersection, spatial set theoretic intersection}.
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\tparam Collection Collection of geometries (e.g. std::vector, std::deque, boost::geometry::multi*) of which
-    the value_type (below referred to as 'GeometryOut') fulfills a \p_l_or_c concept.
+\tparam GeometryOut Collection of geometries (e.g. std::vector, std::deque, boost::geometry::multi*) of which
+    the value_type fulfills a \p_l_or_c concept, or it is the output geometry (e.g. for a box)
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param geometry_out The output geometry, either a multi_point, multi_polygon,
     multi_linestring, or a box (for intersection of two boxes)
 
-\qbk{example,intersection_ls_ls_point}
-\qbk{example,intersection_ls_ls_point_output}
-\qbk{example,intersection_segment}
-\qbk{example,intersection_segment_output}
+\qbk{include,ref/algorithms/intersection.qbk}
 */
 template
 <
