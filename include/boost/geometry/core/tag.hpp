@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_CORE_TAG_HPP
 #define BOOST_GEOMETRY_CORE_TAG_HPP
 
+#include <boost/mpl/assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/tags.hpp>
@@ -34,7 +35,10 @@ namespace traits
 template <typename Geometry>
 struct tag
 {
-    typedef geometry_not_recognized_tag type;
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Geometry>)
+        );
 };
 
 } // namespace traits

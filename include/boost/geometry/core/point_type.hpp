@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_CORE_POINT_TYPE_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
@@ -32,9 +33,14 @@ namespace traits
         - typedef P type (where P should fulfil the Point concept)
     \tparam G geometry
 */
-template <typename G>
+template <typename Geometry>
 struct point_type
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Geometry>)
+        );
+};
 
 
 } // namespace traits
