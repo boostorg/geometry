@@ -90,9 +90,6 @@ Or
 
 `#include <boost/geometry/geometries/point.hpp>`
 
-[heading Examples]
-[point]
-[point_output]
-
+[include ref/geometries/point.qbk]
 [endsect]
 

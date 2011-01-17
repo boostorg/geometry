@@ -40,10 +40,7 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[heading Examples]
-[simplify]
-[simplify_output]
-
+[include ref/algorithms/simplify.qbk]
 
 [endsect]
 
@@ -75,8 +72,6 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[heading Image(s)]
-[$svg_simplify_country.png]
 
 [endsect]
 
@@ -107,10 +102,7 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[heading Examples]
-[simplify_inserter]
-[simplify_inserter_output]
-
+[include ref/algorithms/simplify_inserter.qbk]
 
 [endsect]
 
@@ -142,6 +134,7 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
+[include ref/algorithms/simplify.qbk]
 
 [endsect]
 

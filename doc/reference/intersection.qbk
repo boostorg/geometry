@@ -21,17 +21,16 @@ Calculate the intersection of two geometries.
 The free function intersection calculates the spatial set theoretic intersection of two geometries. 
 
 [heading Synopsis]
-``template<typename Geometry1, typename Geometry2, typename GeometryOut, >
+``template<typename Geometry1, typename Geometry2, typename GeometryOut>
 bool intersection (Geometry1 const &geometry1, Geometry2 const &geometry2, GeometryOut &geometry_out)``
 
 [heading Parameters]
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Collection] [Collection of geometries (e.g. std::vector, std::deque, boost::geometry::multi*) of which the value_type (below referred to as 'GeometryOut') fulfills a Point, LineString or Polygon concept. ] [ - ] [Must be specified]]
 [[Geometry1 const &] [Any type fulfilling a Geometry Concept ] [geometry1] [A model of the specified concept ]]
 [[Geometry2 const &] [Any type fulfilling a Geometry Concept ] [geometry2] [A model of the specified concept ]]
-[[GeometryOut &] [] [geometry_out] [The output geometry, either a multi_point, multi_polygon, multi_linestring, or a box (for intersection of two boxes)]]
+[[GeometryOut &] [Collection of geometries (e.g. std::vector, std::deque, boost::geometry::multi*) of which the value_type fulfills a Point, LineString or Polygon concept, or it is the output geometry (e.g. for a box) ] [geometry_out] [The output geometry, either a multi_point, multi_polygon, multi_linestring, or a box (for intersection of two boxes)]]
 ]
 
 
@@ -44,21 +43,7 @@ Or
 
 `#include <boost/geometry/algorithms/intersection.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[[qbk_out __point__]][Calculates intersection points of input geometries]]
-[[[qbk_out __linestring__]][Calculates intersection linestrings of input geometries (NYI)]]
-[[[qbk_out __polygon__]][Calculates intersection polygons input (multi)polygons and/or boxes]]
-]
-
-
-[heading Examples]
-[intersection_ls_ls_point]
-[intersection_ls_ls_point_output]
-[intersection_segment]
-[intersection_segment_output]
-
+[include ref/algorithms/intersection.qbk]
 
 [endsect]
 
@@ -90,18 +75,7 @@ The output iterator
 [heading Header]
 `#include <boost/geometry/algorithms/intersection_inserter.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[[qbk_out __point__]][Calculates intersection points of input geometries]]
-[[[qbk_out __linestring__]][Calculates intersection linestrings of input geometries (NYI)]]
-[[[qbk_out __polygon__]][Calculates intersection polygons input (multi)polygons and/or boxes]]
-]
-
-
-[heading Examples]
-[intersection_segment_inserter]
-
+[include ref/algorithms/intersection.qbk]
 
 [endsect]
 
@@ -134,15 +108,7 @@ The output iterator
 [heading Header]
 `#include <boost/geometry/algorithms/intersection_inserter.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[[qbk_out __point__]][Calculates intersection points of input geometries]]
-[[[qbk_out __linestring__]][Calculates intersection linestrings of input geometries (NYI)]]
-[[[qbk_out __polygon__]][Calculates intersection polygons input (multi)polygons and/or boxes]]
-]
-
-
+[include ref/algorithms/intersection.qbk]
 
 [endsect]
 

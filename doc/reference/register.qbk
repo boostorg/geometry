@@ -38,12 +38,7 @@ The macro BOOST_GEOMETRY_REGISTER_POINT_2D registers a two-dimensional point typ
 [heading Header]
 `#include <boost/geometry/geometries/register/point.hpp>`
 
-[caution Use the macro outside any namespace]
-[note A point can include a namespace]
-[heading Examples]
-[register_point_2d]
-[register_point_2d_output]
-
+[include ref/geometries/register/point.qbk]
 
 [endsect]
 

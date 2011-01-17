@@ -60,10 +60,7 @@
 \param Field0 \param_macro_member{\macro_x}
 \param Field1 \param_macro_member{\macro_y}
 
-\qbk{example, register_point_2d}
-\qbk{example, register_point_2d_output}
-\qbk{admonition, [caution Use the macro outside any namespace]}
-\qbk{admonition, [note A point can include a namespace]}
+\qbk{include,ref/geometries/register/point.qbk}
 */
 #define BOOST_GEOMETRY_REGISTER_POINT_2D(Point, CoordinateType, CoordinateSystem, Field0, Field1) \
 namespace boost { namespace geometry { namespace traits {  \

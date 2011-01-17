@@ -44,17 +44,7 @@ Or
 
 `#include <boost/geometry/core/num_geometries.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__single__][[qbk_ret 1]]]
-[[__multi__][Returns boost::size(geometry); the input is considered as a range]]
-]
-
-
-[heading Complexity]
-Constant
-
+[include ref/algorithms/num_geometries.qbk]
 
 [endsect]
 

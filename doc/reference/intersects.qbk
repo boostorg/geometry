@@ -42,10 +42,7 @@ Or
 
 `#include <boost/geometry/algorithms/intersects.hpp>`
 
-[heading Examples]
-[intersects_linestring]
-[intersects_linestring_output]
-
+[include ref/algorithms/intersects.qbk]
 
 [endsect]
 
@@ -77,6 +74,7 @@ Or
 
 `#include <boost/geometry/algorithms/intersects.hpp>`
 
+[include ref/algorithms/intersects.qbk]
 
 [endsect]
 

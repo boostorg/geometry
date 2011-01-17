@@ -44,13 +44,7 @@ Or
 
 `#include <boost/geometry/algorithms/buffer.hpp>`
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__box__/__box__][Returns a new rectangular box, enlarged with the specified distance. It is allowed that "geometry_out" the same object as "geometry_in"]]
-]
-
-
+[include ref/algorithms/buffer.qbk]
 
 [endsect]
 
