@@ -36,10 +36,7 @@ namespace traits
 template <typename Geometry, typename Enable = void>
 struct tag
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Geometry>)
-        );
+    typedef void type;
 };
 
 } // namespace traits
