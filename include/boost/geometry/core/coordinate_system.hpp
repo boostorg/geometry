@@ -6,7 +6,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
 #ifndef BOOST_GEOMETRY_CORE_COORDINATE_SYSTEM_HPP
 #define BOOST_GEOMETRY_CORE_COORDINATE_SYSTEM_HPP
 
@@ -24,14 +23,14 @@ namespace traits
 {
 
 /*!
-    \brief Traits class defining the coordinate system of a point, important for strategy selection
-    \ingroup traits
-    \par Geometries:
-        - point
-    \par Specializations should provide:
-        - typedef CS type; (cs::cartesian, cs::spherical, etc)
+\brief Traits class defining the coordinate system of a point, important for strategy selection
+\ingroup traits
+\par Geometries:
+    - point
+\par Specializations should provide:
+    - typedef CS type; (cs::cartesian, cs::spherical, etc)
 */
-template <typename Point>
+template <typename Point, typename Enable = void>
 struct coordinate_system
 {
     BOOST_MPL_ASSERT_MSG

@@ -31,7 +31,7 @@ exe c06_custom_polygon_example : c06_custom_polygon_example.cpp  ;
 exe c07_custom_ring_pointer_example : c07_custom_ring_pointer_example.cpp ;
 
 # exe c08_custom_non_std_example : c08_custom_non_std_example.cpp ;
-# c09 is not yet finished
+exe c09_custom_fusion_example : c09_custom_fusion_example.cpp ;
 
 exe c10_custom_cs_example : c10_custom_cs_example.cpp ;
 exe c11_custom_cs_transform_example : c11_custom_cs_transform_example.cpp ;

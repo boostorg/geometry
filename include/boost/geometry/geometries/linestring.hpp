@@ -28,11 +28,11 @@ namespace model
 {
 
 /*!
-    \brief A linestring (named so by OGC) is a collection (default a vector) of points.
+    \brief Allocator linestring (named so by OGC) is a collection (default a vector) of points.
     \ingroup geometries
-    \tparam P point type
-    \tparam V optional container type, for example std::vector, std::list, std::deque
-    \tparam A optional container-allocator-type
+    \tparam Point point type
+    \tparam Container optional container type, for example std::vector, std::list, std::deque
+    \tparam Allocator optional container-allocator-type
     (see http://accu.org/index.php/journals/427#ftn.d0e249 )
     \par Concepts:
     All algorithms work on ranges, based on a container with point types fulfilling
@@ -40,13 +40,25 @@ namespace model
 */
 template
 <
-    typename P,
-    template<typename,typename> class V = std::vector,
-    template<typename> class A = std::allocator
+    typename Point,
+    template<typename,typename> class Container = std::vector,
+    template<typename> class Allocator = std::allocator
 >
-class linestring : public V<P, A<P> >
+class linestring : public Container<Point, Allocator<Point> >
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<P>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
+
+    typedef Container<Point, Allocator<Point> > base_type;
+
+public :
+    inline linestring()
+        : base_type()
+    {}
+
+    template <typename Iterator>
+    inline linestring(Iterator begin, Iterator end)
+        : base_type(begin, end)
+    {}
 };
 
 } // namespace model
@@ -57,11 +69,11 @@ namespace traits
 
 template
 <
-    typename P,
-    template<typename,typename> class V,
-    template<typename> class A
+    typename Point,
+    template<typename,typename> class Container,
+    template<typename> class Allocator
 >
-struct tag<model::linestring<P, V, A> >
+struct tag<model::linestring<Point, Container, Allocator> >
 {
     typedef linestring_tag type;
 };

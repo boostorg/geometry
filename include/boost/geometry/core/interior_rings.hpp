@@ -6,7 +6,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
 #ifndef BOOST_GEOMETRY_CORE_INTERIOR_RINGS_HPP
 #define BOOST_GEOMETRY_CORE_INTERIOR_RINGS_HPP
 

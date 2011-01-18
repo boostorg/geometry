@@ -9,8 +9,10 @@
 #ifndef BOOST_GEOMETRY_CORE_COORDINATE_DIMENSION_HPP
 #define BOOST_GEOMETRY_CORE_COORDINATE_DIMENSION_HPP
 
+
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
@@ -25,15 +27,21 @@ namespace traits
 {
 
 /*!
-    \brief Traits class indicating the number of dimensions of a point
-    \par Geometries:
-        - point
-    \par Specializations should provide:
-        - value (should be derived from boost::mpl::int_<D>
-    \ingroup traits
+\brief Traits class indicating the number of dimensions of a point
+\par Geometries:
+    - point
+\par Specializations should provide:
+    - value (should be derived from boost::mpl::int_<D>
+\ingroup traits
 */
-template <typename P>
-struct dimension {};
+template <typename Point, typename Enable = void>
+struct dimension
+{
+   BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Point>)
+        );
+};
 
 } // namespace traits
 
