@@ -8,6 +8,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_REMOVE_SPIKES_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_REMOVE_SPIKES_HPP
 
+// NOTE: obsolete by "mark_spikes"
+
 #include <algorithm>
 #include <deque>
 
@@ -260,7 +262,7 @@ struct remove_elongated_spikes
         coordinate_type d1 = geometry::distance(prev, current);
         if (d1 < m_distance_limit)
         {
-            geometry::linear_ring<Point> triangle;
+            geometry::model::linear_ring<Point> triangle;
             triangle.push_back(prev);
             triangle.push_back(current);
             triangle.push_back(next);
