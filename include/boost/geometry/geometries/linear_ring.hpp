@@ -44,6 +44,18 @@ template
 class linear_ring : public Container<Point, Allocator<Point> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
+
+    typedef Container<Point, Allocator<Point> > base_type;
+
+public :
+    inline linear_ring()
+        : base_type()
+    {}
+
+    template <typename Iterator>
+    inline linear_ring(Iterator begin, Iterator end)
+        : base_type(begin, end)
+    {}
 };
 
 } // namespace model

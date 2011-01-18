@@ -24,15 +24,15 @@ namespace traits
 {
 
 /*!
-    \brief Traits class which indicate the coordinate type (double,float,...) of a point
-    \ingroup traits
-    \par Geometries:
-        - point
-    \par Specializations should provide:
-        - typedef T type; (double,float,int,etc)
+\brief Traits class which indicate the coordinate type (double,float,...) of a point
+\ingroup traits
+\par Geometries:
+    - point
+\par Specializations should provide:
+    - typedef T type; (double,float,int,etc)
 */
-template <typename Point>
-struct coordinate_type 
+template <typename Point, typename Enable = void>
+struct coordinate_type
 {
     BOOST_MPL_ASSERT_MSG
         (

@@ -12,6 +12,7 @@
 
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/concept_check.hpp>
 
@@ -41,8 +42,14 @@ namespace traits
 ///     @li static inline void set(G&, T const&)
 /// @tparam Geometry geometry-type
 /// @tparam Dimension dimension to access
-template <typename Geometry, std::size_t Dimension>
-struct access {};
+template <typename Geometry, std::size_t Dimension, typename Enable = void>
+struct access
+{
+   BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Geometry>)
+        );
+};
 
 
 /*!

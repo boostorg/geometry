@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_CORE_TAG_HPP
 #define BOOST_GEOMETRY_CORE_TAG_HPP
 
+
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
@@ -32,7 +33,7 @@ namespace traits
         - typedef XXX_tag type; (point_tag, box_tag, ...)
     \tparam Geometry geometry
 */
-template <typename Geometry>
+template <typename Geometry, typename Enable = void>
 struct tag
 {
     BOOST_MPL_ASSERT_MSG

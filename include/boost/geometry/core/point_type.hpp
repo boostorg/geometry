@@ -25,13 +25,13 @@ namespace traits
 {
 
 /*!
-    \brief Traits class indicating the type of contained points
-    \ingroup traits
-    \par Geometries:
-        - all geometries except point
-    \par Specializations should provide:
-        - typedef P type (where P should fulfil the Point concept)
-    \tparam G geometry
+\brief Traits class indicating the type of contained points
+\ingroup traits
+\par Geometries:
+    - all geometries except point
+\par Specializations should provide:
+    - typedef P type (where P should fulfil the Point concept)
+\tparam Geometry geometry
 */
 template <typename Geometry>
 struct point_type
