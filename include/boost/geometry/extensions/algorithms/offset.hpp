@@ -38,7 +38,7 @@ struct offset_range
 {
     typedef typename coordinate_type<RangeOut>::type coordinate_type;
     typedef typename point_type<RangeOut>::type output_point_type;
-    typedef segment<output_point_type const> segment_type;
+    typedef model::referring_segment<output_point_type const> segment_type;
     typedef typename boost::range_iterator<Range const>::type iterator_type;
 
     static inline void apply(Range const& range, 
