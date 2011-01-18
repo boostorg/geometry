@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="remove_spikes"
-	ProjectGUID="{3EA21C81-DE4A-410D-AABE-CDC5091DAB6E}"
-	RootNamespace="remove_spikes"
+	Name="mark_spikes"
+	ProjectGUID="{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}"
+	RootNamespace="mark_spikes"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\remove_spikes"
+			IntermediateDirectory="$(ConfigurationName)\mark_spikes"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\boost.vsprops"
 			CharacterSet="1"
@@ -91,7 +91,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\remove_spikes"
+			IntermediateDirectory="$(ConfigurationName)\mark_spikes"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\boost.vsprops"
 			CharacterSet="1"
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\remove_spikes.cpp"
+			RelativePath=".\mark_spikes.cpp"
 			>
 		</File>
 	</Files>

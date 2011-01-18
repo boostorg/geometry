@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "remove_holes_if", "remove_holes_if.vcproj", "{A7E79D37-594F-4337-B748-DB40FAEF7505}"
@@ -7,11 +6,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "midpoints", "midpoints.vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "selected", "selected.vcproj", "{22DD12E5-4AAD-4066-9C4F-4C360F7759AA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "remove_spikes", "remove_spikes.vcproj", "{3EA21C81-DE4A-410D-AABE-CDC5091DAB6E}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "connect", "connect.vcproj", "{D502500F-AF66-4F24-8735-09DF8A7DF6AA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "offset", "offset.vcproj", "{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mark_spikes", "mark_spikes.vcproj", "{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +30,6 @@ Global
 		{22DD12E5-4AAD-4066-9C4F-4C360F7759AA}.Debug|Win32.Build.0 = Debug|Win32
 		{22DD12E5-4AAD-4066-9C4F-4C360F7759AA}.Release|Win32.ActiveCfg = Release|Win32
 		{22DD12E5-4AAD-4066-9C4F-4C360F7759AA}.Release|Win32.Build.0 = Release|Win32
-		{3EA21C81-DE4A-410D-AABE-CDC5091DAB6E}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3EA21C81-DE4A-410D-AABE-CDC5091DAB6E}.Debug|Win32.Build.0 = Debug|Win32
-		{3EA21C81-DE4A-410D-AABE-CDC5091DAB6E}.Release|Win32.ActiveCfg = Release|Win32
-		{3EA21C81-DE4A-410D-AABE-CDC5091DAB6E}.Release|Win32.Build.0 = Release|Win32
 		{D502500F-AF66-4F24-8735-09DF8A7DF6AA}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D502500F-AF66-4F24-8735-09DF8A7DF6AA}.Debug|Win32.Build.0 = Debug|Win32
 		{D502500F-AF66-4F24-8735-09DF8A7DF6AA}.Release|Win32.ActiveCfg = Release|Win32
@@ -43,6 +38,10 @@ Global
 		{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}.Debug|Win32.Build.0 = Debug|Win32
 		{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}.Release|Win32.ActiveCfg = Release|Win32
 		{E9260F9F-41D3-4FD0-8DE6-95EE372F5391}.Release|Win32.Build.0 = Release|Win32
+		{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}.Debug|Win32.Build.0 = Debug|Win32
+		{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}.Release|Win32.ActiveCfg = Release|Win32
+		{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
