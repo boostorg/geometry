@@ -34,7 +34,7 @@ namespace model
 \tparam DimensionCount number of coordinates, usually 2 or 3
 \tparam CoordinateSystem coordinate system, for example cs::cartesian
 
-\qbk{include,ref/geometries/point.qbk}
+\qbk{[include ref/geometries/point.qbk]}
 
 
 \details Defines a neutral point class, fulfilling the Point Concept.

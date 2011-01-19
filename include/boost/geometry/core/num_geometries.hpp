@@ -50,7 +50,7 @@ struct num_geometries
 \param geometry \param_geometry
 \return \return_calc{number of geometries}
 
-\qbk{include,ref/algorithms/num_geometries.qbk}
+\qbk{[include ref/algorithms/num_geometries.qbk]}
 */
 template <typename Geometry>
 inline std::size_t num_geometries(Geometry const& geometry)

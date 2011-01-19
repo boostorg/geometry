@@ -213,8 +213,8 @@ and Geographic as well.
 \param geometry \param_geometry
 \return \return_calc{area}
 
-\qbk{include,ref/algorithms/area.qbk}
-\qbk{include,ref/algorithms/area_example.qbk}
+\qbk{[include ref/algorithms/area.qbk]}
+\qbk{[area] [area_output]}
 */
 template <typename Geometry>
 inline typename area_result<Geometry>::type area(Geometry const& geometry)
@@ -247,8 +247,8 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 \return \return_calc{area}
 
 \qbk{distinguish,with strategy}
-\qbk{include,ref/algorithms/area.qbk}
-\qbk{include,ref/algorithms/area_example_with_strategy.qbk}
+\qbk{[include ref/algorithms/area.qbk]}
+\qbk{[area_with_strategy] [area_with_strategy_output]}
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(

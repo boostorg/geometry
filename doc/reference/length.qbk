@@ -46,7 +46,7 @@ Or
 `#include <boost/geometry/algorithms/length.hpp>`
 
 [include ref/algorithms/length.qbk]
-[include ref/algorithms/length_example_with_strategy.qbk]
+[length_with_strategy] [length_with_strategy_output]
 
 [endsect]
 
@@ -82,7 +82,7 @@ Or
 `#include <boost/geometry/algorithms/length.hpp>`
 
 [include ref/algorithms/length.qbk]
-[include ref/algorithms/length_example.qbk]
+[length] [length_output]
 
 [endsect]
 

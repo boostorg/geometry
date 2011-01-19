@@ -106,7 +106,7 @@ struct buffer<box_tag, box_tag, BoxIn, T, BoxOut>
 \param chord_length (optional) The length of the chord's in the generated arcs around points or bends
 \note Currently only implemented for box, the trivial case, but still useful
 
-\qbk{include,ref/algorithms/buffer.qbk}
+\qbk{[include ref/algorithms/buffer.qbk]}
  */
 template <typename Input, typename Output, typename Distance>
 inline void buffer(Input const& geometry_in, Output& geometry_out,
