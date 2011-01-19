@@ -35,6 +35,7 @@
 
 #include <file_to_string.hpp>
 
+
 // -------------------------------------------------------------
 // rapid xml convenience code
 // -------------------------------------------------------------
@@ -107,6 +108,17 @@ struct param
     std::string fulltype; // post-processed
 };
 
+struct markup
+{
+    int code;
+    std::string value;
+
+    markup(int c = 0, std::string const& v = "") 
+        : code(c), value(v)
+    {}
+
+};
+
 // Basic element, base of a class/struct, function, define
 struct element
 {
@@ -116,8 +128,8 @@ struct element
     int line; // To sort - Doxygen changes order - we change it back
 
     // QBK-includes
-    // Filled with e.g.: \qbk(include, reference/myqbk.qbk}
-    std::vector<std::string> includes; 
+    // Filled with e.g.: \qbk([include reference/myqbk.qbk]}
+    std::vector<markup> qbk_markup; 
 
     // To distinguish overloads: unary, binary etc,
     // Filled with: \qbk{distinguish,<A discerning description>}
@@ -352,9 +364,13 @@ static void parse_element(rapidxml::xml_node<>* node, std::string const& parent,
             el.location = loc;
             el.line = atol(get_attribute(node, "line").c_str());
         }
+        else if (full == ".detaileddescription.para.qbk")
+        {
+            el.qbk_markup.push_back(markup(0, boost::trim_copy(std::string(node->value()))));
+        }
         else if (full == ".detaileddescription.para.qbk.include")
         {
-            el.includes.push_back(boost::trim_copy(std::string(node->value())));
+            el.qbk_markup.push_back(markup(1, boost::trim_copy(std::string(node->value()))));
         }
         else if (full == ".detaileddescription.para.qbk.distinguish")
         {
@@ -643,11 +659,20 @@ void quickbook_header(std::string const& location,
 }
 
 
-void quickbook_includes(std::vector<std::string> const& includes, std::ostream& out)
+void quickbook_markup(std::vector<markup> const& qbk_markup, std::ostream& out)
 {
-    BOOST_FOREACH(std::string const& inc, includes)
+    BOOST_FOREACH(markup const& inc, qbk_markup)
     {
-        out << "[include " << inc << "]" << std::endl;
+        switch(inc.code)
+        {
+          case 0 :  
+              // Verbatim
+              out << inc.value << std::endl;
+              break;
+          case 1 :  
+              out << "[include " << inc.value << "]" << std::endl;
+              break;
+        }
     }
 }
 
@@ -756,7 +781,7 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
 
     quickbook_header(f.location, config, out);
 
-    quickbook_includes(f.includes, out);
+    quickbook_markup(f.qbk_markup, out);
 
     out << std::endl;
     out << "[endsect]" << std::endl;
@@ -869,7 +894,7 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
 
     quickbook_header(cos.location, config, out);
     //quickbook_examples(cos.examples, out);
-    quickbook_includes(cos.includes, out);
+    quickbook_markup(cos.qbk_markup, out);
 
     out << "[endsect]" << std::endl
         << std::endl;

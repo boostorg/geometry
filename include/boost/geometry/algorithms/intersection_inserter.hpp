@@ -408,7 +408,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
 \return \return_out
 
 \qbk{distinguish,with strategy}
-\qbk{include,ref/algorithms/intersection.qbk}
+\qbk{[include ref/algorithms/intersection.qbk]}
 */
 template
 <
@@ -444,7 +444,7 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 \param out \param_out{intersection}
 \return \return_out
 
-\qbk{include,ref/algorithms/intersection.qbk}
+\qbk{[include ref/algorithms/intersection.qbk]}
 */
 template
 <
