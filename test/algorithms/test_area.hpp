@@ -36,14 +36,14 @@ void test_area(Geometry const& geometry, long double expected_area)
     BOOST_CHECK_CLOSE(area, expected_area, 0.0001);
 
     // Test with explicitly defined strategies
-    bg::strategy::area::by_triangles
+    bg::strategy::area::surveyor
         <
             typename bg::point_type<Geometry>::type
         > strategy1;
 
     area = bg::area(geometry, strategy1);
 
-    bg::strategy::area::by_triangles
+    bg::strategy::area::surveyor
         <
             typename bg::point_type<Geometry>::type,
             long double

@@ -214,6 +214,7 @@ and Geographic as well.
 \return \return_calc{area}
 
 \qbk{[include ref/algorithms/area.qbk]}
+\qbk{[heading Examples]}
 \qbk{[area] [area_output]}
 */
 template <typename Geometry>
@@ -247,8 +248,19 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 \return \return_calc{area}
 
 \qbk{distinguish,with strategy}
-\qbk{[include ref/algorithms/area.qbk]}
-\qbk{[area_with_strategy] [area_with_strategy_output]}
+
+\qbk_begin
+[include ref/algorithms/area.qbk]
+
+[heading Example]
+[area_with_strategy]
+[area_with_strategy_output]
+
+[heading Available strategies]
+\* [link geometry.reference.strategies.strategy_area_surveyor Surveyor (cartesian)]
+\* [link geometry.reference.strategies.strategy_area_huiller Huiller (spherical)]
+
+\qbk_end
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(

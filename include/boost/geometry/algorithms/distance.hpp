@@ -466,7 +466,7 @@ struct distance_reversed
 
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\tparam Strategy \tparam_strategy{distance}
+\tparam Strategy \tparam_strategy{Distance}
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param strategy \param_strategy{distance}
@@ -476,12 +476,15 @@ struct distance_reversed
 
 \qbk{distinguish,with strategy}
 
-\par Example:
-Example showing distance calculation of two lat long points, using the accurate Vincenty approximation
-\dontinclude doxygen_1.cpp
-\skip example_distance_point_point_strategy
-\line {
-\until }
+\qbk_begin
+
+[heading Available strategies]
+\* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
+\* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
+\* [link geometry.reference.strategies.strategy_distance_cross_track Cross track (spherical, point-to-segment)]
+\* [link geometry.reference.strategies.strategy_distance_projected_point Projected point (cartesian, point-to-segment)]
+\qbk_end
+
  */
 
 /*
