@@ -29,7 +29,8 @@ namespace strategy { namespace area
 /*!
 \brief Area calculation by spherical excess / Huiller's formula
 \ingroup strategies
-\tparam P type of points of rings/polygons
+\tparam PointOfSegment point type of segments of rings/polygons
+\tparam CalculationType \tparam_calculation
 \author Barend Gehrels. Adapted from:
 - http://www.soe.ucsc.edu/~pang/160/f98/Gems/GemsIV/sph_poly.c
 - http://williams.best.vwh.net/avform.htm
@@ -43,6 +44,18 @@ polygons correctly.
 http://trs-new.jpl.nasa.gov/dspace/bitstream/2014/40409/1/07-03.pdf, is simple
 and works well in most cases but not in 180 meridian crossing cases. This probably
 could be solved.
+
+\qbk_begin
+
+[heading Example]
+[area_with_strategy]
+[area_with_strategy_output]
+
+
+[heading See also]
+[link geometry.reference.algorithms.area.area_2_with_strategy area]
+\qbk_end
+
 */
 template
 <

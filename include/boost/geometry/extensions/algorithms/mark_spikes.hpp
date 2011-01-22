@@ -20,7 +20,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
-#include <boost/geometry/strategies/cartesian/area_by_triangles.hpp>
+#include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
@@ -174,7 +174,7 @@ struct range_mark_spikes
             point_type
         >::type distance_strategy_type;
 
-    static inline void apply(Range const& range, ring_identifier id, 
+    static inline void apply(Range const& range, ring_identifier id,
                     MarkMap& mark_map, Policy const& policy)
     {
         std::size_t const n = boost::size(range);
@@ -337,7 +337,7 @@ struct range_mark_spikes
             {
                 if (i != it->index1 && i != it->index2)
                 {
-                    bits[i] = true;                                        
+                    bits[i] = true;
                 }
                 pit = circular_next(range, pit);
                 i = circular_next_i(i, n);
@@ -350,7 +350,7 @@ struct range_mark_spikes
 template <typename Polygon, typename MarkMap, typename Policy>
 struct polygon_mark_spikes
 {
-    static inline void apply(Polygon const& polygon, ring_identifier id, 
+    static inline void apply(Polygon const& polygon, ring_identifier id,
                     MarkMap& mark_map, Policy const& policy)
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
@@ -376,7 +376,7 @@ struct polygon_mark_spikes
 template <typename MultiGeometry, typename MarkMap, typename Policy, typename SinglePolicy>
 struct multi_mark_spikes
 {
-    static inline void apply(MultiGeometry const& multi, ring_identifier id, 
+    static inline void apply(MultiGeometry const& multi, ring_identifier id,
                     MarkMap& mark_map, Policy const& policy)
     {
         id.multi_index = 0;
@@ -457,8 +457,8 @@ struct mark_spikes<multi_polygon_tag, MultiPolygon, MarkMap, Policy>
     \param geometry the geometry to make mark_spikes
 */
 template <typename Geometry, typename MarkMap, typename Policy>
-inline bool mark_spikes(Geometry const& geometry, 
-        MarkMap& mark_map,                            
+inline bool mark_spikes(Geometry const& geometry,
+        MarkMap& mark_map,
         Policy const& policy)
 {
     concept::check<Geometry const>();
@@ -490,11 +490,11 @@ public :
         return m_gap_width;
     }
 
-    inline bool apply(T const gap_distance, T const whole_area, 
+    inline bool apply(T const gap_distance, T const whole_area,
                 int count, T const area, T const perimeter) const
     {
         T const ratio = perimeter == 0 ? 0 : area / perimeter;
-        return 
+        return
             perimeter > gap_distance
             && area < whole_area / 10.0
             && ratio < m_ratio;

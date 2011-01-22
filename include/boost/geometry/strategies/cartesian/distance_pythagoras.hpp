@@ -64,11 +64,11 @@ namespace comparable
 {
 
 /*!
-\brief Strategy for comparable distance point to point: comparable_pythagoras
+\brief Strategy to calculate comparable distance between two points
 \ingroup strategies
 \tparam Point1 first point type
-\tparam Point2 optional, second point type, defaults to first point type
-\tparam CalculationType optional, specify type of calculation
+\tparam Point2 \tparam_optional_second_point
+\tparam CalculationType \tparam_calculation
 */
 template
 <
@@ -109,11 +109,19 @@ public :
 
 
 /*!
-\brief Strategy for distance point to point: pythagoras
+\brief Strategy to calculate the distance between two points
 \ingroup strategies
 \tparam Point1 first point type
-\tparam Point2 optional, second point type, defaults to first point type
-\tparam CalculationType optional, specify type of calculation
+\tparam Point2 \tparam_optional_second_point
+\tparam CalculationType \tparam_calculation
+
+\qbk_begin
+[heading Notes]
+[note Can be used for points with two, three or more dimensions]
+[heading See also]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+\qbk_end
+
 */
 template
 <
@@ -130,6 +138,12 @@ public :
             typename services::return_type<comparable_type>::type
         >::type calculation_type;
 
+    /*!
+    \brief applies the distance calculation using pythagoras
+    \return the calculated distance (including taking the square root)
+    \param p1 first point
+    \param p2 second point
+    */
     static inline calculation_type apply(Point1 const& p1, Point2 const& p2)
     {
         calculation_type const t = comparable_type::apply(p1, p2);

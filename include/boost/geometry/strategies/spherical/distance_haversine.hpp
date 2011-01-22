@@ -96,8 +96,9 @@ private :
 \brief Distance calculation for spherical coordinates
 on a perfect sphere using haversine
 \ingroup strategies
-\tparam P1 first point type
-\tparam P2 optional second point type
+\tparam Point1 first point type
+\tparam Point2 \tparam_optional_second_point
+\tparam CalculationType \tparam_calculation
 \author Adapted from: http://williams.best.vwh.net/avform.htm
 \see http://en.wikipedia.org/wiki/Great-circle_distance
 \note It says: <em>The great circle distance d between two
@@ -108,6 +109,12 @@ A mathematically equivalent formula, which is less subject
     d=2*asin(sqrt((sin((lat1-lat2)/2))^2
     + cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2))
     </em>
+
+\qbk_begin
+[heading See also]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+\qbk_end
+
 */
 template
 <
@@ -123,10 +130,20 @@ public :
 
     typedef typename services::return_type<comparable_type>::type calculation_type;
 
-    inline haversine(calculation_type const& r = 1.0)
-        : m_radius(r)
+    /*!
+    \brief Constructor
+    \param radius radius of the sphere, defaults to 1.0 for the unit sphere
+    */
+    inline haversine(calculation_type const& radius = 1.0)
+        : m_radius(radius)
     {}
 
+    /*!
+    \brief applies the distance calculation
+    \return the calculated distance (including multiplying with radius)
+    \param p1 first point
+    \param p2 second point
+    */
     inline calculation_type apply(Point1 const& p1, Point2 const& p2) const
     {
         calculation_type const a = comparable_type::apply(p1, p2);
@@ -134,6 +151,10 @@ public :
         return m_radius * c;
     }
 
+    /*!
+    \brief access to radius value
+    \return the radius
+    */
     inline calculation_type radius() const
     {
         return m_radius;

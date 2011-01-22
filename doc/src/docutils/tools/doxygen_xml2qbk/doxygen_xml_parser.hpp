@@ -215,11 +215,11 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
         }
         else if (full == ".detaileddescription.para.qbk")
         {
-            el.qbk_markup.push_back(markup(0, boost::trim_copy(std::string(node->value()))));
+            el.qbk_markup.push_back(markup(0, node->value()));
         }
         else if (full == ".detaileddescription.para.qbk.include")
         {
-            el.qbk_markup.push_back(markup(1, boost::trim_copy(std::string(node->value()))));
+            el.qbk_markup.push_back(markup(1, node->value()));
         }
         else if (full == ".detaileddescription.para.qbk.distinguish")
         {

@@ -25,7 +25,6 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/math.hpp>
 
-//#define BOOST_GEOMETRY_DEBUG_CROSS_TRACK
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK
 #  include <boost/geometry/util/write_dsv.hpp>
 #endif
@@ -44,7 +43,15 @@ namespace strategy { namespace distance
 \details Class which calculates the distance of a point to a segment, using latlong points
 \see http://williams.best.vwh.net/avform.htm
 \tparam Point point type
-\tparam PointOfSegment type of point-of-segment
+\tparam PointOfSegment \tparam_optional_segment_point
+\tparam CalculationType \tparam_calculation
+\tparam Strategy strategy, optional, underlying point-point distance strategy, defaults to haversine
+
+\qbk_begin
+[heading See also]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+\qbk_end
+
 */
 template
 <
@@ -181,7 +188,7 @@ template
 <
     typename Point,
     typename PointOfSegment,
-    typename CalculationType, 
+    typename CalculationType,
     typename Strategy,
     typename P,
     typename PS

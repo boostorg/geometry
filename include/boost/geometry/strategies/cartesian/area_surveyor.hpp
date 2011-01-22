@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AREA_BY_TRIANGLES_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AREA_BY_TRIANGLES_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AREA_SURVEYOR_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AREA_SURVEYOR_HPP
 
 
 #include <boost/mpl/if.hpp>
@@ -23,17 +23,25 @@ namespace strategy { namespace area
 {
 
 /*!
-\brief Strategy functor for area calculation on point_xy points
+\brief Area calculation for cartesian points
 \ingroup strategies
-\details Calculates area using well-known triangulation algorithm
-\tparam PointOfSegment point type of segments
+\details Calculates area using the Surveyor's formula, a well-known
+    triangulation algorithm
+\tparam PointOfSegment point type of segments of rings/polygons
+\tparam CalculationType \tparam_calculation
+
+\qbk_begin
+[heading See also]
+[link geometry.reference.algorithms.area.area_2_with_strategy area]
+\qbk_end
+
 */
 template
 <
     typename PointOfSegment,
     typename CalculationType = void
 >
-class by_triangles
+class surveyor
 {
 public :
     // If user specified a calculation type, use that type,
@@ -56,7 +64,7 @@ private :
 
     class summation
     {
-        friend class by_triangles;
+        friend class surveyor;
 
         return_type sum;
     public :
@@ -100,7 +108,7 @@ namespace services
     template <typename Point>
     struct default_strategy<cartesian_tag, Point>
     {
-        typedef strategy::area::by_triangles<Point> type;
+        typedef strategy::area::surveyor<Point> type;
     };
 
 } // namespace services
@@ -115,4 +123,4 @@ namespace services
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AREA_BY_TRIANGLES_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_AREA_SURVEYOR_HPP

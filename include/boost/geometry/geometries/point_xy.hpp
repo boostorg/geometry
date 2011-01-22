@@ -23,9 +23,9 @@ namespace model { namespace d2
 {
 
 /*!
-    \brief 2D point in Cartesian coordinate system
-    \ingroup geometries
-    \tparam T numeric type, arguments can be, for example, double, float, int
+\brief 2D point in Cartesian coordinate system
+\tparam CoordinateType numeric type, for example, double, float, int
+\tparam CoordinateSystem coordinate system, defaults to cs::cartesian
 */
 template<typename CoordinateType, typename CoordinateSystem = cs::cartesian>
 class point_xy : public model::point<CoordinateType, 2, CoordinateSystem>
@@ -34,11 +34,13 @@ public:
 
     /// Default constructor, does not initialize anything
     inline point_xy()
-        : model::point<CoordinateType, 2, CoordinateSystem>() {}
+        : model::point<CoordinateType, 2, CoordinateSystem>()
+    {}
 
     /// Constructor with x/y values
     inline point_xy(CoordinateType const& x, CoordinateType const& y)
-        : model::point<CoordinateType, 2, CoordinateSystem>(x, y) {}
+        : model::point<CoordinateType, 2, CoordinateSystem>(x, y)
+    {}
 
     /// Get x-value
     inline CoordinateType const& x() const
@@ -58,7 +60,7 @@ public:
 };
 
 
-}} // namespace model::xy
+}} // namespace model::d2
 
 
 // Adapt the point_xy to the concept
