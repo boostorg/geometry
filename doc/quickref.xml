@@ -447,7 +447,7 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Area</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategies.strategy_area_by_triangles">strategy::area::by_triangles</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_area_surveyor">strategy::area::surveyor</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_area_huiller">strategy::area::huiller</link></member>
     </simplelist>
    </entry>

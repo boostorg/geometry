@@ -109,7 +109,7 @@ int main(int argc, char** argv)
         std::string xml_string = file_to_string(filename);
         std::string license = copyright_filename.empty() 
             ? "" 
-            : file_to_string(copyright_filename, true);
+            : file_to_string(copyright_filename);
 
         // Parse the XML outputted by Doxygen
         xml_doc xml(xml_string.c_str());
