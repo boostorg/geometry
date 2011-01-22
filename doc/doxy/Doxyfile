@@ -39,6 +39,8 @@ TAB_SIZE               = 8
 # \return* for various return cases
 ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
 			qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
+			qbk_begin="\xmlonly <qbk>" \
+			qbk_end="</qbk> \endxmlonly" \
 			brief_calc{1}="Calculates the \1 of a geometry" \
 			brief_calc2{1}="Calculate the \1 of two geometries" \
 			brief_calc2{2}="Calculate the \1 \2 two geometries" \
@@ -55,6 +57,9 @@ ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
 			tparam_box="Any type fulfilling a Box Concept" \
 			tparam_strategy{1}="Any type fulfilling a \1 Strategy Concept" \
 			tparam_numeric="Numerical type (int, double, ttmath, ...)" \
+			tparam_calculation="optional, numeric type for calculation (e.g. high precision)" \
+			tparam_optional_second_point="optional, second point type, defaults to first point type" \
+			tparam_optional_segment_point="optional, segment point type, defaults to point type" \
 			tparam_out{1}="A valid output iterator type, accepting geometries of \1 Concept" \
 			param_geometry="A model of the specified concept" \
 			param_box="A model of the specified Box Concept" \

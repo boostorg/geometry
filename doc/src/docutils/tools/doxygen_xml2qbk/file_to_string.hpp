@@ -13,10 +13,8 @@
 #include <string>
 #include <fstream>
 
-#include <boost/algorithm/string.hpp>
 
-
-inline std::string file_to_string(std::string const& filename, bool add_nl = false)
+inline std::string file_to_string(std::string const& filename)
 {
     std::string result;
 
@@ -27,14 +25,7 @@ inline std::string file_to_string(std::string const& filename, bool add_nl = fal
         {
             std::string line;
             std::getline(cpp_file, line);
-            boost::trim(line);
-
-            result += line;
-
-            if (add_nl)
-            {
-                result += "\n";
-            }
+            result += line + "\n";
         }
     }
     return result;

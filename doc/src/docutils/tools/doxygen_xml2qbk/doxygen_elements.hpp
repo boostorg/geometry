@@ -31,7 +31,10 @@ struct markup
     markup(int c = 0, std::string const& v = "")
         : code(c)
         , value(v)
-    {}
+    {
+        boost::trim(value);
+        boost::replace_all(value, "\\*", "*");
+    }
 
 };
 

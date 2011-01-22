@@ -76,7 +76,7 @@ views = ["closeable_view", "reversible_view", "identity_view"]
 strategies = ["distance::pythagoras", "distance::haversine"
     , "distance::cross_track", "distance::projected_point"
     , "within::winding", "within::franklin", "within::crossings_multiply"
-    , "area::by_triangles", "area::huiller"
+    , "area::surveyor", "area::huiller"
     , "centroid::bashein_detmer", "centroid::average"
     , "convex_hull::graham_andrew"
     , "simplify::douglas_peucker"
