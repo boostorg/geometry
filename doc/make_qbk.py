@@ -10,11 +10,16 @@
 #  http://www.boost.org/LICENSE_1_0.txt)9
 # ============================================================================
 
-
 import os, sys
 
-
-cmd="doxygen_xml2qbk  doxy/doxygen_output/xml/%s.xml ../../../ boost/geometry/geometry.hpp boost/geometry/geometries/geometries.hpp boost/geometry/multi/multi.hpp > reference/%s.qbk"
+cmd = "doxygen_xml2qbk"
+cmd = cmd + " --xml doxy/doxygen_output/xml/%s.xml"
+cmd = cmd + " --start_include boost/geometry/"
+cmd = cmd + " --convenience_header_path ../../../boost/geometry/"
+cmd = cmd + " --convenience_headers geometry.hpp,geometries/geometries.hpp,multi/multi.hpp"
+cmd = cmd + " --skip_namespace boost::geometry::"
+cmd = cmd + " --copyright src/copyright_block.qbk"
+cmd = cmd + " > reference/%s.qbk"
 
 def call_doxygen():
     os.chdir("doxy");

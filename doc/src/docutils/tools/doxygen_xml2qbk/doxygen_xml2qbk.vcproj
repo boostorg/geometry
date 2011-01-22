@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;contrib/rapidxml-1.13"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE; _CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;BOOST_ALL_NO_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -117,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".;contrib/rapidxml-1.13"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE; _CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -172,6 +172,50 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="program options"
+			>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\cmdline.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\config_file.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\convert.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\options_description.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\parsers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\positional_options.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\split.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\utf8_codecvt_facet.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\value_semantic.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\..\program_options\src\variables_map.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\doxygen_xml2qbk.cpp"
 			>

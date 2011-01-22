@@ -61,7 +61,7 @@ Finally, the library can perfectly be used together with the \b Boost \b Graph \
 
 The GGL makes substantial use of the std library, and is designed to be compatible with it.
 - provided geometries (linestring, ring, polygon, multi-s) make default use of std::vector (but that is configurable)
-- std sorting, unique copies, maps can make use of provided functors in \ref compare "compare".
+- std sorting, unique copies, maps can make use of provided functors in compare "compare".
 - internally, there are vector's, deque's, there is sorting, many things are implemented using the std library
 
 */

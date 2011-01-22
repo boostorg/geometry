@@ -26,7 +26,7 @@ Distributed under the Boost Software License, Version 1.0.\n
 </em>
 
 \section intro Introduction
-Boost.Geometry, formally accepted by Boost, defines \ref concepts "concepts" for geometries and
+Boost.Geometry, formally accepted by Boost, defines concepts "concepts" for geometries and
 implements some algorithms on such geometries. Before acceptance by Boost it was known as GGL
 (Generic Geometry Library) and this documentation still contains that name on various places.
 
