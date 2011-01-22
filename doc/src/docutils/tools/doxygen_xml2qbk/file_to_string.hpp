@@ -15,7 +15,8 @@
 
 #include <boost/algorithm/string.hpp>
 
-inline std::string file_to_string(std::string const& filename)
+
+inline std::string file_to_string(std::string const& filename, bool add_nl = false)
 {
     std::string result;
 
@@ -29,6 +30,11 @@ inline std::string file_to_string(std::string const& filename)
             boost::trim(line);
 
             result += line;
+
+            if (add_nl)
+            {
+                result += "\n";
+            }
         }
     }
     return result;
