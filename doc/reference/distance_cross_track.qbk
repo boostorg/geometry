@@ -30,11 +30,11 @@ class strategy::distance::cross_track
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename Point] [point type ]]
-[[typename PointOfSegment] [optional, segment point type, defaults to point type ]]
-[[typename CalculationType] [optional, numeric type for calculation (e.g. high precision) ]]
-[[typename Strategy] [strategy, optional, underlying point-point distance strategy, defaults to haversine]]
+[[Parameter] [Default] [Description]]
+[[typename Point] [] [point type ]]
+[[typename PointOfSegment] [Point] [segment point type ]]
+[[typename CalculationType] [void] [numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point ]]
+[[typename Strategy] [typename services::default_strategy<point_tag, Point>::type] [strategy, underlying point-point distance strategy, defaults to haversine]]
 ]
 
 [heading Constructor(s)]
@@ -67,7 +67,7 @@ class strategy::distance::cross_track
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters] [Returns] ]
-[[`` apply (Point const &p, PointOfSegment const &sp1, PointOfSegment const &sp2) const ``
+[[``return_type apply (Point const &p, PointOfSegment const &sp1, PointOfSegment const &sp2) const ``
 
 ] [] [[* Point const &]: ['p]:  
 
@@ -79,7 +79,7 @@ class strategy::distance::cross_track
 
 
 ]]
-[[`` radius () const ``
+[[``return_type radius () const ``
 
 ] [] [
 
@@ -92,5 +92,6 @@ class strategy::distance::cross_track
 
 [heading See also]
 [link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+
 [endsect]
 

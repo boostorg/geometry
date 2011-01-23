@@ -15,27 +15,46 @@
 
 
 // contains (template)parameter
-struct param
+struct parameter
 {
     std::string name;
     std::string description;
     std::string type;
+    std::string default_value; // for template parameters
     std::string fulltype; // post-processed
 };
 
+enum markup_type { markup_default, markup_synopsis };
+enum markup_order_type { markup_any, markup_before, markup_after };
+
+
 struct markup
 {
-    int code;
     std::string value;
+    markup_order_type order;
+    markup_type type;
 
-    markup(int c = 0, std::string const& v = "")
-        : code(c)
-        , value(v)
+    markup(std::string const& v = "")
+        : value(v)
+        , order(markup_any)
+        , type(markup_default)
+    {
+        init();
+    }
+
+    markup(markup_order_type o, markup_type t, std::string const& v = "")
+        : value(v)
+        , order(o)
+        , type(t)
+    {
+        init();
+    }
+
+    void init()
     {
         boost::trim(value);
         boost::replace_all(value, "\\*", "*");
     }
-
 };
 
 // Basic element, base of a class/struct, function, define
@@ -54,8 +73,8 @@ struct element
     // Filled with: \qbk{distinguish,<A discerning description>}
     std::string additional_description;
 
-    std::vector<param> template_parameters;
-    std::vector<param> parameters;
+    std::vector<parameter> template_parameters;
+    std::vector<parameter> parameters;
 
     element()
         : line(0)

@@ -83,16 +83,17 @@
     <entry valign="top">
     <bridgehead renderas="sect3">1-dimensional</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.models.model_segment">segment</link></member>
      <member><link linkend="geometry.reference.models.model_linestring">linestring</link></member>
      <member><link linkend="geometry.reference.models.model_multi_linestring">multi_linestring</link></member>
+     <member><link linkend="geometry.reference.models.model_segment">segment</link></member>
+     <member><link linkend="geometry.reference.models.model_referring_segment">referring_segment</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">2-dimensional</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.models.model_box">box</link></member>
-     <member><link linkend="geometry.reference.models.model_linear_ring">linear_ring</link></member>
+     <member><link linkend="geometry.reference.models.model_ring">ring</link></member>
      <member><link linkend="geometry.reference.models.model_polygon">polygon</link></member>
      <member><link linkend="geometry.reference.models.model_multi_polygon">multi_polygon</link></member>
     </simplelist>

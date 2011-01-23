@@ -27,7 +27,7 @@ void simplify (Geometry const &geometry, Geometry &out, Distance const &max_dist
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [input geometry, to be simplified ]]
 [[Geometry &] [Any type fulfilling a Geometry Concept ] [out] [output geometry, simplified version of the input geometry ]]
-[[Distance const &] [Numerical type (int, double, ttmath, ...) ] [max_distance] [distance (in units of input coordinates) of a vertex to other segments to be removed]]
+[[Distance const &] [numerical type (int, double, ttmath, ...) ] [max_distance] [distance (in units of input coordinates) of a vertex to other segments to be removed]]
 ]
 
 
@@ -41,6 +41,7 @@ Or
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
 [include ref/algorithms/simplify.qbk]
+
 
 [endsect]
 
@@ -104,6 +105,7 @@ Or
 
 [include ref/algorithms/simplify_inserter.qbk]
 
+
 [endsect]
 
 [section:simplify_inserter_4_with_strategy simplify_inserter (with strategy)]
@@ -135,6 +137,7 @@ Or
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
 [include ref/algorithms/simplify.qbk]
+
 
 [endsect]
 

@@ -10,9 +10,31 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section:concept_polygon Polygon]
+[section:concept_polygon Polygon Concept]
 
 [heading Description]
-Stub
+[concept Polygon..polygon]
+
+A polygon is ['A polygon is a planar surface defined by one exterior boundary and zero or more interior boundaries.] 
+([@http://portal.opengeospatial.org/files/?artifact_id=25355 opengeospatial]).
+
+So the definition of a Boost.Geometry polygon differs a bit from e.g. Wiki, where a polygon does not have holes. A
+polygon of Boost.Geometry is a polygon with or without holes.
+['(A polygon without holes is a ['helper geometry] within Boost.Geometry, and referred to as a ring.)]
+
+[heading Concept Definition]
+
+The Polygon Concept is defined as following:
+
+* there must be a specialization of `traits::tag` defining `polygon_tag` as type
+* there must be a specialization of `traits::ring_type` defining the type of its exterior ring and interior rings as type
+* this type defined by `ring_type` must fulfill the [link geometry.reference.concepts.concept_ring Ring Concept]
+* there must be a specialization of `traits::interior_type` defining the type of the collection of its interior rings as type
+* there must be a specialization of `traits::exterior_ring` with two functions named `get`, returning the exterior ring, one being const, the other being non const
+* there must be a specialization of `traits::interior_rings` with two functions named `get`, returning the interior rings, one being const, the other being non const
+
+[heading Available Models]	
+* [link geometry.reference.models.model_polygon polygon]
+* a Boost.Polygon polygon_with_holes_data (requires `#include boost/geometry/geometries/adapted/boost_polygon/polygon.hpp>`)
 
 [endsect]

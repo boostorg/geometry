@@ -22,7 +22,7 @@ struct par_by_name
         : m_name(n)
     {}
 
-    inline bool operator()(param const& p)
+    inline bool operator()(parameter const& p)
     {
         return p.name == m_name;
     }
@@ -38,7 +38,7 @@ struct par_by_type
         : m_type(n)
     {}
 
-    inline bool operator()(param const& p)
+    inline bool operator()(parameter const& p)
     {
         return p.type == m_type;
     }

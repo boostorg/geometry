@@ -37,10 +37,8 @@ TAB_SIZE               = 8
 # \tparam* for various template parameters
 # \param* for various parameters
 # \return* for various return cases
-ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
-			qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
-			qbk_begin="\xmlonly <qbk>" \
-			qbk_end="</qbk> \endxmlonly" \
+ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
+			qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
 			brief_calc{1}="Calculates the \1 of a geometry" \
 			brief_calc2{1}="Calculate the \1 of two geometries" \
 			brief_calc2{2}="Calculate the \1 \2 two geometries" \
@@ -56,10 +54,14 @@ ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
 			tparam_point="Any type fulfilling a Point Concept" \
 			tparam_box="Any type fulfilling a Box Concept" \
 			tparam_strategy{1}="Any type fulfilling a \1 Strategy Concept" \
-			tparam_numeric="Numerical type (int, double, ttmath, ...)" \
-			tparam_calculation="optional, numeric type for calculation (e.g. high precision)" \
-			tparam_optional_second_point="optional, second point type, defaults to first point type" \
-			tparam_optional_segment_point="optional, segment point type, defaults to point type" \
+			tparam_numeric="numerical type (int, double, ttmath, ...)" \
+			tparam_calculation="numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point" \
+			tparam_point="point type" \
+			tparam_first_point="first point type" \
+			tparam_second_point="second point type" \
+			tparam_segment_point="segment point type" \
+			tparam_container="container type, for example std::vector, std::deque" \
+			tparam_allocator="container-allocator-type" \
 			tparam_out{1}="A valid output iterator type, accepting geometries of \1 Concept" \
 			param_geometry="A model of the specified concept" \
 			param_box="A model of the specified Box Concept" \
@@ -72,6 +74,8 @@ ALIASES                = qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
 			param_macro_coorsystem="Coordinate system (e.g. cs::cartesian)" \
 			param_macro_member{1}="Member containing \1 coordinate" \
 			param_macro_getset{2}="Method to \1 the \2 coordinate" \
+			constructor_default{1}="Default constructor, creating an empty \1" \
+			constructor_begin_end{1}="Constructor with begin and end,  filling the \1" \
 			details_calc{2}="The free function \1 calculates the \2 of a geometry" \
 			details_calc{1}="The free function \1 calculates the \1 of a geometry" \
 			details_calc2{2}="The free function \1 calculates the \2 of two geometries" \

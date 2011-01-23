@@ -27,13 +27,13 @@ class strategy::transform::map_transformer
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename P1] [first point type ]]
-[[typename P2] [second point type ]]
-[[bool Mirror] [if true map is mirrored upside-down (in most cases pixels are from top to bottom, while map is from bottom to top) ]]
-[[bool SameScale] []]
-[[std::size_t Dimension1] []]
-[[std::size_t Dimension2] []]
+[[Parameter] [Default] [Description]]
+[[typename P1] [] [first point type ]]
+[[typename P2] [] [second point type ]]
+[[bool Mirror] [false] [if true map is mirrored upside-down (in most cases pixels are from top to bottom, while map is from bottom to top) ]]
+[[bool SameScale] [true] []]
+[[std::size_t Dimension1] [dimension<P1>::type::value] []]
+[[std::size_t Dimension2] [dimension<P2>::type::value] []]
 ]
 
 [heading Constructor(s)]

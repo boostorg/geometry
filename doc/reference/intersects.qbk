@@ -44,6 +44,7 @@ Or
 
 [include ref/algorithms/intersects.qbk]
 
+
 [endsect]
 
 [section:intersects_1_one_geometry intersects (one geometry)]
@@ -75,6 +76,7 @@ Or
 `#include <boost/geometry/algorithms/intersects.hpp>`
 
 [include ref/algorithms/intersects.qbk]
+
 
 [endsect]
 

@@ -207,6 +207,7 @@
 [include reference/box.qbk]
 [include reference/ring.qbk]
 [include reference/segment.qbk]
+[include reference/referring_segment.qbk]
 [endsect]
 
 [section:register Adaption and adapted models]

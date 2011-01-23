@@ -27,10 +27,10 @@ class strategy::within::franklin
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename Point] []]
-[[typename PointOfSegment] []]
-[[typename CalculationType] []]
+[[Parameter] [Default] [Description]]
+[[typename Point] [] [point type ]]
+[[typename PointOfSegment] [Point] [segment point type ]]
+[[typename CalculationType] [void] [numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point ]]
 ]
 
 [heading Member Function(s)]

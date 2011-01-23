@@ -34,9 +34,9 @@ inline std::string keep_after(std::string const& input, std::string const& sig)
 
 
 
-static inline void add_or_set(std::vector<param>& parameters, param const& p)
+static inline void add_or_set(std::vector<parameter>& parameters, parameter const& p)
 {
-    std::vector<param>::iterator it = std::find_if(parameters.begin(), parameters.end(), par_by_name(p.name));
+    std::vector<parameter>::iterator it = std::find_if(parameters.begin(), parameters.end(), par_by_name(p.name));
     if (it != parameters.end())
     {
         if (it->description.empty()) it->description = p.description;
@@ -49,8 +49,16 @@ static inline void add_or_set(std::vector<param>& parameters, param const& p)
     }
 }
 
-// -------------------------------------------------------------
-// -------------------------------------------------------------
+/// Parses a "para" element 
+/*
+This is used for different purposes within Doxygen. 
+- Either a detailed description, possibly containing several sections (para's)
+  -> so parse next siblings
+- Or a detailed description also containing qbk records
+
+So we have to list explicitly either where to recurse, or where not to...
+
+*/
 static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool first = true)
 {
     if (node != NULL)
@@ -59,13 +67,15 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool f
         {
             //std::cout << "ELEMENT: " << node->name() << "=" << node->value() << std::endl;
             std::string name = node->name();
-            if (! boost::equals(name, "para")
-                && ! boost::equals(name, "ref")
-                && ! boost::equals(name, "verbatim"))
-            {
-                return;
-            }
-            if (boost::equals(name, "para") && ! first)
+            if (! (
+                (boost::equals(name, "para") && first)
+                || boost::equals(name, "ref")
+                || boost::equals(name, "defval")
+                || boost::equals(name, "verbatim")
+                || boost::equals(name, "bold")
+                || boost::equals(name, "emphasis")
+                || boost::equals(name, "linebreak")
+                ))
             {
                 return;
             }
@@ -85,8 +95,11 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool f
 }
 
 
-static void parse_parameter(rapidxml::xml_node<>* node, param& p)
+static void parse_parameter(rapidxml::xml_node<>* node, parameter& p)
 {
+    // #define: <param><defname>Point</defname></param>
+    // template: <param><type>typename</type><declname>CoordinateType</declname><defname>CoordinateType</defname></param>
+    // template with default: <param><type>typename</type><declname>CoordinateSystem</declname><defname>CoordinateSystem</defname><defval><ref ....>cs::cartesian</ref></defval></param>
     if (node != NULL)
     {
         std::string name = node->name();
@@ -102,8 +115,11 @@ static void parse_parameter(rapidxml::xml_node<>* node, param& p)
         }
         else if (name == "declname") p.name = node->value();
         else if (name == "parametername") p.name = node->value();
-        // Define: <param><defname>Point</defname></param>
-        else if (name == "defname") p.name = node->value(); // for defines
+        else if (name == "defname") p.name = node->value(); 
+        else if (name == "defval") 
+        {
+             parse_para(node, p.default_value);
+        }
         else if (name == "para")
         {
              parse_para(node, p.description);
@@ -124,12 +140,12 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
 
         if (name == "parameteritem")
         {
-            param p;
+            parameter p;
             parse_parameter(node->first_node(), p);
             if (! p.name.empty())
             {
                 // Copy its description
-                std::vector<param>::iterator it = std::find_if(parameters.begin(),
+                std::vector<parameter>::iterator it = std::find_if(parameters.begin(),
                     parameters.end(), par_by_name(p.name));
                 if (it != parameters.end())
                 {
@@ -144,7 +160,7 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
         else if (name == "param")
         {
             // Element of 'templateparamlist.param (.type,.declname,.defname)'
-            param p;
+            parameter p;
             parse_parameter(node->first_node(), p);
 
             // Doxygen handles templateparamlist param's differently:
@@ -215,11 +231,15 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
         }
         else if (full == ".detaileddescription.para.qbk")
         {
-            el.qbk_markup.push_back(markup(0, node->value()));
+            el.qbk_markup.push_back(markup(node->value()));
         }
-        else if (full == ".detaileddescription.para.qbk.include")
+        else if (full == ".detaileddescription.para.qbk.after.synopsis")
         {
-            el.qbk_markup.push_back(markup(1, node->value()));
+            el.qbk_markup.push_back(markup(markup_after, markup_synopsis, node->value()));
+        }
+        else if (full == ".detaileddescription.para.qbk.before.synopsis")
+        {
+            el.qbk_markup.push_back(markup(markup_before, markup_synopsis, node->value()));
         }
         else if (full == ".detaileddescription.para.qbk.distinguish")
         {
@@ -267,13 +287,13 @@ static void parse_function(rapidxml::xml_node<>* node, configuration const& conf
         }
         else if (full == ".param")
         {
-            param p;
+            parameter p;
             parse_parameter(node->first_node(), p);
             add_or_set(f.parameters, p);
         }
         else if (full == ".type")
         {
-            f.return_type = node->value();
+            get_contents(node->first_node(), f.return_type);
         }
         else if (full == ".detaileddescription.para.simplesect")
         {

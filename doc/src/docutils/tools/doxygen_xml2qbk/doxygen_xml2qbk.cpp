@@ -47,10 +47,10 @@
 
 int main(int argc, char** argv)
 {
+    std::string filename;
     try
     {
         configuration config;
-        std::string filename;
         std::string copyright_filename;
 
         // Read/get configuration
@@ -168,11 +168,18 @@ int main(int argc, char** argv)
     }
     catch(std::exception const& e)
     {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        std::cerr << "Exception in doxygen_xml2qbk: " << std::endl
+            << "   Message: " << e.what() << std::endl
+            << "   File: " << filename << std::endl
+            << "   Type: " << typeid(e).name() << std::endl
+            << std::endl;
+        return 1;
     }
     catch(...)
     {
-        std::cerr << "Unknown exception!" << std::endl;
+        std::cerr << "Unknown exception in doxygen_xml2qbk" 
+            << std::endl;
+        return 1;
     }
     return 0;
 }

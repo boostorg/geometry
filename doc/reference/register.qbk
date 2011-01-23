@@ -40,6 +40,7 @@ The macro BOOST_GEOMETRY_REGISTER_POINT_2D registers a two-dimensional point typ
 
 [include ref/geometries/register/point.qbk]
 
+
 [endsect]
 
 [section:boost_geometry_register_point_2d_const BOOST_GEOMETRY_REGISTER_POINT_2D_CONST]

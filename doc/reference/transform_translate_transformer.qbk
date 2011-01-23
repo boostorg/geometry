@@ -30,11 +30,11 @@ class strategy::transform::translate_transformer
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename P1] [first point type ]]
-[[typename P2] [second point type ]]
-[[std::size_t Dimension1] [number of dimensions to transform to second point, optional ]]
-[[std::size_t Dimension2] []]
+[[Parameter] [Default] [Description]]
+[[typename P1] [] [first point type ]]
+[[typename P2] [] [second point type ]]
+[[std::size_t Dimension1] [geometry::dimension<P1>::type::value] [number of dimensions to transform to second point ]]
+[[std::size_t Dimension2] [geometry::dimension<P2>::type::value] []]
 ]
 
 [heading Header]

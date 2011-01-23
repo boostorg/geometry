@@ -29,7 +29,7 @@ void centroid (Geometry const &geometry, Point &c)``
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
-[[Point &] [Any type fulfilling a Point Concept ] [c] [the calculated centroid will be assigned to this point reference]]
+[[Point &] [point type ] [c] [the calculated centroid will be assigned to this point reference]]
 ]
 
 
@@ -43,6 +43,7 @@ Or
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
 [include ref/algorithms/centroid.qbk]
+
 
 [endsect]
 
@@ -62,7 +63,7 @@ void centroid (Geometry const &geometry, Point &c, Strategy const &strategy)``
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
-[[Point &] [Any type fulfilling a Point Concept ] [c] [A model of the specified Point Concept which is set to the centroid ]]
+[[Point &] [point type ] [c] [A model of the specified Point Concept which is set to the centroid ]]
 [[Strategy const &] [Any type fulfilling a Centroid Strategy Concept ] [strategy] [The strategy which will be used for centroid calculations]]
 ]
 
@@ -77,6 +78,7 @@ Or
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
 [include ref/algorithms/centroid.qbk]
+
 
 [endsect]
 
@@ -95,7 +97,7 @@ Point make_centroid (Geometry const &geometry, Strategy const &strategy)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Point] [Any type fulfilling a Point Concept ] [ - ] [Must be specified]]
+[[Point] [point type ] [ - ] [Must be specified]]
 [[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
 [[Strategy const &] [Any type fulfilling a centroid Strategy Concept ] [strategy] [The strategy which will be used for centroid calculations ]]
 ]
@@ -115,6 +117,7 @@ Or
 
 [include ref/algorithms/centroid.qbk]
 
+
 [endsect]
 
 [section:make_centroid_1 make_centroid]
@@ -132,13 +135,13 @@ Point make_centroid (Geometry const &geometry)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Point] [Any type fulfilling a Point Concept ] [ - ] [Must be specified]]
+[[Point] [point type ] [ - ] [Must be specified]]
 [[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
 ]
 
 
 [heading Returns]
-The calculated centroid  
+The calculated centroid  [include ref/algorithms/centroid.qbk]
 
 [heading Header]
 Either

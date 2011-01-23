@@ -53,6 +53,9 @@
 [template qbk_ret[what] Returns [what]]
 [template qbk_out[what] GeometryOut is a [what]]
 
+[template concept[name type] The [name] Concept describes the requirements for a [type] type. 
+All algorithms in Boost.Geometry will check any geometry arguments against the concept requirements.]
+
 
 [def __boost_geometry__     Boost.Geometry]
 [def __boost_gil__          [@http://www.boost.org/libs/gil/ Boost.GIL]]

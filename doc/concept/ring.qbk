@@ -10,12 +10,29 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section:concept_ring Ring]
+[section:concept_ring Ring Concept]
 
 [heading Description]
-Ring 
+[concept Ring..ring]
 
-Note: also called linear ring, but we explicitly refer to a filled feature here.
+[note Also called linear ring, but we explicitly refer to a filled feature here]
+
+[heading Concept Definition]
+
+The Ring Concept is defined as following:
+
+* there must be a specialization of `traits::tag` defining `ring_tag` as type
+* it must behave like a Boost.Range
+* The type defined by the metafunction `range_value<...>::type` must fulfill 
+	the [link geometry.reference.concepts.concept_point Point Concept]
+* there might be a specialization of `traits::point_order` defining the order or orientation of its points, `clockwise` or `counterclockwise`
+* there might be a specialization of `traits::closure` defining the closure, `open` or `closed`
+
+[heading Available Models]	
+* [link geometry.reference.models.model_ring ring]
+* a Boost.Polygon polygon_data (requires `#include boost/geometry/geometries/adapted/boost_polygon/ring.hpp>`)
+* a std::vector (requires `#include boost/geometry/geometries/adapted/std_as_ring.hpp>`)
+* a std::deque (requires `#include boost/geometry/geometries/adapted/std_as_ring.hpp>`)
 
 
 [endsect]

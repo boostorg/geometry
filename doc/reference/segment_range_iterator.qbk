@@ -63,7 +63,7 @@ class segment_range_iterator
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters] [Returns] ]
-[[``< Segment > & operator= (segment_range_iterator< Segment > const &source)``
+[[``segment_range_iterator< Segment > & operator= (segment_range_iterator< Segment > const &source)``
 
 ] [] [[* < Segment > const &]: ['source]:  
 

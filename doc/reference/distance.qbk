@@ -94,7 +94,7 @@ strategy::distance::services::return_type<Strategy>::type distance (Geometry1 co
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry1 const &] [Any type fulfilling a Geometry Concept ] [geometry1] [A model of the specified concept ]]
 [[Geometry2 const &] [Any type fulfilling a Geometry Concept ] [geometry2] [A model of the specified concept ]]
-[[Strategy const &] [Any type fulfilling a distance Strategy Concept ] [strategy] [The strategy which will be used for distance calculations ]]
+[[Strategy const &] [Any type fulfilling a Distance Strategy Concept ] [strategy] [The strategy which will be used for distance calculations ]]
 ]
 
 
@@ -110,11 +110,13 @@ Or
 
 `#include <boost/geometry/algorithms/distance.hpp>`
 
-[heading Available strategies]
+[heading Available Strategies]
 * [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
 * [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
 * [link geometry.reference.strategies.strategy_distance_cross_track Cross track (spherical, point-to-segment)]
 * [link geometry.reference.strategies.strategy_distance_projected_point Projected point (cartesian, point-to-segment)]
+* more (currently extensions): Vincenty, Andoyer (geographic)
+
 
 [endsect]
 

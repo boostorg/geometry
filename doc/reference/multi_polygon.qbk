@@ -18,10 +18,13 @@
 multi_polygon, a collection of polygons 
 
 [heading Description]
-Multi-polygon can be used to group polygons belonging to each other, e.g. Hawaii 
+Multi-polygon can be used to group polygons belonging to each other, e.g. Hawaii
+
+[heading Model of]
+[link geometry.reference.concepts.concept_multi_polygon MultiPolygon Concept]
 
 [heading Synopsis]
-``template<typename P, template< typename, typename > class V, template< typename > class A>
+``template<typename Polygon, template< typename, typename > class Container, template< typename > class Allocator>
 class model::multi_polygon
 {
   // ...
@@ -30,10 +33,10 @@ class model::multi_polygon
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename P] []]
-[[template< typename, typename > class V] []]
-[[template< typename > class A] []]
+[[Parameter] [Default] [Description]]
+[[typename Polygon] [] []]
+[[template< typename, typename > class Container] [std::vector] []]
+[[template< typename > class Allocator] [std::allocator] []]
 ]
 
 [heading Header]

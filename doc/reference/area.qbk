@@ -51,9 +51,10 @@ Or
 [area_with_strategy]
 [area_with_strategy_output]
 
-[heading Available strategies]
+[heading Available Strategies]
 * [link geometry.reference.strategies.strategy_area_surveyor Surveyor (cartesian)]
 * [link geometry.reference.strategies.strategy_area_huiller Huiller (spherical)]
+
 
 [endsect]
 
@@ -95,6 +96,7 @@ Or
 [include ref/algorithms/area.qbk]
 [heading Examples]
 [area] [area_output]
+
 
 [endsect]
 

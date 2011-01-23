@@ -127,7 +127,7 @@ model_to_quickbook("segment", "segment")
 model_to_quickbook("multi__linestring", "multi_linestring")
 model_to_quickbook("multi__point", "multi_point")
 model_to_quickbook("multi__polygon", "multi_polygon")
-model_to_quickbook("linear__ring", "ring")
+model_to_quickbook("ring", "ring")
 model_to_quickbook("referring__segment", "referring_segment")
 
 

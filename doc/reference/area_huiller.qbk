@@ -27,9 +27,9 @@ class strategy::area::huiller
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename PointOfSegment] [point type of segments of rings/polygons ]]
-[[typename CalculationType] [optional, numeric type for calculation (e.g. high precision) ]]
+[[Parameter] [Default] [Description]]
+[[typename PointOfSegment] [] [point type of segments of rings/polygons ]]
+[[typename CalculationType] [void] [numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point ]]
 ]
 
 [heading Constructor(s)]
@@ -60,7 +60,7 @@ class strategy::area::huiller
 
 
 ]]
-[[`` result (excess_sum const &state) const ``
+[[``return_type result (excess_sum const &state) const ``
 
 ] [] [[*  const &]: ['state]:  
 
@@ -80,5 +80,6 @@ class strategy::area::huiller
 
 [heading See also]
 [link geometry.reference.algorithms.area.area_2_with_strategy area]
+
 [endsect]
 

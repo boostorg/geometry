@@ -27,16 +27,16 @@ class strategy::distance::pythagoras
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename Point1] [first point type ]]
-[[typename Point2] [optional, second point type, defaults to first point type ]]
-[[typename CalculationType] [optional, numeric type for calculation (e.g. high precision)]]
+[[Parameter] [Default] [Description]]
+[[typename Point1] [] [first point type ]]
+[[typename Point2] [Point1] [second point type ]]
+[[typename CalculationType] [void] [numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point]]
 ]
 
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters] [Returns] ]
-[[`` apply (Point1 const &p1, Point2 const &p2)``
+[[``calculation_type apply (Point1 const &p1, Point2 const &p2)``
 
 ] [applies the distance calculation using pythagoras ] [[* Point1 const &]: ['p1]:  first point 
 
@@ -58,5 +58,6 @@ the calculated distance (including taking the square root)
 [note Can be used for points with two, three or more dimensions]
 [heading See also]
 [link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+
 [endsect]
 

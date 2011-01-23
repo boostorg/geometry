@@ -10,18 +10,40 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section:concept_point Point]
+[section:concept_point Point Concept]
 
 [heading Description]
-Stub
+[concept Point..point]
+
+A point is ['an entity that has a location in space or on a plane, but has no extent] ([@http://en.wikipedia.org/wiki/Point_(geometry) wiki]).
+The point is the most basic geometry of Boost.Geometry, most other geometries consist of points. 
+['(Exceptions are box and segment, which might consist of two points but that is not necessarily the case.)]
+
+[heading Concept Definition]
+
+The Point Concept is defined as following:
+
+* there must be a specialization of `traits::tag`, defining `point_tag` as type
+* there must be a specialization of `traits::coordinate_type`, defining the type of its coordinates
+* there must be a specialization of `traits::coordinate_system`, defining its coordinate system
+	 (cartesian, spherical, etc)
+* there must be a specialization of `traits::dimension`, defining its number of dimensions (2, 3, ...) 
+	(hint: derive it conveniently from `boost::mpl::int_<X>` for X Dimensional)
+* there must be a specialization of `traits::access`, per dimension, with two functions:
+	* `get` to get a coordinate value
+	* `set` to set a coordinate value (this one is not checked for ConstPoint)
+	
+[heading Available Models]	
+* [link geometry.reference.models.model_point model::point]
+* [link geometry.reference.models.model_d2_point_xy model::d2::point_xy]
+* a lat long point (currently in an extension)
+* a C array (requires `#include boost/geometry/geometries/adapted/c_array.hpp>`)
+* a Boost.Array (requires `#include <boost/geometry/geometries/adapted/boost_array.hpp>`)
+* a Boost.Polygon point (requires `#include boost/geometry/geometries/adapted/boost_polygon/point.hpp>`)
+* a Boost.Fusion adapted structure (requires `#include boost/geometry/geometries/adapted/fusion.hpp>`)
+* a Boost.Tuple (requires `#include boost/geometry/geometries/adapted/tuple.hpp>`)
+* an adapted point using one of the [link geometry.reference.register registration macro's]
 
 [endsect]
 
-[/ if wished to separate them]
-[/ section:concept::ConstPoint concept::ConstPoint]
-
-[/ heading Description]
-
-
-[/ endsect]
 

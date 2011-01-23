@@ -45,9 +45,21 @@ inline std::string get_attribute(rapidxml::xml_node<>* node, const char* name)
 
 inline void get_contents(rapidxml::xml_node<>* node, std::string& contents)
 {
-    if (node != NULL && node->type() == rapidxml::node_element)
+    if (node != NULL)
     {
-        contents += node->value();
+        if (node->type() == rapidxml::node_element)
+        {
+            //std::cout << "ELEMENT: " << node->name() << "=" << node->value() << std::endl;
+        }
+        else if (node->type() == rapidxml::node_data)
+        {
+            contents += node->value();
+            //std::cout << "DATA: " << node->name() << "=" << node->value() << std::endl;
+        }
+        else
+        {
+            //std::cout << "OTHER: " << node->name() << "=" << node->value() << std::endl;
+        }
         get_contents(node->first_node(), contents);
         get_contents(node->next_sibling(), contents);
     }
