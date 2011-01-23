@@ -28,15 +28,17 @@ namespace model
 {
 
 /*!
-    \brief Allocator linestring (named so by OGC) is a collection (default a vector) of points.
-    \ingroup geometries
-    \tparam Point point type
-    \tparam Container optional container type, for example std::vector, std::list, std::deque
-    \tparam Allocator optional container-allocator-type
-    (see http://accu.org/index.php/journals/427#ftn.d0e249 )
-    \par Concepts:
-    All algorithms work on ranges, based on a container with point types fulfilling
-    the point concepts. They will take linestring, but also vector, std::pair, or other containers.
+\brief A linestring (named so by OGC) is a collection (default a vector) of points.
+\ingroup geometries
+\tparam Point \tparam_point
+\tparam Container \tparam_container
+\tparam Allocator \tparam_allocator
+
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_linestring Linestring Concept]
+}
+
 */
 template
 <
@@ -51,10 +53,12 @@ class linestring : public Container<Point, Allocator<Point> >
     typedef Container<Point, Allocator<Point> > base_type;
 
 public :
+    /// \constructor_default{linestring}
     inline linestring()
         : base_type()
     {}
 
+    /// \constructor_begin_end{linestring}
     template <typename Iterator>
     inline linestring(Iterator begin, Iterator end)
         : base_type(begin, end)

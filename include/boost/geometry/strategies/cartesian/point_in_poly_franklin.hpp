@@ -23,11 +23,15 @@ namespace strategy { namespace within
 /*!
 \brief Within detection using cross counting
 \ingroup strategies
+\tparam Point \tparam_point
+\tparam PointOfSegment \tparam_segment_point
+\tparam CalculationType \tparam_calculation
 \author adapted from Randolph Franklin algorithm
 \author Barend and Maarten, 1995
 \author Revised for templatized library, Barend Gehrels, 2007
 \return true if point is in ring, works for closed rings in both directions
 \note Does NOT work correctly for point ON border
+
 
  */
 

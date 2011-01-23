@@ -47,25 +47,25 @@ namespace strategy { namespace distance
 \ingroup strategies
 \details Calculates distance using projected-point method, and (optionally) Pythagoras
 \author Adapted from: http://geometryalgorithms.com/Archive/algorithm_0102/algorithm_0102.htm
-\tparam Point point type
-\tparam PointOfSegment \tparam_optional_segment_point
+\tparam Point \tparam_point
+\tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
-\tparam Strategy strategy, optional, underlying point-point distance strategy, defaults to pythagoras
+\tparam Strategy underlying point-point distance strategy
 \par Concepts for Strategy:
 - cartesian_distance operator(Point,Point)
 \note If the Strategy is a "comparable::pythagoras", this strategy
     automatically is a comparable projected_point strategy (so without sqrt)
 
-\qbk_begin
+\qbk{
 [heading See also]
 [link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
-\qbk_end
+}
 
 */
 template
 <
     typename Point,
-    typename PointOfSegment,
+    typename PointOfSegment = Point,
     typename CalculationType = void,
     typename Strategy = pythagoras<Point, PointOfSegment, CalculationType>
 >

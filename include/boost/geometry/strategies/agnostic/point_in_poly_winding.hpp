@@ -29,8 +29,9 @@ namespace strategy { namespace within
 /*!
 \brief Within detection using winding rule
 \ingroup strategies
-\tparam Point point type of point to examine
-\tparam PointOfSegment point type of segments, defaults to Point
+\tparam Point \tparam_point
+\tparam PointOfSegment \tparam_segment_point
+\tparam CalculationType \tparam_calculation
 \author Barend Gehrels
 \note The implementation is inspired by terralib http://www.terralib.org (LGPL)
 \note but totally revised afterwards, especially for cases on segments

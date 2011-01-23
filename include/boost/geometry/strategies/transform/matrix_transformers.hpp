@@ -43,8 +43,8 @@ namespace strategy { namespace transform
 \ingroup strategies
 \tparam P1 first point type (source)
 \tparam P2 second point type (target)
-\tparam Dimension1 number of dimensions to transform from first point, optional
-\tparam Dimension1 number of dimensions to transform to second point, optional
+\tparam Dimension1 number of dimensions to transform from first point
+\tparam Dimension1 number of dimensions to transform to second point
  */
 template
 <
@@ -189,8 +189,8 @@ public :
 \ingroup strategies
 \tparam P1 first point type
 \tparam P2 second point type
-\tparam Dimension1 number of dimensions to transform from first point, optional
-\tparam Dimension1 number of dimensions to transform to second point, optional
+\tparam Dimension1 number of dimensions to transform from first point
+\tparam Dimension1 number of dimensions to transform to second point
  */
 template
 <
@@ -248,8 +248,8 @@ public :
 \ingroup strategies
 \tparam P1 first point type
 \tparam P2 second point type
-\tparam Dimension1 number of dimensions to transform from first point, optional
-\tparam Dimension1 number of dimensions to transform to second point, optional
+\tparam Dimension1 number of dimensions to transform from first point
+\tparam Dimension1 number of dimensions to transform to second point
 */
 template
 <

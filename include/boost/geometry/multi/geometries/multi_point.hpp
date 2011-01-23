@@ -26,20 +26,41 @@ namespace model
 
 
 /*!
-    \brief multi_point, a collection of points
-    \details Multipoint can be used to group points belonging to each other,
-            e.g. a constellation
-    \ingroup geometries
+\brief multi_point, a collection of points
+\ingroup geometries
+\tparam Point \tparam_point
+\tparam Container \tparam_container
+\tparam Allocator \tparam_allocator
+\details Multipoint can be used to group points belonging to each other,
+        e.g. a constellation, or the result set of an intersection
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_multi_point MultiPoint Concept]
+}
 */
 template
 <
-    typename P,
-    template<typename, typename> class V = std::vector,
-    template<typename> class A = std::allocator
+    typename Point,
+    template<typename, typename> class Container = std::vector,
+    template<typename> class Allocator = std::allocator
 >
-class multi_point : public V<P, A<P> >
+class multi_point : public Container<Point, Allocator<Point> >
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<P>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
+
+    typedef Container<Point, Allocator<Point> > base_type;
+
+public :
+    /// \constructor_default{multi_point}
+    inline multi_point()
+        : base_type()
+    {}
+
+    /// \constructor_begin_end{multi_point}
+    template <typename Iterator>
+    inline multi_point(Iterator begin, Iterator end)
+        : base_type(begin, end)
+    {}
 };
 
 } // namespace model
@@ -51,11 +72,11 @@ namespace traits
 
 template
 <
-    typename P,
-    template<typename, typename> class V,
-    template<typename> class A
+    typename Point,
+    template<typename, typename> class Container,
+    template<typename> class Allocator
 >
-struct tag< model::multi_point<P, V, A> >
+struct tag< model::multi_point<Point, Container, Allocator> >
 {
     typedef multi_point_tag type;
 };

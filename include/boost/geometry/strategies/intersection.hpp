@@ -29,6 +29,9 @@ namespace boost { namespace geometry
 // The intersection strategy is a "compound strategy",
 // it contains a segment-intersection-strategy
 // and a side-strategy
+/*!
+\tparam CalculationType \tparam_calculation
+*/
 template
 <
     typename Tag,

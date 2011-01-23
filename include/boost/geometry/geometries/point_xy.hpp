@@ -26,6 +26,11 @@ namespace model { namespace d2
 \brief 2D point in Cartesian coordinate system
 \tparam CoordinateType numeric type, for example, double, float, int
 \tparam CoordinateSystem coordinate system, defaults to cs::cartesian
+
+\qbk{before.synopsis
+[heading Model of]
+[link geometry.reference.concepts.concept_point Point Concept]
+}
 */
 template<typename CoordinateType, typename CoordinateSystem = cs::cartesian>
 class point_xy : public model::point<CoordinateType, 2, CoordinateSystem>

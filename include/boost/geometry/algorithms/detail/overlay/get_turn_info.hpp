@@ -694,7 +694,7 @@ struct assign_null_policy
     \tparam Point1 point type of first segment
     \tparam Point2 point type of second segment
     \tparam TurnInfo type of class getting intersection and turn info
-    \tparam AssignPolicy optional policy to assign extra info,
+    \tparam AssignPolicy policy to assign extra info,
         e.g. to calculate distance from segment's first points
         to intersection points
  */

@@ -96,8 +96,8 @@ private :
 \brief Distance calculation for spherical coordinates
 on a perfect sphere using haversine
 \ingroup strategies
-\tparam Point1 first point type
-\tparam Point2 \tparam_optional_second_point
+\tparam Point1 \tparam_first_point
+\tparam Point2 \tparam_second_point
 \tparam CalculationType \tparam_calculation
 \author Adapted from: http://williams.best.vwh.net/avform.htm
 \see http://en.wikipedia.org/wiki/Great-circle_distance
@@ -110,10 +110,10 @@ A mathematically equivalent formula, which is less subject
     + cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2))
     </em>
 
-\qbk_begin
+\qbk{
 [heading See also]
 [link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
-\qbk_end
+}
 
 */
 template

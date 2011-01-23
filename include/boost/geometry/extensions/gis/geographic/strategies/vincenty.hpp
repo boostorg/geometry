@@ -31,15 +31,16 @@ namespace strategy { namespace distance
 {
 
 /*!
-    \brief Distance calculation formulae on latlong coordinates, after Vincenty, 1975
-    \ingroup distance
-    \tparam Point1 first point type
-    \tparam Point2 optional second point type
-    \author See http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
-    \author Adapted from various implementations to get it close to the original document
-        - http://www.movable-type.co.uk/scripts/LatLongVincenty.html
-        - http://exogen.case.edu/projects/geopy/source/geopy.distance.html
-        - http://futureboy.homeip.net/fsp/colorize.fsp?fileName=navigation.frink
+\brief Distance calculation formulae on latlong coordinates, after Vincenty, 1975
+\ingroup distance
+\tparam Point1 \tparam_first_point
+\tparam Point2 \tparam_second_point
+\tparam CalculationType \tparam_calculation
+\author See http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
+\author Adapted from various implementations to get it close to the original document
+    - http://www.movable-type.co.uk/scripts/LatLongVincenty.html
+    - http://exogen.case.edu/projects/geopy/source/geopy.distance.html
+    - http://futureboy.homeip.net/fsp/colorize.fsp?fileName=navigation.frink
 
 */
 template

@@ -66,8 +66,8 @@ namespace comparable
 /*!
 \brief Strategy to calculate comparable distance between two points
 \ingroup strategies
-\tparam Point1 first point type
-\tparam Point2 \tparam_optional_second_point
+\tparam Point1 \tparam_first_point
+\tparam Point2 \tparam_second_point
 \tparam CalculationType \tparam_calculation
 */
 template
@@ -111,16 +111,16 @@ public :
 /*!
 \brief Strategy to calculate the distance between two points
 \ingroup strategies
-\tparam Point1 first point type
-\tparam Point2 \tparam_optional_second_point
+\tparam Point1 \tparam_first_point
+\tparam Point2 \tparam_second_point
 \tparam CalculationType \tparam_calculation
 
-\qbk_begin
+\qbk{
 [heading Notes]
-[note Can be used for points with two, three or more dimensions]
+[note Can be used for points with two\, three or more dimensions]
 [heading See also]
 [link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
-\qbk_end
+}
 
 */
 template

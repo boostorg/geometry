@@ -27,13 +27,13 @@ namespace strategy { namespace area
 \ingroup strategies
 \details Calculates area using the Surveyor's formula, a well-known
     triangulation algorithm
-\tparam PointOfSegment point type of segments of rings/polygons
+\tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
 
-\qbk_begin
+\qbk{
 [heading See also]
 [link geometry.reference.algorithms.area.area_2_with_strategy area]
-\qbk_end
+}
 
 */
 template

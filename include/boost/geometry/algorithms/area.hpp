@@ -249,18 +249,18 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 
 \qbk{distinguish,with strategy}
 
-\qbk_begin
+\qbk{
 [include ref/algorithms/area.qbk]
 
 [heading Example]
 [area_with_strategy]
 [area_with_strategy_output]
 
-[heading Available strategies]
+[heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_area_surveyor Surveyor (cartesian)]
 \* [link geometry.reference.strategies.strategy_area_huiller Huiller (spherical)]
 
-\qbk_end
+}
  */
 template <typename Geometry, typename Strategy>
 inline typename Strategy::return_type area(

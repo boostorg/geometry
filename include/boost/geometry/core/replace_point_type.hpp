@@ -23,7 +23,7 @@
 // TODO: take "const" into account
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/box.hpp>
@@ -59,7 +59,7 @@ struct replace_point_type<segment_tag, Geometry, NewPointType>
 template <typename Geometry, typename NewPointType>
 struct replace_point_type<ring_tag, Geometry, NewPointType>
 {
-    typedef model::linear_ring<NewPointType> type;
+    typedef model::ring<NewPointType> type;
 };
 
 template <typename Geometry, typename NewPointType>

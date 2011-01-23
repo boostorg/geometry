@@ -18,9 +18,10 @@ namespace boost { namespace geometry
 
 
 /*!
-    \brief Traits class binding a side determination strategy to a coordinate system
-    \ingroup util
-    \tparam Tag tag of coordinate system of point-type
+\brief Traits class binding a side determination strategy to a coordinate system
+\ingroup util
+\tparam Tag tag of coordinate system of point-type
+\tparam CalculationType \tparam_calculation
 */
 template <typename Tag, typename CalculationType = void>
 struct strategy_side

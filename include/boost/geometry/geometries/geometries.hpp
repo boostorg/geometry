@@ -14,7 +14,7 @@
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
