@@ -72,7 +72,7 @@ int main(void)
     // Let's add one
     {
         poly.inners().resize(1);
-        model::linear_ring<point_2d>& inner = poly.inners().back();
+        model::ring<point_2d>& inner = poly.inners().back();
 
         const double coor[][2] = { {4.0, 2.0}, {4.2, 1.4}, {4.8, 1.9}, {4.4, 2.2}, {4.0, 2.0} };
         assign(inner, coor);

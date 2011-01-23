@@ -105,7 +105,7 @@ int main()
         BOOST_FOREACH(polygon_type const& polygon, country)
         {
             // Ignore holes, so take only exterior ring
-            bg::model::linear_ring<point_type> const& ring = bg::exterior_ring(polygon);
+            bg::model::ring<point_type> const& ring = bg::exterior_ring(polygon);
 
             // If wished, suppress too small polygons.
             // (Note that even in latlong, area is calculated in square meters)

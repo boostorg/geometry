@@ -43,7 +43,7 @@ void test_std()
     test_all<P>();
 
     typedef bg::model::box<P> box_type;
-    typedef bg::model::linear_ring<P> ring_type;
+    typedef bg::model::ring<P> ring_type;
     typedef bg::model::polygon<P> polygon_type;
 
     box_type b;

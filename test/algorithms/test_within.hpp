@@ -14,7 +14,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
@@ -44,7 +44,7 @@ template <typename Point, bool Clockwise, bool Closed>
 void test_ordered_ring(std::string const& wkt_point,
         std::string const& wkt_geometry, bool expected, bool on_border)
 {
-    typedef bg::model::linear_ring<Point, Clockwise, Closed> ring_type;
+    typedef bg::model::ring<Point, Clockwise, Closed> ring_type;
     ring_type ring;
     Point point;
 

@@ -37,7 +37,7 @@ void test_remove_holes_if(std::string const& wkt, Predicate const& predicate,
 template <typename P>
 void test_all()
 {
-    bg::elongated_hole<bg::model::linear_ring<P> > elongated(0.05);
+    bg::elongated_hole<bg::model::ring<P> > elongated(0.05);
 
     // No holes
     test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))", elongated, 5);
@@ -52,7 +52,7 @@ void test_all()
     test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2))", elongated, 5);
 
     // Invalid hole
-    bg::invalid_hole<bg::model::linear_ring<P> > invalid;
+    bg::invalid_hole<bg::model::ring<P> > invalid;
     test_remove_holes_if<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0), (1 1,1 2))", invalid, 5);
 
     // Valid hole

@@ -76,7 +76,7 @@ void test_all()
     // Note that intersections are tested elsewhere, they don't need
     // thorough test at this place
     typedef bg::model::polygon<P> polygon;
-    typedef bg::model::linear_ring<P> ring;
+    typedef bg::model::ring<P> ring;
 
     // Four times same test with other types
     test_disjoint<polygon, polygon>("disjoint_simplex_pp", disjoint_simplex[0], disjoint_simplex[1], true);

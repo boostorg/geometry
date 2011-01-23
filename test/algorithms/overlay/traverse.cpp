@@ -57,10 +57,10 @@
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
 
-template 
+template
 <
-    bg::detail::overlay::operation_type Direction, 
-    bool Reverse1 = false, 
+    bg::detail::overlay::operation_type Direction,
+    bool Reverse1 = false,
     bool Reverse2 = false
 >
 struct test_traverse
@@ -144,7 +144,7 @@ struct test_traverse
                     : bg::detail::overlay::operation_intersection,
             g1, g2, side_strategy_type());
 
-        typedef bg::model::linear_ring<typename bg::point_type<G2>::type> ring_type;
+        typedef bg::model::ring<typename bg::point_type<G2>::type> ring_type;
         typedef std::vector<ring_type> out_vector;
         out_vector v;
 

@@ -36,7 +36,7 @@ void test_all()
         "LINESTRING(0 0,5 5,7 5,10 10)",
         "LINESTRING(0 0,5 5,7 5,10 10)", 1.0);
 
-    test_geometry<bg::model::linear_ring<P> >(
+    test_geometry<bg::model::ring<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
 
@@ -65,7 +65,7 @@ union all select astext(ST_Simplify(geomfromtext('POLYGON((4 0, 8 2, 8 7, 4 9, 0
         "POINT(0 0)", 1.0);
 
 
-    test_geometry<bg::model::linear_ring<P> >(
+    test_geometry<bg::model::ring<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
 }

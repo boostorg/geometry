@@ -97,7 +97,7 @@ int main()
     //boost::geometry::union<ring_type>(a, b, unioned);
 
     /* This once worked, using pointers, but has to be fixed or deprecated
-    typedef boost::geometry::model::linear_ring<boost::geometry::model::d2::point_xy<double> > ring_2d;
+    typedef boost::geometry::model::ring<boost::geometry::model::d2::point_xy<double> > ring_2d;
     std::vector<ring_2d> unioned;
     std::vector<ring_2d> intersected;
 

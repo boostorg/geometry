@@ -56,7 +56,7 @@ int test_main(int, char* [])
     boost::polygon::polygon_data<double> r1;
     r1.set(point_vector.begin(), point_vector.end());
 
-    bg::model::linear_ring<bg_point> r2;
+    bg::model::ring<bg_point> r2;
     r2.push_back(bg_point(0, 0));
     r2.push_back(bg_point(0, 3));
     r2.push_back(bg_point(4, 0));

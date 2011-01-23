@@ -20,7 +20,7 @@
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
 
@@ -73,34 +73,34 @@ void test_all()
     std::string ccw_open_ring = "POLYGON((0 0,1 0,1 1,0 1))";
 
     // already cw_ring
-    test_geometry<bg::model::linear_ring<P> >(cw_ring, cw_ring);
+    test_geometry<bg::model::ring<P> >(cw_ring, cw_ring);
 
     // wrong order
-    test_geometry<bg::model::linear_ring<P> >(ccw_ring, cw_ring);
+    test_geometry<bg::model::ring<P> >(ccw_ring, cw_ring);
 
     // ccw-ring, input ccw-ring, already correct
-    test_geometry<bg::model::linear_ring<P, false> >(ccw_ring, ccw_ring);
+    test_geometry<bg::model::ring<P, false> >(ccw_ring, ccw_ring);
 
     // ccw-ring, input cw-ring, corrected
-    test_geometry<bg::model::linear_ring<P, false> >(cw_ring, ccw_ring);
+    test_geometry<bg::model::ring<P, false> >(cw_ring, ccw_ring);
 
     // open-ring, input ccw-ring, already correct
-    test_geometry<bg::model::linear_ring<P, true, false> >(cw_open_ring, cw_open_ring);
+    test_geometry<bg::model::ring<P, true, false> >(cw_open_ring, cw_open_ring);
 
     // ccw-ring, input cw-ring, corrected
-    test_geometry<bg::model::linear_ring<P, true, false> >(ccw_open_ring, "POLYGON((0 1,1 1,1 0,0 0))");
+    test_geometry<bg::model::ring<P, true, false> >(ccw_open_ring, "POLYGON((0 1,1 1,1 0,0 0))");
 
 
 
     // not closed
-    test_geometry<bg::model::linear_ring<P> >(
+    test_geometry<bg::model::ring<P> >(
             ccw_open_ring,
             cw_ring);
 
     // counter clockwise, cw_ring
-    test_geometry<bg::model::linear_ring<P, false> >(ccw_ring, ccw_ring);
+    test_geometry<bg::model::ring<P, false> >(ccw_ring, ccw_ring);
 
-    test_geometry<bg::model::linear_ring<P, false> >(cw_ring, ccw_ring);
+    test_geometry<bg::model::ring<P, false> >(cw_ring, ccw_ring);
 
 
     // polygon: cw_ring

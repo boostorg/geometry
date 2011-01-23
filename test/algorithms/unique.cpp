@@ -32,7 +32,7 @@ void test_all()
         "LINESTRING(0 0,1 1)");
 
     // Other types
-    test_geometry<bg::model::linear_ring<Point> >(
+    test_geometry<bg::model::ring<Point> >(
         "POLYGON((0 0,0 1,1 1,1 1,1 1,1 0,0 0,0 0))",
         "POLYGON((0 0,0 1,1 1,1 0,0 0))");
 

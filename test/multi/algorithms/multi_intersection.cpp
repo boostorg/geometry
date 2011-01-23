@@ -136,22 +136,22 @@ template <typename P>
 void test_all()
 {
     typedef bg::model::box<P> box;
-    typedef bg::model::linear_ring<P> ring;
+    typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
     test_areal<ring, polygon, multi_polygon>();
 
-    typedef bg::model::linear_ring<P, false> ring_ccw;
+    typedef bg::model::ring<P, false> ring_ccw;
     typedef bg::model::polygon<P, false> polygon_ccw;
     typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
     test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
 
-    typedef bg::model::linear_ring<P, true, false> ring_open;
+    typedef bg::model::ring<P, true, false> ring_open;
     typedef bg::model::polygon<P, true, false> polygon_open;
     typedef bg::model::multi_polygon<polygon_open> multi_polygon_open;
     test_areal<ring_open, polygon_open, multi_polygon_open>();
 
-    typedef bg::model::linear_ring<P, false, false> ring_open_ccw;
+    typedef bg::model::ring<P, false, false> ring_open_ccw;
     typedef bg::model::polygon<P, false, false> polygon_open_ccw;
     typedef bg::model::multi_polygon<polygon_open_ccw> multi_polygon_open_ccw;
     test_areal<ring_open_ccw, polygon_open_ccw, multi_polygon_open_ccw>();

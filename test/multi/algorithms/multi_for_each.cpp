@@ -13,7 +13,7 @@
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/polygon.hpp>

@@ -47,7 +47,7 @@ void test_all()
     test_dsv<model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))",
         "(((0, 0), (0, 4), (4, 4), (4, 0), (0, 0)))");
 
-    test_dsv<model::linear_ring<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))",
+    test_dsv<model::ring<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0))",
         "((0, 0), (0, 4), (4, 4), (4, 0), (0, 0))");
 
     test_dsv<model::box<P> >("BOX(0 0,1 1)",

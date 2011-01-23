@@ -38,7 +38,7 @@ void test_all()
     // Check compilation
     test_geometry<Point>("POINT(0 0)", "POINT(0 0)");
 
-    test_geometry<bg::model::linear_ring<Point> >(
+    test_geometry<bg::model::ring<Point> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,2 1,0 2,0 7,4 9,8 7,8 2,4 0))");
 }
