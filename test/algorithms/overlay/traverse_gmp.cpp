@@ -71,7 +71,7 @@ void test_traverse(std::string const& caseid, G1 const& g1, G2 const& g2)
     bg::get_turns<false, false, bg::detail::overlay::calculate_distance_policy>(g1, g2, ips);
     bg::enrich_intersection_points(ips, g1, g2, strategy_type());
 
-    typedef bg::model::linear_ring<typename bg::point_type<G2>::type> ring_type;
+    typedef bg::model::ring<typename bg::point_type<G2>::type> ring_type;
     typedef std::vector<ring_type> out_vector;
     out_vector v;
 

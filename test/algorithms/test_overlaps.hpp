@@ -14,7 +14,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>

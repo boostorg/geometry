@@ -126,7 +126,7 @@ void test_all()
 
     // Non OGC: a box defined by a polygon
     //test_wkt<box<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 4, 0, 1, 4);
-    test_wkt<bg::model::linear_ring<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 5, 0, 1, 4);
+    test_wkt<bg::model::ring<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 5, 0, 1, 4);
 
     // We accept empty sequences as well (much better than EMPTY)...
     // ...or even POINT() (see below)
@@ -177,7 +177,7 @@ void test_all()
     }
 
     test_wkt_output_iterator<bg::model::linestring<P> >("LINESTRING(1 1,2 2,3 3)");
-    test_wkt_output_iterator<bg::model::linear_ring<P> >("POLYGON((1 1,2 2,3 3))");
+    test_wkt_output_iterator<bg::model::ring<P> >("POLYGON((1 1,2 2,3 3))");
 }
 #endif
 

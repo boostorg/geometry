@@ -20,7 +20,7 @@ void test_2d()
     test_centroid<bg::model::linestring<P> >("LINESTRING(0 0,0 4, 4 4)", 1.0, 3.0);
     test_centroid<bg::model::linestring<P> >("LINESTRING(0 0,3 3,0 6,3 9,0 12)", 1.5, 6.0);
 
-    test_centroid<bg::model::linear_ring<P> >(
+    test_centroid<bg::model::ring<P> >(
         "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2"
         ",3.7 1.6,3.4 2,4.1 3,5.3 2.6,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3))",
         4.06923363095238, 1.65055803571429);
@@ -39,15 +39,15 @@ void test_2d()
 
 
     // ccw
-    test_centroid<bg::model::linear_ring<P, false> >(
+    test_centroid<bg::model::ring<P, false> >(
         "POLYGON((2 1.3,2.9 0.7,4.9 0.8,5.4 1.2,5.3 2.6,4.1 3,3.4 2"
             ",3.7 1.6,3.4 1.2,2.8 1.8,2.4 1.7,2 1.3))",
         4.06923363095238, 1.65055803571429);
 
     // open / closed
-    test_centroid<bg::model::linear_ring<P, true, true> >(
+    test_centroid<bg::model::ring<P, true, true> >(
             "POLYGON((1 1,2 2,3 1,2 0,1 1))", 2.0, 1.0);
-    test_centroid<bg::model::linear_ring<P, true, false> >(
+    test_centroid<bg::model::ring<P, true, false> >(
             "POLYGON((1 1,2 2,3 1,2 0))", 2.0, 1.0);
 
     test_centroid<bg::model::box<P> >("POLYGON((1 2,3 4))", 2, 3);

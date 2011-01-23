@@ -17,7 +17,7 @@ void test_all()
     // 3-4-5 triangle
     //test_geometry<std::pair<P, P> >("LINESTRING(0 0,3 4)", 5);
 
-    test_geometry<bg::model::linear_ring<P> >(
+    test_geometry<bg::model::ring<P> >(
             "POLYGON((0 0,0 1,1 1,1 0,0 0))", 4);
     test_geometry<bg::model::polygon<P> >(
             "POLYGON((0 0,0 1,1 0,0 0))", 1.0 + 1.0 + sqrt(2.0));

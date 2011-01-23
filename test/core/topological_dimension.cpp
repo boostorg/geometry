@@ -34,7 +34,7 @@ void test_all()
     test_geometry<P, 0>();
     test_geometry<P const, 0>();
     test_geometry<bg::model::linestring<P> , 1>();
-    test_geometry<bg::model::linear_ring<P> , 2>(); // being discussed
+    test_geometry<bg::model::ring<P> , 2>(); // being discussed
     test_geometry<bg::model::polygon<P> , 2>();
     test_geometry<bg::model::box<P> , 2>();
     test_geometry<bg::model::segment<P> , 1>();

@@ -55,7 +55,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     bg::enrich_intersection_points<rev<Geometry1>::value, rev<Geometry2>::value >(turns, bg::detail::overlay::operation_intersection,
         g1, g2, side_strategy_type());
 
-    typedef bg::model::linear_ring<typename bg::point_type<Geometry1>::type> ring_type;
+    typedef bg::model::ring<typename bg::point_type<Geometry1>::type> ring_type;
     typedef std::deque<ring_type> out_vector;
     out_vector v;
 

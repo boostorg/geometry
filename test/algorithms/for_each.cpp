@@ -40,7 +40,7 @@ void test_all()
             , std::sqrt(2.0)
             , "LINESTRING(10 1,2 2)"
         );
-    test_geometry<bg::model::linear_ring<P> >
+    test_geometry<bg::model::ring<P> >
         (
             "POLYGON((1 1,1 4,4 4,4 1,1 1))"
 

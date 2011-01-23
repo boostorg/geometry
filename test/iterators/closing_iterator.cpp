@@ -100,7 +100,7 @@ template <typename P>
 void test_all()
 {
     test_non_geometry();
-    test_geometry<bg::model::linear_ring<P> >("POLYGON((1 1,1 4,4 4,4 1))");
+    test_geometry<bg::model::ring<P> >("POLYGON((1 1,1 4,4 4,4 1))");
 }
 
 

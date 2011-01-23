@@ -177,12 +177,12 @@ void test_all()
     test_geometry<bg::model::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
 
     // Rings
-    test_geometry<P, bg::model::linear_ring<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
-    test_geometry<P, bg::model::linear_ring<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
+    test_geometry<P, bg::model::ring<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
+    test_geometry<P, bg::model::ring<P> >("POINT(3 1)", "POLYGON((1 1,4 4,5 0,1 1))", 0.0);
     // other way round
-    test_geometry<bg::model::linear_ring<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
+    test_geometry<bg::model::ring<P>, P>("POLYGON((1 1,4 4,5 0,1 1))", "POINT(3 1)", 0.0);
     // open ring
-    test_geometry<P, bg::model::linear_ring<P, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
+    test_geometry<P, bg::model::ring<P, true, false> >("POINT(1 3)", "POLYGON((4 4,5 0,1 1))", sqrt(2.0));
 
     // Polygons
     test_geometry<P, bg::model::polygon<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));

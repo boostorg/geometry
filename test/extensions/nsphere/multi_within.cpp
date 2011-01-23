@@ -12,7 +12,7 @@
 #include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -24,7 +24,7 @@ int test_main( int , char* [] )
 {
     typedef bg::model::d2::point_xy<double> gl_point;
     typedef bg::circle gl_circle;
-    typedef bg::model::linear_ring<gl_point> gl_ring;
+    typedef bg::model::ring<gl_point> gl_ring;
     typedef bg::model::polygon<gl_point> gl_polygon;
     typedef bg::multi_polygon<gl_polygon> gl_multi_polygon;
 

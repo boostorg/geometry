@@ -30,9 +30,9 @@ void test_all()
     test_reversed<P, P, false>();
     test_reversed<P, bg::model::linestring<P>, false>();
     test_reversed<bg::model::linestring<P>, P, true>();
-    test_reversed<bg::model::linear_ring<P>, P, true>();
-    test_reversed<bg::model::linestring<P>, bg::model::linear_ring<P>, false>();
-    test_reversed<bg::model::linear_ring<P>, bg::model::linestring<P>, true>();
+    test_reversed<bg::model::ring<P>, P, true>();
+    test_reversed<bg::model::linestring<P>, bg::model::ring<P>, false>();
+    test_reversed<bg::model::ring<P>, bg::model::linestring<P>, true>();
 }
 
 template <typename P1, typename P2>

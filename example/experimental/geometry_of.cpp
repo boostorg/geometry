@@ -136,7 +136,7 @@ int main()
             geometry_of = {{{}}};
 
     // Initialize a ring:
-    typedef bg::model::linear_ring<bg::model::d2::point_xy<double> > ring_type;
+    typedef bg::model::ring<bg::model::d2::point_xy<double> > ring_type;
     ring_type ring = geometry_of(16, 1)(15,2)(14, 3)(13,4)(12, 3.14)(1,6);
     std::cout << bg::wkt(ring) << std::endl;
 

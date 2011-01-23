@@ -109,14 +109,14 @@ void test_all()
 {
 
     {
-        typedef bg::model::linear_ring<P> ring;
+        typedef bg::model::ring<P> ring;
         typedef bg::model::polygon<P> polygon;
         typedef bg::model::multi_polygon<polygon> multi_polygon;
         test_areal<ring, polygon, multi_polygon>();
     }
 
     {
-        typedef bg::model::linear_ring<P, false> ring_ccw;
+        typedef bg::model::ring<P, false> ring_ccw;
         typedef bg::model::polygon<P, false> polygon_ccw;
         typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
         // TODO: ccw has issues with multi-touch

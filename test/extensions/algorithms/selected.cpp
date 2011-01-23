@@ -60,7 +60,7 @@ void test_all()
     test_selected<bg::model::linestring<P> >("LINESTRING(1 2)", P(1,1), false, 0.0001);
 
     // nyi
-    //test_selected<bg::model::linear_ring<P> >();
+    //test_selected<bg::model::ring<P> >();
 
     test_selected<bg::model::polygon<P> >("POLYGON((0 0,0 7,4 2,2 0,0 0))", P(0.001, 0.001), true, 0.0001);
     test_selected<bg::model::polygon<P> >("POLYGON((0 0,0 7,4 2,2 0,0 0))", P(1, 1), true, 0.0001);

@@ -13,7 +13,7 @@
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
 //#define GEOMETRY_TEST_DEBUG
@@ -30,8 +30,8 @@ void test_all()
 
 
     // clockwise rings (second is wrongly ordered)
-    test_geometry<bg::model::linear_ring<P> >("POLYGON((0 0,0 7,4 2,2 0,0 0))", 16.0);
-    test_geometry<bg::model::linear_ring<P> >("POLYGON((0 0,2 0,4 2,0 7,0 0))", -16.0);
+    test_geometry<bg::model::ring<P> >("POLYGON((0 0,0 7,4 2,2 0,0 0))", 16.0);
+    test_geometry<bg::model::ring<P> >("POLYGON((0 0,2 0,4 2,0 7,0 0))", -16.0);
 
     test_geometry<bg::model::polygon<P> >("POLYGON((0 0,0 7,4 2,2 0,0 0))", 16.0);
     test_geometry<bg::model::polygon<P> >("POLYGON((1 1,2 1,2 2,1 2,1 1))", -1.0);

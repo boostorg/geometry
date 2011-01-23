@@ -43,7 +43,7 @@ template <typename P>
 void test_all()
 {
     test_geometry<bg::model::linestring<P> >();
-    test_geometry<bg::model::linear_ring<P> >();
+    test_geometry<bg::model::ring<P> >();
     test_geometry<bg::model::polygon<P> >();
 
     test_geometry<std::vector<P> >();

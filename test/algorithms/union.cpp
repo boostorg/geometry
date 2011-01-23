@@ -223,19 +223,19 @@ template <typename P>
 void test_all()
 {
     typedef bg::model::polygon<P> polygon;
-    typedef bg::model::linear_ring<P> ring;
+    typedef bg::model::ring<P> ring;
     typedef bg::model::box<P> box;
 
     test_areal<ring, polygon>();
 
     // Open
-    test_areal<bg::model::linear_ring<P, true, false>, bg::model::polygon<P, true, false> >();
+    test_areal<bg::model::ring<P, true, false>, bg::model::polygon<P, true, false> >();
 
     // Counter clockwise
-    test_areal<bg::model::linear_ring<P, false>, bg::model::polygon<P, false> >();
+    test_areal<bg::model::ring<P, false>, bg::model::polygon<P, false> >();
 
     // Counter clockwise and open
-    test_areal<bg::model::linear_ring<P, false, false>, bg::model::polygon<P, false, false> >();
+    test_areal<bg::model::ring<P, false, false>, bg::model::polygon<P, false, false> >();
 
     test_one<polygon, box, polygon>("box_ring", example_box, example_ring,
         1, 1, 15, 6.38875);

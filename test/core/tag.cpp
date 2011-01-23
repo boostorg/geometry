@@ -35,7 +35,7 @@ void test_all()
     test_geometry<P, bg::point_tag>();
     test_geometry<P const, bg::point_tag>();
     test_geometry<bg::model::linestring<P> , bg::linestring_tag>();
-    test_geometry<bg::model::linear_ring<P> , bg::ring_tag>();
+    test_geometry<bg::model::ring<P> , bg::ring_tag>();
     test_geometry<bg::model::polygon<P> , bg::polygon_tag>();
     test_geometry<bg::model::box<P> , bg::box_tag>();
     test_geometry<bg::model::segment<P> , bg::segment_tag>();

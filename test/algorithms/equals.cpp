@@ -16,7 +16,7 @@ template <typename P>
 void test_all()
 {
     typedef bg::model::box<P> box;
-    typedef bg::model::linear_ring<P> ring;
+    typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::linestring<P> linestring;
 
