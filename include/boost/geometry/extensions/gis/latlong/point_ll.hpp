@@ -39,9 +39,9 @@ namespace model { namespace ll
     \tparam Units units,defaults to degree
     \tparam CoordinateType coordinate type, double (the default) or float
         (it might be int as well)
-    \tparam CoordinateSystem coordinate system, optional, should include NOT degree/radian
+    \tparam CoordinateSystem coordinate system, should include NOT degree/radian
         indication, should be e.g. cs::geographic or cs::spherical
-    \tparam Dimensions dimensions, optional, defaults to 2
+    \tparam Dimensions number of dimensions
     \note There is NO constructor with two values to avoid
         exchanging lat and long
     \note Construction with latitude and longitude can be done in both orders,

@@ -22,6 +22,9 @@ namespace strategy { namespace within
 /*!
 \brief Within detection using cross counting,
 \ingroup strategies
+\tparam Point \tparam_point
+\tparam PointOfSegment \tparam_segment_point
+\tparam CalculationType \tparam_calculation
 \see http://tog.acm.org/resources/GraphicsGems/gemsiv/ptpoly_haines/ptinpoly.c
 \note Does NOT work correctly for point ON border
  */

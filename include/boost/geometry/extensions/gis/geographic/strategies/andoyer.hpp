@@ -28,19 +28,20 @@ namespace strategy { namespace distance
 
 
 /*!
-    \brief Point-point distance approximation taking flattening into account
-    \ingroup distance
-    \tparam Point1 first point type
-    \tparam Point2 optional second point type
-    \author After Andoyer, 19xx, republished 1950, republished by Meeus, 1999
-    \note Although not so well-known, the approximation is very good: in all cases the results
-    are about the same as Vincenty. In my (Barend's) testcases the results didn't differ more than 6 m
-    \see http://nacc.upc.es/tierra/node16.html
-    \see http://sci.tech-archive.net/Archive/sci.geo.satellite-nav/2004-12/2724.html
-    \see http://home.att.net/~srschmitt/great_circle_route.html (implementation)
-    \see http://www.codeguru.com/Cpp/Cpp/algorithms/article.php/c5115 (implementation)
-    \see http://futureboy.homeip.net/frinksamp/navigation.frink (implementation)
-    \see http://www.voidware.com/earthdist.htm (implementation)
+\brief Point-point distance approximation taking flattening into account
+\ingroup distance
+\tparam Point1 \tparam_first_point
+\tparam Point2 \tparam_second_point
+\tparam CalculationType \tparam_calculation
+\author After Andoyer, 19xx, republished 1950, republished by Meeus, 1999
+\note Although not so well-known, the approximation is very good: in all cases the results
+are about the same as Vincenty. In my (Barend's) testcases the results didn't differ more than 6 m
+\see http://nacc.upc.es/tierra/node16.html
+\see http://sci.tech-archive.net/Archive/sci.geo.satellite-nav/2004-12/2724.html
+\see http://home.att.net/~srschmitt/great_circle_route.html (implementation)
+\see http://www.codeguru.com/Cpp/Cpp/algorithms/article.php/c5115 (implementation)
+\see http://futureboy.homeip.net/frinksamp/navigation.frink (implementation)
+\see http://www.voidware.com/earthdist.htm (implementation)
 */
 template
 <
@@ -94,9 +95,9 @@ class andoyer
     private :
         geometry::detail::ellipsoid<calculation_type> m_ellipsoid;
 
-        inline calculation_type calc(calculation_type const& lon1, 
-                    calculation_type const& lat1, 
-                    calculation_type const& lon2, 
+        inline calculation_type calc(calculation_type const& lon1,
+                    calculation_type const& lat1,
+                    calculation_type const& lon2,
                     calculation_type const& lat2) const
         {
             calculation_type const G = (lat1 - lat2) / 2.0;

@@ -30,7 +30,7 @@
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
@@ -127,7 +127,7 @@ struct svg_map<segment_tag, false, Segment>
 
 template <typename Ring>
 struct svg_map<ring_tag, false, Ring>
-    : svg_map_range<Ring, model::linear_ring<model::d2::point_xy<int> > >
+    : svg_map_range<Ring, model::ring<model::d2::point_xy<int> > >
 {};
 
 

@@ -25,20 +25,25 @@ namespace model
 {
 
 /*!
-    \brief multi_polygon, a collection of polygons
-    \details Multi-polygon can be used to group polygons belonging to each other,
-            e.g. Hawaii
-    \ingroup geometries
+\brief multi_polygon, a collection of polygons
+\details Multi-polygon can be used to group polygons belonging to each other,
+        e.g. Hawaii
+\ingroup geometries
+
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_multi_polygon MultiPolygon Concept]
+}
 */
 template
 <
-    typename P,
-    template<typename, typename> class V = std::vector,
-    template<typename> class A = std::allocator
+    typename Polygon,
+    template<typename, typename> class Container = std::vector,
+    template<typename> class Allocator = std::allocator
 >
-class multi_polygon : public V<P, A<P> >
+class multi_polygon : public Container<Polygon, Allocator<Polygon> >
 {
-    BOOST_CONCEPT_ASSERT( (concept::Polygon<P>) );
+    BOOST_CONCEPT_ASSERT( (concept::Polygon<Polygon>) );
 };
 
 
@@ -51,11 +56,11 @@ namespace traits
 
 template
 <
-    typename P,
-    template<typename, typename> class V,
-    template<typename> class A
+    typename Polygon,
+    template<typename, typename> class Container,
+    template<typename> class Allocator
 >
-struct tag< model::multi_polygon<P, V, A> >
+struct tag< model::multi_polygon<Polygon, Container, Allocator> >
 {
     typedef multi_polygon_tag type;
 };

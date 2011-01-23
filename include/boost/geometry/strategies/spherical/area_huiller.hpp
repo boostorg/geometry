@@ -45,7 +45,7 @@ http://trs-new.jpl.nasa.gov/dspace/bitstream/2014/40409/1/07-03.pdf, is simple
 and works well in most cases but not in 180 meridian crossing cases. This probably
 could be solved.
 
-\qbk_begin
+\qbk{
 
 [heading Example]
 [area_with_strategy]
@@ -54,7 +54,7 @@ could be solved.
 
 [heading See also]
 [link geometry.reference.algorithms.area.area_2_with_strategy area]
-\qbk_end
+}
 
 */
 template

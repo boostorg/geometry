@@ -26,20 +26,25 @@ namespace model
 {
 
 /*!
-    \brief multi_line, a collection of linestring
-    \details Multi-linestring can be used to group lines belonging to each other,
-            e.g. a highway (with interruptions)
-    \ingroup geometries
+\brief multi_line, a collection of linestring
+\details Multi-linestring can be used to group lines belonging to each other,
+        e.g. a highway (with interruptions)
+\ingroup geometries
+
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_multi_linestring MultiLineString Concept]
+}
 */
 template
 <
-    typename L,
-    template<typename, typename> class V = std::vector,
-    template<typename> class A = std::allocator
+    typename LineString,
+    template<typename, typename> class Container = std::vector,
+    template<typename> class Allocator = std::allocator
 >
-class multi_linestring : public V<L, A<L> >
+class multi_linestring : public Container<LineString, Allocator<LineString> >
 {
-    BOOST_CONCEPT_ASSERT( (concept::Linestring<L>) );
+    BOOST_CONCEPT_ASSERT( (concept::Linestring<LineString>) );
 };
 
 
@@ -52,11 +57,11 @@ namespace traits
 
 template
 <
-    typename L,
-    template<typename, typename> class V,
-    template<typename> class A
+    typename LineString,
+    template<typename, typename> class Container,
+    template<typename> class Allocator
 >
-struct tag< model::multi_linestring<L, V, A> >
+struct tag< model::multi_linestring<LineString, Container, Allocator> >
 {
     typedef multi_linestring_tag type;
 };

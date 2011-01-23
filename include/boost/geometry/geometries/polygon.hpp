@@ -19,7 +19,7 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
-#include <boost/geometry/geometries/linear_ring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 
 namespace boost { namespace geometry
 {
@@ -28,21 +28,28 @@ namespace model
 {
 
 /*!
-\brief The \b polygon contains an outer ring and zero or more inner rings.
+\brief The polygon contains an outer ring and zero or more inner rings.
 \ingroup geometries
-\tparam P point type
-\tparam ClockWise optional parameter, true for clockwise direction,
+\tparam Point point type
+\tparam ClockWise true for clockwise direction,
             false for CounterClockWise direction
-\tparam Closed optional parameter, true for closed polygons (last point == first point),
+\tparam Closed true for closed polygons (last point == first point),
             false open points
-\tparam PointList optional container type for points,
+\tparam PointList container type for points,
             for example std::vector, std::list, std::deque
-\tparam RingList optional container type for inner rings,
+\tparam RingList container type for inner rings,
             for example std::vector, std::list, std::deque
-\tparam PointAlloc container-allocator-type
-\tparam RingAlloc container-allocator-type
+\tparam PointAlloc container-allocator-type, for the points
+\tparam RingAlloc container-allocator-type, for the rings
 \note The container collecting the points in the rings can be different
     from the container collecting the inner rings. They all default to vector.
+
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_polygon Polygon Concept]
+}
+
+
 */
 template
 <
@@ -62,7 +69,7 @@ public:
 
     // Member types
     typedef Point point_type;
-    typedef linear_ring<Point, ClockWise, Closed, PointList, PointAlloc> ring_type;
+    typedef ring<Point, ClockWise, Closed, PointList, PointAlloc> ring_type;
     typedef RingList<ring_type , RingAlloc<ring_type > > inner_container_type;
 
     inline ring_type const& outer() const { return m_outer; }

@@ -57,9 +57,9 @@ static inline double course(Point const& p1, Point const& p2)
 \details from a Great Circle segment between two points:
          left of segment (> 0), right of segment (< 0), on segment (0)
 \ingroup strategies
-\tparam CalculationType CalculationType
+\tparam CalculationType \tparam_calculation
  */
-template <typename CalculationType>
+template <typename CalculationType = void>
 class side_by_cross_track
 {
 

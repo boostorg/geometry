@@ -476,15 +476,14 @@ struct distance_reversed
 
 \qbk{distinguish,with strategy}
 
-\qbk_begin
-
-[heading Available strategies]
+\qbk{
+[heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
 \* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
-\* [link geometry.reference.strategies.strategy_distance_cross_track Cross track (spherical, point-to-segment)]
-\* [link geometry.reference.strategies.strategy_distance_projected_point Projected point (cartesian, point-to-segment)]
-\qbk_end
-
+\* [link geometry.reference.strategies.strategy_distance_cross_track Cross track (spherical\, point-to-segment)]
+\* [link geometry.reference.strategies.strategy_distance_projected_point Projected point (cartesian\, point-to-segment)]
+\* more (currently extensions): Vincenty\, Andoyer (geographic)
+}
  */
 
 /*

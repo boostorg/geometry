@@ -6,16 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_GEOMETRIES_LINEAR_RING_HPP
-#define BOOST_GEOMETRY_GEOMETRIES_LINEAR_RING_HPP
-
-#include <boost/config.hpp>
-
-#if defined(BOOST_MSVC_FULL_VER)
-#pragma message ("linear_ring is renamed to 'ring', so deprecated. Prefer using ring")
-#else
-#warning "linear_ring is renamed to 'ring', so deprecated. Prefer using ring"
-#endif
+#ifndef BOOST_GEOMETRY_GEOMETRIES_RING_HPP
+#define BOOST_GEOMETRY_GEOMETRIES_RING_HPP
 
 #include <memory>
 #include <vector>
@@ -36,11 +28,20 @@ namespace boost { namespace geometry
 namespace model
 {
 /*!
-    \brief A linear_ring (linear linear_ring) is a closed line which should not be selfintersecting
-    \ingroup geometries
-    \tparam Point point type
-    \tparam Container container type, for example std::vector, std::deque
-    \tparam Allocator container-allocator-type
+\brief A ring (aka linear ring) is a closed line which should not be selfintersecting
+\ingroup geometries
+\tparam Point point type
+\tparam ClockWise true for clockwise direction,
+            false for CounterClockWise direction
+\tparam Closed true for closed polygons (last point == first point),
+            false open points
+\tparam Container container type, for example std::vector, std::deque
+\tparam Allocator container-allocator-type
+
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_ring Ring Concept]
+}
 */
 template
 <
@@ -49,19 +50,21 @@ template
     template<typename, typename> class Container = std::vector,
     template<typename> class Allocator = std::allocator
 >
-class linear_ring : public Container<Point, Allocator<Point> >
+class ring : public Container<Point, Allocator<Point> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
     typedef Container<Point, Allocator<Point> > base_type;
 
 public :
-    inline linear_ring()
+    /// \constructor_default{ring}
+    inline ring()
         : base_type()
     {}
 
+    /// \constructor_begin_end{ring}
     template <typename Iterator>
-    inline linear_ring(Iterator begin, Iterator end)
+    inline ring(Iterator begin, Iterator end)
         : base_type(begin, end)
     {}
 };
@@ -80,7 +83,7 @@ template
     template<typename, typename> class Container,
     template<typename> class Allocator
 >
-struct tag<model::linear_ring<Point, ClockWise, Closed, Container, Allocator> >
+struct tag<model::ring<Point, ClockWise, Closed, Container, Allocator> >
 {
     typedef ring_tag type;
 };
@@ -93,7 +96,7 @@ template
     template<typename, typename> class Container,
     template<typename> class Allocator
 >
-struct point_order<model::linear_ring<Point, false, Closed, Container, Allocator> >
+struct point_order<model::ring<Point, false, Closed, Container, Allocator> >
 {
     static const order_selector value = counterclockwise;
 };
@@ -106,7 +109,7 @@ template
     template<typename, typename> class Container,
     template<typename> class Allocator
 >
-struct point_order<model::linear_ring<Point, true, Closed, Container, Allocator> >
+struct point_order<model::ring<Point, true, Closed, Container, Allocator> >
 {
     static const order_selector value = clockwise;
 };
@@ -118,7 +121,7 @@ template
     template<typename, typename> class Container,
     template<typename> class Allocator
 >
-struct closure<model::linear_ring<Point, PointOrder, true, Container, Allocator> >
+struct closure<model::ring<Point, PointOrder, true, Container, Allocator> >
 {
     static const closure_selector value = closed;
 };
@@ -130,7 +133,7 @@ template
     template<typename, typename> class Container,
     template<typename> class Allocator
 >
-struct closure<model::linear_ring<Point, PointOrder, false, Container, Allocator> >
+struct closure<model::ring<Point, PointOrder, false, Container, Allocator> >
 {
     static const closure_selector value = open;
 };
@@ -142,4 +145,4 @@ struct closure<model::linear_ring<Point, PointOrder, false, Container, Allocator
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_GEOMETRIES_LINEAR_RING_HPP
+#endif // BOOST_GEOMETRY_GEOMETRIES_RING_HPP
