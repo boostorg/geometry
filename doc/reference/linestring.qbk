@@ -15,7 +15,10 @@
 [/ Generated from doxy/doxygen_output/xml/classboost_1_1geometry_1_1model_1_1linestring.xml]
 [section:model_linestring model::linestring]
 
-Allocator linestring (named so by OGC) is a collection (default a vector) of points. 
+A linestring (named so by OGC) is a collection (default a vector) of points. 
+
+[heading Model of]
+[link geometry.reference.concepts.concept_linestring Linestring Concept]
 
 [heading Synopsis]
 ``template<typename Point, template< typename, typename > class Container, template< typename > class Allocator>
@@ -27,10 +30,10 @@ class model::linestring
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename Point] [point type ]]
-[[template< typename, typename > class Container] [optional container type, for example std::vector, std::list, std::deque ]]
-[[template< typename > class Allocator] [optional container-allocator-type (see ]]
+[[Parameter] [Default] [Description]]
+[[typename Point] [] [point type ]]
+[[template< typename, typename > class Container] [std::vector] [container type, for example std::vector, std::deque ]]
+[[template< typename > class Allocator] [std::allocator] [container-allocator-type]]
 ]
 
 [heading Constructor(s)]
@@ -38,14 +41,14 @@ class model::linestring
 [[Function] [Description] [Parameters] ]
 [[``linestring ()``
 
-] [] [
+] [Default constructor, creating an empty linestring. ] [
 
 
 ]]
 [[``template<typename Iterator>
 linestring (Iterator begin, Iterator end)``
 
-] [] [[* Iterator]: ['begin]:  
+] [Constructor with begin and end, filling the linestring. ] [[* Iterator]: ['begin]:  
 
 [* Iterator]: ['end]:  
 

@@ -18,7 +18,10 @@
 Basic point class, having coordinates defined in a neutral way. 
 
 [heading Description]
-Defines a neutral point class, fulfilling the Point Concept. Library users can use this point class, or use their own point classes. This point class is used in most of the samples and tests of Boost.Geometry This point class is used occasionally within the library, where a temporary point class is necessary. 
+Defines a neutral point class, fulfilling the Point Concept. Library users can use this point class, or use their own point classes. This point class is used in most of the samples and tests of Boost.Geometry This point class is used occasionally within the library, where a temporary point class is necessary.
+
+[heading Model of]
+[link geometry.reference.concepts.concept_point Point Concept]
 
 [heading Synopsis]
 ``template<typename CoordinateType, std::size_t DimensionCount, typename CoordinateSystem>
@@ -31,7 +34,7 @@ class model::point
 [heading Template parameter(s)]
 [table
 [[Parameter] [Description]]
-[[typename CoordinateType] [Numerical type (int, double, ttmath, ...) ]]
+[[typename CoordinateType] [numerical type (int, double, ttmath, ...) ]]
 [[std::size_t DimensionCount] [number of coordinates, usually 2 or 3 ]]
 [[typename CoordinateSystem] [coordinate system, for example cs::cartesian]]
 ]
@@ -93,5 +96,6 @@ Or
 `#include <boost/geometry/geometries/point.hpp>`
 
 [include ref/geometries/point.qbk]
+
 [endsect]
 

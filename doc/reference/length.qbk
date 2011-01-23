@@ -48,6 +48,7 @@ Or
 [include ref/algorithms/length.qbk]
 [length_with_strategy] [length_with_strategy_output]
 
+
 [endsect]
 
 [section:length_1 length]
@@ -83,6 +84,7 @@ Or
 
 [include ref/algorithms/length.qbk]
 [length] [length_output]
+
 
 [endsect]
 

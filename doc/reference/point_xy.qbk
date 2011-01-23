@@ -17,6 +17,9 @@
 
 2D point in Cartesian coordinate system 
 
+[heading Model of]
+[link geometry.reference.concepts.concept_point Point Concept]
+
 [heading Synopsis]
 ``template<typename CoordinateType, typename CoordinateSystem>
 class model::d2::point_xy
@@ -27,9 +30,9 @@ class model::d2::point_xy
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename CoordinateType] [numeric type, for example, double, float, int ]]
-[[typename CoordinateSystem] [coordinate system, defaults to cs::cartesian]]
+[[Parameter] [Default] [Description]]
+[[typename CoordinateType] [] [numeric type, for example, double, float, int ]]
+[[typename CoordinateSystem] [cs::cartesian] [coordinate system, defaults to cs::cartesian]]
 ]
 
 [heading Constructor(s)]

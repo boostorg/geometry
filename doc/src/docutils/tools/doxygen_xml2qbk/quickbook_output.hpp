@@ -19,13 +19,13 @@
 #include <parameter_predicates.hpp>
 
 
-void quickbook_template_parameter_list(std::vector<param> const& parameters, std::ostream& out, bool name = false)
+void quickbook_template_parameter_list(std::vector<parameter> const& parameters, std::ostream& out, bool name = false)
 {
     if (!parameters.empty())
     {
         out << "template<" ;
         bool first = true;
-        BOOST_FOREACH(param const& p, parameters)
+        BOOST_FOREACH(parameter const& p, parameters)
         {
             out << (first ? "" : ", ") << p.fulltype;
             first = false;
@@ -54,7 +54,7 @@ void quickbook_synopsis(function const& f, std::ostream& out)
             {
                 out << "#define " << f.name;
                 bool first = true;
-                BOOST_FOREACH(param const& p, f.parameters)
+                BOOST_FOREACH(parameter const& p, f.parameters)
                 {
                     out << (first ? "(" : ", ") << p.name;
                     first = false;
@@ -73,7 +73,8 @@ void quickbook_synopsis(function const& f, std::ostream& out)
     {
         out << " " << f.argsstring;
     }
-    out << "``" << std::endl
+    out << "``" 
+        << std::endl
         << std::endl;
 }
 
@@ -136,26 +137,28 @@ void quickbook_header(std::string const& location,
 }
 
 
-void quickbook_markup(std::vector<markup> const& qbk_markup, std::ostream& out)
+void quickbook_markup(std::vector<markup> const& qbk_markup, 
+            markup_order_type order, markup_type type, 
+            std::ostream& out)
 {
+    bool has_output = false;
     BOOST_FOREACH(markup const& inc, qbk_markup)
     {
-        switch(inc.code)
+        if (inc.type == type && inc.order == order)
         {
-          case 0 :
-              // Verbatim
-              out << inc.value << std::endl;
-              break;
-          case 1 :
-              out << "[include " << inc.value << "]" << std::endl;
-              break;
+            out << inc.value << std::endl;
+            has_output = true;
         }
+    }
+    if (has_output)
+    {
+        out << std::endl;
     }
 }
 
 
 
-void quickbook_heading_string(std::string const& heading,
+void quickbook_string_with_heading_if_present(std::string const& heading,
             std::string const& contents, std::ostream& out)
 {
     if (! contents.empty())
@@ -206,10 +209,14 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
     out << f.brief_description << std::endl;
     out << std::endl;
 
-    quickbook_heading_string("Description", f.detailed_description, out);
+    quickbook_string_with_heading_if_present("Description", f.detailed_description, out);
 
+    // Synopsis
+    quickbook_markup(f.qbk_markup, markup_before, markup_synopsis, out);
     out << "[heading Synopsis]" << std::endl;
     quickbook_synopsis(f, out);
+    quickbook_markup(f.qbk_markup, markup_after, markup_synopsis, out);
+
 
     out << "[heading Parameters]" << std::endl
         << std::endl;
@@ -222,9 +229,9 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
     out << "[Name] [Description] ]" << std::endl;
 
     // First: output any template parameter which is NOT used in the normal parameter list
-    BOOST_FOREACH(param const& tp, f.template_parameters)
+    BOOST_FOREACH(parameter const& tp, f.template_parameters)
     {
-        std::vector<param>::const_iterator it = std::find_if(f.parameters.begin(), f.parameters.end(), par_by_type(tp.name));
+        std::vector<parameter>::const_iterator it = std::find_if(f.parameters.begin(), f.parameters.end(), par_by_type(tp.name));
 
         if (it == f.parameters.end())
         {
@@ -233,10 +240,10 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
 
     }
 
-    BOOST_FOREACH(param const& p, f.parameters)
+    BOOST_FOREACH(parameter const& p, f.parameters)
     {
         out << "[";
-        std::vector<param>::const_iterator it = std::find_if(f.template_parameters.begin(),
+        std::vector<parameter>::const_iterator it = std::find_if(f.template_parameters.begin(),
             f.template_parameters.end(), par_by_name(p.type));
 
         if (f.type != function_define)
@@ -254,10 +261,10 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
         << std::endl
         << std::endl;
 
-    quickbook_heading_string("Returns", f.return_description, out);
+    quickbook_string_with_heading_if_present("Returns", f.return_description, out);
 
     quickbook_header(f.location, config, out);
-    quickbook_markup(f.qbk_markup, out);
+    quickbook_markup(f.qbk_markup, markup_any, markup_default, out);
 
     out << std::endl;
     out << "[endsect]" << std::endl;
@@ -267,7 +274,7 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
 
 void quickbook_short_output(function const& f, std::ostream& out)
 {
-    BOOST_FOREACH(param const& p, f.parameters)
+    BOOST_FOREACH(parameter const& p, f.parameters)
     {
         out << "[* " << p.fulltype << "]: ['" << p.name << "]:  " << p.description << std::endl << std::endl;
     }
@@ -298,8 +305,9 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
     out << cos.brief_description << std::endl;
     out << std::endl;
 
-    quickbook_heading_string("Description", cos.detailed_description, out);
+    quickbook_string_with_heading_if_present("Description", cos.detailed_description, out);
 
+    quickbook_markup(cos.qbk_markup, markup_before, markup_synopsis, out);
     out << "[heading Synopsis]" << std::endl
         << "``";
     quickbook_template_parameter_list(cos.template_parameters, out);
@@ -308,16 +316,38 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
         << "  // ..." << std::endl
         << "};" << std::endl
         << "``" << std::endl << std::endl;
+    quickbook_markup(cos.qbk_markup, markup_after, markup_synopsis, out);
+
+
 
     if (! cos.template_parameters.empty())
     {
+        bool has_default = false;
+        BOOST_FOREACH(parameter const& p, cos.template_parameters)
+        {
+            if (! p.default_value.empty())
+            {
+                has_default = true;
+            }
+        }
+
         out << "[heading Template parameter(s)]" << std::endl
             << "[table" << std::endl
-            << "[[Parameter] [Description]]" << std::endl;
-
-        BOOST_FOREACH(param const& p, cos.template_parameters)
+            << "[[Parameter]";
+        if (has_default)
         {
-            out << "[[" << p.fulltype << "] [" << p.description << "]]" << std::endl;
+            out << " [Default]";
+        }
+        out << " [Description]]" << std::endl;
+
+        BOOST_FOREACH(parameter const& p, cos.template_parameters)
+        {
+            out << "[[" << p.fulltype;
+            if (has_default)
+            {
+                out << "] [" << p.default_value;
+            }
+            out << "] [" << p.description << "]]" << std::endl;
         }
         out << "]" << std::endl
             << std::endl;
@@ -373,7 +403,7 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
     }
 
     quickbook_header(cos.location, config, out);
-    quickbook_markup(cos.qbk_markup, out);
+    quickbook_markup(cos.qbk_markup, markup_any, markup_default, out);
 
     out << "[endsect]" << std::endl
         << std::endl;

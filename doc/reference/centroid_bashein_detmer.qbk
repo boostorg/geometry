@@ -36,10 +36,10 @@ class strategy::centroid::bashein_detmer
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename Point] [point type of centroid to calculate ]]
-[[typename PointOfSegment] [point type of segments, defaults to Point ]]
-[[typename CalculationType] []]
+[[Parameter] [Default] [Description]]
+[[typename Point] [] [point type of centroid to calculate ]]
+[[typename PointOfSegment] [Point] [point type of segments, defaults to Point ]]
+[[typename CalculationType] [void] []]
 ]
 
 [heading Member Function(s)]

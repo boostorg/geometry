@@ -27,9 +27,9 @@ class strategy::centroid::average
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename PointCentroid] []]
-[[typename Point] []]
+[[Parameter] [Default] [Description]]
+[[typename PointCentroid] [] []]
+[[typename Point] [PointCentroid] []]
 ]
 
 [heading Member Function(s)]

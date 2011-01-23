@@ -30,8 +30,8 @@ void buffer (Input const &geometry_in, Output &geometry_out, Distance const &dis
 [[Type] [Concept] [Name] [Description] ]
 [[Input const &] [Any type fulfilling a Geometry Concept ] [geometry_in] [A model of the specified concept ]]
 [[Output &] [Any type fulfilling a Geometry Concept ] [geometry_out] [A model of the specified concept ]]
-[[Distance const &] [Numerical type (int, double, ttmath, ...) ] [distance] [The distance to be used for the buffer ]]
-[[Distance const &] [Numerical type (int, double, ttmath, ...) ] [chord_length] [(optional) The length of the chord's in the generated arcs around points or bends ]]
+[[Distance const &] [numerical type (int, double, ttmath, ...) ] [distance] [The distance to be used for the buffer ]]
+[[Distance const &] [numerical type (int, double, ttmath, ...) ] [chord_length] [(optional) The length of the chord's in the generated arcs around points or bends ]]
 ]
 
 
@@ -45,6 +45,7 @@ Or
 `#include <boost/geometry/algorithms/buffer.hpp>`
 
 [include ref/algorithms/buffer.qbk]
+
 
 [endsect]
 
@@ -64,7 +65,7 @@ Output make_buffer (Input const &geometry, T const &distance, T const &chord_len
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Output] [Any type fulfilling a Geometry Concept ] [ - ] [Must be specified]]
-[[Distance] [Numerical type (int, double, ttmath, ...) ] [ - ] [Must be specified]]
+[[Distance] [numerical type (int, double, ttmath, ...) ] [ - ] [Must be specified]]
 [[Input const &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
 [[T const &] [] [distance] [The distance to be used for the buffer ]]
 [[T const &] [] [chord_length] [(optional) The length of the chord's in the generated arcs around points or bends ]]

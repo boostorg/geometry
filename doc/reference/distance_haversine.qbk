@@ -27,10 +27,10 @@ class strategy::distance::haversine
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename Point1] [first point type ]]
-[[typename Point2] [optional, second point type, defaults to first point type ]]
-[[typename CalculationType] [optional, numeric type for calculation (e.g. high precision) ]]
+[[Parameter] [Default] [Description]]
+[[typename Point1] [] [first point type ]]
+[[typename Point2] [Point1] [second point type ]]
+[[typename CalculationType] [void] [numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point ]]
 ]
 
 [heading Constructor(s)]
@@ -49,7 +49,7 @@ class strategy::distance::haversine
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters] [Returns] ]
-[[`` apply (Point1 const &p1, Point2 const &p2) const ``
+[[``calculation_type apply (Point1 const &p1, Point2 const &p2) const ``
 
 ] [applies the distance calculation ] [[* Point1 const &]: ['p1]:  first point 
 
@@ -62,7 +62,7 @@ the calculated distance (including multiplying with radius)
 
 
 ]]
-[[`` radius () const ``
+[[``calculation_type radius () const ``
 
 ] [access to radius value ] [
 
@@ -78,5 +78,6 @@ the radius
 
 [heading See also]
 [link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+
 [endsect]
 

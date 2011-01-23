@@ -47,13 +47,13 @@ class box_range
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters] [Returns] ]
-[[`` begin () const ``
+[[``const_iterator begin () const ``
 
 ] [] [
 
 
 ]]
-[[`` end () const ``
+[[``const_iterator end () const ``
 
 ] [] [
 

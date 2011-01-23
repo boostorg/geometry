@@ -30,8 +30,8 @@ class strategy::side::side_by_cross_track
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename CalculationType] [CalculationType ]]
+[[Parameter] [Default] [Description]]
+[[typename CalculationType] [void] [numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point ]]
 ]
 
 [heading Member Function(s)]

@@ -15,10 +15,13 @@
 [/ Generated from doxy/doxygen_output/xml/classboost_1_1geometry_1_1model_1_1polygon.xml]
 [section:model_polygon model::polygon]
 
-The 
+The polygon contains an outer ring and zero or more inner rings. 
+
+[heading Model of]
+[link geometry.reference.concepts.concept_polygon Polygon Concept]
 
 [heading Synopsis]
-``template<typename Point, bool ClockWise, bool Closed, template< typename, typename > class PointList, template< typename, typename > class RingList, template< typename > class PointAlloc, template< typename > class RingAlloc, >
+``template<typename Point, bool ClockWise, bool Closed, template< typename, typename > class PointList, template< typename, typename > class RingList, template< typename > class PointAlloc, template< typename > class RingAlloc>
 class model::polygon
 {
   // ...
@@ -27,39 +30,38 @@ class model::polygon
 
 [heading Template parameter(s)]
 [table
-[[Parameter] [Description]]
-[[typename Point] []]
-[[bool ClockWise] [optional parameter, true for clockwise direction, false for CounterClockWise direction ]]
-[[bool Closed] [optional parameter, true for closed polygons (last point == first point), false open points ]]
-[[template< typename, typename > class PointList] [optional container type for points, for example std::vector, std::list, std::deque ]]
-[[template< typename, typename > class RingList] [optional container type for inner rings, for example std::vector, std::list, std::deque ]]
-[[template< typename > class PointAlloc] [container-allocator-type ]]
-[[template< typename > class RingAlloc] [container-allocator-type ]]
-[[] [point type ]]
+[[Parameter] [Default] [Description]]
+[[typename Point] [] [point type ]]
+[[bool ClockWise] [true] [true for clockwise direction, false for CounterClockWise direction ]]
+[[bool Closed] [true] [true for closed polygons (last point == first point), false open points ]]
+[[template< typename, typename > class PointList] [std::vector] [container type for points, for example std::vector, std::list, std::deque ]]
+[[template< typename, typename > class RingList] [std::vector] [container type for inner rings, for example std::vector, std::list, std::deque ]]
+[[template< typename > class PointAlloc] [std::allocator] [container-allocator-type, for the points ]]
+[[template< typename > class RingAlloc] [std::allocator] [container-allocator-type, for the rings ]]
 ]
 
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters] [Returns] ]
-[[`` const & outer () const ``
+[[``ring_type const & outer () const ``
 
 ] [] [
 
 
 ]]
-[[`` const & inners () const ``
+[[``inner_container_type const & inners () const ``
 
 ] [] [
 
 
 ]]
-[[`` & outer ()``
+[[``ring_type & outer ()``
 
 ] [] [
 
 
 ]]
-[[`` & inners ()``
+[[``inner_container_type & inners ()``
 
 ] [] [
 
