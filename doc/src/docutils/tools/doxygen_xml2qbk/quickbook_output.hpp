@@ -311,8 +311,23 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
     out << "[heading Synopsis]" << std::endl
         << "``";
     quickbook_template_parameter_list(cos.template_parameters, out);
-    out << "class " << short_name << std::endl
-        << "{" << std::endl
+    out << "class " << short_name;
+
+    if (! cos.base_classes.empty())
+    {
+        out << " : ";
+        bool first = true;
+        BOOST_FOREACH(base_class const& bc, cos.base_classes)
+        {
+            out << (first ? "" : ", ") 
+                << (boost::equals(bc.derivation, "private") ? "" : bc.derivation)
+                << (boost::equals(bc.virtuality, "non-virtual") ? "" : bc.virtuality)
+                << " " << bc.name;
+            first = false;
+        }
+    }
+
+    out << std::endl << "{" << std::endl
         << "  // ..." << std::endl
         << "};" << std::endl
         << "``" << std::endl << std::endl;

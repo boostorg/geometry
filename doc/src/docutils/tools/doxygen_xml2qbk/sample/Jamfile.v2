@@ -16,6 +16,7 @@ boostbook fruit
 	: fruit.qbk
 	: <dependency>Jamfile.v2	  
 		<dependency>apple.qbk
+		<dependency>eat.qbk
         : <xsl:param>chunk.section.depth=4
 	<xsl:param>chunk.first.sections=1
 	<xsl:param>toc.section.depth=3

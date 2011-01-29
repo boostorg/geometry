@@ -98,11 +98,19 @@ struct function : public element
 
 };
 
+struct base_class
+{
+    std::string name;
+    std::string derivation; // "prot" element 
+    std::string virtuality; // "virt" element
+};
+
 struct class_or_struct : public element
 {
     std::string name, fullname;
-    std::string model_of;
     std::vector<function> functions;
+
+    std::vector<base_class> base_classes;
 };
 
 

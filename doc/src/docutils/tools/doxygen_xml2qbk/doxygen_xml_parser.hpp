@@ -398,6 +398,14 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
                 doc.cos.name = keep_after(name, "::");
             }
         }
+        else if (nodename == "basecompoundref")
+        {
+            base_class bc;
+            bc.name = node->value();
+            bc.derivation = get_attribute(node, "prot");
+            bc.virtuality = get_attribute(node, "virt");
+            doc.cos.base_classes.push_back(bc);
+        }
         else
         {
             //std::cout << nodename << " ignored." << std::endl;
