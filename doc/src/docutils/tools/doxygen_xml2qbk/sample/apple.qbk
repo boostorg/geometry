@@ -12,7 +12,7 @@ Fruit Concept
 
 [heading Synopsis]
 ``template<typename String>
-class fruit::apple
+class fruit::apple : public fruit::rose, protected fruit::dutch
 {
   // ...
 };

@@ -19,5 +19,6 @@ cmd = cmd + " > %s.qbk"
 os.system("doxygen fruit.dox")
 os.system(cmd % ("group__eat", "eat"))
 os.system(cmd % ("classfruit_1_1apple", "apple"))
+os.system(cmd % ("classfruit_1_1rose", "rose"))
 
 os.system("bjam") 

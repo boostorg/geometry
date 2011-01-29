@@ -22,11 +22,12 @@
     [category fruit]
 ]
 
-This is the fruit documentation
+This is the fruit documentation (just a foo sample of the doxygen_xml2qbk doc tool)
 
 [import src/examples/apple_example.cpp]
 
+[include rose.qbk]
 [include apple.qbk]
 [include eat.qbk]
 
-Hope you enjoyed yor fruit
+Hope you enjoyed your fruit

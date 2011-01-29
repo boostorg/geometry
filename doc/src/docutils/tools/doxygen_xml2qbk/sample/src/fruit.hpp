@@ -11,6 +11,10 @@
 
 namespace fruit
 {
+
+/// Rose (Rosaceae)
+class rose {};
+
 /*!
 \brief An apple
 \details The apple is the pomaceous fruit of the apple tree,
@@ -23,7 +27,7 @@ Fruit Concept
 }
 */
 template <typename String = std::string>
-class apple
+class apple : public rose
 {
     String sort;
 
