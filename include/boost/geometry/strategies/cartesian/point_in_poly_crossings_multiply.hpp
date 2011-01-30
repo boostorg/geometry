@@ -27,6 +27,10 @@ namespace strategy { namespace within
 \tparam CalculationType \tparam_calculation
 \see http://tog.acm.org/resources/GraphicsGems/gemsiv/ptpoly_haines/ptinpoly.c
 \note Does NOT work correctly for point ON border
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.within.within_3_with_strategy within (with strategy)]
+}
  */
 
 template

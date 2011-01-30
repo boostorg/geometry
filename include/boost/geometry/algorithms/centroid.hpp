@@ -38,6 +38,20 @@ namespace boost { namespace geometry
 {
 
 
+#if ! defined(BOOST_GEOMETRY_CENTROID_NO_THROW)
+
+/*!
+\brief Centroid Exception
+\ingroup centroid
+\details The centroid_exception is thrown if the free centroid function is called with
+    geometries for which the centroid cannot be calculated. For example: a linestring
+    without points, a polygon without points, an empty multi-geometry.
+\qbk{
+[heading See also]
+\* [link geometry.reference.algorithms.centroid the centroid function]
+}
+
+ */
 class centroid_exception : public geometry::exception
 {
 public:
@@ -49,6 +63,8 @@ public:
         return "Boost.Geometry Centroid calculation exception";
     }
 };
+
+#endif
 
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -133,7 +149,7 @@ inline bool range_ok(Range const& range, Point& centroid)
     }
     else if (n <= 0)
     {
-#if defined(CENTROID_WITH_CATCH)
+#if ! defined(BOOST_GEOMETRY_CENTROID_NO_THROW)
         throw centroid_exception();
 #endif
         return false;
@@ -203,33 +219,36 @@ struct centroid_linestring
     static inline void apply(Linestring const& line, Point& centroid,
             Strategy const& strategy)
     {
-        // First version, should
-        // - be moved to a strategy
-        // - be made dim-agnostic
-
-        typedef typename point_type<Linestring>::type point_type;
-        typedef typename boost::range_iterator<Linestring const>::type point_iterator_type;
-        typedef segment_returning_iterator<point_iterator_type, point_type> segment_iterator;
-
-        double length = double();
-        std::pair<double, double> average_sum;
-
-        segment_iterator it(boost::begin(line), boost::end(line));
-        segment_iterator end(boost::end(line));
-        while (it != end)
+        if (range_ok(line, centroid))
         {
-            double const d = geometry::distance(it->first, it->second);
-            length += d;
+            // First version, should
+            // - be moved to a strategy
+            // - be made dim-agnostic
 
-            double const mx = (get<0>(it->first) + get<0>(it->second)) / 2;
-            double const my = (get<1>(it->first) + get<1>(it->second)) / 2;
-            average_sum.first += d * mx;
-            average_sum.second += d * my;
-            ++it;
+            typedef typename point_type<Linestring>::type point_type;
+            typedef typename boost::range_iterator<Linestring const>::type point_iterator_type;
+            typedef segment_returning_iterator<point_iterator_type, point_type> segment_iterator;
+
+            double length = double();
+            std::pair<double, double> average_sum;
+
+            segment_iterator it(boost::begin(line), boost::end(line));
+            segment_iterator end(boost::end(line));
+            while (it != end)
+            {
+                double const d = geometry::distance(it->first, it->second);
+                length += d;
+
+                double const mx = (get<0>(it->first) + get<0>(it->second)) / 2;
+                double const my = (get<1>(it->first) + get<1>(it->second)) / 2;
+                average_sum.first += d * mx;
+                average_sum.second += d * my;
+                ++it;
+            }
+
+            set<0>(centroid, average_sum.first / length );
+            set<1>(centroid, average_sum.second / length );
         }
-
-        set<0>(centroid, average_sum.first / length );
-        set<1>(centroid, average_sum.second / length );
     }
 };
 
@@ -349,7 +368,7 @@ struct centroid<polygon_tag, Polygon, Point, Strategy>
 /*!
 \brief \brief_calc{centroid} \brief_strategy
 \ingroup centroid
-\details \details_calc{centroid,geometric center (or: center of mass)}
+\details \details_calc{centroid,geometric center (or: center of mass)}. \details_strategy_reasons
 \tparam Geometry \tparam_geometry
 \tparam Point \tparam_point
 \tparam Strategy \tparam_strategy{Centroid}
@@ -359,6 +378,12 @@ struct centroid<polygon_tag, Polygon, Point, Strategy>
 
 \qbk{distinguish,with strategy}
 \qbk{[include ref/algorithms/centroid.qbk]}
+
+\qbk{
+[heading Available Strategies]
+\* [link geometry.reference.strategies.strategy_centroid_bashein_detmer Bashein Detmer (cartesian)]
+}
+
 */
 template<typename Geometry, typename Point, typename Strategy>
 inline void centroid(Geometry const& geometry, Point& c,
@@ -434,7 +459,7 @@ inline Point make_centroid(Geometry const& geometry)
 /*!
 \brief \brief_calc{centroid} \brief_strategy
 \ingroup centroid
-\details \details_calc{centroid,geometric center (or: center of mass)}. \details_make{centroid}.
+\details \details_calc{centroid,geometric center (or: center of mass)}. \details_make{centroid}. \details_strategy_reasons
 \tparam Point \tparam_point
 \tparam Geometry \tparam_geometry
 \tparam Strategy \tparam_strategy{centroid}
@@ -444,6 +469,12 @@ inline Point make_centroid(Geometry const& geometry)
 
 \qbk{distinguish,with strategy}
 \qbk{[include ref/algorithms/centroid.qbk]}
+
+\qbk{
+[heading Available Strategies]
+\* [link geometry.reference.strategies.strategy_centroid_bashein_detmer Bashein Detmer (cartesian)]
+}
+
  */
 template<typename Point, typename Geometry, typename Strategy>
 inline Point make_centroid(Geometry const& geometry, Strategy const& strategy)

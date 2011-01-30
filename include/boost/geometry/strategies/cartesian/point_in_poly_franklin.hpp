@@ -32,7 +32,10 @@ namespace strategy { namespace within
 \return true if point is in ring, works for closed rings in both directions
 \note Does NOT work correctly for point ON border
 
-
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.within.within_3_with_strategy within (with strategy)]
+}
  */
 
 template

@@ -259,7 +259,6 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_area_surveyor Surveyor (cartesian)]
 \* [link geometry.reference.strategies.strategy_area_huiller Huiller (spherical)]
-
 }
  */
 template <typename Geometry, typename Strategy>

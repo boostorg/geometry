@@ -22,7 +22,27 @@ namespace boost { namespace geometry
 {
 
 
-enum closure_selector { open = 0, closed = 1, closure_undertermined = -1 };
+/*!
+\brief Enumerates options for defining if polygons are open or closed
+\ingroup enum
+\details The enumeration closure_selector describes options for if a polygon is
+    open or closed. In a closed polygon the very first point (per ring) should be
+    equal to the very last point.
+    The specific closing property of a polygon type is defined by the closure metafunction.
+    The closure metafunction defines a value, which is one of the values enumerated
+    in the closure_selector
+
+\qbk{
+[heading See also]
+[link geometry.reference.core.closure The closure metafunction]
+}
+*/
+enum closure_selector
+{
+    open = 0,
+    closed = 1,
+    closure_undertermined = -1
+};
 
 namespace traits
 {
@@ -123,8 +143,14 @@ struct closure<polygon_tag, Polygon>
 
 
 /*!
-    \brief Meta-function which defines closure of any geometry
-    \ingroup core
+\brief Meta-function which defines closure of a geometry type
+\ingroup core
+\details
+
+\qbk{
+[heading See also]
+[link geometry.reference.enumerations.order_selector The order_selector enumeration]
+}
 */
 template <typename Geometry>
 struct closure

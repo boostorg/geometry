@@ -32,7 +32,7 @@ namespace strategy { namespace area
 
 \qbk{
 [heading See also]
-[link geometry.reference.algorithms.area.area_2_with_strategy area]
+[link geometry.reference.algorithms.area.area_2_with_strategy area (with strategy)]
 }
 
 */

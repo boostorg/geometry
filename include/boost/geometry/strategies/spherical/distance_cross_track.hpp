@@ -49,7 +49,7 @@ namespace strategy { namespace distance
 
 \qbk{
 [heading See also]
-[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
 }
 
 */

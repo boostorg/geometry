@@ -15,12 +15,14 @@ namespace boost { namespace geometry
 {
 
 /*!
-\brief Base exception class for GGL
+\brief Base exception class for Boost.Geometry algorithms
 \ingroup core
+\details This class is never thrown. All exceptions thrown in Boost.Geometry
+    are derived from exception, so it might be convenient to catch it.
 */
-struct exception : public std::exception
-{
-};
+class exception : public std::exception
+{};
+
 
 }} // namespace boost::geometry
 
