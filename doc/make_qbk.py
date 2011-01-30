@@ -7,7 +7,7 @@
 # 
 #  Use, modification and distribution is subject to the Boost Software License,
 #  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
-#  http://www.boost.org/LICENSE_1_0.txt)9
+#  http://www.boost.org/LICENSE_1_0.txt)
 # ============================================================================
 
 import os, sys
@@ -29,7 +29,10 @@ def call_doxygen():
 def group_to_quickbook(section):
     os.system(cmd % ("group__" + section.replace("_", "__"), section))
 
-def model_to_quickbook(classname, section):
+def model_to_quickbook(section):
+    os.system(cmd % ("classboost_1_1geometry_1_1model_1_1" + section.replace("_", "__"), section))
+
+def model_to_quickbook2(classname, section):
     os.system(cmd % ("classboost_1_1geometry_1_1model_1_1" + classname, section))
 
 def struct_to_quickbook(section):
@@ -59,19 +62,27 @@ algorithms = ["append", "assign", "make", "clear"
     , "length", "num_geometries", "num_interior_rings", "num_points" 
     , "overlaps", "perimeter", "reverse", "simplify", "sym_difference" 
     , "transform", "union", "unique", "within"]
+
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
     , "num_points", "num_interior_rings", "num_geometries"]
     
+coordinate_systems = ["cartesian", "geographic", "polar", "spherical"]
+
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
     , "dimension", "exception", "geometry_id", "interior_type"
     , "is_areal", "is_linear", "is_multi", "is_radian", "point_order"
     , "point_type", "ring_type", "tag", "topological_dimension" ]
 
+exceptions = ["exception", "centroid_exception"];
+
 iterators = ["box_iterator", "circular_iterator", "closing_iterator"
     , "ever_circling_iterator", "segment_range_iterator"]
 
+models = ["point", "linestring", "box"
+    , "polygon", "segment", "ring"
+    , "multi_linestring", "multi_point", "multi_polygon", "referring_segment"]
+
 ranges = ["box_range", "segment_range"];
-views = ["closeable_view", "reversible_view", "identity_view"]
 
 strategies = ["distance::pythagoras", "distance::haversine"
     , "distance::cross_track", "distance::projected_point"
@@ -86,49 +97,45 @@ strategies = ["distance::pythagoras", "distance::haversine"
     , "transform::translate_transformer", "transform::ublas_transformer"
     ]
     
-coordinate_systems = ["cartesian", "geographic", "polar", "spherical"]
+views = ["closeable_view", "reversible_view", "identity_view"]
 
 
 
-for a in algorithms:
-    group_to_quickbook(a)
+for i in algorithms:
+    group_to_quickbook(i)
     
-for a in access_functions:
-    group_to_quickbook(a)
+for i in access_functions:
+    group_to_quickbook(i)
     
-for a in core:
-    struct_to_quickbook(a)
+for i in coordinate_systems:
+    cs_to_quickbook(i)
 
-for a in iterators:
-    struct_to_quickbook(a)
+for i in core:
+    struct_to_quickbook(i)
 
-for a in views:
-    struct_to_quickbook(a)
+for i in exceptions:
+    class_to_quickbook(i)
+
+for i in iterators:
+    struct_to_quickbook(i)
+
+for i in models:
+    model_to_quickbook(i)
+   
+for i in ranges:
+    class_to_quickbook(i)
+
+for i in strategies:
+    strategy_to_quickbook(i)
+
+for i in views:
+    struct_to_quickbook(i)
     
-for a in ranges:
-    class_to_quickbook(a)
 
-for a in strategies:
-    strategy_to_quickbook(a)
-
-for a in coordinate_systems:
-    cs_to_quickbook(a)
-    
+model_to_quickbook2("d2_1_1point__xy", "point_xy")
 
 group_to_quickbook("arithmetic")
 group_to_quickbook("register")
-
-model_to_quickbook("point", "point")
-model_to_quickbook("d2_1_1point__xy", "point_xy")
-model_to_quickbook("linestring", "linestring")
-model_to_quickbook("box", "box")
-model_to_quickbook("polygon", "polygon")
-model_to_quickbook("segment", "segment")
-model_to_quickbook("multi__linestring", "multi_linestring")
-model_to_quickbook("multi__point", "multi_point")
-model_to_quickbook("multi__polygon", "multi_polygon")
-model_to_quickbook("ring", "ring")
-model_to_quickbook("referring__segment", "referring_segment")
-
+group_to_quickbook("enum")
 
 os.system("bjam") 

@@ -33,13 +33,12 @@ inline std::string keep_after(std::string const& input, std::string const& sig)
 }
 
 
-
 static inline void add_or_set(std::vector<parameter>& parameters, parameter const& p)
 {
     std::vector<parameter>::iterator it = std::find_if(parameters.begin(), parameters.end(), par_by_name(p.name));
     if (it != parameters.end())
     {
-        if (it->description.empty()) it->description = p.description;
+        if (it->brief_description.empty()) it->brief_description = p.brief_description;
         if (it->type.empty()) it->type = p.type;
         if (it->fulltype.empty()) it->fulltype = p.fulltype;
     }
@@ -48,6 +47,9 @@ static inline void add_or_set(std::vector<parameter>& parameters, parameter cons
         parameters.push_back(p);
     }
 }
+
+
+
 
 /// Parses a "para" element 
 /*
@@ -122,11 +124,37 @@ static void parse_parameter(rapidxml::xml_node<>* node, parameter& p)
         }
         else if (name == "para")
         {
-             parse_para(node, p.description);
+             parse_para(node, p.brief_description);
         }
 
         parse_parameter(node->first_node(), p);
         parse_parameter(node->next_sibling(), p);
+    }
+}
+
+static void parse_enumeration_value(rapidxml::xml_node<>* node, enumeration_value& value)
+{
+    // <enumvalue><name>green</name><initializer> 2</initializer>
+    //    <briefdescription><para>...</para></briefdescription>
+    //    <detaileddescription><para>...</para></detaileddescription>
+    // </enumvalue>
+    if (node != NULL)
+    {
+        std::string node_name = node->name();
+
+        if (node_name == "name") value.name = node->value();
+        else if (node_name == "para")
+        {
+            // Parses both brief AND detailed into this description
+            parse_para(node, value.brief_description);
+        }
+        else if (node_name == "initializer")
+        {
+            value.initializer = node->value();
+        }
+
+        parse_enumeration_value(node->first_node(), value);
+        parse_enumeration_value(node->next_sibling(), value);
     }
 }
 
@@ -149,7 +177,7 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
                     parameters.end(), par_by_name(p.name));
                 if (it != parameters.end())
                 {
-                    it->description = p.description;
+                    it->brief_description = p.brief_description;
                 }
                 else
                 {
@@ -316,6 +344,49 @@ static void parse_function(rapidxml::xml_node<>* node, configuration const& conf
     }
 }
 
+static void parse_enumeration(rapidxml::xml_node<>* node, configuration const& config, std::string const& parent, enumeration& e)
+{
+    if (node != NULL)
+    {
+        std::string name = node->name();
+        std::string full = parent + "." + name;
+
+        if (full == ".name") e.name = node->value();
+        else if (full == ".enumvalue")
+        {
+            enumeration_value value;
+            parse_enumeration_value(node->first_node(), value);
+            e.enumeration_values.push_back(value);
+        }
+
+        parse_enumeration(node->first_node(), config, full, e);
+        parse_enumeration(node->next_sibling(), config, parent, e);
+    }
+}
+
+
+static std::string parse_named_node(rapidxml::xml_node<>* node, std::string const& look_for_name)
+{
+    if (node != NULL)
+    {
+        std::string node_name = node->name();
+        std::string contents;
+
+        if (boost::equals(node_name, look_for_name))
+        {
+            contents = node->value();
+        }
+
+        return contents
+            + parse_named_node(node->first_node(), look_for_name)
+            + parse_named_node(node->next_sibling(), look_for_name);
+    }
+    return "";
+}
+
+
+
+
 static void parse(rapidxml::xml_node<>* node, configuration const& config, documentation& doc, bool member = false)
 {
     if (node != NULL)
@@ -332,17 +403,15 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
         else if (nodename == "sectiondef")
         {
             std::string kind = get_attribute(node, "kind");
-            if (kind == "func" )
+
+            if (kind == "func"
+                || kind == "define"
+                || kind == "enum"
+                )
             {
-                // Get free function definition
                 recurse = true;
             }
-            if (kind == "define" )
-            {
-                // Get define or registration macro
-                recurse = true;
-            }
-            else if (kind == "public-static-func" || kind == "public-func")
+            else if (boost::starts_with(kind, "public"))
             {
                 recurse = true;
                 is_member = true;
@@ -364,19 +433,16 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
         else if (nodename == "memberdef")
         {
             std::string kind = get_attribute(node, "kind");
-            if (kind == "function" || kind == "define")
+            if (kind == "function")
             {
                 function f;
                 parse_element(node->first_node(), config, "", f);
                 parse_function(node->first_node(), config, "", f);
-                if (kind == "define")
+                if (member)
                 {
-                    f.type = function_define;
-                    doc.defines.push_back(f);
-                }
-                else if (member)
-                {
-                    f.type = f.name == doc.cos.name ? function_constructor : function_member;
+                    f.type = boost::equals(f.name, doc.cos.name) 
+                        ? function_constructor 
+                        : function_member;
                     doc.cos.functions.push_back(f);
                 }
                 else
@@ -385,6 +451,39 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
                     doc.functions.push_back(f);
                 }
             }
+            else if (kind == "define")
+            {
+                function f;
+                f.type = function_define;
+                parse_element(node->first_node(), config, "", f);
+                parse_function(node->first_node(), config, "", f);
+            }
+            else if (kind == "enum")
+            {
+                enumeration e;
+                parse_element(node->first_node(), config, "", e);
+                parse_enumeration(node->first_node(), config, "", e);
+                doc.enumerations.push_back(e);
+            }
+            else if (kind == "typedef")
+            {
+                if (boost::equals(get_attribute(node, "prot"), "public"))
+                {
+                    std::string name = parse_named_node(node->first_node(), "name");
+                    doc.cos.typedefs.push_back(base_element(name));
+                }
+            }
+            else if (kind == "variable")
+            {
+                if (boost::equals(get_attribute(node, "static"), "yes")
+                    && boost::equals(get_attribute(node, "mutable"), "no")
+                    && boost::equals(get_attribute(node, "prot"), "public"))
+                {
+                    std::string name = parse_named_node(node->first_node(), "name");
+                    doc.cos.variables.push_back(base_element(name));
+                }
+            }
+
         }
         else if (nodename == "compoundname")
         {

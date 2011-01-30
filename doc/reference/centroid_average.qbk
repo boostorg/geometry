@@ -34,7 +34,7 @@ class strategy::centroid::average
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``void apply (Point const &p, sum &state)``
 
 ] [] [[* Point const &]: ['p]:  

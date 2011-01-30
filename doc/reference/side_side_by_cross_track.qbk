@@ -36,7 +36,7 @@ class strategy::side::side_by_cross_track
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``template<typename P1, typename P2, typename P>
 int apply (P1 const &p1, P2 const &p2, P const &p)``
 

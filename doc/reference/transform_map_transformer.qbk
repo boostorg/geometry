@@ -20,6 +20,7 @@ Transformation strategy to do map from one to another Cartesian system.
 [heading Synopsis]
 ``template<typename P1, typename P2, bool Mirror, bool SameScale, std::size_t Dimension1, std::size_t Dimension2>
 class strategy::transform::map_transformer
+      : public strategy::transform::ublas_transformer< P1, P2, Dimension1, Dimension2 >
 {
   // ...
 };

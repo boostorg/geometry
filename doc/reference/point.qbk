@@ -64,7 +64,7 @@ class model::point
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``template<std::size_t K>
 CoordinateType const & get () const ``
 

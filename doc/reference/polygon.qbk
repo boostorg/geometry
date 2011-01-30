@@ -42,7 +42,7 @@ class model::polygon
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``ring_type const & outer () const ``
 
 ] [] [

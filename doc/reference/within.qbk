@@ -15,7 +15,10 @@
 [/ Generated from doxy/doxygen_output/xml/group__within.xml]
 [section:within_3_with_strategy within (with strategy)]
 
-Within, examine if a geometry is within another geometry, using a specified strategy. 
+Checks if the first geometry is completely inside the second geometry using the specified strategy. 
+
+[heading Description]
+The free function within checks if the first geometry is completely inside the second geometry, using the specified strategy. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation. 
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename Strategy>
@@ -43,12 +46,20 @@ Or
 
 `#include <boost/geometry/algorithms/within.hpp>`
 
+[heading Available Strategies]
+* [link geometry.reference.strategies.strategy_within_winding Winding (coordinate system agnostic)]
+* [link geometry.reference.strategies.strategy_within_franklin Franklin (cartesian)]
+* [link geometry.reference.strategies.strategy_within_crossings_multiply Crossings Multiply (cartesian)]
+
 
 [endsect]
 
 [section:within_2 within]
 
-Checks if the first geometry completely inside the second geometry. 
+Checks if the first geometry is completely inside the second geometry. 
+
+[heading Description]
+The free function within checks if the first geometry is completely inside the second geometry. 
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>

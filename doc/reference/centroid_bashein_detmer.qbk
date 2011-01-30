@@ -44,7 +44,7 @@ class strategy::centroid::bashein_detmer
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``void apply (PointOfSegment const &p1, PointOfSegment const &p2, sums &state)``
 
 ] [] [[* PointOfSegment const &]: ['p1]:  
@@ -71,6 +71,9 @@ class strategy::centroid::bashein_detmer
 
 [heading Header]
 `#include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>`
+
+[heading See also]
+[link geometry.reference.algorithms.centroid.centroid_3_with_strategy centroid (with strategy)]
 
 [endsect]
 

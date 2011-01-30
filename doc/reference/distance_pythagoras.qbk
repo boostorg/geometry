@@ -35,7 +35,7 @@ class strategy::distance::pythagoras
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``calculation_type apply (Point1 const &p1, Point2 const &p2)``
 
 ] [applies the distance calculation using pythagoras ] [[* Point1 const &]: ['p1]:  first point 
@@ -57,7 +57,7 @@ the calculated distance (including taking the square root)
 [heading Notes]
 [note Can be used for points with two, three or more dimensions]
 [heading See also]
-[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
 
 [endsect]
 
