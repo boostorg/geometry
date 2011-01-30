@@ -36,6 +36,11 @@ namespace strategy { namespace within
 \note The implementation is inspired by terralib http://www.terralib.org (LGPL)
 \note but totally revised afterwards, especially for cases on segments
 \note Only dependant on "side", -> agnostic, suitable for spherical/latlong
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.within.within_3_with_strategy within (with strategy)]
+}
  */
 template
 <

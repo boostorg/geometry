@@ -119,7 +119,7 @@ public :
 [heading Notes]
 [note Can be used for points with two\, three or more dimensions]
 [heading See also]
-[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
 }
 
 */

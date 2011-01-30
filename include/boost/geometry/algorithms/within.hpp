@@ -155,7 +155,7 @@ struct point_in_ring
     static inline int apply(Point const& point, Ring const& ring,
             Strategy const& strategy)
     {
-        if (boost::size(ring) 
+        if (boost::size(ring)
                 < core_detail::closure::minimum_ring_size<Closure>::value)
         {
             return -1;
@@ -326,8 +326,9 @@ struct within<point_tag, polygon_tag, Point, Polygon, Strategy>
 
 
 /*!
-\brief \brief_check12{completely inside}
+\brief \brief_check12{is completely inside}
 \ingroup within
+\details \details_check12{within, is completely inside}.
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry
@@ -368,9 +369,9 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
 }
 
 /*!
-\brief Within, examine if a geometry is within another geometry,
-    using a specified strategy
+\brief \brief_check12{is completely inside} \brief_strategy
 \ingroup within
+\details \details_check12{within, is completely inside}, \brief_strategy. \details_strategy_reasons
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry
@@ -382,7 +383,13 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
     else false
 
 \qbk{distinguish,with strategy}
- */
+\qbk{
+[heading Available Strategies]
+\* [link geometry.reference.strategies.strategy_within_winding Winding (coordinate system agnostic)]
+\* [link geometry.reference.strategies.strategy_within_franklin Franklin (cartesian)]
+\* [link geometry.reference.strategies.strategy_within_crossings_multiply Crossings Multiply (cartesian)]
+}
+*/
 template<typename Geometry1, typename Geometry2, typename Strategy>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,
         Strategy const& strategy)

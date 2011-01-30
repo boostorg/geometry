@@ -95,6 +95,12 @@ Statements:
         , mdsys.sdo_dim_array(mdsys.sdo_dim_element('x',0,10,.00000005)
         ,mdsys.sdo_dim_element('y',0,10,.00000005)))
         from dual
+
+\qbk{
+[heading See also]
+[link geometry.reference.algorithms.centroid.centroid_3_with_strategy centroid (with strategy)]
+}
+
  */
 template
 <

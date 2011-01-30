@@ -112,7 +112,7 @@ A mathematically equivalent formula, which is less subject
 
 \qbk{
 [heading See also]
-[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
 }
 
 */
