@@ -23,6 +23,7 @@
 [heading Synopsis]
 ``template<typename CoordinateType, typename CoordinateSystem>
 class model::d2::point_xy
+      : public model::point< CoordinateType, 2, CoordinateSystem >
 {
   // ...
 };
@@ -58,7 +59,7 @@ class model::d2::point_xy
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``CoordinateType const & x () const ``
 
 ] [Get x-value. ] [

@@ -46,7 +46,7 @@ class identity_view
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``const_iterator begin () const ``
 
 ] [] [

@@ -14,18 +14,43 @@
 #include <vector>
 
 
-// contains (template)parameter
-struct parameter
+enum markup_type { markup_default, markup_synopsis };
+enum markup_order_type { markup_any, markup_before, markup_after };
+
+// TODO: rename, not all are functions
+enum function_type 
+{ 
+    function_unknown, 
+    function_define, 
+    function_constructor, 
+    function_member, 
+    function_free 
+};
+
+struct base_element
 {
     std::string name;
-    std::string description;
+    std::string brief_description;
+
+    base_element(std::string const& n = "")
+        : name(n)
+    {}
+};
+
+
+// contains (template)parameter
+struct parameter : public base_element
+{
     std::string type;
     std::string default_value; // for template parameters
     std::string fulltype; // post-processed
 };
 
-enum markup_type { markup_default, markup_synopsis };
-enum markup_order_type { markup_any, markup_before, markup_after };
+struct enumeration_value : public base_element
+{
+    std::string initializer;
+};
+
 
 
 struct markup
@@ -57,11 +82,10 @@ struct markup
     }
 };
 
-// Basic element, base of a class/struct, function, define
-struct element
+// Base of a class/struct, function, define
+struct element : public base_element
 {
-    std::string name;
-    std::string brief_description, detailed_description;
+    std::string detailed_description;
     std::string location;
     int line; // To sort - Doxygen changes order - we change it back
 
@@ -81,7 +105,6 @@ struct element
     {}
 };
 
-enum function_type { function_unknown, function_define, function_constructor, function_member, function_free };
 
 struct function : public element
 {
@@ -98,6 +121,13 @@ struct function : public element
 
 };
 
+
+struct enumeration : public element
+{
+    std::vector<enumeration_value> enumeration_values;
+};
+
+
 struct base_class
 {
     std::string name;
@@ -110,15 +140,22 @@ struct class_or_struct : public element
     std::string name, fullname;
     std::vector<function> functions;
 
+    std::vector<base_element> typedefs;
+    std::vector<base_element> variables;
+
     std::vector<base_class> base_classes;
 };
 
 
 struct documentation
 {
-    class_or_struct cos;
-    std::vector<function> functions;
+    // Only one expected (no grouping)
+    class_or_struct cos; 
+
+    // There can be many of them (in groups):
+    std::vector<function> functions; 
     std::vector<function> defines;
+    std::vector<enumeration> enumerations;
 };
 
 

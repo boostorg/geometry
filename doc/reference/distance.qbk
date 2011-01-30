@@ -82,7 +82,7 @@ Or
 Calculate the distance of two geometries using the specified strategy. 
 
 [heading Description]
-The free function area calculates the area of a geometry. using the specified strategy. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation (e.g. distance over the Earth)
+The free function area calculates the area of a geometry. using the specified strategy. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation.
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename Strategy>

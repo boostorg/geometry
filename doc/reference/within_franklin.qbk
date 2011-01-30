@@ -35,7 +35,7 @@ class strategy::within::franklin
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``bool apply (Point const &point, PointOfSegment const &seg1, PointOfSegment const &seg2, crossings &state)``
 
 ] [] [[* Point const &]: ['point]:  
@@ -62,6 +62,9 @@ class strategy::within::franklin
 
 [heading Header]
 `#include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>`
+
+[heading See also]
+[link geometry.reference.algorithms.within.within_3_with_strategy within (with strategy)]
 
 [endsect]
 

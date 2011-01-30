@@ -34,7 +34,7 @@ class strategy::convex_hull::graham_andrew
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``void apply (InputGeometry const &geometry, partitions &state) const ``
 
 ] [] [[* InputGeometry const &]: ['geometry]:  

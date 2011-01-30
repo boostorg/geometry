@@ -80,11 +80,12 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			details_calc{1}="The free function \1 calculates the \1 of a geometry" \
 			details_calc2{2}="The free function \1 calculates the \2 of two geometries" \
 			details_calc2{1}="The free function \1 calculates the \1 of two geometries" \
+			details_check12{2}="The free function \1 checks if the first geometry \2 the second geometry" \
 			details_macro{2}="The macro \1 registers a \2 such that it is recognized by Boost.Geometry and that Boost.Geometry functionality can used with the specified point type" \
 			details_macro_const="The const version registers only read access to the fields, the point type is therefore read-only" \
 			details_macro_getset="The get/set version registers get and set methods separately and can be used for classes with protected member variables and get/set methods to change coordinates" \
 			details_default_strategy="It uses the default strategy, based on the coordinate system of the geometry." \
-			details_strategy_reasons="Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation (e.g. distance over the Earth)" \
+			details_strategy_reasons="Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation." \
 			details_make{1}="This version with the make_ prefix returns the \1, and a template parameter must therefore be specified in the call." \
 			details_inserter{1}="This version with the _inserter suffix outputs the \1 to an output iterator, and a template parameter must therefore be specified in the call." \
 			return_calc{1}="The calculated \1" \
@@ -249,37 +250,7 @@ DISABLE_INDEX          = NO
 ENUM_VALUES_PER_LINE   = 4
 GENERATE_TREEVIEW      = NO
 TREEVIEW_WIDTH         = 250
-#---------------------------------------------------------------------------
-# configuration options related to the LaTeX output
-#---------------------------------------------------------------------------
-GENERATE_LATEX         = NO
-LATEX_OUTPUT           = latex
-LATEX_CMD_NAME         = latex
-MAKEINDEX_CMD_NAME     = makeindex
-COMPACT_LATEX          = NO
-PAPER_TYPE             = a4wide
-EXTRA_PACKAGES         = 
-LATEX_HEADER           = 
-PDF_HYPERLINKS         = YES
-USE_PDFLATEX           = YES
-LATEX_BATCHMODE        = NO
-LATEX_HIDE_INDICES     = NO
-#---------------------------------------------------------------------------
-# configuration options related to the RTF output
-#---------------------------------------------------------------------------
-GENERATE_RTF           = NO
-RTF_OUTPUT             = rtf
-COMPACT_RTF            = NO
-RTF_HYPERLINKS         = NO
-RTF_STYLESHEET_FILE    = 
-RTF_EXTENSIONS_FILE    = 
-#---------------------------------------------------------------------------
-# configuration options related to the man page output
-#---------------------------------------------------------------------------
-GENERATE_MAN           = NO
-MAN_OUTPUT             = man
-MAN_EXTENSION          = .3
-MAN_LINKS              = NO
+
 #---------------------------------------------------------------------------
 # configuration options related to the XML output
 #---------------------------------------------------------------------------
@@ -288,17 +259,17 @@ XML_OUTPUT             = xml
 XML_SCHEMA             = 
 XML_DTD                = 
 XML_PROGRAMLISTING     = NO
+
 #---------------------------------------------------------------------------
-# configuration options for the AutoGen Definitions output
+# Configuration options turned off
 #---------------------------------------------------------------------------
+GENERATE_LATEX         = NO
+GENERATE_MAN           = NO
+GENERATE_RTF           = NO
 GENERATE_AUTOGEN_DEF   = NO
-#---------------------------------------------------------------------------
-# configuration options related to the Perl module output
-#---------------------------------------------------------------------------
 GENERATE_PERLMOD       = NO
-PERLMOD_LATEX          = NO
-PERLMOD_PRETTY         = YES
-PERLMOD_MAKEVAR_PREFIX = 
+
+
 #---------------------------------------------------------------------------
 # Configuration options related to the preprocessor   
 #---------------------------------------------------------------------------
@@ -321,41 +292,8 @@ PREDEFINED             = BOOST_CONCEPT_REQUIRES(x)= \
                          DOXYGEN_NO_SPECIALIZATIONS
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
-#---------------------------------------------------------------------------
-# Configuration::additions related to external references   
-#---------------------------------------------------------------------------
-TAGFILES               = 
-GENERATE_TAGFILE       = 
-ALLEXTERNALS           = NO
-EXTERNAL_GROUPS        = YES
-PERL_PATH              = /usr/bin/perl
-#---------------------------------------------------------------------------
-# Configuration options related to the dot tool   
-#---------------------------------------------------------------------------
-CLASS_DIAGRAMS         = NO
-MSCGEN_PATH            = 
-HIDE_UNDOC_RELATIONS   = YES
-HAVE_DOT               = NO
-CLASS_GRAPH            = YES
-COLLABORATION_GRAPH    = YES
-GROUP_GRAPHS           = YES
-UML_LOOK               = NO
-TEMPLATE_RELATIONS     = NO
-INCLUDE_GRAPH          = YES
-INCLUDED_BY_GRAPH      = YES
-CALL_GRAPH             = NO
-CALLER_GRAPH           = NO
-GRAPHICAL_HIERARCHY    = YES
-DIRECTORY_GRAPH        = YES
-DOT_IMAGE_FORMAT       = png
-DOT_PATH               = 
-DOTFILE_DIRS           = 
-DOT_GRAPH_MAX_NODES    = 50
-MAX_DOT_GRAPH_DEPTH    = 0
-DOT_TRANSPARENT        = YES
-DOT_MULTI_TARGETS      = NO
-GENERATE_LEGEND        = YES
-DOT_CLEANUP            = YES
+
+
 #---------------------------------------------------------------------------
 # Configuration::additions related to the search engine   
 #---------------------------------------------------------------------------

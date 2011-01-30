@@ -57,7 +57,7 @@ class model::box
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``Point const & min_corner () const ``
 
 ] [] [

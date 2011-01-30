@@ -261,5 +261,14 @@
 [include reference/arithmetic.qbk]
 [endsect] 
 
+[section:exceptions Exceptions]
+[include reference/exception.qbk]
+[include reference/centroid_exception.qbk]
+[endsect] 
+
+[section:enumerations Enumerations]
+[include reference/enum.qbk]
+[endsect] 
+
 
 [endsect] [/reference]

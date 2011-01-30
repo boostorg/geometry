@@ -52,7 +52,7 @@ Or
 Calculates the centroid of a geometry using the specified strategy. 
 
 [heading Description]
-The free function centroid calculates the geometric center (or: center of mass) of a geometry 
+The free function centroid calculates the geometric center (or: center of mass) of a geometry. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation. 
 
 [heading Synopsis]
 ``template<typename Geometry, typename Point, typename Strategy>
@@ -78,6 +78,8 @@ Or
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
 [include ref/algorithms/centroid.qbk]
+[heading Available Strategies]
+* [link geometry.reference.strategies.strategy_centroid_bashein_detmer Bashein Detmer (cartesian)]
 
 
 [endsect]
@@ -87,7 +89,7 @@ Or
 Calculates the centroid of a geometry using the specified strategy. 
 
 [heading Description]
-The free function centroid calculates the geometric center (or: center of mass) of a geometry. This version with the make_ prefix returns the centroid, and a template parameter must therefore be specified in the call.. 
+The free function centroid calculates the geometric center (or: center of mass) of a geometry. This version with the make_ prefix returns the centroid, and a template parameter must therefore be specified in the call.. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation. 
 
 [heading Synopsis]
 ``template<typename Point, typename Geometry, typename Strategy>
@@ -116,6 +118,8 @@ Or
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
 [include ref/algorithms/centroid.qbk]
+[heading Available Strategies]
+* [link geometry.reference.strategies.strategy_centroid_bashein_detmer Bashein Detmer (cartesian)]
 
 
 [endsect]

@@ -48,7 +48,7 @@ class strategy::distance::haversine
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``calculation_type apply (Point1 const &p1, Point2 const &p2) const ``
 
 ] [applies the distance calculation ] [[* Point1 const &]: ['p1]:  first point 
@@ -77,7 +77,7 @@ the radius
 `#include <boost/geometry/strategies/spherical/distance_haversine.hpp>`
 
 [heading See also]
-[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
 
 [endsect]
 

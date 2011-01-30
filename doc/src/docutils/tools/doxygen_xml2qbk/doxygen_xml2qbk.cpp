@@ -158,6 +158,10 @@ int main(int argc, char** argv)
         {
             quickbook_output(f, config, std::cout);
         }
+        BOOST_FOREACH(enumeration const& e, doc.enumerations)
+        {
+            quickbook_output(e, config, std::cout);
+        }
 
         if (! doc.cos.name.empty())
         {

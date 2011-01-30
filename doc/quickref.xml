@@ -168,8 +168,8 @@
     </simplelist>
     <bridgehead renderas="sect3">Classes</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.exception">exception</link></member>
-     <member> <link linkend="geometry.reference.centroid_exception">centroid_exception</link></member>
+     <member><link linkend="geometry.reference.exceptions.exception">exception</link></member>
+     <member> <link linkend="geometry.reference.exceptions.centroid_exception">centroid_exception</link></member>
     </simplelist>
    </entry>
   </row>
@@ -198,7 +198,8 @@
     <simplelist type="vert" columns="1">
     <member><link linkend="geometry.reference.max_corner">max_corner</link></member>
     <member><link linkend="geometry.reference.min_corner">min_corner</link></member>
-    <member><link linkend="geometry.reference.order_selector">order_selector</link></member>
+    <member><link linkend="geometry.reference.enumerations.order_selector">order_selector</link></member>
+    <member><link linkend="geometry.reference.enumerations.closure_selector">closure_selector</link></member>
     </simplelist>
    </entry>
    <entry valign="top">

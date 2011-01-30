@@ -15,7 +15,7 @@
 [/ Generated from doxy/doxygen_output/xml/structboost_1_1geometry_1_1closure.xml]
 [section:closure closure]
 
-Meta-function which defines closure of any geometry. 
+Meta-function which defines closure of a geometry type. 
 
 [heading Synopsis]
 ``template<typename Geometry>
@@ -33,6 +33,9 @@ class closure
 
 [heading Header]
 `#include <boost/geometry/core/closure.hpp>`
+
+[heading See also]
+[link geometry.reference.enumerations.order_selector The order_selector enumeration]
 
 [endsect]
 

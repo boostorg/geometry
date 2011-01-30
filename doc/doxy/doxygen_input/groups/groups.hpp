@@ -27,6 +27,7 @@
 \defgroup difference difference: difference of two geometries
 \defgroup disjoint disjoint: detect if geometries are not spatially related
 \defgroup distance distance: calculate distance between two geometries
+\defgroup enum enum: enumerations
 \defgroup envelope envelope: calculate envelope (minimum bounding rectangle) of a geometry
 \defgroup equals equals: detect if two geometries are spatially equal
 \defgroup exterior_ring exterior_ring: exterior_ring

@@ -34,7 +34,7 @@ class strategy::distance::cross_track
 [[typename Point] [] [point type ]]
 [[typename PointOfSegment] [Point] [segment point type ]]
 [[typename CalculationType] [void] [numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point ]]
-[[typename Strategy] [typename services::default_strategy<point_tag, Point>::type] [strategy, underlying point-point distance strategy, defaults to haversine]]
+[[typename Strategy] [typename services::default_strategy<point_tag, Point>::type] [underlying point-point distance strategy, defaults to haversine]]
 ]
 
 [heading Constructor(s)]
@@ -66,7 +66,7 @@ class strategy::distance::cross_track
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``return_type apply (Point const &p, PointOfSegment const &sp1, PointOfSegment const &sp2) const ``
 
 ] [] [[* Point const &]: ['p]:  
@@ -91,7 +91,7 @@ class strategy::distance::cross_track
 `#include <boost/geometry/strategies/spherical/distance_cross_track.hpp>`
 
 [heading See also]
-[link geometry.reference.algorithms.distance.distance_3_with_strategy distance]
+[link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
 
 [endsect]
 

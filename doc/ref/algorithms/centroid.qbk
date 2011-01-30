@@ -13,12 +13,13 @@
 [heading Behavior]
 [table
 [[Case] [Behavior] ]
-[[__0dim__][Calculates centroid]]
+[[__point__][Returns the point itself as the centroid]]
+[[__multi_point__][Calculates centroid]]
 [[__1dim__][Calculates centroid]]
 [[__2dim__][Calculates centroid]]
-[[__empty__][Throws a centroid_exception]]
+[[__empty__][Throws a [link geometry.reference.exceptions.centroid_exception centroid_exception] ]]
 ]
-
 
 [heading Complexity]
 Linear
+

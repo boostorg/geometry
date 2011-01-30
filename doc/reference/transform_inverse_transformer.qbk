@@ -20,6 +20,7 @@ Transformation strategy to do an inverse ransformation in Cartesian system.
 [heading Synopsis]
 ``template<typename P1, typename P2>
 class strategy::transform::inverse_transformer
+      : public strategy::transform::ublas_transformer< P1, P2, dimension< P1 >::type::value, dimension< P2 >::type::value >
 {
   // ...
 };

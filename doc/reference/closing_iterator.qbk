@@ -62,7 +62,7 @@ class closing_iterator
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``closing_iterator< Range > & operator= (closing_iterator< Range > const &source)``
 
 ] [] [[* < Range > const &]: ['source]:  

@@ -41,7 +41,8 @@
 [def __point__  Point]
 [def __linestring__  Linestring]
 [def __polygon__  Polygon]
-[def __multi_polygon__  Multi-polygon]
+[def __multi_point__  Multi point]
+[def __multi_polygon__  Multi Polygon]
 [def __range__  Rangelike (linestring, ring)]
 [def __other__  Other geometries]
 

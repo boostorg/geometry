@@ -58,7 +58,7 @@ class circular_iterator
 
 [heading Member Function(s)]
 [table
-[[Function] [Description] [Parameters] [Returns] ]
+[[Function] [Description] [Parameters]  [Returns]]
 [[``void moveto (Iterator it)``
 
 ] [] [[* Iterator]: ['it]:  
