@@ -32,8 +32,11 @@ struct base_element
     std::string name;
     std::string brief_description;
 
+    bool skip;
+
     base_element(std::string const& n = "")
         : name(n)
+        , skip(false)
     {}
 };
 

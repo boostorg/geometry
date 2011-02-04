@@ -61,7 +61,7 @@ This is used for different purposes within Doxygen.
 So we have to list explicitly either where to recurse, or where not to...
 
 */
-static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool first = true)
+static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& skip, bool first = true)
 {
     if (node != NULL)
     {
@@ -69,7 +69,12 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool f
         {
             //std::cout << "ELEMENT: " << node->name() << "=" << node->value() << std::endl;
             std::string name = node->name();
-            if (! (
+            if (boost::equals(name, "qbk.skip"))
+            {
+                skip = true;
+                return;
+            }
+            else if (! (
                 (boost::equals(name, "para") && first)
                 || boost::equals(name, "ref")
                 || boost::equals(name, "defval")
@@ -91,8 +96,8 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool f
         {
             //std::cout << "OTHER: " << node->name() << "=" << node->value() << std::endl;
         }
-        parse_para(node->first_node(), contents, false);
-        parse_para(node->next_sibling(), contents, false);
+        parse_para(node->first_node(), contents, skip, false);
+        parse_para(node->next_sibling(), contents, skip, false);
     }
 }
 
@@ -120,11 +125,11 @@ static void parse_parameter(rapidxml::xml_node<>* node, parameter& p)
         else if (name == "defname") p.name = node->value(); 
         else if (name == "defval") 
         {
-             parse_para(node, p.default_value);
+             parse_para(node, p.default_value, p.skip);
         }
         else if (name == "para")
         {
-             parse_para(node, p.brief_description);
+             parse_para(node, p.brief_description, p.skip);
         }
 
         parse_parameter(node->first_node(), p);
@@ -146,7 +151,7 @@ static void parse_enumeration_value(rapidxml::xml_node<>* node, enumeration_valu
         else if (node_name == "para")
         {
             // Parses both brief AND detailed into this description
-            parse_para(node, value.brief_description);
+            parse_para(node, value.brief_description, value.skip);
         }
         else if (node_name == "initializer")
         {
@@ -232,12 +237,12 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
 
         if (full == ".briefdescription.para")
         {
-            parse_para(node, el.brief_description);
+            parse_para(node, el.brief_description, el.skip);
         }
         else if (full == ".detaileddescription.para")
         {
             std::string para;
-            parse_para(node, para);
+            parse_para(node, para, el.skip);
             if (!para.empty() && !el.detailed_description.empty())
             {
                 el.detailed_description += "\n\n";
@@ -457,6 +462,7 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
                 f.type = function_define;
                 parse_element(node->first_node(), config, "", f);
                 parse_function(node->first_node(), config, "", f);
+                doc.functions.push_back(f);
             }
             else if (kind == "enum")
             {

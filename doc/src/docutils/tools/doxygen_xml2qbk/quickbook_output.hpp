@@ -51,28 +51,36 @@ void quickbook_synopsis(function const& f, std::ostream& out)
             out << f.definition;
             break;
         case function_define :
-            {
-                out << "#define " << f.name;
-                bool first = true;
-                BOOST_FOREACH(parameter const& p, f.parameters)
-                {
-                    out << (first ? "(" : ", ") << p.name;
-                    first = false;
-                }
-                if (! first)
-                {
-                    out << ")";
-                }
-            }
+            out << "#define " << f.name;
             break;
         case function_unknown :
             // do nothing
             break;
     }
-    if (! f.argsstring.empty())
+
+    // Output the parameters
+    // Because we want to be able to skip, we cannot use the argstring
     {
-        out << " " << f.argsstring;
+        bool first = true;
+        BOOST_FOREACH(parameter const& p, f.parameters)
+        {
+            if (! p.skip)
+            {
+                out 
+                    << (first ? "(" : ", ")
+                    << p.fulltype << (p.fulltype.empty() ? "" : " ")
+                    << p.name
+                    << (p.default_value.empty() ? "" : " = ")
+                    << p.default_value;
+                first = false;
+            }
+        }
+        if (! first)
+        {
+            out << ")";
+        }
     }
+
     out << "``" 
         << std::endl
         << std::endl;
@@ -204,7 +212,10 @@ void quickbook_short_output(function const& f, std::ostream& out)
 {
     BOOST_FOREACH(parameter const& p, f.parameters)
     {
-        out << "[* " << p.fulltype << "]: ['" << p.name << "]:  " << p.brief_description << std::endl << std::endl;
+        if (! p.skip)
+        {
+            out << "[* " << p.fulltype << "]: ['" << p.name << "]:  " << p.brief_description << std::endl << std::endl;
+        }
     }
     out << std::endl;
     out << std::endl;
@@ -290,31 +301,36 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
     // First: output any template parameter which is NOT used in the normal parameter list
     BOOST_FOREACH(parameter const& tp, f.template_parameters)
     {
-        std::vector<parameter>::const_iterator it = std::find_if(f.parameters.begin(), f.parameters.end(), par_by_type(tp.name));
-
-        if (it == f.parameters.end())
+        if (! tp.skip)
         {
-            out << "[[" << tp.name << "] [" << tp.brief_description << "] [ - ] [Must be specified]]" << std::endl;
-        }
+            std::vector<parameter>::const_iterator it = std::find_if(f.parameters.begin(), f.parameters.end(), par_by_type(tp.name));
 
+            if (it == f.parameters.end())
+            {
+                out << "[[" << tp.name << "] [" << tp.brief_description << "] [ - ] [Must be specified]]" << std::endl;
+            }
+        }
     }
 
     BOOST_FOREACH(parameter const& p, f.parameters)
     {
-        out << "[";
-        std::vector<parameter>::const_iterator it = std::find_if(f.template_parameters.begin(),
-            f.template_parameters.end(), par_by_name(p.type));
-
-        if (f.type != function_define)
+        if (! p.skip)
         {
-            out << "[" << p.fulltype
-                << "] [" << (it == f.template_parameters.end() ? "" : it->brief_description)
-                << "] ";
+            out << "[";
+            std::vector<parameter>::const_iterator it = std::find_if(f.template_parameters.begin(),
+                f.template_parameters.end(), par_by_name(p.type));
+
+            if (f.type != function_define)
+            {
+                out << "[" << p.fulltype
+                    << "] [" << (it == f.template_parameters.end() ? "" : it->brief_description)
+                    << "] ";
+            }
+            out << "[" << p.name
+                << "] [" << p.brief_description
+                << "]]"
+                << std::endl;
         }
-        out << "[" << p.name
-            << "] [" << p.brief_description
-            << "]]"
-            << std::endl;
     }
     out << "]" << std::endl
         << std::endl
