@@ -34,7 +34,7 @@ class segment_range
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``segment_range (Segment const &segment)``
+[[``segment_range(Segment const & segment)``
 
 ] [] [[* Segment const &]: ['segment]:  
 
@@ -47,13 +47,13 @@ class segment_range
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``const_iterator begin () const ``
+[[``const_iterator begin``
 
 ] [] [
 
 
 ]]
-[[``const_iterator end () const ``
+[[``const_iterator end``
 
 ] [] [
 

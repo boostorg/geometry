@@ -19,7 +19,7 @@ Transforms from one geometry to another geometry using a strategy.
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
-bool transform (Geometry1 const &geometry1, Geometry2 &geometry2)``
+bool transform(Geometry1 const & geometry1, Geometry2 & geometry2)``
 
 [heading Parameters]
 
@@ -51,7 +51,7 @@ Transforms from one geometry to another geometry using a strategy.
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename Strategy>
-bool transform (Geometry1 const &geometry1, Geometry2 &geometry2, Strategy const &strategy)``
+bool transform(Geometry1 const & geometry1, Geometry2 & geometry2, Strategy const & strategy)``
 
 [heading Parameters]
 

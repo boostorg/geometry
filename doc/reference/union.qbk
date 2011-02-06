@@ -19,7 +19,7 @@ Combines two geometries which each other.
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename Collection>
-void union_ (Geometry1 const &geometry1, Geometry2 const &geometry2, Collection &output_collection)``
+void union_(Geometry1 const & geometry1, Geometry2 const & geometry2, Collection & output_collection)``
 
 [heading Parameters]
 
@@ -49,7 +49,7 @@ Combines two geometries which each other.
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator>
-OutputIterator union_inserter (Geometry1 const &geometry1, Geometry2 const &geometry2, OutputIterator out)``
+OutputIterator union_inserter(Geometry1 const & geometry1, Geometry2 const & geometry2, OutputIterator out)``
 
 [heading Parameters]
 
@@ -83,7 +83,7 @@ Combines two geometries which each other.
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator, typename Strategy>
-OutputIterator union_inserter (Geometry1 const &geometry1, Geometry2 const &geometry2, OutputIterator out, Strategy const &strategy)``
+OutputIterator union_inserter(Geometry1 const & geometry1, Geometry2 const & geometry2, OutputIterator out, Strategy const & strategy)``
 
 [heading Parameters]
 

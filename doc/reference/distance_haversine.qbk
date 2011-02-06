@@ -36,7 +36,7 @@ class strategy::distance::haversine
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``haversine (calculation_type const &radius=1.0)``
+[[``haversine( const & radius)``
 
 ] [Constructor. ] [[*  const &]: ['radius]:  radius of the sphere, defaults to 1.0 for the unit sphere 
 
@@ -49,7 +49,7 @@ class strategy::distance::haversine
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``calculation_type apply (Point1 const &p1, Point2 const &p2) const ``
+[[``calculation_type apply(Point1 const & p1, Point2 const & p2)``
 
 ] [applies the distance calculation ] [[* Point1 const &]: ['p1]:  first point 
 
@@ -62,7 +62,7 @@ the calculated distance (including multiplying with radius)
 
 
 ]]
-[[``calculation_type radius () const ``
+[[``calculation_type radius``
 
 ] [access to radius value ] [
 

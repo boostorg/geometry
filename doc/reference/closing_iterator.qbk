@@ -34,7 +34,7 @@ class closing_iterator
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``closing_iterator (Range &range)``
+[[``closing_iterator(Range & range)``
 
 ] [Constructor including the range it is based on. ] [[* Range &]: ['range]:  
 
@@ -42,7 +42,7 @@ class closing_iterator
 
 
 ]]
-[[``closing_iterator (Range &range, bool)``
+[[``closing_iterator(Range & range, bool )``
 
 ] [Constructor to indicate the end of a range. ] [[* Range &]: ['range]:  
 
@@ -52,7 +52,7 @@ class closing_iterator
 
 
 ]]
-[[``closing_iterator ()``
+[[``closing_iterator``
 
 ] [Default constructor. ] [
 
@@ -63,7 +63,7 @@ class closing_iterator
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``closing_iterator< Range > & operator= (closing_iterator< Range > const &source)``
+[[``closing_iterator< Range > & operator=(< Range > const & source)``
 
 ] [] [[* < Range > const &]: ['source]:  
 

@@ -168,7 +168,9 @@
 [include reference/exterior_ring.qbk]
 [endsect]
 
+[section:get get]
 [include reference/get.qbk]
+[endsect]
 
 [section:interior_rings interior_rings]
 [include reference/interior_rings.qbk]
@@ -176,8 +178,10 @@
 
 [include reference/num_points.qbk]
 [include reference/num_interior_rings.qbk]
-[include reference/set.qbk]
 
+[section:set set]
+[include reference/set.qbk]
+[endsect]
 
 [endsect] [/access functions]
 

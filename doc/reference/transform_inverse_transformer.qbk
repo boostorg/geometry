@@ -37,7 +37,7 @@ class strategy::transform::inverse_transformer
 [table
 [[Function] [Description] [Parameters] ]
 [[``template<typename Transformer>
-inverse_transformer (Transformer const &input)``
+inverse_transformer(Transformer const & input)``
 
 ] [] [[* Transformer const &]: ['input]:  
 

@@ -19,7 +19,7 @@ Calls functor for geometry.
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
-Functor for_each_point (Geometry &geometry, Functor f)``
+Functor for_each_point(Geometry & geometry, Functor f)``
 
 [heading Parameters]
 
@@ -48,7 +48,7 @@ Calls functor for geometry.
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
-Functor for_each_point (Geometry const &geometry, Functor f)``
+Functor for_each_point(Geometry const & geometry, Functor f)``
 
 [heading Parameters]
 
@@ -77,7 +77,7 @@ Calls functor for segments on linestrings, rings, polygons, ...
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
-Functor for_each_segment (Geometry &geometry, Functor f)``
+Functor for_each_segment(Geometry & geometry, Functor f)``
 
 [heading Parameters]
 
@@ -106,7 +106,7 @@ Calls functor for segments on linestrings, rings, polygons, ...
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
-Functor for_each_segment (Geometry const &geometry, Functor f)``
+Functor for_each_segment(Geometry const & geometry, Functor f)``
 
 [heading Parameters]
 

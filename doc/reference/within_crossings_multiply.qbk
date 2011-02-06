@@ -36,7 +36,7 @@ class strategy::within::crossings_multiply
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``bool apply (Point const &point, PointOfSegment const &seg1, PointOfSegment const &seg2, flags &state)``
+[[``bool apply(Point const & point, PointOfSegment const & seg1, PointOfSegment const & seg2, flags & state)``
 
 ] [] [[* Point const &]: ['point]:  
 
@@ -50,7 +50,7 @@ class strategy::within::crossings_multiply
 
 
 ]]
-[[``int result (flags const &state)``
+[[``int result(flags const & state)``
 
 ] [] [[* flags const &]: ['state]:  
 

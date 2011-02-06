@@ -19,7 +19,7 @@ assign a range of points to a linestring, ring or polygon
 
 [heading Synopsis]
 ``template<typename Geometry, typename Range>
-void assign (Geometry &geometry, Range const &range)``
+void assign(Geometry & geometry, Range const & range)``
 
 [heading Parameters]
 
@@ -48,7 +48,7 @@ assign center + radius to a sphere [for extension]
 
 [heading Synopsis]
 ``template<typename Geometry, typename Type>
-void assign (Geometry &geometry, Type const &c1, Type const &c2, Type const &c3, Type const &c4)``
+void assign(Geometry & geometry, Type const & c1, Type const & c2, Type const & c3, Type const & c4)``
 
 [heading Parameters]
 
@@ -80,7 +80,7 @@ assign three values to a 3D point [or the center + radius to a circle]
 
 [heading Synopsis]
 ``template<typename Geometry, typename Type>
-void assign (Geometry &geometry, Type const &c1, Type const &c2, Type const &c3)``
+void assign(Geometry & geometry, Type const & c1, Type const & c2, Type const & c3)``
 
 [heading Parameters]
 
@@ -111,7 +111,7 @@ assign two values to a 2D point
 
 [heading Synopsis]
 ``template<typename Geometry, typename Type>
-void assign (Geometry &geometry, Type const &c1, Type const &c2)``
+void assign(Geometry & geometry, Type const & c1, Type const & c2)``
 
 [heading Parameters]
 
@@ -141,7 +141,7 @@ Assign the 4 points of a 2D box.
 
 [heading Synopsis]
 ``template<typename Box, typename Point>
-void assign_box_corners (Box const &box, Point &lower_left, Point &lower_right, Point &upper_left, Point &upper_right)``
+void assign_box_corners(Box const & box, Point & lower_left, Point & lower_right, Point & upper_left, Point & upper_right)``
 
 [heading Parameters]
 
@@ -176,7 +176,7 @@ The assign_inverse function initialize a 2D or 3D box with large coordinates, th
 
 [heading Synopsis]
 ``template<typename Geometry>
-void assign_inverse (Geometry &geometry)``
+void assign_inverse(Geometry & geometry)``
 
 [heading Parameters]
 
@@ -204,7 +204,7 @@ Assign a point with a point of a box or segment.
 
 [heading Synopsis]
 ``template<std::size_t Index, typename Point, typename Geometry>
-void assign_point_from_index (Geometry const &geometry, Point &point)``
+void assign_point_from_index(Geometry const & geometry, Point & point)``
 
 [heading Parameters]
 
@@ -234,7 +234,7 @@ Assign a box or segment with the value of a point.
 
 [heading Synopsis]
 ``template<std::size_t Index, typename Geometry, typename Point>
-void assign_point_to_index (Point const &point, Geometry &geometry)``
+void assign_point_to_index(Point const & point, Geometry & geometry)``
 
 [heading Parameters]
 
@@ -267,7 +267,7 @@ The assign_zero function initializes a 2D or 3D point or box with coordinates of
 
 [heading Synopsis]
 ``template<typename Geometry>
-void assign_zero (Geometry &geometry)``
+void assign_zero(Geometry & geometry)``
 
 [heading Parameters]
 
@@ -298,7 +298,7 @@ The function copy_coordinates copies coordinates from one point to another point
 
 [heading Synopsis]
 ``template<typename Src, typename Dst>
-void copy_coordinates (Src const &source, Dst &dest)``
+void copy_coordinates(Src const & source, Dst & dest)``
 
 [heading Parameters]
 

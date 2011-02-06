@@ -159,12 +159,10 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.access.exterior_ring">exterior_ring</link></member>
      <member><link linkend="geometry.reference.access.get">get</link></member>
-     <member><link linkend="geometry.reference.access.get_as_radian">get_as_radian</link></member>
      <member><link linkend="geometry.reference.access.interior_rings">interior_rings</link></member>
      <member><link linkend="geometry.reference.access.num_interior_rings">num_interior_rings</link></member>
      <member><link linkend="geometry.reference.access.num_points">num_points</link></member>
      <member><link linkend="geometry.reference.access.set">set</link></member>
-     <member><link linkend="geometry.reference.access.set_from_radian">set_from_radian</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Classes</bridgehead>
     <simplelist type="vert" columns="1">

@@ -19,7 +19,7 @@ Reverses a geometry.
 
 [heading Synopsis]
 ``template<typename Geometry>
-void reverse (Geometry &geometry)``
+void reverse(Geometry & geometry)``
 
 [heading Parameters]
 

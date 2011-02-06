@@ -36,7 +36,7 @@ class strategy::distance::pythagoras
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``calculation_type apply (Point1 const &p1, Point2 const &p2)``
+[[``calculation_type apply(Point1 const & p1, Point2 const & p2)``
 
 ] [applies the distance calculation using pythagoras ] [[* Point1 const &]: ['p1]:  first point 
 

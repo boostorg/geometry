@@ -39,7 +39,7 @@ class strategy::simplify::douglas_peucker
 [table
 [[Function] [Description] [Parameters]  [Returns]]
 [[``template<typename Range, typename OutputIterator>
-OutputIterator apply (Range const &range, OutputIterator out, double max_distance)``
+OutputIterator apply(Range const & range, OutputIterator out, double max_distance)``
 
 ] [] [[* Range const &]: ['range]:  
 

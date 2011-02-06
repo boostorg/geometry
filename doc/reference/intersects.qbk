@@ -19,7 +19,7 @@ Checks if two geometries have at least one intersection.
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
-bool intersects (Geometry1 const &geometry1, Geometry2 const &geometry2)``
+bool intersects(Geometry1 const & geometry1, Geometry2 const & geometry2)``
 
 [heading Parameters]
 
@@ -53,7 +53,7 @@ Checks if a geometry has at least one intersection (crossing or self-tangency).
 
 [heading Synopsis]
 ``template<typename Geometry>
-bool intersects (Geometry const &geometry)``
+bool intersects(Geometry const & geometry)``
 
 [heading Parameters]
 

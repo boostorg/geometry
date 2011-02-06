@@ -22,7 +22,7 @@ The free function convex_hull calculates the convex hull of a geometry.
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
-void convex_hull (Geometry1 const &geometry, Geometry2 &hull)``
+void convex_hull(Geometry1 const & geometry, Geometry2 & hull)``
 
 [heading Parameters]
 
@@ -51,7 +51,7 @@ Calculate the convex hull of a geometry, output-iterator version.
 
 [heading Synopsis]
 ``template<typename Geometry, typename OutputIterator, >
-OutputIterator convex_hull_inserter (Geometry const &geometry, OutputIterator out)``
+OutputIterator convex_hull_inserter(Geometry const & geometry, OutputIterator out)``
 
 [heading Parameters]
 

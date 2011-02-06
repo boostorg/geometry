@@ -37,13 +37,13 @@ class model::box
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``box ()``
+[[``box``
 
 ] [] [
 
 
 ]]
-[[``box (Point const &min_corner, Point const &max_corner)``
+[[``box(Point const & min_corner, Point const & max_corner)``
 
 ] [Constructor taking the minimum corner point and the maximum corner point. ] [[* Point const &]: ['min_corner]:  
 
@@ -58,25 +58,25 @@ class model::box
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``Point const & min_corner () const ``
+[[``Point const & min_corner``
 
 ] [] [
 
 
 ]]
-[[``Point const & max_corner () const ``
+[[``Point const & max_corner``
 
 ] [] [
 
 
 ]]
-[[``Point & min_corner ()``
+[[``Point & min_corner``
 
 ] [] [
 
 
 ]]
-[[``Point & max_corner ()``
+[[``Point & max_corner``
 
 ] [] [
 

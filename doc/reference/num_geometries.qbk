@@ -22,7 +22,7 @@ The free function num_geometries calculates the number of geometries of a geomet
 
 [heading Synopsis]
 ``template<typename Geometry>
-std::size_t num_geometries (Geometry const &geometry)``
+std::size_t num_geometries(Geometry const & geometry)``
 
 [heading Parameters]
 

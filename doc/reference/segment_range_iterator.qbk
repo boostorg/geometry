@@ -34,13 +34,13 @@ class segment_range_iterator
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``segment_range_iterator ()``
+[[``segment_range_iterator``
 
 ] [] [
 
 
 ]]
-[[``segment_range_iterator (Segment const &segment)``
+[[``segment_range_iterator(Segment const & segment)``
 
 ] [] [[* Segment const &]: ['segment]:  
 
@@ -48,7 +48,7 @@ class segment_range_iterator
 
 
 ]]
-[[``segment_range_iterator (Segment const &segment, bool)``
+[[``segment_range_iterator(Segment const & segment, bool )``
 
 ] [] [[* Segment const &]: ['segment]:  
 
@@ -63,7 +63,7 @@ class segment_range_iterator
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``segment_range_iterator< Segment > & operator= (segment_range_iterator< Segment > const &source)``
+[[``segment_range_iterator< Segment > & operator=(< Segment > const & source)``
 
 ] [] [[* < Segment > const &]: ['source]:  
 

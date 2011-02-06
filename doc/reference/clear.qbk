@@ -22,7 +22,7 @@ Generic function to clear a geometry
 
 [heading Synopsis]
 ``template<typename Geometry>
-void clear (Geometry &geometry)``
+void clear(Geometry & geometry)``
 
 [heading Parameters]
 

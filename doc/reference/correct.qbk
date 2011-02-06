@@ -22,7 +22,7 @@ Corrects a geometry
 
 [heading Synopsis]
 ``template<typename Geometry>
-void correct (Geometry &geometry)``
+void correct(Geometry & geometry)``
 
 [heading Parameters]
 

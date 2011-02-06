@@ -40,13 +40,13 @@ class strategy::distance::cross_track
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``cross_track ()``
+[[``cross_track``
 
 ] [] [
 
 
 ]]
-[[``cross_track (return_type const &r)``
+[[``cross_track( const & r)``
 
 ] [] [[*  const &]: ['r]:  
 
@@ -54,7 +54,7 @@ class strategy::distance::cross_track
 
 
 ]]
-[[``cross_track (Strategy const &s)``
+[[``cross_track(Strategy const & s)``
 
 ] [] [[* Strategy const &]: ['s]:  
 
@@ -67,7 +67,7 @@ class strategy::distance::cross_track
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``return_type apply (Point const &p, PointOfSegment const &sp1, PointOfSegment const &sp2) const ``
+[[``return_type apply(Point const & p, PointOfSegment const & sp1, PointOfSegment const & sp2)``
 
 ] [] [[* Point const &]: ['p]:  
 
@@ -79,7 +79,7 @@ class strategy::distance::cross_track
 
 
 ]]
-[[``return_type radius () const ``
+[[``return_type radius``
 
 ] [] [
 

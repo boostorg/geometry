@@ -19,7 +19,7 @@ Simplify a geometry.
 
 [heading Synopsis]
 ``template<typename Geometry, typename Distance>
-void simplify (Geometry const &geometry, Geometry &out, Distance const &max_distance)``
+void simplify(Geometry const & geometry, Geometry & out, Distance const & max_distance)``
 
 [heading Parameters]
 
@@ -51,7 +51,7 @@ Simplify a geometry using a specified strategy.
 
 [heading Synopsis]
 ``template<typename Geometry, typename Distance, typename Strategy>
-void simplify (Geometry const &geometry, Geometry &out, Distance const &max_distance, Strategy const &strategy)``
+void simplify(Strategy const & strategy, Geometry const & geometry, Geometry & out, Distance const & max_distance)``
 
 [heading Parameters]
 
@@ -82,7 +82,7 @@ Simplify a geometry, using an output iterator.
 
 [heading Synopsis]
 ``template<typename Geometry, typename OutputIterator, typename Distance>
-void simplify_inserter (Geometry const &geometry, OutputIterator out, Distance const &max_distance)``
+void simplify_inserter(Geometry const & geometry, OutputIterator out, Distance const & max_distance)``
 
 [heading Parameters]
 
@@ -114,7 +114,7 @@ Simplify a geometry, using an output iterator and a specified strategy.
 
 [heading Synopsis]
 ``template<typename Geometry, typename OutputIterator, typename Distance, typename Strategy>
-void simplify_inserter (Geometry const &geometry, OutputIterator out, Distance const &max_distance, Strategy const &strategy)``
+void simplify_inserter(Geometry const & geometry, OutputIterator out, Distance const & max_distance, Strategy const & strategy)``
 
 [heading Parameters]
 

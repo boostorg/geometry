@@ -41,14 +41,14 @@ class model::ring
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``ring ()``
+[[``ring``
 
 ] [Default constructor, creating an empty ring. ] [
 
 
 ]]
 [[``template<typename Iterator>
-ring (Iterator begin, Iterator end)``
+ring(Iterator begin, Iterator end)``
 
 ] [Constructor with begin and end, filling the ring. ] [[* Iterator]: ['begin]:  
 
