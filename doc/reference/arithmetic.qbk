@@ -22,7 +22,7 @@ The coordinates of the second point will be added to those of the first point. T
 
 [heading Synopsis]
 ``template<typename Point1, typename Point2>
-void add_point (Point1 &p1, Point2 const &p2)``
+void add_point(Point1 & p1, Point2 const & p2)``
 
 [heading Parameters]
 
@@ -51,7 +51,7 @@ Adds a value to each coordinate of a point.
 
 [heading Synopsis]
 ``template<typename Point>
-void add_value (Point &p, typename detail::param< Point >::type value)``
+void add_value(Point & p, typename detail::param< Point >::type value)``
 
 [heading Parameters]
 
@@ -83,7 +83,7 @@ Both vectors shall be of the same type. This type also determines type of result
 
 [heading Synopsis]
 ``template<typename P1, typename P2>
-P1 cross_product (P1 const &p1, P2 const &p2)``
+P1 cross_product(P1 const & p1, P2 const & p2)``
 
 [heading Parameters]
 
@@ -112,7 +112,7 @@ The coordinates of the second point will be divided by those of the first point.
 
 [heading Synopsis]
 ``template<typename Point1, typename Point2>
-void divide_point (Point1 &p1, Point2 const &p2)``
+void divide_point(Point1 & p1, Point2 const & p2)``
 
 [heading Parameters]
 
@@ -141,7 +141,7 @@ Divides each coordinate of a point by a value.
 
 [heading Synopsis]
 ``template<typename Point>
-void divide_value (Point &p, typename detail::param< Point >::type value)``
+void divide_value(Point & p, typename detail::param< Point >::type value)``
 
 [heading Parameters]
 
@@ -170,7 +170,7 @@ Computes the dot product (or scalar product) of 2 vectors (points).
 
 [heading Synopsis]
 ``template<typename P1, typename P2>
-select_coordinate_type<P1, P2>::type dot_product (P1 const &p1, P2 const &p2)``
+select_coordinate_type<P1, P2>::type dot_product(P1 const & p1, P2 const & p2)``
 
 [heading Parameters]
 
@@ -205,7 +205,7 @@ The coordinates of the second point will be multiplied by those of the first poi
 
 [heading Synopsis]
 ``template<typename Point1, typename Point2>
-void multiply_point (Point1 &p1, Point2 const &p2)``
+void multiply_point(Point1 & p1, Point2 const & p2)``
 
 [heading Parameters]
 
@@ -234,7 +234,7 @@ Multiplies each coordinate of a point by a value.
 
 [heading Synopsis]
 ``template<typename Point>
-void multiply_value (Point &p, typename detail::param< Point >::type value)``
+void multiply_value(Point & p, typename detail::param< Point >::type value)``
 
 [heading Parameters]
 
@@ -266,7 +266,7 @@ The coordinates of the second point will be subtracted to those of the first poi
 
 [heading Synopsis]
 ``template<typename Point1, typename Point2>
-void subtract_point (Point1 &p1, Point2 const &p2)``
+void subtract_point(Point1 & p1, Point2 const & p2)``
 
 [heading Parameters]
 
@@ -295,7 +295,7 @@ Subtracts a value to each coordinate of a point.
 
 [heading Synopsis]
 ``template<typename Point>
-void subtract_value (Point &p, typename detail::param< Point >::type value)``
+void subtract_value(Point & p, typename detail::param< Point >::type value)``
 
 [heading Parameters]
 

@@ -19,7 +19,7 @@ Combines a box with another geometry (box, point).
 
 [heading Synopsis]
 ``template<typename Box, typename Geometry>
-void combine (Box &box, Geometry const &geometry)``
+void combine(Box & box, Geometry const & geometry)``
 
 [heading Parameters]
 

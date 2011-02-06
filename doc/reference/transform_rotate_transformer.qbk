@@ -39,7 +39,7 @@ class strategy::transform::rotate_transformer
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``rotate_transformer (angle_type const &angle)``
+[[``rotate_transformer(angle_type const & angle)``
 
 ] [] [[* angle_type const &]: ['angle]:  
 

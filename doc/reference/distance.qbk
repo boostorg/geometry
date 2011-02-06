@@ -22,7 +22,7 @@ The default strategy is used, belonging to the corresponding coordinate system o
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
-distance_result<Geometry1, Geometry2>::type comparable_distance (Geometry1 const &geometry1, Geometry2 const &geometry2)``
+distance_result<Geometry1, Geometry2>::type comparable_distance(Geometry1 const & geometry1, Geometry2 const & geometry2)``
 
 [heading Parameters]
 
@@ -51,7 +51,7 @@ The default strategy is used, belonging to the corresponding coordinate system o
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
-distance_result<Geometry1, Geometry2>::type distance (Geometry1 const &geometry1, Geometry2 const &geometry2)``
+distance_result<Geometry1, Geometry2>::type distance(Geometry1 const & geometry1, Geometry2 const & geometry2)``
 
 [heading Parameters]
 
@@ -86,7 +86,7 @@ The free function area calculates the area of a geometry. using the specified st
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename Strategy>
-strategy::distance::services::return_type<Strategy>::type distance (Geometry1 const &geometry1, Geometry2 const &geometry2, Strategy const &strategy)``
+strategy::distance::services::return_type<Strategy>::type distance(Geometry1 const & geometry1, Geometry2 const & geometry2, Strategy const & strategy)``
 
 [heading Parameters]
 

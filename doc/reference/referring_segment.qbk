@@ -37,7 +37,7 @@ class model::referring_segment
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``referring_segment (point_type &p1, point_type &p2)``
+[[``referring_segment( & p1,  & p2)``
 
 ] [] [[*  &]: ['p1]:  
 

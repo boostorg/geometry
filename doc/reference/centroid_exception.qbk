@@ -31,7 +31,7 @@ The centroid_exception is thrown if the free centroid function is called with ge
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``centroid_exception ()``
+[[``centroid_exception``
 
 ] [] [
 
@@ -42,7 +42,7 @@ The centroid_exception is thrown if the free centroid function is called with ge
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``char const * what () const ``
+[[``char const * what``
 
 ] [] [
 

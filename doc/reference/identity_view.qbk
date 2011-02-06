@@ -34,7 +34,7 @@ class identity_view
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``identity_view (Range &r)``
+[[``identity_view(Range & r)``
 
 ] [] [[* Range &]: ['r]:  
 
@@ -47,25 +47,25 @@ class identity_view
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``const_iterator begin () const ``
+[[``const_iterator begin``
 
 ] [] [
 
 
 ]]
-[[``const_iterator end () const ``
+[[``const_iterator end``
 
 ] [] [
 
 
 ]]
-[[``iterator begin ()``
+[[``iterator begin``
 
 ] [] [
 
 
 ]]
-[[``iterator end ()``
+[[``iterator end``
 
 ] [] [
 

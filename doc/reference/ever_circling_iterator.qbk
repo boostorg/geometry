@@ -34,7 +34,7 @@ class ever_circling_iterator
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``ever_circling_iterator (Iterator begin, Iterator end, bool skip_first=false)``
+[[``ever_circling_iterator(Iterator begin, Iterator end, bool skip_first = false)``
 
 ] [] [[* Iterator]: ['begin]:  
 
@@ -46,7 +46,7 @@ class ever_circling_iterator
 
 
 ]]
-[[``ever_circling_iterator (Iterator begin, Iterator end, Iterator start, bool skip_first=false)``
+[[``ever_circling_iterator(Iterator begin, Iterator end, Iterator start, bool skip_first = false)``
 
 ] [] [[* Iterator]: ['begin]:  
 
@@ -65,7 +65,7 @@ class ever_circling_iterator
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``void moveto (Iterator it)``
+[[``void moveto(Iterator it)``
 
 ] [] [[* Iterator]: ['it]:  
 

@@ -19,7 +19,7 @@ Calculate the symmetric difference of two geometries.
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename Collection>
-void sym_difference (Geometry1 const &geometry1, Geometry2 const &geometry2, Collection &output_collection)``
+void sym_difference(Geometry1 const & geometry1, Geometry2 const & geometry2, Collection & output_collection)``
 
 [heading Parameters]
 

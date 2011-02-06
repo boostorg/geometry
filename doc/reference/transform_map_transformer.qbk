@@ -41,7 +41,7 @@ class strategy::transform::map_transformer
 [table
 [[Function] [Description] [Parameters] ]
 [[``template<typename B, typename D>
-map_transformer (B const &box, D const &width, D const &height)``
+map_transformer(B const & box, D const & width, D const & height)``
 
 ] [] [[* B const &]: ['box]:  
 
@@ -54,7 +54,7 @@ map_transformer (B const &box, D const &width, D const &height)``
 
 ]]
 [[``template<typename W, typename D>
-map_transformer (W const &wx1, W const &wy1, W const &wx2, W const &wy2, D const &width, D const &height)``
+map_transformer(W const & wx1, W const & wy1, W const & wx2, W const & wy2, D const & width, D const & height)``
 
 ] [] [[* W const &]: ['wx1]:  
 

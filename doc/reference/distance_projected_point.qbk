@@ -40,7 +40,7 @@ class strategy::distance::projected_point
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``calculation_type apply (Point const &p, PointOfSegment const &p1, PointOfSegment const &p2) const ``
+[[``calculation_type apply(Point const & p, PointOfSegment const & p1, PointOfSegment const & p2)``
 
 ] [] [[* Point const &]: ['p]:  
 

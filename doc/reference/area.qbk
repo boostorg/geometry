@@ -22,7 +22,7 @@ The free function area calculates the area of a geometry using the specified str
 
 [heading Synopsis]
 ``template<typename Geometry, typename Strategy>
-Strategy::return_type area (Geometry const &geometry, Strategy const &strategy)``
+Strategy::return_type area(Geometry const & geometry, Strategy const & strategy)``
 
 [heading Parameters]
 
@@ -71,7 +71,7 @@ The area calculation can be done in all three common coordinate systems, Cartesi
 
 [heading Synopsis]
 ``template<typename Geometry>
-area_result<Geometry>::type area (Geometry const &geometry)``
+area_result<Geometry>::type area(Geometry const & geometry)``
 
 [heading Parameters]
 

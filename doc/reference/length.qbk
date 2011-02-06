@@ -22,7 +22,7 @@ The free function length calculates the length (the sum of distances between con
 
 [heading Synopsis]
 ``template<typename Geometry, typename Strategy>
-length_result<Geometry>::type length (Geometry const &geometry, Strategy const &strategy)``
+length_result<Geometry>::type length(Geometry const & geometry, Strategy const & strategy)``
 
 [heading Parameters]
 
@@ -60,7 +60,7 @@ The free function length calculates the length (the sum of distances between con
 
 [heading Synopsis]
 ``template<typename Geometry>
-length_result<Geometry>::type length (Geometry const &geometry)``
+length_result<Geometry>::type length(Geometry const & geometry)``
 
 [heading Parameters]
 

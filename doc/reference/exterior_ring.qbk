@@ -19,7 +19,7 @@ Function to get the exterior ring of a polygon (const version).
 
 [heading Synopsis]
 ``template<typename Polygon>
-ring_return_type<Polygon const>::type exterior_ring (Polygon const &polygon)``
+ring_return_type<Polygon const>::type exterior_ring(Polygon const & polygon)``
 
 [heading Parameters]
 
@@ -50,7 +50,7 @@ Function to get the exterior_ring ring of a polygon.
 
 [heading Synopsis]
 ``template<typename Polygon, >
-ring_return_type<Polygon>::type exterior_ring (Polygon &polygon)``
+ring_return_type<Polygon>::type exterior_ring(Polygon & polygon)``
 
 [heading Parameters]
 

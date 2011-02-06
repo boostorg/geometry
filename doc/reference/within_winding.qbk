@@ -36,7 +36,7 @@ class strategy::within::winding
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``bool apply (Point const &point, PointOfSegment const &s1, PointOfSegment const &s2, counter &state)``
+[[``bool apply(Point const & point, PointOfSegment const & s1, PointOfSegment const & s2, counter & state)``
 
 ] [] [[* Point const &]: ['point]:  
 
@@ -50,7 +50,7 @@ class strategy::within::winding
 
 
 ]]
-[[``int result (counter const &state)``
+[[``int result(counter const & state)``
 
 ] [] [[* counter const &]: ['state]:  
 

@@ -22,7 +22,7 @@ The convert algorithm converts one geometry, e.g. a BOX, to another geometry, e.
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>
-void convert (Geometry1 const &geometry1, Geometry2 &geometry2)``
+void convert(Geometry1 const & geometry1, Geometry2 & geometry2)``
 
 [heading Parameters]
 

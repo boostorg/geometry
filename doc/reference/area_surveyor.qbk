@@ -38,7 +38,7 @@ class strategy::area::surveyor
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``void apply (PointOfSegment const &p1, PointOfSegment const &p2, summation &state)``
+[[``void apply(PointOfSegment const & p1, PointOfSegment const & p2, summation & state)``
 
 ] [] [[* PointOfSegment const &]: ['p1]:  
 
@@ -50,7 +50,7 @@ class strategy::area::surveyor
 
 
 ]]
-[[``return_type result (summation const &state)``
+[[``return_type result(summation const & state)``
 
 ] [] [[* summation const &]: ['state]:  
 

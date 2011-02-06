@@ -34,7 +34,7 @@ class box_iterator
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``box_iterator (Box const &box)``
+[[``box_iterator(Box const & box)``
 
 ] [] [[* Box const &]: ['box]:  
 
@@ -42,7 +42,7 @@ class box_iterator
 
 
 ]]
-[[``box_iterator (Box const &box, bool)``
+[[``box_iterator(Box const & box, bool )``
 
 ] [] [[* Box const &]: ['box]:  
 

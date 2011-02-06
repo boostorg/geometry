@@ -22,7 +22,7 @@ The free function envelope calculates the envelope (also known as axis aligned b
 
 [heading Synopsis]
 ``template<typename Geometry, typename Box>
-void envelope (Geometry const &geometry, Box &mbr)``
+void envelope(Geometry const & geometry, Box & mbr)``
 
 [heading Parameters]
 
@@ -54,7 +54,7 @@ The free function make_envelope calculates the envelope (also known as axis alig
 
 [heading Synopsis]
 ``template<typename Box, typename Geometry>
-Box make_envelope (Geometry const &geometry)``
+Box make_envelope(Geometry const & geometry)``
 
 [heading Parameters]
 

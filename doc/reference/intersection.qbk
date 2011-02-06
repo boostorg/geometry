@@ -22,7 +22,7 @@ The free function intersection calculates the spatial set theoretic intersection
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2, typename GeometryOut>
-bool intersection (Geometry1 const &geometry1, Geometry2 const &geometry2, GeometryOut &geometry_out)``
+bool intersection(Geometry1 const & geometry1, Geometry2 const & geometry2, GeometryOut & geometry_out)``
 
 [heading Parameters]
 
@@ -57,7 +57,7 @@ The free function intersection_inserter calculates the spatial set theoretic int
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator>
-OutputIterator intersection_inserter (Geometry1 const &geometry1, Geometry2 const &geometry2, OutputIterator out)``
+OutputIterator intersection_inserter(Geometry1 const & geometry1, Geometry2 const & geometry2, OutputIterator out)``
 
 [heading Parameters]
 
@@ -90,7 +90,7 @@ The free function intersection_inserter calculates the spatial set theoretic int
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator, typename Strategy>
-OutputIterator intersection_inserter (Geometry1 const &geometry1, Geometry2 const &geometry2, OutputIterator out, Strategy const &strategy)``
+OutputIterator intersection_inserter(Geometry1 const & geometry1, Geometry2 const & geometry2, OutputIterator out, Strategy const & strategy)``
 
 [heading Parameters]
 

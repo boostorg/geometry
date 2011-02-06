@@ -39,13 +39,13 @@ class model::d2::point_xy
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``point_xy ()``
+[[``point_xy``
 
 ] [Default constructor, does not initialize anything. ] [
 
 
 ]]
-[[``point_xy (CoordinateType const &x, CoordinateType const &y)``
+[[``point_xy(CoordinateType const & x, CoordinateType const & y)``
 
 ] [Constructor with x/y values. ] [[* CoordinateType const &]: ['x]:  
 
@@ -60,19 +60,19 @@ class model::d2::point_xy
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``CoordinateType const & x () const ``
+[[``CoordinateType const & x``
 
 ] [Get x-value. ] [
 
 
 ]]
-[[``CoordinateType const & y () const ``
+[[``CoordinateType const & y``
 
 ] [Get y-value. ] [
 
 
 ]]
-[[``void x (CoordinateType const &v)``
+[[``void x(CoordinateType const & v)``
 
 ] [Set x-value. ] [[* CoordinateType const &]: ['v]:  
 
@@ -80,7 +80,7 @@ class model::d2::point_xy
 
 
 ]]
-[[``void y (CoordinateType const &v)``
+[[``void y(CoordinateType const & v)``
 
 ] [Set y-value. ] [[* CoordinateType const &]: ['v]:  
 

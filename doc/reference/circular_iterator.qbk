@@ -34,7 +34,7 @@ class circular_iterator
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``circular_iterator (Iterator begin, Iterator end, Iterator start)``
+[[``circular_iterator(Iterator begin, Iterator end, Iterator start)``
 
 ] [] [[* Iterator]: ['begin]:  
 
@@ -46,7 +46,7 @@ class circular_iterator
 
 
 ]]
-[[``circular_iterator (Iterator end)``
+[[``circular_iterator(Iterator end)``
 
 ] [] [[* Iterator]: ['end]:  
 
@@ -59,7 +59,7 @@ class circular_iterator
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``void moveto (Iterator it)``
+[[``void moveto(Iterator it)``
 
 ] [] [[* Iterator]: ['it]:  
 

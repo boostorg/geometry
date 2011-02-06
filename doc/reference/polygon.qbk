@@ -43,31 +43,31 @@ class model::polygon
 [heading Member Function(s)]
 [table
 [[Function] [Description] [Parameters]  [Returns]]
-[[``ring_type const & outer () const ``
+[[``ring_type const & outer``
 
 ] [] [
 
 
 ]]
-[[``inner_container_type const & inners () const ``
+[[``inner_container_type const & inners``
 
 ] [] [
 
 
 ]]
-[[``ring_type & outer ()``
+[[``ring_type & outer``
 
 ] [] [
 
 
 ]]
-[[``inner_container_type & inners ()``
+[[``inner_container_type & inners``
 
 ] [] [
 
 
 ]]
-[[``void clear ()``
+[[``void clear``
 
 ] [Utility method, clears outer and inner rings. ] [
 
