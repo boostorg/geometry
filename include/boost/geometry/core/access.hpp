@@ -33,15 +33,17 @@ int const max_corner = 1;
 namespace traits
 {
 
-/// @brief Traits class which gives access (get,set) to points.
-/// @ingroup traits
-/// @par Geometries:
+/*!
+\brief Traits class which gives access (get,set) to points.
+\ingroup traits
+\par Geometries:
 ///     @li point
-/// @par Specializations should provide, per Dimension
+\par Specializations should provide, per Dimension
 ///     @li static inline T get(G const&)
 ///     @li static inline void set(G&, T const&)
-/// @tparam Geometry geometry-type
-/// @tparam Dimension dimension to access
+\tparam Geometry geometry-type
+\tparam Dimension dimension to access
+*/
 template <typename Geometry, std::size_t Dimension, typename Enable = void>
 struct access
 {
@@ -174,19 +176,20 @@ struct signature_getset_index_dimension {};
 #endif // DOXYGEN_NO_DETAIL
 
 
-// Note the comments below tell Doxygen to create one function with doc for both
-
-/// @brief get coordinate value of a Point ( / Sphere)
-/// @ingroup get
-/// @tparam Dimension dimension
-/// @tparam Geometry geometry
-/// @param geometry geometry to query coordinate value from
-/// @return coordinate value
+/*!
+\brief Get coordinate value of a geometry (usually a point)
+\details \details_get_set
+\ingroup get
+\tparam Dimension \tparam_dimension_required
+\tparam Geometry \tparam_geometry (usually a Point Concept)
+\param geometry \param_geometry (usually a point)
+\param dummy \qbk_skip
+\return The coordinate value of specified dimension of specified geometry
+\qbk{[include ref/core/get_point.qbk]}
+*/
 template <std::size_t Dimension, typename Geometry>
 inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
         , detail::signature_getset_dimension* dummy = 0
-#endif
         )
 {
     boost::ignore_unused_variable_warning(dummy);
@@ -205,18 +208,23 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 }
 
 
-/// @brief set coordinate value of a Point ( / Sphere)
-/// @tparam Dimension dimension
-/// @tparam Geometry geometry
-/// @param geometry geometry to assign coordinate to
-/// @param value coordinate value to assign
-/// @ingroup set
+/*!
+\brief Set coordinate value of a geometry (usually a point)
+\details \details_get_set
+\tparam Dimension \tparam_dimension_required
+\tparam Geometry \tparam_geometry (usually a Point Concept)
+\param geometry geometry to assign coordinate to
+\param geometry \param_geometry (usually a point)
+\param value The coordinate value to set
+\param dummy \qbk_skip
+\ingroup set
+
+\qbk{[include ref/core/set_point.qbk]}
+*/
 template <std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
         , typename coordinate_type<Geometry>::type const& value
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
         , detail::signature_getset_dimension* dummy = 0
-#endif
         )
 {
     boost::ignore_unused_variable_warning(dummy);
@@ -234,23 +242,24 @@ inline void set(Geometry& geometry
     coord_access_type::set(geometry, value);
 }
 
-// Note: doxygen needs a construct to distinguish get/set (like the gcc compiler)
 
-/// @brief get coordinate value of a Box / Segment
-/// @tparam Index
-/// - for Point: do not specify
-/// - for Box: min_corner or max_corner
-/// - for Segment: 0 / 1
-/// @tparam Dimension dimension
-/// @tparam Geometry geometry
-/// @param geometry geometry to query coordinate value from
-/// @return coordinate value
-/// @ingroup get
+/*!
+\brief get coordinate value of a Box or Segment
+\details \details_get_set
+\tparam Index \tparam_index_required
+\tparam Dimension \tparam_dimension_required
+\tparam Geometry \tparam_box_or_segment
+\param geometry \param_geometry
+\param dummy \qbk_skip
+\return coordinate value
+\ingroup get
+
+\qbk{distinguish,with index}
+\qbk{[include ref/core/get_box.qbk]}
+*/
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
         , detail::signature_getset_index_dimension* dummy = 0
-#endif
         )
 {
     boost::ignore_unused_variable_warning(dummy);
@@ -269,22 +278,25 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
     return coord_access_type::get(geometry);
 }
 
-/// @brief set coordinate value of a Box / Segment
-/// @tparam Index
-/// - for Point: do not specify
-/// - for Box: min_corner or max_corner
-/// - for Segment: 0 / 1
-/// @tparam Dimension dimension
-/// @tparam Geometry geometry
-/// @param geometry geometry to assign coordinate to
-/// @param value coordinate value to assign
-/// @ingroup set
+/*!
+\brief set coordinate value of a Box / Segment
+\details \details_get_set
+\tparam Index \tparam_index_required
+\tparam Dimension \tparam_dimension_required
+\tparam Geometry \tparam_box_or_segment
+\param geometry geometry to assign coordinate to
+\param geometry \param_geometry
+\param value The coordinate value to set
+\param dummy \qbk_skip
+\ingroup set
+
+\qbk{distinguish,with index}
+\qbk{[include ref/core/set_box.qbk]}
+*/
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
         , typename coordinate_type<Geometry>::type const& value
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
         , detail::signature_getset_index_dimension* dummy = 0
-#endif
         )
 {
     boost::ignore_unused_variable_warning(dummy);
