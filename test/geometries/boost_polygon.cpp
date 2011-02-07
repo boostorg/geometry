@@ -23,97 +23,164 @@ int test_main(int, char* [])
     bg::concept::check<boost::polygon::point_data<double> >();
 
     // 1b: use a Boost.Polygon point in Boost.Geometry, calc. distance with two point types
-    boost::polygon::point_data<double> p1(1, 2);
+    boost::polygon::point_data<double> bpol_point(1, 2);
 
-    typedef bg::model::point<double, 2, bg::cs::cartesian> bg_point;
-    bg_point p2(3, 4);
-    BOOST_CHECK_CLOSE(bg::distance(p1, p2), 2 * std::sqrt(2.0), 0.001);
+    typedef bg::model::point<double, 2, bg::cs::cartesian> bg_point_type;
+    bg_point_type bgeo_point(3, 4);
+    BOOST_CHECK_CLOSE(bg::distance(bpol_point, bgeo_point), 2 * std::sqrt(2.0), 0.001);
 
     // 2a: Check if Boost.Polygon's box fulfills Boost.Geometry's box concept
     bg::concept::check<boost::polygon::rectangle_data<double> >();
 
     // 2b: use a Boost.Polygon rectangle in Boost.Geometry, compare with boxes
-    boost::polygon::rectangle_data<double> b1;
-    bg::model::box<bg_point> b2;
+    boost::polygon::rectangle_data<double> bpol_box;
+    bg::model::box<bg_point_type> bgeo_box;
 
-    bg::assign(b1, 0, 1, 5, 6);
-    bg::assign(b2, 0, 1, 5, 6);
-    double a1 = bg::area(b1);
-    double a2 = bg::area(b2);
+    bg::assign(bpol_box, 0, 1, 5, 6);
+    bg::assign(bgeo_box, 0, 1, 5, 6);
+    double a1 = bg::area(bpol_box);
+    double a2 = bg::area(bgeo_box);
     BOOST_CHECK_CLOSE(a1, a2, 0.001);
 
     // 3a: Check if Boost.Polygon's polygon fulfills Boost.Geometry's ring concept
     bg::concept::check<boost::polygon::polygon_data<double> >();
 
-    // 3b: use a Boost.Polygon polygon (ring) in Boost.Geometry
-    // Filling it is a two-step process using Boost.Polygon
-    std::vector<boost::polygon::point_data<double> > point_vector;
-    point_vector.push_back(boost::polygon::point_data<double>(0, 0));
-    point_vector.push_back(boost::polygon::point_data<double>(0, 3));
-    point_vector.push_back(boost::polygon::point_data<double>(4, 0));
-    point_vector.push_back(boost::polygon::point_data<double>(0, 0));
+    // 3b: use a Boost.Polygon polygon (ring) 
+    boost::polygon::polygon_data<double> bpol_ring;
+    {
+        // Filling it is a two-step process using Boost.Polygon
+        std::vector<boost::polygon::point_data<double> > point_vector;
+        point_vector.push_back(boost::polygon::point_data<double>(0, 0));
+        point_vector.push_back(boost::polygon::point_data<double>(0, 3));
+        point_vector.push_back(boost::polygon::point_data<double>(4, 0));
+        point_vector.push_back(boost::polygon::point_data<double>(0, 0));
+        bpol_ring.set(point_vector.begin(), point_vector.end());
+    }
 
-    boost::polygon::polygon_data<double> r1;
-    r1.set(point_vector.begin(), point_vector.end());
-
-    bg::model::ring<bg_point> r2;
-    r2.push_back(bg_point(0, 0));
-    r2.push_back(bg_point(0, 3));
-    r2.push_back(bg_point(4, 0));
-    r2.push_back(bg_point(0, 0));
-    a1 = bg::area(r1);
-    a2 = bg::area(r2);
+    // Boost-geometry ring
+    bg::model::ring<bg_point_type> bgeo_ring;
+    {
+        bgeo_ring.push_back(bg_point_type(0, 0));
+        bgeo_ring.push_back(bg_point_type(0, 3));
+        bgeo_ring.push_back(bg_point_type(4, 0));
+        bgeo_ring.push_back(bg_point_type(0, 0));
+    }
+    a1 = bg::area(bpol_ring);
+    a2 = bg::area(bgeo_ring);
     BOOST_CHECK_CLOSE(a1, a2, 0.001);
+
+    // Check mutable ring
+    bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0))", bpol_ring);
+    bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0))", bgeo_ring);
+    a1 = bg::area(bpol_ring);
+    a2 = bg::area(bgeo_ring);
+    BOOST_CHECK_CLOSE(a1, a2, 0.001);
+
 
 
     // 4a: Boost.Polygon's polygon with holes
-    point_vector.clear();
-    point_vector.push_back(boost::polygon::point_data<double>(0, 0));
-    point_vector.push_back(boost::polygon::point_data<double>(0, 10));
-    point_vector.push_back(boost::polygon::point_data<double>(10, 10));
-    point_vector.push_back(boost::polygon::point_data<double>(10, 0));
-    point_vector.push_back(boost::polygon::point_data<double>(0, 0));
+    boost::polygon::polygon_with_holes_data<double> bpol_polygon;
+    {
+        std::vector<boost::polygon::point_data<double> > point_vector;
+        point_vector.push_back(boost::polygon::point_data<double>(0, 0));
+        point_vector.push_back(boost::polygon::point_data<double>(0, 10));
+        point_vector.push_back(boost::polygon::point_data<double>(10, 10));
+        point_vector.push_back(boost::polygon::point_data<double>(10, 0));
+        point_vector.push_back(boost::polygon::point_data<double>(0, 0));
+        bpol_polygon.set(point_vector.begin(), point_vector.end());
+    }
 
-    boost::polygon::polygon_with_holes_data<double> poly1;
-    poly1.set(point_vector.begin(), point_vector.end());
+    {
+        // Fill the holes (we take two)
+        std::vector<boost::polygon::polygon_data<double> > holes;
+        holes.resize(2);
 
-    // Fill the holes (we take two)
-    std::vector<boost::polygon::polygon_data<double> > holes;
-    holes.resize(2);
+        {
+            std::vector<boost::polygon::point_data<double> > point_vector;
+            point_vector.push_back(boost::polygon::point_data<double>(1, 1));
+            point_vector.push_back(boost::polygon::point_data<double>(2, 1));
+            point_vector.push_back(boost::polygon::point_data<double>(2, 2));
+            point_vector.push_back(boost::polygon::point_data<double>(1, 2));
+            point_vector.push_back(boost::polygon::point_data<double>(1, 1));
+            holes[0].set(point_vector.begin(), point_vector.end());
+        }
 
-    point_vector.clear();
-    point_vector.push_back(boost::polygon::point_data<double>(1, 1));
-    point_vector.push_back(boost::polygon::point_data<double>(2, 1));
-    point_vector.push_back(boost::polygon::point_data<double>(2, 2));
-    point_vector.push_back(boost::polygon::point_data<double>(1, 2));
-    point_vector.push_back(boost::polygon::point_data<double>(1, 1));
-    holes[0].set(point_vector.begin(), point_vector.end());
+        {
+            std::vector<boost::polygon::point_data<double> > point_vector;
+            point_vector.push_back(boost::polygon::point_data<double>(3, 3));
+            point_vector.push_back(boost::polygon::point_data<double>(4, 3));
+            point_vector.push_back(boost::polygon::point_data<double>(4, 4));
+            point_vector.push_back(boost::polygon::point_data<double>(3, 4));
+            point_vector.push_back(boost::polygon::point_data<double>(3, 3));
+            holes[1].set(point_vector.begin(), point_vector.end());
+        }
 
-    point_vector.clear();
-    point_vector.push_back(boost::polygon::point_data<double>(3, 3));
-    point_vector.push_back(boost::polygon::point_data<double>(4, 3));
-    point_vector.push_back(boost::polygon::point_data<double>(4, 4));
-    point_vector.push_back(boost::polygon::point_data<double>(3, 4));
-    point_vector.push_back(boost::polygon::point_data<double>(3, 3));
-    holes[1].set(point_vector.begin(), point_vector.end());
-
-    poly1.set_holes(holes.begin(), holes.end());
+        bpol_polygon.set_holes(holes.begin(), holes.end());
+    }
 
     // Using Boost.Polygon
-    a1 = bg::area(poly1);
-    a2 = boost::polygon::area(poly1);
+    a1 = bg::area(bpol_polygon);
+    a2 = boost::polygon::area(bpol_polygon);
     BOOST_CHECK_CLOSE(a1, a2, 0.001);
 
-    bg::model::polygon<bg_point> poly2;
-    bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,2 1,2 2,1 2,1 1),(3 3,4 3,4 4,3 4,3 3))", poly2);
+    bg::model::polygon<bg_point_type> bgeo_polygon;
+    bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,2 1,2 2,1 2,1 1),(3 3,4 3,4 4,3 4,3 3))", bgeo_polygon);
 
-    a2 = bg::area(poly2);
+    a2 = bg::area(bgeo_polygon);
     BOOST_CHECK_CLOSE(a1, a2, 0.001);
 
+    {
+        /*
+        boost::polygon::polygon_with_holes_data<double> const& pc = bpol_polygon;
 
-    // Not finished:
-    //bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,2 1,2 2,1 2,1 1),(3 3,4 3,4 4,3 4,3 3))", poly1);
+        BOOST_AUTO(bh, pc.begin_holes());
+        std::cout << typeid(bh).name() << std::endl;
+        std::cout << typeid(*bh).name() << std::endl;
+        BOOST_AUTO(hole1, *bh);
+        BOOST_AUTO(bp, (*hole1.begin()));
+        std::cout << typeid(bp).name() << std::endl;
 
+        BOOST_AUTO(e, bg::exterior_ring(pc));
+        BOOST_AUTO(b, *boost::begin(e));
+        std::cout << typeid(e).name() << std::endl;
+        std::cout << typeid(b).name() << std::endl;
+        std::cout << bg::area(e) << std::endl;
+
+        BOOST_AUTO(i, bg::interior_rings(pc));
+        BOOST_AUTO(bi, *boost::begin(i));
+        std::cout << typeid(i).name() << std::endl;
+        std::cout << typeid(bi).name() << std::endl;
+        BOOST_AUTO(bip, *boost::begin(bi));
+        std::cout << typeid(bip).name() << std::endl;
+        //std::cout << bg::area(e) << std::endl;
+
+
+        BOOST_AUTO(inc, bg::interior_rings(bpol_polygon));
+        BOOST_AUTO(binc, boost::begin(inc));
+        binc++;
+        std::cout << typeid(inc).name() << std::endl;
+        std::cout << typeid(binc).name() << std::endl;
+        */
+        /*
+        BOOST_AUTO(e0, bg::interior_rings(pc));
+        BOOST_AUTO(e1, bg::traits::interior_rings<boost::polygon::polygon_with_holes_data<double> >::get(pc));
+        BOOST_AUTO(e2, 
+            (bg::core_dispatch::interior_rings<bg::polygon_tag, 
+                    boost::polygon::polygon_with_holes_data<double> const>::apply(pc)));
+                    */
+                    
+
+        /*
+        std::cout << typeid(e).name() << std::endl;
+        std::cout << typeid(e0).name() << std::endl;
+        std::cout << typeid(e1).name() << std::endl;
+        std::cout << typeid(e2).name() << std::endl;
+        */
+    }
+
+    // Test adaption to mutable concept
+    bg::clear(bpol_polygon);
+    bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,2 1,2 2,1 2,1 1),(3 3,4 3,4 4,3 4,3 3))", bpol_polygon);
 
     return 0;
 }
