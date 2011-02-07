@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_CORE_EXTERIOR_RING_HPP
 
 
+#include <boost/mpl/assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 
@@ -40,7 +41,13 @@ namespace traits
 */
 template <typename Polygon>
 struct exterior_ring
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_POLYGON_TYPE
+            , (types<Polygon>)
+        );
+};
 
 
 } // namespace traits
@@ -52,7 +59,14 @@ namespace core_dispatch
 
 
 template <typename Tag, typename Geometry>
-struct exterior_ring {};
+struct exterior_ring 
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
 
 
 template <typename Polygon>

@@ -16,7 +16,6 @@
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/util/ensure_const_reference.hpp>
 
 namespace boost { namespace geometry
 {
@@ -25,18 +24,28 @@ namespace traits
 {
 
 /*!
-    \brief Traits class indicating interior container type of a polygon
-    \details defines inner container type, so the container containing
-            the interior rings
-    \ingroup traits
-    \par Geometries:
-        - polygon
-    \par Specializations should provide:
-        - typedef X type ( e.g. std::vector&lt;myring&lt;P&gt;&gt; )
-    \tparam Geometry geometry
+\brief Traits class indicating interior container type of a polygon
+\details defines inner container type, so the container containing
+        the interior rings
+\ingroup traits
+\par Geometries:
+    - polygon
+\par Specializations should provide:
+    - typedef X type ( e.g. std::vector&lt;myring&lt;P&gt;&gt; )
+\tparam Geometry geometry
 */
 template <typename Geometry>
-struct interior_type
+struct interior_const_type
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
+
+template <typename Geometry>
+struct interior_mutable_type
 {
     BOOST_MPL_ASSERT_MSG
         (
@@ -57,6 +66,33 @@ namespace core_dispatch
 
 
 template <typename GeometryTag, typename Geometry>
+struct interior_return_type
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
+
+
+template <typename Polygon>
+struct interior_return_type<polygon_tag, Polygon>
+{
+    typedef typename boost::remove_const<Polygon>::type nc_polygon_type;
+
+    typedef typename mpl::if_
+        <
+            boost::is_const<Polygon>,
+            typename traits::interior_const_type<nc_polygon_type>::type,
+            typename traits::interior_mutable_type<nc_polygon_type>::type
+        >::type type;
+};
+
+
+
+
+template <typename GeometryTag, typename Geometry>
 struct interior_type
 {
     BOOST_MPL_ASSERT_MSG
@@ -72,32 +108,8 @@ struct interior_type<polygon_tag, Polygon>
 {
     typedef typename boost::remove_reference
         <
-            typename traits::interior_type
-                <
-                    typename boost::remove_const<Polygon>::type
-                >::type
+            typename interior_return_type<polygon_tag, Polygon>::type
         > type;
-};
-
-
-template <typename GeometryTag, typename Geometry>
-struct interior_return_type
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
-
-
-template <typename Polygon>
-struct interior_return_type<polygon_tag, Polygon>
-{
-    typedef typename traits::interior_type
-        <
-            typename boost::remove_const<Polygon>::type
-        >::type type;
 };
 
 
@@ -131,13 +143,6 @@ struct interior_return_type
         <
             typename tag<Geometry>::type,
             Geometry
-        >::type ir_type;
-
-    typedef typename mpl::if_
-        <
-            boost::is_const<Geometry>,
-            typename ensure_const_reference<ir_type>::type,
-            ir_type
         >::type type;
 };
 

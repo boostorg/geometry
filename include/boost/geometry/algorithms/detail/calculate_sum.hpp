@@ -27,18 +27,25 @@ template
     typename Strategy,
     typename Policy
 >
-struct calculate_polygon_sum
+class calculate_polygon_sum
 {
-    static inline ReturnType apply(Polygon const& poly, Strategy const& strategy)
+    template <typename Rings>
+    static inline ReturnType sum_interior_rings(Rings const& rings, Strategy const& strategy)
     {
-        ReturnType sum = Policy::apply(exterior_ring(poly), strategy);
-
-        typename interior_return_type<Polygon const>::type rings = interior_rings(poly);
+        ReturnType sum = ReturnType();
         for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             sum += Policy::apply(*it, strategy);
         }
         return sum;
+    }
+
+public :
+    static inline ReturnType apply(Polygon const& poly, Strategy const& strategy)
+    {
+        return Policy::apply(exterior_ring(poly), strategy)
+            + sum_interior_rings(bg::interior_rings(poly), strategy)
+            ;
     }
 };
 

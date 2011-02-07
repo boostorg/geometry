@@ -8,6 +8,7 @@
 #ifndef BOOST_GEOMETRY_UTIL_ENSURE_CONST_REFERENCE_HPP
 #define BOOST_GEOMETRY_UTIL_ENSURE_CONST_REFERENCE_HPP
 
+#ifdef OBSOLETE
 
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
@@ -45,5 +46,6 @@ struct ensure_const_reference
 
 }} // namespace boost::geometry
 
+#endif
 
 #endif // BOOST_GEOMETRY_UTIL_ENSURE_CONST_REFERENCE_HPP

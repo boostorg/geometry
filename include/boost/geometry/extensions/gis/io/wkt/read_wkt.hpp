@@ -232,12 +232,17 @@ struct container_inserter
 };
 
 
+// Geometry might be a value-type or reference-type
 template <typename Geometry>
 struct container_appender
 {
-    typedef typename geometry::point_type<Geometry>::type point_type;
+    typedef typename geometry::point_type
+        <
+            typename boost::remove_reference<Geometry>::type
+        >::type point_type;
+
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
-        std::string const& wkt, Geometry& out)
+        std::string const& wkt, Geometry out)
     {
         handle_open_parenthesis(it, end, wkt);
 
@@ -318,12 +323,24 @@ struct ring_parser
 template <typename Polygon>
 struct polygon_parser
 {
-    typedef typename ring_type<Polygon>::type ring_type;
+    typedef typename ring_return_type<Polygon>::type ring_return_type;
+    typedef container_appender<ring_return_type> appender;
+
+    template <typename Rings>
+    static inline void apply_rings(
+                tokenizer::iterator& it, tokenizer::iterator end,
+                std::string const& wkt, Rings& rings, int n)
+    {
+        BOOST_AUTO(interior_it, boost::begin(rings));
+
+        interior_it += (n - 1);
+        appender::apply(it, end, wkt, *interior_it);
+    }
+
 
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
                 std::string const& wkt, Polygon& poly)
     {
-        typedef container_appender<ring_type> appender;
 
         handle_open_parenthesis(it, end, wkt);
 
@@ -339,9 +356,8 @@ struct polygon_parser
             }
             else
             {
-                interior_rings(poly).resize(n);
-                appender::apply(it, end, wkt,
-                        interior_rings(poly).back());
+                write::resize(interior_rings(poly), n);
+                apply_rings(it, end, wkt, interior_rings(poly), n);
             }
 
             if (it != end && *it == ",")

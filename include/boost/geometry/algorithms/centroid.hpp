@@ -157,7 +157,7 @@ inline bool range_ok(Range const& range, Point& centroid)
     else // if (n == 1)
     {
         // Take over the first point in a "coordinate neutral way"
-        copy_coordinates(range.front(), centroid);
+        copy_coordinates(*boost::begin(range), centroid);
         return false;
     }
     return true;
