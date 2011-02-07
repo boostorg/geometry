@@ -293,7 +293,7 @@ struct linestring_parser
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
                 std::string const& wkt, Geometry& geometry)
     {
-        container_appender<Geometry>::apply(it, end, wkt, geometry);
+        container_appender<Geometry&>::apply(it, end, wkt, geometry);
     }
 };
 
@@ -308,7 +308,7 @@ struct ring_parser
         // So handle the extra opening/closing parentheses
         // and in between parse using the container-inserter
         handle_open_parenthesis(it, end, wkt);
-        container_appender<Ring>::apply(it, end, wkt, ring);
+        container_appender<Ring&>::apply(it, end, wkt, ring);
         handle_close_parenthesis(it, end, wkt);
     }
 };
