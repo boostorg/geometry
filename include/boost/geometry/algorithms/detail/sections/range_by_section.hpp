@@ -40,8 +40,6 @@ struct full_section_range
 template <typename Polygon, typename Section>
 struct full_section_polygon
 {
-    typedef typename geometry::ring_type<Polygon>::type ring_type;
-
     static inline typename ring_return_type<Polygon const>::type apply(Polygon const& polygon, Section const& section)
     {
         return section.ring_index < 0
