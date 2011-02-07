@@ -23,7 +23,7 @@ void test_all()
     // 3-4-5 plus 1-1
     test_geometry<bg::model::linestring<P> >("LINESTRING(0 0,3 4,4 3)", 5 + sqrt(2.0));
     test_geometry<all_custom_linestring<P> >("LINESTRING(0 0,3 4,4 3)", 5 + sqrt(2.0));
-    test_geometry<wrapped_boost_array<P, 3> >("LINESTRING(0 0,3 4,4 3)", 5 + sqrt(2.0));
+    test_geometry<test::wrapped_boost_array<P, 3> >("LINESTRING(0 0,3 4,4 3)", 5 + sqrt(2.0));
 
     // Geometries with length zero
     test_geometry<P>("POINT(0 0)", 0);
