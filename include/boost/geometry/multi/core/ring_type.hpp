@@ -31,7 +31,7 @@ struct ring_return_type<multi_polygon_tag, MultiPolygon>
     typedef typename ring_return_type
         <
             polygon_tag,
-            typedef typename mpl::if_
+            typename mpl::if_
                 <
                     boost::is_const<MultiPolygon>,
                     typename boost::range_value<MultiPolygon>::type const,
