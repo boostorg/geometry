@@ -129,7 +129,34 @@ template
     template<typename> class PointAlloc,
     template<typename> class RingAlloc
 >
-struct ring_type
+struct ring_const_type
+<
+    model::polygon
+        <
+            Point, ClockWise, Closed,
+            PointList, RingList, PointAlloc, RingAlloc
+        >
+>
+{
+    typedef typename model::polygon
+        <
+            Point, ClockWise, Closed,
+            PointList, RingList,
+            PointAlloc, RingAlloc
+        >::ring_type const& type;
+};
+
+
+template
+<
+    typename Point,
+    bool ClockWise, bool Closed,
+    template<typename, typename> class PointList,
+    template<typename, typename> class RingList,
+    template<typename> class PointAlloc,
+    template<typename> class RingAlloc
+>
+struct ring_mutable_type
 <
     model::polygon
         <
@@ -155,7 +182,35 @@ template
     template<typename> class PointAlloc,
     template<typename> class RingAlloc
 >
-struct interior_type
+struct interior_const_type
+<
+    model::polygon
+        <
+            Point, ClockWise, Closed,
+            PointList, RingList,
+            PointAlloc, RingAlloc
+        >
+>
+{
+    typedef typename model::polygon
+        <
+            Point, ClockWise, Closed,
+            PointList, RingList,
+            PointAlloc, RingAlloc
+        >::inner_container_type const& type;
+};
+
+
+template
+<
+    typename Point,
+    bool ClockWise, bool Closed,
+    template<typename, typename> class PointList,
+    template<typename, typename> class RingList,
+    template<typename> class PointAlloc,
+    template<typename> class RingAlloc
+>
+struct interior_mutable_type
 <
     model::polygon
         <
@@ -172,6 +227,7 @@ struct interior_type
             PointAlloc, RingAlloc
         >::inner_container_type& type;
 };
+
 
 template
 <

@@ -182,7 +182,7 @@ struct area<polygon_tag, Polygon, Strategy>
             Strategy,
             detail::area::ring_area
                 <
-                    typename ring_type<Polygon>::type,
+                    typename ring_type<Polygon const>::type,
                     order_as_direction<geometry::point_order<Polygon>::value>::value,
                     geometry::closure<Polygon>::value,
                     Strategy

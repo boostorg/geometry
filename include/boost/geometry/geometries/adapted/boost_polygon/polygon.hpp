@@ -37,17 +37,26 @@ struct tag<boost::polygon::polygon_with_holes_data<CoordinateType> >
     typedef polygon_tag type;
 };
 
-
-
 template <typename CoordinateType>
-struct ring_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
+struct ring_const_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
-    typedef adapt::bp::ring_proxy<boost::polygon::polygon_data<CoordinateType> > type;
+    typedef adapt::bp::ring_proxy<boost::polygon::polygon_with_holes_data<CoordinateType> const> type;
 };
 
+template <typename CoordinateType>
+struct ring_mutable_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
+{
+    typedef adapt::bp::ring_proxy<boost::polygon::polygon_with_holes_data<CoordinateType> > type;
+};
 
 template <typename CoordinateType>
-struct interior_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
+struct interior_const_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
+{
+    typedef adapt::bp::holes_proxy<boost::polygon::polygon_with_holes_data<CoordinateType> const> type;
+};
+
+template <typename CoordinateType>
+struct interior_mutable_type<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
     typedef adapt::bp::holes_proxy<boost::polygon::polygon_with_holes_data<CoordinateType> > type;
 };
@@ -57,16 +66,17 @@ template <typename CoordinateType>
 struct exterior_ring<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
     typedef boost::polygon::polygon_with_holes_data<CoordinateType> polygon_type;
-    typedef adapt::bp::ring_proxy<boost::polygon::polygon_data<CoordinateType> > proxy;
+    typedef adapt::bp::ring_proxy<polygon_type> proxy;
+    typedef adapt::bp::ring_proxy<polygon_type const> const_proxy;
 
     static inline proxy get(polygon_type& p)
     {
-        return proxy(boost::polygon::begin_points(p), boost::polygon::end_points(p));
+        return proxy(p);
     }
 
-    static inline proxy get(polygon_type const& p)
+    static inline const_proxy get(polygon_type const& p)
     {
-        return proxy(boost::polygon::begin_points(p), boost::polygon::end_points(p));
+        return const_proxy(p);
     }
 };
 
@@ -75,15 +85,16 @@ struct interior_rings<boost::polygon::polygon_with_holes_data<CoordinateType> >
 {
     typedef boost::polygon::polygon_with_holes_data<CoordinateType> polygon_type;
     typedef adapt::bp::holes_proxy<polygon_type> proxy;
+    typedef adapt::bp::holes_proxy<polygon_type const> const_proxy;
 
     static inline proxy get(polygon_type& p)
     {
         return proxy(p);
     }
 
-    static inline proxy get(polygon_type const& p)
+    static inline const_proxy get(polygon_type const& p)
     {
-        return proxy(p);
+        return const_proxy(p);
     }
 };
 

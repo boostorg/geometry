@@ -25,14 +25,14 @@ namespace adapt { namespace bp
 {
 
 
-template <typename Polygon, typename Ring>
+template <typename Polygon, typename RingProxy>
 class hole_iterator
     : public ::boost::iterator_facade
         <
-            hole_iterator<Polygon, Ring>,
-            Ring, // value type
+            hole_iterator<Polygon, RingProxy>,
+            RingProxy, // value type
             boost::forward_traversal_tag,
-            Ring // reference type
+            RingProxy // reference type
         >
 {
 public :
@@ -41,8 +41,9 @@ public :
             Polygon
         >::iterator_holes_type ith_type;
 
-    explicit inline hole_iterator(ith_type const it)
-        : m_base(it)
+    explicit inline hole_iterator(Polygon& polygon, ith_type const it)
+        : m_polygon(polygon)
+        , m_base(it)
     {
     }
 
@@ -51,21 +52,27 @@ public :
 private:
     friend class boost::iterator_core_access;
 
-    // Return a ring_proxy by value
-    inline Ring dereference() const
+    inline RingProxy dereference() const
     {
-        return Ring(*this->m_base);
+        return RingProxy(m_polygon, this->m_base);
     }
 
     inline void increment() { ++m_base; }
     inline void decrement() { --m_base; }
-    inline void advance(difference_type n) { m_base += n; }
+    inline void advance(difference_type n) 
+    { 
+        for (int i = 0; i < n; i++)
+        {
+            ++m_base; 
+        }
+    }
 
-    inline bool equal(hole_iterator<Polygon, Ring> const& other) const
+    inline bool equal(hole_iterator<Polygon, RingProxy> const& other) const
     {
         return this->m_base == other.m_base;
     }
 
+    Polygon& m_polygon;
     ith_type m_base;
 };
 

@@ -18,8 +18,6 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/interior_type.hpp>
-#include <boost/geometry/util/add_const_if_c.hpp>
-#include <boost/geometry/util/ensure_const_reference.hpp>
 
 namespace boost { namespace geometry
 {
