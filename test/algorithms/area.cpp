@@ -16,7 +16,20 @@
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
+#include <test_geometries/all_custom_ring.hpp>
+#include <test_geometries/all_custom_polygon.hpp>
 //#define GEOMETRY_TEST_DEBUG
+
+template <typename Polygon>
+void test_polygon()
+{
+    // Rotated square, length=sqrt(2) -> area=2
+    test_geometry<Polygon>("POLYGON((1 1,2 2,3 1,2 0,1 1))", 2.0);
+    test_geometry<Polygon>("POLYGON((1 1,2 2,3 1,2 0,1 1))", 2.0);
+    test_geometry<Polygon>("POLYGON((0 0,0 7,4 2,2 0,0 0))", 16.0);
+    test_geometry<Polygon>("POLYGON((1 1,2 1,2 2,1 2,1 1))", -1.0);
+    test_geometry<Polygon>("POLYGON((0 0,0 7,4 2,2 0,0 0), (1 1,2 1,2 2,1 2,1 1))", 15.0);
+}
 
 
 template <typename P>
@@ -25,18 +38,15 @@ void test_all()
     test_geometry<bg::model::box<P> >("POLYGON((0 0,2 2))", 4.0);
     test_geometry<bg::model::box<P> >("POLYGON((2 2,0 0))", 4.0);
 
-    // Rotated square, length=sqrt(2) -> area=2
-    test_geometry<bg::model::polygon<P> >("POLYGON((1 1,2 2,3 1,2 0,1 1))", 2.0);
-
+    test_polygon<bg::model::polygon<P> >();
+    test_polygon<all_custom_polygon<P> >();
 
     // clockwise rings (second is wrongly ordered)
     test_geometry<bg::model::ring<P> >("POLYGON((0 0,0 7,4 2,2 0,0 0))", 16.0);
     test_geometry<bg::model::ring<P> >("POLYGON((0 0,2 0,4 2,0 7,0 0))", -16.0);
 
-    test_geometry<bg::model::polygon<P> >("POLYGON((0 0,0 7,4 2,2 0,0 0))", 16.0);
-    test_geometry<bg::model::polygon<P> >("POLYGON((1 1,2 1,2 2,1 2,1 1))", -1.0);
-    test_geometry<bg::model::polygon<P> >
-            ("POLYGON((0 0,0 7,4 2,2 0,0 0), (1 1,2 1,2 2,1 2,1 1))", 15.0);
+    test_geometry<all_custom_ring<P> >("POLYGON((0 0,0 7,4 2,2 0,0 0))", 16.0);
+
     // ccw
     test_geometry<bg::model::polygon<P, false> >
             ("POLYGON((0 0,0 7,4 2,2 0,0 0), (1 1,2 1,2 2,1 2,1 1))", -15.0);

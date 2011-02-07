@@ -123,50 +123,27 @@ namespace boost { namespace geometry { namespace traits
         }
     };
 
+    template <typename Point, std::size_t Count>
+    struct push_back< wrapped_boost_array<Point, Count> >
+    {
+        static inline void apply(wrapped_boost_array<Point, Count>& ar, Point const& point)
+        {
+            // BOOST_ASSERT((ar.size < Count));
+            ar.array[ar.size++] = point;
+        }
+    };
+
+    template <typename Point, std::size_t Count>
+    struct resize< wrapped_boost_array<Point, Count> >
+    {
+        static inline void apply(wrapped_boost_array<Point, Count>& ar, std::size_t new_size)
+        {
+            BOOST_ASSERT(new_size < Count);
+            ar.size = new_size;
+        }
+    };
 
 }}} // namespace bg::traits
-
-
-
-namespace std
-{
-
-template <typename Point, std::size_t Count>
-class back_insert_iterator< test::wrapped_boost_array<Point, Count> >
-    : public std::iterator<std::output_iterator_tag, void, void, void, void>
-{
-public:
-
-    typedef test::wrapped_boost_array<Point, Count> container_type;
-    typedef back_insert_iterator<container_type> this_type;
-
-    explicit back_insert_iterator(container_type& ar)
-        : m_current(boost::begin(ar) + ar.size)
-        , m_array(ar)
-    {}
-
-    inline this_type& operator=(Point const& value)
-    {
-        // Check if not passed beyond
-        if (std::size_t(m_array.size) < Count)
-        {
-            *m_current++ = value;
-            m_array.size++;
-        }
-        return *this;
-    }
-
-    // Boiler-plate
-    inline this_type& operator*()     { return *this; }
-    inline this_type& operator++()    { return *this; }
-    inline this_type& operator++(int) { return *this; }
-
-private:
-    typename boost::range_iterator<container_type>::type m_current;
-    container_type& m_array;
-};
-
-} // namespace std
 
 
 #endif // GEOMETRY_TEST_TEST_GEOMETRIES_WRAPPED_BOOST_ARRAY_HPP

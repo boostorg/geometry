@@ -8,30 +8,27 @@
 // Quickbook Example
 
 //[area_with_strategy
-//` Calculate the area of a polygon specifying a strategy
+//` Calculate the area of a polygon
 
 #include <iostream>
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
-namespace bg = boost::geometry;
+namespace bg = boost::geometry; /*< Convenient namespace alias >*/
 
 int main()
 {
-    // Define a spherical point
-    typedef bg::model::point<double, 2, bg::cs::spherical<bg::degree> > pnt_type;
+    // Calculate the area of a cartesian polygon
+    bg::model::polygon<bg::model::d2::point_xy<double> > poly;
+    bg::read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
+    double area = bg::area(poly);
+    std::cout << "Area: " << area << std::endl;
 
-    bg::model::polygon<pnt_type> hawaii;
-    bg::read_wkt("POLYGON((-155.86 18.93,-155.84 20.30,-154.80 19.52,-155.86 18.93))" /*< Rough appromation of [@http://en.wikipedia.org/wiki/Hawaii_%28island%29 Hawaii Island] >*/
-        , hawaii);
-    double const mean_radius = 6371.0; /*< [@http://en.wikipedia.org/wiki/Earth_radius Wiki]  >*/
-
-
-    // Construct the strategy (Huiller) and calculate the area
-    bg::strategy::area::huiller<pnt_type> in_square_kilometers(mean_radius);
-    double area = bg::area(hawaii, in_square_kilometers);
-
-    std::cout << area << " km2" << std::endl;
+    // Calculate the area of a spherical polygon
+    bg::model::polygon<bg::model::point<float, 2, bg::cs::spherical<bg::degree> > > sph_poly;
+    bg::read_wkt("POLYGON((0 0,0 45,45 0,0 0))", sph_poly);
+    area = bg::area(sph_poly);
+    std::cout << "Area: " << area << std::endl;
 
     return 0;
 }
@@ -43,7 +40,8 @@ int main()
 /*`
 Output:
 [pre
-Area: 8393.22 km2
+Area: 16
+Area: 0.339837
 ]
 */
 //]

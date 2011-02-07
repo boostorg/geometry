@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="difference"
-	ProjectGUID="{4EBFC27A-75C9-43A1-8DDA-AFEB45C564DC}"
-	RootNamespace="difference"
+	Name="ring"
+	ProjectGUID="{1EE3F112-638F-4447-8F9D-4C5BB3304C3B}"
+	RootNamespace="ring"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,9 +18,9 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\difference"
+			IntermediateDirectory="$(ConfigurationName)\ring"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../..;..;../$(TTMATH_ROOT)"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NONDLL;_CRT_SECURE_NO_WARNINGS;TEST_WITH_SVG"
+				AdditionalIncludeDirectories="../../../..;.."
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -91,9 +91,9 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\difference"
+			IntermediateDirectory="$(ConfigurationName)\ring"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -115,7 +115,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../../..;.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NONDLL;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
 			/>
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\difference.cpp"
+			RelativePath=".\ring.cpp"
 			>
 		</File>
 	</Files>
