@@ -31,8 +31,8 @@
 
 template <typename PRJ, typename XY, typename LL>
 void add_to_ring(PRJ const& prj, LL const& ll,
-                 bg::model::linear_ring<LL>& ring_ll,
-                 bg::model::linear_ring<XY>& ring_xy)
+                 bg::model::ring<LL>& ring_ll,
+                 bg::model::ring<XY>& ring_xy)
 {
     ring_ll.push_back(ll);
 
