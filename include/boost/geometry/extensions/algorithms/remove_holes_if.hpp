@@ -125,7 +125,10 @@ struct elongated_hole
     inline bool operator()(Ring const& ring) const
     {
         if (ring.size() >=
-                core_detail::closure::minimum_ring_size<Closure>::value)
+                core_detail::closure::minimum_ring_size
+                    <
+                       geometry::closure<Ring>::value
+                    >::value)
         {
             double a = area(ring);
             double p = perimeter(ring);
@@ -146,7 +149,10 @@ struct invalid_hole
     inline bool operator()(Ring const& ring) const
     {
         return ring.size()
-                < core_detail::closure::minimum_ring_size<Closure>::value;
+                < core_detail::closure::minimum_ring_size
+                        <
+                            geometry::closure<Ring>::value
+                        >::value;
     }
 };
 

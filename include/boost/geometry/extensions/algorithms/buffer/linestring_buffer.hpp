@@ -44,7 +44,7 @@ struct linestring_buffer
 {
     typedef typename coordinate_type<Polygon>::type coordinate_type;
     typedef typename point_type<Polygon>::type output_point_type;
-    typedef segment<output_point_type const> segment_type;
+    typedef model::referring_segment<output_point_type const> segment_type;
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     typedef typename ring_type<Polygon>::type ring_type;
