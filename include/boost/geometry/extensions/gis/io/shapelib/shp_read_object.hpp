@@ -50,7 +50,7 @@ struct read_linestring
 {
     static inline SHPObject* apply(LineString const& linestring)
     {
-        typedef typename bg::point_type<Linestring>::type point_type;
+        typedef typename geometry::point_type<Linestring>::type point_type;
 
         if (shape.nSHPType == SHPT_ARCZ && shape.nParts == 1)
         {
@@ -60,8 +60,8 @@ struct read_linestring
             for (int i = 0; i < shape.nVertices; i++)
             {
                 point_type point;
-                bg::set<0>(point, x[i]);
-                bg::set<1>(point, y[i]);
+                geometry::set<0>(point, x[i]);
+                geometry::set<1>(point, y[i]);
 
                 linestring.push_back(point);
             }
@@ -78,8 +78,8 @@ struct read_polygon
 {
     static inline SHPObject* apply(Polygon const& polygon)
     {
-        typedef typename bg::point_type<Polygon>::type point_type;
-        typedef typename bg::ring_type<Polygon>::type ring_type;
+        typedef typename geometry::point_type<Polygon>::type point_type;
+        typedef typename geometry::ring_type<Polygon>::type ring_type;
 
         if (shape.nSHPType == SHPT_POLYGON)
         {
@@ -103,11 +103,11 @@ struct read_polygon
                 for (v = first; v < last; v++)
                 {
                     point_type point;
-                    bg::set<0>(point, x[v]);
-                    bg::set<1>(point, y[v]);
+                    geometry::set<0>(point, x[v]);
+                    geometry::set<1>(point, y[v]);
                     rings[p].first.push_back(point);
                 }
-                rings[p].second = bg::math::abs(bg::area(rings[p].first));
+                rings[p].second = geometry::math::abs(geometry::area(rings[p].first));
             }
 
             if (rings.size() > 1)
@@ -117,20 +117,20 @@ struct read_polygon
                         sort_on_area_desc<ring_plus_area>());
                 // Largest area (either positive or negative) is outer ring
                 // Rest of the rings are holes
-                bg::exterior_ring(polygon) = rings.front().first;
+                geometry::exterior_ring(polygon) = rings.front().first;
                 for (int i = 1; i < rings.size(); i++)
                 {
-                    bg::interior_rings(polygon).push_back(rings[i].first);
-                    if (! bg::within(rings[i].first.front(), bg::exterior_ring(polygon))
-                        && ! bg::within(rings[i].first.at(1), bg::exterior_ring(polygon))
+                    geometry::interior_rings(polygon).push_back(rings[i].first);
+                    if (! geometry::within(rings[i].first.front(), geometry::exterior_ring(polygon))
+                        && ! geometry::within(rings[i].first.at(1), geometry::exterior_ring(polygon))
                         )
                     {
     #if ! defined(NDEBUG)
                         std::cout << "Error: inconsistent ring!" << std::endl;
                         BOOST_FOREACH(ring_plus_area const& r, rings)
                         {
-                            std::cout << bg::area(r.first) << " "
-                                << bg::wkt(r.first.front()) << " "
+                            std::cout << geometry::area(r.first) << " "
+                                << geometry::wkt(r.first.front()) << " "
                                 << std::endl;
                         }
     #endif
@@ -139,7 +139,7 @@ struct read_polygon
             }
             else if (rings.size() == 1)
             {
-                bg::exterior_ring(polygon) = rings.front().first;
+                geometry::exterior_ring(polygon) = rings.front().first;
             }
             return true;
         }

@@ -44,7 +44,7 @@ public :
     static inline ReturnType apply(Polygon const& poly, Strategy const& strategy)
     {
         return Policy::apply(exterior_ring(poly), strategy)
-            + sum_interior_rings(bg::interior_rings(poly), strategy)
+            + sum_interior_rings(interior_rings(poly), strategy)
             ;
     }
 };
