@@ -331,10 +331,7 @@ struct polygon_parser
                 tokenizer::iterator& it, tokenizer::iterator end,
                 std::string const& wkt, Rings& rings, int n)
     {
-        BOOST_AUTO(interior_it, boost::begin(rings));
-
-        interior_it += (n - 1);
-        appender::apply(it, end, wkt, *interior_it);
+        appender::apply(it, end, wkt, *(boost::begin(rings) + (n - 1)));
     }
 
 
