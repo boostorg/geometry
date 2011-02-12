@@ -50,7 +50,7 @@
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
-#include <boost/geometry/algorithms/num_inteior_rings.hpp>
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
