@@ -12,7 +12,6 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/core/is_multi.hpp>
 
 #include <boost/geometry/multi/iterators/range_type.hpp>
 

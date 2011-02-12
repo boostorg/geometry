@@ -31,8 +31,8 @@ template
 >
 struct self_get_turn_points
     <
-        multi_polygon_tag, true, MultiPolygon,
-        Turns, 
+        multi_polygon_tag, MultiPolygon,
+        Turns,
         TurnPolicy, InterruptPolicy
     >
     : detail::self_get_turn_points::get_turns

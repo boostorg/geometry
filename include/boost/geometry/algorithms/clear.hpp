@@ -16,6 +16,7 @@
 #include <boost/geometry/core/container_access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -122,7 +123,7 @@ inline void clear(Geometry& geometry)
 
     dispatch::clear
         <
-            typename tag<Geometry>::type,
+            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
             Geometry
         >::apply(geometry);
 }

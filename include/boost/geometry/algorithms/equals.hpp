@@ -21,7 +21,6 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/core/is_multi.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -155,7 +154,6 @@ namespace dispatch
 template
 <
     typename Tag1, typename Tag2,
-    bool IsMulti1, bool IsMulti2,
     typename Geometry1,
     typename Geometry2,
     std::size_t DimensionCount
@@ -165,7 +163,7 @@ struct equals
 
 
 template <typename P1, typename P2, std::size_t DimensionCount>
-struct equals<point_tag, point_tag, false, false, P1, P2, DimensionCount>
+struct equals<point_tag, point_tag, P1, P2, DimensionCount>
     : geometry::detail::not_
         <
             P1,
@@ -176,13 +174,13 @@ struct equals<point_tag, point_tag, false, false, P1, P2, DimensionCount>
 
 
 template <typename Box1, typename Box2, std::size_t DimensionCount>
-struct equals<box_tag, box_tag, false, false, Box1, Box2, DimensionCount>
+struct equals<box_tag, box_tag, Box1, Box2, DimensionCount>
     : detail::equals::box_box<Box1, Box2, 0, DimensionCount>
 {};
 
 
 template <typename Ring1, typename Ring2>
-struct equals<ring_tag, ring_tag, false, false, Ring1, Ring2, 2>
+struct equals<ring_tag, ring_tag, Ring1, Ring2, 2>
     : detail::equals::equals_by_collection
         <
             Ring1, Ring2,
@@ -192,7 +190,7 @@ struct equals<ring_tag, ring_tag, false, false, Ring1, Ring2, 2>
 
 
 template <typename Polygon1, typename Polygon2>
-struct equals<polygon_tag, polygon_tag, false, false, Polygon1, Polygon2, 2>
+struct equals<polygon_tag, polygon_tag, Polygon1, Polygon2, 2>
     : detail::equals::equals_by_collection
         <
             Polygon1, Polygon2,
@@ -202,7 +200,7 @@ struct equals<polygon_tag, polygon_tag, false, false, Polygon1, Polygon2, 2>
 
 
 template <typename LineString1, typename LineString2>
-struct equals<linestring_tag, linestring_tag, false, false, LineString1, LineString2, 2>
+struct equals<linestring_tag, linestring_tag, LineString1, LineString2, 2>
     : detail::equals::equals_by_collection
         <
             LineString1, LineString2,
@@ -212,7 +210,7 @@ struct equals<linestring_tag, linestring_tag, false, false, LineString1, LineStr
 
 
 template <typename Polygon, typename Ring>
-struct equals<polygon_tag, ring_tag, false, false, Polygon, Ring, 2>
+struct equals<polygon_tag, ring_tag, Polygon, Ring, 2>
     : detail::equals::equals_by_collection
         <
             Polygon, Ring,
@@ -222,7 +220,7 @@ struct equals<polygon_tag, ring_tag, false, false, Polygon, Ring, 2>
 
 
 template <typename Ring, typename Box>
-struct equals<ring_tag, box_tag, false, false, Ring, Box, 2>
+struct equals<ring_tag, box_tag, Ring, Box, 2>
     : detail::equals::equals_by_collection
         <
             Ring, Box,
@@ -232,7 +230,7 @@ struct equals<ring_tag, box_tag, false, false, Ring, Box, 2>
 
 
 template <typename Polygon, typename Box>
-struct equals<polygon_tag, box_tag, false, false, Polygon, Box, 2>
+struct equals<polygon_tag, box_tag, Polygon, Box, 2>
     : detail::equals::equals_by_collection
         <
             Polygon, Box,
@@ -244,7 +242,6 @@ struct equals<polygon_tag, box_tag, false, false, Polygon, Box, 2>
 template
 <
     typename Tag1, typename Tag2,
-    bool IsMulti1, bool IsMulti2,
     typename Geometry1,
     typename Geometry2,
     std::size_t DimensionCount
@@ -256,7 +253,6 @@ struct equals_reversed
         return equals
             <
                 Tag2, Tag1,
-                IsMulti2, IsMulti1,
                 Geometry2, Geometry1,
                 DimensionCount
             >::apply(g2, g1);
@@ -293,8 +289,6 @@ inline bool equals(Geometry1 const& geometry1, Geometry2 const& geometry2)
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
-                is_multi<Geometry1>::type::value,
-                is_multi<Geometry2>::type::value,
                 Geometry1,
                 Geometry2,
                 dimension<Geometry1>::type::value
@@ -303,8 +297,6 @@ inline bool equals(Geometry1 const& geometry1, Geometry2 const& geometry2)
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
-                is_multi<Geometry1>::type::value,
-                is_multi<Geometry2>::type::value,
                 Geometry1,
                 Geometry2,
                 dimension<Geometry1>::type::value

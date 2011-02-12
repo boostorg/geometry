@@ -44,7 +44,6 @@ struct multi_count
             n += dispatch::num_points
                 <
                     typename tag<geometry_type>::type,
-                    geometry::is_linear<geometry_type>::value,
                     geometry_type
                 >::apply(*it, add_for_open);
         }
@@ -63,15 +62,7 @@ namespace dispatch
 
 
 template <typename Geometry>
-struct num_points<multi_point_tag, false, Geometry>
-    : detail::num_points::multi_count<Geometry> {};
-
-template <typename Geometry>
-struct num_points<multi_linestring_tag, false, Geometry>
-    : detail::num_points::multi_count<Geometry> {};
-
-template <typename Geometry>
-struct num_points<multi_polygon_tag, false, Geometry>
+struct num_points<multi_tag, Geometry>
     : detail::num_points::multi_count<Geometry> {};
 
 

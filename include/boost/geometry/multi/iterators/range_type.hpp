@@ -11,8 +11,6 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/multi/core/is_multi.hpp>
-
 #include <boost/geometry/iterators/range_type.hpp>
 
 

@@ -13,7 +13,6 @@
 #include <boost/type_traits.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
-#include <boost/geometry/core/is_multi.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 

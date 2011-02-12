@@ -9,7 +9,6 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_EQUALS_HPP
 
 
-#include <boost/geometry/multi/core/is_multi.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
 
@@ -28,7 +27,6 @@ template <typename MultiPolygon1, typename MultiPolygon2>
 struct equals
     <
         multi_polygon_tag, multi_polygon_tag,
-        true, true,
         MultiPolygon1, MultiPolygon2,
         2
     >
@@ -44,7 +42,6 @@ template <typename Polygon, typename MultiPolygon>
 struct equals
     <
         polygon_tag, multi_polygon_tag,
-        false, true,
         Polygon, MultiPolygon,
         2
     >

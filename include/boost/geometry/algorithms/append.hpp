@@ -17,6 +17,7 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/copy.hpp>

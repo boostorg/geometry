@@ -6,14 +6,16 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#ifndef BOOST_GEOMETRY_NUM_GEOMETRIES_HPP
-#define BOOST_GEOMETRY_NUM_GEOMETRIES_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_NUM_GEOMETRIES_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_NUM_GEOMETRIES_HPP
 
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
+
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/core/is_multi.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -23,12 +25,23 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace core_dispatch
+namespace dispatch
 {
 
 
-template <typename Tag, bool IsMulti, typename Geometry>
+template <typename Tag, typename Geometry>
 struct num_geometries
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
+
+
+template <typename Geometry>
+struct num_geometries<single_tag, Geometry>
 {
     static inline std::size_t apply(Geometry const&)
     {
@@ -38,7 +51,7 @@ struct num_geometries
 
 
 
-} // namespace core_dispatch
+} // namespace dispatch
 #endif
 
 
@@ -57,10 +70,14 @@ inline std::size_t num_geometries(Geometry const& geometry)
 {
     concept::check<Geometry const>();
 
-    return core_dispatch::num_geometries
+    return dispatch::num_geometries
         <
-            typename tag<Geometry>::type,
-            is_multi<Geometry>::type::value,
+            typename tag_cast
+                <
+                    typename tag<Geometry>::type,
+                    single_tag,
+                    multi_tag
+                >::type,
             Geometry
         >::apply(geometry);
 }
@@ -69,4 +86,4 @@ inline std::size_t num_geometries(Geometry const& geometry)
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_NUM_GEOMETRIES_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_NUM_GEOMETRIES_HPP

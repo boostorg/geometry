@@ -22,7 +22,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/core/is_multi.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -269,41 +269,41 @@ struct dsv_indexed
 namespace dispatch
 {
 
-template <typename Tag, bool IsMulti, typename Geometry>
+template <typename Tag, typename Geometry>
 struct dsv {};
 
 
 template <typename Point>
-struct dsv<point_tag, false, Point>
+struct dsv<point_tag, Point>
     : detail::dsv::dsv_point<Point>
 {};
 
 
 template <typename Linestring>
-struct dsv<linestring_tag, false, Linestring>
+struct dsv<linestring_tag, Linestring>
     : detail::dsv::dsv_range<Linestring>
 {};
 
 
 template <typename Box>
-struct dsv<box_tag, false, Box>
+struct dsv<box_tag, Box>
     : detail::dsv::dsv_indexed<Box>
 {};
 
 template <typename Segment>
-struct dsv<segment_tag, false, Segment>
+struct dsv<segment_tag, Segment>
     : detail::dsv::dsv_indexed<Segment>
 {};
 
 
 template <typename Ring>
-struct dsv<ring_tag, false, Ring>
+struct dsv<ring_tag, Ring>
     : detail::dsv::dsv_range<Ring>
 {};
 
 
 template <typename Polygon>
-struct dsv<polygon_tag, false, Polygon>
+struct dsv<polygon_tag, Polygon>
     : detail::dsv::dsv_poly<Polygon>
 {};
 
@@ -336,8 +336,11 @@ public:
     {
         dispatch::dsv
             <
-                typename tag<Geometry>::type,
-                is_multi<Geometry>::type::value,
+                typename tag_cast
+                    <
+                        typename tag<Geometry>::type,
+                        multi_tag
+                    >::type,
                 Geometry
             >::apply(os, m.m_geometry, m.m_settings);
         os.flush();

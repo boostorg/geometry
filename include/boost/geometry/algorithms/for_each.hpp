@@ -17,7 +17,7 @@
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/core/is_multi.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -165,7 +165,6 @@ namespace dispatch
 template
 <
     typename Tag,
-    bool IsMulti,
     typename Geometry,
     typename Functor,
     bool IsConst
@@ -174,25 +173,25 @@ struct for_each_point {};
 
 
 template <typename Point, typename Functor, bool IsConst>
-struct for_each_point<point_tag, false, Point, Functor, IsConst>
+struct for_each_point<point_tag, Point, Functor, IsConst>
     : detail::for_each::fe_point_per_point<Point, Functor, IsConst>
 {};
 
 
 template <typename Linestring, typename Functor, bool IsConst>
-struct for_each_point<linestring_tag, false, Linestring, Functor, IsConst>
+struct for_each_point<linestring_tag, Linestring, Functor, IsConst>
     : detail::for_each::fe_range_per_point<Linestring, Functor, IsConst>
 {};
 
 
 template <typename Ring, typename Functor, bool IsConst>
-struct for_each_point<ring_tag, false, Ring, Functor, IsConst>
+struct for_each_point<ring_tag, Ring, Functor, IsConst>
     : detail::for_each::fe_range_per_point<Ring, Functor, IsConst>
 {};
 
 
 template <typename Polygon, typename Functor, bool IsConst>
-struct for_each_point<polygon_tag, false, Polygon, Functor, IsConst>
+struct for_each_point<polygon_tag, Polygon, Functor, IsConst>
     : detail::for_each::fe_polygon_per_point<Polygon, Functor, IsConst>
 {};
 
@@ -200,7 +199,6 @@ struct for_each_point<polygon_tag, false, Polygon, Functor, IsConst>
 template
 <
     typename Tag,
-    bool IsMulti,
     typename Geometry,
     typename Functor,
     bool IsConst
@@ -208,25 +206,25 @@ template
 struct for_each_segment {};
 
 template <typename Point, typename Functor, bool IsConst>
-struct for_each_segment<point_tag, false, Point, Functor, IsConst>
+struct for_each_segment<point_tag, Point, Functor, IsConst>
     : detail::for_each::fe_point_per_segment<Point, Functor, IsConst>
 {};
 
 
 template <typename Linestring, typename Functor, bool IsConst>
-struct for_each_segment<linestring_tag, false, Linestring, Functor, IsConst>
+struct for_each_segment<linestring_tag, Linestring, Functor, IsConst>
     : detail::for_each::fe_range_per_segment<Linestring, Functor, IsConst>
 {};
 
 
 template <typename Ring, typename Functor, bool IsConst>
-struct for_each_segment<ring_tag, false, Ring, Functor, IsConst>
+struct for_each_segment<ring_tag, Ring, Functor, IsConst>
     : detail::for_each::fe_range_per_segment<Ring, Functor, IsConst>
 {};
 
 
 template <typename Polygon, typename Functor, bool IsConst>
-struct for_each_segment<polygon_tag, false, Polygon, Functor, IsConst>
+struct for_each_segment<polygon_tag, Polygon, Functor, IsConst>
     : detail::for_each::fe_polygon_per_segment<Polygon, Functor, IsConst>
 {};
 
@@ -249,8 +247,7 @@ inline Functor for_each_point(Geometry const& geometry, Functor f)
 
     return dispatch::for_each_point
         <
-            typename tag<Geometry>::type,
-            is_multi<Geometry>::type::value,
+            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
             Geometry,
             Functor,
             true
@@ -272,8 +269,7 @@ inline Functor for_each_point(Geometry& geometry, Functor f)
 
     return dispatch::for_each_point
         <
-            typename tag<Geometry>::type,
-            is_multi<Geometry>::type::value,
+            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
             Geometry,
             Functor,
             false
@@ -296,8 +292,7 @@ inline Functor for_each_segment(Geometry const& geometry, Functor f)
 
     return dispatch::for_each_segment
         <
-            typename tag<Geometry>::type,
-            is_multi<Geometry>::type::value,
+            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
             Geometry,
             Functor,
             true
@@ -319,8 +314,7 @@ inline Functor for_each_segment(Geometry& geometry, Functor f)
 
     return dispatch::for_each_segment
         <
-            typename tag<Geometry>::type,
-            is_multi<Geometry>::type::value,
+            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
             Geometry,
             Functor,
             false

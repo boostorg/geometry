@@ -20,6 +20,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -93,7 +94,7 @@ struct polygon_count
 namespace dispatch
 {
 
-template <typename GeometryTag, bool Linear, typename Geometry>
+template <typename GeometryTag, typename Geometry>
 struct num_points
 {
     BOOST_MPL_ASSERT_MSG
@@ -103,36 +104,35 @@ struct num_points
         );
 };
 
-template <typename GeometryTag, typename Geometry>
-struct num_points<GeometryTag, true, Geometry>
-        : detail::num_points::range_count<Geometry>
-{
-};
-
 template <typename Geometry>
-struct num_points<point_tag, false, Geometry>
+struct num_points<point_tag, Geometry>
         : detail::num_points::other_count<Geometry, 1>
-{
-};
+{};
 
 template <typename Geometry>
-struct num_points<box_tag, false, Geometry>
+struct num_points<box_tag, Geometry>
         : detail::num_points::other_count<Geometry, 4>
-{
-};
+{};
 
 template <typename Geometry>
-struct num_points<segment_tag, false, Geometry>
+struct num_points<segment_tag, Geometry>
         : detail::num_points::other_count<Geometry, 2>
-{
-};
-
+{};
 
 template <typename Geometry>
-struct num_points<polygon_tag, false, Geometry>
+struct num_points<linestring_tag, Geometry>
+        : detail::num_points::range_count<Geometry>
+{};
+
+template <typename Geometry>
+struct num_points<ring_tag, Geometry>
+        : detail::num_points::range_count<Geometry>
+{};
+
+template <typename Geometry>
+struct num_points<polygon_tag, Geometry>
         : detail::num_points::polygon_count<Geometry>
-{
-};
+{};
 
 } // namespace dispatch
 #endif
@@ -156,8 +156,7 @@ inline std::size_t num_points(Geometry const& geometry, bool add_for_open = fals
 
     return dispatch::num_points
         <
-            typename tag<Geometry>::type,
-            is_linear<Geometry>::value,
+            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
             Geometry
         >::apply(geometry, add_for_open);
 }

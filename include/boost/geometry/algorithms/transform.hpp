@@ -15,8 +15,9 @@
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
-#include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>

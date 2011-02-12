@@ -14,7 +14,7 @@
 
 
 #include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/core/is_multi.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/util/add_const_if_c.hpp>
 
@@ -67,7 +67,6 @@ namespace dispatch
 template
 <
     typename Tag,
-    bool IsMulti,
     typename Geometry,
     typename Actor,
     bool IsConst
@@ -76,19 +75,19 @@ struct for_each_range {};
 
 
 template <typename Linestring, typename Actor, bool IsConst>
-struct for_each_range<linestring_tag, false, Linestring, Actor, IsConst>
+struct for_each_range<linestring_tag, Linestring, Actor, IsConst>
     : detail::for_each::fe_range_range<Linestring, Actor, IsConst>
 {};
 
 
 template <typename Ring, typename Actor, bool IsConst>
-struct for_each_range<ring_tag, false, Ring, Actor, IsConst>
+struct for_each_range<ring_tag, Ring, Actor, IsConst>
     : detail::for_each::fe_range_range<Ring, Actor, IsConst>
 {};
 
 
 template <typename Polygon, typename Actor, bool IsConst>
-struct for_each_range<polygon_tag, false, Polygon, Actor, IsConst>
+struct for_each_range<polygon_tag, Polygon, Actor, IsConst>
     : detail::for_each::fe_range_polygon<Polygon, Actor, IsConst>
 {};
 
@@ -103,7 +102,6 @@ inline void for_each_range(Geometry const& geometry, Actor& actor)
     dispatch::for_each_range
         <
             typename tag<Geometry>::type,
-            is_multi<Geometry>::type::value,
             Geometry,
             Actor,
             true

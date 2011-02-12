@@ -14,7 +14,6 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/core/is_multi.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -102,7 +101,6 @@ namespace dispatch
 template
 <
     typename GeometryTag,
-    bool IsMulti,
     typename Geometry,
     typename Turns,
     typename TurnPolicy,
@@ -122,7 +120,7 @@ template
 >
 struct self_get_turn_points
     <
-        ring_tag, false, Ring,
+        ring_tag, Ring,
         Turns,
         TurnPolicy,
         InterruptPolicy
@@ -131,7 +129,7 @@ struct self_get_turn_points
         <
             Ring,
             Turns,
-            TurnPolicy, 
+            TurnPolicy,
             InterruptPolicy
         >
 {};
@@ -146,8 +144,8 @@ template
 >
 struct self_get_turn_points
     <
-        polygon_tag, false, Polygon,
-        Turns, 
+        polygon_tag, Polygon,
+        Turns,
         TurnPolicy,
         InterruptPolicy
     >
@@ -155,7 +153,7 @@ struct self_get_turn_points
         <
             Polygon,
             Turns,
-            TurnPolicy, 
+            TurnPolicy,
             InterruptPolicy
         >
 {};
@@ -198,7 +196,7 @@ inline void get_turns(Geometry const& geometry,
 
     typedef detail::overlay::get_turn_info
                         <
-                            typename point_type<Geometry>::type, 
+                            typename point_type<Geometry>::type,
                             typename point_type<Geometry>::type,
                             typename boost::range_value<Turns>::type,
                             detail::overlay::assign_null_policy
@@ -207,10 +205,9 @@ inline void get_turns(Geometry const& geometry,
     dispatch::self_get_turn_points
             <
                 typename tag<Geometry>::type,
-                is_multi<Geometry>::type::value,
                 Geometry,
-                Turns, 
-                TurnPolicy, 
+                Turns,
+                TurnPolicy,
                 InterruptPolicy
             >::apply(geometry, turns, interrupt_policy);
 }

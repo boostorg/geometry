@@ -26,6 +26,15 @@ struct geographic_tag {};
 struct spherical_tag {};
 
 
+// Tags defining tag hierarchy
+
+/// For single-geometries (point, linestring, polygon, box, ring, segment)
+struct single_tag {};
+
+
+/// For multiple-geometries (multi_point, multi_linestring, multi_polygon)
+struct multi_tag {};
+
 // Tags defining geometry types
 
 
@@ -33,22 +42,24 @@ struct spherical_tag {};
 struct geometry_not_recognized_tag {};
 
 /// OGC Point identifying tag
-struct point_tag {};
+struct point_tag : single_tag {};
 
 /// OGC Linestring identifying tag
-struct linestring_tag {};
+struct linestring_tag : single_tag  {};
 
 /// OGC Polygon identifying tag
-struct polygon_tag {};
+struct polygon_tag : single_tag  {};
 
 /// Convenience (linear) ring identifying tag
-struct ring_tag {};
+struct ring_tag : single_tag  {};
 
 /// Convenience 2D or 3D box (mbr) identifying tag
-struct box_tag {};
+struct box_tag : single_tag  {};
 
 /// Convenience segment (2-points) identifying tag
-struct segment_tag {};
+struct segment_tag : single_tag  {};
+
+
 
 }} // namespace boost::geometry
 

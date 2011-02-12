@@ -57,8 +57,8 @@ namespace dispatch
 {
 
 
-template <typename Tag, typename Geometry>
-struct dsv<Tag, true, Geometry>
+template <typename Geometry>
+struct dsv<multi_tag, Geometry>
     : detail::dsv::dsv_multi<Geometry>
 {};
 

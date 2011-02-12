@@ -22,20 +22,10 @@ namespace dispatch
 {
 
 template <typename Geometry>
-struct clear<multi_point_tag, Geometry>
+struct clear<multi_tag, Geometry>
     : detail::clear::collection_clear<Geometry>
 {};
 
-
-template <typename Geometry>
-struct clear<multi_linestring_tag, Geometry>
-    : detail::clear::collection_clear<Geometry>
-{};
-
-template <typename Geometry>
-struct clear<multi_polygon_tag, Geometry>
-    : detail::clear::collection_clear<Geometry>
-{};
 
 } // namespace dispatch
 #endif
