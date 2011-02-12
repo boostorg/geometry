@@ -157,12 +157,12 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Access Functions</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.access.exterior_ring">exterior_ring</link></member>
+     <!-- This section is not ordered alfabetically 
+          to have get/set first and then the rings -->
      <member><link linkend="geometry.reference.access.get">get</link></member>
-     <member><link linkend="geometry.reference.access.interior_rings">interior_rings</link></member>
-     <member><link linkend="geometry.reference.access.num_interior_rings">num_interior_rings</link></member>
-     <member><link linkend="geometry.reference.access.num_points">num_points</link></member>
      <member><link linkend="geometry.reference.access.set">set</link></member>
+     <member><link linkend="geometry.reference.access.exterior_ring">exterior_ring</link></member>
+     <member><link linkend="geometry.reference.access.interior_rings">interior_rings</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Classes</bridgehead>
     <simplelist type="vert" columns="1">
@@ -362,6 +362,15 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.length">length</link></member>
     </simplelist>
+    
+    <bridgehead renderas="sect3">Num_ (counting)</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.num_interior_rings">num_interior_rings</link></member>
+     <member><link linkend="geometry.reference.algorithms.num_geometries">num_geometries</link></member>
+     <member><link linkend="geometry.reference.algorithms.num_points">num_points</link></member>
+    </simplelist>
+    
+    
     <bridgehead renderas="sect3">Perimeter</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.perimeter">perimeter</link></member>
