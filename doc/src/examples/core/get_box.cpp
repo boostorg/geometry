@@ -8,7 +8,7 @@
 // Quickbook Example
 
 //[get_box
-//` Set the coordinate of a box
+//` Get the coordinate of a box
 
 #include <iostream>
 #include <boost/geometry/geometry.hpp>

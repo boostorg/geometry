@@ -19,6 +19,11 @@ exe intersection_segment : intersection_segment.cpp ;
 
 exe intersects_linestring : intersects_linestring.cpp ;
 
+exe num_geometries : num_geometries.cpp ;
+exe num_interior_rings : num_interior_rings.cpp ;
+exe num_points : num_points.cpp ;
+
+
 exe length : length.cpp ;
 exe length_with_strategy : length_with_strategy.cpp ;
 

@@ -42,7 +42,7 @@ Either
 
 Or
 
-`#include <boost/geometry/core/interior_rings.hpp>`
+`#include <boost/geometry/algorithms/num_interior_rings.hpp>`
 
 [include ref/algorithms/num_interior_rings.qbk]
 

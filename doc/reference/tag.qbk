@@ -18,7 +18,7 @@
 Meta-function to get the tag of any geometry type. 
 
 [heading Description]
-All geometries tell their geometry type (point, linestring, polygon, etc) by implementing a tag traits class. This meta-function uses that traits class to retrieve the tag. If the input type is not a geometry at all, a geometry_not_recognized_tag will be returned. 
+All geometries tell their geometry type (point, linestring, polygon, etc) by implementing a tag traits class. This meta-function uses that traits class to retrieve the tag. 
 
 [heading Synopsis]
 ``template<typename Geometry>

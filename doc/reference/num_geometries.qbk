@@ -42,7 +42,7 @@ Either
 
 Or
 
-`#include <boost/geometry/core/num_geometries.hpp>`
+`#include <boost/geometry/algorithms/num_geometries.hpp>`
 
 [include ref/algorithms/num_geometries.qbk]
 
