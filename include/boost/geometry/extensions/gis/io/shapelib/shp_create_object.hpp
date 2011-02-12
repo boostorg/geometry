@@ -17,6 +17,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/ranges/box_range.hpp>
 #include <boost/geometry/ranges/segment_range.hpp>

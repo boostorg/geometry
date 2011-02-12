@@ -22,8 +22,6 @@ namespace boost { namespace geometry
 {
 
 
-
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace core_dispatch
 {
@@ -37,26 +35,6 @@ struct interior_type<multi_polygon_tag, MultiPolygon>
             polygon_tag,
             typename boost::range_value<MultiPolygon>::type
         >::type type;
-};
-
-
-
-template <typename MultiPolygon>
-struct num_interior_rings<multi_polygon_tag, MultiPolygon>
-{
-    static inline std::size_t apply(MultiPolygon const& multi_polygon)
-    {
-        std::size_t n = 0;
-        for (typename boost::range_iterator<MultiPolygon const>::type
-            it = boost::begin(multi_polygon);
-            it != boost::end(multi_polygon);
-            ++it)
-        {
-            n += geometry::num_interior_rings(*it);
-        }
-        return n;
-    }
-
 };
 
 

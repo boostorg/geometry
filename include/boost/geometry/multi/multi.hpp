@@ -14,9 +14,7 @@
 #include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
 #include <boost/geometry/multi/core/is_areal.hpp>
-#include <boost/geometry/multi/core/is_multi.hpp>
 #include <boost/geometry/multi/core/interior_rings.hpp>
-#include <boost/geometry/multi/core/num_geometries.hpp>
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 #include <boost/geometry/multi/core/ring_type.hpp>
@@ -36,6 +34,8 @@
 #include <boost/geometry/multi/algorithms/for_each.hpp>
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 #include <boost/geometry/multi/algorithms/length.hpp>
+#include <boost/geometry/multi/algorithms/num_geometries.hpp>
+#include <boost/geometry/multi/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/perimeter.hpp>
 #include <boost/geometry/multi/algorithms/reverse.hpp>

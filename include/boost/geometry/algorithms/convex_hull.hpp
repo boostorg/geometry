@@ -12,7 +12,6 @@
 
 
 #include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/is_multi.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 
@@ -95,7 +94,6 @@ namespace dispatch
 template
 <
     typename Tag1,
-    bool IsMulti,
     typename Geometry,
     typename Output,
     typename Strategy
@@ -109,7 +107,6 @@ template
 <
     typename GeometryTag,
     order_selector Order,
-    bool IsMulti,
     typename GeometryIn, typename Strategy
  >
 struct convex_hull_inserter
@@ -137,7 +134,6 @@ inline void convex_hull(Geometry1 const& geometry,
     dispatch::convex_hull
         <
             typename tag<Geometry1>::type,
-            is_multi<Geometry1>::type::value,
             Geometry1,
             Geometry2,
             Strategy
@@ -192,7 +188,6 @@ inline OutputIterator convex_hull_inserter(Geometry const& geometry,
         <
             typename tag<Geometry>::type,
             geometry::point_order<Geometry>::value,
-            is_multi<Geometry>::type::value,
             Geometry, Strategy
         >::apply(geometry, out, strategy);
 }

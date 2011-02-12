@@ -21,7 +21,6 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/core/num_geometries.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
 
@@ -50,6 +49,8 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/make.hpp>
+#include <boost/geometry/algorithms/num_geometries.hpp>
+#include <boost/geometry/algorithms/num_inteior_rings.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>

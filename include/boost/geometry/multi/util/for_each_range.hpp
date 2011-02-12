@@ -52,21 +52,21 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Actor, bool IsConst>
-struct for_each_range<multi_linestring_tag, true, Geometry, Actor, IsConst>
-    : detail::for_each::fe_range_multi<Geometry, Actor, IsConst>
-{};
-
-
-template <typename Geometry, typename Actor, bool IsConst>
-struct for_each_range<multi_polygon_tag, true, Geometry, Actor, IsConst>
-    : detail::for_each::fe_range_multi<Geometry, Actor, IsConst>
-{};
-
-
 template <typename MultiPoint, typename Actor, bool IsConst>
-struct for_each_range<multi_point_tag, true, MultiPoint, Actor, IsConst>
+struct for_each_range<multi_point_tag, MultiPoint, Actor, IsConst>
     : detail::for_each::fe_range_range<MultiPoint, Actor, IsConst>
+{};
+
+template <typename Geometry, typename Actor, bool IsConst>
+struct for_each_range<multi_linestring_tag, Geometry, Actor, IsConst>
+    :
+    detail::for_each::fe_range_multi<Geometry, Actor, IsConst>
+{};
+
+template <typename Geometry, typename Actor, bool IsConst>
+struct for_each_range<multi_polygon_tag, Geometry, Actor, IsConst>
+    :
+    detail::for_each::fe_range_multi<Geometry, Actor, IsConst>
 {};
 
 

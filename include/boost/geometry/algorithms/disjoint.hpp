@@ -19,7 +19,6 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/core/is_multi.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
@@ -136,7 +135,6 @@ template
 <
     typename GeometryTag1, typename GeometryTag2,
     typename Geometry1, typename Geometry2,
-    bool IsMulti1, bool IsMulti2,
     std::size_t DimensionCount
 >
 struct disjoint
@@ -145,34 +143,34 @@ struct disjoint
 
 
 template <typename Point1, typename Point2, std::size_t DimensionCount>
-struct disjoint<point_tag, point_tag, Point1, Point2, false, false, DimensionCount>
+struct disjoint<point_tag, point_tag, Point1, Point2, DimensionCount>
     : detail::disjoint::point_point<Point1, Point2, 0, DimensionCount>
 {};
 
 
 template <typename Box1, typename Box2, std::size_t DimensionCount>
-struct disjoint<box_tag, box_tag, Box1, Box2, false, false, DimensionCount>
+struct disjoint<box_tag, box_tag, Box1, Box2, DimensionCount>
     : detail::disjoint::box_box<Box1, Box2, 0, DimensionCount>
 {};
 
 
 template <typename Point, typename Box, std::size_t DimensionCount>
-struct disjoint<point_tag, box_tag, Point, Box, false, false, DimensionCount>
+struct disjoint<point_tag, box_tag, Point, Box, DimensionCount>
     : detail::disjoint::point_box<Point, Box, 0, DimensionCount>
 {};
 
 template <typename Linestring1, typename Linestring2>
-struct disjoint<linestring_tag, linestring_tag, Linestring1, Linestring2, false, false, 2>
+struct disjoint<linestring_tag, linestring_tag, Linestring1, Linestring2, 2>
     : detail::disjoint::disjoint_linear<Linestring1, Linestring2>
 {};
 
 template <typename Linestring1, typename Linestring2>
-struct disjoint<segment_tag, segment_tag, Linestring1, Linestring2, false, false, 2>
+struct disjoint<segment_tag, segment_tag, Linestring1, Linestring2, 2>
     : detail::disjoint::disjoint_segment<Linestring1, Linestring2>
 {};
 
 template <typename Linestring, typename Segment>
-struct disjoint<linestring_tag, segment_tag, Linestring, Segment, false, false, 2>
+struct disjoint<linestring_tag, segment_tag, Linestring, Segment, 2>
     : detail::disjoint::disjoint_linear<Linestring, Segment>
 {};
 
@@ -180,19 +178,17 @@ struct disjoint<linestring_tag, segment_tag, Linestring, Segment, false, false, 
 template
 <
     typename GeometryTag1, typename GeometryTag2,
-    typename G1, typename G2,
-    bool IsMulti1, bool IsMulti2,
+    typename Geometry1, typename Geometry2,
     std::size_t DimensionCount
 >
 struct disjoint_reversed
 {
-    static inline bool apply(G1 const& g1, G2 const& g2)
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
     {
         return disjoint
             <
                 GeometryTag2, GeometryTag1,
-                G2, G1,
-                IsMulti2, IsMulti1,
+                Geometry2, Geometry1,
                 DimensionCount
             >::apply(g2, g1);
     }
@@ -232,8 +228,6 @@ inline bool disjoint(Geometry1 const& geometry1,
                 typename tag<Geometry2>::type,
                 Geometry1,
                 Geometry2,
-                is_multi<Geometry1>::type::value,
-                is_multi<Geometry2>::type::value,
                 dimension<Geometry1>::type::value
             >,
             dispatch::disjoint
@@ -242,8 +236,6 @@ inline bool disjoint(Geometry1 const& geometry1,
                 typename tag<Geometry2>::type,
                 Geometry1,
                 Geometry2,
-                is_multi<Geometry1>::type::value,
-                is_multi<Geometry2>::type::value,
                 dimension<Geometry1>::type::value
             >
         >::type::apply(geometry1, geometry2);

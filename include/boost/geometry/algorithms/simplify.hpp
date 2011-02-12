@@ -26,6 +26,7 @@
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 
 namespace boost { namespace geometry

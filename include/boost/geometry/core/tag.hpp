@@ -23,15 +23,15 @@ namespace traits
 {
 
 /*!
-    \brief Traits class to attach a tag to a geometry
-    \details All geometries should implement a traits::tag<G>::type metafunction to indicate their
-        own geometry type.
-    \ingroup traits
-    \par Geometries:
-        - all geometries
-    \par Specializations should provide:
-        - typedef XXX_tag type; (point_tag, box_tag, ...)
-    \tparam Geometry geometry
+\brief Traits class to attach a tag to a geometry
+\details All geometries should implement a traits::tag<G>::type metafunction to indicate their
+    own geometry type.
+\ingroup traits
+\par Geometries:
+    - all geometries
+\par Specializations should provide:
+    - typedef XXX_tag type; (point_tag, box_tag, ...)
+\tparam Geometry geometry
 */
 template <typename Geometry, typename Enable = void>
 struct tag
@@ -43,12 +43,11 @@ struct tag
 
 
 /*!
-    \brief Meta-function to get the tag of any geometry type
-    \details All geometries tell their geometry type (point, linestring, polygon, etc) by implementing
-      a tag traits class. This meta-function uses that traits class to retrieve the tag.
-      If the input type is not a geometry at all, a geometry_not_recognized_tag will be returned.
-    \tparam Geometry geometry
-    \ingroup core
+\brief Meta-function to get the tag of any geometry type
+\details All geometries tell their geometry type (point, linestring, polygon, etc) by implementing
+  a tag traits class. This meta-function uses that traits class to retrieve the tag.
+\tparam Geometry geometry
+\ingroup core
 */
 template <typename Geometry>
 struct tag

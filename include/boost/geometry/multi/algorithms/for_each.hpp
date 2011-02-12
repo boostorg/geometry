@@ -13,7 +13,6 @@
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/core/is_multi.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 
 
@@ -63,12 +62,11 @@ namespace dispatch
 
 template
 <
-    typename MultiTag,
     typename MultiGeometry,
     typename Functor,
     bool IsConst
 >
-struct for_each_point<MultiTag, true, MultiGeometry, Functor, IsConst>
+struct for_each_point<multi_tag, MultiGeometry, Functor, IsConst>
     : detail::for_each::for_each_multi
         <
             MultiGeometry,
@@ -77,8 +75,10 @@ struct for_each_point<MultiTag, true, MultiGeometry, Functor, IsConst>
             // Specify the dispatch of the single-version as policy
             for_each_point
                 <
-                    typename single_tag<MultiTag>::type,
-                    false,
+                    typename single_tag_of
+                        <
+                            typename tag<MultiGeometry>::type
+                        >::type,
                     typename boost::range_value<MultiGeometry>::type,
                     Functor,
                     IsConst
@@ -89,12 +89,11 @@ struct for_each_point<MultiTag, true, MultiGeometry, Functor, IsConst>
 
 template
 <
-    typename MultiTag,
     typename MultiGeometry,
     typename Functor,
     bool IsConst
 >
-struct for_each_segment<MultiTag, true, MultiGeometry, Functor, IsConst>
+struct for_each_segment<multi_tag, MultiGeometry, Functor, IsConst>
     : detail::for_each::for_each_multi
         <
             MultiGeometry,
@@ -103,8 +102,10 @@ struct for_each_segment<MultiTag, true, MultiGeometry, Functor, IsConst>
             // Specify the dispatch of the single-version as policy
             for_each_segment
                 <
-                    typename single_tag<MultiTag>::type,
-                    false,
+                    typename single_tag_of
+                        <
+                            typename tag<MultiGeometry>::type
+                        >::type,
                     typename boost::range_value<MultiGeometry>::type,
                     Functor,
                     IsConst

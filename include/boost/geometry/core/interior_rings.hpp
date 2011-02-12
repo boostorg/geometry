@@ -68,7 +68,7 @@ struct interior_rings {};
 template <typename Polygon>
 struct interior_rings<polygon_tag, Polygon>
 {
-    static
+    static inline
     typename geometry::interior_return_type<Polygon>::type
                 apply(Polygon& polygon)
     {
@@ -77,35 +77,6 @@ struct interior_rings<polygon_tag, Polygon>
                 typename boost::remove_const<Polygon>::type
             >::get(polygon);
     }
-};
-
-
-template <typename Tag, typename Geometry>
-struct num_interior_rings
-{};
-
-
-template <typename Ring>
-struct num_interior_rings<ring_tag, Ring>
-{
-    static inline std::size_t apply(Ring const& )
-    {
-        return 0;
-    }
-};
-
-
-template <typename Polygon>
-struct num_interior_rings<polygon_tag, Polygon>
-{
-    static inline std::size_t apply(Polygon const& polygon)
-    {
-        return boost::size(interior_rings
-            <
-                polygon_tag, Polygon const
-            >::apply(polygon));
-    }
-
 };
 
 
@@ -155,29 +126,6 @@ inline typename interior_return_type<Polygon const>::type interior_rings(
         >::apply(polygon);
 }
 
-
-/*!
-\brief \brief_calc{number of interior rings}
-\ingroup num_interior_rings
-\details \details_calc{num_interior_rings, number of interior rings}.
-\tparam Geometry \tparam_geometry
-\param geometry \param_geometry
-\return \return_calc{number of interior rings}
-
-\qbk{[include ref/algorithms/num_interior_rings.qbk]}
-
-\note Defined by OGC as "numInteriorRing". To be consistent with "numPoints"
-    letter "s" is appended
-*/
-template <typename Geometry>
-inline std::size_t num_interior_rings(Geometry const& geometry)
-{
-    return core_dispatch::num_interior_rings
-        <
-            typename tag<Geometry>::type,
-            Geometry
-        >::apply(geometry);
-}
 
 
 }} // namespace boost::geometry

@@ -21,6 +21,10 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
+
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
+
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -35,7 +39,6 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 
 
-#include <boost/geometry/multi/core/is_multi.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
@@ -51,7 +54,7 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 
-template <typename GeometryTag, bool IsMulti, typename Geometry>
+template <typename GeometryTag, typename Geometry>
 struct svg_map
 {
     BOOST_MPL_ASSERT_MSG
@@ -63,7 +66,7 @@ struct svg_map
 
 
 template <typename Point>
-struct svg_map<point_tag, false, Point>
+struct svg_map<point_tag, Point>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
@@ -77,7 +80,7 @@ struct svg_map<point_tag, false, Point>
 };
 
 template <typename Box>
-struct svg_map<box_tag, false, Box>
+struct svg_map<box_tag, Box>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
@@ -107,7 +110,7 @@ struct svg_map_range
 };
 
 template <typename Segment>
-struct svg_map<segment_tag, false, Segment>
+struct svg_map<segment_tag, Segment>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
@@ -126,19 +129,19 @@ struct svg_map<segment_tag, false, Segment>
 
 
 template <typename Ring>
-struct svg_map<ring_tag, false, Ring>
+struct svg_map<ring_tag, Ring>
     : svg_map_range<Ring, model::ring<model::d2::point_xy<int> > >
 {};
 
 
 template <typename Linestring>
-struct svg_map<linestring_tag, false, Linestring>
+struct svg_map<linestring_tag, Linestring>
     : svg_map_range<Linestring, model::linestring<model::d2::point_xy<int> > >
 {};
 
 
 template <typename Polygon>
-struct svg_map<polygon_tag, false, Polygon>
+struct svg_map<polygon_tag, Polygon>
 {
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
@@ -152,9 +155,14 @@ struct svg_map<polygon_tag, false, Polygon>
 };
 
 
-template <typename Tag, typename Multi>
-struct svg_map<Tag, true, Multi>
+template <typename Multi>
+struct svg_map<multi_tag, Multi>
 {
+    typedef typename single_tag_of
+      <
+          typename geometry::tag<Multi>::type
+      >::type stag;
+
     template <typename TransformStrategy>
     static inline void apply(std::ostream& stream,
                     std::string const& style, int size,
@@ -167,8 +175,7 @@ struct svg_map<Tag, true, Multi>
         {
             svg_map
                 <
-                    typename single_tag<Tag>::type,
-                    false,
+                    stag,
                     typename boost::range_value<Multi>::type
                 >::apply(stream, style, size, *it, strategy);
         }
@@ -187,8 +194,11 @@ inline void svg_map(std::ostream& stream,
 {
     dispatch::svg_map
         <
-            typename tag<Geometry>::type,
-            is_multi<Geometry>::type::value,
+            typename tag_cast
+                <
+                    typename tag<Geometry>::type,
+                    multi_tag
+                >::type,
             typename boost::remove_const<Geometry>::type
         >::apply(stream, style, size, geometry, strategy);
 }

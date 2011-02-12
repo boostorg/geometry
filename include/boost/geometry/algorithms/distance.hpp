@@ -20,8 +20,8 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/is_multi.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -246,8 +246,7 @@ template
 <
     typename GeometryTag1, typename GeometryTag2,
     typename Geometry1, typename Geometry2,
-    typename StrategyTag, typename Strategy,
-    bool IsMulti1, bool IsMulti2
+    typename StrategyTag, typename Strategy
 >
 struct distance
 {
@@ -261,13 +260,14 @@ struct distance
 
 template <typename P1, typename P2, typename Strategy>
 struct distance
-<
-    point_tag, point_tag,
-    P1, P2,
-    strategy_tag_distance_point_point, Strategy,
-    false, false
-> : detail::distance::point_to_point<P1, P2, Strategy>
+    <
+        point_tag, point_tag,
+        P1, P2,
+        strategy_tag_distance_point_point, Strategy
+    >
+    : detail::distance::point_to_point<P1, P2, Strategy>
 {};
+
 
 // Point-line version 1, where point-point strategy is specified
 template <typename Point, typename Linestring, typename Strategy>
@@ -275,8 +275,7 @@ struct distance
 <
     point_tag, linestring_tag,
     Point, Linestring,
-    strategy_tag_distance_point_point, Strategy,
-    false, false
+    strategy_tag_distance_point_point, Strategy
 >
 {
 
@@ -305,8 +304,7 @@ struct distance
 <
     point_tag, linestring_tag,
     Point, Linestring,
-    strategy_tag_distance_point_segment, Strategy,
-    false, false
+    strategy_tag_distance_point_segment, Strategy
 >
 {
     static inline typename return_type<Strategy>::type apply(Point const& point,
@@ -327,8 +325,7 @@ struct distance
 <
     point_tag, ring_tag,
     Point, Ring,
-    strategy_tag_distance_point_point, Strategy,
-    false, false
+    strategy_tag_distance_point_point, Strategy
 >
 {
     typedef typename return_type<Strategy>::type return_type;
@@ -363,8 +360,7 @@ struct distance
 <
     point_tag, polygon_tag,
     Point, Polygon,
-    strategy_tag_distance_point_point, Strategy,
-    false, false
+    strategy_tag_distance_point_point, Strategy
 >
 {
     typedef typename return_type<Strategy>::type return_type;
@@ -400,8 +396,7 @@ struct distance
 <
     point_tag, segment_tag,
     Point, Segment,
-    strategy_tag_distance_point_point, Strategy,
-    false, false
+    strategy_tag_distance_point_point, Strategy
 > : detail::distance::point_to_segment<Point, Segment, Strategy>
 {};
 
@@ -411,8 +406,7 @@ struct distance
 <
     point_tag, segment_tag,
     Point, Segment,
-    strategy_tag_distance_point_segment, Strategy,
-    false, false
+    strategy_tag_distance_point_segment, Strategy
 >
 {
     static inline typename return_type<Strategy>::type apply(Point const& point,
@@ -437,8 +431,7 @@ template
 <
     typename GeometryTag1, typename GeometryTag2,
     typename G1, typename G2,
-    typename StrategyTag, typename Strategy,
-    bool IsMulti1, bool IsMulti2
+    typename StrategyTag, typename Strategy
 >
 struct distance_reversed
 {
@@ -449,8 +442,7 @@ struct distance_reversed
             <
                 GeometryTag2, GeometryTag1,
                 G2, G1,
-                StrategyTag, Strategy,
-                IsMulti2, IsMulti1
+                StrategyTag, Strategy
             >::apply(g2, g1, strategy);
     }
 };
@@ -507,25 +499,21 @@ inline typename strategy::distance::services::return_type<Strategy>::type distan
             typename geometry::reverse_dispatch<Geometry1, Geometry2>::type,
             dispatch::distance_reversed
                 <
-                    typename tag<Geometry1>::type,
-                    typename tag<Geometry2>::type,
+                    typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
+                    typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
                     Geometry1,
                     Geometry2,
                     typename strategy::distance::services::tag<Strategy>::type,
-                    Strategy,
-                    is_multi<Geometry1>::value,
-                    is_multi<Geometry2>::value
+                    Strategy
                 >,
                 dispatch::distance
                 <
-                    typename tag<Geometry1>::type,
-                    typename tag<Geometry2>::type,
+                    typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
+                    typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
                     Geometry1,
                     Geometry2,
                     typename strategy::distance::services::tag<Strategy>::type,
-                    Strategy,
-                    is_multi<Geometry1>::value,
-                    is_multi<Geometry2>::value
+                    Strategy
                 >
         >::type::apply(geometry1, geometry2, strategy);
 }

@@ -14,7 +14,6 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/core/is_multi.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 
@@ -103,15 +102,19 @@ struct distance_multi_to_multi
 namespace dispatch
 {
 
-template <typename GeometryTag1, typename GeometryTag2,
-        typename G1, typename G2, typename Strategy>
-struct distance<GeometryTag1, GeometryTag2, G1, G2, strategy_tag_distance_point_point, Strategy, false, true>
+template
+<
+    typename SingleGeometryTag,
+    typename G1,
+    typename G2,
+    typename Strategy
+>
+struct distance<SingleGeometryTag, multi_tag, G1, G2, strategy_tag_distance_point_point, Strategy>
     : detail::distance::distance_single_to_multi<G1, G2, Strategy>
 {};
 
-template <typename GeometryTag1, typename GeometryTag2,
-        typename G1, typename G2, typename Strategy>
-struct distance<GeometryTag1, GeometryTag2, G1, G2, strategy_tag_distance_point_point, Strategy, true, true>
+template <typename G1, typename G2, typename Strategy>
+struct distance<multi_tag, multi_tag, G1, G2, strategy_tag_distance_point_point, Strategy>
     : detail::distance::distance_multi_to_multi<G1, G2, Strategy>
 {};
 
