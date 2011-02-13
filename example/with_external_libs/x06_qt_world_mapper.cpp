@@ -32,8 +32,6 @@
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
 
-#include "qt_mapper.hpp"
-
 
 // Adapt a QPointF such that it can be handled by Boost.Geometry
 BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(QPointF, double, cs::cartesian, x, y, setX, setY)
@@ -53,7 +51,7 @@ typedef boost::geometry::model::multi_polygon
 class WorldMapper : public QWidget
 {
  public:
-    WorldMapper(std::vector<country_type> const& countries, boost::geometry::model::box<point_2d> const& box, QWidget *parent = 0)
+    WorldMapper(std::vector<country_type> const& countries, boost::geometry::model::box<point_2d> const& box)
         : m_countries(countries)
         , m_box(box)
     {
@@ -62,7 +60,7 @@ class WorldMapper : public QWidget
     }
 
  protected:
-    void paintEvent(QPaintEvent *event)
+    void paintEvent(QPaintEvent*)
     {
         map_transformer_type transformer(m_box, this->width(), this->height());
 
