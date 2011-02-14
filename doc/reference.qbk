@@ -109,9 +109,9 @@
 [include reference/equals.qbk]
 [endsect]
 
-[/section:for_each for_each]
-[/include reference/for_each.qbk]
-[/endsect]
+[section:for_each for_each]
+[include reference/for_each.qbk]
+[endsect]
 
 [section:intersection intersection]
 [include reference/intersection.qbk]

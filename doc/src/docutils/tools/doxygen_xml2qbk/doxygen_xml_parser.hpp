@@ -41,6 +41,7 @@ static inline void add_or_set(std::vector<parameter>& parameters, parameter cons
         if (it->brief_description.empty()) it->brief_description = p.brief_description;
         if (it->type.empty()) it->type = p.type;
         if (it->fulltype.empty()) it->fulltype = p.fulltype;
+        if (it->default_value.empty()) it->default_value = p.default_value;
     }
     else
     {

@@ -57,6 +57,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			tparam_container="container type, for example std::vector, std::deque" \
 			tparam_dimension_required="Dimension, this template parameter is required. Should contain \[0 .. n-1\] for an n-dimensional geometry" \
 			tparam_first_point="first point type" \
+			tparam_functor="Function or class with operator()" \
 			tparam_geometry="Any type fulfilling a Geometry Concept" \
 			tparam_geometry{1}="A type fulfilling a \1 Concept" \
 			tparam_index_required="Index, this template parameter is required. For a Box: either min_corner or max_corner. For a Segment: either 0 or 1 for first or last point." \
@@ -97,8 +98,11 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			return_check{1}="Returns true if the geometry \1" \
 			return_check2{1}="Returns true if two geometries \1" \
 			return_out="The output iterator" \
+			brf_for_each{1}="Applies function [*f] to each \1" \ 
 			det_envelope="envelope (also known as axis aligned bounding box, aabb, or minimum bounding rectangle, mbr)" \
 			det_buffer="buffer (a polygon being the spatial point set collection within a specified maximum distance from a geometry)" \
+			det_for_each{1}="Applies a function [*f] (functor, having operator() defined) to each \1 making up the geometry" \ 
+			par_for_each_f{1}="Unary function, taking a \1 as argument" \
 			macro_x="first (usually x)" \
 			macro_y="second (usually y)" \
 			macro_z="third (usually z)" \

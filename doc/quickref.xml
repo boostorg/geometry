@@ -352,6 +352,10 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.envelope">envelope</link></member>
     </simplelist>
+    <bridgehead renderas="sect3">For Each</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.for_each">for each (point, segment)</link></member>
+    </simplelist>
     <bridgehead renderas="sect3">Intersection</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.intersection">intersection</link></member>

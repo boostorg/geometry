@@ -22,7 +22,7 @@ The free function num_points calculates the number of points of a geometry.
 
 [heading Synopsis]
 ``template<typename Geometry>
-std::size_t num_points(Geometry const & geometry, bool add_for_open)``
+std::size_t num_points(Geometry const & geometry, bool add_for_open = false)``
 
 [heading Parameters]
 
