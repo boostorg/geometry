@@ -15,7 +15,10 @@
 [/ Generated from doxy/doxygen_output/xml/group__for__each.xml]
 [section:for_each_point_2 for_each_point]
 
-Calls functor for geometry. 
+Applies function [*f] to each point. 
+
+[heading Description]
+Applies a function [*f] (functor, having operator() defined) to each point making up the geometry
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
@@ -25,8 +28,8 @@ Functor for_each_point(Geometry & geometry, Functor f)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry &] [] [geometry] [geometry to loop through ]]
-[[Functor] [] [f] [functor to use]]
+[[Geometry &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
+[[Functor] [Function or class with operator()] [f] [Unary function, taking a point as argument ]]
 ]
 
 
@@ -39,12 +42,18 @@ Or
 
 `#include <boost/geometry/algorithms/for_each.hpp>`
 
+[heading Examples]
+[for_each_point] [for_each_point_output]
+
 
 [endsect]
 
-[section:for_each_point_2 for_each_point]
+[section:for_each_point_2_const_version for_each_point (const version)]
 
-Calls functor for geometry. 
+Applies function [*f] to each point. 
+
+[heading Description]
+Applies a function [*f] (functor, having operator() defined) to each point making up the geometry
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
@@ -54,8 +63,8 @@ Functor for_each_point(Geometry const & geometry, Functor f)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry const &] [] [geometry] [geometry to loop through ]]
-[[Functor] [] [f] [functor to use]]
+[[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
+[[Functor] [Function or class with operator()] [f] [Unary function, taking a const point as argument ]]
 ]
 
 
@@ -68,12 +77,18 @@ Or
 
 `#include <boost/geometry/algorithms/for_each.hpp>`
 
+[heading Examples]
+[for_each_point_const] [for_each_point_const_output]
+
 
 [endsect]
 
 [section:for_each_segment_2 for_each_segment]
 
-Calls functor for segments on linestrings, rings, polygons, ... 
+Applies function [*f] to each segment. 
+
+[heading Description]
+Applies a function [*f] (functor, having operator() defined) to each segment making up the geometry
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
@@ -83,8 +98,8 @@ Functor for_each_segment(Geometry & geometry, Functor f)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry &] [] [geometry] [geometry to loop through ]]
-[[Functor] [] [f] [functor to use]]
+[[Geometry &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
+[[Functor] [Function or class with operator() ] [f] [Unary function, taking a segment as argument ]]
 ]
 
 
@@ -100,9 +115,12 @@ Or
 
 [endsect]
 
-[section:for_each_segment_2 for_each_segment]
+[section:for_each_segment_2_const_version for_each_segment (const version)]
 
-Calls functor for segments on linestrings, rings, polygons, ... 
+Applies function [*f] to each segment. 
+
+[heading Description]
+Applies a function [*f] (functor, having operator() defined) to each segment making up the geometry
 
 [heading Synopsis]
 ``template<typename Geometry, typename Functor>
@@ -112,8 +130,8 @@ Functor for_each_segment(Geometry const & geometry, Functor f)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry const &] [] [geometry] [geometry to loop through ]]
-[[Functor] [] [f] [functor to use]]
+[[Geometry const &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
+[[Functor] [Function or class with operator()] [f] [Unary function, taking a const segment as argument ]]
 ]
 
 

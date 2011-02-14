@@ -19,7 +19,7 @@ Appends one or more points to a linestring, ring, polygon, multi.
 
 [heading Synopsis]
 ``template<typename Geometry, typename RoP>
-void append(Geometry & geometry, RoP const & range_or_point, int ring_index, int multi_index)``
+void append(Geometry & geometry, RoP const & range_or_point, int ring_index = -1, int multi_index = 0)``
 
 [heading Parameters]
 

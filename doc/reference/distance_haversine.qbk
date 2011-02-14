@@ -36,7 +36,7 @@ class strategy::distance::haversine
 [heading Constructor(s)]
 [table
 [[Function] [Description] [Parameters] ]
-[[``haversine( const & radius)``
+[[``haversine( const & radius = 1.0)``
 
 ] [Constructor. ] [[*  const &]: ['radius]:  radius of the sphere, defaults to 1.0 for the unit sphere 
 

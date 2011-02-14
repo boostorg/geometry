@@ -22,7 +22,7 @@ The free function buffer calculates the buffer (a polygon being the spatial poin
 
 [heading Synopsis]
 ``template<typename Input, typename Output, typename Distance>
-void buffer(Input const & geometry_in, Output & geometry_out, Distance const & distance, Distance const & chord_length)``
+void buffer(Input const & geometry_in, Output & geometry_out, Distance const & distance, Distance const & chord_length = -1)``
 
 [heading Parameters]
 
@@ -58,7 +58,7 @@ The free function make_buffer calculates the buffer (a polygon being the spatial
 
 [heading Synopsis]
 ``template<typename Output, typename Input, typename T, >
-Output make_buffer(Input const & geometry, T const & distance, T const & chord_length)``
+Output make_buffer(Input const & geometry, T const & distance, T const & chord_length = -1)``
 
 [heading Parameters]
 
