@@ -7,11 +7,6 @@
 //
 // Custom polygon example
 
-#ifndef _MSC_VER
-#warning "Currently only works for MSVC"
-int main() { return 0; }
-#else
-
 #include <iostream>
 
 #include <boost/iterator.hpp>
@@ -42,13 +37,14 @@ class my_polygon
     public :
         void add_point(my_point const& p) { points.push_back(p); }
 
+        // Const access
         my_point const& get_point(std::size_t i) const
         {
             assert(i < points.size());
             return points[i];
         }
 
-        // Non const access
+        // Mutable access
         my_point & get_point(std::size_t i)
         {
             assert(i < points.size());
@@ -59,16 +55,7 @@ class my_polygon
         int point_count() const { return points.size(); }
         void erase_all() { points.clear(); }
 
-        // TEMPORARY:
-        inline void resize(int n) { points.resize(n); }
-
-
-        // Note: it IS possible to have different method names;
-        // however, there should (probably) be two different
-        // iterators then or an iterator with a specified policy).
-        // Note 2: if there is a set_point function, the iterator
-        // does not have a way to dereference and non-const
-        // iterators will not work!
+        inline void set_size(int n) { points.resize(n); }
 };
 
 // ----------------------------------------------------------------------------
@@ -158,7 +145,7 @@ private:
 // 2a) meta-functions
 namespace boost
 {
-    template<> struct range_iterator<my_polygon>
+    template<> struct range_mutable_iterator<my_polygon>
     {
         typedef custom_iterator<false> type;
     };
@@ -198,50 +185,29 @@ inline custom_iterator<true> range_end(my_polygon const& polygon)
     return custom_iterator<true>(true, polygon);
 }
 
-// RangeEx
-inline std::size_t range_size(my_polygon const& polygon)
+
+
+// 3) optional, for writable geometries only, implement push_back/resize/clear
+namespace boost { namespace geometry { namespace traits
 {
-    return polygon.point_count();
-}
 
-
-// 3) optional, for writable geometries only, implement back_inserter (=push_back)
-class custom_insert_iterator
+template<> struct push_back<my_polygon>
 {
-    my_polygon* m_polygon;
-public:
-    typedef std::output_iterator_tag iterator_category;
-
-    // Not relevant for output iterator
-    typedef void value_type;
-    typedef void difference_type;
-    typedef void pointer;
-    typedef void reference;
-    typedef void const_reference;
-
-    explicit custom_insert_iterator(my_polygon& x)
-        : m_polygon(&x)
-    {}
-
-    custom_insert_iterator& operator=(my_point const & p)
+    static inline void apply(my_polygon& polygon, my_point const& point)
     {
-        m_polygon->add_point(p);
-        return *this;
+        polygon.add_point(point);
     }
-
-    custom_insert_iterator& operator*() { return *this; }
-    custom_insert_iterator& operator++() { return *this; }
-    custom_insert_iterator& operator++(int) { return *this; }
 };
 
-
-namespace std
+template<> struct resize<my_polygon>
 {
-    custom_insert_iterator back_inserter(my_polygon& polygon)
+    static inline void apply(my_polygon& polygon, std::size_t new_size)
     {
-        return custom_insert_iterator(polygon);
+        polygon.set_size(new_size);
     }
-}
+};
+
+}}}
 
 
 // 4) register with Boost.Geometry
@@ -304,8 +270,8 @@ int main()
     my_polygon container2;
     for (int i = 0; i < n; i++)
     {
-        // Use here the std:: / Boost.Geometry way of inserting (but the my_polygon way of getting)
-        *(std::back_inserter(container2)++) = container1.get_point(i);
+        // Use here the Boost.Geometry internal way of inserting (but the my_polygon way of getting)
+        boost::geometry::traits::push_back<my_polygon>::apply(container2, container1.get_point(i));
     }
 
     std::cout << "Second container is not closed:" << std::endl;
@@ -324,6 +290,3 @@ int main()
 
     return 0;
 }
-
-
-#endif

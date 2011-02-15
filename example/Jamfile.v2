@@ -30,7 +30,7 @@ exe c04_b_custom_triangle_example : c04_b_custom_triangle_example.cpp ;
 exe c06_custom_polygon_example : c06_custom_polygon_example.cpp  ;
 exe c07_custom_ring_pointer_example : c07_custom_ring_pointer_example.cpp ;
 
-# exe c08_custom_non_std_example : c08_custom_non_std_example.cpp ;
+exe c08_custom_non_std_example : c08_custom_non_std_example.cpp ;
 exe c09_custom_fusion_example : c09_custom_fusion_example.cpp ;
 
 exe c10_custom_cs_example : c10_custom_cs_example.cpp ;
