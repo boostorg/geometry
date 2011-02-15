@@ -135,7 +135,7 @@ struct correct_ring
             if (! disjoint && geometry::closure<Ring>::value != closed)
             {
                 // Open it by removing last point
-                r.resize(boost::size(r) - 1);
+                geometry::traits::resize<Ring>::apply(r, boost::size(r) - 1);
             }
         }
         // Check area
