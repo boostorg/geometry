@@ -57,11 +57,17 @@ namespace boost { namespace geometry { namespace traits
 {
 
 template<> struct tag<my_polygon> { typedef polygon_tag type; };
-template<> struct ring_type<my_polygon> { typedef my_ring type; };
+template<> struct ring_const_type<my_polygon> { typedef my_ring const& type; };
+template<> struct ring_mutable_type<my_polygon> { typedef my_ring& type; };
 
-template<> struct interior_type<my_polygon>
+template<> struct interior_const_type<my_polygon>
 {
-    typedef boost::array<my_ring, 2> type;
+    typedef boost::array<my_ring, 2> const& type;
+};
+
+template<> struct interior_mutable_type<my_polygon>
+{
+    typedef boost::array<my_ring, 2>& type;
 };
 
 
