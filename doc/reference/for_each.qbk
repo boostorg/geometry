@@ -42,7 +42,7 @@ Or
 
 `#include <boost/geometry/algorithms/for_each.hpp>`
 
-[heading Examples]
+[heading Example]
 [for_each_point] [for_each_point_output]
 
 
@@ -77,7 +77,7 @@ Or
 
 `#include <boost/geometry/algorithms/for_each.hpp>`
 
-[heading Examples]
+[heading Example]
 [for_each_point_const] [for_each_point_const_output]
 
 
@@ -143,6 +143,9 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/for_each.hpp>`
+
+[heading Example]
+[for_each_segment_const] [for_each_segment_const_output]
 
 
 [endsect]
