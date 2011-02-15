@@ -13,7 +13,6 @@
 // 1) download (from http://qt.nokia.com), configure and make QT
 // 2) if necessary, adapt Qt clause in include path (note there is a Qt property sheet)
 
-#include <sstream>
 #include <fstream>
 
 #include <QtGui>
@@ -66,6 +65,7 @@ class WorldMapper : public QWidget
 
         QPainter painter(this);
         painter.setBrush(Qt::green);
+        painter.setRenderHint(QPainter::Antialiasing);
 
         BOOST_FOREACH(country_type const& country, m_countries)
         {
