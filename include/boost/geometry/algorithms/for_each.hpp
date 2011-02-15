@@ -234,11 +234,17 @@ struct for_each_segment<polygon_tag, Polygon, Functor, IsConst>
 
 
 /*!
-    \brief Calls functor for geometry
-    \ingroup for_each
-    \param geometry geometry to loop through
-    \param f functor to use
-    \details Calls the functor the specified \b const geometry
+\brief \brf_for_each{point}
+\details \det_for_each{point}
+\ingroup for_each
+\param geometry \param_geometry
+\param f \par_for_each_f{const point}
+\tparam Geometry \tparam_geometry
+\tparam Functor \tparam_functor
+
+\qbk{distinguish,const version}
+\qbk{[heading Example]}
+\qbk{[for_each_point_const] [for_each_point_const_output]}
 */
 template<typename Geometry, typename Functor>
 inline Functor for_each_point(Geometry const& geometry, Functor f)
@@ -256,11 +262,16 @@ inline Functor for_each_point(Geometry const& geometry, Functor f)
 
 
 /*!
-    \brief Calls functor for geometry
-    \ingroup for_each
-    \param geometry geometry to loop through
-    \param f functor to use
-    \details Calls the functor for the specified geometry
+\brief \brf_for_each{point}
+\details \det_for_each{point}
+\ingroup for_each
+\param geometry \param_geometry
+\param f \par_for_each_f{point}
+\tparam Geometry \tparam_geometry
+\tparam Functor \tparam_functor
+
+\qbk{[heading Example]}
+\qbk{[for_each_point] [for_each_point_output]}
 */
 template<typename Geometry, typename Functor>
 inline Functor for_each_point(Geometry& geometry, Functor f)
@@ -278,12 +289,17 @@ inline Functor for_each_point(Geometry& geometry, Functor f)
 
 
 /*!
-    \brief Calls functor for segments on linestrings, rings, polygons, ...
-    \ingroup for_each
-    \param geometry geometry to loop through
-    \param f functor to use
-    \details Calls the functor all \b const segments of the
-        specified \b const geometry
+\brief \brf_for_each{segment}
+\details \det_for_each{segment}
+\ingroup for_each
+\param geometry \param_geometry
+\param f \par_for_each_f{const segment}
+\tparam Geometry \tparam_geometry
+\tparam Functor \tparam_functor
+
+\qbk{distinguish,const version}
+\qbk{[heading Example]}
+\qbk{[for_each_segment_const] [for_each_segment_const_output]}
 */
 template<typename Geometry, typename Functor>
 inline Functor for_each_segment(Geometry const& geometry, Functor f)
@@ -301,11 +317,13 @@ inline Functor for_each_segment(Geometry const& geometry, Functor f)
 
 
 /*!
-    \brief Calls functor for segments on linestrings, rings, polygons, ...
-    \ingroup for_each
-    \param geometry geometry to loop through
-    \param f functor to use
-    \details Calls the functor all segments of the specified geometry
+\brief \brf_for_each{segment}
+\details \det_for_each{segment}
+\ingroup for_each
+\param geometry \param_geometry
+\param f \par_for_each_f{segment}
+\tparam Geometry \tparam_geometry
+\tparam Functor \tparam_functor
 */
 template<typename Geometry, typename Functor>
 inline Functor for_each_segment(Geometry& geometry, Functor f)
