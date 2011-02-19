@@ -140,6 +140,13 @@ namespace traits
 {
 
 template <typename Polygon>
+struct rvalue_type<adapt::bp::holes_proxy<Polygon> >
+{
+    typedef adapt::bp::holes_proxy<Polygon> type;
+};
+
+
+template <typename Polygon>
 struct clear<adapt::bp::holes_proxy<Polygon> >
 {
     static inline void apply(adapt::bp::holes_proxy<Polygon> proxy)
