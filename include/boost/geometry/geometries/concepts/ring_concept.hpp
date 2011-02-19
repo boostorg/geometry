@@ -50,15 +50,13 @@ class Ring
     BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
 
-    // There should be a std::back_insert_iterator, to add points
-    typedef std::back_insert_iterator<Geometry> back_inserter;
-
 public :
 
     BOOST_CONCEPT_USAGE(Ring)
     {
         Geometry* ring;
-        traits::clear<Geometry&>::apply(*ring);
+        traits::clear<Geometry>::apply(*ring);
+        traits::resize<Geometry>::apply(*ring, 0);
     }
 #endif
 };

@@ -52,8 +52,10 @@ class Polygon
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
     typedef typename point_type<Geometry>::type point_type;
     typedef typename ring_type<Geometry>::type ring_type;
-    typedef typename ring_return_type<Geometry>::type ring_return_type;
-    typedef typename interior_return_type<Geometry>::type interior_type;
+    typedef typename traits::ring_const_type<Geometry>::type ring_const_type;
+    typedef typename traits::ring_mutable_type<Geometry>::type ring_mutable_type;
+    typedef typename traits::interior_const_type<Geometry>::type interior_const_type;
+    typedef typename traits::interior_mutable_type<Geometry>::type interior_mutable_type;
 
     BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (concept::Ring<ring_type>) );
@@ -65,8 +67,8 @@ class Polygon
         static inline void apply()
         {
             Geometry* poly;
-            ring_return_type e = exterior_ring(*poly);
-            interior_type i = interior_rings(*poly);
+            ring_mutable_type e = exterior_ring(*poly);
+            interior_mutable_type i = interior_rings(*poly);
 
             boost::ignore_unused_variable_warning(e);
             boost::ignore_unused_variable_warning(i);
@@ -106,8 +108,10 @@ class ConstPolygon
 
     typedef typename point_type<Geometry>::type point_type;
     typedef typename ring_type<Geometry>::type ring_type;
-    typedef typename ring_return_type<Geometry const>::type ring_return_type;
-    typedef typename interior_return_type<Geometry const>::type interior_type;
+    typedef typename ring_return_type<Geometry>::type ring_return_type;
+    typedef typename interior_return_type<Geometry>::type interior_type;
+    //typedef typename traits::ring_const_type<Geometry const>::type ring_const_type;
+    //typedef typename traits::interior_const_type<Geometry const>::type interior_const_type;
 
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<point_type>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstRing<ring_type>) );

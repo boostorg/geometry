@@ -38,7 +38,7 @@ struct append_point
     {
         typename geometry::point_type<Geometry>::type copy;
         copy_coordinates(point, copy);
-        traits::push_back<Geometry&>::apply(geometry, copy);
+        traits::push_back<Geometry>::apply(geometry, copy);
     }
 };
 

@@ -25,6 +25,12 @@ namespace boost { namespace geometry
 namespace traits
 {
 
+template <typename Range>
+struct rvalue_type
+{
+    typedef typename boost::remove_reference<Range>::type& type;
+};
+
 /*!
 \brief Traits class to clear a geometry
 \ingroup traits
@@ -32,7 +38,7 @@ namespace traits
 template <typename Range>
 struct clear
 {
-    static inline void apply(Range range)
+    static inline void apply(typename rvalue_type<Range>::type range)
     {
         // The default action: act as it it is a std:: container
         range.clear();
@@ -47,7 +53,7 @@ struct clear
 template <typename Range>
 struct push_back
 {
-    static inline void apply(Range range,
+    static inline void apply(typename rvalue_type<Range>::type range,
                 typename boost::range_value
                     <
                         typename boost::remove_reference<Range>::type
@@ -67,7 +73,8 @@ struct push_back
 template <typename Range>
 struct resize
 {
-    static inline void apply(Range range, std::size_t new_size)
+    static inline void apply(typename rvalue_type<Range>::type range, 
+                std::size_t new_size)
     {
         // The default action: act as it it is a std:: container
         range.resize(new_size);

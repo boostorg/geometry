@@ -337,7 +337,10 @@ struct polygon_parser
                 appender::apply(it, end, wkt, ring);
                 traits::push_back
                     <
-                        typename traits::interior_mutable_type<Polygon>::type
+                        typename boost::remove_reference
+                        <
+                            typename traits::interior_mutable_type<Polygon>::type
+                        >::type
                     >::apply(interior_rings(poly), ring);
             }
 

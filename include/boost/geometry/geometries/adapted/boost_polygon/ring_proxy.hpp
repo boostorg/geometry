@@ -240,6 +240,12 @@ struct tag<adapt::bp::ring_proxy<Polygon> >
 
 
 template <typename Polygon>
+struct rvalue_type<adapt::bp::ring_proxy<Polygon> >
+{
+    typedef adapt::bp::ring_proxy<Polygon> type;
+};
+
+template <typename Polygon>
 struct clear<adapt::bp::ring_proxy<Polygon> >
 {
     static inline void apply(adapt::bp::ring_proxy<Polygon> proxy)

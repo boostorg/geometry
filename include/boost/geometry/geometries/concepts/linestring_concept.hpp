@@ -74,16 +74,13 @@ class Linestring
     BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
 
-    // There should be a std::back_insert_iterator, to add points
-    typedef std::back_insert_iterator<Geometry> back_inserter;
-
 public :
 
     BOOST_CONCEPT_USAGE(Linestring)
     {
-        // Check if it can be modified
         Geometry* ls;
-        traits::clear<Geometry&>::apply(*ls);
+        traits::clear<Geometry>::apply(*ls);
+        traits::resize<Geometry>::apply(*ls, 0);
     }
 #endif
 };
