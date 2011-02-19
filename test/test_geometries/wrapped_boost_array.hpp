@@ -115,7 +115,7 @@ namespace boost { namespace geometry { namespace traits
     };
 
     template <typename Point, std::size_t Count>
-    struct clear< wrapped_boost_array<Point, Count>& >
+    struct clear< wrapped_boost_array<Point, Count> >
     {
         static inline void apply(wrapped_boost_array<Point, Count>& ar)
         {
@@ -124,7 +124,7 @@ namespace boost { namespace geometry { namespace traits
     };
 
     template <typename Point, std::size_t Count>
-    struct push_back< wrapped_boost_array<Point, Count>& >
+    struct push_back< wrapped_boost_array<Point, Count> >
     {
         static inline void apply(wrapped_boost_array<Point, Count>& ar, Point const& point)
         {
@@ -134,7 +134,7 @@ namespace boost { namespace geometry { namespace traits
     };
 
     template <typename Point, std::size_t Count>
-    struct resize< wrapped_boost_array<Point, Count>& >
+    struct resize< wrapped_boost_array<Point, Count> >
     {
         static inline void apply(wrapped_boost_array<Point, Count>& ar, std::size_t new_size)
         {

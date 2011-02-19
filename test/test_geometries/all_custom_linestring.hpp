@@ -43,7 +43,7 @@ namespace traits
     // conforming std:: functionality)
 
     template <typename Point>
-    struct clear<all_custom_linestring<Point>& >
+    struct clear<all_custom_linestring<Point> >
     {
         static inline void apply(all_custom_linestring<Point>& als)
         {
@@ -52,7 +52,7 @@ namespace traits
     };
 
     template <typename Point>
-    struct push_back<all_custom_linestring<Point>& >
+    struct push_back<all_custom_linestring<Point> >
     {
         static inline void apply(all_custom_linestring<Point>& als, Point const& point)
         {
@@ -61,7 +61,7 @@ namespace traits
     };
 
     template <typename Point>
-    struct resize<all_custom_linestring<Point>& >
+    struct resize<all_custom_linestring<Point> >
     {
         static inline void apply(all_custom_linestring<Point>& als, std::size_t new_size)
         {
