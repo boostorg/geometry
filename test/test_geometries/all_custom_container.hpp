@@ -43,7 +43,7 @@ namespace boost { namespace geometry
 namespace traits
 {
     template <typename Item>
-    struct clear<all_custom_container<Item> >
+    struct clear<all_custom_container<Item>& >
     {
         static inline void apply(all_custom_container<Item>& container)
         {
@@ -52,7 +52,7 @@ namespace traits
     };
 
     template <typename Item>
-    struct push_back<all_custom_container<Item> >
+    struct push_back<all_custom_container<Item>& >
     {
         static inline void apply(all_custom_container<Item>& container, Item const& item)
         {
@@ -61,7 +61,7 @@ namespace traits
     };
 
     template <typename Item>
-    struct resize<all_custom_container<Item> >
+    struct resize<all_custom_container<Item>& >
     {
         static inline void apply(all_custom_container<Item>& container, std::size_t new_size)
         {
