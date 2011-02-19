@@ -5,7 +5,7 @@
  */
 
 /* 
- * Copyright (c) 2006-2009, Tomasz Sowa
+ * Copyright (c) 2006-2010, Tomasz Sowa
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -75,6 +75,8 @@ static void AssignString(std::string & result, const char * str)
 }
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
 /*!
 	result = str
 */
@@ -116,6 +118,8 @@ static void AssignString(std::string & result, const std::wstring & str)
 	return AssignString(result, str.c_str());
 }
 
+#endif
+
 
 /*
  *
@@ -134,6 +138,8 @@ static void AddString(std::string & result, const char * str)
 }
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
 /*!
 	result += str
 */
@@ -143,6 +149,7 @@ static void AddString(std::wstring & result, const char * str)
 		result += *str;
 }
 
+#endif
 
 
 /*

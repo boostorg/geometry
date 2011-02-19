@@ -34,6 +34,7 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/util/coordinate_cast.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkt/detail/wkt.hpp>
 
@@ -98,14 +99,6 @@ struct parsing_assigner
             Point& point, std::string const& wkt)
     {
         typedef typename coordinate_type<Point>::type coordinate_type;
-        typedef typename boost::mpl::if_c
-            <
-                boost::is_fundamental<coordinate_type>::type::value,
-                coordinate_type,
-                double
-            >::type type;
-
-
 
         // Stop at end of tokens, or at "," ot ")"
         bool finished = (it == end || *it == "," || *it == ")");
@@ -118,13 +111,9 @@ struct parsing_assigner
             // Note that it is much slower than atof. However, it is more standard
             // and in parsing the change in performance falls probably away against
             // the tokenizing
-            set<Dimension>(point, finished ? type()
-#if defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-                    : atof(it->c_str())
-#else
-                    : boost::lexical_cast<type>(it->c_str())
-#endif
-                    );
+            set<Dimension>(point, finished 
+                    ? coordinate_type()
+                    : coordinate_cast<coordinate_type>::apply(*it));
         }
         catch(boost::bad_lexical_cast const& blc)
         {
@@ -232,7 +221,7 @@ struct container_inserter
 };
 
 
-// Geometry might be a value-type or reference-type
+// Geometry is a value-type or reference-type
 template <typename Geometry>
 struct container_appender
 {
@@ -326,15 +315,6 @@ struct polygon_parser
     typedef typename ring_return_type<Polygon>::type ring_return_type;
     typedef container_appender<ring_return_type> appender;
 
-    template <typename Rings>
-    static inline void apply_rings(
-                tokenizer::iterator& it, tokenizer::iterator end,
-                std::string const& wkt, Rings& rings, int n)
-    {
-        appender::apply(it, end, wkt, *(boost::begin(rings) + (n - 1)));
-    }
-
-
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
                 std::string const& wkt, Polygon& poly)
     {
@@ -353,8 +333,12 @@ struct polygon_parser
             }
             else
             {
-                write::resize(interior_rings(poly), n);
-                apply_rings(it, end, wkt, interior_rings(poly), n);
+                typename ring_type<Polygon>::type ring;
+                appender::apply(it, end, wkt, ring);
+                traits::push_back
+                    <
+                        typename traits::interior_mutable_type<Polygon>::type
+                    >::apply(interior_rings(poly), ring);
             }
 
             if (it != end && *it == ",")

@@ -131,8 +131,8 @@ namespace ttmath
 	for example:
 		"1+2;4+5"
 	the result will be on the stack as follows:
-		"3"
-		"9"
+		stack[0].value=3
+		stack[1].value=9
 */
 template<class ValueType>
 class Parser
@@ -282,9 +282,16 @@ public:
 /*!
 	stack on which we're keeping the Items
 
-	at the end of parsing we'll have the result on its
-	the result don't have to be one value, it can be a list
-	of values separated by the 'semicolon item'
+	at the end of parsing we'll have the result here
+	the result don't have to be one value, it can be
+	more than one if we have used a semicolon in the global space
+	e.g. such input string "1+2;3+4" will generate a result:
+	 stack[0].value=3
+	 stack[1].value=7
+
+	you should check if the stack is not empty, because if there was
+	a syntax error in the input string then we do not have any results
+	on the stack 
 */
 std::vector<Item> stack;
 
@@ -317,8 +324,6 @@ ErrorCode error;
 
 /*!
 	pointer to the currently reading char
-	it's either char* or wchar_t*
-
 	when an error has occured it may be used to count the index of the wrong character
 */
 const char * pstring;
@@ -1416,7 +1421,7 @@ void Frac(int sindex, int amount_of_args, ValueType & result)
 */
 void Sprintf(char * buffer, int par)
 {
-char buf[30]; // char, not wchar_t etc.
+char buf[30]; // char, not wchar_t
 int i;
 
 	#ifdef _MSC_VER
@@ -2708,6 +2713,8 @@ ErrorCode Parse(const std::string & str)
 }
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
 /*!
 	the main method using for parsing string
 */
@@ -2715,7 +2722,9 @@ ErrorCode Parse(const wchar_t * str)
 {
 	Misc::AssignString(wide_to_ansi, str);
 
-return Parse(wide_to_ansi.c_str());	
+return Parse(wide_to_ansi.c_str());
+
+	// !! wide_to_ansi clearing can be added here
 }
 
 
@@ -2726,6 +2735,8 @@ ErrorCode Parse(const std::wstring & str)
 {
 	return Parse(str.c_str());
 }
+
+#endif
 
 
 /*!
@@ -2741,6 +2752,18 @@ ErrorCode Parse(const std::wstring & str)
 bool Calculated()
 {
 	return calculated;
+}
+
+
+/*!
+	initializing coefficients used when calculating the gamma (or factorial) function
+	this speed up the next calculations
+	you don't have to call this method explicitly
+	these coefficients will be calculated when needed
+*/
+void InitCGamma()
+{
+	cgamma.InitAll();
 }
 
 

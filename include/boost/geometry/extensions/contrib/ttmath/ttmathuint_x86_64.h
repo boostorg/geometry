@@ -5,7 +5,7 @@
  */
 
 /* 
- * Copyright (c) 2006-2009, Tomasz Sowa
+ * Copyright (c) 2006-2010, Tomasz Sowa
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@
 	this file is included at the end of ttmathuint.h
 */
 
-#ifdef _MSC_VER
+#ifndef __GNUC__
 #include <intrin.h>
 #endif
 
@@ -59,7 +59,7 @@
 namespace ttmath
 {
 
-	#ifdef _MSC_VER
+	#ifndef __GNUC__
 
 		extern "C"
 			{
@@ -92,7 +92,7 @@ namespace ttmath
 	template<uint value_size>
 	const char * UInt<value_size>::LibTypeStr()
 	{
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			static const char info[] = "asm_vc_64";
 		#endif		
 
@@ -110,7 +110,7 @@ namespace ttmath
 	template<uint value_size>
 	LibTypeCode UInt<value_size>::LibType()
 	{
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			LibTypeCode info = asm_vc_64;
 		#endif		
 
@@ -149,11 +149,7 @@ namespace ttmath
 		// we don't have to use TTMATH_REFERENCE_ASSERT here
 		// this algorithm doesn't require it
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_adc_x64(p1,p2,b,c);
 		#endif
 
@@ -220,12 +216,7 @@ namespace ttmath
 
 		TTMATH_ASSERT( index < value_size )
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_addindexed_x64(p1,b,index,value);
 		#endif
 
@@ -304,12 +295,7 @@ namespace ttmath
 
 		TTMATH_ASSERT( index < value_size - 1 )
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_addindexed2_x64(p1,b,index,x1,x2);
 		#endif
 
@@ -378,12 +364,7 @@ namespace ttmath
 
 		uint c;
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			 c = ttmath_addvector_x64(ss1, ss2, ss1_size, ss2_size, result);
 		#endif
 
@@ -456,16 +437,10 @@ namespace ttmath
 	uint * p1 = table;
 	const uint * p2 = ss2.table;
 	
-
 		// we don't have to use TTMATH_REFERENCE_ASSERT here
 		// this algorithm doesn't require it
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_sbb_x64(p1,p2,b,c);
 		#endif
 
@@ -529,12 +504,7 @@ namespace ttmath
 
 		TTMATH_ASSERT( index < value_size )
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_subindexed_x64(p1,b,index,value);
 		#endif
 
@@ -599,12 +569,7 @@ namespace ttmath
 
 		uint c;
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_subvector_x64(ss1, ss2, ss1_size, ss2_size, result);
 		#endif
 
@@ -680,14 +645,9 @@ namespace ttmath
 	{
 	sint b = value_size;
 	uint * p1 = table;
-	
-
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
 
 
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_rcl_x64(p1,b,c);
 		#endif
 
@@ -742,12 +702,7 @@ namespace ttmath
 	uint * p1 = table;
 	
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_rcr_x64(p1,b,c);
 		#endif
 
@@ -803,12 +758,7 @@ namespace ttmath
 	uint * p1 = table;
 
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_rcl2_x64(p1,b,bits,c);
 		#endif
 
@@ -880,12 +830,8 @@ namespace ttmath
 	sint b = value_size;
 	uint * p1 = table;
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
 
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			c = ttmath_rcr2_x64(p1,b,bits,c);
 		#endif
 
@@ -949,13 +895,8 @@ namespace ttmath
 	{
 	sint result;
 
-
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-		
-		#ifdef _MSC_VER
+	
+		#ifndef __GNUC__
 
 			unsigned long nIndex = 0;
 
@@ -998,13 +939,8 @@ namespace ttmath
 	{
 	sint result;
 
-
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
-
-		
-		#ifdef _MSC_VER
+	
+		#ifndef __GNUC__
 
 			unsigned long nIndex = 0;
 
@@ -1057,12 +993,8 @@ namespace ttmath
 		uint old_bit;
 		uint v = value;
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
 
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			old_bit = _bittestandset64((__int64*)&value,bit) != 0;
 		#endif
 
@@ -1118,12 +1050,8 @@ namespace ttmath
 	uint result1_;
 	uint result2_;
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
 
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 			result1_ = _umul128(a,b,&result2_);
 		#endif
 
@@ -1181,12 +1109,8 @@ namespace ttmath
 
 		TTMATH_ASSERT( c != 0 )
 
-		#if !defined(__GNUC__) && !defined(_MSC_VER)
-			#error "another compiler than GCC or Microsoft VC is currently not supported in 64bit mode, you can compile with TTMATH_NOASM macro"
-		#endif
 
-
-		#ifdef _MSC_VER
+		#ifndef __GNUC__
 
 			ttmath_div_x64(&a,&b,c);
 			r_    = a;

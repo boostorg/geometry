@@ -5,7 +5,7 @@
  */
 
 /* 
- * Copyright (c) 2006-2010, Tomasz Sowa
+ * Copyright (c) 2006-2011, Tomasz Sowa
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -56,69 +56,94 @@
 #include <sstream>
 #include <vector>
 
+#ifndef _MSC_VER
+#include <stdint.h>
+// for uint64_t and int64_t on a 32 bit platform
+#endif
+
+
+
 /*!
 	the version of the library
 
 	TTMATH_PRERELEASE_VER is either zero or one
-	if zero that means this is the release version of the library
+	zero means that this is the release version of the library
+	(one means something like beta)
 */
 #define TTMATH_MAJOR_VER		0
 #define TTMATH_MINOR_VER		9
-#define TTMATH_REVISION_VER		1
-#define TTMATH_PRERELEASE_VER	0
+#define TTMATH_REVISION_VER		3
+
+#define TTMATH_PRERELEASE_VER	1
+
 
 
 /*!
-	TTMATH_DEBUG
-	this macro enables further testing during writing your code
-	you don't have to define it in a release mode
-
-	if this macro is set then macros TTMATH_ASSERT and TTMATH_REFERENCE_ASSERT
-	are set as well	and these macros can throw an exception if a condition in it
-	is not fulfilled (look at the definition of TTMATH_ASSERT and TTMATH_REFERENCE_ASSERT)
-
-	TTMATH_RELEASE
-	if you are confident that your code is perfect you can define TTMATH_RELEASE
-	macro for example by using -D option in gcc
-	 gcc -DTTMATH_RELEASE -o myprogram myprogram.cpp 
-	or by defining this macro in your code before using any header files of this library
-
-	if TTMATH_RELEASE is not set then TTMATH_DEBUG is set automatically
+	you can define a platform explicitly by defining either
+	TTMATH_PLATFORM32 or TTMATH_PLATFORM64 macro
 */
-#ifndef TTMATH_RELEASE
-	#define TTMATH_DEBUG
+#if !defined TTMATH_PLATFORM32 && !defined TTMATH_PLATFORM64
+
+	#if !defined _M_X64 && !defined __x86_64__
+
+		/*
+			other platforms than x86 and amd64 are not recognized at the moment
+			so you should set TTMATH_PLATFORMxx manually
+		*/
+
+		// we're using a 32bit platform
+		#define TTMATH_PLATFORM32
+
+	#else
+
+		//	we're using a 64bit platform
+		#define TTMATH_PLATFORM64
+
+	#endif
+
 #endif
 
+
+/*!
+	asm version of the library is available by default only for:
+	x86 and amd64 platforms and for Microsoft Visual and GCC compilers
+
+	but you can force using asm version (the same asm as for Microsoft Visual)
+	by defining TTMATH_FORCEASM macro
+	you have to be sure that your compiler accept such an asm format
+*/
+#ifndef TTMATH_FORCEASM
+
+	#if !defined __i386__  && !defined _X86_ && !defined  _M_IX86 && !defined __x86_64__  && !defined _M_X64
+		/*!
+			x86 architecture:
+			__i386__    defined by GNU C
+			_X86_  	    defined by MinGW32
+			_M_IX86     defined by Visual Studio, Intel C/C++, Digital Mars and Watcom C/C++
+
+			amd64 architecture:
+			__x86_64__  defined by GNU C and Sun Studio
+			_M_X64  	defined by Visual Studio
+
+			asm version is available only for x86 or amd64 platforms
+		*/
+		#define TTMATH_NOASM
+	#endif
+
+
+
+	#if !defined _MSC_VER && !defined __GNUC__
+		/*!
+			another compilers than MS VC or GCC by default use no asm version
+		*/
+		#define TTMATH_NOASM
+	#endif
+
+#endif
 
 
 namespace ttmath
 {
-
-#if !defined _M_X64 && !defined __x86_64__
-
-	/*!
-		we're using a 32bit platform
-	*/
-	#define TTMATH_PLATFORM32
-
-#else
-
-	/*!
-		we're using a 64bit platform
-	*/
-	#define TTMATH_PLATFORM64
-
-#endif
-
-
-
-/*!
-	another compilers than MS VC or GCC by default use no asm version (TTMATH_NOASM)
-*/
-#if !defined _MSC_VER && !defined __GNUC__
-	#define TTMATH_NOASM
-#endif
-
 
 
 #ifdef TTMATH_PLATFORM32
@@ -130,17 +155,18 @@ namespace ttmath
 	typedef signed   int sint;
 
 	/*!
-		this type is twice bigger than uint
-		(64bit on a 32bit platforms)
-
-		although C++ Standard - ANSI ISO IEC 14882:2003 doesn't define such a type (long long) 
-		but it is defined in C99 and in upcoming C++0x /3.9.1 (2)/ and many compilers support it
-
-		this type is used in UInt::MulTwoWords and UInt::DivTwoWords when macro TTMATH_NOASM is defined
-		but only on a 32bit platform
+		on 32 bit platform ulint and slint will be equal 64 bits
 	*/
-	#ifdef TTMATH_NOASM
+	#ifdef _MSC_VER
+		// long long on MS Windows (Visual and GCC mingw compilers) have 64 bits
+		// stdint.h is not available on Visual Studio prior to VS 2010 version
 		typedef unsigned long long int ulint;
+		typedef signed   long long int slint;
+	#else
+		// we do not use 'long' here because there is a difference in unix and windows
+		// environments: in unix 'long' has 64 bits but in windows it has only 32 bits
+		typedef uint64_t ulint;
+		typedef int64_t  slint;
 	#endif
 
 	/*!
@@ -188,13 +214,8 @@ namespace ttmath
 	#endif 
 
 	/*!
-		on 64bit platform we do not define ulint
-		sizeof(long long) is 8 (64bit) but we need 128bit
-
-		on 64 bit platform (when there is defined TTMATH_NOASM macro)
-		methods UInt::MulTwoWords and UInt::DivTwoWords are using other algorithms than those on 32 bit
+		on 64bit platforms we do not define ulint and slint
 	*/
-	//typedef unsigned long long int ulint;
 
 	/*!
 		how many bits there are in the uint type
@@ -371,7 +392,7 @@ namespace ttmath
 
 		/*!
 			used only in Big::ToString()
-			if scient is false then the value will be print in the scientific mode
+			if scient is false then the value will be printed in the scientific mode
 			only if the exponent is greater than scien_from
 			default: 15
 		*/
@@ -445,6 +466,13 @@ namespace ttmath
 
 
 		/*!
+			how many digits should be grouped (it is used if 'group' is non zero)
+			default: 3
+		*/
+		uint group_digits;
+
+
+		/*!
 		*/
 		uint group_exp; // not implemented yet
 
@@ -463,6 +491,7 @@ namespace ttmath
 			comma        = '.';
 			comma2       = ',';
 			group        = 0;
+			group_digits = 3;
 			group_exp    = 0;
 		}
 	};
@@ -521,26 +550,13 @@ namespace ttmath
 		In the library is used macro TTMATH_REFERENCE_ASSERT which
 		can throw an exception of this type
 
+		** from version 0.9.2 this macro is removed from all methods
+		   in public interface so you don't have to worry about it **
+
 		If you compile with gcc you can get a small benefit 
 		from using method Where() (it returns std::string) with
 		the name and the line of a file where the macro TTMATH_REFERENCE_ASSERT
 		was used)
-
-		What is the 'reference' error?
-		Some kind of methods use a reference as their argument to another object,
-		and the another object not always can be the same which is calling, e.g.
-			Big<1,2> foo(10);
-			foo.Mul(foo); // this is incorrect
-		above method Mul is making something more with 'this' object and 
-		'this' cannot be passed as the argument because the result will be undefined
-
-		macro TTMATH_REFERENCE_ASSERT helps us to solve the above problem
-
-		note! some methods can use 'this' object as the argument
-		for example this code is correct:
-			UInt<2> foo(10);
-			foo.Add(foo);
-		but there are only few methods which can do that
 	*/
 	class ReferenceError : public std::logic_error, public ExceptionInfo
 	{
@@ -596,8 +612,21 @@ namespace ttmath
 
 
 	/*!
-		look at the description of macros TTMATH_RELEASE and TTMATH_DEBUG
+		TTMATH_DEBUG
+		this macro enables further testing during writing your code
+		you don't have to define it in a release mode
+
+		if this macro is set then macros TTMATH_ASSERT and TTMATH_REFERENCE_ASSERT
+		are set as well	and these macros can throw an exception if a condition in it
+		is not fulfilled (look at the definition of TTMATH_ASSERT and TTMATH_REFERENCE_ASSERT)
+
+		TTMATH_DEBUG is set automatically if DEBUG or _DEBUG are defined
 	*/
+	#if defined DEBUG || defined _DEBUG
+		#define TTMATH_DEBUG
+	#endif
+
+
 	#ifdef TTMATH_DEBUG
 
 		#if defined(__FILE__) && defined(__LINE__)

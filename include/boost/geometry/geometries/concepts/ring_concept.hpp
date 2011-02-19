@@ -58,7 +58,7 @@ public :
     BOOST_CONCEPT_USAGE(Ring)
     {
         Geometry* ring;
-        traits::clear<Geometry>::apply(*ring);
+        traits::clear<Geometry&>::apply(*ring);
     }
 #endif
 };

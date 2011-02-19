@@ -5,7 +5,7 @@
  */
 
 /* 
- * Copyright (c) 2006-2009, Tomasz Sowa
+ * Copyright (c) 2006-2010, Tomasz Sowa
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -480,6 +480,8 @@ namespace ttmath
 			c        = new_c;
 		}
 
+		c = (c != 0)? 1 : 0;
+
 		TTMATH_LOGC("UInt::Rcr2_one", c)
 
 	return c;
@@ -518,7 +520,7 @@ namespace ttmath
 			c        = new_c;
 		}
 
-		TTMATH_LOGC("UInt::Rcl2", c)
+		TTMATH_LOGC("UInt::Rcl2", (c & 1))
 
 	return (c & 1);
 	}
@@ -557,9 +559,11 @@ namespace ttmath
 			c        = new_c;
 		}
 
+		c = (c & TTMATH_UINT_HIGHEST_BIT) ? 1 : 0;
+
 		TTMATH_LOGC("UInt::Rcr2", c)
 
-	return (c & TTMATH_UINT_HIGHEST_BIT) ? 1 : 0;
+	return c;
 	}
 
 

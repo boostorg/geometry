@@ -33,7 +33,7 @@ struct collection_clear
 {
     static inline void apply(Geometry& geometry)
     {
-        write::clear(geometry);
+        traits::clear<Geometry&>::apply(geometry);
     }
 };
 
@@ -42,8 +42,8 @@ struct polygon_clear
 {
     static inline void apply(Polygon& polygon)
     {
-        write::clear(interior_rings(polygon));
-        write::clear(exterior_ring(polygon));
+        traits::clear<typename traits::interior_mutable_type<Polygon>::type>::apply(interior_rings(polygon));
+        traits::clear<typename traits::ring_mutable_type<Polygon>::type>::apply(exterior_ring(polygon));
     }
 };
 

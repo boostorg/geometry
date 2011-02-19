@@ -5,7 +5,7 @@
  */
 
 /* 
- * Copyright (c) 2006-2009, Tomasz Sowa
+ * Copyright (c) 2006-2010, Tomasz Sowa
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -99,7 +99,7 @@ public:
 		if 'can_be_digit' is true that means when the 'c' is a digit this 
 		method returns true otherwise it returns false
 	*/
-	static bool CorrectCharacter(wchar_t c, bool can_be_digit)
+	static bool CorrectCharacter(int c, bool can_be_digit)
 	{
 		if( (c>='a' && c<='z') || (c>='A' && c<='Z') )
 			return true;
@@ -148,6 +148,9 @@ public:
 	}
 
 
+
+#ifndef TTMATH_DONT_USE_WCHAR
+
 	/*!
 		this method returns true if such an object is defined (name exists)
 	*/
@@ -162,6 +165,8 @@ public:
 
 	return IsDefined(str_tmp1);
 	}
+
+#endif
 
 
 	/*!
@@ -184,6 +189,8 @@ public:
 	}
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
 	/*!
 		this method adds one object (variable of function) into the table
 	*/
@@ -199,6 +206,8 @@ public:
 		
 	return Add(str_tmp1, str_tmp2, param);
 	}
+
+#endif
 
 
 	/*!
@@ -258,6 +267,9 @@ public:
 	}
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
+
 	/*!
 		this method changes the value and the number of parameters for a specific object
 	*/
@@ -273,6 +285,8 @@ public:
 		
 	return EditValue(str_tmp1, str_tmp2, param);
 	}
+
+#endif
 
 
 	/*!
@@ -306,6 +320,10 @@ public:
 	}
 
 
+
+#ifndef TTMATH_DONT_USE_WCHAR
+
+
 	/*!
 		this method changes the name of a specific object
 	*/
@@ -321,6 +339,8 @@ public:
 
 	return EditName(str_tmp1, str_tmp2);
 	}
+
+#endif
 
 
 	/*!
@@ -342,6 +362,9 @@ public:
 	}
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
+
 	/*!
 		this method deletes an object
 	*/
@@ -357,7 +380,9 @@ public:
 	return Delete(str_tmp1);
 	}	
 		
-		
+#endif
+
+
 	/*!
 		this method gets the value of a specific object
 	*/
@@ -380,6 +405,8 @@ public:
 	}
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
 	/*!
 		this method gets the value of a specific object
 	*/
@@ -396,6 +423,8 @@ public:
 
 	return err;
 	}
+
+#endif
 
 
 	/*!
@@ -421,6 +450,8 @@ public:
 	}
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
 	/*!
 		this method gets the value of a specific object
 		(this version is used for not copying the whole string)
@@ -436,6 +467,8 @@ public:
 
 	return GetValue(str_tmp1, value);
 	}
+
+#endif
 
 
 	/*!
@@ -463,6 +496,8 @@ public:
 	}
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
 	/*!
 		this method gets the value and the number of parameters
 		of a specific object
@@ -480,6 +515,8 @@ public:
 
 	return err;
 	}
+
+#endif
 
 
 	/*!
@@ -508,6 +545,9 @@ public:
 	}
 
 
+#ifndef TTMATH_DONT_USE_WCHAR
+
+
 	/*!
 		this method sets the value and the number of parameters
 		of a specific object
@@ -525,6 +565,9 @@ public:
 
 	return GetValueAndParam(str_tmp1, value, param);
 	}
+
+
+#endif
 
 
 	/*!
