@@ -41,11 +41,18 @@ struct holes_proxy
         > proxy_type;
     typedef hole_iterator<Polygon, proxy_type> iterator_type;
 
+    // The next line does not work probably because coordinate_type is part of the
+    // polygon_traits, but not of the polygon_with_holes_traits
+    // typedef typename boost::polygon::polygon_traits<Polygon>::coordinate_type coordinate_type;
+
+    // So we use:
+    typedef typename Polygon::coordinate_type coordinate_type;
+
     inline holes_proxy(Polygon& p)
         : polygon(p)
     {}
 
-    void clear()
+    inline void clear()
     {
         Polygon empty;
         // Clear the holes
@@ -56,9 +63,9 @@ struct holes_proxy
             );
     }
 
-    void resize(std::size_t new_size)
+    inline void resize(std::size_t new_size)
     {
-        std::vector<boost::polygon::polygon_data<double> > temporary_copy
+        std::vector<boost::polygon::polygon_data<coordinate_type> > temporary_copy
             (
                 boost::polygon::begin_holes(polygon),
                 boost::polygon::end_holes(polygon)
@@ -66,6 +73,21 @@ struct holes_proxy
         temporary_copy.resize(new_size);
         polygon.set_holes(temporary_copy.begin(), temporary_copy.end());
     }
+
+    template <typename Ring>
+    inline void push_back(Ring const& ring)
+    {
+        std::vector<boost::polygon::polygon_data<coordinate_type> > temporary_copy
+            (
+                boost::polygon::begin_holes(polygon),
+                boost::polygon::end_holes(polygon)
+            );
+        boost::polygon::polygon_data<coordinate_type> added;
+        boost::polygon::set_points(added, ring.begin(), ring.end());
+        temporary_copy.push_back(added);
+        polygon.set_holes(temporary_copy.begin(), temporary_copy.end());
+    }
+
 
     Polygon& polygon;
 };
@@ -120,7 +142,7 @@ namespace traits
 template <typename Polygon>
 struct clear<adapt::bp::holes_proxy<Polygon> >
 {
-    static inline void apply(adapt::bp::holes_proxy<Polygon>& proxy)
+    static inline void apply(adapt::bp::holes_proxy<Polygon> proxy)
     {
         proxy.clear();
     }
@@ -129,9 +151,19 @@ struct clear<adapt::bp::holes_proxy<Polygon> >
 template <typename Polygon>
 struct resize<adapt::bp::holes_proxy<Polygon> >
 {
-    static inline void apply(adapt::bp::holes_proxy<Polygon>& proxy, std::size_t new_size)
+    static inline void apply(adapt::bp::holes_proxy<Polygon> proxy, std::size_t new_size)
     {
         proxy.resize(new_size);
+    }
+};
+
+template <typename Polygon>
+struct push_back<adapt::bp::holes_proxy<Polygon> >
+{
+    template <typename Ring>
+    static inline void apply(adapt::bp::holes_proxy<Polygon> proxy, Ring const& ring)
+    {
+        proxy.push_back(ring);
     }
 };
 

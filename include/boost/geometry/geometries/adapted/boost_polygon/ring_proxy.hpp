@@ -45,8 +45,7 @@ struct modify<true>
                 boost::polygon::end_points(ring)
             );
         temporary_vector.push_back(point);
-        //boost::polygon::set_points(ring, temporary_vector.begin(), temporary_vector.end());
-        ring.set(temporary_vector.begin(), temporary_vector.end());
+        boost::polygon::set_points(ring, temporary_vector.begin(), temporary_vector.end());
     }
 
 };
@@ -84,22 +83,29 @@ public :
     static const bool is_mutable = !boost::is_const<Polygon>::type::value;
 
     inline ring_proxy(Polygon& p)
-        : m_polygon(p)
+        : m_polygon_pointer(&p)
         , m_do_hole(false)
     {}
 
     // Constructor used from hole_iterator
     inline ring_proxy(Polygon& p, hole_iterator_type hole_it)
-        : m_polygon(p)
+        : m_polygon_pointer(&p)
         , m_do_hole(true)
         , m_hole_it(hole_it)
     {}
+
+    // Default constructor, for mutable polygons / appending (interior) rings
+    inline ring_proxy()
+        : m_polygon_pointer(&m_polygon_for_default_constructor)
+        , m_do_hole(false)
+    {}
+
 
     iterator_type begin() const 
     { 
         return m_do_hole 
             ? boost::polygon::begin_points(*m_hole_it)
-            : boost::polygon::begin_points(m_polygon)
+            : boost::polygon::begin_points(*m_polygon_pointer)
             ;
     }
 
@@ -107,7 +113,7 @@ public :
     { 
         return m_do_hole 
             ? boost::polygon::begin_points(*m_hole_it)
-            : boost::polygon::begin_points(m_polygon)
+            : boost::polygon::begin_points(*m_polygon_pointer)
             ;
     }
 
@@ -115,7 +121,7 @@ public :
     { 
         return m_do_hole 
             ? boost::polygon::end_points(*m_hole_it)
-            : boost::polygon::end_points(m_polygon)
+            : boost::polygon::end_points(*m_polygon_pointer)
             ;
     }
 
@@ -123,7 +129,7 @@ public :
     { 
         return m_do_hole 
             ? boost::polygon::end_points(*m_hole_it)
-            : boost::polygon::end_points(m_polygon)
+            : boost::polygon::end_points(*m_polygon_pointer)
             ;
     }
 
@@ -137,7 +143,7 @@ public :
         }
         else
         {
-            boost::polygon::set_points(m_polygon,
+            boost::polygon::set_points(*m_polygon_pointer,
                 boost::polygon::begin_points(p), 
                 boost::polygon::end_points(p));
         }
@@ -173,15 +179,16 @@ public :
         }
         else
         {
-            detail::modify<is_mutable>::push_back(m_polygon, point);
+            detail::modify<is_mutable>::push_back(*m_polygon_pointer, point);
         }
     }
 
-
 private :
-    Polygon& m_polygon;
+    Polygon* m_polygon_pointer;
     bool m_do_hole;
     hole_iterator_type m_hole_it;
+
+    Polygon m_polygon_for_default_constructor;
 };
 
 
@@ -235,7 +242,7 @@ struct tag<adapt::bp::ring_proxy<Polygon> >
 template <typename Polygon>
 struct clear<adapt::bp::ring_proxy<Polygon> >
 {
-    static inline void apply(adapt::bp::ring_proxy<Polygon>& proxy)
+    static inline void apply(adapt::bp::ring_proxy<Polygon> proxy)
     {
         proxy.clear();
     }
@@ -245,7 +252,7 @@ struct clear<adapt::bp::ring_proxy<Polygon> >
 template <typename Polygon>
 struct resize<adapt::bp::ring_proxy<Polygon> >
 {
-    static inline void apply(adapt::bp::ring_proxy<Polygon>& proxy, std::size_t new_size)
+    static inline void apply(adapt::bp::ring_proxy<Polygon> proxy, std::size_t new_size)
     {
         proxy.resize(new_size);
     }
@@ -254,7 +261,7 @@ struct resize<adapt::bp::ring_proxy<Polygon> >
 template <typename Polygon>
 struct push_back<adapt::bp::ring_proxy<Polygon> >
 {
-    static inline void apply(adapt::bp::ring_proxy<Polygon>& proxy, 
+    static inline void apply(adapt::bp::ring_proxy<Polygon> proxy, 
         typename boost::polygon::polygon_traits<Polygon>::point_type const& point)
     {
         proxy.push_back(point);

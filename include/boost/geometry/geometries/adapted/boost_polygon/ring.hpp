@@ -36,7 +36,7 @@ struct tag<boost::polygon::polygon_data<CoordinateType> >
 };
 
 template <typename CoordinateType>
-struct clear<boost::polygon::polygon_data<CoordinateType> >
+struct clear<boost::polygon::polygon_data<CoordinateType>& >
 {
     static inline void apply(boost::polygon::polygon_data<CoordinateType>& data)
     {
@@ -47,7 +47,7 @@ struct clear<boost::polygon::polygon_data<CoordinateType> >
 };
 
 template <typename CoordinateType>
-struct push_back<boost::polygon::polygon_data<CoordinateType> >
+struct push_back<boost::polygon::polygon_data<CoordinateType>& >
 {
     typedef boost::polygon::point_data<CoordinateType> point_type;
 

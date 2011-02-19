@@ -83,7 +83,7 @@ public :
     {
         // Check if it can be modified
         Geometry* ls;
-        traits::clear<Geometry>::apply(*ls);
+        traits::clear<Geometry&>::apply(*ls);
     }
 #endif
 };

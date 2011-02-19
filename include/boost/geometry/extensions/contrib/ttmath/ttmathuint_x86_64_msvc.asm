@@ -36,9 +36,9 @@
 ;
 
 ;
-; compile with debug info:    ml64.exe /Zd /Zi ttmathuint_x86_64_msvc.asm
-; compile without debug info: ml64.exe ttmathuint_x86_64_msvc.asm
-; this create ttmathuint_x86_64_msvc.obj file which can be linked with your program
+; compile with debug info:    ml64.exe /c /Zd /Zi ttmathuint_x86_64_msvc.asm
+; compile without debug info: ml64.exe /c ttmathuint_x86_64_msvc.asm
+; this creates ttmathuint_x86_64_msvc.obj file which can be linked with your program
 ;
 
 PUBLIC	ttmath_adc_x64

@@ -25,85 +25,57 @@ namespace boost { namespace geometry
 namespace traits
 {
 
-
 /*!
 \brief Traits class to clear a geometry
 \ingroup traits
  */
-template <typename Container>
+template <typename Range>
 struct clear
 {
-    static inline void apply(Container& container)
+    static inline void apply(Range range)
     {
         // The default action: act as it it is a std:: container
-        container.clear();
+        range.clear();
     }
 };
 
 
 /*!
-\brief Traits class to append a point to a container (ring, linestring, multi*)
+\brief Traits class to append a point to a range (ring, linestring, multi*)
 \ingroup traits
  */
-template <typename Container>
+template <typename Range>
 struct push_back
 {
-    static inline void apply(Container& container,
-        typename boost::range_value<Container>::type const& item)
+    static inline void apply(Range range,
+                typename boost::range_value
+                    <
+                        typename boost::remove_reference<Range>::type
+                    >::type const& item)
     {
         // The default action: act as it it is a std:: container
-        container.push_back(item);
+        range.push_back(item);
     }
 };
 
 
 
 /*!
-\brief Traits class to append a point to a container (ring, linestring, multi*)
+\brief Traits class to append a point to a range (ring, linestring, multi*)
 \ingroup traits
  */
-template <typename Container>
+template <typename Range>
 struct resize
 {
-    static inline void apply(Container& container, std::size_t new_size)
+    static inline void apply(Range range, std::size_t new_size)
     {
         // The default action: act as it it is a std:: container
-        container.resize(new_size);
+        range.resize(new_size);
     }
 };
-
 
 
 } // namespace traits
-
-
-namespace write
-{
-
-// Free functions to conveniently avoid complex metafunctions
-// (Mainly) or internal usage
-
-
-template <typename Container>
-inline void clear(Container& container)
-{
-    traits::clear<Container>::apply(container);
-}
-
-template <typename Container>
-inline void resize(Container& container, std::size_t new_size)
-{
-    traits::resize<Container>::apply(container, new_size);
-}
-
-template <typename Container>
-inline void push_back(Container& container, typename boost::range_value<Container>::type const& item)
-{
-    traits::push_back<Container>::apply(container, item);
-}
-
-
-}
 
 
 }} // namespace boost::geometry

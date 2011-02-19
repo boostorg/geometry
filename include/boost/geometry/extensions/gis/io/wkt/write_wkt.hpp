@@ -160,7 +160,7 @@ struct wkt_poly
     static inline void apply(std::basic_ostream<Char, Traits>& os,
                 Polygon const& poly)
     {
-        typedef typename ring_type<Polygon>::type ring;
+        typedef typename ring_type<Polygon const>::type ring;
 
         os << PrefixPolicy::apply();
         // TODO: check EMPTY here

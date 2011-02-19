@@ -5,7 +5,7 @@
  */
 
 /* 
- * Copyright (c) 2006-2009, Tomasz Sowa
+ * Copyright (c) 2006-2010, Tomasz Sowa
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -273,12 +273,16 @@ namespace ttmath
 	template<class ValueType>
 	ValueType Log(const ValueType & x, const ValueType & base, ErrorCode * err = 0)
 	{
-		if( x.IsNan() || base.IsNan() )
+		if( x.IsNan() )
 		{
-			if( err )
-				*err = err_improper_argument;
+			if( err ) *err = err_improper_argument;
+			return x;
+		}
 
-		return ValueType(); // default NaN
+		if( base.IsNan() )
+		{
+			if( err ) *err = err_improper_argument;
+			return base;
 		}
 
 		ValueType result;
@@ -523,7 +527,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return x;
 		}
 
 		if( err )
@@ -854,7 +858,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return x;
 		}
 
 		if( x.GreaterWithoutSignThan(one) )
@@ -1080,7 +1084,7 @@ namespace ttmath
 		bool change_sign = false;
 
 		if( x.IsNan() )
-			return result; // NaN is set by default
+			return x;
 
 		// if x is negative we're using the formula:
 		// atan(-x) = -atan(x)
@@ -1548,7 +1552,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return x;
 		}
 
 		result = x;
@@ -1584,7 +1588,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return x;
 		}
 
 		result = 180;
@@ -1629,7 +1633,9 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return delimiter ; // NaN is set by default
+			delimiter.SetZeroNan(); // not needed, only to get rid of GCC warning about an uninitialized variable
+
+		return delimiter;
 		}
 
 		multipler = 60;
@@ -1683,7 +1689,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return x;
 		}
 
 		result = x;
@@ -1719,7 +1725,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return x;
 		}
 
 		result = 200;
@@ -1751,7 +1757,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return x;
 		}
 
 		result = x;
@@ -1801,7 +1807,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return x;
 		}
 
 		result = x;
@@ -1842,7 +1848,9 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return ValueType(); // NaN is set by default
+			x.SetNan();
+
+		return x;
 		}
 
 		uint c = x.Sqrt();
@@ -2065,7 +2073,9 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return ValueType(); // NaN is set by default
+			x.SetNan();
+
+		return x;
 		}
 
 		if( RootCheckIndexSign(x, index, err) ) return x;
@@ -2154,7 +2164,9 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return ValueType(); // NaN is set by default
+			a.SetNan();
+
+		return a;
 		}
 
 		uint c = a.Mod(b);
@@ -2652,7 +2664,7 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN is set by default
+		return n;
 		}
 
 		if( cgamma.history.Get(n, result, err_tmp) )
@@ -2731,7 +2743,9 @@ namespace ttmath
 			if( err )
 				*err = err_improper_argument;
 
-		return result; // NaN set by default
+			x.SetNan();
+
+		return x;
 		}
 
 		one.SetOne();

@@ -4,6 +4,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/coordinate_cast.hpp>
 
 
 #include <ttmath.h>
@@ -139,8 +140,37 @@ namespace detail
         }
     };
 
-}
-}}} // boost::geometry::math
+} // detail
+
+} // ttmath
+
+
+namespace detail
+{
+
+template <ttmath::uint Exponent, ttmath::uint Mantissa>
+struct coordinate_cast<ttmath::Big<Exponent, Mantissa> >
+{
+    static inline ttmath::Big<Exponent, Mantissa> apply(std::string const& source)
+    {
+        return ttmath::Big<Exponent, Mantissa> (source);
+    }
+};
+
+
+template <>
+struct coordinate_cast<ttmath_big>
+{
+    static inline ttmath_big apply(std::string const& source)
+    {
+        return ttmath_big(source);
+    }
+};
+
+} // namespace detail
+
+
+}} // boost::geometry
 
 
 
