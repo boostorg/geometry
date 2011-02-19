@@ -43,12 +43,12 @@ namespace traits
     };
 
 
-    // Implement traits for the mutable acr
+    // Implement traits for mutable actions
     // These are all optional traits (normally / default they are implemented
     // conforming std:: functionality)
 
     template <typename Point>
-    struct clear<all_custom_ring<Point> >
+    struct clear<all_custom_ring<Point>& >
     {
         static inline void apply(all_custom_ring<Point>& acr)
         {
@@ -57,7 +57,7 @@ namespace traits
     };
 
     template <typename Point>
-    struct push_back<all_custom_ring<Point> >
+    struct push_back<all_custom_ring<Point>& >
     {
         static inline void apply(all_custom_ring<Point>& acr, Point const& point)
         {
@@ -66,7 +66,7 @@ namespace traits
     };
 
     template <typename Point>
-    struct resize<all_custom_ring<Point> >
+    struct resize<all_custom_ring<Point>& >
     {
         static inline void apply(all_custom_ring<Point>& acr, std::size_t new_size)
         {
