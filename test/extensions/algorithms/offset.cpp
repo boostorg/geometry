@@ -49,9 +49,9 @@ void test_offset(std::string const& caseid, Geometry const& geometry,
 
     typename bg::length_result<Geometry>::type length
                     = bg::length(moved_by_offset);
-    std::size_t count = bg::num_points(moved_by_offset);
 
     /*
+    std::size_t count = bg::num_points(moved_by_offset);
     BOOST_CHECK_MESSAGE(count == expected_point_count,
             "offset: " << caseid
             << " #points expected: " << expected_point_count
@@ -91,13 +91,13 @@ void test_offset(std::string const& caseid, Geometry const& geometry,
 
 template <typename Geometry>
 void test_one(std::string const& caseid, std::string const& wkt, double distance,
-        double expected_length, double percentage = 0.001)
+        double expected_length_plus, double expected_length_minus, double percentage = 0.001)
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
 
-    test_offset<Geometry>(caseid + "_a", geometry, distance, expected_length, percentage);
-    test_offset<Geometry>(caseid + "_b", geometry, -distance, expected_length, percentage);
+    test_offset<Geometry>(caseid + "_a", geometry, distance, expected_length_plus, percentage);
+    test_offset<Geometry>(caseid + "_b", geometry, -distance, expected_length_minus, percentage);
 }
 
 
@@ -116,12 +116,12 @@ void test_all()
     static std::string const curve = "LINESTRING(2 7,3 5,5 4,7 5,8 7)";
     static std::string const reallife1 = "LINESTRING(76396.40464822574 410095.6795147947,76397.85016212701 410095.211865792,76401.30666443033 410095.0466387949,76405.05892643372 410096.1007777959,76409.45103273794 410098.257640797,76412.96309264141 410101.6522238015)";
 
-    test_one<linestring>("ls_simplex", simplex, 0.5, std::sqrt(2.0));
-    test_one<linestring>("one_bend", one_bend, 0.5, std::sqrt(2.0));
-    test_one<linestring>("two_bends", two_bends, 0.5, std::sqrt(2.0));
-    test_one<linestring>("overlapping", overlapping, 0.5, std::sqrt(2.0));
-    test_one<linestring>("curve", curve, 0.5, std::sqrt(2.0));
-    test_one<linestring>("reallife1", reallife1, 16.5, std::sqrt(2.0));
+    test_one<linestring>("ls_simplex", simplex, 0.5, std::sqrt(2.0), std::sqrt(2.0));
+    test_one<linestring>("one_bend", one_bend, 0.5, 10.17328, 8.8681);
+    test_one<linestring>("two_bends", two_bends, 0.5, 13.2898, 12.92811);
+    test_one<linestring>("overlapping", overlapping, 0.5, 27.1466, 22.0596);
+    test_one<linestring>("curve", curve, 0.5, 7.7776,  10.0507);
+    test_one<linestring>("reallife1", reallife1, 16.5, 5.4654, 36.4943);
 }
 
 

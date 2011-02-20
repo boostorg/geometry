@@ -41,7 +41,6 @@
 #include <boost/geometry/algorithms/convex_hull.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
-#include <boost/geometry/algorithms/dissolve.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>

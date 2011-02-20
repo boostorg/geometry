@@ -92,10 +92,6 @@
 [include reference/disjoint.qbk]
 [endsect]
 
-[section:dissolve dissolve]
-[include reference/dissolve.qbk]
-[endsect]
-
 
 [section:distance distance]
 [include reference/distance.qbk]

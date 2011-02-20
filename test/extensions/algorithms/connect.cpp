@@ -159,8 +159,6 @@ void test_all()
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::multi_linestring<linestring> multi_linestring;
 
-    goto disconnected;
-
     test_one<multi_linestring, linestring>("ls_simplex",
         "MULTILINESTRING((0 0,1 1),(1 1,2 2))",
         1, 3, 2 * std::sqrt(2.0));
@@ -194,10 +192,9 @@ void test_all()
         "MULTILINESTRING((0 0,0 1.01),(1.02 1.03,0.99 0),(0 0.98,1.001 1),(1.01 0,0 0))",
         3, 7, 4.05163658, 0.01);
 
-disconnected:
     test_one<multi_linestring, linestring>("ls_disconnected_ring4",
         "MULTILINESTRING((0.01 0,0 1.01),(1.02 1.03,0.99 0),(0 0.98,1.001 1),(1.01 0,0.02 0))",
-        1, 8, 4.137147, 0.1);
+        1, 8, 4.1172, 0.1);
 }
 
 
