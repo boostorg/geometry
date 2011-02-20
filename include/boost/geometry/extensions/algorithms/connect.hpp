@@ -38,17 +38,17 @@ namespace detail { namespace connect
 template <typename Point>
 struct node
 {
-    Point point;
     int index;
     bool is_from;
+    Point point;
 
-    node(int i, bool f, Point const& p) 
+    node(int i, bool f, Point const& p)
         : index(i)
         , is_from(f)
         , point(p)
     {}
 
-    node() 
+    node()
         : index(-1)
         , is_from(false)
     {}
@@ -83,7 +83,7 @@ struct map_policy
 
 
     inline bool find_start(node<Point>& object,
-            std::map<int, bool>& included, 
+            std::map<int, bool>& included,
             int expected_count = 1)
     {
         for (map_iterator_type it = map.begin();
@@ -211,7 +211,7 @@ struct fuzzy_policy
     {}
 
     inline bool find_start(node<Point>& object,
-            std::map<int, bool>& included, 
+            std::map<int, bool>& included,
             int expected_count = 1)
     {
         for (map_iterator_type it = map.begin();
@@ -357,11 +357,11 @@ inline void debug(Policy const& policy)
     {
         std::cout << geometry::dsv(it->first) << " => " ;
         std::vector<node<point_type> > const& range =it->second;
-        for ( std::vector<node<point_type> >::const_iterator
+        for (typename std::vector<node<point_type> >::const_iterator
             vit = boost::begin(range); vit != boost::end(range); ++vit)
         {
-            std::cout 
-                << " (" << vit->index 
+            std::cout
+                << " (" << vit->index
                 << ", " << (vit->is_from ? "F" : "T")
                 << ")"
                 ;
@@ -451,7 +451,7 @@ struct connect_multi_linestring
                 included[closest.index] = true;
                 copy(multi[closest.index], current, closest.is_from);
             }
-            else if ((included.size() != boost::size(multi)))
+            else if ((included.size() != std::size_t(boost::size(multi))))
             {
                 // Get one which is NOT found and go again
                 node<point_type> next;
@@ -500,7 +500,7 @@ template<typename Multi, typename GeometryOut, typename Policy>
 struct connect<multi_linestring_tag, linestring_tag, Multi, GeometryOut, Policy>
     : detail::connect::connect_multi_linestring
         <
-            Multi, 
+            Multi,
             GeometryOut,
             Policy
         >
@@ -526,7 +526,9 @@ inline void connect(Geometry const& geometry, Collection& output_collection)
     typedef detail::connect::map_policy
         <
             typename point_type<Geometry>::type
-        > policy;
+        > policy_type;
+
+    policy_type policy;
 
     dispatch::connect
     <
@@ -534,8 +536,8 @@ inline void connect(Geometry const& geometry, Collection& output_collection)
         typename tag<geometry_out>::type,
         Geometry,
         geometry_out,
-        policy
-    >::apply(geometry, policy(), std::back_inserter(output_collection));
+        policy_type
+    >::apply(geometry, policy, std::back_inserter(output_collection));
 }
 
 
@@ -545,7 +547,7 @@ template
     typename Geometry,
     typename Collection
 >
-inline void connect(Geometry const& geometry, Collection& output_collection, 
+inline void connect(Geometry const& geometry, Collection& output_collection,
             typename coordinate_type<Geometry>::type const& limit)
 {
     typedef typename boost::range_value<Collection>::type geometry_out;
@@ -556,8 +558,9 @@ inline void connect(Geometry const& geometry, Collection& output_collection,
     typedef detail::connect::fuzzy_policy
         <
             typename point_type<Geometry>::type
-        > policy;
+        > policy_type;
 
+    policy_type policy(limit);
 
     dispatch::connect
     <
@@ -565,8 +568,8 @@ inline void connect(Geometry const& geometry, Collection& output_collection,
         typename tag<geometry_out>::type,
         Geometry,
         geometry_out,
-        policy
-    >::apply(geometry, policy(limit), std::back_inserter(output_collection));
+        policy_type
+    >::apply(geometry, policy, std::back_inserter(output_collection));
 }
 
 

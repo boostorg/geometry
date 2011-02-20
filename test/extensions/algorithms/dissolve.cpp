@@ -10,7 +10,189 @@
 
 #include <geometry_test_common.hpp>
 
-#include <algorithms/test_dissolve.hpp>
+#include <boost/geometry/extensions/algorithms/dissolve.hpp>
+#include <boost/geometry/extensions/multi/algorithms/dissolve.hpp>
+
+// To check results
+#include <boost/geometry/algorithms/length.hpp>
+#include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/unique.hpp>
+
+#include <boost/geometry/geometries/geometries.hpp>
+
+#include <boost/geometry/strategies/strategies.hpp>
+
+#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+
+#include <boost/geometry/multi/algorithms/for_each.hpp>
+
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+
+#include <boost/geometry/extensions/io/svg/write_svg_multi.hpp>
+
+
+
+
+
+
+#if defined(TEST_WITH_SVG)
+#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#endif
+
+template <typename Mapper>
+struct map_segment
+{
+    map_segment(Mapper& m)
+        : m_mapper(&m)
+    {}
+
+    map_segment<Mapper>& operator=(map_segment<Mapper> const& other)
+    {
+        if(this != &other) 
+        {
+            this->m_mapper = other.m_mapper;
+        }
+        return *this;
+    }
+
+
+    template <typename Segment>
+    inline void operator()(Segment const& s)
+    {
+        // create a little offset
+        m_mapper->map(s, "opacity:0.6;fill:none;stroke:rgb(0,0,0);stroke-width:2");
+    }
+
+    Mapper* m_mapper;
+};
+
+
+template <typename GeometryOut, typename Geometry>
+void test_dissolve(std::string const& caseid, Geometry const& geometry,
+        std::size_t expected_hole_count, std::size_t expected_point_count,
+        double expected_length_or_area, double percentage)
+{
+    typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
+
+    static const bool is_line = bg::geometry_id<GeometryOut>::type::value == 2;
+
+    //std::cout << bg::area(geometry) << std::endl;
+
+    std::vector<GeometryOut> dissolved_vector;
+    bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved_vector));
+
+    typename bg::area_result<Geometry>::type length_or_area = 0;
+    //std::size_t holes = 0;
+    std::size_t count = 0;
+
+    BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
+    {
+        bg::unique(dissolved);
+
+
+        length_or_area +=
+            is_line ? bg::length(dissolved) : bg::area(dissolved);
+
+        //holes += bg::num_interior_rings(dissolved);
+        count += bg::num_points(dissolved);
+    }
+
+    BOOST_CHECK_MESSAGE(count == expected_point_count,
+            "dissolve: " << caseid
+            << " #points expected: " << expected_point_count
+            << " detected: " << count
+            << " type: " << string_from_type<coordinate_type>::name()
+            );
+
+
+    //BOOST_CHECK_EQUAL(holes, expected_hole_count);
+    BOOST_CHECK_CLOSE(length_or_area, expected_length_or_area, percentage);
+
+    // Compile check, it should also compile inplace, outputting to the same geometry
+    {
+        std::vector<GeometryOut> dissolved;
+        bg::dissolve(geometry, dissolved);
+    }
+
+
+#if defined(TEST_WITH_SVG)
+    {
+        std::ostringstream filename;
+        filename << "dissolve_"
+            << caseid << "_"
+            << string_from_type<coordinate_type>::name()
+            << ".svg";
+
+        std::ofstream svg(filename.str().c_str());
+
+        typedef 
+        bg::svg_mapper
+            <
+                typename bg::point_type<Geometry>::type
+            > mapper_type;
+        
+        mapper_type mapper(svg, 500, 500);
+        mapper.add(geometry);
+
+        mapper.map(geometry, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1;fill-rule:nonzero");
+
+        bg::for_each_segment(geometry, map_segment<mapper_type>(mapper));
+
+
+        BOOST_FOREACH(GeometryOut& dissolved, dissolved_vector)
+        {
+           mapper.map(dissolved, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
+        }
+    }
+#endif
+}
+
+
+template <typename Geometry, typename GeometryOut>
+void test_one(std::string const& caseid, std::string const& wkt,
+        std::size_t expected_hole_count, std::size_t expected_point_count,
+        double expected_length_or_area, double percentage = 0.001)
+{
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+
+    test_dissolve<GeometryOut>(caseid, geometry,
+        expected_hole_count, expected_point_count,
+        expected_length_or_area, percentage);
+
+#ifdef BOOST_GEOMETRY_TEST_MULTI_PERMUTATIONS
+    // Test different combinations of a multi-polygon
+
+    int n = geometry.size();
+
+    // test them in all orders
+    std::vector<int> indices;
+    for (int i = 0; i < n; i++)
+    {
+        indices.push_back(i);
+    }
+    int permutation = 0;
+    do
+    {
+        std::ostringstream out;
+        out << caseid;
+        Geometry geometry2;
+        for (int i = 0; i < n; i++)
+        {
+            int index = indices[i];
+            out << "_" << index;
+            geometry2.push_back(geometry[index]);
+        }
+        test_dissolve<GeometryOut>(out.str(), geometry2, expected_hole_count,
+                expected_point_count, expected_length_or_area, percentage);
+    } while (std::next_permutation(indices.begin(), indices.end()));
+#endif
+
+}
+
+
 
 
 template <typename P>
@@ -87,8 +269,6 @@ void test_all()
     test_one<polygon, polygon>("case_1",
         "POLYGON((1 3,0 9,9 5,1 7,9 8,2 5,10 10,9 2,1 3))",
         0, 7, 50.48056402439);
-/*
-    // Mail 
 
     // See power point, and http://en.wikipedia.org/wiki/Pentagram
     test_one<polygon, polygon>("pentagram",
@@ -96,8 +276,40 @@ void test_all()
         0, 11, 25.6158412);
 
 
-    //Should be solved (completely) differently
+    // Multi-geometries
+    {
+        typedef bg::model::multi_polygon<polygon> multi_polygon;
 
+        test_one<multi_polygon, polygon>("three_triangles",
+            "MULTIPOLYGON(((1 1,5 5,8 0,1 1)),((4 2,0 8,5 9,4 2)),((5 3,4 8,10 4,5 3)))" ,
+            1, 13, 42.614078674948232);
+
+        test_one<multi_polygon, polygon>("simplex_two",
+            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)))",
+            0, 8, 14.7);
+        test_one<multi_polygon, polygon>("simplex_three",
+            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)))",
+            0, 14, 16.7945);
+        test_one<multi_polygon, polygon>("simplex_four",
+            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)),((5 5,7 7,8 4,5 5)))",
+            0, 18, 20.7581);
+
+        // disjoint
+        test_one<multi_polygon, polygon>("simplex_disjoint",
+            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((1 6,2 10,5 7,1 6)),((3 4,5 6,6 2,3 4)),((6 5,8 7,9 4,6 5)))",
+            0, 16, 24.0);
+
+        // new hole of four
+        test_one<multi_polygon, polygon>("new_hole",
+            "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)),((3 1,5 4,8 4,3 1)))",
+            1, 18, 19.5206);
+    }
+
+
+
+/*
+    //Should be solved (completely) differently
+    // From mail on the ggl-mailing list
     test_one<polygon, polygon>("mail_denis_1",
         "POLYGON((55 10, 141 237, 249 23, 21 171, 252 169, 24 89, 266 73, 55 10))",
         0, 7, 50.48056402439);

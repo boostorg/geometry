@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "offset", "offset.vcproj", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mark_spikes", "mark_spikes.vcproj", "{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dissolve", "dissolve.vcproj", "{206F83D5-17F9-4856-A1DE-82301DB94439}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -42,6 +44,10 @@ Global
 		{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}.Debug|Win32.Build.0 = Debug|Win32
 		{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}.Release|Win32.ActiveCfg = Release|Win32
 		{0DFC6D76-C73C-41E6-BCAD-06A4E4F37593}.Release|Win32.Build.0 = Release|Win32
+		{206F83D5-17F9-4856-A1DE-82301DB94439}.Debug|Win32.ActiveCfg = Debug|Win32
+		{206F83D5-17F9-4856-A1DE-82301DB94439}.Debug|Win32.Build.0 = Debug|Win32
+		{206F83D5-17F9-4856-A1DE-82301DB94439}.Release|Win32.ActiveCfg = Release|Win32
+		{206F83D5-17F9-4856-A1DE-82301DB94439}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

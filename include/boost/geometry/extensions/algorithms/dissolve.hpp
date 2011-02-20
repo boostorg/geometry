@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DISSOLVE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DISSOLVE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_DISSOLVE_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_DISSOLVE_HPP
 
 
 #include <map>
@@ -213,4 +213,4 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DISSOLVE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_DISSOLVE_HPP

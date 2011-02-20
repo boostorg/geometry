@@ -27,7 +27,6 @@
 #include <boost/geometry/multi/algorithms/clear.hpp>
 #include <boost/geometry/multi/algorithms/convex_hull.hpp>
 #include <boost/geometry/multi/algorithms/correct.hpp>
-#include <boost/geometry/multi/algorithms/dissolve.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/equals.hpp>

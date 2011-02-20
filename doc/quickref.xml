@@ -344,10 +344,6 @@
      <member><link linkend="geometry.reference.algorithms.difference">difference</link></member>
      <member><link linkend="geometry.reference.algorithms.sym_difference">sym_difference</link></member>
     </simplelist>
-    <bridgehead renderas="sect3">Dissolve</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.dissolve">dissolve</link></member>
-    </simplelist>
     <bridgehead renderas="sect3">Envelope</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.envelope">envelope</link></member>

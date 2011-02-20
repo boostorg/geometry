@@ -204,6 +204,8 @@ struct join_bevel
 #endif
 
 
+    typedef typename coordinate_type<PointIn>::type coordinate_type;
+
     template <typename Ring>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
