@@ -20,10 +20,11 @@
 
 
 #include <cstddef>
+#include <boost/mpl/assert.hpp>
 
 #include <boost/array.hpp>
 
-#include <boost/geometry/core/container_access.hpp>
+#include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -36,21 +37,40 @@ namespace boost { namespace geometry
 namespace traits
 {
 
-    template <typename Point, std::size_t PointCount>
-    struct tag< boost::array<Point, PointCount> >
-    {
-        typedef linestring_tag type;
-    };
+template <typename Point, std::size_t PointCount>
+struct tag< boost::array<Point, PointCount> >
+{
+    typedef linestring_tag type;
+};
 
-    // Clear does not exist for a boost::array
-    // It should not be used, and therefore: throw
-    template <typename Point, std::size_t PointCount>
-    struct clear< boost::array<Point, PointCount> >
-    {
-        static inline void apply(boost::array<Point, PointCount>& )
-        {
-        }
-    };
+// boost::array is immutable with respect to size
+// Therefore, prohibit compilation
+template <typename Point, std::size_t PointCount>
+struct clear< boost::array<Point, PointCount> >
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_BOOST_ARRAY_OF, (types<Point>)
+        );
+};
+
+template <typename Point, std::size_t PointCount>
+struct resize< boost::array<Point, PointCount> >
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_BOOST_ARRAY_OF, (types<Point>)
+        );
+};
+
+template <typename Point, std::size_t PointCount>
+struct push_back< boost::array<Point, PointCount> >
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_BOOST_ARRAY_OF, (types<Point>)
+        );
+};
 
 }
 #endif

@@ -14,6 +14,7 @@
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/policies/compare.hpp>
 
@@ -40,9 +41,7 @@ struct range_unique
                     policy
                 );
 
-        // Note: this assumes "resize".
-        // TODO: look at RangeEx solution
-        range.resize(it - boost::begin(range));
+        traits::resize<Range>::apply(range, it - boost::begin(range));
     }
 };
 

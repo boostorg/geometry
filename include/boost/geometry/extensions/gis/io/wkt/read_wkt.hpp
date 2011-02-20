@@ -31,6 +31,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/geometry_id.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/mutable_range.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -111,7 +112,7 @@ struct parsing_assigner
             // Note that it is much slower than atof. However, it is more standard
             // and in parsing the change in performance falls probably away against
             // the tokenizing
-            set<Dimension>(point, finished 
+            set<Dimension>(point, finished
                     ? coordinate_type()
                     : coordinate_cast<coordinate_type>::apply(*it));
         }

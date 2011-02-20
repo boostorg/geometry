@@ -14,7 +14,7 @@
 #include <boost/array.hpp>
 #include <boost/range.hpp>
 
-#include <boost/geometry/core/container_access.hpp>
+#include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
