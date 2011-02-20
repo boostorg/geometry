@@ -56,8 +56,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unique", "unique.vcproj", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reverse", "reverse.vcproj", "{14B5DFC5-D511-4D8C-A231-EE90A05687E1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dissolve", "dissolve.vcproj", "{206F83D5-17F9-4856-A1DE-82301DB94439}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "comparable_distance", "comparable_distance.vcproj", "{F11970B5-BE16-4FF5-9780-4C15082B76A0}"
 EndProject
 Global
@@ -178,10 +176,6 @@ Global
 		{14B5DFC5-D511-4D8C-A231-EE90A05687E1}.Debug|Win32.Build.0 = Debug|Win32
 		{14B5DFC5-D511-4D8C-A231-EE90A05687E1}.Release|Win32.ActiveCfg = Release|Win32
 		{14B5DFC5-D511-4D8C-A231-EE90A05687E1}.Release|Win32.Build.0 = Release|Win32
-		{206F83D5-17F9-4856-A1DE-82301DB94439}.Debug|Win32.ActiveCfg = Debug|Win32
-		{206F83D5-17F9-4856-A1DE-82301DB94439}.Debug|Win32.Build.0 = Debug|Win32
-		{206F83D5-17F9-4856-A1DE-82301DB94439}.Release|Win32.ActiveCfg = Release|Win32
-		{206F83D5-17F9-4856-A1DE-82301DB94439}.Release|Win32.Build.0 = Release|Win32
 		{F11970B5-BE16-4FF5-9780-4C15082B76A0}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F11970B5-BE16-4FF5-9780-4C15082B76A0}.Debug|Win32.Build.0 = Debug|Win32
 		{F11970B5-BE16-4FF5-9780-4C15082B76A0}.Release|Win32.ActiveCfg = Release|Win32

@@ -25,37 +25,23 @@
 namespace boost { namespace geometry { namespace concept
 {
 
-
 /*!
-\brief Polygon concept
+\brief Checks polygon concept
 \ingroup concepts
-\par Formal definition:
-The polygon concept is defined as following:
-- there must be a specialization of traits::tag defining polygon_tag as type
-- there must be a specialization of traits::ring_type defining the type of its
-exterior ring and interior rings as type
-- there must be a specialization of traits::interior_type defining the type of
-the collection of its interior rings as type
-- there must be a specialization of traits::exterior_ring
-  with two functions named "get",
-  returning the exterior ring, a const version and a mutable version
-- there must be a specialization of traits::interior_rings
-  with two functions named "get", returning the interior rings,
-  a const version and a mutable version
-
-\note to fulfil the concepts, no traits class has to be specialized to
-define the point type. The point type is extracted from the ring type
 */
-template <typename Geometry>
+template <typename PolygonType>
 class Polygon
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename ring_type<Geometry>::type ring_type;
-    typedef typename traits::ring_const_type<Geometry>::type ring_const_type;
-    typedef typename traits::ring_mutable_type<Geometry>::type ring_mutable_type;
-    typedef typename traits::interior_const_type<Geometry>::type interior_const_type;
-    typedef typename traits::interior_mutable_type<Geometry>::type interior_mutable_type;
+    typedef typename boost::remove_const<PolygonType>::type polygon_type;
+
+    typedef typename traits::ring_const_type<polygon_type>::type ring_const_type;
+    typedef typename traits::ring_mutable_type<polygon_type>::type ring_mutable_type;
+    typedef typename traits::interior_const_type<polygon_type>::type interior_const_type;
+    typedef typename traits::interior_mutable_type<polygon_type>::type interior_mutable_type;
+
+    typedef typename point_type<PolygonType>::type point_type;
+    typedef typename ring_type<PolygonType>::type ring_type;
 
     BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (concept::Ring<ring_type>) );
@@ -66,29 +52,27 @@ class Polygon
     {
         static inline void apply()
         {
-            Geometry* poly;
-            ring_mutable_type e = exterior_ring(*poly);
-            interior_mutable_type i = interior_rings(*poly);
+            polygon_type* poly;
+            polygon_type const* cpoly = poly;
+
+            ring_mutable_type e = traits::exterior_ring<PolygonType>::get(*poly);
+            interior_mutable_type i = traits::interior_rings<PolygonType>::get(*poly);
+            ring_const_type ce = traits::exterior_ring<PolygonType>::get(*cpoly);
+            interior_const_type ci = traits::interior_rings<PolygonType>::get(*cpoly);
 
             boost::ignore_unused_variable_warning(e);
             boost::ignore_unused_variable_warning(i);
+            boost::ignore_unused_variable_warning(ce);
+            boost::ignore_unused_variable_warning(ci);
             boost::ignore_unused_variable_warning(poly);
+            boost::ignore_unused_variable_warning(cpoly);
         }
-
     };
 
 public:
 
-
     BOOST_CONCEPT_USAGE(Polygon)
     {
-        // Check if it can be modified
-        // TODO
-
-        //Geometry* poly;
-        //clear(*poly);
-        //append(*poly, point_type());
-
         checker::apply();
     }
 #endif
@@ -96,22 +80,21 @@ public:
 
 
 /*!
-\brief Polygon concept (const version)
+\brief Checks polygon concept (const version)
 \ingroup const_concepts
-\details The ConstPolygon concept check the same as the Polygon concept,
-but does not check write access.
 */
-template <typename Geometry>
+template <typename PolygonType>
 class ConstPolygon
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
 
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename ring_type<Geometry>::type ring_type;
-    typedef typename ring_return_type<Geometry>::type ring_return_type;
-    typedef typename interior_return_type<Geometry>::type interior_type;
-    //typedef typename traits::ring_const_type<Geometry const>::type ring_const_type;
-    //typedef typename traits::interior_const_type<Geometry const>::type interior_const_type;
+    typedef typename boost::remove_const<PolygonType>::type const_polygon_type;
+
+    typedef typename traits::ring_const_type<const_polygon_type>::type ring_const_type;
+    typedef typename traits::interior_const_type<const_polygon_type>::type interior_const_type;
+
+    typedef typename point_type<const_polygon_type>::type point_type;
+    typedef typename ring_type<const_polygon_type>::type ring_type;
 
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<point_type>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstRing<ring_type>) );
@@ -122,16 +105,16 @@ class ConstPolygon
     {
         static inline void apply()
         {
-            Geometry const* poly;
-            ring_return_type ce = exterior_ring(*poly);
-            interior_type ci = interior_rings(*poly);
+            const_polygon_type const* cpoly;
+
+            ring_const_type ce = traits::exterior_ring<const_polygon_type>::get(*cpoly);
+            interior_const_type ci = traits::interior_rings<const_polygon_type>::get(*cpoly);
 
             boost::ignore_unused_variable_warning(ce);
             boost::ignore_unused_variable_warning(ci);
-            boost::ignore_unused_variable_warning(poly);
+            boost::ignore_unused_variable_warning(cpoly);
         }
     };
-
 
 public:
 

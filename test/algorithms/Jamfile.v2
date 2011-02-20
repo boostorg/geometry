@@ -11,16 +11,18 @@ test-suite boost-geometry-algorithms
     [ run append.cpp ]
     [ run area.cpp ]
     [ run assign.cpp ]
+    [ run buffer.cpp ]
     [ run centroid.cpp ]
     [ run combine.cpp ]
+    [ run comparable_distance.cpp ]
     [ run convert.cpp ]
     [ run convex_hull.cpp ]
     [ run correct.cpp ]
+    [ run difference.cpp ]
     [ run disjoint.cpp ]
-    [ run dissolve.cpp ]
-    [ run equals.cpp ]
     [ run distance.cpp ]
     [ run envelope.cpp ]
+    [ run equals.cpp ]
     [ run for_each.cpp ]
     [ run intersection.cpp ]
     [ run intersects.cpp ]
@@ -41,3 +43,4 @@ build-project overlay
     
 build-project detail 
     ;
+    

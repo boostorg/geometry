@@ -20,6 +20,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/mutable_range.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/agnostic/simplify_douglas_peucker.hpp>
@@ -130,9 +131,13 @@ struct simplify_polygon
                         exterior_ring(poly_out),
                         max_distance, strategy);
 
-        // Note: here a resizeable container is assumed.
-        // TODO: we should make this part of the concept.
-        interior_rings(poly_out).resize(num_interior_rings(poly_in));
+        traits::resize
+            <
+                typename boost::remove_reference
+                <
+                    typename traits::interior_mutable_type<Polygon>::type
+                >::type
+            >::apply(interior_rings(poly_out), num_interior_rings(poly_in));
 
         typename interior_return_type<Polygon const>::type rings_in
                     = interior_rings(poly_in);

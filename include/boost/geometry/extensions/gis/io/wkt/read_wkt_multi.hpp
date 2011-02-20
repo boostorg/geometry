@@ -10,6 +10,7 @@
 
 #include <string>
 
+#include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 
@@ -27,7 +28,7 @@ struct multi_parser
 {
     static inline void apply(std::string const& wkt, MultiGeometry& geometry)
     {
-        geometry.clear();
+        traits::clear<MultiGeometry>::apply(geometry);
 
         tokenizer tokens(wkt, boost::char_separator<char>(" ", ",()"));
         tokenizer::iterator it;
@@ -38,7 +39,7 @@ struct multi_parser
             // Parse sub-geometries
             while(it != tokens.end() && *it != ")")
             {
-                geometry.resize(geometry.size() + 1);
+                traits::resize<MultiGeometry>::apply(geometry, boost::size(geometry) + 1);
                 Parser
                     <
                         typename boost::range_value<MultiGeometry>::type

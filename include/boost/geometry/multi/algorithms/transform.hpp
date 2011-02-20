@@ -11,6 +11,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
@@ -31,7 +32,7 @@ struct transform_multi
     template <typename S>
     static inline bool apply(Multi1 const& multi1, Multi2& multi2, S const& strategy)
     {
-        multi2.resize(boost::size(multi1));
+        traits::resize<Multi2>::apply(multi2, boost::size(multi1));
 
         typename boost::range_iterator<Multi1 const>::type it1
                 = boost::begin(multi1);

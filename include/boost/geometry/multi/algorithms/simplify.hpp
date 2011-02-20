@@ -11,6 +11,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/multi/iterators/range_type.hpp>
@@ -32,7 +33,7 @@ struct simplify_multi
     static inline void apply(MultiGeometry const& multi, MultiGeometry& out,
                     double max_distance, Strategy const& strategy)
     {
-        out.resize(boost::size(multi));
+        traits::resize<MultiGeometry>::apply(out, boost::size(multi));
 
         typename boost::range_iterator<MultiGeometry>::type it_out
                 = boost::begin(out);
