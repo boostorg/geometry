@@ -31,7 +31,7 @@ class model::linestring
 [heading Template parameter(s)]
 [table
 [[Parameter] [Default] [Description]]
-[[typename Point] [] [point type ]]
+[[typename Point] [] [Any type fulfilling a Point Concept ]]
 [[template< typename, typename > class Container] [std::vector] [container type, for example std::vector, std::deque ]]
 [[template< typename > class Allocator] [std::allocator] [container-allocator-type]]
 ]

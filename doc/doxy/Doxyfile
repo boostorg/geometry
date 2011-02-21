@@ -64,12 +64,13 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			tparam_numeric="numerical type (int, double, ttmath, ...)" \
 			tparam_out{1}="A valid output iterator type, accepting geometries of \1 Concept" \
 			tparam_point="Any type fulfilling a Point Concept" \
-			tparam_point="point type" \
 			tparam_range_point="Any type fulfilling a Range Concept where it range_value type fulfills the Point Concept" \
+			tparam_first_point="point type" \
 			tparam_second_point="second point type" \
 			tparam_segment_point="segment point type" \
 			tparam_strategy{1}="Any type fulfilling a \1 Strategy Concept" \
 			param_box="A model of the specified Box Concept" \
+			param_box_or_segment="A box modelling the specified Box Concept or segment modelling the specified Segment Concept" \
 			param_geometry="A model of the specified concept" \
 			param_out{1}="The output iterator, to which \1 geometries are feeded" \
 			param_point="A model of the specified Point Concept" \
