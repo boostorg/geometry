@@ -49,7 +49,7 @@ struct assign_operation
     template <typename P, std::size_t I>
     inline void apply(P& point) const
     {
-        set<I>(point, m_value);
+        geometry::set<I>(point, m_value);
     }
 
 private:
@@ -86,7 +86,7 @@ struct initialize
 
     static inline void apply(Box& box, coordinate_type const& value)
     {
-        set<Index, Dimension>(box, value);
+        geometry::set<Index, Dimension>(box, value);
         initialize<Box, Index, Dimension + 1, DimensionCount>::apply(box, value);
     }
 };
@@ -176,8 +176,8 @@ inline void assign_box_2d_corner(Box const& box, Point& point)
     // Copy coordinates
     typedef typename coordinate_type<Point>::type coordinate_type;
 
-    set<0>(point, boost::numeric_cast<coordinate_type>(get<Corner1, 0>(box)));
-    set<1>(point, boost::numeric_cast<coordinate_type>(get<Corner2, 1>(box)));
+    geometry::set<0>(point, boost::numeric_cast<coordinate_type>(get<Corner1, 0>(box)));
+    geometry::set<1>(point, boost::numeric_cast<coordinate_type>(get<Corner2, 1>(box)));
 }
 
 
@@ -279,10 +279,10 @@ struct assign_2d_box_or_segment
     static inline void apply(Geometry& geometry,
                 Type const& x1, Type const& y1, Type const& x2, Type const& y2)
     {
-        set<0, 0>(geometry, boost::numeric_cast<coordinate_type>(x1));
-        set<0, 1>(geometry, boost::numeric_cast<coordinate_type>(y1));
-        set<1, 0>(geometry, boost::numeric_cast<coordinate_type>(x2));
-        set<1, 1>(geometry, boost::numeric_cast<coordinate_type>(y2));
+        geometry::set<0, 0>(geometry, boost::numeric_cast<coordinate_type>(x1));
+        geometry::set<0, 1>(geometry, boost::numeric_cast<coordinate_type>(y1));
+        geometry::set<1, 0>(geometry, boost::numeric_cast<coordinate_type>(x2));
+        geometry::set<1, 1>(geometry, boost::numeric_cast<coordinate_type>(y2));
     }
 };
 
