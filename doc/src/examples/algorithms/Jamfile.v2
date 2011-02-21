@@ -14,6 +14,11 @@ project boost-geometry-doc-example-algorithms
 exe area : area.cpp ;
 exe area_with_strategy : area_with_strategy.cpp ;
 
+exe assign_2d_point : assign_2d_point.cpp ;
+exe assign_3d_point : assign_3d_point.cpp ;
+exe assign_inverse : assign_inverse.cpp ;
+exe assign_with_range : assign_with_range.cpp ;
+
 exe for_each_point : for_each_point.cpp ;
 exe for_each_point_const : for_each_point_const.cpp ;
 exe for_each_segment_const : for_each_segment_const.cpp ;
@@ -22,6 +27,11 @@ exe intersection_ls_ls_point : intersection_ls_ls_point.cpp ;
 exe intersection_segment : intersection_segment.cpp ;
 
 exe intersects_linestring : intersects_linestring.cpp ;
+
+exe make_2d_point : make_2d_point.cpp ;
+exe make_3d_point : make_3d_point.cpp ;
+exe make_inverse : make_inverse.cpp ;
+exe make_with_range : make_with_range.cpp ;
 
 exe num_geometries : num_geometries.cpp ;
 exe num_interior_rings : num_interior_rings.cpp ;

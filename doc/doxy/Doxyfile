@@ -15,8 +15,8 @@ ABBREVIATE_BRIEF       =
 ALWAYS_DETAILED_SEC    = YES
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = c:/_svn/boost/sandbox/geometry  \
-				c:/_svn/boost/sandbox/geometry/libs/geometry/doc/doxygen_input/pages
+STRIP_FROM_PATH        = c:/_svn/boost/trunk/boost/geometry  \
+				c:/_svn/boost/trunk/libs/geometry/doc/doxygen_input/pages
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = NO
@@ -65,6 +65,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			tparam_out{1}="A valid output iterator type, accepting geometries of \1 Concept" \
 			tparam_point="Any type fulfilling a Point Concept" \
 			tparam_point="point type" \
+			tparam_range_point="Any type fulfilling a Range Concept where it range_value type fulfills the Point Concept" \
 			tparam_second_point="second point type" \
 			tparam_segment_point="segment point type" \
 			tparam_strategy{1}="Any type fulfilling a \1 Strategy Concept" \
@@ -79,6 +80,10 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			param_macro_coorsystem="Coordinate system (e.g. cs::cartesian)" \
 			param_macro_member{1}="Member containing \1 coordinate" \
 			param_macro_getset{2}="Method to \1 the \2 coordinate" \
+			param_range_point="A range containg points fulfilling range and point concepts" \
+			param_x="First coordinate (usually x-coordinate)" \
+			param_y="Second coordinate (usually y-coordinate)" \
+			param_z="Third coordinate (usually z-coordinate)" \
 			constructor_default{1}="Default constructor, creating an empty \1" \
 			constructor_begin_end{1}="Constructor with begin and end,  filling the \1" \
 			details_calc{2}="The free function \1 calculates the \2 of a geometry" \
@@ -94,6 +99,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			details_make{1}="This version with the make_ prefix returns the \1, and a template parameter must therefore be specified in the call." \
 			details_inserter{1}="This version with the _inserter suffix outputs the \1 to an output iterator, and a template parameter must therefore be specified in the call." \
 			details_get_set="The free functions [*get] and [*set] are two of the most important functions of Boost.Geometry, both within the library, as also for the library user. With these two functions you normally get and set coordinate values from and for a point, box, segment or sphere." \
+			details_make="Boost.Geometry uses concepts for all its geometries. It does not rely on constructors. The "make" functions are object generators creating geometries. There are overloads, currently with two or three coordinate values or ranges, to construct geometry instances" \
 			return_calc{1}="The calculated \1" \
 			return_check{1}="Returns true if the geometry \1" \
 			return_check2{1}="Returns true if two geometries \1" \
