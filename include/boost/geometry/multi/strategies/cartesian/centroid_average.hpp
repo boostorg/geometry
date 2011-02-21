@@ -17,7 +17,6 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
-#include <boost/geometry/util/copy.hpp>
 
 
 namespace boost { namespace geometry

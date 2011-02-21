@@ -12,6 +12,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/extensions/gis/projections/factory.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 
@@ -50,7 +52,7 @@ struct project_transformer
     {
         // Latlong (LatLong -> Cartesian) will be projected, rest will be copied.
         // So first copy third or higher dimensions
-        geometry::detail::copy::copy_coordinates<LatLong, Cartesian, 2,
+        geometry::detail::convert::point_to_point<LatLong, Cartesian, 2,
                 geometry::dimension<Cartesian>::value> ::copy(p1, p2);
         return m_prj->forward(p1, p2);
     }

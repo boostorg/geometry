@@ -17,18 +17,27 @@ namespace boost { namespace geometry
 {
 
 /*!
-    \brief Make a geometry
-    \ingroup make
-    \details the Generic Geometry Library uses concepts for all its geometries. Therefore it does not rely
-    on constructors. The "make" functions are object generators creating geometries. There are overloads
-    with two, three, four or six values, which are implemented depending on the geometry specified.
-    \note It does not work with array-point types, like int[2]
-    \tparam G the geometry type
-    \tparam T the coordinate type
-    \return the geometry
- */
-template <typename Geometry, typename T>
-inline Geometry make(T const& c1, T const& c2)
+\brief Construct a geometry
+\ingroup make
+\details 
+\note It does not work with array-point types, like int[2]
+\tparam Geometry \tparam_geometry
+\tparam Type \tparam_numeric to specify the coordinates
+\param c1 \param_x
+\param c2 \param_y
+\return The constructed geometry, here: a 2D point
+
+\qbk{distinguish, 2 coordinate values}
+\qbk{
+[heading Example]
+[make_2d_point] [make_2d_point_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.assign.assign_3_2_coordinate_values assign]
+}
+*/
+template <typename Geometry, typename Type>
+inline Geometry make(Type const& c1, Type const& c2)
 {
     concept::check<Geometry>();
 
@@ -43,12 +52,26 @@ inline Geometry make(T const& c1, T const& c2)
 }
 
 /*!
-    \brief Make a geometry
-    \ingroup make
-    \return a 3D point
+\brief Construct a geometry
+\ingroup make
+\tparam Geometry \tparam_geometry
+\tparam Type \tparam_numeric to specify the coordinates
+\param c1 \param_x
+\param c2 \param_y
+\param c3 \param_z
+\return The constructed geometry, here: a 3D point
+
+\qbk{distinguish, 3 coordinate values}
+\qbk{
+[heading Example]
+[make_3d_point] [make_3d_point_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.assign.assign_4_3_coordinate_values assign]
+}
  */
-template <typename Geometry, typename T>
-inline Geometry make(T const& c1, T const& c2, T const& c3)
+template <typename Geometry, typename Type>
+inline Geometry make(Type const& c1, Type const& c2, Type const& c3)
 {
     concept::check<Geometry>();
 
@@ -62,8 +85,8 @@ inline Geometry make(T const& c1, T const& c2, T const& c3)
     return geometry;
 }
 
-template <typename Geometry, typename T>
-inline Geometry make(T const& c1, T const& c2, T const& c3, T const& c4)
+template <typename Geometry, typename Type>
+inline Geometry make(Type const& c1, Type const& c2, Type const& c3, Type const& c4)
 {
     concept::check<Geometry>();
 
@@ -79,6 +102,23 @@ inline Geometry make(T const& c1, T const& c2, T const& c3, T const& c4)
 
 
 
+/*!
+\brief Construct a geometry
+\ingroup make
+\tparam Geometry \tparam_geometry
+\tparam Range \tparam_range_point
+\param range \param_range_point
+\return The constructed geometry, here: a linestring or a linear ring
+
+\qbk{distinguish, with a range}
+\qbk{
+[heading Example]
+[make_with_range] [make_with_range_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.assign.assign_2_with_a_range assign]
+}
+ */
 template <typename Geometry, typename Range>
 inline Geometry make(Range const& range)
 {
@@ -91,12 +131,21 @@ inline Geometry make(Range const& range)
 
 
 /*!
-    \brief Create a box with inverse infinite coordinates
-    \ingroup make
-    \details The make_inverse function initialize a 2D or 3D box with large coordinates, the
-    min corner is very large, the max corner is very small
-    \tparam Geometry the geometry type
-    \return the box
+\brief Construct a box with inverse infinite coordinates
+\ingroup make
+\details The make_inverse function initializes a 2D or 3D box with large coordinates, the
+    min corner is very large, the max corner is very small. This is useful e.g. in combination
+    with the combine function, to determine the bounding box of a series of geometries.
+\tparam Geometry \tparam_geometry
+\return The constructed geometry, here: a box
+
+\qbk{
+[heading Example]
+[make_inverse] [make_inverse_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.assign.assign_inverse assign]
+}
  */
 template <typename Geometry>
 inline Geometry make_inverse()
@@ -113,11 +162,11 @@ inline Geometry make_inverse()
 }
 
 /*!
-    \brief Create a geometry with "zero" coordinates
-    \ingroup make
-    \details The make_zero function initializes a 2D or 3D point or box with coordinates of zero
-    \tparam Geometry the geometry type
-    \return the geometry
+\brief Construct a geometry with its coordinates initialized to zero
+\ingroup make
+\details The make_zero function initializes a 2D or 3D point or box with coordinates of zero
+\tparam Geometry \tparam_geometry
+\return The constructed and zero-initialized geometry
  */
 template <typename Geometry>
 inline Geometry make_zero()

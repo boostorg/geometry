@@ -12,8 +12,9 @@
 #include <cstddef>
 
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
-#include <boost/geometry/util/copy.hpp>
+
 
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/assign.hpp>
@@ -57,7 +58,7 @@ public:
     nsphere(P const& center, T const& radius)
         : m_radius(radius)
     {
-        copy_coordinates(center, m_center);
+        geometry::convert(center, m_center);
     }
 
     inline P const& center() const { return m_center; }

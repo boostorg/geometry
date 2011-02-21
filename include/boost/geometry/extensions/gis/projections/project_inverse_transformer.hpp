@@ -13,9 +13,9 @@
 #include <boost/shared_ptr.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/extensions/gis/projections/factory.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
-#include <boost/geometry/util/copy.hpp>
 
 
 namespace boost { namespace geometry { namespace projection
@@ -60,7 +60,7 @@ struct project_inverse_transformer
     {
         // Latlong (LL -> XY) will be projected, rest will be copied.
         // So first copy third or higher dimensions
-        geometry::detail::copy::copy_coordinates<Cartesian, LatLong, 2,
+        geometry::detail::convert::point_to_point<Cartesian, LatLong, 2,
                 geometry::dimension<Cartesian>::value> ::copy(p1, p2);
         return m_prj->inverse(p1, p2);
     }

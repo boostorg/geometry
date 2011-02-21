@@ -21,7 +21,6 @@
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 
-#include <boost/geometry/util/copy.hpp>
 
 
 
