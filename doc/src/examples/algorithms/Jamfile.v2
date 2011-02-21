@@ -18,6 +18,9 @@ exe assign_2d_point : assign_2d_point.cpp ;
 exe assign_3d_point : assign_3d_point.cpp ;
 exe assign_inverse : assign_inverse.cpp ;
 exe assign_with_range : assign_with_range.cpp ;
+exe assign_box_corners : assign_box_corners.cpp ;
+exe assign_point_from_index : assign_point_from_index.cpp ;
+exe assign_point_to_index : assign_point_to_index.cpp ;
 
 exe for_each_point : for_each_point.cpp ;
 exe for_each_point_const : for_each_point_const.cpp ;

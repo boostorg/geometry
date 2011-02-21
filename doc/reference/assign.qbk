@@ -155,7 +155,7 @@ Or
 
 [section:assign_box_corners assign_box_corners]
 
-Assign the 4 points of a 2D box. 
+Assign the four points of a 2D box. 
 
 [heading Synopsis]
 ``template<typename Box, typename Point>
@@ -165,11 +165,11 @@ void assign_box_corners(Box const & box, Point & lower_left, Point & lower_right
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Box const &] [Any type fulfilling a Box Concept ] [box] []]
-[[Point &] [] [lower_left] []]
-[[Point &] [] [lower_right] []]
-[[Point &] [] [upper_left] []]
-[[Point &] [] [upper_right] []]
+[[Box const &] [Any type fulfilling a Box Concept ] [box] [A model of the specified Box Concept ]]
+[[Point &] [Any type fulfilling a Point Concept ] [lower_left] [point being assigned to lower left coordinates of the box ]]
+[[Point &] [Any type fulfilling a Point Concept ] [lower_right] [point being assigned to lower right coordinates of the box ]]
+[[Point &] [Any type fulfilling a Point Concept ] [upper_left] [point being assigned to upper left coordinates of the box ]]
+[[Point &] [Any type fulfilling a Point Concept ] [upper_right] [point being assigned to upper right coordinates of the box]]
 ]
 
 
@@ -181,6 +181,9 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/assign.hpp>`
+
+[heading Example]
+[assign_box_corners] [assign_box_corners_output]
 
 
 [endsect]
@@ -200,7 +203,7 @@ void assign_inverse(Geometry & geometry)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry &] [Any type fulfilling a Geometry Concept] [geometry] []]
+[[Geometry &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept]]
 ]
 
 
@@ -235,8 +238,8 @@ void assign_point_from_index(Geometry const & geometry, Point & point)``
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Index] [indicates which box-corner, min_corner (0) or max_corner (1) or which point of segment (0/1) ] [ - ] [Must be specified]]
-[[Geometry const &] [Any type fulfilling a Box Concept or a Segment Concept ] [geometry] []]
-[[Point &] [] [point] []]
+[[Geometry const &] [Any type fulfilling a Box Concept or a Segment Concept ] [geometry] [A box modelling the specified Box Concept or segment modelling the specified Segment Concept ]]
+[[Point &] [Any type fulfilling a Point Concept ] [point] [A model of the specified Point Concept]]
 ]
 
 
@@ -248,6 +251,9 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/assign.hpp>`
+
+[heading Example]
+[assign_point_from_index] [assign_point_from_index_output]
 
 
 [endsect]
@@ -265,8 +271,8 @@ void assign_point_to_index(Point const & point, Geometry & geometry)``
 [table
 [[Type] [Concept] [Name] [Description] ]
 [[Index] [indicates which box-corner, min_corner (0) or max_corner (1) or which point of segment (0/1) ] [ - ] [Must be specified]]
-[[Point const &] [] [point] []]
-[[Geometry &] [Any type fulfilling a Box Concept or a Segment Concept ] [geometry] []]
+[[Point const &] [Any type fulfilling a Point Concept ] [point] [A model of the specified Point Concept ]]
+[[Geometry &] [Any type fulfilling a Box Concept or a Segment Concept ] [geometry] [A box modelling the specified Box Concept or segment modelling the specified Segment Concept]]
 ]
 
 
@@ -278,6 +284,9 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/assign.hpp>`
+
+[heading Example]
+[assign_point_to_index] [assign_point_to_index_output]
 
 
 [endsect]
@@ -297,7 +306,7 @@ void assign_zero(Geometry & geometry)``
 
 [table
 [[Type] [Concept] [Name] [Description] ]
-[[Geometry &] [Any type fulfilling a Geometry Concept ] [geometry] []]
+[[Geometry &] [Any type fulfilling a Geometry Concept ] [geometry] [A model of the specified concept ]]
 ]
 
 
@@ -309,38 +318,6 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/assign.hpp>`
-
-
-[endsect]
-
-[section:copy_coordinates copy_coordinates]
-
-Copies coordinates from source to destination point. 
-
-[heading Description]
-The function copy_coordinates copies coordinates from one point to another point. Source point and destination point might be of different types. 
-
-[heading Synopsis]
-``template<typename Src, typename Dst>
-void copy_coordinates(Src const & source, Dst & dest)``
-
-[heading Parameters]
-
-[table
-[[Type] [Concept] [Name] [Description] ]
-[[Src const &] [] [source] [Source point ]]
-[[Dst &] [] [dest] [Destination point ]]
-]
-
-
-[heading Header]
-Either
-
-`#include <boost/geometry/geometry.hpp>`
-
-Or
-
-`#include <boost/geometry/util/copy.hpp>`
 
 
 [endsect]
