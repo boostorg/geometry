@@ -14,6 +14,7 @@
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/numeric/conversion/cast.hpp>
@@ -28,7 +29,6 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
-#include <boost/geometry/util/copy.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
 
@@ -266,6 +266,26 @@ struct assign_point_from_index
 };
 
 
+template <typename Geometry>
+struct assign_2d_box_or_segment
+{
+    typedef typename coordinate_type<Geometry>::type coordinate_type;
+
+    // Here we assign 4 coordinates to a box of segment
+    // -> Most logical is: x1,y1,x2,y2
+    // In case the user reverses x1/x2 or y1/y2, for a box, we could reverse them (THAT IS NOT IMPLEMENTED)
+
+    template <typename Type>
+    static inline void apply(Geometry& geometry,
+                Type const& x1, Type const& y1, Type const& x2, Type const& y2)
+    {
+        set<0, 0>(geometry, boost::numeric_cast<coordinate_type>(x1));
+        set<0, 1>(geometry, boost::numeric_cast<coordinate_type>(y1));
+        set<1, 0>(geometry, boost::numeric_cast<coordinate_type>(x2));
+        set<1, 1>(geometry, boost::numeric_cast<coordinate_type>(y2));
+    }
+};
+
 
 }} // namespace detail::assign
 #endif // DOXYGEN_NO_DETAIL
@@ -275,7 +295,14 @@ namespace dispatch
 {
 
 template <typename GeometryTag, typename Geometry, std::size_t DimensionCount>
-struct assign {};
+struct assign
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry>)
+        );
+};
 
 template <typename Point>
 struct assign<point_tag, Point, 2>
@@ -306,26 +333,13 @@ struct assign<point_tag, Point, 3>
 
 template <typename Box>
 struct assign<box_tag, Box, 2>
-{
-    typedef typename coordinate_type<Box>::type coordinate_type;
+    : detail::assign::assign_2d_box_or_segment<Box>
+{};
 
-    // Here we assign 4 coordinates to a box.
-    // -> Most logical is: x1,y1,x2,y2
-    // In case the user reverses x1/x2 or y1/y2, we could reverse them (THAT IS NOT IMPLEMENTED)
-
-    // Note also comment in util/assign_box_corner ->
-    //   ("Most logical is LOWER, UPPER and sub-order LEFT, RIGHT")
-    //   (That is assigning 4 points from a box. So lower-left, lower-right, upper-left, upper-right)
-    template <typename T>
-    static inline void apply(Box& box,
-                T const& x1, T const& y1, T const& x2, T const& y2)
-    {
-        set<min_corner, 0>(box, boost::numeric_cast<coordinate_type>(x1));
-        set<min_corner, 1>(box, boost::numeric_cast<coordinate_type>(y1));
-        set<max_corner, 0>(box, boost::numeric_cast<coordinate_type>(x2));
-        set<max_corner, 1>(box, boost::numeric_cast<coordinate_type>(y2));
-    }
-};
+template <typename Segment>
+struct assign<segment_tag, Segment, 2>
+    : detail::assign::assign_2d_box_or_segment<Segment>
+{};
 
 
 
@@ -358,8 +372,22 @@ struct assign_inverse<box_tag, Box>
 
 
 /*!
-    \brief assign two values to a 2D point
-    \ingroup assign
+\brief Assign two coordinates to a geometry (usually a 2D point)
+\ingroup assign
+\tparam Geometry \tparam_geometry
+\tparam Type \tparam_numeric to specify the coordinates
+\param geometry \param_geometry
+\param c1 \param_x
+\param c2 \param_y
+
+\qbk{distinguish, 2 coordinate values}
+\qbk{
+[heading Example]
+[assign_2d_point] [assign_2d_point_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.make.make_2_2_coordinate_values make]
+}
  */
 template <typename Geometry, typename Type>
 inline void assign(Geometry& geometry, Type const& c1, Type const& c2)
@@ -375,8 +403,23 @@ inline void assign(Geometry& geometry, Type const& c1, Type const& c2)
 }
 
 /*!
-    \brief assign three values to a 3D point [or the center + radius to a circle]
-    \ingroup assign
+\brief Assign three values to a geometry (usually a 3D point)
+\ingroup assign
+\tparam Geometry \tparam_geometry
+\tparam Type \tparam_numeric to specify the coordinates
+\param geometry \param_geometry
+\param c1 \param_x
+\param c2 \param_y
+\param c3 \param_z
+
+\qbk{distinguish, 3 coordinate values}
+\qbk{
+[heading Example]
+[assign_3d_point] [assign_3d_point_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.make.make_3_3_coordinate_values make]
+}
  */
 template <typename Geometry, typename Type>
 inline void assign(Geometry& geometry,
@@ -393,8 +436,17 @@ inline void assign(Geometry& geometry,
 }
 
 /*!
-    \brief assign center + radius to a sphere [for extension]
-    \ingroup assign
+\brief Assign four values to a geometry (usually a box or segment)
+\ingroup assign
+\tparam Geometry \tparam_geometry
+\tparam Type \tparam_numeric to specify the coordinates
+\param geometry \param_geometry
+\param c1 First coordinate (usually x1)
+\param c2 Second coordinate (usually y1)
+\param c3 Third coordinate (usually x2)
+\param c4 Fourth coordinate (usually y2)
+
+\qbk{distinguish, 4 coordinate values}
  */
 template <typename Geometry, typename Type>
 inline void assign(Geometry& geometry,
@@ -412,9 +464,22 @@ inline void assign(Geometry& geometry,
 
 
 /*!
-    \brief assign a range of points to a linestring, ring or polygon
-    \note The point-type of the range might be different from the point-type of the geometry
-    \ingroup assign
+\brief Assign a range of points to a linestring, ring or polygon
+\note The point-type of the range might be different from the point-type of the geometry
+\ingroup assign
+\tparam Geometry \tparam_geometry
+\tparam Range \tparam_range_point
+\param geometry \param_geometry
+\param range \param_range_point
+
+\qbk{distinguish, with a range}
+\qbk{
+[heading Example]
+[assign_with_range] [assign_with_range_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.make.make_1_with_a_range make]
+}
  */
 template <typename Geometry, typename Range>
 inline void assign(Geometry& geometry, Range const& range)
@@ -427,11 +492,21 @@ inline void assign(Geometry& geometry, Range const& range)
 
 
 /*!
-    \brief assign to a box inverse infinite
-    \details The assign_inverse function initialize a 2D or 3D box with large coordinates, the
-    min corner is very large, the max corner is very small. This is a convenient starting point to
-    collect the minimum bounding box of a geometry.
-    \ingroup assign
+\brief assign to a box inverse infinite
+\details The assign_inverse function initialize a 2D or 3D box with large coordinates, the
+min corner is very large, the max corner is very small. This is a convenient starting point to
+collect the minimum bounding box of a geometry.
+\ingroup assign
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+
+\qbk{
+[heading Example]
+[assign_inverse] [assign_inverse_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.make.make_inverse make]
+}
  */
 template <typename Geometry>
 inline void assign_inverse(Geometry& geometry)
@@ -446,10 +521,12 @@ inline void assign_inverse(Geometry& geometry)
 }
 
 /*!
-    \brief assign zero values to a box, point
-    \ingroup assign
-    \details The assign_zero function initializes a 2D or 3D point or box with coordinates of zero
-    \tparam Geometry the geometry type
+\brief assign zero values to a box, point
+\ingroup assign
+\details The assign_zero function initializes a 2D or 3D point or box with coordinates of zero
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+
  */
 template <typename Geometry>
 inline void assign_zero(Geometry& geometry)
@@ -465,10 +542,22 @@ inline void assign_zero(Geometry& geometry)
 
 
 /*!
-    \brief Assign the 4 points of a 2D box
-    \ingroup assign
-    \note The order is crucial. Most logical is LOWER, UPPER and sub-order LEFT, RIGHT
-        so this is how it is implemented.
+\brief Assign the four points of a 2D box
+\ingroup assign
+\note The order is crucial. Most logical is LOWER, UPPER and sub-order LEFT, RIGHT
+    so this is how it is implemented.
+\tparam Box \tparam_box
+\tparam Point \tparam_point
+\param box \param_box
+\param lower_left point being assigned to lower left coordinates of the box
+\param lower_right point being assigned to lower right coordinates of the box
+\param upper_left point being assigned to upper left coordinates of the box
+\param upper_right point being assigned to upper right coordinates of the box
+
+\qbk{
+[heading Example]
+[assign_box_corners] [assign_box_corners_output]
+}
 */
 template <typename Box, typename Point>
 inline void assign_box_corners(Box const& box,
@@ -491,10 +580,19 @@ inline void assign_box_corners(Box const& box,
 
 
 /*!
-    \brief Assign a box or segment with the value of a point
-    \ingroup assign
-    \tparam Index indicates which box-corner, min_corner (0) or max_corner (1)
-        or which point of segment (0/1)
+\brief Assign a box or segment with the value of a point
+\ingroup assign
+\tparam Index indicates which box-corner, min_corner (0) or max_corner (1)
+    or which point of segment (0/1)
+\tparam Point \tparam_point
+\tparam Geometry \tparam_box_or_segment
+\param point \param_point
+\param geometry \param_box_or_segment
+
+\qbk{
+[heading Example]
+[assign_point_to_index] [assign_point_to_index_output]
+}
 */
 template <std::size_t Index, typename Geometry, typename Point>
 inline void assign_point_to_index(Point const& point, Geometry& geometry)
@@ -510,10 +608,19 @@ inline void assign_point_to_index(Point const& point, Geometry& geometry)
 
 
 /*!
-    \brief Assign a point with a point of a box or segment
-    \ingroup assign
-    \tparam Index indicates which box-corner, min_corner (0) or max_corner (1)
-        or which point of segment (0/1)
+\brief Assign a point with a point of a box or segment
+\ingroup assign
+\tparam Index indicates which box-corner, min_corner (0) or max_corner (1)
+    or which point of segment (0/1)
+\tparam Geometry \tparam_box_or_segment
+\tparam Point \tparam_point
+\param geometry \param_box_or_segment
+\param point \param_point
+
+\qbk{
+[heading Example]
+[assign_point_from_index] [assign_point_from_index_output]
+}
 */
 template <std::size_t Index, typename Point, typename Geometry>
 inline void assign_point_from_index(Geometry const& geometry, Point& point)

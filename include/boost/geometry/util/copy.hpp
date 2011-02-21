@@ -9,6 +9,14 @@
 #ifndef BOOST_GEOMETRY_UTIL_COPY_HPP
 #define BOOST_GEOMETRY_UTIL_COPY_HPP
 
+#if defined(BOOST_MSVC_FULL_VER)
+#pragma message ("copy_coordinates is deprecated. Use 'convert'")
+#else
+#warning "copy_coordinates is deprecated. Use 'convert'"
+#endif
+
+
+
 #include <cstddef>
 
 #include <boost/concept/requires.hpp>
@@ -50,15 +58,8 @@ struct copy_coordinates<Src, Dst, N, N>
 #endif // DOXYGEN_NO_DETAIL
 
 
-/*!
-    \brief Copies coordinates from source to destination point
-    \ingroup assign
-    \details The function copy_coordinates copies coordinates from one point to another point.
-    Source point and destination point might be of different types.
-    \param source Source point
-    \param dest Destination point
-    \note If destination type differs from source type, they must have the same coordinate count
- */
+// Deprecated!
+// This is the same as "convert", but this is specific to point, convert is more generic
 template <typename Src, typename Dst>
 inline void copy_coordinates(Src const& source, Dst& dest)
 {

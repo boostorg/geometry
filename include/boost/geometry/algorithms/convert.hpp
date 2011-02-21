@@ -18,6 +18,7 @@
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -80,7 +81,7 @@ namespace dispatch
 template
 <
     typename Tag1, typename Tag2,
-    std::size_t Dimensions,
+    std::size_t DimensionCount,
     typename Geometry1, typename Geometry2
 >
 struct convert
@@ -91,10 +92,10 @@ struct convert
 template
 <
     typename Tag,
-    std::size_t Dimensions,
+    std::size_t DimensionCount,
     typename Geometry1, typename Geometry2
 >
-struct convert<Tag, Tag, Dimensions, Geometry1, Geometry2>
+struct convert<Tag, Tag, DimensionCount, Geometry1, Geometry2>
 {
     // Same geometry type -> copy coordinates from G1 to G2
     // Actually: we try now to just copy it
@@ -104,22 +105,19 @@ struct convert<Tag, Tag, Dimensions, Geometry1, Geometry2>
     }
 };
 
+
 template
 <
-    std::size_t Dimensions,
+    std::size_t DimensionCount,
     typename Geometry1, typename Geometry2
 >
-struct convert<point_tag, point_tag, Dimensions, Geometry1, Geometry2>
-{
-    static inline void apply(Geometry1 const& source, Geometry2& destination)
-    {
-        geometry::copy_coordinates(source, destination);
-    }
-};
+struct convert<point_tag, point_tag, DimensionCount, Geometry1, Geometry2>
+    : detail::convert::point_to_point<Geometry1, Geometry2, 0, DimensionCount>
+{};
 
 
-template <std::size_t Dimensions, typename Ring1, typename Ring2>
-struct convert<ring_tag, ring_tag, Dimensions, Ring1, Ring2>
+template <std::size_t DimensionCount, typename Ring1, typename Ring2>
+struct convert<ring_tag, ring_tag, DimensionCount, Ring1, Ring2>
 {
     static inline void apply(Ring1 const& source, Ring2& destination)
     {
@@ -178,40 +176,40 @@ struct convert<box_tag, polygon_tag, 2, Box, Polygon>
 };
 
 
-template <typename Point, std::size_t Dimensions, typename Box>
-struct convert<point_tag, box_tag, Dimensions, Point, Box>
+template <typename Point, std::size_t DimensionCount, typename Box>
+struct convert<point_tag, box_tag, DimensionCount, Point, Box>
 {
     static inline void apply(Point const& point, Box& box)
     {
         detail::convert::point_to_box
             <
-                Point, Box, min_corner, 0, Dimensions
+                Point, Box, min_corner, 0, DimensionCount
             >::apply(point, box);
         detail::convert::point_to_box
             <
-                Point, Box, max_corner, 0, Dimensions
+                Point, Box, max_corner, 0, DimensionCount
             >::apply(point, box);
     }
 };
 
 
-template <typename Ring, std::size_t Dimensions, typename Polygon>
-struct convert<ring_tag, polygon_tag, Dimensions, Ring, Polygon>
+template <typename Ring, std::size_t DimensionCount, typename Polygon>
+struct convert<ring_tag, polygon_tag, DimensionCount, Ring, Polygon>
 {
     static inline void apply(Ring const& ring, Polygon& polygon)
     {
         typedef typename ring_type<Polygon>::type ring_type;
         convert
             <
-                ring_tag, ring_tag, Dimensions,
+                ring_tag, ring_tag, DimensionCount,
                 Ring, ring_type
             >::apply(ring, exterior_ring(polygon));
     }
 };
 
 
-template <typename Polygon, std::size_t Dimensions, typename Ring>
-struct convert<polygon_tag, ring_tag, Dimensions, Polygon, Ring>
+template <typename Polygon, std::size_t DimensionCount, typename Ring>
+struct convert<polygon_tag, ring_tag, DimensionCount, Polygon, Ring>
 {
     static inline void apply(Polygon const& polygon, Ring& ring)
     {
@@ -219,7 +217,7 @@ struct convert<polygon_tag, ring_tag, Dimensions, Polygon, Ring>
 
         convert
             <
-                ring_tag, ring_tag, Dimensions,
+                ring_tag, ring_tag, DimensionCount,
                 ring_type, Ring
             >::apply(exterior_ring(polygon), ring);
     }

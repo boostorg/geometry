@@ -23,13 +23,14 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/segment_returning_iterator.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/util/copy.hpp>
+
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
 
@@ -77,7 +78,7 @@ struct centroid_point
     static inline void apply(Point const& point, PointCentroid& centroid,
             Strategy const&)
     {
-        copy_coordinates(point, centroid);
+        geometry::convert(point, centroid);
     }
 };
 
@@ -157,7 +158,7 @@ inline bool range_ok(Range const& range, Point& centroid)
     else // if (n == 1)
     {
         // Take over the first point in a "coordinate neutral way"
-        copy_coordinates(*boost::begin(range), centroid);
+        geometry::convert(*boost::begin(range), centroid);
         return false;
     }
     return true;

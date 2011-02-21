@@ -13,9 +13,10 @@
 
 #include <boost/concept/assert.hpp>
 
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
-#include <boost/geometry/util/copy.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -51,8 +52,8 @@ public:
     */
     inline box(Point const& min_corner, Point const& max_corner)
     {
-        copy_coordinates(min_corner, m_min_corner);
-        copy_coordinates(max_corner, m_max_corner);
+        geometry::convert(min_corner, m_min_corner);
+        geometry::convert(max_corner, m_max_corner);
     }
 
     inline Point const& min_corner() const { return m_min_corner; }

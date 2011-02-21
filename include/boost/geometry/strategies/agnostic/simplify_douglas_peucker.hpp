@@ -16,8 +16,9 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
-#include <boost/geometry/util/copy.hpp>
+
 
 
 //#define GL_DEBUG_DOUGLAS_PEUCKER
@@ -203,7 +204,7 @@ public :
             {
                 // copy-coordinates does not work because OutputIterator
                 // does not model Point (??)
-                //geometry::copy_coordinates(it->p, *out);
+                //geometry::convert(it->p, *out);
                 *out = it->p;
                 out++;
             }

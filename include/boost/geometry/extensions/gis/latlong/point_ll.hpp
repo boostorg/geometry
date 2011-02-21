@@ -18,7 +18,6 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/util/copy.hpp>
 
 #include <boost/geometry/extensions/gis/latlong/detail/graticule.hpp>
 

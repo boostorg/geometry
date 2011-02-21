@@ -13,7 +13,8 @@
 
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
-#include <boost/geometry/util/copy.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
+
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
@@ -180,8 +181,8 @@ OutputIterator clip_range_with_box(Box const& b, Range const& range,
             ++previous, ++vertex)
     {
         point_type p1, p2;
-        copy_coordinates(*previous, p1);
-        copy_coordinates(*vertex, p2);
+        geometry::convert(*previous, p1);
+        geometry::convert(*vertex, p2);
 
         // Clip the segment. Five situations:
         // 1. Segment is invisible, finish line if any (shouldn't occur)
