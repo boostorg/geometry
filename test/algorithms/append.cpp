@@ -26,22 +26,44 @@
 
 
 template <typename G>
-void test_geometry()
+void test_geometry(bool check = true)
 {
     G geometry;
     typedef typename bg::point_type<G>::type P;
 
     bg::append(geometry, bg::make_zero<P>());
-    BOOST_CHECK_EQUAL(bg::num_points(geometry), 1u);
+    if (check)
+    {
+        BOOST_CHECK_EQUAL(bg::num_points(geometry), 1u);
+    }
+
+    // Append a range
+    std::vector<P> v;
+    v.push_back(bg::make_zero<P>());
+    v.push_back(bg::make_zero<P>());
+    bg::append(geometry, v);
+
+    if (check)
+    {
+        BOOST_CHECK_EQUAL(bg::num_points(geometry), 3u);
+    }
 
     bg::clear(geometry);
-    BOOST_CHECK_EQUAL(bg::num_points(geometry), 0u);
+
+    if (check)
+    {
+        BOOST_CHECK_EQUAL(bg::num_points(geometry), 0u);
+    }
+
     //P p = boost::range::front(geometry);
 }
 
 template <typename P>
 void test_all()
 {
+    test_geometry<P>(false);
+    test_geometry<bg::model::box<P> >(false);
+    test_geometry<bg::model::segment<P> >(false);
     test_geometry<bg::model::linestring<P> >();
     test_geometry<bg::model::ring<P> >();
     test_geometry<bg::model::polygon<P> >();
@@ -50,7 +72,7 @@ void test_all()
     test_geometry<std::deque<P> >();
     //test_geometry<std::list<P> >();
 
-    test_geometry<test::wrapped_boost_array<P, 2> >();
+    test_geometry<test::wrapped_boost_array<P, 3> >();
 }
 
 int test_main(int, char* [])
