@@ -113,12 +113,12 @@ struct assign_zero_point
 };
 
 
-template <typename Box>
-struct assign_inverse_box
+template <typename BoxOrSegment>
+struct assign_inverse_box_or_segment
 {
-    typedef typename point_type<Box>::type point_type;
+    typedef typename point_type<BoxOrSegment>::type point_type;
 
-    static inline void apply(Box& box)
+    static inline void apply(BoxOrSegment& geometry)
     {
         typedef typename coordinate_type<point_type>::type coordinate_type;
 
@@ -131,33 +131,33 @@ struct assign_inverse_box
 
         initialize
             <
-                Box, min_corner, 0, dimension<Box>::type::value
+                BoxOrSegment, 0, 0, dimension<BoxOrSegment>::type::value
             >::apply(
-            box, boost::numeric::bounds<bound_type>::highest());
+            geometry, boost::numeric::bounds<bound_type>::highest());
         initialize
             <
-                Box, max_corner, 0, dimension<Box>::type::value
+                BoxOrSegment, 1, 0, dimension<BoxOrSegment>::type::value
             >::apply(
-            box, boost::numeric::bounds<bound_type>::lowest());
+            geometry, boost::numeric::bounds<bound_type>::lowest());
     }
 };
 
 
-template <typename Box>
-struct assign_zero_box
+template <typename BoxOrSegment>
+struct assign_zero_box_or_segment
 {
-    static inline void apply(Box& box)
+    static inline void apply(BoxOrSegment& geometry)
     {
-        typedef typename coordinate_type<Box>::type coordinate_type;
+        typedef typename coordinate_type<BoxOrSegment>::type coordinate_type;
 
         initialize
             <
-                Box, min_corner, 0, dimension<Box>::type::value
-            >::apply(box, coordinate_type());
+                BoxOrSegment, 0, 0, dimension<BoxOrSegment>::type::value
+            >::apply(geometry, coordinate_type());
         initialize
             <
-                Box, max_corner, 0, dimension<Box>::type::value
-            >::apply(box, coordinate_type());
+                BoxOrSegment, 1, 0, dimension<BoxOrSegment>::type::value
+            >::apply(geometry, coordinate_type());
     }
 };
 
@@ -354,7 +354,12 @@ struct assign_zero<point_tag, Point>
 
 template <typename Box>
 struct assign_zero<box_tag, Box>
-    : detail::assign::assign_zero_box<Box>
+    : detail::assign::assign_zero_box_or_segment<Box>
+{};
+
+template <typename Segment>
+struct assign_zero<segment_tag, Segment>
+    : detail::assign::assign_zero_box_or_segment<Segment>
 {};
 
 
@@ -363,7 +368,12 @@ struct assign_inverse {};
 
 template <typename Box>
 struct assign_inverse<box_tag, Box>
-    : detail::assign::assign_inverse_box<Box>
+    : detail::assign::assign_inverse_box_or_segment<Box>
+{};
+
+template <typename Segment>
+struct assign_inverse<segment_tag, Segment>
+    : detail::assign::assign_inverse_box_or_segment<Segment>
 {};
 
 
@@ -474,11 +484,14 @@ inline void assign(Geometry& geometry,
 
 \qbk{distinguish, with a range}
 \qbk{
+[heading Notes]
+[note Assign automatically clears the geometry before assigning (use append if you don't want that)]
 [heading Example]
 [assign_with_range] [assign_with_range_output]
 
 [heading See also]
 \* [link geometry.reference.algorithms.make.make_1_with_a_range make]
+\* [link geometry.reference.algorithms.append.append append]
 }
  */
 template <typename Geometry, typename Range>
@@ -577,6 +590,20 @@ inline void assign_box_corners(Box const& box,
             <max_corner, max_corner>(box, upper_right);
 }
 
+template <bool Reverse, typename Box, typename Range>
+inline void assign_box_corners_oriented(Box const& box, Range& corners)
+{
+    if (Reverse)
+    {
+        // make counterclockwise ll,lr,ur,ul
+        assign_box_corners(box, corners[0], corners[1], corners[3], corners[2]);
+    }
+    else
+    {
+        // make clockwise ll,ul,ur,lr
+        assign_box_corners(box, corners[0], corners[3], corners[1], corners[2]);
+    }
+}
 
 
 /*!

@@ -102,7 +102,7 @@ struct copy_segment_point_polygon
 };
 
 
-template <typename Box, typename SegmentIdentifier, typename PointOut>
+template <typename Box, bool Reverse, typename SegmentIdentifier, typename PointOut>
 struct copy_segment_point_box
 {
     static inline bool apply(Box const& box,
@@ -115,16 +115,9 @@ struct copy_segment_point_box
             index++;
         }
 
-        PointOut ll, lr, ul, ur;
-        assign_box_corners(box, ll, lr, ul, ur);
-        switch(index)
-        {
-            case 1 : point = ul; break;
-            case 2 : point = ur; break;
-            case 3 : point = lr; break;
-            default : // 0,4 or 'overflow'
-                point = ll; break;
-        }
+        boost::array<typename point_type<Box>::type, 4> bp;
+        assign_box_corners_oriented<Reverse>(box, bp);
+        point = bp[index % 4];
         return true;
     }
 };
@@ -189,7 +182,7 @@ template <typename Box, bool Reverse, typename SegmentIdentifier, typename Point
 struct copy_segment_point<box_tag, Box, Reverse, SegmentIdentifier, PointOut>
     : detail::copy_segments::copy_segment_point_box
         <
-            Box, SegmentIdentifier, PointOut
+            Box, Reverse, SegmentIdentifier, PointOut
         >
 {};
 

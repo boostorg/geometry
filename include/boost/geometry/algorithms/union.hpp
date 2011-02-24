@@ -241,6 +241,8 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
 \param geometry2 \param_geometry
 \param output_collection the output collection
 \note Called union_ because union is a reserved word.
+
+\qbk{[include ref/algorithms/union.qbk]}
 */
 template
 <

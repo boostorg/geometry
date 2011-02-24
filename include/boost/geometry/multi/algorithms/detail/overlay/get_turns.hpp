@@ -29,9 +29,8 @@ namespace detail { namespace get_turns
 
 template
 <
-    typename Multi,
-    bool Reverse,
-    typename Box,
+    typename Multi, typename Box,
+    bool Reverse, bool ReverseBox,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -56,8 +55,8 @@ struct get_turns_multi_polygon_cs
             // Call its single version
             get_turns_polygon_cs
                 <
-                    typename boost::range_value<Multi>::type, Reverse,
-                    Box,
+                    typename boost::range_value<Multi>::type, Box,
+                    Reverse, ReverseBox,
                     Turns, TurnPolicy, InterruptPolicy
                 >::apply(source_id1, *it, source_id2, box,
                             turns, interrupt_policy, i);
@@ -93,8 +92,8 @@ struct get_turns
     >
     : detail::get_turns::get_turns_multi_polygon_cs
         <
-            MultiPolygon, ReverseMultiPolygon,
-            Box,
+            MultiPolygon, Box, 
+            ReverseMultiPolygon, ReverseBox,
             Turns,
             TurnPolicy, InterruptPolicy
         >

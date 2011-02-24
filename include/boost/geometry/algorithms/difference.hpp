@@ -26,6 +26,8 @@ namespace boost { namespace geometry
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param output_collection the output collection
+
+\qbk{[include ref/algorithms/difference.qbk]}
 */
 template
 <
@@ -49,7 +51,6 @@ inline void difference(Geometry1 const& geometry1,
             Geometry2,
             typename geometry::point_type<geometry_out>::type
         > strategy;
-
 
     detail::intersection::inserter<geometry_out, false, true, false, overlay_difference>(
             geometry1, geometry2, 
