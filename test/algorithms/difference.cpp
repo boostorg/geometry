@@ -14,16 +14,16 @@
 #include <string>
 #include <iomanip>
 
-#include <algorithms/test_difference.hpp>
-#include <algorithms/test_overlay.hpp>
-#include <algorithms/overlay/overlay_cases.hpp>
-#include <multi/algorithms/overlay/multi_overlay_cases.hpp>
-
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
+
+#include <algorithms/test_difference.hpp>
+#include <algorithms/test_overlay.hpp>
+#include <algorithms/overlay/overlay_cases.hpp>
+#include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 
 
 #ifdef HAVE_TTMATH
