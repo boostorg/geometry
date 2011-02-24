@@ -17,13 +17,13 @@
 #include <test_common/test_point.hpp>
 
 
-template <typename L>
-void check_linestring_2d(const L& line)
+template <typename Linestring>
+void check_linestring_2d(Linestring const& line)
 {
     BOOST_CHECK((boost::size(line) == 3));
     BOOST_CHECK((bg::num_points(line) == 3));
 
-    typedef typename bg::point_type<L>::type point_type;
+    typedef typename bg::point_type<Linestring>::type point_type;
     point_type const& p0 = line[0];
     BOOST_CHECK(bg::get<0>(p0) == 1);
     BOOST_CHECK(bg::get<1>(p0) == 2);
@@ -37,10 +37,10 @@ void check_linestring_2d(const L& line)
     BOOST_CHECK(bg::get<1>(p2) == 6);
 }
 
-template <typename P>
+template <typename Point>
 void test_assign_linestring_2d()
 {
-    bg::model::linestring<P> line;
+    bg::model::linestring<Point> line;
 
     // Test assignment of plain array (note that this is only possible if adapted c-array is included!
     const double coors[3][2] = { {1, 2}, {3, 4}, {5, 6} };
@@ -48,7 +48,7 @@ void test_assign_linestring_2d()
     check_linestring_2d(line);
 
     // Test assignment of point array
-    P points[3];
+    Point points[3];
     bg::assign(points[0], 1, 2);
     bg::assign(points[1], 3, 4);
     bg::assign(points[2], 5, 6);
@@ -64,36 +64,50 @@ void test_assign_linestring_2d()
     check_linestring_2d(line);
 }
 
-template <typename P>
-void test_assign_box_2d()
+namespace detail
 {
+    template <typename BoxOrSegment>
+    void test_assign_box_or_segment_2d()
+    {
+        BoxOrSegment geometry;
+        bg::assign(geometry, 1, 2, 3, 4);
+        BOOST_CHECK((bg::get<bg::min_corner, 0>(geometry) == 1));
+        BOOST_CHECK((bg::get<bg::min_corner, 1>(geometry) == 2));
+        BOOST_CHECK((bg::get<bg::max_corner, 0>(geometry) == 3));
+        BOOST_CHECK((bg::get<bg::max_corner, 1>(geometry) == 4));
 
-    typedef bg::model::box<P> B;
-    B b;
-    bg::assign(b, 1, 2, 3, 4);
-    BOOST_CHECK((bg::get<bg::min_corner, 0>(b) == 1));
-    BOOST_CHECK((bg::get<bg::min_corner, 1>(b) == 2));
-    BOOST_CHECK((bg::get<bg::max_corner, 0>(b) == 3));
-    BOOST_CHECK((bg::get<bg::max_corner, 1>(b) == 4));
+        bg::assign_zero(geometry);
+        BOOST_CHECK((bg::get<bg::min_corner, 0>(geometry) == 0));
+        BOOST_CHECK((bg::get<bg::min_corner, 1>(geometry) == 0));
+        BOOST_CHECK((bg::get<bg::max_corner, 0>(geometry) == 0));
+        BOOST_CHECK((bg::get<bg::max_corner, 1>(geometry) == 0));
 
-    bg::assign_zero(b);
-    BOOST_CHECK((bg::get<bg::min_corner, 0>(b) == 0));
-    BOOST_CHECK((bg::get<bg::min_corner, 1>(b) == 0));
-    BOOST_CHECK((bg::get<bg::max_corner, 0>(b) == 0));
-    BOOST_CHECK((bg::get<bg::max_corner, 1>(b) == 0));
-
-    bg::assign_inverse(b);
-    BOOST_CHECK((bg::get<bg::min_corner, 0>(b) > 9999));
-    BOOST_CHECK((bg::get<bg::min_corner, 1>(b) > 9999));
-    BOOST_CHECK((bg::get<bg::max_corner, 0>(b) < 9999));
-    BOOST_CHECK((bg::get<bg::max_corner, 1>(b) < 9999));
-
+        bg::assign_inverse(geometry);
+        BOOST_CHECK((bg::get<bg::min_corner, 0>(geometry) > 9999));
+        BOOST_CHECK((bg::get<bg::min_corner, 1>(geometry) > 9999));
+        BOOST_CHECK((bg::get<bg::max_corner, 0>(geometry) < 9999));
+        BOOST_CHECK((bg::get<bg::max_corner, 1>(geometry) < 9999));
+    }
 }
 
-template <typename P>
+template <typename Point>
+void test_assign_box_or_segment_2d()
+{
+    detail::test_assign_box_or_segment_2d<bg::model::box<Point> >();
+    detail::test_assign_box_or_segment_2d<bg::model::segment<Point> >();
+}
+
+template <typename Point>
+void test_assign_box_2d()
+{
+    detail::test_assign_box_or_segment_2d<bg::model::box<Point> >();
+}
+
+
+template <typename Point>
 void test_assign_point_3d()
 {
-    P p;
+    Point p;
     bg::assign(p, 1, 2, 3);
     BOOST_CHECK(bg::get<0>(p) == 1);
     BOOST_CHECK(bg::get<1>(p) == 2);
@@ -111,10 +125,10 @@ void test_assign_point_3d()
 
 }
 
-template <typename P>
+template <typename Point>
 void test_assign_point_2d()
 {
-    P p;
+    Point p;
     bg::assign(p, 1, 2);
     BOOST_CHECK(bg::get<0>(p) == 1);
     BOOST_CHECK(bg::get<1>(p) == 2);
@@ -145,12 +159,14 @@ int test_main(int, char* [])
     test_assign_point_2d<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_assign_point_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
+    // Segment (currently) cannot handle array's because derived from std::pair
     test_assign_box_2d<int[2]>();
     test_assign_box_2d<float[2]>();
     test_assign_box_2d<double[2]>();
-    test_assign_box_2d<bg::model::point<int, 2, bg::cs::cartesian> >();
-    test_assign_box_2d<bg::model::point<float, 2, bg::cs::cartesian> >();
-    test_assign_box_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
+
+    test_assign_box_or_segment_2d<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_assign_box_or_segment_2d<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_assign_box_or_segment_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     test_assign_linestring_2d<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_assign_linestring_2d<bg::model::point<float, 2, bg::cs::cartesian> >();

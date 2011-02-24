@@ -16,12 +16,18 @@
 
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/sym_difference.hpp>
+#include <boost/geometry/multi/algorithms/difference.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+
+
+#include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
@@ -49,11 +55,11 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     if (sym)
     {
-        bg::sym_difference<OutputType>(g1, g2, clip);
+        bg::sym_difference(g1, g2, clip);
     }
     else
     {
-        bg::difference<OutputType>(g1, g2, clip);
+        bg::difference(g1, g2, clip);
     }
 
     double area = 0;
@@ -153,6 +159,9 @@ void test_one(std::string const& caseid,
 
     G2 g2;
     bg::read_wkt(wkt2, g2);
+
+    bg::correct(g1);
+    bg::correct(g2);
 
     test_difference<OutputType, void>(caseid + "_a", g1, g2,
         expected_count1, expected_point_count1,

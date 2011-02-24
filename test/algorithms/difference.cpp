@@ -17,9 +17,11 @@
 #include <algorithms/test_difference.hpp>
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
+#include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
+#include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
 
@@ -32,7 +34,9 @@
 template <typename P>
 void test_all()
 {
+    typedef bg::model::box<P> box;
     typedef bg::model::polygon<P> polygon;
+    typedef bg::model::ring<P> ring;
 
     test_one<polygon, polygon, polygon>(
             "star_ring", example_star, example_ring,
@@ -92,6 +96,61 @@ void test_all()
             "case5", case_5[0], case_5[1],
             8, 22, 2.43452380952381,
             7, 27, 3.18452380952381);
+
+    // Other combi's
+    {
+        test_one<polygon, polygon, ring>(
+                "star_ring_ring", example_star, example_ring,
+                5, 22, 1.1901714, 5, 27, 1.6701714);
+
+        test_one<polygon, ring, polygon>(
+                "ring_star_ring", example_ring, example_star, 
+                5, 22, 1.6701714, 5, 27, 1.1901714);
+
+        static std::string const clip = "POLYGON((2.5 0.5,5.5 2.5))";
+
+        test_one<polygon, box, ring>("star_box", 
+            clip, example_star,
+            4, 11, 2.833333, 4, 11, 0.833333);
+
+        test_one<polygon, ring, box>("box_star", 
+            example_star, clip, 
+            4, 11, 0.833333, 4, 11, 2.833333);
+    }
+
+    // Counter clockwise
+    {
+        typedef bg::model::polygon<P, false> polygon_ccw;
+        test_one<polygon, polygon_ccw, polygon_ccw>(
+                "star_ring_ccw", example_star, example_ring,
+                5, 22, 1.1901714, 5, 27, 1.6701714);
+        test_one<polygon, polygon, polygon_ccw>(
+                "star_ring_ccw1", example_star, example_ring,
+                5, 22, 1.1901714, 5, 27, 1.6701714);
+        test_one<polygon, polygon_ccw, polygon>(
+                "star_ring_ccw2", example_star, example_ring,
+                5, 22, 1.1901714, 5, 27, 1.6701714);
+    }
+
+
+
+    // Multi
+    {
+        typedef bg::model::multi_polygon<polygon> mp;
+
+        test_one<polygon, mp, mp>("simplex_multi",
+            case_multi_simplex[0], case_multi_simplex[1],
+            5, 12, 5.58, 4, 12, 2.58);
+
+        static std::string const clip = "POLYGON((2 2,4 4))";
+
+        test_one<polygon, box, mp>("simplex_multi_box_mp", 
+            clip, case_multi_simplex[0],
+            3, 11, 4.53333, 3, 11, 8.53333);
+        test_one<polygon, mp, box>("simplex_multi_mp_box", 
+            case_multi_simplex[0], clip, 
+            3, 11, 8.53333, 3, 11, 4.53333);
+    }
 
     /***
     Experimental (cut), does not work: 
