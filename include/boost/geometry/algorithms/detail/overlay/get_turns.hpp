@@ -523,9 +523,8 @@ public:
 // Get turns for a range with a box, following Cohen-Sutherland (cs) approach
 template
 <
-    typename Range,
-    bool Reverse,
-    typename Box,
+    typename Range, typename Box,
+    bool ReverseRange, bool ReverseBox,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -545,7 +544,7 @@ struct get_turns_cs
     typedef typename reversible_view
         <
             cview_type const,
-            Reverse ? iterate_reverse : iterate_forward
+            ReverseRange ? iterate_reverse : iterate_forward
         >::type view_type;
 
     typedef typename boost::range_iterator
@@ -566,12 +565,8 @@ struct get_turns_cs
             return;
         }
 
-        // Box-points in clockwise order ll, ul, ur, lr
         boost::array<box_point_type,4> bp;
-
-        // Points are retrieved by "assign_box_order" in order ll, lr, ul, ur,
-        // so make them clockwise here
-        assign_box_corners(box, bp[0], bp[3], bp[1], bp[2]);
+        assign_box_corners_oriented<ReverseBox>(box, bp);
 
         cview_type cview(range);
         view_type view(cview);
@@ -696,8 +691,8 @@ private:
 
 template
 <
-    typename Polygon, bool Reverse,
-    typename Box,
+    typename Polygon, typename Box,
+    bool Reverse, bool ReverseBox,
     typename Turns,
     typename TurnPolicy,
     typename InterruptPolicy
@@ -714,8 +709,8 @@ struct get_turns_polygon_cs
 
         typedef detail::get_turns::get_turns_cs
             <
-                ring_type, Reverse,
-                Box,
+                ring_type, Box,
+                Reverse, ReverseBox,
                 Turns,
                 TurnPolicy,
                 InterruptPolicy
@@ -791,8 +786,8 @@ struct get_turns
         InterruptPolicy
     > : detail::get_turns::get_turns_polygon_cs
             <
-                Polygon, ReversePolygon,
-                Box,
+                Polygon, Box,
+                ReversePolygon, ReverseBox,
                 Turns, TurnPolicy, InterruptPolicy
             >
 {};
@@ -816,7 +811,7 @@ struct get_turns
         InterruptPolicy
     > : detail::get_turns::get_turns_cs
             <
-                Ring, ReverseRing, Box,
+                Ring, Box, ReverseRing, ReverseBox, 
                 Turns, TurnPolicy, InterruptPolicy
             >
 

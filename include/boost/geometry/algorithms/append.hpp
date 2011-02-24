@@ -31,6 +31,15 @@ namespace detail { namespace append
 {
 
 template <typename Geometry, typename Point>
+struct append_no_action
+{
+    static inline void apply(Geometry& geometry, Point const& point,
+                int = 0, int = 0)
+    {
+    }
+};
+
+template <typename Geometry, typename Point>
 struct append_point
 {
     static inline void apply(Geometry& geometry, Point const& point,
@@ -114,32 +123,67 @@ struct range_to_polygon
 namespace dispatch
 {
 
-// (RoP = range or point = use std library)
+namespace splitted_dispatch
+{
 
-// Default case (where RoP will be range/array/etc)
-template <typename Tag, typename TagRoP, typename G, typename RoP>
-struct append : detail::append::append_range<G, RoP> {};
+template <typename Tag, typename Geometry, typename Point>
+struct append_point
+    : detail::append::append_no_action<Geometry, Point> 
+{};
 
-// Append a point to any geometry
-template <typename Tag, typename G, typename P>
-struct append<Tag, point_tag, G, P>
-    : detail::append::append_point<G, P> {};
+template <typename Geometry, typename Point>
+struct append_point<linestring_tag, Geometry, Point>
+    : detail::append::append_point<Geometry, Point> 
+{};
 
-// Never possible to append anything to a point/box/n-sphere
-template <typename TagRoP, typename Point, typename RoP>
-struct append<point_tag, TagRoP, Point, RoP> {};
+template <typename Geometry, typename Point>
+struct append_point<ring_tag, Geometry, Point>
+    : detail::append::append_point<Geometry, Point> 
+{};
 
-template <typename TagRoP, typename Box, typename RoP>
-struct append<box_tag, TagRoP, Box, RoP> {};
-
-
-template <typename Polygon, typename TagRange, typename Range>
-struct append<polygon_tag, TagRange, Polygon, Range>
-        : detail::append::range_to_polygon<Polygon, Range> {};
 
 template <typename Polygon, typename Point>
-struct append<polygon_tag, point_tag, Polygon, Point>
-        : detail::append::point_to_polygon<Polygon, Point> {};
+struct append_point<polygon_tag, Polygon, Point>
+        : detail::append::point_to_polygon<Polygon, Point> 
+{};
+
+
+template <typename Tag, typename Geometry, typename Range>
+struct append_range
+    : detail::append::append_no_action<Geometry, Range> 
+{};
+
+template <typename Geometry, typename Range>
+struct append_range<linestring_tag, Geometry, Range>
+    : detail::append::append_range<Geometry, Range> 
+{};
+
+template <typename Geometry, typename Range>
+struct append_range<ring_tag, Geometry, Range>
+    : detail::append::append_range<Geometry, Range> 
+{};
+
+
+template <typename Polygon, typename Range>
+struct append_range<polygon_tag, Polygon, Range>
+        : detail::append::range_to_polygon<Polygon, Range> 
+{};
+
+}
+
+
+// Default: append a range (or linestring or ring or whatever) to any geometry
+template <typename TagRangeOrPoint, typename Geometry, typename RangeOrPoint>
+struct append 
+    : splitted_dispatch::append_range<typename tag<Geometry>::type, Geometry, RangeOrPoint> 
+{};
+
+// Specialization for point to append a point to any geometry
+template <typename Geometry, typename RangeOrPoint>
+struct append<point_tag, Geometry, RangeOrPoint> 
+    : splitted_dispatch::append_point<typename tag<Geometry>::type, Geometry, RangeOrPoint> 
+{};
+
 
 
 } // namespace dispatch
@@ -147,26 +191,30 @@ struct append<polygon_tag, point_tag, Polygon, Point>
 
 
 /*!
-    \brief Appends one or more points to a linestring, ring, polygon, multi
-    \ingroup append
-    \param geometry a geometry
-    \param range_or_point the point or range to add
-    \param ring_index the index of the ring in case of a polygon:
-        exterior ring (-1, the default) or  interior ring index
-    \param multi_index reserved for multi polygons
+\brief Appends one or more points to a linestring, ring, polygon, multi-geometry
+\ingroup append
+\tparam Geometry \tparam_geometry
+\tparam RangeOrPoint Either a range or a point, fullfilling Boost.Range concept or Boost.Geometry Point Concept
+\param geometry \param_geometry
+\param range_or_point The point or range to add
+\param ring_index The index of the ring in case of a polygon:
+    exterior ring (-1, the default) or  interior ring index
+\param multi_index Reserved for multi polygons or multi linestrings
+
+\qbk{[include ref/algorithms/append.qbk]}
+}
  */
-template <typename Geometry, typename RoP>
-inline void append(Geometry& geometry, RoP const& range_or_point,
+template <typename Geometry, typename RangeOrPoint>
+inline void append(Geometry& geometry, RangeOrPoint const& range_or_point,
             int ring_index = -1, int multi_index = 0)
 {
     concept::check<Geometry>();
 
     dispatch::append
         <
-            typename tag<Geometry>::type,
-            typename tag<RoP>::type,
+            typename tag<RangeOrPoint>::type,
             Geometry,
-            RoP
+            RangeOrPoint
         >::apply(geometry, range_or_point, ring_index, multi_index);
 }
 

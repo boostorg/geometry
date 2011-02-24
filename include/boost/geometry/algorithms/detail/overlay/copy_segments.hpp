@@ -38,7 +38,13 @@ namespace detail { namespace copy_segments
 {
 
 
-template <typename Ring, bool Reverse, typename SegmentIdentifier, typename RangeOut>
+template 
+<
+    typename Ring, 
+    bool Reverse, 
+    typename SegmentIdentifier, 
+    typename RangeOut
+>
 struct copy_segments_ring
 {
     typedef typename closeable_view
@@ -98,7 +104,13 @@ struct copy_segments_ring
 };
 
 
-template <typename Polygon, bool Reverse, typename SegmentIdentifier, typename RangeOut>
+template
+<
+    typename Polygon, 
+    bool Reverse, 
+    typename SegmentIdentifier, 
+    typename RangeOut
+>
 struct copy_segments_polygon
 {
     static inline void apply(Polygon const& polygon,
@@ -127,6 +139,7 @@ struct copy_segments_polygon
 template
 <
     typename Box,
+    bool Reverse,
     typename SegmentIdentifier,
     typename RangeOut
 >
@@ -145,9 +158,7 @@ struct copy_segments_box
 
         // Create array of points, the fifth one closes it
         boost::array<typename point_type<Box>::type, 5> bp;
-
-        // Points are retrieved by "assign_box_order" in order ll, lr, ul, ur
-        assign_box_corners(box, bp[0], bp[3], bp[1], bp[2]);
+        assign_box_corners_oriented<Reverse>(box, bp);
         bp[4] = bp[0];
 
         // (possibly cyclic) copy to output
@@ -226,7 +237,7 @@ template
 struct copy_segments<box_tag, Box, Reverse, SegmentIdentifier, RangeOut>
     : detail::copy_segments::copy_segments_box
         <
-            Box, SegmentIdentifier, RangeOut
+            Box, Reverse, SegmentIdentifier, RangeOut
         >
 {};
 

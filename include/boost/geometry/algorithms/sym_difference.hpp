@@ -28,6 +28,8 @@ namespace boost { namespace geometry
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param output_collection the output collection
+
+\qbk{[include ref/algorithms/sym_difference.qbk]}
 */
 template
 <

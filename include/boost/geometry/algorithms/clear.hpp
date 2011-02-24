@@ -123,10 +123,10 @@ struct clear<polygon_tag, Polygon>
 
 
 /*!
-    \brief Clears a linestring, linear ring or polygon (exterior+interiors) or multi*
-    \details Generic function to clear a geometry
-    \ingroup clear
-    \note points and boxes cannot be cleared, instead they can be set to zero by "assign_zero"
+\brief Clears a linestring, linear ring or polygon (exterior+interiors) or multi*
+\details Generic function to clear a geometry
+\ingroup clear
+\note points and boxes cannot be cleared, instead they can be set to zero by "assign_zero"
 */
 template <typename Geometry>
 inline void clear(Geometry& geometry)
