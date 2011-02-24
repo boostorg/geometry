@@ -27,7 +27,7 @@ void sym_difference(Geometry1 const & geometry1, Geometry2 const & geometry2, Co
 [[Type] [Concept] [Name] [Description] ]
 [[Geometry1 const &] [Any type fulfilling a Geometry Concept ] [geometry1] [A model of the specified concept ]]
 [[Geometry2 const &] [Any type fulfilling a Geometry Concept ] [geometry2] [A model of the specified concept ]]
-[[Collection &] [output collection, either a multi-geometry, or a std::vector<Geometry> / std::deque<Geometry> etc ] [output_collection] [the output collection ]]
+[[Collection &] [output collection, either a multi-geometry, or a std::vector<Geometry> / std::deque<Geometry> etc ] [output_collection] [the output collection]]
 ]
 
 
@@ -39,6 +39,8 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/sym_difference.hpp>`
+
+[include ref/algorithms/sym_difference.qbk]
 
 
 [endsect]

@@ -40,6 +40,8 @@ Or
 
 `#include <boost/geometry/algorithms/union.hpp>`
 
+[include ref/algorithms/union.qbk]
+
 
 [endsect]
 

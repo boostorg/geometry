@@ -39,11 +39,14 @@ Or
 
 `#include <boost/geometry/algorithms/assign.hpp>`
 
+[heading Notes]
+[note Assign automatically clears the geometry before assigning (use append if you don't want that)]
 [heading Example]
 [assign_with_range] [assign_with_range_output]
 
 [heading See also]
 * [link geometry.reference.algorithms.make.make_1_with_a_range make]
+* [link geometry.reference.algorithms.append.append append]
 
 
 [endsect]

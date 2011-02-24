@@ -18,3 +18,11 @@
 [[[qbk_out __polygon__]][Calculates intersection polygons input (multi)polygons and/or boxes]]
 ]
 
+[heading Example]
+[intersection]
+[intersection_output]
+
+[heading See also]
+* [link geometry.reference.algorithms.union.union_ union]
+* [link geometry.reference.algorithms.difference.difference difference]
+* [link geometry.reference.algorithms.sym_difference.sym_difference sym_difference (symmetric difference)]

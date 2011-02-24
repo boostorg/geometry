@@ -2,25 +2,28 @@
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
   Copyright (c) 2009-2011 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2011 Mateusz Loskot (mateusz@loskot.net)
+  Copyright (c) 2009-2011 Bruno Lalande, Paris, France.
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[note If you host both the std:: library namespace and boost::geometry:: namespace set might become ambiguous, std::set is a collection. So don't do that or refer to geometry::set then explicitly.]
-
 [heading Behavior]
 [table
 [[Case] [Behavior] ]
-[[__point__][Sets the coordinate of a point]]
-[[Circle or Sphere][Sets the coordinate of the center of a circle or sphere (currently in an extension)]]
-[[__sph__][Sets the coordinate of a point, in either Radian's or Degree's, depending on specified units]]
+[[__2dim__][All combinations of: box, ring, polygon, multi_polygon]]
+[[__other__][Not supported]]
+
 ]
 
-[heading Complexity]
-Constant
-
 [heading Example]
-[set_point]
-[set_point_output]
+[sym_difference]
+[sym_difference_output]
+
+[heading See also]
+* [link geometry.reference.algorithms.difference.difference difference]
+* [link geometry.reference.algorithms.intersection.intersection intersection]
+* [link geometry.reference.algorithms.union.union_ union]
+
