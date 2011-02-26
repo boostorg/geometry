@@ -219,7 +219,11 @@ struct correct<box_tag, Box>
 
 template <typename Ring>
 struct correct<ring_tag, Ring>
-    : detail::correct::correct_ring<Ring, std::less<double> >
+    : detail::correct::correct_ring
+        <
+            Ring, 
+            std::less<typename coordinate_type<Ring>::type> 
+        >
 {};
 
 template <typename Polygon>
