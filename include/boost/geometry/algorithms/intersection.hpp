@@ -210,7 +210,7 @@ inline bool intersection(Geometry1 const& geometry1,
         > strategy;
 
 
-        return boost::mpl::if_c
+    return boost::mpl::if_c
         <
             geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::intersection_reversed

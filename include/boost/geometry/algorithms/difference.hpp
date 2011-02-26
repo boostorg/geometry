@@ -17,8 +17,91 @@ namespace boost { namespace geometry
 
 
 /*!
+\brief_calc2{difference} \brief_strategy
+\ingroup difference
+\details \details_calc2{difference_inserter, spatial set theoretic difference}
+    \brief_strategy. details_inserter{difference}
+\tparam GeometryOut output geometry type, must be specified
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam OutputIterator output iterator
+\tparam Strategy \tparam_strategy_overlay
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param out \param_out{difference}
+\param strategy \param_strategy{difference}
+\return \return_out
+
+\qbk{distinguish,with strategy}
+*/
+template
+<
+    typename GeometryOut,
+    typename Geometry1,
+    typename Geometry2,
+    typename OutputIterator,
+    typename Strategy
+>
+inline OutputIterator difference_inserter(Geometry1 const& geometry1,
+            Geometry2 const& geometry2, OutputIterator out,
+            Strategy const& strategy)
+{
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
+    concept::check<GeometryOut>();
+
+    return detail::intersection::inserter<GeometryOut, false, true, false, overlay_difference>(
+            geometry1, geometry2,
+            out,
+            strategy);
+}
+
+/*!
 \brief_calc2{difference}
 \ingroup difference
+\details \details_calc2{difference_inserter, spatial set theoretic difference}.
+    details_inserter{difference}
+\tparam GeometryOut output geometry type, must be specified
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam OutputIterator output iterator
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param out \param_out{difference}
+\return \return_out
+
+*/
+template
+<
+    typename GeometryOut,
+    typename Geometry1,
+    typename Geometry2,
+    typename OutputIterator
+>
+inline OutputIterator difference_inserter(Geometry1 const& geometry1,
+            Geometry2 const& geometry2, OutputIterator out)
+{
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
+    concept::check<GeometryOut>();
+
+    typedef strategy_intersection
+        <
+            typename cs_tag<GeometryOut>::type,
+            Geometry1,
+            Geometry2,
+            typename geometry::point_type<GeometryOut>::type
+        > strategy;
+
+    return difference_inserter<GeometryOut>(geometry1, geometry2,
+            out, strategy());
+}
+
+
+/*!
+\brief_calc2{difference}
+\ingroup difference
+\details \details_calc2{difference, spatial set theoretic difference}.
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \tparam Collection output collection, either a multi-geometry,
@@ -44,19 +127,12 @@ inline void difference(Geometry1 const& geometry1,
     typedef typename boost::range_value<Collection>::type geometry_out;
     concept::check<geometry_out>();
 
-    typedef strategy_intersection
-        <
-            typename cs_tag<geometry_out>::type,
-            Geometry1,
-            Geometry2,
-            typename geometry::point_type<geometry_out>::type
-        > strategy;
-
-    detail::intersection::inserter<geometry_out, false, true, false, overlay_difference>(
-            geometry1, geometry2, 
-            std::back_inserter(output_collection),
-            strategy());
+    difference_inserter<geometry_out>(
+            geometry1, geometry2,
+            std::back_inserter(output_collection));
 }
+
+
 
 
 }} // namespace boost::geometry

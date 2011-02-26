@@ -401,11 +401,11 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \tparam OutputIterator \tparam_out{\p_l_or_c}
-\tparam Strategy Compound strategy for intersection
+\tparam Strategy \tparam_strategy_overlay
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param out \param_out{intersection}
-\param strategy The strategy
+\param strategy \param_strategy{intersection}
 \return \return_out
 
 \qbk{distinguish,with strategy}
@@ -435,7 +435,8 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 /*!
 \brief \brief_calc2{intersection}
 \ingroup intersection
-\details \details_calc2{intersection_inserter, spatial set theoretic intersection}. \details_inserter{intersection}
+\details \details_calc2{intersection_inserter, spatial set theoretic intersection}.
+    \details_inserter{intersection}
 \tparam GeometryOut \tparam_geometry{\p_l_or_c}
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry

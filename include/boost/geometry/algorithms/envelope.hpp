@@ -217,6 +217,12 @@ Example showing envelope calculation, using point_ll latlong points
 \skip example_envelope_polygon
 \line {
 \until }
+
+
+\qbk{
+[heading Example]
+[envelope] [envelope_output]
+}
 */
 template<typename Geometry, typename Box>
 inline void envelope(Geometry const& geometry, Box& mbr)
@@ -241,6 +247,11 @@ inline void envelope(Geometry const& geometry, Box& mbr)
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \return \return_calc{envelope}
+
+\qbk{
+[heading Example]
+[make_envelope] [make_envelope_output]
+}
 */
 template<typename Box, typename Geometry>
 inline Box make_envelope(Geometry const& geometry)
