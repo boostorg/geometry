@@ -64,6 +64,12 @@ namespace ttmath
         return ATan(v);
     }
 
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> acos(Big<Exponent, Mantissa> const& v)
+    {
+        return ACos(v);
+    }
+
 
     template <uint Exponent, uint Mantissa>
     inline Big<Exponent, Mantissa> atan2(Big<Exponent, Mantissa> const& y, Big<Exponent, Mantissa> const& x)

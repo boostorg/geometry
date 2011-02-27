@@ -20,7 +20,7 @@ namespace boost { namespace geometry
 \brief_calc2{difference} \brief_strategy
 \ingroup difference
 \details \details_calc2{difference_inserter, spatial set theoretic difference}
-    \brief_strategy. details_inserter{difference}
+    \brief_strategy. \details_inserter{difference}
 \tparam GeometryOut output geometry type, must be specified
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -60,7 +60,7 @@ inline OutputIterator difference_inserter(Geometry1 const& geometry1,
 \brief_calc2{difference}
 \ingroup difference
 \details \details_calc2{difference_inserter, spatial set theoretic difference}.
-    details_inserter{difference}
+    \details_inserter{difference}
 \tparam GeometryOut output geometry type, must be specified
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -70,11 +70,7 @@ inline OutputIterator difference_inserter(Geometry1 const& geometry1,
 \param out \param_out{difference}
 \return \return_out
 
-\qbk{[include reference/algorithms/difference.qbk]}
-\qbk{
-[heading Example]
-[difference] [difference_output]
-}
+\qbk{[include reference/algorithms/difference_inserter.qbk]}
 */
 template
 <
@@ -109,17 +105,12 @@ inline OutputIterator difference_inserter(Geometry1 const& geometry1,
 \details \details_calc2{difference, spatial set theoretic difference}.
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\tparam Collection output collection, either a multi-geometry,
-    or a std::vector<Geometry> / std::deque<Geometry> etc
+\tparam Collection \tparam_output_collection
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param output_collection the output collection
 
 \qbk{[include reference/algorithms/difference.qbk]}
-\qbk{
-[heading Example]
-[difference_inserter] [difference_inserter_output]
-}
 */
 template
 <
@@ -140,8 +131,6 @@ inline void difference(Geometry1 const& geometry1,
             geometry1, geometry2,
             std::back_inserter(output_collection));
 }
-
-
 
 
 }} // namespace boost::geometry

@@ -22,7 +22,7 @@ namespace boost { namespace geometry
 \brief \brief_calc2{symmetric difference}  \brief_strategy
 \ingroup sym_difference
 \details \details_calc2{symmetric difference, spatial set theoretic symmetric difference (XOR)}
-    \brief_strategy. details_inserter{sym_difference}
+    \brief_strategy. \details_inserter{sym_difference}
 \tparam GeometryOut output geometry type, must be specified
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry

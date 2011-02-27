@@ -41,7 +41,8 @@ template
 >
 struct transform_coordinates
 {
-    static inline void transform(Src const& source, Dst& dest, double value)
+    template <typename T>
+    static inline void transform(Src const& source, Dst& dest, T value)
     {
         typedef typename select_coordinate_type<Src, Dst>::type coordinate_type;
 
@@ -59,7 +60,8 @@ template
 >
 struct transform_coordinates<Src, Dst, N, N, F>
 {
-    static inline void transform(Src const& source, Dst& dest, double value)
+    template <typename T>
+    static inline void transform(Src const& source, Dst& dest, T value)
     {
     }
 };
@@ -147,22 +149,31 @@ namespace detail
 {
 
     /// Helper function for conversion, phi/theta are in radians
-    template <typename P>
-    inline void spherical_to_cartesian(double phi, double theta, double r, P& p)
+    template <typename P, typename T, typename R>
+    inline void spherical_to_cartesian(T phi, T theta, R r, P& p)
     {
         assert_dimension<P, 3>();
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_spherical_coordinates
         // Phi = first, theta is second, r is third, see documentation on cs::spherical
-        double const sin_theta = sin(theta);
-        set<0>(p, r * sin_theta * cos(phi));
-        set<1>(p, r * sin_theta * sin(phi));
-        set<2>(p, r * cos(theta));
+
+        // (calculations are splitted to implement ttmath)
+
+        T r_sin_theta = r;
+        r_sin_theta *= sin(theta);
+
+        set<0>(p, r_sin_theta * cos(phi));
+        set<1>(p, r_sin_theta * sin(phi));
+
+        T r_cos_theta = r;
+        r_cos_theta *= cos(theta);
+
+        set<2>(p, r_cos_theta);
     }
 
     /// Helper function for conversion
-    template <typename P>
-    inline bool cartesian_to_spherical2(double x, double y, double z, P& p)
+    template <typename P, typename T>
+    inline bool cartesian_to_spherical2(T x, T y, T z, P& p)
     {
         assert_dimension<P, 2>();
 
@@ -170,10 +181,10 @@ namespace detail
 
 #if defined(BOOST_GEOMETRY_TRANSFORM_CHECK_UNIT_SPHERE)
         // TODO: MAYBE ONLY IF TO BE CHECKED?
-        double const r = /*sqrt not necessary, sqrt(1)=1*/ (x * x + y * y + z * z);
+        T const r = /*sqrt not necessary, sqrt(1)=1*/ (x * x + y * y + z * z);
 
         // Unit sphere, so r should be 1
-        if (geometry::math::abs(r - 1.0) > double(1e-6))
+        if (geometry::math::abs(r - 1.0) > T(1e-6))
         {
             return false;
         }
@@ -185,13 +196,13 @@ namespace detail
         return true;
     }
 
-    template <typename P>
-    inline bool cartesian_to_spherical3(double x, double y, double z, P& p)
+    template <typename P, typename T>
+    inline bool cartesian_to_spherical3(T x, T y, T z, P& p)
     {
         assert_dimension<P, 3>();
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_Cartesian_coordinates
-        double const r = sqrt(x * x + y * y + z * z);
+        T const r = sqrt(x * x + y * y + z * z);
         set<2>(p, r);
         set_from_radian<0>(p, atan2(y, x));
         if (r > 0.0)
