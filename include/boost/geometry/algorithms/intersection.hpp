@@ -186,7 +186,7 @@ struct intersection_reversed
 \param geometry_out The output geometry, either a multi_point, multi_polygon,
     multi_linestring, or a box (for intersection of two boxes)
 
-\qbk{[include ref/algorithms/intersection.qbk]}
+\qbk{[include reference/algorithms/intersection.qbk]}
 */
 template
 <

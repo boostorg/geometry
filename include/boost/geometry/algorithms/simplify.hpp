@@ -293,7 +293,7 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 \param max_distance distance (in units of input coordinates) of a vertex
     to other segments to be removed
 
-\qbk{[include ref/algorithms/simplify.qbk]}
+\qbk{[include reference/algorithms/simplify.qbk]}
  */
 template<typename Geometry, typename Distance>
 inline void simplify(Geometry const& geometry, Geometry& out,
@@ -329,7 +329,7 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     might include point-distance strategy
 
 \qbk{distinguish,with strategy}
-\qbk{[include ref/algorithms/simplify.qbk]}
+\qbk{[include reference/algorithms/simplify.qbk]}
 */
 template<typename Geometry, typename OutputIterator, typename Distance, typename Strategy>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
@@ -355,7 +355,7 @@ inline void simplify_inserter(Geometry const& geometry, OutputIterator out,
 \param max_distance distance (in units of input coordinates) of a vertex
     to other segments to be removed
 
-\qbk{[include ref/algorithms/simplify_inserter.qbk]}
+\qbk{[include reference/algorithms/simplify_inserter.qbk]}
  */
 template<typename Geometry, typename OutputIterator, typename Distance>
 inline void simplify_inserter(Geometry const& geometry, OutputIterator out,

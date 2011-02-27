@@ -185,7 +185,7 @@ struct signature_getset_index_dimension {};
 \param geometry \param_geometry (usually a point)
 \param dummy \qbk_skip
 \return The coordinate value of specified dimension of specified geometry
-\qbk{[include ref/core/get_point.qbk]}
+\qbk{[include reference/core/get_point.qbk]}
 */
 template <std::size_t Dimension, typename Geometry>
 inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
@@ -219,7 +219,7 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 \param dummy \qbk_skip
 \ingroup set
 
-\qbk{[include ref/core/set_point.qbk]}
+\qbk{[include reference/core/set_point.qbk]}
 */
 template <std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
@@ -255,7 +255,7 @@ inline void set(Geometry& geometry
 \ingroup get
 
 \qbk{distinguish,with index}
-\qbk{[include ref/core/get_box.qbk]}
+\qbk{[include reference/core/get_box.qbk]}
 */
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
@@ -291,7 +291,7 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
 \ingroup set
 
 \qbk{distinguish,with index}
-\qbk{[include ref/core/set_box.qbk]}
+\qbk{[include reference/core/set_box.qbk]}
 */
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry

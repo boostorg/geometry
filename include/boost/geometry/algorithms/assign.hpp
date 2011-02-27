@@ -518,7 +518,7 @@ collect the minimum bounding box of a geometry.
 [assign_inverse] [assign_inverse_output]
 
 [heading See also]
-\* [link geometry.reference.algorithms.make.make_inverse make]
+\* [link geometry.reference.algorithms.make.make_inverse make_inverse]
 }
  */
 template <typename Geometry>

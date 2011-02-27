@@ -111,7 +111,7 @@ inline OutputIterator sym_difference_inserter(Geometry1 const& geometry1,
 \param geometry2 \param_geometry
 \param output_collection the output collection
 
-\qbk{[include ref/algorithms/sym_difference.qbk]}
+\qbk{[include reference/algorithms/sym_difference.qbk]}
 */
 template
 <

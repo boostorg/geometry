@@ -378,7 +378,7 @@ struct centroid<polygon_tag, Polygon, Point, Strategy>
 \param strategy \param_strategy{centroid}
 
 \qbk{distinguish,with strategy}
-\qbk{[include ref/algorithms/centroid.qbk]}
+\qbk{[include reference/algorithms/centroid.qbk]}
 
 \qbk{
 [heading Available Strategies]
@@ -417,7 +417,7 @@ inline void centroid(Geometry const& geometry, Point& c,
 \param geometry \param_geometry
 \param c the calculated centroid will be assigned to this point reference
 
-\qbk{[include ref/algorithms/centroid.qbk]}
+\qbk{[include reference/algorithms/centroid.qbk]}
  */
 template<typename Geometry, typename Point>
 inline void centroid(Geometry const& geometry, Point& c)
@@ -445,7 +445,7 @@ inline void centroid(Geometry const& geometry, Point& c)
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \return \return_calc{centroid}
-\qbk{[include ref/algorithms/centroid.qbk]}
+\qbk{[include reference/algorithms/centroid.qbk]}
  */
 template<typename Point, typename Geometry>
 inline Point make_centroid(Geometry const& geometry)
@@ -469,7 +469,7 @@ inline Point make_centroid(Geometry const& geometry)
 \return \return_calc{centroid}
 
 \qbk{distinguish,with strategy}
-\qbk{[include ref/algorithms/centroid.qbk]}
+\qbk{[include reference/algorithms/centroid.qbk]}
 
 \qbk{
 [heading Available Strategies]

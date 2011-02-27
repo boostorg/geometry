@@ -60,7 +60,7 @@
 \param Field0 \param_macro_member{\macro_x}
 \param Field1 \param_macro_member{\macro_y}
 
-\qbk{[include ref/geometries/register/point.qbk]}
+\qbk{[include reference/geometries/register/point.qbk]}
 */
 #define BOOST_GEOMETRY_REGISTER_POINT_2D(Point, CoordinateType, CoordinateSystem, Field0, Field1) \
 namespace boost { namespace geometry { namespace traits {  \

@@ -78,7 +78,7 @@ struct perimeter<polygon_tag, Polygon, Strategy>
 \param geometry \param_geometry
 \return \return_calc{perimeter}
 
-\qbk{[include ref/algorithms/perimeter.qbk]}
+\qbk{[include reference/algorithms/perimeter.qbk]}
  */
 template<typename Geometry>
 inline typename length_result<Geometry>::type perimeter(
@@ -112,7 +112,7 @@ inline typename length_result<Geometry>::type perimeter(
 \return \return_calc{perimeter}
 
 \qbk{distinguish,with strategy}
-\qbk{[include ref/algorithms/perimeter.qbk]}
+\qbk{[include reference/algorithms/perimeter.qbk]}
  */
 template<typename Geometry, typename Strategy>
 inline typename length_result<Geometry>::type perimeter(

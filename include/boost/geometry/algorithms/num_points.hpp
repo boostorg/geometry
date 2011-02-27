@@ -147,7 +147,7 @@ struct num_points<polygon_tag, Geometry>
 \param add_for_open add one for open geometries (i.e. polygon types which are not closed)
 \return \return_calc{number of points}
 
-\qbk{[include ref/algorithms/num_points.qbk]}
+\qbk{[include reference/algorithms/num_points.qbk]}
 */
 template <typename Geometry>
 inline std::size_t num_points(Geometry const& geometry, bool add_for_open = false)

@@ -19,7 +19,7 @@ namespace boost { namespace geometry
 /*!
 \brief Construct a geometry
 \ingroup make
-\details 
+\details
 \note It does not work with array-point types, like int[2]
 \tparam Geometry \tparam_geometry
 \tparam Type \tparam_numeric to specify the coordinates
@@ -144,7 +144,7 @@ inline Geometry make(Range const& range)
 [make_inverse] [make_inverse_output]
 
 [heading See also]
-\* [link geometry.reference.algorithms.assign.assign_inverse assign]
+\* [link geometry.reference.algorithms.assign.assign_inverse assign_inverse]
 }
  */
 template <typename Geometry>

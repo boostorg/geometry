@@ -137,7 +137,7 @@ struct length<segment_tag, Geometry, Strategy>
 \param geometry \param_geometry
 \return \return_calc{length}
 
-\qbk{[include ref/algorithms/length.qbk]}
+\qbk{[include reference/algorithms/length.qbk]}
 \qbk{[length] [length_output]}
  */
 template<typename Geometry>
@@ -171,7 +171,7 @@ inline typename length_result<Geometry>::type length(
 \return \return_calc{length}
 
 \qbk{distinguish,with strategy}
-\qbk{[include ref/algorithms/length.qbk]}
+\qbk{[include reference/algorithms/length.qbk]}
 \qbk{[length_with_strategy] [length_with_strategy_output]}
  */
 template<typename Geometry, typename Strategy>
