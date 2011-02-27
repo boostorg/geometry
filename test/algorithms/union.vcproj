@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\union"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -40,6 +40,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/bigobj"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NONDLL;_CRT_SECURE_NO_WARNINGS;TEST_WITH_SVG"
@@ -94,7 +95,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\union"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

@@ -30,8 +30,8 @@ struct check_result<2>
     template <typename Point, typename T>
     static void apply(Point const& p, T const& x, T const& y, T const&)
     {
-        BOOST_CHECK_CLOSE(double(bg::get<0>(p)), double(x), 0.001);
-        BOOST_CHECK_CLOSE(double(bg::get<1>(p)), double(y), 0.001);
+        BOOST_CHECK_CLOSE(bg::get<0>(p), x, 0.001);
+        BOOST_CHECK_CLOSE(bg::get<1>(p), y, 0.001);
     }
 };
 
@@ -42,9 +42,9 @@ struct check_result<3>
     template <typename Point, typename T>
     static void apply(Point const& p, T const& x, T const& y, T const& z)
     {
-        BOOST_CHECK_CLOSE(double(bg::get<0>(p)), double(x), 0.001);
-        BOOST_CHECK_CLOSE(double(bg::get<1>(p)), double(y), 0.001);
-        BOOST_CHECK_CLOSE(double(bg::get<2>(p)), double(z), 0.001);
+        BOOST_CHECK_CLOSE(bg::get<0>(p), x, 0.001);
+        BOOST_CHECK_CLOSE(bg::get<1>(p), y, 0.001);
+        BOOST_CHECK_CLOSE(bg::get<2>(p), z, 0.001);
     }
 };
 

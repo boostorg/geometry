@@ -136,6 +136,8 @@ int test_main(int, char* [])
 
 #if defined(HAVE_TTMATH)
     test_3d<bg::model::point<ttmath_big, 3, bg::cs::cartesian> >();
+    test_spherical_degree<bg::model::point<ttmath_big, 2, bg::cs::spherical<bg::degree> > >();
+    test_spherical_radian<bg::model::point<ttmath_big, 2, bg::cs::spherical<bg::radian> > >();
 #endif
 
     return 0;

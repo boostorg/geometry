@@ -31,10 +31,10 @@ void test_all()
     box_type b;
     bg::convert(p, b);
 
-    BOOST_CHECK_CLOSE(double(bg::get<0, 0>(b)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(bg::get<0, 1>(b)), 2.0, 0.001);
-    BOOST_CHECK_CLOSE(double(bg::get<1, 0>(b)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(bg::get<1, 1>(b)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<0, 0>(b)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<0, 1>(b)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<1, 0>(b)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<1, 1>(b)), 2.0, 0.001);
 }
 
 template <typename P>
@@ -59,20 +59,20 @@ void test_std()
     //std::cout << bg::wkt(ring) << std::endl;
 
     typename boost::range_const_iterator<ring_type>::type it = ring.begin();
-    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
     it++;
-    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 4.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 4.0, 0.001);
     it++;
-    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 3.0, 0.001);
-    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 4.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 3.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 4.0, 0.001);
     it++;
-    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 3.0, 0.001);
-    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 3.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
     it++;
-    BOOST_CHECK_CLOSE(double(bg::get<0>(*it)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(double(bg::get<1>(*it)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
 
     BOOST_CHECK_EQUAL(ring.size(), 5u);
 
@@ -92,5 +92,8 @@ int test_main(int, char* [])
     test_std<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_std<bg::model::point<double, 2, bg::cs::cartesian> >();
 
+#ifdef HAVE_TTMATH
+    test_std<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
+#endif
     return 0;
 }

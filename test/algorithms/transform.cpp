@@ -23,7 +23,12 @@
 #include <test_common/test_point.hpp>
 
 template <typename P1, typename P2>
-void test_transform_point(double value)
+void test_transform_point(
+        typename bg::select_most_precise
+            <
+                typename bg::coordinate_type<P1>::type,
+                double
+            >::type value)
 {
     P1 p1;
     bg::set<0>(p1, 1);
@@ -31,8 +36,8 @@ void test_transform_point(double value)
     P2 p2;
     BOOST_CHECK(bg::transform(p1, p2));
 
-    BOOST_CHECK_CLOSE(value * bg::get<0>(p1), double(bg::get<0>(p2)), 0.001);
-    BOOST_CHECK_CLOSE(value * bg::get<1>(p1), double(bg::get<1>(p2)), 0.001);
+    BOOST_CHECK_CLOSE(value * bg::get<0>(p1), bg::get<0>(p2), 0.001);
+    BOOST_CHECK_CLOSE(value * bg::get<1>(p1), bg::get<1>(p2), 0.001);
 }
 
 template <typename P1, typename P2>
@@ -75,8 +80,8 @@ void test_transformations(double phi, double theta, double r)
         spherical_type sph2;
         BOOST_CHECK(transform(p, sph2));
 
-        BOOST_CHECK_CLOSE(double(bg::get<0>(sph1)), double(bg::get<0>(sph2)), 0.001);
-        BOOST_CHECK_CLOSE(double(bg::get<1>(sph1)), double(bg::get<1>(sph2)), 0.001);
+        BOOST_CHECK_CLOSE(bg::get<0>(sph1), bg::get<0>(sph2), 0.001);
+        BOOST_CHECK_CLOSE(bg::get<1>(sph1), bg::get<1>(sph2), 0.001);
 
         //std::cout << dsv(p) << std::endl;
         //std::cout << dsv(sph2) << std::endl;
@@ -90,8 +95,8 @@ void test_transformations(double phi, double theta, double r)
         BOOST_CHECK(transform(sph1, p));
         BOOST_CHECK(transform(p, sph2));
 
-        BOOST_CHECK_CLOSE(double(bg::get<0>(sph1)), double(bg::get<0>(sph2)), 0.001);
-        BOOST_CHECK_CLOSE(double(bg::get<1>(sph1)), double(bg::get<1>(sph2)), 0.001);
+        BOOST_CHECK_CLOSE(bg::get<0>(sph1), bg::get<0>(sph2), 0.001);
+        BOOST_CHECK_CLOSE(bg::get<1>(sph1), bg::get<1>(sph2), 0.001);
 
         //std::cout << dsv(sph1) << " " << dsv(p) << " " << dsv(sph2) << std::endl;
     }
@@ -116,6 +121,13 @@ int test_main(int, char* [])
 
     test_transformations<float, bg::radian>(3 * bg::math::d2r, 51 * bg::math::d2r, 1);
     test_transformations<double, bg::radian>(3 * bg::math::d2r, 51 * bg::math::d2r, 1);
+
+#if defined(HAVE_TTMATH)
+    typedef bg::model::d2::point_xy<ttmath_big > PT;
+    test_all<PT, PT>();
+    test_transformations<ttmath_big, bg::degree>(4, 52, 1);
+    test_transformations<ttmath_big, bg::radian>(3 * bg::math::d2r, 51 * bg::math::d2r, 1);
+#endif
 
     return 0;
 }

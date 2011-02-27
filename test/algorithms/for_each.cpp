@@ -70,5 +70,10 @@ void test_all()
 int test_main(int, char* [])
 {
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+
+#if defined(HAVE_TTMATH)
+    test_all<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
+#endif
+
     return 0;
 }

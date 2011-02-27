@@ -36,7 +36,7 @@ struct scale_y_functor
 template<typename Point>
 struct sum_x_functor
 {
-    int sum;
+    typename bg::coordinate_type<Point>::type sum;
 
     sum_x_functor()
         : sum(0)
@@ -44,7 +44,7 @@ struct sum_x_functor
 
     inline void operator()(Point const& p)
     {
-        sum += int(bg::get<0>(p));
+        sum += bg::get<0>(p);
     }
 };
 
@@ -60,7 +60,7 @@ inline void stream_segment(Segment const& s)
 template<typename Segment>
 struct sum_segment_length
 {
-    double sum;
+    typename bg::coordinate_type<Segment>::type sum;
 
     sum_segment_length()
         : sum(0)
@@ -156,7 +156,7 @@ void test_per_segment_const(Geometry const& geometry,
     sum_segment_length<bg::model::referring_segment<point_type const> > functor;
     functor = bg::for_each_segment(geometry, functor);
 
-    BOOST_CHECK_EQUAL(functor.sum, expected_length);
+    BOOST_CHECK_CLOSE(functor.sum, expected_length, 0.0001);
 }
 
 
