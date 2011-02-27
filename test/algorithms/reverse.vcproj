@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="reverse"
 	ProjectGUID="{14B5DFC5-D511-4D8C-A231-EE90A05687E1}"
 	RootNamespace="reverse"
@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\reverse"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -93,7 +93,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\reverse"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

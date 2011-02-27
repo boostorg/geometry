@@ -18,9 +18,10 @@
 
 
 template <typename Geometry>
-void test_area(Geometry const& geometry, long double expected_area)
+void test_area(Geometry const& geometry, 
+            typename bg::area_result<Geometry>::type expected_area)
 {
-    long double area = bg::area(geometry);
+    typename bg::area_result<Geometry>::type area = bg::area(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
@@ -46,7 +47,7 @@ void test_area(Geometry const& geometry, long double expected_area)
     bg::strategy::area::surveyor
         <
             typename bg::point_type<Geometry>::type,
-            long double
+            typename bg::coordinate_type<Geometry>::type
         > strategy2;
 
     area = bg::area(geometry, strategy2);
@@ -54,7 +55,8 @@ void test_area(Geometry const& geometry, long double expected_area)
 }
 
 template <typename Geometry>
-void test_geometry(std::string const& wkt, double expected_area)
+void test_geometry(std::string const& wkt, 
+            typename bg::area_result<Geometry>::type expected_area)
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);

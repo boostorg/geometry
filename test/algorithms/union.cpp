@@ -24,8 +24,11 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("star_ring", example_star, example_ring,
         1, 0, 23, 5.67017141);
 
+    // This sample was selected because of the border case, and ttmath generates one point more.
     test_one<Polygon, Polygon, Polygon>("star_poly", example_star, example_polygon,
-        1, 1, 27,  5.647949);
+        1, 1, 
+        boost::is_same<typename bg::coordinate_type<Ring>::type, ttmath_big>::value ? 28 : 27,  
+            5.647949);
 
     // Pseudo-box as Polygon
     // (note, internally, the intersection points is different, so yes,

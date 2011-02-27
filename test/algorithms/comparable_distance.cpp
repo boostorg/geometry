@@ -37,9 +37,9 @@ void test_distance_result()
     distance_type dr13 = bg::comparable_distance(p1, p3);
     distance_type dr23 = bg::comparable_distance(p2, p3);
 
-    BOOST_CHECK_CLOSE(double(dr12), 9.000, 0.001);
-    BOOST_CHECK_CLOSE(double(dr13), 16.000, 0.001);
-    BOOST_CHECK_CLOSE(double(dr23), 25.000, 0.001);
+    BOOST_CHECK_CLOSE(dr12, 9.000, 0.001);
+    BOOST_CHECK_CLOSE(dr13, 16.000, 0.001);
+    BOOST_CHECK_CLOSE(dr23, 25.000, 0.001);
 
 }
 
@@ -54,7 +54,7 @@ void test_distance_point()
     bg::set<0>(p2, 2);
     bg::set<1>(p2, 2);
 
-    double d = bg::comparable_distance(p1, p2);
+    typename bg::coordinate_type<P>::type d = bg::comparable_distance(p1, p2);
     BOOST_CHECK_CLOSE(d, 2.0, 0.001);
 }
 
@@ -75,15 +75,15 @@ void test_distance_segment()
 
     bg::model::referring_segment<P const> const seg(s1, s2);
 
-    double d1 = bg::comparable_distance(p1, seg); BOOST_CHECK_CLOSE(d1, 8.0, 0.001);
-    double d2 = bg::comparable_distance(p2, seg); BOOST_CHECK_CLOSE(d2, 2.0, 0.001);
-    double d3 = bg::comparable_distance(p3, seg); BOOST_CHECK_CLOSE(d3, 0.02, 0.001);
-    double d4 = bg::comparable_distance(p4, seg); BOOST_CHECK_CLOSE(d4, 0.02, 0.001);
-    double d5 = bg::comparable_distance(p5, seg); BOOST_CHECK_CLOSE(d5, 0.0, 0.001);
+    coordinate_type d1 = bg::comparable_distance(p1, seg); BOOST_CHECK_CLOSE(d1, 8.0, 0.001);
+    coordinate_type d2 = bg::comparable_distance(p2, seg); BOOST_CHECK_CLOSE(d2, 2.0, 0.001);
+    coordinate_type d3 = bg::comparable_distance(p3, seg); BOOST_CHECK_CLOSE(d3, 0.02, 0.001);
+    coordinate_type d4 = bg::comparable_distance(p4, seg); BOOST_CHECK_CLOSE(d4, 0.02, 0.001);
+    coordinate_type d5 = bg::comparable_distance(p5, seg); BOOST_CHECK_CLOSE(d5, 0.0, 0.001);
 
     // Reverse case
-    double dr1 = bg::comparable_distance(seg, p1); BOOST_CHECK_CLOSE(dr1, d1, 0.001);
-    double dr2 = bg::comparable_distance(seg, p2); BOOST_CHECK_CLOSE(dr2, d2, 0.001);
+    coordinate_type dr1 = bg::comparable_distance(seg, p1); BOOST_CHECK_CLOSE(dr1, d1, 0.001);
+    coordinate_type dr2 = bg::comparable_distance(seg, p2); BOOST_CHECK_CLOSE(dr2, d2, 0.001);
 }
 
 template <typename P>
@@ -95,7 +95,7 @@ void test_distance_linestring()
 
     P p = bg::make<P>(2, 1);
 
-    double d = bg::comparable_distance(p, points);
+    typename bg::coordinate_type<P>::type d = bg::comparable_distance(p, points);
     BOOST_CHECK_CLOSE(d, 0.70710678, 0.001);
 
     p = bg::make<P>(5, 5);
@@ -133,5 +133,8 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
 
+#ifdef HAVE_TTMATH
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
+#endif
     return 0;
 }

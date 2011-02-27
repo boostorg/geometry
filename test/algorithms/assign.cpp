@@ -172,6 +172,17 @@ int test_main(int, char* [])
     test_assign_linestring_2d<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_assign_linestring_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
+#ifdef HAVE_TTMATH
+    // Next 3 need extra traits for c-array with custom type:
+    // test_assign_point_2d<ttmath_big[2]>();
+    // test_assign_point_3d<ttmath_big[3]>();
+    // test_assign_box_2d<ttmath_big[2]>();
+
+    test_assign_point_2d<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
+    test_assign_point_3d<bg::model::point<ttmath_big, 3, bg::cs::cartesian> >();
+    test_assign_box_or_segment_2d<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
+    test_assign_linestring_2d<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
+#endif
 
     return 0;
 }

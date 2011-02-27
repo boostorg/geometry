@@ -62,6 +62,10 @@ void test_2d()
 
     test_centroid<bg::model::box<P> >("POLYGON((1 2,3 4))", 2, 3);
     test_centroid<P>("POINT(3 3)", 3, 3);
+
+    //test_centroid_exception<bg::model::linestring<P> >("LINESTRING EMPTY");
+///    test_centroid_exception<bg::model::polygon<P> >("POLYGON EMPTY");
+//    test_centroid_exception<bg::model::ring<P> >("POLYGON EMPTY");
 }
 
 

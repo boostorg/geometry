@@ -14,6 +14,8 @@
 #include <boost/foreach.hpp>
 #include <geometry_test_common.hpp>
 
+#include <boost/range/algorithm/copy.hpp>
+
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/sym_difference.hpp>
 #include <boost/geometry/multi/algorithms/difference.hpp>
@@ -62,7 +64,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         bg::difference(g1, g2, clip);
     }
 
-    double area = 0;
+    typename bg::area_result<G1>::type area = 0;
     std::size_t n = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end();
@@ -78,6 +80,25 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 
         area += bg::area(*it);
     }
+
+    {
+        // Test inserter functionality
+        // Test if inserter returns output-iterator (using Boost.Range copy)
+        std::vector<OutputType> inserted, array_with_one_empty_geometry;
+        array_with_one_empty_geometry.push_back(OutputType());
+        if (sym)
+        {
+            boost::copy(array_with_one_empty_geometry, bg::sym_difference_inserter<OutputType>(g1, g2, std::back_inserter(inserted)));
+        }
+        else
+        {
+            boost::copy(array_with_one_empty_geometry, bg::difference_inserter<OutputType>(g1, g2, std::back_inserter(inserted)));
+        }
+        
+        BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
+    }
+
+
 
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)

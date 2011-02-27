@@ -111,7 +111,7 @@ void test_distance(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             long double expected_distance)
 {
-    long double distance = bg::distance(geometry1, geometry2);
+    typename bg::distance_result<Geometry1>::type distance = bg::distance(geometry1, geometry2);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;

@@ -23,17 +23,17 @@ template <typename T, typename P>
 void test_point_2d()
 {
     P p = bg::make<P>((T) 123, (T) 456);
-    BOOST_CHECK_CLOSE( ((double) bg::get<0>(p)), (double) 123, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) bg::get<1>(p)), (double) 456, 1.0e-6);
+    BOOST_CHECK_CLOSE(bg::get<0>(p), 123.0, 1.0e-6);
+    BOOST_CHECK_CLOSE(bg::get<1>(p), 456.0, 1.0e-6);
 }
 
 template <typename T, typename P>
 void test_point_3d()
 {
     P p = bg::make<P>((T) 123, (T) 456, (T) 789);
-    BOOST_CHECK_CLOSE( ((double) bg::get<0>(p)), (double) 123, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) bg::get<1>(p)), (double) 456, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) bg::get<2>(p)), (double) 789, 1.0e-6);
+    BOOST_CHECK_CLOSE( bg::get<0>(p), 123.0, 1.0e-6);
+    BOOST_CHECK_CLOSE( bg::get<1>(p), 456.0, 1.0e-6);
+    BOOST_CHECK_CLOSE( bg::get<2>(p), 789.0, 1.0e-6);
 }
 
 template <typename T, typename P>
@@ -41,10 +41,10 @@ void test_box_2d()
 {
     typedef bg::model::box<P> B;
     B b = bg::make<B>((T) 123, (T) 456, (T) 789, (T) 1011);
-    BOOST_CHECK_CLOSE( ((double) bg::get<bg::min_corner, 0>(b)), (double) 123, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) bg::get<bg::min_corner, 1>(b)), (double) 456, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) bg::get<bg::max_corner, 0>(b)), (double) 789, 1.0e-6);
-    BOOST_CHECK_CLOSE( ((double) bg::get<bg::max_corner, 1>(b)), (double) 1011, 1.0e-6);
+    BOOST_CHECK_CLOSE( (bg::get<bg::min_corner, 0>(b)), 123.0, 1.0e-6);
+    BOOST_CHECK_CLOSE( (bg::get<bg::min_corner, 1>(b)), 456.0, 1.0e-6);
+    BOOST_CHECK_CLOSE( (bg::get<bg::max_corner, 0>(b)), 789.0, 1.0e-6);
+    BOOST_CHECK_CLOSE( (bg::get<bg::max_corner, 1>(b)), 1011.0, 1.0e-6);
 
     b = bg::make_inverse<B>();
 }
@@ -117,6 +117,12 @@ int test_main(int, char* [])
 
 
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
+
+#if defined(HAVE_TTMATH)
+    test_2d<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
+    test_3d<bg::model::point<ttmath_big, 3, bg::cs::cartesian> >();
+#endif
+
 
     return 0;
 }
