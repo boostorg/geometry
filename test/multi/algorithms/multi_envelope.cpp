@@ -54,5 +54,10 @@ int test_main( int , char* [] )
     test_3d<boost::tuple<float, float, float> >();
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
+#ifdef HAVE_TTMATH
+    test_2d<bg::model::d2::point_xy<ttmath_big> >();
+    test_2d<bg::model::point<ttmath_big, 3, bg::cs::cartesian> >();
+#endif
+
     return 0;
 }
