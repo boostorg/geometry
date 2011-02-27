@@ -15,7 +15,10 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+
+#if defined(_MSC_VER)
+#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+#endif
 
 
 int main()
@@ -26,16 +29,21 @@ int main()
     boost::geometry::model::d2::point_xy<double> p1;
     assign(p1, 1.2345, 2.3456);
 
+#if defined(_MSC_VER)
     boost::geometry::model::d2::point_xy<ttmath::Big<1,4> > p2;
     assign(p2, "1.2345", "2.3456"); /*< It is possible to assign coordinates with other types than the coordinate type.
         For ttmath, you can e.g. conveniently use strings. The advantage is that it then has higher precision, because
         if doubles are used for assignments the double-precision is used.
         >*/
+#endif
 
     std::cout
         << std::setprecision(20)
         << boost::geometry::dsv(p1) << std::endl
-        << boost::geometry::dsv(p2) << std::endl;
+#if defined(_MSC_VER)
+        << boost::geometry::dsv(p2) << std::endl
+#endif
+        ;
 
     return 0;
 }
