@@ -230,18 +230,22 @@ struct centroid_linestring
             typedef typename boost::range_iterator<Linestring const>::type point_iterator_type;
             typedef segment_returning_iterator<point_iterator_type, point_type> segment_iterator;
 
-            double length = double();
-            std::pair<double, double> average_sum;
+            typedef geometry::distance_result<Linestring>::type distance_type;
+            distance_type length = distance_type();
+            std::pair<distance_type, distance_type> average_sum;
 
             segment_iterator it(boost::begin(line), boost::end(line));
             segment_iterator end(boost::end(line));
             while (it != end)
             {
-                double const d = geometry::distance(it->first, it->second);
+
+                distance_type const d = geometry::distance(it->first, it->second);
                 length += d;
 
-                double const mx = (get<0>(it->first) + get<0>(it->second)) / 2;
-                double const my = (get<1>(it->first) + get<1>(it->second)) / 2;
+                distance_type two(2);
+
+                distance_type const mx = (get<0>(it->first) + get<0>(it->second)) / two;
+                distance_type const my = (get<1>(it->first) + get<1>(it->second)) / two;
                 average_sum.first += d * mx;
                 average_sum.second += d * my;
                 ++it;

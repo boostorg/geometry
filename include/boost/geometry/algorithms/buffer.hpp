@@ -58,7 +58,7 @@ inline void buffer_box(BoxIn const& box_in, T const& distance, BoxOut& box_out)
     static const std::size_t N = dimension<BoxIn>::value;
 
     box_loop<BoxIn, BoxOut, T, min_corner, 0, N>::apply(box_in, -distance, box_out);
-    box_loop<BoxIn, BoxOut, T, max_corner, 0, N>::apply(box_in, +distance, box_out);
+    box_loop<BoxIn, BoxOut, T, max_corner, 0, N>::apply(box_in, distance, box_out);
 }
 
 
