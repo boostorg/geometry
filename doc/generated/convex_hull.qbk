@@ -18,7 +18,7 @@
 Calculates the convex hull of a geometry. 
 
 [heading Description]
-The free function convex_hull calculates the convex hull of a geometry. 
+The free function convex\u005fhull calculates the convex hull of a geometry. 
 
 [heading Synopsis]
 ``template<typename Geometry1, typename Geometry2>

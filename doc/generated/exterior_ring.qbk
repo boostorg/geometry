@@ -46,7 +46,7 @@ Or
 
 [section:exterior_ring_1 exterior_ring]
 
-Function to get the exterior_ring ring of a polygon. 
+Function to get the exterior\u005fring ring of a polygon. 
 
 [heading Synopsis]
 ``template<typename Polygon, >

@@ -18,6 +18,45 @@
 #include <doxygen_elements.hpp>
 #include <parameter_predicates.hpp>
 
+std::string qbk_escaped(std::string const& s)
+{
+    // Replace _ by unicode to avoid accidental quickbook underlining.
+    // 1) do NOT do this in quickbook markup, so not within []
+    // (e.g. to avoid [include get_point.qbk] having unicoded)
+    // 2) \[ and \] should not count as []
+    std::size_t const len = s.length();
+    int counter = 0;
+    std::string result = "";
+    for (std::size_t i = 0; i < len; i++)
+    {
+        switch(s[i])
+        {
+            case '[' : counter++; break;
+            case ']' : counter--; break;
+            case '\\' : 
+                {
+                    result += s[i];
+                    if (i + 1 < len)
+                    {
+                        result += s[i + 1];
+                    }
+                    i++;
+                    continue;
+                }
+            case '_' : 
+                if (counter == 0)
+                {
+                    result += "\\u005f";
+                    continue;
+                }
+        }
+        result += s[i];
+    }
+
+    return result;
+}
+
+
 
 void quickbook_template_parameter_list(std::vector<parameter> const& parameters, std::ostream& out, bool name = false)
 {
@@ -195,7 +234,7 @@ void quickbook_string_with_heading_if_present(std::string const& heading,
     if (! contents.empty())
     {
         out << "[heading " << heading << "]" << std::endl
-            << contents << std::endl
+            << qbk_escaped(contents) << std::endl
             << std::endl;
     }
 }
@@ -276,7 +315,7 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
         << "]" << std::endl
         << std::endl;
 
-    out << f.brief_description << std::endl;
+    out << qbk_escaped(f.brief_description) << std::endl;
     out << std::endl;
 
     quickbook_string_with_heading_if_present("Description", f.detailed_description, out);

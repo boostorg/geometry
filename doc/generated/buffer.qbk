@@ -54,7 +54,7 @@ Or
 Calculates the buffer of a geometry. 
 
 [heading Description]
-The free function make_buffer calculates the buffer (a polygon being the spatial point set collection within a specified maximum distance from a geometry) of a geometry. This version with the make_ prefix returns the buffer, and a template parameter must therefore be specified in the call.. 
+The free function make\u005fbuffer calculates the buffer (a polygon being the spatial point set collection within a specified maximum distance from a geometry) of a geometry. This version with the make\u005f prefix returns the buffer, and a template parameter must therefore be specified in the call.. 
 
 [heading Synopsis]
 ``template<typename Output, typename Input, typename T, >

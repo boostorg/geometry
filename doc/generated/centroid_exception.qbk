@@ -18,7 +18,7 @@
 Centroid Exception. 
 
 [heading Description]
-The centroid_exception is thrown if the free centroid function is called with geometries for which the centroid cannot be calculated. For example: a linestring without points, a polygon without points, an empty multi-geometry.  
+The centroid\u005fexception is thrown if the free centroid function is called with geometries for which the centroid cannot be calculated. For example: a linestring without points, a polygon without points, an empty multi-geometry.  
 
 [heading Synopsis]
 ``class centroid_exception

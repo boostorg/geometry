@@ -18,7 +18,7 @@
 Class box: defines a box made of two describing points. 
 
 [heading Description]
-Box is always described by a min_corner() and a max_corner() point. If another rectangle is used, use linear_ring or polygon. 
+Box is always described by a min\u005fcorner() and a max\u005fcorner() point. If another rectangle is used, use linear\u005fring or polygon. 
 
 [heading Synopsis]
 ``template<typename Point>

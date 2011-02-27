@@ -135,7 +135,7 @@ Or
 Construct a box with inverse infinite coordinates. 
 
 [heading Description]
-The make_inverse function initializes a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small. This is useful e.g. in combination with the combine function, to determine the bounding box of a series of geometries. 
+The make\u005finverse function initializes a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small. This is useful e.g. in combination with the combine function, to determine the bounding box of a series of geometries. 
 
 [heading Synopsis]
 ``template<typename Geometry>
@@ -165,7 +165,7 @@ Or
 [make_inverse] [make_inverse_output]
 
 [heading See also]
-* [link geometry.reference.algorithms.assign.assign_inverse assign]
+* [link geometry.reference.algorithms.assign.assign_inverse assign_inverse]
 
 
 [endsect]
@@ -175,7 +175,7 @@ Or
 Construct a geometry with its coordinates initialized to zero. 
 
 [heading Description]
-The make_zero function initializes a 2D or 3D point or box with coordinates of zero 
+The make\u005fzero function initializes a 2D or 3D point or box with coordinates of zero 
 
 [heading Synopsis]
 ``template<typename Geometry>

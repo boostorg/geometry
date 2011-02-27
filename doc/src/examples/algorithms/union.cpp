@@ -18,7 +18,7 @@
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
 #include <boost/foreach.hpp>
-/*<-*/ #include "create_svg.hpp" /*->*/
+/*<-*/ #include "create_svg_overlay.hpp" /*->*/
 
 int main()
 {

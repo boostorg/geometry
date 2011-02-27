@@ -26,8 +26,10 @@ This is the fruit documentation (just a foo sample of the doxygen_xml2qbk doc to
 
 [import src/examples/apple_example.cpp]
 
-[include rose.qbk]
-[include apple.qbk]
-[include eat.qbk]
+[include generated/rose.qbk]
+[include generated/apple.qbk]
+[include generated/grouped.qbk]
+[include generated/fruit_type.qbk]
+[include generated/fruit_value.qbk]
 
 Hope you enjoyed your fruit

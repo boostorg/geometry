@@ -19,7 +19,7 @@ cmd = cmd + " --convenience_header_path ../../../boost/geometry/"
 cmd = cmd + " --convenience_headers geometry.hpp,geometries/geometries.hpp,multi/multi.hpp"
 cmd = cmd + " --skip_namespace boost::geometry::"
 cmd = cmd + " --copyright src/copyright_block.qbk"
-cmd = cmd + " > reference/%s.qbk"
+cmd = cmd + " > generated/%s.qbk"
 
 def call_doxygen():
     os.chdir("doxy");
@@ -70,7 +70,7 @@ coordinate_systems = ["cartesian", "geographic", "polar", "spherical"]
 
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
     , "dimension", "exception", "geometry_id", "interior_type"
-    , "is_areal", "is_linear", "is_multi", "is_radian", "point_order"
+    , "is_areal", "is_linear", "is_radian", "point_order"
     , "point_type", "ring_type", "tag", "topological_dimension" ]
 
 exceptions = ["exception", "centroid_exception"];

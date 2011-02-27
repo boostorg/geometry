@@ -6,11 +6,48 @@
 #include <string>
 
 /*!
-\defgroup eat eat: Eating function
+\defgroup fruit fruit: Fruit group
 */
 
 namespace fruit
 {
+
+/*!
+\brief Enumeration to select color
+\ingroup fruit
+*/
+enum fruit_color
+{
+    /// A yellow or yellowish color
+    yellow = 1,
+    /// A green or greeny color
+    green = 2,
+    /// An orange color
+    orange = 3
+};
+
+
+/*!
+\brief Any metafunction (with type)
+\ingroup fruit
+*/
+struct fruit_type
+{
+    /// the type
+    typedef int type;
+};
+
+/*!
+\brief Any metafunction (with value)
+\ingroup fruit
+*/
+struct fruit_value
+{
+    /// the value
+    static const fruit_color value = yellow;
+};
+
+
 
 /// Rose (Rosaceae)
 class rose {};
@@ -43,7 +80,7 @@ public :
 
 /*!
 \brief Eat it
-\ingroup eat
+\ingroup fruit
 \details Eat the fruit
 \param fruit the fruit
 \tparam T the fruit type

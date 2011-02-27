@@ -7,14 +7,14 @@
 //
 // Quickbook Example
 
-//[sym_difference
-//` Shows how to calculate the symmetric difference (XOR) of two polygons
+//[difference_inserter
+//` Shows how the difference_inserter function can be used
 
 #include <iostream>
+#include <vector>
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
 
 #include <boost/foreach.hpp>
@@ -33,47 +33,55 @@ int main()
     boost::geometry::read_wkt(
         "POLYGON((4.0 -0.5 , 3.5 1.0 , 2.0 1.5 , 3.5 2.0 , 4.0 3.5 , 4.5 2.0 , 6.0 1.5 , 4.5 1.0 , 4.0 -0.5))", blue);
 
-    boost::geometry::model::multi_polygon<polygon> multi;
+    std::vector<polygon> output;
 
-    boost::geometry::sym_difference(green, blue, multi);
+    // Note that this sample simulates the symmetric difference,
+    // which is also available as a separate algorithm.
+    // It chains the output iterator returned by the function to the second instance.
+    boost::geometry::difference_inserter<polygon>
+        (
+            green, blue,
+                boost::geometry::difference_inserter<polygon>
+                    (
+                        blue, green,
+                        std::back_inserter(output)
+                    )
+        );
 
-    std::cout
-        << "green XOR blue:" << std::endl
-        << "total: " << boost::geometry::area(multi) << std::endl;
+
     int i = 0;
-    BOOST_FOREACH(polygon const& p, multi)
+    std::cout << "(blue \ green) u (green \ blue):" << std::endl;
+    BOOST_FOREACH(polygon const& p, output)
     {
         std::cout << i++ << ": " << boost::geometry::area(p) << std::endl;
     }
 
-    /*<-*/ create_svg("sym_difference.svg", green, blue, multi); /*->*/
+    /*<-*/ create_svg("difference_inserter.svg", green, blue, output); /*->*/
     return 0;
 }
 
 //]
 
 
-//[sym_difference_output
+//[difference_inserter_output
 /*`
 Output:
 [pre
-green XOR blue:
-total: 3.1459
-0: 0.02375
-1: 0.542951
-2: 0.0149697
-3: 0.226855
-4: 0.839424
-5: 0.525154
-6: 0.015
-7: 0.181136
-8: 0.128798
-9: 0.340083
-10: 0.307778
+(blue \\ green) u (green \\ blue):
+0: 0.525154
+1: 0.015
+2: 0.181136
+3: 0.128798
+4: 0.340083
+5: 0.307778
+6: 0.02375
+7: 0.542951
+8: 0.0149697
+9: 0.226855
+10: 0.839424
 
 [$img/algorithms/sym_difference.png]
 
 ]
 */
 //]
-
