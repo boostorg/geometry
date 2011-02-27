@@ -30,7 +30,7 @@ namespace boost { namespace geometry
 \return \return_check{is self-intersecting}
 
 \qbk{distinguish,one geometry}
-\qbk{[include ref/algorithms/intersects.qbk]}
+\qbk{[include reference/algorithms/intersects.qbk]}
 */
 template <typename Geometry>
 inline bool intersects(Geometry const& geometry)
@@ -82,7 +82,7 @@ inline bool intersects(Geometry const& geometry)
 \return \return_check2{intersect each other}
 
 \qbk{distinguish,two geometries}
-\qbk{[include ref/algorithms/intersects.qbk]}
+\qbk{[include reference/algorithms/intersects.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
 inline bool intersects(Geometry1 const& geometry1, Geometry2 const& geometry2)

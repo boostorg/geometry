@@ -60,7 +60,7 @@ struct num_interior_rings<polygon_tag, Polygon>
 \param geometry \param_geometry
 \return \return_calc{number of interior rings}
 
-\qbk{[include ref/algorithms/num_interior_rings.qbk]}
+\qbk{[include reference/algorithms/num_interior_rings.qbk]}
 
 \note Defined by OGC as "numInteriorRing". To be consistent with "numPoints"
     letter "s" is appended

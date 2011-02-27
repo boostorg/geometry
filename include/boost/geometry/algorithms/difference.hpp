@@ -70,6 +70,11 @@ inline OutputIterator difference_inserter(Geometry1 const& geometry1,
 \param out \param_out{difference}
 \return \return_out
 
+\qbk{[include reference/algorithms/difference.qbk]}
+\qbk{
+[heading Example]
+[difference] [difference_output]
+}
 */
 template
 <
@@ -110,7 +115,11 @@ inline OutputIterator difference_inserter(Geometry1 const& geometry1,
 \param geometry2 \param_geometry
 \param output_collection the output collection
 
-\qbk{[include ref/algorithms/difference.qbk]}
+\qbk{[include reference/algorithms/difference.qbk]}
+\qbk{
+[heading Example]
+[difference_inserter] [difference_inserter_output]
+}
 */
 template
 <

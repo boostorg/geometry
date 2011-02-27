@@ -213,7 +213,7 @@ and Geographic as well.
 \param geometry \param_geometry
 \return \return_calc{area}
 
-\qbk{[include ref/algorithms/area.qbk]}
+\qbk{[include reference/algorithms/area.qbk]}
 \qbk{[heading Examples]}
 \qbk{[area] [area_output]}
 */
@@ -250,7 +250,7 @@ inline typename area_result<Geometry>::type area(Geometry const& geometry)
 \qbk{distinguish,with strategy}
 
 \qbk{
-[include ref/algorithms/area.qbk]
+[include reference/algorithms/area.qbk]
 
 [heading Example]
 [area_with_strategy]

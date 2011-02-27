@@ -128,45 +128,45 @@ namespace splitted_dispatch
 
 template <typename Tag, typename Geometry, typename Point>
 struct append_point
-    : detail::append::append_no_action<Geometry, Point> 
+    : detail::append::append_no_action<Geometry, Point>
 {};
 
 template <typename Geometry, typename Point>
 struct append_point<linestring_tag, Geometry, Point>
-    : detail::append::append_point<Geometry, Point> 
+    : detail::append::append_point<Geometry, Point>
 {};
 
 template <typename Geometry, typename Point>
 struct append_point<ring_tag, Geometry, Point>
-    : detail::append::append_point<Geometry, Point> 
+    : detail::append::append_point<Geometry, Point>
 {};
 
 
 template <typename Polygon, typename Point>
 struct append_point<polygon_tag, Polygon, Point>
-        : detail::append::point_to_polygon<Polygon, Point> 
+        : detail::append::point_to_polygon<Polygon, Point>
 {};
 
 
 template <typename Tag, typename Geometry, typename Range>
 struct append_range
-    : detail::append::append_no_action<Geometry, Range> 
+    : detail::append::append_no_action<Geometry, Range>
 {};
 
 template <typename Geometry, typename Range>
 struct append_range<linestring_tag, Geometry, Range>
-    : detail::append::append_range<Geometry, Range> 
+    : detail::append::append_range<Geometry, Range>
 {};
 
 template <typename Geometry, typename Range>
 struct append_range<ring_tag, Geometry, Range>
-    : detail::append::append_range<Geometry, Range> 
+    : detail::append::append_range<Geometry, Range>
 {};
 
 
 template <typename Polygon, typename Range>
 struct append_range<polygon_tag, Polygon, Range>
-        : detail::append::range_to_polygon<Polygon, Range> 
+        : detail::append::range_to_polygon<Polygon, Range>
 {};
 
 }
@@ -174,14 +174,14 @@ struct append_range<polygon_tag, Polygon, Range>
 
 // Default: append a range (or linestring or ring or whatever) to any geometry
 template <typename TagRangeOrPoint, typename Geometry, typename RangeOrPoint>
-struct append 
-    : splitted_dispatch::append_range<typename tag<Geometry>::type, Geometry, RangeOrPoint> 
+struct append
+    : splitted_dispatch::append_range<typename tag<Geometry>::type, Geometry, RangeOrPoint>
 {};
 
 // Specialization for point to append a point to any geometry
 template <typename Geometry, typename RangeOrPoint>
-struct append<point_tag, Geometry, RangeOrPoint> 
-    : splitted_dispatch::append_point<typename tag<Geometry>::type, Geometry, RangeOrPoint> 
+struct append<point_tag, Geometry, RangeOrPoint>
+    : splitted_dispatch::append_point<typename tag<Geometry>::type, Geometry, RangeOrPoint>
 {};
 
 
@@ -201,7 +201,7 @@ struct append<point_tag, Geometry, RangeOrPoint>
     exterior ring (-1, the default) or  interior ring index
 \param multi_index Reserved for multi polygons or multi linestrings
 
-\qbk{[include ref/algorithms/append.qbk]}
+\qbk{[include reference/algorithms/append.qbk]}
 }
  */
 template <typename Geometry, typename RangeOrPoint>

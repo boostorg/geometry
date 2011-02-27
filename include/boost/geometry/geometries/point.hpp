@@ -39,7 +39,7 @@ namespace model
 \tparam DimensionCount number of coordinates, usually 2 or 3
 \tparam CoordinateSystem coordinate system, for example cs::cartesian
 
-\qbk{[include ref/geometries/point.qbk]}
+\qbk{[include reference/geometries/point.qbk]}
 \qbk{before.synopsis, [heading Model of]}
 \qbk{before.synopsis, [link geometry.reference.concepts.concept_point Point Concept]}
 
