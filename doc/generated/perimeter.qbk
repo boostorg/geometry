@@ -45,7 +45,7 @@ Or
 
 `#include <boost/geometry/algorithms/perimeter.hpp>`
 
-[include ref/algorithms/perimeter.qbk]
+[include reference/algorithms/perimeter.qbk]
 
 
 [endsect]
@@ -81,7 +81,7 @@ Or
 
 `#include <boost/geometry/algorithms/perimeter.hpp>`
 
-[include ref/algorithms/perimeter.qbk]
+[include reference/algorithms/perimeter.qbk]
 
 
 [endsect]

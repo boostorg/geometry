@@ -17,7 +17,7 @@ boostbook geometry
 	: geometry.qbk
 	: <dependency>Jamfile.v2	  
 		<dependency>quickref.xml
-		<dependency>reference/point.qbk
+		<dependency>generated/point.qbk
         : <xsl:param>chunk.section.depth=4
 	<xsl:param>chunk.first.sections=1
 	<xsl:param>toc.section.depth=3

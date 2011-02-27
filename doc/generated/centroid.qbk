@@ -42,7 +42,7 @@ Or
 
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
-[include ref/algorithms/centroid.qbk]
+[include reference/algorithms/centroid.qbk]
 
 
 [endsect]
@@ -77,7 +77,7 @@ Or
 
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
-[include ref/algorithms/centroid.qbk]
+[include reference/algorithms/centroid.qbk]
 [heading Available Strategies]
 * [link geometry.reference.strategies.strategy_centroid_bashein_detmer Bashein Detmer (cartesian)]
 
@@ -117,7 +117,7 @@ Or
 
 `#include <boost/geometry/algorithms/centroid.hpp>`
 
-[include ref/algorithms/centroid.qbk]
+[include reference/algorithms/centroid.qbk]
 [heading Available Strategies]
 * [link geometry.reference.strategies.strategy_centroid_bashein_detmer Bashein Detmer (cartesian)]
 
@@ -145,7 +145,7 @@ Point make_centroid(Geometry const & geometry)``
 
 
 [heading Returns]
-The calculated centroid  [include ref/algorithms/centroid.qbk]
+The calculated centroid  [include reference/algorithms/centroid.qbk]
 
 [heading Header]
 Either

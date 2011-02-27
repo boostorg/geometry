@@ -58,6 +58,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			tparam_dimension_required="Dimension, this template parameter is required. Should contain \[0 .. n-1\] for an n-dimensional geometry" \
 			tparam_first_point="first point type" \
 			tparam_functor="Function or class with operator()" \
+			tparam_output_collection="output collection, either a multi-geometry, or a std::vector<Geometry> / std::deque<Geometry> etc" \
 			tparam_geometry="Any type fulfilling a Geometry Concept" \
 			tparam_geometry{1}="A type fulfilling a \1 Concept" \
 			tparam_index_required="Index, this template parameter is required. For a Box: either min_corner or max_corner. For a Segment: either 0 or 1 for first or last point." \

@@ -45,7 +45,7 @@ Or
 
 `#include <boost/geometry/algorithms/num_points.hpp>`
 
-[include ref/algorithms/num_points.qbk]
+[include reference/algorithms/num_points.qbk]
 
 
 [endsect]

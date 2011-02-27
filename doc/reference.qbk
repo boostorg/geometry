@@ -203,7 +203,6 @@
 [include generated/interior_type.qbk]
 [include generated/is_areal.qbk]
 [include generated/is_linear.qbk]
-[include generated/is_multi.qbk]
 [include generated/is_radian.qbk]
 [include generated/point_order.qbk]
 [include generated/point_type.qbk]

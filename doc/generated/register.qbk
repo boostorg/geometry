@@ -38,7 +38,7 @@ The macro BOOST\u005fGEOMETRY\u005fREGISTER\u005fPOINT\u005f2D registers a two-d
 [heading Header]
 `#include <boost/geometry/geometries/register/point.hpp>`
 
-[include ref/geometries/register/point.qbk]
+[include reference/geometries/register/point.qbk]
 
 
 [endsect]

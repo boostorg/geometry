@@ -44,7 +44,7 @@ Or
 
 `#include <boost/geometry/algorithms/num_interior_rings.hpp>`
 
-[include ref/algorithms/num_interior_rings.qbk]
+[include reference/algorithms/num_interior_rings.qbk]
 
 
 [endsect]

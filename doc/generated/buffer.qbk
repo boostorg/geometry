@@ -44,7 +44,7 @@ Or
 
 `#include <boost/geometry/algorithms/buffer.hpp>`
 
-[include ref/algorithms/buffer.qbk]
+[include reference/algorithms/buffer.qbk]
 
 
 [endsect]

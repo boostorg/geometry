@@ -46,7 +46,7 @@ Or
 
 `#include <boost/geometry/core/access.hpp>`
 
-[include ref/core/get_box.qbk]
+[include reference/core/get_box.qbk]
 
 
 [endsect]
@@ -72,7 +72,7 @@ coordinate_type<Geometry>::type get(Geometry const & geometry)``
 
 
 [heading Returns]
-The coordinate value of specified dimension of specified geometry  [include ref/core/get_point.qbk]
+The coordinate value of specified dimension of specified geometry  [include reference/core/get_point.qbk]
 
 [heading Header]
 Either

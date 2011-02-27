@@ -40,7 +40,7 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[include ref/algorithms/simplify.qbk]
+[include reference/algorithms/simplify.qbk]
 
 
 [endsect]
@@ -103,7 +103,7 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[include ref/algorithms/simplify_inserter.qbk]
+[include reference/algorithms/simplify_inserter.qbk]
 
 
 [endsect]
@@ -136,7 +136,7 @@ Or
 
 `#include <boost/geometry/algorithms/simplify.hpp>`
 
-[include ref/algorithms/simplify.qbk]
+[include reference/algorithms/simplify.qbk]
 
 
 [endsect]
