@@ -43,7 +43,7 @@ Or
 
 `#include <boost/geometry/algorithms/intersection.hpp>`
 
-[include ref/algorithms/intersection.qbk]
+[include reference/algorithms/intersection.qbk]
 
 
 [endsect]
@@ -76,7 +76,7 @@ The output iterator
 [heading Header]
 `#include <boost/geometry/algorithms/intersection_inserter.hpp>`
 
-[include ref/algorithms/intersection.qbk]
+[include reference/algorithms/intersection.qbk]
 
 
 [endsect]
@@ -110,7 +110,7 @@ The output iterator
 [heading Header]
 `#include <boost/geometry/algorithms/intersection_inserter.hpp>`
 
-[include ref/algorithms/intersection.qbk]
+[include reference/algorithms/intersection.qbk]
 
 
 [endsect]

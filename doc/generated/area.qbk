@@ -45,7 +45,7 @@ Or
 
 `#include <boost/geometry/algorithms/area.hpp>`
 
-[include ref/algorithms/area.qbk]
+[include reference/algorithms/area.qbk]
 
 [heading Example]
 [area_with_strategy]
@@ -93,7 +93,7 @@ Or
 
 `#include <boost/geometry/algorithms/area.hpp>`
 
-[include ref/algorithms/area.qbk]
+[include reference/algorithms/area.qbk]
 [heading Examples]
 [area] [area_output]
 

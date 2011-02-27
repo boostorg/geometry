@@ -43,7 +43,7 @@ Or
 
 `#include <boost/geometry/algorithms/sym_difference.hpp>`
 
-[include ref/algorithms/sym_difference.qbk]
+[include reference/algorithms/sym_difference.qbk]
 
 
 [endsect]
@@ -90,7 +90,7 @@ Or
 Calculate the symmetric difference of two geometries using the specified strategy. 
 
 [heading Description]
-The free function symmetric difference calculates the spatial set theoretic symmetric difference (XOR) of two geometries using the specified strategy. details\u005finserter{sym\u005fdifference} 
+The free function symmetric difference calculates the spatial set theoretic symmetric difference (XOR) of two geometries using the specified strategy. This version with the \u005finserter suffix outputs the sym\u005fdifference to an output iterator, and a template parameter must therefore be specified in the call. 
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator, typename Strategy>

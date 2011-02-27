@@ -45,7 +45,7 @@ Or
 
 `#include <boost/geometry/algorithms/difference.hpp>`
 
-[include ref/algorithms/difference.qbk]
+[include reference/algorithms/difference.qbk]
 
 
 [endsect]
@@ -57,7 +57,7 @@ Or
 [heading Description]
 Calculate the difference of two geometries
 
-The free function difference\u005finserter calculates the spatial set theoretic difference of two geometries. details\u005finserter{difference} 
+The free function difference\u005finserter calculates the spatial set theoretic difference of two geometries. This version with the \u005finserter suffix outputs the difference to an output iterator, and a template parameter must therefore be specified in the call. 
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator>
@@ -86,8 +86,7 @@ Or
 
 `#include <boost/geometry/algorithms/difference.hpp>`
 
-[heading Example]
-[difference_inserter] [difference_inserter_output]
+[include reference/algorithms/difference_inserter.qbk]
 
 
 [endsect]
@@ -99,7 +98,7 @@ Or
 [heading Description]
 Calculate the difference of two geometries using the specified strategy
 
-The free function difference\u005finserter calculates the spatial set theoretic difference of two geometries using the specified strategy. details\u005finserter{difference} 
+The free function difference\u005finserter calculates the spatial set theoretic difference of two geometries using the specified strategy. This version with the \u005finserter suffix outputs the difference to an output iterator, and a template parameter must therefore be specified in the call. 
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator, typename Strategy>

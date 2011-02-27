@@ -44,7 +44,7 @@ Or
 
 `#include <boost/geometry/algorithms/num_geometries.hpp>`
 
-[include ref/algorithms/num_geometries.qbk]
+[include reference/algorithms/num_geometries.qbk]
 
 
 [endsect]

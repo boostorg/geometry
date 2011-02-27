@@ -44,7 +44,7 @@ Or
 
 `#include <boost/geometry/core/access.hpp>`
 
-[include ref/core/set_box.qbk]
+[include reference/core/set_box.qbk]
 
 
 [endsect]
@@ -79,7 +79,7 @@ Or
 
 `#include <boost/geometry/core/access.hpp>`
 
-[include ref/core/set_point.qbk]
+[include reference/core/set_point.qbk]
 
 
 [endsect]

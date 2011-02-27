@@ -95,7 +95,7 @@ Or
 
 `#include <boost/geometry/geometries/point.hpp>`
 
-[include ref/geometries/point.qbk]
+[include reference/geometries/point.qbk]
 
 [endsect]
 
