@@ -26,8 +26,12 @@ void test_areal()
 
     // This sample was selected because of the border case, and ttmath generates one point more.
     test_one<Polygon, Polygon, Polygon>("star_poly", example_star, example_polygon,
-        1, 1, 
-        boost::is_same<typename bg::coordinate_type<Ring>::type, ttmath_big>::value ? 28 : 27,  
+        1, 1,
+#if defined(HAVE_TTMATH)
+        boost::is_same<typename bg::coordinate_type<Ring>::type, ttmath_big>::value ? 28 : 27,
+#else
+        27,
+#endif
             5.647949);
 
     // Pseudo-box as Polygon
