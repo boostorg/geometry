@@ -35,7 +35,7 @@ void test_distance(std::string const& wkt1, std::string const& wkt2, double expe
     Geometry2 g2;
     bg::read_wkt(wkt1, g1);
     bg::read_wkt(wkt2, g2);
-    double d = bg::distance(g1, g2);
+    typename bg::distance_result<Geometry1, Geometry2>::type d = bg::distance(g1, g2);
 
     BOOST_CHECK_CLOSE(d, expected, 0.0001);
 }
@@ -48,7 +48,7 @@ void test_distance(Strategy const& strategy, std::string const& wkt1,
     Geometry2 g2;
     bg::read_wkt(wkt1, g1);
     bg::read_wkt(wkt2, g2);
-    double d = bg::distance(g1, g2, strategy);
+    typename bg::distance_result<Geometry1, Geometry2>::type d = bg::distance(g1, g2, strategy);
 
     BOOST_CHECK_CLOSE(d, expected, 0.0001);
 }
@@ -136,6 +136,11 @@ int test_main( int , char* [] )
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     test_mixed<bg::model::d2::point_xy<float>, bg::model::d2::point_xy<double> >();
+
+#ifdef HAVE_TTMATH
+    test_2d<bg::model::d2::point_xy<ttmath_big> >();
+    test_mixed<bg::model::d2::point_xy<ttmath_big>, bg::model::d2::point_xy<double> >();
+#endif
 
     return 0;
 }
