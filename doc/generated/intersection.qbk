@@ -53,7 +53,7 @@ Or
 Calculate the intersection of two geometries. 
 
 [heading Description]
-The free function intersection_inserter calculates the spatial set theoretic intersection of two geometries. This version with the _inserter suffix outputs the intersection to an output iterator, and a template parameter must therefore be specified in the call. 
+The free function intersection\u005finserter calculates the spatial set theoretic intersection of two geometries. This version with the \u005finserter suffix outputs the intersection to an output iterator, and a template parameter must therefore be specified in the call. 
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator>
@@ -86,7 +86,7 @@ The output iterator
 Calculate the intersection of two geometries using the specified strategy. 
 
 [heading Description]
-The free function intersection_inserter calculates the spatial set theoretic intersection of two geometries using the specified strategy. This version with the _inserter suffix outputs the intersection to an output iterator, and a template parameter must therefore be specified in the call. 
+The free function intersection\u005finserter calculates the spatial set theoretic intersection of two geometries using the specified strategy. This version with the \u005finserter suffix outputs the intersection to an output iterator, and a template parameter must therefore be specified in the call. 
 
 [heading Synopsis]
 ``template<typename GeometryOut, typename Geometry1, typename Geometry2, typename OutputIterator, typename Strategy>
@@ -100,7 +100,7 @@ OutputIterator intersection_inserter(Geometry1 const & geometry1, Geometry2 cons
 [[Geometry1 const &] [Any type fulfilling a Geometry Concept ] [geometry1] [A model of the specified concept ]]
 [[Geometry2 const &] [Any type fulfilling a Geometry Concept ] [geometry2] [A model of the specified concept ]]
 [[OutputIterator] [A valid output iterator type, accepting geometries of Point, LineString or Polygon Concept ] [out] [The output iterator, to which intersection geometries are feeded ]]
-[[Strategy const &] [Compound strategy for intersection ] [strategy] [The strategy ]]
+[[Strategy const &] [Compound strategy for segment intersection ] [strategy] [The strategy which will be used for intersection calculations ]]
 ]
 
 

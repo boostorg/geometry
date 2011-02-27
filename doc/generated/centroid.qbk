@@ -89,7 +89,7 @@ Or
 Calculates the centroid of a geometry using the specified strategy. 
 
 [heading Description]
-The free function centroid calculates the geometric center (or: center of mass) of a geometry. This version with the make_ prefix returns the centroid, and a template parameter must therefore be specified in the call.. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation. 
+The free function centroid calculates the geometric center (or: center of mass) of a geometry. This version with the make\u005f prefix returns the centroid, and a template parameter must therefore be specified in the call.. Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation. 
 
 [heading Synopsis]
 ``template<typename Point, typename Geometry, typename Strategy>
@@ -129,7 +129,7 @@ Or
 Calculates the centroid of a geometry. 
 
 [heading Description]
-The free function centroid calculates the geometric center (or: center of mass) of a geometry. This version with the make_ prefix returns the centroid, and a template parameter must therefore be specified in the call.. 
+The free function centroid calculates the geometric center (or: center of mass) of a geometry. This version with the make\u005f prefix returns the centroid, and a template parameter must therefore be specified in the call.. 
 
 [heading Synopsis]
 ``template<typename Point, typename Geometry>

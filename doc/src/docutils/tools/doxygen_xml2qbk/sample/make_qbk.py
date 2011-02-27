@@ -13,12 +13,14 @@ import os, sys
 cmd = "doxygen_xml2qbk"
 cmd = cmd + " --xml xml/%s.xml"
 cmd = cmd + " --start_include sample/"
-cmd = cmd + " > %s.qbk"
+cmd = cmd + " > generated\%s.qbk"
 
 
 os.system("doxygen fruit.dox")
-os.system(cmd % ("group__eat", "eat"))
+os.system(cmd % ("group__fruit", "grouped"))
 os.system(cmd % ("classfruit_1_1apple", "apple"))
 os.system(cmd % ("classfruit_1_1rose", "rose"))
+os.system(cmd % ("structfruit_1_1fruit__value", "fruit_value"))
+os.system(cmd % ("structfruit_1_1fruit__type", "fruit_type"))
 
 os.system("bjam") 

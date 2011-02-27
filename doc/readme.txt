@@ -26,5 +26,7 @@ html: contains generated HTML files
 other: older documentation (subject to update or deletion)
 ref: manually written documentation QBK files, included from .hpp files
 reference: generated documentation QBK files (by doxygen_xml2qbk)
+	[note: this book cannot be called "generated" or something like that,
+	because it is used in the final URL and we want to have "reference" in it]
 src: examples used in documentation and tools (doxygen_xml2qbk)
 

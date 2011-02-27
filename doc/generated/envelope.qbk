@@ -42,6 +42,9 @@ Or
 
 `#include <boost/geometry/algorithms/envelope.hpp>`
 
+[heading Example]
+[envelope] [envelope_output]
+
 
 [endsect]
 
@@ -50,7 +53,7 @@ Or
 Calculates the envelope of a geometry. 
 
 [heading Description]
-The free function make_envelope calculates the envelope (also known as axis aligned bounding box, aabb, or minimum bounding rectangle, mbr) of a geometry. This version with the make_ prefix returns the envelope, and a template parameter must therefore be specified in the call. 
+The free function make\u005fenvelope calculates the envelope (also known as axis aligned bounding box, aabb, or minimum bounding rectangle, mbr) of a geometry. This version with the make\u005f prefix returns the envelope, and a template parameter must therefore be specified in the call. 
 
 [heading Synopsis]
 ``template<typename Box, typename Geometry>
@@ -66,7 +69,7 @@ Box make_envelope(Geometry const & geometry)``
 
 
 [heading Returns]
-The calculated envelope 
+The calculated envelope
 
 [heading Header]
 Either
@@ -76,6 +79,9 @@ Either
 Or
 
 `#include <boost/geometry/algorithms/envelope.hpp>`
+
+[heading Example]
+[make_envelope] [make_envelope_output]
 
 
 [endsect]

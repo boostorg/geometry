@@ -18,7 +18,7 @@
 Implements the simplify algorithm. 
 
 [heading Description]
-The douglas_peucker strategy simplifies a linestring, ring or vector of points using the well-known Douglas-Peucker algorithm. For the algorithm, see for example: 
+The douglas\u005fpeucker strategy simplifies a linestring, ring or vector of points using the well-known Douglas-Peucker algorithm. For the algorithm, see for example: 
 
 [heading Synopsis]
 ``template<typename Point, typename PointDistanceStrategy>

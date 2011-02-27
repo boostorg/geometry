@@ -69,6 +69,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			tparam_second_point="second point type" \
 			tparam_segment_point="segment point type" \
 			tparam_strategy{1}="Any type fulfilling a \1 Strategy Concept" \
+			tparam_strategy_overlay="Compound strategy for segment intersection" \
 			param_box="A model of the specified Box Concept" \
 			param_box_or_segment="A box modelling the specified Box Concept or segment modelling the specified Segment Concept" \
 			param_geometry="A model of the specified concept" \

@@ -196,7 +196,7 @@ Or
 assign to a box inverse infinite 
 
 [heading Description]
-The assign_inverse function initialize a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small. This is a convenient starting point to collect the minimum bounding box of a geometry.
+The assign\u005finverse function initialize a 2D or 3D box with large coordinates, the min corner is very large, the max corner is very small. This is a convenient starting point to collect the minimum bounding box of a geometry.
 
 [heading Synopsis]
 ``template<typename Geometry>
@@ -223,7 +223,7 @@ Or
 [assign_inverse] [assign_inverse_output]
 
 [heading See also]
-* [link geometry.reference.algorithms.make.make_inverse make]
+* [link geometry.reference.algorithms.make.make_inverse make_inverse]
 
 
 [endsect]
@@ -299,7 +299,7 @@ Or
 assign zero values to a box, point 
 
 [heading Description]
-The assign_zero function initializes a 2D or 3D point or box with coordinates of zero 
+The assign\u005fzero function initializes a 2D or 3D point or box with coordinates of zero 
 
 [heading Synopsis]
 ``template<typename Geometry>

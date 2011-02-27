@@ -6,8 +6,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 // Code to create SVG for examples
-#ifndef CREATE_SVG_HPP
-#define CREATE_SVG_HPP
+#ifndef CREATE_SVG_OVERLAY_HPP
+#define CREATE_SVG_OVERLAY_HPP
 
 #include <fstream>
 #include <boost/algorithm/string.hpp>
@@ -42,5 +42,5 @@ void create_svg(std::string const& filename, Geometry const& a, Geometry const& 
 // and copy png to html/img/algorithms/
 
 
-#endif // CREATE_SVG_HPP
+#endif // CREATE_SVG_OVERLAY_HPP
 

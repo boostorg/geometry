@@ -18,7 +18,7 @@
 Calculates the number of geometries of a geometry. 
 
 [heading Description]
-The free function num_geometries calculates the number of geometries of a geometry. 
+The free function num\u005fgeometries calculates the number of geometries of a geometry. 
 
 [heading Synopsis]
 ``template<typename Geometry>
