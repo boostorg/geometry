@@ -230,7 +230,7 @@ struct centroid_linestring
             typedef typename boost::range_iterator<Linestring const>::type point_iterator_type;
             typedef segment_returning_iterator<point_iterator_type, point_type> segment_iterator;
 
-            typedef geometry::distance_result<Linestring>::type distance_type;
+            typedef typename geometry::distance_result<Linestring>::type distance_type;
             distance_type length = distance_type();
             std::pair<distance_type, distance_type> average_sum;
 
