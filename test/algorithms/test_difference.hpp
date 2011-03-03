@@ -81,6 +81,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         area += bg::area(*it);
     }
 
+#ifndef BOOST_GEOMETRY_DEBUG_ASSEMBLE
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)
@@ -97,7 +98,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         
         BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
     }
-
+#endif
 
 
 
@@ -187,6 +188,9 @@ void test_one(std::string const& caseid,
     test_difference<OutputType, void>(caseid + "_a", g1, g2,
         expected_count1, expected_point_count1,
         expected_area1, percentage);
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+    return;
+#endif
     test_difference<OutputType, void>(caseid + "_b", g2, g1,
         expected_count2, expected_point_count2,
         expected_area2, percentage);

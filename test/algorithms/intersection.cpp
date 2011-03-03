@@ -58,12 +58,14 @@ void test_areal()
         identical[0], identical[1],
         1, 5, 1.0);
 
-    // Two, inside each other, having intersections but holes are disjoint
+    test_one<Polygon, Polygon, Polygon>("intersect_exterior_and_interiors_winded",
+        intersect_exterior_and_interiors_winded[0], intersect_exterior_and_interiors_winded[1],
+        1, 14, 25.2166667);
+
     test_one<Polygon, Polygon, Polygon>("intersect_holes_disjoint",
         intersect_holes_disjoint[0], intersect_holes_disjoint[1],
         1, 15, 18.0);
 
-    // Two, inside each other, having intersections; holes separate intersections
     test_one<Polygon, Polygon, Polygon>("intersect_holes_intersect",
         intersect_holes_intersect[0], intersect_holes_intersect[1],
         1, 14, 18.25);
@@ -84,27 +86,31 @@ void test_areal()
         winded[0], winded[1],
         1, 22, 40.0);
 
+    test_one<Polygon, Polygon, Polygon>("within_holes_disjoint",
+        within_holes_disjoint[0], within_holes_disjoint[1],
+        1, 15, 23.0);
+
+    test_one<Polygon, Polygon, Polygon>("side_side",
+        side_side[0], side_side[1],
+        0, 0, 0.0);
+
     test_one<Polygon, Polygon, Polygon>("two_bends",
         two_bends[0], two_bends[1],
         1, 7, 24.0);
 
     test_one<Polygon, Polygon, Polygon>("star_comb_15",
-        star_15, comb_15,
+        star_comb_15[0], star_comb_15[1],
         28, 150, 189.952883);
 
     test_one<Polygon, Polygon, Polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         1, 7, 5.47363293);
 
-    test_one<Polygon, Polygon, Polygon>("fitting",
-        fitting[0], fitting[1],
-        0, 0, 0);
-
-    test_one<Polygon, Polygon, Polygon>("dist_zero",
+    test_one<Polygon, Polygon, Polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
         1, 0 /* f: 4, other: 5 */, 0.29516139, 0.01);
 
-    test_one<Polygon, Polygon, Polygon>("ehd",
+    test_one<Polygon, Polygon, Polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
         1, 20, 81 - 2 * 3 * 3 - 3 * 7);
 
@@ -115,9 +121,26 @@ void test_areal()
         only_hole_intersections[0], only_hole_intersections[2],
         1, 21, 149.090909);
 
-    test_one<Polygon, Polygon, Polygon>("intersect_exterior_and_interiors_winded",
-        intersect_exterior_and_interiors_winded[0], intersect_exterior_and_interiors_winded[1],
-        1, 14, 25.2166667);
+    test_one<Polygon, Polygon, Polygon>("fitting",
+        fitting[0], fitting[1],
+        0, 0, 0);
+
+    test_one<Polygon, Polygon, Polygon>("crossed",
+        crossed[0], crossed[1],
+        3, 0, 1.5);
+
+#ifdef _MSC_VER
+    {
+        // Isovist (submitted by Brandon during Formal Review)
+        std::string tn = string_from_type<typename bg::coordinate_type<Polygon>::type>::name();
+        test_one<Polygon, Polygon, Polygon>("isovist",
+            isovist1[0], isovist1[1],
+            1,
+            tn == std::string("f") ? 19 : tn == std::string("d") ? 22 : 20,
+            88.19203,
+            tn == std::string("f") ? 0.5 : tn == std::string("d") ? 0.1 : 0.01);
+    }
+#endif
 
     return;
 
@@ -128,18 +151,6 @@ void test_areal()
             "Polygon((2 -2,2 -1,2 6,2 -2))",
             5, 22, 1.1901714);
 
-
-    // Icovist (submitted by Brandon during Formal Review)
-    // Test the FORWARD case
-    {
-        std::string tn = string_from_type<typename bg::coordinate_type<Polygon>::type>::name();
-        test_one<Polygon, Polygon, Polygon>("isovist",
-            isovist1[0], isovist1[1],
-            1,
-            tn == std::string("f") ? 19 : tn == std::string("d") ? 21 : 20,
-            88.19203,
-            tn == std::string("f") ? 0.5 : tn == std::string("d") ? 0.1 : 0.01);
-    }
 
 
     // Test the REVERSE case - does not give correct results yet
@@ -319,7 +330,6 @@ void test_pointer_version()
     BOOST_CHECK_EQUAL(n, 2);
     BOOST_CHECK_CLOSE(length, sqrt(2.0 * 6.0 * 6.0), 0.001);
 
-
     for (unsigned int i = 0; i < ln.size(); i++)
     {
         delete ln[i];
@@ -331,11 +341,11 @@ void test_pointer_version()
 
 int test_main(int, char* [])
 {
-    //test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
 
 #if defined(HAVE_TTMATH)
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
+   test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     //test_pointer_version();

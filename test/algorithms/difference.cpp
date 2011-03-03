@@ -49,7 +49,7 @@ void test_all()
         1, 7, 8.0);
 
     test_one<polygon, polygon, polygon>("star_comb_15",
-        star_15, comb_15,
+        star_comb_15[0], star_comb_15[1],
         30, 150, 227.658275102812,
         30, 150, 480.485775259312);
 
@@ -63,19 +63,76 @@ void test_all()
         1, 10, 7.0,
         1, 10, 14.0);
 
-    test_one<polygon, polygon, polygon>("fitting",
-        fitting[0], fitting[1],
-        1, 0, 21.0,
-        1, 0, 4.0);
 
     test_one<polygon, polygon, polygon>("crossed",
         crossed[0], crossed[1],
         1, 0, 19.5,
         1, 0, 2.5);
+
+    test_one<polygon, polygon, polygon>("disjoint",
+        disjoint[0], disjoint[1],
+        1, 5, 1.0,
+        1, 5, 1.0);
+
+    test_one<polygon, polygon, polygon>("distance_zero",
+        distance_zero[0], distance_zero[1],
+        2, 0, 8.7048386,
+        2, 0, 0.0098387);
+
+    test_one<polygon, polygon, polygon>("equal_holes_disjoint",
+        equal_holes_disjoint[0], equal_holes_disjoint[1],
+        1, 0, 9.0,
+        1, 0, 9.0);
+
+    test_one<polygon, polygon, polygon>("only_hole_intersections1",
+        only_hole_intersections[0], only_hole_intersections[1],
+        2, 0,  1.9090909,
+        4, 0, 10.9090909);
+
+    test_one<polygon, polygon, polygon>("only_hole_intersection2",
+        only_hole_intersections[0], only_hole_intersections[2],
+        3, 0, 30.9090909,
+        4, 0, 10.9090909);
+
     test_one<polygon, polygon, polygon>("first_within_second",
         first_within_second[1], first_within_second[0],
         1, 1, 24,
         0, 0, 0);
+
+    test_one<polygon, polygon, polygon>("fitting",
+        fitting[0], fitting[1],
+        1, 0, 21.0,
+        1, 0, 4.0);
+
+    test_one<polygon, polygon, polygon>("identical",
+        identical[0], identical[1],
+        0, 0, 0.0,
+        0, 0, 0.0);
+
+    test_one<polygon, polygon, polygon>("intersect_exterior_and_interiors_winded",
+        intersect_exterior_and_interiors_winded[0], intersect_exterior_and_interiors_winded[1],
+        4, 0, 11.533333,
+        5, 0, 29.783333);
+
+    test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
+        intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
+        2, 0, 15.75,
+        3, 0, 6.75);
+
+    test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_touch",
+        intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
+        3, 0, 16.25,
+        3, 0, 6.25);
+
+    test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
+        intersect_holes_new_ring[0], intersect_holes_new_ring[1],
+        3, 0, 9.8961,
+        4, 0, 121.8961);
+
+    test_one<polygon, polygon, polygon>("first_within_hole_of_second",
+        first_within_hole_of_second[0], first_within_hole_of_second[1],
+        1, -1, 1,
+        1, -1, 16);
 
     test_one<polygon, polygon, polygon>("intersect_holes_disjoint",
         intersect_holes_disjoint[0], intersect_holes_disjoint[1],
@@ -96,6 +153,46 @@ void test_all()
             "case5", case_5[0], case_5[1],
             8, 22, 2.43452380952381,
             7, 27, 3.18452380952381);
+
+    test_one<polygon, polygon, polygon>("winded",
+        winded[0], winded[1],
+        3, 1, 61,
+        1, 0, 13);
+
+    test_one<polygon, polygon, polygon>("within_holes_disjoint",
+        within_holes_disjoint[0], within_holes_disjoint[1],
+        2, 1, 25,
+        1, 0, 1);
+
+    test_one<polygon, polygon, polygon>("side_side",
+        side_side[0], side_side[1],
+        1, 0, 1,
+        1, 0, 1);
+
+    /*** TODO: self-tangencies for difference
+    test_one<polygon, polygon, polygon>("wrapped_a",
+        wrapped[0], wrapped[1],
+        3, 1, 61,
+        1, 0, 13);
+
+    test_one<polygon, polygon, polygon>("wrapped_b",
+        wrapped[0], wrapped[2],
+        3, 1, 61,
+        1, 0, 13);
+    ***/
+
+#ifdef _MSC_VER
+    {
+        // Isovist (submitted by Brandon during Formal Review)
+        std::string tn = string_from_type<typename bg::coordinate_type<polygon>::type>::name();
+        test_one<polygon, polygon, polygon>("isovist",
+            isovist1[0], isovist1[1],
+            4, 0, 0.279121891701124,
+            4, 0, 224.889211358929,
+            0.01);
+    }
+#endif
+
 
     // Other combi's
     {
@@ -232,15 +329,39 @@ void test_difference_parcel_precision()
 #endif
 }
 
+
+#include <boost/range/algorithm/reverse.hpp>
+
+
+template <typename P>
+void test_copy()
+{
+    std::vector<P> first;
+    first.push_back(P(1,1));
+    first.push_back(P(2,2));
+
+    std::vector<P> second;
+    boost::copy(first, std::back_inserter(second));
+    boost::reverse(second);
+
+    std::vector<P> third, fourth;
+    boost::copy(second, boost::copy(first, std::back_inserter(third)));
+
+}
+
 int test_main(int, char* [])
 {
-    test_difference_parcel_precision<float>();
-    test_difference_parcel_precision<double>();
+    //test_copy<bg::model::d2::point_xy<double> >();
 
+    //test_difference_parcel_precision<float>();
+    //test_difference_parcel_precision<double>();
+
+    test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
 
 #ifdef HAVE_TTMATH
-    test_difference_parcel_precision<ttmath_big>();
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
+    //test_difference_parcel_precision<ttmath_big>();
 #endif
 
     return 0;

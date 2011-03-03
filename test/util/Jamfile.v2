@@ -8,7 +8,6 @@
 
 test-suite boost-geometry-util
     :
-    [ run copy.cpp ]
     [ run for_each_coordinate.cpp ]
     [ run select_most_precise.cpp ]
     [ run write_dsv.cpp ]
