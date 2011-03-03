@@ -34,6 +34,7 @@ struct ring_properties
 
     int within_code;
     bool reversed;
+    bool discarded;
 
     // Filled/used by "assign_rings"
     ring_identifier parent;
@@ -41,14 +42,16 @@ struct ring_properties
 
     inline ring_properties()
         : area(area_type())
-        , within_code(0)
+        , within_code(-1)
         , reversed(false)
+        , discarded(false)
     {}
 
     template <typename RingOrBox>
     inline ring_properties(RingOrBox const& ring_or_box)
-        : within_code(0)
+        : within_code(-1)
         , reversed(false)
+        , discarded(false)
     {
         this->area = geometry::area(ring_or_box);
         geometry::point_on_border(this->point, ring_or_box, true);
@@ -57,6 +60,7 @@ struct ring_properties
     template <typename RingOrBox, typename Geometry>
     inline ring_properties(RingOrBox const& ring_or_box, Geometry const& geometry)
         : reversed(false)
+        , discarded(false)
     {
         this->area = geometry::area(ring_or_box);
         geometry::point_on_border(this->point, ring_or_box, true);

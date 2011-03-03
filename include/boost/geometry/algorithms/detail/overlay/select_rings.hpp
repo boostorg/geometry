@@ -8,10 +8,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_RINGS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_RINGS_HPP
 
+#include <map>
 
-#include <vector>
-
-#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/within.hpp>
@@ -30,7 +28,6 @@ namespace detail { namespace overlay
 {
 
 
-
 namespace dispatch
 {
 
@@ -44,8 +41,13 @@ namespace dispatch
         template <typename Geometry, typename Map>
         static inline void apply(Box const& box, Geometry const& geometry, ring_identifier const& id, Map& map)
         {
-            typedef typename Map::mapped_type info;
-            map[id] = info(box, geometry);
+            map[id] = typename Map::mapped_type(box, geometry);
+        }
+
+        template <typename Map>
+        static inline void apply(Box const& box, ring_identifier const& id, Map& map)
+        {
+            map[id] = typename Map::mapped_type(box);
         }
     };
 
@@ -55,10 +57,13 @@ namespace dispatch
         template <typename Geometry, typename Map>
         static inline void apply(Ring const& ring, Geometry const& geometry, ring_identifier const& id, Map& map)
         {
-            // MAYBE use within-code algorithm (but not important - all these rings should be untouched)
+            map[id] = typename Map::mapped_type(ring, geometry);
+        }
 
-            typedef typename Map::mapped_type info;
-            map[id] = info(ring, geometry);
+        template <typename Map>
+        static inline void apply(Ring const& ring, ring_identifier const& id, Map& map)
+        {
+            map[id] = typename Map::mapped_type(ring);
         }
     };
 
@@ -82,6 +87,23 @@ namespace dispatch
                 per_ring::apply(*it, geometry, id, map);
             }
         }
+
+        template <typename Map>
+        static inline void apply(Polygon const& polygon, ring_identifier id, Map& map)
+        {
+            typedef typename geometry::ring_type<Polygon>::type ring_type;
+            typedef select_rings<ring_tag, ring_type> per_ring;
+
+            per_ring::apply(exterior_ring(polygon), id, map);
+
+            typename interior_return_type<Polygon const>::type rings
+                        = interior_rings(polygon);
+            for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+            {
+                id.ring_index++;
+                per_ring::apply(*it, id, map);
+            }
+        }
     };
 }
 
@@ -98,15 +120,11 @@ struct decide<overlay_union>
     {
         return code.within_code * -1 == 1;
     }
+
     template <typename Code>
     static bool reversed(ring_identifier const& , Code const& )
     {
         return false;
-    }
-    template <typename Code>
-    static std::string reverse(ring_identifier const& , Code const& )
-    {
-        return "";
     }
 };
 
@@ -119,19 +137,11 @@ struct decide<overlay_difference>
         bool is_first = id.source_index == 0;
         return code.within_code * -1 * (is_first ? 1 : -1) == 1;
     }
+
     template <typename Code>
     static bool reversed(ring_identifier const& id, Code const& code)
     {
         return include(id, code) && id.source_index == 1;
-    }
-    template <typename Code>
-    static std::string reverse(ring_identifier const& id, Code const& code)
-    {
-        if (include(id, code) && id.source_index == 1)
-        {
-            return " REV";
-        }
-        return "";
     }
 };
 
@@ -143,42 +153,28 @@ struct decide<overlay_intersection>
     {
         return code.within_code * 1 == 1;
     }
+
     template <typename Code>
     static bool reversed(ring_identifier const& , Code const& )
     {
         return false;
     }
-    template <typename Code>
-    static std::string reverse(ring_identifier const& , Code const& )
-    {
-        return "";
-    }
 };
 
 
-/*!
-\brief The function select_rings select rings based on the overlay-type (union,intersection)
-*/
 template
 <
     overlay_type OverlayType,
-    typename Geometry1, typename Geometry2,
     typename IntersectionMap, typename SelectionMap
 >
-inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
-            IntersectionMap const& intersection_map, SelectionMap& selection_map)
+inline void update_selection_map(IntersectionMap const& intersection_map, 
+            SelectionMap const& map_with_all, SelectionMap& selection_map)
 {
-    typedef typename geometry::tag<Geometry1>::type tag1;
-    typedef typename geometry::tag<Geometry2>::type tag2;
-
-    // geometry1 and 2 is a ring, or a (multi)polygon -> dispatch on that
-    SelectionMap map_with_all;
-    dispatch::select_rings<tag1, Geometry1>::apply(geometry1, geometry2, ring_identifier(0, -1, -1), map_with_all);
-    dispatch::select_rings<tag2, Geometry2>::apply(geometry2, geometry1, ring_identifier(1, -1, -1), map_with_all);
-
     selection_map.clear();
 
-    for (BOOST_AUTO(it, boost::begin(map_with_all)); it != boost::end(map_with_all); ++it)
+    for (typename SelectionMap::const_iterator it = boost::begin(map_with_all); 
+        it != boost::end(map_with_all); 
+        ++it)
     {
         /*
         int union_code = it->second.within_code * -1;
@@ -204,6 +200,46 @@ inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
             }
         }
     }
+}
+
+
+/*!
+\brief The function select_rings select rings based on the overlay-type (union,intersection)
+*/
+template
+<
+    overlay_type OverlayType,
+    typename Geometry1, typename Geometry2,
+    typename IntersectionMap, typename SelectionMap
+>
+inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
+            IntersectionMap const& intersection_map, SelectionMap& selection_map)
+{
+    typedef typename geometry::tag<Geometry1>::type tag1;
+    typedef typename geometry::tag<Geometry2>::type tag2;
+
+    SelectionMap map_with_all;
+    dispatch::select_rings<tag1, Geometry1>::apply(geometry1, geometry2, ring_identifier(0, -1, -1), map_with_all);
+    dispatch::select_rings<tag2, Geometry2>::apply(geometry2, geometry1, ring_identifier(1, -1, -1), map_with_all);
+
+    update_selection_map<OverlayType>(intersection_map, map_with_all, selection_map);
+}
+
+template
+<
+    overlay_type OverlayType,
+    typename Geometry, 
+    typename IntersectionMap, typename SelectionMap
+>
+inline void select_rings(Geometry const& geometry,
+            IntersectionMap const& intersection_map, SelectionMap& selection_map)
+{
+    typedef typename geometry::tag<Geometry>::type tag;
+
+    SelectionMap map_with_all;
+    dispatch::select_rings<tag, Geometry>::apply(geometry, ring_identifier(0, -1, -1), map_with_all);
+
+    update_selection_map<OverlayType>(intersection_map, map_with_all, selection_map);
 }
 
 

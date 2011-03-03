@@ -77,7 +77,8 @@ inline OutputIterator add_rings(SelectionMap const& map,
         it != boost::end(map);
         ++it)
     {
-        if (it->second.parent.source_index == -1)
+        if (! it->second.discarded
+            && it->second.parent.source_index == -1)
         {
             GeometryOut result;
             convert_and_add(result, geometry1, geometry2, collection,
@@ -90,7 +91,8 @@ inline OutputIterator add_rings(SelectionMap const& map,
                 ++child_it)
             {
                 iterator mit = map.find(*child_it);
-                if (mit != map.end())
+                if (mit != map.end()
+                    && ! mit->second.discarded)
                 {
                     convert_and_add(result, geometry1, geometry2, collection,
                             *child_it, mit->second.reversed, true);
@@ -100,6 +102,24 @@ inline OutputIterator add_rings(SelectionMap const& map,
         }
     }
     return out;
+}
+
+
+template
+<
+    typename GeometryOut,
+    typename SelectionMap,
+    typename Geometry,
+    typename RingCollection,
+    typename OutputIterator
+>
+inline OutputIterator add_rings(SelectionMap const& map,
+            Geometry const& geometry, 
+            RingCollection const& collection,
+            OutputIterator out)
+{
+    Geometry empty;
+    return add_rings<GeometryOut>(map, geometry, empty, collection, out);
 }
 
 
