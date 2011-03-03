@@ -95,7 +95,8 @@ template
 inline void assign_parents(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RingCollection const& collection,
-            RingMap& ring_map)
+            RingMap& ring_map,
+            bool check_for_orientation = false)
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
@@ -119,15 +120,15 @@ inline void assign_parents(Geometry1 const& geometry1,
             switch(it->first.source_index)
             {
                 case 0 :
-                    geometry::envelope(get_ring<tag1>::apply(it->first, geometry1), 
+                    geometry::envelope(get_ring<tag1>::apply(it->first, geometry1),
                             vector.back().envelope);
                     break;
                 case 1 :
-                    geometry::envelope(get_ring<tag2>::apply(it->first, geometry2), 
+                    geometry::envelope(get_ring<tag2>::apply(it->first, geometry2),
                             vector.back().envelope);
                     break;
                 case 2 :
-                    geometry::envelope(get_ring<void>::apply(it->first, collection), 
+                    geometry::envelope(get_ring<void>::apply(it->first, collection),
                             vector.back().envelope);
                     break;
             }
@@ -149,13 +150,31 @@ inline void assign_parents(Geometry1 const& geometry1,
                 {
                     ring_info_type& inner = ring_map[inn_it->id];
 
-                    if (inner.get_area() < 0
+                    if ( (inner.get_area() < 0 || check_for_orientation)
                         && geometry::within(inner.point, out_it->envelope)
                         && contains(out_it->id, outer, inner, geometry1, geometry2, collection))
                     {
                         inner.parent = out_it->id;
                     }
                 }
+            }
+        }
+    }
+
+    if (check_for_orientation)
+    {
+        for (map_iterator_type it = boost::begin(ring_map); it != boost::end(ring_map); ++it)
+        {
+            if (it->second.parent.source_index >= 0 && it->second.get_area() > 0)
+            {
+                // Discard positive inner ring with parent
+                it->second.discarded = true;
+                it->second.parent.source_index = -1;
+            }
+            else if (it->second.parent.source_index < 0 && it->second.get_area() < 0)
+            {
+                // Reverse negative ring without parent
+                it->second.reversed = true;
             }
         }
     }
@@ -168,7 +187,23 @@ inline void assign_parents(Geometry1 const& geometry1,
             ring_map[it->second.parent].children.push_back(it->first);
         }
     }
+}
 
+template
+<
+    typename Geometry,
+    typename RingCollection,
+    typename RingMap
+>
+inline void assign_parents(Geometry const& geometry,
+            RingCollection const& collection,
+            RingMap& ring_map)
+{
+    // Call it with an empty geometry
+    // (ring_map should be empty for source_id==1)
+
+    Geometry empty;
+    assign_parents(geometry, empty, collection, ring_map, true);
 }
 
 
