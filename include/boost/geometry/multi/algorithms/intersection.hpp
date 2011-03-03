@@ -20,7 +20,7 @@
 #include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/add_to_containment.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 

@@ -46,11 +46,11 @@ struct ring_identifier
     }
 
 #if defined(BOOST_GEOMETRY_DEBUG_IDENTIFIER)
-    friend std::ostream& operator<<(std::ostream &os, ring_identifier const& seg_id)
+    friend std::ostream& operator<<(std::ostream &os, ring_identifier const& ring_id)
     {
-        os << "(s:" << seg_id.source_index;
-        if (seg_id.ring_index >= 0) os << ", r:" << seg_id.ring_index;
-        if (seg_id.multi_index >= 0) os << ", m:" << seg_id.multi_index;
+        os << "(s:" << ring_id.source_index;
+        if (ring_id.ring_index >= 0) os << ", r:" << ring_id.ring_index;
+        if (ring_id.multi_index >= 0) os << ", m:" << ring_id.multi_index;
         os << ")";
         return os;
     }
