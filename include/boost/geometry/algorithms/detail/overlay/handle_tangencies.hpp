@@ -13,6 +13,7 @@
 
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 
 namespace boost { namespace geometry

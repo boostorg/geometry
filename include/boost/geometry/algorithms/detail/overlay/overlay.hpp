@@ -16,7 +16,6 @@
 #include <boost/mpl/assert.hpp>
 
 
-#include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
 #include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -30,6 +29,11 @@
 #include <boost/geometry/algorithms/reverse.hpp>
 
 #include <boost/geometry/iterators/range_type.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
+#include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
+#include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
+#include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
@@ -46,13 +50,59 @@ namespace detail { namespace overlay
 {
 
 
+// Skip for assemble process
+template <typename TurnInfo>
+inline bool skip(TurnInfo const& turn_info)
+{
+    return (turn_info.discarded || turn_info.both(operation_union))
+        && ! turn_info.any_blocked()
+        && ! turn_info.both(operation_intersection)
+        ;
+}
+
+
+
+
+template <typename TurnPoints, typename Map>
+inline void map_turns(Map& map, TurnPoints const& turn_points)
+{
+    typedef typename boost::range_value<TurnPoints>::type turn_point_type;
+    typedef typename turn_point_type::container_type container_type;
+
+    int index = 0;
+    for (typename boost::range_iterator<TurnPoints const>::type
+            it = boost::begin(turn_points);
+         it != boost::end(turn_points);
+         ++it, ++index)
+    {
+        if (! skip(*it))
+        {
+            int op_index = 0;
+            for (typename boost::range_iterator<container_type const>::type
+                    op_it = boost::begin(it->operations);
+                op_it != boost::end(it->operations);
+                ++op_it, ++op_index)
+            {
+                ring_identifier ring_id
+                    (
+                        op_it->seg_id.source_index,
+                        op_it->seg_id.multi_index,
+                        op_it->seg_id.ring_index
+                    );
+                map[ring_id]++;
+            }
+        }
+    }
+}
+
+
 
 template
 <
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    overlay_type Direction, 
+    overlay_type Direction,
     typename Strategy
 >
 struct overlay
@@ -88,8 +138,7 @@ struct overlay
             {
                 std::map<ring_identifier, int> map;
                 ring_container_type rings;
-                return assemble<GeometryOut>(rings, map,
-                                geometry1, geometry2, Direction, false, false, out);
+                ////return assemble<GeometryOut>(rings, map, geometry1, geometry2, Direction, false, false, out);
             }
             return out;
         }
@@ -110,7 +159,7 @@ std::cout << "get turns" << std::endl;
 std::cout << "enrich" << std::endl;
 #endif
         typename Strategy::side_strategy_type side_strategy;
-        geometry::enrich_intersection_points<Reverse1, Reverse2>(turn_points, 
+        geometry::enrich_intersection_points<Reverse1, Reverse2>(turn_points,
                 Direction == overlay_union
                     ? boost::geometry::detail::overlay::operation_union
                     : boost::geometry::detail::overlay::operation_intersection,
@@ -142,8 +191,30 @@ std::cout << "traverse" << std::endl;
 
         std::map<ring_identifier, int> map;
         map_turns(map, turn_points);
-        return assemble<GeometryOut>(rings, map,
-                        geometry1, geometry2, Direction, false, false, out);
+        //return assemble<GeometryOut>(rings, map, geometry1, geometry2, Direction, false, false, out);
+
+        typedef ring_properties<typename geometry::point_type<Geometry1>::type> info;
+
+        std::map<ring_identifier, info> selected;
+
+        select_rings<Direction>(geometry1, geometry2, map, selected);
+
+        // Add rings from container
+        {
+            ring_identifier id(2, 0, -1);
+            for (typename boost::range_iterator<ring_container_type>::type
+                    it = boost::begin(rings);
+                    it != boost::end(rings);
+                    ++it)
+            {
+                selected[id] = info(*it);
+                id.multi_index++;
+            }
+        }
+
+        assign_parents(geometry1, geometry2, rings, selected);
+        return add_rings<GeometryOut>(selected, geometry1, geometry2, rings, out);
+
     }
 };
 

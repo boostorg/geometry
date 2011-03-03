@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENT_POINT_HPP
 
 
+#include <boost/array.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
