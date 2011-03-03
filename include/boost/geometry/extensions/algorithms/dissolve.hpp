@@ -26,7 +26,11 @@
 
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
-#include <boost/geometry/algorithms/detail/overlay/assemble.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
+#include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
+#include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
+#include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 
@@ -102,8 +106,29 @@ struct dissolve_ring_or_polygon
 
             std::map<ring_identifier, int> map;
             map_turns(map, turns);
-            return detail::overlay::assemble<GeometryOut>(rings, map,
-                            geometry, geometry, overlay_dissolve, true, false, out);
+
+            typedef detail::overlay::ring_properties<typename geometry::point_type<Geometry>::type> properties;
+
+            std::map<ring_identifier, properties> selected;
+
+            detail::overlay::select_rings<overlay_union>(geometry, map, selected);
+
+            // Add intersected rings 
+            {
+                ring_identifier id(2, 0, -1);
+                for (typename boost::range_iterator<std::vector<ring_type> const>::type
+                        it = boost::begin(rings);
+                        it != boost::end(rings);
+                        ++it)
+                {
+                    selected[id] = properties(*it);
+                    id.multi_index++;
+                }
+            }
+
+            detail::overlay::assign_parents(geometry, rings, selected);
+            return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out);
+
         }
         else
         {
