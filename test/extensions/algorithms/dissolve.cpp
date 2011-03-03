@@ -91,7 +91,6 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     {
         bg::unique(dissolved);
 
-
         length_or_area +=
             is_line ? bg::length(dissolved) : bg::area(dissolved);
 
@@ -214,7 +213,7 @@ void test_all()
     // Self intersecting in last segment
     test_one<polygon, polygon>("3",
         "POLYGON((0 2,2 4,2 0,4 2,0 2))",
-        0, 4, 2.0);
+        0, 8, 4.0);
 
     // Self tangent
     test_one<polygon, polygon>("4",
