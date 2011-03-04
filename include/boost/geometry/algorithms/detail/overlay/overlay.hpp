@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright Barend Gehrels 2007-2010, Geodan, Amsterdam, the Netherlands.
+// Copyright Barend Gehrels 2007-2011, Geodan, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -49,7 +49,6 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-
 // Skip for assemble process
 template <typename TurnInfo>
 inline bool skip(TurnInfo const& turn_info)
@@ -59,8 +58,6 @@ inline bool skip(TurnInfo const& turn_info)
         && ! turn_info.both(operation_intersection)
         ;
 }
-
-
 
 
 template <typename TurnPoints, typename Map>
@@ -96,6 +93,40 @@ inline void map_turns(Map& map, TurnPoints const& turn_points)
 }
 
 
+template
+<
+    typename GeometryOut, overlay_type Direction, bool ReverseOut,
+    typename Geometry1, typename Geometry2,
+    typename OutputIterator
+>
+inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1, 
+            Geometry2 const& geometry2,
+            OutputIterator out)
+{
+    typedef typename geometry::range_type<GeometryOut>::type ring_type;
+    typedef std::deque<ring_type> ring_container_type;
+
+    typedef ring_properties<typename geometry::point_type<Geometry1>::type> properties;
+
+    // Union: return either of them
+    // Intersection: return nothing
+    // Difference: return first of them
+    if (Direction == overlay_intersection
+        || (Direction == overlay_difference
+            && geometry::num_points(geometry1) == 0))
+    {
+        return out;
+    }
+
+    std::map<ring_identifier, int> empty;
+    std::map<ring_identifier, properties> all_of_one_of_them;
+
+    select_rings<Direction>(geometry1, geometry2, empty, all_of_one_of_them);
+    ring_container_type rings;
+    assign_parents(geometry1, geometry2, rings, all_of_one_of_them);
+    return add_rings<GeometryOut>(all_of_one_of_them, geometry1, geometry2, rings, out);
+}
+
 
 template
 <
@@ -122,25 +153,19 @@ struct overlay
         typedef std::deque<turn_info> container_type;
 
         // "Use" rangetype for ringtype:
-        // for polygon, it is the type of the exterior ring.
-        // for ring, it is the ring itself. That is what is
-        // for multi-polygon, it is also the type of the ring.
+        // -> for polygon, it is the type of the exterior ring.
+        // -> for ring, it is the ring itself. 
+        // -> for multi-polygon, it is also the type of the ring.
         typedef typename geometry::range_type<GeometryOut>::type ring_type;
         typedef std::deque<ring_type> ring_container_type;
 
-        // If one input is empty, output the other one for a union.
-        // For an intersection, the intersection is empty.
-        // TODO: for a difference, take one of them.
         if (geometry::num_points(geometry1) == 0
             || geometry::num_points(geometry2) == 0)
         {
-            if (Direction == overlay_union)
-            {
-                std::map<ring_identifier, int> map;
-                ring_container_type rings;
-                ////return assemble<GeometryOut>(rings, map, geometry1, geometry2, Direction, false, false, out);
-            }
-            return out;
+            return return_if_one_input_is_empty
+                <
+                    GeometryOut, Direction, ReverseOut
+                >(geometry1, geometry2, out);
         }
 
         container_type turn_points;
@@ -177,7 +202,7 @@ std::cout << "traverse" << std::endl;
                 turn_points, rings);
 
         // TEMP condition, reversal should be done in traverse by calling "push_front"
-        if (ReverseOut && (Reverse1 || Reverse2))
+        if (ReverseOut) 
         {
             for (typename boost::range_iterator<ring_container_type>::type
                     it = boost::begin(rings);
@@ -191,15 +216,13 @@ std::cout << "traverse" << std::endl;
 
         std::map<ring_identifier, int> map;
         map_turns(map, turn_points);
-        //return assemble<GeometryOut>(rings, map, geometry1, geometry2, Direction, false, false, out);
 
-        typedef ring_properties<typename geometry::point_type<Geometry1>::type> info;
+        typedef ring_properties<typename geometry::point_type<Geometry1>::type> properties;
 
-        std::map<ring_identifier, info> selected;
-
+        std::map<ring_identifier, properties> selected;
         select_rings<Direction>(geometry1, geometry2, map, selected);
 
-        // Add rings from container
+        // Add rings from intersection container
         {
             ring_identifier id(2, 0, -1);
             for (typename boost::range_iterator<ring_container_type>::type
@@ -207,20 +230,19 @@ std::cout << "traverse" << std::endl;
                     it != boost::end(rings);
                     ++it)
             {
-                selected[id] = info(*it);
+                selected[id] = properties(*it);
                 id.multi_index++;
             }
         }
 
         assign_parents(geometry1, geometry2, rings, selected);
         return add_rings<GeometryOut>(selected, geometry1, geometry2, rings, out);
-
     }
 };
 
 
 // Metafunction helper for intersection and union
-template <order_selector Selector, bool Reverse>
+template <order_selector Selector, bool Reverse = false>
 struct do_reverse {};
 
 template <>

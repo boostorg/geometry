@@ -24,6 +24,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 
@@ -79,6 +80,31 @@ struct transform_box
             set<max_corner, 0>(b2, x2);
             set<max_corner, 1>(b2, y2);
 
+            return true;
+        }
+        return false;
+    }
+};
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+struct transform_box_or_segment
+{
+    static inline bool apply(Geometry1 const& source, Geometry2& target,
+                Strategy const& strategy)
+    {
+        typedef typename point_type<Geometry1>::type point_type1;
+        typedef typename point_type<Geometry2>::type point_type2;
+
+        point_type1 source_point[2];
+        assign_point_from_index<0>(source, source_point[0]);
+        assign_point_from_index<1>(source, source_point[1]);
+
+        point_type2 target_point[2];
+        if (strategy.apply(source_point[0], target_point[0]) 
+            && strategy.apply(source_point[1], target_point[1]))
+        {
+            assign_point_to_index<0>(target_point[0], target);
+            assign_point_to_index<1>(target_point[1], target);
             return true;
         }
         return false;
@@ -246,6 +272,12 @@ struct transform<box_tag, box_tag, Box1, Box2, Strategy>
 {
 };
 
+template <typename Segment1, typename Segment2, typename Strategy>
+struct transform<segment_tag, segment_tag, Segment1, Segment2, Strategy>
+    : detail::transform::transform_box_or_segment<Segment1, Segment2, Strategy>
+{
+};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
@@ -270,8 +302,8 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
 
     typedef dispatch::transform
         <
-            typename tag<Geometry1>::type,
-            typename tag<Geometry2>::type,
+            typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
+            typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
             Geometry1,
             Geometry2,
             Strategy

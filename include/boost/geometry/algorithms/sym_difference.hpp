@@ -51,9 +51,9 @@ inline OutputIterator sym_difference_inserter(Geometry1 const& geometry1,
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
 
-    out = detail::intersection::inserter<GeometryOut, false, true, false, overlay_difference>(
+    out = detail::intersection::inserter<GeometryOut, true, overlay_difference>(
             geometry1, geometry2, out, strategy);
-    out = detail::intersection::inserter<GeometryOut, false, true, false, overlay_difference>(
+    out = detail::intersection::inserter<GeometryOut, true, overlay_difference>(
             geometry2, geometry1, out, strategy);
     return out;
 }
