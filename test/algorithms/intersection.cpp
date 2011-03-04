@@ -23,10 +23,26 @@
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/custom_segment.hpp>
 
+static std::string pie_2_3_23_0[2] =
+{
+    "POLYGON((2500 2500,2855 3828,2500 3875,2500 2500))",
+    "POLYGON((2500 2500,2791 3586,2499 3625,2208 3586,2500 2500))"
+};
 
 template <typename Polygon>
 void test_areal()
 {
+    /*test_one<Polygon, Polygon, Polygon>("pie_2_3_23_0",
+        pie_2_3_23_0[0], pie_2_3_23_0[1],
+        1, 4, 163292.677335535, 0.01);*/
+
+    test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
+        simplex_normal[0], polygon_empty,
+        0, 0, 0.0);
+    test_one<Polygon, Polygon, Polygon>("simplex_with_empty_2",
+        polygon_empty, simplex_normal[0], 
+        0, 0, 0.0);
+
     test_one<Polygon, Polygon, Polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         1, 7, 5.47363293);
@@ -150,16 +166,6 @@ void test_areal()
             "Polygon((0 0,0 4,4 4,4 0,0 0))",
             "Polygon((2 -2,2 -1,2 6,2 -2))",
             5, 22, 1.1901714);
-
-
-
-    // Test the REVERSE case - does not give correct results yet
-    /*
-    test_one<Polygon, Polygon, Polygon>("icovist_r",
-        isovist[0], isovist[2],
-        1, 4, 0.29516139, 0.01);
-    */
-
 }
 
 template <typename Polygon, typename Box>
@@ -180,23 +186,26 @@ void test_areal_clip()
     test_one<Polygon, Box, Polygon>("clip_poly2", example_box,
         "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,5.3 2.5,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3))",
         2, 12, 1.00375);
+
     test_one<Polygon, Box, Polygon>("clip_poly3", example_box,
         "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 2.5,4.5 1.2,4.9 0.8,2.9 0.7,2 1.3))",
         2, 12, 1.00375);
+
     test_one<Polygon, Box, Polygon>("clip_poly4", example_box,
         "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 2.5,4.5 2.3,5.0 2.3,5.0 2.1,4.5 2.1,4.5 1.9,4.0 1.9,4.5 1.2,4.9 0.8,2.9 0.7,2 1.3))",
         2, 16, 0.860892);
 
     test_one<Polygon, Box, Polygon>("clip_poly5", example_box,
-            "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 1.2,2.9 0.7,2 1.3))",
-                2, 11, 0.7575961);
+        "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 1.2,2.9 0.7,2 1.3))",
+        2, 11, 0.7575961);
 
     test_one<Polygon, Box, Polygon>("clip_poly6", example_box,
-            "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.0 3.0,5.0 2.0,2.9 0.7,2 1.3))",
-                2, 13, 1.0744456);
+        "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.0 3.0,5.0 2.0,2.9 0.7,2 1.3))",
+        2, 13, 1.0744456);
 
     test_one<Polygon, Box, Polygon>("clip_poly7", "Box(0 0, 3 3)",
-            "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))", 1, 4, 0.75);
+        "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))", 
+        1, 4, 0.75);
 }
 
 template <typename Box>
@@ -234,6 +243,7 @@ void test_all()
 
     // Test polygons clockwise and counter clockwise
     test_areal<polygon>();
+
     test_areal<polygon_ccw>();
     test_areal<polygon_open>();
     test_areal<polygon_ccw_open>();
@@ -278,9 +288,6 @@ void test_all()
     // which occur 4 times, the length is expected to be 2.0)
     test_one<linestring, linestring, box>("llb_2", "LINESTRING(1.7 1.6,2.3 2.4,2.9 1.6,3.5 2.4,4.1 1.6)", clip, 2, 6, 4 * 0.5);
     
-
-
-
     // linear
     test_one<P, linestring, linestring>("llp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
     test_one<P, segment, segment>("ssp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
@@ -345,7 +352,7 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<double> >();
 
 #if defined(HAVE_TTMATH)
-   test_all<bg::model::d2::point_xy<ttmath_big> >();
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     //test_pointer_version();

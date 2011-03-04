@@ -11,8 +11,8 @@
 #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
+#include <boost/program_options.hpp>
 #include <boost/timer.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <test_overlay_p_q.hpp>
 
@@ -244,11 +244,32 @@ int main(int argc, char** argv)
 {
     try
     {
-        bool svg = argc > 1 && std::string(argv[1]) == std::string("svg");
-        bool multi = argc > 2 && std::string(argv[2]) == std::string("multi");
-        bool ccw = argc > 3 && std::string(argv[3]) == std::string("ccw");
-        bool open = argc > 4 && std::string(argv[4]) == std::string("open");
+        namespace po = boost::program_options;
+        po::options_description description("=== recursive_polygons ===\nAllowed options");
+
+        bool svg = false;
+        bool multi = false;
+        bool ccw = false;
+        bool open = false;
         bool single_selftangent = false; // keep false, true does not work!
+
+        description.add_options()
+            ("help", "Help message")
+            ("svg", po::value<bool>(&svg)->default_value(false), "Create an SVG filename for all tests")
+            ("multi", po::value<bool>(&multi)->default_value(false), "Multiple tangencies at one point")
+            ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
+            ("open", po::value<bool>(&open)->default_value(false), "Open polytons")
+        ;
+
+        po::variables_map varmap;
+        po::store(po::parse_command_line(argc, argv, description), varmap);
+        po::notify(varmap);
+
+        if (varmap.count("help"))
+        {
+            std::cout << description << std::endl;
+            return 1;
+        }
 
         // template par's are: CoordinateType, Clockwise, Closed
         if (ccw && open)

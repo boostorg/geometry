@@ -38,6 +38,16 @@ void test_all()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::ring<P> ring;
 
+    test_one<polygon, polygon, polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        3, 3, 2.52636706856656,
+        3, 3, 3.52636706856656);
+
+    test_one<polygon, polygon, polygon>("simplex_with_empty",
+        simplex_normal[0], polygon_empty,
+        1, 4, 8.0,
+        0, 0, 0.0);
+
     test_one<polygon, polygon, polygon>(
             "star_ring", example_star, example_ring,
             5, 22, 1.1901714,
@@ -52,11 +62,6 @@ void test_all()
         star_comb_15[0], star_comb_15[1],
         30, 150, 227.658275102812,
         30, 150, 480.485775259312);
-
-    test_one<polygon, polygon, polygon>("simplex_normal",
-        simplex_normal[0], simplex_normal[1],
-        3, 3, 2.52636706856656,
-        3, 3, 3.52636706856656);
 
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
@@ -234,10 +239,6 @@ void test_all()
     // Multi
     {
         typedef bg::model::multi_polygon<polygon> mp;
-
-        test_one<polygon, mp, mp>("simplex_multi",
-            case_multi_simplex[0], case_multi_simplex[1],
-            5, 12, 5.58, 4, 12, 2.58);
 
         static std::string const clip = "POLYGON((2 2,4 4))";
 

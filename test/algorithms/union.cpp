@@ -21,6 +21,17 @@
 template <typename Ring, typename Polygon>
 void test_areal()
 {
+    test_one<Polygon, Polygon, Polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 0, 13, 11.526367);
+
+    test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
+        simplex_normal[0], polygon_empty,
+        1, 0, 4, 8.0);
+    test_one<Polygon, Polygon, Polygon>("simplex_with_empty_2",
+        polygon_empty, simplex_normal[0], 
+        1, 0, 4, 8.0);
+
     test_one<Polygon, Polygon, Polygon>("star_ring", example_star, example_ring,
         1, 0, 23, 5.67017141);
 
@@ -121,10 +132,6 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("crossed",
         crossed[0], crossed[1],
         1, 3, 17, 23.5); // Area from SQL Server - was somehow wrong before
-
-    test_one<Polygon, Polygon, Polygon>("simplex_normal",
-        simplex_normal[0], simplex_normal[1],
-        1, 0, 13, 11.526367);
 
     test_one<Polygon, Polygon, Polygon>("fitting",
         fitting[0], fitting[1],

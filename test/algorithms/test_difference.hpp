@@ -16,6 +16,7 @@
 
 #include <boost/range/algorithm/copy.hpp>
 
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/sym_difference.hpp>
 #include <boost/geometry/multi/algorithms/difference.hpp>
@@ -176,6 +177,19 @@ void test_one(std::string const& caseid,
 
         double percentage = 0.0001)
 {
+#ifdef BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
+    std::cout
+        << "-- " << caseid << std::endl
+        << "with qu as (" << std::endl
+        << "select geometry::STGeomFromText('" << wkt1 << "',0) as p," << std::endl
+        << "geometry::STGeomFromText('" << wkt2 << "',0) as q)" << std::endl
+        << "select " << std::endl
+        << " p.STDifference(q).STNumGeometries() as cnt1,p.STDifference(q).STNumPoints() as pcnt1,p.STDifference(q).STArea() as area1," << std::endl
+        << " q.STDifference(p).STNumGeometries() as cnt2,q.STDifference(p).STNumPoints() as pcnt2,q.STDifference(p).STArea() as area2," << std::endl
+        << " p.STDifference(q) as d1,q.STDifference(p) as d2 from qu" << std::endl << std::endl;
+#endif
+
+
     G1 g1;
     bg::read_wkt(wkt1, g1);
 
@@ -199,6 +213,7 @@ void test_one(std::string const& caseid,
         expected_point_count1 + expected_point_count2,
         expected_area1 + expected_area2,
         percentage, true);
+
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
     std::cout
