@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="intersection_pies"
-	ProjectGUID="{24D92478-7C66-4DD5-A501-30A3D4376E4F}"
-	RootNamespace="intersection_pies"
+	Name="multi_difference"
+	ProjectGUID="{7F85B87A-48A6-47BD-A08C-AB12AEA56582}"
+	RootNamespace="multi_difference"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,9 +18,9 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\intersection_pies"
+			IntermediateDirectory="$(ConfigurationName)\multi_difference"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\boost.vsprops"
+			InheritedPropertySheets="..\..\boost.vsprops;..\..\ttmath.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,13 +41,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor;.;../../../../../..;../../.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TEST_WITH_SVG;BOOST_ALL_NO_LIB"
-				BasicRuntimeChecks="3"
+				AdditionalIncludeDirectories="../../../../..;../..;."
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;TEST_WITH_SVG"
+				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="1"
 			/>
 			<Tool
@@ -61,7 +59,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalLibraryDirectories="&quot;C:\gmp\gmp-dynamic&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -94,9 +91,9 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\intersection_pies"
+			IntermediateDirectory="$(ConfigurationName)\multi_difference"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\boost.vsprops"
+			InheritedPropertySheets="..\..\boost.vsprops;..\..\ttmath.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -117,11 +114,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor;.;../../../../../..;../../.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB"
+				AdditionalIncludeDirectories="../../../../..;../..;."
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -134,7 +130,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalLibraryDirectories=""
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -169,52 +164,8 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="program options"
-			>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\cmdline.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\config_file.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\convert.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\options_description.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\parsers.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\positional_options.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\split.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\utf8_codecvt_facet.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\value_semantic.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\program_options\src\variables_map.cpp"
-				>
-			</File>
-		</Filter>
 		<File
-			RelativePath=".\intersection_pies.cpp"
+			RelativePath=".\multi_difference.cpp"
 			>
 		</File>
 	</Files>

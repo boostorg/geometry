@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../../../../..;../../..;."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TEST_WITH_SVG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TEST_WITH_SVG;BOOST_ALL_NO_LIB"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -118,7 +118,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../../../../..;../../..;."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -169,6 +169,50 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="program options"
+			>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\cmdline.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\config_file.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\convert.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\options_description.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\parsers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\positional_options.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\split.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\utf8_codecvt_facet.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\value_semantic.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\program_options\src\variables_map.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\recursive_polygons.cpp"
 			>

@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iomanip>
 
-// #define BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
+//#define BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
 
 
 // For mixing int/float
@@ -48,7 +48,7 @@ static bool test_overlay_p_q(std::string const& caseid,
     CalculationType area_q = bg::area(q);
 
     bg::intersection(p, q, out_i);
-    CalculationType area_i = bg::area(out_i);
+    CalculationType area_i = abs(bg::area(out_i)); // TEMP abs call, TODO solve this
 
     bg::union_(p, q, out_u);
     CalculationType area_u = bg::area(out_u);
