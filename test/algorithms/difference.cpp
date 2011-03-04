@@ -132,7 +132,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
         intersect_holes_new_ring[0], intersect_holes_new_ring[1],
         3, 0, 9.8961,
-        4, 0, 121.8961);
+        4, 0, 121.8961, 0.01);
 
     test_one<polygon, polygon, polygon>("first_within_hole_of_second",
         first_within_hole_of_second[0], first_within_hole_of_second[1],
