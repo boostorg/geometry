@@ -11,11 +11,13 @@
 #include <ostream>
 #include <string>
 
+#include <boost/array.hpp>
 #include <boost/concept/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -206,6 +208,35 @@ struct wkt_box
         }
 };
 
+
+template <typename Segment>
+struct wkt_segment
+{
+    typedef typename point_type<Segment>::type point_type;
+
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                Segment const& segment)
+    {
+        // Convert to two points, then stream
+        typedef boost::array<point_type, 2> sequence;
+
+        sequence points;
+        assign_point_from_index<0>(segment, points[0]);
+        assign_point_from_index<1>(segment, points[1]);
+
+        // In Boost.Geometry a segment is represented 
+        // in WKT-format like (for 2D): LINESTRING(x y,x y) 
+        os << "LINESTRING";
+        wkt_sequence<sequence>::apply(os, points);
+    }
+
+    private:
+
+        inline wkt_segment()
+        {}
+};
+
 }} // namespace detail::wkt
 #endif // DOXYGEN_NO_DETAIL
 
@@ -254,6 +285,11 @@ It is therefore streamed as a polygon
 template <typename Box>
 struct wkt<box_tag, Box>
     : detail::wkt::wkt_box<Box>
+{};
+
+template <typename Segment>
+struct wkt<segment_tag, Segment>
+    : detail::wkt::wkt_segment<Segment>
 {};
 
 

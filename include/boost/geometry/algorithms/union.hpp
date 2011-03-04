@@ -111,8 +111,7 @@ namespace detail { namespace union_
 
 template
 <
-    typename GeometryOut,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename GeometryOut, 
     typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename Strategy
@@ -134,9 +133,9 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
                 geometry::is_areal<Geometry2>::value,
                 geometry::is_areal<GeometryOut>::value,
                 Geometry1, Geometry2,
-                overlay::do_reverse<geometry::point_order<Geometry1>::value, Reverse1>::value,
-                overlay::do_reverse<geometry::point_order<Geometry2>::value, Reverse2>::value,
-                ReverseOut,
+                overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+                overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
                 OutputIterator, GeometryOut,
                 Strategy
             >,
@@ -149,9 +148,9 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
                 geometry::is_areal<Geometry2>::value,
                 geometry::is_areal<GeometryOut>::value,
                 Geometry1, Geometry2,
-                overlay::do_reverse<geometry::point_order<Geometry1>::value, Reverse1>::value,
-                overlay::do_reverse<geometry::point_order<Geometry2>::value, Reverse2>::value,
-                ReverseOut,
+                overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+                overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
                 OutputIterator, GeometryOut,
                 Strategy
             >
@@ -197,7 +196,7 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
 
-    return detail::union_::inserter<GeometryOut, false, false, true>(geometry1, geometry2, out, strategy);
+    return detail::union_::inserter<GeometryOut>(geometry1, geometry2, out, strategy);
 }
 
 /*!

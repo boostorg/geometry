@@ -52,8 +52,6 @@ struct transform_multi
 };
 
 
-
-
 }} // namespace detail::transform
 #endif // DOXYGEN_NO_DETAIL
 
@@ -62,11 +60,10 @@ struct transform_multi
 namespace dispatch
 {
 
-
 template <typename Multi1, typename Multi2, typename Strategy>
 struct transform
     <
-        multi_polygon_tag, multi_polygon_tag,
+        multi_tag, multi_tag,
         Multi1, Multi2,
         Strategy
     >
@@ -74,16 +71,22 @@ struct transform
         <
             Multi1,
             Multi2,
-            detail::transform::transform_polygon
+            transform
                 <
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi1>::type
+                                >::type,
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi2>::type
+                                >::type,
                     typename boost::range_value<Multi1>::type,
                     typename boost::range_value<Multi2>::type,
                     Strategy
                 >
         >
 {};
-
-
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
