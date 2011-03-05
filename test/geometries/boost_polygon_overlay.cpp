@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library) test file
 //
-// Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands
+// Copyright Barend Gehrels 2011, Geodan, Amsterdam, the Netherlands
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -18,7 +18,7 @@
 #include<iostream>
 
 template <typename T>
-void test_overlay_using_bp(std::string const& case_id, std::string const& wkt_p, std::string const& wkt_q)
+void test_overlay_using_boost_polygon(std::string const& case_id, std::string const& wkt_p, std::string const& wkt_q)
 {
     typedef boost::polygon::polygon_set_data<T> polygon_set;
 
@@ -26,7 +26,7 @@ void test_overlay_using_bp(std::string const& case_id, std::string const& wkt_p,
     polygon_set out_i, out_u;
 
     {
-        // Read it using Boost.Geometry
+        // Read polygons, conveniently using Boost.Geometry
         typedef boost::geometry::model::multi_polygon
             <
                 boost::polygon::polygon_with_holes_data<T>
@@ -65,7 +65,7 @@ void test_overlay_using_bp(std::string const& case_id, std::string const& wkt_p,
 
 
 template <typename T>
-void test_overlay_using_bg(std::string const& case_id, std::string const& wkt_p, std::string const& wkt_q)
+void test_overlay_using_boost_geometry(std::string const& case_id, std::string const& wkt_p, std::string const& wkt_q)
 {
     typedef boost::geometry::model::multi_polygon
         <
@@ -104,8 +104,8 @@ void test_overlay_using_bg(std::string const& case_id, std::string const& wkt_p,
 template <typename T>
 void test_overlay(std::string const& case_id, std::string const& wkt_p, std::string const& wkt_q)
 {
-    test_overlay_using_bp<T>(case_id, wkt_p, wkt_q);
-    test_overlay_using_bg<T>(case_id, wkt_p, wkt_q);
+    test_overlay_using_boost_polygon<T>(case_id, wkt_p, wkt_q);
+    test_overlay_using_boost_geometry<T>(case_id, wkt_p, wkt_q);
 }
 
 
