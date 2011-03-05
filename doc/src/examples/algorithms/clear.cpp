@@ -1,0 +1,62 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+//
+// Copyright Barend Gehrels 2011, Geodan, Amsterdam, the Netherlands
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//
+// Quickbook Example
+
+//[clear
+//` Shows how to clear a ring or polygon
+
+#include <iostream>
+
+#include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+
+#include <boost/assign.hpp>
+
+int main()
+{
+    using boost::assign::tuple_list_of;
+
+    typedef boost::tuple<float, float> point;
+    typedef boost::geometry::model::polygon<point> polygon;
+    typedef boost::geometry::model::ring<point> ring;
+
+    polygon poly;
+
+    // Fill the polygon (using its own methods + Boost.Assign)
+    poly.outer() = tuple_list_of(0, 0)(0, 10)(11, 11)(0, 0);
+    poly.inners().push_back(tuple_list_of(0, 0)(0, 10)(11, 11)(0, 0));
+
+    std::cout << boost::geometry::dsv(poly) << std::endl;
+    boost::geometry::clear(poly);
+    std::cout << boost::geometry::dsv(poly) << std::endl;
+
+    // Create a ring using Boost.Assign
+    ring r = tuple_list_of(0, 0)(0, 9)(8, 8)(0, 0);
+
+    std::cout << boost::geometry::dsv(r) << std::endl;
+    boost::geometry::clear(r);
+    std::cout << boost::geometry::dsv(r) << std::endl;
+
+    return 0;
+}
+
+//]
+
+
+//[clear_output
+/*`
+Output:
+[pre
+(((0, 0), (0, 10), (11, 11), (0, 0)), ((0, 0), (0, 10), (11, 11), (0, 0)))
+(())
+((0, 0), (0, 9), (8, 8), (0, 0))
+()
+]
+*/
+//]

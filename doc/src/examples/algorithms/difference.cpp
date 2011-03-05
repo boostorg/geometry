@@ -54,7 +54,7 @@ int main()
         std::cout << i++ << ": " << boost::geometry::area(p) << std::endl;
     }
 
-    /*<-*/ create_svg("difference_a.svg", green, blue, output); /*->*/
+    /*<-*/ create_svg("difference_b.svg", green, blue, output); /*->*/
     return 0;
 }
 

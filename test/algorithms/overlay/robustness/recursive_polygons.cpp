@@ -160,6 +160,8 @@ int main(int argc, char** argv)
         int seed = static_cast<unsigned int>(std::time(0));
         int level = 3;
         int field_size = 10;
+        bool ccw = false;
+        bool open = false;
         bool svg = false;
         std::string form = "box";
 
@@ -170,6 +172,8 @@ int main(int argc, char** argv)
             ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher->slower)")
             ("size", po::value<int>(&field_size)->default_value(10), "Size of the field")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")
+            ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
+            ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
             ("svg", po::value<bool>(&svg)->default_value(false), "Create an SVG filename for all tests")
         ;
 
@@ -183,8 +187,25 @@ int main(int argc, char** argv)
             return 1;
         }
 
+        bool triangular = form != "box";
 
-        test_all<double, true, true>(seed, count, field_size, svg, level, form != "box");
+
+        if (ccw && open)
+        {
+            test_all<double, false, false>(seed, count, field_size, svg, level, triangular);
+        }
+        else if (ccw)
+        {
+            test_all<double, false, true>(seed, count, field_size, svg, level, triangular);
+        }
+        else if (open)
+        {
+            test_all<double, true, false>(seed, count, field_size, svg, level, triangular);
+        }
+        else
+        {
+            test_all<double, true, true>(seed, count, field_size, svg, level, triangular);
+        }
 
 #if defined(HAVE_TTMATH)
         // test_all<ttmath_big, true, true>(seed, count, max, svg, level);

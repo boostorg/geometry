@@ -22,6 +22,8 @@ exe assign_box_corners : assign_box_corners.cpp ;
 exe assign_point_from_index : assign_point_from_index.cpp ;
 exe assign_point_to_index : assign_point_to_index.cpp ;
 
+exe clear : clear.cpp ;
+
 exe for_each_point : for_each_point.cpp ;
 exe for_each_point_const : for_each_point_const.cpp ;
 exe for_each_segment_const : for_each_segment_const.cpp ;
