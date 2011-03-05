@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "boost_range", "boost_range.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "boost_fusion", "boost_fusion.vcproj", "{C218C979-890F-4690-84E0-837DC661CE57}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "boost_polygon_overlay", "boost_polygon_overlay.vcproj", "{93C4EB19-8A0C-437E-9F82-A0DB4A4A5C32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -48,6 +50,10 @@ Global
 		{C218C979-890F-4690-84E0-837DC661CE57}.Debug|Win32.Build.0 = Debug|Win32
 		{C218C979-890F-4690-84E0-837DC661CE57}.Release|Win32.ActiveCfg = Release|Win32
 		{C218C979-890F-4690-84E0-837DC661CE57}.Release|Win32.Build.0 = Release|Win32
+		{93C4EB19-8A0C-437E-9F82-A0DB4A4A5C32}.Debug|Win32.ActiveCfg = Debug|Win32
+		{93C4EB19-8A0C-437E-9F82-A0DB4A4A5C32}.Debug|Win32.Build.0 = Debug|Win32
+		{93C4EB19-8A0C-437E-9F82-A0DB4A4A5C32}.Release|Win32.ActiveCfg = Release|Win32
+		{93C4EB19-8A0C-437E-9F82-A0DB4A4A5C32}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
