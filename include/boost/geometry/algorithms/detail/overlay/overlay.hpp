@@ -194,25 +194,15 @@ std::cout << "enrich" << std::endl;
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;
 #endif
+        // Traverse through intersection/turn points and create rings of them.
+        // Note that these rings are always in clockwise order, even in CCW polygons,
+        // and are marked as "to be reversed" below
         ring_container_type rings;
         geometry::traverse<Reverse1, Reverse2>(geometry1, geometry2,
                 Direction == overlay_union
                     ? boost::geometry::detail::overlay::operation_union
                     : boost::geometry::detail::overlay::operation_intersection,
                 turn_points, rings);
-
-        // TEMP condition, reversal should be done in traverse by calling "push_front"
-        if (ReverseOut) 
-        {
-            for (typename boost::range_iterator<ring_container_type>::type
-                    it = boost::begin(rings);
-                    it != boost::end(rings);
-                    ++it)
-            {
-                geometry::reverse(*it);
-            }
-        }
-
 
         std::map<ring_identifier, int> map;
         map_turns(map, turn_points);
@@ -222,7 +212,7 @@ std::cout << "traverse" << std::endl;
         std::map<ring_identifier, properties> selected;
         select_rings<Direction>(geometry1, geometry2, map, selected);
 
-        // Add rings from intersection container
+        // Add rings created during traversal
         {
             ring_identifier id(2, 0, -1);
             for (typename boost::range_iterator<ring_container_type>::type
@@ -231,6 +221,7 @@ std::cout << "traverse" << std::endl;
                     ++it)
             {
                 selected[id] = properties(*it);
+                selected[id].reversed = ReverseOut;
                 id.multi_index++;
             }
         }

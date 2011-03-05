@@ -447,7 +447,7 @@ class get_turns_generic
 
         // Divide the complete box in two (alternating) halves
         Box lower = box, upper = box;
-        typename geometry::coordinate_type<Box>::type two = 2.0;
+        typename geometry::coordinate_type<Box>::type two = 2;
         typename geometry::coordinate_type<Box>::type mid
             = (geometry::get<min_corner, Dimension>(box)
                 + geometry::get<max_corner, Dimension>(box)) / two;
