@@ -30,7 +30,7 @@ template
     typename Geometry1, typename Geometry2,
     typename RingCollection
 >
-static inline bool contains(ring_identifier ring_id, Item const& item1, Item const& item2,
+static inline bool within_selected_input(Item const& item2, ring_identifier ring_id, 
         Geometry1 const& geometry1, Geometry2 const& geometry2,
         RingCollection const& collection)
 {
@@ -49,19 +49,11 @@ static inline bool contains(ring_identifier ring_id, Item const& item1, Item con
                 get_ring<tag2>::apply(ring_id, geometry2));
             break;
         case 2 :
-            // Within if it is within one of the collection
-            for (BOOST_AUTO(it, boost::begin(collection)); it != boost::end(collection); ++it)
-            {
-                int subcode = point_in_ring(item2.point,
-                    get_ring<ring_tag>::apply(ring_id, *it));
-                if (subcode > code)
-                {
-                    code = subcode;
-                }
-            }
+            code = point_in_ring(item2.point,
+                get_ring<void>::apply(ring_id, collection));
             break;
     }
-    return code == 0 ? item1.get_area() < 0 : code == 1;
+    return code == 1;
 }
 
 
@@ -152,7 +144,7 @@ inline void assign_parents(Geometry1 const& geometry1,
 
                     if ( (inner.get_area() < 0 || check_for_orientation)
                         && geometry::within(inner.point, out_it->envelope)
-                        && contains(out_it->id, outer, inner, geometry1, geometry2, collection))
+                        && within_selected_input(inner, out_it->id, geometry1, geometry2, collection))
                     {
                         inner.parent = out_it->id;
                     }
