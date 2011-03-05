@@ -32,9 +32,9 @@ static std::string pie_2_3_23_0[2] =
 template <typename Polygon>
 void test_areal()
 {
-    /*test_one<Polygon, Polygon, Polygon>("pie_2_3_23_0",
+    test_one<Polygon, Polygon, Polygon>("pie_2_3_23_0",
         pie_2_3_23_0[0], pie_2_3_23_0[1],
-        1, 4, 163292.677335535, 0.01);*/
+        1, 4, 163292.679042133, 0.1);
 
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,

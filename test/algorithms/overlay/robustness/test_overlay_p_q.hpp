@@ -48,7 +48,7 @@ static bool test_overlay_p_q(std::string const& caseid,
     CalculationType area_q = bg::area(q);
 
     bg::intersection(p, q, out_i);
-    CalculationType area_i = abs(bg::area(out_i)); // TEMP abs call, TODO solve this
+    CalculationType area_i = bg::area(out_i);
 
     bg::union_(p, q, out_u);
     CalculationType area_u = bg::area(out_u);
@@ -77,6 +77,8 @@ static bool test_overlay_p_q(std::string const& caseid,
             result = false;
             svg = true;
         }
+        bg::unique(out_i);
+        bg::unique(out_u);
 
         std::cout
             << "type: " << string_from_type<CalculationType>::name()
@@ -94,6 +96,8 @@ static bool test_overlay_p_q(std::string const& caseid,
             << std::setprecision(20)
             << " p: " << bg::wkt(p) << std::endl
             << " q: " << bg::wkt(q) << std::endl
+            << " i: " << bg::wkt(out_i) << std::endl
+            << " u: " << bg::wkt(out_u) << std::endl
             ;
 
     }

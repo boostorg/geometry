@@ -255,10 +255,10 @@ int main(int argc, char** argv)
 
         description.add_options()
             ("help", "Help message")
-            ("svg", po::value<bool>(&svg)->default_value(false), "Create an SVG filename for all tests")
             ("multi", po::value<bool>(&multi)->default_value(false), "Multiple tangencies at one point")
             ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
-            ("open", po::value<bool>(&open)->default_value(false), "Open polytons")
+            ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
+            ("svg", po::value<bool>(&svg)->default_value(false), "Create an SVG filename for all tests")
         ;
 
         po::variables_map varmap;
