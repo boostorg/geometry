@@ -18,6 +18,7 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 
