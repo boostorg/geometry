@@ -93,6 +93,10 @@ void test_areal()
      test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
          case_recursive_boxes_3[0], case_recursive_boxes_3[1],
          19, 87, 12.5); // Area from SQL Server
+
+     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
+         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
+         13, 157, 67.0); // Area from SQL Server
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>
