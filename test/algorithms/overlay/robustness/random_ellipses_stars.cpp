@@ -15,8 +15,8 @@
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
 
+#include <boost/program_options.hpp>
 #include <boost/timer.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -87,15 +87,16 @@ inline void make_star(Polygon& polygon, star_params const& p)
 
     }
     bg::exterior_ring(polygon).push_back(bg::exterior_ring(polygon).front());
+    bg::correct(polygon);
 }
 
 
-template <typename T>
+template <typename T, bool Clockwise, bool Closed>
 void test_star_ellipse(int seed, int index, star_params const& par_p,
-            star_params const& par_q, bool svg, double tolerance)
+            star_params const& par_q, p_q_settings const& settings)
 {
     typedef bg::model::d2::point_xy<T> point_type;
-    typedef bg::model::polygon<point_type> polygon;
+    typedef bg::model::polygon<point_type, Clockwise, Closed> polygon;
 
     polygon p, q;
     make_star(p, par_p);
@@ -103,11 +104,11 @@ void test_star_ellipse(int seed, int index, star_params const& par_p,
 
     std::ostringstream out;
     out << "rse_" << seed << "_" << index;
-    test_overlay_p_q<polygon, T>(out.str(), p, q, svg, tolerance);
+    test_overlay_p_q<polygon, T>(out.str(), p, q, settings);
 }
 
-template <typename T>
-void test_all(int seed, int count, bool svg, double tolerance)
+template <typename T, bool Clockwise, bool Closed>
+void test_type(int seed, int count, p_q_settings const& settings)
 {
     boost::timer t;
 
@@ -157,36 +158,93 @@ void test_all(int seed, int count, bool svg, double tolerance)
 
     for(int i = 0; i < count; i++)
     {
-        test_star_ellipse<T>(seed, i + 1,
+        test_star_ellipse<T, Clockwise, Closed>(seed, i + 1,
             star_params(int_generator() * 2 + 1,
                     factor_generator(), factor_generator(),
                     location_generator(), location_generator(), rotation_generator()),
             star_params(int_generator() * 2 + 1,
                     factor_generator(), factor_generator(),
                     location_generator(), location_generator(), rotation_generator()),
-            svg, tolerance);
+            settings);
     }
     std::cout
         << "type: " << string_from_type<T>::name()
         << " time: " << t.elapsed()  << std::endl;
 }
 
+template <bool Clockwise, bool Closed>
+void test_all(std::string const& type, int seed, int count, p_q_settings settings)
+{
+    if (type == "float")
+    {
+        settings.tolerance = 1.0e-3;
+        test_type<float, Clockwise, Closed>(seed, count, settings);
+    }
+    else if (type == "double")
+    {
+        test_type<double, Clockwise, Closed>(seed, count, settings);
+    }
+#if defined(HAVE_TTMATH)
+    else if (type == "ttmath")
+    {
+        test_type<ttmath_big, Clockwise, Closed>(seed, count, settings);
+    }
+#endif
+}
+
+
 int main(int argc, char** argv)
 {
     try
     {
-        int count = argc > 1 ? boost::lexical_cast<int>(argv[1]) : 10;
-        int seed = (argc > 2 && std::string(argv[2]) != std::string("#"))
-            ? boost::lexical_cast<int>(argv[2])
-            : static_cast<unsigned int>(std::time(0));
-        bool svg = argc > 3 && std::string(argv[3]) == std::string("svg");
+        namespace po = boost::program_options;
+        po::options_description description("=== random_ellipses_stars ===\nAllowed options");
 
-        test_all<float>(seed, count, svg, 1e-3);
-        //test_all<double>(seed, count, svg, 1e-6);
+        int count = 1;
+        int seed = static_cast<unsigned int>(std::time(0));
+        std::string type = "float";
+        bool ccw = false;
+        bool open = false;
+        p_q_settings settings;
 
-#if defined(HAVE_TTMATH)
-   // test_star_ellipse<ttmath_big>(selection, "t");
-#endif
+        description.add_options()
+            ("help", "Help message")
+            ("seed", po::value<int>(&seed), "Initialization seed for random generator")
+            ("count", po::value<int>(&count)->default_value(1), "Number of tests")
+            ("diff", po::value<bool>(&settings.also_difference)->default_value(false), "Include testing on difference")
+            ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
+            ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
+            ("type", po::value<std::string>(&type)->default_value("float"), "Type (float,double)")
+            ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
+            ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
+        ;
+
+        po::variables_map varmap;
+        po::store(po::parse_command_line(argc, argv, description), varmap);
+        po::notify(varmap);
+
+        if (varmap.count("help"))
+        {
+            std::cout << description << std::endl;
+            return 1;
+        }
+
+        if (ccw && open)
+        {
+            test_all<false, false>(type, seed, count, settings);
+        }
+        else if (ccw)
+        {
+            test_all<false, true>(type, seed, count, settings);
+        }
+        else if (open)
+        {
+            test_all<true, false>(type, seed, count, settings);
+        }
+        else
+        {
+            test_all<true, true>(type, seed, count, settings);
+        }
     }
     catch(std::exception const& e)
     {

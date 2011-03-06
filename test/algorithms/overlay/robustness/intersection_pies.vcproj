@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor;.;../../../../../..;../../.."
+				AdditionalIncludeDirectories="../../../../../..;."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TEST_WITH_SVG;BOOST_ALL_NO_LIB"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -117,7 +117,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;c:\gmp\gmp-dynamic&quot;;c:\svn\numeric_adaptor;.;../../../../../..;../../.."
+				AdditionalIncludeDirectories="../../../../../..;."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"

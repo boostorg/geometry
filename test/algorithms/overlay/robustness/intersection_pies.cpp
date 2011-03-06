@@ -135,7 +135,7 @@ inline void holify_multi(MultiPolygon& multi_polygon)
 
 template <typename T, bool Clockwise, bool Closed>
 void test_pie(int total_segment_count, T factor_p, T factor_q,
-            bool multi, bool single_selftangent, bool svg)
+            bool multi, bool single_selftangent, p_q_settings const& settings)
 {
     boost::timer t;
     typedef bg::model::d2::point_xy<T> point_type;
@@ -168,7 +168,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
 
                         std::ostringstream out;
                         out << "pie_" << a << "_" << b << "_" << offset << "_" << y;
-                        if (test_overlay_p_q<polygon, T>(out.str(), p, q, svg, 0.01))
+                        if (test_overlay_p_q<polygon, T>(out.str(), p, q, settings))
                         {
                             good_count++;
                         }
@@ -202,7 +202,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
                                     q1.outer().push_back(q2.outer()[i]);
                                 }
                                 //holify(q1);
-                                good = test_overlay_p_q<polygon, T>(out.str(), p, q1, svg, 0.01);
+                                good = test_overlay_p_q<polygon, T>(out.str(), p, q1, settings);
                             }
                             else
                             {
@@ -210,7 +210,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
                                 mq.push_back(q);
                                 mq.push_back(q2);
                                 //holify_multi(mq);
-                                good = test_overlay_p_q<polygon, T>(out.str(), p, mq, svg, 0.01);
+                                good = test_overlay_p_q<polygon, T>(out.str(), p, mq, settings);
                             }
 
                             if (good)
@@ -235,9 +235,9 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
 
 
 template <typename T, bool Clockwise, bool Closed>
-void test_all(bool multi, bool single_selftangent, bool svg)
+void test_all(bool multi, bool single_selftangent, p_q_settings const& settings)
 {
-    test_pie<T, Clockwise, Closed>(24, 0.55, 0.45, multi, single_selftangent, svg);
+    test_pie<T, Clockwise, Closed>(24, 0.55, 0.45, multi, single_selftangent, settings);
 }
 
 int main(int argc, char** argv)
@@ -245,9 +245,9 @@ int main(int argc, char** argv)
     try
     {
         namespace po = boost::program_options;
-        po::options_description description("=== recursive_polygons ===\nAllowed options");
+        po::options_description description("=== intersection_pies ===\nAllowed options");
 
-        bool svg = false;
+        p_q_settings settings;
         bool multi = false;
         bool ccw = false;
         bool open = false;
@@ -256,9 +256,11 @@ int main(int argc, char** argv)
         description.add_options()
             ("help", "Help message")
             ("multi", po::value<bool>(&multi)->default_value(false), "Multiple tangencies at one point")
+            ("diff", po::value<bool>(&settings.also_difference)->default_value(false), "Include testing on difference")
             ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
             ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
-            ("svg", po::value<bool>(&svg)->default_value(false), "Create an SVG filename for all tests")
+            ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
+            ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
         ;
 
         po::variables_map varmap;
@@ -274,19 +276,19 @@ int main(int argc, char** argv)
         // template par's are: CoordinateType, Clockwise, Closed
         if (ccw && open)
         {
-            test_all<double, false, false>(multi, single_selftangent, svg);
+            test_all<double, false, false>(multi, single_selftangent, settings);
         }
         else if (ccw)
         {
-            test_all<double, false, true>(multi, single_selftangent, svg);
+            test_all<double, false, true>(multi, single_selftangent, settings);
         }
         else if (open)
         {
-            test_all<double, true, false>(multi, single_selftangent, svg);
+            test_all<double, true, false>(multi, single_selftangent, settings);
         }
         else
         {
-            test_all<double, true, true>(multi, single_selftangent, svg);
+            test_all<double, true, true>(multi, single_selftangent, settings);
         }
         //test_all<long double>();
     }
