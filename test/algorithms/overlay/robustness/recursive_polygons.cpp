@@ -66,7 +66,7 @@ inline void make_polygon(Polygon& polygon, Generator& generator, bool triangular
 template <typename MultiPolygon, typename Generator>
 bool test_recursive_boxes(MultiPolygon& result, int& index,
             Generator& generator,
-            bool svg, int level, bool triangular)
+            int level, bool triangular, p_q_settings const& settings)
 {
     MultiPolygon p, q;
 
@@ -84,8 +84,8 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
     {
         bg::correct(p);
         bg::correct(q);
-        if (! test_recursive_boxes(p, index, generator, svg, level - 1, triangular)
-            || ! test_recursive_boxes(q, index, generator, svg, level - 1, triangular))
+        if (! test_recursive_boxes(p, index, generator, level - 1, triangular, settings)
+            || ! test_recursive_boxes(q, index, generator, level - 1, triangular, settings))
         {
             return false;
         }
@@ -99,7 +99,7 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
         <
             polygon,
             typename bg::coordinate_type<MultiPolygon>::type
-        >(out.str(), p, q, svg, 0.001))
+        >(out.str(), p, q, settings))
     {
         return false;
     }
@@ -118,7 +118,7 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
 
 
 template <typename T, bool Clockwise, bool Closed>
-void test_all(int seed, int count, int field_size, bool svg, int level, bool triangular)
+void test_all(int seed, int count, int field_size, int level, bool triangular, p_q_settings const& settings)
 {
     boost::timer t;
 
@@ -141,10 +141,10 @@ void test_all(int seed, int count, int field_size, bool svg, int level, bool tri
     for(int i = 0; i < count; i++)
     {
         mp p;
-        test_recursive_boxes<mp>(p, index, coordinate_generator, svg, level, triangular);
+        test_recursive_boxes<mp>(p, index, coordinate_generator, level, triangular, settings);
     }
     std::cout
-        << "boxes " << index
+        << "polygons: " << index
         << " type: " << string_from_type<T>::name()
         << " time: " << t.elapsed()  << std::endl;
 }
@@ -162,26 +162,29 @@ int main(int argc, char** argv)
         int field_size = 10;
         bool ccw = false;
         bool open = false;
-        bool svg = false;
+        p_q_settings settings;
         std::string form = "box";
 
         description.add_options()
             ("help", "Help message")
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
             ("count", po::value<int>(&count)->default_value(1), "Number of tests")
+            ("diff", po::value<bool>(&settings.also_difference)->default_value(false), "Include testing on difference")
             ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher->slower)")
             ("size", po::value<int>(&field_size)->default_value(10), "Size of the field")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")
             ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
             ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
-            ("svg", po::value<bool>(&svg)->default_value(false), "Create an SVG filename for all tests")
+            ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
+            ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
         ;
 
         po::variables_map varmap;
         po::store(po::parse_command_line(argc, argv, description), varmap);
         po::notify(varmap);
 
-        if (varmap.count("help"))
+        if (varmap.count("help") 
+            || (form != "box" && form != "triangle"))
         {
             std::cout << description << std::endl;
             return 1;
@@ -192,19 +195,19 @@ int main(int argc, char** argv)
 
         if (ccw && open)
         {
-            test_all<double, false, false>(seed, count, field_size, svg, level, triangular);
+            test_all<double, false, false>(seed, count, field_size, level, triangular, settings);
         }
         else if (ccw)
         {
-            test_all<double, false, true>(seed, count, field_size, svg, level, triangular);
+            test_all<double, false, true>(seed, count, field_size, level, triangular, settings);
         }
         else if (open)
         {
-            test_all<double, true, false>(seed, count, field_size, svg, level, triangular);
+            test_all<double, true, false>(seed, count, field_size, level, triangular, settings);
         }
         else
         {
-            test_all<double, true, true>(seed, count, field_size, svg, level, triangular);
+            test_all<double, true, true>(seed, count, field_size, level, triangular, settings);
         }
 
 #if defined(HAVE_TTMATH)

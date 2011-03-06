@@ -32,20 +32,36 @@
 #include <geometry_test_common.hpp>
 
 
+struct p_q_settings
+{
+    bool svg;
+    bool also_difference;
+    bool wkt;
+    double tolerance;
+
+    p_q_settings()
+        : svg(false)
+        , also_difference(false)
+        , wkt(false)
+        , tolerance(1.0e-6)
+    {}
+};
+
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
 static bool test_overlay_p_q(std::string const& caseid,
             G1 const& p, G2 const& q,
-            bool svg, double tolerance, bool force_output = false)
+            p_q_settings const& settings)
 {
     bool result = true;
 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;
 
-    bg::model::multi_polygon<OutputType> out_i, out_u, out_d;
+    bg::model::multi_polygon<OutputType> out_i, out_u, out_d, out_d2;
 
     CalculationType area_p = bg::area(p);
     CalculationType area_q = bg::area(q);
+    CalculationType area_d1 = 0, area_d2 = 0;
 
     bg::intersection(p, q, out_i);
     CalculationType area_i = bg::area(out_i);
@@ -55,22 +71,28 @@ static bool test_overlay_p_q(std::string const& caseid,
 
     double sum = (area_p + area_q) - area_u - area_i;
 
-    bool wrong = std::abs(sum) > tolerance;
+    bool wrong = std::abs(sum) > settings.tolerance;
 
-#ifdef BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
-    bg::difference(p, q, out_d);
-    CalculationType area_d = bg::area(out_d);
-    double sum_d = (area_u - area_q) - area_d;
-    bool wrong_d = std::abs(sum_d) > tolerance;
-    
-    if (wrong_d)
+    if (settings.also_difference)
     {
-        wrong = true;
+        bg::difference(p, q, out_d);
+        bg::difference(q, p, out_d2);
+        area_d1 = bg::area(out_d);
+        area_d2 = bg::area(out_d2);
+        double sum_d1 = (area_u - area_q) - area_d1;
+        double sum_d2 = (area_u - area_p) - area_d2;
+        bool wrong_d1 = std::abs(sum_d1) > settings.tolerance;
+        bool wrong_d2 = std::abs(sum_d2) > settings.tolerance;
+        
+        if (wrong_d1 || wrong_d2)
+        {
+            wrong = true;
+        }
     }
-#endif
 
+    bool svg = settings.svg;
 
-    if (wrong || force_output)
+    if (wrong || settings.wkt)
     {
         if (wrong)
         {
@@ -87,13 +109,17 @@ static bool test_overlay_p_q(std::string const& caseid,
             << " area u: " << area_u
             << " area p: " << area_p
             << " area q: " << area_q
-            << " sum: " << sum
-#ifdef BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
-            << " area d: " << area_d
-            << " sum d: " << sum_d
-#endif
+            << " sum: " << sum;
+
+        if (settings.also_difference)
+        {
+            std::cout 
+                << " area d1: " << area_d1
+                << " area d2: " << area_d2;
+        }
+        std::cout
             << std::endl
-            << std::setprecision(20)
+            << std::setprecision(9)
             << " p: " << bg::wkt(p) << std::endl
             << " q: " << bg::wkt(q) << std::endl
             << " i: " << bg::wkt(out_i) << std::endl
@@ -101,15 +127,6 @@ static bool test_overlay_p_q(std::string const& caseid,
             ;
 
     }
-
-    // For POSTGIS output
-    /***
-    std::cout 
-        << "union select " << area_i << " as bg,ST_area(ST_Intersection(ST_GeomFromText('" << bg::wkt(p) << "'), ST_GeomFromText('" << bg::wkt(q) << "'))) as pg" << std::endl
-        << "union select " << area_u << " as bg,ST_area(ST_Union(ST_GeomFromText('" << bg::wkt(p) << "'), ST_GeomFromText('" << bg::wkt(q) << "'))) as pg" << std::endl
-        << std::endl;
-    ***/
-
 
     if(svg)
     {
@@ -126,33 +143,38 @@ static bool test_overlay_p_q(std::string const& caseid,
         mapper.add(p);
         mapper.add(q);
 
-        //mapper.add(point_type(0,0));
-        //mapper.add(point_type(3,3));
-
         // Input shapes in green/blue
         mapper.map(p, "fill-opacity:0.5;fill:rgb(153,204,0);"
                 "stroke:rgb(153,204,0);stroke-width:3");
         mapper.map(q, "fill-opacity:0.3;fill:rgb(51,51,153);"
                 "stroke:rgb(51,51,153);stroke-width:3");
 
-#ifdef BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
-        for (BOOST_AUTO(it, out_d.begin()); it != out_d.end(); ++it)
+        if (settings.also_difference)
         {
-            mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,255,0);"
-                    "stroke:rgb(255,255,0);stroke-width:4");
+            for (BOOST_AUTO(it, out_d.begin()); it != out_d.end(); ++it)
+            {
+                mapper.map(*it, 
+                    "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
+            }
+            for (BOOST_AUTO(it, out_d2.begin()); it != out_d2.end(); ++it)
+            {
+                mapper.map(*it, 
+                    "opacity:0.8;fill:none;stroke:rgb(255,0,255);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
+            }
         }
-#else
-        for (BOOST_AUTO(it, out_i.begin()); it != out_i.end(); ++it)
+        else
         {
-            mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
-                    "stroke:rgb(255,0,0);stroke-width:4");
+            for (BOOST_AUTO(it, out_i.begin()); it != out_i.end(); ++it)
+            {
+                mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
+                        "stroke:rgb(255,0,0);stroke-width:4");
+            }
+            for (BOOST_AUTO(it, out_u.begin()); it != out_u.end(); ++it)
+            {
+                mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
+                        "stroke:rgb(255,0,255);stroke-width:4");
+            }
         }
-        for (BOOST_AUTO(it, out_u.begin()); it != out_u.end(); ++it)
-        {
-            mapper.map(*it, "fill-opacity:0.1;stroke-opacity:0.4;fill:rgb(255,0,0);"
-                    "stroke:rgb(255,0,255);stroke-width:4");
-        }
-#endif
     }
     return result;
 }
