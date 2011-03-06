@@ -209,6 +209,10 @@ void test_areal()
     // "new hole", tested with Ring -> the newly formed hole will be omitted
     test_one<Ring, Ring, Ring>("new_hole_discarded", new_hole[0], new_hole[1], 1, 0, 9, 24.0);
 
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
+        ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
+        1, 1, 16, 80456.4904910401);
+
 #ifdef _MSC_VER
     {
         // Isovist (submitted by Brandon during Formal Review)

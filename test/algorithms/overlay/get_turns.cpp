@@ -233,6 +233,10 @@ void test_all()
     // ticket#17
     test_overlay<polygon, box, test_get_turns,  Tuple>("ticket_17", boost::make_tuple(6), ticket_17[0], ticket_17[1]);
 
+    // GGL-mailing list
+    test_overlay<polygon, polygon, test_get_turns,  Tuple>("ggl_list_20110306_javier",
+            boost::make_tuple(4),
+            ggl_list_20110306_javier[0], ggl_list_20110306_javier[1]);
 
 
     // pies
@@ -296,7 +300,6 @@ int test_main(int, char* [])
     test_all<double>();
     test_ccw<double>();
     test_open<double>();
-    //test_all<tt>();
 
 #if ! defined(_MSC_VER)
     test_all<long double>();

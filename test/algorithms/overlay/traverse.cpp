@@ -830,7 +830,6 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             boost::make_tuple(1, 2304.41633605957),
             geos_4[0], geos_4[1]);
 
-
     return;
 
     // Cases below still have errors
@@ -876,7 +875,7 @@ void test_ccw()
 
 int test_main(int, char* [])
 {
-    //test_all<float>();
+    test_all<float>();
     test_all<double>();
     test_open<double>();
     test_ccw<double>();
