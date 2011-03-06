@@ -336,7 +336,29 @@ private :
         // For case 5-8: b_1 < (a_1 or a_2) < b_2, two intersections are equal to segment A
         if (has_common_points)
         {
-            bool const a_in_b =  (b_1 < a_1 && a_1 < b_2) || (b_1 < a_2 && a_2 < b_2);
+            // Either A is in B, or B is in A, or (in case of robustness/equals)
+            // both are true, see below
+            bool a_in_b = (b_1 < a_1 && a_1 < b_2) || (b_1 < a_2 && a_2 < b_2);
+            bool b_in_a = (a_1 < b_1 && b_1 < a_2) || (a_1 < b_2 && b_2 < a_2);
+
+            if (a_in_b && b_in_a)
+            {
+                // testcase "ggl_list_20110306_javier"
+                // In robustness it can occur that a point of A is inside B AND a point of B is inside A,
+                // still while has_common_points is true (so one point equals the other).
+                // If that is the case we select on length.
+                coordinate_type const length_a = abs(a_1 - a_2);
+                coordinate_type const length_b = abs(b_1 - b_2);
+                if (length_a > length_b)
+                {
+                    a_in_b = false;
+                }
+                else
+                {
+                    b_in_a = false;
+                }
+            }
+
             int const arrival_a = a_in_b ? 1 : -1;
             if (a2_eq_b2) return Policy::collinear_interior_boundary_intersect(a_in_b ? a : b, a_in_b, 0, 0, false);
             if (a1_eq_b2) return Policy::collinear_interior_boundary_intersect(a_in_b ? a : b, a_in_b, arrival_a, 0, true);
