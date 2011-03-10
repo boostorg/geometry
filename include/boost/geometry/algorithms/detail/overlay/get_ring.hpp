@@ -32,7 +32,8 @@ template<typename Tag>
 struct get_ring
 {};
 
-// "void" is mapped to a container of rings (multi-ring but that does not exist)
+// A container of rings (multi-ring but that does not exist)
+// gets the "void" tag and is dispatched here.
 template<>
 struct get_ring<void>
 {

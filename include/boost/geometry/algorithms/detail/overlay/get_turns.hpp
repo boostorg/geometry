@@ -51,9 +51,7 @@
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 
 #include <boost/geometry/algorithms/combine.hpp>
-#include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/algorithms/within.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
 #  include <sstream>
