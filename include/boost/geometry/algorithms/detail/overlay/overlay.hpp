@@ -8,7 +8,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_OVERLAY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_OVERLAY_HPP
 
-
 #include <deque>
 #include <map>
 
@@ -20,6 +19,7 @@
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -170,6 +170,10 @@ struct overlay
 
         container_type turn_points;
 
+#ifdef BOOST_GEOMETRY_TIME_OVERLAY
+        boost::timer timer;
+#endif
+
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "get turns" << std::endl;
 #endif
@@ -179,6 +183,10 @@ std::cout << "get turns" << std::endl;
                 Reverse1, Reverse2,
                 detail::overlay::calculate_distance_policy
             >(geometry1, geometry2, turn_points, policy);
+
+#ifdef BOOST_GEOMETRY_TIME_OVERLAY
+        std::cout << "get_turns: " << timer.elapsed() << std::endl;
+#endif
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
@@ -190,6 +198,11 @@ std::cout << "enrich" << std::endl;
                     : boost::geometry::detail::overlay::operation_intersection,
                     geometry1, geometry2,
                     side_strategy);
+
+#ifdef BOOST_GEOMETRY_TIME_OVERLAY
+        std::cout << "enrich_intersection_points: " << timer.elapsed() << std::endl;
+#endif
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "traverse" << std::endl;
@@ -204,13 +217,27 @@ std::cout << "traverse" << std::endl;
                     : boost::geometry::detail::overlay::operation_intersection,
                 turn_points, rings);
 
+#ifdef BOOST_GEOMETRY_TIME_OVERLAY
+        std::cout << "traverse: " << timer.elapsed() << std::endl;
+#endif
+
+
         std::map<ring_identifier, int> map;
         map_turns(map, turn_points);
+
+#ifdef BOOST_GEOMETRY_TIME_OVERLAY
+        std::cout << "map_turns: " << timer.elapsed() << std::endl;
+#endif
 
         typedef ring_properties<typename geometry::point_type<Geometry1>::type> properties;
 
         std::map<ring_identifier, properties> selected;
         select_rings<Direction>(geometry1, geometry2, map, selected);
+
+#ifdef BOOST_GEOMETRY_TIME_OVERLAY
+        std::cout << "select_rings: " << timer.elapsed() << std::endl;
+#endif
+
 
         // Add rings created during traversal
         {
@@ -226,7 +253,17 @@ std::cout << "traverse" << std::endl;
             }
         }
 
+#ifdef BOOST_GEOMETRY_TIME_OVERLAY
+        std::cout << "add traversal rings: " << timer.elapsed() << std::endl;
+#endif
+
+
         assign_parents(geometry1, geometry2, rings, selected);
+
+#ifdef BOOST_GEOMETRY_TIME_OVERLAY
+        std::cout << "assign_parents: " << timer.elapsed() << std::endl;
+#endif
+
         return add_rings<GeometryOut>(selected, geometry1, geometry2, rings, out);
     }
 };

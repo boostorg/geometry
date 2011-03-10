@@ -25,6 +25,7 @@
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/ranges/segment_range.hpp>
 
 
