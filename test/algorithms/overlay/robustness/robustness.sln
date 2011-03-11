@@ -8,6 +8,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "intersection_pies", "inters
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "recursive_polygons", "recursive_polygons.vcproj", "{E1AA569C-858C-4789-A6FF-5CDFB41C59D7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "star_comb", "star_comb.vcproj", "{6D8C81C1-23CD-469E-8094-E0C01B51E944}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "interior_triangles", "interior_triangles.vcproj", "{7583C2E3-AD74-4C34-8E94-9162F641B215}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -30,6 +34,14 @@ Global
 		{E1AA569C-858C-4789-A6FF-5CDFB41C59D7}.Debug|Win32.Build.0 = Debug|Win32
 		{E1AA569C-858C-4789-A6FF-5CDFB41C59D7}.Release|Win32.ActiveCfg = Release|Win32
 		{E1AA569C-858C-4789-A6FF-5CDFB41C59D7}.Release|Win32.Build.0 = Release|Win32
+		{6D8C81C1-23CD-469E-8094-E0C01B51E944}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6D8C81C1-23CD-469E-8094-E0C01B51E944}.Debug|Win32.Build.0 = Debug|Win32
+		{6D8C81C1-23CD-469E-8094-E0C01B51E944}.Release|Win32.ActiveCfg = Release|Win32
+		{6D8C81C1-23CD-469E-8094-E0C01B51E944}.Release|Win32.Build.0 = Release|Win32
+		{7583C2E3-AD74-4C34-8E94-9162F641B215}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7583C2E3-AD74-4C34-8E94-9162F641B215}.Debug|Win32.Build.0 = Debug|Win32
+		{7583C2E3-AD74-4C34-8E94-9162F641B215}.Release|Win32.ActiveCfg = Release|Win32
+		{7583C2E3-AD74-4C34-8E94-9162F641B215}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
