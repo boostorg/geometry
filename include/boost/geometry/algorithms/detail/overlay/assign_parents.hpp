@@ -10,7 +10,7 @@
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
-#include <boost/geometry/algorithms/detail/divide_and_conquer.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/within_util.hpp>
 
@@ -31,7 +31,7 @@ template
     typename Geometry1, typename Geometry2,
     typename RingCollection
 >
-static inline bool within_selected_input(Item const& item2, ring_identifier const& ring_id, 
+static inline bool within_selected_input(Item const& item2, ring_identifier const& ring_id,
         Geometry1 const& geometry1, Geometry2 const& geometry2,
         RingCollection const& collection)
 {
@@ -68,10 +68,13 @@ struct ring_info_helper
     area_type abs_area;
     model::box<Point> envelope;
 
+    inline ring_info_helper()
+        : real_area(0), abs_area(0)
+    {}
+
     inline ring_info_helper(ring_identifier i, area_type a)
         : id(i), real_area(a), abs_area(abs(a))
     {}
-
 };
 
 
@@ -105,7 +108,7 @@ struct assign_visitor
     bool m_check_for_orientation;
 
 
-    inline assign_visitor(Geometry1 const& g1, Geometry2 const& g2, Collection const& c, 
+    inline assign_visitor(Geometry1 const& g1, Geometry2 const& g2, Collection const& c,
                 RingMap& map, bool check)
         : m_geometry1(g1)
         , m_geometry2(g2)
@@ -115,12 +118,12 @@ struct assign_visitor
     {}
 
     template <typename Item>
-    inline void apply(Item const& outer, Item const& inner, bool , bool , bool first = true)
+    inline void apply(Item const& outer, Item const& inner, bool first = true)
     {
         if (first && outer.real_area < 0)
         {
-            // Call reversed function
-            apply(inner, outer, false, false, false);
+            // Reverse arguments
+            apply(inner, outer, false);
             return;
         }
 
@@ -135,7 +138,7 @@ struct assign_visitor
                    )
                 {
                     // Only assign parent if that parent is smaller (or if it is the first)
-                    if (inner_in_map.parent.source_index == -1 
+                    if (inner_in_map.parent.source_index == -1
                         || outer.abs_area < inner_in_map.parent_area)
                     {
                         inner_in_map.parent = outer.id;
@@ -171,8 +174,6 @@ inline void assign_parents(Geometry1 const& geometry1,
 
     typedef typename RingMap::iterator map_iterator_type;
 
-
-    // A map is not sortable, so copy ring_id/area and added envelope to vector
     {
         typedef ring_info_helper<point_type> helper;
         typedef std::vector<helper> vector_type;
@@ -182,34 +183,38 @@ inline void assign_parents(Geometry1 const& geometry1,
         boost::timer timer;
 #endif
 
-        vector_type vector;
-        vector.reserve(ring_map.size());
 
-        int count_total = ring_map.size();
-        int count_positive = 0;
+        std::size_t count_total = ring_map.size();
+        std::size_t count_positive = 0;
+        int index_positive = -1;
+        std::size_t index = 0;
 
-        for (map_iterator_type it = boost::begin(ring_map); it != boost::end(ring_map); ++it)
+        // Copy to vector (with new approach this might be obsolete as well, using the map directly)
+        vector_type vector(count_total);
+
+        for (map_iterator_type it = boost::begin(ring_map); it != boost::end(ring_map); ++it, ++index)
         {
-            vector.push_back(helper(it->first, it->second.get_area()));
-            helper& back = vector.back();
+            vector[index] = helper(it->first, it->second.get_area());
+            helper& item = vector[index];
             switch(it->first.source_index)
             {
                 case 0 :
                     geometry::envelope(get_ring<tag1>::apply(it->first, geometry1),
-                            back.envelope);
+                            item.envelope);
                     break;
                 case 1 :
                     geometry::envelope(get_ring<tag2>::apply(it->first, geometry2),
-                            back.envelope);
+                            item.envelope);
                     break;
                 case 2 :
                     geometry::envelope(get_ring<void>::apply(it->first, collection),
-                            back.envelope);
+                            item.envelope);
                     break;
             }
-            if (back.real_area > 0)
+            if (item.real_area > 0)
             {
                 count_positive++;
+                index_positive = index;
             }
         }
 
@@ -217,62 +222,49 @@ inline void assign_parents(Geometry1 const& geometry1,
         std::cout << " ap: created helper vector: " << timer.elapsed() << std::endl;
 #endif
 
-        if (count_positive == count_total && ! check_for_orientation)
+        if (! check_for_orientation)
         {
-            // Only positive rings, no assignment of parents or reversal necessary, ready here.
-            return;
-        }
-
-        // If there are only a few positive rings, the loop below is not quadratic and can be handled.
-        // If there are many positive rings + many negative ones, we divide and conquer.
-        if (count_positive < 5)
-        {
-            // Assign parents
-            // Semi-quadratic loop over rings to compare them to each other (envelope first)
-            // Walks from largest abs(area) to smallest -> most direct parent comes last.
-            int np = 0, nn = 0;
-            for (vector_iterator_type out_it = boost::begin(vector);
-                out_it != boost::end(vector); ++out_it)
+            if (count_positive == count_total)
             {
-                if (out_it->real_area > 0)
+                // Optimization for only positive rings
+                // -> no assignment of parents or reversal necessary, ready here.
+                return;
+            }
+
+            if (count_positive == 1)
+            {
+                // Optimization for one outer ring
+                // -> assign this as parent to all others (all interior rings)
+                // In unions, this is probably the most occuring case and gives
+                //    a dramatic improvement (factor 5 for star_comb testcase)
+                ring_identifier id_of_positive = vector[index_positive].id;
+                ring_info_type& outer = ring_map[id_of_positive];
+                std::size_t index = 0;
+                for (vector_iterator_type it = boost::begin(vector);
+                    it != boost::end(vector); ++it, ++index)
                 {
-                    np++;
-                    vector_iterator_type inn_it = out_it;
-                    for (vector_iterator_type inn_it = boost::begin(vector); 
-                        inn_it != boost::end(vector); ++inn_it)
+                    if (index != index_positive)
                     {
-                        // TODO: this is effectively now the same as above (in visitor), harmonize
-                        if ( (inn_it->real_area < 0 || check_for_orientation))
-                        {
-                            ring_info_type& inner = ring_map[inn_it->id];
-                            if (geometry::within(inner.point, out_it->envelope)
-                               && within_selected_input(inner, out_it->id, geometry1, geometry2, collection))
-                            {
-                                if (inner.parent.source_index == -1 || out_it->abs_area < inner.parent_area)
-                                {
-                                    inner.parent = out_it->id;
-                                    inner.parent_area = out_it->abs_area;
-                                }
-                            }
-                        }
+                        ring_info_type& inner = ring_map[it->id];
+                        inner.parent = id_of_positive;
+                        outer.children.push_back(it->id);
                     }
                 }
-                else
-                {
-                    nn++;
-                }
+                return;
             }
         }
-        else
-        {
-            assign_visitor<Geometry1, Geometry2, RingCollection, RingMap> 
-                        visitor(geometry1, geometry2, collection, ring_map, check_for_orientation);
 
-            geometry::divide_and_conquer
-                <
-                    box_type, ring_info_helper_get_box, ring_info_helper_ovelaps_box
-                >::apply(vector, visitor, 32);
-        }
+        assign_visitor
+            <
+                Geometry1, Geometry2,
+                RingCollection, RingMap
+            > visitor(geometry1, geometry2, collection, ring_map, check_for_orientation);
+
+        geometry::partition
+            <
+                box_type, ring_info_helper_get_box, ring_info_helper_ovelaps_box
+            >::apply(vector, visitor);
+
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         std::cout << " ap: quadradic loop: " << timer.elapsed() << std::endl;
         std::cout << " ap: POS " << np << " NEG: " << nn << std::endl;
