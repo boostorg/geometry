@@ -38,6 +38,9 @@ void test_all()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::ring<P> ring;
 
+    bool const is_float = 
+        boost::is_same<typename bg::coordinate_type<P>::type, float>::value;
+
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         3, 3, 2.52636706856656,
@@ -82,7 +85,9 @@ void test_all()
     test_one<polygon, polygon, polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
         2, 0, 8.7048386,
-        2, 0, 0.0098387);
+        is_float ? 1 : 2, // The too small one is discarded for floating point
+        0, 0.0098387);
+
 
     test_one<polygon, polygon, polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
