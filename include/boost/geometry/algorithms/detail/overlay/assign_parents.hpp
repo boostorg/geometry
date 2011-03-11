@@ -186,7 +186,7 @@ inline void assign_parents(Geometry1 const& geometry1,
 
         std::size_t count_total = ring_map.size();
         std::size_t count_positive = 0;
-        int index_positive = -1;
+        std::size_t index_positive = 0; // only used if count_positive>0
         std::size_t index = 0;
 
         // Copy to vector (with new approach this might be obsolete as well, using the map directly)
@@ -267,7 +267,6 @@ inline void assign_parents(Geometry1 const& geometry1,
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         std::cout << " ap: quadradic loop: " << timer.elapsed() << std::endl;
-        std::cout << " ap: POS " << np << " NEG: " << nn << std::endl;
         std::cout << " ap: check_for_orientation " << check_for_orientation << std::endl;
 #endif
     }
