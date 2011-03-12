@@ -14,7 +14,7 @@
 
 #include <boost/geometry/views/closeable_view.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>

@@ -20,7 +20,7 @@
 #include "shapefil.h"
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/stream_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/stream_wkt.hpp>
 
 using namespace boost::geometry;
 

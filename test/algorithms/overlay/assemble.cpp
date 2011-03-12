@@ -25,8 +25,8 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/write_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
 
 
 
@@ -86,9 +86,9 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
             || abs(diff_d2) < 0.001;
 
         BOOST_CHECK_MESSAGE(ok,
-            id << " diff:  " 
-                << diff << " d1: " 
-                << diff_d1 << " d2: " 
+            id << " diff:  "
+                << diff << " d1: "
+                << diff_d1 << " d2: "
                 << diff_d2);
     }
 

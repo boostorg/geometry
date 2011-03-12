@@ -8,13 +8,13 @@
 #include <geometry_test_common.hpp>
 
 
-#include<boost/geometry/geometry.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon/point.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon/box.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon/ring.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon/polygon.hpp>
-#include<boost/geometry/extensions/gis/io/wkt/wkt.hpp>
-#include<iostream>
+#include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/point.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/box.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/ring.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/polygon.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <iostream>
 
 template <typename T>
 void fill_polygon_with_two_holes(boost::polygon::polygon_with_holes_data<T>& boost_polygon_polygon)
@@ -65,7 +65,7 @@ void test_coordinate_type()
 
     typedef bg::model::point<T, 2, bg::cs::cartesian> bg_point_type;
     bg_point_type boost_geometry_point(3, 4);
-    BOOST_CHECK_EQUAL(bg::distance(boost_polygon_point, boost_geometry_point), 
+    BOOST_CHECK_EQUAL(bg::distance(boost_polygon_point, boost_geometry_point),
                     2 * std::sqrt(2.0));
 
     // 2a: Check if Boost.Polygon's box fulfills Boost.Geometry's box concept
@@ -86,7 +86,7 @@ void test_coordinate_type()
     // 3a: Check if Boost.Polygon's polygon fulfills Boost.Geometry's ring concept
     bg::concept::check<boost::polygon::polygon_data<T> >();
 
-    // 3b: use a Boost.Polygon polygon (ring) 
+    // 3b: use a Boost.Polygon polygon (ring)
     boost::polygon::polygon_data<T> boost_polygon_ring;
     {
         // Filling it is a two-step process using Boost.Polygon

@@ -22,12 +22,10 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
 // Yes, this example currently uses some extensions:
-
-    // For input:
-    #include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 
     // For output:
     #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>

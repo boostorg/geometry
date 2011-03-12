@@ -18,9 +18,27 @@
 
 #include <algorithms/overlay/overlay_cases.hpp>
 
+static std::string javier4[2] =
+    {
+    "POLYGON((-2 2, 1842 2, 1842 -2362, -2 -2362, -2 2), (0 0, 0 -2360, 1840 -2360, 1840 0, 0 0))",
+    // "POLYGON((-0.01 -1960, 0 -1960, 0 -1880, 0.01 -1960, -0.01 -1960))"
+    "POLYGON ((-0.01 -1960, 80.01 -1960, 0 -1880, -0.01 -1960))"
+    };
+
+
+
+
+
+
+
+
 template <typename Ring, typename Polygon>
 void test_areal()
 {
+    test_one<Polygon, Polygon, Polygon>("javier4",
+        javier4[0], javier4[1],
+        1, 1, 13, 20016.4);
+
     test_one<Polygon, Polygon, Polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         1, 0, 13, 11.526367);

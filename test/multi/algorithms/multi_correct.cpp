@@ -13,7 +13,7 @@
 
 #include <boost/geometry/multi/algorithms/correct.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/ring.hpp>

@@ -23,7 +23,7 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 #include <boost/geometry/multi/algorithms/for_each.hpp>
 
@@ -50,7 +50,7 @@ struct map_segment
 
     map_segment<Mapper>& operator=(map_segment<Mapper> const& other)
     {
-        if(this != &other) 
+        if(this != &other)
         {
             this->m_mapper = other.m_mapper;
         }
@@ -126,12 +126,12 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
         std::ofstream svg(filename.str().c_str());
 
-        typedef 
+        typedef
         bg::svg_mapper
             <
                 typename bg::point_type<Geometry>::type
             > mapper_type;
-        
+
         mapper_type mapper(svg, 500, 500);
         mapper.add(geometry);
 
@@ -301,6 +301,14 @@ void test_all()
         // new hole of four
         test_one<multi_polygon, polygon>("new_hole",
             "MULTIPOLYGON(((0 0,1 4,4 1,0 0)),((2 2,3 6,6 3,2 2)),((3 4,5 6,6 2,3 4)),((3 1,5 4,8 4,3 1)))",
+            1, 18, 19.5206);
+
+        // GGL mailing list - report Javier - 2011, March 7
+        test_one<multi_polygon, polygon>("ggl_list_20110307_javier_01",
+            "MULTIPOLYGON(((560 -400, 600 -400, 600 -440, 560 -440, 560 -400)), ((480 -400, 520 -400, 520 -440, 480 -440, 480 -400)), ((600 -320, 640 -320, 640 -360, 600 -360, 600 -320)), ((520 -400, 560 -400, 560 -440, 520 -440, 520 -400)))",
+            1, 18, 19.5206);
+        test_one<polygon, polygon>("ggl_list_20110307_javier_01",
+            "POLYGON((0 0, 2000 0, 2000 -2000, 0 -2000, 0 0), (560 -400, 560 -440, 600 -440, 600 -400, 560 -400), (480 -400, 480 -440, 520 -440, 520 -400, 480 -400), (600 -320, 600 -360, 640 -360, 640 -320, 600 -320), (520 -400, 520 -440, 560 -440, 560 -400, 520 -400))",
             1, 18, 19.5206);
     }
 

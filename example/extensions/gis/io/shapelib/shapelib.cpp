@@ -17,7 +17,7 @@
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object_multi.hpp>
 #include <boost/geometry/extensions/gis/io/shapelib/dbf_write_attribute.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 
 // Writing shapefiles has never been easier.

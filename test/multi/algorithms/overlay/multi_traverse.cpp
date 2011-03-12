@@ -32,7 +32,7 @@
 
 #include <boost/geometry/multi/iterators/range_type.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
 
 
 #include "multi_overlay_cases.hpp"

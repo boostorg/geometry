@@ -22,7 +22,7 @@ OBSOLETE
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 
 // All functions below are referred to in the documentation of Boost.Geometry

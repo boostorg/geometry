@@ -13,7 +13,7 @@
 #include <geometry_test_common.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 
 template <typename Geometry>

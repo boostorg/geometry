@@ -11,7 +11,7 @@
 
 #include <boost/geometry/algorithms/make.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/write_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>

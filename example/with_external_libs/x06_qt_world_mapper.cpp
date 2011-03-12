@@ -28,7 +28,7 @@
 
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/extensions/algorithms/selected.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 
 

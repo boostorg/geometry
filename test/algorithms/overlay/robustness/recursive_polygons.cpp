@@ -27,7 +27,7 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
 
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
         po::store(po::parse_command_line(argc, argv, description), varmap);
         po::notify(varmap);
 
-        if (varmap.count("help") 
+        if (varmap.count("help")
             || (form != "box" && form != "triangle"))
         {
             std::cout << description << std::endl;

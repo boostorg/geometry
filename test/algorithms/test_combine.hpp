@@ -13,7 +13,7 @@
 
 #include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 

@@ -18,15 +18,15 @@
 #include <boost/geometry/geometries/adapted/boost_range/sliced.hpp>
 #include <boost/geometry/geometries/adapted/boost_range/uniqued.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 #include <sstream>
 
 struct not_two
 {
     template <typename P>
-    bool operator()(P const& p) const 
-    { 
+    bool operator()(P const& p) const
+    {
         return boost::geometry::get<0>(p) != 2.0;
     }
 };
@@ -34,8 +34,8 @@ struct not_two
 struct sum_not_five
 {
     template <typename P>
-    bool operator()(P const& p1, P const& p2) const 
-    { 
+    bool operator()(P const& p1, P const& p2) const
+    {
         return boost::geometry::get<0>(p1) + boost::geometry::get<0>(p2) != 5.0;
     }
 };
@@ -43,7 +43,7 @@ struct sum_not_five
 
 template <typename P>
 void test_range_adaptor()
-{   
+{
     bg::model::linestring<P> ls;
     bg::read_wkt("LINESTRING(1 1,2 2,3 3,4 4)", ls);
 

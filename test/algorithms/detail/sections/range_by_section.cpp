@@ -15,7 +15,7 @@
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/iterators/range_type.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 
 

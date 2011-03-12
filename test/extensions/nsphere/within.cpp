@@ -12,7 +12,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
 template <typename Geometry>
