@@ -26,7 +26,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/detail/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/detail/wkt.hpp>
 
 
 namespace boost { namespace geometry
@@ -225,8 +225,8 @@ struct wkt_segment
         assign_point_from_index<0>(segment, points[0]);
         assign_point_from_index<1>(segment, points[1]);
 
-        // In Boost.Geometry a segment is represented 
-        // in WKT-format like (for 2D): LINESTRING(x y,x y) 
+        // In Boost.Geometry a segment is represented
+        // in WKT-format like (for 2D): LINESTRING(x y,x y)
         os << "LINESTRING";
         wkt_sequence<sequence>::apply(os, points);
     }

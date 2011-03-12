@@ -9,7 +9,7 @@
 #define BOOST_GEOMETRY_MULTI_IO_WKT_DETAIL_WKT_HPP
 
 
-#include <boost/geometry/extensions/gis/io/wkt/write_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
 
