@@ -58,14 +58,16 @@ First you see normal Doxygen comments. The last line uses the alias \qbk{...} to
 In the example above a QuickBook include statement is used. But any QuickBook code can be used, the QuickBook code does not have to be stored in a separate file. Two more samples:
 
 [pre
-\qbk{
 /*!
+...
+\qbk{
 \[heading Example\]
 \[area_with_strategy\]
 \[area_with_strategy_output\]
 
 \[heading Available Strategies\]
 \[link geometry.reference.strategies.strategy_area_surveyor Surveyor (cartesian)\]
+}
  */
 ]
 
@@ -83,7 +85,7 @@ With overloads, part of the documentation must be shared, and other part must no
 [heading Doxygen aliases]
 While documenting a large library, it is unavoidable that you have to document the same parameters in different places. For example, the template parameter [*Geometry], and the variable [*geometry], occur at least 100 times in our library. 
 
-To avoid repeating the same text again and again, Doxygen aliases are used. So \tparam_geometry means that the generic description for a template parameter geometry is inserted. \param_geometry does the same for a parameter. This is all handled by Doxygen itself. Those parameters are sometimes also parameterized, for example: [*\return_calc{area}], being expanded to: ['The calculated area]
+To avoid repeating the same text again and again, Doxygen aliases are used. So \tparam_geometry means that the generic description for a template parameter geometry is inserted. \param_geometry does the same for a parameter. This is all handled by Doxygen itself. The aliases can also be parameterized, for example: [*\return_calc{area}] is expanded to: ['The calculated area]
 
 This is for Doxygen alone and is not related to ['doxygen_xml2qbk] or QuickBook.
 
