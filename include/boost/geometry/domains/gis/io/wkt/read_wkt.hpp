@@ -37,7 +37,7 @@
 
 #include <boost/geometry/util/coordinate_cast.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/detail/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/detail/wkt.hpp>
 
 namespace boost { namespace geometry
 {
