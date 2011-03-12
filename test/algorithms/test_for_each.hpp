@@ -14,7 +14,7 @@
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 
 

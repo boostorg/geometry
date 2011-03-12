@@ -16,7 +16,7 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/extensions/algorithms/offset.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 

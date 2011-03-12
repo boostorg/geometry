@@ -16,7 +16,7 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
 

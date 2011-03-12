@@ -11,7 +11,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/length.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 

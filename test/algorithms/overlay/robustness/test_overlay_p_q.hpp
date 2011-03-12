@@ -26,7 +26,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
 #include <geometry_test_common.hpp>
@@ -83,7 +83,7 @@ static bool test_overlay_p_q(std::string const& caseid,
         double sum_d2 = (area_u - area_p) - area_d2;
         bool wrong_d1 = std::abs(sum_d1) > settings.tolerance;
         bool wrong_d2 = std::abs(sum_d2) > settings.tolerance;
-        
+
         if (wrong_d1 || wrong_d2)
         {
             wrong = true;
@@ -113,7 +113,7 @@ static bool test_overlay_p_q(std::string const& caseid,
 
         if (settings.also_difference)
         {
-            std::cout 
+            std::cout
                 << " area d1: " << area_d1
                 << " area d2: " << area_d2;
         }
@@ -153,12 +153,12 @@ static bool test_overlay_p_q(std::string const& caseid,
         {
             for (BOOST_AUTO(it, out_d.begin()); it != out_d.end(); ++it)
             {
-                mapper.map(*it, 
+                mapper.map(*it,
                     "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
             }
             for (BOOST_AUTO(it, out_d2.begin()); it != out_d2.end(); ++it)
             {
-                mapper.map(*it, 
+                mapper.map(*it,
                     "opacity:0.8;fill:none;stroke:rgb(255,0,255);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
             }
         }

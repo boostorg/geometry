@@ -12,7 +12,7 @@
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
 #include <boost/geometry/geometries/point.hpp>
@@ -133,8 +133,8 @@ int test_main(int, char* [])
 
     test_services
         <
-            bg::model::point<double, 2, bg::cs::cartesian>, 
-            bg::model::point<float, 2, bg::cs::cartesian>, 
+            bg::model::point<double, 2, bg::cs::cartesian>,
+            bg::model::point<float, 2, bg::cs::cartesian>,
             long double
         >();
 
@@ -142,8 +142,8 @@ int test_main(int, char* [])
 #if defined(HAVE_TTMATH)
     test_all_2d
         <
-            bg::model::point<ttmath_big, 2, bg::cs::cartesian>, 
-            bg::model::point<ttmath_big, 2, bg::cs::cartesian> 
+            bg::model::point<ttmath_big, 2, bg::cs::cartesian>,
+            bg::model::point<ttmath_big, 2, bg::cs::cartesian>
         >();
 #endif
 

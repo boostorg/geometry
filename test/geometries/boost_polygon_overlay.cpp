@@ -8,12 +8,12 @@
 #include <geometry_test_common.hpp>
 
 
-#include<boost/geometry/geometry.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon/point.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon/box.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon/ring.hpp>
-#include<boost/geometry/geometries/adapted/boost_polygon/polygon.hpp>
-#include<boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/point.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/box.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/ring.hpp>
+#include <boost/geometry/geometries/adapted/boost_polygon/polygon.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 #include<iostream>
 
@@ -91,7 +91,7 @@ void test_overlay_using_boost_geometry(std::string const& case_id, std::string c
 
     double sum = area_p + area_q - area_u - area_i;
     BOOST_CHECK_MESSAGE(abs(sum) < 0.001,
-        "Overlay error\n" 
+        "Overlay error\n"
             << "Boost.Geometry " << case_id
             << " area p: " << area_p
             << " area q: " << area_q

@@ -21,8 +21,8 @@
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
 
 
 // This test is a little different from transform.cpp test.
@@ -36,7 +36,7 @@ void test_transform(std::string const& wkt, std::string const& expected)
 
     Geometry geometry_in, geometry_out;
     bg::read_wkt(wkt, geometry_in);
-    bg::transform(geometry_in, geometry_out, 
+    bg::transform(geometry_in, geometry_out,
         bg::strategy::transform::scale_transformer<point_type>(2, 2));
     std::ostringstream detected;
     detected << bg::wkt(geometry_out);
@@ -50,31 +50,31 @@ void test_all()
     typedef bg::model::d2::point_xy<T> P;
 
     test_transform<P>(
-            "POINT(1 1)", 
+            "POINT(1 1)",
             "POINT(2 2)");
     test_transform<bg::model::linestring<P> >(
-            "LINESTRING(1 1,2 2)", 
+            "LINESTRING(1 1,2 2)",
             "LINESTRING(2 2,4 4)");
     test_transform<bg::model::segment<P> >(
-            "LINESTRING(1 1,2 2)", 
+            "LINESTRING(1 1,2 2)",
             "LINESTRING(2 2,4 4)");
     test_transform<bg::model::ring<P> >(
-            "POLYGON((0 0,0 1,1 0,0 0))", 
+            "POLYGON((0 0,0 1,1 0,0 0))",
             "POLYGON((0 0,0 2,2 0,0 0))");
     test_transform<bg::model::polygon<P> >(
-            "POLYGON((0 0,0 1,1 0,0 0))", 
+            "POLYGON((0 0,0 1,1 0,0 0))",
             "POLYGON((0 0,0 2,2 0,0 0))");
     test_transform<bg::model::box<P> >(
-            "POLYGON((0 0,0 1,1 1,1 0,0 0))", 
+            "POLYGON((0 0,0 1,1 1,1 0,0 0))",
             "POLYGON((0 0,0 2,2 2,2 0,0 0))");
     test_transform<bg::model::multi_point<P> >(
-            "MULTIPOINT((1 1),(2 2))", 
+            "MULTIPOINT((1 1),(2 2))",
             "MULTIPOINT((2 2),(4 4))");
     test_transform<bg::model::multi_linestring<bg::model::linestring<P> > >(
-            "MULTILINESTRING((1 1,2 2))", 
+            "MULTILINESTRING((1 1,2 2))",
             "MULTILINESTRING((2 2,4 4))");
     test_transform<bg::model::multi_polygon<bg::model::polygon<P> > >(
-            "MULTIPOLYGON(((0 0,0 1,1 0,0 0)))", 
+            "MULTIPOLYGON(((0 0,0 1,1 0,0 0)))",
             "MULTIPOLYGON(((0 0,0 2,2 0,0 0)))");
 }
 

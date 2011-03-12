@@ -58,7 +58,7 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 
 
@@ -110,32 +110,32 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         > inserter_type;
 
 
-	/***/
+    /***/
     typedef bg::box<point_type> box_type;
     typedef bg::sections<box_type, 1> sections_type;
 
     sections_type sections;
     bg::sectionalize(geometry, sections);
 
-	std::vector<GeometryOut> sections_buffered;
+    std::vector<GeometryOut> sections_buffered;
 
 
-	// Buffer all sections separately
+    // Buffer all sections separately
     BOOST_FOREACH(typename sections_type::value_type const& section, sections)
     {
         if (! section.duplicate)
         {
-			typedef typename boost::range_iterator
-				<
-					typename bg::range_type<Geometry>::type const
-				>::type iterator_type;
+            typedef typename boost::range_iterator
+                <
+                    typename bg::range_type<Geometry>::type const
+                >::type iterator_type;
 
 
-			inserter_type inserter(sections_buffered);
+            inserter_type inserter(sections_buffered);
 
-			iterator_type begin, end;
-			typedef std::pair<iterator_type, iterator_type> section_range;
-			//bg::get_section(geometry, section, begin, end);
+            iterator_type begin, end;
+            typedef std::pair<iterator_type, iterator_type> section_range;
+            //bg::get_section(geometry, section, begin, end);
 
             typedef bg::closeable_view
                 <
@@ -145,41 +145,41 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
             view_type view = bg::get_full_section<view_type>(geometry, section);
 
-			bg::detail::buffer::linestring_buffer
-				<
-					section_range, ring_type, distance, join_strategy
+            bg::detail::buffer::linestring_buffer
+                <
+                    section_range, ring_type, distance, join_strategy
                 >::apply(std::make_pair(
-                        boost::begin(view) + section.begin_index, 
-                        boost::begin(view) + section.end_index), 
+                        boost::begin(view) + section.begin_index,
+                        boost::begin(view) + section.end_index),
                             inserter,
-							distance(distance_left, distance_left / 2.0), // two times left
-							join_strategy());
+                            distance(distance_left, distance_left / 2.0), // two times left
+                            join_strategy());
         }
     }
 
     std::vector<GeometryOut> sections_buffered_unioned;
     BOOST_FOREACH(GeometryOut const& p, sections_buffered)
     {
-		if (sections_buffered_unioned.empty())
-		{
-			bg::union_inserter<GeometryOut>(geometry, p, std::back_inserter(sections_buffered_unioned));
-		}
-		else if (boost::size(sections_buffered_unioned) == 1)
-		{
-		    std::vector<GeometryOut> step;
-			bg::union_inserter<GeometryOut>(sections_buffered_unioned.front(), p, std::back_inserter(step));
-			step.swap(sections_buffered_unioned);
-		}
-		else
-		{
-			std::cout << "nyi" << std::endl;
-			BOOST_FOREACH(GeometryOut const& sbu, sections_buffered_unioned)
-			{
-				bg::union_inserter<GeometryOut>(p, sbu, sections_buffered_unioned);
-			}
-		}
+        if (sections_buffered_unioned.empty())
+        {
+            bg::union_inserter<GeometryOut>(geometry, p, std::back_inserter(sections_buffered_unioned));
+        }
+        else if (boost::size(sections_buffered_unioned) == 1)
+        {
+            std::vector<GeometryOut> step;
+            bg::union_inserter<GeometryOut>(sections_buffered_unioned.front(), p, std::back_inserter(step));
+            step.swap(sections_buffered_unioned);
+        }
+        else
+        {
+            std::cout << "nyi" << std::endl;
+            BOOST_FOREACH(GeometryOut const& sbu, sections_buffered_unioned)
+            {
+                bg::union_inserter<GeometryOut>(p, sbu, sections_buffered_unioned);
+            }
+        }
     }
-	/***/
+    /***/
 
 
     std::vector<GeometryOut> buffered;
@@ -236,8 +236,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
 #if defined(BOOST_GEOMETRY_TEST_BUFFER_POLYGON)
 /*
-	    bg::detail::buffer::unioning_buffer(geometry, sections_buffered_unioned,
-			    distance(distance_left, distance_left / 2.0)
+        bg::detail::buffer::unioning_buffer(geometry, sections_buffered_unioned,
+                distance(distance_left, distance_left / 2.0)
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                             , join_strategy(mapper), mapper
 #else
@@ -264,8 +264,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         #else
 
 
-	    bg::detail::buffer::segmenting_buffer(geometry, sections_buffered_unioned,
-			    distance(distance_left, distance_right)
+        bg::detail::buffer::segmenting_buffer(geometry, sections_buffered_unioned,
+                distance(distance_left, distance_right)
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                             , join_strategy(mapper), mapper
 #else
@@ -342,16 +342,16 @@ std::cout << bg::wkt(ring)
 }
 #endif
 
-	/***
+    /***
     coordinate_type a = coordinate_type();
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
         a += bg::area(polygon);
     }
-    BOOST_CHECK_CLOSE(a, expected_area, join == 'r' 
+    BOOST_CHECK_CLOSE(a, expected_area, join == 'r'
         ? coordinate_type(0.1)
         : coordinate_type(0.001));
-	***/
+    ***/
 }
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS

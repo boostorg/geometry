@@ -34,7 +34,7 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 
 #if defined(TEST_WITH_SVG)
@@ -96,7 +96,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         {
             boost::copy(array_with_one_empty_geometry, bg::difference_inserter<OutputType>(g1, g2, std::back_inserter(inserted)));
         }
-        
+
         BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
     }
 #endif
@@ -150,7 +150,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         for (typename std::vector<OutputType>::const_iterator it = clip.begin();
                 it != clip.end(); ++it)
         {
-            mapper.map(*it, 
+            mapper.map(*it,
                 //sym ? "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,255,0);stroke:rgb(255,0,255);stroke-width:8" :
                 "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);stroke:rgb(255,0,255);stroke-width:8");
         }

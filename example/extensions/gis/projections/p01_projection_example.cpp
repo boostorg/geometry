@@ -10,7 +10,7 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/parse.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/stream_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/stream_wkt.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/robin.hpp>

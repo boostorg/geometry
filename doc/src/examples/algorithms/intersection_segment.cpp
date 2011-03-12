@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp> /*< Adapts std::vector to linestring concept >*/
 
 #include <boost/foreach.hpp>

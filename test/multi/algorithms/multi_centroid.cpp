@@ -18,7 +18,7 @@
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
 
 
 // #define REPORT_RESULTS

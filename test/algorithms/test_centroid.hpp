@@ -16,7 +16,7 @@
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
 template<std::size_t D>

@@ -14,11 +14,11 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
 template <typename Geometry>
-void test_area(Geometry const& geometry, 
+void test_area(Geometry const& geometry,
             typename bg::area_result<Geometry>::type expected_area)
 {
     typename bg::area_result<Geometry>::type area = bg::area(geometry);
@@ -55,7 +55,7 @@ void test_area(Geometry const& geometry,
 }
 
 template <typename Geometry>
-void test_geometry(std::string const& wkt, 
+void test_geometry(std::string const& wkt,
             typename bg::area_result<Geometry>::type expected_area)
 {
     Geometry geometry;
