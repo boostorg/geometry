@@ -21,6 +21,8 @@
 [[__rev__][[qbk_ret the negative area]]]
 ]
 
+[include generated/area_status.qbk]
+
 [heading Complexity]
 Linear
 
