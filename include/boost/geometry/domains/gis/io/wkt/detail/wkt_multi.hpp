@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_IO_WKT_DETAIL_WKT_HPP
-#define BOOST_GEOMETRY_MULTI_IO_WKT_DETAIL_WKT_HPP
+#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_DETAIL_WKT_MULTI_HPP
+#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_DETAIL_WKT_MULTI_HPP
 
 
 #include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
@@ -47,4 +47,4 @@ struct prefix_multipolygon
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_MULTI_IO_WKT_DETAIL_WKT_HPP
+#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_DETAIL_WKT_MULTI_HPP
