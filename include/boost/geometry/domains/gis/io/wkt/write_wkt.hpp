@@ -383,16 +383,6 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
     return wkt_manipulator<Geometry>(geometry);
 }
 
-
-// Backward compatibility
-template <typename Geometry>
-inline wkt_manipulator<Geometry> make_wkt(Geometry const& geometry)
-{
-    concept::check<Geometry const>();
-
-    return wkt_manipulator<Geometry>(geometry);
-}
-
 }} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_WKT_HPP

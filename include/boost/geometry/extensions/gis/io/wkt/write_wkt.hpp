@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WKT_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WKT_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WRITE_WKT_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WRITE_WKT_HPP
 
 
 #if defined(BOOST_MSVC_FULL_VER)
@@ -16,11 +16,23 @@
 #endif
 
 
-#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write_wkt_multi.hpp>
 
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WKT_HPP
+namespace boost { namespace geometry
+{
+
+// Backward compatibility - NOTE THIS IS DEPRECATED
+template <typename Geometry>
+inline wkt_manipulator<Geometry> make_wkt(Geometry const& geometry)
+{
+    concept::check<Geometry const>();
+
+    return wkt_manipulator<Geometry>(geometry);
+}
+
+}} // namespace boost::geometry
+
+
+#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WRITE_WKT_HPP
