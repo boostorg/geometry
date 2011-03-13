@@ -5,8 +5,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WRITE_WKT_MULTI_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WRITE_WKT_MULTI_HPP
+#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_WKT_MULTI_HPP
+#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_WKT_MULTI_HPP
 
 
 
@@ -108,4 +108,4 @@ struct wkt<multi_polygon_tag, Multi>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_WRITE_WKT_MULTI_HPP
+#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_WKT_MULTI_HPP
