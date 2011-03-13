@@ -367,19 +367,23 @@ struct section_visitor
     template <typename Section>
     inline bool apply(Section const& sec1, Section const& sec2)
     {
-        return get_turns_in_sections
-                <
-                    Geometry1,
-                    Geometry2,
-                    Reverse1, Reverse2,
-                    Section, Section,
-                    Turns,
-                    TurnPolicy,
-                    InterruptPolicy
-                >::apply(
-                        m_source_id1, m_geometry1, sec1,
-                        m_source_id2, m_geometry2, sec2,
-                        m_turns, m_interrupt_policy);
+        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box, sec2.bounding_box))
+        {
+            return get_turns_in_sections
+                    <
+                        Geometry1,
+                        Geometry2,
+                        Reverse1, Reverse2,
+                        Section, Section,
+                        Turns,
+                        TurnPolicy,
+                        InterruptPolicy
+                    >::apply(
+                            m_source_id1, m_geometry1, sec1,
+                            m_source_id2, m_geometry2, sec2,
+                            m_turns, m_interrupt_policy);
+        }
+        return true;
     }
 
 };
