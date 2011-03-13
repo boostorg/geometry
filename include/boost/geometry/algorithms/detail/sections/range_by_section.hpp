@@ -42,9 +42,9 @@ struct full_section_polygon
 {
     static inline typename ring_return_type<Polygon const>::type apply(Polygon const& polygon, Section const& section)
     {
-        return section.ring_index < 0
+        return section.ring_id.ring_index < 0
             ? geometry::exterior_ring(polygon)
-            : geometry::interior_rings(polygon)[section.ring_index];
+            : geometry::interior_rings(polygon)[section.ring_id.ring_index];
     }
 };
 

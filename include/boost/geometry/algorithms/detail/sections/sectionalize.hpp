@@ -19,6 +19,8 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 
+#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -52,11 +54,10 @@ struct section
     typedef Box box_type;
 
     // unique ID used in get_turns to mark section-pairs already handled.
-    int id;
+    int id; // might be obsolete now, BSG 14-03-2011 TODO decide about this
 
     int directions[DimensionCount];
-    int ring_index;
-    int multi_index;
+    ring_identifier ring_id;
     Box bounding_box;
 
     int begin_index;
@@ -68,8 +69,6 @@ struct section
 
     inline section()
         : id(-1)
-        , ring_index(-99)
-        , multi_index(-99)
         , begin_index(-1)
         , end_index(-1)
         , count(0)
@@ -248,7 +247,7 @@ struct sectionalize_part
     static inline void apply(Sections& sections, section_type& section,
                 int& index, int& ndi,
                 Range const& range,
-                int ring_index = -1, int multi_index = -1)
+                ring_identifier ring_id)
     {
         if (boost::size(range) <= index)
         {
@@ -319,8 +318,7 @@ struct sectionalize_part
             if (section.count == 0)
             {
                 section.begin_index = index;
-                section.ring_index = ring_index;
-                section.multi_index = multi_index;
+                section.ring_id = ring_id;
                 section.duplicate = duplicate;
                 section.non_duplicate_index = ndi;
                 section.range_count = boost::size(range);
@@ -361,8 +359,8 @@ struct sectionalize_range
             Reverse ? iterate_reverse : iterate_forward
         >::type view_type;
 
-    static inline void apply(Range const& range, Sections& sections,
-                int ring_index = -1, int multi_index = -1)
+    static inline void apply(Range const& range, Sections& sections, 
+                ring_identifier ring_id)
     {
         typedef model::referring_segment<Point const> segment_type;
 
@@ -393,7 +391,7 @@ struct sectionalize_range
                 view_type, Point, Sections,
                 DimensionCount, MaxCount
             >::apply(sections, section, index, ndi,
-                        view, ring_index, multi_index);
+                        view, ring_id);
 
         // Add last section if applicable
         if (section.count > 0)
@@ -414,7 +412,7 @@ template
 struct sectionalize_polygon
 {
     static inline void apply(Polygon const& poly, Sections& sections,
-                int multi_index = -1)
+                ring_identifier ring_id)
     {
         typedef typename point_type<Polygon>::type point_type;
         typedef typename ring_type<Polygon>::type ring_type;
@@ -424,16 +422,16 @@ struct sectionalize_polygon
                 point_type, Sections, DimensionCount, MaxCount
             > sectionalizer_type;
 
-        sectionalizer_type::apply(exterior_ring(poly), sections, -1, multi_index);
+        ring_id.ring_index = -1;
+        sectionalizer_type::apply(exterior_ring(poly), sections, ring_id);//-1, multi_index);
 
-        int i = 0;
-
+        ring_id.ring_index++;
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings);
-             ++it, ++i)
+             ++it, ++ring_id.ring_index)
         {
-            sectionalizer_type::apply(*it, sections, i, multi_index);
+            sectionalizer_type::apply(*it, sections, ring_id);
         }
     }
 };
@@ -447,7 +445,7 @@ template
 >
 struct sectionalize_box
 {
-    static inline void apply(Box const& box, Sections& sections)
+    static inline void apply(Box const& box, Sections& sections, ring_identifier const& ring_id)
     {
         typedef typename point_type<Box>::type point_type;
 
@@ -476,7 +474,7 @@ struct sectionalize_box
                 Sections,
                 DimensionCount,
                 MaxCount
-            >::apply(points, sections);
+            >::apply(points, sections, ring_id);
     }
 };
 
@@ -612,7 +610,7 @@ struct sectionalize<polygon_tag, Polygon, Reverse, Sections, DimensionCount, Max
 
  */
 template<bool Reverse, typename Geometry, typename Sections>
-inline void sectionalize(Geometry const& geometry, Sections& sections)
+inline void sectionalize(Geometry const& geometry, Sections& sections, int source_index = 0)
 {
     concept::check<Geometry const>();
 
@@ -629,7 +627,9 @@ inline void sectionalize(Geometry const& geometry, Sections& sections)
         > sectionalizer_type;
 
     sections.clear();
-    sectionalizer_type::apply(geometry, sections);
+    ring_identifier ring_id;
+    ring_id.source_index = source_index;
+    sectionalizer_type::apply(geometry, sections, ring_id);
     detail::sectionalize::set_section_unique_ids(sections);
 }
 

@@ -33,9 +33,9 @@ struct calculate_distance_policy
     static inline void apply(Info& info, Point1 const& p1, Point2 const& p2)
     {
         info.operations[0].enriched.distance
-                    = boost::geometry::distance(info.point, p1);
+                    = geometry::distance(info.point, p1);
         info.operations[1].enriched.distance
-                    = boost::geometry::distance(info.point, p2);
+                    = geometry::distance(info.point, p2);
     }
 
 };

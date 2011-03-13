@@ -286,7 +286,7 @@ struct intersection_inserter
     static inline OutputIterator apply(Segment const& segment,
             Box const& box, OutputIterator out, Strategy const& strategy)
     {
-        typedef boost::geometry::segment_range<Segment> range_type;
+        typedef geometry::segment_range<Segment> range_type;
         range_type range(segment);
 
         typedef typename point_type<GeometryOut>::type point_type;

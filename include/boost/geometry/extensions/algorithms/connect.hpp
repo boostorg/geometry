@@ -69,7 +69,7 @@ struct map_policy
         <
             Point,
             std::vector<node<Point> >,
-            boost::geometry::less<Point>
+            geometry::less<Point>
         > map_type;
 
     typedef typename map_type::const_iterator map_iterator_type;

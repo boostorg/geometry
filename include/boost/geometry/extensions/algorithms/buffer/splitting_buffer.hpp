@@ -77,7 +77,7 @@ inline void splitting_buffer(Geometry const& geometry,
     std::vector<ring_type> rings;
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
-//std::cout << bg::wkt(polygon) << " ; POLYGON" << std::endl;
+//std::cout << geometry::wkt(polygon) << " ; POLYGON" << std::endl;
         geometry::split_rings(polygon, rings);
     }
 

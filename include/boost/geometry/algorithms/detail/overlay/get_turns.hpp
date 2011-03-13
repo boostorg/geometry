@@ -43,6 +43,7 @@
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
@@ -151,8 +152,8 @@ public :
 
         bool const same_source =
             source_id1 == source_id2
-                    && sec1.multi_index == sec2.multi_index
-                    && sec1.ring_index == sec2.ring_index;
+                    && sec1.ring_id.multi_index == sec2.ring_id.multi_index
+                    && sec1.ring_id.ring_index == sec2.ring_id.ring_index;
 
         range1_iterator prev1, it1, end1;
 
@@ -222,9 +223,9 @@ public :
 
                     turn_info ti;
                     ti.operations[0].seg_id = segment_identifier(source_id1,
-                                        sec1.multi_index, sec1.ring_index, index1),
+                                        sec1.ring_id.multi_index, sec1.ring_id.ring_index, index1),
                     ti.operations[1].seg_id = segment_identifier(source_id2,
-                                        sec2.multi_index, sec2.ring_index, index2),
+                                        sec2.ring_id.multi_index, sec2.ring_id.ring_index, index2),
 
                     ti.operations[0].other_id = ti.operations[1].seg_id;
                     ti.operations[1].other_id = ti.operations[0].seg_id;
@@ -319,7 +320,69 @@ private :
     }
 };
 
+struct get_section_box
+{
+    template <typename Box, typename InputItem>
+    static inline void apply(Box& total, InputItem const& item)
+    {
+        geometry::expand(total, item.bounding_box);
+    }
+};
 
+struct ovelaps_section_box
+{
+    template <typename Box, typename InputItem>
+    static inline bool apply(Box const& box, InputItem const& item)
+    {
+        return ! detail::disjoint::disjoint_box_box(box, item.bounding_box);
+    }
+};
+
+template
+<
+    typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2,
+    typename Turns,
+    typename TurnPolicy,
+    typename InterruptPolicy
+>
+struct section_visitor
+{
+    int m_source_id1;
+    Geometry1 const& m_geometry1;
+    int m_source_id2;
+    Geometry2 const& m_geometry2;
+    Turns& m_turns;
+    InterruptPolicy& m_interrupt_policy;
+
+    section_visitor(int id1, Geometry1 const& g1, 
+            int id2, Geometry2 const& g2, 
+            Turns& turns, InterruptPolicy& ip)
+        : m_source_id1(id1), m_geometry1(g1)
+        , m_source_id2(id2), m_geometry2(g2)
+        , m_turns(turns)
+        , m_interrupt_policy(ip)
+    {}
+
+    template <typename Section>
+    inline bool apply(Section const& sec1, Section const& sec2)
+    {
+        return get_turns_in_sections
+                <
+                    Geometry1,
+                    Geometry2,
+                    Reverse1, Reverse2,
+                    Section, Section,
+                    Turns,
+                    TurnPolicy,
+                    InterruptPolicy
+                >::apply(
+                        m_source_id1, m_geometry1, sec1,
+                        m_source_id2, m_geometry2, sec2,
+                        m_turns, m_interrupt_policy);
+    }
+
+};
 
 template
 <
@@ -331,153 +394,6 @@ template
 >
 class get_turns_generic
 {
-    template <typename Box, typename Sections>
-    static inline void add_sections(Box& box, Sections const& sections)
-    {
-        for (typename boost::range_iterator<Sections const>::type
-                    it = sections.begin();
-            it != sections.end();
-            ++it)
-        {
-            geometry::expand(box, it->bounding_box);
-        }
-    }
-
-    template <typename Sections, typename Box>
-    static inline void get_sections(Sections const& sections,
-            Box const& box, Sections& selection)
-    {
-        for (typename boost::range_iterator<Sections const>::type
-                    it = sections.begin();
-            it != sections.end();
-            ++it)
-        {
-            if (! geometry::detail::disjoint::disjoint_box_box(box, it->bounding_box))
-            {
-                selection.push_back(*it);
-            }
-        }
-    }
-
-    template <typename Sections1, typename Sections2, typename Map>
-    static inline bool intersect(
-            int source_id1, Geometry1 const& geometry1,
-            int source_id2, Geometry2 const& geometry2,
-            Turns& turns,
-            InterruptPolicy& interrupt_policy,
-            Sections1 const& sec1, Sections2 const& sec2,
-            Map& map)
-    {
-        for (typename boost::range_iterator<Sections1 const>::type
-                    it1 = sec1.begin();
-            it1 != sec1.end();
-            ++it1)
-        {
-            for (typename boost::range_iterator<Sections2 const>::type
-                        it2 = sec2.begin();
-                it2 != sec2.end();
-                ++it2)
-            {
-                std::pair<int, int> p = std::make_pair(it1->id, it2->id);
-                bool processed = map[p];
-                if (! processed)
-                {
-                    map[p] = true;
-                    if (! geometry::detail::disjoint::disjoint_box_box(
-                                    it1->bounding_box, it2->bounding_box))
-                    {
-                        if (! get_turns_in_sections
-                                <
-                                    Geometry1,
-                                    Geometry2,
-                                    Reverse1, Reverse2,
-                                    typename boost::range_value<Sections1>::type,
-                                    typename boost::range_value<Sections2>::type,
-                                    Turns,
-                                    TurnPolicy,
-                                    InterruptPolicy
-                                >::apply(
-                                        source_id1, geometry1, *it1,
-                                        source_id2, geometry2, *it2,
-                                        turns, interrupt_policy)
-                            )
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-
-    // Divide and conquer (suggested by Luke during Boost.Geometry Formal Review)
-    template
-        <
-            std::size_t Dimension,
-            typename Box,
-            typename Sections1, typename Sections2,
-            typename Map
-        >
-    static inline bool divide_and_conquer(
-            int source_id1, Geometry1 const& geometry1,
-            int source_id2, Geometry2 const& geometry2,
-            Turns& turns,
-            InterruptPolicy& interrupt_policy,
-
-            Box const& box,
-            Sections1 const& sec1, Sections2 const& sec2,
-            Map& map,
-            std::size_t iteration = 0, std::size_t previous_count = 0)
-    {
-        // To stop the iteration, fallback to (quadratic) behaviour below certain limits,
-        // or if dividing does not give any profit.
-        std::size_t n = sec1.size() + sec2.size();
-        if (sec1.size() < 5
-            || sec2.size() < 5
-            || n == previous_count
-            || iteration > 100)
-        {
-            return intersect(source_id1, geometry1, source_id2, geometry2,
-                            turns, interrupt_policy, sec1, sec2, map);
-        }
-
-        // Divide the complete box in two (alternating) halves
-        Box lower = box, upper = box;
-        typename geometry::coordinate_type<Box>::type two = 2;
-        typename geometry::coordinate_type<Box>::type mid
-            = (geometry::get<min_corner, Dimension>(box)
-                + geometry::get<max_corner, Dimension>(box)) / two;
-
-        geometry::set<max_corner, Dimension>(lower, mid);
-        geometry::set<min_corner, Dimension>(upper, mid);
-
-        Sections1 lower1, upper1;
-        Sections2 lower2, upper2;
-        get_sections(sec1, lower, lower1);
-        get_sections(sec2, lower, lower2);
-        get_sections(sec1, upper, upper1);
-        get_sections(sec2, upper, upper2);
-
-#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION_DIVIDE_AND_CONQUER
-        std::cout
-            << "Get IP's, iteration: " << iteration
-            << " box: " << geometry::dsv(box)
-            << " n: " << n
-            << " lower: " << lower1.size() << " , " << lower2.size()
-            << " upper: " << upper1.size() << " , " << upper2.size()
-            << std::endl;
-#endif
-
-        // Recursively handle lower and upper half, dividing in other dimension
-        return divide_and_conquer<1 - Dimension>(source_id1, geometry1,
-                    source_id2, geometry2, turns, interrupt_policy,
-                    lower, lower1, lower2, map, iteration + 1, n)
-            && divide_and_conquer<1 - Dimension>(source_id1, geometry1,
-                    source_id2, geometry2, turns, interrupt_policy,
-                    upper, upper1, upper2, map, iteration + 1, n);
-    }
 
 public:
     static inline void apply(
@@ -485,35 +401,29 @@ public:
             int source_id2, Geometry2 const& geometry2,
             Turns& turns, InterruptPolicy& interrupt_policy)
     {
-        // Create monotonic sections in ONE direction
-        // - in most cases ONE direction is faster (e.g. ~1% faster for the NLP4 testset)
-        // - the sections now have a limit (default 10) so will not be too large
-
-        // Note that the sections contain boxes, are dynamic, and therefore
-        // are specified using output/intersection-point-type
-        // (to enable input-pointer-point-types)
+        // First create monotonic sections...
         typedef typename boost::range_value<Turns>::type ip_type;
         typedef typename ip_type::point_type point_type;
-        typedef typename geometry::sections<model::box<point_type>, 1> sections1_type;
-        typedef typename geometry::sections<model::box<point_type>, 1> sections2_type;
+        typedef model::box<point_type> box_type;
+        typedef typename geometry::sections<box_type, 2> sections_type;
 
-        sections1_type sec1;
-        sections2_type sec2;
+        sections_type sec1, sec2;
 
-        geometry::sectionalize<Reverse1>(geometry1, sec1);
-        geometry::sectionalize<Reverse2>(geometry2, sec2);
+        geometry::sectionalize<Reverse1>(geometry1, sec1, 0);
+        geometry::sectionalize<Reverse2>(geometry2, sec2, 1);
 
-        // Divide and conquer
-        model::box<point_type> box;
-        geometry::assign_inverse(box);
-        add_sections(box, sec1);
-        add_sections(box, sec2);
+        // ... and then partition them, intersecting overlapping sections in visitor method
+        section_visitor
+            <
+                Geometry1, Geometry2,
+                Reverse1, Reverse2,
+                Turns, TurnPolicy, InterruptPolicy
+            > visitor(source_id1, geometry1, source_id2, geometry2, turns, interrupt_policy);
 
-        // House-keeping map, to avoid section-pairs being compared twice
-        std::map<std::pair<int, int>, bool> map;
-
-        divide_and_conquer<1>(source_id1, geometry1, source_id2, geometry2,
-            turns, interrupt_policy, box, sec1, sec2, map);
+        geometry::partition
+            <
+                box_type, get_section_box, ovelaps_section_box
+            >::apply(sec1, sec2, visitor, 2);
     }
 };
 
