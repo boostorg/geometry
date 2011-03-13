@@ -37,9 +37,6 @@
 
 #include "multi_overlay_cases.hpp"
 
-#if defined(TEST_WITH_SVG)
-#  include "multi_svg_mapper.hpp"
-#endif
 
 
 // Because multi-intersections are similar to single,
@@ -133,7 +130,7 @@ void test_geometries()
     test_overlay<MultiPolygon, MultiPolygon,
         test_traverse<ov::operation_intersection, Reverse, Reverse>,  Tuple>
         (
-            "case_78_multi", boost::make_tuple(3, 22),
+            "case_78_multi", boost::make_tuple(2, 22), // Went from 3 to 2 by get_turns / partition
             case_78_multi[0], case_78_multi[1]
         );
 
