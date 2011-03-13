@@ -20,8 +20,8 @@
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 
 #include <boost/geometry/extensions/index/rtree/helpers.hpp>
 
@@ -162,7 +162,7 @@ public:
         geometry::assign_inverse(result);
         for(typename node_map::const_iterator it = m_nodes.begin(); it != m_nodes.end(); ++it)
         {
-            geometry::combine(result, it->first);
+            geometry::expand(result, it->first);
         }
 
         return result;
@@ -299,8 +299,8 @@ public:
         // check for the least enlargement
         for (typename node_map::const_iterator it = m_nodes.begin(); it != m_nodes.end(); ++it)
         {
-            coordinate_type const 
-                diff_area = coordinate_type(compute_union_area(box, it->first)) 
+            coordinate_type const
+                diff_area = coordinate_type(compute_union_area(box, it->first))
                     - geometry::area(it->first);
 
             if (first)

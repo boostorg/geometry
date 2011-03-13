@@ -20,7 +20,7 @@
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/combine.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 
 #include <boost/geometry/extensions/index/rtree/rtree_node.hpp>
 
@@ -92,7 +92,7 @@ public:
         geometry::assign_inverse(r);
         for(typename leaf_map::const_iterator it = m_nodes.begin(); it != m_nodes.end(); ++it)
         {
-            geometry::combine(r, it->first);
+            geometry::expand(r, it->first);
         }
         return r;
     }

@@ -17,7 +17,7 @@
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/combine.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -329,10 +329,10 @@ struct sectionalize_part
                     <
                         int, 0, DimensionCount
                     >::apply(direction_classes, section.directions);
-                geometry::combine(section.bounding_box, *previous);
+                geometry::expand(section.bounding_box, *previous);
             }
 
-            geometry::combine(section.bounding_box, *it);
+            geometry::expand(section.bounding_box, *it);
             section.end_index = index + 1;
             section.count++;
             if (! duplicate)

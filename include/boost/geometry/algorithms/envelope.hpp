@@ -14,8 +14,8 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
-#include <boost/geometry/algorithms/combine.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -31,12 +31,12 @@ namespace detail { namespace envelope
 
 /// Calculate envelope of an 2D or 3D segment
 template<typename Geometry, typename Box>
-struct envelope_combine_one
+struct envelope_expand_one
 {
     static inline void apply(Geometry const& geometry, Box& mbr)
     {
         assign_inverse(mbr);
-        geometry::combine(mbr, geometry);
+        geometry::expand(mbr, geometry);
     }
 };
 
@@ -51,7 +51,7 @@ inline void envelope_range_additional(Range const& range, Box& mbr)
         it != boost::end(range);
         ++it)
     {
-        geometry::combine(mbr, *it);
+        geometry::expand(mbr, *it);
     }
 }
 
@@ -87,7 +87,7 @@ template
     typename Geometry, typename Box,
     typename StrategyLess, typename StrategyGreater
 >
-struct envelope 
+struct envelope
 {
     BOOST_MPL_ASSERT_MSG
         (
@@ -108,7 +108,7 @@ struct envelope
         Point, Box,
         StrategyLess, StrategyGreater
     >
-    : detail::envelope::envelope_combine_one<Point, Box>
+    : detail::envelope::envelope_expand_one<Point, Box>
 {};
 
 
@@ -123,7 +123,7 @@ struct envelope
         BoxIn, BoxOut,
         StrategyLess, StrategyGreater
     >
-    : detail::envelope::envelope_combine_one<BoxIn, BoxOut>
+    : detail::envelope::envelope_expand_one<BoxIn, BoxOut>
 {};
 
 
@@ -138,7 +138,7 @@ struct envelope
         Segment, Box,
         StrategyLess, StrategyGreater
     >
-    : detail::envelope::envelope_combine_one<Segment, Box>
+    : detail::envelope::envelope_expand_one<Segment, Box>
 {};
 
 

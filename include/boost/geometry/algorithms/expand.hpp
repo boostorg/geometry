@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_COMBINE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_COMBINE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_EXPAND_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_EXPAND_HPP
 
 
 #include <cstddef>
@@ -27,7 +27,7 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace combine
+namespace detail { namespace expand
 {
 
 
@@ -172,7 +172,7 @@ template
     typename Box, typename Geometry,
     typename StrategyLess, typename StrategyGreater
 >
-struct combine_indexed
+struct expand_indexed
 {
     static inline void apply(Box& box, Geometry const& geometry)
     {
@@ -192,7 +192,7 @@ struct combine_indexed
     }
 };
 
-}} // namespace detail::combine
+}} // namespace detail::expand
 #endif // DOXYGEN_NO_DETAIL
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -205,7 +205,7 @@ template
     typename BoxOut, typename Geometry,
     typename StrategyLess, typename StrategyGreater
 >
-struct combine
+struct expand
 {};
 
 
@@ -215,8 +215,8 @@ template
     typename BoxOut, typename Point,
     typename StrategyLess, typename StrategyGreater
 >
-struct combine<point_tag, BoxOut, Point, StrategyLess, StrategyGreater>
-    : detail::combine::point_loop
+struct expand<point_tag, BoxOut, Point, StrategyLess, StrategyGreater>
+    : detail::expand::point_loop
         <
             BoxOut, Point,
             StrategyLess, StrategyGreater,
@@ -231,8 +231,8 @@ template
     typename BoxOut, typename BoxIn,
     typename StrategyLess, typename StrategyGreater
 >
-struct combine<box_tag, BoxOut, BoxIn, StrategyLess, StrategyGreater>
-    : detail::combine::combine_indexed
+struct expand<box_tag, BoxOut, BoxIn, StrategyLess, StrategyGreater>
+    : detail::expand::expand_indexed
         <BoxOut, BoxIn, StrategyLess, StrategyGreater>
 {};
 
@@ -241,8 +241,8 @@ template
     typename Box, typename Segment,
     typename StrategyLess, typename StrategyGreater
 >
-struct combine<segment_tag, Box, Segment, StrategyLess, StrategyGreater>
-    : detail::combine::combine_indexed
+struct expand<segment_tag, Box, Segment, StrategyLess, StrategyGreater>
+    : detail::expand::expand_indexed
         <Box, Segment, StrategyLess, StrategyGreater>
 {};
 
@@ -253,29 +253,29 @@ struct combine<segment_tag, Box, Segment, StrategyLess, StrategyGreater>
 
 /***
 *!
-    \brief Combines a box with another geometry (box, point)
-    \ingroup combine
-    \tparam Box type of the box
-    \tparam Geometry of second geometry, to be combined with the box
-    \param box box to combine another geometry with, might be changed
-    \param geometry other geometry
-    \param strategy_less
-    \param strategy_greater
-    \note Strategy is currently ignored
-    \todo Handle strategy
+\brief Expands a box using the extend (envelope) of another geometry (box, point)
+\ingroup expand
+\tparam Box type of the box
+\tparam Geometry of second geometry, to be expanded with the box
+\param box box to expand another geometry with, might be changed
+\param geometry other geometry
+\param strategy_less
+\param strategy_greater
+\note Strategy is currently ignored
+\todo Handle strategy
  *
 template
 <
     typename Box, typename Geometry,
     typename StrategyLess, typename StrategyGreater
 >
-inline void combine(Box& box, Geometry const& geometry,
+inline void expand(Box& box, Geometry const& geometry,
             StrategyLess const& strategy_less,
             StrategyGreater const& strategy_greater)
 {
     concept::check_concepts_and_equal_dimensions<Box, Geometry const>();
 
-    dispatch::combine
+    dispatch::expand
         <
             typename tag<Geometry>::type,
             Box,
@@ -287,19 +287,19 @@ inline void combine(Box& box, Geometry const& geometry,
 
 
 /*!
-\brief Combines a box with another geometry (box, point)
-\ingroup combine
+\brief Expands a box using the extend (envelope) of another geometry (box, point)
+\ingroup expand
 \tparam Box type of the box
 \tparam Geometry \tparam_geometry
-\param box box to combine another geometry with, might be changed
+\param box box to expand another geometry with, might be changed
 \param geometry \param_geometry
  */
 template <typename Box, typename Geometry>
-inline void combine(Box& box, Geometry const& geometry)
+inline void expand(Box& box, Geometry const& geometry)
 {
     concept::check_concepts_and_equal_dimensions<Box, Geometry const>();
 
-    dispatch::combine
+    dispatch::expand
         <
             typename tag<Geometry>::type,
             Box, Geometry,
@@ -310,4 +310,4 @@ inline void combine(Box& box, Geometry const& geometry)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_COMBINE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_EXPAND_HPP

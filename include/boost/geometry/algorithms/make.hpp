@@ -135,7 +135,7 @@ inline Geometry make(Range const& range)
 \ingroup make
 \details The make_inverse function initializes a 2D or 3D box with large coordinates, the
     min corner is very large, the max corner is very small. This is useful e.g. in combination
-    with the combine function, to determine the bounding box of a series of geometries.
+    with the expand function, to determine the bounding box of a series of geometries.
 \tparam Geometry \tparam_geometry
 \return The constructed geometry, here: a box
 
