@@ -10,7 +10,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/transform.hpp>
-#include <boost/geometry/domains/gis/io/wkt/stream_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
