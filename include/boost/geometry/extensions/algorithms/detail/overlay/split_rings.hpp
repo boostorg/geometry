@@ -31,7 +31,7 @@
 
 
 #if defined(BOOST_GEOMETRY_DEBUG_SPLIT_RINGS) || defined(BOOST_GEOMETRY_CHECK_SPLIT_RINGS)
-#  include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#  include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 #endif
 
 

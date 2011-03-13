@@ -9,11 +9,11 @@
 #define BOOST_GEOMETRY_DOMAINS_GIS_IO_HPP
 
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/write_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt_multi.hpp>
-#include <boost/geometry/extensions/gis/io/wkt/write_wkt_multi.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write_wkt_multi.hpp>
 
 namespace boost { namespace geometry
 {

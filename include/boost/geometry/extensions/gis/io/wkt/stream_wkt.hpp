@@ -8,7 +8,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_STREAM_WKT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_STREAM_WKT_HPP
 
-#include <boost/geometry/extensions/gis/io/wkt/write_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
 
 // This short file contains only one manipulator, streaming as WKT
 // Don't move contents to as_wkt, developers must be able to choose how to stream
