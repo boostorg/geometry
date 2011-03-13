@@ -26,6 +26,7 @@
 #include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/strategies/transform.hpp>
@@ -260,7 +261,7 @@ public :
     {
         if (num_points(geometry) > 0)
         {
-            combine(m_bounding_box,
+            expand(m_bounding_box,
                 make_envelope
                     <
                         model::box<Point>

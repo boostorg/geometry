@@ -22,6 +22,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
@@ -506,7 +507,7 @@ struct dissolver_generic
             ++it, ++index)
         {
             index_vector.push_back(index);
-            geometry::combine(total_box, it->box);
+            geometry::expand(total_box, it->box);
         }
 
         std::vector<output_type> unioned_collection;

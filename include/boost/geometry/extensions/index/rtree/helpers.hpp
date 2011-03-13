@@ -19,7 +19,7 @@ namespace boost { namespace geometry { namespace index {
 /**
  * \brief Given two boxes, returns the minimal box that contains them
  */
-// TODO: use geometry::combine
+// TODO: use geometry::expand
 template <typename Box>
 inline Box enlarge_box(Box const& b1, Box const& b2)
 {

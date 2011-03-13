@@ -50,7 +50,7 @@
 
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 
-#include <boost/geometry/algorithms/combine.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
@@ -339,7 +339,7 @@ class get_turns_generic
             it != sections.end();
             ++it)
         {
-            geometry::combine(box, it->bounding_box);
+            geometry::expand(box, it->bounding_box);
         }
     }
 
@@ -809,7 +809,7 @@ struct get_turns
         InterruptPolicy
     > : detail::get_turns::get_turns_cs
             <
-                Ring, Box, ReverseRing, ReverseBox, 
+                Ring, Box, ReverseRing, ReverseBox,
                 Turns, TurnPolicy, InterruptPolicy
             >
 
