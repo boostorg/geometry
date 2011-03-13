@@ -191,7 +191,7 @@ struct polygon_buffer
 #endif
             )
     {
-        boost::geometry::clear(buffered);
+        geometry::clear(buffered);
 
         typedef typename ring_type<PolygonInput>::type input_ring_type;
         typedef typename ring_type<PolygonOutput>::type output_ring_type;

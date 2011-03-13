@@ -187,9 +187,9 @@ struct range_mark_spikes
 
         // Divide polygon in monotonic sections (in two directions)
         typedef model::box<point_type> box_type;
-        typedef boost::geometry::sections<box_type, 2> sections_type;
+        typedef geometry::sections<box_type, 2> sections_type;
         sections_type sections;
-        boost::geometry::sectionalize<false>(range, sections);
+        geometry::sectionalize<false>(range, sections);
 
         for (typename boost::range_iterator<sections_type>::type it = boost::begin(sections);
             it != boost::end(sections);
@@ -197,7 +197,7 @@ struct range_mark_spikes
         {
             // Enlarge each box with the wished max with of the gap to be sure that
             // when walking through sections all point-pairs are considered
-            boost::geometry::buffer(it->bounding_box, it->bounding_box, policy.gap_width() * 1.001);
+            geometry::buffer(it->bounding_box, it->bounding_box, policy.gap_width() * 1.001);
         }
 
         double const whole_area = geometry::area(range);

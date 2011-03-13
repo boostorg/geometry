@@ -30,15 +30,15 @@ namespace detail { namespace sectionalize
 template <typename MultiGeometry, typename Sections, std::size_t DimensionCount, typename Policy>
 struct sectionalize_multi
 {
-    static inline void apply(MultiGeometry const& multi, Sections& sections)
+    static inline void apply(MultiGeometry const& multi, Sections& sections, ring_identifier ring_id)
     {
-        int multi_index = 0;
+        ring_id.multi_index = 0;
         for (typename boost::range_iterator<MultiGeometry const>::type
                     it = boost::begin(multi);
             it != boost::end(multi);
-            ++it, ++multi_index)
+            ++it, ++ring_id.multi_index)
         {
-            Policy::apply(*it, sections, multi_index);
+            Policy::apply(*it, sections, ring_id);
         }
     }
 };
