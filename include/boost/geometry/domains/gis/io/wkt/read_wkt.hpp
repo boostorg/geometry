@@ -680,38 +680,7 @@ inline void read_wkt(std::string const& wkt, Geometry& geometry)
     dispatch::read_wkt<typename tag<Geometry>::type, Geometry>::apply(wkt, geometry);
 }
 
-/*!
-\brief Parses OGC Well-Known Text (\ref WKT) and outputs using an output iterator
-\ingroup wkt
-\param wkt string containing \ref WKT
-\param out output iterator
-\note Because the output iterator doesn't always have the type value_type, it should be
-specified in the function call.
-\par Example:
-Small example showing how to use read_wkt with an output iterator
-\dontinclude doxygen_1.cpp
-\skip example_from_wkt_output_iterator
-\line {
-\until }
-*/
-template <typename Geometry, typename OutputIterator>
-inline void read_wkt(std::string const& wkt, OutputIterator out)
-{
-    geometry::concept::check<Geometry>();
-
-    typedef typename point_type<Geometry>::type point_type;
-
-    std::string const& tag =
-        geometry_id<Geometry>::value == 2 ? "linestring" : "polygon";
-
-    detail::wkt::tokenizer tokens(wkt, boost::char_separator<char>(" ", ",()"));
-    detail::wkt::tokenizer::iterator it;
-    if (detail::wkt::initialize<point_type>(tokens, tag, wkt, it))
-    {
-        detail::wkt::container_inserter<point_type>::apply(it, tokens.end(), wkt, out);
-    }
-}
-
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_WKT_HPP
