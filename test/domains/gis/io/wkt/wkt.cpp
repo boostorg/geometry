@@ -29,7 +29,7 @@
 
 
 template <typename G>
-void test_wkt(std::string const& wkt, int n, double len = 0,
+void test_wkt(std::string const& wkt, std::size_t n, double len = 0,
             double ar = 0, double peri = 0)
 {
     G geometry;
@@ -176,8 +176,9 @@ void test_all()
         test_wkt<P>("POINT(1.1 2.1)", 1);
     }
 
-    test_wkt_output_iterator<bg::model::linestring<P> >("LINESTRING(1 1,2 2,3 3)");
-    test_wkt_output_iterator<bg::model::ring<P> >("POLYGON((1 1,2 2,3 3))");
+    // Deprecated:
+    // test_wkt_output_iterator<bg::model::linestring<P> >("LINESTRING(1 1,2 2,3 3)");
+    // test_wkt_output_iterator<bg::model::ring<P> >("POLYGON((1 1,2 2,3 3))");
 }
 #endif
 

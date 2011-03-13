@@ -39,7 +39,7 @@ void test_all();
 
 // Include the single test
 #define GEOMETRY_TEST_MULTI
-#include "extensions/gis/io/wkt/wkt.cpp"
+#include "domains/gis/io/wkt/wkt.cpp"
 
 
 
