@@ -74,7 +74,7 @@ void read_wkt(std::string const& filename, std::vector<Tuple>& tuples, Box& box)
                 Tuple tuple(geometry, name);
 
                 tuples.push_back(tuple);
-                boost::geometry::combine(box, boost::geometry::make_envelope<Box>(geometry));
+                boost::geometry::expand(box, boost::geometry::make_envelope<Box>(geometry));
             }
         }
     }

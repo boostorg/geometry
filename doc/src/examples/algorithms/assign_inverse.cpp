@@ -8,7 +8,7 @@
 // Quickbook Example
 
 //[assign_inverse
-//` Usage of assign_inverse and combine to conveniently determine bounding 3D box of two points
+//` Usage of assign_inverse and expand to conveniently determine bounding 3D box of two points
 
 #include <iostream>
 
@@ -25,8 +25,8 @@ int main()
     box all;
     assign_inverse(all);
     std::cout << dsv(all) << std::endl;
-    combine(all, point(0, 0, 0));
-    combine(all, point(1, 2, 3));
+    expand(all, point(0, 0, 0));
+    expand(all, point(1, 2, 3));
     std::cout << dsv(all) << std::endl;
 
     return 0;

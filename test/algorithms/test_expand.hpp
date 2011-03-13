@@ -5,13 +5,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_TEST_COMBINE_HPP
-#define BOOST_GEOMETRY_TEST_COMBINE_HPP
+#ifndef BOOST_GEOMETRY_TEST_EXPAND_HPP
+#define BOOST_GEOMETRY_TEST_EXPAND_HPP
 
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/algorithms/combine.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
@@ -19,14 +19,14 @@
 
 
 template <typename Geometry, typename Box>
-void test_combine(Box& box,
+void test_expand(Box& box,
                   std::string const& wkt,
                   std::string const& expected)
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
 
-    bg::combine(box, geometry);
+    bg::expand(box, geometry);
 
     std::ostringstream out;
     out << bg::dsv(box, ",", "(", ")", ",", "", "");
@@ -35,7 +35,7 @@ void test_combine(Box& box,
 }
 
 template <typename Geometry, typename Box>
-void test_combine_other_strategy(Box& box,
+void test_expand_other_strategy(Box& box,
                   std::string const& wkt,
                   std::string const& expected)
 {
@@ -43,7 +43,7 @@ void test_combine_other_strategy(Box& box,
     bg::read_wkt(wkt, geometry);
 
 
-    bg::combine(box, geometry);
+    bg::expand(box, geometry);
 
     std::ostringstream out;
     out << bg::dsv(box, ",", "(", ")", ",", "", "");

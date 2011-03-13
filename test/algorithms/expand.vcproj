@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="combine"
+	Name="expand"
 	ProjectGUID="{5330DAB1-DF27-44FC-971B-3C5094F82FA3}"
-	RootNamespace="combine"
+	RootNamespace="expand"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\combine"
+			IntermediateDirectory="$(ConfigurationName)\expand"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
@@ -91,7 +91,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\combine"
+			IntermediateDirectory="$(ConfigurationName)\expand"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\combine.cpp"
+			RelativePath=".\expand.cpp"
 			>
 		</File>
 	</Files>

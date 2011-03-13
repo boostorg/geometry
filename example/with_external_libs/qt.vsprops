@@ -17,6 +17,6 @@
 	/>
 	<UserMacro
 		Name="QT"
-		Value="c:\software\libraries\Qt\4.6.2"
+		Value="c:\software\libraries\Qt\4.7.1"
 	/>
 </VisualStudioPropertySheet>
