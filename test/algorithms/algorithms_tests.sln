@@ -6,7 +6,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "area", "area.vcproj", "{E86
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "assign", "assign.vcproj", "{94BC6547-67C1-44DB-903D-526537A91E23}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "combine", "combine.vcproj", "{5330DAB1-DF27-44FC-971B-3C5094F82FA3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "expand", "expand.vcproj", "{5330DAB1-DF27-44FC-971B-3C5094F82FA3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "convert", "convert.vcproj", "{FABF1AA7-F695-49F8-92F6-AB6C4B0C088A}"
 EndProject

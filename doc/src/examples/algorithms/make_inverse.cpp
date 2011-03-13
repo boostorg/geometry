@@ -8,7 +8,7 @@
 // Quickbook Example
 
 //[make_inverse
-//` Usage of make_inverse and combine to conveniently determine bounding box of several objects
+//` Usage of make_inverse and expand to conveniently determine bounding box of several objects
 
 #include <iostream>
 
@@ -25,8 +25,8 @@ int main()
 
     box all = make_inverse<box>();
     std::cout << dsv(all) << std::endl;
-    combine(all, make<box>(0, 0, 3, 4));
-    combine(all, make<box>(2, 2, 5, 6));
+    expand(all, make<box>(0, 0, 3, 4));
+    expand(all, make<box>(2, 2, 5, 6));
     std::cout << dsv(all) << std::endl;
 
     return 0;
