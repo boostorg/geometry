@@ -294,33 +294,62 @@ public :
     template <typename InputCollection, typename Visitor>
     static inline void apply(InputCollection const& collection, Visitor& visitor, int min_elements = 16)
     {
-        index_vector_type index_vector;
-        Box total;
-        assign_inverse(total);
-        expand_to_collection(collection, total, index_vector);
+        if (boost::size(collection) > min_elements)
+        {
+            index_vector_type index_vector;
+            Box total;
+            assign_inverse(total);
+            expand_to_collection(collection, total, index_vector);
 
-        detail::partition_one_collection
-            <
-                0, Box, OverlapsPolicy
-            >::apply(total, collection, index_vector, 0, min_elements, visitor);
+            detail::partition_one_collection
+                <
+                    0, Box, OverlapsPolicy
+                >::apply(total, collection, index_vector, 0, min_elements, visitor);
+        }
+        else
+        {
+            typedef typename boost::range_iterator<InputCollection const>::type iterator_type;
+            for(iterator_type it1 = boost::begin(collection); it1 != boost::end(collection); ++it1)
+            {
+                iterator_type it2 = it1;
+                for(++it2; it2 != boost::end(collection); ++it2)
+                {
+                    visitor.apply(*it1, *it2);
+                }
+            }
+        }
     }
 
     template <typename InputCollection, typename Visitor>
     static inline void apply(InputCollection const& collection1, InputCollection const& collection2, Visitor& visitor, int min_elements = 16)
     {
-        index_vector_type index_vector1, index_vector2;
-        Box total;
-        assign_inverse(total);
-        expand_to_collection(collection1, total, index_vector1);
-        expand_to_collection(collection2, total, index_vector2);
+        if (boost::size(collection1) > min_elements && boost::size(collection2) > min_elements)
+        {
+            index_vector_type index_vector1, index_vector2;
+            Box total;
+            assign_inverse(total);
+            expand_to_collection(collection1, total, index_vector1);
+            expand_to_collection(collection2, total, index_vector2);
 
-        detail::partition_two_collections
-            <
-                0, Box, OverlapsPolicy
-            >::apply(total, 
-                collection1, index_vector1, 
-                collection2, index_vector2, 
-                0, min_elements, visitor);
+            detail::partition_two_collections
+                <
+                    0, Box, OverlapsPolicy
+                >::apply(total, 
+                    collection1, index_vector1, 
+                    collection2, index_vector2, 
+                    0, min_elements, visitor);
+        }
+        else
+        {
+            typedef typename boost::range_iterator<InputCollection const>::type iterator_type;
+            for(iterator_type it1 = boost::begin(collection1); it1 != boost::end(collection1); ++it1)
+            {
+                for(iterator_type it2 = boost::begin(collection2); it2 != boost::end(collection2); ++it2)
+                {
+                    visitor.apply(*it1, *it2);
+                }
+            }
+        }
     }
 
 };
