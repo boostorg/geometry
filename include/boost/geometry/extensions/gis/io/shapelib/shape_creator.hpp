@@ -15,7 +15,8 @@
 #include <boost/noncopyable.hpp>
 #include <boost/type_traits/promote.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object.hpp>
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object_multi.hpp>
 #include <boost/geometry/extensions/gis/io/shapelib/dbf_write_attribute.hpp>
@@ -30,7 +31,7 @@ class shapelib_file_create_exception : public geometry::exception
 {
 public:
 
-    inline shapelib_file_create_exception(std::string const& filename) 
+    inline shapelib_file_create_exception(std::string const& filename)
         : m_filename(filename)
     {}
 
@@ -107,7 +108,7 @@ public :
     template <typename T>
     inline void AddField(std::string const& name, int width = 16, int decimals = 0)
     {
-        ::DBFAddField(m_dbf, name.c_str(), 
+        ::DBFAddField(m_dbf, name.c_str(),
             detail::DBFFieldType
                 <
                     typename boost::promote<T>::type

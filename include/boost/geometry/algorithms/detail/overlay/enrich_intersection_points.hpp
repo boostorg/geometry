@@ -18,7 +18,7 @@
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <iostream>
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-#  include <boost/geometry/extensions/gis/io/wkt/wkt.hpp>
+#  include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 #  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 #endif
 

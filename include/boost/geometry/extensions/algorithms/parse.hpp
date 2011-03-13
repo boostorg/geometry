@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_PARSE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_PARSE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_PARSE_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_PARSE_HPP
 
 #include <string>
 
@@ -17,7 +17,6 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-// TODO: remove used EXTENSION here (result should be part of parsing strategy)
 #include <boost/geometry/extensions/gis/geographic/strategies/dms_parser.hpp>
 
 
@@ -116,4 +115,4 @@ inline Geometry parse(std::string const& c1, std::string const& c2)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_PARSE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_PARSE_HPP
