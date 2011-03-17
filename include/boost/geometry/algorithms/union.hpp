@@ -157,7 +157,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
         >::type::apply(geometry1, geometry2, out, strategy);
 }
 
-}} // namespace detail::intersection
+}} // namespace detail::union_
 #endif // DOXYGEN_NO_DETAIL
 
 
