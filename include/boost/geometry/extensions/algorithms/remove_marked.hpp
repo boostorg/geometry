@@ -46,7 +46,7 @@ struct range_remove_marked
     typedef typename coordinate_type<Range>::type coordinate_type;
 
 
-    static inline void apply(Range const& range_in, ring_identifier id, 
+    static inline void apply(Range const& range_in, ring_identifier id,
                     Range& range_out, MarkMap const& mark_map)
     {
         typename MarkMap::const_iterator mit = mark_map.find(id);
@@ -82,7 +82,7 @@ struct range_remove_marked
 template <typename Polygon, typename MarkMap>
 struct polygon_remove_marked
 {
-    static inline void apply(Polygon const& polygon_in, ring_identifier id, 
+    static inline void apply(Polygon const& polygon_in, ring_identifier id,
                 Polygon& polygon_out, MarkMap const& mark_map)
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
@@ -98,10 +98,10 @@ struct polygon_remove_marked
                     = interior_rings(polygon_out);
 
         rings_out.resize(boost::size(interior_rings(polygon_in)));
-        BOOST_AUTO(out, boost::begin(rings_out));
+        BOOST_AUTO_TPL(out, boost::begin(rings_out));
 
-        for (BOOST_AUTO(it, boost::begin(rings_in)); 
-            it != boost::end(rings_in); 
+        for (BOOST_AUTO_TPL(it, boost::begin(rings_in));
+            it != boost::end(rings_in);
             ++it, ++out)
         {
             id.ring_index++;
@@ -114,7 +114,7 @@ struct polygon_remove_marked
 template <typename MultiGeometry, typename MarkMap, typename SinglePolicy>
 struct multi_remove_marked
 {
-    static inline void apply(MultiGeometry const& multi_in, ring_identifier id, 
+    static inline void apply(MultiGeometry const& multi_in, ring_identifier id,
                 MultiGeometry& multi_out, MarkMap const& mark_map)
     {
         id.multi_index = 0;

@@ -355,8 +355,8 @@ struct section_visitor
     Turns& m_turns;
     InterruptPolicy& m_interrupt_policy;
 
-    section_visitor(int id1, Geometry1 const& g1, 
-            int id2, Geometry2 const& g2, 
+    section_visitor(int id1, Geometry1 const& g1,
+            int id2, Geometry2 const& g2,
             Turns& turns, InterruptPolicy& ip)
         : m_source_id1(id1), m_geometry1(g1)
         , m_source_id2(id2), m_geometry2(g2)
@@ -637,7 +637,7 @@ struct get_turns_polygon_cs
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(polygon);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings);
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings);
             ++it, ++i)
         {
             intersector_type::apply(

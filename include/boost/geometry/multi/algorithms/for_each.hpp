@@ -43,7 +43,7 @@ struct for_each_multi
                     typename add_const_if_c<IsConst, MultiGeometry>::type& multi,
                     Functor f)
     {
-        for(BOOST_AUTO(it, boost::begin(multi)); it != boost::end(multi); ++it)
+        for(BOOST_AUTO_TPL(it, boost::begin(multi)); it != boost::end(multi); ++it)
         {
             f = Policy::apply(*it, f);
         }

@@ -34,7 +34,7 @@ struct fe_range_multi
                     typename add_const_if_c<IsConst, Multi>::type& multi,
                     Actor& actor)
     {
-        for(BOOST_AUTO(it, boost::begin(multi)); it != boost::end(multi); ++it)
+        for(BOOST_AUTO_TPL(it, boost::begin(multi)); it != boost::end(multi); ++it)
         {
             geometry::detail::for_each_range(*it, actor);
         }

@@ -206,7 +206,7 @@ struct polygon_buffer
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(polygon);
-        for (BOOST_AUTO(it, boost::begin(rings); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings); it != boost::end(rings); ++it)
         {
             output_ring_type ring;
             policy::apply(*it, ring, distance, join_strategy

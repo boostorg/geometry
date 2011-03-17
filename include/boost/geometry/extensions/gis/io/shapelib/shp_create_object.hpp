@@ -103,7 +103,7 @@ struct shape_create_polygon
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(polygon);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             parts[ring++] = offset;
             offset = range_to_part(*it, xp, yp, offset);

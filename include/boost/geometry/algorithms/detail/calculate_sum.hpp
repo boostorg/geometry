@@ -33,7 +33,7 @@ class calculate_polygon_sum
     static inline ReturnType sum_interior_rings(Rings const& rings, Strategy const& strategy)
     {
         ReturnType sum = ReturnType();
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             sum += Policy::apply(*it, strategy);
         }

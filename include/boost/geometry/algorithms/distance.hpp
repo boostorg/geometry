@@ -211,7 +211,7 @@ struct point_to_polygon
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(polygon);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             distance_containment dcr = per_ring::apply(point,
                             *it, pp_strategy, ps_strategy);
