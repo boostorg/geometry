@@ -10,7 +10,7 @@
 
 
 #include <boost/geometry/multi/iterators/range_type.hpp>
-#include <boost/geometry/multi/util/for_each_range.hpp>
+#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
 
 // Note that this file is, furthermore, empty,
 // there is no specialization necessary

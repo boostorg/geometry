@@ -6,14 +6,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_UTIL_FOR_EACH_RANGE_HPP
-#define BOOST_GEOMETRY_MULTI_UTIL_FOR_EACH_RANGE_HPP
+#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_FOR_EACH_RANGE_HPP
+#define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_FOR_EACH_RANGE_HPP
 
 
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
-#include <boost/geometry/util/for_each_range.hpp>
+#include <boost/geometry/algorithms/detail/for_each_range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 
@@ -36,7 +36,7 @@ struct fe_range_multi
     {
         for(BOOST_AUTO(it, boost::begin(multi)); it != boost::end(multi); ++it)
         {
-            geometry::for_each_range(*it, actor);
+            geometry::detail::for_each_range(*it, actor);
         }
     }
 };
@@ -78,4 +78,4 @@ struct for_each_range<multi_polygon_tag, Geometry, Actor, IsConst>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_MULTI_UTIL_FOR_EACH_RANGE_HPP
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_FOR_EACH_RANGE_HPP
