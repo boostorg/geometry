@@ -73,7 +73,7 @@ void test_areal()
         5, 33, 9);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_78_multi",
         case_78_multi[0], case_78_multi[1],
-        1, 16, 22); // In "get_turns" using partitioning, #points went from 17 to 16
+        1, 0, 22); // In "get_turns" using partitioning, #points went from 17 to 16
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
         4, 22, 4.75);
