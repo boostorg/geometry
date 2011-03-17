@@ -54,7 +54,7 @@ class Segment
     {
         static void apply()
         {
-            Geometry* s;
+            Geometry* s = 0;
             geometry::set<Index, Dimension>(*s, geometry::get<Index, Dimension>(*s));
             dimension_checker<Index, Dimension + 1, DimensionCount>::apply();
         }

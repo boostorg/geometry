@@ -52,7 +52,7 @@ class Polygon
     {
         static inline void apply()
         {
-            polygon_type* poly;
+            polygon_type* poly = 0;
             polygon_type const* cpoly = poly;
 
             ring_mutable_type e = traits::exterior_ring<PolygonType>::get(*poly);
@@ -105,7 +105,7 @@ class ConstPolygon
     {
         static inline void apply()
         {
-            const_polygon_type const* cpoly;
+            const_polygon_type const* cpoly = 0;
 
             ring_const_type ce = traits::exterior_ring<const_polygon_type>::get(*cpoly);
             interior_const_type ci = traits::interior_rings<const_polygon_type>::get(*cpoly);
