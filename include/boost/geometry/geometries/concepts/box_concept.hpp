@@ -56,7 +56,7 @@ class Box
     {
         static void apply()
         {
-            Geometry* b;
+            Geometry* b = 0;
             geometry::set<Index, Dimension>(*b, geometry::get<Index, Dimension>(*b));
             dimension_checker<Index, Dimension + 1, DimensionCount>::apply();
         }

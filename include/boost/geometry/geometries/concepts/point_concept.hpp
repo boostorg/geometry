@@ -93,7 +93,7 @@ class Point
     {
         static void apply()
         {
-            P* p;
+            P* p = 0;
             geometry::set<Dimension>(*p, geometry::get<Dimension>(*p));
             dimension_checker<P, Dimension+1, DimensionCount>::apply();
         }
