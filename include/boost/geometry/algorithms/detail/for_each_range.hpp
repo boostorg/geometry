@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_UTIL_FOR_EACH_RANGE_HPP
-#define BOOST_GEOMETRY_UTIL_FOR_EACH_RANGE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_FOR_EACH_RANGE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_FOR_EACH_RANGE_HPP
 
 
 #include <boost/concept/requires.hpp>
@@ -95,6 +95,8 @@ struct for_each_range<polygon_tag, Polygon, Actor, IsConst>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+namespace detail
+{
 
 template <typename Geometry, typename Actor>
 inline void for_each_range(Geometry const& geometry, Actor& actor)
@@ -109,7 +111,10 @@ inline void for_each_range(Geometry const& geometry, Actor& actor)
 }
 
 
+}
+
+
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_UTIL_FOR_EACH_RANGE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_FOR_EACH_RANGE_HPP

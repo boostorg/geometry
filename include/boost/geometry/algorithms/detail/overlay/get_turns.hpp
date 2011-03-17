@@ -409,7 +409,7 @@ public:
         typedef typename boost::range_value<Turns>::type ip_type;
         typedef typename ip_type::point_type point_type;
         typedef model::box<point_type> box_type;
-        typedef typename geometry::sections<box_type, 1> sections_type;
+        typedef typename geometry::sections<box_type, 2> sections_type;
 
         sections_type sec1, sec2;
 
@@ -427,7 +427,7 @@ public:
         geometry::partition
             <
                 box_type, get_section_box, ovelaps_section_box
-            >::apply(sec1, sec2, visitor, 4);
+            >::apply(sec1, sec2, visitor);
     }
 };
 

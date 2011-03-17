@@ -54,7 +54,7 @@ struct reversible_view<Range, iterate_reverse>
 #if BOOST_VERSION > 104500
     typedef boost::reversed_range<Range> type;
 #else
-    // For Boost.Release:
+    // For older versions of Boost
     typedef boost::range_detail::reverse_range<Range> type;
 #endif
 };
