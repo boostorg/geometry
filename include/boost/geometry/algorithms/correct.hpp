@@ -167,7 +167,7 @@ struct correct_polygon
 
         typename interior_return_type<Polygon>::type rings
                     = interior_rings(poly);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             correct_ring
                 <
@@ -221,8 +221,8 @@ template <typename Ring>
 struct correct<ring_tag, Ring>
     : detail::correct::correct_ring
         <
-            Ring, 
-            std::less<typename coordinate_type<Ring>::type> 
+            Ring,
+            std::less<typename coordinate_type<Ring>::type>
         >
 {};
 

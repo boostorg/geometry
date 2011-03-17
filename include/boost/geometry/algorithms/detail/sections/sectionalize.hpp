@@ -359,7 +359,7 @@ struct sectionalize_range
             Reverse ? iterate_reverse : iterate_forward
         >::type view_type;
 
-    static inline void apply(Range const& range, Sections& sections, 
+    static inline void apply(Range const& range, Sections& sections,
                 ring_identifier ring_id)
     {
         typedef model::referring_segment<Point const> segment_type;
@@ -428,7 +428,7 @@ struct sectionalize_polygon
         ring_id.ring_index++;
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(poly);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings);
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings);
              ++it, ++ring_id.ring_index)
         {
             sectionalizer_type::apply(*it, sections, ring_id);

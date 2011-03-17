@@ -82,8 +82,8 @@ struct fe_range_per_segment
                 typename point_type<Range>::type
             >::type point_type;
 
-        BOOST_AUTO(it, boost::begin(range));
-        BOOST_AUTO(previous, it++);
+        BOOST_AUTO_TPL(it, boost::begin(range));
+        BOOST_AUTO_TPL(previous, it++);
         while(it != boost::end(range))
         {
             model::referring_segment<point_type> s(*previous, *it);
@@ -114,7 +114,7 @@ struct fe_polygon_per_point
 
         typename interior_return_type<poly_type>::type rings
                     = interior_rings(poly);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             f = per_ring::apply(*it, f);
         }
@@ -143,7 +143,7 @@ struct fe_polygon_per_segment
 
         typename interior_return_type<poly_type>::type rings
                     = interior_rings(poly);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             f = per_ring::apply(*it, f);
         }

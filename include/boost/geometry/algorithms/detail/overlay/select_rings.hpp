@@ -87,7 +87,7 @@ namespace dispatch
 
             typename interior_return_type<Polygon const>::type rings
                         = interior_rings(polygon);
-            for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+            for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
             {
                 id.ring_index++;
                 per_ring::apply(*it, geometry, id, map);
@@ -104,7 +104,7 @@ namespace dispatch
 
             typename interior_return_type<Polygon const>::type rings
                         = interior_rings(polygon);
-            for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+            for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
             {
                 id.ring_index++;
                 per_ring::apply(*it, id, map);
@@ -173,13 +173,13 @@ template
     overlay_type OverlayType,
     typename IntersectionMap, typename SelectionMap
 >
-inline void update_selection_map(IntersectionMap const& intersection_map, 
+inline void update_selection_map(IntersectionMap const& intersection_map,
             SelectionMap const& map_with_all, SelectionMap& selection_map)
 {
     selection_map.clear();
 
-    for (typename SelectionMap::const_iterator it = boost::begin(map_with_all); 
-        it != boost::end(map_with_all); 
+    for (typename SelectionMap::const_iterator it = boost::begin(map_with_all);
+        it != boost::end(map_with_all);
         ++it)
     {
         /*
@@ -234,7 +234,7 @@ inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
 template
 <
     overlay_type OverlayType,
-    typename Geometry, 
+    typename Geometry,
     typename IntersectionMap, typename SelectionMap
 >
 inline void select_rings(Geometry const& geometry,

@@ -281,7 +281,7 @@ struct centroid_polygon_state
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(poly);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             per_ring::apply(*it, strategy, state);
         }

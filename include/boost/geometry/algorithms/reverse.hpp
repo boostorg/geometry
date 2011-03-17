@@ -48,7 +48,7 @@ struct polygon_reverse
 
         typename interior_return_type<Polygon>::type rings
                     = interior_rings(polygon);
-        for (BOOST_AUTO(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             per_range::apply(*it);
         }

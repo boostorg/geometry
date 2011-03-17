@@ -144,8 +144,8 @@ struct simplify_polygon
                     = interior_rings(poly_in);
         typename interior_return_type<Polygon>::type rings_out
                     = interior_rings(poly_out);
-        BOOST_AUTO(it_out, boost::begin(rings_out));
-        for (BOOST_AUTO(it_in,  boost::begin(rings_in));
+        BOOST_AUTO_TPL(it_out, boost::begin(rings_out));
+        for (BOOST_AUTO_TPL(it_in,  boost::begin(rings_in));
             it_in != boost::end(rings_in);
             ++it_in, ++it_out)
         {
