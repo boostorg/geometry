@@ -41,7 +41,7 @@ namespace dispatch
         template <typename Geometry, typename Map>
         static inline void apply(Box const& box, Geometry const& geometry, ring_identifier const& id, Map& map)
         {
-            map[id] = typename Map::mapped_type(box, geometry);
+            map[id] = typename Map::mapped_type(box);
         }
 
         template <typename Map>
@@ -59,7 +59,7 @@ namespace dispatch
         {
             if (boost::size(ring) > 0)
             {
-                map[id] = typename Map::mapped_type(ring, geometry);
+                map[id] = typename Map::mapped_type(ring);
             }
         }
 
@@ -171,9 +171,12 @@ struct decide<overlay_intersection>
 template
 <
     overlay_type OverlayType,
+    typename Geometry1, typename Geometry2,
     typename IntersectionMap, typename SelectionMap
 >
-inline void update_selection_map(IntersectionMap const& intersection_map,
+inline void update_selection_map(Geometry1 const& geometry1,
+            Geometry2 const& geometry2, 
+            IntersectionMap const& intersection_map,
             SelectionMap const& map_with_all, SelectionMap& selection_map)
 {
     selection_map.clear();
@@ -199,10 +202,29 @@ inline void update_selection_map(IntersectionMap const& intersection_map,
         bool found = intersection_map.find(it->first) != intersection_map.end();
         if (! found)
         {
-            if (decide<OverlayType>::include(it->first, it->second))
+            ring_identifier id = it->first;
+            typename SelectionMap::mapped_type properties = it->second; // Copy by value
+
+            // Calculate the "within code" (previously this was done earlier but is
+            // must efficienter here - it can be even more efficient doing it all at once, 
+            // using partition, TODO)
+            // So though this is less elegant than before, it avoids many unused point-in-poly calculations
+            switch(id.source_index)
             {
-                selection_map[it->first] = it->second;
-                selection_map[it->first].reversed = decide<OverlayType>::reversed(it->first, it->second);
+                case 0 : 
+                    properties.within_code 
+                        = geometry::within(properties.point, geometry2) ? 1 : -1;
+                    break;
+                case 1 : 
+                    properties.within_code 
+                        = geometry::within(properties.point, geometry1) ? 1 : -1;
+                    break;
+            }
+
+            if (decide<OverlayType>::include(id, properties))
+            {
+                properties.reversed = decide<OverlayType>::reversed(id, properties);
+                selection_map[id] = properties;
             }
         }
     }
@@ -228,7 +250,7 @@ inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
     dispatch::select_rings<tag1, Geometry1>::apply(geometry1, geometry2, ring_identifier(0, -1, -1), map_with_all);
     dispatch::select_rings<tag2, Geometry2>::apply(geometry2, geometry1, ring_identifier(1, -1, -1), map_with_all);
 
-    update_selection_map<OverlayType>(intersection_map, map_with_all, selection_map);
+    update_selection_map<OverlayType>(geometry1, geometry2, intersection_map, map_with_all, selection_map);
 }
 
 template

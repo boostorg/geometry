@@ -32,11 +32,12 @@ struct ring_properties
     Point point;
     area_type area;
 
+    // Filled by "update_selection_map"
     int within_code;
     bool reversed;
-    bool discarded;
 
     // Filled/used by "assign_rings"
+    bool discarded;
     ring_identifier parent;
     area_type parent_area;
     std::vector<ring_identifier> children;
@@ -58,17 +59,6 @@ struct ring_properties
     {
         this->area = geometry::area(ring_or_box);
         geometry::point_on_border(this->point, ring_or_box, true);
-    }
-
-    template <typename RingOrBox, typename Geometry>
-    inline ring_properties(RingOrBox const& ring_or_box, Geometry const& geometry)
-        : reversed(false)
-        , discarded(false)
-        , parent_area(-1)
-    {
-        this->area = geometry::area(ring_or_box);
-        geometry::point_on_border(this->point, ring_or_box, true);
-        this->within_code = geometry::within(this->point, geometry) ? 1 : -1;
     }
 
     area_type get_area() const
