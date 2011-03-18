@@ -119,8 +119,6 @@ void test_all()
         typedef bg::model::ring<P, false> ring_ccw;
         typedef bg::model::polygon<P, false> polygon_ccw;
         typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
-        // TODO: ccw has issues with multi-touch
-        // (update: it now works but reports an iu/iu unhandled case)
         test_areal<ring_ccw, polygon_ccw, multi_polygon_ccw>();
     }
 

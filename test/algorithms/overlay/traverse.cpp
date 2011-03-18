@@ -47,32 +47,39 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
 
+#include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
 
-#include <algorithms/overlay/overlay_common.hpp>
-#include <algorithms/overlay/overlay_cases.hpp>
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
 
+#include <boost/geometry/strategies/strategies.hpp>
+
+#include <algorithms/overlay/overlay_cases.hpp>
+
+static inline std::string operation(int d)
+{
+    return d == 1 ? "union" : "intersection";
+}
+
+namespace detail
+{
+
 template
 <
+    typename G1, typename G2,
     bg::detail::overlay::operation_type Direction,
-    bool Reverse1 = false,
-    bool Reverse2 = false
+    bool Reverse1, bool Reverse2
 >
 struct test_traverse
 {
-    static inline std::string operation(int d)
-    {
-        return d == 1 ? "union" : "intersection";
-    }
-
-    template <typename G1, typename G2>
+    
     static void apply(std::string const& id,
-            boost::tuple<int, double> const& expected_count_area,
+            int expected_count, double expected_area,
             G1 const& g1, G2 const& g2,
             double precision)
     {
@@ -152,9 +159,9 @@ struct test_traverse
         bg::traverse<Reverse1, Reverse2>(g1, g2, Direction, turns, v);
 
         // Check number of resulting rings
-        BOOST_CHECK_MESSAGE(expected_count_area.get<0>() == boost::size(v),
+        BOOST_CHECK_MESSAGE(expected_count == boost::size(v),
                 "traverse: " << id
-                << " #shapes expected: " << expected_count_area.get<0>()
+                << " #shapes expected: " << expected_count
                 << " detected: " << boost::size(v)
                 << " type: " << string_from_type
                     <typename bg::coordinate_type<G1>::type>::name()
@@ -168,9 +175,7 @@ struct test_traverse
             //std::cout << bg::wkt(ring) << std::endl;
         }
 
-        BOOST_CHECK_CLOSE(expected_count_area.get<1>(),
-            boost::numeric_cast<double>(total_area),
-            precision);
+        BOOST_CHECK_CLOSE(expected_area, total_area, precision);
 
 #if defined(TEST_WITH_SVG)
         {
@@ -321,10 +326,70 @@ struct test_traverse
                 }
             }
         }
-        #endif
+#endif
     }
 };
+}
 
+template
+<
+    typename G1, typename G2,
+    bg::detail::overlay::operation_type Direction,
+    bool Reverse1 = false,
+    bool Reverse2 = false
+>
+struct test_traverse
+{
+    typedef detail::test_traverse
+        <
+            G1, G2, Direction, Reverse1, Reverse2
+        > detail_test_traverse;
+
+    inline static void apply(std::string const& id, int expected_count, double expected_area,
+                std::string const& wkt1, std::string const& wkt2,
+                double precision = 0.001)
+    {
+        if (wkt1.empty() || wkt2.empty())
+        {
+            return;
+        }
+
+        G1 g1;
+        bg::read_wkt(wkt1, g1);
+
+        G2 g2;
+        bg::read_wkt(wkt2, g2);
+
+        bg::correct(g1);
+        bg::correct(g2);
+
+        //std::cout << bg::wkt(g1) << std::endl;
+        //std::cout << bg::wkt(g2) << std::endl;
+
+        // Try the overlay-function in both ways
+        std::string caseid = id;
+        //goto case_reversed;
+
+#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
+        std::cout << std::endl << std::endl << "# " << caseid << std::endl;
+#endif
+        detail_test_traverse::apply(caseid, expected_count, expected_area, g1, g2, precision);
+
+#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
+        return;
+#endif
+
+    //case_reversed:
+#if ! defined(BOOST_GEOMETRY_TEST_OVERLAY_NOT_EXCHANGED)
+        caseid = id + "_rev";
+#ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
+        std::cout << std::endl << std::endl << "# " << caseid << std::endl;
+#endif
+
+        detail_test_traverse::apply(caseid, expected_count, expected_area, g2, g1, precision);
+#endif
+    }
+};
 
 #if ! defined(BOOST_GEOMETRY_TEST_MULTI)
 template <typename T>
@@ -335,342 +400,319 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     typedef bg::model::point<T, 2, bg::cs::cartesian> P;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::box<P> box;
-    typedef boost::tuple<int, double> Tuple;
 
     // 1-6
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("1", boost::make_tuple(1, 5.4736), case_1[0], case_1[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("2", boost::make_tuple(1, 12.0545), case_2[0], case_2[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("3", boost::make_tuple(1, 5), case_3[0], case_3[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("4", boost::make_tuple(1, 10.2212), case_4[0], case_4[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("5", boost::make_tuple(2, 12.8155), case_5[0], case_5[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("6", boost::make_tuple(1, 4.5), case_6[0], case_6[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("1", 1, 5.4736, case_1[0], case_1[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("2", 1, 12.0545, case_2[0], case_2[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("3", 1, 5, case_3[0], case_3[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("4", 1, 10.2212, case_4[0], case_4[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("5", 2, 12.8155, case_5[0], case_5[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("6", 1, 4.5, case_6[0], case_6[1]);
 
     // 7-12
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("7", boost::make_tuple(0, 0), case_7[0], case_7[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("8", boost::make_tuple(0, 0), case_8[0], case_8[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("9", boost::make_tuple(0, 0), case_9[0], case_9[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("10", boost::make_tuple(0, 0), case_10[0], case_10[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("11", boost::make_tuple(1, 1), case_11[0], case_11[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("12", boost::make_tuple(2, 0.63333), case_12[0], case_12[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("7", 0, 0, case_7[0], case_7[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("8", 0, 0, case_8[0], case_8[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("9", 0, 0, case_9[0], case_9[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("10", 0, 0, case_10[0], case_10[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("11", 1, 1, case_11[0], case_11[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("12", 2, 0.63333, case_12[0], case_12[1]);
 
     // 13-18
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("13", boost::make_tuple(0, 0), case_13[0], case_13[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("14", boost::make_tuple(0, 0), case_14[0], case_14[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("15", boost::make_tuple(0, 0), case_15[0], case_15[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("16", boost::make_tuple(0, 0), case_16[0], case_16[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("17", boost::make_tuple(1, 2), case_17[0], case_17[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("18", boost::make_tuple(1, 2), case_18[0], case_18[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("13", 0, 0, case_13[0], case_13[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("14", 0, 0, case_14[0], case_14[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("15", 0, 0, case_15[0], case_15[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("16", 0, 0, case_16[0], case_16[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("17", 1, 2, case_17[0], case_17[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("18", 1, 2, case_18[0], case_18[1]);
 
     // 19-24
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("19", boost::make_tuple(0, 0), case_19[0], case_19[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("20", boost::make_tuple(1, 5.5), case_20[0], case_20[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("21", boost::make_tuple(0, 0), case_21[0], case_21[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("22", boost::make_tuple(0, 0), case_22[0], case_22[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("23", boost::make_tuple(1, 1.4), case_23[0], case_23[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("24", boost::make_tuple(1, 1.0), case_24[0], case_24[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("19", 0, 0, case_19[0], case_19[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("20", 1, 5.5, case_20[0], case_20[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("21", 0, 0, case_21[0], case_21[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("22", 0, 0, case_22[0], case_22[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("23", 1, 1.4, case_23[0], case_23[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("24", 1, 1.0, case_24[0], case_24[1]);
 
     // 25-30
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("25", boost::make_tuple(0, 0), case_25[0], case_25[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("26", boost::make_tuple(0, 0), case_26[0], case_26[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("27", boost::make_tuple(1, 0.9545454), case_27[0], case_27[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("28", boost::make_tuple(1, 0.9545454), case_28[0], case_28[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("29", boost::make_tuple(1, 1.4), case_29[0], case_29[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("30", boost::make_tuple(1, 0.5), case_30[0], case_30[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("25", 0, 0, case_25[0], case_25[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("26", 0, 0, case_26[0], case_26[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("27", 1, 0.9545454, case_27[0], case_27[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("28", 1, 0.9545454, case_28[0], case_28[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("29", 1, 1.4, case_29[0], case_29[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("30", 1, 0.5, case_30[0], case_30[1]);
 
     // 31-36
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("31", boost::make_tuple(0, 0), case_31[0], case_31[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("32", boost::make_tuple(0, 0), case_32[0], case_32[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("33", boost::make_tuple(0, 0), case_33[0], case_33[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("34", boost::make_tuple(1, 0.5), case_34[0], case_34[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("35", boost::make_tuple(1, 1.0), case_35[0], case_35[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("36", boost::make_tuple(1, 1.625), case_36[0], case_36[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("31", 0, 0, case_31[0], case_31[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("32", 0, 0, case_32[0], case_32[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("33", 0, 0, case_33[0], case_33[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("34", 1, 0.5, case_34[0], case_34[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("35", 1, 1.0, case_35[0], case_35[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("36", 1, 1.625, case_36[0], case_36[1]);
 
     // 37-42
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("37", boost::make_tuple(2, 0.666666), case_37[0], case_37[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("38", boost::make_tuple(2, 0.971429), case_38[0], case_38[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("39", boost::make_tuple(1, 24), case_39[0], case_39[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("40", boost::make_tuple(0, 0), case_40[0], case_40[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("41", boost::make_tuple(1, 5), case_41[0], case_41[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("42", boost::make_tuple(1, 5), case_42[0], case_42[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("37", 2, 0.666666, case_37[0], case_37[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("38", 2, 0.971429, case_38[0], case_38[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("39", 1, 24, case_39[0], case_39[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("40", 0, 0, case_40[0], case_40[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("41", 1, 5, case_41[0], case_41[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("42", 1, 5, case_42[0], case_42[1]);
 
     // 43-48 - invalid polygons
-    //test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("43", boost::make_tuple(2, 0.75), case_43[0], case_43[1]);
-    //test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("44", boost::make_tuple(1, 44), case_44[0], case_44[1]);
-    //test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("45", boost::make_tuple(1, 45), case_45[0], case_45[1]);
-    //test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("46", boost::make_tuple(1, 46), case_46[0], case_46[1]);
-    //test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("47", boost::make_tuple(1, 47), case_47[0], case_47[1]);
+    //test_traverse<polygon, polygon, operation_intersection>::apply("43", 2, 0.75, case_43[0], case_43[1]);
+    //test_traverse<polygon, polygon, operation_intersection>::apply("44", 1, 44, case_44[0], case_44[1]);
+    //test_traverse<polygon, polygon, operation_intersection>::apply("45", 1, 45, case_45[0], case_45[1]);
+    //test_traverse<polygon, polygon, operation_intersection>::apply("46", 1, 46, case_46[0], case_46[1]);
+    //test_traverse<polygon, polygon, operation_intersection>::apply("47", 1, 47, case_47[0], case_47[1]);
 
     // 49-54
 
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("50", boost::make_tuple(0, 0), case_50[0], case_50[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("51", boost::make_tuple(0, 0), case_51[0], case_51[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("52", boost::make_tuple(1, 10.5), case_52[0], case_52[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("50", 0, 0, case_50[0], case_50[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("51", 0, 0, case_51[0], case_51[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("52", 1, 10.5, case_52[0], case_52[1]);
     if (test_self_tangencies)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("53_st", boost::make_tuple(0, 0), case_53[0], case_53[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("53_st", 0, 0, case_53[0], case_53[1]);
     }
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("53_iet", boost::make_tuple(0, 0), case_53[0], case_53[2]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("53_iet", 0, 0, case_53[0], case_53[2]);
 
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("54_iet_iet", boost::make_tuple(1, 2), case_54[1], case_54[3]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("54_iet_iet", 1, 2, case_54[1], case_54[3]);
     if (test_self_tangencies)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("54_st_iet", boost::make_tuple(1, 2), case_54[0], case_54[3]);
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("54_iet_st", boost::make_tuple(1, 2), case_54[1], case_54[2]);
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("54_st_st", boost::make_tuple(1, 2), case_54[0], case_54[2]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("54_st_iet", 1, 2, case_54[0], case_54[3]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("54_iet_st", 1, 2, case_54[1], case_54[2]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("54_st_st", 1, 2, case_54[0], case_54[2]);
     }
 
     if (test_self_tangencies)
     {
         // 55-60
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("55_st_st", boost::make_tuple(1, 2), case_55[0], case_55[2]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("55_st_st", 1, 2, case_55[0], case_55[2]);
     }
 
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("55_st_iet", boost::make_tuple(1, 2), case_55[0], case_55[3]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("55_iet_st", boost::make_tuple(1, 2), case_55[1], case_55[2]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("55_st_iet", 1, 2, case_55[0], case_55[3]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("55_iet_st", 1, 2, case_55[1], case_55[2]);
     if (test_self_tangencies)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("56", boost::make_tuple(2, 4.5), case_56[0], case_56[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("56", 2, 4.5, case_56[0], case_56[1]);
     }
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("55_iet_iet", boost::make_tuple(1, 2), case_55[1], case_55[3]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("57", boost::make_tuple(2, 5.9705882), case_57[0], case_57[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("55_iet_iet", 1, 2, case_55[1], case_55[3]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("57", 2, 5.9705882, case_57[0], case_57[1]);
 
     if (test_self_tangencies)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("58_st",
-            boost::make_tuple(2, 0.333333),
-            case_58[0], case_58[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("59_st",
-            boost::make_tuple(2, 1.5416667),
-            case_59[0], case_59[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("60_st",
-            boost::make_tuple(3, 2),
-            case_60[0], case_60[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("58_st",
+            2, 0.333333, case_58[0], case_58[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("59_st",
+            2, 1.5416667, case_59[0], case_59[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("60_st",
+            3, 2, case_60[0], case_60[1]);
     }
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("58_iet",
-        boost::make_tuple(2, 0.333333),
-        case_58[0], case_58[2]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("59_iet",
-        boost::make_tuple(2, 1.5416667),
-        case_59[0], case_59[2]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("60_iet",
-        boost::make_tuple(3, 2),
-        case_60[0], case_60[2]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("61_st",
-        boost::make_tuple(0, 0),
-        case_61[0], case_61[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("58_iet",
+        2, 0.333333, case_58[0], case_58[2]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("59_iet",
+        2, 1.5416667, case_59[0], case_59[2]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("60_iet",
+        3, 2, case_60[0], case_60[2]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("61_st",
+        0, 0, case_61[0], case_61[1]);
 
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("70",
-        boost::make_tuple(2, 4),
-        case_70[0], case_70[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("71",
-        boost::make_tuple(2, 2),
-        case_71[0], case_71[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("72",
-        boost::make_tuple(3, 2.85),
-        case_72[0], case_72[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("79",
-        boost::make_tuple(2, 20),
-        case_79[0], case_79[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("70",
+        2, 4, case_70[0], case_70[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("71",
+        2, 2, case_71[0], case_71[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("72",
+        3, 2.85, case_72[0], case_72[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("79",
+        2, 20, case_79[0], case_79[1]);
 
     // other
 
 
-
     // pies (went wrong when not all cases where implemented, especially some collinear (opposite) cases
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("pie_16_4_12",
-        boost::make_tuple(1, 491866.5), pie_16_4_12[0], pie_16_4_12[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("pie_23_21_12_500",
-        boost::make_tuple(2, 2363199.3313), pie_23_21_12_500[0], pie_23_21_12_500[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("pie_23_23_3_2000",
-        boost::make_tuple(2, 1867779.9349), pie_23_23_3_2000[0], pie_23_23_3_2000[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("pie_23_16_16",
-        boost::make_tuple(2, 2128893.9555), pie_23_16_16[0], pie_23_16_16[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("pie_16_2_15_0",
-        boost::make_tuple(0, 0), pie_16_2_15_0[0], pie_16_2_15_0[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("pie_4_13_15",
-        boost::make_tuple(1, 490887.06678), pie_4_13_15[0], pie_4_13_15[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("pie_20_20_7_100",
-        boost::make_tuple(2, 2183372.2718), pie_20_20_7_100[0], pie_20_20_7_100[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("pie_16_4_12",
+        1, 491866.5, pie_16_4_12[0], pie_16_4_12[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("pie_23_21_12_500",
+        2, 2363199.3313, pie_23_21_12_500[0], pie_23_21_12_500[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("pie_23_23_3_2000",
+        2, 1867779.9349, pie_23_23_3_2000[0], pie_23_23_3_2000[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("pie_23_16_16",
+        2, 2128893.9555, pie_23_16_16[0], pie_23_16_16[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("pie_16_2_15_0",
+        0, 0, pie_16_2_15_0[0], pie_16_2_15_0[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("pie_4_13_15",
+        1, 490887.06678, pie_4_13_15[0], pie_4_13_15[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("pie_20_20_7_100",
+        2, 2183372.2718, pie_20_20_7_100[0], pie_20_20_7_100[1]);
 
 
 
     // 1-6
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("1", boost::make_tuple(1, 11.5264), case_1[0], case_1[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("2", boost::make_tuple(1, 17.9455), case_2[0], case_2[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("3", boost::make_tuple(1, 9), case_3[0], case_3[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("4", boost::make_tuple(3, 17.7788), case_4[0], case_4[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("5", boost::make_tuple(2, 18.4345), case_5[0], case_5[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("6", boost::make_tuple(1, 9), case_6[0], case_6[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("1", 1, 11.5264, case_1[0], case_1[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("2", 1, 17.9455, case_2[0], case_2[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("3", 1, 9, case_3[0], case_3[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("4", 3, 17.7788, case_4[0], case_4[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("5", 2, 18.4345, case_5[0], case_5[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("6", 1, 9, case_6[0], case_6[1]);
 
     // 7-12
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("7", boost::make_tuple(1, 9), case_7[0], case_7[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("8", boost::make_tuple(1, 12), case_8[0], case_8[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("9", boost::make_tuple(0, 0 /*UU 2, 11*/), case_9[0], case_9[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("10", boost::make_tuple(1, 9), case_10[0], case_10[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("11", boost::make_tuple(1, 8), case_11[0], case_11[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("12", boost::make_tuple(2, 8.36667), case_12[0], case_12[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("7", 1, 9, case_7[0], case_7[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("8", 1, 12, case_8[0], case_8[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("9", 0, 0 /*UU 2, 11*/, case_9[0], case_9[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("10", 1, 9, case_10[0], case_10[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("11", 1, 8, case_11[0], case_11[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("12", 2, 8.36667, case_12[0], case_12[1]);
 
     // 13-18
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("13", boost::make_tuple(1, 4), case_13[0], case_13[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("14", boost::make_tuple(1, 12), case_14[0], case_14[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("15", boost::make_tuple(1, 12), case_15[0], case_15[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("16", boost::make_tuple(1, 9), case_16[0], case_16[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("17", boost::make_tuple(1, 8), case_17[0], case_17[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("18", boost::make_tuple(1, 8), case_18[0], case_18[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("13", 1, 4, case_13[0], case_13[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("14", 1, 12, case_14[0], case_14[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("15", 1, 12, case_15[0], case_15[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("16", 1, 9, case_16[0], case_16[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("17", 1, 8, case_17[0], case_17[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("18", 1, 8, case_18[0], case_18[1]);
 
     // 19-24
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("19", boost::make_tuple(1, 10), case_19[0], case_19[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("20", boost::make_tuple(1, 5.5), case_20[0], case_20[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("21", boost::make_tuple(0, 0), case_21[0], case_21[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("22", boost::make_tuple(0, 0 /*UU 2, 9.5*/), case_22[0], case_22[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("23", boost::make_tuple(1, 6.1), case_23[0], case_23[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("24", boost::make_tuple(1, 5.5), case_24[0], case_24[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("19", 1, 10, case_19[0], case_19[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("20", 1, 5.5, case_20[0], case_20[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("21", 0, 0, case_21[0], case_21[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("22", 0, 0 /*UU 2, 9.5*/, case_22[0], case_22[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("23", 1, 6.1, case_23[0], case_23[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("24", 1, 5.5, case_24[0], case_24[1]);
 
     // 25-30
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("25", boost::make_tuple(0, 0 /*UU 2, 7*/), case_25[0], case_25[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("26", boost::make_tuple(0, 0 /*UU  2, 7.5 */), case_26[0], case_26[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("27", boost::make_tuple(1, 8.04545), case_27[0], case_27[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("28", boost::make_tuple(1, 10.04545), case_28[0], case_28[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("29", boost::make_tuple(1, 8.1), case_29[0], case_29[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("30", boost::make_tuple(1, 6.5), case_30[0], case_30[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("25", 0, 0 /*UU 2, 7*/, case_25[0], case_25[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("26", 0, 0 /*UU  2, 7.5 */, case_26[0], case_26[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("27", 1, 8.04545, case_27[0], case_27[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("28", 1, 10.04545, case_28[0], case_28[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("29", 1, 8.1, case_29[0], case_29[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("30", 1, 6.5, case_30[0], case_30[1]);
 
     // 31-36
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("31", boost::make_tuple(0, 0 /*UU 2, 4.5 */), case_31[0], case_31[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("32", boost::make_tuple(0, 0 /*UU 2, 4.5 */), case_32[0], case_32[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("33", boost::make_tuple(0, 0 /*UU 2, 4.5 */), case_33[0], case_33[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("34", boost::make_tuple(1, 6.0), case_34[0], case_34[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("35", boost::make_tuple(1, 10.5), case_35[0], case_35[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("36", boost::make_tuple(1 /*UU 2*/, 14.375), case_36[0], case_36[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("31", 0, 0 /*UU 2, 4.5 */, case_31[0], case_31[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("32", 0, 0 /*UU 2, 4.5 */, case_32[0], case_32[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("33", 0, 0 /*UU 2, 4.5 */, case_33[0], case_33[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("34", 1, 6.0, case_34[0], case_34[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("35", 1, 10.5, case_35[0], case_35[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("36", 1 /*UU 2*/, 14.375, case_36[0], case_36[1]);
 
     // 37-42
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("37", boost::make_tuple(1, 7.33333), case_37[0], case_37[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("38", boost::make_tuple(1, 9.52857), case_38[0], case_38[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("39", boost::make_tuple(1, 40.0), case_39[0], case_39[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("40", boost::make_tuple(0, 0 /*UU 2, 11 */), case_40[0], case_40[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("41", boost::make_tuple(1, 5), case_41[0], case_41[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("42", boost::make_tuple(1, 5), case_42[0], case_42[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("37", 1, 7.33333, case_37[0], case_37[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("38", 1, 9.52857, case_38[0], case_38[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("39", 1, 40.0, case_39[0], case_39[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("40", 0, 0 /*UU 2, 11 */, case_40[0], case_40[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("41", 1, 5, case_41[0], case_41[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("42", 1, 5, case_42[0], case_42[1]);
 
     // 43-48
-    //test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("43", boost::make_tuple(3, 8.1875), case_43[0], case_43[1]);
-    //test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("44", boost::make_tuple(1, 44), case_44[0], case_44[1]);
-    //test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("45", boost::make_tuple(1, 45), case_45[0], case_45[1]);
-    //test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("46", boost::make_tuple(1, 46), case_46[0], case_46[1]);
-    //test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("47", boost::make_tuple(1, 47), case_47[0], case_47[1]);
+    //test_traverse<polygon, polygon, operation_union>::apply("43", 3, 8.1875, case_43[0], case_43[1]);
+    //test_traverse<polygon, polygon, operation_union>::apply("44", 1, 44, case_44[0], case_44[1]);
+    //test_traverse<polygon, polygon, operation_union>::apply("45", 1, 45, case_45[0], case_45[1]);
+    //test_traverse<polygon, polygon, operation_union>::apply("46", 1, 46, case_46[0], case_46[1]);
+    //test_traverse<polygon, polygon, operation_union>::apply("47", 1, 47, case_47[0], case_47[1]);
 
     // 49-54
 
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("50", boost::make_tuple(1, 25), case_50[0], case_50[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("51", boost::make_tuple(0, 0), case_51[0], case_51[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("52", boost::make_tuple(1, 15.5), case_52[0], case_52[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("50", 1, 25, case_50[0], case_50[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("51", 0, 0, case_51[0], case_51[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("52", 1, 15.5, case_52[0], case_52[1]);
     if (test_self_tangencies)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("53_st", boost::make_tuple(2, 16), case_53[0], case_53[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("53_st", 2, 16, case_53[0], case_53[1]);
     }
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("53_iet",
-            boost::make_tuple(2, 16),
-            case_53[0], case_53[2]);
+    test_traverse<polygon, polygon, operation_union>::apply("53_iet",
+            2, 16, case_53[0], case_53[2]);
     if (test_self_tangencies)
     {
         // The st_st version might generate one ring with area zero, which is OK
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("54_st_st", boost::make_tuple(3, 20), case_54[0], case_54[2]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("54_st_iet", boost::make_tuple(2, 20), case_54[0], case_54[3]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("54_iet_st", boost::make_tuple(2, 20), case_54[1], case_54[2]);
+        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 3, 20, case_54[0], case_54[2]);
+        test_traverse<polygon, polygon, operation_union>::apply("54_st_iet", 2, 20, case_54[0], case_54[3]);
+        test_traverse<polygon, polygon, operation_union>::apply("54_iet_st", 2, 20, case_54[1], case_54[2]);
     }
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("54_iet_iet", boost::make_tuple(2, 20), case_54[1], case_54[3]);
+    test_traverse<polygon, polygon, operation_union>::apply("54_iet_iet", 2, 20, case_54[1], case_54[3]);
 
     if (test_mixed)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("55_st_iet", boost::make_tuple(2, 18), case_55[0], case_55[3]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("55_iet_st", boost::make_tuple(2, 18), case_55[1], case_55[2]);
+        test_traverse<polygon, polygon, operation_union>::apply("55_st_iet", 2, 18, case_55[0], case_55[3]);
+        test_traverse<polygon, polygon, operation_union>::apply("55_iet_st", 2, 18, case_55[1], case_55[2]);
         // moved to mixed
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("55_iet_iet", boost::make_tuple(3, 18), case_55[1], case_55[3]);
+        test_traverse<polygon, polygon, operation_union>::apply("55_iet_iet", 3, 18, case_55[1], case_55[3]);
     }
 
     // 55-60
     if (test_self_tangencies)
     {
         // 55 with both input polygons having self tangencies (st_st) generates 1 correct shape
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("55_st_st", boost::make_tuple(1, 18), case_55[0], case_55[2]);
+        test_traverse<polygon, polygon, operation_union>::apply("55_st_st", 1, 18, case_55[0], case_55[2]);
         // 55 with one of them self-tangency, other int/ext ring tangency generate 2 correct shapes
 
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("56", boost::make_tuple(2, 14), case_56[0], case_56[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("56", 2, 14, case_56[0], case_56[1]);
     }
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("57", boost::make_tuple(1, 14.029412), case_57[0], case_57[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("57", 1, 14.029412, case_57[0], case_57[1]);
 
     if (test_self_tangencies)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("58_st",
-            boost::make_tuple(4, 12.16666),
-            case_58[0], case_58[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("59_st",
-            boost::make_tuple(2, 17.208333),
-            case_59[0], case_59[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("60_st",
-            boost::make_tuple(3, 19),
-            case_60[0], case_60[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("58_st",
+            4, 12.16666, case_58[0], case_58[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("59_st",
+            2, 17.208333, case_59[0], case_59[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("60_st",
+            3, 19, case_60[0], case_60[1]);
     }
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("58_iet",
-        boost::make_tuple( 4, 12.16666),
-        case_58[0], case_58[2]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("59_iet",
-        boost::make_tuple(1, -3.791666), // 2, 17.208333), outer ring (ii/ix) is done by ASSEMBLE
+    test_traverse<polygon, polygon, operation_union>::apply("58_iet",
+         4, 12.16666, case_58[0], case_58[2]);
+    test_traverse<polygon, polygon, operation_union>::apply("59_iet",
+        1, -3.791666, // 2, 17.208333), outer ring (ii/ix) is done by ASSEMBLE
         case_59[0], case_59[2]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("60_iet",
-        boost::make_tuple(3, 19),
-        case_60[0], case_60[2]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("61_st",
-        boost::make_tuple(1, 4),
-        case_61[0], case_61[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("60_iet",
+        3, 19, case_60[0], case_60[2]);
+    test_traverse<polygon, polygon, operation_union>::apply("61_st",
+        1, 4, case_61[0], case_61[1]);
 
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("70",
-        boost::make_tuple(1, 9),
-        case_70[0], case_70[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("71",
-        boost::make_tuple(2, 9),
-        case_71[0], case_71[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("72",
-        boost::make_tuple(1, 10.65),
-        case_72[0], case_72[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("70",
+        1, 9, case_70[0], case_70[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("71",
+        2, 9, case_71[0], case_71[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("72",
+        1, 10.65, case_72[0], case_72[1]);
 
 
 
     // other
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("collinear_overlaps",
-        boost::make_tuple(1, 24),
+    test_traverse<polygon, polygon, operation_intersection>::apply("collinear_overlaps",
+        1, 24,
         collinear_overlaps[0], collinear_overlaps[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("collinear_overlaps",
-        boost::make_tuple(1, 50),
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_overlaps",
+        1, 50,
         collinear_overlaps[0], collinear_overlaps[1]);
 
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("many_situations", boost::make_tuple(1, 184), case_many_situations[0], case_many_situations[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("many_situations",
-        boost::make_tuple(1, 207), case_many_situations[0], case_many_situations[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("many_situations", 1, 184, case_many_situations[0], case_many_situations[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("many_situations",
+        1, 207, case_many_situations[0], case_many_situations[1]);
 
 
     // From "intersection piets", robustness test.
     // This all went wrong in the past
     // (when not all cases (get_turns) where implemented,
     //   especially important are some collinear (opposite) cases)
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_16_4_12",
-        boost::make_tuple(1, 3669665.5), pie_16_4_12[0], pie_16_4_12[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_23_21_12_500",
-        boost::make_tuple(1, 6295516.7185), pie_23_21_12_500[0], pie_23_21_12_500[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_23_23_3_2000",
-        boost::make_tuple(1, 7118735.0530), pie_23_23_3_2000[0], pie_23_23_3_2000[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_23_16_16",
-        boost::make_tuple(1, 5710474.5406), pie_23_16_16[0], pie_23_16_16[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_16_2_15_0",
-        boost::make_tuple(1, 3833641.5), pie_16_2_15_0[0], pie_16_2_15_0[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_4_13_15",
-        boost::make_tuple(1, 2208122.43322), pie_4_13_15[0], pie_4_13_15[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_20_20_7_100",
-        boost::make_tuple(1, 5577158.72823), pie_20_20_7_100[0], pie_20_20_7_100[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("pie_16_4_12",
+        1, 3669665.5, pie_16_4_12[0], pie_16_4_12[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("pie_23_21_12_500",
+        1, 6295516.7185, pie_23_21_12_500[0], pie_23_21_12_500[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("pie_23_23_3_2000",
+        1, 7118735.0530, pie_23_23_3_2000[0], pie_23_23_3_2000[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("pie_23_16_16",
+        1, 5710474.5406, pie_23_16_16[0], pie_23_16_16[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("pie_16_2_15_0",
+        1, 3833641.5, pie_16_2_15_0[0], pie_16_2_15_0[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("pie_4_13_15",
+        1, 2208122.43322, pie_4_13_15[0], pie_4_13_15[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("pie_20_20_7_100",
+        1, 5577158.72823, pie_20_20_7_100[0], pie_20_20_7_100[1]);
 
     /*
     if (test_not_valid)
     {
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("pie_5_12_12_0_7s",
-        boost::make_tuple(1, 3271710.48516), pie_5_12_12_0_7s[0], pie_5_12_12_0_7s[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("pie_5_12_12_0_7s",
+        1, 3271710.48516, pie_5_12_12_0_7s[0], pie_5_12_12_0_7s[1]);
     }
     */
 
@@ -699,30 +741,30 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     // ("hv" means "high volume")
     {
         double deviation = is_float ? 0.01 : 0.001;
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("hv1", boost::make_tuple(1, 1624.508688461573), hv_1[0], hv_1[1], deviation);
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("hv1", boost::make_tuple(1, 1622.7200125123809), hv_1[0], hv_1[1], deviation);
+        test_traverse<polygon, polygon, operation_union>::apply("hv1", 1, 1624.508688461573, hv_1[0], hv_1[1], deviation);
+        test_traverse<polygon, polygon, operation_intersection>::apply("hv1", 1, 1622.7200125123809, hv_1[0], hv_1[1], deviation);
 
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("hv2", boost::make_tuple(1, 1622.9193392726836), hv_2[0], hv_2[1], deviation);
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("hv2", boost::make_tuple(1, 1622.1733591429329), hv_2[0], hv_2[1], deviation);
+        test_traverse<polygon, polygon, operation_union>::apply("hv2", 1, 1622.9193392726836, hv_2[0], hv_2[1], deviation);
+        test_traverse<polygon, polygon, operation_intersection>::apply("hv2", 1, 1622.1733591429329, hv_2[0], hv_2[1], deviation);
 
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("hv3", boost::make_tuple(1, 1624.22079205664), hv_3[0], hv_3[1], deviation);
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("hv3", boost::make_tuple(1, 1623.8265057282042), hv_3[0], hv_3[1], deviation);
+        test_traverse<polygon, polygon, operation_union>::apply("hv3", 1, 1624.22079205664, hv_3[0], hv_3[1], deviation);
+        test_traverse<polygon, polygon, operation_intersection>::apply("hv3", 1, 1623.8265057282042, hv_3[0], hv_3[1], deviation);
 
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("hv4", boost::make_tuple(1, 1626.5146964146334), hv_4[0], hv_4[1], deviation);
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("hv4", boost::make_tuple(1, 1626.2580370864305), hv_4[0], hv_4[1], deviation);
+        test_traverse<polygon, polygon, operation_union>::apply("hv4", 1, 1626.5146964146334, hv_4[0], hv_4[1], deviation);
+        test_traverse<polygon, polygon, operation_intersection>::apply("hv4", 1, 1626.2580370864305, hv_4[0], hv_4[1], deviation);
 
         if (! is_float)
         {
-            test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("hv5", boost::make_tuple(1, 1624.2158307261871), hv_5[0], hv_5[1], deviation);
-            test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("hv5", boost::make_tuple(1, 1623.4506071521519), hv_5[0], hv_5[1], deviation);
+            test_traverse<polygon, polygon, operation_union>::apply("hv5", 1, 1624.2158307261871, hv_5[0], hv_5[1], deviation);
+            test_traverse<polygon, polygon, operation_intersection>::apply("hv5", 1, 1623.4506071521519, hv_5[0], hv_5[1], deviation);
 
             // Case 2009-12-07
-            test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("hv6", boost::make_tuple(1, 1604.6318757402121), hv_6[0], hv_6[1], deviation);
-            test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("hv6", boost::make_tuple(1, 1790.091872401327), hv_6[0], hv_6[1], deviation);
+            test_traverse<polygon, polygon, operation_intersection>::apply("hv6", 1, 1604.6318757402121, hv_6[0], hv_6[1], deviation);
+            test_traverse<polygon, polygon, operation_union>::apply("hv6", 1, 1790.091872401327, hv_6[0], hv_6[1], deviation);
 
             // Case 2009-12-08, needing sorting on side in enrich_intersection_points
-            test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("hv7", boost::make_tuple(1, 1624.5779453641017), hv_7[0], hv_7[1], deviation);
-            test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("hv7", boost::make_tuple(1, 1623.6936420295772), hv_7[0], hv_7[1], deviation);
+            test_traverse<polygon, polygon, operation_union>::apply("hv7", 1, 1624.5779453641017, hv_7[0], hv_7[1], deviation);
+            test_traverse<polygon, polygon, operation_intersection>::apply("hv7", 1, 1623.6936420295772, hv_7[0], hv_7[1], deviation);
         }
     }
 
@@ -734,25 +776,25 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     // decision is taken.
     // Solved now (by sorting on sides in those cases)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("dz_1",
-                boost::make_tuple(3, 16.887537949472005), dz_1[0], dz_1[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("dz_1",
-                boost::make_tuple(3, 1444.2621305732864), dz_1[0], dz_1[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("dz_1",
+                3, 16.887537949472005, dz_1[0], dz_1[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("dz_1",
+                3, 1444.2621305732864, dz_1[0], dz_1[1]);
 
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("dz_2",
-                boost::make_tuple(2, 68.678921274288541), dz_2[0], dz_2[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("dz_2",
-                boost::make_tuple(2, 1505.4202304878663), dz_2[0], dz_2[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("dz_2",
+                2, 68.678921274288541, dz_2[0], dz_2[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("dz_2",
+                2, 1505.4202304878663, dz_2[0], dz_2[1]);
 
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("dz_3",
-                boost::make_tuple(6, 192.49316937645651), dz_3[0], dz_3[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("dz_3",
-                boost::make_tuple(6, 1446.496005965641), dz_3[0], dz_3[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("dz_3",
+                6, 192.49316937645651, dz_3[0], dz_3[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("dz_3",
+                6, 1446.496005965641, dz_3[0], dz_3[1]);
 
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("dz_4",
-                boost::make_tuple(1, 473.59423868207693), dz_4[0], dz_4[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("dz_4",
-                boost::make_tuple(1, 1871.6125138873476), dz_4[0], dz_4[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("dz_4",
+                1, 473.59423868207693, dz_4[0], dz_4[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("dz_4",
+                1, 1871.6125138873476, dz_4[0], dz_4[1]);
     }
 
     // Real-life problems
@@ -761,13 +803,13 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 
     if (! is_float_on_non_msvc)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("snl-1",
-            boost::make_tuple(2, 286.996062095888),
+        test_traverse<polygon, polygon, operation_intersection>::apply("snl-1",
+            2, 286.996062095888,
             snl_1[0], snl_1[1],
             float_might_deviate_more);
 
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("snl-1",
-            boost::make_tuple(2, 51997.5408506132),
+        test_traverse<polygon, polygon, operation_union>::apply("snl-1",
+            2, 51997.5408506132,
             snl_1[0], snl_1[1],
             float_might_deviate_more);
     }
@@ -784,57 +826,57 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 
         // Boost.List during Formal Review, isovists Brandon
         // For FP, they may deviate more.
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("isov",
-                boost::make_tuple(1, 88.1920416352664), isovist[0], isovist[1],
+        test_traverse<polygon, polygon, operation_intersection>::apply("isov",
+                1, 88.1920416352664, isovist[0], isovist[1],
                 float_might_deviate_more);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("isov",
-                boost::make_tuple(1, 313.360374193241), isovist[0], isovist[1],
+        test_traverse<polygon, polygon, operation_union>::apply("isov",
+                1, 313.360374193241, isovist[0], isovist[1],
                 float_might_deviate_more);
     }
 
     // GEOS tests
     if (! is_float)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("geos_1_test_overlay",
-                boost::make_tuple(1, 3461.02330171138), geos_1_test_overlay[0], geos_1_test_overlay[1]);
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("geos_1_test_overlay",
-                boost::make_tuple(1, 3461.31592235516), geos_1_test_overlay[0], geos_1_test_overlay[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply("geos_1_test_overlay",
+                1, 3461.02330171138, geos_1_test_overlay[0], geos_1_test_overlay[1]);
+        test_traverse<polygon, polygon, operation_union>::apply("geos_1_test_overlay",
+                1, 3461.31592235516, geos_1_test_overlay[0], geos_1_test_overlay[1]);
 
         if (! is_double)
         {
-            test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("geos_2",
-                    boost::make_tuple(2, 2.157e-6), // by bg/ttmath; sql server reports: 2.20530228034477E-06
+            test_traverse<polygon, polygon, operation_intersection>::apply("geos_2",
+                    2, 2.157e-6, // by bg/ttmath; sql server reports: 2.20530228034477E-06
                     geos_2[0], geos_2[1]);
         }
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("geos_2",
-                boost::make_tuple(1, 350.550662845485),
+        test_traverse<polygon, polygon, operation_union>::apply("geos_2",
+                1, 350.550662845485,
                 geos_2[0], geos_2[1]);
     }
 
     if (! is_float && ! is_double)
     {
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("geos_3",
-                boost::make_tuple(1, 2.484885e-7),
+        test_traverse<polygon, polygon, operation_intersection>::apply("geos_3",
+                1, 2.484885e-7,
                 geos_3[0], geos_3[1]);
     }
 
     if (! is_float_on_non_msvc)
     {
         // Sometimes output is reported as 29229056
-        test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("geos_3",
-                boost::make_tuple(1, 29391548.5),
+        test_traverse<polygon, polygon, operation_union>::apply("geos_3",
+                1, 29391548.5,
                 geos_3[0], geos_3[1],
                 float_might_deviate_more);
 
         // Sometimes output is reported as 0.078125
-        test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("geos_4",
-                boost::make_tuple(1, 0.0836884926070727),
+        test_traverse<polygon, polygon, operation_intersection>::apply("geos_4",
+                1, 0.0836884926070727,
                 geos_4[0], geos_4[1],
                 float_might_deviate_more);
     }
 
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("geos_4",
-            boost::make_tuple(1, 2304.41633605957),
+    test_traverse<polygon, polygon, operation_union>::apply("geos_4",
+            1, 2304.41633605957,
             geos_4[0], geos_4[1]);
 
     return;
@@ -842,9 +884,9 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     // Cases below still have errors
 
     // ticket#17
-    test_overlay<polygon, box, test_traverse<operation_intersection>,  Tuple>("ticket_17", boost::make_tuple(2, 2.687433027e-006),
+    test_traverse<polygon, box, operation_intersection>::apply("ticket_17", 2, 2.687433027e-006,
                 ticket_17[0], ticket_17[1], 0.1);
-    test_overlay<polygon, box, test_traverse<operation_union>,  Tuple>("ticket_17", boost::make_tuple(3, 0.00922511561516),
+    test_traverse<polygon, box, operation_union>::apply("ticket_17", 3, 0.00922511561516,
                 ticket_17[0], ticket_17[1], 0.1);
 }
 
@@ -853,28 +895,33 @@ void test_open()
 {
     using namespace bg::detail::overlay;
 
-    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
-    typedef bg::model::polygon<P, true, false> polygon;
-    typedef boost::tuple<int, double> Tuple;
+    typedef bg::model::polygon
+        <
+            bg::model::point<T, 2, bg::cs::cartesian>, 
+            true, false
+        > polygon;
 
-    test_overlay<polygon, polygon, test_traverse<operation_intersection>,  Tuple>("open_1", boost::make_tuple(1, 5.4736),
+    test_traverse<polygon, polygon, operation_intersection>::apply("open_1", 1, 5.4736,
         open_case_1[0], open_case_1[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union>,  Tuple>("open_1", boost::make_tuple(1, 11.5264),
+    test_traverse<polygon, polygon, operation_union>::apply("open_1", 1, 11.5264,
         open_case_1[0], open_case_1[1]);
 }
+
 
 template <typename T>
 void test_ccw()
 {
     using namespace bg::detail::overlay;
 
-    typedef bg::model::point<T, 2, bg::cs::cartesian> P;
-    typedef bg::model::polygon<P, false, true> polygon;
-    typedef boost::tuple<int, double> Tuple;
+    typedef bg::model::polygon
+        <
+            bg::model::point<T, 2, bg::cs::cartesian>, 
+            false, true
+        > polygon;
 
-    test_overlay<polygon, polygon, test_traverse<operation_intersection, true, true>,  Tuple>("ccw_1", boost::make_tuple(1, 5.4736),
+    test_traverse<polygon, polygon, operation_intersection, true, true>::apply("ccw_1", 1, 5.4736,
         ccw_case_1[0], ccw_case_1[1]);
-    test_overlay<polygon, polygon, test_traverse<operation_union, true, true>,  Tuple>("ccw_1", boost::make_tuple(1, 11.5264),
+    test_traverse<polygon, polygon, operation_union, true, true>::apply("ccw_1", 1, 11.5264,
         ccw_case_1[0], ccw_case_1[1]);
 }
 
