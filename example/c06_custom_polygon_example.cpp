@@ -110,20 +110,20 @@ int main()
     // Fill it the my-way, triangle
     p1.boundary.push_back(my_point(2, 0));
     p1.boundary.push_back(my_point(1, 5));
-    p1.boundary.push_back(my_point(5, 5));
+    p1.boundary.push_back(my_point(7, 6));
     p1.boundary.push_back(my_point(2, 0));
 
     // Triangle
     p1.holes[0].push_back(my_point(2, 1));
-    p1.holes[0].push_back(my_point(1.9, 2));
     p1.holes[0].push_back(my_point(2.4, 2));
+    p1.holes[0].push_back(my_point(1.9, 2));
     p1.holes[0].push_back(my_point(2, 1));
 
     // Box
     p1.holes[1].push_back(my_point(3, 3));
-    p1.holes[1].push_back(my_point(3, 4));
-    p1.holes[1].push_back(my_point(4, 4));
     p1.holes[1].push_back(my_point(4, 3));
+    p1.holes[1].push_back(my_point(4, 4));
+    p1.holes[1].push_back(my_point(3, 4));
     p1.holes[1].push_back(my_point(3, 3));
 
     std::cout << "Representation of " << p1.name << ": "
