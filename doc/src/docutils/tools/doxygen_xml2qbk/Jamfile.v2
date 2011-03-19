@@ -17,3 +17,12 @@ project doxygen_xml2qbk
 
 exe doxygen_xml2qbk : doxygen_xml2qbk.cpp ;
 
+install dist-bin
+    :
+    doxygen_xml2qbk
+    :
+    <install-type>EXE
+    <location>../../../../../../../dist/bin
+    :
+    release
+    ;
