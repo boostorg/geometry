@@ -12,7 +12,19 @@
 
 import os, sys
 
-cmd = "doxygen_xml2qbk"
+os.chdir(os.path.dirname(sys.argv[0]))
+
+if 'DOXYGEN' in os.environ:
+    doxygen_cmd = os.environ['DOXYGEN']
+else:
+    doxygen_cmd = 'doxygen'
+
+if 'DOXYGEN_XML2QBK' in os.environ:
+    doxygen_xml2qbk_cmd = os.environ['DOXYGEN_XML2QBK']
+else:
+    doxygen_xml2qbk_cmd = 'doxygen_xml2qbk'
+
+cmd = doxygen_xml2qbk_cmd
 cmd = cmd + " --xml doxy/doxygen_output/xml/%s.xml"
 cmd = cmd + " --start_include boost/geometry/"
 cmd = cmd + " --convenience_header_path ../../../boost/geometry/"
@@ -23,7 +35,7 @@ cmd = cmd + " > generated/%s.qbk"
 
 def call_doxygen():
     os.chdir("doxy");
-    os.system("doxygen")
+    os.system(doxygen_cmd)
     os.chdir("..")
 
 def group_to_quickbook(section):
