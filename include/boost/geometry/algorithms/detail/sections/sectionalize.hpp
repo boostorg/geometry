@@ -607,7 +607,7 @@ struct sectionalize<polygon_tag, Polygon, Reverse, Sections, DimensionCount, Max
     \tparam Sections type of sections to create
     \param geometry geometry to create sections from
     \param sections structure with sections
-
+    \param source_index index to assign to the ring_identifiers
  */
 template<bool Reverse, typename Geometry, typename Sections>
 inline void sectionalize(Geometry const& geometry, Sections& sections, int source_index = 0)
