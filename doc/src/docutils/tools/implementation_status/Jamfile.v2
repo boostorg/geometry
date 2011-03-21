@@ -7,9 +7,18 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 
-project boost-implementation-status
+project implementation-status
     :
     ;
 
-exe status : implementation_status.cpp
+exe implementation-status : implementation_status.cpp
+    ;
+install dist-bin
+    :
+    implementation-status
+    :
+    <install-type>EXE
+    <location>../../../../../../../dist/bin
+    :
+    release
     ;
