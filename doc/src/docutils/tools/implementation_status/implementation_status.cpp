@@ -12,7 +12,6 @@
 
 #include <vector>
 
-#include <direct.h>
 #include <stdlib.h>
 
 #include <boost/algorithm/string/predicate.hpp>
@@ -142,7 +141,6 @@ void report_library(std::ostream& report, int type, algorithm const& algo,
         lit = out.str();
     }
 
-    //report << lit << std::endl;
     std::cout << lit;
 
     {
@@ -191,40 +189,16 @@ void report_library(std::ostream& report, int type, algorithm const& algo,
             ;
     }
 
-    std::string command = "cl /nologo -I. -I/_svn/boost/trunk /EHsc /Y";
-    static bool first = true;
-    if (first)
+    if (system("bjam tmp > tmp/t.out"))
     {
-        std::cout << " (creating PCH)";
-        command += "c";
-        first = false;
+        report << " [$img/nyi.png] ";
+        std::cout << " ERROR" << std::endl;
     }
     else
     {
-        command += "u";
+        report << " [$img/ok.png ] ";
+        std::cout << std::endl;
     }
-
-    system((command + "implementation_status.hpp tmp/t.cpp > tmp/t.out").c_str());
-
-    {
-        std::ifstream result("tmp/t.out");
-		while (! result.eof() )
-		{
-			std::string line;
-			std::getline(result, line);
-            boost::trim(line);
-            if (boost::contains(line, "error")) 
-            {
-                //report << algo.name << std::endl;
-                report << " [$img/nyi.png] ";// << line << std::endl;
-                std::cout << " ERROR" << std::endl;
-                return;
-            }
-        }
-    }
-    report << " [$img/ok.png ] ";
-    std::cout << std::endl;
-
 }
 
 void report(std::ostream& out, int type, algorithm const& algo, 
