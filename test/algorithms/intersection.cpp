@@ -40,7 +40,7 @@ void test_areal()
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_2",
-        polygon_empty, simplex_normal[0], 
+        polygon_empty, simplex_normal[0],
         0, 0, 0.0);
 
     test_one<Polygon, Polygon, Polygon>("simplex_normal",
@@ -204,7 +204,7 @@ void test_areal_clip()
         2, 13, 1.0744456);
 
     test_one<Polygon, Box, Polygon>("clip_poly7", "Box(0 0, 3 3)",
-        "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))", 
+        "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))",
         1, 4, 0.75);
 }
 
@@ -253,7 +253,7 @@ void test_all()
 
 #if defined(TEST_FAIL_DIFFERENT_ORIENTATIONS)
     // Should NOT compile
-    // NOTE: this can probably be relaxed later on.        
+    // NOTE: this can probably be relaxed later on.
     test_one<polygon, polygon_ccw, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         1, 7, 5.47363293);
@@ -287,7 +287,7 @@ void test_all()
     // Outputting two lines (because of 3-4-5 constructions (0.3,0.4,0.5)
     // which occur 4 times, the length is expected to be 2.0)
     test_one<linestring, linestring, box>("llb_2", "LINESTRING(1.7 1.6,2.3 2.4,2.9 1.6,3.5 2.4,4.1 1.6)", clip, 2, 6, 4 * 0.5);
-    
+
     // linear
     test_one<P, linestring, linestring>("llp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
     test_one<P, segment, segment>("ssp1", "LINESTRING(0 0,1 1)", "LINESTRING(0 1,1 0)", 1, 1, 0);
@@ -348,14 +348,18 @@ void test_pointer_version()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    test_all<bg::model::d2::point_xy<float> >();
 
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
     //test_pointer_version();
+#endif
+
     return 0;
 }
 

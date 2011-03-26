@@ -145,6 +145,8 @@ void test_all()
     typedef bg::model::multi_polygon<polygon> multi_polygon;
     test_areal<ring, polygon, multi_polygon>();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+
     typedef bg::model::ring<P, false> ring_ccw;
     typedef bg::model::polygon<P, false> polygon_ccw;
     typedef bg::model::multi_polygon<polygon_ccw> multi_polygon_ccw;
@@ -167,7 +169,7 @@ void test_all()
     typedef bg::model::multi_linestring<linestring> multi_linestring;
 
     test_linear<linestring, multi_linestring, box>();
-
+#endif
 
     // linear
 

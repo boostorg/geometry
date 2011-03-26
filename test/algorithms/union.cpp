@@ -47,7 +47,7 @@ void test_areal()
         simplex_normal[0], polygon_empty,
         1, 0, 4, 8.0);
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_2",
-        polygon_empty, simplex_normal[0], 
+        polygon_empty, simplex_normal[0],
         1, 0, 4, 8.0);
 
     test_one<Polygon, Polygon, Polygon>("star_ring", example_star, example_ring,
@@ -239,8 +239,8 @@ void test_areal()
             isovist1[0], isovist1[1],
             1,
             0,
-            tn == std::string("f") ? 71 
-                : tn == std::string("d") ? 72 
+            tn == std::string("f") ? 71
+                : tn == std::string("d") ? 72
                 : 73,
             313.36036462);
     }
@@ -305,12 +305,15 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    test_all<bg::model::d2::point_xy<float> >();
     //test_all<bg::model::d2::point_xy<long double> >();
 
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();
+#endif
 #endif
 
     return 0;
