@@ -101,6 +101,27 @@ namespace dispatch
 
 template
 <
+    typename MultiLinestring,
+    typename Point,
+    typename Strategy
+>
+struct centroid<multi_linestring_tag, MultiLinestring, Point,  Strategy>
+    : detail::centroid::centroid_multi
+        <
+            MultiLinestring,
+            Point,
+            Strategy,
+            detail::centroid::centroid_range_state
+                <
+                    typename boost::range_value<MultiLinestring>::type,
+                    closed,
+                    Strategy
+                >
+        >
+{};
+
+template
+<
     typename MultiPolygon,
     typename Point,
     typename Strategy

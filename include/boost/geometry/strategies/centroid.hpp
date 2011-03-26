@@ -52,29 +52,6 @@ template
 >
 struct default_strategy
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_TYPES
-            , (types<Point, Geometry>)
-        );
-};
-
-// Register NA-strategy for all where not applicable
-template <typename Point, typename Geometry, std::size_t Dimension>
-struct default_strategy<cartesian_tag, point_tag, Dimension, Point, Geometry>
-{
-    typedef not_applicable_strategy type;
-};
-
-template <typename Point, typename Geometry, std::size_t Dimension>
-struct default_strategy<cartesian_tag, box_tag, Dimension, Point, Geometry>
-{
-    typedef not_applicable_strategy type;
-};
-
-template <typename Point, typename Geometry, std::size_t Dimension>
-struct default_strategy<cartesian_tag, linestring_tag, Dimension, Point, Geometry>
-{
     typedef not_applicable_strategy type;
 };
 

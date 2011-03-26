@@ -65,6 +65,7 @@
 #include <boost/geometry/multi/multi.hpp>
 
 
+
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -73,5 +74,8 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
+
+#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+
 
 #endif // BOOST_GEOMETRY_GEOMETRY_HPP

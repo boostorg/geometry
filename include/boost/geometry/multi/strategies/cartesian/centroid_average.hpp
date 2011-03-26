@@ -80,8 +80,15 @@ public :
 namespace services
 {
 
-template <typename Point, typename Geometry>
-struct default_strategy<cartesian_tag, multi_point_tag, 2, Point, Geometry>
+template <typename Point, std::size_t DimensionCount, typename Geometry>
+struct default_strategy
+<
+    cartesian_tag,
+    pointlike_tag,
+    DimensionCount,
+    Point,
+    Geometry
+>
 {
     typedef average
         <

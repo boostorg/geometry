@@ -147,17 +147,11 @@ private :
             , sum_y(calculation_type())
         {
             typedef calculation_type ct;
-            //std::cout << "-> calctype: " << typeid(ct).name()
-            //    << " size: " << sizeof(ct)
-            //    << " init: " << sum_a2
-            //    << std::endl;
         }
     };
 
 public :
     typedef sums state_type;
-    typedef Point point_type;
-    typedef PointOfSegment segment_point_type;
 
     static inline void apply(PointOfSegment const& p1,
             PointOfSegment const& p2, sums& state)
@@ -215,19 +209,9 @@ public :
 namespace services
 {
 
-// Register this strategy for rings and polygons, in two dimensions
+// Register this strategy for rings and (multi)polygons, in two dimensions
 template <typename Point, typename Geometry>
-struct default_strategy<cartesian_tag, ring_tag, 2, Point, Geometry>
-{
-    typedef bashein_detmer
-        <
-            Point,
-            typename point_type<Geometry>::type
-        > type;
-};
-
-template <typename Point, typename Geometry>
-struct default_strategy<cartesian_tag, polygon_tag, 2, Point, Geometry>
+struct default_strategy<cartesian_tag, areal_tag, 2, Point, Geometry>
 {
     typedef bashein_detmer
         <

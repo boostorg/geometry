@@ -26,7 +26,6 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/iterators/segment_returning_iterator.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
@@ -169,7 +168,7 @@ inline bool range_ok(Range const& range, Point& centroid)
     \brief Calculate the centroid of a ring.
 */
 template<typename Ring, closure_selector Closure, typename Strategy>
-struct centroid_ring_state
+struct centroid_range_state
 {
     static inline void apply(Ring const& ring,
             Strategy const& strategy, typename Strategy::state_type& state)
@@ -191,71 +190,26 @@ struct centroid_ring_state
     }
 };
 
-template<typename Ring, typename Point, closure_selector Closure, typename Strategy>
-struct centroid_ring
+template<typename Range, typename Point, closure_selector Closure, typename Strategy>
+struct centroid_range
 {
-    static inline void apply(Ring const& ring, Point& centroid,
+    static inline void apply(Range const& range, Point& centroid,
             Strategy const& strategy)
     {
-        if (range_ok(ring, centroid))
+        if (range_ok(range, centroid))
         {
             typename Strategy::state_type state;
-            centroid_ring_state
+            centroid_range_state
                 <
-                    Ring,
+                    Range,
                     Closure,
                     Strategy
-                >::apply(ring, strategy, state);
+                >::apply(range, strategy, state);
             Strategy::result(state, centroid);
         }
     }
 };
 
-/*!
-    \brief Centroid of a linestring.
-*/
-template<typename Linestring, typename Point, typename Strategy>
-struct centroid_linestring
-{
-    static inline void apply(Linestring const& line, Point& centroid,
-            Strategy const& strategy)
-    {
-        if (range_ok(line, centroid))
-        {
-            // First version, should
-            // - be moved to a strategy
-            // - be made dim-agnostic
-
-            typedef typename point_type<Linestring>::type point_type;
-            typedef typename boost::range_iterator<Linestring const>::type point_iterator_type;
-            typedef segment_returning_iterator<point_iterator_type, point_type> segment_iterator;
-
-            typedef typename geometry::distance_result<Linestring>::type distance_type;
-            distance_type length = distance_type();
-            std::pair<distance_type, distance_type> average_sum;
-
-            segment_iterator it(boost::begin(line), boost::end(line));
-            segment_iterator end(boost::end(line));
-            while (it != end)
-            {
-
-                distance_type const d = geometry::distance(it->first, it->second);
-                length += d;
-
-                distance_type two(2);
-
-                distance_type const mx = (get<0>(it->first) + get<0>(it->second)) / two;
-                distance_type const my = (get<1>(it->first) + get<1>(it->second)) / two;
-                average_sum.first += d * mx;
-                average_sum.second += d * my;
-                ++it;
-            }
-
-            set<0>(centroid, average_sum.first / length );
-            set<1>(centroid, average_sum.second / length );
-        }
-    }
-};
 
 /*!
     \brief Centroid of a polygon.
@@ -270,7 +224,7 @@ struct centroid_polygon_state
     static inline void apply(Polygon const& poly,
             Strategy const& strategy, typename Strategy::state_type& state)
     {
-        typedef centroid_ring_state
+        typedef centroid_range_state
             <
                 ring_type,
                 geometry::closure<ring_type>::value,
@@ -347,7 +301,7 @@ struct centroid<box_tag, Box, Point, Strategy>
 
 template <typename Ring, typename Point, typename Strategy>
 struct centroid<ring_tag, Ring, Point, Strategy>
-    : detail::centroid::centroid_ring
+    : detail::centroid::centroid_range
         <
             Ring,
             Point,
@@ -358,7 +312,13 @@ struct centroid<ring_tag, Ring, Point, Strategy>
 
 template <typename Linestring, typename Point, typename Strategy>
 struct centroid<linestring_tag, Linestring, Point, Strategy>
-    : detail::centroid::centroid_linestring<Linestring, Point, Strategy>
+    : detail::centroid::centroid_range
+        <
+            Linestring,
+            Point,
+            closed,
+            Strategy
+        >
  {};
 
 template <typename Polygon, typename Point, typename Strategy>
@@ -431,7 +391,13 @@ inline void centroid(Geometry const& geometry, Point& c)
     typedef typename strategy::centroid::services::default_strategy
         <
             typename cs_tag<Geometry>::type,
-            typename tag<Geometry>::type,
+            typename tag_cast
+                <
+                    typename tag<Geometry>::type,
+                    pointlike_tag,
+                    linear_tag,
+                    areal_tag
+                >::type,
             dimension<Geometry>::type::value,
             Point,
             Geometry
