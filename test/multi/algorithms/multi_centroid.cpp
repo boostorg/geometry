@@ -17,6 +17,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
 
@@ -34,13 +35,17 @@ void test_2d(bool is_integer = false)
 
     if (! is_integer)
     {
+        // Only working for floating point:
+
         test_centroid<bg::model::multi_point<P> >(
             "MULTIPOINT((1 1),(2 3),(5 0))",
             2.666666666666667, 1.33333);
 
+        test_centroid<bg::model::multi_linestring<bg::model::linestring<P> > >(
+            "MULTILINESTRING((0 0,0 2),(1 0,1 2))",
+            0.5, 1.0);
 
 
-        // Only working for floating point:
         test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
             "MULTIPOLYGON(((1 1,1 3,3 3,3 1,1 1)),((4 1,4 3,8 3,8 1,4 1)))",
             4.666666666666667, 2.0);
@@ -97,11 +102,11 @@ void test_2d(bool is_integer = false)
 
 int test_main(int, char* [])
 {
-    //test_2d<bg::model::d2::point_xy<float> >();
+    test_2d<bg::model::d2::point_xy<float> >();
     test_2d<bg::model::d2::point_xy<double> >();
     test_2d<bg::model::d2::point_xy<long int> >(true);
     //test_2d<bg::model::d2::point_xy<long long> >(true);
-    test_2d<bg::model::d2::point_xy<long double> >();
+    //test_2d<bg::model::d2::point_xy<long double> >();
 
 #ifdef HAVE_TTMATH
     test_2d<bg::model::d2::point_xy<ttmath_big> >();
