@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Barend Gehrels 2011, Amsterdam, the Netherlands.
+
+// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -20,17 +21,17 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-template 
+template
 <
-    typename GeometryOut, 
+    typename GeometryOut,
     typename Geometry1,
     typename Geometry2,
     typename RingCollection
 >
 inline void convert_and_add(GeometryOut& result,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
-            RingCollection const& collection, 
-            ring_identifier id, 
+            RingCollection const& collection,
+            ring_identifier id,
             bool reversed, bool append)
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
@@ -114,7 +115,7 @@ template
     typename OutputIterator
 >
 inline OutputIterator add_rings(SelectionMap const& map,
-            Geometry const& geometry, 
+            Geometry const& geometry,
             RingCollection const& collection,
             OutputIterator out)
 {

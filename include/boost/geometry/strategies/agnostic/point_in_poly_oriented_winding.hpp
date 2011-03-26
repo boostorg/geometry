@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -9,18 +9,17 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POLY_WINDING_HPP
-#define BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POLY_WINDING_HPP
+#ifndef BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POLY_ORIENTED_WINDING_HPP
+#define BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POLY_ORIENTED_WINDING_HPP
 
 
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
-// TEMP!
-#include <boost/geometry/multi/core/tags.hpp>
 
 namespace boost { namespace geometry
 {
@@ -29,9 +28,11 @@ namespace strategy { namespace within
 {
 
 /*!
-\brief Within detection using winding rule
+\brief Within detection using winding rule, but checking if enclosing ring is
+    counter clockwise and, if so, reverses the result
 \ingroup strategies
 \tparam Point \tparam_point
+\tparam Reverse True if parameter should be reversed
 \tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
 \author Barend Gehrels
@@ -46,11 +47,12 @@ namespace strategy { namespace within
  */
 template
 <
+    bool Reverse,
     typename Point,
     typename PointOfSegment = Point,
     typename CalculationType = void
 >
-class winding
+class oriented_winding
 {
     typedef typename select_calculation_type
         <
@@ -71,19 +73,36 @@ class winding
     {
         int m_count;
         bool m_touches;
+        calculation_type m_sum_area;
 
         inline int code() const
         {
             return m_touches ? 0 : m_count == 0 ? -1 : 1;
         }
+        inline int clockwise_oriented_code() const
+        {
+            return (m_sum_area > 0) ? code() : -code();
+        }
+        inline int oriented_code() const
+        {
+            return Reverse
+                ? -clockwise_oriented_code()
+                : clockwise_oriented_code();
+        }
 
     public :
-        friend class winding;
+        friend class oriented_winding;
 
         inline counter()
             : m_count(0)
             , m_touches(false)
+            , m_sum_area(0)
         {}
+
+        inline void add_to_area(calculation_type triangle)
+        {
+            m_sum_area += triangle;
+        }
 
     };
 
@@ -113,6 +132,7 @@ class winding
         calculation_type const s1 = get<D>(seg1);
         calculation_type const s2 = get<D>(seg2);
 
+
         // Check if one of segment endpoints is at same level of point
         bool eq1 = math::equals(s1, p);
         bool eq2 = math::equals(s2, p);
@@ -121,7 +141,7 @@ class winding
         {
             // Both equal p -> segment is horizontal (or vertical for D=0)
             // The only thing which has to be done is check if point is ON segment
-            return check_touch<1 - D>(point, seg1, seg2,state);
+            return check_touch<1 - D>(point, seg1, seg2, state);
         }
 
         return
@@ -146,6 +166,8 @@ public :
                 PointOfSegment const& s1, PointOfSegment const& s2,
                 counter& state)
     {
+        state.add_to_area(get<0>(s2) * get<1>(s1) - get<0>(s1) * get<1>(s2));
+
         int count = check_segment<1>(point, s1, s2, state);
         if (count != 0)
         {
@@ -172,64 +194,9 @@ public :
 
     static inline int result(counter const& state)
     {
-        return state.code();
+        return state.oriented_code();
     }
 };
-
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-namespace services
-{
-
-template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, polygon_tag, cartesian_tag, cartesian_tag, Point, PointOfSegment>
-{
-    typedef winding<Point, PointOfSegment> type;
-};
-
-template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, ring_tag, cartesian_tag, cartesian_tag, Point, PointOfSegment>
-{
-    typedef winding<Point, PointOfSegment> type;
-};
-
-template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, polygon_tag, spherical_tag, spherical_tag, Point, PointOfSegment>
-{
-    typedef winding<Point, PointOfSegment> type;
-};
-
-// TEMP!
-// register it even for the multi here, and for the box
-// future: use tag inheritance, see elsewhere
-template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, multi_polygon_tag, cartesian_tag, cartesian_tag, Point, PointOfSegment>
-{
-    typedef winding<Point, PointOfSegment> type;
-};
-
-template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, multi_polygon_tag, spherical_tag, spherical_tag, Point, PointOfSegment>
-{
-    typedef winding<Point, PointOfSegment> type;
-};
-
-template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, box_tag, cartesian_tag, cartesian_tag, Point, PointOfSegment>
-{
-    typedef winding<Point, PointOfSegment> type;
-};
-
-template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, box_tag, spherical_tag, spherical_tag, Point, PointOfSegment>
-{
-    typedef winding<Point, PointOfSegment> type;
-};
-
-} // namespace services
-
-#endif
 
 
 }} // namespace strategy::within
@@ -238,4 +205,4 @@ struct default_strategy<point_tag, box_tag, spherical_tag, spherical_tag, Point,
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POLY_WINDING_HPP
+#endif // BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POLY_ORIENTED_WINDING_HPP

@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Barend Gehrels 2007-2009, Geodan, Amsterdam, the Netherlands.
-// Copyright Bruno Lalande 2008, 2009
+
+// Copyright (c) 2008-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -119,16 +119,16 @@ private:
 
     typedef std::map
         <
-            std::string, 
+            std::string,
             boost::shared_ptr
                 <
                     detail::factory_entry
                         <
-                            LatLong, 
-                            Cartesian, 
+                            LatLong,
+                            Cartesian,
                             Parameters
-                        > 
-                > 
+                        >
+                >
         > prj_registry;
     prj_registry m_registry;
 
@@ -232,7 +232,7 @@ public:
 
     virtual ~factory() {}
 
-    virtual void add_to_factory(std::string const& name, 
+    virtual void add_to_factory(std::string const& name,
                     detail::factory_entry<LatLong, Cartesian, Parameters>* sub)
     {
         m_registry[name].reset(sub);

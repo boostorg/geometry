@@ -1,11 +1,8 @@
-#ifndef _PROJECTIONS_ZPOLY1_HPP
-#define _PROJECTIONS_ZPOLY1_HPP
-
-// Boost.Geometry (aka GGL, Generic Geometry Library) - projections (based on PROJ4)
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 // This file is manually converted from PROJ4
 
-// Copyright Barend Gehrels 2007-2009, Geodan, Amsterdam, the Netherlands.
-// Copyright Bruno Lalande 2008, 2009
+// Copyright (c) 2008-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -34,6 +31,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
+
+#ifndef BOOST_GEOMETRY_PROJECTIONS_ZPOLY1_HPP
+#define BOOST_GEOMETRY_PROJECTIONS_ZPOLY1_HPP
 
 
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>

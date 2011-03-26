@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands.
+
+// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -36,7 +37,7 @@ template <typename T> struct DBFWriteAttribute
 template <> struct DBFWriteAttribute<int>
 {
     template <typename T>
-    inline static void apply(DBFHandle dbf, int row_index, int field_index, 
+    inline static void apply(DBFHandle dbf, int row_index, int field_index,
                     T const& value)
     {
         DBFWriteIntegerAttribute(dbf, row_index, field_index, value);
@@ -46,7 +47,7 @@ template <> struct DBFWriteAttribute<int>
 template <> struct DBFWriteAttribute<double>
 {
     template <typename T>
-    inline static void apply(DBFHandle dbf, int row_index, int field_index, 
+    inline static void apply(DBFHandle dbf, int row_index, int field_index,
                     T const& value)
     {
         DBFWriteDoubleAttribute(dbf, row_index, field_index, value);
@@ -55,20 +56,20 @@ template <> struct DBFWriteAttribute<double>
 
 template <> struct DBFWriteAttribute<std::string>
 {
-    inline static void apply(DBFHandle dbf, int row_index, int field_index, 
+    inline static void apply(DBFHandle dbf, int row_index, int field_index,
                     std::string const& value)
     {
         DBFWriteStringAttribute(dbf, row_index, field_index, value.c_str());
     }
 };
 
-// Derive char* variants from std::string, 
+// Derive char* variants from std::string,
 // implicitly casting to a temporary std::string
 // (note that boost::remove_const does not remove const from "const char*")
-template <int N> 
+template <int N>
 struct DBFWriteAttribute<char[N]> : DBFWriteAttribute<std::string> {};
 
-template <int N> 
+template <int N>
 struct DBFWriteAttribute<const char[N]> : DBFWriteAttribute<std::string> {};
 
 template <>

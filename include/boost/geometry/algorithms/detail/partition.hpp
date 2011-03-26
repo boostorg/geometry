@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Barend Gehrels 2011, Geodan, Amsterdam, the Netherlands.
+
+// Copyright (c) 2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -43,8 +44,8 @@ template <typename OverlapsPolicy, typename InputCollection, typename Box>
 static inline void divide_into_subsets(Box const& lower_box, Box const& upper_box,
         InputCollection const& collection,
         index_vector_type const& input,
-        index_vector_type& lower, 
-        index_vector_type& upper, 
+        index_vector_type& lower,
+        index_vector_type& upper,
         index_vector_type& exceeding)
 {
     typedef boost::range_iterator<index_vector_type const>::type index_iterator_type;
@@ -120,7 +121,7 @@ template
     typename OverlapsPolicy,
     typename VisitBoxPolicy
 >
-class partition_one_collection 
+class partition_one_collection
 {
     typedef std::vector<std::size_t> index_vector_type;
     typedef typename coordinate_type<Box>::type ctype;
@@ -192,7 +193,7 @@ template
     typename OverlapsPolicy,
     typename VisitBoxPolicy
 >
-class partition_two_collections 
+class partition_two_collections
 {
     typedef std::vector<std::size_t> index_vector_type;
     typedef typename coordinate_type<Box>::type ctype;
@@ -213,8 +214,8 @@ class partition_two_collections
     {
         if (boost::size(input1) > 0 && boost::size(input2) > 0)
         {
-            if (boost::size(input1) > min_elements 
-                && boost::size(input2) > min_elements 
+            if (boost::size(input1) > min_elements
+                && boost::size(input2) > min_elements
                 && level < 100)
             {
                 sub_divide::apply(box, collection1, input1, collection2, input2, level + 1, min_elements, policy, box_policy);
@@ -307,8 +308,8 @@ class partition
 
 public :
     template <typename InputCollection, typename VisitPolicy>
-    static inline void apply(InputCollection const& collection, 
-            VisitPolicy& visitor, 
+    static inline void apply(InputCollection const& collection,
+            VisitPolicy& visitor,
             int min_elements = 16,
             VisitBoxPolicy box_visitor = visit_no_policy()
             )
@@ -322,8 +323,8 @@ public :
 
             detail::partition::partition_one_collection
                 <
-                    0, Box, 
-                    OverlapsPolicy, 
+                    0, Box,
+                    OverlapsPolicy,
                     VisitBoxPolicy
                 >::apply(total, collection, index_vector, 0, min_elements, visitor, box_visitor);
         }
@@ -342,9 +343,9 @@ public :
     }
 
     template <typename InputCollection, typename VisitPolicy>
-    static inline void apply(InputCollection const& collection1, 
-                InputCollection const& collection2, 
-                VisitPolicy& visitor, 
+    static inline void apply(InputCollection const& collection1,
+                InputCollection const& collection2,
+                VisitPolicy& visitor,
                 int min_elements = 16,
                 VisitBoxPolicy box_visitor = visit_no_policy()
                 )
@@ -360,9 +361,9 @@ public :
             detail::partition::partition_two_collections
                 <
                     0, Box, OverlapsPolicy, VisitBoxPolicy
-                >::apply(total, 
-                    collection1, index_vector1, 
-                    collection2, index_vector2, 
+                >::apply(total,
+                    collection1, index_vector1,
+                    collection2, index_vector2,
                     0, min_elements, visitor, box_visitor);
         }
         else
