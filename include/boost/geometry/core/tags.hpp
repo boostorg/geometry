@@ -35,6 +35,19 @@ struct single_tag {};
 /// For multiple-geometries (multi_point, multi_linestring, multi_polygon)
 struct multi_tag {};
 
+/// For point-like types (point, multi_point)
+struct pointlike_tag {};
+
+/// For linear types (linestring, multi-linestring, segment)
+struct linear_tag {};
+
+/// For areal types (polygon, multi_polygon, box, ring)
+struct areal_tag {};
+
+/// For volume types (also box (?), polyhedron)
+struct volumetric_tag {};
+
+
 // Tags defining geometry types
 
 
@@ -42,22 +55,22 @@ struct multi_tag {};
 struct geometry_not_recognized_tag {};
 
 /// OGC Point identifying tag
-struct point_tag : single_tag {};
+struct point_tag : single_tag, pointlike_tag {};
 
 /// OGC Linestring identifying tag
-struct linestring_tag : single_tag  {};
+struct linestring_tag : single_tag, linear_tag {};
 
 /// OGC Polygon identifying tag
-struct polygon_tag : single_tag  {};
+struct polygon_tag : single_tag, areal_tag {};
 
 /// Convenience (linear) ring identifying tag
-struct ring_tag : single_tag  {};
+struct ring_tag : single_tag, areal_tag {};
 
-/// Convenience 2D or 3D box (mbr) identifying tag
-struct box_tag : single_tag  {};
+/// Convenience 2D or 3D box (mbr / aabb) identifying tag
+struct box_tag : single_tag, areal_tag {};
 
 /// Convenience segment (2-points) identifying tag
-struct segment_tag : single_tag  {};
+struct segment_tag : single_tag, linear_tag {};
 
 
 

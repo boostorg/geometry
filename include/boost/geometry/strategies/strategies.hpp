@@ -25,6 +25,7 @@
 
 #include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
+#include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
