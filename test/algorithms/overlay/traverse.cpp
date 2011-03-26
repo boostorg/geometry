@@ -77,7 +77,7 @@ template
 >
 struct test_traverse
 {
-    
+
     static void apply(std::string const& id,
             int expected_count, double expected_area,
             G1 const& g1, G2 const& g2,
@@ -897,7 +897,7 @@ void test_open()
 
     typedef bg::model::polygon
         <
-            bg::model::point<T, 2, bg::cs::cartesian>, 
+            bg::model::point<T, 2, bg::cs::cartesian>,
             true, false
         > polygon;
 
@@ -915,7 +915,7 @@ void test_ccw()
 
     typedef bg::model::polygon
         <
-            bg::model::point<T, 2, bg::cs::cartesian>, 
+            bg::model::point<T, 2, bg::cs::cartesian>,
             false, true
         > polygon;
 
@@ -929,6 +929,9 @@ void test_ccw()
 
 int test_main(int, char* [])
 {
+#if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    test_all<double>();
+#else
     test_all<float>();
     test_all<double>();
     test_open<double>();
@@ -940,6 +943,7 @@ int test_main(int, char* [])
 
 #ifdef HAVE_TTMATH
     test_all<ttmath_big>();
+#endif
 #endif
 
     return 0;

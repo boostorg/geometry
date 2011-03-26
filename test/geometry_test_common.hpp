@@ -19,6 +19,15 @@
 //#pragma warning( disable : 4305 )
 #endif // defined(_MSC_VER)
 
+#include <boost/config.hpp>
+
+
+#if defined(BOOST_INTEL_CXX_VERSION)
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+#endif
+
+
+
 #include <boost/foreach.hpp>
 
 
