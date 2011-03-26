@@ -189,7 +189,7 @@ void report_library(std::ostream& report, int type, algorithm const& algo,
             ;
     }
 
-    if (system("bjam tmp > tmp/t.out"))
+    if (system("bjam -a tmp > tmp/t.out"))
     {
         report << " [$img/nyi.png] ";
         std::cout << " ERROR" << std::endl;
