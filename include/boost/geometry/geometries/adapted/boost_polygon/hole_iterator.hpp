@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands.
+
+// Copyright (c) 2010-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -59,11 +60,11 @@ private:
 
     inline void increment() { ++m_base; }
     inline void decrement() { --m_base; }
-    inline void advance(difference_type n) 
-    { 
+    inline void advance(difference_type n)
+    {
         for (int i = 0; i < n; i++)
         {
-            ++m_base; 
+            ++m_base;
         }
     }
 

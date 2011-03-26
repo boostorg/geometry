@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands.
+
+// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -27,10 +28,10 @@ namespace detail { namespace offset
 {
 
 
-template 
+template
 <
-    typename Range, 
-    typename RangeOut, 
+    typename Range,
+    typename RangeOut,
     typename JoinStrategy,
     typename Distance
 >
@@ -41,8 +42,8 @@ struct offset_range
     typedef model::referring_segment<output_point_type const> segment_type;
     typedef typename boost::range_iterator<Range const>::type iterator_type;
 
-    static inline void apply(Range const& range, 
-                RangeOut& out, 
+    static inline void apply(Range const& range,
+                RangeOut& out,
                 JoinStrategy const& join,
                 Distance const& distance)
     {
@@ -142,24 +143,24 @@ struct offset
 
 template
 <
-    typename Geometry, 
-    typename GeometryOut, 
+    typename Geometry,
+    typename GeometryOut,
     typename JoinStrategy,
     typename Distance
 >
 struct offset
     <
-        linestring_tag, 
-        linestring_tag, 
-        Geometry, 
-        GeometryOut, 
+        linestring_tag,
+        linestring_tag,
+        Geometry,
+        GeometryOut,
         JoinStrategy,
         Distance
     >
     : detail::offset::offset_range
         <
-            Geometry, 
-            GeometryOut, 
+            Geometry,
+            GeometryOut,
             JoinStrategy,
             Distance
         >
@@ -177,7 +178,7 @@ template
     typename JoinStrategy,
     typename Distance
 >
-inline void offset(Geometry const& geometry, GeometryOut& out, 
+inline void offset(Geometry const& geometry, GeometryOut& out,
             JoinStrategy const& join,
             Distance const& distance)
 {

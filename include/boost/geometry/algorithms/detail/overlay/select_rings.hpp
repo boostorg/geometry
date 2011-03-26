@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Barend Gehrels 2011, Amsterdam, the Netherlands.
+
+// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -175,7 +176,7 @@ template
     typename IntersectionMap, typename SelectionMap
 >
 inline void update_selection_map(Geometry1 const& geometry1,
-            Geometry2 const& geometry2, 
+            Geometry2 const& geometry2,
             IntersectionMap const& intersection_map,
             SelectionMap const& map_with_all, SelectionMap& selection_map)
 {
@@ -206,17 +207,17 @@ inline void update_selection_map(Geometry1 const& geometry1,
             typename SelectionMap::mapped_type properties = it->second; // Copy by value
 
             // Calculate the "within code" (previously this was done earlier but is
-            // must efficienter here - it can be even more efficient doing it all at once, 
+            // must efficienter here - it can be even more efficient doing it all at once,
             // using partition, TODO)
             // So though this is less elegant than before, it avoids many unused point-in-poly calculations
             switch(id.source_index)
             {
-                case 0 : 
-                    properties.within_code 
+                case 0 :
+                    properties.within_code
                         = geometry::within(properties.point, geometry2) ? 1 : -1;
                     break;
-                case 1 : 
-                    properties.within_code 
+                case 1 :
+                    properties.within_code
                         = geometry::within(properties.point, geometry1) ? 1 : -1;
                     break;
             }

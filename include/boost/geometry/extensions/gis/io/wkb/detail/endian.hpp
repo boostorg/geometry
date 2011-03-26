@@ -1,12 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Mateusz Loskot <mateusz@loskot.net> 2009
+
+// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-//
+
 // Load/Store values from/to stream of bytes across different endianness.
-//
+
 // Original design of unrolled_byte_loops templates based on
 // endian utility library from Boost C++ Libraries,
 // source: boost/spirit/home/support/detail/integer/endian.hpp

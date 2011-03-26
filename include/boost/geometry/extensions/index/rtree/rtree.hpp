@@ -1,5 +1,5 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
+
 // Boost.SpatialIndex - rtree implementation
 //
 // Copyright 2008 Federico J. Fernandez.

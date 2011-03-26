@@ -1,5 +1,5 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
+
 // Boost.SpatialIndex - geometry helper functions
 //
 // Copyright 2008 Federico J. Fernandez.

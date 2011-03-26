@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Copyright Barend Gehrels 2010, Geodan, Amsterdam, the Netherlands.
+
+// Copyright (c) 2010-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -97,38 +98,38 @@ struct holes_proxy
 
 // Const versions
 template<typename Polygon>
-inline typename boost::geometry::adapt::bp::holes_proxy<Polygon const>::iterator_type 
+inline typename boost::geometry::adapt::bp::holes_proxy<Polygon const>::iterator_type
             range_begin(boost::geometry::adapt::bp::holes_proxy<Polygon const> const& proxy)
 {
-    typename boost::geometry::adapt::bp::holes_proxy<Polygon const>::iterator_type 
+    typename boost::geometry::adapt::bp::holes_proxy<Polygon const>::iterator_type
             begin(proxy.polygon, boost::polygon::begin_holes(proxy.polygon));
     return begin;
 }
 
 template<typename Polygon>
-inline typename boost::geometry::adapt::bp::holes_proxy<Polygon const>::iterator_type 
+inline typename boost::geometry::adapt::bp::holes_proxy<Polygon const>::iterator_type
             range_end(boost::geometry::adapt::bp::holes_proxy<Polygon const> const& proxy)
 {
-    typename boost::geometry::adapt::bp::holes_proxy<Polygon const>::iterator_type 
+    typename boost::geometry::adapt::bp::holes_proxy<Polygon const>::iterator_type
             end(proxy.polygon, boost::polygon::end_holes(proxy.polygon));
     return end;
 }
 
 // Mutable versions
 template<typename Polygon>
-inline typename boost::geometry::adapt::bp::holes_proxy<Polygon>::iterator_type 
+inline typename boost::geometry::adapt::bp::holes_proxy<Polygon>::iterator_type
             range_begin(boost::geometry::adapt::bp::holes_proxy<Polygon>& proxy)
 {
-    typename boost::geometry::adapt::bp::holes_proxy<Polygon>::iterator_type 
+    typename boost::geometry::adapt::bp::holes_proxy<Polygon>::iterator_type
             begin(proxy.polygon, boost::polygon::begin_holes(proxy.polygon));
     return begin;
 }
 
 template<typename Polygon>
-inline typename boost::geometry::adapt::bp::holes_proxy<Polygon>::iterator_type 
+inline typename boost::geometry::adapt::bp::holes_proxy<Polygon>::iterator_type
             range_end(boost::geometry::adapt::bp::holes_proxy<Polygon>& proxy)
 {
-    typename boost::geometry::adapt::bp::holes_proxy<Polygon>::iterator_type 
+    typename boost::geometry::adapt::bp::holes_proxy<Polygon>::iterator_type
             end(proxy.polygon, boost::polygon::end_holes(proxy.polygon));
     return end;
 }
