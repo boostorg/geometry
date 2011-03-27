@@ -153,6 +153,24 @@ rtree_element_indexable(Value const& el, Translator const& tr)
     return tr(el);
 };
 
+// elements box
+
+template <typename Box, typename FwdIter, typename Translator>
+inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
+{
+    assert(first != last);
+
+    Box result;
+
+    geometry::convert(index::detail::rtree_element_indexable(*first, tr), result);
+    ++first;
+
+    for ( ; first != last ; ++first )
+        geometry::expand(result, index::detail::rtree_element_indexable(*first, tr));
+
+    return result;
+}
+
 // create leaf node
 
 template <typename Value, typename Box, typename Tag>

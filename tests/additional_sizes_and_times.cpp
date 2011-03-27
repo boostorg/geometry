@@ -29,10 +29,10 @@ int main()
         std::vector<B> v(n);
         for ( size_t i = 0 ; i < n ; ++i )
         {
-            float x = ( rand() % 10000 ) / 1000.0f;
-            float y = ( rand() % 10000 ) / 1000.0f;
-            float w = ( rand() % 10000 ) / 100000.0f;
-            float h = ( rand() % 10000 ) / 100000.0f;
+            float x = float( rand() % 1000 );
+            float y = float( rand() % 1000 );
+            float w = float( rand() % 10 ) / 10.0f;
+            float h = float( rand() % 10 ) / 10.0f;
             v[i] = B(P(x - w, y - h),P(x + w, y + h));
         }
 

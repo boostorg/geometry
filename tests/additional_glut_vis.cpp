@@ -4,10 +4,12 @@
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/gl_draw.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/print.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/rtree_are_boxes_ok.hpp>
 
 typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
 typedef boost::geometry::model::box<P> B;
-boost::geometry::index::rtree<B> t;
+boost::geometry::index::rtree<B> t(2, 1);
 
 void render_scene(void)
 {
@@ -30,8 +32,8 @@ void resize(int w, int h)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(
-        5.0f, 5.0f, 15.0f, 
-        5.0f, 5.0f, -1.0f,
+        150.0f, 150.0f, 150.0f, 
+        50.0f, 50.0f, -1.0f,
         0.0f, 1.0f, 0.0f);
 }
 
@@ -39,12 +41,21 @@ void mouse(int button, int state, int x, int y)
 {
     if ( state == GLUT_DOWN )
     {
-        float x = ( rand() % 10000 ) / 1000.0f;
-        float y = ( rand() % 10000 ) / 1000.0f;
-        float w = ( rand() % 10000 ) / 100000.0f;
-        float h = ( rand() % 10000 ) / 100000.0f;
+        float x = ( rand() % 100 );
+        float y = ( rand() % 100 );
+        float w = ( rand() % 2 ) + 1;
+        float h = ( rand() % 2 ) + 1;
 
-        boost::geometry::index::insert(t, B(P(x - w, y - h),P(x + w, y + h)));
+        B b(P(x - w, y - h),P(x + w, y + h));
+
+        boost::geometry::index::insert(t, b);
+
+        std::cout << "\n\n\n" << t << "\n\n";
+        
+        std::cout << "inserted: ";
+        boost::geometry::index::visitors::detail::rtree_print_indexable(std::cout, b);
+        std::cout << '\n';
+        std::cout << ( boost::geometry::index::rtree_are_boxes_ok(t) ? "boxes OK" : "WRONG BOXES!" );
 
         glutPostRedisplay();
     }

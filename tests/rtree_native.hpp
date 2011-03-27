@@ -17,7 +17,24 @@ void tests_rtree_native_hpp()
 {
 	std::cout << "tests/rtree_native.hpp\n";
 	
-    std::cout << "Boxes\n";
+    std::cout << "Boxes3d\n";
+    {
+        typedef boost::geometry::model::point<float, 3, boost::geometry::cs::cartesian> P;
+        typedef boost::geometry::model::box<P> B;
+
+        boost::geometry::index::rtree<B> t(4, 2);
+        boost::geometry::index::insert(t, B(P(0, 0, 0), P(1, 1, 1)));
+        boost::geometry::index::insert(t, B(P(2, 2, 2), P(3, 3, 3)));
+        boost::geometry::index::insert(t, B(P(4, 4, 4), P(5, 5, 5)));
+        boost::geometry::index::insert(t, B(P(6, 6, 6), P(7, 7, 7)));
+        boost::geometry::index::insert(t, B(P(8, 8, 8), P(9, 9, 9)));
+        std::cerr << t;
+    }
+
+    std::cout << "-------------------------------------------------\n";
+    std::cout << "-------------------------------------------------\n";
+
+    std::cout << "Boxes2d\n";
     {
         typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
         typedef boost::geometry::model::box<P> B;

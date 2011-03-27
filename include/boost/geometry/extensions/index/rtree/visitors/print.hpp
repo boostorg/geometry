@@ -128,22 +128,15 @@ struct rtree_print : public boost::static_visitor<>
     {
         typedef typename internal_node::children_type children_type;
 
-        os << " --> Node --------" << std::endl;
-        os << "  Address: " << this << std::endl;
-        os << "  Level: " << level << std::endl;
-        os << "  Children: " << n.children.size() << std::endl;
-        os << "  | ";
-
+        spaces(level) << "INTERNAL NODE - L:" << level << " Ch:" << n.children.size() << " @:" << &n << '\n';
+        
         for (typename children_type::const_iterator it = n.children.begin();
             it != n.children.end(); ++it)
         {
+            spaces(level);
             detail::rtree_print_indexable(os, it->first);
-            os << " | ";
+            os << " ->" << it->second << '\n';
         }
-        os << std::endl;
-        os << " --< Node --------" << std::endl;
-
-        os << " Children: " << std::endl;
 
         size_t level_backup = level;
         ++level;
@@ -161,17 +154,21 @@ struct rtree_print : public boost::static_visitor<>
     {
         typedef typename leaf::values_type values_type;
 
-        os << "\t" << " --> Leaf --------" << std::endl;
-        os << "\t" << "  Values: " << n.values.size() << std::endl;
+        spaces(level) << "LEAF - L:" << level << " V:" << n.values.size() << " @:" << &n << '\n';
         for (typename values_type::const_iterator it = n.values.begin();
             it != n.values.end(); ++it)
         {
-            os << "\t" << "  | ";
+            spaces(level);
             detail::rtree_print_indexable(os, tr(*it));
-            os << " | " << std::endl;;
+            os << '\n';
         }
-        os << "\t" << " --< Leaf --------" << std::endl;
+    }
 
+    inline std::ostream & spaces(size_t level)
+    {
+        for ( size_t i = 0 ; i < 2 * level ; ++i )
+            os << ' ';
+        return os;
     }
 
     std::ostream & os;

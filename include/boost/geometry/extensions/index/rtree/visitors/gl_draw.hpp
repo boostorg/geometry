@@ -27,10 +27,10 @@ struct rtree_gl_draw_point
 template <typename Point>
 struct rtree_gl_draw_point<Point, 2>
 {
-    static inline void apply(Point const& p)
+    static inline void apply(Point const& p, size_t level)
     {
         glBegin(GL_POINT);
-        glVertex2f(geometry::get<0>(p), geometry::get<1>(p));
+        glVertex2f(geometry::get<0>(p), geometry::get<1>(p), level);
         glEnd();
     }
 };
@@ -42,13 +42,13 @@ struct rtree_gl_draw_box
 template <typename Box>
 struct rtree_gl_draw_box<Box, 2>
 {
-    static inline void apply(Box const& b)
+    static inline void apply(Box const& b, size_t level)
     {
         glBegin(GL_LINE_LOOP);
-        glVertex2f(geometry::get<min_corner, 0>(b), geometry::get<min_corner, 1>(b));
-        glVertex2f(geometry::get<max_corner, 0>(b), geometry::get<min_corner, 1>(b));
-        glVertex2f(geometry::get<max_corner, 0>(b), geometry::get<max_corner, 1>(b));
-        glVertex2f(geometry::get<min_corner, 0>(b), geometry::get<max_corner, 1>(b));
+        glVertex3f(geometry::get<min_corner, 0>(b), geometry::get<min_corner, 1>(b), level);
+        glVertex3f(geometry::get<max_corner, 0>(b), geometry::get<min_corner, 1>(b), level);
+        glVertex3f(geometry::get<max_corner, 0>(b), geometry::get<max_corner, 1>(b), level);
+        glVertex3f(geometry::get<min_corner, 0>(b), geometry::get<max_corner, 1>(b), level);
         glEnd();
     }
 };
@@ -64,9 +64,9 @@ struct rtree_gl_draw_indexable<Indexable, box_tag>
     typedef typename geometry::traits::point_type<Indexable>::type point_type;
     static const size_t dimension = geometry::traits::dimension<point_type>::value;
 
-    static inline void apply(Indexable const& i)
+    static inline void apply(Indexable const& i, size_t level)
     {
-        rtree_gl_draw_box<Indexable, dimension>::apply(i);
+        rtree_gl_draw_box<Indexable, dimension>::apply(i, level);
     }
 };
 
@@ -75,9 +75,9 @@ struct rtree_gl_draw_indexable<Indexable, point_tag>
 {
     static const size_t dimension = geometry::traits::dimension<Indexable>::value;
 
-    static inline void apply(std::ostream &os, Indexable const& i)
+    static inline void apply(Indexable const& i, size_t level)
     {
-        rtree_gl_draw_point<Indexable, dimension>::apply(i);
+        rtree_gl_draw_point<Indexable, dimension>::apply(i, level);
     }
 };
 
@@ -86,12 +86,12 @@ struct rtree_gl_draw_indexable<Indexable, point_tag>
 namespace detail {
 
 template <typename Indexable>
-inline void rtree_gl_draw_indexable(Indexable const& i)
+inline void rtree_gl_draw_indexable(Indexable const& i, size_t level)
 {
     dispatch::rtree_gl_draw_indexable<
         Indexable,
         typename geometry::traits::tag<Indexable>::type
-    >::apply(i);
+    >::apply(i, level);
 }
 
 } // namespace detail
@@ -128,7 +128,7 @@ struct rtree_gl_draw : public boost::static_visitor<>
         for (typename children_type::const_iterator it = n.children.begin();
             it != n.children.end(); ++it)
         {
-            detail::rtree_gl_draw_indexable(it->first);
+            detail::rtree_gl_draw_indexable(it->first, level);
         }
         
         size_t level_backup = level;
@@ -152,7 +152,7 @@ struct rtree_gl_draw : public boost::static_visitor<>
         for (typename values_type::const_iterator it = n.values.begin();
             it != n.values.end(); ++it)
         {
-            detail::rtree_gl_draw_indexable(tr(*it));
+            detail::rtree_gl_draw_indexable(tr(*it), level);
         }
     }
 

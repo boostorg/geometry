@@ -41,18 +41,17 @@ public:
     typedef typename detail::rtree_internal_node<Value, box_type, rtree_rstar_tag>::type internal_node;
     typedef typename detail::rtree_leaf<Value, box_type, rtree_rstar_tag>::type leaf;
 
-    inline explicit rtree(size_t max_elems_per_node = 4, size_t min_elems_per_node = 2, translator_type const& translator = translator_type())
+    inline explicit rtree(size_t max_elems_per_node = 2, size_t min_elems_per_node = 1, translator_type const& translator = translator_type())
         : m_values_count(0)
         , m_max_elems_per_node(max_elems_per_node)
         , m_min_elems_per_node(min_elems_per_node)
         , m_root(0)
         , m_translator(translator)
     {
-        if ( min_elems_per_node < 2 )
-            min_elems_per_node = 2;
-
-        // TODO: awulkiew - reconsider following assert
-        assert(2 * m_min_elems_per_node <= m_max_elems_per_node);
+        if ( m_min_elems_per_node < 1 )
+            m_min_elems_per_node = 1;
+        if ( m_max_elems_per_node < 2 )
+            m_max_elems_per_node = 2;
 
         m_root = detail::rtree_create_node(leaf());
     }
@@ -82,9 +81,9 @@ public:
     }
 
     template <typename Visitor>
-    void apply_visitor(Visitor & visitor) const
+    typename Visitor::result_type apply_visitor(Visitor & visitor) const
     {
-        boost::apply_visitor(visitor, *m_root);
+        return boost::apply_visitor(visitor, *m_root);
     }
 
     translator_type const& get_translator() const
