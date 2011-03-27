@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 
+#include <boost/timer.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -28,6 +29,52 @@ static const int multi_linestring = 7;
 static const int multi_polygon = 8;
 static const int geometry_count = 9;
 
+
+struct compile_bjam
+{
+    static inline bool apply(int type1, int type2)
+    {
+        std::ostringstream command;
+        // For debugging: 
+        command << "bjam -a tmp > tmp/t" << type1 << "_" << type2 << ".out";
+        //command << "bjam -a tmp > tmp/t.out";
+        int failed = system(command.str().c_str());
+        return failed == 0;
+    }
+};
+
+struct compile_msvc
+{
+    bool first;
+    int count;
+
+    compile_msvc()
+        : first(true)
+        , count(0)
+    {}
+
+    inline bool apply(int type1, int type2)
+    {
+        std::ostringstream command;
+        command << "cl /nologo -I. -I/_svn/boost/trunk /EHsc /Y";
+        if (first)
+        {
+            std::cout << " (creating PCH)";
+            command << "c";
+            first = false;
+        }
+        else
+        {
+            command <<  "u";
+        }
+
+        command << "implementation_status.hpp tmp/t.cpp > tmp/t.out";
+            // For debugging: << type1 << "_" << type2 << ".out"; 
+
+        int failed = system(command.str().c_str());
+        return failed == 0;
+    }
+};
 
 struct algorithm
 {
@@ -111,8 +158,9 @@ inline std::string geometry_string(int type)
 }
 
 
-
-int report_library(int type, algorithm const& algo, bool clockwise,
+template <typename CompilePolicy>
+int report_library(CompilePolicy& compile_policy,
+                   int type, algorithm const& algo, bool clockwise,
                    bool open, int dimensions, std::string const& cs,
                    int type2 = -1)
 {
@@ -188,19 +236,19 @@ int report_library(int type, algorithm const& algo, bool clockwise,
             ;
     }
 
-    int failed = system("bjam -a tmp > tmp/t.out");
-    if (failed)
+    bool result = compile_policy.apply(type, type2);
+    if (! result)
     {
         std::cout << " ERROR";
     }
-
     std::cout << std::endl;
-
-    return !failed;
+    return result;
 }
 
 
-std::vector<int> report(int type, algorithm const& algo, bool clockwise,
+template <typename CompilePolicy>
+std::vector<int> report(CompilePolicy& compile_policy,
+                        int type, algorithm const& algo, bool clockwise,
                         bool open, int dimensions, std::string const& cs)
 {
     std::vector<int> result;
@@ -208,12 +256,12 @@ std::vector<int> report(int type, algorithm const& algo, bool clockwise,
     switch(algo.arity)
     {
         case 1 :
-            result.push_back(report_library(type, algo, clockwise, open, dimensions, cs));
+            result.push_back(report_library(compile_policy, type, algo, clockwise, open, dimensions, cs));
             break;
         case 2 :
             for (int type2 = point; type2 < geometry_count; ++type2)
             {
-                result.push_back(report_library(type, algo, clockwise, open, dimensions, cs, type2));
+                result.push_back(report_library(compile_policy, type, algo, clockwise, open, dimensions, cs, type2));
             }
             break;
     }
@@ -234,20 +282,31 @@ struct cs
 
 int main(int argc, char** argv)
 {
+#if defined(_MSC_VER)
+    compile_msvc compile_policy;
+#else
+    compile_bjam compile_policy;
+#endif
+
+
     typedef std::vector<algorithm> v_a_type;
     v_a_type algorithms;
     algorithms.push_back(algorithm("area"));
     algorithms.push_back(algorithm("length"));
-    //algorithms.push_back(algorithm("perimeter"));
-    //algorithms.push_back(algorithm("correct"));
+    algorithms.push_back(algorithm("perimeter"));
+    algorithms.push_back(algorithm("correct"));
     algorithms.push_back(algorithm("distance", 2));
-    //algorithms.push_back(algorithm("centroid", 2));
+    algorithms.push_back(algorithm("centroid", 2));
+    //algorithms.push_back(algorithm("within", 2));
 
     typedef std::vector<cs> cs_type;
     cs_type css;
     css.push_back(cs("cartesian"));
     // css.push_back(cs("spherical<bg::degree>"));
     // css.push_back(cs("spherical<bg::radian>"));
+
+
+    boost::timer timer;
 
     for (v_a_type::const_iterator it = algorithms.begin(); it != algorithms.end(); ++it)
     {
@@ -275,7 +334,7 @@ int main(int argc, char** argv)
 
             for (int type = point; type < geometry_count; type++)
             {
-                table.push_back(report(type, *it, true, true, 2, cit->name));
+                table.push_back(report(compile_policy, type, *it, true, true, 2, cit->name));
             }
 
 
@@ -304,7 +363,7 @@ int main(int argc, char** argv)
                 for (int type = point; type < geometry_count; type++)
                 {
                     if (!columns_status[type]) continue;
-                    out << "[[" << geometry_string(type) << "]]";
+                    out << "[" << geometry_string(type) << "]";
                 }
             }
             else
@@ -317,18 +376,21 @@ int main(int argc, char** argv)
             for (unsigned int i = 0; i != table.size(); ++i)
             {
                 if (!lines_status[i]) continue;
-                out << "[[" << geometry_string(i) << "]]";
+                out << "[";
+                out << "[" << geometry_string(i) << "]";
                 for (unsigned int j = 0; j != table[i].size(); ++j)
                 {
                     if (!columns_status[j]) continue;
                     out << "[[$img/" << (table[i][j] ? "ok" : "nyi") << ".png]]";
                 }
-                out << std::endl;
+                out << "]" << std::endl;
             }
 
             out << "]" << std::endl;
         }
     }
+
+    std::cout << "TIME: " << timer.elapsed() << std::endl;
 
     return 0;
 }
