@@ -91,6 +91,11 @@ public:
         return  m_translator;
     }
 
+    size_t values_count() const
+    {
+        return m_values_count;
+    }
+
 private:
     size_t m_values_count;
     size_t m_max_elems_per_node;

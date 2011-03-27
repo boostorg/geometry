@@ -25,6 +25,7 @@ template <typename Box>
 typename overlap_result<Box>::type overlap(Box const& b1, Box const& b2)
 {
     Box inters;
+    geometry::assign_zero(inters);
     geometry::intersection(b1, b2, inters);
     return index::area(inters);
 }

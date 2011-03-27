@@ -124,8 +124,8 @@ public:
         size_t median_index_last = max_elems - min_elems + 2;
         for ( size_t median_index = min_elems ; median_index < median_index_last ; ++median_index )
         {
-            Box left_box = index::detail::elements_box<Box>(sorted_elements.begin(), sorted_elements.begin() + median_index, tr);
-            Box right_box = index::detail::elements_box<Box>(sorted_elements.begin() + median_index, sorted_elements.end(), tr);
+            Box left_box = index::detail::rtree_elements_box<Box>(sorted_elements.begin(), sorted_elements.begin() + median_index, tr);
+            Box right_box = index::detail::rtree_elements_box<Box>(sorted_elements.begin() + median_index, sorted_elements.end(), tr);
 
             margin_type margin = index::margin(left_box) + index::margin(right_box);
             overlap_type overlap = index::overlap(left_box, right_box);
@@ -284,16 +284,21 @@ public:
         typedef typename index::detail::rtree_elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
 
-        elements_type & elements = index::detail::get_elements(n);
+        elements_type & elements = index::detail::rtree_elements_get(n);
+
+        assert(elements.size() == max_elems + 1);
 
         // get split data
         rtree_rstar_split_data<elements_type, Box> split_data;
         rtree_rstar_split_update_data<Value, Translator, Box, dimension>::
             apply(split_data, elements, min_elems, max_elems, tr);
-        
+       
+        assert(min_elems <= split_data.choosen_median_index);
+        assert(split_data.choosen_median_index <= max_elems + 1 - min_elems);
+
         // create new node
         node * right_node = rtree_create_node(Node());
-        elements_type & new_elems = index::detail::get_elements(boost::get<Node>(*right_node));
+        elements_type & new_elems = index::detail::rtree_elements_get(boost::get<Node>(*right_node));
 
         // update new node's elements
         new_elems.resize(max_elems + 1 - split_data.choosen_median_index);

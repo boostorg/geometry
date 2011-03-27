@@ -87,21 +87,22 @@ struct rtree_elements_type< rtree_leaf_def<Value, Box, Tag> >
 };
 
 template <typename Node>
-typename rtree_elements_type<Node>::type & get_elements(Node & n)
+typename rtree_elements_type<Node>::type &
+rtree_elements_get(Node & n)
 {
     return n.elements;
 }
 
 template <typename Value, typename Box, typename Tag>
 typename rtree_internal_node_def<Value, Box, Tag>::children_type &
-get_elements(rtree_internal_node_def<Value, Box, Tag> & n)
+rtree_elements_get(rtree_internal_node_def<Value, Box, Tag> & n)
 {
     return n.children;
 }
 
 template <typename Value, typename Box, typename Tag>
 typename rtree_leaf_def<Value, Box, Tag>::values_type &
-get_elements(rtree_leaf_def<Value, Box, Tag> & n)
+rtree_elements_get(rtree_leaf_def<Value, Box, Tag> & n)
 {
     return n.values;
 }
@@ -156,7 +157,7 @@ rtree_element_indexable(Value const& el, Translator const& tr)
 // elements box
 
 template <typename Box, typename FwdIter, typename Translator>
-inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
+inline Box rtree_elements_box(FwdIter first, FwdIter last, Translator const& tr)
 {
     assert(first != last);
 
@@ -178,8 +179,7 @@ typename rtree_node<Value, Box, Tag>::type *
 rtree_create_node(rtree_leaf_def<Value, Box, Tag> const& l)
 {
     typedef typename rtree_node<Value, Box, Tag>::type node;
-    node * n = new node();
-    *n = l;
+    node * n = new node(l);
     return n;
 }
 
@@ -190,8 +190,7 @@ typename rtree_node<Value, Box, Tag>::type *
 rtree_create_node(rtree_internal_node_def<Value, Box, Tag> const& in)
 {
     typedef typename rtree_node<Value, Box, Tag>::type node;
-    node * n = new node();
-    *n = in;
+    node * n = new node(in);
     return n;
 }
 
