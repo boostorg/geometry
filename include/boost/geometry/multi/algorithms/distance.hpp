@@ -43,13 +43,11 @@ struct distance_single_to_multi
                 MultiGeometry const& multi,
                 Strategy const& strategy)
     {
-        using namespace boost;
-
         bool first = true;
         return_type mindist;
 
-        for(typename range_iterator<MultiGeometry const>::type it = begin(multi);
-                it != end(multi);
+        for(typename range_iterator<MultiGeometry const>::type it = boost::begin(multi);
+                it != boost::end(multi);
                 ++it)
         {
             return_type dist = geometry::distance(geometry, *it);
@@ -72,13 +70,11 @@ struct distance_multi_to_multi
     static inline return_type apply(Multi1 const& multi1,
                 Multi2 const& multi2, Strategy const& strategy)
     {
-        using namespace boost;
-
         bool first = true;
         return_type mindist;
 
-        for(typename range_iterator<Multi1 const>::type it = begin(multi1);
-                it != end(multi1);
+        for(typename range_iterator<Multi1 const>::type it = boost::begin(multi1);
+                it != boost::end(multi1);
                 ++it)
         {
             return_type dist = distance_single_to_multi
