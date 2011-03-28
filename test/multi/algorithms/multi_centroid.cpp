@@ -11,7 +11,6 @@
 
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/algorithms/centroid.hpp>
-#include <boost/geometry/multi/strategies/centroid.hpp>
 #include <boost/geometry/multi/strategies/cartesian/centroid_average.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
