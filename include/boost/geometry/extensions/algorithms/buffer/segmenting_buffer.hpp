@@ -21,14 +21,14 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 
-#include <boost/geometry/strategies/buffer_side.hpp>
-#include <boost/geometry/strategies/buffer_join_round.hpp>
+#include <boost/geometry/extensions/strategies/buffer_side.hpp>
+#include <boost/geometry/extensions/strategies/buffer_join_round.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 
 
-#include <boost/geometry/algorithms/dissolve.hpp>
+#include <boost/geometry/extensions/algorithms/dissolve.hpp>
 
 
 // TEMPORARY do not use yet.

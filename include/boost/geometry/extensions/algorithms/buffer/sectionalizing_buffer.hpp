@@ -19,15 +19,15 @@
 
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/strategies/buffer_side.hpp>
-#include <boost/geometry/algorithms/detail/buffer/intersecting_inserter.hpp>
-#include <boost/geometry/algorithms/detail/buffer/linestring_buffer.hpp>
-#include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
+#include <boost/geometry/extensions/strategies/buffer_side.hpp>
+#include <boost/geometry/extensions/algorithms/detail/buffer/intersecting_inserter.hpp>
+#include <boost/geometry/extensions/algorithms/detail/buffer/linestring_buffer.hpp>
+#include <boost/geometry/extensions/algorithms/detail/buffer/line_line_intersection.hpp>
 
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
-#include <boost/geometry/algorithms/dissolve.hpp>
+#include <boost/geometry/extensions/algorithms/dissolve.hpp>
 
 
 

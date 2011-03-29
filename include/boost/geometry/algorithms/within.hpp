@@ -343,6 +343,15 @@ struct within<point_tag, polygon_tag, Point, Polygon, Strategy>
 \return true if geometry1 is completely contained within geometry2,
     else false
 \note The default strategy is used for within detection
+
+
+\qbk{[include reference/algorithms/within.qbk]}
+
+\qbk{
+[heading Example]
+[within]
+[within_output]
+}
  */
 template<typename Geometry1, typename Geometry2>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
@@ -388,11 +397,17 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
     else false
 
 \qbk{distinguish,with strategy}
+\qbk{[include reference/algorithms/within.qbk]}
 \qbk{
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_within_winding Winding (coordinate system agnostic)]
 \* [link geometry.reference.strategies.strategy_within_franklin Franklin (cartesian)]
 \* [link geometry.reference.strategies.strategy_within_crossings_multiply Crossings Multiply (cartesian)]
+
+[heading Example]
+[within_strategy]
+[within_strategy_output]
+
 }
 */
 template<typename Geometry1, typename Geometry2, typename Strategy>

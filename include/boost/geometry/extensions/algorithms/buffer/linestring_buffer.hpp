@@ -17,7 +17,7 @@
 
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/strategies/buffer_side.hpp>
+#include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
 #include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/intersecting_inserter.hpp>

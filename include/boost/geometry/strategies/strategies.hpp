@@ -23,7 +23,6 @@
 #include <boost/geometry/strategies/convex_hull.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
-#include <boost/geometry/strategies/parse.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/within.hpp>

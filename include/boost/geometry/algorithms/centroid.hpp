@@ -347,10 +347,7 @@ struct centroid<polygon_tag, Polygon, Point, Strategy>
 
 \qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/centroid.qbk]}
-
-\qbk{
-[heading Available Strategies]
-\* [link geometry.reference.strategies.strategy_centroid_bashein_detmer Bashein Detmer (cartesian)]
+\qbk{[include reference/algorithms/centroid_strategies.qbk]}
 }
 
 */
@@ -379,13 +376,18 @@ inline void centroid(Geometry const& geometry, Point& c,
 /*!
 \brief \brief_calc{centroid}
 \ingroup centroid
-\details \details_calc{centroid,geometric center (or: center of mass)}
+\details \details_calc{centroid,geometric center (or: center of mass)}. \details_default_strategy
 \tparam Geometry \tparam_geometry
 \tparam Point \tparam_point
 \param geometry \param_geometry
-\param c the calculated centroid will be assigned to this point reference
+\param c The calculated centroid will be assigned to this point reference
 
 \qbk{[include reference/algorithms/centroid.qbk]}
+\qbk{
+[heading Example]
+[centroid]
+[centroid_output]
+}
  */
 template<typename Geometry, typename Point>
 inline void centroid(Geometry const& geometry, Point& c)
@@ -419,6 +421,7 @@ inline void centroid(Geometry const& geometry, Point& c)
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \return \return_calc{centroid}
+
 \qbk{[include reference/algorithms/centroid.qbk]}
  */
 template<typename Point, typename Geometry>
@@ -444,12 +447,7 @@ inline Point make_centroid(Geometry const& geometry)
 
 \qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/centroid.qbk]}
-
-\qbk{
-[heading Available Strategies]
-\* [link geometry.reference.strategies.strategy_centroid_bashein_detmer Bashein Detmer (cartesian)]
-}
-
+\qbk{[include reference/algorithms/centroid_strategies.qbk]}
  */
 template<typename Point, typename Geometry, typename Strategy>
 inline Point make_centroid(Geometry const& geometry, Strategy const& strategy)

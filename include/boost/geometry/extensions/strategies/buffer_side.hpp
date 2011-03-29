@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_BUFFER_SIDE_HPP
-#define BOOST_GEOMETRY_STRATEGIES_BUFFER_SIDE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_SIDE_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_SIDE_HPP
 
 
 
@@ -28,4 +28,4 @@ enum buffer_side_selector { buffer_side_left, buffer_side_right };
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_BUFFER_SIDE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_SIDE_HPP
