@@ -140,8 +140,6 @@ struct indexable_indexed_access<Corner, DimensionIndex, Indexable, point_tag>
 
 } // namespace dispatch
 
-namespace detail {
-
 template <size_t Corner, size_t DimensionIndex, typename Indexable>
 typename traits::coordinate_type<Indexable>::type get(Indexable const& i)
 {
@@ -152,8 +150,6 @@ typename traits::coordinate_type<Indexable>::type get(Indexable const& i)
         typename geometry::traits::tag<Indexable>::type
     >::get(i);
 }
-
-} // namespace detail
 
 }}} // namespace boost::geometry::index
 

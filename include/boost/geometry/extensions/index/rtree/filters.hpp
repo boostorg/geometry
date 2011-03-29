@@ -18,20 +18,20 @@
 
 namespace boost { namespace geometry { namespace index {
 
-template <typename Value, typename Translator, typename Box, typename Tag>
+template <typename Value, typename Translator, typename Tag>
 class rtree;
 
 namespace filters {
 
-template <typename Value, typename Translator, typename Box, typename Tag>
-class spatial_filter< index::rtree<Value, Translator, Box, Tag> >
+template <typename Value, typename Translator, typename Tag>
+class spatial_filter< index::rtree<Value, Translator, Tag> >
 {
 public:
     typedef typename std::vector<Value>::iterator iterator;
     typedef typename std::vector<Value>::const_iterator const_iterator;
 
     template <typename Geometry>
-    spatial_filter(index::rtree<Value, Translator, Box, Tag> const& rtree, Geometry const& geom)
+    spatial_filter(index::rtree<Value, Translator, Tag> const& rtree, Geometry const& geom)
     {
         m_result = rtree.find(geom);
     }

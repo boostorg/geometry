@@ -70,6 +70,38 @@ class rtree_rstar_choose_next_node
 //
 //};
 
+//template <typename ElIter, typename Translator>
+//typename index::area_result<
+//    typename detail::rtree_element_indexable_type<
+//        typename std::iterator_traits<ElIter>::value_type,
+//        Translator
+//    >::type
+//>::type calculate_elements_overlap(ElIter el, ElIter first, ElIter last, Translator const& tr)
+//{
+//    typedef typename detail::rtree_element_indexable_type<
+//        typename std::iterator_traits<ElIter>::value_type,
+//        Translator
+//    >::type box_type;
+//    typedef typename index::area_result<box_type>::type area_type;
+//
+//    area_type result = 0;
+//
+//    for ( ; first != last ; ++first )
+//    {
+//        if ( first != el )
+//        {
+//            box_type inters;
+//            geometry::assign_zero(inters);
+//            geometry::intersection(
+//                detail::rtree_element_indexable(*first, tr),
+//                detail::rtree_element_indexable(*el, tr),
+//                inters);
+//            result += index::area(inters);
+//        }
+//    }
+//    return result;
+//}
+
 // TODO: awulkiew - wrong algorithm? Should branch check be applied to Leafs?
 // TODO: awulkiew - further optimization: don't calculate area with the overlap, calculate it only if
 // overlap < smallest_overlap (and current area must be stored) OR
@@ -130,7 +162,7 @@ private:
 
     struct branch_areas
     {
-        typedef typename area_result<Box>::type area_type;
+        typedef typename index::area_result<Box>::type area_type;
 
         template <typename Indexable>
         inline branch_areas(children_type const& ch, typename children_type::iterator const& k_it, Indexable const& indexable)

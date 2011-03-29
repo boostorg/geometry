@@ -85,15 +85,15 @@ private:
 
 } // namespace visitors
 
-template <typename Value, typename Translator, typename Box, typename Tag>
-bool rtree_are_boxes_ok(rtree<Value, Translator, Box, Tag> const& tree)
+template <typename Value, typename Translator, typename Tag>
+bool rtree_are_boxes_ok(rtree<Value, Translator, Tag> const& tree)
 {
-    typedef rtree<Value, Translator, Box, Tag> rt;
+    typedef rtree<Value, Translator, Tag> rt;
     visitors::rtree_are_boxes_ok<
         typename rt::value_type,
         typename rt::translator_type,
         typename rt::box_type,
-        Tag> v(tree.get_translator());
+        typename rt::tag_type> v(tree.get_translator());
     
     return tree.apply_visitor(v);
 }

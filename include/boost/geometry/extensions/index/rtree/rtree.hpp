@@ -27,21 +27,25 @@ namespace boost { namespace geometry { namespace index {
 template <
     typename Value,
     typename Translator = default_parameter,
-    typename Box = default_parameter,
     typename Tag = rtree_rstar_tag
 >
 class rtree
 {
 public:
     typedef Value value_type;
-    typedef typename detail::default_translator_type<Value, Translator>::type translator_type;
-    typedef typename detail::default_box_type<typename translator_type::indexable_type, Box>::type box_type;
+    typedef typename detail::default_translator_type<value_type, Translator>::type translator_type;
+    typedef typename detail::geometry_box_type<typename translator_type::indexable_type>::type box_type;
+    typedef Tag tag_type;
 
-    typedef typename detail::rtree_node<Value, box_type, rtree_rstar_tag>::type node;
-    typedef typename detail::rtree_internal_node<Value, box_type, rtree_rstar_tag>::type internal_node;
-    typedef typename detail::rtree_leaf<Value, box_type, rtree_rstar_tag>::type leaf;
+    typedef typename detail::rtree_node<value_type, box_type, tag_type>::type node;
+    typedef typename detail::rtree_internal_node<value_type, box_type, tag_type>::type internal_node;
+    typedef typename detail::rtree_leaf<value_type, box_type, tag_type>::type leaf;
 
-    inline explicit rtree(size_t max_elems_per_node = 2, size_t min_elems_per_node = 1, translator_type const& translator = translator_type())
+    inline explicit rtree(
+        size_t max_elems_per_node = 2,
+        size_t min_elems_per_node = 1,
+        translator_type const& translator = translator_type()
+    )
         : m_values_count(0)
         , m_max_elems_per_node(max_elems_per_node)
         , m_min_elems_per_node(min_elems_per_node)
@@ -58,21 +62,21 @@ public:
 
     ~rtree()
     {
-        visitors::rtree_delete<Value, translator_type, box_type, Tag> del_v;
+        visitors::rtree_delete<value_type, translator_type, box_type, tag_type> del_v;
         boost::apply_visitor(del_v, *m_root);
     }
 
     template <typename Geometry>
-    inline std::vector<Value> find(Geometry const& geom) const
+    inline std::vector<value_type> find(Geometry const& geom) const
     {
-        visitors::rtree_find<Value, translator_type, box_type, Tag, Geometry> find_v(geom, m_translator);
+        visitors::rtree_find<value_type, translator_type, box_type, tag_type, Geometry> find_v(geom, m_translator);
         boost::apply_visitor(find_v, *m_root);
         return find_v.result;
     }
 
-    void insert(Value const& value)
+    void insert(value_type const& value)
     {
-        visitors::rtree_insert<Value, translator_type, box_type, Tag>
+        visitors::rtree_insert<value_type, translator_type, box_type, tag_type>
             insert_v(m_root, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
         boost::apply_visitor(insert_v, *m_root);
@@ -104,8 +108,8 @@ private:
     translator_type m_translator;
 };
 
-template <typename Value, typename Translator, typename Box, typename Tag>
-void insert(rtree<Value, Translator, Box, Tag> & tree, Value const& v)
+template <typename Value, typename Translator, typename Tag>
+void insert(rtree<Value, Translator, Tag> & tree, Value const& v)
 {
     tree.insert(v);
 }

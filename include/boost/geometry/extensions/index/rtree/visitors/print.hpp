@@ -179,22 +179,14 @@ struct rtree_print : public boost::static_visitor<>
 
 } // namespace visitors
 
-template <typename Value, typename Translator, typename Box, typename Tag>
-std::ostream & print(rtree<Value, Translator, Box, Tag> const& tree, std::ostream & os = std::cout)
+template <typename Value, typename Translator, typename Tag>
+std::ostream & operator<<(std::ostream & os, rtree<Value, Translator, Tag> const& tree)
 {
-    typedef typename rtree<Value, Translator, Box, Tag>::translator_type translator_type;
-    typedef typename rtree<Value, Translator, Box, Tag>::box_type box_type;
-    visitors::rtree_print<Value, translator_type, box_type, Tag> print_v(os, tree.get_translator());
-    tree.apply_visitor(print_v);
-    return os;
-}
-
-template <typename Value, typename Translator, typename Box, typename Tag>
-std::ostream & operator<<(std::ostream & os, rtree<Value, Translator, Box, Tag> const& tree)
-{
-    typedef typename rtree<Value, Translator, Box, Tag>::translator_type translator_type;
-    typedef typename rtree<Value, Translator, Box, Tag>::box_type box_type;
-    visitors::rtree_print<Value, translator_type, box_type, Tag> print_v(os, tree.get_translator());
+    typedef typename rtree<Value, Translator, Tag>::value_type value_type;
+    typedef typename rtree<Value, Translator, Tag>::translator_type translator_type;
+    typedef typename rtree<Value, Translator, Tag>::box_type box_type;
+    typedef typename rtree<Value, Translator, Tag>::tag_type tag_type;
+    visitors::rtree_print<value_type, translator_type, box_type, tag_type> print_v(os, tree.get_translator());
     tree.apply_visitor(print_v);
     return os;
 }

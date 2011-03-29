@@ -159,9 +159,13 @@ rtree_element_indexable(Value const& el, Translator const& tr)
 template <typename Box, typename FwdIter, typename Translator>
 inline Box rtree_elements_box(FwdIter first, FwdIter last, Translator const& tr)
 {
-    assert(first != last);
-
     Box result;
+
+    if (first == last)
+    {    
+        geometry::assign_zero(result);
+        return result;
+    }
 
     geometry::convert(index::detail::rtree_element_indexable(*first, tr), result);
     ++first;

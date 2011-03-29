@@ -163,15 +163,17 @@ struct rtree_gl_draw : public boost::static_visitor<>
 
 } // namespace visitors
 
-template <typename Value, typename Translator, typename Box, typename Tag>
-void gl_draw(rtree<Value, Translator, Box, Tag> const& tree)
+template <typename Value, typename Translator, typename Tag>
+void gl_draw(rtree<Value, Translator, Tag> const& tree)
 {
-    typedef typename rtree<Value, Translator, Box, Tag>::translator_type translator_type;
-    typedef typename rtree<Value, Translator, Box, Tag>::box_type box_type;
+    typedef typename rtree<Value, Translator, Tag>::value_type value_type;
+    typedef typename rtree<Value, Translator, Tag>::translator_type translator_type;
+    typedef typename rtree<Value, Translator, Tag>::box_type box_type;
+    typedef typename rtree<Value, Translator, Tag>::tag_type tag_type;
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    visitors::rtree_gl_draw<Value, translator_type, box_type, Tag> gl_draw_v(tree.get_translator());
+    visitors::rtree_gl_draw<value_type, translator_type, box_type, tag_type> gl_draw_v(tree.get_translator());
     tree.apply_visitor(gl_draw_v);
 
     glFlush();

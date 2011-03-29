@@ -41,11 +41,11 @@ public:
     inline bool operator()(element_type const& e1, element_type const e2) const
     {
         return
-            index::detail::get<Corner, AxisIndex>(
+            index::get<Corner, AxisIndex>(
                 index::detail::rtree_element_indexable(e1, m_tr)
             )
             <
-            index::detail::get<Corner, AxisIndex>(
+            index::get<Corner, AxisIndex>(
                 index::detail::rtree_element_indexable(e2, m_tr)
             );
     }
