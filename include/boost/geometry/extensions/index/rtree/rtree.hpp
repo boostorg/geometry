@@ -27,7 +27,7 @@ namespace boost { namespace geometry { namespace index {
 template <
     typename Value,
     typename Translator = default_parameter,
-    typename Tag = rtree_rstar_tag
+    typename Tag = rstar_tag
 >
 class rtree
 {

@@ -31,11 +31,11 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Translator, typename Box>
-class insert<Value, Translator, Box, rtree_rstar_tag> : public boost::static_visitor<>
+class insert<Value, Translator, Box, rstar_tag> : public boost::static_visitor<>
 {
-    typedef typename rtree::node<Value, Box, rtree_rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rtree_rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rtree_rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
 
 public:
     inline explicit insert(node* & root, Value const& v, size_t min_elements, size_t max_elements, Translator const& t)

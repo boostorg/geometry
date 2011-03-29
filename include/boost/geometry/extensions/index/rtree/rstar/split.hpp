@@ -264,9 +264,9 @@ struct split_update_data<Value, Translator, Box, 1>
 template <typename Value, typename Translator, typename Box>
 class split
 {
-    typedef typename rtree::node<Value, Box, rtree_rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rtree_rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rtree_rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
 
     static const size_t dimension = index::traits::dimension<Box>::value;
 

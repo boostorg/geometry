@@ -26,9 +26,9 @@ namespace detail { namespace rtree { namespace rstar {
 template <typename Value, typename Box>
 class choose_next_node
 {
-    typedef typename rtree::node<Value, Box, rtree_rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rtree_rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rtree_rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
 
     typedef typename internal_node::children_type children_type;
 
@@ -39,7 +39,7 @@ public:
         assert(!n.children.empty());
         
         bool has_leaves = boost::apply_visitor(
-            visitors::is_leaf<Value, Box, rtree_rstar_tag>(),
+            visitors::is_leaf<Value, Box, rstar_tag>(),
             *n.children.front().second);
 
         if ( !has_leaves )
