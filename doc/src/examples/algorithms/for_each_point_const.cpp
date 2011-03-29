@@ -1,12 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
+// QuickBook Example
 
 // Copyright (c) 2011 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Quickbook Example
 
 //[for_each_point_const
 //` Sample using for_each_point, using a function to list coordinates
