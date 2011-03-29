@@ -14,10 +14,26 @@
 [table
 [[Case] [Behavior] ]
 [[__point__][Returns the point itself as the centroid]]
-[[__multi_point__][Calculates centroid]]
-[[__1dim__][Calculates centroid]]
+[[__multi_point__][Calculates centroid (based on average)]]
+[[__1dim__][Calculates centroid (based on weighted length)]]
 [[__2dim__][Calculates centroid]]
 [[__empty__][Throws a [link geometry.reference.exceptions.centroid_exception centroid_exception] ]]
+[[__cart__][Implemented]]
+[[__sph__][Calculates the centroid as if based on Cartesian coordinates]]
+]
+
+[heading Supported geometries]
+[table
+[[ ][2D][3D]]
+[[Point][[$img/ok.png]][[$img/ok.png]]]
+[[Segment][[$img/ok.png]][[$img/ok.png]]]
+[[Box][[$img/ok.png]][[$img/ok.png]]]
+[[Linestring][[$img/ok.png]][[$img/nyi.png]]]
+[[Ring][[$img/ok.png]][[$img/nyi.png]]]
+[[Polygon][[$img/ok.png]][[$img/nyi.png]]]
+[[MultiPoint][[$img/ok.png]][[$img/ok.png]]]
+[[MultiLinestring][[$img/ok.png]][[$img/nyi.png]]]
+[[MultiPolygon][[$img/ok.png]][[$img/nyi.png]]]
 ]
 
 [heading Complexity]

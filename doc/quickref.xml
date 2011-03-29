@@ -315,10 +315,6 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.clear">clear</link></member>
     </simplelist>
-    <bridgehead renderas="sect3">Combine</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.combine">combine</link></member>
-    </simplelist>
     <bridgehead renderas="sect3">Convert</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.convert">convert</link></member>
@@ -347,6 +343,10 @@
     <bridgehead renderas="sect3">Envelope</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.envelope">envelope</link></member>
+    </simplelist>
+    <bridgehead renderas="sect3">Expand</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.expand">expand</link></member>
     </simplelist>
     <bridgehead renderas="sect3">For Each</bridgehead>
     <simplelist type="vert" columns="1">

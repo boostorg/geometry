@@ -28,7 +28,14 @@ void create_svg(std::string const& filename, Geometry1 const& a, Geometry2 const
     mapper.add(b);
 
     mapper.map(a, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:2");
-    mapper.map(b, "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
+    if (boost::geometry::geometry_id<Geometry2>::value == 1)
+    {
+        mapper.map(b, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1");
+    }
+    else
+    {
+        mapper.map(b, "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
+    }
 }
 
 // NOTE: convert manually from svg to png using Inkscape ctrl-shift-E
