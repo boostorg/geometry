@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP
-#define BOOST_GEOMETRY_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP
 
 // TODO: This is very experimental version of input iterator
 // reading collection of points as segments - proof of concept.
@@ -134,4 +134,4 @@ make_segment_returning_iterator(C& c)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_ITERATORS_SEGMENT_RETURNING_ITERATOR_HPP

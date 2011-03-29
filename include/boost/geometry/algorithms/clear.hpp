@@ -129,7 +129,10 @@ struct clear<polygon_tag, Polygon>
 
 /*!
 \brief Clears a linestring, linear ring or polygon (exterior+interiors) or multi*
-\details Generic function to clear a geometry
+\details Generic function to clear a geometry. All points will be removed from the collection or collections
+    making up the geometry. In most cases this is equivalent to the .clear() method of a std::vector<...>. In
+    the case of a polygon, this clear functionality is automatically called for the exterior ring, and for the
+    interior ring collection. In the case of a point, boxes and segments, nothing will happen.
 \ingroup clear
 \note points and boxes cannot be cleared, instead they can be set to zero by "assign_zero"
 */

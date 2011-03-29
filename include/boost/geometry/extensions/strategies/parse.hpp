@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_PARSE_HPP
-#define BOOST_GEOMETRY_STRATEGIES_PARSE_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_EXTENSIONS_PARSE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_EXTENSIONS_PARSE_HPP
 
 #include <boost/geometry/strategies/tags.hpp>
 
@@ -38,4 +38,4 @@ struct strategy_parse
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_PARSE_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_EXTENSIONS_PARSE_HPP
