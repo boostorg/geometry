@@ -6,11 +6,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-iterators
+test-suite boost-geometry-test-extensions-iterators
     :
-    [ run box_iterator.cpp ]
-    [ run circular_iterator.cpp ] 
-    [ run closing_iterator.cpp ] 
-    [ run ever_circling_iterator.cpp ]
-    [ run segment_range_iterator.cpp ]
+    [ run segment_returning_iterator.cpp ]
     ;
