@@ -178,7 +178,6 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/algorithms/detail/sections \
 			../../../../boost/geometry/arithmetic \
 			../../../../boost/geometry/geometries/concepts \
-			../../../../boost/geometry/geometries/concepts/detail \
 			../../../../boost/geometry/geometries \
 			../../../../boost/geometry/geometries/adapted \
 			../../../../boost/geometry/geometries/register \

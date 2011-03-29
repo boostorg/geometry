@@ -69,10 +69,6 @@
 [include generated/clear.qbk]
 [endsect]
 
-[section:combine combine]
-[include generated/combine.qbk]
-[endsect]
-
 [section:convert convert]
 [include generated/convert.qbk]
 [endsect]
@@ -103,6 +99,10 @@
 
 [section:equals equals]
 [include generated/equals.qbk]
+[endsect]
+
+[section:expand expand]
+[include generated/expand.qbk]
 [endsect]
 
 [section:for_each for_each]
