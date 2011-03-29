@@ -22,7 +22,10 @@ exe assign_box_corners : assign_box_corners.cpp ;
 exe assign_point_from_index : assign_point_from_index.cpp ;
 exe assign_point_to_index : assign_point_to_index.cpp ;
 
+exe centroid : centroid.cpp ;
 exe clear : clear.cpp ;
+
+exe distance : distance.cpp ;
 
 exe for_each_point : for_each_point.cpp ;
 exe for_each_point_const : for_each_point_const.cpp ;
@@ -48,3 +51,5 @@ exe length_with_strategy : length_with_strategy.cpp ;
 
 exe simplify : length.cpp ;
 exe simplify_inserter : simplify_inserter.cpp ;
+
+exe within : within.cpp ;
