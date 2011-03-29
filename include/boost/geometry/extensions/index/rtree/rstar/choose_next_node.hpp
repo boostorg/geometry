@@ -16,103 +16,19 @@
 #include <boost/geometry/extensions/index/algorithms/overlap.hpp>
 #include <boost/geometry/extensions/index/algorithms/union_area.hpp>
 
-#include <boost/geometry/extensions/index/rtree/rtree_node.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/rtree_is_leaf.hpp>
+#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
-namespace visitors {
-
-struct rtree_rstar_chnn_min_overlap_cost {};
-struct rtree_rstar_chnn_nearly_min_overlap_cost {};
-
-// TODO: awulkiew - it's possible that goodness values may be used to choose next node
-// on this step some of the goodness values would be calculated (not all)
-// and only for some nodes (goodness values should be calculated only if there is an overflow)
-
-template <typename Value, typename Box, typename Tag>
-class rtree_rstar_choose_next_node
-{};
-
-// TODO: awulkiew finish this version
-// use min_element instead of searching by myself
-
-//template <typename Value, typename Box>
-//class rtree_rstar_choose_next_node<Value, Box, rtree_rstar_chnn_nearly_min_overlap_cost>
-//{
-//    typedef typename index::detail::rtree_node<Value, Box, rtree_rstar_tag>::type node;
-//    typedef typename index::detail::rtree_internal_node<Value, Box, rtree_rstar_tag>::type internal_node;
-//    typedef typename index::detail::rtree_leaf<Value, Box, rtree_rstar_tag>::type leaf;
-//
-//    typedef typename internal_node::children_type children_type;
-//
-//public:
-//    template <typename Indexable>
-//    static inline size_t apply(internal_node & n, Indexable const& indexable)
-//    {
-//        assert(!n.children.empty());
-//
-//        bool has_leaves = boost::apply_visitor(
-//            visitors::rtree_is_leaf<Value, Box, rtree_rstar_tag>(),
-//            *n.children.front().second);
-//
-//        if ( !has_leaves )
-//            return impl<internal_node_areas>(n, indexable);
-//        else
-//            return impl<branch_areas>(n, indexable);
-//    }
-//
-//private:
-//    template <typename Areas, typename Indexable>
-//    static inline size_t impl(internal_node & n, Indexable const& indexable)
-//    {
-//    }
-//
-//};
-
-//template <typename ElIter, typename Translator>
-//typename index::area_result<
-//    typename detail::rtree_element_indexable_type<
-//        typename std::iterator_traits<ElIter>::value_type,
-//        Translator
-//    >::type
-//>::type calculate_elements_overlap(ElIter el, ElIter first, ElIter last, Translator const& tr)
-//{
-//    typedef typename detail::rtree_element_indexable_type<
-//        typename std::iterator_traits<ElIter>::value_type,
-//        Translator
-//    >::type box_type;
-//    typedef typename index::area_result<box_type>::type area_type;
-//
-//    area_type result = 0;
-//
-//    for ( ; first != last ; ++first )
-//    {
-//        if ( first != el )
-//        {
-//            box_type inters;
-//            geometry::assign_zero(inters);
-//            geometry::intersection(
-//                detail::rtree_element_indexable(*first, tr),
-//                detail::rtree_element_indexable(*el, tr),
-//                inters);
-//            result += index::area(inters);
-//        }
-//    }
-//    return result;
-//}
-
-// TODO: awulkiew - wrong algorithm? Should branch check be applied to Leafs?
-// TODO: awulkiew - further optimization: don't calculate area with the overlap, calculate it only if
-// overlap < smallest_overlap (and current area must be stored) OR
-// overlap == smallest_overlap (and area must be compared)
+namespace detail { namespace rtree { namespace rstar {
 
 template <typename Value, typename Box>
-class rtree_rstar_choose_next_node<Value, Box, rtree_rstar_chnn_min_overlap_cost>
+class choose_next_node
 {
-    typedef typename index::detail::rtree_node<Value, Box, rtree_rstar_tag>::type node;
-    typedef typename index::detail::rtree_internal_node<Value, Box, rtree_rstar_tag>::type internal_node;
-    typedef typename index::detail::rtree_leaf<Value, Box, rtree_rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, rtree_rstar_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, rtree_rstar_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, rtree_rstar_tag>::type leaf;
 
     typedef typename internal_node::children_type children_type;
 
@@ -123,7 +39,7 @@ public:
         assert(!n.children.empty());
         
         bool has_leaves = boost::apply_visitor(
-            visitors::rtree_is_leaf<Value, Box, rtree_rstar_tag>(),
+            visitors::is_leaf<Value, Box, rtree_rstar_tag>(),
             *n.children.front().second);
 
         if ( !has_leaves )
@@ -211,7 +127,7 @@ private:
     };
 };
 
-} // namespace visitors
+}}} // namespace detail::rtree:rstar
 
 }}} // namespace boost::geometry::index
 

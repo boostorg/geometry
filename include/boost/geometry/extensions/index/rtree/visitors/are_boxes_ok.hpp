@@ -7,24 +7,24 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_RTREE_ARE_BOXES_OK_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_RTREE_ARE_BOXES_OK_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_BOXES_OK_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_BOXES_OK_HPP
 
 #include <boost/geometry/algorithms//equals.hpp>
-#include <boost/geometry/extensions/index/rtree/rtree_node.hpp>
+#include <boost/geometry/extensions/index/rtree/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
-namespace visitors {
+namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Translator, typename Box, typename Tag>
-class rtree_are_boxes_ok : public boost::static_visitor<bool>
+class are_boxes_ok : public boost::static_visitor<bool>
 {
-    typedef typename index::detail::rtree_internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename index::detail::rtree_leaf<Value, Box, Tag>::type leaf;
+    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
 public:
-    inline rtree_are_boxes_ok(Translator const& tr)
+    inline are_boxes_ok(Translator const& tr)
         : m_tr(tr), m_is_root(true)
     {}
 
@@ -83,13 +83,13 @@ private:
     bool m_is_root;
 };
 
-} // namespace visitors
+}}} // namespace detail::rtree::visitors
 
 template <typename Value, typename Translator, typename Tag>
-bool rtree_are_boxes_ok(rtree<Value, Translator, Tag> const& tree)
+bool are_boxes_ok(rtree<Value, Translator, Tag> const& tree)
 {
     typedef rtree<Value, Translator, Tag> rt;
-    visitors::rtree_are_boxes_ok<
+    detail::rtree::visitors::are_boxes_ok<
         typename rt::value_type,
         typename rt::translator_type,
         typename rt::box_type,
@@ -100,4 +100,4 @@ bool rtree_are_boxes_ok(rtree<Value, Translator, Tag> const& tree)
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_RTREE_ARE_BOXES_OK_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_BOXES_OK_HPP

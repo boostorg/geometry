@@ -13,29 +13,29 @@
 
 #include <iostream>
 
-#include <boost/geometry/extensions/index/rtree/rtree_node.hpp>
+#include <boost/geometry/extensions/index/rtree/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
-namespace visitors {
+namespace detail { namespace rtree { namespace visitors {
 
 namespace dispatch {
 
 template <typename Point, size_t Dimension>
-struct rtree_print_point
+struct print_point
 {
     BOOST_STATIC_ASSERT(0 < Dimension);
 
     static inline void apply(std::ostream & os, Point const& p)
     {
-        rtree_print_point<Point, Dimension - 1>::apply(os, p);
+        print_point<Point, Dimension - 1>::apply(os, p);
 
         os << ", " << geometry::get<Dimension - 1>(p);
     }
 };
 
 template <typename Point>
-struct rtree_print_point<Point, 1>
+struct print_point<Point, 1>
 {
     static inline void apply(std::ostream & os, Point const& p)
     {
@@ -44,20 +44,20 @@ struct rtree_print_point<Point, 1>
 };
 
 template <typename Box, size_t Corner, size_t Dimension>
-struct rtree_print_corner
+struct print_corner
 {
     BOOST_STATIC_ASSERT(0 < Dimension);
 
     static inline void apply(std::ostream & os, Box const& b)
     {
-        rtree_print_corner<Box, Corner, Dimension - 1>::apply(os, b);
+        print_corner<Box, Corner, Dimension - 1>::apply(os, b);
 
         os << ", " << geometry::get<Corner, Dimension - 1>(b);
     }
 };
 
 template <typename Box, size_t Corner>
-struct rtree_print_corner<Box, Corner, 1>
+struct print_corner<Box, Corner, 1>
 {
     static inline void apply(std::ostream & os, Box const& b)
     {
@@ -66,35 +66,34 @@ struct rtree_print_corner<Box, Corner, 1>
 };
 
 template <typename Indexable, typename Tag>
-struct rtree_print_indexable
+struct print_indexable
 {
 };
 
 template <typename Indexable>
-struct rtree_print_indexable<Indexable, box_tag>
+struct print_indexable<Indexable, box_tag>
 {
-    typedef typename geometry::traits::point_type<Indexable>::type point_type;
-    static const size_t dimension = geometry::traits::dimension<point_type>::value;
+    static const size_t dimension = index::traits::dimension<Indexable>::value;
 
     static inline void apply(std::ostream &os, Indexable const& i)
     {
         os << '(';
-        rtree_print_corner<Indexable, min_corner, dimension>::apply(os, i);
+        print_corner<Indexable, min_corner, dimension>::apply(os, i);
         os << ")x(";
-        rtree_print_corner<Indexable, max_corner, dimension>::apply(os, i);
+        print_corner<Indexable, max_corner, dimension>::apply(os, i);
         os << ')';
     }
 };
 
 template <typename Indexable>
-struct rtree_print_indexable<Indexable, point_tag>
+struct print_indexable<Indexable, point_tag>
 {
-    static const size_t dimension = geometry::traits::dimension<Indexable>::value;
+    static const size_t dimension = index::traits::dimension<Indexable>::value;
 
     static inline void apply(std::ostream &os, Indexable const& i)
     {
         os << '(';
-        rtree_print_point<Indexable, dimension>::apply(os, i);
+        print_point<Indexable, dimension>::apply(os, i);
         os << ')';
     }
 };
@@ -104,9 +103,9 @@ struct rtree_print_indexable<Indexable, point_tag>
 namespace detail {
 
 template <typename Indexable>
-inline void rtree_print_indexable(std::ostream & os, Indexable const& i)
+inline void print_indexable(std::ostream & os, Indexable const& i)
 {
-    dispatch::rtree_print_indexable<
+    dispatch::print_indexable<
         Indexable,
         typename geometry::traits::tag<Indexable>::type
     >::apply(os, i);
@@ -115,12 +114,12 @@ inline void rtree_print_indexable(std::ostream & os, Indexable const& i)
 } // namespace detail
 
 template <typename Value, typename Translator, typename Box, typename Tag>
-struct rtree_print : public boost::static_visitor<>
+struct print : public boost::static_visitor<>
 {
-    typedef typename index::detail::rtree_internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename index::detail::rtree_leaf<Value, Box, Tag>::type leaf;
+    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
-    inline rtree_print(std::ostream & o, Translator const& t)
+    inline print(std::ostream & o, Translator const& t)
         : os(o), tr(t), level(0)
     {}
 
@@ -134,7 +133,7 @@ struct rtree_print : public boost::static_visitor<>
             it != n.children.end(); ++it)
         {
             spaces(level);
-            detail::rtree_print_indexable(os, it->first);
+            detail::print_indexable(os, it->first);
             os << " ->" << it->second << '\n';
         }
 
@@ -159,7 +158,7 @@ struct rtree_print : public boost::static_visitor<>
             it != n.values.end(); ++it)
         {
             spaces(level);
-            detail::rtree_print_indexable(os, tr(*it));
+            detail::print_indexable(os, tr(*it));
             os << '\n';
         }
     }
@@ -177,7 +176,7 @@ struct rtree_print : public boost::static_visitor<>
     size_t level;
 };
 
-} // namespace visitors
+}}} // namespace detail::rtree::visitors
 
 template <typename Value, typename Translator, typename Tag>
 std::ostream & operator<<(std::ostream & os, rtree<Value, Translator, Tag> const& tree)
@@ -186,7 +185,7 @@ std::ostream & operator<<(std::ostream & os, rtree<Value, Translator, Tag> const
     typedef typename rtree<Value, Translator, Tag>::translator_type translator_type;
     typedef typename rtree<Value, Translator, Tag>::box_type box_type;
     typedef typename rtree<Value, Translator, Tag>::tag_type tag_type;
-    visitors::rtree_print<value_type, translator_type, box_type, tag_type> print_v(os, tree.get_translator());
+    detail::rtree::visitors::print<value_type, translator_type, box_type, tag_type> print_v(os, tree.get_translator());
     tree.apply_visitor(print_v);
     return os;
 }

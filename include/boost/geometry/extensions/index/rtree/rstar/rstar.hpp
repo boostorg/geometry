@@ -11,6 +11,6 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RSTAR_RSTAR_HPP
 
 #include <boost/geometry/extensions/index/rtree/rstar/tags.hpp>
-#include <boost/geometry/extensions/index/rtree/rstar/rtree_insert.hpp>
+#include <boost/geometry/extensions/index/rtree/rstar/insert.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RSTAR_RSTAR_HPP

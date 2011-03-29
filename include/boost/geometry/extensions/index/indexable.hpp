@@ -108,6 +108,14 @@ struct dimension
         >::value;
 };
 
+template <typename Indexable>
+struct tag
+{
+    typedef typename geometry::traits::tag<
+        Indexable
+    >::type type;
+};
+
 } // namespace traits
 
 namespace dispatch {

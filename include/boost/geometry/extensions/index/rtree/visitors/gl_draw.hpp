@@ -12,20 +12,20 @@
 
 #include <iostream>
 
-#include <boost/geometry/extensions/index/rtree/rtree_node.hpp>
+#include <boost/geometry/extensions/index/rtree/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
-namespace visitors {
+namespace detail { namespace rtree { namespace visitors {
 
 namespace dispatch {
 
 template <typename Point, size_t Dimension>
-struct rtree_gl_draw_point
+struct gl_draw_point
 {};
 
 template <typename Point>
-struct rtree_gl_draw_point<Point, 2>
+struct gl_draw_point<Point, 2>
 {
     static inline void apply(Point const& p, size_t level)
     {
@@ -36,11 +36,11 @@ struct rtree_gl_draw_point<Point, 2>
 };
 
 template <typename Box, size_t Dimension>
-struct rtree_gl_draw_box
+struct gl_draw_box
 {};
 
 template <typename Box>
-struct rtree_gl_draw_box<Box, 2>
+struct gl_draw_box<Box, 2>
 {
     static inline void apply(Box const& b, size_t level)
     {
@@ -54,30 +54,29 @@ struct rtree_gl_draw_box<Box, 2>
 };
 
 template <typename Indexable, typename Tag>
-struct rtree_gl_draw_indexable
+struct gl_draw_indexable
 {
 };
 
 template <typename Indexable>
-struct rtree_gl_draw_indexable<Indexable, box_tag>
+struct gl_draw_indexable<Indexable, box_tag>
 {
-    typedef typename geometry::traits::point_type<Indexable>::type point_type;
-    static const size_t dimension = geometry::traits::dimension<point_type>::value;
+    static const size_t dimension = index::traits::dimension<Indexable>::value;
 
     static inline void apply(Indexable const& i, size_t level)
     {
-        rtree_gl_draw_box<Indexable, dimension>::apply(i, level);
+        gl_draw_box<Indexable, dimension>::apply(i, level);
     }
 };
 
 template <typename Indexable>
-struct rtree_gl_draw_indexable<Indexable, point_tag>
+struct gl_draw_indexable<Indexable, point_tag>
 {
-    static const size_t dimension = geometry::traits::dimension<Indexable>::value;
+    static const size_t dimension = index::traits::dimension<Indexable>::value;
 
     static inline void apply(Indexable const& i, size_t level)
     {
-        rtree_gl_draw_point<Indexable, dimension>::apply(i, level);
+        gl_draw_point<Indexable, dimension>::apply(i, level);
     }
 };
 
@@ -86,23 +85,23 @@ struct rtree_gl_draw_indexable<Indexable, point_tag>
 namespace detail {
 
 template <typename Indexable>
-inline void rtree_gl_draw_indexable(Indexable const& i, size_t level)
+inline void gl_draw_indexable(Indexable const& i, size_t level)
 {
-    dispatch::rtree_gl_draw_indexable<
+    dispatch::gl_draw_indexable<
         Indexable,
-        typename geometry::traits::tag<Indexable>::type
+        typename index::traits::tag<Indexable>::type
     >::apply(i, level);
 }
 
 } // namespace detail
 
 template <typename Value, typename Translator, typename Box, typename Tag>
-struct rtree_gl_draw : public boost::static_visitor<>
+struct gl_draw : public boost::static_visitor<>
 {
-    typedef typename index::detail::rtree_internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename index::detail::rtree_leaf<Value, Box, Tag>::type leaf;
+    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
-    inline rtree_gl_draw(Translator const& t)
+    inline gl_draw(Translator const& t)
         : tr(t), level(0)
     {}
 
@@ -128,7 +127,7 @@ struct rtree_gl_draw : public boost::static_visitor<>
         for (typename children_type::const_iterator it = n.children.begin();
             it != n.children.end(); ++it)
         {
-            detail::rtree_gl_draw_indexable(it->first, level);
+            detail::gl_draw_indexable(it->first, level);
         }
         
         size_t level_backup = level;
@@ -152,7 +151,7 @@ struct rtree_gl_draw : public boost::static_visitor<>
         for (typename values_type::const_iterator it = n.values.begin();
             it != n.values.end(); ++it)
         {
-            detail::rtree_gl_draw_indexable(tr(*it), level);
+            detail::gl_draw_indexable(tr(*it), level);
         }
     }
 
@@ -161,7 +160,7 @@ struct rtree_gl_draw : public boost::static_visitor<>
     size_t level;
 };
 
-} // namespace visitors
+}}} // namespace detail::rtree::visitors
 
 template <typename Value, typename Translator, typename Tag>
 void gl_draw(rtree<Value, Translator, Tag> const& tree)
@@ -173,7 +172,7 @@ void gl_draw(rtree<Value, Translator, Tag> const& tree)
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    visitors::rtree_gl_draw<value_type, translator_type, box_type, tag_type> gl_draw_v(tree.get_translator());
+    detail::rtree::visitors::gl_draw<value_type, translator_type, box_type, tag_type> gl_draw_v(tree.get_translator());
     tree.apply_visitor(gl_draw_v);
 
     glFlush();

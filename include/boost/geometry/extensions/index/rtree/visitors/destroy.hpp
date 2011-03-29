@@ -1,26 +1,26 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.Index - R-tree delete visitor
+// Boost.Index - R-tree destroy visitor
 //
 // Copyright 2011 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_RTREE_DELETE_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_RTREE_DELETE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_DELETE_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_DELETE_HPP
 
-#include <boost/geometry/extensions/index/rtree/rtree_node.hpp>
+#include <boost/geometry/extensions/index/rtree/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
-namespace visitors {
+namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Translator, typename Box, typename Tag>
-struct rtree_delete : public boost::static_visitor<>
+struct destroy : public boost::static_visitor<>
 {
-    typedef typename index::detail::rtree_internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename index::detail::rtree_leaf<Value, Box, Tag>::type leaf;
+    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
     inline void operator()(internal_node & n) const
     {
@@ -31,7 +31,7 @@ struct rtree_delete : public boost::static_visitor<>
         {
             boost::apply_visitor(*this, *it->second);
 
-            index::detail::rtree_delete_node(it->second);
+            rtree::delete_node(it->second);
         }
     }
 
@@ -40,8 +40,8 @@ struct rtree_delete : public boost::static_visitor<>
     }
 };
 
-} // namespace visitors
+}}} // namespace detail::rtree::visitors
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_RTREE_DELETE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_DELETE_HPP

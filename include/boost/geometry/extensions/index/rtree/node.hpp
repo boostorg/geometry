@@ -8,28 +8,28 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_DEFAULT_NODE_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_DEFAULT_NODE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_HPP
 
 #include <vector>
 #include <boost/variant.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
-namespace detail {
+namespace detail { namespace rtree {
 
 template <typename Value, typename Box, typename Tag>
-struct rtree_node;
+struct node;
 
 // nodes default types
 
 template <typename Value, typename Box, typename Tag>
-struct rtree_internal_node_def
+struct internal_node_def
 {
     typedef std::vector<
         std::pair<
             Box,
-            typename rtree_node<Value, Box, Tag>::type *
+            typename node<Value, Box, Tag>::type *
         >
     > children_type;
 
@@ -37,7 +37,7 @@ struct rtree_internal_node_def
 };
 
 template <typename Value, typename Box, typename Tag>
-struct rtree_leaf_def
+struct leaf_def
 {
     typedef std::vector<Value> values_type;
     values_type values;
@@ -46,63 +46,63 @@ struct rtree_leaf_def
 // nodes traits
 
 template <typename Value, typename Box, typename Tag>
-struct rtree_node
+struct node
 {
     typedef boost::variant<
-        rtree_leaf_def<Value, Box, Tag>,
-        rtree_internal_node_def<Value, Box, Tag>
+        leaf_def<Value, Box, Tag>,
+        internal_node_def<Value, Box, Tag>
     > type;
 };
 
 template <typename Value, typename Box, typename Tag>
-struct rtree_internal_node
+struct internal_node
 {
-    typedef rtree_internal_node_def<Value, Box, Tag> type;
+    typedef internal_node_def<Value, Box, Tag> type;
 };
 
 template <typename Value, typename Box, typename Tag>
-struct rtree_leaf
+struct leaf
 {
-    typedef rtree_leaf_def<Value, Box, Tag> type;
+    typedef leaf_def<Value, Box, Tag> type;
 };
 
 // nodes elements extractor
 
 template <typename Node>
-struct rtree_elements_type
+struct elements_type
 {
     typedef typename Node::elements_type type;
 };
 
 template <typename Value, typename Box, typename Tag>
-struct rtree_elements_type< rtree_internal_node_def<Value, Box, Tag> >
+struct elements_type< internal_node_def<Value, Box, Tag> >
 {
-    typedef typename rtree_internal_node_def<Value, Box, Tag>::children_type type;
+    typedef typename internal_node_def<Value, Box, Tag>::children_type type;
 };
 
 template <typename Value, typename Box, typename Tag>
-struct rtree_elements_type< rtree_leaf_def<Value, Box, Tag> >
+struct elements_type< leaf_def<Value, Box, Tag> >
 {
-    typedef typename rtree_leaf_def<Value, Box, Tag>::values_type type;
+    typedef typename leaf_def<Value, Box, Tag>::values_type type;
 };
 
 template <typename Node>
-typename rtree_elements_type<Node>::type &
-rtree_elements_get(Node & n)
+typename elements_type<Node>::type &
+elements_get(Node & n)
 {
     return n.elements;
 }
 
 template <typename Value, typename Box, typename Tag>
-typename rtree_internal_node_def<Value, Box, Tag>::children_type &
-rtree_elements_get(rtree_internal_node_def<Value, Box, Tag> & n)
+typename internal_node_def<Value, Box, Tag>::children_type &
+elements_get(internal_node_def<Value, Box, Tag> & n)
 {
     return n.children;
 }
 
 template <typename Value, typename Box, typename Tag>
-typename rtree_leaf_def<Value, Box, Tag>::values_type &
-rtree_elements_get(rtree_leaf_def<Value, Box, Tag> & n)
+typename leaf_def<Value, Box, Tag>::values_type &
+elements_get(leaf_def<Value, Box, Tag> & n)
 {
     return n.values;
 }
@@ -110,18 +110,18 @@ rtree_elements_get(rtree_leaf_def<Value, Box, Tag> & n)
 // uniform indexable type for child node element's box and value's indexable
 
 template <typename Value, typename Translator>
-struct rtree_element_indexable_type
+struct element_indexable_type
 {
     typedef typename Translator::indexable_type type;
 };
 
 template <typename Value, typename Box, typename Tag, typename Translator>
-struct rtree_element_indexable_type<
+struct element_indexable_type<
     std::pair<
         Box,
         boost::variant<
-            rtree_leaf_def<Value, Box, Tag>,
-            rtree_internal_node_def<Value, Box, Tag>
+            leaf_def<Value, Box, Tag>,
+            internal_node_def<Value, Box, Tag>
         > *
     >,
     Translator
@@ -134,12 +134,12 @@ struct rtree_element_indexable_type<
 
 template <typename Value, typename Box, typename Tag, typename Translator>
 Box const&
-rtree_element_indexable(
+element_indexable(
     std::pair<
         Box,
         boost::variant<
-            rtree_leaf_def<Value, Box, Tag>,
-            rtree_internal_node_def<Value, Box, Tag>
+            leaf_def<Value, Box, Tag>,
+            internal_node_def<Value, Box, Tag>
         > *
     > const& el,
     Translator const&)
@@ -149,7 +149,7 @@ rtree_element_indexable(
 
 template <typename Value, typename Translator>
 typename Translator::indexable_type const&
-rtree_element_indexable(Value const& el, Translator const& tr)
+element_indexable(Value const& el, Translator const& tr)
 {
     return tr(el);
 };
@@ -157,7 +157,7 @@ rtree_element_indexable(Value const& el, Translator const& tr)
 // elements box
 
 template <typename Box, typename FwdIter, typename Translator>
-inline Box rtree_elements_box(FwdIter first, FwdIter last, Translator const& tr)
+inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
 {
     Box result;
 
@@ -167,11 +167,11 @@ inline Box rtree_elements_box(FwdIter first, FwdIter last, Translator const& tr)
         return result;
     }
 
-    geometry::convert(index::detail::rtree_element_indexable(*first, tr), result);
+    geometry::convert(element_indexable(*first, tr), result);
     ++first;
 
     for ( ; first != last ; ++first )
-        geometry::expand(result, index::detail::rtree_element_indexable(*first, tr));
+        geometry::expand(result, element_indexable(*first, tr));
 
     return result;
 }
@@ -179,10 +179,10 @@ inline Box rtree_elements_box(FwdIter first, FwdIter last, Translator const& tr)
 // create leaf node
 
 template <typename Value, typename Box, typename Tag>
-typename rtree_node<Value, Box, Tag>::type *
-rtree_create_node(rtree_leaf_def<Value, Box, Tag> const& l)
+typename node<Value, Box, Tag>::type *
+create_node(leaf_def<Value, Box, Tag> const& l)
 {
-    typedef typename rtree_node<Value, Box, Tag>::type node;
+    typedef typename node<Value, Box, Tag>::type node;
     node * n = new node(l);
     return n;
 }
@@ -190,10 +190,10 @@ rtree_create_node(rtree_leaf_def<Value, Box, Tag> const& l)
 // create internal node
 
 template <typename Value, typename Box, typename Tag>
-typename rtree_node<Value, Box, Tag>::type *
-rtree_create_node(rtree_internal_node_def<Value, Box, Tag> const& in)
+typename node<Value, Box, Tag>::type *
+create_node(internal_node_def<Value, Box, Tag> const& in)
 {
-    typedef typename rtree_node<Value, Box, Tag>::type node;
+    typedef typename node<Value, Box, Tag>::type node;
     node * n = new node(in);
     return n;
 }
@@ -201,17 +201,17 @@ rtree_create_node(rtree_internal_node_def<Value, Box, Tag> const& in)
 // default node
 
 template <typename Value, typename Box, typename Tag>
-void rtree_delete_node(
+void delete_node(
     boost::variant<
-        rtree_leaf_def<Value, Box, Tag>,
-        rtree_internal_node_def<Value, Box, Tag>
+        leaf_def<Value, Box, Tag>,
+        internal_node_def<Value, Box, Tag>
     > * n)
 {
     delete n;
 }
 
-} // namespace detail
+}} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_DEFAULT_NODE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_HPP

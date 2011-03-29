@@ -15,8 +15,8 @@
 
 #include <boost/geometry/extensions/index/rtree/filters.hpp>
 
-#include <boost/geometry/extensions/index/rtree/visitors/rtree_find.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/rtree_delete.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/find.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
 
 #include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
 
@@ -37,9 +37,9 @@ public:
     typedef typename detail::geometry_box_type<typename translator_type::indexable_type>::type box_type;
     typedef Tag tag_type;
 
-    typedef typename detail::rtree_node<value_type, box_type, tag_type>::type node;
-    typedef typename detail::rtree_internal_node<value_type, box_type, tag_type>::type internal_node;
-    typedef typename detail::rtree_leaf<value_type, box_type, tag_type>::type leaf;
+    typedef typename detail::rtree::node<value_type, box_type, tag_type>::type node;
+    typedef typename detail::rtree::internal_node<value_type, box_type, tag_type>::type internal_node;
+    typedef typename detail::rtree::leaf<value_type, box_type, tag_type>::type leaf;
 
     inline explicit rtree(
         size_t max_elems_per_node = 2,
@@ -57,26 +57,26 @@ public:
         if ( m_max_elems_per_node < 2 )
             m_max_elems_per_node = 2;
 
-        m_root = detail::rtree_create_node(leaf());
+        m_root = detail::rtree::create_node(leaf());
     }
 
     ~rtree()
     {
-        visitors::rtree_delete<value_type, translator_type, box_type, tag_type> del_v;
+        detail::rtree::visitors::destroy<value_type, translator_type, box_type, tag_type> del_v;
         boost::apply_visitor(del_v, *m_root);
     }
 
     template <typename Geometry>
     inline std::vector<value_type> find(Geometry const& geom) const
     {
-        visitors::rtree_find<value_type, translator_type, box_type, tag_type, Geometry> find_v(geom, m_translator);
+        detail::rtree::visitors::find<value_type, translator_type, box_type, tag_type, Geometry> find_v(geom, m_translator);
         boost::apply_visitor(find_v, *m_root);
         return find_v.result;
     }
 
     void insert(value_type const& value)
     {
-        visitors::rtree_insert<value_type, translator_type, box_type, tag_type>
+        detail::rtree::visitors::insert<value_type, translator_type, box_type, tag_type>
             insert_v(m_root, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
         boost::apply_visitor(insert_v, *m_root);

@@ -5,7 +5,7 @@
 
 #include <boost/geometry/extensions/index/rtree/visitors/gl_draw.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/print.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/rtree_are_boxes_ok.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
 
 typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
 typedef boost::geometry::model::box<P> B;
@@ -53,9 +53,9 @@ void mouse(int button, int state, int x, int y)
         std::cout << "\n\n\n" << t << "\n\n";
         
         std::cout << "inserted: ";
-        boost::geometry::index::visitors::detail::rtree_print_indexable(std::cout, b);
+        boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
-        std::cout << ( boost::geometry::index::rtree_are_boxes_ok(t) ? "boxes OK" : "WRONG BOXES!" );
+        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK" : "WRONG BOXES!" );
 
         glutPostRedisplay();
     }
