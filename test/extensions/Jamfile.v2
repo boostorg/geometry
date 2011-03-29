@@ -8,4 +8,5 @@
 
 build-project algorithms ;
 build-project gis ;
+build-project iterators ;
 
