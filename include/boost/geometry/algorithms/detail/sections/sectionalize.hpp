@@ -621,7 +621,7 @@ inline void sectionalize(Geometry const& geometry, Sections& sections, int sourc
 
     // TODO: review use of this constant (see below) as causing problems with GCC 4.6 --mloskot
     // A maximum of 10 segments per section seems to give the fastest results
-    static std::size_t const max_segments_per_section = 10;
+    //static std::size_t const max_segments_per_section = 10;
     typedef dispatch::sectionalize
         <
             typename tag<Geometry>::type,
