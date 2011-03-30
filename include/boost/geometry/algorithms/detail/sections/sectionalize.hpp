@@ -619,6 +619,7 @@ inline void sectionalize(Geometry const& geometry, Sections& sections, int sourc
 {
     concept::check<Geometry const>();
 
+    // TODO: review use of this constant (see below) as causing problems with GCC 4.6 --mloskot
     // A maximum of 10 segments per section seems to give the fastest results
     static std::size_t const max_segments_per_section = 10;
     typedef dispatch::sectionalize
@@ -628,7 +629,7 @@ inline void sectionalize(Geometry const& geometry, Sections& sections, int sourc
             Reverse,
             Sections,
             Sections::value,
-            max_segments_per_section
+            10 // TODO: max_segments_per_section
         > sectionalizer_type;
 
     sections.clear();
