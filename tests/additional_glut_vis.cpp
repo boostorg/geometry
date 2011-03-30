@@ -9,7 +9,8 @@
 
 typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
 typedef boost::geometry::model::box<P> B;
-boost::geometry::index::rtree<B> t(2, 1);
+//boost::geometry::index::rtree<B> t(2, 1);
+boost::geometry::index::rtree<B> t(4, 2);
 
 void render_scene(void)
 {

@@ -41,7 +41,7 @@ public:
     inline explicit insert(node* & root, Value const& v, size_t min_elements, size_t max_elements, Translator const& t)
         : m_value(v), m_tr(t), m_min_elems_per_node(min_elements), m_max_elems_per_node(max_elements)
         , m_root_node(root)
-        , m_parent(0), m_current_child_index(0)
+        , m_parent(0), m_current_child_index(0), m_current_level(0)
     {}
 
     inline void operator()(internal_node & n)
@@ -50,13 +50,14 @@ public:
         internal_node * parent_bckup = m_parent;
         m_parent = &n;
         size_t current_child_index_bckup = m_current_child_index;
+        size_t current_level_bckup = m_current_level;
 
         // choose next node, where value insert traversing should go
         m_current_child_index =
             rstar::choose_next_node<Value, Box>::
             apply(n, m_tr(m_value));
 
-        // TODO: awulkiew - if reinsert is implemented this must be changed
+        // expand the node to contain value
         geometry::expand(n.children[m_current_child_index].first, m_tr(m_value));
 
         // next traversing step
@@ -65,12 +66,10 @@ public:
         // restore previous traverse inputs
         m_parent = parent_bckup;
         m_current_child_index = current_child_index_bckup;
+        m_current_level = current_level_bckup;
 
         if ( m_max_elems_per_node < n.children.size() )
-        {
-            rstar::split<Value, Translator, Box>::
-                apply(n, m_parent, m_current_child_index, m_root_node, m_min_elems_per_node, m_max_elems_per_node, m_tr);
-        }
+            overflow_treatment(n);
     }
 
     inline void operator()(leaf & n)
@@ -78,13 +77,19 @@ public:
         n.values.push_back(m_value);
 
         if ( m_max_elems_per_node < n.values.size() )
-        {
-            rstar::split<Value, Translator, Box>::
-                apply(n, m_parent, m_current_child_index, m_root_node, m_min_elems_per_node, m_max_elems_per_node, m_tr);
-        }
+            overflow_treatment(n);
     }
 
 private:
+    template <typename Node>
+    inline void overflow_treatment(Node & n)
+    {
+        // TODO: awulkiew - reinsert
+
+        rstar::split<Value, Translator, Box>::
+            apply(n, m_parent, m_current_child_index, m_root_node, m_min_elems_per_node, m_max_elems_per_node, m_tr);
+    }
+
     Value const& m_value;
     Translator const& m_tr;
     size_t m_min_elems_per_node;
@@ -95,6 +100,7 @@ private:
     // traversing input parameters
     internal_node *m_parent;
     size_t m_current_child_index;
+    size_t m_current_level;
 };
 
 }}} // namespace detail::rtree::visitors
