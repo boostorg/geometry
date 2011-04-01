@@ -12,8 +12,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#ifndef BOOST_GEOMETRY_CORE_REPLACE_POINT_TYPE_HPP
-#define BOOST_GEOMETRY_CORE_REPLACE_POINT_TYPE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_UTIL_REPLACE_POINT_TYPE_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_UTIL_REPLACE_POINT_TYPE_HPP
 
 
 #include <boost/type_traits/remove_const.hpp>
@@ -95,4 +95,4 @@ struct replace_point_type : core_dispatch::replace_point_type
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_CORE_REPLACE_POINT_TYPE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_UTIL_REPLACE_POINT_TYPE_HPP

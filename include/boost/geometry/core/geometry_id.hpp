@@ -75,9 +75,13 @@ struct geometry_id<box_tag>        : boost::mpl::int_<94> {};
 
 
 /*!
-    \brief Meta-function the id for a geometry type
-    \note Used for e.g. reverse meta-function
-    \ingroup core
+\brief Meta-function returning the id of a geometry type
+\details The meta-function geometry_id defines a numerical ID (based on 
+    boost::mpl::int_<...> ) for each geometry concept. A numerical ID is 
+    sometimes useful, and within Boost.Geometry it is used for the 
+    reverse_dispatch metafuntion.
+\note Used for e.g. reverse meta-function
+\ingroup core
 */
 template <typename Geometry>
 struct geometry_id : core_dispatch::geometry_id<typename tag<Geometry>::type>
