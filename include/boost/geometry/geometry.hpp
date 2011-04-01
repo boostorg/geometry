@@ -28,7 +28,6 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
 
-#include <boost/geometry/core/replace_point_type.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
