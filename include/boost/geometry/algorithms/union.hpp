@@ -41,7 +41,7 @@ template
     typename GeometryOut,
     typename Strategy
 >
-struct union_inserter
+struct union_insert
 {
     BOOST_MPL_ASSERT_MSG
         (
@@ -60,7 +60,7 @@ template
     typename GeometryOut,
     typename Strategy
 >
-struct union_inserter
+struct union_insert
     <
         TagIn1, TagIn2, TagOut,
         true, true, true,
@@ -83,13 +83,13 @@ template
     typename OutputIterator, typename GeometryOut,
     typename Strategy
 >
-struct union_inserter_reversed
+struct union_insert_reversed
 {
     static inline OutputIterator apply(Geometry1 const& g1,
             Geometry2 const& g2, OutputIterator out,
             Strategy const& strategy)
     {
-        return union_inserter
+        return union_insert
             <
                 GeometryTag2, GeometryTag1, GeometryTag3,
                 Areal2, Areal1, ArealOut,
@@ -116,7 +116,7 @@ template
     typename OutputIterator,
     typename Strategy
 >
-inline OutputIterator inserter(Geometry1 const& geometry1,
+inline OutputIterator insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out,
             Strategy const& strategy)
@@ -124,7 +124,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
     return boost::mpl::if_c
         <
             geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
-            dispatch::union_inserter_reversed
+            dispatch::union_insert_reversed
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
@@ -139,7 +139,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
                 OutputIterator, GeometryOut,
                 Strategy
             >,
-            dispatch::union_inserter
+            dispatch::union_insert
             <
                 typename tag<Geometry1>::type,
                 typename tag<Geometry2>::type,
@@ -157,15 +157,11 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
         >::type::apply(geometry1, geometry2, out, strategy);
 }
 
-}} // namespace detail::union_
-#endif // DOXYGEN_NO_DETAIL
-
-
 /*!
 \brief_calc2{union} \brief_strategy
 \ingroup union
-\details \details_calc2{union_inserter, spatial set theoretic union}
-    \brief_strategy. details_inserter{union}
+\details \details_calc2{union_insert, spatial set theoretic union}
+    \brief_strategy. details_insert{union}
 \tparam GeometryOut output geometry type, must be specified
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -187,7 +183,7 @@ template
     typename OutputIterator,
     typename Strategy
 >
-inline OutputIterator union_inserter(Geometry1 const& geometry1,
+inline OutputIterator union_insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out,
             Strategy const& strategy)
@@ -196,14 +192,14 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
 
-    return detail::union_::inserter<GeometryOut>(geometry1, geometry2, out, strategy);
+    return detail::union_::insert<GeometryOut>(geometry1, geometry2, out, strategy);
 }
 
 /*!
 \brief_calc2{union}
 \ingroup union
-\details \details_calc2{union_inserter, spatial set theoretic union}.
-    \details_inserter{union}
+\details \details_calc2{union_insert, spatial set theoretic union}.
+    \details_insert{union}
 \tparam GeometryOut output geometry type, must be specified
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -220,7 +216,7 @@ template
     typename Geometry2,
     typename OutputIterator
 >
-inline OutputIterator union_inserter(Geometry1 const& geometry1,
+inline OutputIterator union_insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out)
 {
@@ -236,8 +232,14 @@ inline OutputIterator union_inserter(Geometry1 const& geometry1,
             typename geometry::point_type<GeometryOut>::type
         > strategy;
 
-    return union_inserter<GeometryOut>(geometry1, geometry2, out, strategy());
+    return union_insert<GeometryOut>(geometry1, geometry2, out, strategy());
 }
+
+
+}} // namespace detail::union_
+#endif // DOXYGEN_NO_DETAIL
+
+
 
 
 /*!
@@ -271,7 +273,7 @@ inline void union_(Geometry1 const& geometry1,
     typedef typename boost::range_value<Collection>::type geometry_out;
     concept::check<geometry_out>();
 
-    union_inserter<geometry_out>(geometry1, geometry2,
+    detail::union_::union_insert<geometry_out>(geometry1, geometry2,
                 std::back_inserter(output_collection));
 }
 

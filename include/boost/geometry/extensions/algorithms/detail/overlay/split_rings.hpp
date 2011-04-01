@@ -233,7 +233,7 @@ struct split_turn_operation : public detail::overlay::turn_operation
 {
    inline split_turn_operation()
         : detail::overlay::turn_operation()
-        , distance(geometry::make_distance_result<distance_type>(0))
+        , distance(geometry::return_distance_result<distance_type>(0))
     {}
 
     typedef typename distance_result<P, P>::type distance_type;

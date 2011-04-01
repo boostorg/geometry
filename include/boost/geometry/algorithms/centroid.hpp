@@ -416,7 +416,7 @@ inline void centroid(Geometry const& geometry, Point& c)
 /*!
 \brief \brief_calc{centroid}
 \ingroup centroid
-\details \details_calc{centroid,geometric center (or: center of mass)}. \details_make{centroid}.
+\details \details_calc{centroid,geometric center (or: center of mass)}. \details_return{centroid}.
 \tparam Point \tparam_point
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
@@ -425,7 +425,7 @@ inline void centroid(Geometry const& geometry, Point& c)
 \qbk{[include reference/algorithms/centroid.qbk]}
  */
 template<typename Point, typename Geometry>
-inline Point make_centroid(Geometry const& geometry)
+inline Point return_centroid(Geometry const& geometry)
 {
     concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
 
@@ -437,7 +437,7 @@ inline Point make_centroid(Geometry const& geometry)
 /*!
 \brief \brief_calc{centroid} \brief_strategy
 \ingroup centroid
-\details \details_calc{centroid,geometric center (or: center of mass)}. \details_make{centroid}. \details_strategy_reasons
+\details \details_calc{centroid,geometric center (or: center of mass)}. \details_return{centroid}. \details_strategy_reasons
 \tparam Point \tparam_point
 \tparam Geometry \tparam_geometry
 \tparam Strategy \tparam_strategy{centroid}
@@ -450,7 +450,7 @@ inline Point make_centroid(Geometry const& geometry)
 \qbk{[include reference/algorithms/centroid_strategies.qbk]}
  */
 template<typename Point, typename Geometry, typename Strategy>
-inline Point make_centroid(Geometry const& geometry, Strategy const& strategy)
+inline Point return_centroid(Geometry const& geometry, Strategy const& strategy)
 {
     //BOOST_CONCEPT_ASSERT( (geometry::concept::CentroidStrategy<Strategy>) );
 

@@ -190,8 +190,8 @@ public :
         typedef typename geometry::point_type<Geometry2>::type point_type;
         std::cout << "Combine "
             << area_a << " with " << " " << area_b
-            << " { " << geometry::wkt(geometry::make_centroid<point_type>(a))
-            << geometry::wkt(geometry::make_centroid<point_type>(b)) << " }"
+            << " { " << geometry::wkt(geometry::return_centroid<point_type>(a))
+            << geometry::wkt(geometry::return_centroid<point_type>(b)) << " }"
              << std::endl;
         */
         // END DEBUG
@@ -219,7 +219,7 @@ public :
             typedef typename geometry::point_type<Geometry2>::type point_type;
             std::cout << "Result "
                 << geometry::area(output_collection[i])
-                << " " << geometry::wkt(geometry::make_centroid<point_type>(output_collection[i]))
+                << " " << geometry::wkt(geometry::return_centroid<point_type>(output_collection[i]))
                 << std::endl;
         }
         */
@@ -287,7 +287,7 @@ struct dissolver_generic
             ++it, ++index)
         {
             helper.push_back(dissolve_helper<box_type>(index,
-                    geometry::make_envelope<box_type>(*it),
+                    geometry::return_envelope<box_type>(*it),
                     geometry::area(*it),
                     source));
         }

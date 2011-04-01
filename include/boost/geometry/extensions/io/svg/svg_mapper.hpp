@@ -266,7 +266,7 @@ public :
         if (num_points(geometry) > 0)
         {
             expand(m_bounding_box,
-                make_envelope
+                return_envelope
                     <
                         model::box<Point>
                     >(geometry));
