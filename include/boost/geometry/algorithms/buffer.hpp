@@ -133,7 +133,7 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 /*!
 \brief \brief_calc{buffer}
 \ingroup buffer
-\details \details_calc{make_buffer, \det_buffer}. \details_make{buffer}.
+\details \details_calc{return_buffer, \det_buffer}. \details_return{buffer}.
 \tparam Input \tparam_geometry
 \tparam Output \tparam_geometry
 \tparam Distance \tparam_numeric
@@ -143,7 +143,7 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 \return \return_calc{buffer}
  */
 template <typename Output, typename Input, typename T>
-Output make_buffer(Input const& geometry, T const& distance, T const& chord_length = -1)
+Output return_buffer(Input const& geometry, T const& distance, T const& chord_length = -1)
 {
     concept::check<Input const>();
     concept::check<Output>();

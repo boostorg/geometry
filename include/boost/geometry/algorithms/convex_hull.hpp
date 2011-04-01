@@ -43,7 +43,7 @@ template
     order_selector Order,
     typename Strategy
 >
-struct hull_inserter
+struct hull_insert
 {
 
     // Member template function, to avoid inconvenient declaration
@@ -71,7 +71,7 @@ struct hull_to_geometry
     static inline void apply(Geometry const& geometry, OutputGeometry& out,
             Strategy const& strategy)
     {
-        hull_inserter
+        hull_insert
             <
                 Geometry,
                 geometry::point_order<OutputGeometry>::value,
@@ -114,8 +114,8 @@ template
     order_selector Order,
     typename GeometryIn, typename Strategy
  >
-struct convex_hull_inserter
-    : detail::convex_hull::hull_inserter<GeometryIn, Order, Strategy>
+struct convex_hull_insert
+    : detail::convex_hull::hull_insert<GeometryIn, Order, Strategy>
 {};
 
 
@@ -178,9 +178,13 @@ inline void convex_hull(Geometry1 const& geometry,
     convex_hull(geometry, hull, strategy_type());
 }
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace convex_hull
+{
+
 
 template<typename Geometry, typename OutputIterator, typename Strategy>
-inline OutputIterator convex_hull_inserter(Geometry const& geometry,
+inline OutputIterator convex_hull_insert(Geometry const& geometry,
             OutputIterator out, Strategy const& strategy)
 {
     // Concept: output point type = point type of input geometry
@@ -189,7 +193,7 @@ inline OutputIterator convex_hull_inserter(Geometry const& geometry,
 
     BOOST_CONCEPT_ASSERT( (geometry::concept::ConvexHullStrategy<Strategy>) );
 
-    return dispatch::convex_hull_inserter
+    return dispatch::convex_hull_insert
         <
             typename tag<Geometry>::type,
             geometry::point_order<Geometry>::value,
@@ -212,7 +216,7 @@ In this case, nothing is known about its point-type or
 
  */
 template<typename Geometry, typename OutputIterator>
-inline OutputIterator convex_hull_inserter(Geometry const& geometry,
+inline OutputIterator convex_hull_insert(Geometry const& geometry,
             OutputIterator out)
 {
     // Concept: output point type = point type of input geometry
@@ -229,8 +233,14 @@ inline OutputIterator convex_hull_inserter(Geometry const& geometry,
             point_type
         >::type strategy_type;
 
-    return convex_hull_inserter(geometry, out, strategy_type());
+    return convex_hull_insert(geometry, out, strategy_type());
 }
+
+
+}} // namespace detail::convex_hull
+#endif // DOXYGEN_NO_DETAIL
+
+
 
 
 }} // namespace boost::geometry

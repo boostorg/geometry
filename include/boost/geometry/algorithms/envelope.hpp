@@ -247,7 +247,7 @@ inline void envelope(Geometry const& geometry, Box& mbr)
 /*!
 \brief \brief_calc{envelope}
 \ingroup envelope
-\details \details_calc{make_envelope,\det_envelope}. \details_make{envelope}
+\details \details_calc{return_envelope,\det_envelope}. \details_return{envelope}
 \tparam Box \tparam_box
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
@@ -255,11 +255,11 @@ inline void envelope(Geometry const& geometry, Box& mbr)
 
 \qbk{
 [heading Example]
-[make_envelope] [make_envelope_output]
+[return_envelope] [return_envelope_output]
 }
 */
 template<typename Box, typename Geometry>
-inline Box make_envelope(Geometry const& geometry)
+inline Box return_envelope(Geometry const& geometry)
 {
     concept::check<Geometry const>();
     concept::check<Box>();

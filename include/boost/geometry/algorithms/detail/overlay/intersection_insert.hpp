@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_INTERSECTION_INSERTER_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_INTERSECTION_INSERTER_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
 
 
 #include <cstddef>
@@ -126,7 +126,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
 {
     BOOST_MPL_ASSERT_MSG
         (
@@ -146,7 +146,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         TagIn1, TagIn2, TagOut,
         true, true, true,
@@ -171,7 +171,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         TagIn, box_tag, TagOut,
         true, true, true,
@@ -193,7 +193,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         segment_tag, segment_tag, point_tag,
         false, false, false,
@@ -218,7 +218,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         linestring_tag, linestring_tag, point_tag,
         false, false, false,
@@ -243,7 +243,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         linestring_tag, box_tag, linestring_tag,
         false, true, false,
@@ -272,7 +272,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         segment_tag, box_tag, linestring_tag,
         false, true, false,
@@ -307,13 +307,13 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter_reversed
+struct intersection_insert_reversed
 {
     static inline OutputIterator apply(Geometry1 const& g1,
                 Geometry2 const& g2, OutputIterator out,
                 Strategy const& strategy)
     {
-        return intersection_inserter
+        return intersection_insert
             <
                 GeometryTag2, GeometryTag1, GeometryTag3,
                 Areal2, Areal1, ArealOut,
@@ -346,7 +346,7 @@ template
     typename OutputIterator,
     typename Strategy
 >
-inline OutputIterator inserter(Geometry1 const& geometry1,
+inline OutputIterator insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out,
             Strategy const& strategy)
@@ -354,7 +354,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
     return boost::mpl::if_c
         <
             geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
-            geometry::dispatch::intersection_inserter_reversed
+            geometry::dispatch::intersection_insert_reversed
             <
                 typename geometry::tag<Geometry1>::type,
                 typename geometry::tag<Geometry2>::type,
@@ -370,7 +370,7 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
                 OverlayType,
                 Strategy
             >,
-            geometry::dispatch::intersection_inserter
+            geometry::dispatch::intersection_insert
             <
                 typename geometry::tag<Geometry1>::type,
                 typename geometry::tag<Geometry2>::type,
@@ -379,9 +379,9 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
                 geometry::is_areal<Geometry2>::value,
                 geometry::is_areal<GeometryOut>::value,
                 Geometry1, Geometry2,
-                overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value,
-                overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
+                geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value,
+                geometry::detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
                 OutputIterator, GeometryOut,
                 OverlayType,
                 Strategy
@@ -390,14 +390,11 @@ inline OutputIterator inserter(Geometry1 const& geometry1,
 }
 
 
-}} // namespace detail::intersection
-#endif // DOXYGEN_NO_DETAIL
-
 /*!
 \brief \brief_calc2{intersection} \brief_strategy
 \ingroup intersection
-\details \details_calc2{intersection_inserter, spatial set theoretic intersection}
-    \brief_strategy. \details_inserter{intersection}
+\details \details_calc2{intersection_insert, spatial set theoretic intersection}
+    \brief_strategy. \details_insert{intersection}
 \tparam GeometryOut \tparam_geometry{\p_l_or_c}
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -420,7 +417,7 @@ template
     typename OutputIterator,
     typename Strategy
 >
-inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
+inline OutputIterator intersection_insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out,
             Strategy const& strategy)
@@ -428,7 +425,7 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return detail::intersection::inserter
+    return detail::intersection::insert
         <
             GeometryOut, false, overlay_intersection
         >(geometry1, geometry2, out, strategy);
@@ -438,8 +435,8 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
 /*!
 \brief \brief_calc2{intersection}
 \ingroup intersection
-\details \details_calc2{intersection_inserter, spatial set theoretic intersection}.
-    \details_inserter{intersection}
+\details \details_calc2{intersection_insert, spatial set theoretic intersection}.
+    \details_insert{intersection}
 \tparam GeometryOut \tparam_geometry{\p_l_or_c}
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -458,7 +455,7 @@ template
     typename Geometry2,
     typename OutputIterator
 >
-inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
+inline OutputIterator intersection_insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out)
 {
@@ -473,12 +470,16 @@ inline OutputIterator intersection_inserter(Geometry1 const& geometry1,
             typename geometry::point_type<GeometryOut>::type
         > strategy;
 
-    return intersection_inserter<GeometryOut>(geometry1, geometry2, out,
+    return intersection_insert<GeometryOut>(geometry1, geometry2, out,
                 strategy());
 }
+
+}} // namespace detail::intersection
+#endif // DOXYGEN_NO_DETAIL
+
 
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_INTERSECTION_INSERTER_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP

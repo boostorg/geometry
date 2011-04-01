@@ -267,7 +267,7 @@ private:
 \brief Object generator to conveniently stream objects without including streamveshape
 \ingroup veshape
 \par Example:
-Small example showing how to use the make_veshape helper function
+Small example showing how to use the veshape helper function
 \dontinclude doxygen_1.cpp
 \skip example_as_veshape_vector
 \line {

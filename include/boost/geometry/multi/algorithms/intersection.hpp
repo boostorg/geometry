@@ -152,7 +152,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         multi_linestring_tag, multi_linestring_tag, point_tag,
         false, false, false,
@@ -178,7 +178,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         linestring_tag, multi_linestring_tag, point_tag,
         false, false, false,
@@ -204,7 +204,7 @@ template
     overlay_type OverlayType,
     typename Strategy
 >
-struct intersection_inserter
+struct intersection_insert
     <
         multi_linestring_tag, box_tag, linestring_tag,
         false, true, false,
