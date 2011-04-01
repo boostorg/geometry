@@ -79,7 +79,7 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
         if (transform(*it, xy_polygon, projection))
         {
             // Update bbox with box of this projected polygon
-            expand(bbox, make_envelope<model::box<point_xy> >(xy_polygon));
+            expand(bbox, return_envelope<model::box<point_xy> >(xy_polygon));
 
             // Add projected polygon
             xy_polygons.push_back(xy_polygon);

@@ -66,7 +66,7 @@ typename bg::area_result<G1>::type test_intersection(std::string const& caseid,
         bg::intersection(g1, g2, out);
     }
     std::vector<OutputType> clip;
-    bg::intersection_inserter<OutputType>(g1, g2, std::back_inserter(clip), strategy());
+    bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
 
 
     typename bg::area_result<G1>::type length_or_area = 0;

@@ -19,7 +19,6 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/sym_difference.hpp>
-#include <boost/geometry/multi/algorithms/difference.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -90,11 +89,11 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         array_with_one_empty_geometry.push_back(OutputType());
         if (sym)
         {
-            boost::copy(array_with_one_empty_geometry, bg::sym_difference_inserter<OutputType>(g1, g2, std::back_inserter(inserted)));
+            boost::copy(array_with_one_empty_geometry, bg::detail::sym_difference::sym_difference_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
         }
         else
         {
-            boost::copy(array_with_one_empty_geometry, bg::difference_inserter<OutputType>(g1, g2, std::back_inserter(inserted)));
+            boost::copy(array_with_one_empty_geometry, bg::detail::difference::difference_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
         }
 
         BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);

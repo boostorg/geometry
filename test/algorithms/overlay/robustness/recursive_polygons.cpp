@@ -105,7 +105,7 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
     }
 
     MultiPolygon mp;
-    bg::union_inserter
+    bg::detail::union_::union_insert
         <
             polygon
         >(p, q, std::back_inserter(mp));

@@ -35,7 +35,7 @@ void create_svg(std::string const& filename, Geometry const& a, Geometry const& 
         mapper.map(g, "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
         std::ostringstream out;
         out << i++;
-        mapper.text(boost::geometry::make_centroid<point_type>(g), out.str(),
+        mapper.text(boost::geometry::return_centroid<point_type>(g), out.str(),
                     "fill:rgb(0,0,0);font-family:Arial;font-size:10px");
     }
 }

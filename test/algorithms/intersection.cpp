@@ -322,7 +322,7 @@ void test_pointer_version()
 
     typedef bg::model::linestring<bg::model::d2::point_xy<double> > output_type;
     std::vector<output_type> clip;
-    bg::intersection_inserter<output_type>(box, ln, std::back_inserter(clip));
+    bg::detail::intersection::intersection_insert<output_type>(box, ln, std::back_inserter(clip));
 
     double length = 0;
     int n = 0;

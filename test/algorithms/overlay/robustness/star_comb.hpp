@@ -63,7 +63,7 @@ inline void make_star(Polygon& polygon, AddFunctor functor,
 template <typename Vector>
 void ccw_pushback(Vector& vector, double x, double y, int)
 {
-    vector.push_back(boost::make_tuple<double, double>(x, y));
+    vector.push_back(boost::make_tuple(x, y));
 }
 
 template <typename Polygon, typename AddFunctor>

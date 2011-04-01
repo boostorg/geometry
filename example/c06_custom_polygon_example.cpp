@@ -133,7 +133,7 @@ int main()
     std::cout << "Perimeter of " << p1.name << ": "
         << boost::geometry::perimeter(p1) << std::endl;
     std::cout << "Centroid of " << p1.name << ": "
-        << boost::geometry::dsv(boost::geometry::make_centroid<my_point>(p1)) << std::endl;
+        << boost::geometry::dsv(boost::geometry::return_centroid<my_point>(p1)) << std::endl;
 
     return 0;
 }

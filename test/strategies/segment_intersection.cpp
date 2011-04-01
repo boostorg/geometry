@@ -213,7 +213,7 @@ static void test_segment_intersection(int caseno,
 
     // Now use generic intersection.
     std::vector<P> out;
-    bg::intersection_inserter<P>(s12, s34, std::back_inserter(out));
+    bg::detail::intersection::intersection_insert<P>(s12, s34, std::back_inserter(out));
 
     BOOST_CHECK_EQUAL(boost::size(out), expected_count);
 

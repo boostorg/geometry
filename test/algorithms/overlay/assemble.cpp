@@ -39,10 +39,10 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
 {
 
     std::vector<Geometry> u, i, d1, d2;
-    bg::union_inserter<Geometry>(p, q, std::back_inserter(u));
-    bg::intersection_inserter<Geometry>(p, q, std::back_inserter(i));
-    bg::difference_inserter<Geometry>(p, q, std::back_inserter(d1));
-    bg::difference_inserter<Geometry>(q, p, std::back_inserter(d2));
+    bg::detail::union_::union_insert<Geometry>(p, q, std::back_inserter(u));
+    bg::detail::intersection::intersection_insert<Geometry>(p, q, std::back_inserter(i));
+    bg::detail::difference::difference_insert<Geometry>(p, q, std::back_inserter(d1));
+    bg::detail::difference::difference_insert<Geometry>(q, p, std::back_inserter(d2));
 
     if (operation == 'i')
     {

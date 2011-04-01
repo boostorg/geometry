@@ -30,7 +30,7 @@ struct test_inserter<bg::linestring_tag, Geometry>
     static void apply(Geometry& geometry, std::string const& expected, double distance)
     {
         Geometry simplified;
-        bg::simplify_inserter(geometry,
+        bg::detail::simplify::simplify_insert(geometry,
             std::back_inserter(simplified), distance);
 
         std::ostringstream out;

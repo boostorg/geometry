@@ -22,7 +22,7 @@
 #include <boost/geometry/multi/iterators/range_type.hpp>
 
 #include <boost/geometry/multi/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/convex_hull.hpp>
+#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 

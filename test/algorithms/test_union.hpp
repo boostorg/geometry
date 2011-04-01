@@ -66,7 +66,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         // Test if inserter returns output-iterator (using Boost.Range copy)
         std::vector<OutputType> inserted, array_with_one_empty_geometry;
         array_with_one_empty_geometry.push_back(OutputType());
-        boost::copy(array_with_one_empty_geometry, bg::union_inserter<OutputType>(g1, g2, std::back_inserter(inserted)));
+        boost::copy(array_with_one_empty_geometry, bg::detail::union_::union_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
 
         typename bg::area_result<G1>::type area_inserted = 0;
         for (typename std::vector<OutputType>::iterator it = inserted.begin();
