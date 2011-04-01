@@ -16,7 +16,7 @@
 #include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 
 #include <boost/geometry/multi/algorithms/correct.hpp>
-#include <boost/geometry/multi/algorithms/difference.hpp>
+#include <boost/geometry/multi/algorithms/intersection.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp> // only for testing #77
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>

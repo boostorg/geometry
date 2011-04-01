@@ -50,6 +50,5 @@ exe length : length.cpp ;
 exe length_with_strategy : length_with_strategy.cpp ;
 
 exe simplify : length.cpp ;
-exe simplify_inserter : simplify_inserter.cpp ;
 
 exe within : within.cpp ;

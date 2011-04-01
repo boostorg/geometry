@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[make_envelope
+//[return_envelope
 //` Shows how to return the envelope of a ring
 
 #include <iostream>
@@ -37,24 +37,24 @@ int main()
     typedef boost::geometry::model::box<point> box;
 
     std::cout
-        << "make_envelope:"
-        << boost::geometry::dsv(boost::geometry::make_envelope<box>(ring))
+        << "return_envelope:"
+        << boost::geometry::dsv(boost::geometry::return_envelope<box>(ring))
         << std::endl;
 
-    /*<-*/ create_svg("make_envelope.svg", ring, boost::geometry::make_envelope<box>(ring)); /*->*/
+    /*<-*/ create_svg("return_envelope.svg", ring, boost::geometry::return_envelope<box>(ring)); /*->*/
     return 0;
 }
 
 //]
 
 
-//[make_envelope_output
+//[return_envelope_output
 /*`
 Output:
 [pre
-make_envelope:((2, -0.5), (6, 3.5))
+return_envelope:((2, -0.5), (6, 3.5))
 
-[$img/algorithms/make_envelope.png]
+[$img/algorithms/return_envelope.png]
 ]
 */
 //]

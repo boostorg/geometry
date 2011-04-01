@@ -162,12 +162,12 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         if (sections_buffered_unioned.empty())
         {
-            bg::union_inserter<GeometryOut>(geometry, p, std::back_inserter(sections_buffered_unioned));
+            bg::detail::union_::union_insert<GeometryOut>(geometry, p, std::back_inserter(sections_buffered_unioned));
         }
         else if (boost::size(sections_buffered_unioned) == 1)
         {
             std::vector<GeometryOut> step;
-            bg::union_inserter<GeometryOut>(sections_buffered_unioned.front(), p, std::back_inserter(step));
+            bg::detail::union_::union_insert<GeometryOut>(sections_buffered_unioned.front(), p, std::back_inserter(step));
             step.swap(sections_buffered_unioned);
         }
         else
@@ -175,7 +175,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             std::cout << "nyi" << std::endl;
             BOOST_FOREACH(GeometryOut const& sbu, sections_buffered_unioned)
             {
-                bg::union_inserter<GeometryOut>(p, sbu, sections_buffered_unioned);
+                bg::detail::union_::union_insert<GeometryOut>(p, sbu, sections_buffered_unioned);
             }
         }
     }

@@ -99,8 +99,8 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			details_macro_getset="The get/set version registers get and set methods separately and can be used for classes with protected member variables and get/set methods to change coordinates" \
 			details_default_strategy="It uses the default strategy, based on the coordinate system of the geometry." \
 			details_strategy_reasons="Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation." \
-			details_make{1}="This version with the make_ prefix returns the \1, and a template parameter must therefore be specified in the call." \
-			details_inserter{1}="This version with the _inserter suffix outputs the \1 to an output iterator, and a template parameter must therefore be specified in the call." \
+			details_return{1}="This version with the return_ prefix returns the \1, and a template parameter must therefore be specified in the call." \
+			details_insert{1}="This version with the _insert suffix outputs the \1 to an output iterator, and a template parameter must therefore be specified in the call." \
 			details_get_set="The free functions [*get] and [*set] are two of the most important functions of Boost.Geometry, both within the library, as also for the library user. With these two functions you normally get and set coordinate values from and for a point, box, segment or sphere." \
 			details_make="Boost.Geometry uses concepts for all its geometries. It does not rely on constructors. The "make" functions are object generators creating geometries. There are overloads, currently with two or three coordinate values or ranges, to construct geometry instances" \
 			return_calc{1}="The calculated \1" \

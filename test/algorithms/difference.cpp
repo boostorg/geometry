@@ -16,7 +16,11 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
+
 #include <boost/geometry/multi/algorithms/correct.hpp>
+#include <boost/geometry/multi/algorithms/intersection.hpp>
+#include <boost/geometry/multi/algorithms/within.hpp>
+
 #include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
 

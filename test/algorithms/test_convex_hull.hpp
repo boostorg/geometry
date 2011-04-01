@@ -68,7 +68,7 @@ void test_geometry_order(std::string const& wkt,
         > hull;
 
     // Test version with output iterator
-    bg::convex_hull_inserter(geometry, std::back_inserter(hull.outer()));
+    bg::detail::convex_hull::convex_hull_insert(geometry, std::back_inserter(hull.outer()));
     test_convex_hull(geometry, hull,
         size_original, size_hull, expected_area, ! Clockwise);
 
@@ -94,7 +94,7 @@ void test_geometry_order(std::string const& wkt,
 
     // Test version with output iterator and strategy
     bg::clear(hull);
-    bg::convex_hull_inserter(geometry, std::back_inserter(hull.outer()), graham);
+    bg::detail::convex_hull::convex_hull_insert(geometry, std::back_inserter(hull.outer()), graham);
     test_convex_hull(geometry, hull, size_original, size_hull, expected_area, ! Clockwise);
 }
 

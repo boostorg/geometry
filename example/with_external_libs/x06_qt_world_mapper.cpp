@@ -136,7 +136,7 @@ inline void read_wkt(std::string const& filename, std::vector<Geometry>& geometr
                 Geometry geometry;
                 boost::geometry::read_wkt(line, geometry);
                 geometries.push_back(geometry);
-                boost::geometry::expand(box, boost::geometry::make_envelope<Box>(geometry));
+                boost::geometry::expand(box, boost::geometry::return_envelope<Box>(geometry));
             }
         }
     }
