@@ -63,6 +63,15 @@
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
+// Include provided geometries
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/geometries/box.hpp>
+
+
 // Include multi a.o. because it can give weird effects
 // if you don't (e.g. area=0 of a filled multipolygon)
 #include <boost/geometry/multi/multi.hpp>
