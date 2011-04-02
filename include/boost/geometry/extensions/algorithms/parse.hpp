@@ -18,11 +18,11 @@
 
 
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/strategies/parse.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/extensions/gis/geographic/strategies/dms_parser.hpp>
+#include <boost/geometry/extensions/strategies/parse.hpp>
 
 
 namespace boost { namespace geometry

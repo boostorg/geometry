@@ -36,6 +36,7 @@
 #include <boost/geometry/views/closeable_view.hpp>
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
+#include <boost/geometry/util/select_coordinate_type.hpp>
 
 
 
