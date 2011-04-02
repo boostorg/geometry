@@ -23,7 +23,6 @@ exe 06_a_transformation_example : 06_a_transformation_example.cpp ;
 exe 06_b_transformation_example : 06_b_transformation_example.cpp ;
 exe 07_a_graph_route_example : 07_a_graph_route_example.cpp ;
 exe 07_b_graph_route_example : 07_b_graph_route_example.cpp ;
-exe 08_units_example : 08_units_example.cpp ;
 
 exe c01_custom_point_example : c01_custom_point_example.cpp ;
 exe c02_custom_box_example : c02_custom_box_example.cpp ;
