@@ -41,7 +41,7 @@ void test_convex_hull(Geometry const& geometry, Hull const& hull,
 
     BOOST_CHECK(bg::num_points(geometry) == size_original);
 
-    typename bg::area_result<Geometry>::type ah = bg::area(hull);
+    typename bg::default_area_result<Geometry>::type ah = bg::area(hull);
     if (reverse)
     {
         ah = -ah;

@@ -168,7 +168,7 @@ struct test_traverse
                 );
 
         // Check total area of resulting rings
-        typename bg::area_result<G1>::type total_area = 0;
+        typename bg::default_area_result<G1>::type total_area = 0;
         BOOST_FOREACH(ring_type const& ring, v)
         {
             total_area += bg::area(ring);

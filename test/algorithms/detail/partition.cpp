@@ -61,7 +61,7 @@ template <typename Box>
 struct box_visitor
 {
     int count;
-    typename bg::area_result<Box>::type area;
+    typename bg::default_area_result<Box>::type area;
 
     box_visitor()
         : count(0)

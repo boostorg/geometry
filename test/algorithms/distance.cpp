@@ -28,7 +28,7 @@ template <typename P>
 void test_distance_point()
 {
     namespace services = bg::strategy::distance::services;
-    typedef typename bg::distance_result<P>::type return_type;
+    typedef typename bg::default_distance_result<P>::type return_type;
 
     // Basic, trivial test
 
@@ -79,7 +79,7 @@ void test_distance_point()
 template <typename P>
 void test_distance_segment()
 {
-    typedef typename bg::distance_result<P>::type return_type;
+    typedef typename bg::default_distance_result<P>::type return_type;
     typedef typename bg::coordinate_type<P>::type coordinate_type;
 
     P s1; bg::set<0>(s1, 1); bg::set<1>(s1, 1);
@@ -134,7 +134,7 @@ void test_distance_segment()
 template <typename P>
 void test_distance_array_as_linestring()
 {
-    typedef typename bg::distance_result<P>::type return_type;
+    typedef typename bg::default_distance_result<P>::type return_type;
 
     // Normal array does not have
     boost::array<P, 2> points;

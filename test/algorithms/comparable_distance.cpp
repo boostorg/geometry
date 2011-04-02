@@ -27,7 +27,7 @@
 template <typename P>
 void test_distance_result()
 {
-    typedef typename bg::distance_result<P, P>::type distance_type;
+    typedef typename bg::default_distance_result<P, P>::type distance_type;
 
     P p1 = bg::make<P>(0, 0);
     P p2 = bg::make<P>(3, 0);

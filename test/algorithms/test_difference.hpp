@@ -64,7 +64,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         bg::difference(g1, g2, clip);
     }
 
-    typename bg::area_result<G1>::type area = 0;
+    typename bg::default_area_result<G1>::type area = 0;
     std::size_t n = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end();

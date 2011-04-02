@@ -18,13 +18,13 @@
 template <typename Geometry>
 void test_length(Geometry const& geometry, long double expected_length)
 {
-    typename bg::length_result<Geometry>::type length = bg::length(geometry);
+    typename bg::default_length_result<Geometry>::type length = bg::length(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
     out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << std::endl
-        << typeid(typename bg::length_result<Geometry>::type).name()
+        << typeid(typename bg::default_length_result<Geometry>::type).name()
         << std::endl
         << "length : " << bg::length(geometry)
         << std::endl;

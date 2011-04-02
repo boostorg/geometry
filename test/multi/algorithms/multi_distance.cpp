@@ -35,7 +35,7 @@ void test_distance(std::string const& wkt1, std::string const& wkt2, double expe
     Geometry2 g2;
     bg::read_wkt(wkt1, g1);
     bg::read_wkt(wkt2, g2);
-    typename bg::distance_result<Geometry1, Geometry2>::type d = bg::distance(g1, g2);
+    typename bg::default_distance_result<Geometry1, Geometry2>::type d = bg::distance(g1, g2);
 
     BOOST_CHECK_CLOSE(d, expected, 0.0001);
 }
@@ -48,7 +48,7 @@ void test_distance(Strategy const& strategy, std::string const& wkt1,
     Geometry2 g2;
     bg::read_wkt(wkt1, g1);
     bg::read_wkt(wkt2, g2);
-    typename bg::distance_result<Geometry1, Geometry2>::type d = bg::distance(g1, g2, strategy);
+    typename bg::default_distance_result<Geometry1, Geometry2>::type d = bg::distance(g1, g2, strategy);
 
     BOOST_CHECK_CLOSE(d, expected, 0.0001);
 }

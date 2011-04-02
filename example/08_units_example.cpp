@@ -153,10 +153,10 @@ namespace units
 
 
     template <typename Geometry1, typename Geometry2>
-    inline typename quantity<Geometry1, typename distance_result<Geometry1, Geometry2>::type>::type
+    inline typename quantity<Geometry1, typename default_distance_result<Geometry1, Geometry2>::type>::type
         distance(Geometry1 const& g1, Geometry2 const& g2)
     {
-        typedef typename quantity<Geometry1, typename distance_result<Geometry1, Geometry2>::type>::type q;
+        typedef typename quantity<Geometry1, typename default_distance_result<Geometry1, Geometry2>::type>::type q;
         return q::from_value(geometry::distance(g1, g2));
     }
 

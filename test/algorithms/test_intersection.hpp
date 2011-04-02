@@ -36,7 +36,7 @@
 
 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
-typename bg::area_result<G1>::type test_intersection(std::string const& caseid,
+typename bg::default_area_result<G1>::type test_intersection(std::string const& caseid,
         G1 const& g1, G2 const& g2,
         std::size_t expected_count = 0, std::size_t expected_point_count = 0,
         double expected_length_or_area = 0,
@@ -69,7 +69,7 @@ typename bg::area_result<G1>::type test_intersection(std::string const& caseid,
     bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
 
 
-    typename bg::area_result<G1>::type length_or_area = 0;
+    typename bg::default_area_result<G1>::type length_or_area = 0;
     std::size_t n = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end();
@@ -174,7 +174,7 @@ typename bg::area_result<G1>::type test_intersection(std::string const& caseid,
 }
 
 template <typename OutputType, typename G1, typename G2>
-typename bg::area_result<G1>::type test_one(std::string const& caseid,
+typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
         std::size_t expected_count = 0, std::size_t expected_point_count = 0,
         double expected_length_or_area = 0,

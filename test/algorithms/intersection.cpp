@@ -217,7 +217,7 @@ void test_boxes(std::string const& wkt1, std::string const& wkt2, double expecte
 
     Box box_out;
     bool detected = bg::intersection(box1, box2, box_out);
-    typename bg::area_result<Box>::type area = bg::area(box_out);
+    typename bg::default_area_result<Box>::type area = bg::area(box_out);
 
     BOOST_CHECK_EQUAL(detected, expected_result);
     if (detected && expected_result)
