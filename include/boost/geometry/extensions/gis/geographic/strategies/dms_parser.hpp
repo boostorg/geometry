@@ -42,7 +42,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/strategies/parse.hpp>
+#include <boost/geometry/extensions/strategies/parse.hpp>
 
 #include <boost/geometry/util/math.hpp>
 
