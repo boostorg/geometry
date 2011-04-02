@@ -1,0 +1,5 @@
+[heading Supported geometries]
+[table
+[[ ][Box][Ring][Polygon][MultiPolygon]]
+[[Point][[$img/ok.png]][[$img/ok.png]][[$img/ok.png]][[$img/ok.png]]]
+]

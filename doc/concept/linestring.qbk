@@ -1,0 +1,36 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+  Copyright (c) 2009-2011 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2011 Bruno Lalande, Paris, France.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section:concept_linestring Linestring Concept]
+
+[heading Description]
+[concept Linestring..linestring]
+
+A linestring is ['a Curve with linear interpolation between Points]. 
+([@http://portal.opengeospatial.org/files/?artifact_id=25355 opengeospatial]).
+
+[heading Concept Definition]
+
+The Linestring Concept is defined as following:
+
+* there must be a specialization of `traits::tag` defining `linestring_tag` as type
+* it must behave like a Boost.Range
+* The type defined by the metafunction `range_value<...>::type` must fulfill 
+	the [link geometry.reference.concepts.concept_point Point Concept]
+
+[heading Available Models]	
+* [link geometry.reference.models.model_linestring model::linestring]
+* a std::vector (requires `#include boost/geometry/geometries/adapted/std_as_linestring.hpp>`)
+* a std::deque (requires `#include boost/geometry/geometries/adapted/std_as_linestring.hpp>`)
+
+
+[endsect]

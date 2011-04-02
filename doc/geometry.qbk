@@ -1,0 +1,83 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2009-2011 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+  Copyright (c) 2009-2011 Bruno Lalande, Paris, France.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[library Geometry
+    [quickbook 1.5]
+    [version 1.0]
+    [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz]]
+    [copyright 2011 Barend Gehrels, Bruno Lalande, Mateusz Loskot]
+    [purpose Documentation of Boost.Geometry library]
+    [license
+        Distributed under the Boost Software License, Version 1.0.
+        (See accompanying file LICENSE_1_0.txt or copy at
+        [@http://www.boost.org/LICENSE_1_0.txt])
+    ]
+    [id geometry]
+    [category geometry]
+]
+
+[/Behavior]
+[def __0dim__  pointlike (e.g. point)]
+[def __1dim__  linear (e.g. linestring)]
+[def __2dim__  areal (e.g. polygon)]
+[def __single__  single (e.g. point, polygon)]
+[def __multi__  multiple (e.g. multi_point, multi_polygon)]
+[def __cart__  Cartesian]
+[def __sph__  Spherical]
+[def __geo__  Geographic]
+[def __rev__  Reversed polygon (coordinates not according their orientiation)]
+[def __empty__ Empty (e.g. polygon without points)]
+[def __box__  Rectangle]
+[def __segment__  Segment]
+[def __point__  Point]
+[def __linestring__  Linestring]
+[def __polygon__  Polygon]
+[def __ring__  Ring]
+[def __multi_point__  Multi point]
+[def __multi_polygon__  Multi Polygon]
+[def __range__  Rangelike (linestring, ring)]
+[def __other__  Other geometries]
+[def __nyiversion__  Not yet supported in this version]
+
+[/Parts]
+[def __ret_zero__ Returns zero]
+[def __ret_one__ Returns 1]
+[def __cs_units__ in the same units as the input coordinates]
+[def __sph1__ on a unit sphere (or another sphere, if specified as such in the constructor of the strategy)]
+[template qbk_ret[what] Returns [what]]
+[template qbk_out[what] GeometryOut is a [what]]
+
+[template concept[name type] The [name] Concept describes the requirements for a [type] type. 
+All algorithms in Boost.Geometry will check any geometry arguments against the concept requirements.]
+
+
+[def __boost_geometry__     Boost.Geometry]
+[def __boost_gil__          [@http://www.boost.org/libs/gil/ Boost.GIL]]
+
+[heading Contributions]
+
+Boost.Geometry contains contributions by:
+
+* Akira Takahashi (adaption of Boost.Fusion)
+* Alfredo Correa (adaption of Boost.Array)
+* Adam Wulkiewicz (spatial indexes) [footnote Currently an extension]
+* Federico Fern\u00E1ndez (spatial indexes) [footnote Currently an extension]
+
+[include imports.qbk]
+
+[include introduction.qbk]
+[include quickstart.qbk]
+
+[include design_rationale.qbk]
+[include matrix.qbk]
+[include reference.qbk]
+[include about_documentation.qbk]

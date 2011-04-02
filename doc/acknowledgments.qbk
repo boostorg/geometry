@@ -1,0 +1,26 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section Acknowledgments]
+
+We like to thank all the people who helped in a way to develop this library.
+
+First of all we are grateful to Hartmut Kaiser for managing the formal review of this library. Hartmut was a very good review manager, who intervented when necessary and produced the review report quickly. He has also supported the library by subscribing to the GGL mailing list and participating actively on it.
+
+We thank the 14 reviewers of our library, reviewed from November 5, 2009 to November 22, 2009. Reviews have been written by: Brandon Kohn, Christophe Henry, Fabio Fracassi, Gordon Woodhull, Joachim Faulhaber, Jonathan Franklin, Jose, Lucanus Simonson, Michael Caisse, Michael Fawcett, Paul Bristow, Phil Endecott, Thomas Klimpel, Tom Brinkman
+
+We also thank all people who discussed on the list about Boost.Geometry, in preview stage or in review stage or after that. We cannot mention all those names, but we like to mention those who, sometimes with a short message, did have a major influence on our design: Dave Abrahams (for the hint on tag dispatching when we were lost in SFINAE), John Fem.... TODO (for the hint on the set of metafunctions for traits), and Mathias Gaunard (for the hint on ranges instead of iterators).
+
+Finally I (Barend) would like to thank my former employer, Geodan, I've worked there for 16 years, started a geographic library in 1995 which after a number of incarnations, redesigns, refactorings, previews, a review and even more refactorings have led to the now released Boost.Geometry. [/And with them I want to thank those who were initially involved in the library, Maarten Hilfering, Valik, Anne Blankert,  and later on Sjoerd Schreuder, Steven Fruitier and Paul den Dulk.]
+
+[endsect]
+

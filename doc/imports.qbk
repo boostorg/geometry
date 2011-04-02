@@ -1,0 +1,54 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2009-2011 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+  Copyright (c) 2009-2011 Bruno Lalande, Paris, France.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[import src/examples/quick_start.cpp]
+[import src/examples/algorithms/area.cpp]
+[import src/examples/algorithms/area_with_strategy.cpp]
+[import src/examples/algorithms/append.cpp]
+[import src/examples/algorithms/assign_2d_point.cpp]
+[import src/examples/algorithms/assign_3d_point.cpp]
+[import src/examples/algorithms/assign_box_corners.cpp]
+[import src/examples/algorithms/assign_inverse.cpp]
+[import src/examples/algorithms/assign_with_range.cpp]
+[import src/examples/algorithms/assign_point_to_index.cpp]
+[import src/examples/algorithms/assign_point_from_index.cpp]
+[import src/examples/algorithms/centroid.cpp]
+[import src/examples/algorithms/distance.cpp]
+[import src/examples/algorithms/difference.cpp]
+[import src/examples/algorithms/envelope.cpp]
+[import src/examples/algorithms/for_each_point.cpp]
+[import src/examples/algorithms/for_each_point_const.cpp]
+[import src/examples/algorithms/for_each_segment_const.cpp]
+[import src/examples/algorithms/length.cpp]
+[import src/examples/algorithms/length_with_strategy.cpp]
+[import src/examples/algorithms/make_2d_point.cpp]
+[import src/examples/algorithms/make_3d_point.cpp]
+[import src/examples/algorithms/make_inverse.cpp]
+[import src/examples/algorithms/make_with_range.cpp]
+[import src/examples/algorithms/intersection_ls_ls_point.cpp]
+[import src/examples/algorithms/intersection_segment.cpp]
+[import src/examples/algorithms/intersection_poly_poly.cpp]
+[import src/examples/algorithms/intersects_linestring.cpp]
+[import src/examples/algorithms/num_geometries.cpp]
+[import src/examples/algorithms/num_interior_rings.cpp]
+[import src/examples/algorithms/num_points.cpp]
+[import src/examples/algorithms/return_envelope.cpp]
+[import src/examples/algorithms/simplify.cpp]
+[import src/examples/algorithms/sym_difference.cpp]
+[import src/examples/algorithms/union.cpp]
+[import src/examples/algorithms/within.cpp]
+[import src/examples/core/get_point.cpp]
+[import src/examples/core/get_box.cpp]
+[import src/examples/core/set_point.cpp]
+[import src/examples/core/set_box.cpp]
+[import src/examples/geometries/point.cpp]
+[import src/examples/geometries/register/point.cpp]
