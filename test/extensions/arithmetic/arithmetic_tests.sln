@@ -4,6 +4,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arithmetic", "arithmetic.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dot_product", "dot_product.vcproj", "{C9CD2A98-3327-4560-A979-4BF506F777A8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cross_product", "cross_product.vcproj", "{C2CD2F98-3327-4560-A979-4BF506F777A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -18,6 +20,10 @@ Global
 		{C9CD2A98-3327-4560-A979-4BF506F777A8}.Debug|Win32.Build.0 = Debug|Win32
 		{C9CD2A98-3327-4560-A979-4BF506F777A8}.Release|Win32.ActiveCfg = Release|Win32
 		{C9CD2A98-3327-4560-A979-4BF506F777A8}.Release|Win32.Build.0 = Release|Win32
+		{C2CD2F98-3327-4560-A979-4BF506F777A8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C2CD2F98-3327-4560-A979-4BF506F777A8}.Debug|Win32.Build.0 = Debug|Win32
+		{C2CD2F98-3327-4560-A979-4BF506F777A8}.Release|Win32.ActiveCfg = Release|Win32
+		{C2CD2F98-3327-4560-A979-4BF506F777A8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,7 +8,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/arithmetic/cross_product.hpp>
+#include <boost/geometry/extensions/arithmetic/cross_product.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 
