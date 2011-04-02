@@ -58,8 +58,6 @@ struct collected_vector
     T dx, dy;
     T dx_0, dy_0;
 
-    bool collinear;
-
     bool operator<(collected_vector<T> const& other) const
     {
         if (math::equals(x, other.x))

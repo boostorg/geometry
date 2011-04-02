@@ -26,6 +26,7 @@
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/distance.hpp>

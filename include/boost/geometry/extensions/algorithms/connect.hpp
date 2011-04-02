@@ -18,7 +18,7 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/strategies/distance_result.hpp>
+#include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -77,7 +77,7 @@ struct map_policy
     typedef typename std::vector<node<Point> >::const_iterator vector_iterator_type;
 
     typedef Point point_type;
-    typedef typename distance_result<Point>::type distance_result_type;
+    typedef typename default_distance_result<Point>::type distance_result_type;
 
 
     map_type map;
@@ -200,7 +200,7 @@ struct fuzzy_policy
     typedef typename std::vector<node<Point> >::const_iterator vector_iterator_type;
 
     typedef Point point_type;
-    typedef typename distance_result<Point>::type distance_result_type;
+    typedef typename default_distance_result<Point>::type distance_result_type;
 
 
     map_type map;

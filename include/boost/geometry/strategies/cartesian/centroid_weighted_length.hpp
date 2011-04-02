@@ -19,7 +19,7 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
-#include <boost/geometry/strategies/distance_result.hpp>
+#include <boost/geometry/strategies/default_distance_result.hpp>
 
 
 namespace boost { namespace geometry
@@ -61,8 +61,8 @@ class weighted_length
 private :
     typedef typename select_most_precise
         <
-            typename distance_result<Point>::type,
-            typename distance_result<PointOfSegment>::type
+            typename default_distance_result<Point>::type,
+            typename default_distance_result<PointOfSegment>::type
         >::type distance_type;
 
 public :

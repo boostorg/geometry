@@ -47,7 +47,7 @@ inline Box enlarge_box(Box const& b1, Box const& b2)
  * \brief Compute the area of the union of b1 and b2
  */
 template <typename Box>
-inline typename area_result<Box>::type compute_union_area(Box const& b1, Box const& b2)
+inline typename default_area_result<Box>::type compute_union_area(Box const& b1, Box const& b2)
 {
     Box enlarged_box = enlarge_box(b1, b2);
     return geometry::area(enlarged_box);

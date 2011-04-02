@@ -34,7 +34,7 @@ namespace boost { namespace geometry
 \return \return_calc{comparable distance}
  */
 template <typename Geometry1, typename Geometry2>
-inline typename distance_result<Geometry1, Geometry2>::type comparable_distance(
+inline typename default_distance_result<Geometry1, Geometry2>::type comparable_distance(
                 Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     concept::check<Geometry1 const>();

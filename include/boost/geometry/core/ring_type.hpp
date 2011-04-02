@@ -38,7 +38,7 @@ namespace traits
 \par Geometries:
     - polygon
 \par Specializations should provide:
-    - typedef XXX type ( e.g. linear_ring<P> )
+    - typedef XXX type ( e.g. ring<P> )
 \tparam Geometry geometry
 */
 template <typename Geometry>

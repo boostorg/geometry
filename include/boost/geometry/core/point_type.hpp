@@ -74,7 +74,7 @@ struct point_type<point_tag, Point>
 };
 
 
-// Specializations for linestring/linear ring, via boost::range
+// Specializations for linestring/ring, via boost::range
 template <typename Linestring>
 struct point_type<linestring_tag, Linestring>
 {

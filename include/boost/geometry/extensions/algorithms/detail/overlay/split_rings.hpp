@@ -236,7 +236,7 @@ struct split_turn_operation : public detail::overlay::turn_operation
         , distance(geometry::return_distance_result<distance_type>(0))
     {}
 
-    typedef typename distance_result<P, P>::type distance_type;
+    typedef typename default_distance_result<P, P>::type distance_type;
     distance_type distance; // distance-measurement from segment.first to IP
 };
 

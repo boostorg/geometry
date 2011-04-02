@@ -27,7 +27,7 @@ template <typename Point>
 struct ring_properties
 {
     typedef Point point_type;
-    typedef typename area_result<Point>::type area_type;
+    typedef typename default_area_result<Point>::type area_type;
 
     // Filled by "select_rings"
     Point point;

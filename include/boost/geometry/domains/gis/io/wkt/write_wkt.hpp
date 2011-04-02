@@ -196,7 +196,7 @@ struct wkt_box
     static inline void apply(std::basic_ostream<Char, Traits>& os,
                 Box const& box)
     {
-        // Convert to linear ring, then stream
+        // Convert to ring, then stream
         typedef model::ring<point_type> ring_type;
         ring_type ring;
         geometry::convert(box, ring);
@@ -301,8 +301,8 @@ struct wkt<segment_tag, Segment>
 
 /*!
 \brief Specialization to stream a ring as WKT
-\details A "linear_ring" does not exist in WKT.
-A linear ring is equivalent to a polygon without inner rings
+\details A ring or "linear_ring" does not exist in WKT.
+A ring is equivalent to a polygon without inner rings
 It is therefore streamed as a polygon
 */
 template <typename Ring>

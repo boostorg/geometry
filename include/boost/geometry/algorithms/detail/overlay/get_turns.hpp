@@ -533,7 +533,8 @@ struct get_turns_cs
                         *prev, *it, *next,
                         bp[0], bp[1], bp[2], bp[3],
                         turns);
-                // TODO: call the interrupt policy if applicable
+                // Future performance enhancement: 
+                // return if told by the interrupt policy 
             }
         }
     }
@@ -572,7 +573,6 @@ private:
             // Output
             Turns& turns)
     {
-        // TODO:
         // Depending on code some relations can be left out
 
         typedef typename boost::range_value<Turns>::type turn_info;

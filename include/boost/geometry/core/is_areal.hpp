@@ -46,7 +46,7 @@ template <> struct is_areal<polygon_tag> : boost::true_type {};
 /*!
     \brief Meta-function defining "true" for areal types (box, (multi)polygon, ring),
     \note Used for tag dispatching and meta-function finetuning
-    \note Even though linear_ring is called linear, it has areal properties.
+    \note Also a "ring" has areal properties within Boost.Geometry
     \ingroup core
 */
 template <typename Geometry>

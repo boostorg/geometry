@@ -21,7 +21,6 @@
 #include <boost/geometry/core/access.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/distance_result.hpp>
 
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>

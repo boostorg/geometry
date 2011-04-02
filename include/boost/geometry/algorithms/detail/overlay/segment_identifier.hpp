@@ -21,7 +21,6 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
-#include <boost/geometry/strategies/distance_result.hpp>
 
 
 namespace boost { namespace geometry

@@ -28,7 +28,7 @@
 
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/distance_result.hpp>
+#include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 
 #include <boost/geometry/util/select_coordinate_type.hpp>

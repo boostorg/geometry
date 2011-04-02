@@ -32,7 +32,7 @@
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
 
 #include <boost/geometry/strategies/area.hpp>
-#include <boost/geometry/strategies/area_result.hpp>
+#include <boost/geometry/strategies/default_area_result.hpp>
 
 #include <boost/geometry/strategies/concepts/area_concept.hpp>
 
@@ -89,8 +89,8 @@ struct ring_area
         // Ignore warning (because using static method sometimes) on strategy
         boost::ignore_unused_variable_warning(strategy);
 
-        // An open linear_ring has at least three points,
-        // A closed linear_ring has at least four points,
+        // An open ring has at least three points,
+        // A closed ring has at least four points,
         // if not, there is no (zero) area
         if (boost::size(ring)
                 < core_detail::closure::minimum_ring_size<Closure>::value)
@@ -223,7 +223,7 @@ and Geographic as well.
 \qbk{[area] [area_output]}
 */
 template <typename Geometry>
-inline typename area_result<Geometry>::type area(Geometry const& geometry)
+inline typename default_area_result<Geometry>::type area(Geometry const& geometry)
 {
     concept::check<Geometry const>();
 

@@ -176,9 +176,9 @@ private :
         }
         else
         {
-//#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
             std::cout << "ux/ux unhandled" << std::endl;
-//#endif
+#endif
         }
 
         //debug_consider(0, left, right, header, false, "-> return ", ret);
@@ -220,7 +220,7 @@ private :
         else
         {
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-            // TODO: this still happens in the traverse.cpp test
+            // this still happens in the traverse.cpp test
             std::cout << " iu/ux unhandled" << std::endl;
 #endif
             ret = order == 1;

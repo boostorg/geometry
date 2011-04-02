@@ -86,15 +86,16 @@ struct correct_box_loop<Box, DimensionCount, DimensionCount>
 };
 
 
-// correct an box: make min/max are correct
+// Correct a box: make min/max correct
 template <typename Box>
 struct correct_box
 {
 
     static inline void apply(Box& box)
     {
-        // Currently only for Cartesian coordinates
-        // TODO: adapt using strategies
+        // Currently only for Cartesian coordinates 
+        // (or spherical without crossing dateline)
+        // Future version: adapt using strategies
         correct_box_loop
             <
                 Box, 0, dimension<Box>::type::value
@@ -103,7 +104,7 @@ struct correct_box
 };
 
 
-// close a linear_ring, if not closed
+// Close a ring, if not closed
 template <typename Ring, typename Predicate>
 struct correct_ring
 {
@@ -154,8 +155,8 @@ struct correct_ring
     }
 };
 
-// correct a polygon: normalizes all rings, sets outer linear_ring clockwise, sets all
-// inner rings counter clockwise
+// Correct a polygon: normalizes all rings, sets outer ring clockwise, sets all
+// inner rings counter clockwise (or vice versa depending on orientation)
 template <typename Polygon>
 struct correct_polygon
 {
@@ -186,6 +187,7 @@ struct correct_polygon
 
 }} // namespace detail::correct
 #endif // DOXYGEN_NO_DETAIL
+
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch

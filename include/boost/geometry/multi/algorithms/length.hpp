@@ -33,7 +33,7 @@ template <typename MultiLinestring, typename Strategy>
 struct length<multi_linestring_tag, MultiLinestring, Strategy>
     : detail::multi_sum
         <
-            typename length_result<MultiLinestring>::type,
+            typename default_length_result<MultiLinestring>::type,
             MultiLinestring,
             Strategy,
             detail::length::range_length
