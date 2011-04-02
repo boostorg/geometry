@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # ===========================================================================
-#  Copyright (c) 2011 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+#  Copyright (c) 2011 Barend Gehrels, Amsterdam, the Netherlands.
 # 
 #  Use, modification and distribution is subject to the Boost Software License,
 #  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at

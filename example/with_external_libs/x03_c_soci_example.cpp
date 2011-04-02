@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright Mateusz Loskot 2009, mateusz@loskot.net
+// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at

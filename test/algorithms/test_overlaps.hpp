@@ -1,6 +1,7 @@
-// Generic Geometry2 Library test file
-//
-// Copyright Barend Gehrels, 1995-2009, Geodan Holding B.V. Amsterdam, the Netherlands.
+// Generic Geometry2 Library 
+// Unit Test
+
+// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)

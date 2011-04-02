@@ -1,3 +1,5 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+
 // implementation_status (developed in the context of Boost.Geometry documentation)
 //
 // Copyright Barend Gehrels 2010, 2011, Geodan, Amsterdam, the Netherlands

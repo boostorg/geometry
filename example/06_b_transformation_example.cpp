@@ -1,12 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
+// Example: Affine Transformation (translate, scale, rotate)
 //
-// Copyright (c) 2009 Mateusz Loskot (mateusz@loskot.net), London, UK
+// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-//
-// Example: Affine Transformation (translate, scale, rotate)
+
 
 #include <ctime> // for std::time
 #include <algorithm>
