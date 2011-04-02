@@ -63,7 +63,7 @@ static inline bool within_selected_input(Item const& item2, ring_identifier cons
 template <typename Point>
 struct ring_info_helper
 {
-    typedef typename geometry::area_result<Point>::type area_type;
+    typedef typename geometry::default_area_result<Point>::type area_type;
 
     ring_identifier id;
     area_type real_area;

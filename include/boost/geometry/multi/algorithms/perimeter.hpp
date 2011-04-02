@@ -33,7 +33,7 @@ template <typename MultiPolygon, typename Strategy>
 struct perimeter<multi_polygon_tag, MultiPolygon, Strategy>
     : detail::multi_sum
         <
-            typename length_result<MultiPolygon>::type,
+            typename default_length_result<MultiPolygon>::type,
             MultiPolygon,
             Strategy,
             perimeter

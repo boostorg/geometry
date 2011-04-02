@@ -267,7 +267,6 @@ struct expand<segment_tag, Box, Segment, StrategyLess, StrategyGreater>
 \param strategy_less
 \param strategy_greater
 \note Strategy is currently ignored
-\todo Handle strategy
  *
 template
 <

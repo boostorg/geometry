@@ -113,7 +113,7 @@ inline Geometry make(Type const& c1, Type const& c2, Type const& c3, Type const&
 \tparam Geometry \tparam_geometry
 \tparam Range \tparam_range_point
 \param range \param_range_point
-\return The constructed geometry, here: a linestring or a linear ring
+\return The constructed geometry, here: a linestring or a ring
 
 \qbk{distinguish, with a range}
 \qbk{

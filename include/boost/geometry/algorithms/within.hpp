@@ -30,6 +30,8 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/within.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
@@ -365,7 +367,7 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
     typedef typename strategy::within::services::default_strategy
         <
             typename tag<Geometry1>::type,
-            typename tag<Geometry2>::type,
+            typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
             typename cs_tag<point_type1>::type,
             typename cs_tag<point_type2>::type,
             point_type1,

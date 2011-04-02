@@ -19,7 +19,6 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 
-#include <boost/geometry/strategies/distance_result.hpp>
 
 
 namespace boost { namespace geometry

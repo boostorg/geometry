@@ -51,7 +51,7 @@ struct envelope_multi_linestring
 };
 
 
-// version for multi_polygon: outer linear_ring's of all polygons
+// version for multi_polygon: outer ring's of all polygons
 template<typename MultiPolygon, typename Box>
 struct envelope_multi_polygon
 {

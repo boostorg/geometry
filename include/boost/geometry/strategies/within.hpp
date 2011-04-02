@@ -47,18 +47,11 @@ template
 >
 struct default_strategy
 {
-    // If we would assert here, we would have to implement
-    // default strategies for all combinations, all CS, etc.
-    // This explosion is not convenient.
-    // Another option is tag inheritance / grouping (so point-in-polygon will apply for point-in-ring, point-in-polygon, point-in-multi-polygon but not for point-in-box...)
-    // TODO: decide about this.
-
     BOOST_MPL_ASSERT_MSG
         (
             false, NOT_IMPLEMENTED_FOR_THIS_TYPES
             , (types<Point, PointContaining>)
         );
-
 };
 
 

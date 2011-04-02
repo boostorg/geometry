@@ -58,7 +58,6 @@ struct section
 {
     typedef Box box_type;
 
-    // unique ID used in get_turns to mark section-pairs already handled.
     int id; // might be obsolete now, BSG 14-03-2011 TODO decide about this
 
     int directions[DimensionCount];

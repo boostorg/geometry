@@ -21,7 +21,6 @@
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/is_linear.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>

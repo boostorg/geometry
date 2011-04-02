@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_DISTANCE_RESULT_HPP
-#define BOOST_GEOMETRY_STRATEGIES_DISTANCE_RESULT_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_DEFAULT_DISTANCE_RESULT_HPP
+#define BOOST_GEOMETRY_STRATEGIES_DEFAULT_DISTANCE_RESULT_HPP
 
 
 #include <boost/geometry/core/cs.hpp>
@@ -24,17 +24,13 @@ namespace boost { namespace geometry
 {
 
 /*!
-    \brief Meta-function defining return type of distance function
-    \ingroup distance
-    \note The strategy defines the return-type (so this situation is different
-        from length, where distance is sqr/sqrt, but length always squared)
-
+\brief Meta-function defining return type of distance function
+\ingroup distance
+\note The strategy defines the return-type (so this situation is different
+    from length, where distance is sqr/sqrt, but length always squared)
  */
-
-// TODO: rename to "default_distance_result" or services::default_result
-
 template <typename Geometry1, typename Geometry2 = Geometry1>
-struct distance_result
+struct default_distance_result
 {
     typedef typename strategy::distance::services::return_type
         <
@@ -51,4 +47,4 @@ struct distance_result
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGIES_DISTANCE_RESULT_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_DEFAULT_DISTANCE_RESULT_HPP
