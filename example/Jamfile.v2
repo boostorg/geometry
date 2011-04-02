@@ -1,7 +1,10 @@
-# example/Jamfile.v2 controls building of Generic Geometry Library examples
+# Boost.Geometry (aka GGL, Generic Geometry Library)
+# Controls building of Boost.Geometry examples
 #
-# Copyright Barend Gehrels, Geodan Holding B.V. Amsterdam, the Netherlands.
-# Copyright (c) 2009 Mateusz Loskot <mateusz@loskot.net>
+# Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+# Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
+# Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
@@ -29,9 +32,7 @@ exe c04_a_custom_triangle_example : c04_a_custom_triangle_example.cpp ;
 exe c04_b_custom_triangle_example : c04_b_custom_triangle_example.cpp ;
 exe c06_custom_polygon_example : c06_custom_polygon_example.cpp  ;
 exe c07_custom_ring_pointer_example : c07_custom_ring_pointer_example.cpp ;
-
 exe c08_custom_non_std_example : c08_custom_non_std_example.cpp ;
 exe c09_custom_fusion_example : c09_custom_fusion_example.cpp ;
-
 exe c10_custom_cs_example : c10_custom_cs_example.cpp ;
 exe c11_custom_cs_transform_example : c11_custom_cs_transform_example.cpp ;

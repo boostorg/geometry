@@ -1,6 +1,7 @@
-#include <test_overlay_p_q.hpp>
-//
-// Copyright Barend Gehrels, 2009, 2011, Geodan Holding B.V. Amsterdam, the Netherlands.
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+
+// Copyright (c) 2009-2011 Barend Gehrels, Amsterdam, the Netherlands.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -15,6 +16,8 @@
 #include <boost/timer.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/math/constants/constants.hpp>
+
+#include <test_overlay_p_q.hpp>
 
 
 template <typename Polygon, typename AddFunctor>
