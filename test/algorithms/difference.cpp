@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2010 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2011 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -23,8 +23,8 @@
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
-#include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
+//#include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
+//#include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
 
 #include <algorithms/test_difference.hpp>
 #include <algorithms/test_overlay.hpp>
@@ -272,7 +272,8 @@ void test_all()
     ***/
 }
 
-
+/*******
+// To be moved to another file
 template <typename T>
 void test_difference_parcel_precision()
 {
@@ -340,31 +341,10 @@ void test_difference_parcel_precision()
     }
 #endif
 }
-
-
-#include <boost/range/algorithm/reverse.hpp>
-
-
-template <typename P>
-void test_copy()
-{
-    std::vector<P> first;
-    first.push_back(P(1,1));
-    first.push_back(P(2,2));
-
-    std::vector<P> second;
-    boost::copy(first, std::back_inserter(second));
-    boost::reverse(second);
-
-    std::vector<P> third, fourth;
-    boost::copy(second, boost::copy(first, std::back_inserter(third)));
-
-}
+*****/
 
 int test_main(int, char* [])
 {
-    //test_copy<bg::model::d2::point_xy<double> >();
-
     //test_difference_parcel_precision<float>();
     //test_difference_parcel_precision<double>();
 
