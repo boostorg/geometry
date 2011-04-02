@@ -574,7 +574,6 @@
    <entry valign="center" namest="a" nameend="d">
     <bridgehead renderas="sect3">Products</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.arithmetic.cross_product">cross_product</link></member>
      <member><link linkend="geometry.reference.arithmetic.dot_product">dot_product</link></member>
     </simplelist>
    </entry>

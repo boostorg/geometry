@@ -6,8 +6,13 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-arithmetic
+test-suite boost-geometry-extensions-arithmetic
     :
-    [ run arithmetic.cpp ]
-    [ run dot_product.cpp ]
+    [ run cross_product.cpp ]
+    [ compile-fail cross_product.cpp
+        : # requirements
+        <define>TEST_FAIL_CROSS_PRODUCT
+        : # target name
+        cross_product_compile_fail
+    ]
     ;

@@ -7,6 +7,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 build-project algorithms ;
+build-project arithmetic ;
 build-project gis ;
 build-project iterators ;
 
