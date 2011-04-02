@@ -21,7 +21,7 @@
 template <typename Geometry>
 void test_perimeter(Geometry const& geometry, long double expected_perimeter)
 {
-    typename bg::distance_result<Geometry>::type perimeter = bg::perimeter(geometry);
+    typename bg::default_distance_result<Geometry>::type perimeter = bg::perimeter(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;

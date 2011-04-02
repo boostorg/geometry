@@ -111,13 +111,13 @@ void test_distance(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             long double expected_distance)
 {
-    typename bg::distance_result<Geometry1>::type distance = bg::distance(geometry1, geometry2);
+    typename bg::default_distance_result<Geometry1>::type distance = bg::distance(geometry1, geometry2);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
     out << typeid(typename bg::coordinate_type<Geometry1>::type).name()
         << std::endl
-        << typeid(typename bg::distance_result<Geometry1>::type).name()
+        << typeid(typename bg::default_distance_result<Geometry1>::type).name()
         << std::endl
         << "distance : " << bg::distance(geometry1, geometry2)
         << std::endl;

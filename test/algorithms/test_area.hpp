@@ -19,15 +19,15 @@
 
 template <typename Geometry>
 void test_area(Geometry const& geometry,
-            typename bg::area_result<Geometry>::type expected_area)
+            typename bg::default_area_result<Geometry>::type expected_area)
 {
-    typename bg::area_result<Geometry>::type area = bg::area(geometry);
+    typename bg::default_area_result<Geometry>::type area = bg::area(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
     out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << " "
-        << typeid(typename bg::area_result<Geometry>::type).name()
+        << typeid(typename bg::default_area_result<Geometry>::type).name()
         << " "
         << "area : " << bg::area(geometry)
         << std::endl;
@@ -56,7 +56,7 @@ void test_area(Geometry const& geometry,
 
 template <typename Geometry>
 void test_geometry(std::string const& wkt,
-            typename bg::area_result<Geometry>::type expected_area)
+            typename bg::default_area_result<Geometry>::type expected_area)
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);

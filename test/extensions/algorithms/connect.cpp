@@ -51,7 +51,7 @@ void test_connect(std::string const& caseid, Geometry const& geometry,
         bg::connect(geometry, connected_vector);
     }
 
-    typename bg::length_result<Geometry>::type length = 0;
+    typename bg::default_length_result<Geometry>::type length = 0;
     std::size_t count = boost::size(connected_vector);
     std::size_t point_count = 0;
 

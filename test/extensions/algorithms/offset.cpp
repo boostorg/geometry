@@ -47,7 +47,7 @@ void test_offset(std::string const& caseid, Geometry const& geometry,
     GeometryOut moved_by_offset;
     bg::offset(geometry, moved_by_offset, join_strategy(2), distance);
 
-    typename bg::length_result<Geometry>::type length
+    typename bg::default_length_result<Geometry>::type length
                     = bg::length(moved_by_offset);
 
     /*

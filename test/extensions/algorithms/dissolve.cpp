@@ -83,7 +83,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     std::vector<GeometryOut> dissolved_vector;
     bg::dissolve_inserter<GeometryOut>(geometry, std::back_inserter(dissolved_vector));
 
-    typename bg::area_result<Geometry>::type length_or_area = 0;
+    typename bg::default_area_result<Geometry>::type length_or_area = 0;
     //std::size_t holes = 0;
     std::size_t count = 0;
 

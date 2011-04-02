@@ -46,7 +46,7 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
 
     if (operation == 'i')
     {
-        typedef typename bg::area_result<Geometry>::type type;
+        typedef typename bg::default_area_result<Geometry>::type type;
         type area_p = bg::area(p);
         type area_q = bg::area(q);
 
