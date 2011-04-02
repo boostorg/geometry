@@ -20,8 +20,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "07_b_graph_route_example", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_boost_example", "04_boost_example.vcproj", "{6254AA18-1E45-4ECD-B574-D20F97F5BBA3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08_units_example", "08_units_example.vcproj", "{3D41FD4E-88B0-4A2A-9884-D434831A236C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -68,10 +66,6 @@ Global
 		{6254AA18-1E45-4ECD-B574-D20F97F5BBA3}.Debug|Win32.Build.0 = Debug|Win32
 		{6254AA18-1E45-4ECD-B574-D20F97F5BBA3}.Release|Win32.ActiveCfg = Release|Win32
 		{6254AA18-1E45-4ECD-B574-D20F97F5BBA3}.Release|Win32.Build.0 = Release|Win32
-		{3D41FD4E-88B0-4A2A-9884-D434831A236C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3D41FD4E-88B0-4A2A-9884-D434831A236C}.Debug|Win32.Build.0 = Debug|Win32
-		{3D41FD4E-88B0-4A2A-9884-D434831A236C}.Release|Win32.ActiveCfg = Release|Win32
-		{3D41FD4E-88B0-4A2A-9884-D434831A236C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
