@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_GEOMETRIES_QUANTITY_POINT_HPP
-#define BOOST_GEOMETRY_GEOMETRIES_QUANTITY_POINT_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_GEOMETRIES_QUANTITY_POINT_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_GEOMETRIES_QUANTITY_POINT_HPP
 
 #include <cstddef>
 
@@ -131,4 +131,4 @@ struct access<model::quantity_point<Units, DimensionCount, CoordinateType, Coord
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_GEOMETRIES_QUANTITY_POINT_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_GEOMETRIES_QUANTITY_POINT_HPP
