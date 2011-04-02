@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ARITHMETIC_CROSS_PRODUCT_HPP
-#define BOOST_GEOMETRY_ARITHMETIC_CROSS_PRODUCT_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_ARITHMETIC_CROSS_PRODUCT_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_ARITHMETIC_CROSS_PRODUCT_HPP
 
 
 #include <cstddef>
@@ -106,4 +106,4 @@ inline P1 cross_product(P1 const& p1, P2 const& p2)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ARITHMETIC_CROSS_PRODUCT_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_ARITHMETIC_CROSS_PRODUCT_HPP
