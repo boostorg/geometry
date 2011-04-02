@@ -27,7 +27,6 @@
 
 #include <test_common/test_point.hpp>
 
-#define TEST_WITH_SVG
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #  include <boost/geometry/algorithms/buffer.hpp>
