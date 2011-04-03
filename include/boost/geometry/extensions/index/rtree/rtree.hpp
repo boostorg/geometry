@@ -42,8 +42,8 @@ public:
     typedef typename detail::rtree::leaf<value_type, box_type, tag_type>::type leaf;
 
     inline explicit rtree(
-        size_t max_elems_per_node = 2,
-        size_t min_elems_per_node = 1,
+        size_t max_elems_per_node = 4,
+        size_t min_elems_per_node = 2,
         translator_type const& translator = translator_type()
     )
         : m_values_count(0)

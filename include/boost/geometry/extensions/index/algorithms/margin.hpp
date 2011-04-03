@@ -13,7 +13,7 @@
 namespace boost { namespace geometry { namespace index {
 
 template <typename Box>
-struct margin_result
+struct default_margin_result
 {
     typedef typename select_most_precise<
         typename coordinate_type<Box>::type,
@@ -29,7 +29,7 @@ struct margin_for_each_edge
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
     BOOST_STATIC_ASSERT(0 < EdgeDimension);
 
-    static inline typename margin_result<Box>::type apply(Box const& b)
+    static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
         return margin_for_each_edge<Box, CurrentDimension, EdgeDimension - 1>::apply(b) *
             ( geometry::get<max_corner, EdgeDimension - 1>(b) - geometry::get<min_corner, EdgeDimension - 1>(b) );
@@ -41,7 +41,7 @@ struct margin_for_each_edge<Box, CurrentDimension, CurrentDimension>
 {
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
 
-    static inline typename margin_result<Box>::type apply(Box const& b)
+    static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
         return margin_for_each_edge<Box, CurrentDimension, CurrentDimension - 1>::apply(b);
     }
@@ -52,7 +52,7 @@ struct margin_for_each_edge<Box, CurrentDimension, 1>
 {
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
 
-    static inline typename margin_result<Box>::type apply(Box const& b)
+    static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
         return geometry::get<max_corner, 0>(b) - geometry::get<min_corner, 0>(b);
     }
@@ -61,7 +61,7 @@ struct margin_for_each_edge<Box, CurrentDimension, 1>
 template <typename Box>
 struct margin_for_each_edge<Box, 1, 1>
 {
-    static inline typename margin_result<Box>::type apply(Box const& b)
+    static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
         return 1;
     }
@@ -73,7 +73,7 @@ struct margin_for_each_dimension
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
     BOOST_STATIC_ASSERT(CurrentDimension <= traits::dimension<Box>::value);
 
-    static inline typename margin_result<Box>::type apply(Box const& b)
+    static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
         return margin_for_each_dimension<Box, CurrentDimension - 1>::apply(b) +
             2 * margin_for_each_edge<Box, CurrentDimension, traits::dimension<Box>::value>::apply(b);
@@ -83,7 +83,7 @@ struct margin_for_each_dimension
 template <typename Box>
 struct margin_for_each_dimension<Box, 1>
 {
-    static inline typename margin_result<Box>::type apply(Box const& b)
+    static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
         return 2 * margin_for_each_edge<Box, 1, traits::dimension<Box>::value>::apply(b);
     }
@@ -92,7 +92,7 @@ struct margin_for_each_dimension<Box, 1>
 } // namespace detail
 
 template <typename Box>
-typename margin_result<Box>::type margin(Box const& b)
+typename default_margin_result<Box>::type margin(Box const& b)
 {
     return detail::margin_for_each_dimension<Box, traits::dimension<Box>::value>::apply(b);
 }

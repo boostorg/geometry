@@ -34,8 +34,8 @@ class choose_next_node
 
     typedef typename internal_node::children_type children_type;
 
-    typedef typename index::area_result<Box>::type area_type;
-    typedef typename index::overlap_result<Box>::type overlap_type;
+    typedef typename index::default_area_result<Box>::type area_type;
+    typedef typename index::default_overlap_result<Box>::type overlap_type;
 
 public:
     template <typename Indexable>

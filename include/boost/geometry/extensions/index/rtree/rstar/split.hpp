@@ -59,9 +59,9 @@ private:
 template <typename Box>
 struct split_axis_data
 {
-    typedef typename margin_result<Box>::type margin_type;
-    typedef typename overlap_result<Box>::type overlap_type;
-    typedef typename area_result<Box>::type area_type;
+    typedef typename default_margin_result<Box>::type margin_type;
+    typedef typename default_overlap_result<Box>::type overlap_type;
+    typedef typename default_area_result<Box>::type area_type;
 
     inline split_axis_data()
         : margins_sum(0)
@@ -141,9 +141,9 @@ public:
 template <typename Elements, typename Box>
 struct split_data
 {
-    typedef typename margin_result<Box>::type margin_type;
-    typedef typename overlap_result<Box>::type overlap_type;
-    typedef typename area_result<Box>::type area_type;
+    typedef typename default_margin_result<Box>::type margin_type;
+    typedef typename default_overlap_result<Box>::type overlap_type;
+    typedef typename default_area_result<Box>::type area_type;
 
     inline split_data()
         : smallest_margins_sum(std::numeric_limits<margin_type>::max())
@@ -314,6 +314,7 @@ public:
             sd.choosen_distribution.begin() + sd.choosen_median_index,
             elements.begin());
         
+        // node is not the root
         if ( parent != 0 )
         {
             // update old node's box
@@ -321,6 +322,7 @@ public:
             // add new node to the parent's children
             parent->children.push_back(std::make_pair(sd.choosen_right_box, right_node));
         }
+        // node is the root
         else
         {
             assert(&n == boost::get<Node>(root));

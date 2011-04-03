@@ -20,7 +20,7 @@ namespace boost { namespace geometry { namespace index {
  * \brief Compute the area of the union of b1 and b2
  */
 template <typename Box, typename Geometry>
-inline typename area_result<Box>::type union_area(Box const& b, Geometry const& g)
+inline typename default_area_result<Box>::type union_area(Box const& b, Geometry const& g)
 {
     Box expanded_box(b);
     geometry::expand(expanded_box, g);

@@ -16,13 +16,13 @@
 namespace boost { namespace geometry { namespace index {
 
 template <typename Box>
-struct overlap_result
+struct default_overlap_result
 {
-    typedef typename area_result<Box>::type type;
+    typedef typename default_area_result<Box>::type type;
 };
 
 template <typename Box>
-typename overlap_result<Box>::type overlap(Box const& b1, Box const& b2)
+typename default_overlap_result<Box>::type overlap(Box const& b1, Box const& b2)
 {
     Box inters;
     geometry::assign_zero(inters);

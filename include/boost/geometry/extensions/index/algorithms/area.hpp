@@ -13,7 +13,7 @@
 namespace boost { namespace geometry { namespace index {
 
 template <typename Box>
-struct area_result
+struct default_area_result
 {
     typedef typename select_most_precise<
         typename coordinate_type<Box>::type,
@@ -29,7 +29,7 @@ struct area_for_each_dimension
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
     BOOST_STATIC_ASSERT(CurrentDimension <= traits::dimension<Box>::value);
 
-    static inline typename area_result<Box>::type apply(Box const& b)
+    static inline typename default_area_result<Box>::type apply(Box const& b)
     {
         return area_for_each_dimension<Box, CurrentDimension - 1>::apply(b) *
             ( geometry::get<max_corner, CurrentDimension - 1>(b) - geometry::get<min_corner, CurrentDimension - 1>(b) );
@@ -39,7 +39,7 @@ struct area_for_each_dimension
 template <typename Box>
 struct area_for_each_dimension<Box, 1>
 {
-    static inline typename area_result<Box>::type apply(Box const& b)
+    static inline typename default_area_result<Box>::type apply(Box const& b)
     {
         return geometry::get<max_corner, 0>(b) - geometry::get<min_corner, 0>(b);
     }
@@ -48,7 +48,7 @@ struct area_for_each_dimension<Box, 1>
 } // namespace detail
 
 template <typename Box>
-typename area_result<Box>::type area(Box const& b)
+typename default_area_result<Box>::type area(Box const& b)
 {
     return detail::area_for_each_dimension<Box, traits::dimension<Box>::value>::apply(b);
 }
