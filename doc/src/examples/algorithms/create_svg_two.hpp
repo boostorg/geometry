@@ -13,11 +13,15 @@
 
 #include <fstream>
 #include <boost/algorithm/string.hpp>
-#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+
+#if defined(HAVE_SVG)
+#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#endif
 
 template <typename Geometry1, typename Geometry2>
 void create_svg(std::string const& filename, Geometry1 const& a, Geometry2 const& b)
 {
+#if defined(HAVE_SVG)
     std::cout  << std::endl << "[$img/algorithms/" << boost::replace_all_copy(filename, ".svg", ".png") << "]" << std::endl << std::endl;
 
     typedef typename boost::geometry::point_type<Geometry1>::type point_type;
@@ -36,6 +40,7 @@ void create_svg(std::string const& filename, Geometry1 const& a, Geometry2 const
     {
         mapper.map(b, "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
     }
+#endif
 }
 
 // NOTE: convert manually from svg to png using Inkscape ctrl-shift-E
