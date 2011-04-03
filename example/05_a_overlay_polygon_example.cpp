@@ -21,7 +21,9 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 
-#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#if defined(HAVE_SVG)
+#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#endif
 
 
 int main(void)
@@ -32,8 +34,10 @@ int main(void)
     typedef bg::model::polygon<point_2d> polygon_2d;
 
 
+#if defined(HAVE_SVG)
     std::ofstream stream("05_a_intersection_polygon_example.svg");
     bg::svg_mapper<point_2d> svg(stream, 500, 500);
+#endif
 
     // Define a polygons and fill the outer rings.
     polygon_2d a;
@@ -45,7 +49,6 @@ int main(void)
     }
     bg::correct(a);
     std::cout << "A: " << bg::dsv(a) << std::endl;
-    svg.add(a);
 
     polygon_2d b;
     {
@@ -56,10 +59,13 @@ int main(void)
     }
     bg::correct(b);
     std::cout << "B: " << bg::dsv(b) << std::endl;
+#if defined(HAVE_SVG)
+    svg.add(a);
     svg.add(b);
 
     svg.map(a, "opacity:0.6;fill:rgb(0,255,0);");
     svg.map(b, "opacity:0.6;fill:rgb(0,0,255);");
+#endif
 
 
     // Calculate interesection(s)
@@ -70,7 +76,9 @@ int main(void)
     BOOST_FOREACH(polygon_2d const& polygon, intersection)
     {
         std::cout << bg::dsv(polygon) << std::endl;
+#if defined(HAVE_SVG)
         svg.map(polygon, "opacity:0.5;fill:none;stroke:rgb(255,0,0);stroke-width:6");
+#endif
     }
 
     return 0;

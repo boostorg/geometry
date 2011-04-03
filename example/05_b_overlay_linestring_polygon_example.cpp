@@ -21,7 +21,9 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 
-#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#if defined(HAVE_SVG)
+#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#endif
 
 
 int main(void)
@@ -43,6 +45,7 @@ int main(void)
     }
     bg::correct(p);
 
+#if defined(HAVE_SVG)
     // Create SVG-mapper
     std::ofstream stream("05_b_overlay_linestring_polygon_example.svg");
     bg::svg_mapper<point_2d> svg(stream, 500, 500);
@@ -52,7 +55,7 @@ int main(void)
     // Map geometries
     svg.map(ls, "opacity:0.6;stroke:rgb(255,0,0);stroke-width:2;");
     svg.map(p, "opacity:0.6;fill:rgb(0,0,255);");
-
+#endif
 
     // Calculate intersection points (turn points)
     typedef bg::detail::overlay::turn_info<point_2d> turn_info;
@@ -76,8 +79,10 @@ int main(void)
 
         }
         std::cout << action << " polygon at " << bg::dsv(turn.point) << std::endl;
+#if defined(HAVE_SVG)
         svg.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1");
         svg.text(turn.point, action, "fill:rgb(0,0,0);font-family:Arial;font-size:10px");
+#endif
     }
 
     return 0;

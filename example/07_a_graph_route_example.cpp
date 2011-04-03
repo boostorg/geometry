@@ -30,10 +30,12 @@
 // Yes, this example currently uses some extensions:
 
     // For output:
-    #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+    #if defined(HAVE_SVG)
+    #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+    #endif
 
     // For distance-calculations over the Earth:
-    #include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
+    //#include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
 
 
 
@@ -260,10 +262,11 @@ inline void build_route(Graph const& graph,
 
 int main()
 {
-    // Define a point in the Geographic coordinate system
+    // Define a point in the Geographic coordinate system (currently Spherical)
+    // (geographic calculations are in an extension; for sample it makes no difference)
     typedef boost::geometry::model::point
         <
-            double, 2, boost::geometry::cs::geographic<boost::geometry::degree>
+            double, 2, boost::geometry::cs::spherical<boost::geometry::degree>
         > point_type;
 
     typedef boost::geometry::model::linestring<point_type> line_type;
@@ -302,8 +305,12 @@ int main()
     double const km = 1000.0;
     std::cout << "distances, all in KM" << std::endl
         << std::fixed << std::setprecision(0);
+        
+    // To calculate distance, declare and construct a strategy with average earth radius
+    boost::geometry::strategy::distance::haversine<point_type> haversine(6372795.0);
 
     // Main functionality: calculate shortest routes from/to all cities
+    
 
     // For the first one, the complete route is stored as a linestring
     bool first = true;
@@ -329,7 +336,7 @@ int main()
             if (! boost::equals(city1.get<1>(), city2.get<1>()))
             {
                 double distance = costs[city2.get<2>()] / km;
-                double acof = boost::geometry::distance(city1.get<0>(), city2.get<0>()) / km;
+                double acof = boost::geometry::distance(city1.get<0>(), city2.get<0>(), haversine) / km;
 
                 std::cout
                     << std::setiosflags (std::ios_base::left) << std::setw(15)
@@ -351,6 +358,7 @@ int main()
         }
     }
 
+#if defined(HAVE_SVG)
     // Create the SVG
     std::ofstream stream("routes.svg");
     boost::geometry::svg_mapper<point_type> mapper(stream, 600, 600);
@@ -378,6 +386,7 @@ int main()
         mapper.text(city.get<0>(), city.get<1>(),
                 "fill:rgb(0,0,0);font-family:Arial;font-size:10px", 5, 5);
     }
+#endif    
 
     return 0;
 }

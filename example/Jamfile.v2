@@ -26,7 +26,7 @@ exe 07_b_graph_route_example : 07_b_graph_route_example.cpp ;
 
 exe c01_custom_point_example : c01_custom_point_example.cpp ;
 exe c02_custom_box_example : c02_custom_box_example.cpp ;
-exe c03_custom_linestring_example : c03_custom_linestring_example.cpp ;
+# exe c03_custom_linestring_example : c03_custom_linestring_example.cpp ;
 exe c04_a_custom_triangle_example : c04_a_custom_triangle_example.cpp ;
 exe c04_b_custom_triangle_example : c04_b_custom_triangle_example.cpp ;
 exe c06_custom_polygon_example : c06_custom_polygon_example.cpp  ;

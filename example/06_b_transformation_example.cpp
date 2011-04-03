@@ -19,8 +19,11 @@
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/transform/matrix_transformers.hpp>
-#include <boost/geometry/extensions/io/svg/write_svg.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
+
+#if defined(HAVE_SVG)
+#  include <boost/geometry/extensions/io/svg/write_svg.hpp>
+#endif
 
 #include <boost/bind.hpp>
 #include <boost/random.hpp>
@@ -84,8 +87,9 @@ struct svg_output
     void put(G const& g, std::string const& label)
     {
         std::string style_str(style.fill(opacity) + style.stroke(5, opacity));
-        os << ::boost::geometry::svg(g, style_str) << std::endl;
-
+#if defined(HAVE_SVG)
+        os << boost::geometry::svg(g, style_str) << std::endl;
+#endif
         if (!label.empty())
         {
             typename point_type<G>::type c;
@@ -100,6 +104,7 @@ private:
     double opacity;
     random_style style;
 };
+
 
 int main()
 {
