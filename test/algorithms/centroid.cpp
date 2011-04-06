@@ -78,6 +78,7 @@ void test_2d()
 template <typename P>
 void test_3d()
 {
+    test_centroid<bg::model::linestring<P> >("LINESTRING(1 2 3,4 5 -6,7 -8 9,-10 11 12,13 -14 -15, 16 17 18)", 5.6748865168734692, 0.31974938587214002, 1.9915270387763671);
     test_centroid<bg::model::box<P> >("POLYGON((1 2 3,5 6 7))", 3, 4, 5);
     test_centroid<P>("POINT(1 2 3)", 1, 2, 3);
 }
