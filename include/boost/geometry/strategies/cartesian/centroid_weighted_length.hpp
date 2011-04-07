@@ -109,13 +109,15 @@ public :
 namespace services
 {
 
-// Register this strategy for linestrings and polygons, in two or three dimensions
-template <typename Point, typename Geometry>
+
+// Register this strategy for linear geometries, in all dimensions
+
+template <std::size_t N, typename Point, typename Geometry>
 struct default_strategy
 <
     cartesian_tag,
     linear_tag,
-    2,
+    N,
     Point,
     Geometry
 >
@@ -126,24 +128,6 @@ struct default_strategy
             typename point_type<Geometry>::type
         > type;
 };
-
-template <typename Point, typename Geometry>
-struct default_strategy
-<
-    cartesian_tag,
-    linear_tag,
-    3,
-    Point,
-    Geometry
->
-{
-    typedef weighted_length
-        <
-            Point,
-            typename point_type<Geometry>::type
-        > type;
-};
-
 
 
 } // namespace services
