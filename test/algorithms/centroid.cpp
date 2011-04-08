@@ -94,6 +94,7 @@ int test_main(int, char* [])
 
 #if defined(HAVE_TTMATH)
     test_2d<bg::model::d2::point_xy<ttmath_big> >();
+    test_3d<boost::tuple<ttmath_big, ttmath_big, ttmath_big> >();
 #endif
 
     return 0;
