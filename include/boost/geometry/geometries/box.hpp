@@ -18,7 +18,7 @@
 
 #include <boost/concept/assert.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/convert.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
 
@@ -57,8 +57,8 @@ public:
     */
     inline box(Point const& min_corner, Point const& max_corner)
     {
-        geometry::convert(min_corner, m_min_corner);
-        geometry::convert(max_corner, m_max_corner);
+        geometry::detail::convert(min_corner, m_min_corner);
+        geometry::detail::convert(max_corner, m_max_corner);
     }
 
     inline Point const& min_corner() const { return m_min_corner; }

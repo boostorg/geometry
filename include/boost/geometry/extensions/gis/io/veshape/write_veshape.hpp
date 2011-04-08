@@ -25,9 +25,6 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
-
-
 
 namespace boost { namespace geometry
 {

@@ -14,7 +14,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 
@@ -94,7 +94,7 @@ struct touch_interior : public base_turn_handler
                 DirInfo const& dir_info)
     {
         ti.method = method_touch_interior;
-        geometry::convert(intersection_info.intersections[0], ti.point);
+        geometry::detail::convert(intersection_info.intersections[0], ti.point);
 
         // Both segments of q touch segment p somewhere in its interior
         // 1) We know: if q comes from LEFT or RIGHT
@@ -213,7 +213,7 @@ struct touch : public base_turn_handler
                 DirInfo const& dir_info)
     {
         ti.method = method_touch;
-        geometry::convert(intersection_info.intersections[0], ti.point);
+        geometry::detail::convert(intersection_info.intersections[0], ti.point);
 
         int const side_qi_p1 = dir_info.sides.template get<1, 0>();
         int const side_qk_p1 = SideStrategy::apply(pi, pj, qk);
@@ -376,7 +376,7 @@ struct touch : public base_turn_handler
             << " qk " << get<0>(qk) << " , " << get<1>(qk)
             << std::endl;
 #endif
-               
+
     }
 };
 
@@ -404,7 +404,7 @@ struct equal : public base_turn_handler
     {
         ti.method = method_equal;
         // Copy the SECOND intersection point
-        geometry::convert(intersection_info.intersections[1], ti.point);
+        geometry::detail::convert(intersection_info.intersections[1], ti.point);
 
         int const side_pk_q2  = SideStrategy::apply(qj, qk, pk);
         int const side_pk_p = SideStrategy::apply(pi, pj, pk);
@@ -486,7 +486,7 @@ struct collinear : public base_turn_handler
                 DirInfo const& dir_info)
     {
         ti.method = method_collinear;
-        geometry::convert(intersection_info.intersections[1], ti.point);
+        geometry::detail::convert(intersection_info.intersections[1], ti.point);
 
         int const arrival = dir_info.arrival[0];
         // Should not be 0, this is checked before
@@ -585,7 +585,7 @@ private :
         // If P arrives within Q, set info on P (which is done above, index=0),
         // this turn-info belongs to the second intersection point, index=1
         // (see e.g. figure CLO1)
-        geometry::convert(intersection_info.intersections[1 - Index], tp.point);
+        geometry::detail::convert(intersection_info.intersections[1 - Index], tp.point);
         return true;
     }
 
@@ -661,7 +661,7 @@ struct crosses : public base_turn_handler
                 DirInfo const& dir_info)
     {
         ti.method = method_crosses;
-        geometry::convert(intersection_info.intersections[0], ti.point);
+        geometry::detail::convert(intersection_info.intersections[0], ti.point);
 
         // In all casees:
         // If Q crosses P from left to right
@@ -877,7 +877,7 @@ struct get_turn_info
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS
                 std::cout << "get_turns, nyi: " << method << std::endl;
 #endif
-				break;
+                break;
         }
 
         return out;

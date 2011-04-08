@@ -33,7 +33,7 @@
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/convert.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -134,7 +134,7 @@ struct dissolve_ring_or_polygon
         else
         {
             GeometryOut g;
-            geometry::convert(geometry, g);
+            geometry::detail::convert(geometry, g);
             *out++ = g;
             return out;
         }
