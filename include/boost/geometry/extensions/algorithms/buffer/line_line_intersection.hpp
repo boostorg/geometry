@@ -21,7 +21,7 @@ namespace detail { namespace buffer
 {
 
 
-// TODO: once convert this to proper strategy
+// TODO: once change this to proper strategy
 // It is different from current segment intersection because these are not segments but lines
 // If we have the Line concept, we can create a strategy
 template <typename Point, typename Line1, typename Line2 = Line1>

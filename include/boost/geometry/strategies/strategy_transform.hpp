@@ -20,7 +20,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/convert.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -104,7 +104,7 @@ struct copy_per_coordinate
         // Defensive check, dimensions are equal, selected by specialization
         assert_dimension_equal<P1, P2>();
 
-        geometry::convert(p1, p2);
+        geometry::detail::convert(p1, p2);
         return true;
     }
 };
@@ -312,14 +312,14 @@ struct default_strategy<CoordSysTag, CoordSysTag, CoordSys, CoordSys, D, D, P1, 
     typedef copy_per_coordinate<P1, P2> type;
 };
 
-/// Specialization to convert from degree to radian for any coordinate system / point type combination
+/// Specialization to transform from degree to radian for any coordinate system / point type combination
 template <typename CoordSysTag, template<typename> class CoordSys, typename P1, typename P2>
 struct default_strategy<CoordSysTag, CoordSysTag, CoordSys<degree>, CoordSys<radian>, 2, 2, P1, P2>
 {
     typedef degree_radian_vv<P1, P2, std::multiplies> type;
 };
 
-/// Specialization to convert from radian to degree for any coordinate system / point type combination
+/// Specialization to transform from radian to degree for any coordinate system / point type combination
 template <typename CoordSysTag, template<typename> class CoordSys, typename P1, typename P2>
 struct default_strategy<CoordSysTag, CoordSysTag, CoordSys<radian>, CoordSys<degree>, 2, 2, P1, P2>
 {
@@ -341,28 +341,28 @@ struct default_strategy<CoordSysTag, CoordSysTag, CoordSys<radian>, CoordSys<deg
     typedef degree_radian_vv_3<P1, P2, std::divides> type;
 };
 
-/// Specialization to convert from unit sphere(phi,theta) to XYZ
+/// Specialization to transform from unit sphere(phi,theta) to XYZ
 template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
 struct default_strategy<spherical_tag, cartesian_tag, CoordSys1, CoordSys2, 2, 3, P1, P2>
 {
     typedef from_spherical_2_to_cartesian_3<P1, P2> type;
 };
 
-/// Specialization to convert from sphere(phi,theta,r) to XYZ
+/// Specialization to transform from sphere(phi,theta,r) to XYZ
 template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
 struct default_strategy<spherical_tag, cartesian_tag, CoordSys1, CoordSys2, 3, 3, P1, P2>
 {
     typedef from_spherical_3_to_cartesian_3<P1, P2> type;
 };
 
-/// Specialization to convert from XYZ to unit sphere(phi,theta)
+/// Specialization to transform from XYZ to unit sphere(phi,theta)
 template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
 struct default_strategy<cartesian_tag, spherical_tag, CoordSys1, CoordSys2, 3, 2, P1, P2>
 {
     typedef from_cartesian_3_to_spherical_2<P1, P2> type;
 };
 
-/// Specialization to convert from XYZ to sphere(phi,theta,r)
+/// Specialization to transform from XYZ to sphere(phi,theta,r)
 template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
 struct default_strategy<cartesian_tag, spherical_tag, CoordSys1, CoordSys2, 3, 3, P1, P2>
 {

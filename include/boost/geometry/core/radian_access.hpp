@@ -78,7 +78,7 @@ struct radian_access
     }
 };
 
-// Specialize, any "degree" coordinate system will convert to radian
+// Specialize, any "degree" coordinate system will be converted to radian
 // but only for dimension 0,1 (so: dimension 2 and heigher are untouched)
 
 template

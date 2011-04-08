@@ -13,7 +13,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/convert.hpp>
 #include <boost/geometry/extensions/gis/projections/factory.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 
