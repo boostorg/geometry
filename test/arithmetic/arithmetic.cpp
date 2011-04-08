@@ -98,6 +98,23 @@ void test_division()
     BOOST_CHECK(bg::get<2>(p1) == 5);
 }
 
+template <typename P>
+void test_assign()
+{
+    P p1;
+    P p2;
+    bg::assign(p1, 12, 34, 56);
+    bg::assign_point(p2, p1);
+    BOOST_CHECK(bg::get<0>(p2) == 12);
+    BOOST_CHECK(bg::get<1>(p2) == 34);
+    BOOST_CHECK(bg::get<2>(p2) == 56);
+
+    bg::assign_value(p2, 78);
+    BOOST_CHECK(bg::get<0>(p2) == 78);
+    BOOST_CHECK(bg::get<1>(p2) == 78);
+    BOOST_CHECK(bg::get<2>(p2) == 78);
+}
+
 
 template <typename P>
 void test_all()
@@ -106,6 +123,7 @@ void test_all()
     test_subtraction<P>();
     test_multiplication<P>();
     test_division<P>();
+    test_assign<P>();
 }
 
 
