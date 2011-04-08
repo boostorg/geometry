@@ -24,7 +24,7 @@
 
 
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/convert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
@@ -199,7 +199,7 @@ struct wkt_box
         // Convert to ring, then stream
         typedef model::ring<point_type> ring_type;
         ring_type ring;
-        geometry::convert(box, ring);
+        geometry::detail::convert(box, ring);
         os << "POLYGON(";
         wkt_sequence<ring_type>::apply(os, ring);
         os << ")";

@@ -22,7 +22,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/convert.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
 
@@ -132,8 +132,8 @@ public :
         // For consistency we define w also in FP
         fp_vector_type v, w;
 
-        geometry::convert(p2, v);
-        geometry::convert(p, w);
+        geometry::detail::convert(p2, v);
+        geometry::detail::convert(p, w);
         subtract_point(v, p1);
         subtract_point(w, p1);
 
@@ -163,7 +163,7 @@ public :
                 >::apply(strategy);
 
         fp_point_type projected;
-        geometry::convert(p1, projected);
+        geometry::detail::convert(p1, projected);
         multiply_value(v, b);
         add_point(projected, v);
 

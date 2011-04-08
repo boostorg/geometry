@@ -28,7 +28,7 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace convert
+namespace detail { namespace conversion
 {
 
 
@@ -60,7 +60,7 @@ inline void convert_point_to_point(Source const& source, Destination& destinatio
 
 
 
-}} // namespace detail::convert
+}} // namespace detail::conversion
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

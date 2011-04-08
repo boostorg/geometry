@@ -17,7 +17,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/convert.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
@@ -71,7 +71,7 @@ struct copy_segment_point_range
         rview_type view(cview);
 
 
-        geometry::convert(*(boost::begin(view) + index), point);
+        geometry::detail::convert(*(boost::begin(view) + index), point);
         return true;
     }
 };

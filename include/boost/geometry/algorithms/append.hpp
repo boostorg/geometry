@@ -51,7 +51,7 @@ struct append_point
                 int = 0, int = 0)
     {
         typename geometry::point_type<Geometry>::type copy;
-        geometry::detail::convert::convert_point_to_point(point, copy);
+        geometry::detail::conversion::convert_point_to_point(point, copy);
         traits::push_back<Geometry>::apply(geometry, copy);
     }
 };
