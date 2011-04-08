@@ -16,7 +16,6 @@ test-suite boost-geometry-algorithms
     [ run buffer.cpp ]
     [ run centroid.cpp ]
     [ run comparable_distance.cpp ]
-    [ run convert.cpp ]
     [ run convex_hull.cpp ]
     [ run correct.cpp ]
     [ run difference.cpp ]

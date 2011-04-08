@@ -10,6 +10,7 @@
 
 test-suite boost-geometry-algorithms-detail
     :
+    [ run convert.cpp ]
     [ run partition.cpp ]
     ;
 
