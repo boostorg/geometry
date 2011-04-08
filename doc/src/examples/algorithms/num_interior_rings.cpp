@@ -8,7 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[num_interior_rings
-//` Get the number of interior rings in a polygon or multi-polygon
+//` Get the number of interior rings in a multi-polygon
 
 #include <iostream>
 
