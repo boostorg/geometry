@@ -124,6 +124,8 @@ struct unique<polygon_tag, Polygon, ComparePolicy>
 \details \details_calc{unique,minimal set (where duplicate consecutive points are removed)}.
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry which will be made unique
+
+\qbk{[include reference/algorithms/unique.qbk]}
 */
 template <typename Geometry>
 inline void unique(Geometry& geometry)

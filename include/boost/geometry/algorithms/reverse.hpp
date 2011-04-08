@@ -106,10 +106,15 @@ struct reverse<polygon_tag, Polygon>
 
 
 /*!
-\brief Reverses a geometry
+\brief Reverses the points within a geometry
+\details Generic function to reverse a geometry. It resembles the std::reverse
+   functionality, but it takes the geometry type into account. Only for a ring
+   or for a linestring it is the same as the std::reverse.
 \ingroup reverse
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry which will be reversed
+
+\qbk{[include reference/algorithms/reverse.qbk]}
 */
 template <typename Geometry>
 inline void reverse(Geometry& geometry)
