@@ -291,12 +291,14 @@ inline void expand(Box& box, Geometry const& geometry,
 
 
 /*!
-\brief Expands a box using the extend (envelope) of another geometry (box, point)
+\brief Expands a box using the bounding box (envelope) of another geometry (box, point)
 \ingroup expand
 \tparam Box type of the box
 \tparam Geometry \tparam_geometry
-\param box box to expand another geometry with, might be changed
-\param geometry \param_geometry
+\param box box to be expanded using another geometry, mutable
+\param geometry \param_geometry geometry which envelope (bounding box) will be added to the box
+
+\qbk{[include reference/algorithms/expand.qbk]}
  */
 template <typename Box, typename Geometry>
 inline void expand(Box& box, Geometry const& geometry)
