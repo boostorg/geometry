@@ -289,14 +289,19 @@ struct transform<segment_tag, segment_tag, Segment1, Segment2, Strategy>
 
 
 /*!
-\brief Transforms from one geometry to another geometry using a strategy
+\brief Transforms from one geometry to another geometry  \brief_strategy
 \ingroup transform
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \tparam Strategy strategy
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
-\param strategy the strategy to be used for transformation
+\param strategy The strategy to be used for transformation
+\return True if the transformation could be done
+
+\qbk{distinguish,with strategy}
+
+\qbk{[include reference/algorithms/transform_with_strategy.qbk]}
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
@@ -325,7 +330,9 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
-\return true if the transformation could be done
+\return True if the transformation could be done
+
+\qbk{[include reference/algorithms/transform.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2)

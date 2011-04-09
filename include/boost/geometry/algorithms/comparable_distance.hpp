@@ -25,13 +25,18 @@ namespace boost { namespace geometry
 /*!
 \brief \brief_calc2{comparable distance measurement}
 \ingroup distance
-\details The default strategy is used, belonging to the corresponding coordinate system of the geometries
-    and the comparable strategy is used
+\details The free function comparable_distance does not necessarily calculate the distance,
+    but it calculates a distance measure such that two distances are comparable to each other.
+    For example: for the Cartesian coordinate system, Pythagoras is used but the square root
+    is not taken, which makes it faster and the results of two point pairs can still be 
+    compared to each other.
 \tparam Geometry1 first geometry type
 \tparam Geometry2 second geometry type
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \return \return_calc{comparable distance}
+
+\qbk{[include reference/algorithms/comparable_distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
 inline typename default_distance_result<Geometry1, Geometry2>::type comparable_distance(
