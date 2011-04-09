@@ -13,6 +13,8 @@ project boost-geometry-doc-example-algorithms
     : # requirements
     ;
 
+exe append : append.cpp ;
+
 exe area : area.cpp ;
 exe area_with_strategy : area_with_strategy.cpp ;
 
@@ -26,8 +28,14 @@ exe assign_point_to_index : assign_point_to_index.cpp ;
 
 exe centroid : centroid.cpp ;
 exe clear : clear.cpp ;
+exe comparable_distance : comparable_distance.cpp ;
+exe correct : correct.cpp ;
 
+exe difference : difference.cpp ;
 exe distance : distance.cpp ;
+
+exe envelope : envelope.cpp ;
+exe expand : expand.cpp ;
 
 exe for_each_point : for_each_point.cpp ;
 exe for_each_point_const : for_each_point_const.cpp ;
@@ -38,6 +46,9 @@ exe intersection_segment : intersection_segment.cpp ;
 
 exe intersects_linestring : intersects_linestring.cpp ;
 
+exe length : length.cpp ;
+exe length_with_strategy : length_with_strategy.cpp ;
+
 exe make_2d_point : make_2d_point.cpp ;
 exe make_3d_point : make_3d_point.cpp ;
 exe make_inverse : make_inverse.cpp ;
@@ -47,10 +58,17 @@ exe num_geometries : num_geometries.cpp ;
 exe num_interior_rings : num_interior_rings.cpp ;
 exe num_points : num_points.cpp ;
 
+exe return_envelope : return_envelope.cpp ;
 
-exe length : length.cpp ;
-exe length_with_strategy : length_with_strategy.cpp ;
+exe reverse : reverse.cpp ;
 
 exe simplify : length.cpp ;
+exe sym_difference : sym_difference.cpp ;
+
+exe transform : transform.cpp ;
+exe transform_with_strategy : transform_with_strategy.cpp ;
+
+exe union : union.cpp ;
+exe unique : unique.cpp ;
 
 exe within : within.cpp ;

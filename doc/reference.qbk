@@ -65,25 +65,12 @@
 [include generated/centroid.qbk]
 [endsect]
 
-[section:clear clear]
 [include generated/clear.qbk]
-[endsect]
-
-[section:convex_hull convex_hull]
 [include generated/convex_hull.qbk]
-[endsect]
-
 [include generated/correct.qbk]
 
-
-[section:difference difference]
 [include generated/difference.qbk]
-[endsect]
-
-[section:disjoint disjoint]
 [include generated/disjoint.qbk]
-[endsect]
-
 
 [section:distance distance]
 [include generated/distance.qbk]
@@ -93,21 +80,16 @@
 [include generated/envelope.qbk]
 [endsect]
 
-[section:equals equals]
 [include generated/equals.qbk]
-[endsect]
-
-[section:expand expand]
 [include generated/expand.qbk]
-[endsect]
 
 [section:for_each for_each]
 [include generated/for_each.qbk]
 [endsect]
 
-[section:intersection intersection]
+[/section:intersection intersection]
 [include generated/intersection.qbk]
-[endsect]
+[/endsect]
 
 [section:intersects intersects]
 [include generated/intersects.qbk]
@@ -126,9 +108,7 @@
 [include generated/num_points.qbk]
 
 
-[section:overlaps overlaps]
 [include generated/overlaps.qbk]
-[endsect]
 
 [section:perimeter perimeter]
 [include generated/perimeter.qbk]
@@ -140,18 +120,18 @@
 [include generated/simplify.qbk]
 [endsect]
 
-[section:sym_difference sym_difference]
+[/section:sym_difference sym_difference]
 [include generated/sym_difference.qbk]
-[endsect]
+[/endsect]
 
 [section:transform transform]
 [include generated/transform.qbk]
 [endsect]
 
 
-[section:union union]
+[/section:union union]
 [include generated/union.qbk]
-[endsect]
+[/endsect]
 
 [include generated/unique.qbk]
 

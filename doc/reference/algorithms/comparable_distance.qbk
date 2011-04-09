@@ -10,26 +10,16 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[def __is_cleared__ is cleared]
+[heading Behaviour]
+There is no (not yet) version with a strategy.
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__point__][__does_nothing__]]
-[[__segment__][__does_nothing__]]
-[[__box__][__does_nothing__]]
-[[__linestring__][__linestring__ __is_cleared__]]
-[[__ring__][__ring__ is cleared]]
-[[__polygon__][The exterior ring __is_cleared__ and all interior rings are removed]]
-[[__multi_point__][__multi_point__ __is_cleared__]]
-[[__multi_linestring__][__multi_linestring__ __is_cleared__]]
-[[__multi_polygon__][__multi_polygon__ __is_cleared__]]
-]
+It depends on the coordinate system of the geometry's point type if there is
+a strategy available which can determine (more efficient than the standard
+strategy) a measure of comparable distance.
 
 [heading Complexity]
-Constant
+Linear
 
 [heading Example]
-[clear]
-[clear_output]
-
+[comparable_distance]
+[comparable_distance_output]

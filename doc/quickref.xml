@@ -387,7 +387,7 @@
     </simplelist>
     <bridgehead renderas="sect3">Union</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.union">union</link></member>
+     <member><link linkend="geometry.reference.algorithms.union_">union</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Unique</bridgehead>
     <simplelist type="vert" columns="1">
