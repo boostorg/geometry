@@ -303,6 +303,7 @@ int main(int argc, char** argv)
     algorithms.push_back(algorithm("centroid", 2));
     algorithms.push_back(algorithm("intersects", 2));
     algorithms.push_back(algorithm("within", 2));
+    algorithms.push_back(algorithm("equals", 2));
 
     typedef std::vector<cs> cs_type;
     cs_type css;

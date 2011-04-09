@@ -35,6 +35,7 @@ exe difference : difference.cpp ;
 exe distance : distance.cpp ;
 
 exe envelope : envelope.cpp ;
+exe equals : equals.cpp ;
 exe expand : expand.cpp ;
 
 exe for_each_point : for_each_point.cpp ;

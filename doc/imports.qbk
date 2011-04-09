@@ -11,6 +11,7 @@
 =============================================================================/]
 
 [import src/examples/quick_start.cpp]
+
 [import src/examples/algorithms/area.cpp]
 [import src/examples/algorithms/area_with_strategy.cpp]
 [import src/examples/algorithms/append.cpp]
@@ -28,6 +29,7 @@
 [import src/examples/algorithms/distance.cpp]
 [import src/examples/algorithms/difference.cpp]
 [import src/examples/algorithms/envelope.cpp]
+[import src/examples/algorithms/equals.cpp]
 [import src/examples/algorithms/expand.cpp]
 [import src/examples/algorithms/for_each_point.cpp]
 [import src/examples/algorithms/for_each_point_const.cpp]
@@ -54,6 +56,7 @@
 [import src/examples/algorithms/union.cpp]
 [import src/examples/algorithms/unique.cpp]
 [import src/examples/algorithms/within.cpp]
+
 [import src/examples/core/get_point.cpp]
 [import src/examples/core/get_box.cpp]
 [import src/examples/core/set_point.cpp]
