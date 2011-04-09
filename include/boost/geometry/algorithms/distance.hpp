@@ -523,12 +523,14 @@ inline typename strategy::distance::services::return_type<Strategy>::type distan
 /*!
 \brief \brief_calc2{distance}
 \ingroup distance
-\details The default strategy is used, belonging to the corresponding coordinate system of the geometries
+\details The default strategy is used, corresponding to the coordinate system of the geometries
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \return \return_calc{distance}
+
+\qbk{[include reference/algorithms/distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
 inline typename default_distance_result<Geometry1, Geometry2>::type distance(
