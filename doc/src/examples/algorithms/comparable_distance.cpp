@@ -45,8 +45,8 @@ int main()
     }
     
     std::cout 
-        << "Closest: " << boost::geometry::dsv(minp) << std::endl
-        << "At: " << boost::geometry::distance(p, minp) << std::endl;
+        << "Closest: " << boost::geometry::dsv(min_p) << std::endl
+        << "At: " << boost::geometry::distance(p, min_p) << std::endl;
 
     return 0;
 }
