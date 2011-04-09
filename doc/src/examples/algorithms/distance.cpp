@@ -41,9 +41,10 @@ int main()
     mp.push_back(point_type(0,0));
     mp.push_back(point_type(3,3));
 
-    std::cout << "distance: " << boost::geometry::distance(p, poly) << std::endl;
-    std::cout << "distance: " << boost::geometry::distance(p, line) << std::endl;
-    std::cout << "distance: " << boost::geometry::distance(p, mp) << std::endl;
+    std::cout 
+        << "Point-Poly: " << boost::geometry::distance(p, poly) << std::endl
+        << "Point-Line: " << boost::geometry::distance(p, line) << std::endl
+        << "Point-MultiPoint: " << boost::geometry::distance(p, mp) << std::endl;
 
     return 0;
 }
@@ -55,9 +56,9 @@ int main()
 /*`
 Output:
 [pre
-distance: 1.22066
-distance: 1
-distance: 2.23607
+Point-Poly: 1.22066
+Point-Line: 1
+Point-MultiPoint: 2.23607
 ]
 */
 //]
