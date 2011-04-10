@@ -266,7 +266,7 @@ inline void assign_value(Point& p, typename detail::param<Point>::type value)
     \param p2 second point
  */
 template <typename Point1, typename Point2>
-inline void assign_point(Point1& p1, Point2& p2)
+inline void assign_point(Point1& p1, const Point2& p2)
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point2>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point2>) );
