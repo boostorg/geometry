@@ -34,7 +34,7 @@ int main()
         << std::endl;
     
     boost::geometry::model::box<point> box;
-    boost::geometry::assign(box, 0, 0, 5, 5);
+    boost::geometry::assign_values(box, 0, 0, 5, 5);
     
     std::cout 
         << "polygon and box are spatially " 
