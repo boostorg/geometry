@@ -23,15 +23,15 @@
 
 int main()
 {
-    using boost::geometry::assign;
+    using boost::geometry::assign_values;
 
 
     boost::geometry::model::d2::point_xy<double> p1;
-    assign(p1, 1.2345, 2.3456);
+    assign_values(p1, 1.2345, 2.3456);
 
 #if defined(HAVE_TTMATH)
     boost::geometry::model::d2::point_xy<ttmath::Big<1,4> > p2;
-    assign(p2, "1.2345", "2.3456"); /*< It is possible to assign coordinates with other types than the coordinate type.
+    assign_values(p2, "1.2345", "2.3456"); /*< It is possible to assign coordinates with other types than the coordinate type.
         For ttmath, you can e.g. conveniently use strings. The advantage is that it then has higher precision, because
         if doubles are used for assignments the double-precision is used.
         >*/
