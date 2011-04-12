@@ -35,13 +35,13 @@ int main(void)
     bg::model::linestring<point_2d> ls;
     {
         const double c[][2] = { {0, 1}, {2, 5}, {5, 3} };
-        bg::assign(ls, c);
+        bg::assign_points(ls, c);
     }
 
     bg::model::polygon<point_2d> p;
     {
         const double c[][2] = { {3, 0}, {0, 3}, {4, 5}, {3, 0} };
-        bg::assign(p, c);
+        bg::assign_points(p, c);
     }
     bg::correct(p);
 

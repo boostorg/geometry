@@ -53,13 +53,13 @@ int main()
 
     // All these types are handled the same way. We show here
     // assigning them and calculating distances.
-    assign(pt1, 1, 1);
-    assign(pt2, 2, 2);
-    assign(pt3, 3, 3);
-    assign(pt4, 4, 4);
-    assign(pt5, 5, 5);
-    assign(pt6, 6, 6);
-    assign(pt7, 7, 7);
+    assign_values(pt1, 1, 1);
+    assign_values(pt2, 2, 2);
+    assign_values(pt3, 3, 3);
+    assign_values(pt4, 4, 4);
+    assign_values(pt5, 5, 5);
+    assign_values(pt6, 6, 6);
+    assign_values(pt7, 7, 7);
 
 
     double d1 = distance(pt1, pt2);
@@ -76,13 +76,13 @@ int main()
     // 1: default, empty constructor, causing no initialization at all
     model::d2::point_xy<double> p1;
 
-    // 2: as shown above, assign
+    // 2: as shown above, assign_values
     model::d2::point_xy<double> p2;
-    assign(p2, 1, 1);
+    assign_values(p2, 1, 1);
 
     // 3: using "set" function
     //    set uses the concepts behind, such that it can be applied for
-    //    every point-type (like assign)
+    //    every point-type (like assign_values)
     model::d2::point_xy<double> p3;
     set<0>(p3, 1);
     set<1>(p3, 1);
@@ -118,8 +118,8 @@ int main()
 
     // There are 3-dimensional points too
     model::point<double, 3, cs::cartesian> d3a, d3b;
-    assign(d3a, 1, 2, 3);
-    assign(d3b, 4, 5, 6);
+    assign_values(d3a, 1, 2, 3);
+    assign_values(d3b, 4, 5, 6);
     d3 = distance(d3a, d3b);
 
 

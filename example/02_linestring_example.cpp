@@ -79,9 +79,9 @@ int main(void)
     // points can be created using "make" and added to a linestring using the std:: "push_back"
     ls.push_back(make<point_2d>(1.1, 1.1));
 
-    // points can also be assigned using "assign" and added to a linestring using "append"
+    // points can also be assigned using "assign_values" and added to a linestring using "append"
     point_2d lp;
-    assign(lp, 2.5, 2.1);
+    assign_values(lp, 2.5, 2.1);
     append(ls, lp);
 
     // Lines can be streamed using DSV (delimiter separated values)

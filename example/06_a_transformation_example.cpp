@@ -35,7 +35,7 @@ int main()
     const double coor[][2] = { {0, 0}, {0, 7}, {2, 2}, {2, 0}, {0, 0} };
     // note that for this syntax you have to include the two
     // include files above (c_array_cartesian.hpp, std_as_linestring.hpp)
-    assign(poly, coor);
+    assign_points(poly, coor);
     //read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
     transform(poly, poly2, translate);
 
