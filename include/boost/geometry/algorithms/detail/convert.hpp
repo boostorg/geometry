@@ -20,8 +20,9 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
-#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 
