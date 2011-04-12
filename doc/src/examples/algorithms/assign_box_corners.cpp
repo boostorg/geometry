@@ -23,7 +23,7 @@ int main()
     typedef model::box<point> box;
 
     box b;
-    assign(b, 2, 2, 5, 5);
+    assign_values(b, 2, 2, 5, 5);
 
     point ll, lr, ul, ur;
     assign_box_corners(b, ll, lr, ul, ur);
