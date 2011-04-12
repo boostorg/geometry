@@ -24,6 +24,7 @@
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
+#include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 
 #include <boost/geometry/core/cs.hpp>
