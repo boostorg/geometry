@@ -73,7 +73,7 @@ void convert(SHPObject* psShape, T& polygon)
     for (int v = 0; v < psShape->nVertices; v++)
     {
         typename point_type<T>::type point;
-        assign(point, x[v], y[v]);
+        assign_values(point, x[v], y[v]);
         append(polygon, point);
     }
 }

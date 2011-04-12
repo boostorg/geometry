@@ -45,7 +45,7 @@ int main(void)
         const double c[][2] = {
             {160, 330}, {60, 260}, {20, 150}, {60, 40}, {190, 20}, {270, 130}, {260, 250}, {160, 330}
         };
-        bg::assign(a, c);
+        bg::assign_points(a, c);
     }
     bg::correct(a);
     std::cout << "A: " << bg::dsv(a) << std::endl;
@@ -55,7 +55,7 @@ int main(void)
         const double c[][2] = {
             {300, 330}, {190, 270}, {150, 170}, {150, 110}, {250, 30}, {380, 50}, {380, 250}, {300, 330}
         };
-        bg::assign(b, c);
+        bg::assign_points(b, c);
     }
     bg::correct(b);
     std::cout << "B: " << bg::dsv(b) << std::endl;
