@@ -30,14 +30,14 @@ template <typename P>
 void test_addition()
 {
     P p1;
-    bg::assign(p1, 1, 2, 3);
+    bg::assign_values(p1, 1, 2, 3);
     bg::add_value(p1, 10);
     BOOST_CHECK(bg::get<0>(p1) == 11);
     BOOST_CHECK(bg::get<1>(p1) == 12);
     BOOST_CHECK(bg::get<2>(p1) == 13);
 
     P p2;
-    bg::assign(p2, 4, 5, 6);
+    bg::assign_values(p2, 4, 5, 6);
     bg::add_point(p1, p2);
     BOOST_CHECK(bg::get<0>(p1) == 15);
     BOOST_CHECK(bg::get<1>(p1) == 17);
@@ -48,14 +48,14 @@ template <typename P>
 void test_subtraction()
 {
     P p1;
-    bg::assign(p1, 1, 2, 3);
+    bg::assign_values(p1, 1, 2, 3);
     bg::subtract_value(p1, 10);
     BOOST_CHECK(bg::get<0>(p1) == -9);
     BOOST_CHECK(bg::get<1>(p1) == -8);
     BOOST_CHECK(bg::get<2>(p1) == -7);
 
     P p2;
-    bg::assign(p2, 4, 6, 8);
+    bg::assign_values(p2, 4, 6, 8);
     bg::subtract_point(p1, p2);
     BOOST_CHECK(bg::get<0>(p1) == -13);
     BOOST_CHECK(bg::get<1>(p1) == -14);
@@ -66,14 +66,14 @@ template <typename P>
 void test_multiplication()
 {
     P p1;
-    bg::assign(p1, 1, 2, 3);
+    bg::assign_values(p1, 1, 2, 3);
     bg::multiply_value(p1, 5);
     BOOST_CHECK(bg::get<0>(p1) == 5);
     BOOST_CHECK(bg::get<1>(p1) == 10);
     BOOST_CHECK(bg::get<2>(p1) == 15);
 
     P p2;
-    bg::assign(p2, 4, 5, 6);
+    bg::assign_values(p2, 4, 5, 6);
     bg::multiply_point(p1, p2);
     BOOST_CHECK(bg::get<0>(p1) == 20);
     BOOST_CHECK(bg::get<1>(p1) == 50);
@@ -84,14 +84,14 @@ template <typename P>
 void test_division()
 {
     P p1;
-    bg::assign(p1, 50, 100, 150);
+    bg::assign_values(p1, 50, 100, 150);
     bg::divide_value(p1, 5);
     BOOST_CHECK(bg::get<0>(p1) == 10);
     BOOST_CHECK(bg::get<1>(p1) == 20);
     BOOST_CHECK(bg::get<2>(p1) == 30);
 
     P p2;
-    bg::assign(p2, 2, 4, 6);
+    bg::assign_values(p2, 2, 4, 6);
     bg::divide_point(p1, p2);
     BOOST_CHECK(bg::get<0>(p1) == 5);
     BOOST_CHECK(bg::get<1>(p1) == 5);
@@ -103,7 +103,7 @@ void test_assign()
 {
     P p1;
     P p2;
-    bg::assign(p1, 12, 34, 56);
+    bg::assign_values(p1, 12, 34, 56);
     bg::assign_point(p2, p1);
     BOOST_CHECK(bg::get<0>(p2) == 12);
     BOOST_CHECK(bg::get<1>(p2) == 34);
