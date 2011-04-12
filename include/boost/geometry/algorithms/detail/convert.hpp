@@ -147,19 +147,19 @@ struct convert<box_tag, ring_tag, 2, Box, Ring>
         geometry::clear(ring);
         typename point_type<Box>::type point;
 
-        geometry::assign(point, get<min_corner, 0>(box), get<min_corner, 1>(box));
+        geometry::assign_values(point, get<min_corner, 0>(box), get<min_corner, 1>(box));
         geometry::append(ring, point);
 
-        geometry::assign(point, get<min_corner, 0>(box), get<max_corner, 1>(box));
+        geometry::assign_values(point, get<min_corner, 0>(box), get<max_corner, 1>(box));
         geometry::append(ring, point);
 
-        geometry::assign(point, get<max_corner, 0>(box), get<max_corner, 1>(box));
+        geometry::assign_values(point, get<max_corner, 0>(box), get<max_corner, 1>(box));
         geometry::append(ring, point);
 
-        geometry::assign(point, get<max_corner, 0>(box), get<min_corner, 1>(box));
+        geometry::assign_values(point, get<max_corner, 0>(box), get<min_corner, 1>(box));
         geometry::append(ring, point);
 
-        geometry::assign(point, get<min_corner, 0>(box), get<min_corner, 1>(box));
+        geometry::assign_values(point, get<min_corner, 0>(box), get<min_corner, 1>(box));
         geometry::append(ring, point);
     }
 };
@@ -247,7 +247,7 @@ if it is possible and applicable.
 \param geometry1 \param_geometry (source)
 \param geometry2 \param_geometry (target)
 \note It is moved to namespace detail because it overlaps functionality
-    of assign. So assign will be changed such that it also can convert.
+    of assign.
  */
 template <typename Geometry1, typename Geometry2>
 inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)

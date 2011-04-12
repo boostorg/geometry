@@ -25,6 +25,8 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits.hpp>
 
+#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -43,41 +45,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace assign
 {
-
-template <typename CoordinateType>
-struct assign_operation
-{
-    inline assign_operation(CoordinateType const& value)
-        : m_value(value)
-    {}
-
-    template <typename P, std::size_t I>
-    inline void apply(P& point) const
-    {
-        geometry::set<I>(point, m_value);
-    }
-
-private:
-
-    CoordinateType m_value;
-};
-
-
-/*!
-    \brief Assigns all coordinates of a specific point to a value
-    \ingroup assign
-    \details
-    \param p Point
-    \param value Value which is assigned to all coordinates of point p
- */
-template <typename Point>
-inline void assign_value(Point& p,
-        typename coordinate_type<Point>::type const& value)
-{
-    for_each_coordinate(p,
-            assign_operation<typename coordinate_type<Point>::type>(value));
-}
-
 
 
 template
@@ -112,8 +79,7 @@ struct assign_zero_point
 {
     static inline void apply(Point& point)
     {
-        typedef typename coordinate_type<Point>::type coordinate_type;
-        assign_value(point, 0);
+        geometry::assign_value(point, 0);
     }
 };
 
@@ -405,7 +371,7 @@ struct assign_inverse<segment_tag, Segment>
 }
  */
 template <typename Geometry, typename Type>
-inline void assign(Geometry& geometry, Type const& c1, Type const& c2)
+inline void assign_values(Geometry& geometry, Type const& c1, Type const& c2)
 {
     concept::check<Geometry>();
 
@@ -437,7 +403,7 @@ inline void assign(Geometry& geometry, Type const& c1, Type const& c2)
 }
  */
 template <typename Geometry, typename Type>
-inline void assign(Geometry& geometry,
+inline void assign_values(Geometry& geometry,
             Type const& c1, Type const& c2, Type const& c3)
 {
     concept::check<Geometry>();
@@ -464,7 +430,7 @@ inline void assign(Geometry& geometry,
 \qbk{distinguish, 4 coordinate values}
  */
 template <typename Geometry, typename Type>
-inline void assign(Geometry& geometry,
+inline void assign_values(Geometry& geometry,
                 Type const& c1, Type const& c2, Type const& c3, Type const& c4)
 {
     concept::check<Geometry>();
@@ -500,7 +466,7 @@ inline void assign(Geometry& geometry,
 }
  */
 template <typename Geometry, typename Range>
-inline void assign(Geometry& geometry, Range const& range)
+inline void assign_points(Geometry& geometry, Range const& range)
 {
     concept::check<Geometry>();
 
@@ -667,7 +633,36 @@ inline void assign_point_from_index(Geometry const& geometry, Point& point)
 }
 
 
+/*!
+\brief Assigns one geometry to another geometry
+\details The assign algorithm assigns one geometry, e.g. a BOX, to another geometry, e.g. a RING. This only
+if it is possible and applicable.
+\ingroup assign
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry (source)
+\param geometry2 \param_geometry (target)
+\note It is moved to namespace detail because it overlaps functionality
+    of assign. So assign will be changed such that it also can convert.
+ */
+template <typename Geometry1, typename Geometry2>
+inline void assign(Geometry1 const& geometry1, Geometry2& geometry2)
+{
+    concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2>();
+
+    dispatch::convert
+        <
+            typename tag<Geometry1>::type,
+            typename tag<Geometry2>::type,
+            dimension<Geometry1>::type::value,
+            Geometry1,
+            Geometry2
+        >::apply(geometry1, geometry2);
+}
+
+
 }} // namespace boost::geometry
+
 
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_ASSIGN_HPP
