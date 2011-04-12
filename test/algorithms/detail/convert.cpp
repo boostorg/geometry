@@ -32,7 +32,7 @@ void test_all()
     typedef bg::model::box<P> box_type;
 
     P p;
-    bg::assign(p, 1, 2);
+    bg::assign_values(p, 1, 2);
 
     box_type b;
     bg::detail::convert(p, b);

@@ -18,6 +18,7 @@ exe append : append.cpp ;
 exe area : area.cpp ;
 exe area_with_strategy : area_with_strategy.cpp ;
 
+exe assign : assign.cpp ;
 exe assign_2d_point : assign_2d_point.cpp ;
 exe assign_3d_point : assign_3d_point.cpp ;
 exe assign_inverse : assign_inverse.cpp ;
