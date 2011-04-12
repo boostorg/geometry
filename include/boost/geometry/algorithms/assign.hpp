@@ -25,7 +25,6 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits.hpp>
 
-#include <boost/geometry/algorithms/detail/convert.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
@@ -632,6 +631,13 @@ inline void assign_point_from_index(Geometry const& geometry, Point& point)
         >::apply(geometry, point);
 }
 
+
+}} // namespace boost::geometry
+
+#include <boost/geometry/algorithms/detail/convert.hpp>
+
+namespace boost { namespace geometry
+{
 
 /*!
 \brief Assigns one geometry to another geometry
