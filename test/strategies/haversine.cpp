@@ -60,8 +60,8 @@ struct test_distance
         haversine_type strategy(radius);
 
         Point p1, p2;
-        bg::assign(p1, lon1, lat1);
-        bg::assign(p2, lon2, lat2);
+        bg::assign_values(p1, lon1, lat1);
+        bg::assign_values(p2, lon2, lat2);
         return_type d = strategy.apply(p1, p2);
 
         BOOST_CHECK_CLOSE(d, expected, tolerance);
@@ -102,10 +102,10 @@ void test_services()
     }
 
     P1 p1;
-    bg::assign(p1, 4, 52);
+    bg::assign_values(p1, 4, 52);
 
     P2 p2;
-    bg::assign(p2, 2, 48);
+    bg::assign_values(p2, 2, 48);
 
     // ~ Amsterdam/Paris, 467 kilometers
     double const km = 1000.0;
@@ -177,8 +177,8 @@ void time_compare_s(int const n)
 {
     boost::timer t;
     P p1, p2;
-    bg::assign(p1, 1, 1);
-    bg::assign(p2, 2, 2);
+    bg::assign_values(p1, 1, 1);
+    bg::assign_values(p2, 2, 2);
     Strategy strategy;
     typename Strategy::return_type s = 0;
     for (int i = 0; i < n; i++)

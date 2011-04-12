@@ -46,7 +46,7 @@ template <typename P>
 void test_all()
 {
     P p;
-    bg::assign(p, 1, 1);
+    bg::assign_values(p, 1, 1);
 
     {
         bg::strategy::transform::translate_transformer<P, P> trans(1, 1);

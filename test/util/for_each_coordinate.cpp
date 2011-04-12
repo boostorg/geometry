@@ -55,7 +55,7 @@ template <typename P>
 void test_all()
 {
     P p;
-    bg::assign(p, 1, 2, 3);
+    bg::assign_values(p, 1, 2, 3);
     bg::for_each_coordinate(p, test_operation());
     BOOST_CHECK(bg::get<0>(p) == 10);
     BOOST_CHECK(bg::get<1>(p) == 20);

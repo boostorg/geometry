@@ -80,7 +80,7 @@ void test_transformations(double phi, double theta, double r)
     {
         typedef bg::model::point<T, 3, bg::cs::spherical<DegreeOrRadian> >  spherical_type;
         spherical_type sph1;
-        assign(sph1, phi, theta, r);
+        assign_values(sph1, phi, theta, r);
         BOOST_CHECK(transform(sph1, p));
 
         spherical_type sph2;
@@ -97,7 +97,7 @@ void test_transformations(double phi, double theta, double r)
     {
         typedef bg::model::point<T, 2, bg::cs::spherical<DegreeOrRadian> >  spherical_type;
         spherical_type sph1, sph2;
-        assign(sph1, phi, theta);
+        assign_values(sph1, phi, theta);
         BOOST_CHECK(transform(sph1, p));
         BOOST_CHECK(transform(p, sph2));
 

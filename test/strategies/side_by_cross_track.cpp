@@ -29,9 +29,9 @@ void test_side(double lon1, double lat1,
     typedef bg::strategy::side::side_by_cross_track<double> strategy;
 
     Point p1, p2, p3;
-    bg::assign(p1, lon1, lat1);
-    bg::assign(p2, lon2, lat2);
-    bg::assign(p3, lon3, lat3);
+    bg::assign_values(p1, lon1, lat1);
+    bg::assign_values(p2, lon2, lat2);
+    bg::assign_values(p3, lon3, lat3);
     int s = strategy::apply(p1, p2, p3);
 
 }
