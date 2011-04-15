@@ -61,7 +61,6 @@ namespace boost { namespace geometry
 [assign_with_range] [assign_with_range_output]
 
 [heading See also]
-\* [link geometry.reference.algorithms.make.make_1_with_a_range make]
 \* [link geometry.reference.algorithms.append.append append]
 }
  */
