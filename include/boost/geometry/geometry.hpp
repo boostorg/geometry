@@ -19,6 +19,7 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 // Core algorithms

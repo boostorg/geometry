@@ -22,7 +22,6 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
-#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 namespace boost { namespace geometry

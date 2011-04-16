@@ -106,8 +106,11 @@ struct point_type<polygon_tag, Polygon>
 
 
 /*!
-    \brief Meta-function which defines point type of any geometry
-    \ingroup core
+\brief \brief_meta{type, point_type, \meta_geometry_type}
+\tparam Geometry \tparam_geometry 
+\ingroup core
+
+\qbk{[include reference/core/point_type.qbk]}
 */
 template <typename Geometry>
 struct point_type
