@@ -143,7 +143,7 @@ void test_assign_conversion()
     bg::assign_values(p, 1, 2);
 
     box_type b;
-    bg::assign(b, p);
+    bg::assign_rev(b, p);
 
     BOOST_CHECK_CLOSE((bg::get<0, 0>(b)), 1.0, 0.001);
     BOOST_CHECK_CLOSE((bg::get<0, 1>(b)), 2.0, 0.001);
@@ -157,7 +157,7 @@ void test_assign_conversion()
     bg::set<bg::max_corner, 1>(b, 4);
 	
     ring_type ring;
-    bg::assign(ring, b);
+    bg::assign_rev(ring, b);
 
     //std::cout << bg::wkt(b) << std::endl;
     //std::cout << bg::wkt(ring) << std::endl;
@@ -183,7 +183,7 @@ void test_assign_conversion()
 
     polygon_type polygon;
 
-    bg::assign(polygon, ring);
+    bg::assign_rev(polygon, ring);
     BOOST_CHECK_EQUAL(bg::num_points(polygon), 5u);
 
     bg::assign_rev(ring, polygon);
