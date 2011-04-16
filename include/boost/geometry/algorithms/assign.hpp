@@ -60,7 +60,7 @@ namespace boost { namespace geometry
 [assign_points] [assign_points_output]
 
 [heading See also]
-\* [link geometry.reference.algorithms.append.append append]
+\* [link geometry.reference.algorithms.append append]
 }
  */
 template <typename Geometry, typename Range>
