@@ -28,11 +28,11 @@ int main()
     
     // Assign a box to a polygon (conversion box->poly)
     polygon p;
-    boost::geometry::assign(b, p);
+    boost::geometry::assign_rev(p, b);
 
     // Assign a point to another point type (conversion of point-type)
     boost::tuple<double, double> p2;
-    boost::geometry::assign(p1, p2);
+    boost::geometry::assign_rev(p2, p1);
         
     
     using boost::geometry::dsv;

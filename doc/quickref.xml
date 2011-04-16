@@ -299,10 +299,7 @@
     <bridgehead renderas="sect3">Assign</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.assign">assign</link></member>
-     <member><link linkend="geometry.reference.algorithms.assign.assign_box_corners">assign_box_corners</link></member>
      <member><link linkend="geometry.reference.algorithms.assign.assign_inverse">assign_inverse</link></member>
-     <member><link linkend="geometry.reference.algorithms.assign.assign_point_from_index">assign_point_from_index</link></member>
-     <member><link linkend="geometry.reference.algorithms.assign.assign_point_to_index">assign_point_to_index</link></member>
      <member><link linkend="geometry.reference.algorithms.assign.assign_zero">assign_zero</link></member>
     </simplelist>
    </entry>
