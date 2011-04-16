@@ -531,8 +531,8 @@ struct box_parser
             throw read_wkt_exception("Box should have 2,4 or 5 points", wkt);
         }
 
-        assign_point_to_index<min_corner>(points.front(), box);
-        assign_point_to_index<max_corner>(points[index], box);
+        geometry::detail::assign_point_to_index<min_corner>(points.front(), box);
+        geometry::detail::assign_point_to_index<max_corner>(points[index], box);
     }
 };
 
@@ -570,8 +570,8 @@ struct segment_parser
 
         if (boost::size(points) == 2)
         {
-            assign_point_to_index<0>(points.front(), segment);
-            assign_point_to_index<1>(points.back(), segment);
+            geometry::detail::assign_point_to_index<0>(points.front(), segment);
+            geometry::detail::assign_point_to_index<1>(points.back(), segment);
         }
         else
         {

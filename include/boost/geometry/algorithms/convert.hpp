@@ -235,10 +235,6 @@ struct convert<polygon_tag, ring_tag, DimensionCount, Polygon, Ring>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-
 /*!
 \brief Converts one geometry to another geometry
 \details The convert algorithm converts one geometry, e.g. a BOX, to another geometry, e.g. a RING. This only
@@ -265,9 +261,6 @@ inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
             Geometry2
         >::apply(geometry1, geometry2);
 }
-
-}
-#endif // DOXYGEN_NO_DETAIL
 
 
 }} // namespace boost::geometry

@@ -19,7 +19,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 
 
 namespace boost { namespace geometry
@@ -50,7 +50,7 @@ struct convert_ring<ring_tag>
     {
         if (! append)
         {
-            geometry::detail::convert(source, destination);
+            geometry::convert(source, destination);
             if (reverse)
             {
                 boost::reverse(destination);
@@ -69,7 +69,7 @@ struct convert_ring<polygon_tag>
     {
         if (! append)
         {
-            geometry::detail::convert(source, exterior_ring(destination));
+            geometry::convert(source, exterior_ring(destination));
             if (reverse)
             {
                 boost::reverse(exterior_ring(destination));
@@ -79,7 +79,7 @@ struct convert_ring<polygon_tag>
         {
             interior_rings(destination).resize(
                         interior_rings(destination).size() + 1);
-            geometry::detail::convert(source, interior_rings(destination).back());
+            geometry::convert(source, interior_rings(destination).back());
             if (reverse)
             {
                 boost::reverse(interior_rings(destination).back());

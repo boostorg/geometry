@@ -78,8 +78,8 @@ struct point_to_segment
             >::type segment_strategy;
 
         typename point_type<Segment>::type p[2];
-        geometry::assign_point_from_index<0>(segment, p[0]);
-        geometry::assign_point_from_index<1>(segment, p[1]);
+        geometry::detail::assign_point_from_index<0>(segment, p[0]);
+        geometry::detail::assign_point_from_index<1>(segment, p[1]);
         return segment_strategy.apply(point, p[0], p[1]);
     }
 };
@@ -419,8 +419,8 @@ struct distance
     {
         
         typename point_type<Segment>::type p[2];
-        geometry::assign_point_from_index<0>(segment, p[0]);
-        geometry::assign_point_from_index<1>(segment, p[1]);
+        geometry::detail::assign_point_from_index<0>(segment, p[0]);
+        geometry::detail::assign_point_from_index<1>(segment, p[1]);
         return strategy.apply(point, p[0], p[1]);
     }
 };

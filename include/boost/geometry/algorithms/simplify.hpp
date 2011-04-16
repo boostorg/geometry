@@ -32,7 +32,7 @@
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 
@@ -181,7 +181,7 @@ struct simplify<point_tag, Point, Strategy>
     static inline void apply(Point const& point, Point& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        geometry::detail::convert(point, out);
+        geometry::convert(point, out);
     }
 };
 

@@ -115,8 +115,8 @@ private:
 
     inline void init(Segment const& segment)
     {
-        assign_point_from_index<0>(segment, m_points[0]);
-        assign_point_from_index<1>(segment, m_points[1]);
+        geometry::detail::assign_point_from_index<0>(segment, m_points[0]);
+        geometry::detail::assign_point_from_index<1>(segment, m_points[1]);
     }
 
     // We HAVE TO copy the points, because a segment does not need
