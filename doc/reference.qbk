@@ -66,6 +66,7 @@
 [endsect]
 
 [include generated/clear.qbk]
+[include generated/convert.qbk]
 [include generated/convex_hull.qbk]
 [include generated/correct.qbk]
 

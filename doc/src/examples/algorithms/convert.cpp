@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[assign
-//` Shows how to assign a geometry from another geometry
+//[convert
+//` Shows how to convert a geometry into another geometry
 
 #include <iostream>
 
@@ -21,23 +21,21 @@ int main()
     typedef boost::geometry::model::box<point> box;
     typedef boost::geometry::model::polygon<point> polygon;
 
-    point p1;
-    box b;
-    boost::geometry::assign_values(p1, 1, 1);
-    boost::geometry::assign_values(b, 1, 1, 2, 2);
+    point p1(1, 1);
+    box bx = boost::geometry::make<box>(1, 1, 2, 2);
     
-    // Assign a box to a polygon (target = source)
-    polygon p;
-    boost::geometry::assign(p, b);
+    // Assign a box to a polygon (conversion box->poly)
+    polygon poly;
+    boost::geometry::convert(bx, poly);
 
-    // Assign a point to another point type (conversion of point-type)
+    // Convert a point to another point type (conversion of point-type)
     boost::tuple<double, double> p2;
-    boost::geometry::assign(p2, p1);
+    boost::geometry::convert(p1, p2); // source -> target
         
     using boost::geometry::dsv;
     std::cout
-        << "box: " << dsv(b) << std::endl
-        << "polygon: " << dsv(p) << std::endl
+        << "box: " << dsv(bx) << std::endl
+        << "polygon: " << dsv(poly) << std::endl
         << "point: " << dsv(p1) << std::endl
         << "point tuples: " << dsv(p2) << std::endl
         ;
@@ -48,7 +46,7 @@ int main()
 //]
 
 
-//[assign_output
+//[convert_output
 /*`
 Output:
 [pre

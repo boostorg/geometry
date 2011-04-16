@@ -298,9 +298,16 @@
     </simplelist>
     <bridgehead renderas="sect3">Assign</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.assign">assign</link></member>
+     <member><link linkend="geometry.reference.algorithms.assign.assign">assign</link></member>
      <member><link linkend="geometry.reference.algorithms.assign.assign_inverse">assign_inverse</link></member>
      <member><link linkend="geometry.reference.algorithms.assign.assign_zero">assign_zero</link></member>
+     <member><link linkend="geometry.reference.algorithms.assign.assign_points">assign_points</link></member>
+     <member>assign_values (
+        <link linkend="geometry.reference.algorithms.assign.assign_values_3_2_coordinate_values">2</link>
+        <link linkend="geometry.reference.algorithms.assign.assign_values_4_3_coordinate_values">3</link>
+        <link linkend="geometry.reference.algorithms.assign.assign_values_5_4_coordinate_values">4</link>
+        coordinate values)
+     </member>
     </simplelist>
    </entry>
    <entry valign="top">
@@ -311,6 +318,10 @@
     <bridgehead renderas="sect3">Clear</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.clear">clear</link></member>
+    </simplelist>
+    <bridgehead renderas="sect3">Convert</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.convert">convert</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Convex Hull</bridgehead>
     <simplelist type="vert" columns="1">
