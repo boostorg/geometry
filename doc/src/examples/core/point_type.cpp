@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[coordinate_system
-//` Examine the coordinate system of a point
+//[point_type
+//` Examine the point type of a multi_polygon
 
 #include <iostream>
 #include <typeinfo>
@@ -18,10 +18,11 @@ int main()
 {
     typedef boost::geometry::model::d2::point_xy<double> point_type;
     typedef boost::geometry::model::polygon<point_type> polygon_type;
+    typedef boost::geometry::model::multi_polygon<polygon_type> mp_type;
 
-    typedef boost::geometry::coordinate_system<polygon_type>::type system;
-    
-    std::cout << "system: " << typeid(system).name() << std::endl;
+    typedef boost::geometry::point_type<mp_type>::type ptype;
+
+    std::cout << "point type: " << typeid(ptype).name() << std::endl;
 
     return 0;
 }
@@ -29,11 +30,11 @@ int main()
 //]
 
 
-//[coordinate_system_output
+//[point_type_output
 /*`
-Output (using MSVC):
+Output (in MSVC):
 [pre
-system: struct boost::geometry::cs::cartesian
+point type: class boost::geometry::model::d2::point_xy<double,struct boost::geometry::cs::cartesian>
 ]
 */
 //]

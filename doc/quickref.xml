@@ -133,20 +133,17 @@
     <bridgehead renderas="sect3">Metafunctions</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.core.cs_tag">cs_tag</link></member>
+     <member><link linkend="geometry.reference.core.closure">closure</link></member>
      <member><link linkend="geometry.reference.core.coordinate_type">coordinate_type</link></member>
      <member><link linkend="geometry.reference.core.coordinate_system">coordinate_system</link></member>
      <member><link linkend="geometry.reference.core.dimension">dimension</link></member>
-     <member><link linkend="geometry.reference.core.geometry_id">geometry_id</link></member>
      <member><link linkend="geometry.reference.core.interior_type">interior_type</link></member>
      <member><link linkend="geometry.reference.core.is_radian">is_radian</link></member>
      <member><link linkend="geometry.reference.core.point_order">point_order</link></member>
      <member><link linkend="geometry.reference.core.point_type">point_type</link></member>
      <member><link linkend="geometry.reference.core.ring_type">ring_type</link></member>
-     <!-- for internal use only (detail?)
-     <member><link linkend="geometry.reference.core.reverse_dispatch">reverse_dispatch</link></member>
-     -->
      <member><link linkend="geometry.reference.core.tag">tag</link></member>
-     <member><link linkend="geometry.reference.core.topological_dimension">topological_dimension</link></member>
+     <member><link linkend="geometry.reference.core.tag_cast">tag_cast</link></member>
     </simplelist>
    </entry>
    <entry valign="top">

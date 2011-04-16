@@ -81,10 +81,10 @@ access_functions = ["get", "set", "exterior_ring", "interior_rings"
 coordinate_systems = ["cartesian", "geographic", "polar", "spherical"]
 
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
-    , "dimension", "exception", "geometry_id", "interior_type"
+    , "dimension", "exception", "interior_type"
     , "degree", "radian"
     , "is_radian", "point_order"
-    , "point_type", "ring_type", "tag", "topological_dimension" ]
+    , "point_type", "ring_type", "tag", "tag_cast" ]
 
 exceptions = ["exception", "centroid_exception"];
 
