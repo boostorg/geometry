@@ -52,9 +52,9 @@
 [section:assign assign]
 [include generated/assign.qbk]
 [endsect]
-[section:append append]
+[/section:append append]
 [include generated/append.qbk]
-[endsect]
+[/endsect]
 
 
 [section:buffer buffer]
@@ -65,25 +65,13 @@
 [include generated/centroid.qbk]
 [endsect]
 
-[section:clear clear]
 [include generated/clear.qbk]
-[endsect]
-
-[section:convex_hull convex_hull]
+[include generated/convert.qbk]
 [include generated/convex_hull.qbk]
-[endsect]
-
 [include generated/correct.qbk]
 
-
-[section:difference difference]
 [include generated/difference.qbk]
-[endsect]
-
-[section:disjoint disjoint]
 [include generated/disjoint.qbk]
-[endsect]
-
 
 [section:distance distance]
 [include generated/distance.qbk]
@@ -93,21 +81,16 @@
 [include generated/envelope.qbk]
 [endsect]
 
-[section:equals equals]
 [include generated/equals.qbk]
-[endsect]
-
-[section:expand expand]
 [include generated/expand.qbk]
-[endsect]
 
 [section:for_each for_each]
 [include generated/for_each.qbk]
 [endsect]
 
-[section:intersection intersection]
+[/section:intersection intersection]
 [include generated/intersection.qbk]
-[endsect]
+[/endsect]
 
 [section:intersects intersects]
 [include generated/intersects.qbk]
@@ -126,9 +109,7 @@
 [include generated/num_points.qbk]
 
 
-[section:overlaps overlaps]
 [include generated/overlaps.qbk]
-[endsect]
 
 [section:perimeter perimeter]
 [include generated/perimeter.qbk]
@@ -140,18 +121,17 @@
 [include generated/simplify.qbk]
 [endsect]
 
-[section:sym_difference sym_difference]
+[/section:sym_difference sym_difference]
 [include generated/sym_difference.qbk]
-[endsect]
+[/endsect]
 
 [section:transform transform]
 [include generated/transform.qbk]
 [endsect]
 
-
-[section:union union]
+[/section:union union]
 [include generated/union.qbk]
-[endsect]
+[/endsect]
 
 [include generated/unique.qbk]
 
@@ -161,12 +141,9 @@
 
 [endsect] [/algorithms]
 
-
 [section:arithmetic Arithmetic]
 [include generated/arithmetic.qbk]
 [endsect] 
-
-
 
 [section:concepts Concepts]
 [include concept/point.qbk]
@@ -180,33 +157,34 @@
 [include concept/segment.qbk]
 [endsect] [/concepts]
 
+[section:constants Constants]
+[include reference/core/min_corner.qbk]
+[include reference/core/max_corner.qbk]
+[endsect] 
+
 [section:cs Coordinate Systems]
 [include generated/cartesian.qbk]
 [include generated/spherical.qbk]
 [include generated/geographic.qbk]
 [endsect] [/coordinate systems]
 
-
-
 [section:core Core Metafunctions]
 [include generated/closure.qbk]
 [include generated/coordinate_system.qbk]
 [include generated/coordinate_type.qbk]
 [include generated/cs_tag.qbk]
+[include generated/degree.qbk]
 [include generated/dimension.qbk]
 [include generated/exception.qbk]
-[include generated/geometry_id.qbk]
 [include generated/interior_type.qbk]
-[include generated/is_areal.qbk]
-[include generated/is_linear.qbk]
 [include generated/is_radian.qbk]
 [include generated/point_order.qbk]
 [include generated/point_type.qbk]
+[include generated/radian.qbk]
 [include generated/ring_type.qbk]
 [include generated/tag.qbk]
-[include generated/topological_dimension.qbk]
+[include generated/tag_cast.qbk]
 [endsect] [/core metafunctions]
-
 
 [section:enumerations Enumerations]
 [include generated/enum.qbk]
