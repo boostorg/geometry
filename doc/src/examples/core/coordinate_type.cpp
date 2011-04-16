@@ -11,6 +11,7 @@
 //` Examine the coordinate type of a point
 
 #include <iostream>
+#include <typeinfo>
 #include <boost/geometry/geometry.hpp>
 
 int main()
