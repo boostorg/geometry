@@ -30,6 +30,8 @@ exe assign_points : assign_points.cpp ;
 exe centroid : centroid.cpp ;
 exe clear : clear.cpp ;
 exe comparable_distance : comparable_distance.cpp ;
+exe convert : convert.cpp ;
+exe convex_hull : convex_hull.cpp ;
 exe correct : correct.cpp ;
 
 exe difference : difference.cpp ;
