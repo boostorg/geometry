@@ -16,7 +16,7 @@
 
 
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
@@ -32,10 +32,10 @@ void test_all()
     typedef bg::model::box<P> box_type;
 
     P p;
-    bg::assign(p, 1, 2);
+    bg::assign_values(p, 1, 2);
 
     box_type b;
-    bg::detail::convert(p, b);
+    bg::convert(p, b);
 
     BOOST_CHECK_CLOSE((bg::get<0, 0>(b)), 1.0, 0.001);
     BOOST_CHECK_CLOSE((bg::get<0, 1>(b)), 2.0, 0.001);
@@ -59,7 +59,7 @@ void test_std()
     bg::set<bg::max_corner, 1>(b, 4);
 
     ring_type ring;
-    bg::detail::convert(b, ring);
+    bg::convert(b, ring);
 
     //std::cout << bg::wkt(b) << std::endl;
     //std::cout << bg::wkt(ring) << std::endl;
@@ -85,10 +85,10 @@ void test_std()
 
     polygon_type polygon;
 
-    bg::detail::convert(ring, polygon);
+    bg::convert(ring, polygon);
     BOOST_CHECK_EQUAL(bg::num_points(polygon), 5u);
 
-    bg::detail::convert(polygon, ring);
+    bg::convert(polygon, ring);
     BOOST_CHECK_EQUAL(bg::num_points(ring), 5u);
 }
 

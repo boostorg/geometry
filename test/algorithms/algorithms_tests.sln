@@ -54,6 +54,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reverse", "reverse.vcproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "comparable_distance", "comparable_distance.vcproj", "{F11970B5-BE16-4FF5-9780-4C15082B76A0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "convert", "convert.vcproj", "{FABF1AA7-F695-49F8-92F6-AB6C4B0C088A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -168,6 +170,10 @@ Global
 		{F11970B5-BE16-4FF5-9780-4C15082B76A0}.Debug|Win32.Build.0 = Debug|Win32
 		{F11970B5-BE16-4FF5-9780-4C15082B76A0}.Release|Win32.ActiveCfg = Release|Win32
 		{F11970B5-BE16-4FF5-9780-4C15082B76A0}.Release|Win32.Build.0 = Release|Win32
+		{FABF1AA7-F695-49F8-92F6-AB6C4B0C088A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FABF1AA7-F695-49F8-92F6-AB6C4B0C088A}.Debug|Win32.Build.0 = Debug|Win32
+		{FABF1AA7-F695-49F8-92F6-AB6C4B0C088A}.Release|Win32.ActiveCfg = Release|Win32
+		{FABF1AA7-F695-49F8-92F6-AB6C4B0C088A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -30,8 +30,8 @@ bg::model::box<P> create_box()
 {
     P p1;
     P p2;
-    bg::assign(p1, 1, 2, 5);
-    bg::assign(p2, 3, 4, 6);
+    bg::assign_values(p1, 1, 2, 5);
+    bg::assign_values(p2, 3, 4, 6);
     return bg::model::box<P>(p1, p2);
 }
 

@@ -71,8 +71,9 @@ struct compile_msvc
             command <<  "u";
         }
 
-        command << "implementation_status.hpp tmp/t.cpp > tmp/t.out";
-            // For debugging: << type1 << "_" << type2 << ".out"; 
+        command << "implementation_status.hpp tmp/t.cpp > tmp/t" //.out";
+            // For debugging: 
+            << type1 << "_" << type2 << ".out"; 
 
         int failed = system(command.str().c_str());
         return failed == 0;
@@ -300,7 +301,9 @@ int main(int argc, char** argv)
     algorithms.push_back(algorithm("correct"));
     algorithms.push_back(algorithm("distance", 2));
     algorithms.push_back(algorithm("centroid", 2));
-    //algorithms.push_back(algorithm("within", 2));
+    algorithms.push_back(algorithm("intersects", 2));
+    algorithms.push_back(algorithm("within", 2));
+    algorithms.push_back(algorithm("equals", 2));
 
     typedef std::vector<cs> cs_type;
     cs_type css;

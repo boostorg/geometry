@@ -14,7 +14,7 @@
 [difference] [difference_output]
 
 [heading See also]
-* [link geometry.reference.algorithms.sym_difference.sym_difference sym_difference (symmetric difference)]
-* [link geometry.reference.algorithms.intersection.intersection intersection]
-* [link geometry.reference.algorithms.union.union_ union]
+* [link geometry.reference.algorithms.sym_difference sym_difference (symmetric difference)]
+* [link geometry.reference.algorithms.intersection intersection]
+* [link geometry.reference.algorithms.union_ union]
 

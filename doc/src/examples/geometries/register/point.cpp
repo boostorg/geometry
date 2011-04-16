@@ -29,8 +29,8 @@ int main()
     namespace bg = boost::geometry;
 
     /*< Any Boost.Geometry function can be used for legacy point now. Here: assign and distance >*/
-    bg::assign(p1, 1, 1);
-    bg::assign(p2, 2, 2);
+    bg::assign_values(p1, 1, 1);
+    bg::assign_values(p2, 2, 2);
 
     double d = bg::distance(p1, p2);
 

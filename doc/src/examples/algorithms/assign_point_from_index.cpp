@@ -23,7 +23,7 @@ int main()
     typedef model::segment<point> segment;
 
     segment s;
-    assign(s, 1, 1, 2, 2);
+    assign_values(s, 1, 1, 2, 2);
 
     point first, second;
     assign_point_from_index<0>(s, first);

@@ -324,7 +324,7 @@ void test_pointer_version()
     p = new test::test_point_xy; p->x = 10; p->y = 10; ln.push_back(p);
 
     bg::model::box<bg::model::d2::point_xy<double> > box;
-    bg::assign(box, 2, 2, 8, 8);
+    bg::assign_values(box, 2, 2, 8, 8);
 
     typedef bg::model::linestring<bg::model::d2::point_xy<double> > output_type;
     std::vector<output_type> clip;

@@ -30,9 +30,9 @@ template <typename P>
 void test_all()
 {
     P p1;
-    bg::assign(p1, 1, 2, 3);
+    bg::assign_values(p1, 1, 2, 3);
     P p2;
-    bg::assign(p2, 4, 5, 6);
+    bg::assign_values(p2, 4, 5, 6);
     BOOST_CHECK(bg::dot_product(p1, p2) == 1*4 + 2*5 + 3*6);
 }
 

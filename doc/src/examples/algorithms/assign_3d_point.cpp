@@ -19,7 +19,7 @@
 int main()
 {
     boost::geometry::model::point<double, 3, boost::geometry::cs::cartesian> p;
-    boost::geometry::assign(p, 1.2345, 2.3456, 3.4567);
+    boost::geometry::assign_values(p, 1.2345, 2.3456, 3.4567);
 
     std::cout << boost::geometry::dsv(p) << std::endl;
 

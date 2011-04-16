@@ -315,10 +315,6 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.clear">clear</link></member>
     </simplelist>
-    <bridgehead renderas="sect3">Convert</bridgehead>
-    <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.convert">convert</link></member>
-    </simplelist>
     <bridgehead renderas="sect3">Convex Hull</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.convex_hull">convex_hull</link></member>

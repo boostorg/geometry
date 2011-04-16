@@ -36,11 +36,11 @@ template <typename P, typename PS, typename CalculationType>
 void test_services()
 {
     PS p1, p2;
-    bg::assign(p1, 0, 0);
-    bg::assign(p2, 0, 4);
+    bg::assign_values(p1, 0, 0);
+    bg::assign_values(p2, 0, 4);
 
     P p;
-    bg::assign(p, 2, 0);
+    bg::assign_values(p, 2, 0);
 
     CalculationType const sqr_expected = 4;
     CalculationType const expected = 2;

@@ -67,10 +67,10 @@ static void test_segment_intersection(std::string const& case_id,
     typedef bg::segment<const P> segment_type;
 
     P p1, p2, p3, p4;
-    bg::assign(p1, x1, y1);
-    bg::assign(p2, x2, y2);
-    bg::assign(p3, x3, y3);
-    bg::assign(p4, x4, y4);
+    bg::assign_values(p1, x1, y1);
+    bg::assign_values(p2, x2, y2);
+    bg::assign_values(p3, x3, y3);
+    bg::assign_values(p4, x4, y4);
 
     segment_type s12(p1,p2);
     segment_type s34(p3,p4);

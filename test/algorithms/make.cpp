@@ -62,7 +62,7 @@ void test_linestring_2d()
 
     T coors[][2] = {{1,2}, {3,4}};
 
-    L line = bg::make<L>(coors);
+    L line = bg::detail::make::make_points<L>(coors);
 
     BOOST_CHECK_EQUAL(line.size(), 2u);
 }
@@ -74,7 +74,7 @@ void test_linestring_3d()
 
     T coors[][3] = {{1,2,3}, {4,5,6}};
 
-    L line = bg::make<L>(coors);
+    L line = bg::detail::make::make_points<L>(coors);
 
     BOOST_CHECK_EQUAL(line.size(), 2u);
     //std::cout << dsv(line) << std::endl;

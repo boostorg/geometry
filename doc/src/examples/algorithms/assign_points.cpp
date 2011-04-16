@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[assign_with_range
+//[assign_points
 //` Shows usage of Boost.Geometry's assign, Boost.Assign, and Boost.Range to assign ranges of a linestring
 
 #include <iostream>
@@ -46,8 +46,8 @@ int main()
     ls line1, line2, line3;
 
     line1 = tuple_list_of(0, 0)(2, 3)(4, 0)(6, 3)(8, 0)(10, 3)(12, 0); /*< tuple_list_of is part of Boost.Assign and can be used for Boost.Geometry if points are tuples >*/
-    boost::geometry::assign(line2, tuple_list_of(0, 0)(2, 2)(4, 0)(6, 2)(8, 0)); /*< tuple_list_of delivers a range and can therefore be used in boost::geometry::assign >*/
-    boost::geometry::assign(line3, line1 | boost::adaptors::filtered(x_between<int>(4, 8))); /*< Boost.Range adaptors can also be used in boost::geometry::assign >*/
+    boost::geometry::assign_points(line2, tuple_list_of(0, 0)(2, 2)(4, 0)(6, 2)(8, 0)); /*< tuple_list_of delivers a range and can therefore be used in boost::geometry::assign >*/
+    boost::geometry::assign_points(line3, line1 | boost::adaptors::filtered(x_between<int>(4, 8))); /*< Boost.Range adaptors can also be used in boost::geometry::assign >*/
 
     std::cout << "line 1: " << boost::geometry::dsv(line1) << std::endl;
     std::cout << "line 2: " << boost::geometry::dsv(line2) << std::endl;
@@ -59,7 +59,7 @@ int main()
 //]
 
 
-//[assign_with_range_output
+//[assign_points_output
 /*`
 Output:
 [pre

@@ -29,8 +29,8 @@ int main()
     polygon poly;
 
     // Fill the polygon (using its own methods + Boost.Assign)
-    poly.outer() = tuple_list_of(0, 0)(0, 10)(11, 11)(0, 0);
-    poly.inners().push_back(tuple_list_of(0, 0)(0, 10)(11, 11)(0, 0));
+    poly.outer() = tuple_list_of(0, 0)(0, 9)(10, 10)(0, 0);
+    poly.inners().push_back(tuple_list_of(1, 2)(4, 6)(2, 8)(1, 2));
 
     std::cout << boost::geometry::dsv(poly) << std::endl;
     boost::geometry::clear(poly);
