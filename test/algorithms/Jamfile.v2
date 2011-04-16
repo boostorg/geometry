@@ -18,6 +18,7 @@ test-suite boost-geometry-algorithms
     [ run comparable_distance.cpp ]
     [ run convex_hull.cpp ]
     [ run correct.cpp ]
+    [ run convert.cpp ]
     [ run difference.cpp ]
     [ run disjoint.cpp ]
     [ run distance.cpp ]
