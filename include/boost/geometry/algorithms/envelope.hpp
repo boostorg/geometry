@@ -19,6 +19,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
