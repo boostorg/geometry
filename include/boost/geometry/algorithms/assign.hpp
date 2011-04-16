@@ -249,9 +249,17 @@ if it is possible and applicable.
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry (target)
 \param geometry2 \param_geometry (source)
+
+\qbk{
+[heading Example]
+[assign] [assign_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.convert convert]
+}
  */
 template <typename Geometry1, typename Geometry2>
-inline void assign_rev(Geometry1& geometry1, Geometry2 const& geometry2)
+inline void assign(Geometry1& geometry1, Geometry2 const& geometry2)
 {
     concept::check_concepts_and_equal_dimensions<Geometry1, Geometry2 const>();
 
