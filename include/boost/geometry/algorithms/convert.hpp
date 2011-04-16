@@ -244,8 +244,8 @@ if it is possible and applicable.
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry (source)
 \param geometry2 \param_geometry (target)
-\note It is moved to namespace detail because it overlaps functionality
-    of assign.
+
+\qbk{[include reference/algorithms/convert.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
 inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
