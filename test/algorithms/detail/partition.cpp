@@ -326,8 +326,8 @@ void test_many_points(int seed, int size, int count)
     typedef svg_visitor<bg::svg_mapper<point_item> > box_visitor_type;
     box_visitor_type box_visitor(mapper);
 #else
-    typedef visit_no_policy box_visitor_type;
-    visit_no_policy box_visitor;
+    typedef bg::visit_no_policy box_visitor_type;
+    box_visitor_type box_visitor;
 #endif
 
     point_visitor visitor;
@@ -432,10 +432,6 @@ void test_many_boxes(int seed, int size, int count)
 
     typedef svg_visitor<bg::svg_mapper<point_item> > partition_visitor_type;
     partition_visitor_type partition_visitor(mapper);
-#else
-    typedef visit_no_policy box_visitor_type;
-    visit_no_policy partition_visitor;
-#endif
 
 
     box_visitor<box_type> visitor;
@@ -448,6 +444,7 @@ void test_many_boxes(int seed, int size, int count)
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
 
+#endif
 }
 
 
