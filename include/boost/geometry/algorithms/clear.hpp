@@ -134,7 +134,11 @@ struct clear<polygon_tag, Polygon>
     the case of a polygon, this clear functionality is automatically called for the exterior ring, and for the
     interior ring collection. In the case of a point, boxes and segments, nothing will happen.
 \ingroup clear
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry which will be cleared
 \note points and boxes cannot be cleared, instead they can be set to zero by "assign_zero"
+
+\qbk{[include reference/algorithms/clear.qbk]}
 */
 template <typename Geometry>
 inline void clear(Geometry& geometry)

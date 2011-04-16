@@ -101,15 +101,15 @@ struct transform_box_or_segment
         typedef typename point_type<Geometry2>::type point_type2;
 
         point_type1 source_point[2];
-        assign_point_from_index<0>(source, source_point[0]);
-        assign_point_from_index<1>(source, source_point[1]);
+        geometry::detail::assign_point_from_index<0>(source, source_point[0]);
+        geometry::detail::assign_point_from_index<1>(source, source_point[1]);
 
         point_type2 target_point[2];
         if (strategy.apply(source_point[0], target_point[0])
             && strategy.apply(source_point[1], target_point[1]))
         {
-            assign_point_to_index<0>(target_point[0], target);
-            assign_point_to_index<1>(target_point[1], target);
+            geometry::detail::assign_point_to_index<0>(target_point[0], target);
+            geometry::detail::assign_point_to_index<1>(target_point[1], target);
             return true;
         }
         return false;
@@ -289,14 +289,19 @@ struct transform<segment_tag, segment_tag, Segment1, Segment2, Strategy>
 
 
 /*!
-\brief Transforms from one geometry to another geometry using a strategy
+\brief Transforms from one geometry to another geometry  \brief_strategy
 \ingroup transform
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \tparam Strategy strategy
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
-\param strategy the strategy to be used for transformation
+\param strategy The strategy to be used for transformation
+\return True if the transformation could be done
+
+\qbk{distinguish,with strategy}
+
+\qbk{[include reference/algorithms/transform_with_strategy.qbk]}
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
@@ -325,7 +330,9 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
-\return true if the transformation could be done
+\return True if the transformation could be done
+
+\qbk{[include reference/algorithms/transform.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2)

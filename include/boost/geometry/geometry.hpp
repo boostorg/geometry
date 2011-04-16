@@ -19,6 +19,7 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 // Core algorithms
@@ -42,6 +43,7 @@
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convex_hull.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>

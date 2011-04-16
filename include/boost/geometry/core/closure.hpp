@@ -149,14 +149,11 @@ struct closure<polygon_tag, Polygon>
 
 
 /*!
-\brief Meta-function which defines closure of a geometry type
+\brief \brief_meta{value, closure (clockwise\, counterclockwise), \meta_geometry_type}
+\tparam Geometry \tparam_geometry
 \ingroup core
-\details
 
-\qbk{
-[heading See also]
-[link geometry.reference.enumerations.order_selector The order_selector enumeration]
-}
+\qbk{[include reference/core/closure.qbk]}
 */
 template <typename Geometry>
 struct closure

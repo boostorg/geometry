@@ -22,7 +22,6 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
-#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 namespace boost { namespace geometry
@@ -65,53 +64,56 @@ struct dimension<point_tag, P> : traits::dimension<P> {};
 #endif
 
 /*!
-    \brief Meta-function which defines coordinate dimensions, i.e. the number of axes of any geometry
-    \ingroup core
+\brief \brief_meta{value, number of coordinates (the number of axes of any geometry), \meta_point_type}
+\tparam Geometry \tparam_geometry
+\ingroup core
+
+\qbk{[include reference/core/coordinate_dimension.qbk]}
 */
-template <typename G>
+template <typename Geometry>
 struct dimension
     : core_dispatch::dimension
         <
-            typename tag<G>::type,
-            typename boost::remove_const<G>::type
+            typename tag<Geometry>::type,
+            typename boost::remove_const<Geometry>::type
         >
 {};
 
 /*!
-    \brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
-    \ingroup utility
+\brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
+\ingroup utility
 */
-template <typename G, int D>
+template <typename Geometry, int Dimensions>
 inline void assert_dimension()
 {
     BOOST_STATIC_ASSERT((
         boost::mpl::equal_to
         <
-            geometry::dimension<G>,
-            boost::mpl::int_<D>
+            geometry::dimension<Geometry>,
+            boost::mpl::int_<Dimensions>
         >::type::value
         ));
 }
 
 /*!
-    \brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
-    \ingroup utility
+\brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
+\ingroup utility
 */
-template <typename G, int D>
+template <typename Geometry, int Dimensions>
 inline void assert_dimension_less_equal()
 {
-    BOOST_STATIC_ASSERT(( dimension<G>::type::value <= D ));
+    BOOST_STATIC_ASSERT(( dimension<Geometry>::type::value <= Dimensions ));
 }
 
-template <typename G, int D>
+template <typename Geometry, int Dimensions>
 inline void assert_dimension_greater_equal()
 {
-    BOOST_STATIC_ASSERT(( dimension<G>::type::value >= D ));
+    BOOST_STATIC_ASSERT(( dimension<Geometry>::type::value >= Dimensions ));
 }
 
 /*!
-    \brief assert_dimension_equal, enables compile-time checking if coordinate dimensions of two geometries are equal
-    \ingroup utility
+\brief assert_dimension_equal, enables compile-time checking if coordinate dimensions of two geometries are equal
+\ingroup utility
 */
 template <typename G1, typename G2>
 inline void assert_dimension_equal()

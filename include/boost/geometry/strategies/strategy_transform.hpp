@@ -20,7 +20,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -104,7 +104,7 @@ struct copy_per_coordinate
         // Defensive check, dimensions are equal, selected by specialization
         assert_dimension_equal<P1, P2>();
 
-        geometry::detail::convert(p1, p2);
+        geometry::convert(p1, p2);
         return true;
     }
 };

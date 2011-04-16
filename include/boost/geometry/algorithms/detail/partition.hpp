@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_PARTITION_HPP
 
 #include <vector>
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 

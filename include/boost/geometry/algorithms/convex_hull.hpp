@@ -152,8 +152,10 @@ inline void convex_hull(Geometry1 const& geometry,
 \details \details_calc{convex_hull,convex hull}.
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\param geometry \param_geometry,  used for input
+\param geometry \param_geometry,  input geometry
 \param hull \param_geometry \param_set{convex hull}
+
+\qbk{[include reference/algorithms/convex_hull.qbk]}
  */
 template<typename Geometry1, typename Geometry2>
 inline void convex_hull(Geometry1 const& geometry,
@@ -239,8 +241,6 @@ inline OutputIterator convex_hull_insert(Geometry const& geometry,
 
 }} // namespace detail::convex_hull
 #endif // DOXYGEN_NO_DETAIL
-
-
 
 
 }} // namespace boost::geometry

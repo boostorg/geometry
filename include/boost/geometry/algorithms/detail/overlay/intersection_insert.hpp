@@ -21,7 +21,7 @@
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
@@ -65,7 +65,7 @@ struct intersection_segment_segment_point
         for (std::size_t i = 0; i < is.count; i++)
         {
             PointOut p;
-            geometry::detail::convert(is.intersections[i], p);
+            geometry::convert(is.intersections[i], p);
             *out++ = p;
         }
         return out;
@@ -95,7 +95,7 @@ struct intersection_linestring_linestring_point
             it = boost::begin(turns); it != boost::end(turns); ++it)
         {
             PointOut p;
-            geometry::detail::convert(it->point, p);
+            geometry::convert(it->point, p);
             *out++ = p;
         }
         return out;

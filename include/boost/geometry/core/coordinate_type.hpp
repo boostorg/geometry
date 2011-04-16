@@ -70,8 +70,11 @@ struct coordinate_type<point_tag, Point>
 #endif // DOXYGEN_NO_DISPATCH
 
 /*!
-    \brief Meta-function which defines coordinate type (int, float, double, etc) of any geometry
-    \ingroup core
+\brief \brief_meta{type, coordinate type (int\, float\, double\, etc), \meta_point_type}
+\tparam Geometry \tparam_geometry
+\ingroup core
+
+\qbk{[include reference/core/coordinate_type.qbk]}
 */
 template <typename Geometry>
 struct coordinate_type

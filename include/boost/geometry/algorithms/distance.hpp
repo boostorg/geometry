@@ -78,8 +78,8 @@ struct point_to_segment
             >::type segment_strategy;
 
         typename point_type<Segment>::type p[2];
-        geometry::assign_point_from_index<0>(segment, p[0]);
-        geometry::assign_point_from_index<1>(segment, p[1]);
+        geometry::detail::assign_point_from_index<0>(segment, p[0]);
+        geometry::detail::assign_point_from_index<1>(segment, p[1]);
         return segment_strategy.apply(point, p[0], p[1]);
     }
 };
@@ -419,8 +419,8 @@ struct distance
     {
         
         typename point_type<Segment>::type p[2];
-        geometry::assign_point_from_index<0>(segment, p[0]);
-        geometry::assign_point_from_index<1>(segment, p[1]);
+        geometry::detail::assign_point_from_index<0>(segment, p[0]);
+        geometry::detail::assign_point_from_index<1>(segment, p[1]);
         return strategy.apply(point, p[0], p[1]);
     }
 };
@@ -523,12 +523,14 @@ inline typename strategy::distance::services::return_type<Strategy>::type distan
 /*!
 \brief \brief_calc2{distance}
 \ingroup distance
-\details The default strategy is used, belonging to the corresponding coordinate system of the geometries
+\details The default strategy is used, corresponding to the coordinate system of the geometries
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \return \return_calc{distance}
+
+\qbk{[include reference/algorithms/distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
 inline typename default_distance_result<Geometry1, Geometry2>::type distance(

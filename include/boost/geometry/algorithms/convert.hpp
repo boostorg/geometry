@@ -20,9 +20,11 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
-#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
+#include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 
 #include <boost/geometry/core/cs.hpp>
@@ -147,19 +149,19 @@ struct convert<box_tag, ring_tag, 2, Box, Ring>
         geometry::clear(ring);
         typename point_type<Box>::type point;
 
-        geometry::assign(point, get<min_corner, 0>(box), get<min_corner, 1>(box));
+        geometry::assign_values(point, get<min_corner, 0>(box), get<min_corner, 1>(box));
         geometry::append(ring, point);
 
-        geometry::assign(point, get<min_corner, 0>(box), get<max_corner, 1>(box));
+        geometry::assign_values(point, get<min_corner, 0>(box), get<max_corner, 1>(box));
         geometry::append(ring, point);
 
-        geometry::assign(point, get<max_corner, 0>(box), get<max_corner, 1>(box));
+        geometry::assign_values(point, get<max_corner, 0>(box), get<max_corner, 1>(box));
         geometry::append(ring, point);
 
-        geometry::assign(point, get<max_corner, 0>(box), get<min_corner, 1>(box));
+        geometry::assign_values(point, get<max_corner, 0>(box), get<min_corner, 1>(box));
         geometry::append(ring, point);
 
-        geometry::assign(point, get<min_corner, 0>(box), get<min_corner, 1>(box));
+        geometry::assign_values(point, get<min_corner, 0>(box), get<min_corner, 1>(box));
         geometry::append(ring, point);
     }
 };
@@ -233,10 +235,6 @@ struct convert<polygon_tag, ring_tag, DimensionCount, Polygon, Ring>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-
 /*!
 \brief Converts one geometry to another geometry
 \details The convert algorithm converts one geometry, e.g. a BOX, to another geometry, e.g. a RING. This only
@@ -246,8 +244,8 @@ if it is possible and applicable.
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry (source)
 \param geometry2 \param_geometry (target)
-\note It is moved to namespace detail because it overlaps functionality
-    of assign. So assign will be changed such that it also can convert.
+
+\qbk{[include reference/algorithms/convert.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
 inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
@@ -263,9 +261,6 @@ inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
             Geometry2
         >::apply(geometry1, geometry2);
 }
-
-}
-#endif // DOXYGEN_NO_DETAIL
 
 
 }} // namespace boost::geometry

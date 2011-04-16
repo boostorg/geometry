@@ -21,6 +21,40 @@
 namespace boost { namespace geometry
 {
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace make
+{
+
+/*!
+\brief Construct a geometry
+\ingroup make
+\tparam Geometry \tparam_geometry
+\tparam Range \tparam_range_point
+\param range \param_range_point
+\return The constructed geometry, here: a linestring or a ring
+
+\qbk{distinguish, with a range}
+\qbk{
+[heading Example]
+[make_with_range] [make_with_range_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.assign.assign_points assign]
+}
+ */
+template <typename Geometry, typename Range>
+inline Geometry make_points(Range const& range)
+{
+    concept::check<Geometry>();
+
+    Geometry geometry;
+    geometry::append(geometry, range);
+    return geometry;
+}
+
+}} // namespace detail::make
+#endif // DOXYGEN_NO_DETAIL
+
 /*!
 \brief Construct a geometry
 \ingroup make
@@ -38,7 +72,7 @@ namespace boost { namespace geometry
 [make_2d_point] [make_2d_point_output]
 
 [heading See also]
-\* [link geometry.reference.algorithms.assign.assign_3_2_coordinate_values assign]
+\* [link geometry.reference.algorithms.assign.assign_values_3_2_coordinate_values assign]
 }
 */
 template <typename Geometry, typename Type>
@@ -72,7 +106,7 @@ inline Geometry make(Type const& c1, Type const& c2)
 [make_3d_point] [make_3d_point_output]
 
 [heading See also]
-\* [link geometry.reference.algorithms.assign.assign_4_3_coordinate_values assign]
+\* [link geometry.reference.algorithms.assign.assign_values_4_3_coordinate_values assign]
 }
  */
 template <typename Geometry, typename Type>
@@ -107,32 +141,6 @@ inline Geometry make(Type const& c1, Type const& c2, Type const& c3, Type const&
 
 
 
-/*!
-\brief Construct a geometry
-\ingroup make
-\tparam Geometry \tparam_geometry
-\tparam Range \tparam_range_point
-\param range \param_range_point
-\return The constructed geometry, here: a linestring or a ring
-
-\qbk{distinguish, with a range}
-\qbk{
-[heading Example]
-[make_with_range] [make_with_range_output]
-
-[heading See also]
-\* [link geometry.reference.algorithms.assign.assign_2_with_a_range assign]
-}
- */
-template <typename Geometry, typename Range>
-inline Geometry make(Range const& range)
-{
-    concept::check<Geometry>();
-
-    Geometry geometry;
-    append(geometry, range);
-    return geometry;
-}
 
 
 /*!

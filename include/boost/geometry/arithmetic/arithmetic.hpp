@@ -31,6 +31,7 @@ namespace boost { namespace geometry
 namespace detail
 {
 
+
 template <typename P>
 struct param
 {
@@ -39,6 +40,7 @@ struct param
             typename coordinate_type<P>::type
         >::param_type type;
 };
+
 
 template <typename C, template <typename> class Function>
 struct value_operation
@@ -74,11 +76,45 @@ struct point_operation
     }
 };
 
+
+template <typename C>
+struct value_assignment
+{
+    C m_value;
+
+    inline value_assignment(C const &value)
+        : m_value(value)
+    {}
+
+    template <typename P, int I>
+    inline void apply(P& point) const
+    {
+        set<I>(point, m_value);
+    }
+};
+
+template <typename PointSrc>
+struct point_assignment
+{
+    PointSrc const& m_source_point;
+
+    inline point_assignment(PointSrc const& point)
+        : m_source_point(point)
+    {}
+
+    template <typename PointDst, int I>
+    inline void apply(PointDst& dest_point) const
+    {
+        set<I>(dest_point, get<I>(m_source_point));
+    }
+};
+
+
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
 /*!
-    \brief Adds a value to each coordinate of a point
+    \brief Adds the same value to each coordinate of a point
     \ingroup arithmetic
     \details
     \param p point
@@ -110,7 +146,7 @@ inline void add_point(Point1& p1, Point2 const& p2)
 }
 
 /*!
-    \brief Subtracts a value to each coordinate of a point
+    \brief Subtracts the same value to each coordinate of a point
     \ingroup arithmetic
     \details
     \param p point
@@ -142,7 +178,7 @@ inline void subtract_point(Point1& p1, Point2 const& p2)
 }
 
 /*!
-    \brief Multiplies each coordinate of a point by a value
+    \brief Multiplies each coordinate of a point by the same value
     \ingroup arithmetic
     \details
     \param p point
@@ -159,7 +195,7 @@ inline void multiply_value(Point& p, typename detail::param<Point>::type value)
 /*!
     \brief Multiplies a point by another
     \ingroup arithmetic
-    \details The coordinates of the second point will be multiplied by those of the first point.
+    \details The coordinates of the first point will be multiplied by those of the second point.
              The second point is not modified.
     \param p1 first point
     \param p2 second point
@@ -175,7 +211,7 @@ inline void multiply_point(Point1& p1, Point2 const& p2)
 }
 
 /*!
-    \brief Divides each coordinate of a point by a value
+    \brief Divides each coordinate of the same point by a value
     \ingroup arithmetic
     \details
     \param p point
@@ -192,7 +228,7 @@ inline void divide_value(Point& p, typename detail::param<Point>::type value)
 /*!
     \brief Divides a point by another
     \ingroup arithmetic
-    \details The coordinates of the second point will be divided by those of the first point.
+    \details The coordinates of the first point will be divided by those of the second point.
              The second point is not modified.
     \param p1 first point
     \param p2 second point
@@ -206,6 +242,40 @@ inline void divide_point(Point1& p1, Point2 const& p2)
     for_each_coordinate(p1, detail::point_operation<Point2, std::divides>(p2));
 }
 
+/*!
+    \brief Assign each coordinate of a point the same value
+    \ingroup arithmetic
+    \details
+    \param p point
+    \param value value to assign
+ */
+template <typename Point>
+inline void assign_value(Point& p, typename detail::param<Point>::type value)
+{
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
+
+    for_each_coordinate(p, detail::value_assignment<typename coordinate_type<Point>::type>(value));
+}
+
+/*!
+    \brief Assign a point with another
+    \ingroup arithmetic
+    \details The coordinates of the first point will be assigned those of the second point.
+             The second point is not modified.
+    \param p1 first point
+    \param p2 second point
+ */
+template <typename Point1, typename Point2>
+inline void assign_point(Point1& p1, const Point2& p2)
+{
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point2>) );
+    BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point2>) );
+
+    for_each_coordinate(p1, detail::point_assignment<Point2>(p2));
+}
+
+
 }} // namespace boost::geometry
+
 
 #endif // BOOST_GEOMETRY_ARITHMETIC_ARITHMETIC_HPP

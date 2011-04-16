@@ -138,19 +138,15 @@ struct point_order<polygon_tag, Polygon>
 
 
 /*!
-\brief Metafunction which defines point order of a geometry type
+\brief \brief_meta{value, point order (clockwise\, counterclockwise), \meta_geometry_type}
+\tparam Geometry \tparam_geometry
 \ingroup core
-\details
 
-\qbk{
-[heading See also]
-[link geometry.reference.enumerations.closure_selector The closure_selector enumeration]
-}
+\qbk{[include reference/core/point_order.qbk]}
 */
 template <typename Geometry>
 struct point_order
 {
-    /// metafunction implementation
     static const order_selector value = core_dispatch::point_order
         <
             typename tag<Geometry>::type,

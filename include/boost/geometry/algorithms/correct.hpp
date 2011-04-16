@@ -93,7 +93,7 @@ struct correct_box
 
     static inline void apply(Box& box)
     {
-        // Currently only for Cartesian coordinates 
+        // Currently only for Cartesian coordinates
         // (or spherical without crossing dateline)
         // Future version: adapt using strategies
         correct_box_loop
@@ -245,10 +245,15 @@ struct correct<polygon_tag, Polygon>
 
 /*!
 \brief Corrects a geometry
-\details Corrects a geometry
+\details Corrects a geometry: all rings which are wrongly oriented with respect
+    to their expected orientation are reversed. To all rings which do not have a
+    closing point and are typed as they should have one, the first point is
+    appended. Also boxes can be corrected.
 \ingroup correct
 \tparam Geometry \tparam_geometry
-\param geometry \param_geometry
+\param geometry \param_geometry which will be corrected if necessary
+
+\qbk{[include reference/algorithms/correct.qbk]}
 */
 template <typename Geometry>
 inline void correct(Geometry& geometry)
