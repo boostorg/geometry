@@ -82,7 +82,8 @@ coordinate_systems = ["cartesian", "geographic", "polar", "spherical"]
 
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
     , "dimension", "exception", "geometry_id", "interior_type"
-    , "is_areal", "is_linear", "is_radian", "point_order"
+    , "degree", "radian"
+    , "is_radian", "point_order"
     , "point_type", "ring_type", "tag", "topological_dimension" ]
 
 exceptions = ["exception", "centroid_exception"];

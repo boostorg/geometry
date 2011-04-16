@@ -138,16 +138,11 @@
      <member><link linkend="geometry.reference.core.dimension">dimension</link></member>
      <member><link linkend="geometry.reference.core.geometry_id">geometry_id</link></member>
      <member><link linkend="geometry.reference.core.interior_type">interior_type</link></member>
-     <!-- will be replaced by tag inheritance
-     <member><link linkend="geometry.reference.core.is_linear">is_linear</link></member>
-     <member><link linkend="geometry.reference.core.is_multi">is_multi</link></member>
-     -->
      <member><link linkend="geometry.reference.core.is_radian">is_radian</link></member>
      <member><link linkend="geometry.reference.core.point_order">point_order</link></member>
      <member><link linkend="geometry.reference.core.point_type">point_type</link></member>
      <member><link linkend="geometry.reference.core.ring_type">ring_type</link></member>
      <!-- for internal use only (detail?)
-     <member><link linkend="geometry.reference.core.replace_point_type">replace_point_type</link></member>
      <member><link linkend="geometry.reference.core.reverse_dispatch">reverse_dispatch</link></member>
      -->
      <member><link linkend="geometry.reference.core.tag">tag</link></member>
@@ -194,8 +189,8 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Numeric</bridgehead>
     <simplelist type="vert" columns="1">
-    <member><link linkend="geometry.reference.max_corner">max_corner</link></member>
-    <member><link linkend="geometry.reference.min_corner">min_corner</link></member>
+    <member><link linkend="geometry.reference.constants.max_corner">max_corner</link></member>
+    <member><link linkend="geometry.reference.constants.min_corner">min_corner</link></member>
     <member><link linkend="geometry.reference.enumerations.order_selector">order_selector</link></member>
     <member><link linkend="geometry.reference.enumerations.closure_selector">closure_selector</link></member>
     </simplelist>
@@ -203,8 +198,8 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Types</bridgehead>
     <simplelist type="vert" columns="1">
-    <member><link linkend="geometry.reference.degree">degree</link></member>
-    <member><link linkend="geometry.reference.radian">radian</link></member>
+    <member><link linkend="geometry.reference.core.degree">degree</link></member>
+    <member><link linkend="geometry.reference.core.radian">radian</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
