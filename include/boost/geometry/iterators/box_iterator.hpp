@@ -95,9 +95,7 @@ private:
 
     inline void init(Box const& box)
     {
-        // asb -> lower_left, lower_right, upper_left, upper_right
-        // we want: clockwise
-        assign_box_corners(box, m_points[0], m_points[3], m_points[1], m_points[2]);
+        detail::assign_box_corners_oriented<false>(box, m_points);
     }
 
     // Copy points here - box might define them otherwise

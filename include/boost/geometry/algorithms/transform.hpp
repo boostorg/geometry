@@ -101,15 +101,15 @@ struct transform_box_or_segment
         typedef typename point_type<Geometry2>::type point_type2;
 
         point_type1 source_point[2];
-        assign_point_from_index<0>(source, source_point[0]);
-        assign_point_from_index<1>(source, source_point[1]);
+        geometry::detail::assign_point_from_index<0>(source, source_point[0]);
+        geometry::detail::assign_point_from_index<1>(source, source_point[1]);
 
         point_type2 target_point[2];
         if (strategy.apply(source_point[0], target_point[0])
             && strategy.apply(source_point[1], target_point[1]))
         {
-            assign_point_to_index<0>(target_point[0], target);
-            assign_point_to_index<1>(target_point[1], target);
+            geometry::detail::assign_point_to_index<0>(target_point[0], target);
+            geometry::detail::assign_point_to_index<1>(target_point[1], target);
             return true;
         }
         return false;

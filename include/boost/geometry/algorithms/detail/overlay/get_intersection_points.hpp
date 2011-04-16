@@ -12,7 +12,7 @@
 
 #include <cstddef>
 
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
 
@@ -64,7 +64,7 @@ struct get_turn_without_info
         {
 
             TurnInfo tp;
-            geometry::detail::convert(result.template get<0>().intersections[i], tp.point);
+            geometry::convert(result.template get<0>().intersections[i], tp.point);
             *out++ = tp;
         }
 

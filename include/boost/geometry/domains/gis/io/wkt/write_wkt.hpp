@@ -24,7 +24,7 @@
 
 
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
@@ -199,7 +199,7 @@ struct wkt_box
         // Convert to ring, then stream
         typedef model::ring<point_type> ring_type;
         ring_type ring;
-        geometry::detail::convert(box, ring);
+        geometry::convert(box, ring);
         os << "POLYGON(";
         wkt_sequence<ring_type>::apply(os, ring);
         os << ")";
@@ -228,8 +228,8 @@ struct wkt_segment
         typedef boost::array<point_type, 2> sequence;
 
         sequence points;
-        assign_point_from_index<0>(segment, points[0]);
-        assign_point_from_index<1>(segment, points[1]);
+        geometry::detail::assign_point_from_index<0>(segment, points[0]);
+        geometry::detail::assign_point_from_index<1>(segment, points[1]);
 
         // In Boost.Geometry a segment is represented
         // in WKT-format like (for 2D): LINESTRING(x y,x y)

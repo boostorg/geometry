@@ -28,7 +28,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
@@ -83,7 +83,7 @@ struct centroid_point
     static inline void apply(Point const& point, PointCentroid& centroid,
             Strategy const&)
     {
-        geometry::detail::convert(point, centroid);
+        geometry::convert(point, centroid);
     }
 };
 
@@ -163,7 +163,7 @@ inline bool range_ok(Range const& range, Point& centroid)
     else // if (n == 1)
     {
         // Take over the first point in a "coordinate neutral way"
-        geometry::detail::convert(*boost::begin(range), centroid);
+        geometry::convert(*boost::begin(range), centroid);
         return false;
     }
     return true;

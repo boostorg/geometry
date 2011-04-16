@@ -17,7 +17,7 @@
 #include <cstddef>
 
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
 
@@ -63,7 +63,7 @@ public:
     nsphere(P const& center, T const& radius)
         : m_radius(radius)
     {
-        geometry::detail::convert(center, m_center);
+        geometry::convert(center, m_center);
     }
 
     inline P const& center() const { return m_center; }

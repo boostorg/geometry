@@ -26,7 +26,7 @@
 #include <boost/type_traits.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
@@ -53,12 +53,11 @@ namespace boost { namespace geometry
 \param geometry \param_geometry
 \param range \param_range_point
 
-\qbk{distinguish, with a range}
 \qbk{
 [heading Notes]
 [note Assign automatically clears the geometry before assigning (use append if you don't want that)]
 [heading Example]
-[assign_with_range] [assign_with_range_output]
+[assign_points] [assign_points_output]
 
 [heading See also]
 \* [link geometry.reference.algorithms.append.append append]
@@ -123,6 +122,12 @@ inline void assign_zero(Geometry& geometry)
         >::apply(geometry);
 }
 
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail 
+{
+// Note: this is moved to namespace detail because the names and parameter orders
+// are not yet 100% clear.
 
 /*!
 \brief Assign the four points of a 2D box
@@ -231,12 +236,9 @@ inline void assign_point_from_index(Geometry const& geometry, Point& point)
         >::apply(geometry, point);
 }
 
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
-
-
-namespace boost { namespace geometry
-{
 
 /*!
 \brief Assigns one geometry to another geometry
@@ -245,24 +247,22 @@ if it is possible and applicable.
 \ingroup assign
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\param geometry1 \param_geometry (source)
-\param geometry2 \param_geometry (target)
-\note It is moved to namespace detail because it overlaps functionality
-    of assign. So assign will be changed such that it also can convert.
+\param geometry1 \param_geometry (target)
+\param geometry2 \param_geometry (source)
  */
 template <typename Geometry1, typename Geometry2>
-inline void assign(Geometry1 const& geometry1, Geometry2& geometry2)
+inline void assign_rev(Geometry1& geometry1, Geometry2 const& geometry2)
 {
-    concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2>();
+    concept::check_concepts_and_equal_dimensions<Geometry1, Geometry2 const>();
 
     dispatch::convert
         <
-            typename tag<Geometry1>::type,
             typename tag<Geometry2>::type,
+            typename tag<Geometry1>::type,
             dimension<Geometry1>::type::value,
-            Geometry1,
-            Geometry2
-        >::apply(geometry1, geometry2);
+            Geometry2,
+            Geometry1
+        >::apply(geometry2, geometry1);
 }
 
 

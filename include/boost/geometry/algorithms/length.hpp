@@ -50,8 +50,8 @@ struct segment_length
     {
         typedef typename point_type<Segment>::type point_type;
         point_type p1, p2;
-        assign_point_from_index<0>(segment, p1);
-        assign_point_from_index<1>(segment, p2);
+        geometry::detail::assign_point_from_index<0>(segment, p1);
+        geometry::detail::assign_point_from_index<1>(segment, p2);
         return strategy.apply(p1, p2);
     }
 };

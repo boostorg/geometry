@@ -16,7 +16,7 @@
 
 
 
-#include <boost/geometry/algorithms/detail/convert.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -51,7 +51,7 @@ struct join_round2
     static inline Vector create_vector(Point1 const& p1, Point2 const& p2)
     {
         Vector v;
-        geometry::detail::convert(p1, v);
+        geometry::convert(p1, v);
         subtract_point(v, p2);
         return v;
     }
@@ -111,7 +111,7 @@ struct join_round2
                     PointOut projected_point;
 
                     multiply_value(v, b);
-                    geometry::detail::convert(vertex, projected_point);
+                    geometry::convert(vertex, projected_point);
                     add_point(projected_point, v);
 
                     coordinate_type projected_distance = geometry::distance(projected_point, mid_point);

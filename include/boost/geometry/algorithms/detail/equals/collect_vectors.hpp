@@ -162,7 +162,7 @@ struct box_collect_vectors
     {
         typename point_type<Box>::type lower_left, lower_right,
                 upper_left, upper_right;
-        assign_box_corners(box, lower_left, lower_right,
+        geometry::detail::assign_box_corners(box, lower_left, lower_right,
                 upper_left, upper_right);
 
         typedef typename boost::range_value<Collection>::type item;
