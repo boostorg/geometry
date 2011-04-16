@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[assign_with_range
+//[assign_points
 //` Shows usage of Boost.Geometry's assign, Boost.Assign, and Boost.Range to assign ranges of a linestring
 
 #include <iostream>
@@ -59,7 +59,7 @@ int main()
 //]
 
 
-//[assign_with_range_output
+//[assign_points_output
 /*`
 Output:
 [pre
