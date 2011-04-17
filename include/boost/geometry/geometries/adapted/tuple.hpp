@@ -32,94 +32,59 @@ namespace boost { namespace geometry
 namespace traits
 {
 
-// boost::tuple, 2D
-template <typename CoordinateType>
-struct coordinate_type<boost::tuple<CoordinateType, CoordinateType> >
-{
-    typedef CoordinateType type;
-};
 
-
-template <typename CoordinateType>
-struct dimension<boost::tuple<CoordinateType, CoordinateType> >
-    : boost::mpl::int_<2>
-{};
-
-
-template <typename CoordinateType, std::size_t Dimension>
-struct access
-    <
-        boost::tuple<CoordinateType, CoordinateType>,
-        Dimension
-    >
-{
-    static inline CoordinateType get(
-        boost::tuple<CoordinateType, CoordinateType> const& point)
-    {
-        return point.template get<Dimension>();
-    }
-
-    static inline void set(boost::tuple<CoordinateType, CoordinateType>& point,
-        CoordinateType const& value)
-    {
-        point.template get<Dimension>() = value;
-    }
-};
-
-
-template <typename CoordinateType>
-struct tag<boost::tuple<CoordinateType, CoordinateType> >
+template <typename T1, typename T2, typename T3, typename T4, typename T5,
+          typename T6, typename T7, typename T8, typename T9, typename T10>
+struct tag<boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> >
 {
     typedef point_tag type;
 };
 
 
-// boost::tuple, 3D
-template <typename CoordinateType>
-struct coordinate_type
-    <
-        boost::tuple<CoordinateType, CoordinateType, CoordinateType>
-    >
+template <typename T1, typename T2, typename T3, typename T4, typename T5,
+          typename T6, typename T7, typename T8, typename T9, typename T10>
+struct coordinate_type<boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> >
 {
-    typedef CoordinateType type;
+    typedef T1 type;
 };
 
-template <typename CoordinateType>
-struct dimension<boost::tuple<CoordinateType, CoordinateType, CoordinateType> >
-    : boost::mpl::int_<3>
+
+template <typename T1, typename T2, typename T3, typename T4, typename T5,
+          typename T6, typename T7, typename T8, typename T9, typename T10>
+struct dimension<boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> >
+    : boost::mpl::int_
+          <
+              boost::tuples::length
+                  <
+                      boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
+                  >::value
+          >
 {};
 
 
-template <typename CoordinateType, std::size_t Dimension>
+template <typename T1, typename T2, typename T3, typename T4, typename T5,
+          typename T6, typename T7, typename T8, typename T9, typename T10,
+          std::size_t Dimension>
 struct access
     <
-        boost::tuple<CoordinateType, CoordinateType, CoordinateType>,
+        boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>,
         Dimension
     >
 {
-    static inline CoordinateType get(
-        boost::tuple
-            <
-                CoordinateType, CoordinateType, CoordinateType
-            > const& point)
+    static inline T1 get(
+        boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> const& point)
     {
         return point.template get<Dimension>();
     }
 
     static inline void set(
-        boost::tuple<CoordinateType, CoordinateType, CoordinateType>& point,
-        CoordinateType const& value)
+        boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>& point,
+        T1 const& value)
     {
         point.template get<Dimension>() = value;
     }
 };
 
-
-template <typename CoordinateType>
-struct tag<boost::tuple<CoordinateType, CoordinateType, CoordinateType> >
-{
-    typedef point_tag type;
-};
 
 // The library user has
 // 1) either to specify the coordinate system using a traits class

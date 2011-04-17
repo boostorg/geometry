@@ -93,15 +93,18 @@ void test_all()
 
 int test_main(int, char* [])
 {
-/*    test_all<test::test_point>();
+    test_all<test::test_point>();
     test_all<boost::tuple<float, float> >();
     test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<long double, 2, bg::cs::cartesian> >();
-*/
+
+    test_all<boost::tuple<float, float, float> >();
     test_all<bg::model::point<double, 3, bg::cs::cartesian> >();
-    //test_all<bg::model::point<long double, 3, bg::cs::cartesian> >();
+    test_all<bg::model::point<long double, 3, bg::cs::cartesian> >();
+
+    test_all<boost::tuple<float, float, float, float, float> >();
 
     return 0;
 }
