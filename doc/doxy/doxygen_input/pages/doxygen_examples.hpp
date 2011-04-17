@@ -157,7 +157,7 @@ Besides custom points, custom boxes are possible as shown in this example.
 */
 
 //---------------------------------------------------------------------------------------------------
-/*!
+/*
 \example c03_custom_linestring_example.cpp
 GPS tracks are shown in this example: a custom linestring with GPS points
 */
@@ -219,14 +219,14 @@ Second example showing how to get polygons from a database using SOCI and put th
 
 
 //---------------------------------------------------------------------------------------------------
- /*!
+ /*
 \example x03_c_soci_example.cpp
 Example showing how to get polygons from PostGIS using SOCI and use them in GGL through WKB
 */
 
 
 //---------------------------------------------------------------------------------------------------
- /*!
+ /*
 \example x03_d_soci_example.cpp
 Example showing how to get polygons from PostGIS using SOCI and use them in GGL through WKB
 
