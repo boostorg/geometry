@@ -53,7 +53,7 @@ struct test_self_intersection_points
         ///bg::get_intersection_points(geometry, turns);
 
         bg::detail::get_turns::no_interrupt_policy policy;
-        bg::get_turns
+        bg::self_turns
             <
                 bg::detail::overlay::assign_null_policy
             >(geometry, turns, policy);
