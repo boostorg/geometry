@@ -25,6 +25,8 @@
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
+#include <boost/geometry/algorithms/detail/has_self_intersections.hpp>
+
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
@@ -168,6 +170,9 @@ struct overlay
                     GeometryOut, Direction, ReverseOut
                 >(geometry1, geometry2, out);
         }
+        
+        has_self_intersections(geometry1);
+        has_self_intersections(geometry2);
 
         container_type turn_points;
 
