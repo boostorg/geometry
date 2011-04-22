@@ -20,7 +20,7 @@
 //#pragma warning( disable : 4244 )
 #endif // defined(_MSC_VER)
 
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/register/point.hpp>

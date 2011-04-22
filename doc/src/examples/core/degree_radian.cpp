@@ -11,7 +11,7 @@
 //` Specify two coordinate systems, one in degrees, one in radians.
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 
 using namespace boost::geometry;
 

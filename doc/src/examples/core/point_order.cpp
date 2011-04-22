@@ -11,7 +11,7 @@
 //` Examine the expected point order of a polygon type
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 
 int main()
 {

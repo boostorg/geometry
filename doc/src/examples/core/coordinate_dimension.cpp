@@ -11,7 +11,7 @@
 //` Examine the number of coordinates making up the points in a linestring type
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 

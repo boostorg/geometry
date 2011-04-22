@@ -11,7 +11,7 @@
 //` Simplify a linestring using a back inserter
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 
 int main()
 {

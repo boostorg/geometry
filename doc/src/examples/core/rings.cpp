@@ -15,7 +15,7 @@ Also shows the related ring_type and interior_type.
 */
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 
 
 int main()

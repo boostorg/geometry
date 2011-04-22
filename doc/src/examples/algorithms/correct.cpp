@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
 #include <boost/assign.hpp>

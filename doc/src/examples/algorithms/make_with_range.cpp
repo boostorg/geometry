@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp> /*< Necessary to register a C array like {1,2} as a point >*/
 
