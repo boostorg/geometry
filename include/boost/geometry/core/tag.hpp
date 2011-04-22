@@ -49,6 +49,8 @@ struct tag
 
 /*!
 \brief \brief_meta{type, tag, \meta_geometry_type}
+\details With Boost.Geometry, tags are the driving force of the tag dispatching
+    mechanism. The tag metafunction is therefore used in every free function.
 \tparam Geometry \tparam_geometry 
 \ingroup core
 
