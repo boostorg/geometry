@@ -34,12 +34,14 @@
 [include generated/interior_rings.qbk]
 [endsect]
 
-
 [endsect] [/access functions]
 
-
-
-[section:register Adaption and adapted models]
+[section:adapted Adapted models and registration]
+[include reference/geometries/adapted/c_array.qbk]
+[include reference/geometries/adapted/boost_array.qbk]
+[include reference/geometries/adapted/boost_fusion.qbk]
+[include reference/geometries/adapted/boost_polygon.qbk]
+[include reference/geometries/adapted/boost_tuple.qbk]
 [include generated/register.qbk]
 [endsect]
 
@@ -175,7 +177,6 @@
 [include generated/cs_tag.qbk]
 [include generated/degree.qbk]
 [include generated/dimension.qbk]
-[include generated/exception.qbk]
 [include generated/interior_type.qbk]
 [include generated/is_radian.qbk]
 [include generated/point_order.qbk]

@@ -1,0 +1,37 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section:boost_polygon Boost.Polygon]
+
+The Boost.Polygon point type (point_data) is adapted to the Boost.Geometry Point Concept.
+Boost.Polygon polygons are adapted to the Boost.Geometry Ring Concept and the Boost.Geometry Polygon Concept.
+
+[heading Description]
+
+Boost.Polygon's points (as well as polygons) can be used by Boost.Geometry. The
+two libraries can therefore be used together. Using a boost::polygon::point_data<...>,
+algorithms from both Boost.Polygon and Boost.Geometry can be called.
+
+[heading Model of]
+[link geometry.reference.concepts.concept_point Point Concept]
+
+[heading Header]
+`#include <boost/geometry/geometries/adapted/boost_polygon.hpp>`
+
+The standard header `<boost/geometry.hpp>` does not include this header.
+
+[heading Example]
+[boost_polygon]
+[boost_polygon_output]
+
+[endsect]
+
