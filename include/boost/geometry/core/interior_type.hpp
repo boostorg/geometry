@@ -114,7 +114,7 @@ struct interior_type<polygon_tag, Polygon>
     typedef typename boost::remove_reference
         <
             typename interior_return_type<polygon_tag, Polygon>::type
-        > type;
+        >::type type;
 };
 
 
