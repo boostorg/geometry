@@ -26,5 +26,6 @@ exe point_order : point_order.cpp ;
 exe closure : closure.cpp ;
 
 exe point_type : point_type.cpp ;
+exe rings : rings.cpp ;
 exe tag : tag.cpp ;
 exe tag_cast : tag_cast.cpp ;

@@ -19,7 +19,7 @@ int main()
 {
     bg::model::box<bg::model::d2::point_xy<double> > box;
 
-    bg::assign(box, 1, 3, 5, 6);
+    bg::assign_values(box, 1, 3, 5, 6);
 
     std::cout << "Box:"
         << " " << bg::get<bg::min_corner, 0>(box)

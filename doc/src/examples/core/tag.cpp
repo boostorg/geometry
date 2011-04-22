@@ -8,41 +8,98 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[tag
-//` Examine the tag of some geometry types
+//` Shows how tag dispatching essentially works in Boost.Geometry
 
 #include <iostream>
-#include <typeinfo>
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+
+#include <boost/assign.hpp>
+
+template <typename Tag> struct dispatch {};
+
+// Specialization for points
+template <> struct dispatch<boost::geometry::point_tag>
+{
+    template <typename Point>
+    static inline void apply(Point const& p)
+    {
+        // Use the Boost.Geometry free function "get"
+        // working on all supported point types
+        std::cout << "Hello POINT " 
+            << boost::geometry::get<0>(p) << ", " 
+            << boost::geometry::get<1>(p) 
+            << std::endl;
+    }
+};
+
+// Specialization for polygons
+template <> struct dispatch<boost::geometry::polygon_tag>
+{
+    template <typename Polygon>
+    static inline void apply(Polygon const& p)
+    {
+        // Use the Boost.Geometry manipulator "dsv" 
+        // working on all supported geometries
+        std::cout << "Hello POLYGON, you look like: " 
+            << boost::geometry::dsv(p) 
+            << std::endl;
+    }
+};
+
+// Specialization for multipolygons
+template <> struct dispatch<boost::geometry::multi_polygon_tag>
+{
+    template <typename MultiPolygon>
+    static inline void apply(MultiPolygon const& m)
+    {
+        // Use the Boost.Range free function "size" because all
+        // multigeometries comply to Boost.Range
+        std::cout << "Hello MULTIPOLYGON, you contain: " 
+            << boost::size(m) << " polygon(s)"
+            << std::endl;
+    }
+};
+
+template <typename Geometry>
+inline void hello(Geometry const& geometry)
+{
+    // Call the meta-function "tag" to dispatch, and call method (here "apply")
+    dispatch
+        <
+            typename boost::geometry::tag<Geometry>::type
+        >::apply(geometry);
+}
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
-    typedef boost::geometry::model::polygon<point_type> polygon_type;
-    typedef boost::geometry::model::multi_polygon<polygon_type> mp_type;
+    // Define polygon type (here: based on a Boost.Tuple)
+    typedef boost::geometry::model::polygon<boost::tuple<int, int> > polygon_type;
 
-    typedef boost::geometry::tag<point_type>::type tag1;
-    typedef boost::geometry::tag<polygon_type>::type tag2;
-    typedef boost::geometry::tag<mp_type>::type tag3;
-    
-    std::cout 
-        << "tag 1: " << typeid(tag1).name() << std::endl
-        << "tag 2: " << typeid(tag2).name() << std::endl
-        << "tag 3: " << typeid(tag3).name() << std::endl
-        ;
+    // Declare and fill a polygon and a multipolygon
+    polygon_type poly;
+    boost::geometry::exterior_ring(poly) = boost::assign::tuple_list_of(0, 0)(0, 10)(10, 5)(0, 0);
+        
+    boost::geometry::model::multi_polygon<polygon_type> multi;
+    multi.push_back(poly);
+
+    // Call "hello" for point, polygon, multipolygon
+    hello(boost::make_tuple(2, 3));
+    hello(poly);
+    hello(multi);
 
     return 0;
 }
 
 //]
 
-
 //[tag_output
 /*`
-Output (in MSVC):
+Output:
 [pre
-tag 1: struct boost::geometry::point_tag
-tag 2: struct boost::geometry::polygon_tag
-tag 3: struct boost::geometry::multi_polygon_tag
+Hello POINT 2, 3
+Hello POLYGON, you look like: (((0, 0), (0, 10), (10, 5), (0, 0)))
+Hello MULTIPOLYGON, you contain: 1 polygon(s)
 ]
 */
 //]
