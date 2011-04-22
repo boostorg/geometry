@@ -50,7 +50,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			brief_macro{1}="Macro to register a \1" \
 			brief_macro_const=" (const version)" \
 			brief_macro_getset=" (having separate get/set methods)" \
-            brief_meta{3}="Metafunction defining [*\1] as the specified \2 of the \3" \
+            brief_meta{3}="Metafunction defining [*\1] as the \2 of the \3" \
 			tparam_allocator="container-allocator-type" \
 			tparam_box="Any type fulfilling a Box Concept" \
 			tparam_box_or_segment="Any type fulfilling a Box Concept or a Segment Concept" \

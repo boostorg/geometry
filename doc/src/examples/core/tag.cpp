@@ -26,7 +26,7 @@ template <> struct dispatch<boost::geometry::point_tag>
     {
         // Use the Boost.Geometry free function "get"
         // working on all supported point types
-        std::cout << "Hello POINT " 
+        std::cout << "Hello POINT, you are located at: " 
             << boost::geometry::get<0>(p) << ", " 
             << boost::geometry::get<1>(p) 
             << std::endl;
@@ -64,7 +64,7 @@ template <> struct dispatch<boost::geometry::multi_polygon_tag>
 template <typename Geometry>
 inline void hello(Geometry const& geometry)
 {
-    // Call the meta-function "tag" to dispatch, and call method (here "apply")
+    // Call the metafunction "tag" to dispatch, and call method (here "apply")
     dispatch
         <
             typename boost::geometry::tag<Geometry>::type
@@ -97,7 +97,7 @@ int main()
 /*`
 Output:
 [pre
-Hello POINT 2, 3
+Hello POINT, you are located at: 2, 3
 Hello POLYGON, you look like: (((0, 0), (0, 10), (10, 5), (0, 0)))
 Hello MULTIPOLYGON, you contain: 1 polygon(s)
 ]

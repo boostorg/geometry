@@ -430,9 +430,16 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
             {
                 recurse = true;
             }
-            if (kind == "struct" || kind == "class")
+            else if (kind == "struct")
             {
                 recurse = true;
+                doc.cos.is_class = false;
+                parse_element(node->first_node(), config, "", doc.cos);
+            }
+            else if (kind == "class")
+            {
+                recurse = true;
+                doc.cos.is_class = true;
                 parse_element(node->first_node(), config, "", doc.cos);
             }
         }
