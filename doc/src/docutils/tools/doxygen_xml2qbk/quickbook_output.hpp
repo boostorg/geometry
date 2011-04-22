@@ -474,7 +474,8 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
     out << "[heading Synopsis]" << std::endl
         << "``";
     quickbook_template_parameter_list(cos.template_parameters, out);
-    out << "class " << short_name << std::endl;
+    out << (cos.is_class ? "class" : "struct")
+        << " " << short_name << std::endl;
 
     if (! cos.base_classes.empty())
     {

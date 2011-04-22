@@ -8,9 +8,18 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[note With Boost.Geometry, tags are the driving force of the tag dispatching
-    mechanism. The tag metafunction is therefore used in every free function.
-]  
+[heading Metafunction result type]
+The metafunction tag defines [*type] as one of the following tags:
+
+* point_tag
+* linestring_tag
+* polygon_tag
+* multi_point_tag
+* multi_linestring_tag
+* multi_polygon_tag
+* box_tag
+* segment_tag
+* ring_tag
 
 [heading Complexity]
 Compile time
