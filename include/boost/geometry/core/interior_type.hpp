@@ -123,13 +123,16 @@ struct interior_type<polygon_tag, Polygon>
 
 
 /*!
-    \brief Meta-function defining container type
-        of inner rings of (multi)polygon geometriy
-    \details the interior rings should be organized as a container
-        (std::vector, std::deque, boost::array) with
-        boost range support. This meta function defines the type
-            of that container.
-    \ingroup core
+\brief \brief_meta{type, interior_type (container type
+    of inner rings), \meta_geometry_type}
+\details Interior rings should be organized as a container
+    (std::vector, std::deque, boost::array) with
+    Boost.Range support. This metafunction defines the type
+    of the container.
+\tparam Geometry A type fullfilling the Polygon or MultiPolygon concept.
+\ingroup core
+
+\qbk{[include reference/core/interior_type.qbk]}
 */
 template <typename Geometry>
 struct interior_type
