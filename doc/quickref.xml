@@ -100,16 +100,25 @@
    </entry>
   </row>
   <row>
-   <entry valign="top" namest="a" nameend="c">
-    <bridgehead renderas="sect3">Macros</bridgehead>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Adapted point types</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.register.boost_geometry_register_point_2d">BOOST_GEOMETRY_REGISTER_POINT_2D</link></member>
-     <member><link linkend="geometry.reference.register.boost_geometry_register_point_2d_const">BOOST_GEOMETRY_REGISTER_POINT_2D_CONST</link></member>
-     <member><link linkend="geometry.reference.register.boost_geometry_register_point_2d_get_set">BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET</link></member>
-     <member><link linkend="geometry.reference.register.boost_geometry_register_point_3d">BOOST_GEOMETRY_REGISTER_POINT_3D</link></member>
-     <member><link linkend="geometry.reference.register.boost_geometry_register_point_3d_const">BOOST_GEOMETRY_REGISTER_POINT_3D_CONST</link></member>
-     <member><link linkend="geometry.reference.register.boost_geometry_register_point_3d_get_set">BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET</link></member>
-    
+     <member><link linkend="geometry.reference.adapted.boost_array">Boost.Array</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_fusion">Boost.Fusion</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_polygon">Boost.Polygon</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_tuple">Boost.Tuple</link></member>
+     <member><link linkend="geometry.reference.adapted.c_array">C arrays</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Registration macro's</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_2d">BOOST_GEOMETRY_REGISTER_POINT_2D</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_2d_const">BOOST_GEOMETRY_REGISTER_POINT_2D_CONST</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_2d_get_set">BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_3d">BOOST_GEOMETRY_REGISTER_POINT_3D</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_3d_const">BOOST_GEOMETRY_REGISTER_POINT_3D_CONST</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_3d_get_set">BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET</link></member>
     </simplelist>
    </entry>
   </row>

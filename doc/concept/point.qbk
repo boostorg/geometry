@@ -37,12 +37,12 @@ The Point Concept is defined as following:
 * [link geometry.reference.models.model_point model::point]
 * [link geometry.reference.models.model_d2_point_xy model::d2::point_xy]
 * a lat long point (currently in an extension)
-* a C array (requires `#include boost/geometry/geometries/adapted/c_array.hpp>`)
-* a Boost.Array (requires `#include <boost/geometry/geometries/adapted/boost_array.hpp>`)
-* a Boost.Polygon point (requires `#include boost/geometry/geometries/adapted/boost_polygon/point.hpp>`)
-* a Boost.Fusion adapted structure (requires `#include boost/geometry/geometries/adapted/fusion.hpp>`)
-* a Boost.Tuple (requires `#include boost/geometry/geometries/adapted/tuple.hpp>`)
-* an adapted point using one of the [link geometry.reference.register registration macro's]
+* [link geometry.reference.adapted.c_array C array]
+* [link geometry.reference.adapted.boost_array Boost.Array]
+* [link geometry.reference.adapted.boost_fusion Boost.Fusion]
+* [link geometry.reference.adapted.boost_polygon Boost.Polygon]
+* [link geometry.reference.adapted.boost_tuple Boost.Tuple]
+* other point types, adapted e.g. using one of the [link geometry.reference.adapted registration macro's]
 
 [endsect]
 

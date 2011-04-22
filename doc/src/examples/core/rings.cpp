@@ -54,7 +54,7 @@ int main()
     typedef boost::range_value<int_type>::type int_ring_type;
     
     std::cout 
-        //<< std::autoboolstring
+        << std::boolalpha
         << boost::is_same<ring_type, int_ring_type>::value 
         << std::endl;
 
