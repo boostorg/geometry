@@ -11,7 +11,7 @@
 //` Shows how points can be scaled, translated or rotated
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 
 
 int main()

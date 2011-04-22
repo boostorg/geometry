@@ -11,7 +11,7 @@
 //` Show the use of the macro BOOST_GEOMETRY_REGISTER_POINT_2D
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 
 /*< Somewhere, any legacy point struct is defined >*/

@@ -11,7 +11,7 @@
 //` Declaration and use of the Boost.Geometry model::point, modelling the Point Concept
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 
 namespace bg = boost::geometry;
 

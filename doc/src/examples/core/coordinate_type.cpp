@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <typeinfo>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 
 int main()
 {
