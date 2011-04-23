@@ -15,8 +15,7 @@ test-suite boost-geometry-geometries
     [ run boost_fusion.cpp ]
     [ run boost_polygon.cpp ] 
     [ run boost_range.cpp ]
-    [ run boost_tuple_cartesian.cpp ]
-    [ run boost_tuple_geographic.cpp ]
+    [ run boost_tuple.cpp ]
     [ run box.cpp ]
     #[ compile-fail custom_linestring.cpp
     #    : # requirements

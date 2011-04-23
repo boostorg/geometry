@@ -19,7 +19,10 @@
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
+
 
 template <bg::iterate_direction Direction, typename Range>
 void test_forward_or_reverse(Range const& range, std::string const& expected)

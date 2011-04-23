@@ -22,7 +22,7 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
@@ -32,6 +32,8 @@
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
 
 
 
