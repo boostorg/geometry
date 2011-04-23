@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_GEOMETRIES_ADAPTED_TUPLE_HPP
-#define BOOST_GEOMETRY_GEOMETRIES_ADAPTED_TUPLE_HPP
+#ifndef BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_TUPLE_HPP
+#define BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_TUPLE_HPP
 
 
 #include <cstddef>
@@ -23,6 +23,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -86,16 +87,23 @@ struct access
 };
 
 
-// The library user has
-// 1) either to specify the coordinate system using a traits class
-// 2) or include <boost/geometry/geometries/adapted/tuple_@.hpp>
-//          where @=cartesian,geographic,...
-
 } // namespace traits
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_TUPLE_HPP
 
+// Convenience registration macro to bind boost::tuple to a CS
+#define BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(CoordinateSystem) \
+    namespace boost { namespace geometry { namespace traits { \
+    template <typename T1, typename T2, typename T3, typename T4, typename T5, \
+              typename T6, typename T7, typename T8, typename T9, typename T10> \
+    struct coordinate_system<boost::tuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> > \
+    { \
+        typedef CoordinateSystem type; \
+    }; \
+    }}}
+
+
+#endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_TUPLE_HPP

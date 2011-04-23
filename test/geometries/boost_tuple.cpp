@@ -10,18 +10,21 @@
 
 #include <geometry_test_common.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/adapted/tuple_geographic.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <iostream>
 
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
+
+
 template <typename P>
 void test_all()
 {
     P p1, p2;
-// TODO do something applicable for geographic point types
-//    bg::distance(p1, p2);
+    bg::distance(p1, p2);
 }
 
 int test_main(int, char* [])

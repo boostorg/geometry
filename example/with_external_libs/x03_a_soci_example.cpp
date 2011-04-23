@@ -35,9 +35,10 @@
 #include <exception>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
 
 
 int main()

@@ -13,10 +13,11 @@
 #include <iostream>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
-#include <boost/assign.hpp> 
+#include <boost/assign.hpp>
 
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
 
 
 int main(void)

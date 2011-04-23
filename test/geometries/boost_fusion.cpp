@@ -16,8 +16,11 @@
 #include <boost/geometry/geometries/adapted/fusion.hpp>
 #include <boost/geometry/geometries/adapted/fusion_cartesian.hpp>
 #include<boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <iostream>
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
+
 
 struct for_fusion_2d
 {

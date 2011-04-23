@@ -15,7 +15,7 @@
 #define BOOST_GEOMETRY_GEOMETRIES_HPP
 
 #include <boost/geometry/geometries/adapted/c_array.hpp>
-#include <boost/geometry/geometries/adapted/tuple.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

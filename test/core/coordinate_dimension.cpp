@@ -17,13 +17,15 @@
 #include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 #include <boost/geometry/geometries/adapted/boost_array_as_linestring.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 
 #include <vector>
 #include <deque>
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
 
 
 template <typename G, int Expected>
