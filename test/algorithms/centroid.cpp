@@ -16,9 +16,12 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 #include <test_geometries/all_custom_polygon.hpp>
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
+
 
 template <typename Polygon>
 void test_polygon()
@@ -78,9 +81,18 @@ void test_2d()
 template <typename P>
 void test_3d()
 {
-    test_centroid<bg::model::linestring<P> >("LINESTRING(1 2 3,4 5 -6,7 -8 9,-10 11 12,13 -14 -15, 16 17 18)", 5.6748865168734692, 0.31974938587214002, 1.9915270387763671);
+    test_centroid<bg::model::linestring<P> >("LINESTRING(1 2 3,4 5 -6,7 -8 9,-10 11 12,13 -14 -15, 16 17 18)",
+                                             5.6748865168734692, 0.31974938587214002, 1.9915270387763671);
     test_centroid<bg::model::box<P> >("POLYGON((1 2 3,5 6 7))", 3, 4, 5);
     test_centroid<P>("POINT(1 2 3)", 1, 2, 3);
+}
+
+
+template <typename P>
+void test_5d()
+{
+    test_centroid<bg::model::linestring<P> >("LINESTRING(1 2 3 4 95,4 5 -6 24 40,7 -8 9 -5 -7,-10 11 12 -5 5,13 -14 -15 4 3, 16 17 18 5 12)",
+                                             4.9202312983547678, 0.69590937869808345, 1.2632138719797417, 6.0468332057401986, 23.082402715244868);
 }
 
 
@@ -91,6 +103,8 @@ int test_main(int, char* [])
     test_2d<bg::model::d2::point_xy<float> >();
 
     test_3d<boost::tuple<double, double, double> >();
+
+    test_5d<boost::tuple<double, double, double, double, double> >();
 
 #if defined(HAVE_TTMATH)
     test_2d<bg::model::d2::point_xy<ttmath_big> >();
