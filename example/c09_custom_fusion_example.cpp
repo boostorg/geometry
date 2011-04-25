@@ -15,11 +15,12 @@
 
 #include <boost/geometry/algorithms/distance.hpp>
 
-#include <boost/geometry/geometries/adapted/fusion.hpp>
-#include <boost/geometry/geometries/adapted/fusion_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_fusion.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
+
+BOOST_GEOMETRY_REGISTER_BOOST_FUSION_CS(cs::cartesian);
 
 
 // Sample point, having x/y

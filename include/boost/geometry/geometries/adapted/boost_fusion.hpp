@@ -130,10 +130,6 @@ struct access
     }
 };
 
-// The library user has
-// 1) either to specify the coordinate system using a traits class
-// 2) or include <boost/geometry/geometries/adapted/fusion_@.hpp>
-//          where @=cartesian,geographic,...
 
 template <typename Sequence>
 struct tag
@@ -148,6 +144,7 @@ struct tag
     typedef point_tag type;
 };
 
+
 } // namespace traits
 
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -155,5 +152,21 @@ struct tag
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_FUSION_HPP
 
+// Convenience registration macro to bind a Fusion sequence to a CS
+#define BOOST_GEOMETRY_REGISTER_BOOST_FUSION_CS(CoordinateSystem) \
+    namespace boost { namespace geometry { namespace traits { \
+    template <typename Sequence> \
+    struct coordinate_system \
+               < \
+                   Sequence, \
+                   typename boost::enable_if \
+                       < \
+                           fusion_adapt_detail::is_fusion_sequence<Sequence> \
+                       >::type \
+               > \
+    { typedef cs::cartesian type; }; \
+    }}}
+
+
+#endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_FUSION_HPP
