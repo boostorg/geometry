@@ -53,7 +53,7 @@ struct my_box_t
 BOOST_GEOMETRY_REGISTER_POINT_2D(my_point, double, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_POINT_2D(my_int_point, int, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_BOX(my_box, my_point, ll, ur)
-BOOST_GEOMETRY_REGISTER_BOX_TEMPLATIZED(my_box_t, ll, ur)
+BOOST_GEOMETRY_REGISTER_BOX_TEMPLATED(my_box_t, ll, ur)
 BOOST_GEOMETRY_REGISTER_BOX_2D_4VALUES(my_box_ltrb, my_int_point, left, top, right, bottom)
 BOOST_GEOMETRY_REGISTER_BOX_2D_4VALUES(my_box_4, my_point, coors[0], coors[1], coors[2], coors[3])
 

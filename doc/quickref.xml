@@ -101,24 +101,52 @@
   </row>
   <row>
    <entry valign="top">
-    <bridgehead renderas="sect3">Adapted point types</bridgehead>
+    <bridgehead renderas="sect3">0-dimensional (adapted)</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.adapted.boost_array">Boost.Array</link></member>
      <member><link linkend="geometry.reference.adapted.boost_fusion">Boost.Fusion</link></member>
-     <member><link linkend="geometry.reference.adapted.boost_polygon">Boost.Polygon</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_polygon.point_data">Boost.Polygon's point_data</link></member>
      <member><link linkend="geometry.reference.adapted.boost_tuple">Boost.Tuple</link></member>
      <member><link linkend="geometry.reference.adapted.c_array">C arrays</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
-    <bridgehead renderas="sect3">Registration macro's</bridgehead>
+    <bridgehead renderas="sect3">1-dimensional (adapted)</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_2d">BOOST_GEOMETRY_REGISTER_POINT_2D</link></member>
-     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_2d_const">BOOST_GEOMETRY_REGISTER_POINT_2D_CONST</link></member>
-     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_2d_get_set">BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET</link></member>
-     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_3d">BOOST_GEOMETRY_REGISTER_POINT_3D</link></member>
-     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_3d_const">BOOST_GEOMETRY_REGISTER_POINT_3D_CONST</link></member>
-     <member><link linkend="geometry.reference.adapted.boost_geometry_register_point_3d_get_set">BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">2-dimensional (adapted)</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.adapted.boost_polygon.rectangle_data">Boost.Polygon's rectangle_data</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_polygon.polygon_data">Boost.Polygon's polygon_data</link></member>
+     <member><link linkend="geometry.reference.adapted.boost_polygon.polygon_with_holes_data">Boost.Polygon's polygon_with_holes_data</link></member>
+    </simplelist>
+   </entry>
+  </row>
+  <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">0-dimensional (macro's for adaption)</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_2d">BOOST_GEOMETRY_REGISTER_POINT_2D</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_2d_const">BOOST_GEOMETRY_REGISTER_POINT_2D_CONST</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_2d_get_set">BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d">BOOST_GEOMETRY_REGISTER_POINT_3D</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d_const">BOOST_GEOMETRY_REGISTER_POINT_3D_CONST</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d_get_set">BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">1-dimensionial (macro's for adaption)</bridgehead>
+    <simplelist type="vert" columns="1">
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">2-dimensional (macro's for adaption)</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box">BOOST_GEOMETRY_REGISTER_BOX</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box_2d_4values">BOOST_GEOMETRY_REGISTER_BOX_2D_4VALUES</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box_templated">BOOST_GEOMETRY_REGISTER_BOX_TEMPLATED</link></member>
     </simplelist>
    </entry>
   </row>

@@ -18,7 +18,8 @@ various other examples as well.
 #include <iostream>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/tuple.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
 
 int main()
 {

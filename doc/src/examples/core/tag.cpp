@@ -11,10 +11,13 @@
 //` Shows how tag dispatching essentially works in Boost.Geometry
 
 #include <iostream>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
 #include <boost/assign.hpp>
+
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 template <typename Tag> struct dispatch {};
 

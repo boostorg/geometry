@@ -95,9 +95,10 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			details_calc2{2}="The free function \1 calculates the \2 of two geometries" \
 			details_calc2{1}="The free function \1 calculates the \1 of two geometries" \
 			details_check12{2}="The free function \1 checks if the first geometry \2 the second geometry" \
-			details_macro{2}="The macro \1 registers a \2 such that it is recognized by Boost.Geometry and that Boost.Geometry functionality can used with the specified point type" \
+			details_macro{2}="The macro \1 registers a \2 such that it is recognized by Boost.Geometry and that Boost.Geometry functionality can used with the specified type." \
 			details_macro_const="The const version registers only read access to the fields, the point type is therefore read-only" \
 			details_macro_getset="The get/set version registers get and set methods separately and can be used for classes with protected member variables and get/set methods to change coordinates" \
+			details_macro_templated{1}="The type must have one template parameter, which should be a point type, and should not be specified. Boost.Geometry takes care of inserting the template parameter. Hence all types of this templated \1 are registered, regardless of their point type." \
 			details_default_strategy="It uses the default strategy, based on the coordinate system of the geometry." \
 			details_strategy_reasons="Reasons to specify a strategy include: use another coordinate system for calculations; construct the strategy beforehand (e.g. with the radius of the Earth); select a strategy when there are more than one available for a calculation." \
 			details_return{1}="This version with the return_ prefix returns the \1, and a template parameter must therefore be specified in the call." \
