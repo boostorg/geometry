@@ -30,9 +30,11 @@ struct triangle : public boost::array<P, 3>
 {
 };
 
-// Register triangle<P>
-BOOST_GEOMETRY_REGISTER_RING_TEMPLATIZED(triangle)
+// Register triangle<P> as a ring
 
+namespace boost { namespace geometry {
+template <typename P> struct tag<triangle<P> > { typedef ring_tag type; }
+}}
 
 namespace boost { namespace geometry { namespace dispatch {
 

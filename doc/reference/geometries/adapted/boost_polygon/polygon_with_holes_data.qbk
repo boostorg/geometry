@@ -10,10 +10,10 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section:boost_polygon Boost.Polygon]
+[section:polygon_with_holes_data Boost.Polygon's polygon_with_holes_data]
 
-The Boost.Polygon point type (point_data) is adapted to the Boost.Geometry Point Concept.
-Boost.Polygon polygons are adapted to the Boost.Geometry Ring Concept and the Boost.Geometry Polygon Concept.
+Boost.Polygon's polygon type supporting holes (boost::polygon::polygon_with_holes_data) 
+is adapted to the Boost.Geometry Polygon Concept.
 
 [heading Description]
 
@@ -22,12 +22,12 @@ two libraries can therefore be used together. Using a boost::polygon::point_data
 algorithms from both Boost.Polygon and Boost.Geometry can be called.
 
 [heading Model of]
-[link geometry.reference.concepts.concept_point Point Concept]
+[link geometry.reference.concepts.concept_polygon Polygon Concept]
 
 [heading Header]
 `#include <boost/geometry/geometries/adapted/boost_polygon.hpp>`
 
-The standard header `<boost/geometry.hpp>` does not include this header.
+__not_in_boost_geometry_hpp__
 
 [heading Example]
 [boost_polygon]

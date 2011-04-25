@@ -82,4 +82,16 @@
 [import src/examples/geometries/adapted/boost_fusion.cpp]
 [import src/examples/geometries/adapted/boost_polygon.cpp]
 [import src/examples/geometries/adapted/boost_tuple.cpp]
+
+[import src/examples/geometries/adapted/boost_range/filtered.cpp]
+[import src/examples/geometries/adapted/boost_range/reversed.cpp]
+[import src/examples/geometries/adapted/boost_range/sliced.cpp]
+[import src/examples/geometries/adapted/boost_range/strided.cpp]
+[import src/examples/geometries/adapted/boost_range/uniqued.cpp]
+
+[import src/examples/geometries/register/box.cpp]
+[import src/examples/geometries/register/box_templated.cpp]
+[import src/examples/geometries/register/box_2d_4values.cpp]
 [import src/examples/geometries/register/point.cpp]
+
+

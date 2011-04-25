@@ -49,6 +49,9 @@
 [def __other__  Other geometries]
 [def __nyiversion__  Not yet supported in this version]
 
+[def __not_in_boost_geometry_hpp__ The standard header `boost/geometry.hpp` does not include this header.]
+
+
 [/Parts]
 [def __ret_zero__ Returns zero]
 [def __ret_one__ Returns 1]
@@ -62,8 +65,8 @@
 All algorithms in Boost.Geometry will check any geometry arguments against the concept requirements.]
 
 
-[def __boost_geometry__     Boost.Geometry]
-[def __boost_gil__          [@http://www.boost.org/libs/gil/ Boost.GIL]]
+[def __boost_geometry__ Boost.Geometry]
+[def __boost_gil__ [@http://www.boost.org/libs/gil/ Boost.GIL]]
 
 [heading Contributions]
 

@@ -19,3 +19,4 @@ exe boost_fusion : boost_fusion.cpp ;
 exe boost_polygon : boost_polygon.cpp ;
 exe boost_tuple : boost_tuple.cpp ;
 
+build-project boost_range ;

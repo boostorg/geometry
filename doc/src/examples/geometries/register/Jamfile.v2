@@ -13,5 +13,6 @@ project boost-geometry-doc-src-example-geometries-register
     : # requirements
     ;
 
+exe box : box.cpp ;
+exe box_templated : box_templated.cpp ;
 exe point : point.cpp ;
-

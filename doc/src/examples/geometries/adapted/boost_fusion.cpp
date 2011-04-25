@@ -11,10 +11,12 @@
 //` Shows how to combine Boost.Fusion with Boost.Geometry
 
 #include <iostream>
+
 #include <boost/fusion/include/adapt_struct_named.hpp>
+
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/adapted/fusion.hpp>
-#include <boost/geometry/geometries/adapted/fusion_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_fusion.hpp>
+
 
 struct sample_point
 {
@@ -22,6 +24,7 @@ struct sample_point
 };
 
 BOOST_FUSION_ADAPT_STRUCT(sample_point, (double, x) (double, y) (double, z))
+BOOST_GEOMETRY_REGISTER_BOOST_FUSION_CS(sample_point)
 
 int main()
 {
