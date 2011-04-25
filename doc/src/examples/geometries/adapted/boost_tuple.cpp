@@ -15,11 +15,12 @@ Working with Boost.Tuples in Boost.Geometry is straightforward and shown in
 various other examples as well.
 
 */
+
 #include <iostream>
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/adapted/tuple.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
-BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 int main()
 {
