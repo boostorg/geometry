@@ -1,5 +1,4 @@
 #include <gl/glut.h>
-#define BOOST_GEOMETRY_INDEX_RTREE_ENABLE_GL_DRAW
 
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 

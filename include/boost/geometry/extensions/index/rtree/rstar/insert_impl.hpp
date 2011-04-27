@@ -28,6 +28,10 @@
 #include <boost/geometry/extensions/index/rtree/rstar/choose_next_node.hpp>
 #include <boost/geometry/extensions/index/rtree/rstar/split.hpp>
 
+//TEST
+#include <boost/geometry/extensions/index/rtree/visitors/print.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace rstar {
@@ -39,6 +43,9 @@ template <typename Value, typename Translator, typename Box, typename Element>
 class insert_impl : public insert_base<Value, Translator, Box, Element>
 {
     typedef insert_base<Value, Translator, Box, Element> base;
+    typedef typename base::node node;
+    typedef typename base::internal_node internal_node;
+    typedef typename base::leaf leaf;
 
 public:
     inline insert_impl(
@@ -54,20 +61,20 @@ public:
 
     inline void operator()(internal_node & n)
     {
-        if ( m_current_level < m_level )
+        if ( base::m_current_level < base::m_level )
         {
             // next traversing step
             base::traverse(*this, n);
         }
         else
         {
-            assert( m_level == m_current_level );
+            assert( base::m_level == base::m_current_level );
 
             // push new child node
-            n.children.push_back(m_element);
+            n.children.push_back(base::m_element);
         }
 
-        if ( m_max_elems_per_node < n.children.size() )
+        if ( base::m_max_elems_per_node < n.children.size() )
             base::overflow_treatment(n);
     }
 
@@ -81,6 +88,9 @@ template <typename Value, typename Translator, typename Box>
 class insert_impl<Value, Translator, Box, Value> : public insert_base<Value, Translator, Box, Value>
 {
     typedef insert_base<Value, Translator, Box, Value> base;
+    typedef typename base::node node;
+    typedef typename base::internal_node internal_node;
+    typedef typename base::leaf leaf;
 
 public:
     inline insert_impl(
@@ -96,23 +106,23 @@ public:
 
     inline void operator()(internal_node & n)
     {
-        assert(m_current_level < m_level);
+        assert(base::m_current_level < base::m_level);
 
         // next traversing step
         base::traverse(*this, n);
         
-        if ( m_max_elems_per_node < n.children.size() )
+        if ( base::m_max_elems_per_node < n.children.size() )
             base::overflow_treatment(n);
     }
 
     inline void operator()(leaf & n)
     {
-        assert( m_level == m_current_level ||
-            m_level == std::numeric_limits<size_t>::max() );
+        assert( base::m_level == base::m_current_level ||
+            base::m_level == std::numeric_limits<size_t>::max() );
 
-        n.values.push_back(m_element);
+        n.values.push_back(base::m_element);
 
-        if ( m_max_elems_per_node < n.values.size() )
+        if ( base::m_max_elems_per_node < n.values.size() )
             base::overflow_treatment(n);
     }
 };
@@ -132,7 +142,7 @@ protected:
         size_t max_elements,
         Translator const& t,
         size_t level = std::numeric_limits<size_t>::max()
-    )
+        )
         : m_element(el)
         , m_tr(t)
         , m_min_elems_per_node(min_elements)
@@ -150,10 +160,31 @@ protected:
         size_t choosen_node_index = rstar::choose_next_node<Value, Box>::
             apply(n, rtree::element_indexable(m_element, m_tr));
 
+        //TEST
+        /*{
+            std::ofstream log("log.txt", std::ofstream::trunc);
+            log << std::fixed << "internal node " << m_current_level << " " << m_level << '\n';
+            boost::geometry::index::detail::rtree::visitors::detail::print_indexable(log, rtree::element_indexable(m_element, m_tr));
+            log << '\n' << "choosen node: " << choosen_node_index << "\n";
+            log << "before: ";
+            boost::geometry::index::detail::rtree::visitors::detail::print_indexable(log, n.children[choosen_node_index].first);
+            log << "\n";
+        }*/
+
         // expand the node to contain value
         geometry::expand(
             n.children[choosen_node_index].first,
             rtree::element_indexable(m_element, m_tr));
+
+        //TEST
+        /*{
+            std::ofstream log("log.txt", std::ofstream::app);
+            log << std::fixed << choosen_node_index << "after: ";
+            boost::geometry::index::detail::rtree::visitors::detail::print_indexable(log, n.children[choosen_node_index].first);
+            log << '\n';
+            boost::geometry::index::detail::rtree::visitors::print<Value, Translator, Box, rstar_tag> print_v(log, m_tr);
+            boost::apply_visitor(print_v, *m_root_node);
+        }*/
 
         // apply traversing visitor
         traverse_apply_visitor(d, n, choosen_node_index);
@@ -188,32 +219,32 @@ protected:
         // TODO: awulkiew - replace this condition with tag dispatched template
 
         // first time insert
-        if ( m_parent != 0 &&
-             m_level == std::numeric_limits<size_t>::max() &&
-             0 < m_reinserted_elements_count )
+        /*if ( m_parent != 0 &&
+            m_level == std::numeric_limits<size_t>::max() &&
+            0 < m_reinserted_elements_count )
         {
             reinsert(n);
         }
         // second time insert
         else
-        {
+        {*/
             rstar::split<Value, Translator, Box>::
                 apply(n, m_parent, m_current_child_index, m_root_node, m_min_elems_per_node, m_max_elems_per_node, m_tr);
-        }
+        //}
     }
 
-    template <typename Distance, typename Element>
+    template <typename Distance, typename El>
     static inline bool distances_asc(
-        std::pair<Distance, Element> const& d1,
-        std::pair<Distance, Element> const& d2)
+        std::pair<Distance, El> const& d1,
+        std::pair<Distance, El> const& d2)
     {
         return d1.first < d2.first;
     }
 
-    template <typename Distance, typename Element>
+    template <typename Distance, typename El>
     static inline bool distances_dsc(
-        std::pair<Distance, Element> const& d1,
-        std::pair<Distance, Element> const& d2)
+        std::pair<Distance, El> const& d1,
+        std::pair<Distance, El> const& d2)
     {
         return d1.first > d2.first;
     }
@@ -226,7 +257,7 @@ protected:
         typedef typename geometry::point_type<Box>::type point_type;
         // TODO: awulkiew - use distance_result
         typedef typename index::traits::coordinate_type<point_type>::type distance_type;
-        
+
         assert(m_parent != 0);
         assert(0 < m_reinserted_elements_count);
 
@@ -246,7 +277,7 @@ protected:
             geometry::centroid( index::detail::rtree::element_indexable(
                 elements[i],
                 m_tr
-            ), element_center);
+                ), element_center);
 
             distances[i].first = geometry::distance(node_center, element_center);
             distances[i].second = elements[i];
@@ -272,7 +303,7 @@ protected:
         // calulate node's new box
         m_parent->children[m_current_child_index].first =
             elements_box<Box>(elements.begin(), elements.end(), m_tr);
-        
+
         // reinsert children starting from the minimum distance
         for ( size_t i = m_reinserted_elements_count ; 0 < i ; --i )
         {
@@ -291,7 +322,7 @@ protected:
     const size_t m_reinserted_elements_count;
 
     const size_t m_level;
-    
+
     node* & m_root_node;
 
     // traversing input parameters

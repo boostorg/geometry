@@ -56,7 +56,7 @@ struct find : public boost::static_visitor<>
 
     Geometry const& geom;
     Translator const& tr;
-    std::vector<Value> result;
+    std::deque<Value> result;
 };
 
 }}} // namespace detail::rtree::visitors

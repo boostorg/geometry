@@ -67,7 +67,7 @@ public:
     }
 
     template <typename Geometry>
-    inline std::vector<value_type> find(Geometry const& geom) const
+    inline std::deque<value_type> find(Geometry const& geom) const
     {
         detail::rtree::visitors::find<value_type, translator_type, box_type, tag_type, Geometry> find_v(geom, m_translator);
         boost::apply_visitor(find_v, *m_root);

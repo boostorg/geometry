@@ -36,7 +36,10 @@ public:
     inline explicit insert(node* & root, Value const& v, size_t min_elements, size_t max_elements, Translator const& t)
         : m_root(root)
         , m_impl(root, v, min_elements, max_elements, t)
-    {}
+    {
+        // TODO
+        // assert - check if Box is correct
+    }
 
     inline void operator()(internal_node & n)
     {
