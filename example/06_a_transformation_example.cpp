@@ -13,8 +13,11 @@
 #include <iostream>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
+
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
+
 
 int main()
 {
@@ -34,7 +37,7 @@ int main()
     model::polygon<point_2d> poly, poly2;
     const double coor[][2] = { {0, 0}, {0, 7}, {2, 2}, {2, 0}, {0, 0} };
     // note that for this syntax you have to include the two
-    // include files above (c_array_cartesian.hpp, std_as_linestring.hpp)
+    // include files above (c_array.hpp, std_as_linestring.hpp)
     assign_points(poly, coor);
     //read_wkt("POLYGON((0 0,0 7,4 2,2 0,0 0))", poly);
     transform(poly, poly2, translate);
