@@ -41,6 +41,13 @@ struct box_iterator
         boost::random_access_traversal_tag
     >
 {
+    // Default constructor is required to check concept of Range
+    inline box_iterator()
+        : m_index(-1)
+        , m_box_address(NULL)
+    {
+    }
+    
     explicit inline box_iterator(Box const& box)
         : m_index(0)
         , m_box_address(&box)
@@ -56,6 +63,14 @@ struct box_iterator
         init(box);
     }
 
+    // Operator= is required to check concept of Range
+    inline box_iterator<Box>& operator=(box_iterator<Box> const& source)
+    {
+        m_index = source.m_index;
+        m_box_address = source.m_box_address;
+        return *this;
+    }
+    
     typedef std::ptrdiff_t difference_type;
 
 private:
@@ -101,7 +116,7 @@ private:
     // Copy points here - box might define them otherwise
     point_type m_points[4];
     int m_index;
-    Box const* const m_box_address;
+    Box const* m_box_address;
 };
 
 
