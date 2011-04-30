@@ -6,6 +6,8 @@
 #include <boost/timer.hpp>
 #include <boost/foreach.hpp>
 
+#include <boost/geometry/extensions/index/rtree/visitors/save.hpp>
+
 int main()
 {
     boost::timer tim;
@@ -13,34 +15,34 @@ int main()
     typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
     typedef boost::geometry::model::box<P> B;
 
-    // randomize boxes
-    const size_t n = 1000000;
-    //const size_t n = 300;
-    const size_t ns = 100000;
-
     std::ifstream file_cfg("config.txt");
-    std::ifstream file("test_coords.txt");
+    size_t max_elems = 4;
+    size_t min_elems = 2;
+    size_t values_count = 0;
+    size_t queries_count = 0;
+    char save_ch = 'n';
+    file_cfg >> max_elems;
+    file_cfg >> min_elems;
+    file_cfg >> values_count;
+    file_cfg >> queries_count;
+    file_cfg >> save_ch;
+    std::cout << "max: " << max_elems << ", min: " << min_elems << "\n";
+    std::cout << "v: " << values_count << ", q: " << queries_count << "\n";
 
+    std::ifstream file("test_coords.txt");
     std::cout << "loading data\n";
-    std::vector< std::pair<float, float> > coords(n);
-    for ( size_t i = 0 ; i < n ; ++i )
+    std::vector< std::pair<float, float> > coords(values_count);
+    for ( size_t i = 0 ; i < values_count ; ++i )
     {
         file >> coords[i].first;
         file >> coords[i].second;
     }
     std::cout << "loaded\n";
     
-    //std::cin.get();
-
-    size_t max_elems, min_elems;
-    file_cfg >> max_elems;
-    file_cfg >> min_elems;
-    std::cout << "max: " << max_elems << ", min: " << min_elems << "\n";
-
     std::cout << "inserting time test...\n";
     tim.restart();
     boost::geometry::index::rtree< std::pair<B, size_t> > t(max_elems, min_elems);
-    for (size_t i = 0 ; i < n ; ++i )
+    for (size_t i = 0 ; i < values_count ; ++i )
     {
         float x = coords[i].first;
         float y = coords[i].second;
@@ -71,10 +73,25 @@ int main()
     }
     std::cout << "time: " << tim.elapsed() << "s\n";
 
+    if ( save_ch == 's' )
+    {
+        std::cout << "saving...\n";
+        std::ofstream file("save_new.txt", std::ofstream::trunc);
+        file << std::fixed;
+        boost::geometry::index::detail::rtree::visitors::save<
+            boost::geometry::index::rtree< std::pair<B, size_t> >::value_type,
+            boost::geometry::index::rtree< std::pair<B, size_t> >::translator_type,
+            boost::geometry::index::rtree< std::pair<B, size_t> >::box_type,
+            boost::geometry::index::rtree< std::pair<B, size_t> >::tag_type
+        > saving_v(file, t.get_translator());
+        t.apply_visitor(saving_v);
+        std::cout << "saved...\n";
+    }
+
     std::cout << "searching time test...\n";
     tim.restart();    
     size_t temp = 0;
-    for (size_t i = 0 ; i < ns ; ++i )
+    for (size_t i = 0 ; i < queries_count ; ++i )
     {
         float x = coords[i].first;
         float y = coords[i].second;

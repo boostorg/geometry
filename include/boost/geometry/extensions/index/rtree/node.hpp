@@ -107,11 +107,11 @@ elements_get(leaf_def<Value, Box, Tag> & n)
     return n.values;
 }
 
-template <typename Node>
-struct element_type
-{
-    typedef typename elements_type<Node>::type::value_type type;
-};
+//template <typename Node>
+//struct element_type
+//{
+//    typedef typename elements_type<Node>::type::value_type type;
+//};
 
 // uniform indexable type for child node element's box and value's indexable
 

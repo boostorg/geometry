@@ -128,7 +128,7 @@ private:
     {
         size_t children_count = n.children.size();
 
-        // choose index with smallest overlap change value, or area change or smallest area
+        // choose index with smallest area change or smallest area
         size_t choosen_index = 0;
         area_type smallest_area_change = std::numeric_limits<area_type>::max();
         area_type smallest_area = std::numeric_limits<area_type>::max();
