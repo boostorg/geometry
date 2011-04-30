@@ -20,7 +20,6 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/geometries/register/ring.hpp>
 #include <boost/geometry/util/add_const_if_c.hpp>
 
 // Sample point, having x/y
@@ -215,7 +214,10 @@ template<> struct resize<my_polygon>
 
 // 4) register with Boost.Geometry
 BOOST_GEOMETRY_REGISTER_POINT_2D(my_point, double, cs::cartesian, x, y)
-BOOST_GEOMETRY_REGISTER_RING(my_polygon)
+
+namespace boost { namespace geometry { namespace traits {
+template <> struct tag<my_polygon> { typedef ring_tag type; };
+}}}
 
 
 // end adaption

@@ -16,7 +16,6 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/geometries/register/linestring.hpp>
 
 // To register the 'geographic' distance function to calculate distance over the earth:
 #include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
@@ -61,7 +60,9 @@ BOOST_GEOMETRY_REGISTER_POINT_2D(gps_point, double, cs::geographic<degree>, long
 
 
 // Register the track as well, as being a "linestring"
-BOOST_GEOMETRY_REGISTER_LINESTRING(gps_track)
+namespace boost { namespace geometry { namespace traits {
+template <> struct tag<gps_track> { typedef ring_tag type; };
+}}}
 
 
 int main()
