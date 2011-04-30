@@ -15,4 +15,5 @@ project boost-geometry-doc-src-example-geometries-register
 
 exe box : box.cpp ;
 exe box_templated : box_templated.cpp ;
+exe box_2d_4values : box_2d_4values.cpp ;
 exe point : point.cpp ;
