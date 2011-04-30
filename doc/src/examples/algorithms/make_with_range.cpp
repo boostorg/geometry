@@ -13,23 +13,24 @@
 #include <iostream>
 
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp> /*< Necessary to register a C array like {1,2} as a point >*/
+#include <boost/geometry/geometries/adapted/c_array.hpp>
 
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian) /*< Necessary to register a C array like {1,2} as a point >*/
 
 int main()
 {
     using boost::geometry::make;
+    using boost::geometry::detail::make::make_points;
 
     typedef boost::geometry::model::d2::point_xy<double> point;
     typedef boost::geometry::model::linestring<point> linestring;
 
     double coordinates[][2] = {{1,2}, {3,4}, {5, 6}}; /*< Initialize with C array points >*/
-    linestring ls = make<linestring>(coordinates);
+    linestring ls = make_points<linestring>(coordinates);
     std::cout << boost::geometry::dsv(ls) << std::endl;
 
     point points[3] = { make<point>(9,8), make<point>(7,6), make<point>(5,4) }; /*< Construct array with points, using make which should work for any point type >*/
-    std::cout << boost::geometry::dsv(make<linestring>(points)) << std::endl; /*< Construct linestring with point-array and output it as Delimiter Separated Values >*/
+    std::cout << boost::geometry::dsv(make_points<linestring>(points)) << std::endl; /*< Construct linestring with point-array and output it as Delimiter Separated Values >*/
 
     return 0;
 }
