@@ -51,15 +51,6 @@ struct segment_range_iterator
     {
     }
 
-    // Operator= is required to check concept of Range
-    inline segment_range_iterator<Segment>& operator=(segment_range_iterator<Segment> const& source)
-    {
-        m_index = source.m_index;
-        m_segment_address = source.m_segment_address;
-        return *this;
-    }
-
-
     explicit inline segment_range_iterator(Segment const& segment)
         : m_index(0)
         , m_segment_address(&segment)
@@ -74,7 +65,15 @@ struct segment_range_iterator
     {
         init(segment);
     }
-
+    
+    // Operator= is required to check concept of Range
+    inline segment_range_iterator<Segment>& operator=(segment_range_iterator<Segment> const& source)
+    {
+        m_index = source.m_index;
+        m_segment_address = source.m_segment_address;
+        return *this;
+    }
+    
     typedef std::ptrdiff_t difference_type;
 
 private:
