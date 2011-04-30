@@ -12,7 +12,9 @@
 
 #include <iostream>
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/adapted/boost_array_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/boost_array.hpp>
+
+BOOST_GEOMETRY_REGISTER_BOOST_ARRAY_CS(cs::cartesian)
 
 int main()
 {

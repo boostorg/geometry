@@ -24,10 +24,11 @@
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
+#include <boost/geometry/geometries/adapted/c_array.hpp>
 
-BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 
 
 // Small QRect simulations following http://doc.trolltech.com/4.4/qrect.html
@@ -130,7 +131,7 @@ void example_for_main_page()
     QRect r2(110, 210, 20, 20);
     if (overlaps(r1, r2))
     {
-        assign(r2, 200, 300, 220, 320);
+        assign_values(r2, 200, 300, 220, 320);
     }
     //]
 }
@@ -145,7 +146,7 @@ void example_for_transform()
     XYZ p;
 
     SPH sph1, sph2;
-    assign(sph1, 12.5, 41.90, 1.0);
+    assign_values(sph1, 12.5, 41.90, 1.0);
     // Go from spherical to Cartesian-3D:
     transform(sph1, p);
     // Go back from Cartesian 3D to spherical:
