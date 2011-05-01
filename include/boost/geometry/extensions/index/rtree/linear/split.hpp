@@ -46,8 +46,8 @@ struct find_greatest_normalized_separation
         assert(2 <= elements_count);
 
         // find the lowest low, highest high
-        coordinate_type lowest_low = geometry::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], tr));
-        coordinate_type highest_high = geometry::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[0], tr));
+        coordinate_type lowest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], tr));
+        coordinate_type highest_high = index::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[0], tr));
         // and the lowest high
         coordinate_type lowest_high = highest_high;
         size_t lowest_high_index = 0;
@@ -71,7 +71,7 @@ struct find_greatest_normalized_separation
 
         // find the highest low
         size_t highest_low_index = lowest_high_index == 0 ? 1 : 0;
-        coordinate_type highest_low = geometry::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[highest_low_index], tr));
+        coordinate_type highest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[highest_low_index], tr));
         for ( size_t i = highest_low_index ; i < elements_count ; ++i )
         {
             coordinate_type min_coord = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], tr));

@@ -95,7 +95,8 @@ int main()
     {
         float x = coords[i].first;
         float y = coords[i].second;
-        std::deque< std::pair<B, size_t> > result = t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)));
+        std::deque< std::pair<B, size_t> > result;
+        t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
         temp += result.size();
     }
     std::cout << "time: " << tim.elapsed() << "s\n";

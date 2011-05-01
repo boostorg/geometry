@@ -10,11 +10,13 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_FILTERS_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_FILTERS_HPP
 
-#include <vector>
+#include <deque>
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/extensions/index/filters/spacial_filter.hpp>
-#include <boost/geometry/extensions/index/filters/nearest_filter.hpp>
+
+// TODO: awulkiew - implement nearest filter
+//#include <boost/geometry/extensions/index/filters/nearest_filter.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -27,13 +29,13 @@ template <typename Value, typename Translator, typename Tag>
 class spatial_filter< index::rtree<Value, Translator, Tag> >
 {
 public:
-    typedef typename std::vector<Value>::iterator iterator;
-    typedef typename std::vector<Value>::const_iterator const_iterator;
+    typedef typename std::deque<Value>::iterator iterator;
+    typedef typename std::deque<Value>::const_iterator const_iterator;
 
     template <typename Geometry>
     spatial_filter(index::rtree<Value, Translator, Tag> const& rtree, Geometry const& geom)
     {
-        m_result = rtree.find(geom);
+        rtree.find(geom, std::back_inserter(m_result));
     }
 
     iterator begin() { return m_result.begin(); }
@@ -42,7 +44,7 @@ public:
     const_iterator end() const { return m_result.end(); }
 
 private:
-    std::vector<Value> m_result;
+    std::deque<Value> m_result;
 };
 
 } // namespace filters

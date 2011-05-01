@@ -70,12 +70,13 @@ public:
         boost::apply_visitor(del_v, *m_root);
     }
 
-    template <typename Geometry>
-    inline std::deque<value_type> find(Geometry const& geom) const
+    // TODO: awulkiew - change name to query?
+
+    template <typename Geometry, typename OutIter>
+    inline void find(Geometry const& geom, OutIter out_it) const
     {
-        detail::rtree::visitors::find<value_type, translator_type, box_type, tag_type, Geometry> find_v(geom, m_translator);
+        detail::rtree::visitors::find<value_type, translator_type, box_type, tag_type, Geometry, OutIter> find_v(m_translator, geom, out_it);
         boost::apply_visitor(find_v, *m_root);
-        return find_v.result;
     }
 
     void insert(value_type const& value)

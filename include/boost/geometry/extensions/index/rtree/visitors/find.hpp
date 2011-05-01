@@ -14,24 +14,65 @@
 
 #include <boost/geometry/extensions/index/rtree/node.hpp>
 
+#include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
 // rtree spatial query visitor
 
-template <typename Value, typename Translator, typename Box, typename Tag, typename Geometry>
+template <typename Value, typename Translator, typename Box, typename Tag, typename Geometry, typename OutIter>
 struct find : public boost::static_visitor<>
 {
+    typedef typename rtree::node<Value, Box, Tag>::type node;
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
-    inline find(Geometry const& g, Translator const& t)
-        : geom(g), tr(t)
+    inline find(Translator const& t, Geometry const& g, OutIter out_it)
+        : tr(t), geom(g), out_iter(out_it)
     {}
 
     inline void operator()(internal_node const& n)
     {
+        /*typedef typename internal_node::children_type children_type;
+
+        std::deque<node*> nodes;
+        
+        for (typename children_type::const_iterator it = n.children.begin();
+            it != n.children.end(); ++it)
+        {
+            if ( geometry::intersects(it->first, geom) )
+            {
+                nodes.push_back(it->second);
+            }
+        }
+
+        while ( !nodes.empty() )
+        {
+            node *n = nodes.back();
+            nodes.pop_back();
+
+            if ( !boost::apply_visitor(visitors::is_leaf<Value, Box, Tag>(), *n) )
+            {
+                internal_node &in = boost::get<internal_node>(*n);
+
+                for (typename children_type::const_iterator it = in.children.begin();
+                    it != in.children.end(); ++it)
+                {
+                    if ( geometry::intersects(it->first, geom) )
+                    {
+                        nodes.push_back(it->second);
+                    }
+                }
+            }
+            else
+            {
+                operator()(boost::get<leaf>(*n));
+            }
+        }
+        */
+
         typedef typename internal_node::children_type children_type;
 
         for (typename children_type::const_iterator it = n.children.begin();
@@ -50,13 +91,16 @@ struct find : public boost::static_visitor<>
             it != n.values.end(); ++it)
         {
             if ( geometry::intersects(tr(*it), geom) )
-                result.push_back(*it);
+            {
+                out_iter = *it;
+                ++out_iter;
+            }
         }
     }
 
-    Geometry const& geom;
     Translator const& tr;
-    std::deque<Value> result;
+    Geometry const& geom;
+    OutIter out_iter;
 };
 
 }}} // namespace detail::rtree::visitors
