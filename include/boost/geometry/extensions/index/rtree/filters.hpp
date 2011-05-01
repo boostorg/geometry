@@ -31,23 +31,36 @@ class spatial_filter< index::rtree<Value, Translator, Tag> >
 public:
     typedef typename std::deque<Value>::iterator iterator;
     typedef typename std::deque<Value>::const_iterator const_iterator;
-
+    
     template <typename Geometry>
-    spatial_filter(index::rtree<Value, Translator, Tag> const& rtree, Geometry const& geom)
+    inline spatial_filter(index::rtree<Value, Translator, Tag> const& rtree, Geometry const& geom)
     {
         rtree.find(geom, std::back_inserter(m_result));
     }
 
-    iterator begin() { return m_result.begin(); }
-    iterator end() { return m_result.end(); }
-    const_iterator begin() const { return m_result.begin(); }
-    const_iterator end() const { return m_result.end(); }
+    inline iterator begin() { return m_result.begin(); }
+    inline iterator end() { return m_result.end(); }
+    inline const_iterator begin() const { return m_result.begin(); }
+    inline const_iterator end() const { return m_result.end(); }
 
 private:
     std::deque<Value> m_result;
 };
 
 } // namespace filters
+
+// TODO: awulkiew - filter may be implemented in operator|
+
+//template<typename Value, typename Translator, typename Tag, typename Geometry>
+//std::deque<Value>
+//operator|(
+//    index::rtree<Value, Translator, Tag> const& si,
+//    index::filters::detail::spatially_filtered<Geometry> const& f)
+//{
+//    std::deque<Value> result;
+//    si.find(f.geometry(), std::back_inserter(result));
+//    return result;
+//}
 
 }}} // namespace boost::geometry::index
 

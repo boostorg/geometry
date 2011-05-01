@@ -10,7 +10,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_NEAREST_FILTER_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_NEAREST_FILTER_HPP
 
-namespace boost { namespace geometry { namespace index { namespace filters {
+namespace boost { namespace geometry { namespace index {
+
+namespace filters {
 
 template <typename SpacialIndex>
 class nearest_filter
@@ -64,7 +66,7 @@ detail::nearest_filtered<Point> nearest_filtered(
     return detail::nearest_filtered<Point>(p, distance);
 }
 
-}}}} // namespace boost::geometry::index::filters
+} // namespace filters
 
 template<typename SpacialIndex, typename Point>
 boost::geometry::index::filters::nearest_filter<SpacialIndex>
@@ -74,5 +76,7 @@ boost::geometry::index::filters::nearest_filter<SpacialIndex>
 {
     return boost::geometry::index::filters::nearest_filter<SpacialIndex>(si, f.point(), f.distance());
 }
+
+}}} // namespace boost::geometry::index
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_NEAREST_FILTER_HPP

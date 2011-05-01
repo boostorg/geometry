@@ -10,7 +10,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_SPACIAL_FILTER_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_SPACIAL_FILTER_HPP
 
-namespace boost { namespace geometry { namespace index { namespace filters {
+namespace boost { namespace geometry { namespace index {
+    
+namespace filters {
 
 template <typename SpacialIndex>
 class spatial_filter
@@ -49,15 +51,17 @@ detail::spatially_filtered<Geometry> spatially_filtered(Geometry const& geom)
     return detail::spatially_filtered<Geometry>(geom);
 }
 
-}}}} // namespace boost::geometry::index::filters
+} // namespace filters
 
 template<typename SpacialIndex, typename Geometry>
-boost::geometry::index::filters::spatial_filter<SpacialIndex>
+index::filters::spatial_filter<SpacialIndex>
 operator|(
     SpacialIndex const& si,
-    boost::geometry::index::filters::detail::spatially_filtered<Geometry> const& f)
+    index::filters::detail::spatially_filtered<Geometry> const& f)
 {
-    return boost::geometry::index::filters::spatial_filter<SpacialIndex>(si, f.geometry());
+    return index::filters::spatial_filter<SpacialIndex>(si, f.geometry());
 }
+
+}}} // namespace boost::geometry::index
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_SPACIAL_FILTER_HPP
