@@ -13,6 +13,7 @@
 
 #include <map>
 
+template <typename Tag>
 void tests_rtree_native_hpp()
 {
 	std::cout << "tests/rtree_native.hpp\n";
@@ -22,7 +23,7 @@ void tests_rtree_native_hpp()
         typedef boost::geometry::model::point<float, 3, boost::geometry::cs::cartesian> P;
         typedef boost::geometry::model::box<P> B;
 
-        boost::geometry::index::rtree<B> t(4, 2);
+        boost::geometry::index::rtree<B, boost::geometry::index::default_parameter, Tag> t(4, 2);
         boost::geometry::index::insert(t, B(P(0, 0, 0), P(1, 1, 1)));
         boost::geometry::index::insert(t, B(P(2, 2, 2), P(3, 3, 3)));
         boost::geometry::index::insert(t, B(P(4, 4, 4), P(5, 5, 5)));
@@ -39,7 +40,7 @@ void tests_rtree_native_hpp()
         typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
         typedef boost::geometry::model::box<P> B;
 
-        boost::geometry::index::rtree<B> t(4, 2);
+        boost::geometry::index::rtree<B, boost::geometry::index::default_parameter, Tag> t(4, 2);
         boost::geometry::index::insert(t, B(P(0, 0), P(1, 1)));
         boost::geometry::index::insert(t, B(P(2, 2), P(3, 3)));
         boost::geometry::index::insert(t, B(P(4, 4), P(5, 5)));
@@ -56,7 +57,7 @@ void tests_rtree_native_hpp()
         typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
         typedef boost::geometry::model::box<P> B;
 
-        boost::geometry::index::rtree<P> t(4, 2);
+        boost::geometry::index::rtree<P, boost::geometry::index::default_parameter, Tag> t(4, 2);
         boost::geometry::index::insert(t, P(0, 0));
         boost::geometry::index::insert(t, P(2, 2));
         boost::geometry::index::insert(t, P(4, 4));
@@ -74,7 +75,7 @@ void tests_rtree_native_hpp()
         typedef boost::geometry::model::box<P> B;
         typedef std::pair<B, int> V;
 
-        boost::geometry::index::rtree<V> t(4, 2);
+        boost::geometry::index::rtree<V, boost::geometry::index::default_parameter, Tag> t(4, 2);
         boost::geometry::index::insert(t, V(B(P(0, 0), P(1, 1)), 0));
         boost::geometry::index::insert(t, V(B(P(2, 2), P(3, 3)), 1));
         boost::geometry::index::insert(t, V(B(P(4, 4), P(5, 5)), 2));
@@ -99,7 +100,7 @@ void tests_rtree_native_hpp()
         V v4( new std::pair<B, int>(B(P(6, 6), P(7, 7)), 3) );
         V v5( new std::pair<B, int>(B(P(8, 8), P(9, 9)), 4) );
 
-        boost::geometry::index::rtree<V> t(4, 2);
+        boost::geometry::index::rtree<V, boost::geometry::index::default_parameter, Tag> t(4, 2);
         boost::geometry::index::insert(t, v1);
         boost::geometry::index::insert(t, v2);
         boost::geometry::index::insert(t, v3);
@@ -125,7 +126,7 @@ void tests_rtree_native_hpp()
         m.insert(std::pair<int, B>(3, B(P(6, 6), P(7, 7))));
         m.insert(std::pair<int, B>(4, B(P(8, 8), P(9, 9))));
 
-        boost::geometry::index::rtree<V> t(4, 2);
+        boost::geometry::index::rtree<V, boost::geometry::index::default_parameter, Tag> t(4, 2);
         V vit = m.begin();
         boost::geometry::index::insert(t, vit++);
         boost::geometry::index::insert(t, vit++);
@@ -153,7 +154,7 @@ void tests_rtree_native_hpp()
         v.push_back(B(P(6, 6), P(7, 7)));
         v.push_back(B(P(8, 8), P(9, 9)));
 
-        boost::geometry::index::rtree<V, T> t(4, 2, T(v));
+        boost::geometry::index::rtree<V, T, Tag> t(4, 2, T(v));
 
         boost::geometry::index::insert(t, 0u);
         boost::geometry::index::insert(t, 1u);

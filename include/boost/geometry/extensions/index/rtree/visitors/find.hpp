@@ -20,6 +20,74 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
+//template <size_t N, typename Cont>
+//class array_semi_dynamic
+//{
+//public:
+//    typedef typename Cont::value_type value_type;
+//
+//    array_semi_dynamic()
+//        : arr_elements(0)
+//    {}
+//
+//    void push_back(value_type const& v)
+//    {
+//        if ( arr_elements < N )
+//            arr[arr_elements++] = v;
+//        else
+//            cont.push_back(v);
+//    }
+//
+//    void pop_back()
+//    {
+//        if ( !cont.empty() )
+//            cont.pop_back();
+//        else
+//        {
+//            assert(0 < arr_elements);
+//            --arr_elements;
+//        }
+//    }
+//
+//    value_type & back()
+//    {
+//        if ( !cont.empty() )
+//            return cont.back();
+//        else
+//        {
+//            assert(0 < arr_elements);
+//            return arr[arr_elements - 1];
+//        }
+//    }
+//
+//    value_type const& back() const
+//    {
+//        if ( !cont.empty() )
+//            return cont.back();
+//        else
+//        {
+//            assert(0 < arr_elements);
+//            return arr[arr_elements - 1];
+//        }
+//    }
+//
+//    bool empty() const
+//    {
+//        assert(cont.empty());
+//        return 0 == arr_elements;
+//    }
+//
+//    size_t size() const
+//    {
+//        return arr_elements + cont.size();
+//    }
+//
+//private:
+//    boost::array<value_type, N> arr;
+//    size_t arr_elements;
+//    Cont cont;
+//};
+
 // rtree spatial query visitor
 
 template <typename Value, typename Translator, typename Box, typename Tag, typename Geometry, typename OutIter>
@@ -37,7 +105,7 @@ struct find : public boost::static_visitor<>
     {
         /*typedef typename internal_node::children_type children_type;
 
-        std::deque<node*> nodes;
+        array_semi_dynamic<512, std::deque<node*> > nodes;
         
         for (typename children_type::const_iterator it = n.children.begin();
             it != n.children.end(); ++it)
@@ -70,8 +138,7 @@ struct find : public boost::static_visitor<>
             {
                 operator()(boost::get<leaf>(*n));
             }
-        }
-        */
+        }*/
 
         typedef typename internal_node::children_type children_type;
 

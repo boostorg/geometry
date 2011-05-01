@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.Index - R*-tree split algorithm implementation
+// Boost.Index - R-tree linear split algorithm implementation
 //
 // Copyright 2008 Federico J. Fernandez.
 // Copyright 2011 Adam Wulkiewicz.
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_SPLIT_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_SPLIT_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 
 #include <algorithm>
 
@@ -24,7 +24,11 @@
 
 namespace boost { namespace geometry { namespace index {
 
-namespace detail { namespace rtree { namespace linear {
+namespace detail { namespace rtree { namespace visitors {
+
+namespace detail {
+
+namespace linear {
 
 // from void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
 
@@ -91,8 +95,6 @@ struct find_greatest_normalized_separation
     }
 };
 
-namespace dispatch {
-
 template <typename Elements, typename Translator, size_t DimensionIndex>
 struct choose_axis_impl
 {
@@ -115,8 +117,8 @@ struct choose_axis_impl
         size_t s1, s2;
         find_greatest_normalized_separation<Elements, Translator, DimensionIndex - 1>::apply(elements, tr, current_separation, s1, s2);
 
-        // TODO: operator test!, change <= to < later
-        if ( separation <= current_separation )
+        // in the old implementation different operator was used: <=
+        if ( separation < current_separation )
         {
             separation = current_separation;
             seed1 = s1;
@@ -145,8 +147,6 @@ struct choose_axis_impl<Elements, Translator, 1>
     }
 };
 
-} // namespace dispatch
-
 // from void linear_pick_seeds(node_pointer const& n, unsigned int &seed1, unsigned int &seed2) const
 
 template <typename Elements, typename Translator>
@@ -165,19 +165,21 @@ struct choose_axis
     {
         size_t axis = 0;
         coordinate_type separation = 0;
-        dispatch::choose_axis_impl<Elements, Translator, dimension>::apply(elements, tr, axis, separation, seed1, seed2);
+        choose_axis_impl<Elements, Translator, dimension>::apply(elements, tr, axis, separation, seed1, seed2);
         return axis;
     }
 };
 
+} // namespace linear
+
 // from void split_node(node_pointer const& n, node_pointer& n1, node_pointer& n2) const
 
 template <typename Value, typename Translator, typename Box>
-struct redistribute_elements
+struct redistribute_elements<Value, Translator, Box, linear_tag>
 {
-    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, linear_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, linear_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, linear_tag>::type leaf;
 
     template <typename Node>
     static inline void apply(Node & n,
@@ -203,7 +205,7 @@ struct redistribute_elements
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        choose_axis<elements_type, Translator>::apply(elements_copy, tr, seed1, seed2);
+        linear::choose_axis<elements_type, Translator>::apply(elements_copy, tr, seed1, seed2);
 
         // prepare nodes' elements containers
         elements_type & elements1 = rtree::elements_get(n);
@@ -314,61 +316,10 @@ struct redistribute_elements
     }
 };
 
-// split
+} // namespace detail
 
-template <typename Value, typename Translator, typename Box>
-class split
-{
-    typedef typename rtree::node<Value, Box, linear_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, linear_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, linear_tag>::type leaf;
-
-    static const size_t dimension = index::traits::dimension<Box>::value;
-
-public:
-    template <typename Node>
-    static inline void apply(
-        Node & n,
-        internal_node *parent,
-        size_t current_child_index,
-        node *& root,
-        size_t min_elems,
-        size_t max_elems,
-        Translator const& tr)
-    {
-        node * second_node = rtree::create_node(Node());
-        
-        // redistribute elements
-        Box box1, box2;
-        linear::redistribute_elements<Value, Translator, Box>::
-            apply(n, boost::get<Node>(*second_node), box1, box2, min_elems, max_elems, tr);
-
-        // node is not the root
-        if ( parent != 0 )
-        {
-            // update old node's box
-            parent->children[current_child_index].first = box1;
-            // add new node to the parent's children
-            parent->children.push_back(std::make_pair(box2, second_node));
-        }
-        // node is the root
-        else
-        {
-            assert(&n == boost::get<Node>(root));
-
-            // create new root and add nodes
-            node * new_root = rtree::create_node(internal_node());
-
-            boost::get<internal_node>(*new_root).children.push_back(std::make_pair(box1, root));
-            boost::get<internal_node>(*new_root).children.push_back(std::make_pair(box2, second_node));
-
-            root = new_root;
-        }
-    }
-};
-
-}}} // namespace detail::rtree:linear
+}}} // namespace detail::rtree::visitors
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_SPLIT_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP

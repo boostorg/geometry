@@ -18,11 +18,8 @@
 #include <boost/geometry/extensions/index/rtree/visitors/find.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
 
-#include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
-
-//TEST
-//#include <boost/geometry/extensions/index/rtree/visitors/load.hpp>
+#include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -104,26 +101,6 @@ public:
     {
         return m_values_count;
     }
-
-    //TEST
-    //inline void load(std::istream &is)
-    //{
-    //    std::string t;
-    //    size_t n;
-    //    is >> t;
-    //    is >> n;
-
-    //    if ( t == "i" )
-    //        m_root = detail::rtree::create_node(internal_node());
-    //    else
-    //        m_root = detail::rtree::create_node(leaf());
-
-    //    detail::rtree::visitors::load<value_type, translator_type, box_type, tag_type>
-    //        load_v(is, m_translator);
-
-    //    for ( size_t i = 0 ; i < n ; ++i )
-    //        boost::apply_visitor(load_v, *m_root);
-    //}
 
 private:
     size_t m_values_count;

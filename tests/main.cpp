@@ -5,7 +5,8 @@
 int main()
 {
     tests_translators_hpp();
-    tests_rtree_native_hpp();
+    tests_rtree_native_hpp<boost::geometry::index::linear_tag>();
+    tests_rtree_native_hpp<boost::geometry::index::rstar_tag>();
     tests_rtree_filters_hpp();
 
     /*namespace g = boost::geometry;
