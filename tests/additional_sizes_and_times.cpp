@@ -12,8 +12,12 @@ int main()
 {
     boost::timer tim;
 
-    typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
-    typedef boost::geometry::model::box<P> B;
+    namespace bg = boost::geometry;
+    namespace bgi = bg::index;
+
+    typedef bg::model::point<float, 2, bg::cs::cartesian> P;
+    typedef bg::model::box<P> B;
+    typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::linear_tag> RT;
 
     std::ifstream file_cfg("config.txt");
     size_t max_elems = 4;
@@ -41,7 +45,7 @@ int main()
     
     std::cout << "inserting time test...\n";
     tim.restart();
-    boost::geometry::index::rtree< std::pair<B, size_t> > t(max_elems, min_elems);
+    RT t(max_elems, min_elems);
     for (size_t i = 0 ; i < values_count ; ++i )
     {
         float x = coords[i].first;
@@ -78,11 +82,11 @@ int main()
         std::cout << "saving...\n";
         std::ofstream file("save_new.txt", std::ofstream::trunc);
         file << std::fixed;
-        boost::geometry::index::detail::rtree::visitors::save<
-            boost::geometry::index::rtree< std::pair<B, size_t> >::value_type,
-            boost::geometry::index::rtree< std::pair<B, size_t> >::translator_type,
-            boost::geometry::index::rtree< std::pair<B, size_t> >::box_type,
-            boost::geometry::index::rtree< std::pair<B, size_t> >::tag_type
+        bgi::detail::rtree::visitors::save<
+            RT::value_type,
+            RT::translator_type,
+            RT::box_type,
+            RT::tag_type
         > saving_v(file, t.get_translator());
         t.apply_visitor(saving_v);
         std::cout << "saved...\n";

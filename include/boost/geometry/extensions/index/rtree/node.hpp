@@ -1,8 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.Index - R-tree details
+// Boost.Index - R-tree default nodes
 //
-// Copyright 2008 Federico J. Fernandez.
 // Copyright 2011 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at

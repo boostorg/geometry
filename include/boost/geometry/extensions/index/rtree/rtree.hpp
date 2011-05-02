@@ -72,7 +72,9 @@ public:
     template <typename Geometry, typename OutIter>
     inline void find(Geometry const& geom, OutIter out_it) const
     {
-        detail::rtree::visitors::find<value_type, translator_type, box_type, tag_type, Geometry, OutIter> find_v(m_translator, geom, out_it);
+        detail::rtree::visitors::find<value_type, translator_type, box_type, tag_type, Geometry, OutIter>
+            find_v(m_translator, geom, out_it);
+
         boost::apply_visitor(find_v, *m_root);
     }
 

@@ -20,17 +20,88 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
+//template <size_t N, typename T>
+//class array
+//{
+//public:
+//    inline array()
+//        : arr_elements(0)
+//    {}
+//
+//    inline void push(T const& v)
+//    {
+//        arr[arr_elements++] = v;
+//    }
+//
+//    inline T pop()
+//    {
+//        assert(0 < arr_elements);
+//        return arr[--arr_elements];
+//    }
+//
+//    inline bool empty() const
+//    {
+//        return 0 == arr_elements;
+//    }
+//
+//    inline size_t size() const
+//    {
+//        return arr_elements;
+//    }
+//
+//private:
+//    boost::array<T, N> arr;
+//    size_t arr_elements;
+//};
+//
+//template <typename Cont>
+//class dynamic
+//{
+//public:
+//    typedef typename Cont::value_type value_type;
+//
+//    inline void push(value_type const& v)
+//    {
+//        cont.push_back(v);
+//    }
+//
+//    inline value_type pop()
+//    {
+//        value_type v = cont.back();
+//        cont.pop_back();
+//        return v;
+//    }
+//
+//    inline bool empty() const
+//    {
+//        return cont.empty();
+//    }
+//
+//    inline size_t size() const
+//    {
+//        return cont.size();
+//    }
+//
+//    inline void clear()
+//    {
+//        cont.clear();
+//    }
+//
+//private:
+//    Cont cont;
+//};
+//
 //template <size_t N, typename Cont>
 //class array_semi_dynamic
 //{
 //public:
 //    typedef typename Cont::value_type value_type;
 //
-//    array_semi_dynamic()
+//    inline array_semi_dynamic()
 //        : arr_elements(0)
 //    {}
 //
-//    void push_back(value_type const& v)
+//    inline void push(value_type const& v)
 //    {
 //        if ( arr_elements < N )
 //            arr[arr_elements++] = v;
@@ -38,46 +109,27 @@ namespace detail { namespace rtree { namespace visitors {
 //            cont.push_back(v);
 //    }
 //
-//    void pop_back()
+//    inline value_type pop()
 //    {
 //        if ( !cont.empty() )
+//        {
+//            value_type v = cont.back();
 //            cont.pop_back();
+//            return v;
+//        }
 //        else
 //        {
 //            assert(0 < arr_elements);
-//            --arr_elements;
+//            return arr[--arr_elements];
 //        }
 //    }
 //
-//    value_type & back()
+//    inline bool empty() const
 //    {
-//        if ( !cont.empty() )
-//            return cont.back();
-//        else
-//        {
-//            assert(0 < arr_elements);
-//            return arr[arr_elements - 1];
-//        }
+//        return cont.empty() && 0 == arr_elements;
 //    }
 //
-//    value_type const& back() const
-//    {
-//        if ( !cont.empty() )
-//            return cont.back();
-//        else
-//        {
-//            assert(0 < arr_elements);
-//            return arr[arr_elements - 1];
-//        }
-//    }
-//
-//    bool empty() const
-//    {
-//        assert(cont.empty());
-//        return 0 == arr_elements;
-//    }
-//
-//    size_t size() const
+//    inline size_t size() const
 //    {
 //        return arr_elements + cont.size();
 //    }
@@ -103,42 +155,43 @@ struct find : public boost::static_visitor<>
 
     inline void operator()(internal_node const& n)
     {
-        /*typedef typename internal_node::children_type children_type;
+        //typedef typename internal_node::children_type children_type;
 
-        array_semi_dynamic<512, std::deque<node*> > nodes;
-        
-        for (typename children_type::const_iterator it = n.children.begin();
-            it != n.children.end(); ++it)
-        {
-            if ( geometry::intersects(it->first, geom) )
-            {
-                nodes.push_back(it->second);
-            }
-        }
+        //array_semi_dynamic<1024, std::deque<node*> > nodes;
+        ////array<1024, node*> nodes;
+        ////dynamic< std::deque<node*> > nodes;
+        //
+        //for (typename children_type::const_iterator it = n.children.begin();
+        //    it != n.children.end(); ++it)
+        //{
+        //    if ( geometry::intersects(it->first, geom) )
+        //    {
+        //        nodes.push(it->second);
+        //    }
+        //}
 
-        while ( !nodes.empty() )
-        {
-            node *n = nodes.back();
-            nodes.pop_back();
+        //while ( !nodes.empty() )
+        //{
+        //    node *n = nodes.pop();
 
-            if ( !boost::apply_visitor(visitors::is_leaf<Value, Box, Tag>(), *n) )
-            {
-                internal_node &in = boost::get<internal_node>(*n);
+        //    if ( !boost::apply_visitor(visitors::is_leaf<Value, Box, Tag>(), *n) )
+        //    {
+        //        internal_node &in = boost::get<internal_node>(*n);
 
-                for (typename children_type::const_iterator it = in.children.begin();
-                    it != in.children.end(); ++it)
-                {
-                    if ( geometry::intersects(it->first, geom) )
-                    {
-                        nodes.push_back(it->second);
-                    }
-                }
-            }
-            else
-            {
-                operator()(boost::get<leaf>(*n));
-            }
-        }*/
+        //        for (typename children_type::const_iterator it = in.children.begin();
+        //            it != in.children.end(); ++it)
+        //        {
+        //            if ( geometry::intersects(it->first, geom) )
+        //            {
+        //                nodes.push(it->second);
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        operator()(boost::get<leaf>(*n));
+        //    }
+        //}
 
         typedef typename internal_node::children_type children_type;
 
