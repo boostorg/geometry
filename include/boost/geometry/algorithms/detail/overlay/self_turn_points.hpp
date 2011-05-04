@@ -138,6 +138,31 @@ struct self_get_turn_points
 
 template
 <
+    typename Box,
+    typename Turns,
+    typename TurnPolicy,
+    typename InterruptPolicy
+>
+struct self_get_turn_points
+    <
+        box_tag, Box,
+        Turns,
+        TurnPolicy,
+        InterruptPolicy
+    >
+{
+    static inline bool apply(
+            Box const& ,
+            Turns& ,
+            InterruptPolicy& )
+    {
+        return true;
+    }
+};
+
+
+template
+<
     typename Polygon,
     typename Turns,
     typename TurnPolicy,
@@ -182,7 +207,7 @@ template
     typename Turns,
     typename InterruptPolicy
 >
-inline void get_turns(Geometry const& geometry,
+inline void self_turns(Geometry const& geometry,
             Turns& turns, InterruptPolicy& interrupt_policy)
 {
     concept::check<Geometry const>();

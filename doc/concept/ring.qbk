@@ -22,7 +22,7 @@
 The Ring Concept is defined as following:
 
 * there must be a specialization of `traits::tag` defining `ring_tag` as type
-* it must behave like a Boost.Range
+* it must behave like a Boost.Range Random Access Range
 * The type defined by the metafunction `range_value<...>::type` must fulfill 
 	the [link geometry.reference.concepts.concept_point Point Concept]
 * there might be a specialization of `traits::point_order` defining the order or orientation of its points, `clockwise` or `counterclockwise`

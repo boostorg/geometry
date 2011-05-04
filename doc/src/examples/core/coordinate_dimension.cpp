@@ -11,15 +11,16 @@
 //` Examine the number of coordinates making up the points in a linestring type
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
 
 int main()
 {
     int dim = boost::geometry::dimension
         <
-            std::vector
+            boost::geometry::model::linestring
                 <
                     boost::tuple<float, float, float>
                 >

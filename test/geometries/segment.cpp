@@ -22,14 +22,17 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/c_array.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 #include <boost/geometry/util/write_dsv.hpp>
 
 
 #include <test_common/test_point.hpp>
 #include <test_geometries/custom_segment.hpp>
+
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 
 template <typename P>

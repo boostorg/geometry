@@ -19,11 +19,13 @@
 
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/c_array.hpp>
 
 #if defined(HAVE_SVG)
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
+
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian);
 
 
 int main(void)

@@ -14,8 +14,11 @@
 
 #include <test_common/test_point.hpp>
 
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/c_array.hpp>
 #include "function_requiring_a_point.hpp"
+
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
+
 
 int main()
 {

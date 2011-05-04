@@ -132,12 +132,15 @@ struct ring_type<polygon_tag, Polygon>
 
 
 /*!
-\brief Meta-function which defines ring type of (multi)polygon geometry
-\details a polygon contains one exterior ring
+\brief \brief_meta{type, ring_type, \meta_geometry_type}
+\details A polygon contains one exterior ring
     and zero or more interior rings (holes).
-    This meta function retrieves the type of the rings
-\note Exterior ring and interior rings must have the same ring-type.
+    This metafunction retrieves the type of the rings.
+    Exterior ring and each of the interior rings all have the same ring_type.
+\tparam Geometry A type fullfilling the Ring, Polygon or MultiPolygon concept.
 \ingroup core
+
+\qbk{[include reference/core/ring_type.qbk]}
 */
 template <typename Geometry>
 struct ring_type

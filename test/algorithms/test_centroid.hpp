@@ -16,39 +16,29 @@
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
-template<std::size_t D>
+template <std::size_t D>
 struct check_result
 {
-};
-
-template <>
-struct check_result<2>
-{
-    template <typename Point, typename T>
-    static void apply(Point const& p, T const& x, T const& y, T const&)
+    template <typename Point1, typename Point2>
+    static void apply(Point1 const& actual, Point2 const& expected)
     {
-        BOOST_CHECK_CLOSE(bg::get<0>(p), x, 0.001);
-        BOOST_CHECK_CLOSE(bg::get<1>(p), y, 0.001);
+        check_result<D-1>::apply(actual, expected);
+        BOOST_CHECK_CLOSE(bg::get<D-1>(actual), bg::get<D-1>(expected), 0.001);
     }
 };
 
-
 template <>
-struct check_result<3>
+struct check_result<0>
 {
-    template <typename Point, typename T>
-    static void apply(Point const& p, T const& x, T const& y, T const& z)
-    {
-        BOOST_CHECK_CLOSE(bg::get<0>(p), x, 0.001);
-        BOOST_CHECK_CLOSE(bg::get<1>(p), y, 0.001);
-        BOOST_CHECK_CLOSE(bg::get<2>(p), z, 0.001);
-    }
+    template <typename Point1, typename Point2>
+    static void apply(Point1 const&, Point2 const&)
+    {}
 };
-
 
 
 template <typename CalculationType, typename Geometry, typename Point>
@@ -67,14 +57,14 @@ void test_with_other_calculation_type(Geometry const& geometry, Point& c1)
 }
 
 template <typename Geometry, typename T>
-void test_centroid(std::string const& wkt, T const& x, T const& y, T const& z = T())
+void test_centroid(std::string const& wkt, T const& d1, T const& d2, T const& d3 = T(), T const& d4 = T(), T const& d5 = T())
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
     typedef typename bg::point_type<Geometry>::type point_type;
     point_type c1;
     bg::centroid(geometry, c1);
-    check_result<bg::dimension<Geometry>::type::value>::apply(c1, x, y, z);
+    check_result<bg::dimension<Geometry>::type::value>::apply(c1, boost::make_tuple(d1, d2, d3, d4, d5));
 
 #ifdef REPORT_RESULTS
     std::cout << "normal: " << std::setprecision(20) << bg::get<0>(c1) << " " << bg::get<1>(c1) << std::endl;

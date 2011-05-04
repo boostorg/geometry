@@ -140,6 +140,7 @@ struct base_class
 
 struct class_or_struct : public element
 {
+    bool is_class; // true if class, false if struct
     std::string name, fullname;
     std::vector<function> functions;
 

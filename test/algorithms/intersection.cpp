@@ -350,10 +350,31 @@ void test_pointer_version()
 }
 
 
+template <typename P>
+void test_exception()
+{
+    typedef bg::model::polygon<P> polygon;
 
+    try
+    {
+        // Define polygon with a spike (= invalid)
+        std::string spike = "POLYGON((0 0,0 4,2 4,2 6,2 4,4 4,4 0,0 0))";
+
+        test_one<polygon, polygon, polygon>("with_spike",
+            simplex_normal[0], spike,
+            0, 0, 0);
+    }
+    catch(bg::overlay_invalid_input_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "No exception thrown");
+}
 
 int test_main(int, char* [])
 {
+    test_exception<bg::model::d2::point_xy<double> >();
+
     test_all<bg::model::d2::point_xy<double> >();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)

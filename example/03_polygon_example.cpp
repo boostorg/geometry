@@ -15,9 +15,12 @@
 #include <string>
 
 #include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 #include <boost/geometry/multi/multi.hpp>
+
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
+
 
 std::string boolstr(bool v)
 {

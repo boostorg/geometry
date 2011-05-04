@@ -11,7 +11,7 @@
 //` Show the use of the macro BOOST_GEOMETRY_REGISTER_POINT_2D
 
 #include <iostream>
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 
 /*< Somewhere, any legacy point struct is defined >*/
@@ -28,7 +28,7 @@ int main()
 
     namespace bg = boost::geometry;
 
-    /*< Any Boost.Geometry function can be used for legacy point now. Here: assign and distance >*/
+    /*< Any Boost.Geometry function can be used for legacy point now. Here: assign_values and distance >*/
     bg::assign_values(p1, 1, 1);
     bg::assign_values(p2, 2, 2);
 

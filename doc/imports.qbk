@@ -69,9 +69,29 @@
 [import src/examples/core/set_box.cpp]
 [import src/examples/core/degree_radian.cpp]
 
+[import src/examples/core/interior_type.cpp]
 [import src/examples/core/point_type.cpp]
+[import src/examples/core/ring_type.cpp]
+[import src/examples/core/rings.cpp]
 [import src/examples/core/tag.cpp]
 [import src/examples/core/tag_cast.cpp]
 
 [import src/examples/geometries/point.cpp]
+[import src/examples/geometries/adapted/c_array.cpp]
+[import src/examples/geometries/adapted/boost_array.cpp]
+[import src/examples/geometries/adapted/boost_fusion.cpp]
+[import src/examples/geometries/adapted/boost_polygon.cpp]
+[import src/examples/geometries/adapted/boost_tuple.cpp]
+
+[import src/examples/geometries/adapted/boost_range/filtered.cpp]
+[import src/examples/geometries/adapted/boost_range/reversed.cpp]
+[import src/examples/geometries/adapted/boost_range/sliced.cpp]
+[import src/examples/geometries/adapted/boost_range/strided.cpp]
+[import src/examples/geometries/adapted/boost_range/uniqued.cpp]
+
+[import src/examples/geometries/register/box.cpp]
+[import src/examples/geometries/register/box_templated.cpp]
+[import src/examples/geometries/register/box_2d_4values.cpp]
 [import src/examples/geometries/register/point.cpp]
+
+

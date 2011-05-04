@@ -90,14 +90,22 @@ struct access<CoordinateType[DimensionCount], Dimension>
     }
 };
 
-// The library user has
-// 1) either to specify the coordinate system
-// 2) or include <boost/geometry/geometries/adapted/c_array_@.hpp> where @=cartesian,geographic,...
 
 } // namespace traits
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
 
 }} // namespace boost::geometry
+
+
+#define BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(CoordinateSystem) \
+    namespace boost { namespace geometry { namespace traits { \
+    template <typename T, std::size_t N> \
+    struct coordinate_system<T[N]> \
+    { \
+        typedef CoordinateSystem type; \
+    }; \
+    }}}
+
 
 #endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_C_ARRAY_HPP

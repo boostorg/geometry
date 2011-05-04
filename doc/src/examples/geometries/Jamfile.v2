@@ -15,4 +15,5 @@ project boost-geometry-doc-src-example-geometries
 
 exe point : point.cpp ;
 
+build-project adapted ;
 build-project register ;

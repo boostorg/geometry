@@ -58,6 +58,10 @@ void test_geometry(std::string const& wkt, std::string const& expected)
         int const n = boost::size(range);
         BOOST_CHECK_EQUAL(n, 2);
     }
+
+    // Check Boost.Range concept
+    BOOST_CONCEPT_ASSERT( (boost::ForwardRangeConcept<range_type>) );
+
 }
 
 
