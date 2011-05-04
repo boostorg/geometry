@@ -28,7 +28,7 @@ box, and ring
 [heading Header]
 `#include <boost/geometry/geometries/adapted/boost_array.hpp>`
 
-The standard header `<boost/geometry.hpp>` does not include this header.
+__not_in_boost_geometry_hpp__
 
 [heading Example]
 [boost_array]

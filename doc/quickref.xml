@@ -134,11 +134,19 @@
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d">BOOST_GEOMETRY_REGISTER_POINT_3D</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d_const">BOOST_GEOMETRY_REGISTER_POINT_3D_CONST</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d_get_set">BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET</link></member>
+     
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_point">BOOST_GEOMETRY_REGISTER_MULTI_POINT</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_point_templated">BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED</link></member>
+     
     </simplelist>
    </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">1-dimensionial (macro's for adaption)</bridgehead>
     <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_linestring">BOOST_GEOMETRY_REGISTER_LINESTRING</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_linestring_templated">BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_linestring">BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_linestring_templated">BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING_TEMPLATED</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
@@ -147,6 +155,10 @@
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box">BOOST_GEOMETRY_REGISTER_BOX</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box_2d_4values">BOOST_GEOMETRY_REGISTER_BOX_2D_4VALUES</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box_templated">BOOST_GEOMETRY_REGISTER_BOX_TEMPLATED</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_ring">BOOST_GEOMETRY_REGISTER_RING</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_ring_templated">BOOST_GEOMETRY_REGISTER_RING_TEMPLATED</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_polygon">BOOST_GEOMETRY_REGISTER_MULTI_POLYGON</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_polygon_templated">BOOST_GEOMETRY_REGISTER_MULTI_POLYGON_TEMPLATED</link></member>
     </simplelist>
    </entry>
   </row>
