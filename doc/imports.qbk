@@ -93,5 +93,13 @@
 [import src/examples/geometries/register/box_templated.cpp]
 [import src/examples/geometries/register/box_2d_4values.cpp]
 [import src/examples/geometries/register/point.cpp]
+[import src/examples/geometries/register/linestring.cpp]
+[import src/examples/geometries/register/linestring_templated.cpp]
+[import src/examples/geometries/register/ring.cpp]
+[import src/examples/geometries/register/ring_templated.cpp]
 
+[import src/examples/geometries/register/multi_point.cpp]
+[import src/examples/geometries/register/multi_point_templated.cpp]
 
+[import src/examples/geometries/register/multi_linestring.cpp]
+[import src/examples/geometries/register/multi_polygon.cpp]
