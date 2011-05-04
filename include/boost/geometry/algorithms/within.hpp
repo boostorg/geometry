@@ -332,6 +332,33 @@ struct within<point_tag, polygon_tag, Point, Polygon, Strategy>
 #endif // DOXYGEN_NO_DISPATCH
 
 
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+namespace strategy { namespace within
+{
+
+/// Strategy for box-in-box (not used but has to be present for default strategy)
+struct unused_strategy {};
+
+namespace services
+{
+
+// Specialize for box-in-areal (box-in-box). This is meant to do box-in-box
+// but will be catched by box-in-any-areal, which has to change later
+// (we might introduce another tag which is not "areal", derived by poly/ring/
+// multi_poly, but NOT by box, and use that here. E.g. "polygonal")
+// Using cartesian prevents spherical yet from compiling, which is good.
+template <typename Box1, typename Box2>
+struct default_strategy<box_tag, areal_tag, cartesian_tag, cartesian_tag, Box1, Box2>
+{
+    typedef unused_strategy type;
+};
+
+} // namespace services
+
+}} // namespace strategy::within
+
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
 /*!
 \brief \brief_check12{is completely inside}
 \ingroup within
