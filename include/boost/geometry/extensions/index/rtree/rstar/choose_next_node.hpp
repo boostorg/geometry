@@ -23,10 +23,12 @@
 
 namespace boost { namespace geometry { namespace index {
 
-namespace detail { namespace rtree { namespace rstar {
+namespace detail { namespace rtree { namespace visitors {
+
+namespace detail {
 
 template <typename Value, typename Box>
-class choose_next_node
+class choose_next_node<Value, Box, rstar_tag>
 {
     typedef typename rtree::node<Value, Box, rstar_tag>::type node;
     typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
@@ -235,7 +237,9 @@ private:
     //};
 };
 
-}}} // namespace detail::rtree:rstar
+} // namespace detail
+
+}}} // namespace detail::rtree::visitors
 
 }}} // namespace boost::geometry::index
 

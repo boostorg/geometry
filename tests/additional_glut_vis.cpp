@@ -10,6 +10,7 @@ typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> 
 typedef boost::geometry::model::box<P> B;
 //boost::geometry::index::rtree<B> t(2, 1);
 boost::geometry::index::rtree<B> t(4, 2);
+std::vector<B> vect;
 
 void render_scene(void)
 {
@@ -39,7 +40,7 @@ void resize(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-    if ( state == GLUT_DOWN )
+    if ( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN )
     {
         float x = ( rand() % 100 );
         float y = ( rand() % 100 );
@@ -49,13 +50,35 @@ void mouse(int button, int state, int x, int y)
         B b(P(x - w, y - h),P(x + w, y + h));
 
         boost::geometry::index::insert(t, b);
+        vect.push_back(b);
 
-        std::cout << "\n\n\n" << t << "\n\n";
+        /*std::cout << t << "\n\n";
         
         std::cout << "inserted: ";
         boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
         std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK" : "WRONG BOXES!" );
+        std::cout << "\n\n\n";*/
+
+        glutPostRedisplay();
+    }
+    else if ( button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
+    {
+        if ( vect.empty() )
+            return;
+
+        size_t i = rand() % vect.size();
+        B b = vect[i];
+
+        boost::geometry::index::remove(t, b);
+        vect.erase(vect.begin() + i);
+
+        /*std::cout << '\n' << t << "\n\n";
+        std::cout << "removed: ";
+        boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
+        std::cout << '\n';
+        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK" : "WRONG BOXES!" );
+        std::cout << "\n\n\n";*/
 
         glutPostRedisplay();
     }

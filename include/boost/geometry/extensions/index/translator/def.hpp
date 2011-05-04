@@ -29,10 +29,10 @@ struct def
         return detail::extract_indexable<Value>::get(v);
     }
 
-    /*bool equals(Value const& v1, Value const& v2) const
+    bool equals(Value const& v1, Value const& v2) const
     {
         return detail::equals<Value>::apply(v1, v2);
-    }*/
+    }
 };
 
 // Iterator
@@ -46,10 +46,10 @@ struct def<Value, true, IsSmartPtr>
         return detail::extract_indexable<typename Value::value_type>::get(*v);
     }
 
-    /*bool equals(Value const& v1, Value const& v2) const
+    bool equals(Value const& v1, Value const& v2) const
     {
         return v1 == v2;
-    }*/
+    }
 };
 
 // SmartPtr
@@ -63,10 +63,10 @@ struct def<Value, false, true>
         return detail::extract_indexable<typename Value::element_type>::get(*v);
     }
 
-    /*bool equals(Value const& v1, Value const& v2) const
+    bool equals(Value const& v1, Value const& v2) const
     {
         return v1 == v2;
-    }*/
+    }
 };
 
 } // namespace dispatch
@@ -92,10 +92,10 @@ struct def<Value*>
         return detail::extract_indexable<Value>::get(*v);
     }
 
-    /*bool equals(const Value* v1, const Value* v2) const
+    bool equals(const Value* v1, const Value* v2) const
     {
         return v1 == v2;
-    }*/
+    }
 };
 
 }}}} // namespace boost::geometry::index::translator

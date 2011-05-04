@@ -29,10 +29,10 @@ public:
             <typename Container::value_type>::get(m_c[i]);
     }
 
-    /*bool equals(size_t i1, size_t i2) const
+    bool equals(size_t i1, size_t i2) const
     {
-    return i1 == i2;
-    }*/
+        return i1 == i2;
+    }
 
 private:
     Container const& m_c;

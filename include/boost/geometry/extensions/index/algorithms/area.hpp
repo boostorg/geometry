@@ -12,11 +12,11 @@
 
 namespace boost { namespace geometry { namespace index {
 
-template <typename Box>
+template <typename Indexable>
 struct default_area_result
 {
     typedef typename select_most_precise<
-        typename coordinate_type<Box>::type,
+        typename traits::coordinate_type<Indexable>::type,
         long double
     >::type type;
 };
@@ -32,7 +32,7 @@ struct area_for_each_dimension
     static inline typename default_area_result<Box>::type apply(Box const& b)
     {
         return area_for_each_dimension<Box, CurrentDimension - 1>::apply(b) *
-            ( geometry::get<max_corner, CurrentDimension - 1>(b) - geometry::get<min_corner, CurrentDimension - 1>(b) );
+            ( index::get<max_corner, CurrentDimension - 1>(b) - index::get<min_corner, CurrentDimension - 1>(b) );
     }
 };
 
@@ -41,16 +41,44 @@ struct area_for_each_dimension<Box, 1>
 {
     static inline typename default_area_result<Box>::type apply(Box const& b)
     {
-        return geometry::get<max_corner, 0>(b) - geometry::get<min_corner, 0>(b);
+        return index::get<max_corner, 0>(b) - index::get<min_corner, 0>(b);
     }
 };
 
 } // namespace detail
 
-template <typename Box>
-typename default_area_result<Box>::type area(Box const& b)
+namespace dispatch {
+
+template <typename Indexable, typename Tag>
+struct area
 {
-    return detail::area_for_each_dimension<Box, traits::dimension<Box>::value>::apply(b);
+    // TODO: awulkiew - static assert?
+};
+
+template <typename Indexable>
+struct area<Indexable, point_tag>
+{
+    static typename default_area_result<Indexable>::type apply(Indexable const&)
+    {
+        return 0;
+    }
+};
+
+template <typename Indexable>
+struct area<Indexable, box_tag>
+{
+    static typename default_area_result<Indexable>::type apply(Indexable const& b)
+    {
+        return detail::area_for_each_dimension<Indexable, traits::dimension<Indexable>::value>::apply(b);
+    }
+};
+
+} // namespace dispatch
+
+template <typename Indexable>
+typename default_area_result<Indexable>::type area(Indexable const& b)
+{
+    return dispatch::area<Indexable, typename index::traits::tag<Indexable>::type>::apply(b);
 }
 
 }}} // namespace boost::geometry::index

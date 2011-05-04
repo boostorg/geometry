@@ -17,9 +17,14 @@
 
 #include <boost/geometry/extensions/index/rtree/visitors/find.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/remove.hpp>
 
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
-#include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
+
+// TODO: awulkiew - correct implementation
+//#include <boost/geometry/extensions/index/rtree/quadratic/quadratic.hpp>
+//#include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -80,12 +85,44 @@ public:
 
     void insert(value_type const& value)
     {
-        detail::rtree::visitors::insert<value_type, translator_type, box_type, tag_type>
+        // TODO: awulkiew - assert for correct value
+
+        detail::rtree::visitors::insert<value_type, value_type, translator_type, box_type, tag_type>
             insert_v(m_root, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
         boost::apply_visitor(insert_v, *m_root);
 
         ++m_values_count;
+    }
+
+    void remove(value_type const& value)
+    {
+        // TODO: awulkiew - assert for correct value
+        assert(0 < m_values_count);
+
+        detail::rtree::visitors::remove<value_type, translator_type, box_type, tag_type>
+            remove_v(m_root, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
+
+        boost::apply_visitor(remove_v, *m_root);
+
+        --m_values_count;
+    }
+
+    size_t size() const
+    {
+        return m_values_count;
+    }
+
+    bool empty() const
+    {
+        // TODO: awulkiew - take root into consideration
+        return 0 == m_values_count;
+    }
+
+    void clear()
+    {
+        // TODO: awulkiew - implement
+        assert(false);
     }
 
     template <typename Visitor>
@@ -116,6 +153,12 @@ template <typename Value, typename Translator, typename Tag>
 void insert(rtree<Value, Translator, Tag> & tree, Value const& v)
 {
     tree.insert(v);
+}
+
+template <typename Value, typename Translator, typename Tag>
+void remove(rtree<Value, Translator, Tag> & tree, Value const& v)
+{
+    tree.remove(v);
 }
 
 }}} // namespace boost::geometry::index

@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_INSERT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_INSERT_HPP
 
+#include <boost/geometry/extensions/index/algorithms/area.hpp>
+
 #include <boost/geometry/extensions/index/rtree/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -26,16 +28,18 @@ struct choose_next_node
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
-    typedef typename internal_node::children_type children_type;
+    typedef typename rtree::elements_type<internal_node>::type children_type;
 
     typedef typename index::default_area_result<Box>::type area_type;
 
     template <typename Indexable>
     static inline size_t apply(internal_node & n, Indexable const& indexable)
     {
-        assert(!n.children.empty());
+        children_type & children = rtree::elements_get(n);
 
-        size_t children_count = n.children.size();
+        assert(!children.empty());
+
+        size_t children_count = children.size();
 
         // choose index with smallest area change or smallest area
         size_t choosen_index = 0;
@@ -46,7 +50,7 @@ struct choose_next_node
         for ( size_t i = 0 ; i < children_count ; ++i )
         {
             typedef typename children_type::value_type child_type;
-            child_type const& ch_i = n.children[i];
+            child_type const& ch_i = children[i];
 
             Box box_exp(ch_i.first);
             geometry::expand(box_exp, indexable);
@@ -73,7 +77,7 @@ struct redistribute_elements;
 
 // Default split algorithm
 template <typename Value, typename Translator, typename Box, typename Tag>
-class split
+struct split
 {
     typedef typename rtree::node<Value, Box, Tag>::type node;
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
@@ -81,7 +85,6 @@ class split
 
     static const size_t dimension = index::traits::dimension<Box>::value;
 
-public:
     template <typename Node>
     static inline void apply(
         Node & n,
@@ -131,7 +134,6 @@ struct overflow_treatment
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
-public:
     template <typename Node>
     static inline void apply(
         Node & n,
@@ -146,21 +148,31 @@ public:
     }
 };
 
-} // namespace detail
-
-// Default insert algorithm
-template <typename Value, typename Translator, typename Box, typename Tag>
+// Default insert visitor
+template <typename Element, typename Value, typename Translator, typename Box, typename Tag>
 class insert : public boost::static_visitor<>
 {
+public:
     typedef typename rtree::node<Value, Box, Tag>::type node;
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
-public:
-    inline explicit insert(node* & root, Value const& v, size_t min_elements, size_t max_elements, Translator const& t)
-        : m_value(v), m_tr(t), m_min_elems_per_node(min_elements), m_max_elems_per_node(max_elements)
+    inline insert(node* & root,
+                  Element const& element,
+                  size_t min_elements,
+                  size_t max_elements,
+                  Translator const& t,
+                  size_t level = std::numeric_limits<size_t>::max()
+    )
+        : m_element(element)
+        , m_tr(t)
+        , m_min_elems_per_node(min_elements)
+        , m_max_elems_per_node(max_elements)
+        , m_level(level)
         , m_root_node(root)
-        , m_parent(0), m_current_child_index(0), m_current_level(0)
+        , m_parent(0)
+        , m_current_child_index(0)
+        , m_current_level(0)
     {
         // TODO
         // assert - check if Box is correct
@@ -168,39 +180,52 @@ public:
 
     inline void operator()(internal_node & n)
     {
-        // choose next node
-        size_t choosen_node_index = detail::choose_next_node<Value, Box, Tag>::
-            apply(n, rtree::element_indexable(m_value, m_tr));
+        // traverse
+        traverse(*this, n);
 
-        // expand the node to contain value
-        geometry::expand(n.children[choosen_node_index].first, m_tr(m_value));
-
-        // next traversing step
-        traverse_apply_visitor(n, choosen_node_index);
-
-        // handle overflow
-        if ( m_max_elems_per_node < n.children.size() )
-        {
-            detail::overflow_treatment<Value, Translator, Box, Tag>::
-                apply(n, m_parent, m_current_child_index, m_root_node, m_min_elems_per_node, m_max_elems_per_node, m_tr);
-        }
+        post_traverse(n);
     }
 
     inline void operator()(leaf & n)
     {
         // push value
-        n.values.push_back(m_value);
+        rtree::elements_get(n).push_back(m_element);
 
+        post_traverse(n);
+    }
+
+protected:
+    template <typename Visitor>
+    inline void traverse(Visitor & visitor, internal_node & n)
+    {
+        // choose next node
+        size_t choosen_node_index = detail::choose_next_node<Value, Box, Tag>::
+            apply(n, rtree::element_indexable(m_element, m_tr));
+
+        // expand the node to contain value
+        geometry::expand(
+            n.children[choosen_node_index].first,
+            rtree::element_indexable(m_element, m_tr));
+
+        // next traversing step
+        traverse_apply_visitor(visitor, n, choosen_node_index);
+    }
+
+    // TODO: awulkiew - change name to handle_overflow or overflow_treatment?
+
+    template <typename Node>
+    inline void post_traverse(Node &n)
+    {
         // handle overflow
-        if ( m_max_elems_per_node < n.values.size() )
+        if ( m_max_elems_per_node < rtree::elements_get(n).size() )
         {
             detail::overflow_treatment<Value, Translator, Box, Tag>::
                 apply(n, m_parent, m_current_child_index, m_root_node, m_min_elems_per_node, m_max_elems_per_node, m_tr);
         }
     }
 
-private:
-    inline void traverse_apply_visitor(internal_node &n, size_t choosen_node_index)
+    template <typename Visitor>
+    inline void traverse_apply_visitor(Visitor & visitor, internal_node &n, size_t choosen_node_index)
     {
         // save previous traverse inputs and set new ones
         internal_node * parent_bckup = m_parent;
@@ -212,7 +237,7 @@ private:
         ++m_current_level;
 
         // next traversing step
-        boost::apply_visitor(*this, *n.children[choosen_node_index].second);
+        boost::apply_visitor(visitor, *rtree::elements_get(n)[choosen_node_index].second);
 
         // restore previous traverse inputs
         m_parent = parent_bckup;
@@ -220,10 +245,11 @@ private:
         m_current_level = current_level_bckup;
     }
 
-    Value const& m_value;
+    Element const& m_element;
     Translator const& m_tr;
     const size_t m_min_elems_per_node;
     const size_t m_max_elems_per_node;
+    const size_t m_level;
 
     node* & m_root_node;
 
@@ -231,6 +257,91 @@ private:
     internal_node *m_parent;
     size_t m_current_child_index;
     size_t m_current_level;
+};
+
+} // namespace detail
+
+// Default insert visitor
+template <typename Element, typename Value, typename Translator, typename Box, typename Tag>
+struct insert : public detail::insert<Element, Value, Translator, Box, Tag>
+{
+    typedef detail::insert<Element, Value, Translator, Box, Tag> base;
+    typedef typename base::node node;
+    typedef typename base::internal_node internal_node;
+    typedef typename base::leaf leaf;
+
+    inline insert(node* & root,
+                  Element const& element,
+                  size_t min_elements,
+                  size_t max_elements,
+                  Translator const& tr,
+                  size_t level = std::numeric_limits<size_t>::max()
+    )
+        : base(root, element, min_elements, max_elements, tr, level)
+    {}
+
+    inline void operator()(internal_node & n)
+    {
+        if ( base::m_current_level < base::m_level )
+        {
+            // next traversing step
+            base::traverse(*this, n);
+        }
+        else
+        {
+            assert( base::m_level == base::m_current_level );
+
+            // push new child node
+            rtree::elements_get(n).push_back(base::m_element);
+        }
+
+        base::post_traverse(n);
+    }
+
+    inline void operator()(leaf & n)
+    {
+        assert(false);
+    }
+};
+
+// Default insert visitor specialized for Values elements
+template <typename Value, typename Translator, typename Box, typename Tag>
+struct insert<Value, Value, Translator, Box, Tag> : public detail::insert<Value, Value, Translator, Box, Tag>
+{
+    typedef detail::insert<Value, Value, Translator, Box, Tag> base;
+    typedef typename base::node node;
+    typedef typename base::internal_node internal_node;
+    typedef typename base::leaf leaf;
+
+    inline insert(node* & root,
+                  Value const& v,
+                  size_t min_elements,
+                  size_t max_elements,
+                  Translator const& t,
+                  size_t level = std::numeric_limits<size_t>::max()
+    )
+        : base(root, v, min_elements, max_elements, t, level)
+    {}
+
+    inline void operator()(internal_node & n)
+    {
+        assert(base::m_current_level < base::m_level);
+
+        // next traversing step
+        base::traverse(*this, n);
+
+        base::post_traverse(n);
+    }
+
+    inline void operator()(leaf & n)
+    {
+        assert( base::m_level == base::m_current_level ||
+            base::m_level == std::numeric_limits<size_t>::max() );
+
+        rtree::elements_get(n).push_back(base::m_element);
+
+        base::post_traverse(n);
+    }
 };
 
 }}} // namespace detail::rtree::visitors

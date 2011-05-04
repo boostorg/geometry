@@ -43,39 +43,21 @@ int main()
     }
     std::cout << "loaded\n";
     
-    std::cout << "inserting time test...\n";
-    tim.restart();
     RT t(max_elems, min_elems);
-    for (size_t i = 0 ; i < values_count ; ++i )
+
     {
-        float x = coords[i].first;
-        float y = coords[i].second;
-        B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
-
-        // Zle wyswietla dane, obcina czesc ulamkowa
-        // Zle buduje drzewo dla i == 228
-
-        //TEST
-        /*if ( i == 228 )
+        std::cout << "inserting time test...\n";
+        tim.restart();
+        for (size_t i = 0 ; i < values_count ; ++i )
         {
-            std::cout << std::fixed << x << ", " << y << "\n";
-            boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
-        }*/
+            float x = coords[i].first;
+            float y = coords[i].second;
+            B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
 
-        t.insert(std::make_pair(b, i));
-
-        //TEST
-        /*if ( !boost::geometry::index::are_boxes_ok(t) )
-        {
-            std::ofstream log("log1.txt", std::ofstream::trunc);
-            log << std::fixed << i << " - " << x << ", " << y << " - inserted: ";
-            boost::geometry::index::detail::rtree::visitors::detail::print_indexable(log, b);
-            log << '\n';
-            log << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK" : "WRONG BOXES!" );
-            log << '\n' << t;
-        }*/
+            t.insert(std::make_pair(b, i));
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
     }
-    std::cout << "time: " << tim.elapsed() << "s\n";
 
     if ( save_ch == 's' )
     {
@@ -92,19 +74,81 @@ int main()
         std::cout << "saved...\n";
     }
 
-    std::cout << "searching time test...\n";
-    tim.restart();    
-    size_t temp = 0;
-    for (size_t i = 0 ; i < queries_count ; ++i )
     {
-        float x = coords[i].first;
-        float y = coords[i].second;
-        std::deque< std::pair<B, size_t> > result;
-        t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
-        temp += result.size();
+        std::cout << "searching time test...\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            std::deque< std::pair<B, size_t> > result;
+            t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+            temp += result.size();
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << temp << "\n";
     }
-    std::cout << "time: " << tim.elapsed() << "s\n";
-    std::cout << temp << "\n";
+
+    {
+        std::cout << "removing time test...\n";
+        tim.restart();
+        for (size_t i = 0 ; i < values_count / 2 ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
+
+            t.remove(std::make_pair(b, i));
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+    }
+
+    {
+        std::cout << "searching time test...\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            std::deque< std::pair<B, size_t> > result;
+            t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+            temp += result.size();
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << temp << "\n";
+    }
+
+    {
+        std::cout << "inserting time test...\n";
+        tim.restart();
+        for (size_t i = 0 ; i < values_count / 2 ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
+
+            t.insert(std::make_pair(b, i));
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+    }
+
+    {
+        std::cout << "searching time test...\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            std::deque< std::pair<B, size_t> > result;
+            t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+            temp += result.size();
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << temp << "\n";
+    }
 
     std::cin.get();
 

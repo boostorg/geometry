@@ -30,6 +30,10 @@ namespace detail {
 
 namespace linear {
 
+// TODO: awulkiew - there are loops inside find_greatest_normalized_separation::apply()
+// iteration is done for each DimensionIndex.
+// Separations and seeds for all DimensionIndex(es) could be calculated at once, stored, then the greatest would be choosen.
+
 // from void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
 
 template <typename Elements, typename Translator, size_t DimensionIndex>
@@ -96,7 +100,7 @@ struct find_greatest_normalized_separation
 };
 
 template <typename Elements, typename Translator, size_t DimensionIndex>
-struct choose_axis_impl
+struct pick_seeds_impl
 {
     BOOST_STATIC_ASSERT(0 < DimensionIndex);
 
@@ -106,30 +110,28 @@ struct choose_axis_impl
 
     static inline void apply(Elements const& elements,
                              Translator const& tr,
-                             size_t & axis,
                              coordinate_type & separation,
                              size_t & seed1,
                              size_t & seed2)
     {
-        choose_axis_impl<Elements, Translator, DimensionIndex - 1>::apply(elements, tr, axis, separation, seed1, seed2);
+        pick_seeds_impl<Elements, Translator, DimensionIndex - 1>::apply(elements, tr, separation, seed1, seed2);
 
         coordinate_type current_separation;
         size_t s1, s2;
         find_greatest_normalized_separation<Elements, Translator, DimensionIndex - 1>::apply(elements, tr, current_separation, s1, s2);
 
-        // in the old implementation different operator was used: <=
+        // in the old implementation different operator was used: <= (y axis prefered)
         if ( separation < current_separation )
         {
             separation = current_separation;
             seed1 = s1;
             seed2 = s2;
-            axis = DimensionIndex - 1;
         }
     }
 };
 
 template <typename Elements, typename Translator>
-struct choose_axis_impl<Elements, Translator, 1>
+struct pick_seeds_impl<Elements, Translator, 1>
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
@@ -137,36 +139,32 @@ struct choose_axis_impl<Elements, Translator, 1>
 
     static inline void apply(Elements const& elements,
                              Translator const& tr,
-                             size_t & axis,
                              coordinate_type & separation,
                              size_t & seed1,
                              size_t & seed2)
     {
         find_greatest_normalized_separation<Elements, Translator, 0>::apply(elements, tr, separation, seed1, seed2);
-        axis = 0;
     }
 };
 
 // from void linear_pick_seeds(node_pointer const& n, unsigned int &seed1, unsigned int &seed2) const
 
 template <typename Elements, typename Translator>
-struct choose_axis
+struct pick_seeds
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
     typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
-    
+
     static const size_t dimension = index::traits::dimension<indexable_type>::value;
 
-    static inline size_t apply(Elements const& elements,
-                               Translator const& tr,
-                               size_t & seed1,
-                               size_t & seed2)
+    static inline void apply(Elements const& elements,
+        Translator const& tr,
+        size_t & seed1,
+        size_t & seed2)
     {
-        size_t axis = 0;
         coordinate_type separation = 0;
-        choose_axis_impl<Elements, Translator, dimension>::apply(elements, tr, axis, separation, seed1, seed2);
-        return axis;
+        pick_seeds_impl<Elements, Translator, dimension>::apply(elements, tr, separation, seed1, seed2);
     }
 };
 
@@ -205,7 +203,7 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        linear::choose_axis<elements_type, Translator>::apply(elements_copy, tr, seed1, seed2);
+        linear::pick_seeds<elements_type, Translator>::apply(elements_copy, tr, seed1, seed2);
 
         // prepare nodes' elements containers
         elements_type & elements1 = rtree::elements_get(n);
@@ -236,59 +234,45 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
                 element_type const& elem = elements_copy[i];
                 indexable_type const& indexable = rtree::element_indexable(elem, tr);
 
-                // TODO: awulkiew - is this needed?
+                // if there is small number of elements left and the number of elements in node is lesser than min_elems
+                // just insert them to this node
                 if ( elements1.size() + remaining == min_elems )
                 {
                     elements1.push_back(elem);
                     geometry::expand(box1, indexable);
                     area1 = index::area(box1);
-                    continue;
                 }
-                if ( elements2.size() + remaining == min_elems )
+                else if ( elements2.size() + remaining == min_elems )
                 {
                     elements2.push_back(elem);
                     geometry::expand(box2, indexable);
                     area2 = index::area(box2);
-                    continue;
                 }
-
-                assert(0 < remaining);
-                remaining--;
-
-                // calculate enlarged boxes and areas
-                Box enlarged_box1(box1);
-                Box enlarged_box2(box2);
-                geometry::expand(enlarged_box1, indexable);
-                geometry::expand(enlarged_box2, indexable);
-                area_type enlarged_area1 = index::area(enlarged_box1);
-                area_type enlarged_area2 = index::area(enlarged_box2);
-
-                area_type areas_diff1 = enlarged_area1 - area1;
-                area_type areas_diff2 = enlarged_area2 - area2;
-
-                // choose group which box area have to be enlarged least
-                if ( areas_diff1 < areas_diff2 )
-                {
-                    elements1.push_back(elem);
-                    box1 = enlarged_box1;
-                    area1 = enlarged_area1;
-                }
-                else if ( areas_diff2 < areas_diff1 )
-                {
-                    elements2.push_back(elem);
-                    box2 = enlarged_box2;
-                    area2 = enlarged_area2;
-                }
+                // choose better node and insert element
                 else
                 {
-                    // choose group which box has smaller area
-                    if ( area1 < area2 )
+                    assert(0 < remaining);
+                    remaining--;
+
+                    // calculate enlarged boxes and areas
+                    Box enlarged_box1(box1);
+                    Box enlarged_box2(box2);
+                    geometry::expand(enlarged_box1, indexable);
+                    geometry::expand(enlarged_box2, indexable);
+                    area_type enlarged_area1 = index::area(enlarged_box1);
+                    area_type enlarged_area2 = index::area(enlarged_box2);
+
+                    area_type areas_diff1 = enlarged_area1 - area1;
+                    area_type areas_diff2 = enlarged_area2 - area2;
+
+                    // choose group which box area have to be enlarged least
+                    if ( areas_diff1 < areas_diff2 )
                     {
                         elements1.push_back(elem);
                         box1 = enlarged_box1;
                         area1 = enlarged_area1;
                     }
-                    else if ( area2 < area1 )
+                    else if ( areas_diff2 < areas_diff1 )
                     {
                         elements2.push_back(elem);
                         box2 = enlarged_box2;
@@ -296,18 +280,34 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
                     }
                     else
                     {
-                        // choose group with fewer elements
-                        if ( elements1.size() <= elements2.size() )
+                        // choose group which box has smaller area
+                        if ( area1 < area2 )
                         {
                             elements1.push_back(elem);
                             box1 = enlarged_box1;
                             area1 = enlarged_area1;
                         }
-                        else
+                        else if ( area2 < area1 )
                         {
                             elements2.push_back(elem);
                             box2 = enlarged_box2;
                             area2 = enlarged_area2;
+                        }
+                        else
+                        {
+                            // choose group with fewer elements
+                            if ( elements1.size() <= elements2.size() )
+                            {
+                                elements1.push_back(elem);
+                                box1 = enlarged_box1;
+                                area1 = enlarged_area1;
+                            }
+                            else
+                            {
+                                elements2.push_back(elem);
+                                box2 = enlarged_box2;
+                                area2 = enlarged_area2;
+                            }
                         }
                     }
                 }
