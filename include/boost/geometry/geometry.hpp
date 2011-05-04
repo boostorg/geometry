@@ -72,12 +72,12 @@
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
-
 // Include multi a.o. because it can give weird effects
-// if you don't (e.g. area=0 of a filled multipolygon)
+// if you don't (e.g. area=0 of a multipolygon)
 #include <boost/geometry/multi/multi.hpp>
 
-
+#include <boost/geometry/ranges/box_range.hpp>
+#include <boost/geometry/ranges/segment_range.hpp>
 
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>

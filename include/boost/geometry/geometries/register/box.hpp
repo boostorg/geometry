@@ -129,7 +129,7 @@ namespace boost { namespace geometry { namespace traits {  \
 \brief \brief_macro{box}
 \ingroup register
 \details \details_macro{BOOST_GEOMETRY_REGISTER_BOX_TEMPLATED, box} 
-    \details_macro_templated{box}
+    \details_macro_templated{box, point}
 \param Box \param_macro_type{Box}
 \param MinCorner minimum corner (should be public member or method)
 \param MaxCorner maximum corner (should be public member or method)
