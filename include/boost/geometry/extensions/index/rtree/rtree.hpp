@@ -22,8 +22,9 @@
 
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
 
+#include <boost/geometry/extensions/index/rtree/quadratic/quadratic.hpp>
+
 // TODO: awulkiew - correct implementation
-//#include <boost/geometry/extensions/index/rtree/quadratic/quadratic.hpp>
 //#include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
 
 namespace boost { namespace geometry { namespace index {

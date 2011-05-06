@@ -9,7 +9,7 @@
 typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
 typedef boost::geometry::model::box<P> B;
 //boost::geometry::index::rtree<B> t(2, 1);
-boost::geometry::index::rtree<B> t(4, 2);
+boost::geometry::index::rtree<B, boost::geometry::index::default_parameter, boost::geometry::index::quadratic_tag> t(4, 2);
 std::vector<B> vect;
 
 void render_scene(void)

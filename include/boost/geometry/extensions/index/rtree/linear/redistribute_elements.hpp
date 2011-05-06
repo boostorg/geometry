@@ -193,8 +193,6 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
         typedef typename index::default_area_result<Box>::type area_type;
-        
-        static const size_t dimension = index::traits::dimension<indexable_type>::value;
 
         // copy original elements
         elements_type elements_copy = rtree::elements_get(n);
@@ -233,27 +231,21 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
             {
                 element_type const& elem = elements_copy[i];
                 indexable_type const& indexable = rtree::element_indexable(elem, tr);
+                bool insert_into_group1 = false;
 
                 // if there is small number of elements left and the number of elements in node is lesser than min_elems
                 // just insert them to this node
-                if ( elements1.size() + remaining == min_elems )
+                if ( elements1.size() + remaining <= min_elems )
                 {
-                    elements1.push_back(elem);
-                    geometry::expand(box1, indexable);
-                    area1 = index::area(box1);
+                    insert_into_group1 = true;
                 }
-                else if ( elements2.size() + remaining == min_elems )
+                else if ( elements2.size() + remaining <= min_elems )
                 {
-                    elements2.push_back(elem);
-                    geometry::expand(box2, indexable);
-                    area2 = index::area(box2);
+                    insert_into_group1 = false;
                 }
                 // choose better node and insert element
                 else
                 {
-                    assert(0 < remaining);
-                    remaining--;
-
                     // calculate enlarged boxes and areas
                     Box enlarged_box1(box1);
                     Box enlarged_box2(box2);
@@ -262,57 +254,42 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
                     area_type enlarged_area1 = index::area(enlarged_box1);
                     area_type enlarged_area2 = index::area(enlarged_box2);
 
-                    area_type areas_diff1 = enlarged_area1 - area1;
-                    area_type areas_diff2 = enlarged_area2 - area2;
+                    area_type area_increase1 = enlarged_area1 - area1;
+                    area_type area_increase2 = enlarged_area2 - area2;
 
-                    // choose group which box area have to be enlarged least
-                    if ( areas_diff1 < areas_diff2 )
+                    // choose group which box area have to be enlarged least or has smaller area or has fewer elements
+                    if ( area_increase1 < area_increase2 ||
+                         ( area_increase1 == area_increase2 && area1 < area2 ) ||
+                         ( area1 == area2 && elements1.size() <= elements2.size() ) )
                     {
-                        elements1.push_back(elem);
-                        box1 = enlarged_box1;
-                        area1 = enlarged_area1;
-                    }
-                    else if ( areas_diff2 < areas_diff1 )
-                    {
-                        elements2.push_back(elem);
-                        box2 = enlarged_box2;
-                        area2 = enlarged_area2;
+                        insert_into_group1 = true;
                     }
                     else
                     {
-                        // choose group which box has smaller area
-                        if ( area1 < area2 )
-                        {
-                            elements1.push_back(elem);
-                            box1 = enlarged_box1;
-                            area1 = enlarged_area1;
-                        }
-                        else if ( area2 < area1 )
-                        {
-                            elements2.push_back(elem);
-                            box2 = enlarged_box2;
-                            area2 = enlarged_area2;
-                        }
-                        else
-                        {
-                            // choose group with fewer elements
-                            if ( elements1.size() <= elements2.size() )
-                            {
-                                elements1.push_back(elem);
-                                box1 = enlarged_box1;
-                                area1 = enlarged_area1;
-                            }
-                            else
-                            {
-                                elements2.push_back(elem);
-                                box2 = enlarged_box2;
-                                area2 = enlarged_area2;
-                            }
-                        }
+                        insert_into_group1 = false;
                     }
                 }
+
+                if ( insert_into_group1 )
+                {
+                    elements1.push_back(elem);
+                    geometry::expand(box1, indexable);
+                    area1 = index::area(box1);
+                }
+                else
+                {
+                    elements2.push_back(elem);
+                    geometry::expand(box2, indexable);
+                    area2 = index::area(box2);
+                }
+                
+                assert(0 < remaining);
+                --remaining;
             }
         }
+
+        assert(min_elems <= elements1.size() && elements1.size() <= max_elems);
+        assert(min_elems <= elements2.size() && elements2.size() <= max_elems);
     }
 };
 

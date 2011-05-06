@@ -211,7 +211,7 @@ protected:
         traverse_apply_visitor(visitor, n, choosen_node_index);
     }
 
-    // TODO: awulkiew - change name to handle_overflow or overflow_treatment?
+    // TODO: awulkiew - change post_traverse name to handle_overflow or overflow_treatment?
 
     template <typename Node>
     inline void post_traverse(Node &n)

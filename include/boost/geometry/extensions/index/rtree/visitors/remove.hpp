@@ -48,9 +48,12 @@ public:
         typedef typename rtree::elements_type<internal_node>::type children_type;
         children_type & children = rtree::elements_get(n);
 
+        // traverse children which boxes intersects value's box
         size_t child_node_index = 0;
         for ( ; child_node_index < children.size() ; ++child_node_index )
         {
+            // TODO: awulkiew - change intersects to within
+
             if ( geometry::intersects(children[child_node_index].first, m_tr(m_value)) )
             {
                 // next traversing step

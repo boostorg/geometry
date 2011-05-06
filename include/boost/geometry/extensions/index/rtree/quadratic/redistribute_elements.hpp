@@ -54,11 +54,11 @@ struct pick_seeds
         {
             for ( size_t j = i + 1 ; j < elements_count ; ++j )
             {
-                indexable_type & ind1 = rtree::element_indexable(elements[i], tr);
-                indexable_type & ind2 = rtree::element_indexable(elements[j], tr);
+                indexable_type const& ind1 = rtree::element_indexable(elements[i], tr);
+                indexable_type const& ind2 = rtree::element_indexable(elements[j], tr);
 
                 box_type enlarged_box;
-                geometry::convert(ind1);
+                geometry::convert(ind1, enlarged_box);
                 geometry::expand(enlarged_box, ind2);
 
                 area_type free_area = index::area(enlarged_box) - index::area(ind1) - index::area(ind2);
@@ -76,7 +76,183 @@ struct pick_seeds
 
 } // namespace quadratic
 
-// TODO: awulkiew - redistribute
+template <typename Value, typename Translator, typename Box>
+struct redistribute_elements<Value, Translator, Box, quadratic_tag>
+{
+    typedef typename rtree::node<Value, Box, quadratic_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, quadratic_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, quadratic_tag>::type leaf;
+
+    typedef typename index::default_area_result<Box>::type area_type;
+
+    template <typename Node>
+    static inline void apply(Node & n,
+        Node & second_node,
+        Box & box1,
+        Box & box2,
+        size_t min_elems,
+        size_t max_elems,
+        Translator const& tr)
+    {
+        typedef typename rtree::elements_type<Node>::type elements_type;
+        typedef typename elements_type::value_type element_type;
+        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+        typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
+
+        // copy original elements
+        elements_type elements_copy = rtree::elements_get(n);
+        
+        // calculate initial seeds
+        size_t seed1 = 0;
+        size_t seed2 = 0;
+        quadratic::pick_seeds<elements_type, Translator, Box>::apply(elements_copy, tr, seed1, seed2);
+
+        // prepare nodes' elements containers
+        elements_type & elements1 = rtree::elements_get(n);
+        elements_type & elements2 = rtree::elements_get(second_node);
+        elements1.clear();
+        assert(elements2.empty());
+
+        // add seeds
+        elements1.push_back(elements_copy[seed1]);
+        elements2.push_back(elements_copy[seed2]);
+
+        // calculate boxes
+        geometry::convert(rtree::element_indexable(elements_copy[seed1], tr), box1);
+        geometry::convert(rtree::element_indexable(elements_copy[seed2], tr), box2);
+
+        // remove seeds
+        if (seed1 < seed2)
+        {
+            elements_copy.erase(elements_copy.begin() + seed2);
+            elements_copy.erase(elements_copy.begin() + seed1);
+        }
+        else
+        {
+            elements_copy.erase(elements_copy.begin() + seed1);
+            elements_copy.erase(elements_copy.begin() + seed2);
+        }
+
+        // initialize areas
+        area_type area1 = index::area(box1);
+        area_type area2 = index::area(box2);
+
+        size_t remaining = elements_copy.size();
+
+        // redistribute the rest of the elements
+        while ( !elements_copy.empty() )
+        {
+            elements_type::reverse_iterator el_it = elements_copy.rbegin();
+            bool insert_into_group1 = false;
+
+            size_t elements1_count = elements1.size();
+            size_t elements2_count = elements2.size();
+
+            // if there is small number of elements left and the number of elements in node is lesser than min_elems
+            // just insert them to this node
+            if ( elements1_count + remaining <= min_elems )
+            {
+                insert_into_group1 = true;
+            }
+            else if ( elements2_count + remaining <= min_elems )
+            {
+                insert_into_group1 = false;
+            }
+            // insert the best element
+            else
+            {
+                // find element with minimum groups areas increses differences
+                area_type area_increase1 = 0;
+                area_type area_increase2 = 0;
+                pick_next(elements_copy.rbegin(), elements_copy.rend(),
+                          box1, box2, area1, area2, tr,
+                          el_it, area_increase1, area_increase2);
+
+                if ( area_increase1 < area_increase2 ||
+                     ( area_increase1 == area_increase2 && area1 < area2 ) ||
+                     ( area1 == area2 && elements1_count <= elements2_count ) )
+                {
+                    insert_into_group1 = true;
+                }
+                else
+                {
+                    insert_into_group1 = false;
+                }
+            }
+
+            // move element to the choosen group
+            element_type const& elem = *el_it;
+            indexable_type const& indexable = rtree::element_indexable(elem, tr);
+
+            if ( insert_into_group1 )
+            {
+                elements1.push_back(elem);
+                geometry::expand(box1, indexable);
+                area1 = index::area(box1);
+            }
+            else
+            {
+                elements2.push_back(elem);
+                geometry::expand(box2, indexable);
+                area2 = index::area(box2);
+            }
+
+            assert(!elements_copy.empty());
+            elements_copy.erase(elements_copy.begin() + elements_copy.size() - 1);
+
+            assert(0 < remaining);
+            --remaining;
+        }
+
+        assert(min_elems <= elements1.size() && elements1.size() <= max_elems);
+        assert(min_elems <= elements2.size() && elements2.size() <= max_elems);
+    }
+
+    template <typename It>
+    static inline void pick_next(It first, It last,
+                                 Box const& box1, Box const& box2,
+                                 area_type const& area1, area_type const& area2,
+                                 Translator const& tr,
+                                 It out_it, area_type & out_area_increase1, area_type & out_area_increase2)
+    {
+        typedef typename boost::iterator_value<It>::type element_type;
+        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+
+        area_type greatest_area_incrase_diff = 0;
+        out_it = first;
+        out_area_increase1 = 0;
+        out_area_increase2 = 0;
+
+        for ( It el_it = first ; el_it != last ; ++el_it )
+        {
+            indexable_type const& indexable = rtree::element_indexable(*el_it, tr);
+
+            // calculate enlarged boxes and areas
+            Box enlarged_box1(box1);
+            Box enlarged_box2(box2);
+            geometry::expand(enlarged_box1, indexable);
+            geometry::expand(enlarged_box2, indexable);
+            area_type enlarged_area1 = index::area(enlarged_box1);
+            area_type enlarged_area2 = index::area(enlarged_box2);
+
+            area_type area_incrase1 = (enlarged_area1 - area1);
+            area_type area_incrase2 = (enlarged_area2 - area2);
+
+            area_type area_incrase_diff = area_incrase1 < area_incrase2 ?
+                area_incrase2 - area_incrase1 : area_incrase1 - area_incrase2;
+
+            if ( greatest_area_incrase_diff < area_incrase_diff )
+            {
+                greatest_area_incrase_diff = area_incrase_diff;
+                out_it = el_it;
+                out_area_increase1 = area_incrase1;
+                out_area_increase2 = area_incrase2;
+            }
+
+            break;
+        }
+    }
+};
 
 } // namespace detail
 
