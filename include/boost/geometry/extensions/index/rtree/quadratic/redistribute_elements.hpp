@@ -47,10 +47,11 @@ struct pick_seeds
 
         assert(2 <= elements_count);
 
+        area_type greatest_free_area = 0;
         seed1 = 0;
         seed2 = 1;
-        area_type greatest_free_area = 0;
-        for ( size_t i = 0 ; i < elements_count ; ++i )
+
+        for ( size_t i = 0 ; i < elements_count - 1 ; ++i )
         {
             for ( size_t j = i + 1 ; j < elements_count ; ++j )
             {
@@ -164,9 +165,9 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
                 // find element with minimum groups areas increses differences
                 area_type area_increase1 = 0;
                 area_type area_increase2 = 0;
-                pick_next(elements_copy.rbegin(), elements_copy.rend(),
-                          box1, box2, area1, area2, tr,
-                          el_it, area_increase1, area_increase2);
+                el_it = pick_next(elements_copy.rbegin(), elements_copy.rend(),
+                                  box1, box2, area1, area2, tr,
+                                  area_increase1, area_increase2);
 
                 if ( area_increase1 < area_increase2 ||
                      ( area_increase1 == area_increase2 && area1 < area2 ) ||
@@ -198,7 +199,7 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
             }
 
             assert(!elements_copy.empty());
-            elements_copy.erase(elements_copy.begin() + elements_copy.size() - 1);
+            elements_copy.erase(--el_it.base());
 
             assert(0 < remaining);
             --remaining;
@@ -208,21 +209,24 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
         assert(min_elems <= elements2.size() && elements2.size() <= max_elems);
     }
 
+    // sprawdzic szukanie najmniejszego powiekszenia wezla dla grupy1 i grupy2
+
     template <typename It>
-    static inline void pick_next(It first, It last,
-                                 Box const& box1, Box const& box2,
-                                 area_type const& area1, area_type const& area2,
-                                 Translator const& tr,
-                                 It out_it, area_type & out_area_increase1, area_type & out_area_increase2)
+    static inline It pick_next(It first, It last,
+                               Box const& box1, Box const& box2,
+                               area_type const& area1, area_type const& area2,
+                               Translator const& tr,
+                               area_type & out_area_increase1, area_type & out_area_increase2)
     {
         typedef typename boost::iterator_value<It>::type element_type;
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
 
         area_type greatest_area_incrase_diff = 0;
-        out_it = first;
+        It out_it = first;
         out_area_increase1 = 0;
         out_area_increase2 = 0;
-
+        
+        // find element with greatest difference between increased group's boxes areas
         for ( It el_it = first ; el_it != last ; ++el_it )
         {
             indexable_type const& indexable = rtree::element_indexable(*el_it, tr);
@@ -248,9 +252,9 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
                 out_area_increase1 = area_incrase1;
                 out_area_increase2 = area_incrase2;
             }
-
-            break;
         }
+
+        return out_it;
     }
 };
 

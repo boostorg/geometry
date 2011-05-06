@@ -231,17 +231,20 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
             {
                 element_type const& elem = elements_copy[i];
                 indexable_type const& indexable = rtree::element_indexable(elem, tr);
-                bool insert_into_group1 = false;
 
                 // if there is small number of elements left and the number of elements in node is lesser than min_elems
                 // just insert them to this node
                 if ( elements1.size() + remaining <= min_elems )
                 {
-                    insert_into_group1 = true;
+                    elements1.push_back(elem);
+                    geometry::expand(box1, indexable);
+                    area1 = index::area(box1);
                 }
                 else if ( elements2.size() + remaining <= min_elems )
                 {
-                    insert_into_group1 = false;
+                    elements2.push_back(elem);
+                    geometry::expand(box2, indexable);
+                    area2 = index::area(box2);
                 }
                 // choose better node and insert element
                 else
@@ -262,25 +265,16 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
                          ( area_increase1 == area_increase2 && area1 < area2 ) ||
                          ( area1 == area2 && elements1.size() <= elements2.size() ) )
                     {
-                        insert_into_group1 = true;
+                        elements1.push_back(elem);
+                        box1 = enlarged_box1;
+                        area1 = enlarged_area1;
                     }
                     else
                     {
-                        insert_into_group1 = false;
+                        elements2.push_back(elem);
+                        box2 = enlarged_box2;
+                        area2 = enlarged_area2;
                     }
-                }
-
-                if ( insert_into_group1 )
-                {
-                    elements1.push_back(elem);
-                    geometry::expand(box1, indexable);
-                    area1 = index::area(box1);
-                }
-                else
-                {
-                    elements2.push_back(elem);
-                    geometry::expand(box2, indexable);
-                    area2 = index::area(box2);
                 }
                 
                 assert(0 < remaining);
