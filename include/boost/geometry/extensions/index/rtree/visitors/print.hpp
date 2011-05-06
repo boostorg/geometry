@@ -125,12 +125,13 @@ struct print : public boost::static_visitor<>
 
     inline void operator()(internal_node const& n)
     {
-        typedef typename internal_node::children_type children_type;
+        typedef typename rtree::elements_type<internal_node>::type elements_type;
+        elements_type const& elements = rtree::elements_get(n);
 
-        spaces(level) << "INTERNAL NODE - L:" << level << " Ch:" << n.children.size() << " @:" << &n << '\n';
+        spaces(level) << "INTERNAL NODE - L:" << level << " Ch:" << elements.size() << " @:" << &n << '\n';
         
-        for (typename children_type::const_iterator it = n.children.begin();
-            it != n.children.end(); ++it)
+        for (typename elements_type::const_iterator it = elements.begin();
+            it != elements.end(); ++it)
         {
             spaces(level);
             detail::print_indexable(os, it->first);
@@ -140,8 +141,8 @@ struct print : public boost::static_visitor<>
         size_t level_backup = level;
         ++level;
 
-        for (typename children_type::const_iterator it = n.children.begin();
-            it != n.children.end(); ++it)
+        for (typename elements_type::const_iterator it = elements.begin();
+            it != elements.end(); ++it)
         {
             boost::apply_visitor(*this, *it->second);
         }
@@ -151,11 +152,12 @@ struct print : public boost::static_visitor<>
 
     inline void operator()(leaf const& n)
     {
-        typedef typename leaf::values_type values_type;
+        typedef typename rtree::elements_type<leaf>::type elements_type;
+        elements_type const& elements = rtree::elements_get(n);
 
-        spaces(level) << "LEAF - L:" << level << " V:" << n.values.size() << " @:" << &n << '\n';
-        for (typename values_type::const_iterator it = n.values.begin();
-            it != n.values.end(); ++it)
+        spaces(level) << "LEAF - L:" << level << " V:" << elements.size() << " @:" << &n << '\n';
+        for (typename elements_type::const_iterator it = elements.begin();
+            it != elements.end(); ++it)
         {
             spaces(level);
             detail::print_indexable(os, tr(*it));

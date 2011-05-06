@@ -24,10 +24,11 @@ struct destroy : public boost::static_visitor<>
 
     inline void operator()(internal_node & n) const
     {
-        typedef typename internal_node::children_type children_type;
+        typedef typename rtree::elements_type<internal_node>::type elements_type;
+        elements_type & elements = rtree::elements_get(n);
 
-        for (typename children_type::iterator it = n.children.begin();
-            it != n.children.end(); ++it)
+        for (typename elements_type::iterator it = elements.begin();
+            it != elements.end(); ++it)
         {
             boost::apply_visitor(*this, *it->second);
 

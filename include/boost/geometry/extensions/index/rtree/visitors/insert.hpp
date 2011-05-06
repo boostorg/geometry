@@ -111,9 +111,9 @@ struct split
         if ( parent != 0 )
         {
             // update old node's box
-            parent->children[current_child_index].first = box1;
+            rtree::elements_get(*parent)[current_child_index].first = box1;
             // add new node to the parent's children
-            parent->children.push_back(std::make_pair(box2, second_node));
+            rtree::elements_get(*parent).push_back(std::make_pair(box2, second_node));
         }
         // node is the root
         else
@@ -123,8 +123,8 @@ struct split
             // create new root and add nodes
             node * new_root = rtree::create_node(internal_node());
 
-            boost::get<internal_node>(*new_root).children.push_back(std::make_pair(box1, root));
-            boost::get<internal_node>(*new_root).children.push_back(std::make_pair(box2, second_node));
+            rtree::elements_get(boost::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root));
+            rtree::elements_get(boost::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
 
             root = new_root;
         }
@@ -209,7 +209,7 @@ protected:
 
         // expand the node to contain value
         geometry::expand(
-            n.children[choosen_node_index].first,
+            rtree::elements_get(n)[choosen_node_index].first,
             rtree::element_indexable(m_element, m_tr));
 
         // next traversing step

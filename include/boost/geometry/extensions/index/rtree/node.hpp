@@ -30,16 +30,16 @@ struct internal_node_def
             Box,
             typename node<Value, Box, Tag>::type *
         >
-    > children_type;
+    > elements_type;
 
-    children_type children;
+    elements_type elements;
 };
 
 template <typename Value, typename Box, typename Tag>
 struct leaf_def
 {
-    typedef std::vector<Value> values_type;
-    values_type values;
+    typedef std::vector<Value> elements_type;
+    elements_type elements;
 };
 
 // nodes traits
@@ -73,18 +73,6 @@ struct elements_type
     typedef typename Node::elements_type type;
 };
 
-template <typename Value, typename Box, typename Tag>
-struct elements_type< internal_node_def<Value, Box, Tag> >
-{
-    typedef typename internal_node_def<Value, Box, Tag>::children_type type;
-};
-
-template <typename Value, typename Box, typename Tag>
-struct elements_type< leaf_def<Value, Box, Tag> >
-{
-    typedef typename leaf_def<Value, Box, Tag>::values_type type;
-};
-
 template <typename Node>
 typename elements_type<Node>::type &
 elements_get(Node & n)
@@ -92,18 +80,11 @@ elements_get(Node & n)
     return n.elements;
 }
 
-template <typename Value, typename Box, typename Tag>
-typename internal_node_def<Value, Box, Tag>::children_type &
-elements_get(internal_node_def<Value, Box, Tag> & n)
+template <typename Node>
+typename elements_type<Node>::type const&
+elements_get(Node const& n)
 {
-    return n.children;
-}
-
-template <typename Value, typename Box, typename Tag>
-typename leaf_def<Value, Box, Tag>::values_type &
-elements_get(leaf_def<Value, Box, Tag> & n)
-{
-    return n.values;
+    return n.elements;
 }
 
 //template <typename Node>

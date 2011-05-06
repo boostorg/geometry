@@ -54,35 +54,41 @@ struct save<
 
     inline void operator()(internal_node & n)
     {
-        os << n.children.size() << '\n';
+        typedef typename rtree::elements_type<internal_node>::type elements_type;
+        elements_type & elements = rtree::elements_get(n);
 
-        for ( size_t i = 0 ; i < n.children.size() ; ++i )
+        os << elements.size() << '\n';
+
+        for ( size_t i = 0 ; i < elements.size() ; ++i )
         {
-            if ( boost::apply_visitor(visitors::is_leaf<value_type, Box, Tag>(), *(n.children[i].second)) )
+            if ( boost::apply_visitor(visitors::is_leaf<value_type, Box, Tag>(), *(elements[i].second)) )
                 os << "l ";
             else
                 os << "i ";
-            os << geometry::get<min_corner, 0>(n.children[i].first) << ' ';
-            os << geometry::get<min_corner, 1>(n.children[i].first) << ' ';
-            os << geometry::get<max_corner, 0>(n.children[i].first) << ' ';
-            os << geometry::get<max_corner, 1>(n.children[i].first) << ' ';
+            os << geometry::get<min_corner, 0>(elements[i].first) << ' ';
+            os << geometry::get<min_corner, 1>(elements[i].first) << ' ';
+            os << geometry::get<max_corner, 0>(elements[i].first) << ' ';
+            os << geometry::get<max_corner, 1>(elements[i].first) << ' ';
 
-            boost::apply_visitor(*this, *(n.children[i].second));
+            boost::apply_visitor(*this, *(elements[i].second));
         }
     }
 
     inline void operator()(leaf & n)
     {
-        os << n.values.size() << '\n';
+        typedef typename rtree::elements_type<leaf>::type elements_type;
+        elements_type & elements = rtree::elements_get(n);
 
-        for ( size_t i = 0 ; i < n.values.size() ; ++i )
+        os << elements.size() << '\n';
+
+        for ( size_t i = 0 ; i < elements.size() ; ++i )
         {
             os << "v ";
-            os << geometry::get<min_corner, 0>(n.values[i].first) << ' ';
-            os << geometry::get<min_corner, 1>(n.values[i].first) << ' ';
-            os << geometry::get<max_corner, 0>(n.values[i].first) << ' ';
-            os << geometry::get<max_corner, 1>(n.values[i].first) << ' ';
-            os << n.values[i].second << '\n';
+            os << geometry::get<min_corner, 0>(elements[i].first) << ' ';
+            os << geometry::get<min_corner, 1>(elements[i].first) << ' ';
+            os << geometry::get<max_corner, 0>(elements[i].first) << ' ';
+            os << geometry::get<max_corner, 1>(elements[i].first) << ' ';
+            os << elements[i].second << '\n';
         }
     }
 

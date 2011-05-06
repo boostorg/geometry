@@ -30,7 +30,10 @@ public:
 
     inline bool operator()(internal_node const& n)
     {
-        if (n.children.empty())
+        typedef typename rtree::elements_type<internal_node>::type elements_type;
+        elements_type const& elements = rtree::elements_get(n);
+
+        if (elements.empty())
             return false;
 
         Box box_bckup = m_box;
@@ -38,8 +41,8 @@ public:
 
         m_is_root = false;
 
-        for ( internal_node::children_type::const_iterator it = n.children.begin();
-              it != n.children.end() ; ++it)
+        for ( typename elements_type::const_iterator it = elements.begin();
+              it != elements.end() ; ++it)
         {
             m_box = it->first;
 
@@ -51,9 +54,9 @@ public:
         m_is_root = is_root_bckup;
 
         Box result;
-        geometry::convert(n.children.front().first, result);
-        for(internal_node::children_type::const_iterator it = n.children.begin() + 1;
-            it != n.children.end() ; ++it)
+        geometry::convert(elements.front().first, result);
+        for( typename elements_type::const_iterator it = elements.begin() + 1;
+            it != elements.end() ; ++it)
         {
             geometry::expand(result, it->first);
         }
@@ -63,13 +66,16 @@ public:
 
     inline bool operator()(leaf const& n)
     {
-        if (n.values.empty())
+        typedef typename rtree::elements_type<leaf>::type elements_type;
+        elements_type const& elements = rtree::elements_get(n);
+
+        if (elements.empty())
             return false;
 
         Box result;
-        geometry::convert(m_tr(n.values.front()), result);
-        for(leaf::values_type::const_iterator it = n.values.begin() + 1;
-            it != n.values.end() ; ++it)
+        geometry::convert(m_tr(elements.front()), result);
+        for(typename elements_type::const_iterator it = elements.begin() + 1;
+            it != elements.end() ; ++it)
         {
             geometry::expand(result, m_tr(*it));
         }

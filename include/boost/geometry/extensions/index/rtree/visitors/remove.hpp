@@ -167,7 +167,7 @@ private:
         ++m_current_level;
 
         // next traversing step
-        boost::apply_visitor(*this, *n.children[choosen_node_index].second);
+        boost::apply_visitor(*this, *rtree::elements_get(n)[choosen_node_index].second);
 
         // restore previous traverse inputs
         m_parent = parent_bckup;
