@@ -16,6 +16,9 @@ struct linear_tag {};
 
 }}} // namespace boost::geometry::index
 
+//TEST
+// TODO
+
 #include <boost/geometry/extensions/index/rtree/linear/redistribute_elements.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_LINEAR_HPP

@@ -96,11 +96,16 @@ struct split
         Translator const& tr)
     {
         node * second_node = rtree::create_node(Node());
+        Node & n2 = boost::get<Node>(*second_node);
 
         // redistribute elements
         Box box1, box2;
         redistribute_elements<Value, Translator, Box, Tag>::
-            apply(n, boost::get<Node>(*second_node), box1, box2, min_elems, max_elems, tr);
+            apply(n, n2, box1, box2, min_elems, max_elems, tr);
+
+        // check numbers of elements
+        assert(min_elems <= rtree::elements_get(n).size() && rtree::elements_get(n).size() <= max_elems);
+        assert(min_elems <= rtree::elements_get(n2).size() && rtree::elements_get(n2).size() <= max_elems);
 
         // node is not the root
         if ( parent != 0 )

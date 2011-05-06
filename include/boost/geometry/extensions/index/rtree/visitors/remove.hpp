@@ -84,12 +84,13 @@ public:
                 m_is_underflow = elements.size() < m_min_elems_per_node;
             }
 
-            // test - underflow state should be ok here
-            assert(elements.size() < m_min_elems_per_node == m_is_underflow);
-
             // n is not root - adjust aabb
             if ( 0 != m_parent )
             {
+                // test underflow state should be ok here
+                // note that there may be less than min_elems elements in root
+                assert((elements.size() < m_min_elems_per_node) == m_is_underflow);
+
                 rtree::elements_get(*m_parent)[m_current_child_index].first
                     = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
             }
@@ -104,7 +105,7 @@ public:
 
                 // reinsert elements from removed nodes
                 // begin with levels closer to the root
-                for ( std::vector< std::pair<size_t, node*> >::reverse_iterator it = m_underflowed_nodes.rbegin();
+                for ( typename std::vector< std::pair<size_t, node*> >::reverse_iterator it = m_underflowed_nodes.rbegin();
                         it != m_underflowed_nodes.rend() ; ++it )
                 {
                     if ( boost::apply_visitor(is_leaf<Value, Box, Tag>(), *it->second) )
@@ -128,7 +129,7 @@ public:
         elements_type & elements = rtree::elements_get(n);
 
         // find value and remove it
-        for ( elements_type::iterator it = elements.begin() ; it != elements.end() ; ++it )
+        for ( typename elements_type::iterator it = elements.begin() ; it != elements.end() ; ++it )
         {
             if ( m_tr.equals(*it, m_value) )
             {
@@ -182,7 +183,7 @@ private:
         for ( typename elements_type::iterator it = elements.begin();
             it != elements.end() ; ++it )
         {
-            visitors::insert<elements_type::value_type, Value, Translator, Box, Tag> insert_v(
+            visitors::insert<typename elements_type::value_type, Value, Translator, Box, Tag> insert_v(
                 m_root_node,
                 *it,
                 m_min_elems_per_node,

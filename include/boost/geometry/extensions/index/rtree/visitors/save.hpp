@@ -29,7 +29,7 @@ struct save<
         >,
         size_t
     >,
-    typename Translator,
+    Translator,
     Box,
     Tag
 >

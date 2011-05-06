@@ -281,9 +281,6 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
                 --remaining;
             }
         }
-
-        assert(min_elems <= elements1.size() && elements1.size() <= max_elems);
-        assert(min_elems <= elements2.size() && elements2.size() <= max_elems);
     }
 };
 

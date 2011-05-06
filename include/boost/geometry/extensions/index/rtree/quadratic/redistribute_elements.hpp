@@ -143,7 +143,7 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
         // redistribute the rest of the elements
         while ( !elements_copy.empty() )
         {
-            elements_type::reverse_iterator el_it = elements_copy.rbegin();
+            typename elements_type::reverse_iterator el_it = elements_copy.rbegin();
             bool insert_into_group1 = false;
 
             size_t elements1_count = elements1.size();
@@ -204,9 +204,6 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
             assert(0 < remaining);
             --remaining;
         }
-
-        assert(min_elems <= elements1.size() && elements1.size() <= max_elems);
-        assert(min_elems <= elements2.size() && elements2.size() <= max_elems);
     }
 
     // sprawdzic szukanie najmniejszego powiekszenia wezla dla grupy1 i grupy2
