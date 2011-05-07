@@ -20,8 +20,8 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/ranges/box_range.hpp>
-#include <boost/geometry/ranges/segment_range.hpp>
+#include <boost/geometry/views/box_view.hpp>
+#include <boost/geometry/views/segment_view.hpp>
 
 
 // Should be somewhere in your include path
@@ -189,7 +189,7 @@ struct shp_create_object<box_tag, Box>
     : detail::shp_create_object::shape_create_adapted_range
         <
             Box,
-            box_range<Box>,
+            box_view<Box>,
             SHPT_POLYGON
         >
 {};
@@ -199,7 +199,7 @@ struct shp_create_object<segment_tag, Segment>
     : detail::shp_create_object::shape_create_adapted_range
         <
             Segment,
-            segment_range<Segment>,
+            segment_view<Segment>,
             SHPT_ARC
         >
 {};

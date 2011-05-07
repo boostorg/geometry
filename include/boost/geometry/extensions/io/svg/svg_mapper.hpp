@@ -35,7 +35,7 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/transform/map_transformer.hpp>
-#include <boost/geometry/ranges/segment_range.hpp>
+#include <boost/geometry/views/segment_view.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
@@ -122,11 +122,11 @@ struct svg_map<segment_tag, Segment>
                     std::string const& style, int size,
                     Segment const& segment, TransformStrategy const& strategy)
     {
-        typedef segment_range<Segment> range_type;
-        range_type range(segment);
+        typedef segment_view<Segment> view_type;
+        view_type range(segment);
         svg_map_range
             <
-                range_type,
+                view_type,
                 model::linestring<model::d2::point_xy<int> >
             >::apply(stream, style, size, range, strategy);
     }
