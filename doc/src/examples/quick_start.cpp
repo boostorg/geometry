@@ -13,23 +13,33 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <boost/tuple/tuple.hpp>
 
 #if defined(_MSC_VER)
 // We deliberately mix float/double's here so turn off warning
 //#pragma warning( disable : 4244 )
 #endif // defined(_MSC_VER)
 
+//[quickstart_include
+
 #include <boost/geometry.hpp>
-#include <boost/geometry/algorithms/overlaps.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
+
+using namespace boost::geometry;
+//]
+
 #include <boost/geometry/geometries/register/point.hpp>
+
+
+//[quickstart_register_c_array
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
+//]
+
+//[quickstart_register_boost_tuple
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
-BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
-
+//]
 
 // Small QRect simulations following http://doc.trolltech.com/4.4/qrect.html
 // Todo: once work the traits out further, would be nice if there is a real example of this.
@@ -89,33 +99,48 @@ struct indexed_access<QRect, C, D>
 }}}
 
 
-void example_for_main_page()
+int main(void)
 {
+    //[quickstart_distance
+    model::d2::point_xy<int> p1(1, 1), p2(2, 2);
+    std::cout << "Distance p1-p2 is: " << distance(p1, p2) << std::endl;
+    //]
 
-    //[main1
-    //` Snippets below assume the namespace boost::geometry is known
-    using namespace boost::geometry;
-
-    //` It should be possible to use a very small part of the library, for example only the distance between two points.
+    //[quickstart_distance_c_array
     int a[2] = {1,1};
     int b[2] = {2,3};
     double d = distance(a, b);
-    std::cout << "Distance a-b is:" << d << std::endl;
-
-    //` Other often used algorithms are point-in-polygon:
+    std::cout << "Distance a-b is: " << d << std::endl;
+    //]
+    
+    //[quickstart_point_in_polygon
     double points[][2] = {{2.0, 1.3}, {4.1, 3.0}, {5.3, 2.6}, {2.9, 0.7}, {2.0, 1.3}};
     model::polygon<model::d2::point_xy<double> > poly;
     append(poly, points);
     boost::tuple<double, double> p = boost::make_tuple(3.7, 2.0);
-    std::cout << "Point p is in polygon? " << (within(p, poly) ? "YES" : "NO")  << std::endl;
-
-    //` or area:
+    std::cout << "Point p is in polygon? " << std::boolalpha << within(p, poly) << std::endl;
+    //]
+    
+    //[quickstart_area
     std::cout << "Area: " << area(poly) << std::endl;
+    //]
 
-    //` It is possible, by the nature of a template library, to mix the point types declared above:
+    //[quickstart_distance_mixed
     double d2 = distance(a, p);
-    std::cout << "Distance a-p is:" << d2 << std::endl;
-
+    std::cout << "Distance a-p is: " << d2 << std::endl;
+    //]
+    
+    //[quick_start_spherical
+    typedef boost::geometry::model::point
+        <
+            double, 2, boost::geometry::cs::spherical<boost::geometry::degree>
+        > spherical_point;
+    
+    spherical_point amsterdam(4.90, 52.37);
+    spherical_point paris(2.35, 48.86);
+    
+    double const earth_radius = 3959; // miles
+    std::cout << "Distance in miles: " << distance(amsterdam, paris) * earth_radius << std::endl;
     //]
 
     /***
@@ -126,7 +151,7 @@ void example_for_main_page()
     std::cout << "Distance A'dam-Paris: " << distance(amsterdam, paris) / 1000.0 << " kilometers " << std::endl;
     ***/
 
-    //[main3
+    //[quickstart_qt
     QRect r1(100, 200, 15, 15);
     QRect r2(110, 210, 20, 20);
     if (overlaps(r1, r2))
@@ -134,40 +159,7 @@ void example_for_main_page()
         assign_values(r2, 200, 300, 220, 320);
     }
     //]
-}
-
-
-void example_for_transform()
-{
-    using namespace boost::geometry;
-
-    typedef model::point<double, 3, cs::cartesian> XYZ;
-    typedef model::point<double, 3, cs::spherical<degree> >  SPH;
-    XYZ p;
-
-    SPH sph1, sph2;
-    assign_values(sph1, 12.5, 41.90, 1.0);
-    // Go from spherical to Cartesian-3D:
-    transform(sph1, p);
-    // Go back from Cartesian 3D to spherical:
-    transform(p, sph2);
-
-    std::cout << dsv(p) << " <-> " << dsv(sph2) << std::endl;
-
-    typedef model::d2::point_xy<double> XY;
-    typedef model::d2::point_xy<int> PIXEL;
-    XY xy(50, 50);
-    strategy::transform::map_transformer<XY, PIXEL, false> map(0, 0, 100, 100, 1024, 768);
-    PIXEL pix;
-    transform(xy, pix, map);
-    std::cout << pix.x() << "," << pix.y() << std::endl;
-
-}
-
-
-int main(void)
-{
-    example_for_main_page();
-    example_for_transform();
+    
     return 0;
 }
+
