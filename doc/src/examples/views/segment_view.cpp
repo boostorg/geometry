@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[box_range
+//[segment_view
 //` Shows usage of the Boost.Range compatible view on a box
 
 #include <iostream>
@@ -17,29 +17,28 @@
 
 int main()
 {
-    typedef boost::geometry::model::box
+    typedef boost::geometry::model::segment
         <
             boost::geometry::model::point<double, 2, boost::geometry::cs::cartesian>
-        > box_type;
+        > segment_type;
         
-    // Define the Boost.Range compatible type:
-    typedef boost::geometry::box_range<box_type> box_range;        
+    typedef boost::geometry::segment_view<segment_type> segment_view;        
         
-    box_type box;
-    boost::geometry::assign_values(box, 0, 0, 4, 4);
+    segment_type segment;
+    boost::geometry::assign_values(segment, 0, 0, 1, 1);
     
-    box_range range(box);
+    segment_view view(segment);
     
-    // Iterating in clockwise direction over the points of this box
-    for (boost::range_iterator<box_range const>::type it = boost::begin(range);
-        it != boost::end(range); ++it)
+    // Iterating over the points of this segment
+    for (boost::range_iterator<segment_view const>::type it = boost::begin(view);
+        it != boost::end(view); ++it)
     {
         std::cout << " " << boost::geometry::dsv(*it);
     }
     std::cout << std::endl;
     
-    // Note that a box_range is tagged as a ring, so supports area etc.
-    std::cout << "Area: " << boost::geometry::area(range) << std::endl;
+    // Note that a segment_view is tagged as a linestring, so supports length etc.
+    std::cout << "Length: " << boost::geometry::length(view) << std::endl;
     
     return 0;
 }
@@ -47,7 +46,7 @@ int main()
 //]
 
 
-//[box_range_output
+//[segment_view_output
 /*`
 Output:
 [pre

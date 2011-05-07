@@ -196,7 +196,6 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/multi/strategies/cartesian \
 			../../../../boost/geometry/policies \
 			../../../../boost/geometry/policies/relate \
-			../../../../boost/geometry/ranges \
 			../../../../boost/geometry/strategies \
 			../../../../boost/geometry/strategies/concepts \
 			../../../../boost/geometry/strategies/agnostic \

@@ -18,3 +18,4 @@ exe quick_start : quick_start.cpp ;
 build-project algorithms ;
 build-project core ;
 build-project geometries ;
+build-project views ;

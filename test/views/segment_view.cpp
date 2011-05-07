@@ -15,21 +15,20 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/ranges/box_range.hpp>
+#include <boost/geometry/views/segment_view.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
 
-template <typename Box>
+template <typename Segment>
 void test_geometry(std::string const& wkt, std::string const& expected)
 {
 
-    Box box;
-    bg::read_wkt(wkt, box);
+    Segment segment;
+    bg::read_wkt(wkt, segment);
 
-    typedef bg::box_range<Box> range_type;
-    range_type range(box);
+    typedef bg::segment_view<Segment> range_type;
+    range_type range(segment);
 
     {
         std::ostringstream out;
@@ -43,33 +42,44 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 
     {
         // Check forward/backward behaviour
+        std::ostringstream out;
         typename boost::range_iterator<range_type>::type it = boost::begin(range);
         it++;
         it--;
-        // Not verified further, same as segment
+        out << " " << bg::get<0>(*it) << bg::get<1>(*it);
+        typename boost::range_iterator<range_type>::type it2 = boost::end(range);
+        it2--;
+        out << " " << bg::get<0>(*it2) << bg::get<1>(*it2);
+        BOOST_CHECK_EQUAL(out.str(), expected);
     }
 
     {
         // Check random access behaviour
         int const n = boost::size(range);
-        BOOST_CHECK_EQUAL(n, 5);
+        BOOST_CHECK_EQUAL(n, 2);
     }
 
     // Check Boost.Range concept
-    BOOST_CONCEPT_ASSERT( (boost::ForwardRangeConcept<range_type>) );
+    BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<range_type>) );
+
 }
 
 
 template <typename P>
 void test_all()
 {
-    test_geometry<bg::model::box<P> >("polygon((1 1,2 2))", " 11 12 22 21 11");
-    test_geometry<bg::model::box<P> >("polygon((3 3,5 5))", " 33 35 55 53 33");
+    test_geometry<bg::model::segment<P> >("linestring(1 1,2 2)", " 11 22");
+    test_geometry<bg::model::segment<P> >("linestring(4 4,3 3)", " 44 33");
 }
 
 
 int test_main(int, char* [])
 {
+    std::vector<int> a; 
+    a.push_back(1);
+    boost::range_iterator<std::vector<int> const>::type it = a.end();
+    --it;
+    std::cout << *it << std::endl;
     test_all<bg::model::d2::point_xy<double> >();
     return 0;
 }

@@ -211,10 +211,8 @@
 
 [section:iterators Iterators]
 [include generated/closing_iterator.qbk]
-[include generated/box_iterator.qbk]
 [include generated/circular_iterator.qbk]
 [include generated/ever_circling_iterator.qbk]
-[include generated/segment_range_iterator.qbk]
 [endsect] 
 
 
@@ -259,9 +257,9 @@
 [endsect] 
 
 
-[section:ranges Ranges]
-[include generated/box_range.qbk]
-[include generated/segment_range.qbk]
+[section:views Views]
+[include generated/box_view.qbk]
+[include generated/segment_view.qbk]
 [include generated/closeable_view.qbk]
 [include generated/reversible_view.qbk]
 [include generated/identity_view.qbk]

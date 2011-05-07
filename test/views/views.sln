@@ -6,6 +6,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reversible_closeable", "rev
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reversible_view", "reversible_view.vcproj", "{BFB08FEE-76D6-4F3D-9184-BE03CC3F7968}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "box_view", "box_view.vcproj", "{34A1F53A-DA46-41E6-9E26-740D22D662DC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "segment_view", "segment_view.vcproj", "{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -24,6 +28,14 @@ Global
 		{BFB08FEE-76D6-4F3D-9184-BE03CC3F7968}.Debug|Win32.Build.0 = Debug|Win32
 		{BFB08FEE-76D6-4F3D-9184-BE03CC3F7968}.Release|Win32.ActiveCfg = Release|Win32
 		{BFB08FEE-76D6-4F3D-9184-BE03CC3F7968}.Release|Win32.Build.0 = Release|Win32
+		{34A1F53A-DA46-41E6-9E26-740D22D662DC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{34A1F53A-DA46-41E6-9E26-740D22D662DC}.Debug|Win32.Build.0 = Debug|Win32
+		{34A1F53A-DA46-41E6-9E26-740D22D662DC}.Release|Win32.ActiveCfg = Release|Win32
+		{34A1F53A-DA46-41E6-9E26-740D22D662DC}.Release|Win32.Build.0 = Release|Win32
+		{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}.Debug|Win32.Build.0 = Debug|Win32
+		{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}.Release|Win32.ActiveCfg = Release|Win32
+		{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
