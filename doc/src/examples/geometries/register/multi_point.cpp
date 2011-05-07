@@ -18,7 +18,7 @@
 typedef boost::tuple<float, float> point_type;
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
-BOOST_GEOMETRY_REGISTER_MULTI_POINT(std::deque<::point_type>)
+BOOST_GEOMETRY_REGISTER_MULTI_POINT(std::deque< ::point_type >)
 
 int main()
 {
