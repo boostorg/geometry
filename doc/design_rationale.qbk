@@ -8,6 +8,8 @@
     http://www.boost.org/LICENSE_1_0.txt)
 ===============================================================================/]
 
+[/ note the source code in this QBK is the only not (yet) checked by a compiler]
+
 [section:design Design Rationale]
 
 Suppose you need a C++ program to calculate the distance between two points.
@@ -27,9 +29,10 @@ and a function, containing the algorithm:
         return sqrt(dx * dx + dy * dy);
     }
 
-Quite simple, and it is usable, but not generic. For a library it has to be designed way further.
-The design above can only be used for 2D points, for the struct [*mypoint] (and no other struct),
-in a __wiki_cs_cartesian__. A generic library should be able to calculate the distance:
+Quite simple, and it is usable, but not generic. For a library it has to be 
+designed way further. The design above can only be used for 2D points, for the 
+struct [*mypoint] (and no other struct), in a Cartesian coordinate system. A 
+generic library should be able to calculate the distance: 
 
 * for any point class or struct, not on just this [*mypoint] type
 * in more than two dimensions
@@ -115,22 +118,6 @@ as shown in the distance algorithm at the start of this paragraph. So we wanted 
 with methods like `x()`, and they are supported as long as there is a specialization of the access
 `struct` with a static `get` function returning `x()` for dimension 0, and similar for 1 and `y()`.
 
-Alternatively we could implement, in the traits class, the dimension as a template parameter in
-a member template function:
-
-    template <>
-    struct access<mypoint>
-    {
-        template <int D>
-        static double get(mypoint const& p)
-        // either return x/y using an if-clause
-        // or call a detail-struct specialized
-        //   per dimension
-    };
-
-This alternative gives in the end the same functionality, either using an `if` statement (wihch
-may be slower), or adding another level of indirection.
-
 [heading Dimension Agnosticism]
 
 Now we can calculate the distance between points in 2D, points of any structure or class.
@@ -159,7 +146,7 @@ more complex but attractive for template fans:
         }
     };
 
-The distance function is calling that [*pythagoras] structure, specifying the number of dimensions:
+The distance function is calling that `pythagoras` structure, specifying the number of dimensions:
 
     template <typename P1, typename P2>
     double distance(P1 const& a, P2 const& b)
@@ -181,7 +168,8 @@ The dimension which is referred to is defined using another traits class:
 
 which has to be specialized again for the `struct mypoint`.
 
-Because it only has to publish a value, we conveniently derive it from the __boost_mpl__ `class boost::mpl::int_`:
+Because it only has to publish a value, we conveniently derive it from the 
+__boost_mpl__ `class boost::mpl::int_`:
 
 ``
 namespace traits
@@ -233,7 +221,7 @@ A longer version is presented later on, the short function would look like this:
     struct coordinate_type :    traits::coordinate_type<P> {};
     
 We now can modify our distance algorithm again. Because it still returns double, we only
-modify the [*pythagoras] computation class. It should return the coordinate type of its input.
+modify the `pythagoras` computation class. It should return the coordinate type of its input.
 But, it has two input, possibly different, point types. They might also differ in their
 coordinate types. Not that that is very likely, but we’re designing a generic library and we
 should handle those strange cases. We have to choose one of the coordinate types and of course
@@ -261,28 +249,30 @@ So our computation class becomes:
 
 [heading Different Geometries]
 
-We’ve designed a dimension agnostic system supporting any point type of any coordinate type.
-There are still some tweaks but they will be worked out later. Now we will see how we calculate
-the distance between a point and a polygon, or between a point and a line-segment. These formulae
-are more complex, and the influence on design is even larger. We don’t want to add a function
-with another name:
+We have designed a dimension agnostic system supporting any point type of any 
+coordinate type. There are still some tweaks but they will be worked out later. 
+Now we will see how we calculate the distance between a point and a polygon, or 
+between a point and a line-segment. These formulae are more complex, and the 
+influence on design is even larger. We don’t want to add a function with another 
+name:
 
     template <typename P, typename S>
     double distance_point_segment(P const& p, S const& s)
 
-We want to be generic, the distance function has to be called from code not knowing the type
-of geometry it handles, so it has to be named distance. We also cannot create an overload because
-that would be ambiguous, having the same template signature. There are two solutions:
+We want to be generic, the distance function has to be called from code not 
+knowing the type of geometry it handles, so it has to be named distance. We also 
+cannot create an overload because that would be ambiguous, having the same 
+template signature. There are two solutions: 
 
 * tag dispatching
 * SFINAE
 
-We select tag dispatching because it fits into the traits system. The earlier versions (previews) of
-Boost.Geometry used SFINAE but we found it had several drawbacks for such a big design, so the switch
-to tag dispatching was made.
+We select tag dispatching because it fits into the traits system. The earlier 
+versions (previews) of Boost.Geometry used SFINAE but we found it had several 
+drawbacks for such a big design, so the switch to tag dispatching was made. 
 
-With tag dispatching the distance algorithm inspects the type of geometry of the input parameters. The distance function will be changed
-into this:
+With tag dispatching the distance algorithm inspects the type of geometry of the 
+input parameters. The distance function will be changed into this:
 
     template <typename G1, typename G2>
     double distance(G1 const& g1, G2 const& g2)
@@ -489,7 +479,7 @@ systems.
         typedef pythagoras<P1, P2, D> type;
     };
 
-So, here is our [*pythagoras] again, now defined as a strategy. The distance dispatch function just
+So, here is our `pythagoras` again, now defined as a strategy. The distance dispatch function just
 calls its apply method.
 
 So this is an important step: for spherical or geographical coordinate systems, another
@@ -582,7 +572,7 @@ concepts. This is handled in the upcoming section Concept Checking.
 
 We promised that calling `std::sqrt` was not always necessary. So we define a distance result `struct`
 that contains the squared value and is convertible to a double value. This, however, only has to
-be done for [*pythagoras]. The spherical distance functions do not take the square root so for them
+be done for `pythagoras`. The spherical distance functions do not take the square root so for them
 it is not necessary to avoid the expensive square root call; they can just return their distance.
 
 So the distance result struct is dependant on strategy, therefore made a member type of
@@ -608,9 +598,9 @@ Each strategy should define its return type, within the strategy class, for exam
 
 or:
 
-    typedef double return_type
+    typedef double return_type;
 
-for [*pythagoras] and spherical, respectively.
+for cartesian (pythagoras) and spherical, respectively.
 
 Again our distance function will be modified, as expected, to reflect the new return type.
 For the overload with a strategy it is not complex:
@@ -647,64 +637,15 @@ and modify our distance function:
 Of course also the apply functions in the dispatch specializations will return a result like this.
 They have a strategy as a template parameter everywhere, making the less verbose version possible.
 
-[heading Reversibility]
+[heading Summary]
 
-Our `dispatch::distance` class was specialized for <`point_tag`, `segment_tag`>.
-Library users can also call the distance function with a segment and a point, in that order.
-Actually, there are many geometry types (polygon, box, linestring), how to implement all those
-without duplicating all tag dispatching functions? The answer is that we automatically
-reverse the arguments, if appropriate. For distance it is appropriate because distance is a
-commutative function. We add a meta-function `geometry_id`, which has specializations for each
-geometry type, just derived from `boost::mpl::int_`, such that it can be ordered. Point is 1,
-segment is e.g. 2.
+In this design rationale, __boost_geometry__ is step by step designed using tag dispatching, 
+concepts, traits, and metaprogramming. We used the well-known distance function
+to show the design.
 
-Then we add a meta-function reverse_dispatch:
-
-    template <typename G1, typename G2>
-    struct reverse_dispatch : detail::reverse_dispatch
-        <
-            geometry_id<G1>::type::value,
-            geometry_id<G2>::type::value
-        >
-    {};
-
-Because of the order in geometry_id, we can arrange (template) parameters in that order,
-in specializations. So the detail structure looks like:
-
-    namespace detail
-    {
-        template <int Id1, int Id2>
-        struct reverse_dispatch : boost::mpl::if_c
-            <
-                (Id1 > Id2),
-                boost::true_type,
-                boost::false_type
-            >
-        {};
-    }
-
-and our distance function will be modified again with some template meta-programming: We get
-
-    return boost::mpl::if_c
-        <
-            boost::geometry::reverse_dispatch <G1, G2>::type::value,
-            dispatch::distance_reversed
-                <
-                    typename tag<G1>::type,
-                    typename tag<G2>::type,
-                    G1, G2,
-                    // strategy
-                >,
-            dispatch::distance
-                <
-                    typename tag<G1>::type,
-                    typename tag<G2>::type,
-                    G1, G2,
-                    // strategy
-            >
-        >::type::apply(g1, g2, s);
-
-Where the `dispatch::distance_reversed` is a specific struct, forwarding its call to
-`dispatch::distance`, reversing all its template arguments and function arguments.
+__boost_geometry__ is designed like described here, with
+some more techniques as automatically reversing template arguments, tag casting, 
+and reusing implementation classes or dispatch classes as policies in other 
+dispatch classes.
 
 [endsect] [/ end of section Design Rationale]
