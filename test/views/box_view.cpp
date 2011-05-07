@@ -15,20 +15,21 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/ranges/segment_range.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/views/box_view.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
 
-template <typename Segment>
+template <typename Box, bool Reverse>
 void test_geometry(std::string const& wkt, std::string const& expected)
 {
 
-    Segment segment;
-    bg::read_wkt(wkt, segment);
+    Box box;
+    bg::read_wkt(wkt, box);
 
-    typedef bg::segment_range<Segment> range_type;
-    range_type range(segment);
+    typedef bg::box_view<Box, Reverse> range_type;
+    range_type range(box);
 
     {
         std::ostringstream out;
@@ -42,34 +43,29 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 
     {
         // Check forward/backward behaviour
-        std::ostringstream out;
         typename boost::range_iterator<range_type>::type it = boost::begin(range);
         it++;
         it--;
-        out << " " << bg::get<0>(*it) << bg::get<1>(*it);
-        typename boost::range_iterator<range_type>::type it2 = boost::end(range);
-        it2--;
-        out << " " << bg::get<0>(*it2) << bg::get<1>(*it2);
-        BOOST_CHECK_EQUAL(out.str(), expected);
+        // Not verified further, same as segment
     }
 
     {
         // Check random access behaviour
         int const n = boost::size(range);
-        BOOST_CHECK_EQUAL(n, 2);
+        BOOST_CHECK_EQUAL(n, 5);
     }
 
     // Check Boost.Range concept
-    BOOST_CONCEPT_ASSERT( (boost::ForwardRangeConcept<range_type>) );
-
+    BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<range_type>) );
 }
 
 
 template <typename P>
 void test_all()
 {
-    test_geometry<bg::model::segment<P> >("linestring(1 1,2 2)", " 11 22");
-    test_geometry<bg::model::segment<P> >("linestring(4 4,3 3)", " 44 33");
+    test_geometry<bg::model::box<P>, true> ("polygon((1 1,2 2))", " 11 12 22 21 11");
+    test_geometry<bg::model::box<P>, false>("polygon((1 1,2 2))", " 11 21 22 12 11");
+    test_geometry<bg::model::box<P>, true> ("polygon((3 3,5 5))", " 33 35 55 53 33");
 }
 
 

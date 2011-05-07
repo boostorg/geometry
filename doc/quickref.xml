@@ -270,7 +270,7 @@
     <bridgehead renderas="sect2">Iterators</bridgehead>
    </entry>
    <entry valign="center" namest="b" nameend="b">
-    <bridgehead renderas="sect2">Ranges</bridgehead>
+    <bridgehead renderas="sect2">Views</bridgehead>
    </entry>
   </row>
  </thead>
@@ -281,17 +281,15 @@
     <member><link linkend="geometry.reference.iterators.closing_iterator">closing_iterator</link></member>
     <member><link linkend="geometry.reference.iterators.circular_iterator">circular_iterator</link></member>
     <member><link linkend="geometry.reference.iterators.ever_circling_iterator">ever_circling_iterator</link></member>
-    <member><link linkend="geometry.reference.iterators.box_iterator">box_iterator</link></member>
-    <member><link linkend="geometry.reference.iterators.segment_range_iterator">segment_range_iterator</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
     <simplelist type="vert" columns="1">
-    <member><link linkend="geometry.reference.ranges.box_range">box_range</link></member>
-    <member><link linkend="geometry.reference.ranges.segment_range">segment_range</link></member>
-    <member><link linkend="geometry.reference.ranges.closeable_view">closeable_view</link></member>
-    <member><link linkend="geometry.reference.ranges.reversible_view">reversible_view</link></member>
-    <member><link linkend="geometry.reference.ranges.identity_view">identity_view</link></member>
+    <member><link linkend="geometry.reference.views.box_view">box_view</link></member>
+    <member><link linkend="geometry.reference.views.segment_view">segment_view</link></member>
+    <member><link linkend="geometry.reference.views.closeable_view">closeable_view</link></member>
+    <member><link linkend="geometry.reference.views.reversible_view">reversible_view</link></member>
+    <member><link linkend="geometry.reference.views.identity_view">identity_view</link></member>
     </simplelist>
    </entry>
   </row>

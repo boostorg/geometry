@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="box_iterator"
-	ProjectGUID="{CD4B14B2-ED74-4111-B8BF-093FA3930A5C}"
-	RootNamespace="box_iterator"
+	Name="box_view"
+	ProjectGUID="{34A1F53A-DA46-41E6-9E26-740D22D662DC}"
+	RootNamespace="box_view"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\box_iterator"
+			IntermediateDirectory="$(ConfigurationName)\box_view"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -46,6 +46,7 @@
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
+				WarningLevel="3"
 				DebugInformationFormat="1"
 			/>
 			<Tool
@@ -92,7 +93,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\box_iterator"
+			IntermediateDirectory="$(ConfigurationName)\box_view"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -119,6 +120,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
+				WarningLevel="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -167,7 +169,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\box_iterator.cpp"
+			RelativePath=".\box_view.cpp"
 			>
 		</File>
 	</Files>

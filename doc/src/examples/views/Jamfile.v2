@@ -9,8 +9,9 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 
-project boost-geometry-doc-example-ranges
+project boost-geometry-doc-example-views
     : # requirements
     ;
 
-exe box_range : box_range.cpp ;
+exe box_view : box_view.cpp ;
+exe segment_view : segment_view.cpp ;

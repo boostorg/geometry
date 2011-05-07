@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="box_range"
-	ProjectGUID="{34A1F53A-DA46-41E6-9E26-740D22D662DC}"
-	RootNamespace="box_range"
+	Name="segment_view"
+	ProjectGUID="{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}"
+	RootNamespace="segment_view"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\box_range"
+			IntermediateDirectory="$(ConfigurationName)\segment_view"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -93,7 +93,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\box_range"
+			IntermediateDirectory="$(ConfigurationName)\segment_view"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -169,7 +169,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\box_range.cpp"
+			RelativePath=".\segment_view.cpp"
 			>
 		</File>
 	</Files>
