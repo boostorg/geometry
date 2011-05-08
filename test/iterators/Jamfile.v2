@@ -10,7 +10,6 @@
 
 test-suite boost-geometry-iterators
     :
-    [ run circular_iterator.cpp ] 
     [ run closing_iterator.cpp ] 
     [ run ever_circling_iterator.cpp ]
     ;

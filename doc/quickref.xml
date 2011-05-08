@@ -260,7 +260,7 @@
  </tbody>
 </tgroup>
 
-<!-- ###### ITERATORS / RANGES ##################################################### -->
+<!-- ###### ITERATORS / VIEWS ##################################################### -->
 <tgroup cols="2">
  <colspec colname="a"/>
  <colspec colname="b"/>
@@ -279,7 +279,6 @@
    <entry valign="top">
     <simplelist type="vert" columns="1">
     <member><link linkend="geometry.reference.iterators.closing_iterator">closing_iterator</link></member>
-    <member><link linkend="geometry.reference.iterators.circular_iterator">circular_iterator</link></member>
     <member><link linkend="geometry.reference.iterators.ever_circling_iterator">ever_circling_iterator</link></member>
     </simplelist>
    </entry>
