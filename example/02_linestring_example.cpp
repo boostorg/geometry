@@ -20,11 +20,15 @@
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
-// Optional includes to handle c-arrays as points, std::vectors as linestrings
+
+// Optional includes and defines to handle c-arrays as points, std::vectors as linestrings
+#include <boost/geometry/geometries/register/linestring.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
+
+BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
+BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::deque)
 
 
 template<typename P>
@@ -133,11 +137,6 @@ int main(void)
         std::cout
             << "as vector: "
             << dsv(v)
-            << std::endl;
-
-        std::cout
-            << "as it-pair: "
-            << dsv(std::make_pair(v.begin(), v.end()))
             << std::endl;
     }
 

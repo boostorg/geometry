@@ -20,8 +20,11 @@
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
+#include <boost/geometry/geometries/register/linestring.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
+
+BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
+BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::deque)
 
 // Sample point, having x/y
 struct my_point
@@ -112,8 +115,6 @@ int main()
     {
         delete p;
     }
-
-
 
     return 0;
 }
