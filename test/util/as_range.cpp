@@ -16,7 +16,7 @@
 #include <geometry_test_common.hpp>
 
 
-#include <boost/geometry/iterators/range_type.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
 #include <boost/geometry/util/as_range.hpp>
 
 #include <boost/geometry/core/cs.hpp>
@@ -43,7 +43,7 @@ void test_geometry(std::string const& wkt, double expected_x, double expected_y)
 
     // Declare a range-type, compatible with boost::range,
     // such that range_iterator etc could be called
-    typedef typename bg::range_type<G>::type range_type;
+    typedef typename bg::detail::range_type<G>::type range_type;
 
     bg::read_wkt(wkt, geometry);
 
