@@ -29,8 +29,7 @@ The Linestring Concept is defined as following:
 
 [heading Available Models]	
 * [link geometry.reference.models.model_linestring model::linestring]
-* a std::vector (requires `#include boost/geometry/geometries/adapted/std_as_linestring.hpp>`)
-* a std::deque (requires `#include boost/geometry/geometries/adapted/std_as_linestring.hpp>`)
-
+* a std::vector (requires registration)
+* a std::deque (requires registration)
 
 [endsect]
