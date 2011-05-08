@@ -55,6 +55,7 @@
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
@@ -72,12 +73,9 @@
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
-
 // Include multi a.o. because it can give weird effects
-// if you don't (e.g. area=0 of a filled multipolygon)
+// if you don't (e.g. area=0 of a multipolygon)
 #include <boost/geometry/multi/multi.hpp>
-
-
 
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -87,6 +85,9 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
+
+#include <boost/geometry/views/box_view.hpp>
+#include <boost/geometry/views/segment_view.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
