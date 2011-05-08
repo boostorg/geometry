@@ -9,6 +9,7 @@
 
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 
 template <typename P>

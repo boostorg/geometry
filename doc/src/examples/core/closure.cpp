@@ -11,7 +11,10 @@
 //` Examine if a polygon is defined as "should be closed"
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 int main()
 {

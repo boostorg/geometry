@@ -15,6 +15,8 @@
 #include <boost/assign.hpp>
 
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/adapted/boost_range/uniqued.hpp>
 
 typedef boost::geometry::model::d2::point_xy<int> xy;

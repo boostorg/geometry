@@ -30,6 +30,7 @@
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/util/as_range.hpp>
 #include <boost/geometry/domains/gis/io/wkt/stream_wkt.hpp>

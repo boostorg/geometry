@@ -19,6 +19,7 @@
 #include <algorithms/test_convex_hull.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 

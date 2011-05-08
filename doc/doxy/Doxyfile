@@ -192,7 +192,6 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/multi/geometries \
 			../../../../boost/geometry/multi/geometries/register \
 			../../../../boost/geometry/multi/geometries/concepts \
-			../../../../boost/geometry/multi/iterators \
 			../../../../boost/geometry/multi/strategies/cartesian \
 			../../../../boost/geometry/policies \
 			../../../../boost/geometry/policies/relate \
@@ -204,7 +203,6 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/strategies/transform \
 			../../../../boost/geometry/util \
 			../../../../boost/geometry/views \
-			../../../../boost/geometry/extensions/io/svg \
 			./doxygen_input/pages \
 			./doxygen_input/groups
 INPUT_ENCODING         = UTF-8

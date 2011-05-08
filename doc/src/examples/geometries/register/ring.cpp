@@ -11,7 +11,9 @@
 //` Show the use of the macro BOOST_GEOMETRY_REGISTER_RING
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/ring.hpp>
 
 typedef boost::geometry::model::d2::point_xy<double> point_2d;

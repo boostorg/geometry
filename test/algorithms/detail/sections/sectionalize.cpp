@@ -22,8 +22,10 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
+
 
 #include <test_common/test_point.hpp>
 

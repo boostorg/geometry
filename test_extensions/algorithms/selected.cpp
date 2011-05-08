@@ -22,6 +22,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/extensions/algorithms/selected.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 

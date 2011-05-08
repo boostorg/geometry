@@ -19,6 +19,7 @@
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);

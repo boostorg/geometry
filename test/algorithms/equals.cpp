@@ -8,6 +8,7 @@
 #include <algorithms/test_equals.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 
 

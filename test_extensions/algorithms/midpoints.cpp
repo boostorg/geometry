@@ -22,6 +22,7 @@
 #include <boost/geometry/extensions/algorithms/midpoints.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/util/write_dsv.hpp>
 

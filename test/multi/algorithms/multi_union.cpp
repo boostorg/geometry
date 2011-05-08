@@ -19,6 +19,7 @@
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 

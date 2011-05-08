@@ -12,8 +12,8 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/included/test_exec_monitor.hpp>
 
-#include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 

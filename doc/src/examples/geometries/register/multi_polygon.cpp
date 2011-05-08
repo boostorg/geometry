@@ -11,7 +11,9 @@
 //` Show the use of the macro BOOST_GEOMETRY_REGISTER_MULTI_POLYGON
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/multi/geometries/register/multi_polygon.hpp>
 

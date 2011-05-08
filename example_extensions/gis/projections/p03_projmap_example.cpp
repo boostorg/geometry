@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/adapted/std_as_ring.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>

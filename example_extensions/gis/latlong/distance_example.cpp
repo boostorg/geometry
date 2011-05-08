@@ -16,6 +16,8 @@
 
 #include <boost/geometry/geometry.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
+
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>

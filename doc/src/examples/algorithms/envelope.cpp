@@ -13,7 +13,9 @@
 #include <iostream>
 
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 /*<-*/ #include "create_svg_two.hpp" /*->*/

@@ -11,7 +11,10 @@
 //` Example showing how to simplify a linestring
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 /*< For this example we use Boost.Assign to add points >*/
 #include <boost/assign.hpp>

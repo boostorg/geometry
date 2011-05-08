@@ -72,6 +72,7 @@ All algorithms in Boost.Geometry will check any geometry arguments against the c
 [def __boost_range__ Boost.Range]
 [def __boost_tuple__ Boost.Tuple]
 [def __boost_gil__ [@http://www.boost.org/libs/gil/ Boost.GIL]]
+[def __boost_bb__ Boost.Build]
 
 [def __ttmath__ [@http://www.ttmath.org/ ttmath]]
 [def __ogc__ [@http://www.opengeospatial.org OGC]]
@@ -91,6 +92,7 @@ Boost.Geometry contains contributions by:
 [include quickstart.qbk]
 
 [include design_rationale.qbk]
+[include compiling.qbk]
 [include matrix.qbk]
 [include reference.qbk]
 [include about_documentation.qbk]

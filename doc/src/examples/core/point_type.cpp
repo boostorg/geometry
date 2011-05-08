@@ -12,7 +12,11 @@
 
 #include <iostream>
 #include <typeinfo>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 int main()
 {
