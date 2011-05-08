@@ -16,6 +16,8 @@
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/within_util.hpp>
 
+#include <boost/geometry/geometries/box.hpp>
+
 
 namespace boost { namespace geometry
 {

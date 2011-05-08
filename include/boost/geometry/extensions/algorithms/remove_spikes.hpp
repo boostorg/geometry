@@ -36,6 +36,9 @@
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
+#include <boost/geometry/geometries/ring.hpp>
+
+
 /*
 Remove spikes from a ring/polygon.
 Ring (having 8 vertices, including closing vertex)

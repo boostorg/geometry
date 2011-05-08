@@ -33,11 +33,8 @@
 
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
-
-
-// Helper geometries
+// Helper geometry (projected point on line)
 #include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/segment.hpp>
 
 
 namespace boost { namespace geometry

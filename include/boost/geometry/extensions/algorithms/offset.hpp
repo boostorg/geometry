@@ -18,6 +18,7 @@
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/geometries/segment.hpp>
 
 namespace boost { namespace geometry
 {

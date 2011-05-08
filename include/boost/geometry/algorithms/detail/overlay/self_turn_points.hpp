@@ -21,6 +21,8 @@
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
+#include <boost/geometry/geometries/box.hpp>
+
 
 namespace boost { namespace geometry
 {
