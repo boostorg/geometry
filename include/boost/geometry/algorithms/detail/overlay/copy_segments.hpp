@@ -24,7 +24,6 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
-#include <boost/geometry/iterators/range_type.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 

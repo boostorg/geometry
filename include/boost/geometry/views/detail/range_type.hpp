@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ITERATORS_RANGE_TYPE_HPP
-#define BOOST_GEOMETRY_ITERATORS_RANGE_TYPE_HPP
+#ifndef BOOST_GEOMETRY_VIEWS_DETAIL_RANGE_TYPE_HPP
+#define BOOST_GEOMETRY_VIEWS_DETAIL_RANGE_TYPE_HPP
 
 
 #include <boost/type_traits.hpp>
@@ -60,6 +60,9 @@ struct range_type<polygon_tag, Geometry>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+// Will probably be replaced by the more generic "view_as", therefore in detail
+namespace detail
+{
 
 
 /*!
@@ -82,8 +85,9 @@ struct range_type
         >::type type;
 };
 
+}
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ITERATORS_RANGE_TYPE_HPP
+#endif // BOOST_GEOMETRY_VIEWS_DETAIL_RANGE_TYPE_HPP

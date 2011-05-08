@@ -66,8 +66,7 @@
 #include <boost/geometry/multi/geometries/concepts/multi_linestring_concept.hpp>
 #include <boost/geometry/multi/geometries/concepts/multi_polygon_concept.hpp>
 
-#include <boost/geometry/multi/iterators/range_type.hpp>
-
+#include <boost/geometry/multi/views/detail/range_type.hpp>
 #include <boost/geometry/multi/strategies/cartesian/centroid_average.hpp>
 
 #include <boost/geometry/multi/util/write_dsv.hpp>

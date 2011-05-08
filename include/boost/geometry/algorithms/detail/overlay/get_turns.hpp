@@ -33,10 +33,10 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 
-#include <boost/geometry/iterators/range_type.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
 #include <boost/geometry/strategies/cartesian/cart_intersect.hpp>

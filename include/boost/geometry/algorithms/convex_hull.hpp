@@ -22,12 +22,12 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/iterators/range_type.hpp>
-
 #include <boost/geometry/strategies/convex_hull.hpp>
 #include <boost/geometry/strategies/concepts/convex_hull_concept.hpp>
 
-#include <boost/geometry/util/as_range.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
+
+#include <boost/geometry/algorithms/detail/as_range.hpp>
 
 
 namespace boost { namespace geometry
@@ -46,8 +46,8 @@ template
 struct hull_insert
 {
 
-    // Member template function, to avoid inconvenient declaration
-    // of output-iterator-type, from hull_to_geometry
+    // Member template function (to avoid inconvenient declaration
+    // of output-iterator-type, from hull_to_geometry)
     template <typename OutputIterator>
     static inline OutputIterator apply(Geometry const& geometry,
             OutputIterator out, Strategy const& strategy)
@@ -78,10 +78,10 @@ struct hull_to_geometry
                 Strategy
             >::apply(geometry,
                 std::back_inserter(
-                    // Handle both ring and polygon the same:
-                    geometry::as_range
+                    // Handle linestring, ring and polygon the same:
+                    detail::as_range
                         <
-                            typename geometry::range_type<OutputGeometry>::type
+                            typename range_type<OutputGeometry>::type
                         >(out)), strategy);
     }
 };
@@ -167,7 +167,6 @@ inline void convex_hull(Geometry1 const& geometry,
             Geometry2
         >();
 
-    //typedef typename range_type<Geometry1>::type range_type;
     typedef typename point_type<Geometry2>::type point_type;
 
     typedef typename strategy_convex_hull
@@ -225,7 +224,6 @@ inline OutputIterator convex_hull_insert(Geometry const& geometry,
     concept::check<Geometry const>();
     concept::check<typename point_type<Geometry>::type>();
 
-    typedef typename range_type<Geometry>::type range_type;
     typedef typename point_type<Geometry>::type point_type;
 
     typedef typename strategy_convex_hull

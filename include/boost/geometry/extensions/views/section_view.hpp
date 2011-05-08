@@ -30,7 +30,7 @@ namespace boost { namespace geometry
 template <typename Geometry, typename Section>
 class section_view
 {
-    typedef typename geometry::range_type<Geometry>::type range_type;
+    typedef typename detail::range_type<Geometry>::type range_type;
 public :
     typedef typename boost::range_iterator
         <

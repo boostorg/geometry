@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_UTIL_AS_RANGE_HPP
-#define BOOST_GEOMETRY_UTIL_AS_RANGE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_AS_RANGE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_AS_RANGE_HPP
 
 
 #include <boost/type_traits.hpp>
@@ -58,6 +58,9 @@ struct as_range<polygon_tag, Geometry, Range, IsConst>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+// Will probably be replaced by the more generic "view_as", therefore in detail
+namespace detail
+{
 
 /*!
 \brief Function getting either the range (ring, linestring) itself
@@ -96,8 +99,9 @@ inline Range const& as_range(Geometry const& input)
         >::get(input);
 }
 
+}
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_UTIL_AS_RANGE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_AS_RANGE_HPP

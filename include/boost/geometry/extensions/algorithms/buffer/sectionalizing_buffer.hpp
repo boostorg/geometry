@@ -84,7 +84,7 @@ void sectionalizing_buffer(Geometry const& geometry,
         {
             typedef typename boost::range_iterator
                 <
-                    typename geometry::range_type<Geometry>::type const
+                    typename geometry::detail::range_type<Geometry>::type const
                 >::type iterator_type;
 
 
