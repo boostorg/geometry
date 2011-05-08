@@ -11,7 +11,9 @@
 //` Show the use of the macro BOOST_GEOMETRY_REGISTER_BOX_TEMPLATED
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/box.hpp>
 
 template <typename P>

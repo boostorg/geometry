@@ -16,6 +16,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 

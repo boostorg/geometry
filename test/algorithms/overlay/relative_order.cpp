@@ -20,6 +20,8 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_relative_order.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
+
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif

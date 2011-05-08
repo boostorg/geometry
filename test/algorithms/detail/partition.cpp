@@ -12,6 +12,7 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 
 #include <boost/geometry/algorithms/detail/partition.hpp>

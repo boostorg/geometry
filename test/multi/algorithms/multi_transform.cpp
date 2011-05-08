@@ -20,6 +20,7 @@
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/multi/algorithms/transform.hpp>
 

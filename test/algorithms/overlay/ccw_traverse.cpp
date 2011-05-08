@@ -16,6 +16,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 #if defined(TEST_WITH_SVG)

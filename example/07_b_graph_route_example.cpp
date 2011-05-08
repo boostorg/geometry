@@ -28,6 +28,7 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 

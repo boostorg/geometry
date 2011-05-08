@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/geometries/adapted/boost_polygon/point.hpp>

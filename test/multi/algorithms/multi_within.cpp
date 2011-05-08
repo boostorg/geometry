@@ -18,6 +18,7 @@
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <algorithms/test_within.hpp>

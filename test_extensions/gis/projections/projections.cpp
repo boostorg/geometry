@@ -24,6 +24,8 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
+
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
 #include <boost/geometry/extensions/gis/projections/factory.hpp>

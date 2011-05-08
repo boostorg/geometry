@@ -11,7 +11,10 @@
 //` Shows how to use a Boost.Geometry linestring, filtered by Boost.Range adaptor
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/adapted/boost_range/filtered.hpp>
 
 struct not_two

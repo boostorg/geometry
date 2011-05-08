@@ -15,6 +15,8 @@
 #include <boost/assign.hpp>
 
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/adapted/boost_range/strided.hpp>
 
 

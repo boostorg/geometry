@@ -33,6 +33,7 @@
 
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 #include <test_common/test_point.hpp>
 

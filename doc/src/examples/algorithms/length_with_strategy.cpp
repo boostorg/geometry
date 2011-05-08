@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
 
 int main()
 {

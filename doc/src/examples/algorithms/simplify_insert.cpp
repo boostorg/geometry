@@ -11,7 +11,10 @@
 //` Simplify a linestring using a back inserter
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 int main()
 {

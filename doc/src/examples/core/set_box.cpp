@@ -11,7 +11,9 @@
 //` Set the coordinate of a box
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 namespace bg = boost::geometry;
 

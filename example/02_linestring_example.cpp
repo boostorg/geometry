@@ -17,9 +17,13 @@
 #include <vector>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 // Optional includes to handle c-arrays as points, std::vectors as linestrings
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
+
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 
 

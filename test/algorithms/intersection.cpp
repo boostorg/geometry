@@ -24,6 +24,7 @@
 #include <algorithms/test_overlay.hpp>
 
 #include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <test_common/test_point.hpp>
 #include <test_common/with_pointer.hpp>

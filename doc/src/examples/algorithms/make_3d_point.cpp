@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point.hpp>
 
 int main()
 {

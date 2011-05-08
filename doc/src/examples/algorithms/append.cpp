@@ -15,7 +15,7 @@
 #include <boost/assign.hpp>
 
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)

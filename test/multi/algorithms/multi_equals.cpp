@@ -11,6 +11,7 @@
 #include <boost/geometry/multi/algorithms/equals.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>

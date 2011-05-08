@@ -13,6 +13,7 @@ OBSOLETE
 #include <fstream>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/multi/multi.hpp>
 
