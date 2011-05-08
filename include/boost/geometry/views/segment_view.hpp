@@ -27,9 +27,19 @@ namespace boost { namespace geometry
 
 
 /*!
-\brief Range, walking over the two points of a segment
-\tparam Segment segment type
+\brief Makes a segment behave like a linestring or a range
+\details Adapts a segment to the Boost.Range concept, enabling the user to 
+    iterate the two segment points. The segment_view is registered as a LineString Concept
+\tparam Segment \tparam_geometry{Segment}
 \ingroup views
+
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_linestring LineString Concept]
+}
+
+\qbk{[include reference/views/segment_view.qbk]}
+
 */
 template <typename Segment>
 struct segment_view
@@ -41,6 +51,7 @@ struct segment_view
 {
     typedef typename geometry::point_type<Segment>::type point_type;
     
+    /// Constructor accepting the segment to adapt
     explicit segment_view(Segment const& segment)
         : detail::points_view<point_type, 2>(copy_policy(segment))
     {}
