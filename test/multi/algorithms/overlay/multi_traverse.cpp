@@ -32,7 +32,7 @@
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/multi/iterators/range_type.hpp>
+#include <boost/geometry/multi/views/detail/range_type.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
 

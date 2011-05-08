@@ -15,7 +15,7 @@
 
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
-#include <boost/geometry/iterators/range_type.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
@@ -35,7 +35,7 @@ void test_sectionalize(std::string const caseid, Geometry const& geometry, std::
 
     typedef typename bg::closeable_view
         <
-            typename bg::range_type<Geometry>::type const,
+            typename bg::detail::range_type<Geometry>::type const,
             bg::closure<Geometry>::value
         >::type cview_type;
     typedef typename bg::reversible_view
