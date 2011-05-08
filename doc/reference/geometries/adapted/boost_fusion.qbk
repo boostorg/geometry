@@ -25,7 +25,7 @@ point concept. They can therefore be used in many Boost.Geometry algorithms.
 [heading Header]
 `#include <boost/geometry/geometries/adapted/boost_fusion.hpp>`
 
-The standard header `<boost/geometry.hpp>` does not include this header.
+__not_in_boost_geometry_hpp__
 
 [heading Example]
 [boost_fusion]

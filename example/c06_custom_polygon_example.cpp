@@ -14,6 +14,7 @@
 #include <boost/geometry/geometry.hpp>
 
 #include <boost/geometry/geometries/register/point.hpp>
+#include <boost/geometry/geometries/register/ring.hpp>
 
 
 struct my_point
@@ -48,11 +49,7 @@ struct my_polygon
 
 // We can conveniently use macro's to register point and ring
 BOOST_GEOMETRY_REGISTER_POINT_2D(my_point, double, cs::cartesian, x, y)
-
-// Register my_ring as a ring
-namespace boost { namespace geometry { namespace traits {
-template <> struct tag<my_ring> { typedef ring_tag type; };
-}}}
+BOOST_GEOMETRY_REGISTER_RING(my_ring)
 
 
 
@@ -75,7 +72,6 @@ template<> struct interior_mutable_type<my_polygon>
 {
     typedef boost::array<my_ring, 2>& type;
 };
-
 
 template<> struct exterior_ring<my_polygon>
 {

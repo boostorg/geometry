@@ -134,11 +134,19 @@
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d">BOOST_GEOMETRY_REGISTER_POINT_3D</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d_const">BOOST_GEOMETRY_REGISTER_POINT_3D_CONST</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d_get_set">BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET</link></member>
+     
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_point">BOOST_GEOMETRY_REGISTER_MULTI_POINT</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_point_templated">BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED</link></member>
+     
     </simplelist>
    </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">1-dimensionial (macro's for adaption)</bridgehead>
     <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_linestring">BOOST_GEOMETRY_REGISTER_LINESTRING</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_linestring_templated">BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_linestring">BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_linestring_templated">BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING_TEMPLATED</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
@@ -147,6 +155,10 @@
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box">BOOST_GEOMETRY_REGISTER_BOX</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box_2d_4values">BOOST_GEOMETRY_REGISTER_BOX_2D_4VALUES</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_box_templated">BOOST_GEOMETRY_REGISTER_BOX_TEMPLATED</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_ring">BOOST_GEOMETRY_REGISTER_RING</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_ring_templated">BOOST_GEOMETRY_REGISTER_RING_TEMPLATED</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_polygon">BOOST_GEOMETRY_REGISTER_MULTI_POLYGON</link></member>
+     <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_polygon_templated">BOOST_GEOMETRY_REGISTER_MULTI_POLYGON_TEMPLATED</link></member>
     </simplelist>
    </entry>
   </row>
@@ -248,7 +260,7 @@
  </tbody>
 </tgroup>
 
-<!-- ###### ITERATORS / RANGES ##################################################### -->
+<!-- ###### ITERATORS / VIEWS ##################################################### -->
 <tgroup cols="2">
  <colspec colname="a"/>
  <colspec colname="b"/>
@@ -258,7 +270,7 @@
     <bridgehead renderas="sect2">Iterators</bridgehead>
    </entry>
    <entry valign="center" namest="b" nameend="b">
-    <bridgehead renderas="sect2">Ranges</bridgehead>
+    <bridgehead renderas="sect2">Views</bridgehead>
    </entry>
   </row>
  </thead>
@@ -267,19 +279,16 @@
    <entry valign="top">
     <simplelist type="vert" columns="1">
     <member><link linkend="geometry.reference.iterators.closing_iterator">closing_iterator</link></member>
-    <member><link linkend="geometry.reference.iterators.circular_iterator">circular_iterator</link></member>
     <member><link linkend="geometry.reference.iterators.ever_circling_iterator">ever_circling_iterator</link></member>
-    <member><link linkend="geometry.reference.iterators.box_iterator">box_iterator</link></member>
-    <member><link linkend="geometry.reference.iterators.segment_range_iterator">segment_range_iterator</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
     <simplelist type="vert" columns="1">
-    <member><link linkend="geometry.reference.ranges.box_range">box_range</link></member>
-    <member><link linkend="geometry.reference.ranges.segment_range">segment_range</link></member>
-    <member><link linkend="geometry.reference.ranges.closeable_view">closeable_view</link></member>
-    <member><link linkend="geometry.reference.ranges.reversible_view">reversible_view</link></member>
-    <member><link linkend="geometry.reference.ranges.identity_view">identity_view</link></member>
+    <member><link linkend="geometry.reference.views.box_view">box_view</link></member>
+    <member><link linkend="geometry.reference.views.segment_view">segment_view</link></member>
+    <member><link linkend="geometry.reference.views.closeable_view">closeable_view</link></member>
+    <member><link linkend="geometry.reference.views.reversible_view">reversible_view</link></member>
+    <member><link linkend="geometry.reference.views.identity_view">identity_view</link></member>
     </simplelist>
    </entry>
   </row>

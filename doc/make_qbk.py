@@ -88,14 +88,13 @@ core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
 
 exceptions = ["exception", "centroid_exception"];
 
-iterators = ["box_iterator", "circular_iterator", "closing_iterator"
-    , "ever_circling_iterator", "segment_range_iterator"]
+iterators = ["circular_iterator", "closing_iterator"
+    , "ever_circling_iterator"]
 
 models = ["point", "linestring", "box"
     , "polygon", "segment", "ring"
     , "multi_linestring", "multi_point", "multi_polygon", "referring_segment"]
 
-ranges = ["box_range", "segment_range"];
 
 strategies = ["distance::pythagoras", "distance::haversine"
     , "distance::cross_track", "distance::projected_point"
@@ -110,7 +109,8 @@ strategies = ["distance::pythagoras", "distance::haversine"
     , "transform::translate_transformer", "transform::ublas_transformer"
     ]
     
-views = ["closeable_view", "reversible_view", "identity_view"]
+views = ["box_view", "segment_view"
+    , "closeable_view", "reversible_view", "identity_view"]
 
 
 
@@ -135,9 +135,6 @@ for i in iterators:
 for i in models:
     model_to_quickbook(i)
    
-for i in ranges:
-    class_to_quickbook(i)
-
 for i in strategies:
     strategy_to_quickbook(i)
 

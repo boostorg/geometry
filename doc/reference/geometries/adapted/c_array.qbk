@@ -30,7 +30,7 @@ the point type.
 [heading Header]
 `#include <boost/geometry/geometries/adapted/c_array.hpp>`
 
-The standard header `<boost/geometry.hpp>` does not include this header.
+__not_in_boost_geometry_hpp__
 
 [heading Example]
 [c_array]

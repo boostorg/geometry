@@ -10,6 +10,8 @@
 
 test-suite boost-geometry-views
     :
+    [ run segment_view.cpp ] 
+    [ run box_view.cpp ] 
     [ run reversible_view.cpp ]
     [ run closeable_view.cpp ]
     [ run reversible_closeable.cpp ]

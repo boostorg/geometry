@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="circular_iterator"
-	ProjectGUID="{46571A34-B68D-4854-90C0-56D29EE63FFE}"
-	RootNamespace="circular_iterator"
+	Name="segment_view"
+	ProjectGUID="{B49AC3E2-3497-465B-88C2-BCADA4B4ADAF}"
+	RootNamespace="segment_view"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\circular_iterator"
+			IntermediateDirectory="$(ConfigurationName)\segment_view"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -93,7 +93,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\circular_iterator"
+			IntermediateDirectory="$(ConfigurationName)\segment_view"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -169,7 +169,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\circular_iterator.cpp"
+			RelativePath=".\segment_view.cpp"
 			>
 		</File>
 	</Files>
