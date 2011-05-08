@@ -25,7 +25,7 @@
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 
-#include <boost/geometry/multi/iterators/range_type.hpp>
+#include <boost/geometry/multi/views/detail/range_type.hpp>
 
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>

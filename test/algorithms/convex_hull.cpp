@@ -21,26 +21,29 @@
 
 
 template <typename P>
-void test_all(bool do_rectangular = true)
+void test_all()
 {
     // from sample linestring
-
     test_geometry<bg::model::linestring<P> >(
         "linestring(1.1 1.1, 2.5 2.1, 3.1 3.1, 4.9 1.1, 3.1 1.9)", 5, 4, 3.8);
 
-    if (do_rectangular)
-    {
-        // rectangular, with concavity
-        test_geometry<bg::model::polygon<P> >(
-            "polygon((1 1, 1 4, 3 4, 3 3, 4 3, 4 4, 5 4, 5 1, 1 1))",
-                    9, 5, 12.0);
-    }
+    // rectangular, with concavity
+    test_geometry<bg::model::polygon<P> >(
+        "polygon((1 1, 1 4, 3 4, 3 3, 4 3, 4 4, 5 4, 5 1, 1 1))",
+                9, 5, 12.0);
 
     // from sample polygon, with concavity
     test_geometry<bg::model::polygon<P> >(
         "polygon((2.0 1.3, 2.4 1.7, 2.8 1.8, 3.4 1.2, 3.7 1.6,3.4 2.0, 4.1 3.0"
         ", 5.3 2.6, 5.4 1.2, 4.9 0.8, 2.9 0.7,2.0 1.3))",
                 12, 8, 5.245);
+
+    test_geometry<bg::model::ring<P> >(
+        "polygon((2.0 1.3, 2.4 1.7, 2.8 1.8, 3.4 1.2, 3.7 1.6,3.4 2.0, 4.1 3.0"
+        ", 5.3 2.6, 5.4 1.2, 4.9 0.8, 2.9 0.7,2.0 1.3))",
+                12, 8, 5.245);
+
+    // Waits for next cycle test_geometry<bg::model::box<P> >("box(0 0,2 2)", 5, 5, 4);
 }
 
 int test_main(int, char* [])
