@@ -22,9 +22,6 @@ OBSOLETE
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 
 
 // Small QRect simulations following http://doc.trolltech.com/4.4/qrect.html

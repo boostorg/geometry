@@ -11,11 +11,19 @@
 
 
 #include <boost/geometry/geometry.hpp>
+
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/ring.hpp>
+
 #include <boost/geometry/geometries/adapted/boost_polygon/point.hpp>
 #include <boost/geometry/geometries/adapted/boost_polygon/box.hpp>
 #include <boost/geometry/geometries/adapted/boost_polygon/ring.hpp>
 #include <boost/geometry/geometries/adapted/boost_polygon/polygon.hpp>
+
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+
 #include <iostream>
 
 template <typename T>

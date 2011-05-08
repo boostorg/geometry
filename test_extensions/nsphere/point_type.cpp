@@ -18,8 +18,6 @@
 #include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
 #include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
 
-#include <boost/geometry/geometries/adapted/boost_array_as_linestring.hpp>
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 
 #include <vector>
 #include <deque>
