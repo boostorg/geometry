@@ -15,6 +15,8 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
+#include <boost/geometry/geometries/segment.hpp>
+
 
 namespace boost { namespace geometry
 {

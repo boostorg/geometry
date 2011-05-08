@@ -15,17 +15,16 @@
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
-#include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
 
+// Helper geometry
+#include <boost/geometry/geometries/point.hpp>
+
 
 namespace boost { namespace geometry
 {
-
-// Note: when calling the namespace "centroid", it sometimes,
-// somehow, in gcc, gives compilation problems (confusion with function centroid).
 
 namespace strategy { namespace centroid
 {

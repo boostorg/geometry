@@ -31,6 +31,8 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
+#include <boost/geometry/geometries/box.hpp>
+
 
 /*
 Mark spikes in a ring/polygon.

@@ -24,6 +24,8 @@
 #include <boost/iterator/iterator_categories.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
+
+// Helper geometry
 #include <boost/geometry/geometries/segment.hpp>
 
 namespace boost { namespace geometry
