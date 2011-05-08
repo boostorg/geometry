@@ -15,6 +15,7 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_REGISTER_RING_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_REGISTER_RING_HPP
 
+
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
