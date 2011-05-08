@@ -19,7 +19,6 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-
 /*!
 \brief \brief_macro{linestring}
 \ingroup register
