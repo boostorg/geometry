@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ITERATORS_CIRCULAR_ITERATOR_HPP
-#define BOOST_GEOMETRY_ITERATORS_CIRCULAR_ITERATOR_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_ITERATORS_CIRCULAR_ITERATOR_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_ITERATORS_CIRCULAR_ITERATOR_HPP
 
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
@@ -118,4 +118,4 @@ private:
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ITERATORS_CIRCULAR_ITERATOR_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_ITERATORS_CIRCULAR_ITERATOR_HPP

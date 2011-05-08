@@ -23,7 +23,7 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/strategies/convex_hull.hpp>
 
-#include <boost/geometry/iterators/range_type.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 
@@ -277,7 +277,7 @@ public:
         // This makes use of the geometry::less/greater predicates with the optional
         // direction template parameter to indicate x direction
 
-        typedef typename range_type<InputGeometry>::type range_type;
+        typedef typename geometry::detail::range_type<InputGeometry>::type range_type;
 
         typedef typename boost::range_iterator
             <
