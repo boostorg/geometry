@@ -63,7 +63,7 @@ private :
 \brief View on a range, either closing or not closing
 \tparam Range original range
 \tparam Close specifying if it should be closed or not
-\ingroup ranges
+\ingroup views
 */
 template <typename Range, closure_selector Close>
 struct closeable_view {};

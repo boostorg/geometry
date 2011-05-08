@@ -19,7 +19,6 @@
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
-#include <boost/geometry/multi/iterators/range_type.hpp>
 
 #include <boost/geometry/multi/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>

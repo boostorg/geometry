@@ -30,7 +30,7 @@ namespace boost { namespace geometry
 
 /*!
 \brief Flag for iterating a reversible_view in forward or reverse direction
-\ingroup ranges
+\ingroup views
 */
 enum iterate_direction { iterate_forward, iterate_reverse };
 
@@ -38,7 +38,7 @@ enum iterate_direction { iterate_forward, iterate_reverse };
 \brief View on a range, reversing direction if necessary
 \tparam Range original range
 \tparam Direction direction of iteration
-\ingroup ranges
+\ingroup views
 */
 template <typename Range, iterate_direction Direction>
 struct reversible_view {};

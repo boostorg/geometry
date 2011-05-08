@@ -11,13 +11,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_ITERATORS_RANGE_TYPE_HPP
-#define BOOST_GEOMETRY_MULTI_ITERATORS_RANGE_TYPE_HPP
+#ifndef BOOST_GEOMETRY_MULTI_VIEWS_DETAIL_RANGE_TYPE_HPP
+#define BOOST_GEOMETRY_MULTI_VIEWS_DETAIL_RANGE_TYPE_HPP
 
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/iterators/range_type.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -46,7 +46,7 @@ template <typename Geometry>
 struct range_type<multi_polygon_tag, Geometry>
 {
     // Call its single-version
-    typedef typename geometry::ring_type
+    typedef typename geometry::detail::range_type
         <
             typename boost::range_value<Geometry>::type
         >::type type;
@@ -59,4 +59,4 @@ struct range_type<multi_polygon_tag, Geometry>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_MULTI_ITERATORS_RANGE_TYPE_HPP
+#endif // BOOST_GEOMETRY_MULTI_VIEWS_DETAIL_RANGE_TYPE_HPP

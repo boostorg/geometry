@@ -26,7 +26,7 @@
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/ranges/segment_range.hpp>
+#include <boost/geometry/views/segment_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -286,8 +286,7 @@ struct intersection_insert
     static inline OutputIterator apply(Segment const& segment,
             Box const& box, OutputIterator out, Strategy const& strategy)
     {
-        typedef geometry::segment_range<Segment> range_type;
-        range_type range(segment);
+        geometry::segment_view<Segment> range(segment);
 
         typedef typename point_type<GeometryOut>::type point_type;
         strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
