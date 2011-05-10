@@ -22,18 +22,19 @@
 
 
 template <typename Box, bool Reverse>
-void test_geometry(std::string const& wkt, std::string const& expected)
+void test_geometry(std::string const& wkt, std::string const& expected, 
+            bg::order_selector expected_order)
 {
 
     Box box;
     bg::read_wkt(wkt, box);
 
-    typedef bg::box_view<Box, Reverse> range_type;
-    range_type range(box);
+    typedef bg::box_view<Box, Reverse> view_type;
+    view_type range(box);
 
     {
         std::ostringstream out;
-        for (typename boost::range_iterator<range_type>::type it = boost::begin(range);
+        for (typename boost::range_iterator<view_type>::type it = boost::begin(range);
             it != boost::end(range); ++it)
         {
             out << " " << bg::get<0>(*it) << bg::get<1>(*it);
@@ -43,7 +44,7 @@ void test_geometry(std::string const& wkt, std::string const& expected)
 
     {
         // Check forward/backward behaviour
-        typename boost::range_iterator<range_type>::type it = boost::begin(range);
+        typename boost::range_iterator<view_type>::type it = boost::begin(range);
         it++;
         it--;
         // Not verified further, same as segment
@@ -56,16 +57,20 @@ void test_geometry(std::string const& wkt, std::string const& expected)
     }
 
     // Check Boost.Range concept
-    BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<range_type>) );
+    BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<view_type>) );
+
+    // Check order
+    bg::order_selector order = bg::point_order<view_type>::value;
+    BOOST_CHECK_EQUAL(order, expected_order);
 }
 
 
 template <typename P>
 void test_all()
 {
-    test_geometry<bg::model::box<P>, true> ("polygon((1 1,2 2))", " 11 12 22 21 11");
-    test_geometry<bg::model::box<P>, false>("polygon((1 1,2 2))", " 11 21 22 12 11");
-    test_geometry<bg::model::box<P>, true> ("polygon((3 3,5 5))", " 33 35 55 53 33");
+    test_geometry<bg::model::box<P>, true> ("polygon((1 1,2 2))", " 11 12 22 21 11", bg::clockwise);
+    test_geometry<bg::model::box<P>, false>("polygon((1 1,2 2))", " 11 21 22 12 11", bg::counterclockwise);
+    test_geometry<bg::model::box<P>, true> ("polygon((3 3,5 5))", " 33 35 55 53 33", bg::clockwise);
 }
 
 

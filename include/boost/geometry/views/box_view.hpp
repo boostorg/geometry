@@ -72,7 +72,7 @@ private :
             points[4] = points[0];
         }
     private :
-        Box m_box;
+        Box const& m_box;
     };
 
 };
@@ -83,11 +83,26 @@ private :
 // All views on boxes are handled as rings
 namespace traits
 {
-    template<typename Box, bool Clockwise>
-    struct tag<box_view<Box, Clockwise> >
-    {
-        typedef ring_tag type;
-    };
+
+template<typename Box, bool Clockwise>
+struct tag<box_view<Box, Clockwise> >
+{
+    typedef ring_tag type;
+};
+
+template<typename Box>
+struct point_order<box_view<Box, false> >
+{
+    static order_selector const value = counterclockwise;
+};
+
+
+template<typename Box>
+struct point_order<box_view<Box, true> >
+{
+    static order_selector const value = clockwise;
+};
+
 }
 
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS

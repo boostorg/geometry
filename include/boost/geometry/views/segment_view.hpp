@@ -71,7 +71,7 @@ private :
             geometry::detail::assign_point_from_index<1>(m_segment, points[1]);
         }
     private :
-        Segment m_segment;
+        Segment const& m_segment;
     };
 
 };
@@ -82,11 +82,13 @@ private :
 // All segment ranges can be handled as linestrings
 namespace traits
 {
-    template<typename Segment>
-    struct tag<segment_view<Segment> >
-    {
-        typedef linestring_tag type;
-    };
+
+template<typename Segment>
+struct tag<segment_view<Segment> >
+{
+    typedef linestring_tag type;
+};
+
 }
 
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
