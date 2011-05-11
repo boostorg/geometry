@@ -34,7 +34,7 @@ class choose_next_node<Value, Box, rstar_tag>
     typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
 
-    typedef typename internal_node::children_type children_type;
+    typedef typename rtree::elements_type<internal_node>::type children_type;
 
     typedef typename index::default_area_result<Box>::type area_type;
     typedef typename index::default_overlap_result<Box>::type overlap_type;
@@ -43,25 +43,26 @@ public:
     template <typename Indexable>
     static inline size_t apply(internal_node & n, Indexable const& indexable)
     {
-        assert(!n.children.empty());
+        children_type & children = rtree::elements_get(n);
+        assert(!children.empty());
         
         bool has_leaves = boost::apply_visitor(
             visitors::is_leaf<Value, Box, rstar_tag>(),
-            *n.children.front().second);
+            *children.front().second);
 
         if ( has_leaves )
             return branch_impl(n, indexable);
-            //return impl<branch_areas>(n, indexable);
         else
             return internal_node_impl(n, indexable);
-            //return impl<internal_node_areas>(n, indexable);
     }
 
 private:
     template <typename Indexable>
     static inline size_t branch_impl(internal_node & n, Indexable const& indexable)
     {
-        size_t children_count = n.children.size();
+        children_type & children = rtree::elements_get(n);
+        size_t children_count = children.size();
+
         // overlaps values of all nodes' boxes,
         // overlaps and areas of extended boxes are stored at indexes i + children_count
         std::vector<overlap_type> overlaps(children_count * 2, overlap_type(0));
@@ -70,7 +71,7 @@ private:
         for (size_t i = 0 ; i < children_count ; ++i )
         {
             typedef typename children_type::value_type child_type;
-            child_type const& ch_i = n.children[i];
+            child_type const& ch_i = children[i];
 
             Box ch_ext;
             // calculate expanded box fo node ch_i
@@ -82,7 +83,7 @@ private:
 
             for (size_t j = i + 1 ; j < children_count ; ++j )
             {
-                child_type const& ch_j = n.children[j];
+                child_type const& ch_j = children[j];
                 
                 // add overlap of both boxes
                 overlap_type ovl = index::overlap(ch_i.first, ch_j.first);
@@ -128,7 +129,8 @@ private:
     template <typename Indexable>
     static inline size_t internal_node_impl(internal_node & n, Indexable const& indexable)
     {
-        size_t children_count = n.children.size();
+        children_type & children = rtree::elements_get(n);
+        size_t children_count = children.size();
 
         // choose index with smallest area change or smallest area
         size_t choosen_index = 0;
@@ -139,7 +141,7 @@ private:
         for ( size_t i = 0 ; i < children_count ; ++i )
         {
             typedef typename children_type::value_type child_type;
-            child_type const& ch_i = n.children[i];
+            child_type const& ch_i = children[i];
 
             Box ch_exp;
             geometry::convert(ch_i.first, ch_exp);
@@ -159,82 +161,6 @@ private:
 
         return choosen_index;
     }
-
-    //template <typename Areas, typename Indexable>
-    //static inline size_t impl(internal_node & n, Indexable const& indexable)
-    //{
-    //    typedef typename children_type::iterator children_iterator;
-
-    //    //assert(!n.children.empty());
-
-    //    children_iterator temp_it = n.children.begin();
-    //    children_iterator child_it = temp_it;
-    //    Areas min_areas(n.children, child_it, indexable);
-
-    //    for (children_iterator it = ++temp_it;
-    //        it != n.children.end(); ++it)
-    //    {
-    //        Areas areas(n.children, it, indexable);
-
-    //        if ( areas < min_areas )
-    //        {
-    //            child_it = it;
-    //            min_areas = areas;
-    //        }
-    //    }
-
-    //    return child_it - n.children.begin();
-    //}
-
-    //struct branch_areas
-    //{
-    //    typedef typename index::area_result<Box>::type area_type;
-
-    //    template <typename Indexable>
-    //    inline branch_areas(children_type const& ch, typename children_type::iterator const& k_it, Indexable const& indexable)
-    //    {
-    //        overlap_area = 0;
-    //        for (typename children_type::const_iterator it = ch.begin(); it != ch.end(); ++it)
-    //            if ( it != k_it )
-    //                overlap_area += index::overlap(k_it->first, it->first);
-
-    //        area = index::area(k_it->first);
-
-    //        diff_area = index::union_area(k_it->first, indexable) - area;
-    //    }
-
-    //    inline bool operator<(branch_areas &a) const
-    //    {
-    //        return overlap_area < a.overlap_area ||
-    //            ( overlap_area == a.overlap_area && diff_area < a.diff_area ) ||
-    //            ( diff_area == a.diff_area && area < a.area );
-    //    }
-
-    //    area_type overlap_area;
-    //    area_type diff_area;
-    //    area_type area;
-    //};
-
-    //struct internal_node_areas
-    //{
-    //    typedef typename area_result<Box>::type area_type;
-
-    //    template <typename Indexable>
-    //    inline internal_node_areas(children_type const&, typename children_type::iterator const& k_it, Indexable const& indexable)
-    //    {
-    //        area = index::area(k_it->first);
-    //        diff_area = index::union_area(k_it->first, indexable) - area;
-    //    }
-
-    //    inline bool operator<(internal_node_areas &a) const
-    //    {
-    //        return diff_area < a.diff_area ||
-    //            ( diff_area == a.diff_area && area < a.area );
-    //    }
-
-    //    area_type diff_area;
-    //    area_type area;
-    //};
 };
 
 } // namespace detail
