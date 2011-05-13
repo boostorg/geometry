@@ -77,7 +77,7 @@ private:
             child_type const& ch_i = children[i];
 
             Box box_exp(ch_i.first);
-            // calculate expanded box fo node ch_i
+            // calculate expanded box of child node ch_i
             geometry::expand(box_exp, indexable);
 
             // calculate area and area diff
@@ -126,18 +126,21 @@ private:
         area_type smallest_area_diff = std::numeric_limits<area_type>::max();
         area_type smallest_area = std::numeric_limits<area_type>::max();
 
-        // caculate areas and areas of all nodes' boxes
+        // choose the child which requires smallest box expansion to store the indexable
         for ( size_t i = 0 ; i < children_count ; ++i )
         {
             typedef typename children_type::value_type child_type;
             child_type const& ch_i = children[i];
 
+            // expanded child node's box
             Box box_exp(ch_i.first);
             geometry::expand(box_exp, indexable);
 
+            // areas difference
             area_type area = index::area(box_exp);
             area_type area_diff = area - index::area(ch_i.first);
 
+            // update the result
             if ( area_diff < smallest_area_diff ||
                 ( area_diff == smallest_area_diff && area < smallest_area ) )
             {

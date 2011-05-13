@@ -14,6 +14,8 @@
 
 #include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
+#include <boost/geometry/extensions/index/algorithms/within.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
@@ -52,9 +54,7 @@ public:
         size_t child_node_index = 0;
         for ( ; child_node_index < children.size() ; ++child_node_index )
         {
-            // TODO: awulkiew - change intersects to within
-
-            if ( geometry::intersects(children[child_node_index].first, m_tr(m_value)) )
+            if ( index::within(children[child_node_index].first, m_tr(m_value)) )
             {
                 // next traversing step
                 traverse_apply_visitor(n, child_node_index);

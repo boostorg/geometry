@@ -52,12 +52,15 @@ struct choose_next_node
             typedef typename children_type::value_type child_type;
             child_type const& ch_i = children[i];
 
+            // expanded child node's box
             Box box_exp(ch_i.first);
             geometry::expand(box_exp, indexable);
 
+            // areas difference
             area_type area = index::area(box_exp);
             area_type area_diff = area - index::area(ch_i.first);
 
+            // update the result
             if ( area_diff < smallest_area_diff ||
                 ( area_diff == smallest_area_diff && area < smallest_area ) )
             {
@@ -95,6 +98,7 @@ struct split
         size_t max_elems,
         Translator const& tr)
     {
+        // create additional node
         node * second_node = rtree::create_node(Node());
         Node & n2 = rtree::get<Node>(*second_node);
 
@@ -221,6 +225,7 @@ protected:
         size_t current_child_index_bckup = m_current_child_index;
         size_t current_level_bckup = m_current_level;
 
+        // calculate new traverse inputs
         m_parent = &n;
         m_current_child_index = choosen_node_index;
         ++m_current_level;
