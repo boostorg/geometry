@@ -1,12 +1,13 @@
+//#define BOOST_GEOMETRY_INDEX_USE_VARIANT_NODES
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
+
+#include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
 
 #include <iostream>
 #include <fstream>
 
 #include <boost/timer.hpp>
 #include <boost/foreach.hpp>
-
-//#include <boost/geometry/extensions/index/rtree/visitors/save.hpp>
 
 int main()
 {
@@ -17,9 +18,9 @@ int main()
 
     typedef bg::model::point<float, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
-    typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::linear_tag> RT;
+    //typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::linear_tag> RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::quadratic_tag> RT;
-    //typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::rstar_tag> RT;
+    typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::rstar_tag> RT;
 
     std::ifstream file_cfg("config.txt");
     size_t max_elems = 4;
@@ -61,20 +62,10 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
-    /*if ( save_ch == 's' )
-    {
-        std::cout << "saving...\n";
-        std::ofstream file("save_new.txt", std::ofstream::trunc);
-        file << std::fixed;
-        bgi::detail::rtree::visitors::save<
-            RT::value_type,
-            RT::translator_type,
-            RT::box_type,
-            RT::tag_type
-        > saving_v(file, t.get_translator());
-        t.apply_visitor(saving_v);
-        std::cout << "saved...\n";
-    }*/
+    if ( bgi::are_boxes_ok(t) )
+        std::cout << "BOXES OK\n";
+    else
+        std::cout << "WRONG BOXES\n";
 
     {
         std::cout << "searching time test...\n";
@@ -106,6 +97,11 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
+    if ( bgi::are_boxes_ok(t) )
+        std::cout << "BOXES OK\n";
+    else
+        std::cout << "WRONG BOXES\n";
+
     {
         std::cout << "searching time test...\n";
         tim.restart();    
@@ -135,6 +131,11 @@ int main()
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
+
+    if ( bgi::are_boxes_ok(t) )
+        std::cout << "BOXES OK\n";
+    else
+        std::cout << "WRONG BOXES\n";
 
     {
         std::cout << "searching time test...\n";

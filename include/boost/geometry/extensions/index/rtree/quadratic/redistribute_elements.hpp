@@ -99,7 +99,7 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
 
         // copy original elements
-        elements_type elements_copy = rtree::elements_get(n);
+        elements_type elements_copy = rtree::elements(n);
         
         // calculate initial seeds
         size_t seed1 = 0;
@@ -107,8 +107,8 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
         quadratic::pick_seeds<elements_type, Translator, Box>::apply(elements_copy, tr, seed1, seed2);
 
         // prepare nodes' elements containers
-        elements_type & elements1 = rtree::elements_get(n);
-        elements_type & elements2 = rtree::elements_get(second_node);
+        elements_type & elements1 = rtree::elements(n);
+        elements_type & elements2 = rtree::elements(second_node);
         elements1.clear();
         assert(elements2.empty());
 
@@ -204,7 +204,7 @@ struct redistribute_elements<Value, Translator, Box, quadratic_tag>
         }
     }
 
-    // sprawdzic szukanie najmniejszego powiekszenia wezla dla grupy1 i grupy2
+    // TODO: awulkiew - change following function to static member of the pick_next class?
 
     template <typename It>
     static inline It pick_next(It first, It last,

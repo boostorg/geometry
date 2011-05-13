@@ -43,81 +43,68 @@ public:
     template <typename Indexable>
     static inline size_t apply(internal_node & n, Indexable const& indexable)
     {
-        children_type & children = rtree::elements_get(n);
+        children_type & children = rtree::elements(n);
         assert(!children.empty());
         
-        bool has_leaves = boost::apply_visitor(
-            visitors::is_leaf<Value, Box, rstar_tag>(),
-            *children.front().second);
+        visitors::is_leaf<Value, Box, rstar_tag> ilv;
+        rtree::apply_visitor(ilv, *children.front().second);
 
-        if ( has_leaves )
-            return branch_impl(n, indexable);
+        if ( ilv.result )
+            return choose_by_minimum_overlap_cost(children, indexable);
         else
-            return internal_node_impl(n, indexable);
+            return choose_by_minimum_area_cost(children, indexable);
     }
 
 private:
     template <typename Indexable>
-    static inline size_t branch_impl(internal_node & n, Indexable const& indexable)
+    static inline size_t choose_by_minimum_overlap_cost(children_type const& children, Indexable const& indexable)
     {
-        children_type & children = rtree::elements_get(n);
         size_t children_count = children.size();
 
-        // overlaps values of all nodes' boxes,
-        // overlaps and areas of extended boxes are stored at indexes i + children_count
-        std::vector<overlap_type> overlaps(children_count * 2, overlap_type(0));
-        std::vector<overlap_type> areas(children_count * 2);
-        // caculate overlaps and areas of all nodes' boxes
+        // choose index with smallest overlap change value, or area change or smallest area
+        size_t choosen_index = 0;
+        overlap_type smallest_overlap_diff = std::numeric_limits<overlap_type>::max();
+        area_type smallest_area_diff = std::numeric_limits<area_type>::max();
+        area_type smallest_area = std::numeric_limits<area_type>::max();
+
+        // for each child node
         for (size_t i = 0 ; i < children_count ; ++i )
         {
             typedef typename children_type::value_type child_type;
             child_type const& ch_i = children[i];
 
-            Box ch_ext;
+            Box box_exp(ch_i.first);
             // calculate expanded box fo node ch_i
-            geometry::convert(ch_i.first, ch_ext);
-            geometry::expand(ch_ext, indexable);
+            geometry::expand(box_exp, indexable);
 
-            areas[i] = index::area(ch_i.first);
-            areas[i + children_count] = index::area(ch_ext);
+            // calculate area and area diff
+            area_type area = index::area(ch_i.first);
+            area_type area_diff = index::area(box_exp) - area;
 
-            for (size_t j = i + 1 ; j < children_count ; ++j )
+            overlap_type overlap = 0;
+            overlap_type overlap_exp = 0;
+
+            // calculate overlap
+            for ( size_t j = 0 ; j < children_count ; ++j )
             {
-                child_type const& ch_j = children[j];
-                
-                // add overlap of both boxes
-                overlap_type ovl = index::overlap(ch_i.first, ch_j.first);
-                overlaps[i] += ovl;
-                overlaps[j] += ovl;
+                if ( i != j )
+                {
+                    child_type const& ch_j = children[j];
 
-                // add overlap of expanded box i and box j
-                overlaps[i + children_count] = index::overlap(ch_ext, ch_j.first);
-                
-                // add overlap of expanded box j and box i
-                geometry::convert(ch_j.first, ch_ext);
-                geometry::expand(ch_ext, indexable);
-                overlaps[j + children_count] = index::overlap(ch_ext, ch_i.first);
+                    overlap += index::overlap(ch_i.first, ch_j.first);
+                    overlap_exp += index::overlap(box_exp, ch_j.first);
+                }
             }
-        }
 
-        // choose index with smallest overlap change value, or area change or smallest area
-        size_t choosen_index = 0;
-        overlap_type smallest_overlap_change = std::numeric_limits<overlap_type>::max();
-        area_type smallest_area_change = std::numeric_limits<area_type>::max();
-        area_type smallest_area = std::numeric_limits<area_type>::max();
+            overlap_type overlap_diff = overlap_exp - overlap;
 
-        for ( size_t i = 0 ; i < children_count ; ++i )
-        {
-            overlap_type overlap_change = overlaps[i + children_count] - overlaps[i];
-            area_type area_change = areas[i + children_count] - areas[i];
-            area_type area = areas[i + children_count];
-
-            if ( overlap_change < smallest_overlap_change ||
-                 ( overlap_change == smallest_overlap_change && area_change < smallest_area_change ) ||
-                 ( area_change == smallest_area_change && smallest_area < area ) )
+            // update result
+            if ( overlap_diff < smallest_overlap_diff ||
+                 ( overlap_diff == smallest_overlap_diff && area_diff < smallest_area_diff ) ||
+                 ( area_diff == smallest_area_diff && area < smallest_area ) )
             {
-                smallest_overlap_change = overlap_change;
-                smallest_area_change = area_change;
+                smallest_overlap_diff = overlap_diff;
+                smallest_area_diff = area_diff;
                 smallest_area = area;
                 choosen_index = i;
             }
@@ -127,14 +114,13 @@ private:
     }
 
     template <typename Indexable>
-    static inline size_t internal_node_impl(internal_node & n, Indexable const& indexable)
+    static inline size_t choose_by_minimum_area_cost(children_type const& children, Indexable const& indexable)
     {
-        children_type & children = rtree::elements_get(n);
         size_t children_count = children.size();
 
         // choose index with smallest area change or smallest area
         size_t choosen_index = 0;
-        area_type smallest_area_change = std::numeric_limits<area_type>::max();
+        area_type smallest_area_diff = std::numeric_limits<area_type>::max();
         area_type smallest_area = std::numeric_limits<area_type>::max();
 
         // caculate areas and areas of all nodes' boxes
@@ -143,17 +129,16 @@ private:
             typedef typename children_type::value_type child_type;
             child_type const& ch_i = children[i];
 
-            Box ch_exp;
-            geometry::convert(ch_i.first, ch_exp);
-            geometry::expand(ch_exp, indexable);
+            Box box_exp(ch_i.first);
+            geometry::expand(box_exp, indexable);
 
-            area_type area = index::area(ch_exp);
-            area_type area_change = area - index::area(ch_i.first);
-            
-            if ( area_change < smallest_area_change ||
-                ( area_change == smallest_area_change && smallest_area < area ) )
+            area_type area = index::area(box_exp);
+            area_type area_diff = area - index::area(ch_i.first);
+
+            if ( area_diff < smallest_area_diff ||
+                ( area_diff == smallest_area_diff && area < smallest_area ) )
             {
-                smallest_area_change = area_change;
+                smallest_area_diff = area_diff;
                 smallest_area = area;
                 choosen_index = i;
             }

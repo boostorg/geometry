@@ -195,7 +195,7 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
         typedef typename index::default_area_result<Box>::type area_type;
 
         // copy original elements
-        elements_type elements_copy = rtree::elements_get(n);
+        elements_type elements_copy = rtree::elements(n);
         size_t elements_count = elements_copy.size();
 
         // calculate initial seeds
@@ -204,8 +204,8 @@ struct redistribute_elements<Value, Translator, Box, linear_tag>
         linear::pick_seeds<elements_type, Translator>::apply(elements_copy, tr, seed1, seed2);
 
         // prepare nodes' elements containers
-        elements_type & elements1 = rtree::elements_get(n);
-        elements_type & elements2 = rtree::elements_get(second_node);
+        elements_type & elements1 = rtree::elements(n);
+        elements_type & elements2 = rtree::elements(second_node);
         elements1.clear();
         assert(elements2.empty());
 

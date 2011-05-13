@@ -17,20 +17,22 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Box, typename Tag>
-struct is_leaf : public boost::static_visitor<bool>
+struct is_leaf : public rtree::visitor<Value, Box, Tag, true>::type
 {
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
-    inline bool operator()(internal_node const&) const
+    inline void operator()(internal_node const&)
     {
-        return false;
+        result = false;
     }
 
-    inline bool operator()(leaf const&) const
+    inline void operator()(leaf const&)
     {
-        return true;
+        result = true;
     }
+
+    bool result;
 };
 
 }}} // namespace detail::rtree::visitors

@@ -20,7 +20,7 @@ namespace detail { namespace rtree { namespace visitors {
 
 // Default remove algorithm
 template <typename Value, typename Translator, typename Box, typename Tag>
-class remove : public boost::static_visitor<>
+class remove : public rtree::visitor<Value, Box, Tag, false>::type
 {
     typedef typename rtree::node<Value, Box, Tag>::type node;
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
@@ -46,7 +46,7 @@ public:
     inline void operator()(internal_node & n)
     {
         typedef typename rtree::elements_type<internal_node>::type children_type;
-        children_type & children = rtree::elements_get(n);
+        children_type & children = rtree::elements(n);
 
         // traverse children which boxes intersects value's box
         size_t child_node_index = 0;
@@ -69,7 +69,7 @@ public:
         {
             typedef typename rtree::elements_type<internal_node>::type elements_type;
             typedef typename elements_type::iterator element_iterator;
-            elements_type & elements = rtree::elements_get(n);
+            elements_type & elements = rtree::elements(n);
 
             // underflow occured - child node should be removed
             if ( m_is_underflow )
@@ -91,14 +91,14 @@ public:
                 // note that there may be less than min_elems elements in root
                 assert((elements.size() < m_min_elems_per_node) == m_is_underflow);
 
-                rtree::elements_get(*m_parent)[m_current_child_index].first
+                rtree::elements(*m_parent)[m_current_child_index].first
                     = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
             }
             // n is root node
             else
             {
                 // current node must be a root
-                assert(&n == boost::get<internal_node>(m_root_node));
+                assert(&n == rtree::get<internal_node>(m_root_node));
 
                 // value not found
                 assert(m_is_value_removed);
@@ -108,16 +108,18 @@ public:
                 for ( typename std::vector< std::pair<size_t, node*> >::reverse_iterator it = m_underflowed_nodes.rbegin();
                         it != m_underflowed_nodes.rend() ; ++it )
                 {
-                    if ( boost::apply_visitor(is_leaf<Value, Box, Tag>(), *it->second) )
-                        reinsert_elements(boost::get<leaf>(*it->second), it->first);
+                    is_leaf<Value, Box, Tag> ilv;
+                    rtree::apply_visitor(ilv, *it->second);
+                    if ( ilv.result )
+                        reinsert_elements(rtree::get<leaf>(*it->second), it->first);
                     else
-                        reinsert_elements(boost::get<internal_node>(*it->second), it->first);
+                        reinsert_elements(rtree::get<internal_node>(*it->second), it->first);
                 }
 
                 // shorten the tree
-                if ( rtree::elements_get(n).size() == 1 )
+                if ( rtree::elements(n).size() == 1 )
                 {
-                    m_root_node = rtree::elements_get(n)[0].second;
+                    m_root_node = rtree::elements(n)[0].second;
                 }
             }
         }
@@ -126,7 +128,7 @@ public:
     inline void operator()(leaf & n)
     {
         typedef typename rtree::elements_type<leaf>::type elements_type;
-        elements_type & elements = rtree::elements_get(n);
+        elements_type & elements = rtree::elements(n);
 
         // find value and remove it
         for ( typename elements_type::iterator it = elements.begin() ; it != elements.end() ; ++it )
@@ -148,7 +150,7 @@ public:
             // n is not root - adjust aabb
             if ( 0 != m_parent )
             {
-                rtree::elements_get(*m_parent)[m_current_child_index].first
+                rtree::elements(*m_parent)[m_current_child_index].first
                     = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
             }
         }
@@ -167,7 +169,7 @@ private:
         ++m_current_level;
 
         // next traversing step
-        boost::apply_visitor(*this, *rtree::elements_get(n)[choosen_node_index].second);
+        rtree::apply_visitor(*this, *rtree::elements(n)[choosen_node_index].second);
 
         // restore previous traverse inputs
         m_parent = parent_bckup;
@@ -179,7 +181,7 @@ private:
     void reinsert_elements(Node &n, size_t level)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
-        elements_type & elements = rtree::elements_get(n);
+        elements_type & elements = rtree::elements(n);
         for ( typename elements_type::iterator it = elements.begin();
             it != elements.end() ; ++it )
         {
@@ -191,7 +193,7 @@ private:
                 m_tr,
                 level);
 
-            boost::apply_visitor(insert_v, *m_root_node);
+            rtree::apply_visitor(insert_v, *m_root_node);
         }
     }
 

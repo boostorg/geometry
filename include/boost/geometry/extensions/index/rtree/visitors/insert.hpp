@@ -35,7 +35,7 @@ struct choose_next_node
     template <typename Indexable>
     static inline size_t apply(internal_node & n, Indexable const& indexable)
     {
-        children_type & children = rtree::elements_get(n);
+        children_type & children = rtree::elements(n);
 
         assert(!children.empty());
 
@@ -96,7 +96,7 @@ struct split
         Translator const& tr)
     {
         node * second_node = rtree::create_node(Node());
-        Node & n2 = boost::get<Node>(*second_node);
+        Node & n2 = rtree::get<Node>(*second_node);
 
         // redistribute elements
         Box box1, box2;
@@ -104,27 +104,27 @@ struct split
             apply(n, n2, box1, box2, min_elems, max_elems, tr);
 
         // check numbers of elements
-        assert(min_elems <= rtree::elements_get(n).size() && rtree::elements_get(n).size() <= max_elems);
-        assert(min_elems <= rtree::elements_get(n2).size() && rtree::elements_get(n2).size() <= max_elems);
+        assert(min_elems <= rtree::elements(n).size() && rtree::elements(n).size() <= max_elems);
+        assert(min_elems <= rtree::elements(n2).size() && rtree::elements(n2).size() <= max_elems);
 
         // node is not the root
         if ( parent != 0 )
         {
             // update old node's box
-            rtree::elements_get(*parent)[current_child_index].first = box1;
+            rtree::elements(*parent)[current_child_index].first = box1;
             // add new node to the parent's children
-            rtree::elements_get(*parent).push_back(std::make_pair(box2, second_node));
+            rtree::elements(*parent).push_back(std::make_pair(box2, second_node));
         }
         // node is the root
         else
         {
-            assert(&n == boost::get<Node>(root));
+            assert(&n == rtree::get<Node>(root));
 
             // create new root and add nodes
             node * new_root = rtree::create_node(internal_node());
 
-            rtree::elements_get(boost::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root));
-            rtree::elements_get(boost::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
+            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root));
+            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
 
             root = new_root;
         }
@@ -155,7 +155,7 @@ struct overflow_treatment
 
 // Default insert visitor
 template <typename Element, typename Value, typename Translator, typename Box, typename Tag>
-class insert : public boost::static_visitor<>
+class insert : public rtree::visitor<Value, Box, Tag, false>::type
 {
 public:
     typedef typename rtree::node<Value, Box, Tag>::type node;
@@ -183,22 +183,6 @@ public:
         // assert - check if Box is correct
     }
 
-    inline void operator()(internal_node & n)
-    {
-        // traverse
-        traverse(*this, n);
-
-        post_traverse(n);
-    }
-
-    inline void operator()(leaf & n)
-    {
-        // push value
-        rtree::elements_get(n).push_back(m_element);
-
-        post_traverse(n);
-    }
-
 protected:
     template <typename Visitor>
     inline void traverse(Visitor & visitor, internal_node & n)
@@ -209,7 +193,7 @@ protected:
 
         // expand the node to contain value
         geometry::expand(
-            rtree::elements_get(n)[choosen_node_index].first,
+            rtree::elements(n)[choosen_node_index].first,
             rtree::element_indexable(m_element, m_tr));
 
         // next traversing step
@@ -222,7 +206,7 @@ protected:
     inline void post_traverse(Node &n)
     {
         // handle overflow
-        if ( m_max_elems_per_node < rtree::elements_get(n).size() )
+        if ( m_max_elems_per_node < rtree::elements(n).size() )
         {
             detail::overflow_treatment<Value, Translator, Box, Tag>::
                 apply(n, m_parent, m_current_child_index, m_root_node, m_min_elems_per_node, m_max_elems_per_node, m_tr);
@@ -242,7 +226,7 @@ protected:
         ++m_current_level;
 
         // next traversing step
-        boost::apply_visitor(visitor, *rtree::elements_get(n)[choosen_node_index].second);
+        rtree::apply_visitor(visitor, *rtree::elements(n)[choosen_node_index].second);
 
         // restore previous traverse inputs
         m_parent = parent_bckup;
@@ -297,13 +281,13 @@ struct insert : public detail::insert<Element, Value, Translator, Box, Tag>
             assert( base::m_level == base::m_current_level );
 
             // push new child node
-            rtree::elements_get(n).push_back(base::m_element);
+            rtree::elements(n).push_back(base::m_element);
         }
 
         base::post_traverse(n);
     }
 
-    inline void operator()(leaf & n)
+    inline void operator()(leaf &)
     {
         assert(false);
     }
@@ -343,7 +327,7 @@ struct insert<Value, Value, Translator, Box, Tag> : public detail::insert<Value,
         assert( base::m_level == base::m_current_level ||
             base::m_level == std::numeric_limits<size_t>::max() );
 
-        rtree::elements_get(n).push_back(base::m_element);
+        rtree::elements(n).push_back(base::m_element);
 
         base::post_traverse(n);
     }

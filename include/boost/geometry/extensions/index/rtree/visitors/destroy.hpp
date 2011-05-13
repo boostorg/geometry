@@ -17,26 +17,26 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Translator, typename Box, typename Tag>
-struct destroy : public boost::static_visitor<>
+struct destroy : public rtree::visitor<Value, Box, Tag, false>::type
 {
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
-    inline void operator()(internal_node & n) const
+    inline void operator()(internal_node & n)
     {
         typedef typename rtree::elements_type<internal_node>::type elements_type;
-        elements_type & elements = rtree::elements_get(n);
+        elements_type & elements = rtree::elements(n);
 
         for (typename elements_type::iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            boost::apply_visitor(*this, *it->second);
+            rtree::apply_visitor(*this, *it->second);
 
             rtree::delete_node(it->second);
         }
     }
 
-    inline void operator()(leaf & n) const
+    inline void operator()(leaf &)
     {
     }
 };

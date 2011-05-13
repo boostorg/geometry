@@ -143,7 +143,7 @@ namespace detail { namespace rtree { namespace visitors {
 // rtree spatial query visitor
 
 template <typename Value, typename Translator, typename Box, typename Tag, typename Geometry, typename OutIter>
-struct find : public boost::static_visitor<>
+struct find : public rtree::visitor<Value, Box, Tag, true>::type
 {
     typedef typename rtree::node<Value, Box, Tag>::type node;
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
@@ -194,20 +194,20 @@ struct find : public boost::static_visitor<>
         //}
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
-        elements_type const& elements = rtree::elements_get(n);
+        elements_type const& elements = rtree::elements(n);
 
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
             if ( geometry::intersects(it->first, geom) )
-                boost::apply_visitor(*this, *it->second);
+                rtree::apply_visitor(*this, *it->second);
         }
     }
 
     inline void operator()(leaf const& n)
     {
         typedef typename rtree::elements_type<leaf>::type elements_type;
-        elements_type const& elements = rtree::elements_get(n);
+        elements_type const& elements = rtree::elements(n);
 
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)

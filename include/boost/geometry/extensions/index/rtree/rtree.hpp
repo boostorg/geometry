@@ -22,7 +22,7 @@
 
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
 #include <boost/geometry/extensions/index/rtree/quadratic/quadratic.hpp>
-//#include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
+#include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -67,7 +67,7 @@ public:
     ~rtree()
     {
         detail::rtree::visitors::destroy<value_type, translator_type, box_type, tag_type> del_v;
-        boost::apply_visitor(del_v, *m_root);
+        detail::rtree::apply_visitor(del_v, *m_root);
     }
 
     // TODO: awulkiew - change name to query?
@@ -78,7 +78,7 @@ public:
         detail::rtree::visitors::find<value_type, translator_type, box_type, tag_type, Geometry, OutIter>
             find_v(m_translator, geom, out_it);
 
-        boost::apply_visitor(find_v, *m_root);
+        detail::rtree::apply_visitor(find_v, *m_root);
     }
 
     void insert(value_type const& value)
@@ -88,7 +88,7 @@ public:
         detail::rtree::visitors::insert<value_type, value_type, translator_type, box_type, tag_type>
             insert_v(m_root, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
-        boost::apply_visitor(insert_v, *m_root);
+        detail::rtree::apply_visitor(insert_v, *m_root);
 
         ++m_values_count;
     }
@@ -101,7 +101,7 @@ public:
         detail::rtree::visitors::remove<value_type, translator_type, box_type, tag_type>
             remove_v(m_root, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
-        boost::apply_visitor(remove_v, *m_root);
+        detail::rtree::apply_visitor(remove_v, *m_root);
 
         --m_values_count;
     }
@@ -124,9 +124,9 @@ public:
     }
 
     template <typename Visitor>
-    typename Visitor::result_type apply_visitor(Visitor & visitor) const
+    void apply_visitor(Visitor & visitor) const
     {
-        return boost::apply_visitor(visitor, *m_root);
+        detail::rtree::apply_visitor(visitor, *m_root);
     }
 
     translator_type const& get_translator() const

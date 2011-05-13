@@ -95,7 +95,7 @@ inline void gl_draw_indexable(Indexable const& i, typename index::traits::coordi
 } // namespace detail
 
 template <typename Value, typename Translator, typename Box, typename Tag>
-struct gl_draw : public boost::static_visitor<>
+struct gl_draw : public rtree::visitor<Value, Box, Tag, true>::type
 {
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
@@ -115,7 +115,7 @@ struct gl_draw : public boost::static_visitor<>
     inline void operator()(internal_node const& n)
     {
         typedef typename rtree::elements_type<internal_node>::type elements_type;
-        elements_type const& elements = rtree::elements_get(n);
+        elements_type const& elements = rtree::elements(n);
 
         if ( level_f <= level )
         {
@@ -151,7 +151,7 @@ struct gl_draw : public boost::static_visitor<>
             for (typename elements_type::const_iterator it = elements.begin();
                 it != elements.end(); ++it)
             {
-                boost::apply_visitor(*this, *it->second);
+                rtree::apply_visitor(*this, *it->second);
             }
         }
 
@@ -161,7 +161,7 @@ struct gl_draw : public boost::static_visitor<>
     inline void operator()(leaf const& n)
     {
         typedef typename rtree::elements_type<leaf>::type elements_type;
-        elements_type const& elements = rtree::elements_get(n);
+        elements_type const& elements = rtree::elements(n);
 
         if ( level_f <= level )
         {
