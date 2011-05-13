@@ -8,6 +8,7 @@
 
 #include <boost/timer.hpp>
 #include <boost/foreach.hpp>
+#include <boost/random.hpp>
 
 int main()
 {
@@ -22,32 +23,79 @@ int main()
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::quadratic_tag> RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::rstar_tag> RT;
 
+    // load config file
     std::ifstream file_cfg("config.txt");
     size_t max_elems = 4;
     size_t min_elems = 2;
     size_t values_count = 0;
+    size_t remove_count = 0;
     size_t queries_count = 0;
-    char save_ch = 'n';
+    std::string file_name("");
     file_cfg >> max_elems;
     file_cfg >> min_elems;
     file_cfg >> values_count;
+    file_cfg >> remove_count;
     file_cfg >> queries_count;
-    file_cfg >> save_ch;
+    file_cfg >> file_name;
     std::cout << "max: " << max_elems << ", min: " << min_elems << "\n";
-    std::cout << "v: " << values_count << ", q: " << queries_count << "\n";
+    std::cout << "v: " << values_count << ", r: " << remove_count << ", q: " << queries_count << "\n";
 
-    std::ifstream file("test_coords.txt");
-    std::cout << "loading data\n";
-    std::vector< std::pair<float, float> > coords(values_count);
-    for ( size_t i = 0 ; i < values_count ; ++i )
+    if ( values_count < remove_count )
     {
-        file >> coords[i].first;
-        file >> coords[i].second;
+        std::cout << "can't remove more data than was inserted\n";
+        return 0;
     }
-    std::cout << "loaded\n";
+
+    // prepare data buffer
+    std::vector< std::pair<float, float> > coords;
+    coords.reserve(values_count);
     
+    // load test coordinates
+    if ( file_name != "" )
+    {
+        std::ifstream file(file_name.c_str());
+        if ( !file.is_open() )
+        {
+            std::cout << "can't open file containing coordinates\n";
+            return 0;
+        }
+
+        std::cout << "loading data\n";
+        for ( size_t i = 0 ; i < values_count ; ++i )
+        {
+            std::pair<float, float> v;
+            file >> v.first;
+            file >> v.second;
+            coords.push_back(v);
+        }
+        std::cout << "loaded\n";
+
+        if ( coords.size() != values_count || coords.size() < remove_count )
+        {
+            std::cout << "not enough coordinates loaded\n";
+            return 0;
+        }
+    }
+    // randomize
+    else
+    {
+        boost::mt19937 rng;
+        float max_val = values_count / 2;
+        boost::uniform_real<float> range(-max_val, max_val);
+        boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > rnd(rng, range);
+
+        std::cout << "randomizing data\n";
+        for ( size_t i = 0 ; i < values_count ; ++i )
+        {
+            coords.push_back(std::make_pair(rnd(), rnd()));
+        }
+        std::cout << "randomized\n";
+    }
+    
+    // create rtree
     RT t(max_elems, min_elems);
 
+    // elements inserting test
     {
         std::cout << "inserting time test...\n";
         tim.restart();
@@ -62,11 +110,13 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
+    // check
     if ( bgi::are_boxes_ok(t) )
         std::cout << "BOXES OK\n";
     else
         std::cout << "WRONG BOXES\n";
 
+    // searching test
     {
         std::cout << "searching time test...\n";
         tim.restart();    
@@ -80,13 +130,14 @@ int main()
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
-        std::cout << temp << "\n";
+        std::cout << "found: " << temp << "\n";
     }
 
+    // elements removing test
     {
         std::cout << "removing time test...\n";
         tim.restart();
-        for (size_t i = 0 ; i < values_count / 2 ; ++i )
+        for (size_t i = 0 ; i < remove_count ; ++i )
         {
             float x = coords[i].first;
             float y = coords[i].second;
@@ -97,11 +148,13 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
+    // check
     if ( bgi::are_boxes_ok(t) )
         std::cout << "BOXES OK\n";
     else
         std::cout << "WRONG BOXES\n";
 
+    // searching test
     {
         std::cout << "searching time test...\n";
         tim.restart();    
@@ -115,9 +168,10 @@ int main()
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
-        std::cout << temp << "\n";
+        std::cout << "found: " << temp << "\n";
     }
 
+    // inserting test
     {
         std::cout << "inserting time test...\n";
         tim.restart();
@@ -132,11 +186,13 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
+    // test
     if ( bgi::are_boxes_ok(t) )
         std::cout << "BOXES OK\n";
     else
         std::cout << "WRONG BOXES\n";
 
+    // searching test
     {
         std::cout << "searching time test...\n";
         tim.restart();    
@@ -150,7 +206,7 @@ int main()
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
-        std::cout << temp << "\n";
+        std::cout << "found: " << temp << "\n";
     }
 
     std::cin.get();

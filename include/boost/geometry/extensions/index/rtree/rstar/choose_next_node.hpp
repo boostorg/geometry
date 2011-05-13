@@ -46,11 +46,14 @@ public:
         children_type & children = rtree::elements(n);
         assert(!children.empty());
         
+        // check if children are leafs
         visitors::is_leaf<Value, Box, rstar_tag> ilv;
         rtree::apply_visitor(ilv, *children.front().second);
 
+        // children are leafs
         if ( ilv.result )
             return choose_by_minimum_overlap_cost(children, indexable);
+        // children are internal nodes
         else
             return choose_by_minimum_area_cost(children, indexable);
     }
