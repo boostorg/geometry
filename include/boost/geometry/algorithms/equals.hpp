@@ -15,9 +15,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_EQUALS_HPP
 
 
-
 #include <cstddef>
-#include <deque>
 #include <vector>
 
 #include <boost/mpl/if.hpp>
@@ -139,8 +137,7 @@ struct equals_by_collection
         std::sort(c2.begin(), c2.end());
 
         // Just check if these vectors are equal.
-        return c1.size() == c2.size()
-            && std::equal(c1.begin(), c1.end(), c2.begin());
+        return std::equal(c1.begin(), c1.end(), c2.begin());
     }
 };
 
