@@ -21,14 +21,12 @@ void test_all()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::linestring<P> linestring;
 
+    std::string case_p1 = "POLYGON((0 0,0 2,2 2,0 0))";
 
     test_geometry<P, P>("p1", "POINT(1 1)", "POINT(1 1)", true);
     test_geometry<P, P>("p2", "POINT(1 1)", "POINT(1 2)", false);
     test_geometry<box, box>("b1", "BOX(1 1,2 2)", "BOX(1 2,2 2)", false);
     test_geometry<box, box>("b1", "BOX(1 2,3 4)", "BOX(1 2,3 4)", true);
-
-
-    std::string case_p1 = "POLYGON((0 0,0 2,2 2,0 0))";
 
     // Completely equal
     test_geometry<ring, ring>("poly_eq", case_p1, case_p1, true);
@@ -39,7 +37,14 @@ void test_all()
 
     // Extra coordinate
     test_geometry<ring, ring>("poly_extra", case_p1, "POLYGON((0 0,0 2,2 2,1 1,0 0))", true);
-    // Degenerate points
+
+    // Shifted + extra (redundant) coordinate
+    test_geometry<ring, ring>("poly_shifted_extra1", "POLYGON((2 2,1 1,0 0,0 2,2 2))", case_p1, true);
+
+    // Shifted + extra (redundant) coordinate being first/last point
+    test_geometry<ring, ring>("poly_shifted_extra2", "POLYGON((1 1,0 0,0 2,2 2,1 1))", case_p1, true);
+
+    // Degenerate (duplicate) points
     test_geometry<ring, ring>("poly_degenerate", "POLYGON((0 0,0 2,2 2,2 2,0 0))", "POLYGON((0 0,0 2,0 2,2 2,0 0))", true);
 
     // Two different bends, same area, unequal
@@ -96,10 +101,54 @@ void test_all()
 }
 
 
+template <typename T>
+void verify()
+{
+    T dxn1, dyn1, dxn2, dyn2;
+
+    {
+        T x1 = "0", y1 = "0", x2 = "3", y2 = "3";
+        T dx = x2 - x1, dy = y2 - y1;
+        T mag = sqrt(dx * dx + dy * dy);
+        dxn1 = dx / mag;
+        dyn1 = dy / mag;
+    }
+
+    {
+        T x1 = "0", y1 = "0", x2 = "1", y2 = "1";
+        T dx = x2 - x1, dy = y2 - y1;
+        T mag = sqrt(dx * dx + dy * dy);
+        dxn2 = dx / mag;
+        dyn2 = dy / mag;
+    }
+
+    if (dxn1 == dxn2 && dyn1 == dyn2)
+    {
+        //std::cout << "vectors are equal, using ==" << std::endl;
+    }
+    if (boost::geometry::math::equals(dxn1, dxn2)
+        && boost::geometry::math::equals(dyn1, dyn2))
+    {
+        //std::cout << "vectors are equal, using bg::math::equals" << std::endl;
+    }
+
+    bool equals = boost::geometry::math::equals_with_epsilon(dxn1, dxn2)
+        && boost::geometry::math::equals_with_epsilon(dyn1, dyn2);
+
+    if (equals)
+    {
+        //std::cout << "vectors are equal, using bg::math::equals_with_epsilon" << std::endl;
+    }
+
+    BOOST_CHECK_EQUAL(equals, true);
+}
 
 
 int test_main( int , char* [] )
 {
+    //verify<double>();
+    verify<ttmath_big>();
+
     test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<double> >();
 
