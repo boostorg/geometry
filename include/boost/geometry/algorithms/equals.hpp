@@ -88,7 +88,7 @@ struct area_check
     {
         return geometry::math::equals(
                 geometry::area(geometry1),
-                geometry::area(geometry1));
+                geometry::area(geometry2));
     }
 };
 
@@ -100,7 +100,7 @@ struct length_check
     {
         return geometry::math::equals(
                 geometry::length(geometry1),
-                geometry::length(geometry1));
+                geometry::length(geometry2));
     }
 };
 
@@ -135,15 +135,12 @@ struct equals_by_collection
             return false;
         }
 
-        // Check where direction is NOT changing
-
         std::sort(c1.begin(), c1.end());
         std::sort(c2.begin(), c2.end());
 
         // Just check if these vectors are equal.
         return c1.size() == c2.size()
             && std::equal(c1.begin(), c1.end(), c2.begin());
-
     }
 };
 
