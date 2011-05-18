@@ -32,25 +32,36 @@ namespace detail
 {
 
 
-template <typename T, bool Floating>
+template <typename Type, bool, typename TypeForEpsilon = Type>
 struct equals
 {
-    static inline bool apply(T const& a, T const& b)
+    static inline bool apply(Type const& a, Type const& b)
     {
         return a == b;
     }
 };
 
-template <typename T>
-struct equals<T, true>
+template <typename Type, typename TypeForEpsilon>
+struct equals<Type, true, TypeForEpsilon>
 {
-    static inline bool apply(T const& a, T const& b)
+    static inline bool apply(Type const& a, Type const& b)
     {
         // See http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17,
         // FUTURE: replace by some boost tool or boost::test::close_at_tolerance
-        return std::abs(a - b) <= std::numeric_limits<T>::epsilon() * std::abs(a);
+        Type const epsilon = std::numeric_limits<TypeForEpsilon>::epsilon();
+        return abs(a - b) <= epsilon * abs(a);
     }
 };
+
+
+template <typename Type, bool> 
+struct equals_with_epsilon {};
+
+template <typename Type>
+struct equals_with_epsilon<Type, false> : public equals<Type, true, double> {};
+
+template <typename Type>
+struct equals_with_epsilon<Type, true> : public equals<Type, true> {};
 
 
 /*!
@@ -100,6 +111,18 @@ inline bool equals(T1 const& a, T2 const& b)
             boost::is_floating_point<select_type>::type::value
         >::apply(a, b);
 }
+
+template <typename T1, typename T2>
+inline bool equals_with_epsilon(T1 const& a, T2 const& b)
+{
+    typedef typename select_most_precise<T1, T2>::type select_type;
+    return detail::equals_with_epsilon
+        <
+            select_type, 
+            boost::is_floating_point<select_type>::type::value
+        >::apply(a, b);
+}
+
 
 
 double const d2r = geometry::math::pi<double>() / 180.0;
