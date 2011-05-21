@@ -152,12 +152,25 @@ namespace detail
 
     template <>
     struct define_pi<ttmath_big>
+            : public define_pi<ttmath::Big<1,4> > 
+    {};
+    
+    template <ttmath::uint Exponent, ttmath::uint Mantissa>
+    struct equals_with_epsilon<ttmath::Big<Exponent, Mantissa>, false>
     {
-        static inline ttmath_big apply()
+        static inline bool apply(ttmath::Big<Exponent, Mantissa> const& a, ttmath::Big<Exponent, Mantissa> const& b)
         {
-            return define_pi<ttmath::Big<1,4> >::apply();
+            // See implementation in util/math.hpp
+            // But here borrow the tolerance for double, to avoid exact comparison
+            ttmath::Big<Exponent, Mantissa> const epsilon = std::numeric_limits<double>::epsilon();
+            return ttmath::Abs(a - b) <= epsilon * ttmath::Abs(a);
         }
     };
+    
+    template <>
+    struct equals_with_epsilon<ttmath_big, false> 
+            : public equals_with_epsilon<ttmath::Big<1, 4>, false> 
+    {};
 
 } // detail
 
