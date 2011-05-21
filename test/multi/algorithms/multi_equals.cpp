@@ -8,6 +8,7 @@
 
 #include <algorithms/test_equals.hpp>
 
+#include <boost/geometry/multi/algorithms/area.hpp>
 #include <boost/geometry/multi/algorithms/equals.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
