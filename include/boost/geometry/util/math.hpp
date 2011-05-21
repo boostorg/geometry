@@ -32,7 +32,7 @@ namespace detail
 {
 
 
-template <typename Type, bool, typename TypeForEpsilon = Type>
+template <typename Type, bool IsFloatingPoint>
 struct equals
 {
     static inline bool apply(Type const& a, Type const& b)
@@ -41,27 +41,20 @@ struct equals
     }
 };
 
-template <typename Type, typename TypeForEpsilon>
-struct equals<Type, true, TypeForEpsilon>
+template <typename Type>
+struct equals<Type, true>
 {
     static inline bool apply(Type const& a, Type const& b)
     {
         // See http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17,
         // FUTURE: replace by some boost tool or boost::test::close_at_tolerance
-        Type const epsilon = std::numeric_limits<TypeForEpsilon>::epsilon();
-        return std::abs(a - b) <= epsilon * std::abs(a);
+        return std::abs(a - b) <= std::numeric_limits<Type>::epsilon() * std::abs(a);
     }
 };
 
 
-template <typename Type, bool> 
-struct equals_with_epsilon {};
-
-template <typename Type>
-struct equals_with_epsilon<Type, false> : public equals<Type, true, double> {};
-
-template <typename Type>
-struct equals_with_epsilon<Type, true> : public equals<Type, true> {};
+template <typename Type, bool IsFloatingPoint> 
+struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
 
 
 /*!
