@@ -49,7 +49,7 @@ struct equals<Type, true, TypeForEpsilon>
         // See http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17,
         // FUTURE: replace by some boost tool or boost::test::close_at_tolerance
         Type const epsilon = std::numeric_limits<TypeForEpsilon>::epsilon();
-        return abs(a - b) <= epsilon * abs(a);
+        return std::abs(a - b) <= epsilon * std::abs(a);
     }
 };
 
