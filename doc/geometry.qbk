@@ -97,7 +97,7 @@ Boost.Geometry contains contributions by:
 [section Indexes] 
 [include matrix.qbk]
 [section Alphabetical Index]
-'''<index/>'''
+'''<index><title/></index>'''
 [endsect]
 [endsect] 
 
