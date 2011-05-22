@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;../../..;../../../../../..;../../../../../../boost/geometry/extensions/contrib/ttmath;../../../algorithms/overlay"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;TEST_WITH_SVG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"

@@ -11,7 +11,8 @@
 
 project geometry/doc ;
 
-using auto-index ; 
+# Auto-index, experimental. Commented otherwise does not build without.
+#using auto-index ; 
 
 import boostbook ;
 import quickbook ;
@@ -23,10 +24,10 @@ boostbook geometry
         <dependency>quickref.xml
         <dependency>generated/point.qbk
         : <xsl:param>chunk.section.depth=4
-    <auto-index>off
-    <auto-index-internal>on
-    <auto-index-verbose>off
-    <xsl:param>index.on.type=1
+#    <auto-index>off
+#    <auto-index-internal>on
+#    <auto-index-verbose>off
+#    <xsl:param>index.on.type=1
     <format>html
     <xsl:param>chunk.first.sections=1
     <xsl:param>toc.section.depth=3
