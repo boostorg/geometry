@@ -79,7 +79,7 @@ static inline void divide_into_subsets(Box const& lower_box, Box const& upper_bo
 }
 
 
-// Match collection 1 with collection 2
+// Match collection with itself
 template <typename InputCollection, typename Policy>
 static inline void handle_one(InputCollection const& collection,
         index_vector_type const& input,

@@ -12,7 +12,9 @@
 
 #include <iostream>
 #include <deque>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
 // Adapt any deque to Boost.Geometry Linestring Concept

@@ -10,6 +10,7 @@
 #include <algorithms/test_length.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/adapted/std_pair_as_segment.hpp>
 
 #include <test_geometries/all_custom_linestring.hpp>

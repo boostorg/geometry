@@ -17,6 +17,7 @@
 
 #include <algorithms/test_area.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/ring.hpp>

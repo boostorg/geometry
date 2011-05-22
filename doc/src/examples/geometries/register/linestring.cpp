@@ -11,7 +11,9 @@
 //` Show the use of BOOST_GEOMETRY_REGISTER_LINESTRING
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
 typedef boost::geometry::model::d2::point_xy<double> point_2d;

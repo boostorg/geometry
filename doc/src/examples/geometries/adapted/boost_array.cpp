@@ -11,7 +11,9 @@
 //` Shows how to use a Boost.Array using Boost.Geometry's distance, set and assign_values algorithms
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/adapted/boost_array.hpp>
 
 BOOST_GEOMETRY_REGISTER_BOOST_ARRAY_CS(cs::cartesian)

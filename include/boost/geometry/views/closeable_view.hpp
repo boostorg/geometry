@@ -41,7 +41,6 @@ struct closing_view
         : m_range(r)
     {}
 
-
     typedef closing_iterator<Range> iterator;
     typedef closing_iterator<Range const> const_iterator;
 
@@ -60,9 +59,16 @@ private :
 
 
 /*!
-\brief View on a range, either closing or not closing
-\tparam Range original range
-\tparam Close specifying if it should be closed or not
+\brief View on a range, either closing it or leaving it as it is
+\details The closeable_view is used internally by the library to handle all rings,
+    either closed or open, the same way. The default method is closed, all 
+    algorithms process rings as if they are closed. Therefore, if they are opened,
+    a view is created which closes them.
+    The closeable_view might be used by library users, but its main purpose is
+    internally.
+\tparam Range Original range
+\tparam Close Specifies if it the range is closed, if so, nothing will happen.
+    If it is open, it will iterate the first point after the last point.
 \ingroup views
 */
 template <typename Range, closure_selector Close>

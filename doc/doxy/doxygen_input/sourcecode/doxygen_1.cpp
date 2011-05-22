@@ -20,7 +20,6 @@ OBSOLETE
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 

@@ -16,6 +16,7 @@
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/ring.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/util/write_dsv.hpp>

@@ -22,6 +22,7 @@
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/util/write_dsv.hpp>
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>

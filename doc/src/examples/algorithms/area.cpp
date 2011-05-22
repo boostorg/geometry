@@ -11,7 +11,10 @@
 //` Calculate the area of a polygon
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 namespace bg = boost::geometry; /*< Convenient namespace alias >*/

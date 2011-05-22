@@ -11,6 +11,7 @@
 
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/adapted/boost_polygon/point.hpp>
 #include <boost/geometry/geometries/adapted/boost_polygon/box.hpp>
 #include <boost/geometry/geometries/adapted/boost_polygon/ring.hpp>

@@ -15,8 +15,10 @@
 #include <boost/foreach.hpp>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/register/ring.hpp>
 
-#include <boost/geometry/geometries/adapted/std_as_ring.hpp>
+BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(std::vector)
+
 
 // Sample point, having x/y
 struct my_point

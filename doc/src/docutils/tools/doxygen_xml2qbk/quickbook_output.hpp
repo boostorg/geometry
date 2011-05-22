@@ -118,6 +118,10 @@ void quickbook_synopsis(function const& f, std::ostream& out)
         {
             out << ")";
         }
+        else if (f.type != function_define)
+        {
+            out << "()";
+        }
     }
 
     out << "``" 
@@ -285,6 +289,33 @@ inline std::string output_if_different(std::string const& s, std::string const& 
         ;
 }
 
+inline void quickbook_output_indexterm(std::string const& term, std::ostream& out
+            //, std::string const& secondary = ""
+            )
+{
+    out << "'''";
+    if (boost::contains(term, "::"))
+    {
+        // "Unnamespace" it and add all terms (also namespaces)
+        std::vector<std::string> splitted;
+        boost::split(splitted, boost::replace_all_copy(term, "::", ":")
+                , boost::is_any_of(":"), boost::token_compress_on);
+        BOOST_FOREACH(std::string const& part, splitted)
+        {
+            out << "<indexterm><primary>" << part << "</primary></indexterm>";
+        }
+    }
+    else
+    {
+        out << "<indexterm><primary>" << term;
+        /*if (! secondary.empty())
+        {
+            out << "<secondary>" << secondary << "</secondary>";
+        }*/
+        out << "</primary></indexterm>";
+    }
+    out << "'''" << std::endl;
+}
 
 void quickbook_output(function const& f, configuration const& config, std::ostream& out)
 {
@@ -315,6 +346,8 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
         << "]" << std::endl
         << std::endl;
 
+    quickbook_output_indexterm(f.name, out);
+        
     out << qbk_escaped(f.brief_description) << std::endl;
     out << std::endl;
 
@@ -393,6 +426,12 @@ void quickbook_output(enumeration const& e, configuration const& config, std::os
         << "]" << std::endl
         << std::endl;
 
+    quickbook_output_indexterm(e.name, out);
+    BOOST_FOREACH(enumeration_value const& value, e.enumeration_values)
+    {
+        quickbook_output_indexterm(value.name, out);
+    }
+
     out << e.brief_description << std::endl;
     out << std::endl;
 
@@ -464,6 +503,8 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
     // Write the parsed function
     out << "[section:" << to_section_name(short_name) << " " << short_name << "]" << std::endl
         << std::endl;
+
+    quickbook_output_indexterm(short_name, out);
 
     out << cos.brief_description << std::endl;
     out << std::endl;

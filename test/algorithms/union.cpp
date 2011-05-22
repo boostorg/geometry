@@ -23,6 +23,7 @@
 #include <algorithms/test_overlay.hpp>
 
 #include <algorithms/overlay/overlay_cases.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 static std::string javier4[2] =
     {

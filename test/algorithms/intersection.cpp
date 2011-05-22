@@ -23,11 +23,15 @@
 #include <algorithms/test_intersection.hpp>
 #include <algorithms/test_overlay.hpp>
 
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/register/linestring.hpp>
 
 #include <test_common/test_point.hpp>
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/custom_segment.hpp>
+
+BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
+
 
 static std::string pie_2_3_23_0[2] =
 {

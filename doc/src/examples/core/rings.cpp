@@ -15,7 +15,10 @@ Also shows the related ring_type and interior_type.
 */
 
 #include <iostream>
+
 #include <boost/geometry.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 
 int main()

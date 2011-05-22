@@ -16,6 +16,8 @@
 #include <sstream>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/transform/matrix_transformers.hpp>

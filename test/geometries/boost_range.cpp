@@ -13,6 +13,7 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/adapted/boost_range/adjacent_filtered.hpp>
 #include <boost/geometry/geometries/adapted/boost_range/filtered.hpp>
 #include <boost/geometry/geometries/adapted/boost_range/reversed.hpp>

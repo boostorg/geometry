@@ -108,12 +108,13 @@ static void parse_parameter(rapidxml::xml_node<>* node, parameter& p)
     // #define: <param><defname>Point</defname></param>
     // template: <param><type>typename</type><declname>CoordinateType</declname><defname>CoordinateType</defname></param>
     // template with default: <param><type>typename</type><declname>CoordinateSystem</declname><defname>CoordinateSystem</defname><defval><ref ....>cs::cartesian</ref></defval></param>
+    // with enum: <type><ref refid="group__enum_1ga7d33eca9a5389952bdf719972eb802b6" kindref="member">closure_selector</ref></type>
     if (node != NULL)
     {
         std::string name = node->name();
         if (name == "type")
         {
-            p.fulltype = node->value();
+            get_contents(node->first_node(), p.fulltype);
             p.type = p.fulltype;
             boost::replace_all(p.type, " const", "");
             boost::trim(p.type);

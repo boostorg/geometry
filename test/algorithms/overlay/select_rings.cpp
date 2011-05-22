@@ -15,6 +15,9 @@
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 #include <boost/assign/list_of.hpp>

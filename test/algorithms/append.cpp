@@ -24,11 +24,13 @@
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/adapted/std_as_linestring.hpp>
-#include <boost/geometry/geometries/adapted/boost_array_as_linestring.hpp>
+#include <boost/geometry/geometries/register/linestring.hpp>
 
 #include <test_common/test_point.hpp>
 #include <test_geometries/wrapped_boost_array.hpp>
+
+BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
+BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::deque)
 
 
 template <typename G>
@@ -77,8 +79,6 @@ void test_all()
     test_geometry<std::vector<P> >();
     test_geometry<std::deque<P> >();
     //test_geometry<std::list<P> >();
-
-    test_geometry<test::wrapped_boost_array<P, 3> >();
 }
 
 int test_main(int, char* [])

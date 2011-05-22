@@ -11,6 +11,8 @@
 #include <boost/geometry/multi/multi.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 

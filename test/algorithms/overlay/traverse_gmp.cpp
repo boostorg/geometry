@@ -30,6 +30,7 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>

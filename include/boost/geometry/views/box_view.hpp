@@ -27,9 +27,20 @@ namespace boost { namespace geometry
 
 
 /*!
-\brief Range, walking over the four points of a box
-\tparam Box box type
+\brief Makes a box behave like a ring or a range
+\details Adapts a box to the Boost.Range concept, enabling the user to iterating
+    box corners. The box_view is registered as a Ring Concept
+\tparam Box \tparam_geometry{Box}
+\tparam Clockwise If true, walks in clockwise direction, otherwise
+    it walks in counterclockwise direction
 \ingroup views
+
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_ring Ring Concept]
+}
+
+\qbk{[include reference/views/box_view.qbk]}
 */
 template <typename Box, bool Clockwise = true>
 struct box_view 
@@ -41,6 +52,7 @@ struct box_view
 {
     typedef typename geometry::point_type<Box>::type point_type;
     
+    /// Constructor accepting the box to adapt
     explicit box_view(Box const& box)
         : detail::points_view<point_type, 5>(copy_policy(box))
     {}
@@ -60,7 +72,7 @@ private :
             points[4] = points[0];
         }
     private :
-        Box m_box;
+        Box const& m_box;
     };
 
 };
@@ -71,11 +83,26 @@ private :
 // All views on boxes are handled as rings
 namespace traits
 {
-    template<typename Box, bool Clockwise>
-    struct tag<box_view<Box, Clockwise> >
-    {
-        typedef ring_tag type;
-    };
+
+template<typename Box, bool Clockwise>
+struct tag<box_view<Box, Clockwise> >
+{
+    typedef ring_tag type;
+};
+
+template<typename Box>
+struct point_order<box_view<Box, false> >
+{
+    static order_selector const value = counterclockwise;
+};
+
+
+template<typename Box>
+struct point_order<box_view<Box, true> >
+{
+    static order_selector const value = clockwise;
+};
+
 }
 
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS

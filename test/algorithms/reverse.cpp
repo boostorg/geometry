@@ -10,6 +10,7 @@
 
 #include <algorithms/test_reverse.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <test_common/test_point.hpp>
 #include <test_geometries/all_custom_linestring.hpp>

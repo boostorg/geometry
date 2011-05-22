@@ -14,16 +14,12 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_HPP
 
-#include <boost/geometry/geometries/adapted/c_array.hpp>
-#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
-
 #include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
 #endif // BOOST_GEOMETRY_GEOMETRIES_HPP

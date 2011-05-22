@@ -23,6 +23,8 @@
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
+
 //#include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
 //#include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
 

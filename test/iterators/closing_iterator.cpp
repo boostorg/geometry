@@ -24,6 +24,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 
 // The closing iterator should also work on normal std:: containers

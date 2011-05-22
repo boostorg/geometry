@@ -36,6 +36,7 @@
 #include <boost/geometry/views/detail/range_type.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 

@@ -17,6 +17,8 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
+
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>

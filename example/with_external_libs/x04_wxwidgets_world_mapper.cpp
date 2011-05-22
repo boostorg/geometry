@@ -18,6 +18,7 @@
 #include <boost/scoped_array.hpp>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/register/ring.hpp>
 #include <boost/geometry/multi/multi.hpp>

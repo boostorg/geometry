@@ -9,6 +9,7 @@
 
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <algorithms/test_perimeter.hpp>
 

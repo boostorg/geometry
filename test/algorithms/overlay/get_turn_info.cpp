@@ -816,8 +816,6 @@ void test_all()
 
 
 /***
-#include <boost/geometry/geometries/adapted/c_array_as_linestring.hpp>
-#include <boost/geometry/geometries/adapted/c_array_as_ring.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 
