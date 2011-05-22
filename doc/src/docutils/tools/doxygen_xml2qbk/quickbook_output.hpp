@@ -298,8 +298,8 @@ inline void quickbook_output_indexterm(std::string const& term, std::ostream& ou
     {
         // "Unnamespace" it and add all terms (also namespaces)
         std::vector<std::string> splitted;
-        boost::split(splitted, boost::replace_all_copy(term, "::", ":")
-                , boost::is_any_of(":"), boost::token_compress_on);
+        std::string for_split = boost::replace_all_copy(term, "::", ":");
+        boost::split(splitted, for_split, boost::is_any_of(":"), boost::token_compress_on);
         BOOST_FOREACH(std::string const& part, splitted)
         {
             out << "<indexterm><primary>" << part << "</primary></indexterm>";
