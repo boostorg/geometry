@@ -23,7 +23,7 @@ boostbook geometry
         <dependency>quickref.xml
         <dependency>generated/point.qbk
         : <xsl:param>chunk.section.depth=4
-    <auto-index>on
+    <auto-index>off
     <auto-index-internal>on
     <auto-index-verbose>off
     <xsl:param>index.on.type=1
