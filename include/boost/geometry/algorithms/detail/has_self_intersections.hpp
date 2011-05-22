@@ -44,7 +44,7 @@ public:
 
     virtual char const* what() const throw()
     {
-        return "Boost.Geometry Overlay invald input exception";
+        return "Boost.Geometry Overlay invalid input exception";
     }
 };
 
