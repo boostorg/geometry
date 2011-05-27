@@ -24,11 +24,15 @@ namespace boost { namespace geometry
 /// Tag indicating Cartesian coordinate system family (cartesian,epsg)
 struct cartesian_tag {};
 
+/// Tag indicating Spherical polar coordinate system family
+struct spherical_polar_tag {};
+
+/// Tag indicating Spherical equatorial coordinate system family
+struct spherical_equatorial_tag {};
+
 /// Tag indicating Geographic coordinate system family (geographic)
 struct geographic_tag {};
 
-/// Tag indicating Spherical coordinate system family (spherical,celestial,...)
-struct spherical_tag {};
 
 
 // Tags defining tag hierarchy

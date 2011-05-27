@@ -45,6 +45,8 @@ http://trs-new.jpl.nasa.gov/dspace/bitstream/2014/40409/1/07-03.pdf, is simple
 and works well in most cases but not in 180 meridian crossing cases. This probably
 could be solved.
 
+\note This version is made for spherical equatorial coordinate systems
+
 \qbk{
 
 [heading Example]
@@ -161,11 +163,20 @@ private :
 
 namespace services
 {
-    template <typename Point>
-    struct default_strategy<spherical_tag, Point>
-    {
-        typedef strategy::area::huiller<Point> type;
-    };
+
+
+template <typename Point>
+struct default_strategy<spherical_equatorial_tag, Point>
+{
+    typedef strategy::area::huiller<Point> type;
+};
+
+// Note: spherical polar coordinate system requires "get_as_radian_equatorial"
+/***template <typename Point>
+struct default_strategy<spherical_polar_tag, Point>
+{
+    typedef strategy::area::huiller<Point> type;
+};***/
 
 } // namespace services
 

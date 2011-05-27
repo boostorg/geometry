@@ -14,7 +14,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "projected_point", "projecte
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "segment_intersection_collinear", "segment_intersection_collinear.vcproj", "{2D0CB6D3-6ABC-4119-A235-66E6065A279E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "side_by_cross_track", "side_by_cross_track.vcproj", "{ADBE38D8-1828-48A2-BBA1-81F50B53C67C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spherical_side", "spherical_side.vcproj", "{ADBE38D8-1828-48A2-BBA1-81F50B53C67C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "within", "within.vcproj", "{AB13D2AC-FD34-4DE4-BD8E-4D463050E5DD}"
 EndProject

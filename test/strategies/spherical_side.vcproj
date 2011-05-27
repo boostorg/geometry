@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="side_by_cross_track"
+	Name="spherical_side"
 	ProjectGUID="{ADBE38D8-1828-48A2-BBA1-81F50B53C67C}"
-	RootNamespace="side_by_cross_track"
+	RootNamespace="spherical_side"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\side_by_cross_track"
+			IntermediateDirectory="$(ConfigurationName)\spherical_side"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -91,7 +91,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\side_by_cross_track"
+			IntermediateDirectory="$(ConfigurationName)\spherical_side"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\side_by_cross_track.cpp"
+			RelativePath=".\spherical_side.cpp"
 			>
 		</File>
 	</Files>

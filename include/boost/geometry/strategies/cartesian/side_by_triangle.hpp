@@ -21,6 +21,7 @@
 
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
+#include <boost/geometry/strategies/side.hpp>
 
 
 namespace boost { namespace geometry

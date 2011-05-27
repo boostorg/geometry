@@ -60,7 +60,7 @@ void test_all()
 }
 
 template <typename Point>
-void test_spherical()
+void test_spherical(bool polar = false)
 {
     bg::model::polygon<Point> geometry;
 
@@ -79,6 +79,29 @@ void test_spherical()
 
     area = bg::area(geometry, strategy);
     BOOST_CHECK_CLOSE(area, 2.0 * 2.0 * expected, 0.0001);
+
+    {
+        bg::model::ring<Point> aurha; // a'dam-utr-rott.-den haag-a'dam
+        bg::read_wkt("POLYGON((4.892 52.373,5.119 52.093,4.479 51.930,4.23 52.08,4.892 52.373))", aurha);
+        if (polar)
+        {
+            // Create colatitudes (measured from pole)
+            BOOST_FOREACH(Point& p, aurha)
+            {
+                bg::set<1>(p, 90.0 - bg::get<1>(p));
+            }
+            bg::correct(aurha);
+        }
+        bg::strategy::area::huiller
+            <
+                typename bg::point_type<Point>::type
+            > huiller(6372.795);
+        area = bg::area(aurha, huiller);
+        BOOST_CHECK_CLOSE(area, 1476.645675, 0.0001);
+
+        // SQL Server gives: 1481.55595960659
+        // for select geography::STGeomFromText('POLYGON((4.892 52.373,4.23 52.08,4.479 51.930,5.119 52.093,4.892 52.373))',4326).STArea()/1000000.0
+    }
 }
 
 template <typename P>
@@ -116,7 +139,8 @@ int test_main(int, char* [])
     test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
-    test_spherical<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >();
+    test_spherical<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
+    test_spherical<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >(true);
 
     test_ccw<bg::model::point<double, 2, bg::cs::cartesian> >();
     test_open<bg::model::point<double, 2, bg::cs::cartesian> >();

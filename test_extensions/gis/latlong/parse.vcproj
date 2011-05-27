@@ -21,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\parse"
 			ConfigurationType="1"
-			InheritedPropertySheets="../../../boost.vsprops"
+			InheritedPropertySheets="../../boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -91,7 +91,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\parse"
 			ConfigurationType="1"
-			InheritedPropertySheets="../../../boost.vsprops"
+			InheritedPropertySheets="../../boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

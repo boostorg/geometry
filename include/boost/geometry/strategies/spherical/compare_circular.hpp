@@ -117,7 +117,7 @@ template
     template<typename> class CoordinateSystem,
     typename Units
 >
-struct strategy_compare<spherical_tag, 1, Point, CoordinateSystem<Units>, 0>
+struct strategy_compare<spherical_polar_tag, 1, Point, CoordinateSystem<Units>, 0>
 {
     typedef typename coordinate_type<Point>::type coordinate_type;
     typedef strategy::compare::circular_comparator
@@ -134,7 +134,7 @@ template
     template<typename> class CoordinateSystem,
     typename Units
 >
-struct strategy_compare<spherical_tag, -1, Point, CoordinateSystem<Units>, 0>
+struct strategy_compare<spherical_polar_tag, -1, Point, CoordinateSystem<Units>, 0>
 {
     typedef typename coordinate_type<Point>::type coordinate_type;
     typedef strategy::compare::circular_comparator
