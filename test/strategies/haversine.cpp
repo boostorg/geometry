@@ -258,14 +258,14 @@ int test_main(int, char* [])
 
 #if defined(HAVE_TTMATH)
     typedef ttmath::Big<1,4> tt;
-    test_all<bg::model::point<tt, 2, bg::cs::spherical<bg::degree> >, geographic_policy>();
+    test_all<bg::model::point<tt, 2, bg::cs::spherical_equatorial<bg::degree> >, geographic_policy>();
 #endif
 
 
     test_services
         <
-            bg::model::point<double, 2, bg::cs::spherical<bg::degree> >,
-            bg::model::point<double, 2, bg::cs::spherical<bg::degree> >,
+            bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >,
+            bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >,
             double, 
             geographic_policy 
         >();
