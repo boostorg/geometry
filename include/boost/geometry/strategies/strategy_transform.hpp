@@ -155,29 +155,48 @@ namespace detail
 
     /// Helper function for conversion, phi/theta are in radians
     template <typename P, typename T, typename R>
-    inline void spherical_to_cartesian(T phi, T theta, R r, P& p)
+    inline void spherical_polar_to_cartesian(T phi, T theta, R r, P& p)
     {
         assert_dimension<P, 3>();
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_spherical_coordinates
         // http://www.vias.org/comp_geometry/math_coord_convert_3d.htm
         // https://moodle.polymtl.ca/file.php/1183/Autres_Documents/Derivation_for_Spherical_Co-ordinates.pdf
+        // http://en.citizendium.org/wiki/Spherical_polar_coordinates
         
         // Phi = first, theta is second, r is third, see documentation on cs::spherical
 
         // (calculations are splitted to implement ttmath)
 
         T r_sin_theta = r;
+        T r_cos_theta = r;
         r_sin_theta *= sin(theta);
+        r_cos_theta *= cos(theta);
 
         set<0>(p, r_sin_theta * cos(phi));
         set<1>(p, r_sin_theta * sin(phi));
-
-        T r_cos_theta = r;
-        r_cos_theta *= cos(theta);
-
         set<2>(p, r_cos_theta);
     }
+    
+    /// Helper function for conversion, lambda/delta (lon lat) are in radians
+    template <typename P, typename T, typename R>
+    inline void spherical_equatorial_to_cartesian(T lambda, T delta, R r, P& p)
+    {
+        assert_dimension<P, 3>();
+
+        // http://mathworld.wolfram.com/GreatCircle.html
+        // http://www.spenvis.oma.be/help/background/coortran/coortran.html WRONG
+        
+        T r_cos_delta = r;
+        T r_sin_delta = r;
+        r_cos_delta *= cos(delta);
+        r_sin_delta *= sin(delta);
+
+        set<0>(p, r_cos_delta * cos(lambda));
+        set<1>(p, r_cos_delta * sin(lambda));
+        set<2>(p, r_sin_delta);
+    }
+    
 
     /// Helper function for conversion
     template <typename P, typename T>
@@ -238,10 +257,22 @@ struct from_spherical_polar_2_to_cartesian_3
     inline bool apply(P1 const& p1, P2& p2) const
     {
         assert_dimension<P1, 2>();
-        detail::spherical_to_cartesian(get_as_radian<0>(p1), get_as_radian<1>(p1), 1.0, p2);
+        detail::spherical_polar_to_cartesian(get_as_radian<0>(p1), get_as_radian<1>(p1), 1.0, p2);
         return true;
     }
 };
+
+template <typename P1, typename P2>
+struct from_spherical_equatorial_2_to_cartesian_3
+{
+    inline bool apply(P1 const& p1, P2& p2) const
+    {
+        assert_dimension<P1, 2>();
+        detail::spherical_equatorial_to_cartesian(get_as_radian<0>(p1), get_as_radian<1>(p1), 1.0, p2);
+        return true;
+    }
+};
+
 
 /*!
     \brief Transformation strategy for 3D spherical (phi,theta,r) to 3D cartesian (x,y,z)
@@ -255,11 +286,24 @@ struct from_spherical_polar_3_to_cartesian_3
     inline bool apply(P1 const& p1, P2& p2) const
     {
         assert_dimension<P1, 3>();
-        detail::spherical_to_cartesian(
+        detail::spherical_polar_to_cartesian(
                     get_as_radian<0>(p1), get_as_radian<1>(p1), get<2>(p1), p2);
         return true;
     }
 };
+
+template <typename P1, typename P2>
+struct from_spherical_equatorial_3_to_cartesian_3
+{
+    inline bool apply(P1 const& p1, P2& p2) const
+    {
+        assert_dimension<P1, 3>();
+        detail::spherical_equatorial_to_cartesian(
+                    get_as_radian<0>(p1), get_as_radian<1>(p1), get<2>(p1), p2);
+        return true;
+    }
+};
+
 
 /*!
     \brief Transformation strategy for 3D cartesian (x,y,z) to 2D spherical (phi,theta)
@@ -356,6 +400,18 @@ template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
 struct default_strategy<spherical_polar_tag, cartesian_tag, CoordSys1, CoordSys2, 3, 3, P1, P2>
 {
     typedef from_spherical_polar_3_to_cartesian_3<P1, P2> type;
+};
+
+template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
+struct default_strategy<spherical_equatorial_tag, cartesian_tag, CoordSys1, CoordSys2, 2, 3, P1, P2>
+{
+    typedef from_spherical_equatorial_2_to_cartesian_3<P1, P2> type;
+};
+
+template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
+struct default_strategy<spherical_equatorial_tag, cartesian_tag, CoordSys1, CoordSys2, 3, 3, P1, P2>
+{
+    typedef from_spherical_equatorial_3_to_cartesian_3<P1, P2> type;
 };
 
 /// Specialization to transform from XYZ to unit sphere(phi,theta)

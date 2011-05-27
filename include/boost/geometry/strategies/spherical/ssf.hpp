@@ -69,40 +69,56 @@ public :
 
         // Convenient shortcuts
         typedef coordinate_type ct;
-        ct const phi1 = get_as_radian<0>(p1);
-        ct const theta1 = get_as_radian<1>(p1);
-        ct const phi2 = get_as_radian<0>(p2);
-        ct const theta2 = get_as_radian<1>(p2);
-        ct const phi = get_as_radian<0>(p);
-        ct const theta = get_as_radian<1>(p);
+        ct const lambda1 = get_as_radian<0>(p1);
+        ct const delta1 = get_as_radian<1>(p1);
+        ct const lambda2 = get_as_radian<0>(p2);
+        ct const delta2 = get_as_radian<1>(p2);
+        ct const lambda = get_as_radian<0>(p);
+        ct const delta = get_as_radian<1>(p);
 
         // Create temporary points (vectors) on unit a sphere
-        ct const sin_theta1 = sin(theta1);
-        ct const c1x = sin_theta1 * cos(phi1);
-        ct const c1y = sin_theta1 * sin(phi1);
-        ct const c1z = cos(theta1);
+        ct const cos_delta1 = cos(delta1);
+        ct const c1x = cos_delta1 * cos(lambda1);
+        ct const c1y = cos_delta1 * sin(lambda1);
+        ct const c1z = sin(delta1);
 
-        ct const sin_theta2 = sin(theta2);
-        ct const c2x = sin_theta2 * cos(phi2);
-        ct const c2y = sin_theta2 * sin(phi2);
-        ct const c2z = cos(theta2);
+        ct const cos_delta2 = cos(delta2);
+        ct const c2x = cos_delta2 * cos(lambda2);
+        ct const c2y = cos_delta2 * sin(lambda2);
+        ct const c2z = sin(delta2);
 
         // (Third point is converted directly)
-        ct const sin_theta = sin(theta);
+        ct const cos_delta = cos(delta);
         
         // Apply the "Spherical Side Formula" as presented on my blog
         ct const dist 
-            = (c1y * c2z - c1z * c2y) * sin_theta * cos(phi) 
-            + (c1z * c2x - c1x * c2z) * sin_theta * sin(phi)
-            + (c1x * c2y - c1y * c2x) * cos(theta);
-            
-        return dist < 0 ? 1
-            : dist > 0 ? -1
+            = (c1y * c2z - c1z * c2y) * cos_delta * cos(lambda) 
+            + (c1z * c2x - c1x * c2z) * cos_delta * sin(lambda)
+            + (c1x * c2y - c1y * c2x) * sin(delta);
+        
+        return dist > 0 ? 1
+            : dist < 0 ? -1
             : 0;
     }
 };
 
 }} // namespace strategy::side
+
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+template <typename CalculationType>
+struct strategy_side<spherical_polar_tag, CalculationType>
+{
+    typedef strategy::side::spherical_side_formula<CalculationType> type;
+};
+
+template <typename CalculationType>
+struct strategy_side<geographic_tag, CalculationType>
+{
+    typedef strategy::side::spherical_side_formula<CalculationType> type;
+};
+
+#endif
 
 
 }} // namespace boost::geometry
