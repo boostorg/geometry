@@ -219,7 +219,12 @@ struct comparable_type<cross_track<Point, PointOfSegment, CalculationType, Strat
 };
 
 
-template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+template 
+<
+    typename Point, typename PointOfSegment, 
+    typename CalculationType, 
+    typename Strategy
+>
 struct get_comparable<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
     typedef typename comparable_type
@@ -234,7 +239,12 @@ public :
 };
 
 
-template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+template 
+<
+    typename Point, typename PointOfSegment, 
+    typename CalculationType, 
+    typename Strategy
+>
 struct result_from_distance<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
 private :
@@ -248,7 +258,12 @@ public :
 };
 
 
-template <typename Point, typename PointOfSegment, typename CalculationType, typename Strategy>
+template 
+<
+    typename Point, typename PointOfSegment, 
+    typename CalculationType, 
+    typename Strategy
+>
 struct strategy_point_point<cross_track<Point, PointOfSegment, CalculationType, Strategy> >
 {
     typedef Strategy type;
@@ -256,9 +271,17 @@ struct strategy_point_point<cross_track<Point, PointOfSegment, CalculationType, 
 
 
 
+/*
+
+TODO:  spherical polar coordinate system requires "get_as_radian_equatorial<>"
 
 template <typename Point, typename PointOfSegment, typename Strategy>
-struct default_strategy<segment_tag, Point, PointOfSegment, spherical_tag, spherical_tag, Strategy>
+struct default_strategy
+    <
+        segment_tag, Point, PointOfSegment, 
+        spherical_polar_tag, spherical_polar_tag, 
+        Strategy
+    >
 {
     typedef cross_track
         <
@@ -271,12 +294,40 @@ struct default_strategy<segment_tag, Point, PointOfSegment, spherical_tag, spher
                     typename default_strategy
                         <
                             point_tag, Point, PointOfSegment,
-                            spherical_tag, spherical_tag
+                            spherical_polar_tag, spherical_polar_tag
                         >::type,
                     Strategy
                 >::type
         > type;
 };
+*/
+
+template <typename Point, typename PointOfSegment, typename Strategy>
+struct default_strategy
+    <
+        segment_tag, Point, PointOfSegment, 
+        spherical_equatorial_tag, spherical_equatorial_tag, 
+        Strategy
+    >
+{
+    typedef cross_track
+        <
+            Point,
+            PointOfSegment,
+            void,
+            typename boost::mpl::if_
+                <
+                    boost::is_void<Strategy>,
+                    typename default_strategy
+                        <
+                            point_tag, Point, PointOfSegment,
+                            spherical_equatorial_tag, spherical_equatorial_tag
+                        >::type,
+                    Strategy
+                >::type
+        > type;
+};
+
 
 
 } // namespace services

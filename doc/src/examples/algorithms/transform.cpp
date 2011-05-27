@@ -18,7 +18,8 @@ int main()
 {
     namespace bg = boost::geometry;
 
-    bg::model::point<long double, 2, bg::cs::spherical<bg::degree> > p1(5.0, 52.0);
+    // Select a point near the pole (theta=5.0, phi=15.0)
+    bg::model::point<long double, 2, bg::cs::spherical<bg::degree> > p1(15.0, 5.0);
     
     // Transform from degree to radian. Default strategy is automatically selected,
     // it will convert from degree to radian
@@ -45,9 +46,9 @@ int main()
 /*`
 Output:
 [pre
-p1: (5, 52)
-p2: (0.0872665, 0.907571)
-p3: (0.785012, 0.0686797, 0.615661)
+p1: (15, 5)
+p2: (0.261799, 0.0872665)
+p3: (0.084186, 0.0225576, 0.996195)
 ]
 */
 //]

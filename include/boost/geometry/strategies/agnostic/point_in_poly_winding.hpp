@@ -188,7 +188,13 @@ struct default_strategy<point_tag, areal_tag, cartesian_tag, cartesian_tag, Poin
 };
 
 template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, areal_tag, spherical_tag, spherical_tag, Point, PointOfSegment>
+struct default_strategy<point_tag, areal_tag, spherical_polar_tag, spherical_polar_tag, Point, PointOfSegment>
+{
+    typedef winding<Point, PointOfSegment> type;
+};
+
+template <typename Point, typename PointOfSegment>
+struct default_strategy<point_tag, areal_tag, spherical_equatorial_tag, spherical_equatorial_tag, Point, PointOfSegment>
 {
     typedef winding<Point, PointOfSegment> type;
 };

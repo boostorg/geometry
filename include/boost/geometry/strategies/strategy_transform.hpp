@@ -160,6 +160,9 @@ namespace detail
         assert_dimension<P, 3>();
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_spherical_coordinates
+        // http://www.vias.org/comp_geometry/math_coord_convert_3d.htm
+        // https://moodle.polymtl.ca/file.php/1183/Autres_Documents/Derivation_for_Spherical_Co-ordinates.pdf
+        
         // Phi = first, theta is second, r is third, see documentation on cs::spherical
 
         // (calculations are splitted to implement ttmath)
@@ -230,7 +233,7 @@ namespace detail
     \tparam P2 second point type
  */
 template <typename P1, typename P2>
-struct from_spherical_2_to_cartesian_3
+struct from_spherical_polar_2_to_cartesian_3
 {
     inline bool apply(P1 const& p1, P2& p2) const
     {
@@ -247,7 +250,7 @@ struct from_spherical_2_to_cartesian_3
     \tparam P2 second point type
  */
 template <typename P1, typename P2>
-struct from_spherical_3_to_cartesian_3
+struct from_spherical_polar_3_to_cartesian_3
 {
     inline bool apply(P1 const& p1, P2& p2) const
     {
@@ -267,7 +270,7 @@ struct from_spherical_3_to_cartesian_3
     \note If x,y,z point is not lying on unit sphere, transformation will return false
  */
 template <typename P1, typename P2>
-struct from_cartesian_3_to_spherical_2
+struct from_cartesian_3_to_spherical_polar_2
 {
     inline bool apply(P1 const& p1, P2& p2) const
     {
@@ -284,7 +287,7 @@ struct from_cartesian_3_to_spherical_2
     \tparam P2 second point type
  */
 template <typename P1, typename P2>
-struct from_cartesian_3_to_spherical_3
+struct from_cartesian_3_to_spherical_polar_3
 {
     inline bool apply(P1 const& p1, P2& p2) const
     {
@@ -343,30 +346,30 @@ struct default_strategy<CoordSysTag, CoordSysTag, CoordSys<radian>, CoordSys<deg
 
 /// Specialization to transform from unit sphere(phi,theta) to XYZ
 template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
-struct default_strategy<spherical_tag, cartesian_tag, CoordSys1, CoordSys2, 2, 3, P1, P2>
+struct default_strategy<spherical_polar_tag, cartesian_tag, CoordSys1, CoordSys2, 2, 3, P1, P2>
 {
-    typedef from_spherical_2_to_cartesian_3<P1, P2> type;
+    typedef from_spherical_polar_2_to_cartesian_3<P1, P2> type;
 };
 
 /// Specialization to transform from sphere(phi,theta,r) to XYZ
 template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
-struct default_strategy<spherical_tag, cartesian_tag, CoordSys1, CoordSys2, 3, 3, P1, P2>
+struct default_strategy<spherical_polar_tag, cartesian_tag, CoordSys1, CoordSys2, 3, 3, P1, P2>
 {
-    typedef from_spherical_3_to_cartesian_3<P1, P2> type;
+    typedef from_spherical_polar_3_to_cartesian_3<P1, P2> type;
 };
 
 /// Specialization to transform from XYZ to unit sphere(phi,theta)
 template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
-struct default_strategy<cartesian_tag, spherical_tag, CoordSys1, CoordSys2, 3, 2, P1, P2>
+struct default_strategy<cartesian_tag, spherical_polar_tag, CoordSys1, CoordSys2, 3, 2, P1, P2>
 {
-    typedef from_cartesian_3_to_spherical_2<P1, P2> type;
+    typedef from_cartesian_3_to_spherical_polar_2<P1, P2> type;
 };
 
 /// Specialization to transform from XYZ to sphere(phi,theta,r)
 template <typename CoordSys1, typename CoordSys2, typename P1, typename P2>
-struct default_strategy<cartesian_tag, spherical_tag, CoordSys1, CoordSys2, 3, 3, P1, P2>
+struct default_strategy<cartesian_tag, spherical_polar_tag, CoordSys1, CoordSys2, 3, 3, P1, P2>
 {
-    typedef from_cartesian_3_to_spherical_3<P1, P2> type;
+    typedef from_cartesian_3_to_spherical_polar_3<P1, P2> type;
 };
 
 

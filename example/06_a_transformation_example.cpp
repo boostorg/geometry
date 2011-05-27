@@ -50,7 +50,7 @@ int main()
     // - from Cartesian to Spherical coordinate systems and back
     // - from Cartesian to Cartesian (mapping, affine transformations) and back (inverse)
     // - Map Projections
-    // - from Degree to Radian and back in spherical or geographic coordinate systems
+    // - from Degree to Radian and back in spherical_equatorial or geographic coordinate systems
 
     return 0;
 }

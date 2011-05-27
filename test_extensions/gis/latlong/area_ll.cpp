@@ -32,7 +32,7 @@
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/sterea.hpp>
 
-#include <test_common/test_point.hpp>
+//#include <test_common/test_point.hpp>
 
 
 template <typename PRJ, typename XY, typename LL>
@@ -177,6 +177,7 @@ void test_latlong(double perc)
 
     // with holes
     test_area_polygon_ll<bg::model::d2::point_xy<T>, bg::model::ll::point<bg::degree, T> >(false, true, perc);
+
 }
 
 int test_main(int, char* [])
