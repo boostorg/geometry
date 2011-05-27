@@ -140,7 +140,7 @@ int test_main(int, char* [])
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     test_spherical<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
-    test_spherical<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >(true);
+    //test_spherical<bg::model::point<double, 2, bg::cs::spherical<bg::degree> > >(true);
 
     test_ccw<bg::model::point<double, 2, bg::cs::cartesian> >();
     test_open<bg::model::point<double, 2, bg::cs::cartesian> >();
