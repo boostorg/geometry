@@ -83,9 +83,6 @@ public :
                 CalculationType
             >::type coordinate_type;
 
-        // Calculate the distance using the Haversine formula.
-        // That is also applicable on the spherical earth. A radius is not necessary.
-
         double d1 = 0.001; // m_strategy.apply(sp1, p);
         double crs_AD = detail::course(p1, p);
         double crs_AB = detail::course(p1, p2);
@@ -97,15 +94,6 @@ public :
 };
 
 }} // namespace strategy::side
-
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-template <typename CalculationType>
-struct strategy_side<spherical_tag, CalculationType>
-{
-    typedef strategy::side::side_by_cross_track<CalculationType> type;
-};
-#endif
 
 
 }} // namespace boost::geometry
