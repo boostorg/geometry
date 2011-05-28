@@ -86,10 +86,9 @@ public :
         double d1 = 0.001; // m_strategy.apply(sp1, p);
         double crs_AD = detail::course(p1, p);
         double crs_AB = detail::course(p1, p2);
-        double XTD = geometry::math::abs(asin(sin(d1) * sin(crs_AD - crs_AB)));
+        double XTD = asin(sin(d1) * sin(crs_AD - crs_AB));
 
-        return math::equals(XTD, 0) ? 0 : XTD > 0 ? 1 : -1;
-        //return s > 0 ? 1 : s < 0 ? -1 : 0;
+        return math::equals(XTD, 0) ? 0 : XTD < 0 ? 1 : -1;
     }
 };
 
