@@ -134,7 +134,7 @@ struct test_traverse
         //std::cout << bg::area(g1) << " " << bg::area(g2) << std::endl;
 #endif
 
-        typedef typename bg::strategy_side
+        typedef typename bg::strategy::side::services::default_strategy
         <
             typename bg::cs_tag<G1>::type
         >::type side_strategy_type;

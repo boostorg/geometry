@@ -46,7 +46,7 @@ void test_geometry(std::string const& wkt,
     bg::read_wkt(wkt, geometry);
 
     typedef typename bg::point_type<Geometry>::type P;
-    typename bg::strategy_side
+    typename bg::strategy::side::services::default_strategy
         <
             typename bg::cs_tag<P>::type
         >::type side;

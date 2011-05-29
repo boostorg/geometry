@@ -42,7 +42,7 @@ namespace detail { namespace remove_marked
 template <typename Range, typename MarkMap>
 struct range_remove_marked
 {
-    typedef typename strategy_side
+    typedef typename strategy::side::services::default_strategy
     <
         typename cs_tag<Range>::type
     >::type side_strategy_type;

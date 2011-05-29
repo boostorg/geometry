@@ -116,7 +116,7 @@ struct join_miter
 {
 
 #endif
-    typedef typename strategy_side<typename cs_tag<PointIn>::type>::type side;
+    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointIn>::type coordinate_type;
 
 
@@ -252,7 +252,7 @@ struct join_round
     {}
 #endif
 
-    typedef typename strategy_side<typename cs_tag<PointIn>::type>::type side;
+    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointOut>::type coordinate_type;
     int m_max_level;
 

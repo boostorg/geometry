@@ -94,7 +94,7 @@ struct per_segment_buffer
     typedef coordinate_type distance_type; // TODO promote to FP
     typedef segment<point_type const> segment_type;
     typedef typename geometry::ring_type<GeometryOut>::type ring_type;
-    typedef typename strategy_side<typename cs_tag<point_type>::type>::type side;
+    typedef typename strategy::side::services::default_strategy<typename cs_tag<point_type>::type>::type side;
 
     typedef typename boost::range_iterator<Range const>::type iterator_type;
 
