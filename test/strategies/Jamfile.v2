@@ -14,6 +14,7 @@ test-suite boost-geometry-strategies
     [ run haversine.cpp ]
     [ run projected_point.cpp ]
     [ run pythagoras.cpp ]
+    [ run spherical_side.cpp ]
     [ run transformer.cpp ]
     [ run within.cpp ]
     ;

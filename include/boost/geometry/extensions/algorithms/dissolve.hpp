@@ -76,7 +76,7 @@ struct dissolve_ring_or_polygon
             out_vector rings;
 
             // Enrich the turns
-            typedef typename strategy_side
+            typedef typename strategy::side::services::default_strategy
             <
                 typename cs_tag<Geometry>::type
             >::type side_strategy_type;

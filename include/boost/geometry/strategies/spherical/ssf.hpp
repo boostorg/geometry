@@ -96,30 +96,34 @@ public :
             + (c1z * c2x - c1x * c2z) * cos_delta * sin(lambda)
             + (c1x * c2y - c1y * c2x) * sin(delta);
         
-        return dist > 0 ? 1
-            : dist < 0 ? -1
+        ct zero = ct();
+        return dist > zero ? 1
+            : dist < zero ? -1
             : 0;
     }
 };
 
-}} // namespace strategy::side
-
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-template <typename CalculationType>
-struct strategy_side<spherical_polar_tag, CalculationType>
+namespace services
 {
-    typedef strategy::side::spherical_side_formula<CalculationType> type;
+
+template <typename CalculationType>
+struct default_strategy<spherical_polar_tag, CalculationType>
+{
+    typedef spherical_side_formula<CalculationType> type;
 };
 
 template <typename CalculationType>
-struct strategy_side<geographic_tag, CalculationType>
+struct default_strategy<geographic_tag, CalculationType>
 {
-    typedef strategy::side::spherical_side_formula<CalculationType> type;
+    typedef spherical_side_formula<CalculationType> type;
 };
 
+}
 #endif
 
+}} // namespace strategy::side
 
 }} // namespace boost::geometry
 

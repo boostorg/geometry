@@ -77,7 +77,7 @@ public:
                 CalculationType
             > segment_intersection_strategy_type;
 
-    typedef typename strategy_side
+    typedef typename strategy::side::services::default_strategy
         <
             Tag,
             CalculationType

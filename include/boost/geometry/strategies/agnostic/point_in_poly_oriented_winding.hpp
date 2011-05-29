@@ -62,7 +62,7 @@ class oriented_winding
         >::type calculation_type;
 
 
-    typedef typename strategy_side
+    typedef typename strategy::side::services::default_strategy
         <
             typename cs_tag<Point>::type
         >::type strategy_side_type;

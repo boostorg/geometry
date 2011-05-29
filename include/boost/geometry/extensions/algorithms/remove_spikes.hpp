@@ -64,7 +64,7 @@ namespace detail { namespace remove_spikes
 template <typename Range, typename Policy>
 struct range_remove_spikes
 {
-    typedef typename strategy_side
+    typedef typename strategy::side::services::default_strategy
     <
         typename cs_tag<Range>::type
     >::type side_strategy_type;
