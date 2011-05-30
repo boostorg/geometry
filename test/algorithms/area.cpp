@@ -13,8 +13,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#include <boost/math/constants/constants.hpp>
-
 #include <algorithms/test_area.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -62,13 +60,17 @@ void test_all()
 template <typename Point>
 void test_spherical(bool polar = false)
 {
+    typedef typename bg::coordinate_type<Point>::type ct;
     bg::model::polygon<Point> geometry;
 
     // unit-sphere has area of 4-PI. Polygon covering 1/8 of it:
-    double expected = 4.0 * boost::math::constants::pi<double>() / 8.0;
+    // calculations splitted for ttmath
+    ct const four = 4.0;
+    ct const eight = 8.0;
+    ct expected = four * boost::geometry::math::pi<ct>() / eight;
     bg::read_wkt("POLYGON((0 0,0 90,90 0,0 0))", geometry);
 
-    double area = bg::area(geometry);
+    ct area = bg::area(geometry);
     BOOST_CHECK_CLOSE(area, expected, 0.0001);
 
     // With strategy, radius 2 -> 4 pi r^2
@@ -78,7 +80,58 @@ void test_spherical(bool polar = false)
         > strategy(2.0);
 
     area = bg::area(geometry, strategy);
-    BOOST_CHECK_CLOSE(area, 2.0 * 2.0 * expected, 0.0001);
+    ct const two = 2.0;
+    BOOST_CHECK_CLOSE(area, two * two * expected, 0.0001);
+
+    // Wrangel Island (dateline crossing)
+    // With (spherical) Earth strategy
+    bg::strategy::area::huiller
+        <
+            typename bg::point_type<Point>::type
+        > spherical_earth(6373);
+    bg::read_wkt("POLYGON((-178.7858 70.7852, 177.4758 71.2333, 179.7436 71.5733, -178.7858 70.7852))", geometry);
+    area = bg::area(geometry, spherical_earth);
+    BOOST_CHECK_CLOSE(area, 4506.6389, 0.001); // SQL Server gives: 4537.9654419375
+
+    // Check more at the equator
+    /*
+    select 1,geography::STGeomFromText('POLYGON((-178.7858 10.7852 , 179.7436 11.5733 , 177.4758 11.2333 , -178.7858 10.7852))',4326) .STArea()/1000000.0
+    union select 2,geography::STGeomFromText('POLYGON((-178.7858 20.7852 , 179.7436 21.5733 , 177.4758 21.2333 , -178.7858 20.7852))',4326) .STArea()/1000000.0
+    union select 3,geography::STGeomFromText('POLYGON((-178.7858 30.7852 , 179.7436 31.5733 , 177.4758 31.2333 , -178.7858 30.7852))',4326) .STArea()/1000000.0
+    union select 0,geography::STGeomFromText('POLYGON((-178.7858 0.7852 , 179.7436 1.5733 , 177.4758 1.2333 , -178.7858 0.7852))',4326) .STArea()/1000000.0
+    union select 4,geography::STGeomFromText('POLYGON((-178.7858 40.7852 , 179.7436 41.5733 , 177.4758 41.2333 , -178.7858 40.7852))',4326) .STArea()/1000000.0
+    */
+
+    bg::read_wkt("POLYGON((-178.7858 0.7852, 177.4758 1.2333, 179.7436 1.5733, -178.7858 0.7852))", geometry);
+    area = bg::area(geometry, spherical_earth);
+    BOOST_CHECK_CLOSE(area, 14136.09946, 0.001); // SQL Server gives: 14064.1902284513
+
+
+    bg::read_wkt("POLYGON((-178.7858 10.7852, 177.4758 11.2333, 179.7436 11.5733, -178.7858 10.7852))", geometry);
+    area = bg::area(geometry, spherical_earth);
+    BOOST_CHECK_CLOSE(area, 13760.2456, 0.001); // SQL Server gives: 13697.0941155193
+
+    bg::read_wkt("POLYGON((-178.7858 20.7852, 177.4758 21.2333, 179.7436 21.5733, -178.7858 20.7852))", geometry);
+    area = bg::area(geometry, spherical_earth);
+    BOOST_CHECK_CLOSE(area, 12987.8682, 0.001); // SQL Server gives: 12944.3970990317 -> -39m^2 
+
+    bg::read_wkt("POLYGON((-178.7858 30.7852, 177.4758 31.2333, 179.7436 31.5733, -178.7858 30.7852))", geometry);
+    area = bg::area(geometry, spherical_earth);
+    BOOST_CHECK_CLOSE(area, 11856.3935, 0.001); // SQL Server gives: 11838.5338423574 -> -18m^2
+
+    bg::read_wkt("POLYGON((-178.7858 40.7852, 177.4758 41.2333, 179.7436 41.5733, -178.7858 40.7852))", geometry);
+    area = bg::area(geometry, spherical_earth);
+    BOOST_CHECK_CLOSE(area, 10404.627685523914, 0.001); // SQL Server gives: 10412.0607137119, -> +8m^2
+
+    // Concave
+    bg::read_wkt("POLYGON((0 40,1 42,0 44,2 43,4 44,3 42,4 40,2 41,0 40))", geometry);
+    area = bg::area(geometry, spherical_earth);
+    BOOST_CHECK_CLOSE(area, 73538.2958, 0.001); // SQL Server gives: 73604.2047689719
+
+    // With hole POLYGON((0 40,4 40,4 44,0 44,0 40),(1 41,2 43,3 42,1 41))
+    bg::read_wkt("POLYGON((0 40,0 44,4 44,4 40,0 40),(1 41,3 42,2 43,1 41))", geometry);
+    area = bg::area(geometry, spherical_earth);
+    BOOST_CHECK_CLOSE(area, 133233.844876, 0.001); // SQL Server gives: 133353.335
 
     {
         bg::model::ring<Point> aurha; // a'dam-utr-rott.-den haag-a'dam
@@ -148,6 +201,7 @@ int test_main(int, char* [])
 
 #ifdef HAVE_TTMATH
     test_all<bg::model::d2::point_xy<ttmath_big> >();
+    test_spherical<bg::model::point<ttmath_big, 2, bg::cs::spherical<bg::degree> > >();
 #endif
 
     return 0;
