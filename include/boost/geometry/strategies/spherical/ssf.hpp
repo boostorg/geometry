@@ -108,8 +108,14 @@ public :
 namespace services
 {
 
-template <typename CalculationType>
+/*template <typename CalculationType>
 struct default_strategy<spherical_polar_tag, CalculationType>
+{
+    typedef spherical_side_formula<CalculationType> type;
+};*/
+
+template <typename CalculationType>
+struct default_strategy<spherical_equatorial_tag, CalculationType>
 {
     typedef spherical_side_formula<CalculationType> type;
 };
