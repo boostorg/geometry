@@ -36,7 +36,11 @@ namespace services
 template <typename Tag, typename CalculationType = void>
 struct default_strategy
 {
-    typedef strategy::not_implemented type;
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_TYPE
+            , (types<Tag>)
+        );
 };
 
 
