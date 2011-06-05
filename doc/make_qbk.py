@@ -78,7 +78,7 @@ algorithms = ["append", "assign", "make", "clear"
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
     , "num_points", "num_interior_rings", "num_geometries"]
     
-coordinate_systems = ["cartesian", "geographic", "polar", "spherical"]
+coordinate_systems = ["cartesian", "geographic", "polar", "spherical", "spherical_equatorial"]
 
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
     , "dimension", "exception", "interior_type"
@@ -103,7 +103,7 @@ strategies = ["distance::pythagoras", "distance::haversine"
     , "centroid::bashein_detmer", "centroid::average"
     , "convex_hull::graham_andrew"
     , "simplify::douglas_peucker"
-    , "side::side_by_triangle", "side::side_by_cross_track"
+    , "side::side_by_triangle", "side::side_by_cross_track", "side::spherical_side_formula"
     , "transform::inverse_transformer", "transform::map_transformer"
     , "transform::rotate_transformer", "transform::scale_transformer"
     , "transform::translate_transformer", "transform::ublas_transformer"
