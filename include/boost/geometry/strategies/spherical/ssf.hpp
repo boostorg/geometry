@@ -32,8 +32,7 @@ namespace strategy { namespace side
 
 
 /*!
-\brief Check at which side of a segment a point lies:
-\details from a Great Circle segment between two points:
+\brief Check at which side of a Great Circle segment a point lies
          left of segment (> 0), right of segment (< 0), on segment (0)
 \ingroup strategies
 \tparam CalculationType \tparam_calculation

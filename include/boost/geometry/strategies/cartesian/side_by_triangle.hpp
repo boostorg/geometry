@@ -32,8 +32,7 @@ namespace strategy { namespace side
 
 /*!
 \brief Check at which side of a segment a point lies:
-\details left of segment (> 0), right of segment (< 0), on segment (0)
-         In fact this is twice the area of a triangle
+    left of segment (> 0), right of segment (< 0), on segment (0)
 \ingroup strategies
 \tparam CalculationType \tparam_calculation
  */

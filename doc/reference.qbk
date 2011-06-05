@@ -179,6 +179,7 @@
 [section:cs Coordinate Systems]
 [include generated/cartesian.qbk]
 [include generated/spherical.qbk]
+[include generated/spherical_equatorial.qbk]
 [include generated/geographic.qbk]
 [endsect] [/coordinate systems]
 
@@ -244,6 +245,7 @@
 [include generated/convex_hull_graham_andrew.qbk]
 [include generated/side_side_by_triangle.qbk]
 [include generated/side_side_by_cross_track.qbk]
+[include generated/side_spherical_side_formula.qbk]
 [include generated/simplify_douglas_peucker.qbk]
 [include generated/transform_inverse_transformer.qbk]
 [include generated/transform_map_transformer.qbk]

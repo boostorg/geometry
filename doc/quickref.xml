@@ -253,6 +253,7 @@
     <simplelist type="vert" columns="1">
     <member><link linkend="geometry.reference.cs.cs_cartesian">cs::cartesian</link></member>
     <member><link linkend="geometry.reference.cs.cs_spherical">cs::spherical</link></member>
+    <member><link linkend="geometry.reference.cs.cs_spherical_equatorial">cs::spherical_equatorial</link></member>
     <member><link linkend="geometry.reference.cs.cs_geographic">cs::geographic</link></member>
     </simplelist>
    </entry>
@@ -533,6 +534,7 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.strategies.strategy_side_side_by_triangle">strategy::side::side_by_triangle</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_side_side_by_cross_track">strategy::side::side_by_cross_track</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_side_spherical_side_formula">strategy::side::spherical_side_formula</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
