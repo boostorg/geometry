@@ -21,6 +21,7 @@
 
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
+#include <boost/geometry/strategies/side.hpp>
 
 
 namespace boost { namespace geometry
@@ -90,21 +91,27 @@ public :
         promoted_type const s = dx * dpy - dy * dpx;
 
         promoted_type zero = promoted_type();
-        return math::equals(s, zero) ? 0 : s > zero ? 1 : -1;
-        //return s > 0 ? 1 : s < 0 ? -1 : 0;
+        return math::equals(s, zero) ? 0 
+            : s > zero ? 1 
+            : -1;
     }
 };
 
-}} // namespace strategy::side
-
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-template <typename CalculationType>
-struct strategy_side<cartesian_tag, CalculationType>
+namespace services
 {
-    typedef strategy::side::side_by_triangle<CalculationType> type;
+
+template <typename CalculationType>
+struct default_strategy<cartesian_tag, CalculationType>
+{
+    typedef side_by_triangle<CalculationType> type;
 };
+
+}
 #endif
+
+}} // namespace strategy::side
 
 }} // namespace boost::geometry
 

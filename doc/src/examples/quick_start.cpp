@@ -135,7 +135,7 @@ int main(void)
     //[quick_start_spherical
     typedef boost::geometry::model::point
         <
-            double, 2, boost::geometry::cs::spherical<boost::geometry::degree>
+            double, 2, boost::geometry::cs::spherical_equatorial<boost::geometry::degree>
         > spherical_point;
     
     spherical_point amsterdam(4.90, 52.37);

@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AREA_HUILLER_HPP
 
 
-#include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 
@@ -45,6 +44,8 @@ http://trs-new.jpl.nasa.gov/dspace/bitstream/2014/40409/1/07-03.pdf, is simple
 and works well in most cases but not in 180 meridian crossing cases. This probably
 could be solved.
 
+\note This version is made for spherical equatorial coordinate systems
+
 \qbk{
 
 [heading Example]
@@ -64,10 +65,21 @@ template
 >
 class huiller
 {
+typedef typename boost::mpl::if_c
+    <
+        boost::is_void<CalculationType>::type::value,
+        typename select_most_precise
+            <
+                typename coordinate_type<PointOfSegment>::type,
+                double
+            >::type,
+        CalculationType
+    >::type calculation_type;
+
 protected :
     struct excess_sum
     {
-        double sum;
+        calculation_type sum;
 
         // Distances are calculated on unit sphere here
         strategy::distance::haversine<PointOfSegment, PointOfSegment>
@@ -78,18 +90,18 @@ protected :
             : sum(0)
             , distance_over_unit_sphere(1)
         {}
-        inline double area(double radius) const
+        inline calculation_type area(calculation_type radius) const
         {
             return - sum * radius * radius;
         }
     };
 
 public :
-    typedef double return_type;
+    typedef calculation_type return_type;
     typedef PointOfSegment segment_point_type;
     typedef excess_sum state_type;
 
-    inline huiller(double radius = 1.0)
+    inline huiller(calculation_type radius = 1.0)
         : m_radius(radius)
     {}
 
@@ -99,26 +111,25 @@ public :
     {
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
-            namespace mc = boost::math::constants;
-
-            double const two_pi = 2.0 * mc::pi<double>();
-            double const half = 0.5;
-            double const two = 2.0;
-            double const four = 4.0;
+            calculation_type const half = 0.5;
+            calculation_type const two = 2.0;
+            calculation_type const four = 4.0;
+            calculation_type const two_pi = two * geometry::math::pi<calculation_type>();
+            calculation_type const half_pi = half * geometry::math::pi<calculation_type>();
 
             // Distance p1 p2
-            double a = state.distance_over_unit_sphere.apply(p1, p2);
+            calculation_type a = state.distance_over_unit_sphere.apply(p1, p2);
 
             // Sides on unit sphere to south pole
-            double b = half * mc::pi<double>() - geometry::get_as_radian<1>(p2);
-            double c = half * mc::pi<double>() - geometry::get_as_radian<1>(p1);
+            calculation_type b = half_pi - geometry::get_as_radian<1>(p2);
+            calculation_type c = half_pi - geometry::get_as_radian<1>(p1);
 
             // Semi parameter
-            double s = half * (a + b + c);
+            calculation_type s = half * (a + b + c);
 
             // E: spherical excess, using l'Huiller's formula
             // [tg(e / 4)]2   =   tg[s / 2]  tg[(s-a) / 2]  tg[(s-b) / 2]  tg[(s-c) / 2]
-            double E = four * atan(sqrt(geometry::math::abs(tan(s / two)
+            calculation_type E = four * atan(sqrt(geometry::math::abs(tan(s / two)
                     * tan((s - a) / two)
                     * tan((s - b) / two)
                     * tan((s - c) / two))));
@@ -130,11 +141,11 @@ public :
             // we have to take the dateline into account.
             // TODO: check this / enhance this, should be more robust. See also the "grow" for ll
             // TODO: use minmax or "smaller"/"compare" strategy for this
-            double lon1 = geometry::get_as_radian<0>(p1) < 0
+            calculation_type lon1 = geometry::get_as_radian<0>(p1) < 0
                 ? geometry::get_as_radian<0>(p1) + two_pi
                 : geometry::get_as_radian<0>(p1);
 
-            double lon2 = geometry::get_as_radian<0>(p2) < 0
+            calculation_type lon2 = geometry::get_as_radian<0>(p2) < 0
                 ? geometry::get_as_radian<0>(p2) + two_pi
                 : geometry::get_as_radian<0>(p2);
 
@@ -154,18 +165,27 @@ public :
 
 private :
     /// Radius of the sphere
-    double m_radius;
+    calculation_type m_radius;
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 namespace services
 {
-    template <typename Point>
-    struct default_strategy<spherical_tag, Point>
-    {
-        typedef strategy::area::huiller<Point> type;
-    };
+
+
+template <typename Point>
+struct default_strategy<spherical_equatorial_tag, Point>
+{
+    typedef strategy::area::huiller<Point> type;
+};
+
+// Note: spherical polar coordinate system requires "get_as_radian_equatorial"
+/***template <typename Point>
+struct default_strategy<spherical_polar_tag, Point>
+{
+    typedef strategy::area::huiller<Point> type;
+};***/
 
 } // namespace services
 

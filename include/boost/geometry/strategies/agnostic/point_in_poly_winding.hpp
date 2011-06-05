@@ -58,7 +58,7 @@ class winding
         >::type calculation_type;
 
 
-    typedef typename strategy_side
+    typedef typename strategy::side::services::default_strategy
         <
             typename cs_tag<Point>::type
         >::type strategy_side_type;
@@ -188,7 +188,13 @@ struct default_strategy<point_tag, areal_tag, cartesian_tag, cartesian_tag, Poin
 };
 
 template <typename Point, typename PointOfSegment>
-struct default_strategy<point_tag, areal_tag, spherical_tag, spherical_tag, Point, PointOfSegment>
+struct default_strategy<point_tag, areal_tag, spherical_polar_tag, spherical_polar_tag, Point, PointOfSegment>
+{
+    typedef winding<Point, PointOfSegment> type;
+};
+
+template <typename Point, typename PointOfSegment>
+struct default_strategy<point_tag, areal_tag, spherical_equatorial_tag, spherical_equatorial_tag, Point, PointOfSegment>
 {
     typedef winding<Point, PointOfSegment> type;
 };

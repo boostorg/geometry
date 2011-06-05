@@ -306,12 +306,15 @@ public :
 };
 
 
-// Register it as the default for point-types in a spherical coordinate system
+// Register it as the default for point-types 
+// in a spherical equatorial coordinate system
 template <typename Point1, typename Point2>
-struct default_strategy<point_tag, Point1, Point2, spherical_tag, spherical_tag>
+struct default_strategy<point_tag, Point1, Point2, spherical_equatorial_tag, spherical_equatorial_tag>
 {
     typedef strategy::distance::haversine<Point1, Point2> type;
 };
+
+// Note: spherical polar coordinate system requires "get_as_radian_equatorial"
 
 
 } // namespace services

@@ -94,6 +94,29 @@ template <> struct string_from_type<long double>
 #endif
 
 
+
+struct geographic_policy
+{
+    template <typename CoordinateType>
+    static inline CoordinateType apply(CoordinateType const& value)
+    {
+        return value;
+    }
+};
+
+struct mathematical_policy
+{
+    template <typename CoordinateType>
+    static inline CoordinateType apply(CoordinateType const& value)
+    {
+        return 90 - value;
+    }
+    
+};
+
+
+
+
 // For all tests:
 // - do NOT use "using namespace boost::geometry" to make clear what is Boost.Geometry
 // - use bg:: as short alias

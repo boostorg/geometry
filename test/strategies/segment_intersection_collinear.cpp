@@ -64,7 +64,7 @@ static void test_segment_intersection(std::string const& case_id,
 //#endif
 
     typedef typename bg::coordinate_type<P>::type coordinate_type;
-    typedef bg::segment<const P> segment_type;
+    typedef bg::model::referring_segment<const P> segment_type;
 
     P p1, p2, p3, p4;
     bg::assign_values(p1, x1, y1);

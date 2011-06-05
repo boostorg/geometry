@@ -21,6 +21,11 @@
 namespace boost { namespace geometry
 {
 
+namespace strategy { namespace side
+{
+
+namespace services
+{
 
 /*!
 \brief Traits class binding a side determination strategy to a coordinate system
@@ -29,10 +34,20 @@ namespace boost { namespace geometry
 \tparam CalculationType \tparam_calculation
 */
 template <typename Tag, typename CalculationType = void>
-struct strategy_side
+struct default_strategy
 {
-    typedef strategy::not_implemented type;
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_TYPE
+            , (types<Tag>)
+        );
 };
+
+
+} // namespace services
+
+
+}} // namespace strategy::side
 
 
 }} // namespace boost::geometry

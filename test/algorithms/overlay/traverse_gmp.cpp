@@ -62,7 +62,7 @@ void test_traverse(std::string const& caseid, G1 const& g1, G2 const& g2)
     typedef std::vector<ip> ip_vector;
     ip_vector ips;
 
-    typedef typename bg::strategy_side
+    typedef typename bg::strategy::side::services::default_strategy
             <
                 typename bg::cs_tag<G1>::type
             >::type strategy_type;

@@ -17,8 +17,8 @@ using namespace boost::geometry;
 
 int main()
 {
-    typedef model::point<double, 2, cs::spherical<degree> > degree_point;
-    typedef model::point<double, 2, cs::spherical<radian> > radian_point;
+    typedef model::point<double, 2, cs::spherical_equatorial<degree> > degree_point;
+    typedef model::point<double, 2, cs::spherical_equatorial<radian> > radian_point;
     
     degree_point d(4.893, 52.373);
     radian_point r(0.041, 0.8527);

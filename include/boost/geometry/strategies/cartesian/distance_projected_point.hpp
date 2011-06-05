@@ -116,13 +116,14 @@ public :
     {
         assert_dimension_equal<Point, PointOfSegment>();
 
-        /* Algorithm
-        POINT v(x2 - x1, y2 - y1);
-        POINT w(px - x1, py - y1);
-        c1 = w . v
-        c2 = v . v
-        b = c1 / c2
-        RETURN POINT(x1 + b * vx, y1 + b * vy);
+        /* 
+            Algorithm [p1: (x1,y1), p2: (x2,y2), p: (px,py)]
+            VECTOR v(x2 - x1, y2 - y1)
+            VECTOR w(px - x1, py - y1)
+            c1 = w . v
+            c2 = v . v
+            b = c1 / c2
+            RETURN POINT(x1 + b * vx, y1 + b * vy)
         */
 
         // v is multiplied below with a (possibly) FP-value, so should be in FP
@@ -137,21 +138,20 @@ public :
         Strategy strategy;
         boost::ignore_unused_variable_warning(strategy);
 
-        calculation_type zero = calculation_type();
-        fp_type c1 = dot_product(w, v);
+        calculation_type const zero = calculation_type();
+        fp_type const c1 = dot_product(w, v);
         if (c1 <= zero)
         {
             return strategy.apply(p, p1);
         }
-        fp_type c2 = dot_product(v, v);
+        fp_type const c2 = dot_product(v, v);
         if (c2 <= c1)
         {
             return strategy.apply(p, p2);
         }
 
         // See above, c1 > 0 AND c2 > c1 so: c2 != 0
-        fp_type b = fp_type(c1) / fp_type(c2);
-
+        fp_type const b = c1 / c2;
 
         fp_strategy_type fp_strategy
             = strategy::distance::services::get_similar
@@ -168,7 +168,6 @@ public :
 
         return fp_strategy.apply(p, projected);
     }
-
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
