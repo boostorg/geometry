@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.Index - R-tree quadratic split algorithm implementation
+// Boost.Index - R*-tree split algorithm implementation
 //
 // Copyright 2011 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
@@ -35,7 +35,8 @@ struct redistribute_elements<Value, Translator, Box, rstar_tag>
     typedef typename index::default_area_result<Box>::type area_type;
 
     template <typename Node>
-    static inline void apply(Node & n,
+    static inline void apply(
+        Node & n,
         Node & second_node,
         Box & box1,
         Box & box2,

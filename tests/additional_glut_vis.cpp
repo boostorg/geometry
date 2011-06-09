@@ -9,16 +9,21 @@
 
 #include <gl/glut.h>
 
+//#define BOOST_GEOMETRY_INDEX_USE_VARIANT_NODES
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/gl_draw.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/print.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
 
 typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
 typedef boost::geometry::model::box<P> B;
 //boost::geometry::index::rtree<B> t(2, 1);
-boost::geometry::index::rtree<B, boost::geometry::index::default_parameter, boost::geometry::index::quadratic_tag> t(4, 2);
+boost::geometry::index::rtree<
+    B,
+    boost::geometry::index::default_parameter,
+    boost::geometry::index::rstar_tag> t(4, 2);
 std::vector<B> vect;
 
 void render_scene(void)
@@ -61,13 +66,14 @@ void mouse(int button, int state, int x, int y)
         boost::geometry::index::insert(t, b);
         vect.push_back(b);
 
-        /*std::cout << t << "\n\n";
+        std::cout << t << "\n\n";
         
         std::cout << "inserted: ";
         boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
-        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK" : "WRONG BOXES!" );
-        std::cout << "\n\n\n";*/
+        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+		std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << "\n\n";
 
         glutPostRedisplay();
     }
@@ -82,12 +88,13 @@ void mouse(int button, int state, int x, int y)
         boost::geometry::index::remove(t, b);
         vect.erase(vect.begin() + i);
 
-        /*std::cout << '\n' << t << "\n\n";
+        std::cout << '\n' << t << "\n\n";
         std::cout << "removed: ";
         boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
-        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK" : "WRONG BOXES!" );
-        std::cout << "\n\n\n";*/
+		std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+		std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+		std::cout << "\n\n";
 
         glutPostRedisplay();
     }

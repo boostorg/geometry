@@ -29,12 +29,18 @@ class remove : public rtree::visitor<Value, Box, Tag, false>::type
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
 public:
-    inline explicit remove(node* & root, Value const& v, size_t min_elements, size_t max_elements, Translator const& t)
+    inline remove(node* & root,
+                  size_t & leafs_level,
+                  Value const& v,
+                  size_t min_elements,
+                  size_t max_elements,
+                  Translator const& t)
         : m_value(v)
         , m_tr(t)
         , m_min_elems_per_node(min_elements)
         , m_max_elems_per_node(max_elements)
         , m_root_node(root)
+        , m_leafs_level(leafs_level)
         , m_is_value_removed(false)
         , m_parent(0)
         , m_current_child_index(0)
@@ -76,8 +82,8 @@ public:
             {
                 element_iterator underfl_el_it = elements.begin() + child_node_index;
 
-                // move node to the container
-                m_underflowed_nodes.push_back(std::make_pair(m_current_level + 1, underfl_el_it->second));
+                // move node to the container - store node's relative level as well
+                m_underflowed_nodes.push_back(std::make_pair(m_leafs_level - m_current_level, underfl_el_it->second));
                 elements.erase(underfl_el_it);
 
                 // calc underflow
@@ -87,8 +93,9 @@ public:
             // n is not root - adjust aabb
             if ( 0 != m_parent )
             {
-                // test underflow state should be ok here
+                // underflow state should be ok here
                 // note that there may be less than min_elems elements in root
+                // so this condition should be checked only here
                 assert((elements.size() < m_min_elems_per_node) == m_is_underflow);
 
                 rtree::elements(*m_parent)[m_current_child_index].first
@@ -120,6 +127,7 @@ public:
                 if ( rtree::elements(n).size() == 1 )
                 {
                     m_root_node = rtree::elements(n)[0].second;
+                    --m_leafs_level;
                 }
             }
         }
@@ -178,7 +186,7 @@ private:
     }
 
     template <typename Node>
-    void reinsert_elements(Node &n, size_t level)
+    void reinsert_elements(Node &n, size_t node_relative_level)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         elements_type & elements = rtree::elements(n);
@@ -187,11 +195,12 @@ private:
         {
             visitors::insert<typename elements_type::value_type, Value, Translator, Box, Tag> insert_v(
                 m_root_node,
+                m_leafs_level,
                 *it,
                 m_min_elems_per_node,
                 m_max_elems_per_node,
                 m_tr,
-                level);
+                node_relative_level - 1);
 
             rtree::apply_visitor(insert_v, *m_root_node);
         }
@@ -203,6 +212,7 @@ private:
     const size_t m_max_elems_per_node;
 
     node* & m_root_node;
+    size_t & m_leafs_level;
     bool m_is_value_removed;
     std::vector< std::pair<size_t, node*> > m_underflowed_nodes;
 

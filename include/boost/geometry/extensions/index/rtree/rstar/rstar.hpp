@@ -16,6 +16,7 @@ struct rstar_tag {};
 
 }}} // namespace boost::geometry::index
 
+#include <boost/geometry/extensions/index/rtree/rstar/insert.hpp>
 #include <boost/geometry/extensions/index/rtree/rstar/choose_next_node.hpp>
 #include <boost/geometry/extensions/index/rtree/rstar/redistribute_elements.hpp>
 

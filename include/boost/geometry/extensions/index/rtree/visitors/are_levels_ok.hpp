@@ -1,16 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.Index - R-tree boxes checking visitor
+// Boost.Index - R-tree levels checking visitor
 //
 // Copyright 2011 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_BOXES_OK_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_BOXES_OK_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_LEVELS_OK_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_LEVELS_OK_HPP
 
-#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/extensions/index/rtree/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -18,14 +17,14 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Translator, typename Box, typename Tag>
-class are_boxes_ok : public rtree::visitor<Value, Box, Tag, true>::type
+class are_levels_ok : public rtree::visitor<Value, Box, Tag, true>::type
 {
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
 public:
-    inline are_boxes_ok(Translator const& tr)
-        : result(false), m_tr(tr), m_is_root(true)
+    inline are_levels_ok(Translator const& tr)
+        : result(true), m_tr(tr), m_leafs_level(std::numeric_limits<size_t>::max()), m_current_level(0)
     {}
 
     inline void operator()(internal_node const& n)
@@ -39,34 +38,19 @@ public:
             return;
         }
 
-        Box box_bckup = m_box;
-        bool is_root_bckup = m_is_root;
+		size_t current_level_backup = m_current_level;
+		++m_current_level;
 
-        m_is_root = false;
-
-        for ( typename elements_type::const_iterator it = elements.begin();
+		for ( typename elements_type::const_iterator it = elements.begin();
               it != elements.end() ; ++it)
         {
-            m_box = it->first;
-
             rtree::apply_visitor(*this, *it->second);
 
             if ( result == false )
                 return;
         }
 
-        m_box = box_bckup;
-        m_is_root = is_root_bckup;
-
-        Box box_exp;
-        geometry::convert(elements.front().first, box_exp);
-        for( typename elements_type::const_iterator it = elements.begin() + 1;
-            it != elements.end() ; ++it)
-        {
-            geometry::expand(box_exp, it->first);
-        }
-        
-        result = m_is_root || geometry::equals(box_exp, m_box);
+		m_current_level = current_level_backup;
     }
 
     inline void operator()(leaf const& n)
@@ -74,44 +58,38 @@ public:
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-		// non-root node
-        if (!m_is_root)
+		// empty leaf in non-root node
+        if (0 < m_current_level && elements.empty())
         {
-			if ( elements.empty() )
-			{
-				result = false;
-				return;
-			}
-        
-			Box box_exp;
-			geometry::convert(m_tr(elements.front()), box_exp);
-			for(typename elements_type::const_iterator it = elements.begin() + 1;
-				it != elements.end() ; ++it)
-			{
-				geometry::expand(box_exp, m_tr(*it));
-			}
+            result = false;
+            return;
+        }
 
-			result = geometry::equals(box_exp, m_box);
+        if ( m_leafs_level == std::numeric_limits<size_t>::max() )
+		{
+			m_leafs_level = m_current_level;
 		}
-		else
-			result = true;
+		else if ( m_leafs_level != m_current_level )
+		{
+			result = false;
+		}
     }
 
     bool result;
 
 private:
     Translator const& m_tr;
-    Box m_box;
-    bool m_is_root;
+    size_t m_leafs_level;
+	size_t m_current_level;
 };
 
 }}} // namespace detail::rtree::visitors
 
 template <typename Value, typename Translator, typename Tag>
-bool are_boxes_ok(rtree<Value, Translator, Tag> const& tree)
+bool are_levels_ok(rtree<Value, Translator, Tag> const& tree)
 {
     typedef rtree<Value, Translator, Tag> rt;
-    detail::rtree::visitors::are_boxes_ok<
+    detail::rtree::visitors::are_levels_ok<
         typename rt::value_type,
         typename rt::translator_type,
         typename rt::box_type,
@@ -124,4 +102,4 @@ bool are_boxes_ok(rtree<Value, Translator, Tag> const& tree)
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_BOXES_OK_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_LEVELS_OK_HPP

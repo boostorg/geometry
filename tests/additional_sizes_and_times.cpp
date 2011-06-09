@@ -11,6 +11,7 @@
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -28,9 +29,9 @@ int main()
 
     typedef bg::model::point<float, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
-    typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::linear_tag> RT;
+    //typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::linear_tag> RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::quadratic_tag> RT;
-    //typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::rstar_tag> RT;
+    typedef bgi::rtree<std::pair<B, size_t>, bgi::default_parameter, bgi::rstar_tag> RT;
 
     // load config file
     std::ifstream file_cfg("config.txt");
@@ -89,7 +90,7 @@ int main()
     else
     {
         boost::mt19937 rng;
-        float max_val = values_count / 2;
+        float max_val = static_cast<float>(values_count / 2);
         boost::uniform_real<float> range(-max_val, max_val);
         boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > rnd(rng, range);
 
@@ -114,6 +115,25 @@ int main()
             float y = coords[i].second;
             B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
 
+            //if ( 341700 <= i )
+            //    std::cout << i << "\n";
+
+            // Czy mozliwe, ze w czasie powtornego reinserta
+            // nagle drzewo sie powieksza o jeden poziom?
+            // Tak, drzewo sie rozrasta, powinno sie wstawiac w poziomie liczac od lisci
+            // TODO: relative_level zamiast level
+
+            // TODO: asserty w operator(leaf)
+            // current_level == leaf_level
+
+            // Swoja droga to dziwne ze przy drzewie 4,2 
+            // dzieje sie to samo dopiero dla obiektow o indeksie 300k a nie wczesniej
+            // Dlaczego?
+            // Przy 32 obiektach powtornie wstawianych jest 9 a przy 4 tylko 1
+
+			// TODO: Zrobic kolejnego visitora sprawdzajacego czy odpowiednie wezly zostaly wstawione w dobrym miejscu
+			// Np sprawdzajacego czy wszystkie liscie sa na tym samym poziomie
+
             t.insert(std::make_pair(b, i));
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -124,6 +144,10 @@ int main()
         std::cout << "BOXES OK\n";
     else
         std::cout << "WRONG BOXES\n";
+	if ( bgi::are_levels_ok(t) )
+		std::cout << "LEVELS OK\n";
+	else
+		std::cout << "WRONG LEVELS\n";
 
     // searching test
     {
@@ -157,11 +181,15 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
-    // check
-    if ( bgi::are_boxes_ok(t) )
-        std::cout << "BOXES OK\n";
-    else
-        std::cout << "WRONG BOXES\n";
+	// check
+	if ( bgi::are_boxes_ok(t) )
+		std::cout << "BOXES OK\n";
+	else
+		std::cout << "WRONG BOXES\n";
+	if ( bgi::are_levels_ok(t) )
+		std::cout << "LEVELS OK\n";
+	else
+		std::cout << "WRONG LEVELS\n";
 
     // searching test
     {
@@ -184,7 +212,7 @@ int main()
     {
         std::cout << "inserting time test...\n";
         tim.restart();
-        for (size_t i = 0 ; i < values_count / 2 ; ++i )
+        for (size_t i = 0 ; i < remove_count ; ++i )
         {
             float x = coords[i].first;
             float y = coords[i].second;
@@ -195,11 +223,15 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
-    // test
-    if ( bgi::are_boxes_ok(t) )
-        std::cout << "BOXES OK\n";
-    else
-        std::cout << "WRONG BOXES\n";
+	// check
+	if ( bgi::are_boxes_ok(t) )
+		std::cout << "BOXES OK\n";
+	else
+		std::cout << "WRONG BOXES\n";
+	if ( bgi::are_levels_ok(t) )
+		std::cout << "LEVELS OK\n";
+	else
+		std::cout << "WRONG LEVELS\n";
 
     // searching test
     {

@@ -46,7 +46,7 @@ struct within_compare<min_corner, DimensionIndex, Indexable, point_tag>
     template <typename Box>
     static inline bool apply(Box const& b, Indexable const& p)
     {
-        return index::get<min_corner, DimensionIndex>(b) <= index::get<DimensionIndex>(p);
+        return index::get<min_corner, DimensionIndex>(b) <= geometry::get<DimensionIndex>(p);
     }
 };
 
@@ -56,7 +56,7 @@ struct within_compare<max_corner, DimensionIndex, Indexable, point_tag>
     template <typename Box>
     static inline bool apply(Box const& b, Indexable const& p)
     {
-        return index::get<DimensionIndex>(p) <= index::get<max_corner, DimensionIndex>(b);
+        return geometry::get<DimensionIndex>(p) <= index::get<max_corner, DimensionIndex>(b);
     }
 };
 

@@ -54,6 +54,7 @@ public:
         , m_max_elems_per_node(max_elems_per_node)
         , m_min_elems_per_node(min_elems_per_node)
         , m_root(0)
+        , m_leafs_level(0)
         , m_translator(translator)
     {
         if ( m_min_elems_per_node < 1 )
@@ -86,7 +87,7 @@ public:
         // TODO: awulkiew - assert for correct value
 
         detail::rtree::visitors::insert<value_type, value_type, translator_type, box_type, tag_type>
-            insert_v(m_root, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
+            insert_v(m_root, m_leafs_level, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
         detail::rtree::apply_visitor(insert_v, *m_root);
 
@@ -99,7 +100,7 @@ public:
         assert(0 < m_values_count);
 
         detail::rtree::visitors::remove<value_type, translator_type, box_type, tag_type>
-            remove_v(m_root, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
+            remove_v(m_root, m_leafs_level, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
         detail::rtree::apply_visitor(remove_v, *m_root);
 
@@ -144,6 +145,7 @@ private:
     size_t m_max_elems_per_node;
     size_t m_min_elems_per_node;
     node *m_root;
+    size_t m_leafs_level;
     translator_type m_translator;
 };
 

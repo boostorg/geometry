@@ -94,6 +94,7 @@ struct split
         internal_node *parent,
         size_t current_child_index,
         node *& root,
+        size_t & leafs_level,
         size_t min_elems,
         size_t max_elems,
         Translator const& tr)
@@ -111,7 +112,7 @@ struct split
         assert(min_elems <= rtree::elements(n).size() && rtree::elements(n).size() <= max_elems);
         assert(min_elems <= rtree::elements(n2).size() && rtree::elements(n2).size() <= max_elems);
 
-        // node is not the root
+        // node is not the root - just add the new node
         if ( parent != 0 )
         {
             // update old node's box
@@ -119,7 +120,7 @@ struct split
             // add new node to the parent's children
             rtree::elements(*parent).push_back(std::make_pair(box2, second_node));
         }
-        // node is the root
+        // node is the root - add level
         else
         {
             assert(&n == rtree::get<Node>(root));
@@ -131,29 +132,8 @@ struct split
             rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
 
             root = new_root;
+            ++leafs_level;
         }
-    }
-};
-
-// Default overflow treatment algorithm
-template <typename Value, typename Translator, typename Box, typename Tag>
-struct overflow_treatment
-{
-    typedef typename rtree::node<Value, Box, Tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
-
-    template <typename Node>
-    static inline void apply(
-        Node & n,
-        internal_node *parent,
-        size_t current_child_index,
-        node *& root,
-        size_t min_elems,
-        size_t max_elems,
-        Translator const& tr)
-    {
-        split<Value, Translator, Box, Tag>::apply(n, parent, current_child_index, root, min_elems, max_elems, tr);
     }
 };
 
@@ -167,22 +147,27 @@ public:
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
 
     inline insert(node* & root,
+                  size_t & leafs_level,
                   Element const& element,
                   size_t min_elements,
                   size_t max_elements,
                   Translator const& t,
-                  size_t level = std::numeric_limits<size_t>::max()
+                  size_t relative_level = 0
     )
         : m_element(element)
         , m_tr(t)
         , m_min_elems_per_node(min_elements)
         , m_max_elems_per_node(max_elements)
-        , m_level(level)
+		, m_relative_level(relative_level)
+        , m_level(leafs_level - relative_level)
         , m_root_node(root)
+        , m_leafs_level(leafs_level)
         , m_parent(0)
         , m_current_child_index(0)
         , m_current_level(0)
     {
+		assert(m_relative_level <= leafs_level);
+		assert(m_level <= m_leafs_level);
         // TODO
         // assert - check if Box is correct
     }
@@ -209,11 +194,16 @@ protected:
     template <typename Node>
     inline void post_traverse(Node &n)
     {
+        // if node isn't a root check if parent and current_child_index isn't corrupted
+        assert(0 == m_parent || &n == rtree::get<Node>(rtree::elements(*m_parent)[m_current_child_index].second));
+
         // handle overflow
         if ( m_max_elems_per_node < rtree::elements(n).size() )
         {
-            detail::overflow_treatment<Value, Translator, Box, Tag>::
-                apply(n, m_parent, m_current_child_index, m_root_node, m_min_elems_per_node, m_max_elems_per_node, m_tr);
+            split<Value, Translator, Box, Tag>::apply(
+                n, m_parent, m_current_child_index,
+                m_root_node, m_leafs_level,
+                m_min_elems_per_node, m_max_elems_per_node, m_tr);
         }
     }
 
@@ -243,9 +233,11 @@ protected:
     Translator const& m_tr;
     const size_t m_min_elems_per_node;
     const size_t m_max_elems_per_node;
+	const size_t m_relative_level;
     const size_t m_level;
 
     node* & m_root_node;
+    size_t & m_leafs_level;
 
     // traversing input parameters
     internal_node *m_parent;
@@ -265,17 +257,20 @@ struct insert : public detail::insert<Element, Value, Translator, Box, Tag>
     typedef typename base::leaf leaf;
 
     inline insert(node* & root,
+                  size_t & leafs_level,
                   Element const& element,
                   size_t min_elements,
                   size_t max_elements,
                   Translator const& tr,
-                  size_t level = std::numeric_limits<size_t>::max()
+                  size_t relative_level = 0
     )
-        : base(root, element, min_elements, max_elements, tr, level)
+        : base(root, leafs_level, element, min_elements, max_elements, tr, relative_level)
     {}
 
     inline void operator()(internal_node & n)
     {
+        assert(base::m_current_level < base::m_leafs_level);
+
         if ( base::m_current_level < base::m_level )
         {
             // next traversing step
@@ -308,17 +303,19 @@ struct insert<Value, Value, Translator, Box, Tag> : public detail::insert<Value,
     typedef typename base::leaf leaf;
 
     inline insert(node* & root,
+                  size_t & leafs_level,
                   Value const& v,
                   size_t min_elements,
                   size_t max_elements,
                   Translator const& t,
-                  size_t level = std::numeric_limits<size_t>::max()
+                  size_t relative_level = 0
     )
-        : base(root, v, min_elements, max_elements, t, level)
+        : base(root, leafs_level, v, min_elements, max_elements, t, relative_level)
     {}
 
     inline void operator()(internal_node & n)
     {
+        assert(base::m_current_level < base::m_leafs_level);
         assert(base::m_current_level < base::m_level);
 
         // next traversing step
@@ -329,6 +326,7 @@ struct insert<Value, Value, Translator, Box, Tag> : public detail::insert<Value,
 
     inline void operator()(leaf & n)
     {
+        assert(base::m_current_level == base::m_leafs_level);
         assert( base::m_level == base::m_current_level ||
             base::m_level == std::numeric_limits<size_t>::max() );
 
