@@ -78,70 +78,11 @@ struct choose_next_node
 template <typename Value, typename Translator, typename Box, typename Tag>
 struct redistribute_elements;
 
-// Default split algorithm
-template <typename Value, typename Translator, typename Box, typename Tag>
-struct split
-{
-    typedef typename rtree::node<Value, Box, Tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
-
-    static const size_t dimension = index::traits::dimension<Box>::value;
-
-    template <typename Node>
-    static inline void apply(
-        Node & n,
-        internal_node *parent,
-        size_t current_child_index,
-        node *& root,
-        size_t & leafs_level,
-        size_t min_elems,
-        size_t max_elems,
-        Translator const& tr)
-    {
-        // create additional node
-        node * second_node = rtree::create_node(Node());
-        Node & n2 = rtree::get<Node>(*second_node);
-
-        // redistribute elements
-        Box box1, box2;
-        redistribute_elements<Value, Translator, Box, Tag>::
-            apply(n, n2, box1, box2, min_elems, max_elems, tr);
-
-        // check numbers of elements
-        assert(min_elems <= rtree::elements(n).size() && rtree::elements(n).size() <= max_elems);
-        assert(min_elems <= rtree::elements(n2).size() && rtree::elements(n2).size() <= max_elems);
-
-        // node is not the root - just add the new node
-        if ( parent != 0 )
-        {
-            // update old node's box
-            rtree::elements(*parent)[current_child_index].first = box1;
-            // add new node to the parent's children
-            rtree::elements(*parent).push_back(std::make_pair(box2, second_node));
-        }
-        // node is the root - add level
-        else
-        {
-            assert(&n == rtree::get<Node>(root));
-
-            // create new root and add nodes
-            node * new_root = rtree::create_node(internal_node());
-
-            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root));
-            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
-
-            root = new_root;
-            ++leafs_level;
-        }
-    }
-};
-
 // Default insert visitor
 template <typename Element, typename Value, typename Translator, typename Box, typename Tag>
 class insert : public rtree::visitor<Value, Box, Tag, false>::type
 {
-public:
+protected:
     typedef typename rtree::node<Value, Box, Tag>::type node;
     typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
@@ -172,7 +113,6 @@ public:
         // assert - check if Box is correct
     }
 
-protected:
     template <typename Visitor>
     inline void traverse(Visitor & visitor, internal_node & n)
     {
@@ -200,10 +140,7 @@ protected:
         // handle overflow
         if ( m_max_elems_per_node < rtree::elements(n).size() )
         {
-            split<Value, Translator, Box, Tag>::apply(
-                n, m_parent, m_current_child_index,
-                m_root_node, m_leafs_level,
-                m_min_elems_per_node, m_max_elems_per_node, m_tr);
+			split(n);
         }
     }
 
@@ -228,6 +165,46 @@ protected:
         m_current_child_index = current_child_index_bckup;
         m_current_level = current_level_bckup;
     }
+
+	template <typename Node>
+	inline void split(Node &n) const
+	{
+		// create additional node
+		node * second_node = rtree::create_node(Node());
+		Node & n2 = rtree::get<Node>(*second_node);
+
+		// redistribute elements
+		Box box1, box2;
+		redistribute_elements<Value, Translator, Box, Tag>::
+			apply(n, n2, box1, box2, m_min_elems_per_node, m_max_elems_per_node, m_tr);
+
+		// check numbers of elements
+		assert(m_min_elems_per_node <= rtree::elements(n).size() && rtree::elements(n).size() <= m_max_elems_per_node);
+		assert(m_min_elems_per_node <= rtree::elements(n2).size() && rtree::elements(n2).size() <= m_max_elems_per_node);
+
+		// node is not the root - just add the new node
+		if ( m_parent != 0 )
+		{
+			// update old node's box
+			rtree::elements(*m_parent)[m_current_child_index].first = box1;
+			// add new node to the parent's children
+			rtree::elements(*m_parent).push_back(std::make_pair(box2, second_node));
+		}
+		// node is the root - add level
+		else
+		{
+			assert(&n == rtree::get<Node>(m_root_node));
+
+			// create new root and add nodes
+			node * new_root = rtree::create_node(internal_node());
+
+			rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, m_root_node));
+			rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
+
+			m_root_node = new_root;
+			++m_leafs_level;
+		}
+	}
 
     Element const& m_element;
     Translator const& m_tr;

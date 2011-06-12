@@ -169,12 +169,7 @@ struct level_insert_base
 			{
 				// it's really the root node
 				assert(&rtree::get<Node>(n) == base::m_root_node);
-
-				detail::split<Value, Translator, Box, rstar_tag>::apply(
-					n,
-					base::m_parent, base::m_current_child_index,
-					base::m_root_node, base::m_leafs_level,
-					base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
+				base::split(n);
 			}
 		}
 	}
@@ -185,11 +180,7 @@ struct level_insert_base
 		// overflow
 		if ( base::m_max_elems_per_node < rtree::elements(n).size() )
 		{
-			detail::split<Value, Translator, Box, rstar_tag>::apply(
-				n,
-				base::m_parent, base::m_current_child_index,
-				base::m_root_node, base::m_leafs_level,
-				base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
+			base::split(n);
 		}
 	}
 
