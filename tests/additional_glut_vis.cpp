@@ -22,7 +22,6 @@ typedef boost::geometry::model::box<P> B;
 //boost::geometry::index::rtree<B> t(2, 1);
 boost::geometry::index::rtree<
     B,
-    boost::geometry::index::default_parameter,
     boost::geometry::index::rstar_tag> t(4, 2);
 std::vector<B> vect;
 

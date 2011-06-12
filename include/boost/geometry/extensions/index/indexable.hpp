@@ -159,6 +159,18 @@ typename traits::coordinate_type<Indexable>::type get(Indexable const& i)
     >::get(i);
 }
 
+template <typename Indexable>
+struct default_box_type
+{
+	typedef geometry::model::box<
+		geometry::model::point<
+			typename traits::coordinate_type<Indexable>::type,
+			traits::dimension<Indexable>::value,
+			typename traits::coordinate_system<Indexable>::type
+		>
+	> type;
+};
+
 }}} // namespace boost::geometry::index
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_INDEXABLE_HPP

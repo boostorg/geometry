@@ -11,7 +11,10 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RTREE_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RTREE_HPP
 
-#include <boost/geometry/extensions/index/default_parameter.hpp>
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/box.hpp>
+
+#include <boost/geometry/extensions/index/translator/def.hpp>
 
 #include <boost/geometry/extensions/index/rtree/filters.hpp>
 
@@ -30,15 +33,16 @@ namespace boost { namespace geometry { namespace index {
 
 template <
     typename Value,
-    typename Translator = default_parameter,
-    typename Tag = linear_tag
+    typename Tag = linear_tag,
+	typename Translator = translator::def<Value>
 >
 class rtree
 {
 public:
     typedef Value value_type;
-    typedef typename detail::default_translator_type<value_type, Translator>::type translator_type;
-    typedef typename detail::geometry_box_type<typename translator_type::indexable_type>::type box_type;
+    typedef Translator translator_type;
+	typedef typename translator_type::indexable_type indexable_type;
+    typedef typename index::default_box_type<indexable_type>::type box_type;
     typedef Tag tag_type;
 
     typedef typename detail::rtree::node<value_type, box_type, tag_type>::type node;
