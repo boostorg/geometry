@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.SpatialIndex - boxes union/intersection area/volume
+// Boost.SpatialIndex - boxes union/sum area/volume
 //
 // Copyright 2008 Federico J. Fernandez.
 // Copyright 2011 Adam Wulkiewicz.

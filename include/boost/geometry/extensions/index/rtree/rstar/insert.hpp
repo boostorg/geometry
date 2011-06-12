@@ -107,58 +107,117 @@ private:
     }
 };
 
-template <typename Value, typename Translator, typename Box>
-struct reinsert_or_split_root
+template <size_t InsertIndex, typename Element, typename Value, typename Box>
+struct level_insert_result_type
 {
-    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
+	typedef typename rtree::elements_type<
+		typename rtree::internal_node<Value, Box, rstar_tag>::type
+	>::type type;
+};
 
-    template <typename Node>
-    static inline void apply(
-        typename rtree::elements_type<Node>::type & result_elements,
-        Node & n,
-        internal_node *parent,
-        size_t current_child_index,
-        node* & root_node,
-        size_t & leafs_level,
-        size_t min_elems,
-        size_t max_elems,
-        Translator const& tr)
-    {
-        // node isn't root node
-        if ( parent )
-        {
-            rstar::remove_elements_to_reinsert<Value, Translator, Box>::apply(
-                result_elements, n,
-                parent, current_child_index,
-                min_elems, max_elems, tr);
-        }
-        // node is root node
-        else
-        {
-            // it's really the root node
-            assert(&rtree::get<Node>(n) == root_node);
+template <typename Value, typename Box>
+struct level_insert_result_type<0, Value, Value, Box>
+{
+	typedef typename rtree::elements_type<
+		typename rtree::leaf<Value, Box, rstar_tag>::type
+	>::type type;
+};
 
-            detail::split<Value, Translator, Box, rstar_tag>::apply(
-                n,
-                parent, current_child_index,
-                root_node, leafs_level,
-                min_elems, max_elems, tr);
-        }
-    }
+template <size_t InsertIndex, typename Element, typename Value, typename Translator, typename Box>
+struct level_insert_base
+	: public detail::insert<Element, Value, Translator, Box, rstar_tag>
+{
+	typedef detail::insert<Element, Value, Translator, Box, rstar_tag> base;
+	typedef typename base::node node;
+	typedef typename base::internal_node internal_node;
+	typedef typename base::leaf leaf;
+
+	typedef typename level_insert_result_type<InsertIndex, Element, Value, Box>::type result_type;
+
+	inline level_insert_base(node* & root,
+		 					 size_t & leafs_level,
+		 					 Element const& element,
+		 					 size_t min_elements,
+							 size_t max_elements,
+							 Translator const& tr,
+							 size_t relative_level)
+		: base(root, leafs_level, element, min_elements, max_elements, tr, relative_level)
+		, result_relative_level(0)
+	{}
+
+	template <typename Node>
+	inline void handle_possible_reinsert_or_split_of_root(Node &n)
+	{
+		// reinsert should be handled only once for level
+		assert(result_elements.empty());
+
+		result_relative_level = base::m_leafs_level - base::m_current_level;
+
+		// overflow
+		if ( base::m_max_elems_per_node < rtree::elements(n).size() )
+		{
+			// node isn't root node
+			if ( base::m_parent )
+			{
+				rstar::remove_elements_to_reinsert<Value, Translator, Box>::apply(
+					result_elements, n,
+					base::m_parent, base::m_current_child_index,
+					base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
+			}
+			// node is root node
+			else
+			{
+				// it's really the root node
+				assert(&rtree::get<Node>(n) == base::m_root_node);
+
+				detail::split<Value, Translator, Box, rstar_tag>::apply(
+					n,
+					base::m_parent, base::m_current_child_index,
+					base::m_root_node, base::m_leafs_level,
+					base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
+			}
+		}
+	}
+
+	template <typename Node>
+	inline void handle_possible_split(Node &n) const
+	{
+		// overflow
+		if ( base::m_max_elems_per_node < rtree::elements(n).size() )
+		{
+			detail::split<Value, Translator, Box, rstar_tag>::apply(
+				n,
+				base::m_parent, base::m_current_child_index,
+				base::m_root_node, base::m_leafs_level,
+				base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
+		}
+	}
+
+	template <typename Node>
+	inline void recalculate_aabb_if_necessary(Node &n) const
+	{
+		if ( !result_elements.empty() && base::m_parent )
+		{
+			// calulate node's new box
+			rtree::elements(*base::m_parent)[base::m_current_child_index].first =
+				elements_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_tr);
+		}
+	}
+
+	size_t result_relative_level;
+	result_type result_elements;
 };
 
 template <size_t InsertIndex, typename Element, typename Value, typename Translator, typename Box>
 struct level_insert
-    : public detail::insert<Element, Value, Translator, Box, rstar_tag>
+    : public level_insert_base<InsertIndex, Element, Value, Translator, Box>
 {
-    typedef detail::insert<Element, Value, Translator, Box, rstar_tag> base;
+	typedef level_insert_base<InsertIndex, Element, Value, Translator, Box> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
-    typedef typename rtree::elements_type<internal_node>::type result_type;
+    typedef typename base::result_type result_type;
 
     inline level_insert(node* & root,
                         size_t & leafs_level,
@@ -168,7 +227,6 @@ struct level_insert
                         Translator const& tr,
                         size_t relative_level)
         : base(root, leafs_level, element, min_elements, max_elements, tr, relative_level)
-        , result_relative_level(0)
     {}
 
     inline void operator()(internal_node & n)
@@ -187,17 +245,7 @@ struct level_insert
 
                 if ( base::m_current_level == base::m_level - 1 )
                 {
-                    result_relative_level = base::m_leafs_level - base::m_current_level;
-
-                    // overflow
-                    if ( base::m_max_elems_per_node < rtree::elements(n).size() )
-                    {
-                        rstar::reinsert_or_split_root<Value, Translator, Box>::apply(
-                            result_elements, n,
-                            base::m_parent, base::m_current_child_index,
-                            base::m_root_node, base::m_leafs_level,
-                            base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
-                    }
+                    base::handle_possible_reinsert_or_split_of_root(n);
                 }
             }
         }
@@ -211,60 +259,34 @@ struct level_insert
             // first insert
             if ( 0 == InsertIndex )
             {
-                result_relative_level = base::m_leafs_level - base::m_current_level;
-
-                // overflow
-                if ( base::m_max_elems_per_node < rtree::elements(n).size() )
-                {
-                    rstar::reinsert_or_split_root<Value, Translator, Box>::apply(
-                        result_elements, n,
-                        base::m_parent, base::m_current_child_index,
-                        base::m_root_node, base::m_leafs_level,
-                        base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
-                }
+                base::handle_possible_reinsert_or_split_of_root(n);
             }
             // not the first insert
             else
             {
-                // overflow
-                if ( base::m_max_elems_per_node < rtree::elements(n).size() )
-                {
-                    detail::split<Value, Translator, Box, rstar_tag>::apply(
-                        n,
-                        base::m_parent, base::m_current_child_index,
-                        base::m_root_node, base::m_leafs_level,
-                        base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
-                }
+                base::handle_possible_split(n);
             }
         }
 
-        if ( !result_elements.empty() && base::m_parent )
-        {
-            // calulate node's new box
-            rtree::elements(*base::m_parent)[base::m_current_child_index].first =
-                elements_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_tr);
-        }
+        base::recalculate_aabb_if_necessary(n);
     }
 
     inline void operator()(leaf &)
     {
         assert(false);
     }
-
-    size_t result_relative_level;
-    result_type result_elements;
 };
 
 template <size_t InsertIndex, typename Value, typename Translator, typename Box>
 struct level_insert<InsertIndex, Value, Value, Translator, Box>
-    : public detail::insert<Value, Value, Translator, Box, rstar_tag>
+    : public level_insert_base<InsertIndex, Value, Value, Translator, Box>
 {
-    typedef detail::insert<Value, Value, Translator, Box, rstar_tag> base;
+    typedef level_insert_base<InsertIndex, Value, Value, Translator, Box> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
-    typedef typename rtree::elements_type<internal_node>::type result_type;
+    typedef typename base::result_type result_type;
 
     inline level_insert(node* & root,
                         size_t & leafs_level,
@@ -274,7 +296,6 @@ struct level_insert<InsertIndex, Value, Value, Translator, Box>
                         Translator const& t,
                         size_t relative_level)
         : base(root, leafs_level, v, min_elements, max_elements, t, relative_level)
-        , result_relative_level(0)
     {}
 
     inline void operator()(internal_node & n)
@@ -289,25 +310,10 @@ struct level_insert<InsertIndex, Value, Value, Translator, Box>
         
         if ( base::m_current_level == base::m_level - 1 )
         {
-            result_relative_level = base::m_leafs_level - base::m_current_level;
-
-            // overflow
-            if ( base::m_max_elems_per_node < rtree::elements(n).size() )
-            {
-                rstar::reinsert_or_split_root<Value, Translator, Box>::apply(
-                    result_elements, n,
-                    base::m_parent, base::m_current_child_index,
-                    base::m_root_node, base::m_leafs_level,
-                    base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
-            }
+            base::handle_possible_reinsert_or_split_of_root(n);
         }
 
-        if ( !result_elements.empty() && base::m_parent )
-        {
-            // calulate node's new box
-            rtree::elements(*base::m_parent)[base::m_current_child_index].first =
-                elements_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_tr);
-        }
+        base::recalculate_aabb_if_necessary(n);
     }
 
     inline void operator()(leaf & n)
@@ -318,30 +324,20 @@ struct level_insert<InsertIndex, Value, Value, Translator, Box>
 
         rtree::elements(n).push_back(base::m_element);
 
-        if ( base::m_max_elems_per_node < rtree::elements(n).size() )
-        {
-            detail::split<Value, Translator, Box, rstar_tag>::apply(
-                n,
-                base::m_parent, base::m_current_child_index,
-                base::m_root_node, base::m_leafs_level,
-                base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
-        }
+        base::handle_possible_split(n);
     }
-
-    size_t result_relative_level;
-    result_type result_elements;
 };
 
 template <typename Value, typename Translator, typename Box>
 struct level_insert<0, Value, Value, Translator, Box>
-    : public detail::insert<Value, Value, Translator, Box, rstar_tag>
+    : public level_insert_base<0, Value, Value, Translator, Box>
 {
-    typedef detail::insert<Value, Value, Translator, Box, rstar_tag> base;
+    typedef level_insert_base<0, Value, Value, Translator, Box> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
-    typedef typename rtree::elements_type<leaf>::type result_type;
+    typedef typename base::result_type result_type;
 
     inline level_insert(node* & root,
                         size_t & leafs_level,
@@ -351,7 +347,6 @@ struct level_insert<0, Value, Value, Translator, Box>
                         Translator const& t,
                         size_t relative_level)
         : base(root, leafs_level, v, min_elements, max_elements, t, relative_level)
-        , result_relative_level(0)
     {}
 
     inline void operator()(internal_node & n)
@@ -362,12 +357,7 @@ struct level_insert<0, Value, Value, Translator, Box>
         // next traversing step
         base::traverse(*this, n);
 
-        if ( !result_elements.empty() && base::m_parent )
-        {
-            // calulate node's new box
-            rtree::elements(*base::m_parent)[base::m_current_child_index].first =
-                elements_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_tr);
-        }
+        base::recalculate_aabb_if_necessary(n);
     }
 
     inline void operator()(leaf & n)
@@ -378,27 +368,10 @@ struct level_insert<0, Value, Value, Translator, Box>
 
         rtree::elements(n).push_back(base::m_element);
 
-        result_relative_level = base::m_leafs_level - base::m_current_level;
+        base::handle_possible_reinsert_or_split_of_root(n);
 
-        if ( base::m_max_elems_per_node < rtree::elements(n).size() )
-        {
-            rstar::reinsert_or_split_root<Value, Translator, Box>::apply(
-                result_elements, n,
-                base::m_parent, base::m_current_child_index,
-                base::m_root_node, base::m_leafs_level,
-                base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
-        }
-
-		if ( !result_elements.empty() && base::m_parent )
-        {
-            // calulate node's new box
-            rtree::elements(*base::m_parent)[base::m_current_child_index].first =
-                elements_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_tr);
-        }
+		base::recalculate_aabb_if_necessary(n);
     }
-
-    size_t result_relative_level;
-    result_type result_elements;
 };
 
 // R*-tree insert visitor

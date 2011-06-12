@@ -12,8 +12,11 @@
 
 #include <algorithm>
 
-#include <boost/geometry/extensions/index/algorithms/area.hpp>
+#include <boost/geometry/extensions/index/algorithms/intersection_area.hpp>
 #include <boost/geometry/extensions/index/algorithms/union_area.hpp>
+#include <boost/geometry/extensions/index/algorithms/margin.hpp>
+
+#include <boost/geometry/algorithms/intersection.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
@@ -25,6 +28,289 @@ namespace detail { namespace rtree { namespace visitors {
 
 namespace detail {
 
+namespace rstar {
+
+template <typename Element, typename Translator, size_t Corner, size_t AxisIndex>
+class element_axis_corner_less
+{	
+public:
+	element_axis_corner_less(Translator const& tr)
+		: m_tr(tr)
+	{}
+
+	bool operator()(Element const& e1, Element const& e2) const
+	{
+		return index::get<Corner, AxisIndex>(rtree::element_indexable(e1, m_tr))
+			< index::get<Corner, AxisIndex>(rtree::element_indexable(e2, m_tr));
+	}
+
+private:
+	Translator const& m_tr;
+};
+
+template <typename Box, size_t Corner, size_t AxisIndex>
+struct choose_split_axis_and_index_for_corner
+{
+	typedef typename index::default_margin_result<Box>::type margin_type;
+	typedef typename index::default_area_result<Box>::type area_type;
+
+	template <typename Elements, typename Translator>
+	static inline void apply(Elements const& elements,
+						     size_t & choosen_index,
+							 margin_type & sum_of_margins,
+							 area_type & smallest_overlap,
+							 area_type & smallest_area,
+							 size_t min_elems,
+							 size_t max_elems,
+							 Translator const& tr)
+	{
+		typedef typename Elements::value_type element_type;
+		
+		// copy elements
+		Elements elements_copy = elements;
+		assert(elements_copy.size() == max_elems + 1);
+
+		// sort elements
+		element_axis_corner_less<element_type, Translator, Corner, AxisIndex> elements_less(tr);
+		std::sort(elements_copy.begin(), elements_copy.end(), elements_less);
+
+		// init outputs
+		choosen_index = min_elems;
+		sum_of_margins = 0;
+		smallest_overlap = std::numeric_limits<area_type>::max();
+		smallest_area = std::numeric_limits<area_type>::max();
+
+		// calculate sum of margins for all distributions
+		size_t index_last = max_elems - min_elems + 2;
+		for ( size_t i = min_elems ; i < index_last ; ++i )
+		{
+			// TODO - awulkiew: may be optimized - box of group 1 may be initialized with
+			// box of min_elems number of elements and expanded for each iteration by another element
+
+			Box box1 = rtree::elements_box<Box>(elements_copy.begin(), elements_copy.begin() + i, tr);
+			Box box2 = rtree::elements_box<Box>(elements_copy.begin() + i, elements_copy.end(), tr);
+			
+			sum_of_margins += index::margin(box1) + index::margin(box2);
+
+			area_type ovl = index::intersection_area(box1, box2);
+			area_type ar = index::area(box1) + index::area(box2);
+
+			if ( ovl < smallest_overlap || (ovl == smallest_overlap && ar <= smallest_area) )
+			{
+				choosen_index = i;
+				smallest_overlap = ovl;
+				smallest_area = ar;
+			}				
+		}
+	}
+};
+
+template <typename Box, size_t AxisIndex, typename ElementIndexableTag>
+struct choose_split_axis_and_index_for_axis
+{
+	//BOOST_STATIC_ASSERT(0);
+};
+
+template <typename Box, size_t AxisIndex>
+struct choose_split_axis_and_index_for_axis<Box, AxisIndex, box_tag>
+{
+	typedef typename index::default_margin_result<Box>::type margin_type;
+	typedef typename index::default_area_result<Box>::type area_type;
+
+	template <typename Elements, typename Translator>
+	static inline void apply(Elements const& elements,
+							 size_t & choosen_corner,
+							 size_t & choosen_index,
+							 margin_type & sum_of_margins,
+							 area_type & smallest_overlap,
+							 area_type & smallest_area,
+							 size_t min_elems,
+							 size_t max_elems,
+							 Translator const& tr)
+	{
+		size_t index1 = 0;
+		margin_type som1 = 0;
+		area_type ovl1 = std::numeric_limits<area_type>::max();
+		area_type ar1 = std::numeric_limits<area_type>::max();
+
+		choose_split_axis_and_index_for_corner<Box, min_corner, AxisIndex>::
+			apply(elements, index1,
+				  som1, ovl1, ar1,
+				  min_elems, max_elems, tr);
+
+		size_t index2 = 0;
+		margin_type som2 = 0;
+		area_type ovl2 = std::numeric_limits<area_type>::max();
+		area_type ar2 = std::numeric_limits<area_type>::max();
+
+		choose_split_axis_and_index_for_corner<Box, max_corner, AxisIndex>::
+			apply(elements, index2,
+				  som2, ovl2, ar2,
+				  min_elems, max_elems, tr);
+
+		sum_of_margins = som1 + som2;
+
+		if ( ovl1 < ovl2 || (ovl1 == ovl2 && ar1 <= ar2) )
+		{
+			choosen_corner = min_corner;
+			choosen_index = index1;
+			smallest_overlap = ovl1;
+			smallest_area = ar1;
+		}
+		else
+		{
+			choosen_corner = max_corner;
+			choosen_index = index2;
+			smallest_overlap = ovl2;
+			smallest_area = ar2;
+		}
+	}
+};
+
+template <typename Box, size_t AxisIndex>
+struct choose_split_axis_and_index_for_axis<Box, AxisIndex, point_tag>
+{
+	typedef typename index::default_margin_result<Box>::type margin_type;
+	typedef typename index::default_area_result<Box>::type area_type;
+
+	template <typename Elements, typename Translator>
+	static inline void apply(Elements const& elements,
+							 size_t & choosen_corner,
+							 size_t & choosen_index,
+							 margin_type & sum_of_margins,
+							 area_type & smallest_overlap,
+							 area_type & smallest_area,
+							 size_t min_elems,
+							 size_t max_elems,
+							 Translator const& tr)
+	{
+		choose_split_axis_and_index_for_corner<Box, min_corner, AxisIndex>::
+			apply(elements, choosen_index,
+				  sum_of_margins, smallest_overlap, smallest_area,
+				  min_elems, max_elems, tr);
+
+		choosen_corner = min_corner;
+	}
+};
+
+template <typename Box, size_t Dimension>
+struct choose_split_axis_and_index
+{
+	BOOST_STATIC_ASSERT(0 < Dimension);
+
+	typedef typename index::default_margin_result<Box>::type margin_type;
+	typedef typename index::default_area_result<Box>::type area_type;
+
+	template <typename Elements, typename Translator>
+	static inline void apply(Elements const& elements,
+							 size_t & choosen_axis,
+							 size_t & choosen_corner,
+							 size_t & choosen_index,
+							 margin_type & smallest_sum_of_margins,
+							 area_type & smallest_overlap,
+							 area_type & smallest_area,
+							 size_t min_elems,
+							 size_t max_elems,
+							 Translator const& tr)
+	{
+		typedef typename rtree::element_indexable_type<typename Elements::value_type, Translator>::type element_indexable_type;
+
+		choose_split_axis_and_index<Box, Dimension - 1>::apply(elements, choosen_axis, choosen_corner, choosen_index,
+															   smallest_sum_of_margins, smallest_overlap, smallest_area,
+															   min_elems, max_elems, tr);
+		margin_type sum_of_margins = 0;
+
+		size_t corner = min_corner;
+		size_t index = 0;
+
+		area_type overlap_val = std::numeric_limits<area_type>::max();
+		area_type area_val = std::numeric_limits<area_type>::max();
+
+		choose_split_axis_and_index_for_axis<
+			Box,
+			Dimension - 1,
+			typename index::traits::tag<element_indexable_type>::type
+		>::apply(elements, corner, index, sum_of_margins, overlap_val, area_val, min_elems, max_elems, tr);
+
+		if ( sum_of_margins < smallest_sum_of_margins )
+		{
+			choosen_axis = Dimension - 1;
+			choosen_corner = corner;
+			choosen_index = index;
+			smallest_sum_of_margins = sum_of_margins;
+			smallest_overlap = overlap_val;
+			smallest_area = area_val;
+		}
+	}
+};
+
+template <typename Box>
+struct choose_split_axis_and_index<Box, 1>
+{
+	typedef typename index::default_margin_result<Box>::type margin_type;
+	typedef typename index::default_area_result<Box>::type area_type;
+
+	template <typename Elements, typename Translator>
+	static inline void apply(Elements const& elements,
+							 size_t & choosen_axis,
+							 size_t & choosen_corner,
+							 size_t & choosen_index,
+							 margin_type & smallest_sum_of_margins,
+							 area_type & smallest_overlap,
+							 area_type & smallest_area,
+							 size_t min_elems,
+							 size_t max_elems,
+							 Translator const& tr)
+	{
+		typedef typename rtree::element_indexable_type<typename Elements::value_type, Translator>::type element_indexable_type;
+
+		choosen_axis = 0;
+
+		choose_split_axis_and_index_for_axis<
+			Box,
+			0,
+			typename index::traits::tag<element_indexable_type>::type
+		>::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins, smallest_overlap, smallest_area, min_elems, max_elems, tr);
+	}
+};
+
+template <size_t Corner, size_t Dimension>
+struct partial_sort
+{
+	BOOST_STATIC_ASSERT(0 < Dimension);
+
+	template <typename Elements, typename Translator>
+	static inline void apply(Elements & elements, const size_t axis, const size_t index, Translator const& tr)
+	{
+		if ( axis < Dimension - 1 )
+		{
+			partial_sort<Corner, Dimension - 1>::apply(elements, axis, index, tr);
+		}
+		else
+		{
+			assert(axis == Dimension - 1);
+			typedef typename Elements::value_type element_type;
+			element_axis_corner_less<element_type, Translator, Corner, Dimension - 1> less(tr);
+			std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);
+		}
+	}
+};
+
+template <size_t Corner>
+struct partial_sort<Corner, 1>
+{
+	template <typename Elements, typename Translator>
+	static inline void apply(Elements & elements, const size_t axis, const size_t index, Translator const& tr)
+	{
+		assert(axis == 0);
+		typedef typename Elements::value_type element_type;
+		element_axis_corner_less<element_type, Translator, Corner, 0> less(tr);
+		std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);
+	}
+};
+
+} // namespace rstar
+
 template <typename Value, typename Translator, typename Box>
 struct redistribute_elements<Value, Translator, Box, rstar_tag>
 {
@@ -32,6 +318,9 @@ struct redistribute_elements<Value, Translator, Box, rstar_tag>
     typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
     typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
 
+	static const size_t dimension = index::traits::dimension<Box>::value;
+
+	typedef typename index::default_margin_result<Box>::type margin_type;
     typedef typename index::default_area_result<Box>::type area_type;
 
     template <typename Node>
@@ -44,161 +333,44 @@ struct redistribute_elements<Value, Translator, Box, rstar_tag>
         size_t max_elems,
         Translator const& tr)
     {
-        typedef typename rtree::elements_type<Node>::type elements_type;
-        typedef typename elements_type::value_type element_type;
-        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-        typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
-
-        // copy original elements
-        elements_type elements_copy = rtree::elements(n);
-        
-        // calculate initial seeds
-        size_t seed1 = 0;
-        size_t seed2 = 0;
-        quadratic::pick_seeds<elements_type, Translator, Box>::apply(elements_copy, tr, seed1, seed2);
-
-        // prepare nodes' elements containers
+		typedef typename rtree::elements_type<Node>::type elements_type;
+		
         elements_type & elements1 = rtree::elements(n);
-        elements_type & elements2 = rtree::elements(second_node);
-        elements1.clear();
-        assert(elements2.empty());
+		elements_type & elements2 = rtree::elements(second_node);
 
-        // add seeds
-        elements1.push_back(elements_copy[seed1]);
-        elements2.push_back(elements_copy[seed2]);
+		size_t split_axis = 0;
+		size_t split_corner = 0;
+		size_t split_index = min_elems;
+		margin_type smallest_sum_of_margins = std::numeric_limits<margin_type>::max();
+		area_type smallest_overlap = std::numeric_limits<area_type>::max();
+		area_type smallest_area = std::numeric_limits<area_type>::max();
 
-        // calculate boxes
-        geometry::convert(rtree::element_indexable(elements_copy[seed1], tr), box1);
-        geometry::convert(rtree::element_indexable(elements_copy[seed2], tr), box2);
+		rstar::choose_split_axis_and_index<Box, index::traits::dimension<Box>::value>::
+			apply(elements1,
+				  split_axis, split_corner, split_index,
+				  smallest_sum_of_margins, smallest_overlap, smallest_area, 
+ 				  min_elems, max_elems, tr);
 
-        // remove seeds
-        if (seed1 < seed2)
-        {
-            elements_copy.erase(elements_copy.begin() + seed2);
-            elements_copy.erase(elements_copy.begin() + seed1);
-        }
-        else
-        {
-            elements_copy.erase(elements_copy.begin() + seed1);
-            elements_copy.erase(elements_copy.begin() + seed2);
-        }
+		// TODO: awulkiew - get rid of following static_casts?
 
-        // initialize areas
-        area_type area1 = index::area(box1);
-        area_type area2 = index::area(box2);
+		assert(split_axis < index::traits::dimension<Box>::value);
+		assert(split_corner == static_cast<size_t>(min_corner) || split_corner == static_cast<size_t>(max_corner));
+		assert(min_elems <= split_index && split_index <= max_elems - min_elems + 1);
+		
+		// TODO: awulkiew - check if std::partial_sort produces the same result as std::sort
+		if ( split_corner == static_cast<size_t>(min_corner) )
+			rstar::partial_sort<min_corner, dimension>::apply(elements1, split_axis, split_index, tr);
+		else
+			rstar::partial_sort<max_corner, dimension>::apply(elements1, split_axis, split_index, tr);
 
-        size_t remaining = elements_copy.size();
+		// copy elements to node 2 and remove from node 1
+		elements2.resize(max_elems + 1 - split_index);
+		std::copy(elements1.begin() + split_index, elements1.end(), elements2.begin());
+		elements1.resize(split_index);
 
-        // redistribute the rest of the elements
-        while ( !elements_copy.empty() )
-        {
-            typename elements_type::reverse_iterator el_it = elements_copy.rbegin();
-            bool insert_into_group1 = false;
-
-            size_t elements1_count = elements1.size();
-            size_t elements2_count = elements2.size();
-
-            // if there is small number of elements left and the number of elements in node is lesser than min_elems
-            // just insert them to this node
-            if ( elements1_count + remaining <= min_elems )
-            {
-                insert_into_group1 = true;
-            }
-            else if ( elements2_count + remaining <= min_elems )
-            {
-                insert_into_group1 = false;
-            }
-            // insert the best element
-            else
-            {
-                // find element with minimum groups areas increses differences
-                area_type area_increase1 = 0;
-                area_type area_increase2 = 0;
-                el_it = pick_next(elements_copy.rbegin(), elements_copy.rend(),
-                                  box1, box2, area1, area2, tr,
-                                  area_increase1, area_increase2);
-
-                if ( area_increase1 < area_increase2 ||
-                     ( area_increase1 == area_increase2 && area1 < area2 ) ||
-                     ( area1 == area2 && elements1_count <= elements2_count ) )
-                {
-                    insert_into_group1 = true;
-                }
-                else
-                {
-                    insert_into_group1 = false;
-                }
-            }
-
-            // move element to the choosen group
-            element_type const& elem = *el_it;
-            indexable_type const& indexable = rtree::element_indexable(elem, tr);
-
-            if ( insert_into_group1 )
-            {
-                elements1.push_back(elem);
-                geometry::expand(box1, indexable);
-                area1 = index::area(box1);
-            }
-            else
-            {
-                elements2.push_back(elem);
-                geometry::expand(box2, indexable);
-                area2 = index::area(box2);
-            }
-
-            assert(!elements_copy.empty());
-            elements_copy.erase(--el_it.base());
-
-            assert(0 < remaining);
-            --remaining;
-        }
-    }
-
-    template <typename It>
-    static inline It pick_next(It first, It last,
-                               Box const& box1, Box const& box2,
-                               area_type const& area1, area_type const& area2,
-                               Translator const& tr,
-                               area_type & out_area_increase1, area_type & out_area_increase2)
-    {
-        typedef typename boost::iterator_value<It>::type element_type;
-        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-
-        area_type greatest_area_incrase_diff = 0;
-        It out_it = first;
-        out_area_increase1 = 0;
-        out_area_increase2 = 0;
-        
-        // find element with greatest difference between increased group's boxes areas
-        for ( It el_it = first ; el_it != last ; ++el_it )
-        {
-            indexable_type const& indexable = rtree::element_indexable(*el_it, tr);
-
-            // calculate enlarged boxes and areas
-            Box enlarged_box1(box1);
-            Box enlarged_box2(box2);
-            geometry::expand(enlarged_box1, indexable);
-            geometry::expand(enlarged_box2, indexable);
-            area_type enlarged_area1 = index::area(enlarged_box1);
-            area_type enlarged_area2 = index::area(enlarged_box2);
-
-            area_type area_incrase1 = (enlarged_area1 - area1);
-            area_type area_incrase2 = (enlarged_area2 - area2);
-
-            area_type area_incrase_diff = area_incrase1 < area_incrase2 ?
-                area_incrase2 - area_incrase1 : area_incrase1 - area_incrase2;
-
-            if ( greatest_area_incrase_diff < area_incrase_diff )
-            {
-                greatest_area_incrase_diff = area_incrase_diff;
-                out_it = el_it;
-                out_area_increase1 = area_incrase1;
-                out_area_increase2 = area_incrase2;
-            }
-        }
-
-        return out_it;
+		// calculate boxes
+		box1 = rtree::elements_box<Box>(elements1.begin(), elements1.end(), tr);
+		box2 = rtree::elements_box<Box>(elements2.begin(), elements2.end(), tr);
     }
 };
 
