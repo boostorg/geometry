@@ -33,7 +33,7 @@ struct choose_next_node
     typedef typename index::default_area_result<Box>::type area_type;
 
     template <typename Indexable>
-    static inline size_t apply(internal_node & n, Indexable const& indexable)
+    static inline size_t apply(internal_node & n, Indexable const& indexable, size_t /*node_relative_level*/)
     {
         children_type & children = rtree::elements(n);
 
@@ -178,7 +178,7 @@ protected:
     {
         // choose next node
         size_t choosen_node_index = detail::choose_next_node<Value, Box, Tag>::
-            apply(n, rtree::element_indexable(m_element, m_tr));
+            apply(n, rtree::element_indexable(m_element, m_tr), m_leafs_level - m_current_level);
 
         // expand the node to contain value
         geometry::expand(

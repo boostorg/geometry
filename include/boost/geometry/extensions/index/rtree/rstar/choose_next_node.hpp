@@ -41,17 +41,12 @@ class choose_next_node<Value, Box, rstar_tag>
 
 public:
     template <typename Indexable>
-    static inline size_t apply(internal_node & n, Indexable const& indexable)
+    static inline size_t apply(internal_node & n, Indexable const& indexable, size_t node_relative_level)
     {
         children_type & children = rtree::elements(n);
-        assert(!children.empty());
         
-        // check if children are leafs
-        visitors::is_leaf<Value, Box, rstar_tag> ilv;
-        rtree::apply_visitor(ilv, *children.front().second);
-
         // children are leafs
-        if ( ilv.result )
+        if ( node_relative_level <= 1 )
             return choose_by_minimum_overlap_cost(children, indexable);
         // children are internal nodes
         else
