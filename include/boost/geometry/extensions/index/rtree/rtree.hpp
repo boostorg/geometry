@@ -14,7 +14,7 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
-#include <boost/geometry/extensions/index/translator/def.hpp>
+#include <boost/geometry/extensions/index/translator/translator.hpp>
 
 #include <boost/geometry/extensions/index/rtree/options.hpp>
 #include <boost/geometry/extensions/index/rtree/filters.hpp>

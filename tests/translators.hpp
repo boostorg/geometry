@@ -5,14 +5,24 @@
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
-#include <boost/geometry/extensions/index/translator/def.hpp>
-#include <boost/geometry/extensions/index/translator/index.hpp>
+#include <boost/geometry/extensions/index/translator/translator.hpp>
 
 #include <vector>
 #include <map>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
+
+template <typename Indexable>
+struct tests_translators_val
+{
+	Indexable const& get_box() const
+	{
+		return i;
+	}
+
+	Indexable i;
+};
 
 void tests_translators_hpp()
 {
@@ -68,6 +78,10 @@ void tests_translators_hpp()
     B tmp_b;
     tmp_b = d( std::pair<model::polygon<P>, B>() );
     tmp_b = dd( std::pair<B, model::polygon<P> >() );
+
+	tests_translators_val<P> val_p;
+	index::translator::getter<tests_translators_val<P>, P, &tests_translators_val<P>::get_box> tr_get_p;
+	tmp_p = tr_get_p(val_p);
 }
 
 #endif // TESTS_TRANSLATORS_HPP

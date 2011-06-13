@@ -227,10 +227,11 @@ protected:
 
 } // namespace detail
 
+// Insert visitor forward declaration
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename InsertTag>
 struct insert;
 
-// Default insert visitor
+// Default insert visitor used for nodes elements
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
 struct insert<Element, Value, Options, Translator, Box, insert_tag>
 	: public detail::insert<Element, Value, Options, Translator, Box>

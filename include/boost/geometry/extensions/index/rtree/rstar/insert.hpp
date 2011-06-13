@@ -364,89 +364,6 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
     }
 };
 
-// R*-tree insert visitor
-template <typename Element, typename Value, typename Options, typename Translator, typename Box>
-class insert : public rtree::visitor<Value, Box, typename Options::node_tag, false>::type
-{
-protected:
-    typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
-
-public:
-    inline insert(node* & root,
-                  size_t & leafs_level,
-                  Element const& element,
-                  size_t min_elements,
-                  size_t max_elements,
-                  Translator const& tr,
-                  size_t relative_level = 0
-    )
-        : m_root(root), m_leafs_level(leafs_level), m_element(element)
-        , m_min_elements(min_elements), m_max_elements(max_elements)
-        , m_tr(tr), m_relative_level(relative_level)
-    {}
-
-    inline void operator()(internal_node & n)
-    {
-        typedef typename elements_type<internal_node>::type elements_type;
-
-        rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
-            m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
-
-        rtree::apply_visitor(lins_v, n);
-
-        if ( !lins_v.result_elements.empty() )
-        {
-            recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);
-        }
-    }
-
-    inline void operator()(leaf & n)
-    {
-        rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
-            m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
-
-        rtree::apply_visitor(lins_v, n);
-
-		// we're in the root, so root should be split and there should be no elements to reinsert
-        assert(lins_v.result_elements.empty());
-    }
-
-protected:
-    template <typename Elements>
-    inline void recursive_reinsert(Elements const& elements, size_t relative_level)
-    {
-        typedef typename Elements::value_type element_type;
-
-        // reinsert children starting from the minimum distance
-        for ( typename Elements::const_reverse_iterator it = elements.rbegin();
-            it != elements.rend(); ++it)
-        {
-            rstar::level_insert<1, element_type, Value, Options, Translator, Box> lins_v(
-                m_root, m_leafs_level, *it, m_min_elements, m_max_elements, m_tr, relative_level);
-
-            rtree::apply_visitor(lins_v, *m_root);
-
-            assert(relative_level + 1 == lins_v.result_relative_level);
-
-			// non-root relative level
-            if ( lins_v.result_relative_level < m_leafs_level && !lins_v.result_elements.empty())
-            {
-                recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);
-            }
-        }
-    }
-
-    node* & m_root;
-    size_t & m_leafs_level;
-    Element const& m_element;
-    size_t m_min_elements;
-    size_t m_max_elements;
-    Translator const& m_tr;
-    size_t m_relative_level;
-};
-
 } // namespace rstar
 
 } // namespace detail
@@ -454,43 +371,84 @@ protected:
 // R*-tree insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
 class insert<Element, Value, Options, Translator, Box, reinsert_tag>
-    : public detail::rstar::insert<Element, Value, Options, Translator, Box>
+	: public rtree::visitor<Value, Box, typename Options::node_tag, false>::type
 {
-    typedef detail::rstar::insert<Element, Value, Options, Translator, Box> base;
-    typedef typename base::node node;
+private:
+	typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
+	typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
+	typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
 
 public:
-    inline insert(node* & root,
-                  size_t & leafs_level,
-                  Element const& element,
-                  size_t min_elements,
-                  size_t max_elements,
-                  Translator const& tr,
-                  size_t relative_level = 0
-    )
-        : base(root, leafs_level, element, min_elements, max_elements, tr, relative_level)
-    {}
-};
+	inline insert(node* & root,
+				  size_t & leafs_level,
+				  Element const& element,
+				  size_t min_elements,
+				  size_t max_elements,
+				  Translator const& tr,
+				  size_t relative_level = 0)
+		: m_root(root), m_leafs_level(leafs_level), m_element(element)
+		, m_min_elements(min_elements), m_max_elements(max_elements)
+		, m_tr(tr), m_relative_level(relative_level)
+	{}
 
-// R*-tree insert visitor
-template <typename Value, typename Options, typename Translator, typename Box>
-class insert<Value, Value, Options, Translator, Box, reinsert_tag>
-    : public detail::rstar::insert<Value, Value, Options, Translator, Box>
-{
-    typedef detail::rstar::insert<Value, Value, Options, Translator, Box> base;
-    typedef typename base::node node;
+	inline void operator()(internal_node & n)
+	{
+		typedef typename elements_type<internal_node>::type elements_type;
 
-public:
-    inline insert(node* & root,
-                  size_t & leafs_level,
-                  Value const& element,
-                  size_t min_elements,
-                  size_t max_elements,
-                  Translator const& tr,
-                  size_t relative_level = 0
-    )
-        : base(root, leafs_level, element, min_elements, max_elements, tr, relative_level)
-    {}
+		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
+			m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
+
+		rtree::apply_visitor(lins_v, n);
+
+		if ( !lins_v.result_elements.empty() )
+		{
+			recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);
+		}
+	}
+
+	inline void operator()(leaf & n)
+	{
+		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
+			m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
+
+		rtree::apply_visitor(lins_v, n);
+
+		// we're in the root, so root should be split and there should be no elements to reinsert
+		assert(lins_v.result_elements.empty());
+	}
+
+private:
+	template <typename Elements>
+	inline void recursive_reinsert(Elements const& elements, size_t relative_level)
+	{
+		typedef typename Elements::value_type element_type;
+
+		// reinsert children starting from the minimum distance
+		for ( typename Elements::const_reverse_iterator it = elements.rbegin();
+			it != elements.rend(); ++it)
+		{
+			detail::rstar::level_insert<1, element_type, Value, Options, Translator, Box> lins_v(
+				m_root, m_leafs_level, *it, m_min_elements, m_max_elements, m_tr, relative_level);
+
+			rtree::apply_visitor(lins_v, *m_root);
+
+			assert(relative_level + 1 == lins_v.result_relative_level);
+
+			// non-root relative level
+			if ( lins_v.result_relative_level < m_leafs_level && !lins_v.result_elements.empty())
+			{
+				recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);
+			}
+		}
+	}
+
+	node* & m_root;
+	size_t & m_leafs_level;
+	Element const& m_element;
+	size_t m_min_elements;
+	size_t m_max_elements;
+	Translator const& m_tr;
+	size_t m_relative_level;
 };
 
 }}} // namespace detail::rtree::visitors
