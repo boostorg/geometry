@@ -24,9 +24,12 @@ struct getter
 
     bool equals(Value const& v1, Value const& v2) const
     {
-        return geometry::equals(operator()(v1), operator()(v2));
+        //return geometry::equals(operator()(v1), operator()(v2));
+		return v1 == v2;
     }
 };
+
+// TODO: awulkiew - implement specialization for Value* ?
 
 }}}} // namespace boost::geometry::index::translator
 

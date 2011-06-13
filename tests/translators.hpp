@@ -21,6 +21,11 @@ struct tests_translators_val
 		return i;
 	}
 
+	bool operator==(tests_translators_val const& v2)
+	{
+		return boost::geometry::equals(i, v2.i);
+	}
+
 	Indexable i;
 };
 
