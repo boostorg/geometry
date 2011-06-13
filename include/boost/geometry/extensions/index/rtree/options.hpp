@@ -28,16 +28,20 @@ struct rstar_tag {};
 // NodeTag
 struct default_tag {};
 
-namespace detail { namespace rtree {
+namespace options {
 
 template <typename InsertTag, typename ChooseNextNodeTag, typename RedistributeTag, typename NodeTag>
-struct options
+struct rtree
 {
 	typedef InsertTag insert_tag;
 	typedef ChooseNextNodeTag choose_next_node_tag;
 	typedef RedistributeTag redistribute_tag;
 	typedef NodeTag node_tag;
 };
+
+} // namespace options
+
+namespace detail { namespace rtree {
 
 template <typename Tag>
 struct options_type
@@ -46,27 +50,27 @@ struct options_type
 };
 
 template <typename InsertTag, typename ChooseNextNodeTag, typename RedistributeTag, typename NodeTag>
-struct options_type< options<InsertTag, ChooseNextNodeTag, RedistributeTag, NodeTag> >
+struct options_type< options::rtree<InsertTag, ChooseNextNodeTag, RedistributeTag, NodeTag> >
 {
-	typedef options<InsertTag, ChooseNextNodeTag, RedistributeTag, NodeTag> type;
+	typedef options::rtree<InsertTag, ChooseNextNodeTag, RedistributeTag, NodeTag> type;
 };
 
 template <>
 struct options_type<linear_tag>
 {
-	typedef options<insert_tag, choose_by_area_diff_tag, linear_tag, default_tag> type;
+	typedef options::rtree<insert_tag, choose_by_area_diff_tag, linear_tag, default_tag> type;
 };
 
 template <>
 struct options_type<quadratic_tag>
 {
-	typedef options<insert_tag, choose_by_area_diff_tag, quadratic_tag, default_tag> type;
+	typedef options::rtree<insert_tag, choose_by_area_diff_tag, quadratic_tag, default_tag> type;
 };
 
 template <>
 struct options_type<rstar_tag>
 {
-	typedef options<reinsert_tag, choose_by_overlap_diff_tag, rstar_tag, default_tag> type;
+	typedef options::rtree<reinsert_tag, choose_by_overlap_diff_tag, rstar_tag, default_tag> type;
 };
 
 }} // namespace detail::rtree
