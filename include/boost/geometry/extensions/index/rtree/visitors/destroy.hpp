@@ -16,11 +16,11 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Algo, typename Translator, typename Box>
-struct destroy : public rtree::visitor<Value, Box, typename Algo::node_tag, false>::type
+template <typename Value, typename Options, typename Translator, typename Box>
+struct destroy : public rtree::visitor<Value, Box, typename Options::node_tag, false>::type
 {
-    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
+    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
 
     inline void operator()(internal_node & n)
     {

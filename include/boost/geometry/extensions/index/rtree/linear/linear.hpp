@@ -10,7 +10,6 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_LINEAR_HPP
 
-#include <boost/geometry/extensions/index/rtree/linear/algo.hpp>
 #include <boost/geometry/extensions/index/rtree/linear/redistribute_elements.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_LINEAR_HPP

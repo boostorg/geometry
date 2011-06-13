@@ -10,7 +10,6 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_QUADRATIC_QUADRATIC_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_QUADRATIC_QUADRATIC_HPP
 
-#include <boost/geometry/extensions/index/rtree/quadratic/algo.hpp>
 #include <boost/geometry/extensions/index/rtree/quadratic/redistribute_elements.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_QUADRATIC_QUADRATIC_HPP

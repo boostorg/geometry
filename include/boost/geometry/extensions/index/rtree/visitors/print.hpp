@@ -113,11 +113,11 @@ inline void print_indexable(std::ostream & os, Indexable const& i)
 
 } // namespace detail
 
-template <typename Value, typename Algo, typename Translator, typename Box>
-struct print : public rtree::visitor<Value, Box, typename Algo::node_tag, true>::type
+template <typename Value, typename Options, typename Translator, typename Box>
+struct print : public rtree::visitor<Value, Box, typename Options::node_tag, true>::type
 {
-    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
+    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
 
     inline print(std::ostream & o, Translator const& t)
         : os(o), tr(t), level(0)
@@ -180,14 +180,14 @@ struct print : public rtree::visitor<Value, Box, typename Algo::node_tag, true>:
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Algo, typename Translator>
-std::ostream & operator<<(std::ostream & os, rtree<Value, Algo, Translator> const& tree)
+template <typename Value, typename Options, typename Translator>
+std::ostream & operator<<(std::ostream & os, rtree<Value, Options, Translator> const& tree)
 {
-    typedef typename rtree<Value, Algo, Translator>::value_type value_type;
-	typedef typename rtree<Value, Algo, Translator>::algo_type algo_type;
-    typedef typename rtree<Value, Algo, Translator>::translator_type translator_type;
-    typedef typename rtree<Value, Algo, Translator>::box_type box_type;
-    detail::rtree::visitors::print<value_type, algo_type, translator_type, box_type> print_v(os, tree.get_translator());
+    typedef typename rtree<Value, Options, Translator>::value_type value_type;
+	typedef typename rtree<Value, Options, Translator>::options_type options_type;
+    typedef typename rtree<Value, Options, Translator>::translator_type translator_type;
+    typedef typename rtree<Value, Options, Translator>::box_type box_type;
+    detail::rtree::visitors::print<value_type, options_type, translator_type, box_type> print_v(os, tree.get_translator());
     tree.apply_visitor(print_v);
     return os;
 }

@@ -17,11 +17,11 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Algo, typename Translator, typename Box>
-class are_boxes_ok : public rtree::visitor<Value, Box, typename Algo::node_tag, true>::type
+template <typename Value, typename Options, typename Translator, typename Box>
+class are_boxes_ok : public rtree::visitor<Value, Box, typename Options::node_tag, true>::type
 {
-    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
+    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
 
 public:
     inline are_boxes_ok(Translator const& tr)
@@ -107,13 +107,13 @@ private:
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Algo, typename Translator>
-bool are_boxes_ok(rtree<Value, Algo, Translator> const& tree)
+template <typename Value, typename Options, typename Translator>
+bool are_boxes_ok(rtree<Value, Options, Translator> const& tree)
 {
-    typedef rtree<Value, Algo, Translator> rt;
+    typedef rtree<Value, Options, Translator> rt;
     detail::rtree::visitors::are_boxes_ok<
         typename rt::value_type,
-		typename rt::algo_type,
+		typename rt::options_type,
         typename rt::translator_type,
         typename rt::box_type> v(tree.get_translator());
     

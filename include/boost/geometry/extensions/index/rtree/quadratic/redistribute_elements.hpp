@@ -75,12 +75,12 @@ struct pick_seeds
 
 } // namespace quadratic
 
-template <typename Value, typename Algo, typename Translator, typename Box>
-struct redistribute_elements<Value, Algo, Translator, Box, quadratic_tag>
+template <typename Value, typename Options, typename Translator, typename Box>
+struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
 {
-    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
 
     typedef typename index::default_area_result<Box>::type area_type;
 

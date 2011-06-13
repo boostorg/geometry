@@ -21,12 +21,12 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree { namespace visitors {
 
 // Default remove algorithm
-template <typename Value, typename Algo, typename Translator, typename Box>
-class remove : public rtree::visitor<Value, Box, typename Algo::node_tag, false>::type
+template <typename Value, typename Options, typename Translator, typename Box>
+class remove : public rtree::visitor<Value, Box, typename Options::node_tag, false>::type
 {
-    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
 
 public:
     inline remove(node* & root,
@@ -115,7 +115,7 @@ public:
                 for ( typename std::vector< std::pair<size_t, node*> >::reverse_iterator it = m_underflowed_nodes.rbegin();
                         it != m_underflowed_nodes.rend() ; ++it )
                 {
-                    is_leaf<Value, Algo, Box> ilv;
+                    is_leaf<Value, Options, Box> ilv;
                     rtree::apply_visitor(ilv, *it->second);
                     if ( ilv.result )
                         reinsert_elements(rtree::get<leaf>(*it->second), it->first);
@@ -193,7 +193,7 @@ private:
         for ( typename elements_type::iterator it = elements.begin();
             it != elements.end() ; ++it )
         {
-            visitors::insert<typename elements_type::value_type, Value, Algo, Translator, Box, typename Algo::insert_tag> insert_v(
+            visitors::insert<typename elements_type::value_type, Value, Options, Translator, Box, typename Options::insert_tag> insert_v(
                 m_root_node,
                 m_leafs_level,
                 *it,

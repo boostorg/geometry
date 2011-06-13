@@ -20,20 +20,20 @@
 
 namespace boost { namespace geometry { namespace index {
 
-template <typename Value, typename Tag, typename Translator>
+template <typename Value, typename Options, typename Translator>
 class rtree;
 
 namespace filters {
 
-template <typename Value, typename Translator, typename Tag>
-class spatial_filter< index::rtree<Value, Translator, Tag> >
+template <typename Value, typename Options, typename Translator>
+class spatial_filter< index::rtree<Value, Options, Translator> >
 {
 public:
     typedef typename std::deque<Value>::iterator iterator;
     typedef typename std::deque<Value>::const_iterator const_iterator;
     
     template <typename Geometry>
-    inline spatial_filter(index::rtree<Value, Translator, Tag> const& rtree, Geometry const& geom)
+    inline spatial_filter(index::rtree<Value, Options, Translator> const& rtree, Geometry const& geom)
     {
         rtree.find(geom, std::back_inserter(m_result));
     }
