@@ -25,23 +25,22 @@ namespace detail {
 
 namespace rstar {
 
-template <typename Value, typename Translator, typename Box>
+template <typename Value, typename Algo, typename Translator, typename Box>
 class remove_elements_to_reinsert
 {
 public:
-    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
 
     template <typename Node>
-    static inline void apply(
-        typename rtree::elements_type<Node>::type & result_elements,
-        Node & n,
-        internal_node *parent,
-        size_t current_child_index,
-        size_t min_elems,
-        size_t max_elems,
-        Translator const& tr)
+    static inline void apply(typename rtree::elements_type<Node>::type & result_elements,
+							 Node & n,
+						 	 internal_node *parent,
+							 size_t current_child_index,
+							 size_t min_elems,
+							 size_t max_elems,
+							 Translator const& tr)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
@@ -107,32 +106,32 @@ private:
     }
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Box>
+template <size_t InsertIndex, typename Element, typename Value, typename Algo, typename Box>
 struct level_insert_result_type
 {
 	typedef typename rtree::elements_type<
-		typename rtree::internal_node<Value, Box, rstar_tag>::type
+		typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type
 	>::type type;
 };
 
-template <typename Value, typename Box>
-struct level_insert_result_type<0, Value, Value, Box>
+template <typename Value, typename Algo, typename Box>
+struct level_insert_result_type<0, Value, Value, Algo, Box>
 {
 	typedef typename rtree::elements_type<
-		typename rtree::leaf<Value, Box, rstar_tag>::type
+		typename rtree::leaf<Value, Box, typename Algo::node_tag>::type
 	>::type type;
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Translator, typename Box>
+template <size_t InsertIndex, typename Element, typename Value, typename Algo, typename Translator, typename Box>
 struct level_insert_base
-	: public detail::insert<Element, Value, Translator, Box, rstar_tag>
+	: public detail::insert<Element, Value, Algo, Translator, Box>
 {
-	typedef detail::insert<Element, Value, Translator, Box, rstar_tag> base;
+	typedef detail::insert<Element, Value, Algo, Translator, Box> base;
 	typedef typename base::node node;
 	typedef typename base::internal_node internal_node;
 	typedef typename base::leaf leaf;
 
-	typedef typename level_insert_result_type<InsertIndex, Element, Value, Box>::type result_type;
+	typedef typename level_insert_result_type<InsertIndex, Element, Value, Algo, Box>::type result_type;
 
 	inline level_insert_base(node* & root,
 		 					 size_t & leafs_level,
@@ -159,7 +158,7 @@ struct level_insert_base
 			// node isn't root node
 			if ( base::m_parent )
 			{
-				rstar::remove_elements_to_reinsert<Value, Translator, Box>::apply(
+				rstar::remove_elements_to_reinsert<Value, Algo, Translator, Box>::apply(
 					result_elements, n,
 					base::m_parent, base::m_current_child_index,
 					base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
@@ -199,11 +198,11 @@ struct level_insert_base
 	result_type result_elements;
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Translator, typename Box>
+template <size_t InsertIndex, typename Element, typename Value, typename Algo, typename Translator, typename Box>
 struct level_insert
-    : public level_insert_base<InsertIndex, Element, Value, Translator, Box>
+    : public level_insert_base<InsertIndex, Element, Value, Algo, Translator, Box>
 {
-	typedef level_insert_base<InsertIndex, Element, Value, Translator, Box> base;
+	typedef level_insert_base<InsertIndex, Element, Value, Algo, Translator, Box> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -268,11 +267,11 @@ struct level_insert
     }
 };
 
-template <size_t InsertIndex, typename Value, typename Translator, typename Box>
-struct level_insert<InsertIndex, Value, Value, Translator, Box>
-    : public level_insert_base<InsertIndex, Value, Value, Translator, Box>
+template <size_t InsertIndex, typename Value, typename Algo, typename Translator, typename Box>
+struct level_insert<InsertIndex, Value, Value, Algo, Translator, Box>
+    : public level_insert_base<InsertIndex, Value, Value, Algo, Translator, Box>
 {
-    typedef level_insert_base<InsertIndex, Value, Value, Translator, Box> base;
+    typedef level_insert_base<InsertIndex, Value, Value, Algo, Translator, Box> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -319,11 +318,11 @@ struct level_insert<InsertIndex, Value, Value, Translator, Box>
     }
 };
 
-template <typename Value, typename Translator, typename Box>
-struct level_insert<0, Value, Value, Translator, Box>
-    : public level_insert_base<0, Value, Value, Translator, Box>
+template <typename Value, typename Algo, typename Translator, typename Box>
+struct level_insert<0, Value, Value, Algo, Translator, Box>
+    : public level_insert_base<0, Value, Value, Algo, Translator, Box>
 {
-    typedef level_insert_base<0, Value, Value, Translator, Box> base;
+    typedef level_insert_base<0, Value, Value, Algo, Translator, Box> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -366,13 +365,13 @@ struct level_insert<0, Value, Value, Translator, Box>
 };
 
 // R*-tree insert visitor
-template <typename Element, typename Value, typename Translator, typename Box>
-class insert : public rtree::visitor<Value, Box, rstar_tag, false>::type
+template <typename Element, typename Value, typename Algo, typename Translator, typename Box>
+class insert : public rtree::visitor<Value, Box, typename Algo::node_tag, false>::type
 {
 protected:
-    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
 
 public:
     inline insert(node* & root,
@@ -392,7 +391,7 @@ public:
     {
         typedef typename elements_type<internal_node>::type elements_type;
 
-        rstar::level_insert<0, Element, Value, Translator, Box> lins_v(
+        rstar::level_insert<0, Element, Value, Algo, Translator, Box> lins_v(
             m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
 
         rtree::apply_visitor(lins_v, n);
@@ -405,7 +404,7 @@ public:
 
     inline void operator()(leaf & n)
     {
-        rstar::level_insert<0, Element, Value, Translator, Box> lins_v(
+        rstar::level_insert<0, Element, Value, Algo, Translator, Box> lins_v(
             m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
 
         rtree::apply_visitor(lins_v, n);
@@ -424,7 +423,7 @@ protected:
         for ( typename Elements::const_reverse_iterator it = elements.rbegin();
             it != elements.rend(); ++it)
         {
-            rstar::level_insert<1, element_type, Value, Translator, Box> lins_v(
+            rstar::level_insert<1, element_type, Value, Algo, Translator, Box> lins_v(
                 m_root, m_leafs_level, *it, m_min_elements, m_max_elements, m_tr, relative_level);
 
             rtree::apply_visitor(lins_v, *m_root);
@@ -453,11 +452,11 @@ protected:
 } // namespace detail
 
 // R*-tree insert visitor
-template <typename Element, typename Value, typename Translator, typename Box>
-class insert<Element, Value, Translator, Box, rstar_tag>
-    : public detail::rstar::insert<Element, Value, Translator, Box>
+template <typename Element, typename Value, typename Algo, typename Translator, typename Box>
+class insert<Element, Value, Algo, Translator, Box, with_reinsert_tag>
+    : public detail::rstar::insert<Element, Value, Algo, Translator, Box>
 {
-    typedef detail::rstar::insert<Element, Value, Translator, Box> base;
+    typedef detail::rstar::insert<Element, Value, Algo, Translator, Box> base;
     typedef typename base::node node;
 
 public:
@@ -474,11 +473,11 @@ public:
 };
 
 // R*-tree insert visitor
-template <typename Value, typename Translator, typename Box>
-class insert<Value, Value, Translator, Box, rstar_tag>
-    : public detail::rstar::insert<Value, Value, Translator, Box>
+template <typename Value, typename Algo, typename Translator, typename Box>
+class insert<Value, Value, Algo, Translator, Box, with_reinsert_tag>
+    : public detail::rstar::insert<Value, Value, Algo, Translator, Box>
 {
-    typedef detail::rstar::insert<Value, Value, Translator, Box> base;
+    typedef detail::rstar::insert<Value, Value, Algo, Translator, Box> base;
     typedef typename base::node node;
 
 public:

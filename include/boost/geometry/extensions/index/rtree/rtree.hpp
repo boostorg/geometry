@@ -16,6 +16,7 @@
 
 #include <boost/geometry/extensions/index/translator/def.hpp>
 
+#include <boost/geometry/extensions/index/rtree/algo.hpp>
 #include <boost/geometry/extensions/index/rtree/filters.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/find.hpp>
@@ -33,7 +34,7 @@ namespace boost { namespace geometry { namespace index {
 
 template <
     typename Value,
-    typename Tag = linear_tag,
+    typename Algo = linear_tag,
 	typename Translator = translator::def<Value>
 >
 class rtree
@@ -43,11 +44,13 @@ public:
     typedef Translator translator_type;
 	typedef typename translator_type::indexable_type indexable_type;
     typedef typename index::default_box_type<indexable_type>::type box_type;
-    typedef Tag tag_type;
+    
+	typedef typename detail::rtree::algo_type<Algo>::type algo_type;
+	typedef typename algo_type::node_tag node_tag;
 
-    typedef typename detail::rtree::node<value_type, box_type, tag_type>::type node;
-    typedef typename detail::rtree::internal_node<value_type, box_type, tag_type>::type internal_node;
-    typedef typename detail::rtree::leaf<value_type, box_type, tag_type>::type leaf;
+    typedef typename detail::rtree::node<value_type, box_type, node_tag>::type node;
+    typedef typename detail::rtree::internal_node<value_type, box_type, node_tag>::type internal_node;
+    typedef typename detail::rtree::leaf<value_type, box_type, node_tag>::type leaf;
 
     inline explicit rtree(
         size_t max_elems_per_node = 4,
@@ -71,7 +74,7 @@ public:
 
     ~rtree()
     {
-        detail::rtree::visitors::destroy<value_type, translator_type, box_type, tag_type> del_v;
+        detail::rtree::visitors::destroy<value_type, algo_type, translator_type, box_type> del_v;
         detail::rtree::apply_visitor(del_v, *m_root);
     }
 
@@ -80,7 +83,7 @@ public:
     template <typename Geometry, typename OutIter>
     inline void find(Geometry const& geom, OutIter out_it) const
     {
-        detail::rtree::visitors::find<value_type, translator_type, box_type, tag_type, Geometry, OutIter>
+        detail::rtree::visitors::find<value_type, algo_type, translator_type, box_type, Geometry, OutIter>
             find_v(m_translator, geom, out_it);
 
         detail::rtree::apply_visitor(find_v, *m_root);
@@ -90,7 +93,7 @@ public:
     {
         // TODO: awulkiew - assert for correct value
 
-        detail::rtree::visitors::insert<value_type, value_type, translator_type, box_type, tag_type>
+        detail::rtree::visitors::insert<value_type, value_type, algo_type, translator_type, box_type, typename algo_type::insert_tag>
             insert_v(m_root, m_leafs_level, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
         detail::rtree::apply_visitor(insert_v, *m_root);
@@ -103,7 +106,7 @@ public:
         // TODO: awulkiew - assert for correct value
         assert(0 < m_values_count);
 
-        detail::rtree::visitors::remove<value_type, translator_type, box_type, tag_type>
+        detail::rtree::visitors::remove<value_type, algo_type, translator_type, box_type>
             remove_v(m_root, m_leafs_level, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
 
         detail::rtree::apply_visitor(remove_v, *m_root);
@@ -153,18 +156,18 @@ private:
     translator_type m_translator;
 };
 
-template <typename Value, typename Translator, typename Tag>
-void insert(rtree<Value, Translator, Tag> & tree, Value const& v)
+template <typename Value, typename Algo, typename Translator>
+void insert(rtree<Value, Algo, Translator> & tree, Value const& v)
 {
     tree.insert(v);
 }
 
-template <typename Value, typename Translator, typename Tag>
-void remove(rtree<Value, Translator, Tag> & tree, Value const& v)
+template <typename Value, typename Algo, typename Translator>
+void remove(rtree<Value, Algo, Translator> & tree, Value const& v)
 {
     tree.remove(v);
 }
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RSTREE_RSTREE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RTREE_HPP

@@ -20,7 +20,7 @@
 
 namespace boost { namespace geometry { namespace index {
 
-template <typename Value, typename Translator, typename Tag>
+template <typename Value, typename Tag, typename Translator>
 class rtree;
 
 namespace filters {

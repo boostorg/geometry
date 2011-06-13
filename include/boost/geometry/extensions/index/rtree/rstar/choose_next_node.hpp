@@ -27,12 +27,12 @@ namespace detail { namespace rtree { namespace visitors {
 
 namespace detail {
 
-template <typename Value, typename Box>
-class choose_next_node<Value, Box, rstar_tag>
+template <typename Value, typename Algo, typename Box>
+class choose_next_node<Value, Algo, Box, find_minimum_cost_tag>
 {
-    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
 

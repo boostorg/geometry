@@ -311,12 +311,12 @@ struct partial_sort<Corner, 1>
 
 } // namespace rstar
 
-template <typename Value, typename Translator, typename Box>
-struct redistribute_elements<Value, Translator, Box, rstar_tag>
+template <typename Value, typename Algo, typename Translator, typename Box>
+struct redistribute_elements<Value, Algo, Translator, Box, rstar_tag>
 {
-    typedef typename rtree::node<Value, Box, rstar_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, rstar_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, rstar_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
 
 	static const size_t dimension = index::traits::dimension<Box>::value;
 

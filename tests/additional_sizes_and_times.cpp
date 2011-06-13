@@ -32,6 +32,10 @@ int main()
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::linear_tag> RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::quadratic_tag> RT;
     typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar_tag> RT;
+	/*typedef bgi::rtree<
+		std::pair<B, size_t>,
+		bgi::detail::rtree::algo<bgi::with_reinsert_tag, bgi::analyze_area_tag, bgi::rstar_tag, bgi::default_tag>
+	> RT;*/
 
     // load config file
     std::ifstream file_cfg("config.txt");

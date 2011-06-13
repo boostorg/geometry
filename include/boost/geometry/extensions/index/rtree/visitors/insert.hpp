@@ -21,12 +21,15 @@ namespace detail { namespace rtree { namespace visitors {
 namespace detail {
 
 // Default choose_next_node
-template <typename Value, typename Box, typename Tag>
-struct choose_next_node
+template <typename Value, typename Algo, typename Box, typename ChooseNextNodeTag>
+struct choose_next_node;
+
+template <typename Value, typename Algo, typename Box>
+struct choose_next_node<Value, Algo, Box, analyze_area_tag>
 {
-    typedef typename rtree::node<Value, Box, Tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
 
@@ -75,17 +78,17 @@ struct choose_next_node
 };
 
 // Not implemented here
-template <typename Value, typename Translator, typename Box, typename Tag>
+template <typename Value, typename Algo, typename Translator, typename Box, typename RedistributeTag>
 struct redistribute_elements;
 
 // Default insert visitor
-template <typename Element, typename Value, typename Translator, typename Box, typename Tag>
-class insert : public rtree::visitor<Value, Box, Tag, false>::type
+template <typename Element, typename Value, typename Algo, typename Translator, typename Box>
+class insert : public rtree::visitor<Value, Box, typename Algo::node_tag, false>::type
 {
 protected:
-    typedef typename rtree::node<Value, Box, Tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
 
     inline insert(node* & root,
                   size_t & leafs_level,
@@ -117,7 +120,7 @@ protected:
     inline void traverse(Visitor & visitor, internal_node & n)
     {
         // choose next node
-        size_t choosen_node_index = detail::choose_next_node<Value, Box, Tag>::
+        size_t choosen_node_index = detail::choose_next_node<Value, Algo, Box, typename Algo::choose_next_node_tag>::
             apply(n, rtree::element_indexable(m_element, m_tr), m_leafs_level - m_current_level);
 
         // expand the node to contain value
@@ -175,7 +178,7 @@ protected:
 
 		// redistribute elements
 		Box box1, box2;
-		redistribute_elements<Value, Translator, Box, Tag>::
+		redistribute_elements<Value, Algo, Translator, Box, typename Algo::redistribute_tag>::
 			apply(n, n2, box1, box2, m_min_elems_per_node, m_max_elems_per_node, m_tr);
 
 		// check numbers of elements
@@ -224,11 +227,15 @@ protected:
 
 } // namespace detail
 
+template <typename Element, typename Value, typename Algo, typename Translator, typename Box, typename InsertTag>
+struct insert;
+
 // Default insert visitor
-template <typename Element, typename Value, typename Translator, typename Box, typename Tag>
-struct insert : public detail::insert<Element, Value, Translator, Box, Tag>
+template <typename Element, typename Value, typename Algo, typename Translator, typename Box>
+struct insert<Element, Value, Algo, Translator, Box, default_tag>
+	: public detail::insert<Element, Value, Algo, Translator, Box>
 {
-    typedef detail::insert<Element, Value, Translator, Box, Tag> base;
+    typedef detail::insert<Element, Value, Algo, Translator, Box> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -271,10 +278,11 @@ struct insert : public detail::insert<Element, Value, Translator, Box, Tag>
 };
 
 // Default insert visitor specialized for Values elements
-template <typename Value, typename Translator, typename Box, typename Tag>
-struct insert<Value, Value, Translator, Box, Tag> : public detail::insert<Value, Value, Translator, Box, Tag>
+template <typename Value, typename Algo, typename Translator, typename Box>
+struct insert<Value, Value, Algo, Translator, Box, default_tag>
+	: public detail::insert<Value, Value, Algo, Translator, Box>
 {
-    typedef detail::insert<Value, Value, Translator, Box, Tag> base;
+    typedef detail::insert<Value, Value, Algo, Translator, Box> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;

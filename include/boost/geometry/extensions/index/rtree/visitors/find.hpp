@@ -142,12 +142,12 @@ namespace detail { namespace rtree { namespace visitors {
 
 // rtree spatial query visitor
 
-template <typename Value, typename Translator, typename Box, typename Tag, typename Geometry, typename OutIter>
-struct find : public rtree::visitor<Value, Box, Tag, true>::type
+template <typename Value, typename Algo, typename Translator, typename Box, typename Geometry, typename OutIter>
+struct find : public rtree::visitor<Value, Box, typename Algo::node_tag, true>::type
 {
-    typedef typename rtree::node<Value, Box, Tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, Tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
 
     inline find(Translator const& t, Geometry const& g, OutIter out_it)
         : tr(t), geom(g), out_iter(out_it)

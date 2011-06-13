@@ -172,12 +172,12 @@ struct pick_seeds
 
 // from void split_node(node_pointer const& n, node_pointer& n1, node_pointer& n2) const
 
-template <typename Value, typename Translator, typename Box>
-struct redistribute_elements<Value, Translator, Box, linear_tag>
+template <typename Value, typename Algo, typename Translator, typename Box>
+struct redistribute_elements<Value, Algo, Translator, Box, linear_tag>
 {
-    typedef typename rtree::node<Value, Box, linear_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, linear_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, linear_tag>::type leaf;
+    typedef typename rtree::node<Value, Box, typename Algo::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, Box, typename Algo::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, Box, typename Algo::node_tag>::type leaf;
 
     template <typename Node>
     static inline void apply(Node & n,

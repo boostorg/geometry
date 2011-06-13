@@ -2,6 +2,7 @@
 #define TESTS_TRANSLATORS_HPP
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <boost/geometry/extensions/index/translator/def.hpp>
