@@ -107,7 +107,7 @@ private:
 };
 
 template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Box>
-struct level_insert_result_type
+struct level_insert_elements_type
 {
 	typedef typename rtree::elements_type<
 		typename rtree::internal_node<Value, Box, typename Options::node_tag>::type
@@ -115,7 +115,7 @@ struct level_insert_result_type
 };
 
 template <typename Value, typename Options, typename Box>
-struct level_insert_result_type<0, Value, Value, Options, Box>
+struct level_insert_elements_type<0, Value, Value, Options, Box>
 {
 	typedef typename rtree::elements_type<
 		typename rtree::leaf<Value, Box, typename Options::node_tag>::type
@@ -131,7 +131,7 @@ struct level_insert_base
 	typedef typename base::internal_node internal_node;
 	typedef typename base::leaf leaf;
 
-	typedef typename level_insert_result_type<InsertIndex, Element, Value, Options, Box>::type result_type;
+	typedef typename level_insert_elements_type<InsertIndex, Element, Value, Options, Box>::type elements_type;
 
 	inline level_insert_base(node* & root,
 		 					 size_t & leafs_level,
@@ -167,7 +167,7 @@ struct level_insert_base
 			else
 			{
 				// it's really the root node
-				assert(&rtree::get<Node>(n) == base::m_root_node);
+				assert(&n == rtree::get<Node>(base::m_root_node));
 				base::split(n);
 			}
 		}
@@ -195,7 +195,7 @@ struct level_insert_base
 	}
 
 	size_t result_relative_level;
-	result_type result_elements;
+	elements_type result_elements;
 };
 
 template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box>
@@ -206,8 +206,6 @@ struct level_insert
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
-
-    typedef typename base::result_type result_type;
 
     inline level_insert(node* & root,
                         size_t & leafs_level,
@@ -276,8 +274,6 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box>
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
-    typedef typename base::result_type result_type;
-
     inline level_insert(node* & root,
                         size_t & leafs_level,
                         Value const& v,
@@ -326,8 +322,6 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
-
-    typedef typename base::result_type result_type;
 
     inline level_insert(node* & root,
                         size_t & leafs_level,
@@ -393,12 +387,13 @@ public:
 
 	inline void operator()(internal_node & n)
 	{
-		typedef typename elements_type<internal_node>::type elements_type;
-
+		// current node should be the root
+		assert(&n == rtree::get<internal_node>(m_root));
+		
 		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
 			m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
 
-		rtree::apply_visitor(lins_v, n);
+		rtree::apply_visitor(lins_v, *m_root);
 
 		if ( !lins_v.result_elements.empty() )
 		{
@@ -408,10 +403,13 @@ public:
 
 	inline void operator()(leaf & n)
 	{
+		// current node should be the root
+		assert(&n == rtree::get<leaf>(m_root));
+
 		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
 			m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
 
-		rtree::apply_visitor(lins_v, n);
+		rtree::apply_visitor(lins_v, *m_root);
 
 		// we're in the root, so root should be split and there should be no elements to reinsert
 		assert(lins_v.result_elements.empty());
