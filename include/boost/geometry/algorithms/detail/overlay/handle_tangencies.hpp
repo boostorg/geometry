@@ -305,9 +305,9 @@ private :
                 debug_consider(0, left, right, header, false, "opp.", ret);
                 return ret;
             }
-//#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
             std::cout << " iu/iu coming from opposite unhandled" << std::endl;
-//#endif
+#endif
         }
 
         // We need EXTRA information here: are p/r/s overlapping?
@@ -360,10 +360,10 @@ private :
             }
         }
 
-//#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
         std::cout << " iu/iu unhandled" << std::endl;
         debug_consider(0, left, right, header, false, "unhandled", left.index < right.index);
-//#endif
+#endif
         return left.index < right.index;
     }
 
