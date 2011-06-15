@@ -15,8 +15,6 @@
 #include <boost/geometry/extensions/index/algorithms/area.hpp>
 #include <boost/geometry/extensions/index/algorithms/distance_sqr.hpp>
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
-
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
@@ -48,10 +46,11 @@ public:
         // TODO: awulkiew - change second point_type to the point type of the Indexable?
         typedef typename index::default_distance_sqr_result<point_type, point_type>::type distance_sqr_type;
 
-        assert(parent != 0);
+		BOOST_GEOMETRY_INDEX_ASSERT(parent, "node shouldn't be the root node");
 
         const size_t reinserted_elements_count = static_cast<size_t>(max_elems * 0.3f);
         assert(0 < reinserted_elements_count);
+		BOOST_GEOMETRY_INDEX_ASSERT(0 < reinserted_elements_count, "wrong value of elements to reinsert");
 
         // calculate current node's center
         point_type node_center;
@@ -147,9 +146,8 @@ struct level_insert_base
 	template <typename Node>
 	inline void handle_possible_reinsert_or_split_of_root(Node &n)
 	{
-		// reinsert should be handled only once for level
-		assert(result_elements.empty());
-
+		BOOST_GEOMETRY_INDEX_ASSERT(result_elements.empty(), "reinsert should be handled only once for level");
+		
 		result_relative_level = base::m_leafs_level - base::m_current_level;
 
 		// overflow
@@ -166,8 +164,7 @@ struct level_insert_base
 			// node is root node
 			else
 			{
-				// it's really the root node
-				assert(&n == rtree::get<Node>(base::m_root_node));
+				BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(base::m_root_node), "node should be the root node");
 				base::split(n);
 			}
 		}
@@ -219,7 +216,7 @@ struct level_insert
 
     inline void operator()(internal_node & n)
     {
-        assert(base::m_current_level < base::m_leafs_level);
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
 
         if ( base::m_current_level < base::m_level )
         {
@@ -229,7 +226,7 @@ struct level_insert
             // further insert
             if ( 0 < InsertIndex )
             {
-                assert(0 < base::m_level);
+                BOOST_GEOMETRY_INDEX_ASSERT(0 < base::m_level, "illegal level value, level shouldn't be the root level for 0 < InsertIndex");
 
                 if ( base::m_current_level == base::m_level - 1 )
                 {
@@ -239,7 +236,7 @@ struct level_insert
         }
         else
         {
-            assert( base::m_level == base::m_current_level );
+			BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level, "unexpected level");
 
             // push new child node
             rtree::elements(n).push_back(base::m_element);
@@ -286,13 +283,13 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box>
 
     inline void operator()(internal_node & n)
     {
-        assert(base::m_current_level < base::m_leafs_level);
-        assert(base::m_current_level < base::m_level);
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_level, "unexpected level");
 
         // next traversing step
         base::traverse(*this, n);
 
-        assert(0 < base::m_level);
+		BOOST_GEOMETRY_INDEX_ASSERT(0 < base::m_level, "illegal level value, level shouldn't be the root level for 0 < InsertIndex");
         
         if ( base::m_current_level == base::m_level - 1 )
         {
@@ -304,10 +301,9 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box>
 
     inline void operator()(leaf & n)
     {
-        assert(base::m_current_level == base::m_leafs_level);
-        assert(base::m_level == base::m_current_level ||
-               base::m_level == std::numeric_limits<size_t>::max());
-
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == std::numeric_limits<size_t>::max(), "unexpected level");
+        
         rtree::elements(n).push_back(base::m_element);
 
         base::handle_possible_split(n);
@@ -335,9 +331,9 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
 
     inline void operator()(internal_node & n)
     {
-        assert(base::m_current_level < base::m_leafs_level);
-        assert(base::m_current_level < base::m_level);
-
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_level, "unexpected level");
+		
         // next traversing step
         base::traverse(*this, n);
 
@@ -346,9 +342,8 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
 
     inline void operator()(leaf & n)
     {
-        assert(base::m_current_level == base::m_leafs_level);
-        assert(base::m_level == base::m_current_level ||
-               base::m_level == std::numeric_limits<size_t>::max());
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == std::numeric_limits<size_t>::max(), "unexpected level");
 
         rtree::elements(n).push_back(base::m_element);
 
@@ -385,10 +380,9 @@ public:
 		, m_tr(tr), m_relative_level(relative_level)
 	{}
 
-	inline void operator()(internal_node & n)
+	inline void operator()(internal_node & BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(n))
 	{
-		// current node should be the root
-		assert(&n == rtree::get<internal_node>(m_root));
+		BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root), "current node should be the root");
 		
 		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
 			m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
@@ -401,10 +395,9 @@ public:
 		}
 	}
 
-	inline void operator()(leaf & n)
+	inline void operator()(leaf & BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(n))
 	{
-		// current node should be the root
-		assert(&n == rtree::get<leaf>(m_root));
+		BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<leaf>(m_root), "current node should be the root");
 
 		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
 			m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);

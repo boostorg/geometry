@@ -7,10 +7,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_POLY_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_POLY_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_HPP
 
 #include <vector>
+
+#include <boost/geometry/algorithms/expand.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -80,14 +82,14 @@ template <typename Derived, typename Value, typename Box, typename Tag>
 inline Derived & get(node_poly<Value, Box, Tag> & n)
 {
     assert(dynamic_cast<Derived*>(&n));
-    return dynamic_cast<Derived&>(n);
+    return static_cast<Derived&>(n);
 }
 
 template <typename Derived, typename Value, typename Box, typename Tag>
 inline Derived * get(node_poly<Value, Box, Tag> * n)
 {
     assert(dynamic_cast<Derived*>(n));
-    return dynamic_cast<Derived*>(n);
+    return static_cast<Derived*>(n);
 }
 
 // visitor
@@ -130,17 +132,13 @@ inline void apply_visitor(Visitor &v, Visitable & n)
     n.apply_visitor(v);
 }
 
-// uniform indexable for child node element's box and value's indexable
-
-// value's indexable version
+// element's indexable type
 
 template <typename Value, typename Translator>
 struct element_indexable_type
 {
-    typedef typename Translator::indexable_type type;
+	typedef typename Translator::indexable_type type;
 };
-
-// node element's indexable specialization
 
 template <typename Value, typename Box, typename Tag, typename Translator>
 struct element_indexable_type<
@@ -149,6 +147,15 @@ struct element_indexable_type<
 >
 {
     typedef Box type;
+};
+
+// element's indexable getter
+
+template <typename Value, typename Translator>
+inline typename Translator::indexable_type const&
+	element_indexable(Value const& el, Translator const& tr)
+{
+	return tr(el);
 };
 
 template <typename Value, typename Box, typename Tag, typename Translator>
@@ -164,22 +171,22 @@ element_indexable(
 
 template <typename Value, typename Box, typename Tag>
 inline typename node<Value, Box, Tag>::type *
-    create_node(leaf_poly<Value, Box, Tag> const& l)
+create_node(leaf_poly<Value, Box, Tag> const& l)
 {
-    typedef typename node<Value, Box, Tag>::type node;
-    node * n = new leaf_poly<Value, Box, Tag>(l);
-    return n;
+	typedef typename node<Value, Box, Tag>::type node;
+	node * n = new leaf_poly<Value, Box, Tag>(l);
+	return n;
 }
 
 // create internal node
 
 template <typename Value, typename Box, typename Tag>
 inline typename node<Value, Box, Tag>::type *
-    create_node(internal_node_poly<Value, Box, Tag> const& in)
+create_node(internal_node_poly<Value, Box, Tag> const& in)
 {
-    typedef typename node<Value, Box, Tag>::type node;
-    node * n = new internal_node_poly<Value, Box, Tag>(in);
-    return n;
+	typedef typename node<Value, Box, Tag>::type node;
+	node * n = new internal_node_poly<Value, Box, Tag>(in);
+	return n;
 }
 
 // default node
@@ -187,11 +194,55 @@ inline typename node<Value, Box, Tag>::type *
 template <typename Value, typename Box, typename Tag>
 inline void delete_node(node_poly<Value, Box, Tag> * n)
 {
-    delete n;
+	delete n;
+}
+
+// nodes elements
+
+template <typename Node>
+struct elements_type
+{
+	typedef typename Node::elements_type type;
+};
+
+template <typename Node>
+inline typename elements_type<Node>::type &
+	elements(Node & n)
+{
+	return n.elements;
+}
+
+template <typename Node>
+inline typename elements_type<Node>::type const&
+	elements(Node const& n)
+{
+	return n.elements;
+}
+
+// elements box
+
+template <typename Box, typename FwdIter, typename Translator>
+inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
+{
+	Box result;
+
+	if (first == last)
+	{    
+		geometry::assign_zero(result);
+		return result;
+	}
+
+	geometry::convert(element_indexable(*first, tr), result);
+	++first;
+
+	for ( ; first != last ; ++first )
+		geometry::expand(result, element_indexable(*first, tr));
+
+	return result;
 }
 
 }} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_POLY_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_HPP

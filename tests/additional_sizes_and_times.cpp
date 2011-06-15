@@ -7,14 +7,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//#define BOOST_GEOMETRY_INDEX_USE_VARIANT_NODES
+#include <iostream>
+#include <fstream>
+
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
-
-#include <iostream>
-#include <fstream>
 
 #include <boost/timer.hpp>
 #include <boost/foreach.hpp>
@@ -31,11 +30,11 @@ int main()
     typedef bg::model::box<P> B;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::linear_tag> RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::quadratic_tag> RT;
-    typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar_tag> RT;
-	/*typedef bgi::rtree<
+    //typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar_tag> RT;
+	typedef bgi::rtree<
 		std::pair<B, size_t>,
-		bgi::options::rtree<bgi::reinsert_tag, bgi::choose_by_area_diff_tag, bgi::rstar_tag, bgi::default_tag>
-	> RT;*/
+		bgi::options::rtree<bgi::insert_tag, bgi::choose_by_area_diff_tag, bgi::rstar_tag, bgi::default_tag>
+	> RT;
 
     // load config file
     std::ifstream file_cfg("config.txt");

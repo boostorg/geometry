@@ -12,9 +12,9 @@
 
 #include <boost/geometry/algorithms/intersects.hpp>
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
-#include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
+//#include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
 namespace boost { namespace geometry { namespace index {
 

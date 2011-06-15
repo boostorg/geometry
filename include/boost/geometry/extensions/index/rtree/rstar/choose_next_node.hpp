@@ -18,7 +18,7 @@
 #include <boost/geometry/extensions/index/algorithms/overlap.hpp>
 #include <boost/geometry/extensions/index/algorithms/union_area.hpp>
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
 namespace boost { namespace geometry { namespace index {

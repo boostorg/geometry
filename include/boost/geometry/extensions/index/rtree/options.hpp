@@ -27,6 +27,7 @@ struct rstar_tag {};
 
 // NodeTag
 struct default_tag {};
+struct default_variant_tag {};
 
 namespace options {
 

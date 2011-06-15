@@ -15,7 +15,7 @@
 #include <boost/geometry/extensions/index/algorithms/area.hpp>
 #include <boost/geometry/extensions/index/algorithms/union_area.hpp>
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
@@ -43,7 +43,7 @@ struct pick_seeds
     {
         size_t elements_count = elements.size();
 
-        assert(2 <= elements_count);
+		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "wrong number of elements");
 
         area_type greatest_free_area = 0;
         seed1 = 0;

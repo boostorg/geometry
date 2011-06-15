@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_VARIANT_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_VARIANT_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_VARIANT_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_VARIANT_HPP
 
 #include <vector>
 #include <boost/variant.hpp>
@@ -16,9 +16,6 @@
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
-
-template <typename Value, typename Box, typename Tag>
-struct node;
 
 // nodes default types
 
@@ -44,66 +41,78 @@ struct leaf_variant
 
 // nodes traits
 
-template <typename Value, typename Box, typename Tag>
-struct node
+template <typename Value, typename Box>
+struct node<Value, Box, default_variant_tag>
 {
-    typedef boost::variant<
-        leaf_variant<Value, Box, Tag>,
-        internal_node_variant<Value, Box, Tag>
-    > type;
+	typedef boost::variant<
+		leaf_variant<Value, Box, default_variant_tag>,
+		internal_node_variant<Value, Box, default_variant_tag>
+	> type;
 };
 
-template <typename Value, typename Box, typename Tag>
-struct internal_node
+template <typename Value, typename Box>
+struct internal_node<Value, Box, default_variant_tag>
 {
-    typedef internal_node_variant<Value, Box, Tag> type;
+    typedef internal_node_variant<Value, Box, default_variant_tag> type;
 };
 
-template <typename Value, typename Box, typename Tag>
-struct leaf
+template <typename Value, typename Box>
+struct leaf<Value, Box, default_variant_tag>
 {
-    typedef leaf_variant<Value, Box, Tag> type;
+    typedef leaf_variant<Value, Box, default_variant_tag> type;
 };
 
 // nodes conversion
 
-template <typename V, typename Variant>
-inline V & get(Variant &v)
+template <typename V, typename Value, typename Box, typename Tag>
+inline V & get(
+	boost::variant<
+		leaf_variant<Value, Box, Tag>,
+		internal_node_variant<Value, Box, Tag>
+	> &v
+)
 {
     return boost::get<V>(v);
 }
 
-template <typename V, typename Variant>
-inline V * get(Variant *v)
+template <typename V, typename Value, typename Box, typename Tag>
+inline V * get(boost::variant<
+			       leaf_variant<Value, Box, Tag>,
+				   internal_node_variant<Value, Box, Tag>
+				> *v)
 {
     return boost::get<V>(v);
 }
 
 // visitor traits
 
-template <typename Value, typename Box, typename Tag, bool IsVisitableConst>
-struct visitor
+template <typename Value, typename Box, bool IsVisitableConst>
+struct visitor<Value, Box, default_variant_tag, IsVisitableConst>
 {
     typedef static_visitor<> type;
 };
 
-template <typename Visitor, typename Visitable>
-inline void apply_visitor(Visitor &v, Visitable &n)
+template <typename Visitor, typename Value, typename Box, typename Tag>
+inline void apply_visitor(Visitor & v,
+						  boost::variant<
+							  leaf_variant<Value, Box, Tag>,
+							  internal_node_variant<Value, Box, Tag>
+						  > & n)
 {
     boost::apply_visitor(v, n);
 }
 
-// uniform indexable for child node element's box and value's indexable
-
-// value's indexable version
-
-template <typename Value, typename Translator>
-struct element_indexable_type
+template <typename Visitor, typename Value, typename Box, typename Tag>
+inline void apply_visitor(Visitor & v,
+						  boost::variant<
+							  leaf_variant<Value, Box, Tag>,
+							  internal_node_variant<Value, Box, Tag>
+						  > const& n)
 {
-    typedef typename Translator::indexable_type type;
-};
+	boost::apply_visitor(v, n);
+}
 
-// node element's indexable specialization
+// element's indexable type
 
 template <typename Value, typename Box, typename Tag, typename Translator>
 struct element_indexable_type<
@@ -120,17 +129,18 @@ struct element_indexable_type<
     typedef Box type;
 };
 
+// element's indexable getter
+
 template <typename Value, typename Box, typename Tag, typename Translator>
 inline Box const&
-element_indexable(
-    std::pair<
-        Box,
-        boost::variant<
-            leaf_variant<Value, Box, Tag>,
-            internal_node_variant<Value, Box, Tag>
-        > *
-    > const& el,
-    Translator const&)
+element_indexable(std::pair<
+					  Box,
+					  boost::variant<
+						  leaf_variant<Value, Box, Tag>,
+						  internal_node_variant<Value, Box, Tag>
+					  > *
+				  > const& el,
+				  Translator const&)
 {
     return el.first;
 }
@@ -160,11 +170,10 @@ create_node(internal_node_variant<Value, Box, Tag> const& in)
 // default node
 
 template <typename Value, typename Box, typename Tag>
-inline void delete_node(
-    boost::variant<
-        leaf_variant<Value, Box, Tag>,
-        internal_node_variant<Value, Box, Tag>
-    > * n)
+inline void delete_node(boost::variant<
+						    leaf_variant<Value, Box, Tag>,
+							internal_node_variant<Value, Box, Tag>
+						> * n)
 {
     delete n;
 }
@@ -173,4 +182,4 @@ inline void delete_node(
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_VARIANT_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_VARIANT_HPP

@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_REMOVE_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_REMOVE_HPP
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
@@ -104,8 +104,7 @@ public:
             // n is root node
             else
             {
-                // current node must be a root
-                assert(&n == rtree::get<internal_node>(m_root_node));
+				BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root_node), "node must be the root");
 
                 // value not found
                 assert(m_is_value_removed);

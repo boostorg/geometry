@@ -18,7 +18,7 @@
 
 #include <boost/geometry/algorithms/intersection.hpp>
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
@@ -68,7 +68,8 @@ struct choose_split_axis_and_index_for_corner
 		
 		// copy elements
 		Elements elements_copy = elements;
-		assert(elements_copy.size() == max_elems + 1);
+		
+		BOOST_GEOMETRY_INDEX_ASSERT(elements_copy.size() == max_elems + 1, "wrong number of elements");
 
 		// sort elements
 		element_axis_corner_less<element_type, Translator, Corner, AxisIndex> elements_less(tr);
@@ -288,7 +289,8 @@ struct partial_sort
 		}
 		else
 		{
-			assert(axis == Dimension - 1);
+			BOOST_GEOMETRY_INDEX_ASSERT(axis == Dimension - 1, "unexpected axis value");
+
 			typedef typename Elements::value_type element_type;
 			element_axis_corner_less<element_type, Translator, Corner, Dimension - 1> less(tr);
 			std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);
@@ -302,7 +304,8 @@ struct partial_sort<Corner, 1>
 	template <typename Elements, typename Translator>
 	static inline void apply(Elements & elements, const size_t axis, const size_t index, Translator const& tr)
 	{
-		assert(axis == 0);
+		BOOST_GEOMETRY_INDEX_ASSERT(axis == 0, "unexpected axis value");
+
 		typedef typename Elements::value_type element_type;
 		element_axis_corner_less<element_type, Translator, Corner, 0> less(tr);
 		std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);
@@ -353,9 +356,9 @@ struct redistribute_elements<Value, Options, Translator, Box, rstar_tag>
 
 		// TODO: awulkiew - get rid of following static_casts?
 
-		assert(split_axis < index::traits::dimension<Box>::value);
-		assert(split_corner == static_cast<size_t>(min_corner) || split_corner == static_cast<size_t>(max_corner));
-		assert(min_elems <= split_index && split_index <= max_elems - min_elems + 1);
+		BOOST_GEOMETRY_INDEX_ASSERT(split_axis < index::traits::dimension<Box>::value, "unexpected value");
+		BOOST_GEOMETRY_INDEX_ASSERT(split_corner == static_cast<size_t>(min_corner) || split_corner == static_cast<size_t>(max_corner), "unexpected value");
+		BOOST_GEOMETRY_INDEX_ASSERT(min_elems <= split_index && split_index <= max_elems - min_elems + 1, "unexpected value");
 		
 		// TODO: awulkiew - check if std::partial_sort produces the same result as std::sort
 		if ( split_corner == static_cast<size_t>(min_corner) )

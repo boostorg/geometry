@@ -12,7 +12,7 @@
 
 #include <boost/geometry/extensions/index/algorithms/area.hpp>
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -40,7 +40,7 @@ struct choose_next_node<Value, Options, Box, choose_by_area_diff_tag>
     {
         children_type & children = rtree::elements(n);
 
-        assert(!children.empty());
+		BOOST_GEOMETRY_INDEX_ASSERT(!children.empty(), "can't choose the next node if children are empty");
 
         size_t children_count = children.size();
 
@@ -110,8 +110,8 @@ protected:
         , m_current_child_index(0)
         , m_current_level(0)
     {
-		assert(m_relative_level <= leafs_level);
-		assert(m_level <= m_leafs_level);
+		BOOST_GEOMETRY_INDEX_ASSERT(m_relative_level <= leafs_level, "unexpected level value");
+		BOOST_GEOMETRY_INDEX_ASSERT(m_level <= m_leafs_level, "unexpected level value");
         // TODO
         // assert - check if Box is correct
     }
@@ -137,8 +137,8 @@ protected:
     template <typename Node>
     inline void post_traverse(Node &n)
     {
-        // if node isn't a root check if parent and current_child_index isn't corrupted
-        assert(0 == m_parent || &n == rtree::get<Node>(rtree::elements(*m_parent)[m_current_child_index].second));
+		BOOST_GEOMETRY_INDEX_ASSERT(0 == m_parent || &n == rtree::get<Node>(rtree::elements(*m_parent)[m_current_child_index].second),
+									"if node isn't the root current_child_index should be valid");
 
         // handle overflow
         if ( m_max_elems_per_node < rtree::elements(n).size() )
@@ -182,9 +182,11 @@ protected:
 			apply(n, n2, box1, box2, m_min_elems_per_node, m_max_elems_per_node, m_tr);
 
 		// check numbers of elements
-		assert(m_min_elems_per_node <= rtree::elements(n).size() && rtree::elements(n).size() <= m_max_elems_per_node);
-		assert(m_min_elems_per_node <= rtree::elements(n2).size() && rtree::elements(n2).size() <= m_max_elems_per_node);
-
+		BOOST_GEOMETRY_INDEX_ASSERT(m_min_elems_per_node <= rtree::elements(n).size() && rtree::elements(n).size() <= m_max_elems_per_node,
+									"unexpected number of elements");
+		BOOST_GEOMETRY_INDEX_ASSERT(m_min_elems_per_node <= rtree::elements(n2).size() && rtree::elements(n2).size() <= m_max_elems_per_node,
+									"unexpected number of elements");
+		
 		// node is not the root - just add the new node
 		if ( m_parent != 0 )
 		{
@@ -196,7 +198,7 @@ protected:
 		// node is the root - add level
 		else
 		{
-			assert(&n == rtree::get<Node>(m_root_node));
+			BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(m_root_node), "node should be the root");
 
 			// create new root and add nodes
 			node * new_root = rtree::create_node(internal_node());
@@ -254,7 +256,7 @@ struct insert<Element, Value, Options, Translator, Box, insert_tag>
 
     inline void operator()(internal_node & n)
     {
-        assert(base::m_current_level < base::m_leafs_level);
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
 
         if ( base::m_current_level < base::m_level )
         {
@@ -263,7 +265,7 @@ struct insert<Element, Value, Options, Translator, Box, insert_tag>
         }
         else
         {
-            assert( base::m_level == base::m_current_level );
+			BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level, "unexpected level");
 
             // push new child node
             rtree::elements(n).push_back(base::m_element);
@@ -301,8 +303,8 @@ struct insert<Value, Value, Options, Translator, Box, insert_tag>
 
     inline void operator()(internal_node & n)
     {
-        assert(base::m_current_level < base::m_leafs_level);
-        assert(base::m_current_level < base::m_level);
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_level, "unexpected level");
 
         // next traversing step
         base::traverse(*this, n);
@@ -312,10 +314,9 @@ struct insert<Value, Value, Options, Translator, Box, insert_tag>
 
     inline void operator()(leaf & n)
     {
-        assert(base::m_current_level == base::m_leafs_level);
-        assert( base::m_level == base::m_current_level ||
-            base::m_level == std::numeric_limits<size_t>::max() );
-
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == std::numeric_limits<size_t>::max(), "unexpected level");
+        
         rtree::elements(n).push_back(base::m_element);
 
         base::post_traverse(n);

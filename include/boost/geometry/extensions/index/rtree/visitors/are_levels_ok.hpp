@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_LEVELS_OK_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_LEVELS_OK_HPP
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 

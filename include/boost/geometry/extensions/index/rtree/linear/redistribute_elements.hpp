@@ -18,7 +18,7 @@
 #include <boost/geometry/extensions/index/algorithms/area.hpp>
 #include <boost/geometry/extensions/index/algorithms/union_area.hpp>
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
@@ -51,7 +51,7 @@ struct find_greatest_normalized_separation
     {
         size_t elements_count = elements.size();
 
-        assert(2 <= elements_count);
+		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "wrong number of elements");
 
         // find the lowest low, highest high
         coordinate_type lowest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], tr));

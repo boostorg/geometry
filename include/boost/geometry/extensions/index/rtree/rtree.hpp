@@ -14,10 +14,14 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
+#include <boost/geometry/extensions/index/assert.hpp>
+
 #include <boost/geometry/extensions/index/translator/translator.hpp>
 
 #include <boost/geometry/extensions/index/rtree/options.hpp>
 #include <boost/geometry/extensions/index/rtree/filters.hpp>
+
+#include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/find.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
@@ -104,7 +108,8 @@ public:
     void remove(value_type const& value)
     {
         // TODO: awulkiew - assert for correct value
-        assert(0 < m_values_count);
+
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there is no elements in the rtree");
 
         detail::rtree::visitors::remove<value_type, options_type, translator_type, box_type>
             remove_v(m_root, m_leafs_level, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
@@ -128,7 +133,7 @@ public:
     void clear()
     {
         // TODO: awulkiew - implement
-        assert(false);
+        BOOST_GEOMETRY_INDEX_ASSERT(false, "not implemented");
     }
 
     template <typename Visitor>
