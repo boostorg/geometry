@@ -11,7 +11,6 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_GL_DRAW_HPP
 
 #include <boost/geometry/extensions/index/indexable.hpp>
-#include <boost/geometry/extensions/index/rtree/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 

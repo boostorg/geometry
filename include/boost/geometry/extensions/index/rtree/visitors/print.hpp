@@ -13,8 +13,6 @@
 
 #include <iostream>
 
-#include <boost/geometry/extensions/index/rtree/node.hpp>
-
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
