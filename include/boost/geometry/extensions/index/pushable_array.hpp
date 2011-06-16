@@ -26,16 +26,23 @@ public:
 	typedef typename array_type::size_type size_type;
 	typedef typename array_type::iterator iterator;
 	typedef typename array_type::const_iterator const_iterator;
+	typedef typename array_type::reverse_iterator reverse_iterator;
+	typedef typename array_type::const_reverse_iterator const_reverse_iterator;
 
 	inline pushable_array()
 		: m_size(0)
 	{}
 
-	inline pushable_array(size_type s, Element const& v)
+	inline explicit pushable_array(size_type s)
 		: m_size(s)
 	{
-		BOOST_GEOMETRY_INDEX_ASSERT(s < Capacity, "size too big");
-		std::fill(m_array.begin(), m_array.begin() + s, v);
+		BOOST_GEOMETRY_INDEX_ASSERT(s <= Capacity, "size too big");
+	}
+
+	inline void resize(size_type s)
+	{
+		BOOST_GEOMETRY_INDEX_ASSERT(s <= Capacity, "size too big");
+		m_size = s;
 	}
 
 	inline Element & operator[](size_type i)
@@ -92,6 +99,26 @@ public:
 	inline const_iterator end() const
 	{
 		return m_array.begin() + m_size;
+	}
+
+	inline reverse_iterator rbegin()
+	{
+		return reverse_iterator(end());
+	}
+
+	inline reverse_iterator rend()
+	{
+		return reverse_iterator(begin());
+	}
+
+	inline const_reverse_iterator rbegin() const
+	{
+		return const_reverse_iterator(end());
+	}
+
+	inline const_reverse_iterator rend() const
+	{
+		return const_reverse_iterator(begin());
 	}
 
 	inline void clear()

@@ -29,8 +29,8 @@ int main()
     typedef bg::model::point<float, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::linear<32, 8> > RT;
-    //typedef bgi::rtree<std::pair<B, size_t>, bgi::quadratic<32, 8> > RT;
-    typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar<32, 8, true> > RT;
+    typedef bgi::rtree<std::pair<B, size_t>, bgi::quadratic<32, 8> > RT;
+    //typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar<32, 8, true> > RT;
 	/*typedef bgi::rtree<
 		std::pair<B, size_t>,
 		bgi::options::rtree<bgi::linear<32, 8>, bgi::insert_tag, bgi::choose_by_area_diff_tag, bgi::linear_tag, bgi::default_static_tag>
@@ -106,7 +106,7 @@ int main()
     }
     
     // create rtree
-    RT t(max_elems, min_elems);
+    RT t;
 
     // elements inserting test
     {

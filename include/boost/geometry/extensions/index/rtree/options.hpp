@@ -30,6 +30,12 @@ struct default_tag {};
 struct default_variant_tag {};
 struct default_static_tag {};
 
+// TODO: awulkiew - implement those:
+//if ( m_min_elems_per_node < 1 )
+//	m_min_elems_per_node = 1;
+//if ( m_max_elems_per_node < 2 )
+//	m_max_elems_per_node = 2;
+
 template <size_t MaxElements, size_t MinElements>
 struct linear
 {
@@ -86,6 +92,7 @@ namespace detail { namespace rtree {
 template <typename Tag>
 struct options_type
 {
+	// TODO: awulkiew - use static assert
 	typedef void type;
 };
 

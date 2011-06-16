@@ -27,7 +27,7 @@ namespace detail {
 
 namespace quadratic {
 
-template <typename Elements, typename Translator, typename Box>
+template <typename Elements, typename Parameters, typename Translator, typename Box>
 struct pick_seeds
 {
     typedef typename Elements::value_type element_type;
@@ -41,9 +41,9 @@ struct pick_seeds
                              size_t & seed1,
                              size_t & seed2)
     {
-        size_t elements_count = elements.size();
-
-		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "wrong number of elements");
+        const size_t elements_count = Parameters::max_elements + 1;
+		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "wrong number of elements");
+		BOOST_STATIC_ASSERT(2 <= elements_count);
 
         area_type greatest_free_area = 0;
         seed1 = 0;
@@ -78,9 +78,11 @@ struct pick_seeds
 template <typename Value, typename Options, typename Translator, typename Box>
 struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+	typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::node<Value, parameters_type, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, typename Options::node_tag>::type leaf;
 
     typedef typename index::default_area_result<Box>::type area_type;
 
@@ -89,8 +91,6 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
 			  				 Node & second_node,
 							 Box & box1,
 							 Box & box2,
-							 size_t min_elems,
-							 size_t max_elems,
 							 Translator const& tr)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
@@ -98,19 +98,26 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
 
+		elements_type & elements1 = rtree::elements(n);
+		elements_type & elements2 = rtree::elements(second_node);
+		const size_t elements1_count = parameters_type::max_elements + 1;
+
+		typedef index::pushable_array<element_type, elements1_count> elements_copy_type;
+
+		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected elements number");
+
         // copy original elements
-        elements_type elements_copy = rtree::elements(n);
+        elements_copy_type elements_copy(elements1_count);
+		std::copy(elements1.begin(), elements1.end(), elements_copy.begin());
         
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        quadratic::pick_seeds<elements_type, Translator, Box>::apply(elements_copy, tr, seed1, seed2);
+        quadratic::pick_seeds<elements_copy_type, parameters_type, Translator, Box>::apply(elements_copy, tr, seed1, seed2);
 
         // prepare nodes' elements containers
-        elements_type & elements1 = rtree::elements(n);
-        elements_type & elements2 = rtree::elements(second_node);
         elements1.clear();
-        assert(elements2.empty());
+        BOOST_GEOMETRY_INDEX_ASSERT(elements2.empty(), "second node's elements container should be empty");
 
         // add seeds
         elements1.push_back(elements_copy[seed1]);
@@ -141,7 +148,7 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
         // redistribute the rest of the elements
         while ( !elements_copy.empty() )
         {
-            typename elements_type::reverse_iterator el_it = elements_copy.rbegin();
+            typename elements_copy_type::reverse_iterator el_it = elements_copy.rbegin();
             bool insert_into_group1 = false;
 
             size_t elements1_count = elements1.size();
@@ -149,11 +156,11 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
 
             // if there is small number of elements left and the number of elements in node is lesser than min_elems
             // just insert them to this node
-            if ( elements1_count + remaining <= min_elems )
+            if ( elements1_count + remaining <= parameters_type::min_elements )
             {
                 insert_into_group1 = true;
             }
-            else if ( elements2_count + remaining <= min_elems )
+            else if ( elements2_count + remaining <= parameters_type::min_elements )
             {
                 insert_into_group1 = false;
             }
@@ -196,10 +203,11 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
                 area2 = index::area(box2);
             }
 
-            assert(!elements_copy.empty());
-            elements_copy.erase(--el_it.base());
+			BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
+            typename elements_copy_type::iterator el_it_base = el_it.base();
+            elements_copy.erase(--el_it_base);
 
-            assert(0 < remaining);
+			BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "expected more remaining elements");
             --remaining;
         }
     }

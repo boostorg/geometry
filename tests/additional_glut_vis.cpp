@@ -22,7 +22,7 @@ typedef boost::geometry::model::box<P> B;
 //boost::geometry::index::rtree<B> t(2, 1);
 boost::geometry::index::rtree<
     B,
-    boost::geometry::index::rstar_tag> t(4, 2);
+    boost::geometry::index::rstar<4, 2> > t;
 std::vector<B> vect;
 
 void render_scene(void)

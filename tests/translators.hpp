@@ -35,7 +35,7 @@ void tests_translators_hpp()
 
     typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
     typedef boost::geometry::model::box<P> B;
-    typedef boost::geometry::index::rtree<B> I;
+    //typedef boost::geometry::index::rtree<B> I;
 
     using namespace boost::geometry;
 

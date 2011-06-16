@@ -16,8 +16,9 @@
 int main()
 {
     tests_translators_hpp();
-    tests_rtree_native_hpp<boost::geometry::index::linear_tag>();
-    tests_rtree_native_hpp<boost::geometry::index::quadratic_tag>();
+    tests_rtree_native_hpp<boost::geometry::index::linear<4, 2> >();
+    tests_rtree_native_hpp<boost::geometry::index::quadratic<4, 2> >();
+	tests_rtree_native_hpp<boost::geometry::index::rstar<4, 2> >();
     tests_rtree_filters_hpp();
     /*
     {

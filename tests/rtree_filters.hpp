@@ -37,7 +37,7 @@ void tests_rtree_filters_hpp()
     typedef boost::geometry::model::box<P> B;
 
     {
-        boost::geometry::index::rtree<B> t(4, 2);
+        boost::geometry::index::rtree<B, boost::geometry::index::rstar<4, 2> > t;
         boost::geometry::index::insert(t, B(P(0, 0), P(1, 1)));
         boost::geometry::index::insert(t, B(P(2, 2), P(3, 3)));
         boost::geometry::index::insert(t, B(P(4, 4), P(5, 5)));

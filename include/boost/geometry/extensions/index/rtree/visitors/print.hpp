@@ -112,10 +112,10 @@ inline void print_indexable(std::ostream & os, Indexable const& i)
 } // namespace detail
 
 template <typename Value, typename Options, typename Translator, typename Box>
-struct print : public rtree::visitor<Value, Box, typename Options::node_tag, true>::type
+struct print : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
 {
-    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
     inline print(std::ostream & o, Translator const& t)
         : os(o), tr(t), level(0)

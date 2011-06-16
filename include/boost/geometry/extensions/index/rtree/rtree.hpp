@@ -56,23 +56,12 @@ public:
     typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, node_tag>::type internal_node;
     typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, node_tag>::type leaf;
 
-    inline explicit rtree(
-        size_t max_elems_per_node = 4,
-        size_t min_elems_per_node = 2,
-        translator_type const& translator = translator_type()
-    )
+    inline explicit rtree(translator_type const& translator = translator_type())
         : m_values_count(0)
-        , m_max_elems_per_node(max_elems_per_node)
-        , m_min_elems_per_node(min_elems_per_node)
         , m_root(0)
         , m_leafs_level(0)
         , m_translator(translator)
     {
-        if ( m_min_elems_per_node < 1 )
-            m_min_elems_per_node = 1;
-        if ( m_max_elems_per_node < 2 )
-            m_max_elems_per_node = 2;
-
         m_root = detail::rtree::create_node(leaf());
     }
 
@@ -154,8 +143,6 @@ public:
 
 private:
     size_t m_values_count;
-    size_t m_max_elems_per_node;
-    size_t m_min_elems_per_node;
     node *m_root;
     size_t m_leafs_level;
     translator_type m_translator;

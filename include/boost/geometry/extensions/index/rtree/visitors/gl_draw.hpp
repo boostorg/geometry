@@ -94,10 +94,10 @@ inline void gl_draw_indexable(Indexable const& i, typename index::traits::coordi
 } // namespace detail
 
 template <typename Value, typename Options, typename Translator, typename Box>
-struct gl_draw : public rtree::visitor<Value, Box, typename Options::node_tag, true>::type
+struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
 {
-    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
     inline gl_draw(Translator const& t,
                    size_t level_first = 0,
