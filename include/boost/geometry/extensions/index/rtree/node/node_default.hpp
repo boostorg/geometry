@@ -19,74 +19,74 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree {
 
 // visitor forward declaration
-template <typename Value, typename Box, typename Tag, bool IsVisitableConst>
+template <typename Value, typename Parameters, typename Box, typename Tag, bool IsVisitableConst>
 struct visitor_poly;
 
 // nodes types
 
-template <typename Value, typename Box, typename Tag>
+template <typename Value, typename Parameters, typename Box, typename Tag>
 struct node_poly
 {
     virtual ~node_poly() {}
-    virtual void apply_visitor(visitor_poly<Value, Box, Tag, false> &) = 0;
-    virtual void apply_visitor(visitor_poly<Value, Box, Tag, true> &) const = 0;
+    virtual void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, false> &) = 0;
+    virtual void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, true> &) const = 0;
 };
 
-template <typename Value, typename Box, typename Tag>
-struct internal_node_poly : public node_poly<Value, Box, Tag>
+template <typename Value, typename Parameters, typename Box, typename Tag>
+struct internal_node_poly : public node_poly<Value, Parameters, Box, Tag>
 {
     typedef std::vector<
-        std::pair<Box, node_poly<Value, Box, Tag> *>
+        std::pair<Box, node_poly<Value, Parameters, Box, Tag> *>
     > elements_type;
 
-    void apply_visitor(visitor_poly<Value, Box, Tag, false> & v) { v(*this); }
-    void apply_visitor(visitor_poly<Value, Box, Tag, true> & v) const { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, false> & v) { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
 
-template <typename Value, typename Box, typename Tag>
-struct leaf_poly : public node_poly<Value, Box, Tag>
+template <typename Value, typename Parameters, typename Box, typename Tag>
+struct leaf_poly : public node_poly<Value, Parameters, Box, Tag>
 {
     typedef std::vector<Value> elements_type;
 
-    void apply_visitor(visitor_poly<Value, Box, Tag, false> & v) { v(*this); }
-    void apply_visitor(visitor_poly<Value, Box, Tag, true> & v) const { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, false> & v) { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
 
 // nodes traits
 
-template <typename Value, typename Box, typename Tag>
+template <typename Value, typename Parameters, typename Box, typename Tag>
 struct node
 {
-    typedef node_poly<Value, Box, Tag> type;
+    typedef node_poly<Value, Parameters, Box, Tag> type;
 };
 
-template <typename Value, typename Box, typename Tag>
+template <typename Value, typename Parameters, typename Box, typename Tag>
 struct internal_node
 {
-    typedef internal_node_poly<Value, Box, Tag> type;
+    typedef internal_node_poly<Value, Parameters, Box, Tag> type;
 };
 
-template <typename Value, typename Box, typename Tag>
+template <typename Value, typename Parameters, typename Box, typename Tag>
 struct leaf
 {
-    typedef leaf_poly<Value, Box, Tag> type;
+    typedef leaf_poly<Value, Parameters, Box, Tag> type;
 };
 
 // nodes conversion
 
-template <typename Derived, typename Value, typename Box, typename Tag>
-inline Derived & get(node_poly<Value, Box, Tag> & n)
+template <typename Derived, typename Parameters, typename Value, typename Box, typename Tag>
+inline Derived & get(node_poly<Value, Parameters, Box, Tag> & n)
 {
     assert(dynamic_cast<Derived*>(&n));
     return static_cast<Derived&>(n);
 }
 
-template <typename Derived, typename Value, typename Box, typename Tag>
-inline Derived * get(node_poly<Value, Box, Tag> * n)
+template <typename Derived, typename Parameters, typename Value, typename Box, typename Tag>
+inline Derived * get(node_poly<Value, Parameters, Box, Tag> * n)
 {
     assert(dynamic_cast<Derived*>(n));
     return static_cast<Derived*>(n);
@@ -94,11 +94,11 @@ inline Derived * get(node_poly<Value, Box, Tag> * n)
 
 // visitor
 
-template <typename Value, typename Box, typename Tag>
-struct visitor_poly<Value, Box, Tag, true>
+template <typename Value, typename Parameters, typename Box, typename Tag>
+struct visitor_poly<Value, Parameters, Box, Tag, true>
 {
-    typedef typename internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename leaf<Value, Box, Tag>::type leaf;
+    typedef typename internal_node<Value, Parameters, Box, Tag>::type internal_node;
+    typedef typename leaf<Value, Parameters, Box, Tag>::type leaf;
 
     virtual ~visitor_poly() {}
 
@@ -106,11 +106,11 @@ struct visitor_poly<Value, Box, Tag, true>
     virtual void operator()(leaf const&) = 0;
 };
 
-template <typename Value, typename Box, typename Tag>
-struct visitor_poly<Value, Box, Tag, false>
+template <typename Value, typename Parameters, typename Box, typename Tag>
+struct visitor_poly<Value, Parameters, Box, Tag, false>
 {
-    typedef typename internal_node<Value, Box, Tag>::type internal_node;
-    typedef typename leaf<Value, Box, Tag>::type leaf;
+    typedef typename internal_node<Value, Parameters, Box, Tag>::type internal_node;
+    typedef typename leaf<Value, Parameters, Box, Tag>::type leaf;
 
     virtual ~visitor_poly() {}
 
@@ -120,10 +120,10 @@ struct visitor_poly<Value, Box, Tag, false>
 
 // visitor traits
 
-template <typename Value, typename Box, typename Tag, bool IsVisitableConst>
+template <typename Value, typename Parameters, typename Box, typename Tag, bool IsVisitableConst>
 struct visitor
 {
-    typedef visitor_poly<Value, Box, Tag, IsVisitableConst> type;
+    typedef visitor_poly<Value, Parameters, Box, Tag, IsVisitableConst> type;
 };
 
 template <typename Visitor, typename Visitable>
@@ -140,9 +140,9 @@ struct element_indexable_type
 	typedef typename Translator::indexable_type type;
 };
 
-template <typename Value, typename Box, typename Tag, typename Translator>
+template <typename Value, typename Parameters, typename Box, typename Tag, typename Translator>
 struct element_indexable_type<
-    std::pair<Box, node_poly<Value, Box, Tag> *>,
+    std::pair<Box, node_poly<Value, Parameters, Box, Tag> *>,
     Translator
 >
 {
@@ -158,10 +158,10 @@ inline typename Translator::indexable_type const&
 	return tr(el);
 };
 
-template <typename Value, typename Box, typename Tag, typename Translator>
+template <typename Value, typename Parameters, typename Box, typename Tag, typename Translator>
 inline Box const&
 element_indexable(
-    std::pair< Box, node_poly<Value, Box, Tag> *> const& el,
+    std::pair< Box, node_poly<Value, Parameters, Box, Tag> *> const& el,
     Translator const&)
 {
     return el.first;
@@ -169,30 +169,30 @@ element_indexable(
 
 // create leaf node
 
-template <typename Value, typename Box, typename Tag>
-inline typename node<Value, Box, Tag>::type *
-create_node(leaf_poly<Value, Box, Tag> const& l)
+template <typename Value, typename Parameters, typename Box, typename Tag>
+inline typename node<Value, Parameters, Box, Tag>::type *
+create_node(leaf_poly<Value, Parameters, Box, Tag> const& l)
 {
-	typedef typename node<Value, Box, Tag>::type node;
-	node * n = new leaf_poly<Value, Box, Tag>(l);
+	typedef typename node<Value, Parameters, Box, Tag>::type node;
+	node * n = new leaf_poly<Value, Parameters, Box, Tag>(l);
 	return n;
 }
 
 // create internal node
 
-template <typename Value, typename Box, typename Tag>
-inline typename node<Value, Box, Tag>::type *
-create_node(internal_node_poly<Value, Box, Tag> const& in)
+template <typename Value, typename Parameters, typename Box, typename Tag>
+inline typename node<Value, Parameters, Box, Tag>::type *
+create_node(internal_node_poly<Value, Parameters, Box, Tag> const& in)
 {
-	typedef typename node<Value, Box, Tag>::type node;
-	node * n = new internal_node_poly<Value, Box, Tag>(in);
+	typedef typename node<Value, Parameters, Box, Tag>::type node;
+	node * n = new internal_node_poly<Value, Parameters, Box, Tag>(in);
 	return n;
 }
 
 // default node
 
-template <typename Value, typename Box, typename Tag>
-inline void delete_node(node_poly<Value, Box, Tag> * n)
+template <typename Value, typename Parameters, typename Box, typename Tag>
+inline void delete_node(node_poly<Value, Parameters, Box, Tag> * n)
 {
 	delete n;
 }

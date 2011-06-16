@@ -22,23 +22,21 @@ namespace detail { namespace rtree { namespace visitors {
 
 // Default remove algorithm
 template <typename Value, typename Options, typename Translator, typename Box>
-class remove : public rtree::visitor<Value, Box, typename Options::node_tag, false>::type
+class remove : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
 {
-    typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+
+	typedef typename Options::parameters_type parameters_type;
 
 public:
     inline remove(node* & root,
                   size_t & leafs_level,
                   Value const& v,
-                  size_t min_elements,
-                  size_t max_elements,
                   Translator const& t)
         : m_value(v)
         , m_tr(t)
-        , m_min_elems_per_node(min_elements)
-        , m_max_elems_per_node(max_elements)
         , m_root_node(root)
         , m_leafs_level(leafs_level)
         , m_is_value_removed(false)
@@ -87,7 +85,7 @@ public:
                 elements.erase(underfl_el_it);
 
                 // calc underflow
-                m_is_underflow = elements.size() < m_min_elems_per_node;
+                m_is_underflow = elements.size() < parameters_type::min_elements;
             }
 
             // n is not root - adjust aabb
@@ -96,7 +94,7 @@ public:
                 // underflow state should be ok here
                 // note that there may be less than min_elems elements in root
                 // so this condition should be checked only here
-                assert((elements.size() < m_min_elems_per_node) == m_is_underflow);
+                assert((elements.size() < parameters_type::min_elements) == m_is_underflow);
 
                 rtree::elements(*m_parent)[m_current_child_index].first
                     = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
@@ -105,9 +103,7 @@ public:
             else
             {
 				BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root_node), "node must be the root");
-
-                // value not found
-                assert(m_is_value_removed);
+				BOOST_GEOMETRY_INDEX_ASSERT(m_is_value_removed, "value not found");
 
                 // reinsert elements from removed nodes
                 // begin with levels closer to the root
@@ -152,7 +148,7 @@ public:
         if ( m_is_value_removed )
         {
             // calc underflow
-            m_is_underflow = elements.size() < m_min_elems_per_node;
+            m_is_underflow = elements.size() < parameters_type::min_elements;
 
             // n is not root - adjust aabb
             if ( 0 != m_parent )
@@ -196,8 +192,6 @@ private:
                 m_root_node,
                 m_leafs_level,
                 *it,
-                m_min_elems_per_node,
-                m_max_elems_per_node,
                 m_tr,
                 node_relative_level - 1);
 
@@ -207,8 +201,6 @@ private:
 
     Value const& m_value;
     Translator const& m_tr;
-    const size_t m_min_elems_per_node;
-    const size_t m_max_elems_per_node;
 
     node* & m_root_node;
     size_t & m_leafs_level;

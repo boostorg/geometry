@@ -27,17 +27,17 @@ template <typename Value, typename Options, typename Translator, typename Box>
 class remove_elements_to_reinsert
 {
 public:
-    typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+
+	typedef typename Options::parameters_type parameters_type;
 
     template <typename Node>
     static inline void apply(typename rtree::elements_type<Node>::type & result_elements,
 							 Node & n,
 						 	 internal_node *parent,
 							 size_t current_child_index,
-							 size_t min_elems,
-							 size_t max_elems,
 							 Translator const& tr)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
@@ -46,21 +46,22 @@ public:
         // TODO: awulkiew - change second point_type to the point type of the Indexable?
         typedef typename index::default_distance_sqr_result<point_type, point_type>::type distance_sqr_type;
 
-		BOOST_GEOMETRY_INDEX_ASSERT(parent, "node shouldn't be the root node");
+		elements_type & elements = rtree::elements(n);
 
-        const size_t reinserted_elements_count = static_cast<size_t>(max_elems * 0.3f);
-        assert(0 < reinserted_elements_count);
-		BOOST_GEOMETRY_INDEX_ASSERT(0 < reinserted_elements_count, "wrong value of elements to reinsert");
+		const size_t elements_count = parameters_type::max_elements + 1;
+		const size_t reinserted_elements_count = parameters_type::reinserted_elements;
+
+		BOOST_GEOMETRY_INDEX_ASSERT(parent, "node shouldn't be the root node");
+		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected elements number");
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < reinserted_elements_count, "wrong value of elements to reinsert");
 
         // calculate current node's center
         point_type node_center;
         geometry::centroid(rtree::elements(*parent)[current_child_index].first, node_center);
 
         // fill the container of centers' distances of children from current node's center
-        elements_type & elements = rtree::elements(n);
-        size_t elements_count = elements.size();
-        std::vector< std::pair<distance_sqr_type, element_type> > sorted_elements(elements_count);
-        for ( size_t i = 0 ; i < elements_count ; ++i )
+		boost::array<std::pair<distance_sqr_type, element_type>, elements_count> sorted_elements;
+		for ( size_t i = 0 ; i < elements_count ; ++i )
         {
             point_type element_center;
             geometry::centroid( rtree::element_indexable(elements[i], tr),
@@ -109,7 +110,7 @@ template <size_t InsertIndex, typename Element, typename Value, typename Options
 struct level_insert_elements_type
 {
 	typedef typename rtree::elements_type<
-		typename rtree::internal_node<Value, Box, typename Options::node_tag>::type
+		typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type
 	>::type type;
 };
 
@@ -117,7 +118,7 @@ template <typename Value, typename Options, typename Box>
 struct level_insert_elements_type<0, Value, Value, Options, Box>
 {
 	typedef typename rtree::elements_type<
-		typename rtree::leaf<Value, Box, typename Options::node_tag>::type
+		typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type
 	>::type type;
 };
 
@@ -131,15 +132,14 @@ struct level_insert_base
 	typedef typename base::leaf leaf;
 
 	typedef typename level_insert_elements_type<InsertIndex, Element, Value, Options, Box>::type elements_type;
+	typedef typename Options::parameters_type parameters_type;
 
 	inline level_insert_base(node* & root,
 		 					 size_t & leafs_level,
 		 					 Element const& element,
-		 					 size_t min_elements,
-							 size_t max_elements,
 							 Translator const& tr,
 							 size_t relative_level)
-		: base(root, leafs_level, element, min_elements, max_elements, tr, relative_level)
+		: base(root, leafs_level, element, tr, relative_level)
 		, result_relative_level(0)
 	{}
 
@@ -151,7 +151,7 @@ struct level_insert_base
 		result_relative_level = base::m_leafs_level - base::m_current_level;
 
 		// overflow
-		if ( base::m_max_elems_per_node < rtree::elements(n).size() )
+		if ( parameters_type::max_elements < rtree::elements(n).size() )
 		{
 			// node isn't root node
 			if ( base::m_parent )
@@ -159,7 +159,7 @@ struct level_insert_base
 				rstar::remove_elements_to_reinsert<Value, Options, Translator, Box>::apply(
 					result_elements, n,
 					base::m_parent, base::m_current_child_index,
-					base::m_min_elems_per_node, base::m_max_elems_per_node, base::m_tr);
+					base::m_tr);
 			}
 			// node is root node
 			else
@@ -174,7 +174,7 @@ struct level_insert_base
 	inline void handle_possible_split(Node &n) const
 	{
 		// overflow
-		if ( base::m_max_elems_per_node < rtree::elements(n).size() )
+		if ( parameters_type::max_elements < rtree::elements(n).size() )
 		{
 			base::split(n);
 		}
@@ -207,11 +207,9 @@ struct level_insert
     inline level_insert(node* & root,
                         size_t & leafs_level,
                         Element const& element,
-                        size_t min_elements,
-                        size_t max_elements,
                         Translator const& tr,
                         size_t relative_level)
-        : base(root, leafs_level, element, min_elements, max_elements, tr, relative_level)
+        : base(root, leafs_level, element, tr, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -274,11 +272,9 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box>
     inline level_insert(node* & root,
                         size_t & leafs_level,
                         Value const& v,
-                        size_t min_elements,
-                        size_t max_elements,
                         Translator const& t,
                         size_t relative_level)
-        : base(root, leafs_level, v, min_elements, max_elements, t, relative_level)
+        : base(root, leafs_level, v, t, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -322,11 +318,9 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
     inline level_insert(node* & root,
                         size_t & leafs_level,
                         Value const& v,
-                        size_t min_elements,
-                        size_t max_elements,
                         Translator const& t,
                         size_t relative_level)
-        : base(root, leafs_level, v, min_elements, max_elements, t, relative_level)
+        : base(root, leafs_level, v, t, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -360,23 +354,20 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
 // R*-tree insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
 class insert<Element, Value, Options, Translator, Box, reinsert_tag>
-	: public rtree::visitor<Value, Box, typename Options::node_tag, false>::type
+	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
 {
 private:
-	typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
-	typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-	typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
+	typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
+	typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+	typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
 public:
 	inline insert(node* & root,
 				  size_t & leafs_level,
 				  Element const& element,
-				  size_t min_elements,
-				  size_t max_elements,
 				  Translator const& tr,
 				  size_t relative_level = 0)
 		: m_root(root), m_leafs_level(leafs_level), m_element(element)
-		, m_min_elements(min_elements), m_max_elements(max_elements)
 		, m_tr(tr), m_relative_level(relative_level)
 	{}
 
@@ -385,7 +376,7 @@ public:
 		BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root), "current node should be the root");
 		
 		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
-			m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
+			m_root, m_leafs_level, m_element, m_tr, m_relative_level);
 
 		rtree::apply_visitor(lins_v, *m_root);
 
@@ -400,7 +391,7 @@ public:
 		BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<leaf>(m_root), "current node should be the root");
 
 		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
-			m_root, m_leafs_level, m_element, m_min_elements, m_max_elements, m_tr, m_relative_level);
+			m_root, m_leafs_level, m_element, m_tr, m_relative_level);
 
 		rtree::apply_visitor(lins_v, *m_root);
 
@@ -419,7 +410,7 @@ private:
 			it != elements.rend(); ++it)
 		{
 			detail::rstar::level_insert<1, element_type, Value, Options, Translator, Box> lins_v(
-				m_root, m_leafs_level, *it, m_min_elements, m_max_elements, m_tr, relative_level);
+				m_root, m_leafs_level, *it, m_tr, relative_level);
 
 			rtree::apply_visitor(lins_v, *m_root);
 
@@ -436,8 +427,6 @@ private:
 	node* & m_root;
 	size_t & m_leafs_level;
 	Element const& m_element;
-	size_t m_min_elements;
-	size_t m_max_elements;
 	Translator const& m_tr;
 	size_t m_relative_level;
 };

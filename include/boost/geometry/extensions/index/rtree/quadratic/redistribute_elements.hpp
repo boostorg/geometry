@@ -78,9 +78,9 @@ struct pick_seeds
 template <typename Value, typename Options, typename Translator, typename Box>
 struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
 {
-    typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
     typedef typename index::default_area_result<Box>::type area_type;
 

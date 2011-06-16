@@ -30,11 +30,13 @@ namespace detail {
 template <typename Value, typename Options, typename Box>
 class choose_next_node<Value, Options, Box, choose_by_overlap_diff_tag>
 {
-    typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
+
+	typedef typename Options::parameters_type parameters_type;
 
     typedef typename index::default_area_result<Box>::type area_type;
     typedef typename index::default_overlap_result<Box>::type overlap_type;
@@ -47,7 +49,12 @@ public:
         
         // children are leafs
         if ( node_relative_level <= 1 )
-            return choose_by_minimum_overlap_cost(children, indexable);
+		{
+			if ( parameters_type::use_nearly_minimum_cost )
+				return choose_by_nearly_minimum_overlap_cost(children, indexable);
+			else
+				return choose_by_minimum_overlap_cost(children, indexable);
+		}
         // children are internal nodes
         else
             return choose_by_minimum_area_cost(children, indexable);
@@ -110,6 +117,14 @@ private:
 
         return choosen_index;
     }
+
+	template <typename Indexable>
+	static inline size_t choose_by_nearly_minimum_overlap_cost(children_type const& children, Indexable const& indexable)
+	{
+		// TODO - awulkiew: implement this function
+
+		return choose_by_minimum_overlap_cost(children, indexable);
+	}
 
     template <typename Indexable>
     static inline size_t choose_by_minimum_area_cost(children_type const& children, Indexable const& indexable)

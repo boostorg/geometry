@@ -38,7 +38,7 @@ namespace boost { namespace geometry { namespace index {
 
 template <
     typename Value,
-    typename Options = linear_tag,
+    typename Options,
 	typename Translator = translator::def<Value>
 >
 class rtree
@@ -52,9 +52,9 @@ public:
 	typedef typename detail::rtree::options_type<Options>::type options_type;
 	typedef typename options_type::node_tag node_tag;
 
-    typedef typename detail::rtree::node<value_type, box_type, node_tag>::type node;
-    typedef typename detail::rtree::internal_node<value_type, box_type, node_tag>::type internal_node;
-    typedef typename detail::rtree::leaf<value_type, box_type, node_tag>::type leaf;
+    typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, node_tag>::type node;
+    typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, node_tag>::type internal_node;
+    typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, node_tag>::type leaf;
 
     inline explicit rtree(
         size_t max_elems_per_node = 4,
@@ -98,7 +98,7 @@ public:
         // TODO: awulkiew - assert for correct value
 
         detail::rtree::visitors::insert<value_type, value_type, options_type, translator_type, box_type, typename options_type::insert_tag>
-            insert_v(m_root, m_leafs_level, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
+            insert_v(m_root, m_leafs_level, value, m_translator);
 
         detail::rtree::apply_visitor(insert_v, *m_root);
 
@@ -112,7 +112,7 @@ public:
         BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there is no elements in the rtree");
 
         detail::rtree::visitors::remove<value_type, options_type, translator_type, box_type>
-            remove_v(m_root, m_leafs_level, value, m_min_elems_per_node, m_max_elems_per_node, m_translator);
+            remove_v(m_root, m_leafs_level, value, m_translator);
 
         detail::rtree::apply_visitor(remove_v, *m_root);
 

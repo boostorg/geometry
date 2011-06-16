@@ -61,7 +61,7 @@ struct margin_for_each_edge<Box, CurrentDimension, 1>
 template <typename Box>
 struct margin_for_each_edge<Box, 1, 1>
 {
-    static inline typename default_margin_result<Box>::type apply(Box const& b)
+    static inline typename default_margin_result<Box>::type apply(Box const& /*b*/)
     {
         return 1;
     }

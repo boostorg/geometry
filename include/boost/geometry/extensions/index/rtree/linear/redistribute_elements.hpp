@@ -36,7 +36,7 @@ namespace linear {
 
 // from void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
 
-template <typename Elements, typename Translator, size_t DimensionIndex>
+template <typename Elements, typename Parameters, typename Translator, size_t DimensionIndex>
 struct find_greatest_normalized_separation
 {
     typedef typename Elements::value_type element_type;
@@ -49,9 +49,9 @@ struct find_greatest_normalized_separation
                              size_t & seed1,
                              size_t & seed2)
     {
-        size_t elements_count = elements.size();
-
-		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "wrong number of elements");
+		const size_t elements_count = Parameters::max_elements + 1;
+		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected number of elements");
+		BOOST_STATIC_ASSERT(2 <= elements_count);
 
         // find the lowest low, highest high
         coordinate_type lowest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], tr));
@@ -99,7 +99,7 @@ struct find_greatest_normalized_separation
     }
 };
 
-template <typename Elements, typename Translator, size_t DimensionIndex>
+template <typename Elements, typename Parameters, typename Translator, size_t DimensionIndex>
 struct pick_seeds_impl
 {
     BOOST_STATIC_ASSERT(0 < DimensionIndex);
@@ -114,11 +114,11 @@ struct pick_seeds_impl
                              size_t & seed1,
                              size_t & seed2)
     {
-        pick_seeds_impl<Elements, Translator, DimensionIndex - 1>::apply(elements, tr, separation, seed1, seed2);
+        pick_seeds_impl<Elements, Parameters, Translator, DimensionIndex - 1>::apply(elements, tr, separation, seed1, seed2);
 
         coordinate_type current_separation;
         size_t s1, s2;
-        find_greatest_normalized_separation<Elements, Translator, DimensionIndex - 1>::apply(elements, tr, current_separation, s1, s2);
+        find_greatest_normalized_separation<Elements, Parameters, Translator, DimensionIndex - 1>::apply(elements, tr, current_separation, s1, s2);
 
         // in the old implementation different operator was used: <= (y axis prefered)
         if ( separation < current_separation )
@@ -130,8 +130,8 @@ struct pick_seeds_impl
     }
 };
 
-template <typename Elements, typename Translator>
-struct pick_seeds_impl<Elements, Translator, 1>
+template <typename Elements, typename Parameters, typename Translator>
+struct pick_seeds_impl<Elements, Parameters, Translator, 1>
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
@@ -143,13 +143,13 @@ struct pick_seeds_impl<Elements, Translator, 1>
                              size_t & seed1,
                              size_t & seed2)
     {
-        find_greatest_normalized_separation<Elements, Translator, 0>::apply(elements, tr, separation, seed1, seed2);
+        find_greatest_normalized_separation<Elements, Parameters, Translator, 0>::apply(elements, tr, separation, seed1, seed2);
     }
 };
 
 // from void linear_pick_seeds(node_pointer const& n, unsigned int &seed1, unsigned int &seed2) const
 
-template <typename Elements, typename Translator>
+template <typename Elements, typename Parameters, typename Translator>
 struct pick_seeds
 {
     typedef typename Elements::value_type element_type;
@@ -159,12 +159,12 @@ struct pick_seeds
     static const size_t dimension = index::traits::dimension<indexable_type>::value;
 
     static inline void apply(Elements const& elements,
-        Translator const& tr,
-        size_t & seed1,
-        size_t & seed2)
+							 Translator const& tr,
+							 size_t & seed1,
+							 size_t & seed2)
     {
         coordinate_type separation = 0;
-        pick_seeds_impl<Elements, Translator, dimension>::apply(elements, tr, separation, seed1, seed2);
+        pick_seeds_impl<Elements, Parameters, Translator, dimension>::apply(elements, tr, separation, seed1, seed2);
     }
 };
 
@@ -175,17 +175,17 @@ struct pick_seeds
 template <typename Value, typename Options, typename Translator, typename Box>
 struct redistribute_elements<Value, Options, Translator, Box, linear_tag>
 {
-    typedef typename rtree::node<Value, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+
+	typedef typename Options::parameters_type parameters_type;
 
     template <typename Node>
     static inline void apply(Node & n,
                              Node & second_node,
                              Box & box1,
                              Box & box2,
-                             size_t min_elems,
-                             size_t max_elems,
                              Translator const& tr)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
@@ -194,18 +194,24 @@ struct redistribute_elements<Value, Options, Translator, Box, linear_tag>
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
         typedef typename index::default_area_result<Box>::type area_type;
 
-        // copy original elements
-        elements_type elements_copy = rtree::elements(n);
-        size_t elements_count = elements_copy.size();
+		elements_type & elements1 = rtree::elements(n);
+		elements_type & elements2 = rtree::elements(second_node);
+		const size_t elements1_count = parameters_type::max_elements + 1;
+
+		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected number of elements");
+
+		typedef boost::array<element_type, elements1_count> elements_copy_type;
+
+		// copy original elements
+		elements_copy_type elements_copy;
+		std::copy(elements1.begin(), elements1.end(), elements_copy.begin());
 
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        linear::pick_seeds<elements_type, Translator>::apply(elements_copy, tr, seed1, seed2);
+        linear::pick_seeds<elements_copy_type, parameters_type, Translator>::apply(elements_copy, tr, seed1, seed2);
 
         // prepare nodes' elements containers
-        elements_type & elements1 = rtree::elements(n);
-        elements_type & elements2 = rtree::elements(second_node);
         elements1.clear();
         assert(elements2.empty());
 
@@ -221,11 +227,11 @@ struct redistribute_elements<Value, Options, Translator, Box, linear_tag>
         area_type area1 = index::area(box1);
         area_type area2 = index::area(box2);
 
-        assert(2 <= elements_count);
-        size_t remaining = elements_count - 2;
+        BOOST_STATIC_ASSERT(2 <= elements1_count);
+        size_t remaining = elements1_count - 2;
 
         // redistribute the rest of the elements
-        for ( size_t i = 0 ; i < elements_count ; ++i )
+        for ( size_t i = 0 ; i < elements1_count ; ++i )
         {
             if (i != seed1 && i != seed2)
             {
@@ -234,13 +240,13 @@ struct redistribute_elements<Value, Options, Translator, Box, linear_tag>
 
                 // if there is small number of elements left and the number of elements in node is lesser than min_elems
                 // just insert them to this node
-                if ( elements1.size() + remaining <= min_elems )
+                if ( elements1.size() + remaining <= parameters_type::min_elements )
                 {
                     elements1.push_back(elem);
                     geometry::expand(box1, indexable);
                     area1 = index::area(box1);
                 }
-                else if ( elements2.size() + remaining <= min_elems )
+                else if ( elements2.size() + remaining <= parameters_type::min_elements )
                 {
                     elements2.push_back(elem);
                     geometry::expand(box2, indexable);
