@@ -55,21 +55,21 @@ namespace options { namespace detail {
 template <size_t MaxElements>
 struct default_rstar_reinserted_elements
 {
-	static const size_t value = MaxElements * 0.3f;
+	static const size_t value = (MaxElements * 3) / 10;
 };
 
 }} // namespace options::detail
 
 template <size_t MaxElements,
 		  size_t MinElements,
-		  size_t UseNearlyMinimumCost = false,
+		  bool UseNearlyMinimumCost = false,
 		  size_t ReinsertedElements = options::detail::default_rstar_reinserted_elements<MaxElements>::value
 		  >
 struct rstar
 {
 	static const size_t max_elements = MaxElements;
 	static const size_t min_elements = MinElements;
-	static const size_t use_nearly_minimum_cost = UseNearlyMinimumCost;
+	static const bool use_nearly_minimum_cost = UseNearlyMinimumCost;
 	static const size_t reinserted_elements = ReinsertedElements;
 };
 
@@ -93,7 +93,6 @@ template <typename Tag>
 struct options_type
 {
 	// TODO: awulkiew - use static assert
-	typedef void type;
 };
 
 template <typename Parameters, typename InsertTag, typename ChooseNextNodeTag, typename RedistributeTag, typename NodeTag>

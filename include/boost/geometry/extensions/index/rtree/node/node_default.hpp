@@ -156,7 +156,7 @@ inline typename Translator::indexable_type const&
 	element_indexable(Value const& el, Translator const& tr)
 {
 	return tr(el);
-};
+}
 
 template <typename Value, typename Parameters, typename Box, typename Tag, typename Translator>
 inline Box const&
