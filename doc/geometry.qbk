@@ -65,6 +65,7 @@
 All algorithms in Boost.Geometry will check any geometry arguments against the concept requirements.]
 
 
+[def __boost__ Boost]
 [def __boost_geometry__ Boost.Geometry]
 [def __boost_array__ Boost.Array]
 [def __boost_fusion__ Boost.Fusion]
