@@ -62,14 +62,14 @@ struct default_rstar_reinserted_elements
 
 template <size_t MaxElements,
 		  size_t MinElements,
-		  bool UseNearlyMinimumCost = false,
+		  size_t OverlapCostThreshold = 0,
 		  size_t ReinsertedElements = options::detail::default_rstar_reinserted_elements<MaxElements>::value
 		  >
 struct rstar
 {
 	static const size_t max_elements = MaxElements;
 	static const size_t min_elements = MinElements;
-	static const bool use_nearly_minimum_cost = UseNearlyMinimumCost;
+	static const size_t overlap_cost_threshold = OverlapCostThreshold;
 	static const size_t reinserted_elements = ReinsertedElements;
 };
 
@@ -131,11 +131,11 @@ struct options_type< quadratic<MaxElements, MinElements> >
 	> type;
 };
 
-template <size_t MaxElements, size_t MinElements, bool UseNearlyMinimumCost, size_t ReinsertedElements>
-struct options_type< rstar<MaxElements, MinElements, UseNearlyMinimumCost, ReinsertedElements> >
+template <size_t MaxElements, size_t MinElements, size_t OverlapCostThreshold, size_t ReinsertedElements>
+struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements> >
 {
 	typedef options::rtree<
-		rstar<MaxElements, MinElements, UseNearlyMinimumCost, ReinsertedElements>,
+		rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements>,
 		reinsert_tag,
 		choose_by_overlap_diff_tag,
 		rstar_tag,

@@ -30,11 +30,11 @@ int main()
     typedef bg::model::box<P> B;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::linear<32, 8> > RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::quadratic<32, 8> > RT;
-    //typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar<32, 8, true> > RT;
-	typedef bgi::rtree<
+    typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar<32, 8> > RT;
+	/*typedef bgi::rtree<
 		std::pair<B, size_t>,
-		bgi::options::rtree<bgi::linear<32, 8>, bgi::insert_tag, bgi::choose_by_area_diff_tag, bgi::quadratic_tag, bgi::default_static_tag>
-	> RT;
+		bgi::options::rtree<bgi::rstar<32, 8, 0, 10>, bgi::reinsert_tag, bgi::choose_by_area_diff_tag, bgi::rstar_tag, bgi::default_tag>
+	> RT;*/
 
     // load config file
     std::ifstream file_cfg("config.txt");
@@ -93,10 +93,13 @@ int main()
     else
     {
         boost::mt19937 rng;
-        float max_val = static_cast<float>(values_count / 2);
+		//rng.seed(static_cast<unsigned int>(std::time(0)));
+        
+		float max_val = static_cast<float>(values_count / 2);
         boost::uniform_real<float> range(-max_val, max_val);
-        boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > rnd(rng, range);
-
+        
+		boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > rnd(rng, range);
+		
         std::cout << "randomizing data\n";
         for ( size_t i = 0 ; i < values_count ; ++i )
         {
