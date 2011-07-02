@@ -89,7 +89,7 @@ public :
 
         promoted_type const s = dx * dpy - dy * dpx;
 
-        promoted_type zero = promoted_type();
+        promoted_type const zero = promoted_type();
         return math::equals(s, zero) ? 0 
             : s > zero ? 1 
             : -1;
