@@ -218,23 +218,23 @@ void test_all()
         1, 0, 3200.4,
         0.01);
 
+#ifdef _MSC_VER
     // 2011-07-02
     // Interesting FP-precision case.
     // sql server gives: 6.62295817619452E-05
     // PostGIS gives: 0.0 (no output)
     // Boost.Geometry gives results depending on FP-type, and compiler, and operating system.
+    // For double, it is zero (skipped). On gcc/Linux, for float either.
+    // Because we cannot predict this, we only test for MSVC
     test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         if_typed<ct, double>(0, 1), 0, 
             if_typed<ct, double>(0.0, if_typed<ct, float>(0.000383878, 
                         0.0000000000001105367)), 
-        1, 0, 3577.40960816756
-#ifdef _MSC_VER
-        , 0.01
-#else
-        , if_typed<ct, float>(50.0, 0.01)
-#endif
+        1, 0, 3577.40960816756,
+        0.01
         );
+#endif
 
     // Other combi's
     {
