@@ -30,7 +30,8 @@ namespace dispatch
     struct select_rings<multi_polygon_tag, Multi>
     {
         template <typename Geometry, typename Map>
-        static inline void apply(Multi const& multi, Geometry const& geometry, ring_identifier id, Map& map)
+        static inline void apply(Multi const& multi, Geometry const& geometry,
+                    ring_identifier id, Map& map, bool midpoint)
         {
             typedef typename boost::range_iterator
                 <
@@ -43,7 +44,7 @@ namespace dispatch
             for (iterator_type it = boost::begin(multi); it != boost::end(multi); ++it)
             {
                 id.ring_index = -1;
-                per_polygon::apply(*it, geometry, id, map);
+                per_polygon::apply(*it, geometry, id, map, midpoint);
                 id.multi_index++;
             }
         }

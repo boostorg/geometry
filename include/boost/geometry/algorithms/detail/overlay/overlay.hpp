@@ -124,7 +124,7 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
     std::map<ring_identifier, int> empty;
     std::map<ring_identifier, properties> all_of_one_of_them;
 
-    select_rings<Direction>(geometry1, geometry2, empty, all_of_one_of_them);
+    select_rings<Direction>(geometry1, geometry2, empty, all_of_one_of_them, false);
     ring_container_type rings;
     assign_parents(geometry1, geometry2, rings, all_of_one_of_them);
     return add_rings<GeometryOut>(all_of_one_of_them, geometry1, geometry2, rings, out);
@@ -236,7 +236,7 @@ std::cout << "traverse" << std::endl;
         typedef ring_properties<typename geometry::point_type<Geometry1>::type> properties;
 
         std::map<ring_identifier, properties> selected;
-        select_rings<Direction>(geometry1, geometry2, map, selected);
+        select_rings<Direction>(geometry1, geometry2, map, selected, ! turn_points.empty());
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         std::cout << "select_rings: " << timer.elapsed() << std::endl;
@@ -251,7 +251,7 @@ std::cout << "traverse" << std::endl;
                     it != boost::end(rings);
                     ++it)
             {
-                selected[id] = properties(*it);
+                selected[id] = properties(*it, true);
                 selected[id].reversed = ReverseOut;
                 id.multi_index++;
             }
