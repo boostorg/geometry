@@ -23,6 +23,7 @@
 #include <algorithms/test_intersection.hpp>
 #include <algorithms/test_overlay.hpp>
 
+#include <algorithms/overlay/overlay_cases.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
@@ -155,18 +156,33 @@ void test_areal()
         crossed[0], crossed[1],
         3, 0, 1.5);
 
+    typedef typename bg::coordinate_type<Polygon>::type ct;
+
 #ifdef _MSC_VER
-    {
-        // Isovist (submitted by Brandon during Formal Review)
-        std::string tn = string_from_type<typename bg::coordinate_type<Polygon>::type>::name();
-        test_one<Polygon, Polygon, Polygon>("isovist",
-            isovist1[0], isovist1[1],
-            1,
-            tn == std::string("f") ? 19 : tn == std::string("d") ? 22 : 20,
-            88.19203,
-            tn == std::string("f") ? 0.5 : tn == std::string("d") ? 0.1 : 0.01);
-    }
+    // Isovist (submitted by Brandon during Formal Review)
+    test_one<Polygon, Polygon, Polygon>("isovist",
+        isovist1[0], isovist1[1],
+        1,
+        if_typed<ct, float>(19, if_typed<ct, double>(22, 20)),
+        88.19203,
+        if_typed<ct, float>(0.5, if_typed<ct, double>(0.1, 0.01)));
 #endif
+
+    //std::cout << typeid(ct).name() << std::endl;
+
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
+        ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
+        1, if_typed_tt<ct>(5, 4), 
+        0.6649875, 
+        if_typed<ct, float>(1.0, 0.01)); 
+        
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
+        ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
+        1, 4, 0.4, 0.01);
+
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
+        ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
+        1, if_typed_tt<ct>(6, 5), 11151.6618);
 
     return;
 

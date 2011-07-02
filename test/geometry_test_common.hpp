@@ -94,6 +94,24 @@ template <> struct string_from_type<long double>
 #endif
 
 
+template <typename CoordinateType, typename T>
+inline T if_typed_tt(T value_tt, T value)
+{
+#if defined(HAVE_TTMATH)
+    return boost::is_same<CoordinateType, ttmath_big>::value ? value_tt : value;
+#else
+    return value;
+#endif
+}
+
+template <typename CoordinateType, typename Specified, typename T>
+inline T if_typed(T value_typed, T value)
+{
+    return boost::is_same<CoordinateType, Specified>::value ? value_typed : value;
+}
+
+
+
 
 struct geographic_policy
 {

@@ -46,8 +46,7 @@ void test_all()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::ring<P> ring;
 
-    bool const is_float =
-        boost::is_same<typename bg::coordinate_type<P>::type, float>::value;
+    typedef typename bg::coordinate_type<P>::type ct;
 
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
@@ -93,7 +92,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
         2, 0, 8.7048386,
-        is_float ? 1 : 2, // The too small one is discarded for floating point
+        if_typed<ct, float>(1, 2), // The too small one is discarded for floating point
         0, 0.0098387);
 
 
@@ -200,17 +199,42 @@ void test_all()
     ***/
 
 #ifdef _MSC_VER
-    {
-        // Isovist (submitted by Brandon during Formal Review)
-        std::string tn = string_from_type<typename bg::coordinate_type<polygon>::type>::name();
-        test_one<polygon, polygon, polygon>("isovist",
-            isovist1[0], isovist1[1],
-            4, 0, 0.279121891701124,
-            4, 0, 224.889211358929,
-            0.01);
-    }
-#endif
+    // Isovist (submitted by Brandon during Formal Review)
+    test_one<polygon, polygon, polygon>("isovist",
+        isovist1[0], isovist1[1],
+        4, 0, 0.279121891701124,
+        4, 0, 224.889211358929,
+        0.01);
 
+    test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
+        ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
+        1, 0, 71495.3331,
+        2, 0, 8960.49049); 
+#endif
+        
+    test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
+        ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
+        1, 0, 16815.6,
+        1, 0, 3200.4,
+        0.01);
+
+    // 2011-07-02
+    // Interesting FP-precision case.
+    // sql server gives: 6.62295817619452E-05
+    // PostGIS gives: 0.0 (no output)
+    // Boost.Geometry gives results depending on FP-type, and compiler, and operating system.
+    test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
+        ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
+        if_typed<ct, double>(0, 1), 0, 
+            if_typed<ct, double>(0.0, if_typed<ct, float>(0.000383878, 
+                        0.0000000000001105367)), 
+        1, 0, 3577.40960816756
+#ifdef _MSC_VER
+        , 0.01
+#else
+        , if_typed<ct, float>(50.0, 0.01)
+#endif
+        );
 
     // Other combi's
     {
