@@ -14,7 +14,7 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
-#include <boost/geometry/algorithms/detail/overlay/within_util.hpp>
+#include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 
@@ -46,15 +46,15 @@ static inline bool within_selected_input(Item const& item2, ring_identifier cons
     switch (ring_id.source_index)
     {
         case 0 :
-            code = point_in_ring(item2.point,
+            code = within_code(item2.point,
                 get_ring<tag1>::apply(ring_id, geometry1));
             break;
         case 1 :
-            code = point_in_ring(item2.point,
+            code = within_code(item2.point,
                 get_ring<tag2>::apply(ring_id, geometry2));
             break;
         case 2 :
-            code = point_in_ring(item2.point,
+            code = within_code(item2.point,
                 get_ring<void>::apply(ring_id, collection));
             break;
     }
