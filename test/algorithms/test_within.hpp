@@ -41,6 +41,25 @@ void test_geometry(std::string const& wkt1,
         << " detected: " << detected);
 }
 
+template <typename Geometry1, typename Geometry2>
+void test_within_code(std::string const& wkt1,
+        std::string const& wkt2, int expected)
+{
+    Geometry1 geometry1;
+    Geometry2 geometry2;
+
+    bg::read_wkt(wkt1, geometry1);
+    bg::read_wkt(wkt2, geometry2);
+
+    int detected = bg::detail::within_code(geometry1, geometry2);
+
+    BOOST_CHECK_MESSAGE(detected == expected,
+        "within_code: " << wkt1
+        << " in " << wkt2
+        << " -> Expected: " << expected
+        << " detected: " << detected);
+}
+
 
 template <typename Point, bool Clockwise, bool Closed>
 void test_ordered_ring(std::string const& wkt_point,

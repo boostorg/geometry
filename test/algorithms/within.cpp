@@ -41,6 +41,19 @@ void test_all()
     test_geometry<box_type, box_type>("BOX(1 1,2 2)", "BOX(0 0,3 3)", true);
     test_geometry<box_type, box_type>("BOX(0 0,3 3)", "BOX(1 1,2 2)", false);
 
+    test_within_code<P, box_type>("POINT(1 1)", "BOX(0 0,2 2)", 1);
+    test_within_code<P, box_type>("POINT(1 0)", "BOX(0 0,2 2)", 0);
+    test_within_code<P, box_type>("POINT(0 1)", "BOX(0 0,2 2)", 0);
+    test_within_code<P, box_type>("POINT(0 3)", "BOX(0 0,2 2)", -1);
+    test_within_code<P, box_type>("POINT(3 3)", "BOX(0 0,2 2)", -1);
+
+    test_within_code<box_type, box_type>("BOX(1 1,2 2)", "BOX(0 0,3 3)", 1);
+    test_within_code<box_type, box_type>("BOX(0 1,2 2)", "BOX(0 0,3 3)", 0);
+    test_within_code<box_type, box_type>("BOX(1 0,2 2)", "BOX(0 0,3 3)", 0);
+    test_within_code<box_type, box_type>("BOX(1 1,2 3)", "BOX(0 0,3 3)", 0);
+    test_within_code<box_type, box_type>("BOX(1 1,3 2)", "BOX(0 0,3 3)", 0);
+    test_within_code<box_type, box_type>("BOX(1 1,3 4)", "BOX(0 0,3 3)", -1);
+
 
     // Mixed point types
     test_geometry
