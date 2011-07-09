@@ -44,7 +44,7 @@ class check
     BOOST_CONCEPT_ASSERT((Concept ));
 };
 
-}} // namespace detail::check
+}} // namespace detail::concept_check
 #endif // DOXYGEN_NO_DETAIL
 
 
