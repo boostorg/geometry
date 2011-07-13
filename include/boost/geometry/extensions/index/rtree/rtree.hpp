@@ -17,6 +17,7 @@
 #include <boost/geometry/geometry.hpp>
 
 #include <boost/geometry/extensions/index/assert.hpp>
+#include <boost/geometry/extensions/index/nonassignable.hpp>
 
 #include <boost/geometry/extensions/index/translator/translator.hpp>
 
@@ -36,7 +37,7 @@
 
 namespace boost { namespace geometry { namespace index {
 
-// TODO: awulkiew - min and max elems as template parameters?
+// TODO copying
 
 template <
     typename Value,
@@ -44,6 +45,7 @@ template <
 	typename Translator = translator::def<Value>
 >
 class rtree
+	: public boost::noncopyable
 {
 public:
     typedef Value value_type;

@@ -83,7 +83,9 @@ struct redistribute_elements;
 
 // Default insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
-class insert : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+class insert
+	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+	, index::nonassignable
 {
 protected:
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;

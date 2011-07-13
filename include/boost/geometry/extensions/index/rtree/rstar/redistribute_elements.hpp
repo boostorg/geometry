@@ -10,13 +10,11 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RSTAR_REDISTRIBUTE_ELEMENTS_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RSTAR_REDISTRIBUTE_ELEMENTS_HPP
 
-#include <algorithm>
+#include <boost/geometry/extensions/index/nonassignable.hpp>
 
 #include <boost/geometry/extensions/index/algorithms/intersection_content.hpp>
 #include <boost/geometry/extensions/index/algorithms/union_content.hpp>
 #include <boost/geometry/extensions/index/algorithms/margin.hpp>
-
-#include <boost/geometry/algorithms/intersection.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
@@ -32,6 +30,7 @@ namespace rstar {
 
 template <typename Element, typename Translator, size_t Corner, size_t AxisIndex>
 class element_axis_corner_less
+	: index::nonassignable
 {	
 public:
 	element_axis_corner_less(Translator const& tr)
