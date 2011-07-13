@@ -12,8 +12,8 @@
 
 #include <algorithm>
 
-#include <boost/geometry/extensions/index/algorithms/intersection_area.hpp>
-#include <boost/geometry/extensions/index/algorithms/union_area.hpp>
+#include <boost/geometry/extensions/index/algorithms/intersection_content.hpp>
+#include <boost/geometry/extensions/index/algorithms/union_content.hpp>
 #include <boost/geometry/extensions/index/algorithms/margin.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
@@ -52,14 +52,14 @@ template <typename Parameters, typename Box, size_t Corner, size_t AxisIndex>
 struct choose_split_axis_and_index_for_corner
 {
 	typedef typename index::default_margin_result<Box>::type margin_type;
-	typedef typename index::default_area_result<Box>::type area_type;
+	typedef typename index::default_content_result<Box>::type content_type;
 
 	template <typename Elements, typename Translator>
 	static inline void apply(Elements const& elements,
 						     size_t & choosen_index,
 							 margin_type & sum_of_margins,
-							 area_type & smallest_overlap,
-							 area_type & smallest_area,
+							 content_type & smallest_overlap,
+							 content_type & smallest_content,
 							 Translator const& tr)
 	{
 		typedef typename Elements::value_type element_type;
@@ -77,8 +77,8 @@ struct choose_split_axis_and_index_for_corner
 		// init outputs
 		choosen_index = Parameters::min_elements;
 		sum_of_margins = 0;
-		smallest_overlap = std::numeric_limits<area_type>::max();
-		smallest_area = std::numeric_limits<area_type>::max();
+		smallest_overlap = std::numeric_limits<content_type>::max();
+		smallest_content = std::numeric_limits<content_type>::max();
 
 		// calculate sum of margins for all distributions
 		size_t index_last = Parameters::max_elements - Parameters::min_elements + 2;
@@ -92,14 +92,14 @@ struct choose_split_axis_and_index_for_corner
 			
 			sum_of_margins += index::margin(box1) + index::margin(box2);
 
-			area_type ovl = index::intersection_area(box1, box2);
-			area_type ar = index::area(box1) + index::area(box2);
+			content_type ovl = index::intersection_content(box1, box2);
+			content_type con = index::content(box1) + index::content(box2);
 
-			if ( ovl < smallest_overlap || (ovl == smallest_overlap && ar <= smallest_area) )
+			if ( ovl < smallest_overlap || (ovl == smallest_overlap && con <= smallest_content) )
 			{
 				choosen_index = i;
 				smallest_overlap = ovl;
-				smallest_area = ar;
+				smallest_content = con;
 			}				
 		}
 	}
@@ -115,52 +115,52 @@ template <typename Parameters, typename Box, size_t AxisIndex>
 struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
 {
 	typedef typename index::default_margin_result<Box>::type margin_type;
-	typedef typename index::default_area_result<Box>::type area_type;
+	typedef typename index::default_content_result<Box>::type content_type;
 
 	template <typename Elements, typename Translator>
 	static inline void apply(Elements const& elements,
 							 size_t & choosen_corner,
 							 size_t & choosen_index,
 							 margin_type & sum_of_margins,
-							 area_type & smallest_overlap,
-							 area_type & smallest_area,
+							 content_type & smallest_overlap,
+							 content_type & smallest_content,
 							 Translator const& tr)
 	{
 		size_t index1 = 0;
 		margin_type som1 = 0;
-		area_type ovl1 = std::numeric_limits<area_type>::max();
-		area_type ar1 = std::numeric_limits<area_type>::max();
+		content_type ovl1 = std::numeric_limits<content_type>::max();
+		content_type con1 = std::numeric_limits<content_type>::max();
 
 		choose_split_axis_and_index_for_corner<Parameters, Box, min_corner, AxisIndex>::
 			apply(elements, index1,
-				  som1, ovl1, ar1,
+				  som1, ovl1, con1,
 				  tr);
 
 		size_t index2 = 0;
 		margin_type som2 = 0;
-		area_type ovl2 = std::numeric_limits<area_type>::max();
-		area_type ar2 = std::numeric_limits<area_type>::max();
+		content_type ovl2 = std::numeric_limits<content_type>::max();
+		content_type con2 = std::numeric_limits<content_type>::max();
 
 		choose_split_axis_and_index_for_corner<Parameters, Box, max_corner, AxisIndex>::
 			apply(elements, index2,
-				  som2, ovl2, ar2,
+				  som2, ovl2, con2,
 				  tr);
 
 		sum_of_margins = som1 + som2;
 
-		if ( ovl1 < ovl2 || (ovl1 == ovl2 && ar1 <= ar2) )
+		if ( ovl1 < ovl2 || (ovl1 == ovl2 && con1 <= con2) )
 		{
 			choosen_corner = min_corner;
 			choosen_index = index1;
 			smallest_overlap = ovl1;
-			smallest_area = ar1;
+			smallest_content = con1;
 		}
 		else
 		{
 			choosen_corner = max_corner;
 			choosen_index = index2;
 			smallest_overlap = ovl2;
-			smallest_area = ar2;
+			smallest_content = con2;
 		}
 	}
 };
@@ -169,20 +169,20 @@ template <typename Parameters, typename Box, size_t AxisIndex>
 struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, point_tag>
 {
 	typedef typename index::default_margin_result<Box>::type margin_type;
-	typedef typename index::default_area_result<Box>::type area_type;
+	typedef typename index::default_content_result<Box>::type content_type;
 
 	template <typename Elements, typename Translator>
 	static inline void apply(Elements const& elements,
 							 size_t & choosen_corner,
 							 size_t & choosen_index,
 							 margin_type & sum_of_margins,
-							 area_type & smallest_overlap,
-							 area_type & smallest_area,
+							 content_type & smallest_overlap,
+							 content_type & smallest_content,
 							 Translator const& tr)
 	{
 		choose_split_axis_and_index_for_corner<Parameters, Box, min_corner, AxisIndex>::
 			apply(elements, choosen_index,
-				  sum_of_margins, smallest_overlap, smallest_area,
+				  sum_of_margins, smallest_overlap, smallest_content,
 				  tr);
 
 		choosen_corner = min_corner;
@@ -195,7 +195,7 @@ struct choose_split_axis_and_index
 	BOOST_STATIC_ASSERT(0 < Dimension);
 
 	typedef typename index::default_margin_result<Box>::type margin_type;
-	typedef typename index::default_area_result<Box>::type area_type;
+	typedef typename index::default_content_result<Box>::type content_type;
 
 	template <typename Elements, typename Translator>
 	static inline void apply(Elements const& elements,
@@ -203,15 +203,15 @@ struct choose_split_axis_and_index
 							 size_t & choosen_corner,
 							 size_t & choosen_index,
 							 margin_type & smallest_sum_of_margins,
-							 area_type & smallest_overlap,
-							 area_type & smallest_area,
+							 content_type & smallest_overlap,
+							 content_type & smallest_content,
 							 Translator const& tr)
 	{
 		typedef typename rtree::element_indexable_type<typename Elements::value_type, Translator>::type element_indexable_type;
 
 		choose_split_axis_and_index<Parameters, Box, Dimension - 1>::
 			apply(elements, choosen_axis, choosen_corner, choosen_index,
-				  smallest_sum_of_margins, smallest_overlap, smallest_area,
+				  smallest_sum_of_margins, smallest_overlap, smallest_content,
 				  tr);
 
 		margin_type sum_of_margins = 0;
@@ -219,15 +219,15 @@ struct choose_split_axis_and_index
 		size_t corner = min_corner;
 		size_t index = 0;
 
-		area_type overlap_val = std::numeric_limits<area_type>::max();
-		area_type area_val = std::numeric_limits<area_type>::max();
+		content_type overlap_val = std::numeric_limits<content_type>::max();
+		content_type content_val = std::numeric_limits<content_type>::max();
 
 		choose_split_axis_and_index_for_axis<
 			Parameters,
 			Box,
 			Dimension - 1,
 			typename index::traits::tag<element_indexable_type>::type
-		>::apply(elements, corner, index, sum_of_margins, overlap_val, area_val, tr);
+		>::apply(elements, corner, index, sum_of_margins, overlap_val, content_val, tr);
 
 		if ( sum_of_margins < smallest_sum_of_margins )
 		{
@@ -236,7 +236,7 @@ struct choose_split_axis_and_index
 			choosen_index = index;
 			smallest_sum_of_margins = sum_of_margins;
 			smallest_overlap = overlap_val;
-			smallest_area = area_val;
+			smallest_content = content_val;
 		}
 	}
 };
@@ -245,7 +245,7 @@ template <typename Parameters, typename Box>
 struct choose_split_axis_and_index<Parameters, Box, 1>
 {
 	typedef typename index::default_margin_result<Box>::type margin_type;
-	typedef typename index::default_area_result<Box>::type area_type;
+	typedef typename index::default_content_result<Box>::type content_type;
 
 	template <typename Elements, typename Translator>
 	static inline void apply(Elements const& elements,
@@ -253,8 +253,8 @@ struct choose_split_axis_and_index<Parameters, Box, 1>
 							 size_t & choosen_corner,
 							 size_t & choosen_index,
 							 margin_type & smallest_sum_of_margins,
-							 area_type & smallest_overlap,
-							 area_type & smallest_area,
+							 content_type & smallest_overlap,
+							 content_type & smallest_content,
 							 Translator const& tr)
 	{
 		typedef typename rtree::element_indexable_type<typename Elements::value_type, Translator>::type element_indexable_type;
@@ -266,7 +266,7 @@ struct choose_split_axis_and_index<Parameters, Box, 1>
 			Box,
 			0,
 			typename index::traits::tag<element_indexable_type>::type
-		>::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins, smallest_overlap, smallest_area, tr);
+		>::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins, smallest_overlap, smallest_content, tr);
 	}
 };
 
@@ -321,7 +321,7 @@ struct redistribute_elements<Value, Options, Translator, Box, rstar_tag>
 	static const size_t dimension = index::traits::dimension<Box>::value;
 
 	typedef typename index::default_margin_result<Box>::type margin_type;
-    typedef typename index::default_area_result<Box>::type area_type;
+    typedef typename index::default_content_result<Box>::type content_type;
 
     template <typename Node>
     static inline void apply(
@@ -340,13 +340,13 @@ struct redistribute_elements<Value, Options, Translator, Box, rstar_tag>
 		size_t split_corner = 0;
 		size_t split_index = parameters_type::min_elements;
 		margin_type smallest_sum_of_margins = std::numeric_limits<margin_type>::max();
-		area_type smallest_overlap = std::numeric_limits<area_type>::max();
-		area_type smallest_area = std::numeric_limits<area_type>::max();
+		content_type smallest_overlap = std::numeric_limits<content_type>::max();
+		content_type smallest_content = std::numeric_limits<content_type>::max();
 
 		rstar::choose_split_axis_and_index<typename Options::parameters_type, Box, index::traits::dimension<Box>::value>::
 			apply(elements1,
 				  split_axis, split_corner, split_index,
-				  smallest_sum_of_margins, smallest_overlap, smallest_area,
+				  smallest_sum_of_margins, smallest_overlap, smallest_content,
 				  tr);
 
 		// TODO: awulkiew - get rid of following static_casts?

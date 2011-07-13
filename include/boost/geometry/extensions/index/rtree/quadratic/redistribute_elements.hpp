@@ -12,8 +12,8 @@
 
 #include <algorithm>
 
-#include <boost/geometry/extensions/index/algorithms/area.hpp>
-#include <boost/geometry/extensions/index/algorithms/union_area.hpp>
+#include <boost/geometry/extensions/index/algorithms/content.hpp>
+#include <boost/geometry/extensions/index/algorithms/union_content.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
@@ -34,7 +34,7 @@ struct pick_seeds
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
     typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
     typedef Box box_type;
-    typedef typename index::default_area_result<box_type>::type area_type;
+    typedef typename index::default_content_result<box_type>::type content_type;
 
     static inline void apply(Elements const& elements,
                              Translator const& tr,
@@ -45,7 +45,7 @@ struct pick_seeds
 		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "wrong number of elements");
 		BOOST_STATIC_ASSERT(2 <= elements_count);
 
-        area_type greatest_free_area = 0;
+        content_type greatest_free_content = 0;
         seed1 = 0;
         seed2 = 1;
 
@@ -60,11 +60,11 @@ struct pick_seeds
                 geometry::convert(ind1, enlarged_box);
                 geometry::expand(enlarged_box, ind2);
 
-                area_type free_area = index::area(enlarged_box) - index::area(ind1) - index::area(ind2);
+                content_type free_content = (index::content(enlarged_box) - index::content(ind1)) - index::content(ind2);
                 
-                if ( greatest_free_area < free_area )
+                if ( greatest_free_content < free_content )
                 {
-                    greatest_free_area = free_area;
+                    greatest_free_content = free_content;
                     seed1 = i;
                     seed2 = j;
                 }
@@ -84,7 +84,7 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
     typedef typename rtree::internal_node<Value, parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, typename Options::node_tag>::type leaf;
 
-    typedef typename index::default_area_result<Box>::type area_type;
+    typedef typename index::default_content_result<Box>::type content_type;
 
     template <typename Node>
     static inline void apply(Node & n,
@@ -140,8 +140,8 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
         }
 
         // initialize areas
-        area_type area1 = index::area(box1);
-        area_type area2 = index::area(box2);
+        content_type content1 = index::content(box1);
+        content_type content2 = index::content(box2);
 
         size_t remaining = elements_copy.size();
 
@@ -168,15 +168,15 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
             else
             {
                 // find element with minimum groups areas increses differences
-                area_type area_increase1 = 0;
-                area_type area_increase2 = 0;
+                content_type content_increase1 = 0;
+                content_type content_increase2 = 0;
                 el_it = pick_next(elements_copy.rbegin(), elements_copy.rend(),
-                                  box1, box2, area1, area2, tr,
-                                  area_increase1, area_increase2);
+                                  box1, box2, content1, content2, tr,
+                                  content_increase1, content_increase2);
 
-                if ( area_increase1 < area_increase2 ||
-                     ( area_increase1 == area_increase2 && area1 < area2 ) ||
-                     ( area1 == area2 && elements1_count <= elements2_count ) )
+                if ( content_increase1 < content_increase2 ||
+                     ( content_increase1 == content_increase2 && content1 < content2 ) ||
+                     ( content1 == content2 && elements1_count <= elements2_count ) )
                 {
                     insert_into_group1 = true;
                 }
@@ -194,13 +194,13 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
             {
                 elements1.push_back(elem);
                 geometry::expand(box1, indexable);
-                area1 = index::area(box1);
+                content1 = index::content(box1);
             }
             else
             {
                 elements2.push_back(elem);
                 geometry::expand(box2, indexable);
-                area2 = index::area(box2);
+                content2 = index::content(box2);
             }
 
 			BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
@@ -217,17 +217,17 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
     template <typename It>
     static inline It pick_next(It first, It last,
                                Box const& box1, Box const& box2,
-                               area_type const& area1, area_type const& area2,
+                               content_type const& content1, content_type const& content2,
                                Translator const& tr,
-                               area_type & out_area_increase1, area_type & out_area_increase2)
+                               content_type & out_content_increase1, content_type & out_content_increase2)
     {
         typedef typename boost::iterator_value<It>::type element_type;
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
 
-        area_type greatest_area_incrase_diff = 0;
+        content_type greatest_content_incrase_diff = 0;
         It out_it = first;
-        out_area_increase1 = 0;
-        out_area_increase2 = 0;
+        out_content_increase1 = 0;
+        out_content_increase2 = 0;
         
         // find element with greatest difference between increased group's boxes areas
         for ( It el_it = first ; el_it != last ; ++el_it )
@@ -239,21 +239,21 @@ struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
             Box enlarged_box2(box2);
             geometry::expand(enlarged_box1, indexable);
             geometry::expand(enlarged_box2, indexable);
-            area_type enlarged_area1 = index::area(enlarged_box1);
-            area_type enlarged_area2 = index::area(enlarged_box2);
+            content_type enlarged_content1 = index::content(enlarged_box1);
+            content_type enlarged_content2 = index::content(enlarged_box2);
 
-            area_type area_incrase1 = (enlarged_area1 - area1);
-            area_type area_incrase2 = (enlarged_area2 - area2);
+            content_type content_incrase1 = (enlarged_content1 - content1);
+            content_type content_incrase2 = (enlarged_content2 - content2);
 
-            area_type area_incrase_diff = area_incrase1 < area_incrase2 ?
-                area_incrase2 - area_incrase1 : area_incrase1 - area_incrase2;
+            content_type content_incrase_diff = content_incrase1 < content_incrase2 ?
+                content_incrase2 - content_incrase1 : content_incrase1 - content_incrase2;
 
-            if ( greatest_area_incrase_diff < area_incrase_diff )
+            if ( greatest_content_incrase_diff < content_incrase_diff )
             {
-                greatest_area_incrase_diff = area_incrase_diff;
+                greatest_content_incrase_diff = content_incrase_diff;
                 out_it = el_it;
-                out_area_increase1 = area_incrase1;
-                out_area_increase2 = area_incrase2;
+                out_content_increase1 = content_incrase1;
+                out_content_increase2 = content_incrase2;
             }
         }
 

@@ -58,7 +58,7 @@ public:
         size_t child_node_index = 0;
         for ( ; child_node_index < children.size() ; ++child_node_index )
         {
-            if ( index::within(children[child_node_index].first, m_tr(m_value)) )
+            if ( index::within(m_tr(m_value), children[child_node_index].first) )
             {
                 // next traversing step
                 traverse_apply_visitor(n, child_node_index);

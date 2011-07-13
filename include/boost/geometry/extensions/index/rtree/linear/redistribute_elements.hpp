@@ -11,12 +11,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 
-#include <algorithm>
-
-#include <boost/tuple/tuple.hpp>
-
-#include <boost/geometry/extensions/index/algorithms/area.hpp>
-#include <boost/geometry/extensions/index/algorithms/union_area.hpp>
+#include <boost/geometry/extensions/index/algorithms/content.hpp>
+#include <boost/geometry/extensions/index/algorithms/union_content.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
@@ -192,7 +188,7 @@ struct redistribute_elements<Value, Options, Translator, Box, linear_tag>
         typedef typename elements_type::value_type element_type;
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
-        typedef typename index::default_area_result<Box>::type area_type;
+        typedef typename index::default_content_result<Box>::type content_type;
 
 		elements_type & elements1 = rtree::elements(n);
 		elements_type & elements2 = rtree::elements(second_node);
@@ -224,8 +220,8 @@ struct redistribute_elements<Value, Options, Translator, Box, linear_tag>
         geometry::convert(rtree::element_indexable(elements_copy[seed2], tr), box2);
 
         // initialize areas
-        area_type area1 = index::area(box1);
-        area_type area2 = index::area(box2);
+        content_type content1 = index::content(box1);
+        content_type content2 = index::content(box2);
 
         BOOST_STATIC_ASSERT(2 <= elements1_count);
         size_t remaining = elements1_count - 2;
@@ -244,13 +240,13 @@ struct redistribute_elements<Value, Options, Translator, Box, linear_tag>
                 {
                     elements1.push_back(elem);
                     geometry::expand(box1, indexable);
-                    area1 = index::area(box1);
+                    content1 = index::content(box1);
                 }
                 else if ( elements2.size() + remaining <= parameters_type::min_elements )
                 {
                     elements2.push_back(elem);
                     geometry::expand(box2, indexable);
-                    area2 = index::area(box2);
+                    content2 = index::content(box2);
                 }
                 // choose better node and insert element
                 else
@@ -260,26 +256,26 @@ struct redistribute_elements<Value, Options, Translator, Box, linear_tag>
                     Box enlarged_box2(box2);
                     geometry::expand(enlarged_box1, indexable);
                     geometry::expand(enlarged_box2, indexable);
-                    area_type enlarged_area1 = index::area(enlarged_box1);
-                    area_type enlarged_area2 = index::area(enlarged_box2);
+                    content_type enlarged_content1 = index::content(enlarged_box1);
+                    content_type enlarged_content2 = index::content(enlarged_box2);
 
-                    area_type area_increase1 = enlarged_area1 - area1;
-                    area_type area_increase2 = enlarged_area2 - area2;
+                    content_type content_increase1 = enlarged_content1 - content1;
+                    content_type content_increase2 = enlarged_content2 - content2;
 
-                    // choose group which box area have to be enlarged least or has smaller area or has fewer elements
-                    if ( area_increase1 < area_increase2 ||
-                         ( area_increase1 == area_increase2 && area1 < area2 ) ||
-                         ( area1 == area2 && elements1.size() <= elements2.size() ) )
+                    // choose group which box content have to be enlarged least or has smaller content or has fewer elements
+                    if ( content_increase1 < content_increase2 ||
+                         ( content_increase1 == content_increase2 && content1 < content2 ) ||
+                         ( content1 == content2 && elements1.size() <= elements2.size() ) )
                     {
                         elements1.push_back(elem);
                         box1 = enlarged_box1;
-                        area1 = enlarged_area1;
+                        content1 = enlarged_content1;
                     }
                     else
                     {
                         elements2.push_back(elem);
                         box2 = enlarged_box2;
-                        area2 = enlarged_area2;
+                        content2 = enlarged_content2;
                     }
                 }
                 

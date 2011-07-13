@@ -17,7 +17,7 @@ struct insert_tag {};
 struct reinsert_tag {};
 
 // ChooseNextNodeTag
-struct choose_by_area_diff_tag {};
+struct choose_by_content_diff_tag {};
 struct choose_by_overlap_diff_tag {};
 
 // RedistributeTag
@@ -113,7 +113,7 @@ struct options_type< linear<MaxElements, MinElements> >
 	typedef options::rtree<
 		linear<MaxElements, MinElements>,
 		insert_tag,
-		choose_by_area_diff_tag,
+		choose_by_content_diff_tag,
 		linear_tag,
 		default_tag
 	> type;
@@ -125,7 +125,7 @@ struct options_type< quadratic<MaxElements, MinElements> >
 	typedef options::rtree<
 		quadratic<MaxElements, MinElements>,
 		insert_tag,
-		choose_by_area_diff_tag,
+		choose_by_content_diff_tag,
 		quadratic_tag,
 		default_tag
 	> type;

@@ -10,10 +10,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RSTAR_INSERT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RSTAR_INSERT_HPP
 
-#include <boost/geometry/algorithms/centroid.hpp>
-
-#include <boost/geometry/extensions/index/algorithms/area.hpp>
-#include <boost/geometry/extensions/index/algorithms/distance_sqr.hpp>
+#include <boost/geometry/extensions/index/algorithms/content.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -44,7 +41,7 @@ public:
         typedef typename elements_type::value_type element_type;
         typedef typename geometry::point_type<Box>::type point_type;
         // TODO: awulkiew - change second point_type to the point type of the Indexable?
-        typedef typename index::default_distance_sqr_result<point_type, point_type>::type distance_sqr_type;
+        typedef typename geometry::default_distance_result<point_type>::type distance_type;
 
 		elements_type & elements = rtree::elements(n);
 
@@ -60,13 +57,13 @@ public:
         geometry::centroid(rtree::elements(*parent)[current_child_index].first, node_center);
 
         // fill the container of centers' distances of children from current node's center
-		boost::array<std::pair<distance_sqr_type, element_type>, elements_count> sorted_elements;
+		boost::array<std::pair<distance_type, element_type>, elements_count> sorted_elements;
 		for ( size_t i = 0 ; i < elements_count ; ++i )
         {
             point_type element_center;
             geometry::centroid( rtree::element_indexable(elements[i], tr),
                 element_center);
-            sorted_elements[i].first = index::distance_sqr(node_center, element_center);
+            sorted_elements[i].first = geometry::comparable_distance(node_center, element_center);
             sorted_elements[i].second = elements[i];
         }
 
@@ -75,7 +72,7 @@ public:
             sorted_elements.begin(),
             sorted_elements.begin() + reinserted_elements_count,
             sorted_elements.end(),
-            distances_dsc<distance_sqr_type, element_type>);
+            distances_dsc<distance_type, element_type>);
 
         // copy elements which will be reinserted
         result_elements.resize(reinserted_elements_count);

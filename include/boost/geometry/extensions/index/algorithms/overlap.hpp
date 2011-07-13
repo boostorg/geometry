@@ -11,7 +11,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_OVERLAP_HPP
 
 #include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/extensions/index/algorithms/area.hpp>
+#include <boost/geometry/extensions/index/algorithms/content.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -27,7 +27,7 @@ typename default_overlap_result<Box>::type overlap(Box const& b1, Box const& b2)
     Box inters;
     geometry::assign_zero(inters);
     geometry::intersection(b1, b2, inters);
-    return index::area(inters);
+    return index::content(inters);
 }
 
 }}} // namespace boost::geometry::index

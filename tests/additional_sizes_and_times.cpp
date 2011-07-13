@@ -26,7 +26,8 @@ int main()
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
 
-    typedef bg::model::point<float, 2, bg::cs::cartesian> P;
+	//typedef bg::model::d2::point_xy<double> P;
+    typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::linear<32, 8> > RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::quadratic<32, 8> > RT;
@@ -120,25 +121,6 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
-
-            //if ( 341700 <= i )
-            //    std::cout << i << "\n";
-
-            // Czy mozliwe, ze w czasie powtornego reinserta
-            // nagle drzewo sie powieksza o jeden poziom?
-            // Tak, drzewo sie rozrasta, powinno sie wstawiac w poziomie liczac od lisci
-            // TODO: relative_level zamiast level
-
-            // TODO: asserty w operator(leaf)
-            // current_level == leaf_level
-
-            // Swoja droga to dziwne ze przy drzewie 4,2 
-            // dzieje sie to samo dopiero dla obiektow o indeksie 300k a nie wczesniej
-            // Dlaczego?
-            // Przy 32 obiektach powtornie wstawianych jest 9 a przy 4 tylko 1
-
-			// TODO: Zrobic kolejnego visitora sprawdzajacego czy odpowiednie wezly zostaly wstawione w dobrym miejscu
-			// Np sprawdzajacego czy wszystkie liscie sa na tym samym poziomie
 
             t.insert(std::make_pair(b, i));
         }

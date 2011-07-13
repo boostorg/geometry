@@ -10,8 +10,6 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_FIND_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_FIND_HPP
 
-#include <boost/geometry/algorithms/intersects.hpp>
-
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
 //#include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>

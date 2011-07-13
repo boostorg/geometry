@@ -24,9 +24,9 @@ template <size_t DimensionIndex, typename Indexable>
 struct within_compare<min_corner, DimensionIndex, Indexable, box_tag>
 {
     template <typename Box>
-    static inline bool apply(Box const& b1, Indexable const& b2)
+    static inline bool apply(Indexable const& b1, Box const& b2)
     {
-        return index::get<min_corner, DimensionIndex>(b1) <= index::get<min_corner, DimensionIndex>(b2);
+        return index::get<min_corner, DimensionIndex>(b2) <= index::get<min_corner, DimensionIndex>(b1);
     }
 };
 
@@ -34,9 +34,9 @@ template <size_t DimensionIndex, typename Indexable>
 struct within_compare<max_corner, DimensionIndex, Indexable, box_tag>
 {
     template <typename Box>
-    static inline bool apply(Box const& b1, Indexable const& b2)
+    static inline bool apply(Indexable const& b1, Box const& b2)
     {
-        return index::get<max_corner, DimensionIndex>(b2) <= index::get<max_corner, DimensionIndex>(b1);
+        return index::get<max_corner, DimensionIndex>(b1) <= index::get<max_corner, DimensionIndex>(b2);
     }
 };
 
@@ -44,7 +44,7 @@ template <size_t DimensionIndex, typename Indexable>
 struct within_compare<min_corner, DimensionIndex, Indexable, point_tag>
 {
     template <typename Box>
-    static inline bool apply(Box const& b, Indexable const& p)
+    static inline bool apply(Indexable const& p, Box const& b)
     {
         return index::get<min_corner, DimensionIndex>(b) <= geometry::get<DimensionIndex>(p);
     }
@@ -54,7 +54,7 @@ template <size_t DimensionIndex, typename Indexable>
 struct within_compare<max_corner, DimensionIndex, Indexable, point_tag>
 {
     template <typename Box>
-    static inline bool apply(Box const& b, Indexable const& p)
+    static inline bool apply(Indexable const& p, Box const& b)
     {
         return geometry::get<DimensionIndex>(p) <= index::get<max_corner, DimensionIndex>(b);
     }
@@ -71,26 +71,26 @@ struct within_for_each_dimension
     BOOST_STATIC_ASSERT(CurrentDimension <= traits::dimension<Box>::value);
     BOOST_STATIC_ASSERT(traits::dimension<Indexable>::value == traits::dimension<Box>::value);
 
-    static inline bool apply(Box const& b, Indexable const& i)
+    static inline bool apply(Indexable const& i, Box const& b)
     {
         return
             within_for_each_dimension<
                 Box,
                 Indexable,
                 CurrentDimension - 1
-            >::apply(b, i) &&
+            >::apply(i, b) &&
             dispatch::within_compare<
                 min_corner,
                 CurrentDimension - 1,
                 Indexable,
                 typename traits::tag<Indexable>::type
-            >::apply(b, i) &&
+            >::apply(i, b) &&
             dispatch::within_compare<
                 max_corner,
                 CurrentDimension - 1,
                 Indexable,
                 typename traits::tag<Indexable>::type
-            >::apply(b, i);
+            >::apply(i, b);
     }
 };
 
@@ -100,7 +100,7 @@ struct within_for_each_dimension<Box, Indexable, 1>
     BOOST_STATIC_ASSERT(1 <= traits::dimension<Box>::value);
     BOOST_STATIC_ASSERT(traits::dimension<Indexable>::value == traits::dimension<Box>::value);
 
-    static inline bool apply(Box const& b, Indexable const& i)
+    static inline bool apply(Indexable const& i, Box const& b)
     {
         return
             dispatch::within_compare<
@@ -108,22 +108,22 @@ struct within_for_each_dimension<Box, Indexable, 1>
                 0,
                 Indexable,
                 typename traits::tag<Indexable>::type
-            >::apply(b, i) &&
+            >::apply(i, b) &&
             dispatch::within_compare<
                 max_corner,
                 0,
                 Indexable,
                 typename traits::tag<Indexable>::type
-            >::apply(b, i);
+            >::apply(i, b);
     }
 };
 
 } // namespace detail
 
 template <typename Box, typename Indexable>
-bool within(Box const& box, Indexable const& i)
+bool within(Indexable const& i, Box const& box)
 {
-    return detail::within_for_each_dimension<Box, Indexable, traits::dimension<Box>::value>::apply(box, i);
+    return detail::within_for_each_dimension<Box, Indexable, traits::dimension<Box>::value>::apply(i, box);
 }
 
 }}} // namespace boost::geometry::index

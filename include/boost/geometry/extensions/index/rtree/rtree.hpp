@@ -11,8 +11,10 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RTREE_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RTREE_HPP
 
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/box.hpp>
+#include <algorithm>
+#include <boost/tuple/tuple.hpp>
+
+#include <boost/geometry/geometry.hpp>
 
 #include <boost/geometry/extensions/index/assert.hpp>
 

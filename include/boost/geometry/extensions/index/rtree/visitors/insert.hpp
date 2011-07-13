@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_INSERT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_INSERT_HPP
 
-#include <boost/geometry/extensions/index/algorithms/area.hpp>
+#include <boost/geometry/extensions/index/algorithms/content.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
@@ -25,7 +25,7 @@ template <typename Value, typename Options, typename Box, typename ChooseNextNod
 struct choose_next_node;
 
 template <typename Value, typename Options, typename Box>
-struct choose_next_node<Value, Options, Box, choose_by_area_diff_tag>
+struct choose_next_node<Value, Options, Box, choose_by_content_diff_tag>
 {
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
@@ -33,7 +33,7 @@ struct choose_next_node<Value, Options, Box, choose_by_area_diff_tag>
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
 
-    typedef typename index::default_area_result<Box>::type area_type;
+    typedef typename index::default_content_result<Box>::type content_type;
 
     template <typename Indexable>
     static inline size_t apply(internal_node & n, Indexable const& indexable, size_t /*node_relative_level*/)
@@ -44,10 +44,10 @@ struct choose_next_node<Value, Options, Box, choose_by_area_diff_tag>
 
         size_t children_count = children.size();
 
-        // choose index with smallest area change or smallest area
+        // choose index with smallest content change or smallest content
         size_t choosen_index = 0;
-        area_type smallest_area_diff = std::numeric_limits<area_type>::max();
-        area_type smallest_area = std::numeric_limits<area_type>::max();
+        content_type smallest_content_diff = std::numeric_limits<content_type>::max();
+        content_type smallest_content = std::numeric_limits<content_type>::max();
 
         // caculate areas and areas of all nodes' boxes
         for ( size_t i = 0 ; i < children_count ; ++i )
@@ -60,15 +60,15 @@ struct choose_next_node<Value, Options, Box, choose_by_area_diff_tag>
             geometry::expand(box_exp, indexable);
 
             // areas difference
-            area_type area = index::area(box_exp);
-            area_type area_diff = area - index::area(ch_i.first);
+            content_type content = index::content(box_exp);
+            content_type content_diff = content - index::content(ch_i.first);
 
             // update the result
-            if ( area_diff < smallest_area_diff ||
-                ( area_diff == smallest_area_diff && area < smallest_area ) )
+            if ( content_diff < smallest_content_diff ||
+                ( content_diff == smallest_content_diff && content < smallest_content ) )
             {
-                smallest_area_diff = area_diff;
-                smallest_area = area;
+                smallest_content_diff = content_diff;
+                smallest_content = content;
                 choosen_index = i;
             }
         }

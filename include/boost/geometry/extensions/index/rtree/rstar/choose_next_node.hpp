@@ -14,9 +14,9 @@
 
 #include <boost/geometry/algorithms/expand.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/area.hpp>
+#include <boost/geometry/extensions/index/algorithms/content.hpp>
 #include <boost/geometry/extensions/index/algorithms/overlap.hpp>
-#include <boost/geometry/extensions/index/algorithms/union_area.hpp>
+#include <boost/geometry/extensions/index/algorithms/union_content.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
@@ -39,7 +39,7 @@ class choose_next_node<Value, Options, Box, choose_by_overlap_diff_tag>
 
 	typedef typename Options::parameters_type parameters_type;
 
-    typedef typename index::default_area_result<Box>::type area_type;
+    typedef typename index::default_content_result<Box>::type content_type;
     typedef typename index::default_overlap_result<Box>::type overlap_type;
 
 public:
@@ -59,7 +59,7 @@ public:
 		}
         // children are internal nodes
         else
-            return choose_by_minimum_area_cost(children, indexable);
+            return choose_by_minimum_content_cost(children, indexable);
     }
 
 private:
@@ -68,11 +68,11 @@ private:
     {
         size_t children_count = children.size();
 
-        // choose index with smallest overlap change value, or area change or smallest area
+        // choose index with smallest overlap change value, or content change or smallest content
         size_t choosen_index = 0;
         overlap_type smallest_overlap_diff = std::numeric_limits<overlap_type>::max();
-        area_type smallest_area_diff = std::numeric_limits<area_type>::max();
-        area_type smallest_area = std::numeric_limits<area_type>::max();
+        content_type smallest_content_diff = std::numeric_limits<content_type>::max();
+        content_type smallest_content = std::numeric_limits<content_type>::max();
 
         // for each child node
         for (size_t i = 0 ; i < children_count ; ++i )
@@ -83,9 +83,9 @@ private:
             // calculate expanded box of child node ch_i
             geometry::expand(box_exp, indexable);
 
-            // calculate area and area diff
-            area_type area = index::area(ch_i.first);
-            area_type area_diff = index::area(box_exp) - area;
+            // calculate content and content diff
+            content_type content = index::content(ch_i.first);
+            content_type content_diff = index::content(box_exp) - content;
 
             overlap_type overlap = 0;
             overlap_type overlap_exp = 0;
@@ -106,12 +106,12 @@ private:
 
             // update result
             if ( overlap_diff < smallest_overlap_diff ||
-                 ( overlap_diff == smallest_overlap_diff && area_diff < smallest_area_diff ) ||
-                 ( area_diff == smallest_area_diff && area < smallest_area ) )
+                 ( overlap_diff == smallest_overlap_diff && content_diff < smallest_content_diff ) ||
+                 ( content_diff == smallest_content_diff && content < smallest_content ) )
             {
                 smallest_overlap_diff = overlap_diff;
-                smallest_area_diff = area_diff;
-                smallest_area = area;
+                smallest_content_diff = content_diff;
+                smallest_content = content;
                 choosen_index = i;
             }
         }
@@ -124,8 +124,8 @@ private:
 	{
 		const size_t children_count = children.size();
 
-		// create container of children sorted by area enlargement needed to include the new value
-		std::vector< boost::tuple<size_t, area_type, area_type> > sorted_children(children_count);
+		// create container of children sorted by content enlargement needed to include the new value
+		std::vector< boost::tuple<size_t, content_type, content_type> > sorted_children(children_count);
 		for ( size_t i = 0 ; i < children_count ; ++i )
 		{
 			child_type const& ch_i = children[i];
@@ -135,14 +135,14 @@ private:
 			geometry::expand(box_exp, indexable);
 
 			// areas difference
-			area_type area = index::area(box_exp);
-			area_type area_diff = area - index::area(ch_i.first);
+			content_type content = index::content(box_exp);
+			content_type content_diff = content - index::content(ch_i.first);
 
-			sorted_children[i] = boost::make_tuple(i, area_diff, area);
+			sorted_children[i] = boost::make_tuple(i, content_diff, content);
 		}
 
-		// sort by area_diff
-		std::sort(sorted_children.begin(), sorted_children.end(), area_diff_less);
+		// sort by content_diff
+		std::sort(sorted_children.begin(), sorted_children.end(), content_diff_less);
 
 		BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::overlap_cost_threshold <= children_count, "there are not enough children");
 
@@ -190,21 +190,21 @@ private:
 		return choosen_index;
 	}
 
-	static inline bool area_diff_less(boost::tuple<size_t, area_type, area_type> const& p1, boost::tuple<size_t, area_type, area_type> const& p2)
+	static inline bool content_diff_less(boost::tuple<size_t, content_type, content_type> const& p1, boost::tuple<size_t, content_type, content_type> const& p2)
 	{
 		return boost::get<1>(p1) < boost::get<1>(p2) ||
 			   (boost::get<1>(p1) == boost::get<1>(p2) && boost::get<2>(p1) < boost::get<2>(p2));
 	}
 
 	template <typename Indexable>
-    static inline size_t choose_by_minimum_area_cost(children_type const& children, Indexable const& indexable)
+    static inline size_t choose_by_minimum_content_cost(children_type const& children, Indexable const& indexable)
     {
         size_t children_count = children.size();
 
-        // choose index with smallest area change or smallest area
+        // choose index with smallest content change or smallest content
         size_t choosen_index = 0;
-        area_type smallest_area_diff = std::numeric_limits<area_type>::max();
-        area_type smallest_area = std::numeric_limits<area_type>::max();
+        content_type smallest_content_diff = std::numeric_limits<content_type>::max();
+        content_type smallest_content = std::numeric_limits<content_type>::max();
 
         // choose the child which requires smallest box expansion to store the indexable
         for ( size_t i = 0 ; i < children_count ; ++i )
@@ -216,15 +216,15 @@ private:
             geometry::expand(box_exp, indexable);
 
             // areas difference
-            area_type area = index::area(box_exp);
-            area_type area_diff = area - index::area(ch_i.first);
+            content_type content = index::content(box_exp);
+            content_type content_diff = content - index::content(ch_i.first);
 
             // update the result
-            if ( area_diff < smallest_area_diff ||
-                ( area_diff == smallest_area_diff && area < smallest_area ) )
+            if ( content_diff < smallest_content_diff ||
+                ( content_diff == smallest_content_diff && content < smallest_content ) )
             {
-                smallest_area_diff = area_diff;
-                smallest_area = area;
+                smallest_content_diff = content_diff;
+                smallest_content = content;
                 choosen_index = i;
             }
         }
