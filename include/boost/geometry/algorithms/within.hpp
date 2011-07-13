@@ -236,7 +236,7 @@ struct box_in_box
         within_state state;
         box_in_box_helper
             <
-                Box1, Box1, Strategy,
+                Box1, Box2, Strategy,
                 0, dimension<Box1>::type::value
             >::apply(box1, box2, strategy, state);
         return state.code();
