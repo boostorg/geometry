@@ -39,19 +39,14 @@ int main()
 
     // load config file
     std::ifstream file_cfg("config.txt");
-    size_t max_elems = 4;
-    size_t min_elems = 2;
     size_t values_count = 0;
     size_t remove_count = 0;
     size_t queries_count = 0;
     std::string file_name("");
-    file_cfg >> max_elems;
-    file_cfg >> min_elems;
     file_cfg >> values_count;
     file_cfg >> remove_count;
     file_cfg >> queries_count;
     file_cfg >> file_name;
-    std::cout << "max: " << max_elems << ", min: " << min_elems << "\n";
     std::cout << "v: " << values_count << ", r: " << remove_count << ", q: " << queries_count << "\n";
 
     if ( values_count < remove_count )
