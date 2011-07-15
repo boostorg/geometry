@@ -42,23 +42,22 @@ static inline bool within_selected_input(Item const& item2, ring_identifier cons
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
 
-    int code = -1;
     switch (ring_id.source_index)
     {
         case 0 :
-            code = within_code(item2.point,
+            return geometry::within(item2.point,
                 get_ring<tag1>::apply(ring_id, geometry1));
             break;
         case 1 :
-            code = within_code(item2.point,
+            return geometry::within(item2.point,
                 get_ring<tag2>::apply(ring_id, geometry2));
             break;
         case 2 :
-            code = within_code(item2.point,
+            return geometry::within(item2.point,
                 get_ring<void>::apply(ring_id, collection));
             break;
     }
-    return code == 1;
+    return false;
 }
 
 
