@@ -41,7 +41,7 @@ namespace boost { namespace geometry { namespace index {
 
 template <
     typename Value,
-    typename Options,
+    typename Parameters,
 	typename Translator = translator::def<Value>
 >
 class rtree
@@ -53,7 +53,7 @@ public:
 	typedef typename translator_type::indexable_type indexable_type;
     typedef typename index::default_box_type<indexable_type>::type box_type;
     
-	typedef typename detail::rtree::options_type<Options>::type options_type;
+	typedef typename detail::rtree::options_type<Parameters>::type options_type;
 	typedef typename options_type::node_tag node_tag;
 
     typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, node_tag>::type node;

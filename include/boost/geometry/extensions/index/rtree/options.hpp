@@ -93,7 +93,7 @@ struct rtree
 
 namespace detail { namespace rtree {
 
-template <typename Tag>
+template <typename Parameters>
 struct options_type
 {
 	// TODO: awulkiew - use static assert
