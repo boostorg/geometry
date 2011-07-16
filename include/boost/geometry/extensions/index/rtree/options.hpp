@@ -20,6 +20,9 @@ struct insert_reinsert_tag {};
 struct choose_by_content_diff_tag {};
 struct choose_by_overlap_diff_tag {};
 
+// SplitTag
+struct split_default_tag {};
+
 // RedistributeTag
 struct linear_tag {};
 struct quadratic_tag {};
@@ -75,12 +78,13 @@ struct rstar
 
 namespace options {
 
-template <typename Parameters, typename InsertTag, typename ChooseNextNodeTag, typename RedistributeTag, typename NodeTag>
+template <typename Parameters, typename InsertTag, typename ChooseNextNodeTag, typename SplitTag, typename RedistributeTag, typename NodeTag>
 struct rtree
 {
 	typedef Parameters parameters_type;
 	typedef InsertTag insert_tag;
 	typedef ChooseNextNodeTag choose_next_node_tag;
+	typedef SplitTag split_tag;
 	typedef RedistributeTag redistribute_tag;
 	typedef NodeTag node_tag;
 };
@@ -95,19 +99,6 @@ struct options_type
 	// TODO: awulkiew - use static assert
 };
 
-// default options
-//template <typename Parameters, typename InsertTag, typename ChooseNextNodeTag, typename RedistributeTag, typename NodeTag>
-//struct options_type< options::rtree<Parameters, InsertTag, ChooseNextNodeTag, RedistributeTag, NodeTag> >
-//{
-//	typedef options::rtree<
-//		Parameters,
-//		InsertTag,
-//		ChooseNextNodeTag,
-//		RedistributeTag,
-//		NodeTag
-//	> type;
-//};
-
 template <size_t MaxElements, size_t MinElements>
 struct options_type< linear<MaxElements, MinElements> >
 {
@@ -115,6 +106,7 @@ struct options_type< linear<MaxElements, MinElements> >
 		linear<MaxElements, MinElements>,
 		insert_default_tag,
 		choose_by_content_diff_tag,
+		split_default_tag,
 		linear_tag,
 		node_default_static_tag
 	> type;
@@ -127,6 +119,7 @@ struct options_type< quadratic<MaxElements, MinElements> >
 		quadratic<MaxElements, MinElements>,
 		insert_default_tag,
 		choose_by_content_diff_tag,
+		split_default_tag,
 		quadratic_tag,
 		node_default_static_tag
 	> type;
@@ -139,6 +132,7 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
 		rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements>,
 		insert_reinsert_tag,
 		choose_by_overlap_diff_tag,
+		split_default_tag,
 		rstar_tag,
 		node_default_static_tag
 	> type;

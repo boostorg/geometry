@@ -77,9 +77,81 @@ struct choose_next_node<Value, Options, Box, choose_by_content_diff_tag>
     }
 };
 
+// ----------------------------------------------------------------------- //
+
 // Not implemented here
 template <typename Value, typename Options, typename Translator, typename Box, typename RedistributeTag>
 struct redistribute_elements;
+
+// ----------------------------------------------------------------------- //
+
+// Split algorithm
+template <typename Value, typename Options, typename Translator, typename Box, typename SplitTag>
+class split;
+
+// Default split algorithm
+template <typename Value, typename Options, typename Translator, typename Box>
+class split<Value, Options, Translator, Box, split_default_tag>
+{
+protected:
+	typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
+	typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+	typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+
+	typedef typename Options::parameters_type parameters_type;
+
+public:
+	template <typename Node>
+	static inline void apply(node* & root_node,
+							 size_t & leafs_level,
+							 Node & n,
+							 internal_node *parent_node,
+							 size_t current_child_index,
+							 Translator const& tr)
+	{
+		// create additional node
+		node * second_node = rtree::create_node(Node());
+		Node & n2 = rtree::get<Node>(*second_node);
+
+		// redistribute elements
+		Box box1, box2;
+		redistribute_elements<Value, Options, Translator, Box, typename Options::redistribute_tag>::
+			apply(n, n2, box1, box2, tr);
+
+		// check numbers of elements
+		BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n).size() &&
+			rtree::elements(n).size() <= parameters_type::max_elements,
+			"unexpected number of elements");
+		BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n2).size() &&
+			rtree::elements(n2).size() <= parameters_type::max_elements,
+			"unexpected number of elements");
+
+		// node is not the root - just add the new node
+		if ( parent_node != 0 )
+		{
+			// update old node's box
+			rtree::elements(*parent_node)[current_child_index].first = box1;
+			// add new node to the parent's children
+			rtree::elements(*parent_node).push_back(std::make_pair(box2, second_node));
+		}
+		// node is the root - add level
+		else
+		{
+			BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(root_node), "node should be the root");
+
+			// create new root and add nodes
+			node * new_root = rtree::create_node(internal_node());
+
+			rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root_node));
+			rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
+
+			root_node = new_root;
+			++leafs_level;
+		}
+	}
+};
+
+// ----------------------------------------------------------------------- //
 
 // Default insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
@@ -169,51 +241,13 @@ protected:
         m_current_level = current_level_bckup;
     }
 
-    // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation
-
 	template <typename Node>
-	inline void split(Node &n) const
+	inline void split(Node & n) const
 	{
-		// create additional node
-		node * second_node = rtree::create_node(Node());
-		Node & n2 = rtree::get<Node>(*second_node);
-
-		// redistribute elements
-		Box box1, box2;
-		redistribute_elements<Value, Options, Translator, Box, typename Options::redistribute_tag>::
-			apply(n, n2, box1, box2, m_tr);
-
-		// check numbers of elements
-		BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n).size() &&
-									rtree::elements(n).size() <= parameters_type::max_elements,
-									"unexpected number of elements");
-		BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n2).size() &&
-									rtree::elements(n2).size() <= parameters_type::max_elements,
-									"unexpected number of elements");
-		
-		// node is not the root - just add the new node
-		if ( m_parent != 0 )
-		{
-			// update old node's box
-			rtree::elements(*m_parent)[m_current_child_index].first = box1;
-			// add new node to the parent's children
-			rtree::elements(*m_parent).push_back(std::make_pair(box2, second_node));
-		}
-		// node is the root - add level
-		else
-		{
-			BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(m_root_node), "node should be the root");
-
-			// create new root and add nodes
-			node * new_root = rtree::create_node(internal_node());
-
-			rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, m_root_node));
-			rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
-
-			m_root_node = new_root;
-			++m_leafs_level;
-		}
+		detail::split<Value, Options, Translator, Box, typename Options::split_tag>::apply(m_root_node, m_leafs_level, n, m_parent, m_current_child_index, m_tr);
 	}
+
+    // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation
 
     Element const& m_element;
     Translator const& m_tr;
