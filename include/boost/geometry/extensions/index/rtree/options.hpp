@@ -13,8 +13,8 @@
 namespace boost { namespace geometry { namespace index {
 
 // InsertTag
-struct insert_tag {};
-struct reinsert_tag {};
+struct insert_default_tag {};
+struct insert_reinsert_tag {};
 
 // ChooseNextNodeTag
 struct choose_by_content_diff_tag {};
@@ -95,27 +95,28 @@ struct options_type
 	// TODO: awulkiew - use static assert
 };
 
-template <typename Parameters, typename InsertTag, typename ChooseNextNodeTag, typename RedistributeTag, typename NodeTag>
-struct options_type< options::rtree<Parameters, InsertTag, ChooseNextNodeTag, RedistributeTag, NodeTag> >
-{
-	typedef options::rtree<
-		Parameters,
-		InsertTag,
-		ChooseNextNodeTag,
-		RedistributeTag,
-		NodeTag
-	> type;
-};
+// default options
+//template <typename Parameters, typename InsertTag, typename ChooseNextNodeTag, typename RedistributeTag, typename NodeTag>
+//struct options_type< options::rtree<Parameters, InsertTag, ChooseNextNodeTag, RedistributeTag, NodeTag> >
+//{
+//	typedef options::rtree<
+//		Parameters,
+//		InsertTag,
+//		ChooseNextNodeTag,
+//		RedistributeTag,
+//		NodeTag
+//	> type;
+//};
 
 template <size_t MaxElements, size_t MinElements>
 struct options_type< linear<MaxElements, MinElements> >
 {
 	typedef options::rtree<
 		linear<MaxElements, MinElements>,
-		insert_tag,
+		insert_default_tag,
 		choose_by_content_diff_tag,
 		linear_tag,
-		node_default_tag
+		node_default_static_tag
 	> type;
 };
 
@@ -124,10 +125,10 @@ struct options_type< quadratic<MaxElements, MinElements> >
 {
 	typedef options::rtree<
 		quadratic<MaxElements, MinElements>,
-		insert_tag,
+		insert_default_tag,
 		choose_by_content_diff_tag,
 		quadratic_tag,
-		node_default_tag
+		node_default_static_tag
 	> type;
 };
 
@@ -136,10 +137,10 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
 {
 	typedef options::rtree<
 		rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements>,
-		reinsert_tag,
+		insert_reinsert_tag,
 		choose_by_overlap_diff_tag,
 		rstar_tag,
-		node_default_tag
+		node_default_static_tag
 	> type;
 };
 

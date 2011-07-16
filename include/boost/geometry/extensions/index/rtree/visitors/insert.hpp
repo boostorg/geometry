@@ -169,6 +169,8 @@ protected:
         m_current_level = current_level_bckup;
     }
 
+    // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation
+
 	template <typename Node>
 	inline void split(Node &n) const
 	{
@@ -235,7 +237,7 @@ struct insert;
 
 // Default insert visitor used for nodes elements
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
-struct insert<Element, Value, Options, Translator, Box, insert_tag>
+struct insert<Element, Value, Options, Translator, Box, insert_default_tag>
 	: public detail::insert<Element, Value, Options, Translator, Box>
 {
     typedef detail::insert<Element, Value, Options, Translator, Box> base;
@@ -280,7 +282,7 @@ struct insert<Element, Value, Options, Translator, Box, insert_tag>
 
 // Default insert visitor specialized for Values elements
 template <typename Value, typename Options, typename Translator, typename Box>
-struct insert<Value, Value, Options, Translator, Box, insert_tag>
+struct insert<Value, Value, Options, Translator, Box, insert_default_tag>
 	: public detail::insert<Value, Value, Options, Translator, Box>
 {
     typedef detail::insert<Value, Value, Options, Translator, Box> base;

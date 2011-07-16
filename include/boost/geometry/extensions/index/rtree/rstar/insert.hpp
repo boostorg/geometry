@@ -350,7 +350,7 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
 
 // R*-tree insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
-class insert<Element, Value, Options, Translator, Box, reinsert_tag>
+class insert<Element, Value, Options, Translator, Box, insert_reinsert_tag>
 	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
 	, index::nonassignable
 {
