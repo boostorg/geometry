@@ -26,9 +26,9 @@ struct quadratic_tag {};
 struct rstar_tag {};
 
 // NodeTag
-struct default_tag {};
-struct default_variant_tag {};
-struct default_static_tag {};
+struct node_default_tag {};
+struct node_default_variant_tag {};
+struct node_default_static_tag {};
 
 // TODO: awulkiew - implement those:
 //if ( m_min_elems_per_node < 1 )
@@ -115,7 +115,7 @@ struct options_type< linear<MaxElements, MinElements> >
 		insert_tag,
 		choose_by_content_diff_tag,
 		linear_tag,
-		default_tag
+		node_default_tag
 	> type;
 };
 
@@ -127,7 +127,7 @@ struct options_type< quadratic<MaxElements, MinElements> >
 		insert_tag,
 		choose_by_content_diff_tag,
 		quadratic_tag,
-		default_tag
+		node_default_tag
 	> type;
 };
 
@@ -139,7 +139,7 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
 		reinsert_tag,
 		choose_by_overlap_diff_tag,
 		rstar_tag,
-		default_tag
+		node_default_tag
 	> type;
 };
 

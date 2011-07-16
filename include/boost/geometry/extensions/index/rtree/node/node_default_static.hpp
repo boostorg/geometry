@@ -17,28 +17,28 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree {
 
 template <typename Value, typename Parameters, typename Box>
-struct internal_node_poly<Value, Parameters, Box, default_static_tag>
-	: public node_poly<Value, Parameters, Box, default_static_tag>
+struct internal_node_poly<Value, Parameters, Box, node_default_static_tag>
+	: public node_poly<Value, Parameters, Box, node_default_static_tag>
 {
     typedef index::pushable_array<
-        std::pair<Box, node_poly<Value, Parameters, Box, default_static_tag> *>,
+        std::pair<Box, node_poly<Value, Parameters, Box, node_default_static_tag> *>,
 		Parameters::max_elements + 1
     > elements_type;
 
-    void apply_visitor(visitor_poly<Value, Parameters, Box, default_static_tag, false> & v) { v(*this); }
-    void apply_visitor(visitor_poly<Value, Parameters, Box, default_static_tag, true> & v) const { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, node_default_static_tag, false> & v) { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, node_default_static_tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
 
 template <typename Value, typename Parameters, typename Box>
-struct leaf_poly<Value, Parameters, Box, default_static_tag>
-	: public node_poly<Value, Parameters, Box, default_static_tag>
+struct leaf_poly<Value, Parameters, Box, node_default_static_tag>
+	: public node_poly<Value, Parameters, Box, node_default_static_tag>
 {
     typedef index::pushable_array<Value, Parameters::max_elements + 1> elements_type;
 
-    void apply_visitor(visitor_poly<Value, Parameters, Box, default_static_tag, false> & v) { v(*this); }
-    void apply_visitor(visitor_poly<Value, Parameters, Box, default_static_tag, true> & v) const { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, node_default_static_tag, false> & v) { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, node_default_static_tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };

@@ -42,24 +42,24 @@ struct leaf_variant
 // nodes traits
 
 template <typename Value, typename Parameters, typename Box>
-struct node<Value, Parameters, Box, default_variant_tag>
+struct node<Value, Parameters, Box, node_default_variant_tag>
 {
 	typedef boost::variant<
-		leaf_variant<Value, Parameters, Box, default_variant_tag>,
-		internal_node_variant<Value, Parameters, Box, default_variant_tag>
+		leaf_variant<Value, Parameters, Box, node_default_variant_tag>,
+		internal_node_variant<Value, Parameters, Box, node_default_variant_tag>
 	> type;
 };
 
 template <typename Value, typename Parameters, typename Box>
-struct internal_node<Value, Parameters, Box, default_variant_tag>
+struct internal_node<Value, Parameters, Box, node_default_variant_tag>
 {
-    typedef internal_node_variant<Value, Parameters, Box, default_variant_tag> type;
+    typedef internal_node_variant<Value, Parameters, Box, node_default_variant_tag> type;
 };
 
 template <typename Value, typename Parameters, typename Box>
-struct leaf<Value, Parameters, Box, default_variant_tag>
+struct leaf<Value, Parameters, Box, node_default_variant_tag>
 {
-    typedef leaf_variant<Value, Parameters, Box, default_variant_tag> type;
+    typedef leaf_variant<Value, Parameters, Box, node_default_variant_tag> type;
 };
 
 // nodes conversion
@@ -76,10 +76,12 @@ inline V & get(
 }
 
 template <typename V, typename Value, typename Parameters, typename Box, typename Tag>
-inline V * get(boost::variant<
-			       leaf_variant<Value, Parameters, Box, Tag>,
-				   internal_node_variant<Value, Parameters, Box, Tag>
-				> *v)
+inline V * get(
+	boost::variant<
+		leaf_variant<Value, Parameters, Box, Tag>,
+		internal_node_variant<Value, Parameters, Box, Tag>
+	> *v
+)
 {
     return boost::get<V>(v);
 }
@@ -87,7 +89,7 @@ inline V * get(boost::variant<
 // visitor traits
 
 template <typename Value, typename Parameters, typename Box, bool IsVisitableConst>
-struct visitor<Value, Parameters, Box, default_variant_tag, IsVisitableConst>
+struct visitor<Value, Parameters, Box, node_default_variant_tag, IsVisitableConst>
 {
     typedef static_visitor<> type;
 };
