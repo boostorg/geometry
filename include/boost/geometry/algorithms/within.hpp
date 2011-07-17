@@ -31,6 +31,7 @@
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -49,201 +50,6 @@ namespace detail { namespace within
 {
 
 
-struct within_state
-{
-    bool outside, inside, on_border;
-    inline within_state()
-        : outside(false)
-        , on_border(false)
-    {}
-
-    inline int code() const
-    {
-        // Note the order: 1) outside 2) on_border 3) inside
-        // If one dim. is outside, it IS outside, else
-        // if one dim is on border, it IS on border,
-        // if it only inside if inside=true and the rest is false
-        return outside ? -1
-            : on_border ? 0
-            : 1
-            ;
-    }
-
-};
-
-/*!
-    \brief Implementation for boxes
-    \ingroup boolean_relations
-    \note Should have strategy for e.g. Wrangel
- */
-template
-<
-    typename Point,
-    typename Box,
-    typename Strategy,
-    std::size_t Dimension,
-    std::size_t DimensionCount
->
-struct point_in_box_helper
-{
-    static inline void apply(Point const& p, Box const& b, Strategy const& s, within_state& state)
-    {
-        typename geometry::coordinate_type<Point>::type const v
-                    = get<Dimension>(p);
-        typename geometry::coordinate_type<Box>::type const b_min
-                    = get<min_corner, Dimension>(b);
-        typename geometry::coordinate_type<Box>::type const b_max
-                    = get<max_corner, Dimension>(b);
-                    
-        if (geometry::math::equals(v, b_min) 
-                || geometry::math::equals(v, b_max))
-        {
-            state.on_border = true;
-        }
-        else if (v < b_min || v > b_max)
-        {
-            state.outside = true;
-            return;
-        }
-        
-        point_in_box_helper
-            <
-                Point,
-                Box,
-                Strategy,
-                Dimension + 1,
-                DimensionCount
-            >::apply(p, b, s, state);
-    }
-};
-
-template
-<
-    typename Point,
-    typename Box,
-    typename Strategy,
-    std::size_t DimensionCount
->
-struct point_in_box_helper<Point, Box, Strategy, DimensionCount, DimensionCount>
-{
-    static inline void apply(Point const& , Box const& , Strategy const&, within_state& )
-    {
-    }
-};
-
-template
-<
-    typename Point,
-    typename Box,
-    typename Strategy
->
-struct point_in_box
-{
-    static inline int apply(Point const& point, Box const& box, Strategy const& strategy)
-    {
-        assert_dimension_equal<Point, Box>();
-        within_state state;
-        point_in_box_helper
-            <
-                Point, Box, Strategy, 
-                0, dimension<Point>::type::value
-            >::apply(point, box, strategy, state);
-        return state.code();
-    }
-};
-
-
-template
-<
-    typename Box1,
-    typename Box2,
-    typename Strategy,
-    std::size_t Dimension,
-    std::size_t DimensionCount
->
-struct box_in_box_helper
-{
-    static inline void apply(Box1 const& b_contained, Box2 const& b_containing,
-                Strategy const& strategy, within_state& state)
-    {
-        assert_dimension_equal<Box1, Box2>();
-
-        typename geometry::coordinate_type<Box1>::type const ced_min
-                    = get<min_corner, Dimension>(b_contained);
-        typename geometry::coordinate_type<Box1>::type const ced_max
-                    = get<max_corner, Dimension>(b_contained);
-        typename geometry::coordinate_type<Box2>::type const cing_min
-                    = get<min_corner, Dimension>(b_containing);
-        typename geometry::coordinate_type<Box2>::type const cing_max
-                    = get<max_corner, Dimension>(b_containing);
-
-        if (geometry::math::equals(ced_min, cing_min))
-        {
-            state.on_border = true;
-        }
-        else if (ced_min < cing_min)
-        {
-            state.outside = true;
-            return;
-        }
-
-        if (geometry::math::equals(ced_max, cing_max))
-        {
-            state.on_border = true;
-        }
-        else if (ced_max > cing_max)
-        {
-            state.outside = true;
-            return;
-        }
-
-        box_in_box_helper
-            <
-                Box1,
-                Box2,
-                Strategy,
-                Dimension + 1,
-                DimensionCount
-            >::apply(b_contained, b_containing, strategy, state);
-    }
-};
-
-template
-<
-    typename Box1,
-    typename Box2,
-    typename Strategy,
-    std::size_t DimensionCount
->
-struct box_in_box_helper<Box1, Box2, Strategy, DimensionCount, DimensionCount>
-{
-    static inline void apply(Box1 const& , Box2 const& , Strategy const&, within_state&)
-    {
-    }
-};
-
-template
-<
-    typename Box1,
-    typename Box2,
-    typename Strategy
->
-struct box_in_box
-{
-    static inline int apply(Box1 const& box1, Box2 const& box2, Strategy const& strategy)
-    {
-        assert_dimension_equal<Box1, Box2>();
-        within_state state;
-        box_in_box_helper
-            <
-                Box1, Box2, Strategy,
-                0, dimension<Box1>::type::value
-            >::apply(box1, box2, strategy, state);
-        return state.code();
-    }
-};
-
-
 template
 <
     typename Point,
@@ -254,7 +60,7 @@ template
 >
 struct point_in_ring
 {
-    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
+    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
 
     static inline int apply(Point const& point, Ring const& ring,
             Strategy const& strategy)
@@ -294,7 +100,6 @@ struct point_in_ring
 };
 
 
-
 // Polygon: in exterior ring, and if so, not within interior ring(s)
 template
 <
@@ -306,7 +111,7 @@ template
 >
 struct point_in_polygon
 {
-    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
+    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
 
     static inline int apply(Point const& point, Polygon const& poly,
             Strategy const& strategy)
@@ -378,137 +183,60 @@ struct within
 
 template <typename Point, typename Box, typename Strategy>
 struct within<point_tag, box_tag, Point, Box, Strategy>
-    : detail::within::point_in_box
-            <
-                Point,
-                Box,
-                Strategy
-            >
-{};
+{
+    static inline bool apply(Point const& point, Box const& box, Strategy const& strategy)
+    {
+        return strategy.apply(point, box);
+    }
+};
 
 template <typename Box1, typename Box2, typename Strategy>
 struct within<box_tag, box_tag, Box1, Box2, Strategy>
-    : detail::within::box_in_box
-            <
-                Box1,
-                Box2,
-                Strategy
-            >
-{};
+{
+    static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const& strategy)
+    {
+        assert_dimension_equal<Box1, Box2>();
+        return strategy.apply(box1, box2);
+    }
+};
 
 
 
 template <typename Point, typename Ring, typename Strategy>
 struct within<point_tag, ring_tag, Point, Ring, Strategy>
-    : detail::within::point_in_ring
-        <
-            Point,
-            Ring,
-            order_as_direction<geometry::point_order<Ring>::value>::value,
-            geometry::closure<Ring>::value,
-            Strategy
-        >
-{};
+{
+    static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
+    {
+        return detail::within::point_in_ring
+            <
+                Point,
+                Ring,
+                order_as_direction<geometry::point_order<Ring>::value>::value,
+                geometry::closure<Ring>::value,
+                Strategy
+            >::apply(point, ring, strategy) == 1;
+    }
+};
 
 template <typename Point, typename Polygon, typename Strategy>
 struct within<point_tag, polygon_tag, Point, Polygon, Strategy>
-    : detail::within::point_in_polygon
-        <
-            Point,
-            Polygon,
-            order_as_direction<geometry::point_order<Polygon>::value>::value,
-            geometry::closure<Polygon>::value,
-            Strategy
-        >
-{};
+{
+    static inline bool apply(Point const& point, Polygon const& polygon, Strategy const& strategy)
+    {
+        return detail::within::point_in_polygon
+            <
+                Point,
+                Polygon,
+                order_as_direction<geometry::point_order<Polygon>::value>::value,
+                geometry::closure<Polygon>::value,
+                Strategy
+            >::apply(point, polygon, strategy) == 1;
+    }
+};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-namespace strategy { namespace within
-{
-
-/// Strategy for box-in-box (not used but has to be present for default strategy)
-struct unused_strategy {};
-
-namespace services
-{
-
-// Specialize for box-in-areal (box-in-box). This is meant to do box-in-box
-// but will be catched by box-in-any-areal, which has to change later
-// (we might introduce another tag which is not "areal", derived by poly/ring/
-// multi_poly, but NOT by box, and use that here. E.g. "polygonal")
-// Using cartesian prevents spherical yet from compiling, which is good.
-template <typename Box1, typename Box2>
-struct default_strategy<box_tag, areal_tag, cartesian_tag, cartesian_tag, Box1, Box2>
-{
-    typedef unused_strategy type;
-};
-
-} // namespace services
-
-}} // namespace strategy::within
-
-#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-
-namespace detail
-{
-
-template<typename Geometry1, typename Geometry2>
-inline int within_code(Geometry1 const& geometry1, Geometry2 const& geometry2)
-{
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-
-    typedef typename point_type<Geometry1>::type point_type1;
-    typedef typename point_type<Geometry2>::type point_type2;
-
-    typedef typename strategy::within::services::default_strategy
-        <
-            typename tag<Geometry1>::type,
-            typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
-            typename cs_tag<point_type1>::type,
-            typename cs_tag<point_type2>::type,
-            point_type1,
-            point_type2
-        >::type strategy_type;
-
-    return dispatch::within
-        <
-            typename tag<Geometry1>::type,
-            typename tag<Geometry2>::type,
-            Geometry1,
-            Geometry2,
-            strategy_type
-        >::apply(geometry1, geometry2, strategy_type());
-}
-
-
-template<typename Geometry1, typename Geometry2, typename Strategy>
-inline int within_code(Geometry1 const& geometry1, Geometry2 const& geometry2,
-        Strategy const& strategy)
-{
-    // Always assume a point-in-polygon strategy here.
-    // Because for point-in-box, it makes no sense to specify one.
-    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
-
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-
-    return dispatch::within
-        <
-            typename tag<Geometry1>::type,
-            typename tag<Geometry2>::type,
-            Geometry1,
-            Geometry2,
-            Strategy
-        >::apply(geometry1, geometry2, strategy);
-}
-
-}
 
 /*!
 \brief \brief_check12{is completely inside}
@@ -538,7 +266,37 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
-    return detail::within_code(geometry1, geometry2) == 1;
+    assert_dimension_equal<Geometry1, Geometry2>();
+
+    typedef typename point_type<Geometry1>::type point_type1;
+    typedef typename point_type<Geometry2>::type point_type2;
+
+    typedef typename strategy::within::services::default_strategy
+        <
+            typename tag<Geometry1>::type,
+            typename tag<Geometry2>::type,
+            typename tag<Geometry1>::type,
+            typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type1>::type, spherical_tag
+                >::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type2>::type, spherical_tag
+                >::type,
+            Geometry1,
+            Geometry2
+        >::type strategy_type;
+
+    return dispatch::within
+        <
+            typename tag<Geometry1>::type,
+            typename tag<Geometry2>::type,
+            Geometry1,
+            Geometry2,
+            strategy_type
+        >::apply(geometry1, geometry2, strategy_type());
 }
 
 /*!
@@ -573,13 +331,25 @@ template<typename Geometry1, typename Geometry2, typename Strategy>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,
         Strategy const& strategy)
 {
-    // Always assume a point-in-polygon strategy here.
-    // Because for point-in-box, it makes no sense to specify one.
-    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategy<Strategy>) );
-
+	concept::within::check
+        <
+            typename tag<Geometry1>::type, 
+            typename tag<Geometry2>::type, 
+            typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
+            Strategy
+        >();
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
-    return detail::within_code(geometry1, geometry2, strategy) == 1;
+    assert_dimension_equal<Geometry1, Geometry2>();
+
+    return dispatch::within
+        <
+            typename tag<Geometry1>::type,
+            typename tag<Geometry2>::type,
+            Geometry1,
+            Geometry2,
+            Strategy
+        >::apply(geometry1, geometry2, strategy);
 }
 
 }} // namespace boost::geometry

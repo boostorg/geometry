@@ -11,58 +11,18 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_WITHIN_HPP
-#define BOOST_GEOMETRY_MULTI_ALGORITHMS_WITHIN_HPP
+#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_COVERED_BY_HPP
+#define BOOST_GEOMETRY_MULTI_ALGORITHMS_COVERED_BY_HPP
 
 
-#include <boost/range.hpp>
-
-#include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/multi/algorithms/within.hpp>
+
 
 namespace boost { namespace geometry
 {
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace within
-{
-
-
-template
-<
-    typename Geometry,
-    typename MultiGeometry,
-    typename Strategy,
-    typename Policy
->
-struct geometry_multi_within_code
-{
-    static inline int apply(Geometry const& geometry,
-            MultiGeometry const& multi,
-            Strategy const& strategy)
-    {
-        for (typename boost::range_iterator<MultiGeometry const>::type it
-                    = boost::begin(multi);
-            it != boost::end(multi);
-            ++it)
-        {
-            // Geometry coding on multi: 1 (within) if within one of them;
-            // 0 (touch) if on border of one of them
-            int const code = Policy::apply(geometry, *it, strategy);
-            if (code != -1)
-            {
-                return code;
-            }
-        }
-        return -1;
-    }
-};
-
-
-}} // namespace detail::within
-#endif // DOXYGEN_NO_DETAIL
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -70,7 +30,7 @@ namespace dispatch
 {
 
 template <typename Point, typename MultiPolygon, typename Strategy>
-struct within<point_tag, multi_polygon_tag, Point, MultiPolygon, Strategy>
+struct covered_by<point_tag, multi_polygon_tag, Point, MultiPolygon, Strategy>
 {
     static inline bool apply(Point const& point, 
                 MultiPolygon const& multi_polygon, Strategy const& strategy)
@@ -91,13 +51,18 @@ struct within<point_tag, multi_polygon_tag, Point, MultiPolygon, Strategy>
                             geometry::closure<MultiPolygon>::value,
                             Strategy
                         >
-            >::apply(point, multi_polygon, strategy) == 1;
+            >::apply(point, multi_polygon, strategy) >= 0;
     }
 };
 
+
 } // namespace dispatch
+
+
 #endif // DOXYGEN_NO_DISPATCH
+
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_WITHIN_HPP
+
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_COVERED_BY_HPP
