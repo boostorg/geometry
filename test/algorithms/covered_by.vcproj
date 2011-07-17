@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="self_intersection_points"
-	ProjectGUID="{06B6DCBB-AEDA-49FA-81D9-EA8959958EFC}"
-	RootNamespace="self_intersection_points"
+	Name="covered_by"
+	ProjectGUID="{5ABF0B56-F9F1-4D93-B15A-E3972F45D97B}"
+	RootNamespace="covered_by"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,9 +18,9 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\self_intersection_points"
+			IntermediateDirectory="$(ConfigurationName)\covered_by"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;../../../../..;../.."
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
@@ -91,9 +91,9 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\self_intersection_points"
+			IntermediateDirectory="$(ConfigurationName)\covered_by"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops;..\ttmath.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -114,8 +114,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".;../../../../..;../.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="../../../..;.."
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
 			/>
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\self_intersection_points.cpp"
+			RelativePath=".\covered_by.cpp"
 			>
 		</File>
 	</Files>

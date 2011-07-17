@@ -19,6 +19,7 @@ test-suite boost-geometry-algorithms
     [ run convex_hull.cpp ]
     [ run correct.cpp ]
     [ run convert.cpp ]
+    [ run covered_by.cpp ]
     [ run difference.cpp ]
     [ run disjoint.cpp ]
     [ run distance.cpp ]
