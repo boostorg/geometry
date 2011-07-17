@@ -10,18 +10,18 @@
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/algorithms/within.hpp>
+#include <boost/geometry/multi/algorithms/covered_by.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <algorithms/test_within.hpp>
+#include <algorithms/test_covered_by.hpp>
 
 
 template <typename P>
@@ -32,7 +32,7 @@ void test_all()
     // test multi-with-one-polygon (trivial case)
     test_geometry<P, mp>("POINT(1 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", true);
     test_geometry<P, mp>("POINT(3 3)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", false);
-    test_geometry<P, mp>("POINT(0 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", false);
+    test_geometry<P, mp>("POINT(0 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", true);
     test_geometry<P, mp>("POINT(4 4)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", false);
 
     // test if it is in one of them
@@ -42,7 +42,7 @@ void test_all()
         ")");
     test_geometry<P, mp>("POINT(4 4)", multi, true);
     test_geometry<P, mp>("POINT(1 1)", multi, true);
-    test_geometry<P, mp>("POINT(0 1)", multi, false);
+    test_geometry<P, mp>("POINT(0 1)", multi, true);
 }
 
 int test_main( int , char* [] )
