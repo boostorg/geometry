@@ -27,7 +27,7 @@ struct multi_point_tag : multi_tag, pointlike_tag  {};
 struct multi_linestring_tag : multi_tag, linear_tag {};
 
 /// OGC Multi polygon identifying tag
-struct multi_polygon_tag : multi_tag, areal_tag {};
+struct multi_polygon_tag : multi_tag, polygonal_tag {};
 
 /// OGC Geometry Collection identifying tag
 struct geometry_collection_tag : multi_tag {};

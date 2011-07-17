@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_WITHIN_HPP
-#define BOOST_GEOMETRY_STRATEGIES_WITHIN_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_COVERED_BY_HPP
+#define BOOST_GEOMETRY_STRATEGIES_COVERED_BY_HPP
 
 #include <boost/mpl/assert.hpp>
 
@@ -20,7 +20,8 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace within
+
+namespace strategy { namespace covered_by
 {
 
 
@@ -28,8 +29,8 @@ namespace services
 {
 
 /*!
-\brief Traits class binding a within determination strategy to a coordinate system
-\ingroup within
+\brief Traits class binding a covered_by determination strategy to a coordinate system
+\ingroup covered_by
 \tparam TagContained tag (possibly casted) of point-type
 \tparam TagContained tag (possibly casted) of (possibly) containing type
 \tparam CsTagContained tag of coordinate system of point-type
@@ -61,11 +62,11 @@ struct default_strategy
 } // namespace services
 
 
-}} // namespace strategy::within
+}} // namespace strategy::covered_by
 
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGIES_WITHIN_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_COVERED_BY_HPP
 
