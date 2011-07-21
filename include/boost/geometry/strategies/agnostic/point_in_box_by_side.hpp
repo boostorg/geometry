@@ -110,7 +110,7 @@ struct default_strategy
 {
     typedef within::point_in_box_by_side
                 <
-					Point, Box, within::decide_within
+                    Point, Box, within::decide_within
                 > type;
 };
 
