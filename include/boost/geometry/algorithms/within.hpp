@@ -331,7 +331,7 @@ template<typename Geometry1, typename Geometry2, typename Strategy>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,
         Strategy const& strategy)
 {
-	concept::within::check
+    concept::within::check
         <
             typename tag<Geometry1>::type, 
             typename tag<Geometry2>::type, 

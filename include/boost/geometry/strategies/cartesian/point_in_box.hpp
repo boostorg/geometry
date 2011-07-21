@@ -61,7 +61,7 @@ struct relate_point_box_loop
     static inline bool apply(Point const& point, Box const& box)
     {
         if (! SubStrategy::apply(get<Dimension>(point), 
-				    get<min_corner, Dimension>(box), 
+                    get<min_corner, Dimension>(box), 
                     get<max_corner, Dimension>(box))
             )
         {
@@ -102,7 +102,7 @@ template
 >
 struct point_in_box
 {
-    static inline bool apply(Point const& point, Box const& box)
+    static inline bool apply(Point const& point, Box const& box) 
     {
         return relate_point_box_loop
             <
@@ -154,7 +154,7 @@ struct default_strategy
 {
     typedef within::point_in_box
                 <
-					Point, Box,
+                    Point, Box,
                     within::covered_by_range
                 > type;
 };

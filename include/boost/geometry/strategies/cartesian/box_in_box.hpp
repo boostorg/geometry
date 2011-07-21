@@ -160,7 +160,7 @@ struct default_strategy
 {
     typedef within::box_in_box
                 <
-					BoxContained, BoxContaining,
+                    BoxContained, BoxContaining,
                     within::box_covered_by_range
                 > type;
 };

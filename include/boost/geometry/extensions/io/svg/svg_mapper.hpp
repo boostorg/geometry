@@ -229,6 +229,7 @@ class svg_mapper : boost::noncopyable
     boost::scoped_ptr<transformer_type> m_matrix;
     std::ostream& m_stream;
     int m_width, m_height;
+    std::string m_width_height; // for <svg> tag only, defaults to 2x 100%
 
     void init_matrix()
     {
@@ -243,7 +244,7 @@ class svg_mapper : boost::noncopyable
                 << std::endl
                 << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
                 << std::endl
-                << "<svg width=\"100%\" height=\"100%\" version=\"1.1\""
+                << "<svg " << m_width_height << " version=\"1.1\""
                 << std::endl
                 << "xmlns=\"http://www.w3.org/2000/svg\">"
                 << std::endl;
@@ -251,10 +252,12 @@ class svg_mapper : boost::noncopyable
     }
 
 public :
-    svg_mapper(std::ostream& s, int w, int h)
+    svg_mapper(std::ostream& s, int w, int h
+        , std::string const& width_height = "width=\"100%\" height=\"100%\"")
         : m_stream(s)
         , m_width(w)
         , m_height(h)
+        , m_width_height(width_height)
     {
         assign_inverse(m_bounding_box);
     }
