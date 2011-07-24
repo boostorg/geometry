@@ -218,6 +218,13 @@ void test_all()
         1, 0, 3200.4,
         0.01);
 
+    test_one<polygon, polygon, polygon>("ggl_list_20110716_enrico",
+        ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
+        3, 0, 35723.8506317139,
+        1, 0, 58456.4964294434
+        );
+
+
 #ifdef _MSC_VER
     // 2011-07-02
     // Interesting FP-precision case.
@@ -229,8 +236,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         if_typed<ct, double>(0, 1), 0, 
-            if_typed<ct, double>(0.0, if_typed<ct, float>(0.000383878, 
-                        0.0000000000001105367)), 
+            if_typed_tt<ct>(0.0000000000001105367, 0.0), 
         1, 0, 3577.40960816756,
         0.01
         );

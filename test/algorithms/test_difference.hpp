@@ -23,7 +23,6 @@
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/algorithms/unique.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -73,9 +72,6 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
     {
         if (expected_point_count > 0)
         {
-            // Get a correct point-count without duplicate points
-            // (note that overlay might be adapted to avoid duplicates)
-            bg::unique(*it);
             n += bg::num_points(*it);
         }
 
