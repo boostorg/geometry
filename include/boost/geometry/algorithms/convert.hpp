@@ -19,6 +19,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
+#include <boost/type_traits/is_array.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
@@ -361,8 +362,11 @@ struct convert<false, polygon_tag, ring_tag, DimensionCount, Polygon, Ring>
 
 /*!
 \brief Converts one geometry to another geometry
-\details The convert algorithm converts one geometry, e.g. a BOX, to another geometry, e.g. a RING. This only
-if it is possible and applicable.
+\details The convert algorithm converts one geometry, e.g. a BOX, to another
+geometry, e.g. a RING. This only if it is possible and applicable.
+If the point-order is different, or the closure is different between two 
+geometry types, it will be converted correctly by explicitly reversing the 
+points or closing or opening the polygon rings.
 \ingroup convert
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
@@ -378,7 +382,9 @@ inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
 
     dispatch::convert
         <
-            boost::is_same<Geometry1, Geometry2>::value, // && boost::has_assign<Geometry2>::value,
+            boost::is_same<Geometry1, Geometry2>::value 
+                // && boost::has_assign<Geometry2>::value, -- type traits extensions
+                && ! boost::is_array<Geometry1>::value,
             typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
             typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
             dimension<Geometry1>::type::value,
