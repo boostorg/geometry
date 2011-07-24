@@ -14,6 +14,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -38,7 +39,8 @@ namespace detail { namespace overlay
 {
 
 template <typename Turn, typename Operation>
-inline void debug_traverse(Turn const& turn, Operation op, std::string const& header)
+inline void debug_traverse(Turn const& turn, Operation op, 
+                std::string const& header)
 {
 #ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
     std::cout << header
@@ -125,7 +127,11 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
     // If there is no next IP on this segment
     if (info.enriched.next_ip_index < 0)
     {
-        if (info.enriched.travels_to_vertex_index < 0 || info.enriched.travels_to_ip_index < 0) return false;
+        if (info.enriched.travels_to_vertex_index < 0 
+            || info.enriched.travels_to_ip_index < 0)
+        {
+            return false;
+        }
 
         BOOST_ASSERT(info.enriched.travels_to_vertex_index >= 0);
         BOOST_ASSERT(info.enriched.travels_to_ip_index >= 0);
@@ -151,7 +157,7 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
         seg_id = info.seg_id;
     }
 
-    geometry::append(current_output, ip->point);
+    detail::overlay::append_no_duplicates(current_output, ip->point);
     return true;
 }
 
@@ -348,7 +354,8 @@ inline void traverse(Geometry1 const& geometry1,
                         set_visited_for_continue(*it, *iit);
 
                         typename boost::range_value<Rings>::type current_output;
-                        geometry::append(current_output, it->point);
+                        detail::overlay::append_no_duplicates(current_output, 
+                                    it->point, true);
 
                         turn_iterator current = it;
                         turn_operation_iterator_type current_iit = iit;
