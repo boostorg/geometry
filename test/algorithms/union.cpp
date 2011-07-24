@@ -235,22 +235,19 @@ void test_areal()
 #ifdef _MSC_VER
         if_typed<ct, double>(18, 17), 
 #else
-        17,
+        18,
 #endif
         129904.197692871);
 
-
 #ifdef _MSC_VER
-    {
-        // Isovist (submitted by Brandon during Formal Review)
-        test_one<Polygon, Polygon, Polygon>("isovist",
-            isovist1[0], isovist1[1],
-            1,
-            0,
-            if_typed<ct, float>(71, 
-                if_typed<ct, double>(72, 73)),
-            313.36036462);
-    }
+    // Isovist (submitted by Brandon during Formal Review)
+    test_one<Polygon, Polygon, Polygon>("isovist",
+        isovist1[0], isovist1[1],
+        1,
+        0,
+        if_typed<ct, float>(71, 
+            if_typed<ct, double>(72, 73)),
+        313.36036462);
 #endif
 }
 
