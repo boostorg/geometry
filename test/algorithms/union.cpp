@@ -229,18 +229,26 @@ void test_areal()
         if_typed<ct, double>(5, if_typed_tt<ct>(8, 7)), 
         14729.07145);
         
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
+        ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
+        1, 1, 
+#ifdef _MSC_VER
+        if_typed<ct, double>(18, 17), 
+#else
+        17,
+#endif
+        129904.197692871);
+
 
 #ifdef _MSC_VER
     {
         // Isovist (submitted by Brandon during Formal Review)
-        std::string tn = string_from_type<typename bg::coordinate_type<Polygon>::type>::name();
         test_one<Polygon, Polygon, Polygon>("isovist",
             isovist1[0], isovist1[1],
             1,
             0,
-            tn == std::string("f") ? 71
-                : tn == std::string("d") ? 72
-                : 73,
+            if_typed<ct, float>(71, 
+                if_typed<ct, double>(72, 73)),
             313.36036462);
     }
 #endif
