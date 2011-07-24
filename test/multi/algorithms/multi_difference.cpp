@@ -11,7 +11,7 @@
 #include <string>
 
 // #define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-#define BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
+//#define BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
 
 #include <algorithms/test_difference.hpp>
 #include <algorithms/test_overlay.hpp>

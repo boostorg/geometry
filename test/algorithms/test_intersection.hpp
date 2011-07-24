@@ -20,7 +20,6 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/algorithms/unique.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -41,8 +40,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         G1 const& g1, G2 const& g2,
         std::size_t expected_count = 0, std::size_t expected_point_count = 0,
         double expected_length_or_area = 0,
-        double percentage = 0.0001,
-        bool make_unique = true)
+        double percentage = 0.0001)
 {
     static const bool is_line = bg::geometry_id<OutputType>::type::value == 2;
 
@@ -78,17 +76,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     {
         if (expected_point_count > 0)
         {
-            if (make_unique)
-            {
-                // Get a correct point-count without duplicate points
-                // (note that overlay might be adapted to avoid duplicates)
-                bg::unique(*it);
-                n += bg::num_points(*it, true);
-            }
-            else
-            {
-                n += bg::num_points(*it, true);
-            }
+            n += bg::num_points(*it, true);
         }
 
         // instead of specialization we check it run-time here
@@ -179,8 +167,7 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
         std::size_t expected_count = 0, std::size_t expected_point_count = 0,
         double expected_length_or_area = 0,
-        double percentage = 0.0001,
-        bool make_unique = true)
+        double percentage = 0.0001)
 {
     G1 g1;
     bg::read_wkt(wkt1, g1);
@@ -194,7 +181,7 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
 
     return test_intersection<OutputType, void>(caseid, g1, g2,
         expected_count, expected_point_count,
-        expected_length_or_area, percentage, make_unique);
+        expected_length_or_area, percentage);
 }
 
 
