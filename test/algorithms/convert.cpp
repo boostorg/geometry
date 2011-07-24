@@ -221,6 +221,15 @@ void test_mixed_types()
     test_mixed_point_types<Point2, Point1>();
 }
 
+void test_array()
+{
+    int a[2] = {1, 2};
+    int b[2];
+    bg::convert(a, b);
+    BOOST_CHECK_EQUAL(b[0], 1);
+    BOOST_CHECK_EQUAL(b[1], 2);
+}
+
 int test_main(int, char* [])
 {
     test_mixed_types
@@ -234,5 +243,6 @@ int test_main(int, char* [])
             bg::model::point<float, 2, bg::cs::cartesian>
         >();
 
+    test_array();
     return 0;
 }
