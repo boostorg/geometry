@@ -207,7 +207,7 @@ struct assign_point_from_index
     {
         geometry::set<Dimension>( point, boost::numeric_cast
             <
-                typename coordinate_type<Geometry>::type
+                typename coordinate_type<Point>::type
             >(geometry::get<Index, Dimension>(geometry)));
 
         assign_point_from_index
