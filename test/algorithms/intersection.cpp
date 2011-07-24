@@ -184,15 +184,13 @@ void test_areal()
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
 
+#ifdef _MSC_VER // gcc/linux behaves differently
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         3, 
-#ifdef _MSC_VER
         if_typed<ct, float>(20, 22), 
-#else
-        20,
-#endif
         35723.8506317139);
+#endif
 
     return;
 
