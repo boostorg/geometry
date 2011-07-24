@@ -162,6 +162,14 @@ void test_assign_conversion()
     ring_type ring;
     bg::assign(ring, b);
 
+    {
+        typedef bg::model::ring<P, false, false> ring_type_ccw;
+        ring_type_ccw ring_ccw;
+        // Should NOT compile (currently): bg::assign(ring_ccw, ring);
+
+    }
+
+
     //std::cout << bg::wkt(b) << std::endl;
     //std::cout << bg::wkt(ring) << std::endl;
 
