@@ -14,7 +14,7 @@
 
 #include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/within.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -60,7 +60,7 @@ public:
         size_t child_node_index = 0;
         for ( ; child_node_index < children.size() ; ++child_node_index )
         {
-            if ( index::within(m_tr(m_value), children[child_node_index].first) )
+            if ( geometry::covered_by(m_tr(m_value), children[child_node_index].first) )
             {
                 // next traversing step
                 traverse_apply_visitor(n, child_node_index);
