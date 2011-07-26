@@ -199,7 +199,7 @@ struct find
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            if ( geometry::intersects(it->first, geom) )
+            if ( geometry::overlaps(it->first, geom) )
                 rtree::apply_visitor(*this, *it->second);
         }
     }
@@ -212,7 +212,7 @@ struct find
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            if ( geometry::intersects(tr(*it), geom) )
+            if ( geometry::overlaps(tr(*it), geom) )
             {
                 out_iter = *it;
                 ++out_iter;
