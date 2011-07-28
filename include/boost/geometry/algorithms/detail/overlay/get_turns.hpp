@@ -127,6 +127,34 @@ class get_turns_in_sections
         >::type range2_iterator;
 
 
+    template <typename Geometry, typename Section>
+    static inline bool neighbouring(Section const& section,
+            int index1, int index2)
+    {
+        // About n-2:
+        //   (square: range_count=5, indices 0,1,2,3
+        //    -> 0-3 are adjacent, don't check on intersections)
+        // Also tested for open polygons, and/or duplicates
+        // About first condition: will be optimized by compiler (static)
+        // It checks if it is areal (box,ring,(multi)polygon
+        int const n = int(section.range_count);
+        return boost::is_same
+                    <
+                        typename tag_cast
+                            <
+                                typename geometry::point_type<Geometry1>::type, 
+                                areal_tag
+                            >::type, 
+                        areal_tag
+                    >::value
+               && 
+                (
+                    (index2 == 0 && index1 >= n - 2)
+                    || (index1 == 0 && index2 >= n - 2)
+                )
+                ;
+    }
+
 
 public :
     // Returns true if terminated, false if interrupted
@@ -196,7 +224,7 @@ public :
                 if (skip)
                 {
                     // If sources are the same (possibly self-intersecting):
-                    // skip if it is a neighbouring sement.
+                    // skip if it is a neighbouring segment.
                     // (including first-last segment
                     //  and two segments with one or more degenerate/duplicate
                     //  (zero-length) segments in between)
@@ -204,12 +232,9 @@ public :
                     // Also skip if index1 < index2 to avoid getting all
                     // intersections twice (only do this on same source!)
 
-                    // About n-2:
-                    //   (square: range_count=5, indices 0,1,2,3
-                    //    -> 0-3 are adjacent)
                     skip = index2 >= index1
                         || ndi1 == ndi2 + 1
-                        || (index2 == 0 && index1 >= int(sec1.range_count) - 2)
+                        || neighbouring<Geometry1>(sec1, index1, index2)
                         ;
                 }
 
