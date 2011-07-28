@@ -229,15 +229,13 @@ void test_areal()
         if_typed<ct, double>(5, if_typed_tt<ct>(8, 7)), 
         14729.07145);
         
+#ifdef TEST_ENRICO
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 
-#ifdef _MSC_VER
         if_typed<ct, double>(18, 17), 
-#else
-        18,
-#endif
         129904.197692871);
+#endif
 
 #ifdef _MSC_VER
     // Isovist (submitted by Brandon during Formal Review)
