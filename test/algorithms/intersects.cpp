@@ -59,7 +59,7 @@ void test_all()
     test_self_intersects<polygon>(
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 3,3 3,3 1,1 1),(2 2,2 3.5,3.5 3.5,3.5 2,2 2))", true);
 
-    // Mail Akiro T on [Boost-users] at 27-7-2011 3:17:
+    // Mail Akira T on [Boost-users] at 27-7-2011 3:17
     test_self_intersects<bg::model::linestring<P> >(
         "LINESTRING(0 0,0 4,4 4,2 2,2 5)", true);
 
