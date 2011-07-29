@@ -25,7 +25,9 @@
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/algorithms/detail/has_self_intersections.hpp>
+#if ! defined(BOOST_GEOMETRY_OVERLAY_SKIP_CHECK_SELF_INTERSECTIONS)
+#  include <boost/geometry/algorithms/detail/has_self_intersections.hpp>
+#endif
 
 
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -169,8 +171,10 @@ struct overlay
                 >(geometry1, geometry2, out);
         }
         
+#if ! defined(BOOST_GEOMETRY_OVERLAY_SKIP_CHECK_SELF_INTERSECTIONS)
         has_self_intersections(geometry1);
         has_self_intersections(geometry2);
+#endif
 
         container_type turn_points;
 
