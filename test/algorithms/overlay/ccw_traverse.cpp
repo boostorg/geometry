@@ -62,7 +62,11 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     typedef std::deque<ring_type> out_vector;
     out_vector v;
 
-    bg::traverse<rev<Geometry1>::value, rev<Geometry2>::value>(g1, g2, op, turns, v);
+    bg::detail::overlay::traverse
+        <
+            rev<Geometry1>::value, rev<Geometry2>::value,
+            Geometry1, Geometry2
+        >::apply(g1, g2, op, turns, v);
 
     typename bg::coordinate_type<Geometry1>::type result = 0.0;
     BOOST_FOREACH(ring_type& ring, v)

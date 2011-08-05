@@ -158,7 +158,11 @@ struct test_traverse
         out_vector v;
 
 
-        bg::traverse<Reverse1, Reverse2>(g1, g2, Direction, turns, v);
+        bg::detail::overlay::traverse
+            <
+                Reverse1, Reverse2,
+                G1, G2
+            >::apply(g1, g2, Direction, turns, v);
 
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count == boost::size(v),
