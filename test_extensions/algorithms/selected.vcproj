@@ -21,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\selected"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../../..;../.."
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				RuntimeLibrary="1"
 				ExceptionHandling="2"
@@ -91,7 +91,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\selected"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -112,7 +112,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../../..;../.."
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"

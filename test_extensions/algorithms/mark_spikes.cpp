@@ -18,6 +18,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/multi/multi.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/extensions/algorithms/mark_spikes.hpp>
@@ -30,6 +31,11 @@
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
+
+// BSG 2011/08/05
+// Note: this unit test currently does give errors
+
+
 
 template <typename Geometry, typename Policy>
 inline void test_remove_indentations(std::string const& id,

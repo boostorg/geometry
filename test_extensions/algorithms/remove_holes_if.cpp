@@ -28,7 +28,6 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <test_common/test_point.hpp>
 
 
 template <typename G, typename Predicate>
