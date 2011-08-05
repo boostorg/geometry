@@ -271,16 +271,17 @@ template
     typename IntersectionMap, typename SelectionMap
 >
 inline void select_rings(Geometry const& geometry,
-            IntersectionMap const& intersection_map, SelectionMap& selection_map)
+            IntersectionMap const& intersection_map, 
+            SelectionMap& selection_map, bool midpoint)
 {
     typedef typename geometry::tag<Geometry>::type tag;
 
     SelectionMap map_with_all;
     dispatch::select_rings<tag, Geometry>::apply(geometry, 
-                ring_identifier(0, -1, -1), map_with_all);
+                ring_identifier(0, -1, -1), map_with_all, midpoint);
 
-    update_selection_map<OverlayType>(intersection_map, map_with_all, 
-                selection_map);
+    update_selection_map<OverlayType>(geometry, geometry, intersection_map, 
+                map_with_all, selection_map);
 }
 
 
