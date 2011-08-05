@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_OVERLAY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_OVERLAY_HPP
 
+
 #include <deque>
 #include <map>
 
@@ -24,10 +25,6 @@
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-
-#if ! defined(BOOST_GEOMETRY_OVERLAY_SKIP_CHECK_SELF_INTERSECTIONS)
-#  include <boost/geometry/algorithms/detail/has_self_intersections.hpp>
-#endif
 
 
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -171,11 +168,6 @@ struct overlay
                 >(geometry1, geometry2, out);
         }
         
-#if ! defined(BOOST_GEOMETRY_OVERLAY_SKIP_CHECK_SELF_INTERSECTIONS)
-        has_self_intersections(geometry1);
-        has_self_intersections(geometry2);
-#endif
-
         container_type turn_points;
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
@@ -219,11 +211,14 @@ std::cout << "traverse" << std::endl;
         // Note that these rings are always in clockwise order, even in CCW polygons,
         // and are marked as "to be reversed" below
         ring_container_type rings;
-        geometry::traverse<Reverse1, Reverse2>(geometry1, geometry2,
-                Direction == overlay_union
-                    ? geometry::detail::overlay::operation_union
-                    : geometry::detail::overlay::operation_intersection,
-                turn_points, rings);
+        traverse<Reverse1, Reverse2, Geometry1, Geometry2>::apply
+                (
+                    geometry1, geometry2,
+                    Direction == overlay_union
+                        ? geometry::detail::overlay::operation_union
+                        : geometry::detail::overlay::operation_intersection,
+                    turn_points, rings
+                );
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         std::cout << "traverse: " << timer.elapsed() << std::endl;

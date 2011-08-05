@@ -46,6 +46,36 @@ namespace boost { namespace geometry
 namespace detail { namespace dissolve
 {
 
+template<typename Geometry>
+class backtrack_for_dissolve
+{
+public :
+    typedef detail::overlay::backtrack_state state_type;
+
+    template <typename Operation, typename Rings, typename Turns>
+    static inline void apply(std::size_t size_at_start, 
+                Rings& rings, typename boost::range_value<Rings>::type& ring,
+                Turns& turns, Operation& operation,
+                std::string const& ,
+                Geometry const& ,
+                Geometry const& ,
+                state_type& state
+                )
+    {
+        state.m_good = false;
+        
+        // Make bad output clean
+        rings.resize(size_at_start);
+        ring.clear();
+
+        // Reject this as a starting point
+        operation.visited.set_rejected();
+
+        // And clear all visit info
+        clear_visit_info(turns);
+    }
+};
+
 
 template <typename Geometry, typename GeometryOut>
 struct dissolve_ring_or_polygon
@@ -62,7 +92,7 @@ struct dissolve_ring_or_polygon
 
         std::vector<turn_info> turns;
         detail::get_turns::no_interrupt_policy policy;
-        geometry::get_turns
+        geometry::self_turns
             <
                 detail::overlay::calculate_distance_policy
             >(geometry, turns, policy);
@@ -86,9 +116,16 @@ struct dissolve_ring_or_polygon
                         geometry, geometry,
                         side_strategy_type());
 
+            typedef detail::overlay::traverse
+                <
+                    false, false, 
+                    Geometry, Geometry,
+                    backtrack_for_dissolve<Geometry>
+                > traverser;
+
 
             // Traverse the polygons twice for union...
-            traverse<false, false>(geometry, geometry,
+            traverser::apply(geometry, geometry,
                             detail::overlay::operation_union,
                             turns, rings);
 
@@ -101,7 +138,7 @@ struct dissolve_ring_or_polygon
 
 
             // ... and for intersection
-            traverse<false, false>(geometry, geometry,
+            traverser::apply(geometry, geometry,
                             detail::overlay::operation_intersection,
                             turns, rings);
 
@@ -112,7 +149,7 @@ struct dissolve_ring_or_polygon
 
             std::map<ring_identifier, properties> selected;
 
-            detail::overlay::select_rings<overlay_union>(geometry, map, selected);
+            detail::overlay::select_rings<overlay_union>(geometry, map, selected, true);
 
             // Add intersected rings
             {
@@ -122,7 +159,7 @@ struct dissolve_ring_or_polygon
                         it != boost::end(rings);
                         ++it)
                 {
-                    selected[id] = properties(*it);
+                    selected[id] = properties(*it, true);
                     id.multi_index++;
                 }
             }
