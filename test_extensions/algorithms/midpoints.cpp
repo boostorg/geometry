@@ -30,8 +30,6 @@
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
 
 
-#include <test_common/test_point.hpp>
-
 template <typename G>
 void test_midpoints(G const& g, bool start_and_end)
 {

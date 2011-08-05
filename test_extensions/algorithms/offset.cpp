@@ -23,6 +23,7 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
+NOTE: this unit test currently does not compile, it should be updated first.
 #include <boost/geometry/strategies/buffer.hpp>
 
 

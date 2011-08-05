@@ -27,8 +27,6 @@
 #include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
 
 
-#include <test_common/test_point.hpp>
-
 template <typename G, typename P>
 void test_selected(G const& g, P const& point, bool result, double dist)
 {
