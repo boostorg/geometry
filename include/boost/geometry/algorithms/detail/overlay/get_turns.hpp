@@ -147,11 +147,8 @@ class get_turns_in_sections
                             >::type, 
                         areal_tag
                     >::value
-               && 
-                (
-                    (index2 == 0 && index1 >= n - 2)
-                    || (index1 == 0 && index2 >= n - 2)
-                )
+               && index1 == 0 
+               && index2 >= n - 2
                 ;
     }
 
@@ -232,8 +229,8 @@ public :
                     // Also skip if index1 < index2 to avoid getting all
                     // intersections twice (only do this on same source!)
 
-                    skip = index2 >= index1
-                        || ndi1 == ndi2 + 1
+                    skip = index1 >= index2
+                        || ndi2 == ndi1 + 1
                         || neighbouring<Geometry1>(sec1, index1, index2)
                         ;
                 }

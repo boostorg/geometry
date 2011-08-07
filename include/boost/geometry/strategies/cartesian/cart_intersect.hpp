@@ -193,7 +193,7 @@ struct relate_cartesian_segments
 
         bool collinear = sides.collinear();
 
-        // Get the same type, but at least a double (also used for divisions
+        // Get the same type, but at least a double (also used for divisions)
         typedef typename select_most_precise
             <
                 coordinate_type, double
