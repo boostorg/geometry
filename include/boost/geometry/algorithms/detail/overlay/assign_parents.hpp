@@ -76,7 +76,7 @@ struct ring_info_helper
     {}
 
     inline ring_info_helper(ring_identifier i, area_type a)
-        : id(i), real_area(a), abs_area(abs(a))
+        : id(i), real_area(a), abs_area(geometry::math::abs(a))
     {}
 };
 

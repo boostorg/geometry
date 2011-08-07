@@ -376,8 +376,8 @@ private :
                 // In robustness it can occur that a point of A is inside B AND a point of B is inside A,
                 // still while has_common_points is true (so one point equals the other).
                 // If that is the case we select on length.
-                coordinate_type const length_a = abs(a_1 - a_2);
-                coordinate_type const length_b = abs(b_1 - b_2);
+                coordinate_type const length_a = geometry::math::abs(a_1 - a_2);
+                coordinate_type const length_b = geometry::math::abs(b_1 - b_2);
                 if (length_a > length_b)
                 {
                     a_in_b = false;
