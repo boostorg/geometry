@@ -10,7 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CALCULATE_DISTANCE_POLICY_HPP
 
 
-#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 
 
 namespace boost { namespace geometry
@@ -34,9 +34,9 @@ struct calculate_distance_policy
     static inline void apply(Info& info, Point1 const& p1, Point2 const& p2)
     {
         info.operations[0].enriched.distance
-                    = geometry::distance(info.point, p1);
+                    = geometry::comparable_distance(info.point, p1);
         info.operations[1].enriched.distance
-                    = geometry::distance(info.point, p2);
+                    = geometry::comparable_distance(info.point, p2);
     }
 
 };

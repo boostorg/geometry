@@ -82,7 +82,7 @@ private :
         inline return_type area() const
         {
             return_type result = sum;
-            result *= 0.5;
+            result /= 2;
             return result;
         }
     };
