@@ -24,7 +24,7 @@ struct sample_point
 };
 
 BOOST_FUSION_ADAPT_STRUCT(sample_point, (double, x) (double, y) (double, z))
-BOOST_GEOMETRY_REGISTER_BOOST_FUSION_CS(sample_point)
+BOOST_GEOMETRY_REGISTER_BOOST_FUSION_CS(cs::cartesian)
 
 int main()
 {
