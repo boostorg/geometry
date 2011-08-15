@@ -12,6 +12,8 @@
 #define CREATE_SVG_OVERLAY_HPP
 
 #include <fstream>
+
+#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 
 #if defined(HAVE_SVG)
