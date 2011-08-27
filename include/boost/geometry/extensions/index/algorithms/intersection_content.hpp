@@ -21,14 +21,14 @@ namespace boost { namespace geometry { namespace index {
 template <typename Box>
 inline typename default_content_result<Box>::type intersection_content(Box const& box1, Box const& box2)
 {
-	typename default_content_result<Box>::type result = 0;
-	if ( geometry::intersects(box1, box2) )
-	{
-		Box box_intersection;
-		geometry::intersection(box1, box2, box_intersection);
-		result = index::content(box_intersection);
-	}
-	return result;
+    typename default_content_result<Box>::type result = 0;
+    if ( geometry::intersects(box1, box2) )
+    {
+        Box box_intersection;
+        geometry::intersection(box1, box2, box_intersection);
+        result = index::content(box_intersection);
+    }
+    return result;
 }
 
 }}} // namespace boost::geometry::index

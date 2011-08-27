@@ -23,14 +23,14 @@ namespace detail { namespace rtree { namespace visitors {
 // Default remove algorithm
 template <typename Value, typename Options, typename Translator, typename Box>
 class remove
-	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
-	, index::nonassignable
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+    , index::nonassignable
 {
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
-	typedef typename Options::parameters_type parameters_type;
+    typedef typename Options::parameters_type parameters_type;
 
 public:
     inline remove(node* & root,
@@ -104,8 +104,8 @@ public:
             // n is root node
             else
             {
-				BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root_node), "node must be the root");
-				BOOST_GEOMETRY_INDEX_ASSERT(m_is_value_removed, "value not found");
+                BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root_node), "node must be the root");
+                BOOST_GEOMETRY_INDEX_ASSERT(m_is_value_removed, "value not found");
 
                 // reinsert elements from removed nodes
                 // begin with levels closer to the root

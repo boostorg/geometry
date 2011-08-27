@@ -40,7 +40,7 @@ struct choose_next_node<Value, Options, Box, choose_by_content_diff_tag>
     {
         children_type & children = rtree::elements(n);
 
-		BOOST_GEOMETRY_INDEX_ASSERT(!children.empty(), "can't choose the next node if children are empty");
+        BOOST_GEOMETRY_INDEX_ASSERT(!children.empty(), "can't choose the next node if children are empty");
 
         size_t children_count = children.size();
 
@@ -94,61 +94,61 @@ template <typename Value, typename Options, typename Translator, typename Box>
 class split<Value, Options, Translator, Box, split_default_tag>
 {
 protected:
-	typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-	typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-	typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
-	typedef typename Options::parameters_type parameters_type;
+    typedef typename Options::parameters_type parameters_type;
 
 public:
-	template <typename Node>
-	static inline void apply(node* & root_node,
-							 size_t & leafs_level,
-							 Node & n,
-							 internal_node *parent_node,
-							 size_t current_child_index,
-							 Translator const& tr)
-	{
-		// create additional node
-		node * second_node = rtree::create_node(Node());
-		Node & n2 = rtree::get<Node>(*second_node);
+    template <typename Node>
+    static inline void apply(node* & root_node,
+                             size_t & leafs_level,
+                             Node & n,
+                             internal_node *parent_node,
+                             size_t current_child_index,
+                             Translator const& tr)
+    {
+        // create additional node
+        node * second_node = rtree::create_node(Node());
+        Node & n2 = rtree::get<Node>(*second_node);
 
-		// redistribute elements
-		Box box1, box2;
-		redistribute_elements<Value, Options, Translator, Box, typename Options::redistribute_tag>::
-			apply(n, n2, box1, box2, tr);
+        // redistribute elements
+        Box box1, box2;
+        redistribute_elements<Value, Options, Translator, Box, typename Options::redistribute_tag>::
+            apply(n, n2, box1, box2, tr);
 
-		// check numbers of elements
-		BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n).size() &&
-			rtree::elements(n).size() <= parameters_type::max_elements,
-			"unexpected number of elements");
-		BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n2).size() &&
-			rtree::elements(n2).size() <= parameters_type::max_elements,
-			"unexpected number of elements");
+        // check numbers of elements
+        BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n).size() &&
+            rtree::elements(n).size() <= parameters_type::max_elements,
+            "unexpected number of elements");
+        BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n2).size() &&
+            rtree::elements(n2).size() <= parameters_type::max_elements,
+            "unexpected number of elements");
 
-		// node is not the root - just add the new node
-		if ( parent_node != 0 )
-		{
-			// update old node's box
-			rtree::elements(*parent_node)[current_child_index].first = box1;
-			// add new node to the parent's children
-			rtree::elements(*parent_node).push_back(std::make_pair(box2, second_node));
-		}
-		// node is the root - add level
-		else
-		{
-			BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(root_node), "node should be the root");
+        // node is not the root - just add the new node
+        if ( parent_node != 0 )
+        {
+            // update old node's box
+            rtree::elements(*parent_node)[current_child_index].first = box1;
+            // add new node to the parent's children
+            rtree::elements(*parent_node).push_back(std::make_pair(box2, second_node));
+        }
+        // node is the root - add level
+        else
+        {
+            BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(root_node), "node should be the root");
 
-			// create new root and add nodes
-			node * new_root = rtree::create_node(internal_node());
+            // create new root and add nodes
+            node * new_root = rtree::create_node(internal_node());
 
-			rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root_node));
-			rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
+            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root_node));
+            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
 
-			root_node = new_root;
-			++leafs_level;
-		}
-	}
+            root_node = new_root;
+            ++leafs_level;
+        }
+    }
 };
 
 // ----------------------------------------------------------------------- //
@@ -156,15 +156,15 @@ public:
 // Default insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
 class insert
-	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
-	, index::nonassignable
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+    , index::nonassignable
 {
 protected:
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
-	typedef typename Options::parameters_type parameters_type;
+    typedef typename Options::parameters_type parameters_type;
 
     inline insert(node* & root,
                   size_t & leafs_level,
@@ -174,7 +174,7 @@ protected:
     )
         : m_element(element)
         , m_tr(t)
-		, m_relative_level(relative_level)
+        , m_relative_level(relative_level)
         , m_level(leafs_level - relative_level)
         , m_root_node(root)
         , m_leafs_level(leafs_level)
@@ -182,8 +182,8 @@ protected:
         , m_current_child_index(0)
         , m_current_level(0)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(m_relative_level <= leafs_level, "unexpected level value");
-		BOOST_GEOMETRY_INDEX_ASSERT(m_level <= m_leafs_level, "unexpected level value");
+        BOOST_GEOMETRY_INDEX_ASSERT(m_relative_level <= leafs_level, "unexpected level value");
+        BOOST_GEOMETRY_INDEX_ASSERT(m_level <= m_leafs_level, "unexpected level value");
         // TODO
         // assert - check if Box is correct
     }
@@ -209,13 +209,13 @@ protected:
     template <typename Node>
     inline void post_traverse(Node &n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(0 == m_parent || &n == rtree::get<Node>(rtree::elements(*m_parent)[m_current_child_index].second),
-									"if node isn't the root current_child_index should be valid");
+        BOOST_GEOMETRY_INDEX_ASSERT(0 == m_parent || &n == rtree::get<Node>(rtree::elements(*m_parent)[m_current_child_index].second),
+                                    "if node isn't the root current_child_index should be valid");
 
         // handle overflow
         if ( parameters_type::max_elements < rtree::elements(n).size() )
         {
-			split(n);
+            split(n);
         }
     }
 
@@ -241,17 +241,17 @@ protected:
         m_current_level = current_level_bckup;
     }
 
-	template <typename Node>
-	inline void split(Node & n) const
-	{
-		detail::split<Value, Options, Translator, Box, typename Options::split_tag>::apply(m_root_node, m_leafs_level, n, m_parent, m_current_child_index, m_tr);
-	}
+    template <typename Node>
+    inline void split(Node & n) const
+    {
+        detail::split<Value, Options, Translator, Box, typename Options::split_tag>::apply(m_root_node, m_leafs_level, n, m_parent, m_current_child_index, m_tr);
+    }
 
     // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation
 
     Element const& m_element;
     Translator const& m_tr;
-	const size_t m_relative_level;
+    const size_t m_relative_level;
     const size_t m_level;
 
     node* & m_root_node;
@@ -272,7 +272,7 @@ struct insert;
 // Default insert visitor used for nodes elements
 template <typename Element, typename Value, typename Options, typename Translator, typename Box>
 struct insert<Element, Value, Options, Translator, Box, insert_default_tag>
-	: public detail::insert<Element, Value, Options, Translator, Box>
+    : public detail::insert<Element, Value, Options, Translator, Box>
 {
     typedef detail::insert<Element, Value, Options, Translator, Box> base;
     typedef typename base::node node;
@@ -290,7 +290,7 @@ struct insert<Element, Value, Options, Translator, Box, insert_default_tag>
 
     inline void operator()(internal_node & n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
 
         if ( base::m_current_level < base::m_level )
         {
@@ -299,7 +299,7 @@ struct insert<Element, Value, Options, Translator, Box, insert_default_tag>
         }
         else
         {
-			BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level, "unexpected level");
+            BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level, "unexpected level");
 
             // push new child node
             rtree::elements(n).push_back(base::m_element);
@@ -317,7 +317,7 @@ struct insert<Element, Value, Options, Translator, Box, insert_default_tag>
 // Default insert visitor specialized for Values elements
 template <typename Value, typename Options, typename Translator, typename Box>
 struct insert<Value, Value, Options, Translator, Box, insert_default_tag>
-	: public detail::insert<Value, Value, Options, Translator, Box>
+    : public detail::insert<Value, Value, Options, Translator, Box>
 {
     typedef detail::insert<Value, Value, Options, Translator, Box> base;
     typedef typename base::node node;
@@ -335,8 +335,8 @@ struct insert<Value, Value, Options, Translator, Box, insert_default_tag>
 
     inline void operator()(internal_node & n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_level, "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_level, "unexpected level");
 
         // next traversing step
         base::traverse(*this, n);
@@ -346,8 +346,8 @@ struct insert<Value, Value, Options, Translator, Box, insert_default_tag>
 
     inline void operator()(leaf & n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == std::numeric_limits<size_t>::max(), "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == std::numeric_limits<size_t>::max(), "unexpected level");
         
         rtree::elements(n).push_back(base::m_element);
 

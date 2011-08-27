@@ -142,8 +142,8 @@ namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Geometry, typename OutIter>
 struct find
-	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
-	, index::nonassignable
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
+    , index::nonassignable
 {
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;

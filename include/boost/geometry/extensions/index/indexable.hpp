@@ -162,13 +162,13 @@ typename traits::coordinate_type<Indexable>::type get(Indexable const& i)
 template <typename Indexable>
 struct default_box_type
 {
-	typedef geometry::model::box<
-		geometry::model::point<
-			typename traits::coordinate_type<Indexable>::type,
-			traits::dimension<Indexable>::value,
-			typename traits::coordinate_system<Indexable>::type
-		>
-	> type;
+    typedef geometry::model::box<
+        geometry::model::point<
+            typename traits::coordinate_type<Indexable>::type,
+            traits::dimension<Indexable>::value,
+            typename traits::coordinate_system<Indexable>::type
+        >
+    > type;
 };
 
 }}} // namespace boost::geometry::index

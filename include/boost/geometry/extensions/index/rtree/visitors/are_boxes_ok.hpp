@@ -19,8 +19,8 @@ namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Options, typename Translator, typename Box>
 class are_boxes_ok
-	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
-	, index::nonassignable
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
+    , index::nonassignable
 {
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
@@ -76,27 +76,27 @@ public:
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-		// non-root node
+        // non-root node
         if (!m_is_root)
         {
-			if ( elements.empty() )
-			{
-				result = false;
-				return;
-			}
+            if ( elements.empty() )
+            {
+                result = false;
+                return;
+            }
         
-			Box box_exp;
-			geometry::convert(m_tr(elements.front()), box_exp);
-			for(typename elements_type::const_iterator it = elements.begin() + 1;
-				it != elements.end() ; ++it)
-			{
-				geometry::expand(box_exp, m_tr(*it));
-			}
+            Box box_exp;
+            geometry::convert(m_tr(elements.front()), box_exp);
+            for(typename elements_type::const_iterator it = elements.begin() + 1;
+                it != elements.end() ; ++it)
+            {
+                geometry::expand(box_exp, m_tr(*it));
+            }
 
-			result = geometry::equals(box_exp, m_box);
-		}
-		else
-			result = true;
+            result = geometry::equals(box_exp, m_box);
+        }
+        else
+            result = true;
     }
 
     bool result;
@@ -115,7 +115,7 @@ bool are_boxes_ok(rtree<Value, Options, Translator> const& tree)
     typedef rtree<Value, Options, Translator> rt;
     detail::rtree::visitors::are_boxes_ok<
         typename rt::value_type,
-		typename rt::options_type,
+        typename rt::options_type,
         typename rt::translator_type,
         typename rt::box_type> v(tree.get_translator());
     

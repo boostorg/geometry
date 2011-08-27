@@ -14,7 +14,7 @@ namespace boost { namespace geometry { namespace index {
 
 class nonassignable
 {
-	nonassignable & operator=(nonassignable const&);
+    nonassignable & operator=(nonassignable const&);
 };
 
 }}} // namespace boost::geometry::index

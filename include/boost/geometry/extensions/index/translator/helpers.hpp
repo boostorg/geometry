@@ -173,15 +173,15 @@ struct equals< std::pair<First, Second> >
     static bool apply(std::pair<First, Second> const& p1, std::pair<First, Second> const& p2)
     {
         return
-			dispatch::equals<
-				First,
-				typename traits::tag<First>::type
-			>::apply(p1.first, p2.first)
-			&&
             dispatch::equals<
-				Second,
-				typename traits::tag<Second>::type
-			>::apply(p1.second, p2.second);
+                First,
+                typename traits::tag<First>::type
+            >::apply(p1.first, p2.first)
+            &&
+            dispatch::equals<
+                Second,
+                typename traits::tag<Second>::type
+            >::apply(p1.second, p2.second);
     }
 };
 

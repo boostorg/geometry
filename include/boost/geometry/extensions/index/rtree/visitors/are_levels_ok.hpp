@@ -18,8 +18,8 @@ namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Options, typename Translator, typename Box>
 class are_levels_ok
-	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
-	, index::nonassignable
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
+    , index::nonassignable
 {
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
@@ -40,10 +40,10 @@ public:
             return;
         }
 
-		size_t current_level_backup = m_current_level;
-		++m_current_level;
+        size_t current_level_backup = m_current_level;
+        ++m_current_level;
 
-		for ( typename elements_type::const_iterator it = elements.begin();
+        for ( typename elements_type::const_iterator it = elements.begin();
               it != elements.end() ; ++it)
         {
             rtree::apply_visitor(*this, *it->second);
@@ -52,7 +52,7 @@ public:
                 return;
         }
 
-		m_current_level = current_level_backup;
+        m_current_level = current_level_backup;
     }
 
     inline void operator()(leaf const& n)
@@ -60,7 +60,7 @@ public:
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-		// empty leaf in non-root node
+        // empty leaf in non-root node
         if (0 < m_current_level && elements.empty())
         {
             result = false;
@@ -68,13 +68,13 @@ public:
         }
 
         if ( m_leafs_level == std::numeric_limits<size_t>::max() )
-		{
-			m_leafs_level = m_current_level;
-		}
-		else if ( m_leafs_level != m_current_level )
-		{
-			result = false;
-		}
+        {
+            m_leafs_level = m_current_level;
+        }
+        else if ( m_leafs_level != m_current_level )
+        {
+            result = false;
+        }
     }
 
     bool result;
@@ -82,7 +82,7 @@ public:
 private:
     Translator const& m_tr;
     size_t m_leafs_level;
-	size_t m_current_level;
+    size_t m_current_level;
 };
 
 }}} // namespace detail::rtree::visitors
@@ -93,7 +93,7 @@ bool are_levels_ok(rtree<Value, Options, Translator> const& tree)
     typedef rtree<Value, Options, Translator> rt;
     detail::rtree::visitors::are_levels_ok<
         typename rt::value_type,
-		typename rt::options_type,
+        typename rt::options_type,
         typename rt::translator_type,
         typename rt::box_type> v(tree.get_translator());
     

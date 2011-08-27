@@ -22,11 +22,13 @@
 #include <boost/geometry/extensions/index/translator/translator.hpp>
 
 #include <boost/geometry/extensions/index/rtree/options.hpp>
-#include <boost/geometry/extensions/index/rtree/filters.hpp>
+#include <boost/geometry/extensions/index/rtree/predicates.hpp>
+//#include <boost/geometry/extensions/index/rtree/filters.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/find.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/query.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/remove.hpp>
@@ -42,19 +44,19 @@ namespace boost { namespace geometry { namespace index {
 template <
     typename Value,
     typename Parameters,
-	typename Translator = translator::def<Value>
+    typename Translator = translator::def<Value>
 >
 class rtree
-	: public boost::noncopyable
+    : public boost::noncopyable
 {
 public:
     typedef Value value_type;
     typedef Translator translator_type;
-	typedef typename translator_type::indexable_type indexable_type;
+    typedef typename translator_type::indexable_type indexable_type;
     typedef typename index::default_box_type<indexable_type>::type box_type;
     
-	typedef typename detail::rtree::options_type<Parameters>::type options_type;
-	typedef typename options_type::node_tag node_tag;
+    typedef typename detail::rtree::options_type<Parameters>::type options_type;
+    typedef typename options_type::node_tag node_tag;
 
     typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, node_tag>::type node;
     typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, node_tag>::type internal_node;
@@ -75,8 +77,16 @@ public:
         detail::rtree::apply_visitor(del_v, *m_root);
     }
 
-    // TODO: awulkiew - change name to query?
+    template <typename Predicates, typename OutIter>
+    inline void query(Predicates const& pred, OutIter out_it) const
+    {
+        detail::rtree::visitors::query<value_type, options_type, translator_type, box_type, Predicates, OutIter>
+            find_v(m_translator, pred, out_it);
 
+        detail::rtree::apply_visitor(find_v, *m_root);
+    }
+
+    // TODO: delete find method
     template <typename Geometry, typename OutIter>
     inline void find(Geometry const& geom, OutIter out_it) const
     {

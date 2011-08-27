@@ -26,16 +26,16 @@ int main()
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
 
-	//typedef bg::model::d2::point_xy<double> P;
+    //typedef bg::model::d2::point_xy<double> P;
     typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
-    //typedef bgi::rtree<std::pair<B, size_t>, bgi::linear<32, 8> > RT;
+    typedef bgi::rtree<std::pair<B, size_t>, bgi::linear<32, 8> > RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::quadratic<32, 8> > RT;
-    typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar<32, 8> > RT;
-	/*typedef bgi::rtree<
-		std::pair<B, size_t>,
-		bgi::options::rtree<bgi::rstar<32, 8, 0, 10>, bgi::reinsert_tag, bgi::choose_by_area_diff_tag, bgi::rstar_tag, bgi::default_tag>
-	> RT;*/
+    //typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar<32, 8> > RT;
+    /*typedef bgi::rtree<
+        std::pair<B, size_t>,
+        bgi::options::rtree<bgi::rstar<32, 8, 0, 10>, bgi::reinsert_tag, bgi::choose_by_area_diff_tag, bgi::rstar_tag, bgi::default_tag>
+    > RT;*/
 
     // load config file
     std::ifstream file_cfg("config.txt");
@@ -89,13 +89,13 @@ int main()
     else
     {
         boost::mt19937 rng;
-		//rng.seed(static_cast<unsigned int>(std::time(0)));
+        //rng.seed(static_cast<unsigned int>(std::time(0)));
         
-		float max_val = static_cast<float>(values_count / 2);
+        float max_val = static_cast<float>(values_count / 2);
         boost::uniform_real<float> range(-max_val, max_val);
         
-		boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > rnd(rng, range);
-		
+        boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > rnd(rng, range);
+        
         std::cout << "randomizing data\n";
         for ( size_t i = 0 ; i < values_count ; ++i )
         {
@@ -127,14 +127,14 @@ int main()
         std::cout << "BOXES OK\n";
     else
         std::cout << "WRONG BOXES\n";
-	if ( bgi::are_levels_ok(t) )
-		std::cout << "LEVELS OK\n";
-	else
-		std::cout << "WRONG LEVELS\n";
+    if ( bgi::are_levels_ok(t) )
+        std::cout << "LEVELS OK\n";
+    else
+        std::cout << "WRONG LEVELS\n";
 
     // searching test
     {
-        std::cout << "searching time test...\n";
+        std::cout << "find(B) searching time test...\n";
         tim.restart();    
         size_t temp = 0;
         for (size_t i = 0 ; i < queries_count ; ++i )
@@ -143,6 +143,40 @@ int main()
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
             t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+            temp += result.size();
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << "found: " << temp << "\n";
+    }
+
+    // searching test
+    {
+        std::cout << "query(intersects(B)) searching time test...\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            std::deque< std::pair<B, size_t> > result;
+            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            temp += result.size();
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << "found: " << temp << "\n";
+    }
+
+    // searching test
+    {
+        std::cout << "query(B) searching time test...\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            std::deque< std::pair<B, size_t> > result;
+            t.query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -164,15 +198,15 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
-	// check
-	if ( bgi::are_boxes_ok(t) )
-		std::cout << "BOXES OK\n";
-	else
-		std::cout << "WRONG BOXES\n";
-	if ( bgi::are_levels_ok(t) )
-		std::cout << "LEVELS OK\n";
-	else
-		std::cout << "WRONG LEVELS\n";
+    // check
+    if ( bgi::are_boxes_ok(t) )
+        std::cout << "BOXES OK\n";
+    else
+        std::cout << "WRONG BOXES\n";
+    if ( bgi::are_levels_ok(t) )
+        std::cout << "LEVELS OK\n";
+    else
+        std::cout << "WRONG LEVELS\n";
 
     // searching test
     {
@@ -184,7 +218,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -206,15 +240,15 @@ int main()
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
 
-	// check
-	if ( bgi::are_boxes_ok(t) )
-		std::cout << "BOXES OK\n";
-	else
-		std::cout << "WRONG BOXES\n";
-	if ( bgi::are_levels_ok(t) )
-		std::cout << "LEVELS OK\n";
-	else
-		std::cout << "WRONG LEVELS\n";
+    // check
+    if ( bgi::are_boxes_ok(t) )
+        std::cout << "BOXES OK\n";
+    else
+        std::cout << "WRONG BOXES\n";
+    if ( bgi::are_levels_ok(t) )
+        std::cout << "LEVELS OK\n";
+    else
+        std::cout << "WRONG LEVELS\n";
 
     // searching test
     {
@@ -226,7 +260,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";

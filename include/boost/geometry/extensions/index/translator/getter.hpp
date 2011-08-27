@@ -17,7 +17,7 @@ struct getter
 {
     typedef Indexable indexable_type;
 
-	indexable_type const& operator()(Value const& v) const
+    indexable_type const& operator()(Value const& v) const
     {
         return (v.*Getter)();
     }
@@ -25,7 +25,7 @@ struct getter
     bool equals(Value const& v1, Value const& v2) const
     {
         //return geometry::equals(operator()(v1), operator()(v2));
-		return v1 == v2;
+        return v1 == v2;
     }
 };
 

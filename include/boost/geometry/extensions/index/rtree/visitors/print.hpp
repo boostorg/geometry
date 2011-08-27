@@ -182,7 +182,7 @@ template <typename Value, typename Options, typename Translator>
 std::ostream & operator<<(std::ostream & os, rtree<Value, Options, Translator> const& tree)
 {
     typedef typename rtree<Value, Options, Translator>::value_type value_type;
-	typedef typename rtree<Value, Options, Translator>::options_type options_type;
+    typedef typename rtree<Value, Options, Translator>::options_type options_type;
     typedef typename rtree<Value, Options, Translator>::translator_type translator_type;
     typedef typename rtree<Value, Options, Translator>::box_type box_type;
     detail::rtree::visitors::print<value_type, options_type, translator_type, box_type> print_v(os, tree.get_translator());

@@ -196,7 +196,7 @@ void gl_draw(rtree<Value, Options, Translator> const& tree,
              )
 {
     typedef typename rtree<Value, Options, Translator>::value_type value_type;
-	typedef typename rtree<Value, Options, Translator>::options_type options_type;
+    typedef typename rtree<Value, Options, Translator>::options_type options_type;
     typedef typename rtree<Value, Options, Translator>::translator_type translator_type;
     typedef typename rtree<Value, Options, Translator>::box_type box_type;
 
