@@ -20,14 +20,15 @@
 //#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 
 
-#include <algorithms/test_intersection.hpp>
-#include <algorithms/test_overlay.hpp>
-
-#include <algorithms/overlay/overlay_cases.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
 #include <boost/geometry/util/rational.hpp>
+
+#include <algorithms/test_intersection.hpp>
+#include <algorithms/test_overlay.hpp>
+
+#include <algorithms/overlay/overlay_cases.hpp>
 
 #include <test_common/test_point.hpp>
 #include <test_common/with_pointer.hpp>

@@ -13,7 +13,6 @@
 #include <iomanip>
 
 #include <boost/foreach.hpp>
-#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/area.hpp>
@@ -32,7 +31,7 @@
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 #endif
 
-
+#include <geometry_test_common.hpp>
 
 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
@@ -80,7 +79,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         }
 
         // instead of specialization we check it run-time here
-        length_or_area += is_line
+        length_or_area += is_line 
             ? bg::length(*it)
             : bg::area(*it);
 
@@ -114,7 +113,8 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
                 );
     }
 
-    BOOST_CHECK_CLOSE(length_or_area, expected_length_or_area, percentage);
+    double const detected_length_or_area = boost::numeric_cast<double>(length_or_area);
+    BOOST_CHECK_CLOSE(detected_length_or_area, expected_length_or_area, percentage);
 #endif
 
 
