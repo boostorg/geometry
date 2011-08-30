@@ -166,7 +166,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
         1,
-        if_typed<ct, float>(19, if_typed<ct, double>(22, 20)),
+        if_typed<ct, float>(19, if_typed<ct, double>(20, 20)),
         88.19203,
         if_typed<ct, float>(0.5, if_typed<ct, double>(0.1, 0.01)));
 #endif
@@ -191,7 +191,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         3, 
-        if_typed<ct, float>(20, 22), 
+        if_typed<ct, float>(19, if_typed<ct, double>(22, 21)),
         35723.8506317139);
 #endif
 

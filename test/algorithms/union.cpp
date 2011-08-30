@@ -244,7 +244,7 @@ void test_areal()
         1,
         0,
         if_typed<ct, float>(71, 
-            if_typed<ct, double>(72, 73)),
+            if_typed<ct, double>(70, 73)),
         313.36036462);
 #endif
 }
