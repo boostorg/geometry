@@ -265,6 +265,23 @@ void test_boxes(std::string const& wkt1, std::string const& wkt2, double expecte
 
 
 template <typename P>
+void test_point_output()
+{
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::box<P> box;
+    typedef bg::model::segment<P> segment;
+
+    test_point_output<polygon, polygon>(simplex_normal[0], simplex_normal[1], 6);
+    test_point_output<box, polygon>("box(1 1,6 4)", simplex_normal[0], 4);
+    test_point_output<linestring, polygon>("linestring(0 2,6 2)", simplex_normal[0], 2);
+    // NYI because of sectionize:
+    // test_point_output<segment, polygon>("linestring(0 2,6 2)", simplex_normal[0], 2);
+    // NYI because needs special treatment:
+    // test_point_output<box, box>("box(0 0,4 4)", "box(2 2,6 6)", 2);
+}
+
+template <typename P>
 void test_all()
 {
     typedef bg::model::linestring<P> linestring;
@@ -337,6 +354,8 @@ void test_all()
     test_boxes<box>("box(2 2,8 7)", "box(4 4,10 10)", 12, true);
     test_boxes<box>("box(2 2,8 7)", "box(14 4,20 10)", 0, false);
     test_boxes<box>("box(2 2,4 4)", "box(4 4,8 8)", 0, true);
+
+    test_point_output<P>();
 
 
     /*

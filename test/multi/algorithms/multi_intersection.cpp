@@ -138,6 +138,19 @@ void test_linear()
         2, 4, 2 * std::sqrt(2.0));
 }
 
+template <typename P>
+void test_point_output()
+{
+    typedef bg::model::box<P> box;
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::multi_polygon<polygon> multi_polygon;
+
+    test_point_output<multi_polygon, multi_polygon>(case_multi_simplex[0], case_multi_simplex[1], 10);
+    test_point_output<linestring, multi_polygon>("linestring(4 0,0 4)", case_multi_simplex[0], 4);
+    test_point_output<box, multi_polygon>("box(3 0,4 6)", case_multi_simplex[0], 8);
+}
+
 
 template <typename P>
 void test_all()
@@ -174,6 +187,7 @@ void test_all()
     test_linear<linestring, multi_linestring, box>();
 #endif
 
+    test_point_output<P>();
     // linear
 
 }

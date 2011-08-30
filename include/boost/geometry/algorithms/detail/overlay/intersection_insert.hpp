@@ -295,6 +295,49 @@ struct intersection_insert
     }
 };
 
+template
+<
+    typename Tag1, typename Tag2,
+    bool Areal1, bool Areal2,
+    typename Geometry1, typename Geometry2,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename OutputIterator, typename PointOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        Tag1, Tag2, point_tag,
+        Areal1, Areal2, false,
+        Geometry1, Geometry2,
+        Reverse1, Reverse2, ReverseOut,
+        OutputIterator, PointOut,
+        OverlayType,
+        Strategy
+    >
+{
+    static inline OutputIterator apply(Geometry1 const& geometry1,
+            Geometry2 const& geometry2, OutputIterator out, Strategy const& strategy)
+    {
+
+        typedef detail::overlay::turn_info<PointOut> turn_info;
+        std::vector<turn_info> turns;
+
+        detail::get_turns::no_interrupt_policy policy;
+        geometry::get_turns
+            <
+                false, false, detail::overlay::assign_null_policy
+            >(geometry1, geometry2, turns, policy);
+        for (typename std::vector<turn_info>::const_iterator it
+            = turns.begin(); it != turns.end(); ++it)
+        {
+            *out++ = it->point;
+        }
+
+        return out;
+    }
+};
+
 
 template
 <
