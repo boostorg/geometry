@@ -184,6 +184,21 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
         expected_length_or_area, percentage);
 }
 
+template <typename Geometry1, typename Geometry2>
+void test_point_output(std::string const& wkt1, std::string const& wkt2, int expected_count)
+{
+    Geometry1 g1;
+    bg::read_wkt(wkt1, g1);
+    bg::correct(g1);
+        
+    Geometry2 g2;
+    bg::read_wkt(wkt2, g2);
+    bg::correct(g2);
+
+    std::vector<typename bg::point_type<Geometry1>::type> points;
+    bg::intersection(g1, g2, points);
+    BOOST_CHECK_EQUAL(points.size(), expected_count);
+}
 
 
 #endif
