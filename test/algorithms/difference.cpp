@@ -224,6 +224,12 @@ void test_all()
         1, 0, 58456.4964294434
         );
 
+    test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
+        ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
+        1, 0, 2.8570121719168924,
+        1, 0, 64.498061986388564); 
+
+
 
 #ifdef _MSC_VER
     // 2011-07-02
