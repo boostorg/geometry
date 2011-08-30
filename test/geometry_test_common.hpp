@@ -82,6 +82,11 @@ template <> struct string_from_type<long double>
     { static std::string name() { return "t"; }  };
 #endif
 
+#if defined(BOOST_RATIONAL_HPP) 
+template <typename T> struct string_from_type<boost::rational<T> >
+{ static std::string name() { return "r"; }  };
+#endif
+
 
 #if defined(HAVE_GMP)
     template <> struct string_from_type<boost::numeric_adaptor::gmp_value_type>

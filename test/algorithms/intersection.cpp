@@ -27,6 +27,8 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
+#include <boost/geometry/util/rational.hpp>
+
 #include <test_common/test_point.hpp>
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/custom_segment.hpp>
@@ -399,10 +401,18 @@ void test_exception()
     BOOST_CHECK_MESSAGE(false, "No exception thrown");
 }
 
+template <typename Point>
+void test_rational()
+{
+    typedef bg::model::polygon<Point> polygon;
+    test_one<polygon, polygon, polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 7, 5.47363293);
+}
+
+
 int test_main(int, char* [])
 {
-    test_exception<bg::model::d2::point_xy<double> >();
-
     test_all<bg::model::d2::point_xy<double> >();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
@@ -412,8 +422,11 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
-    //test_pointer_version();
 #endif
+
+    test_exception<bg::model::d2::point_xy<double> >();
+    test_pointer_version();
+    test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
 
     return 0;
 }
