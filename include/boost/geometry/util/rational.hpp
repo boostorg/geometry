@@ -117,9 +117,7 @@ struct converter<int, rational<T>, Traits, OverflowHandler, Float2IntRounder, Ra
 {
     static inline int convert(rational<T> const& arg)
     {
-        double v = arg.numerator();
-        v /= arg.denominator();
-        return int(v);
+        return int(rational_cast<double>(arg));
     }
 };
 
@@ -136,9 +134,7 @@ struct converter<double, rational<T>, Traits, OverflowHandler, Float2IntRounder,
 {
     static inline double convert(rational<T> const& arg)
     {
-        double v = arg.numerator();
-        v /= arg.denominator();
-        return v;
+        return rational_cast<double>(arg);
     }
 };
 
