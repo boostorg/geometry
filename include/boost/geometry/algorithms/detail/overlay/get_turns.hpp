@@ -514,9 +514,9 @@ struct get_turns_cs
         next++;
         next++;
 
-        bool first = true;
+        //bool first = true;
 
-        char previous_side[2] = {0, 0};
+        //char previous_side[2] = {0, 0};
 
         int index = 0;
 
@@ -527,7 +527,7 @@ struct get_turns_cs
             segment_identifier seg_id(source_id1,
                         multi_index, ring_index, index);
 
-            if (first)
+            /*if (first)
             {
                 previous_side[0] = get_side<0>(box, *prev);
                 previous_side[1] = get_side<1>(box, *prev);
@@ -541,7 +541,7 @@ struct get_turns_cs
             // 1) EITHER the two points are lying on one side of the box (! 0 && the same)
             // 2) OR same in Y-direction
             // 3) OR all points are inside the box (0)
-            /*if (! (
+            if (! (
                 (current_side[0] != 0 && current_side[0] == previous_side[0])
                 || (current_side[1] != 0 && current_side[1] == previous_side[1])
                 || (current_side[0] == 0
