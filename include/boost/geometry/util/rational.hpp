@@ -33,28 +33,62 @@ namespace detail
 template <typename T>
 struct coordinate_cast<rational<T> >
 {
+    static inline void split_parts(std::string const& source, std::string::size_type p,
+        T& before, T& after, bool& negate, std::string::size_type& len)
+    {
+        std::string before_part = source.substr(0, p);
+        std::string const after_part = source.substr(p + 1);
+
+		negate = false;
+
+		if (before_part.size() > 0 && before_part[0] == '-')
+		{
+			negate = true;
+			before_part.erase(0, 1);
+		}
+        before = atol(before_part.c_str());
+        after = atol(after_part.c_str());
+        len = after_part.length();
+    }
+
+
     static inline rational<T> apply(std::string const& source)
     {
+        T before, after;
+        bool negate;
+        std::string::size_type len;
+
         // Note: decimal comma is not (yet) supported, it does (and should) not
         // occur in a WKT, where points are comma separated.
-        std::string::size_type const p = source.find(".");
+        std::string::size_type p = source.find(".");
         if (p == std::string::npos)
         {
-            return rational<T>(atol(source.c_str()));
+            p = source.find("/");
+            if (p == std::string::npos)
+            {
+                return rational<T>(atol(source.c_str()));
+            }
+            split_parts(source, p, before, after, negate, len);
+
+            return negate 
+			    ? -rational<T>(before, after)
+			    : rational<T>(before, after)
+			    ;
+
         }
 
-        std::string const natural_part = source.substr(0, p);
-        std::string const fraction = source.substr(p + 1);
+        split_parts(source, p, before, after, negate, len);
 
-        T const nat = atol(natural_part.c_str());
-        T const nom = atol(fraction.c_str());
         T den = 1;
-        for (std::string::size_type i = 0; i < fraction.length(); i++)
+        for (std::string::size_type i = 0; i < len; i++)
         {
             den *= 10;
         }
 
-        return rational<T>(nat) + rational<T>(nom, den);
+        return negate 
+			? -rational<T>(before) - rational<T>(after, den)
+			: rational<T>(before) + rational<T>(after, den)
+			;
     }
 };
 

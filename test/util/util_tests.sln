@@ -8,6 +8,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "write_dsv", "write_dsv.vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "as_range", "as_range.vcproj", "{A36D8426-67EB-405C-B6E8-3FBB3374A59B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rational", "rational.vcproj", "{6ABF6324-C1DC-4687-9895-B4CE2B27446F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -30,6 +32,10 @@ Global
 		{A36D8426-67EB-405C-B6E8-3FBB3374A59B}.Debug|Win32.Build.0 = Debug|Win32
 		{A36D8426-67EB-405C-B6E8-3FBB3374A59B}.Release|Win32.ActiveCfg = Release|Win32
 		{A36D8426-67EB-405C-B6E8-3FBB3374A59B}.Release|Win32.Build.0 = Release|Win32
+		{6ABF6324-C1DC-4687-9895-B4CE2B27446F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6ABF6324-C1DC-4687-9895-B4CE2B27446F}.Debug|Win32.Build.0 = Debug|Win32
+		{6ABF6324-C1DC-4687-9895-B4CE2B27446F}.Release|Win32.ActiveCfg = Release|Win32
+		{6ABF6324-C1DC-4687-9895-B4CE2B27446F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
