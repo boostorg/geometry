@@ -11,6 +11,7 @@
 test-suite boost-geometry-util
     :
     [ run for_each_coordinate.cpp ]
+    [ run rational.cpp ]
     [ run select_most_precise.cpp ]
     [ run write_dsv.cpp ]
     ;
