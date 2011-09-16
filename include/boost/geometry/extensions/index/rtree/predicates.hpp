@@ -23,6 +23,16 @@ struct node_predicates_tag {};
 
 } // namespace rtree
 
+//template <typename Geometry>
+//struct predicate_check<Geometry, rtree::node_predicates_tag>
+//{
+//    template <typename Indexable>
+//    static inline bool apply(Geometry const& g, Indexable const& i)
+//    {
+//        return geometry::intersects(i, g);
+//    }
+//};
+
 template <typename Geometry>
 struct predicate_check<covered_by<Geometry>, rtree::node_predicates_tag>
 {
@@ -32,6 +42,26 @@ struct predicate_check<covered_by<Geometry>, rtree::node_predicates_tag>
         return geometry::intersects(i, p.geometry);
     }
 };
+
+//template <typename Geometry>
+//struct predicate_check<intersects<Geometry>, rtree::node_predicates_tag>
+//{
+//    template <typename Indexable>
+//    static inline bool apply(intersects<Geometry> const& p, Indexable const& i)
+//    {
+//        return geometry::intersects(i, p.geometry);
+//    }
+//};
+//
+//template <typename Geometry>
+//struct predicate_check<overlaps<Geometry>, rtree::node_predicates_tag>
+//{
+//    template <typename Indexable>
+//    static inline bool apply(overlaps<Geometry> const& p, Indexable const& i)
+//    {
+//        return geometry::overlaps(i, p.geometry);
+//    }
+//};
 
 template <typename Geometry>
 struct predicate_check<within<Geometry>, rtree::node_predicates_tag>

@@ -26,7 +26,7 @@ struct query
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
     inline query(Translator const& t, Predicates const& p, OutIter out_it)
-        : tr(t), pred(p), out_iter(out_it)
+        : tr(t), pred(p), out_iter(out_it), found_count(0)
     {}
 
     inline void operator()(internal_node const& n)
@@ -54,6 +54,8 @@ struct query
             {
                 out_iter = *it;
                 ++out_iter;
+
+                ++found_count;
             }
         }
     }
@@ -61,6 +63,7 @@ struct query
     Translator const& tr;
     Predicates const& pred;
     OutIter out_iter;
+    size_t found_count;
 };
 
 }}} // namespace detail::rtree::visitors

@@ -90,16 +90,21 @@ int main()
     {
         boost::mt19937 rng;
         //rng.seed(static_cast<unsigned int>(std::time(0)));
-        
         float max_val = static_cast<float>(values_count / 2);
         boost::uniform_real<float> range(-max_val, max_val);
-        
         boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > rnd(rng, range);
         
+        //::srand( ::time(NULL) );
+        //float factor = values_count / float(RAND_MAX);
+        //float comp = values_count / 2;
+
         std::cout << "randomizing data\n";
         for ( size_t i = 0 ; i < values_count ; ++i )
         {
             coords.push_back(std::make_pair(rnd(), rnd()));
+            //float x = rand() * factor + comp;
+            //float y = rand() * factor + comp;
+            //coords.push_back( std::make_pair( x, y ));
         }
         std::cout << "randomized\n";
     }
@@ -134,23 +139,6 @@ int main()
 
     // searching test
     {
-        std::cout << "find(B) searching time test...\n";
-        tim.restart();    
-        size_t temp = 0;
-        for (size_t i = 0 ; i < queries_count ; ++i )
-        {
-            float x = coords[i].first;
-            float y = coords[i].second;
-            std::deque< std::pair<B, size_t> > result;
-            t.find(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
-            temp += result.size();
-        }
-        std::cout << "time: " << tim.elapsed() << "s\n";
-        std::cout << "found: " << temp << "\n";
-    }
-
-    // searching test
-    {
         std::cout << "query(intersects(B)) searching time test...\n";
         tim.restart();    
         size_t temp = 0;
@@ -178,6 +166,38 @@ int main()
             std::deque< std::pair<B, size_t> > result;
             t.query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
             temp += result.size();
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << "found: " << temp << "\n";
+    }
+
+    // searching test
+    {
+        std::cout << "nearest searching time test...\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count / 10 ; ++i )
+        {
+            float x = coords[i].first + 100;
+            float y = coords[i].second + 100;
+            std::pair<B, size_t> result;
+            temp += t.nearest(P(x, y), result);
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << "found: " << temp << "\n";
+    }
+
+    // searching test
+    {
+        std::cout << "nearest searching time test...\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count / 10 ; ++i )
+        {
+            float x = coords[i].first + 100;
+            float y = coords[i].second + 100;
+            std::vector< std::pair<B, size_t> > result;
+            temp += t.nearest(P(x, y), 5, std::back_inserter(result));
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
         std::cout << "found: " << temp << "\n";

@@ -200,14 +200,10 @@ void gl_draw(rtree<Value, Options, Translator> const& tree,
     typedef typename rtree<Value, Options, Translator>::translator_type translator_type;
     typedef typename rtree<Value, Options, Translator>::box_type box_type;
 
-    glClear(GL_COLOR_BUFFER_BIT);
-
     detail::rtree::visitors::gl_draw<value_type, options_type, translator_type, box_type>
         gl_draw_v(tree.get_translator(), level_first, level_last, z_coord_level_multiplier);
 
     tree.apply_visitor(gl_draw_v);
-
-    glFlush();
 }
 
 }}} // namespace boost::geometry::index

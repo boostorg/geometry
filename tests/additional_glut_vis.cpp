@@ -20,14 +20,36 @@
 typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
 typedef boost::geometry::model::box<P> B;
 //boost::geometry::index::rtree<B> t(2, 1);
+
 boost::geometry::index::rtree<
     B,
     boost::geometry::index::rstar<4, 2> > t;
 std::vector<B> vect;
 
+bool is_nearest = false;
+P search_point;
+std::vector<B> nearest_boxes;
+
 void render_scene(void)
 {
+    glClear(GL_COLOR_BUFFER_BIT);
+
     boost::geometry::index::gl_draw(t);
+
+    if ( is_nearest )
+    {
+        glColor3f(1.0f, 0.5f, 0.0f);
+        glBegin(GL_TRIANGLES);
+        glVertex3f(boost::geometry::get<0>(search_point), boost::geometry::get<1>(search_point), t.depth());
+        glVertex3f(boost::geometry::get<0>(search_point) + 1, boost::geometry::get<1>(search_point), t.depth());
+        glVertex3f(boost::geometry::get<0>(search_point) + 1, boost::geometry::get<1>(search_point) + 1, t.depth());
+        glEnd();
+
+        for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
+            boost::geometry::index::detail::rtree::visitors::detail::gl_draw_indexable(nearest_boxes[i], t.depth());
+    }
+
+    glFlush();
 }
 
 void resize(int w, int h)
@@ -65,16 +87,14 @@ void mouse(int button, int state, int x, int y)
         boost::geometry::index::insert(t, b);
         vect.push_back(b);
 
-        std::cout << t << "\n\n";
-        
         std::cout << "inserted: ";
         boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
-        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-		std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
-        std::cout << "\n\n";
 
-        glutPostRedisplay();
+        std::cout << "\n" << t << "\n";
+        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << "\n";
     }
     else if ( button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
     {
@@ -87,16 +107,45 @@ void mouse(int button, int state, int x, int y)
         boost::geometry::index::remove(t, b);
         vect.erase(vect.begin() + i);
 
-        std::cout << '\n' << t << "\n\n";
         std::cout << "removed: ";
         boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
-		std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-		std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
-		std::cout << "\n\n";
 
-        glutPostRedisplay();
+        std::cout << "\n" << t << "\n";
+        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << "\n";
     }
+    else if ( button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN )
+    {
+        float x = ( rand() % 1000 ) / 10.0f;
+        float y = ( rand() % 1000 ) / 10.0f;
+
+        search_point = P(x, y);
+        nearest_boxes.clear();
+        is_nearest = t.nearest(search_point, 3, std::back_inserter(nearest_boxes));
+
+        if ( is_nearest )
+        {
+            std::cout << "search point: ";
+            boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, search_point);
+            std::cout << "\nfound: ";
+            for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
+            {
+                boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+                std::cout << '\n';
+            }
+        }
+        else
+            std::cout << "nearest not found\n";
+
+        std::cout << "\n" << t << "\n";
+        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << "\n";
+    }
+
+    glutPostRedisplay();
 }
 
 int main(int argc, char **argv)

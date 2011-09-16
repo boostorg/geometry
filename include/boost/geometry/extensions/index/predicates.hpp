@@ -23,8 +23,11 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail {
 
+struct empty {};
+
 template <typename Geometry>
 struct covered_by
+    : nonassignable
 {
     covered_by(Geometry const& g) : geometry(g) {}
     Geometry const& geometry;
@@ -32,6 +35,7 @@ struct covered_by
 
 template <typename Geometry>
 struct intersects
+    : nonassignable
 {
     intersects(Geometry const& g) : geometry(g) {}
     Geometry const& geometry;
@@ -39,6 +43,7 @@ struct intersects
 
 template <typename Geometry>
 struct overlaps
+    : nonassignable
 {
     overlaps(Geometry const& g) : geometry(g) {}
     Geometry const& geometry;
@@ -46,12 +51,18 @@ struct overlaps
 
 template <typename Geometry>
 struct within
+    : nonassignable
 {
     within(Geometry const& g) : geometry(g) {}
     Geometry const& geometry;
 };
 
 } // namespace detail
+
+inline detail::empty empty()
+{
+    return detail::empty();
+}
 
 template <typename Geometry>
 inline detail::covered_by<Geometry> covered_by(Geometry const& g)
@@ -77,10 +88,10 @@ inline detail::within<Geometry> within(Geometry const& g)
     return detail::within<Geometry>(g);
 }
 
-// predicates checks
-
 namespace detail
 {
+
+// predicate check
 
 template <typename Geometry, typename Tag>
 struct predicate_check
@@ -89,6 +100,16 @@ struct predicate_check
     static inline bool apply(Geometry const& g, Indexable const& i)
     {
         return geometry::intersects(i, g);
+    }
+};
+
+template <typename Tag>
+struct predicate_check<empty, Tag>
+{
+    template <typename Geometry, typename Indexable>
+    static inline bool apply(Geometry const&, Indexable const&)
+    {
+        return true;
     }
 };
 
@@ -131,6 +152,8 @@ struct predicate_check<within<Geometry>, Tag>
         return geometry::within(i, p.geometry);
     }
 };
+
+// predicates check
 
 template <typename TuplePredicates, typename Tag, unsigned int N>
 struct predicates_check_tuple

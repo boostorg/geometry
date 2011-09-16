@@ -141,6 +141,12 @@ public:
         m_array[m_size++] = v;
     }
 
+    inline void pop_back()
+    {
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_size, "there are no elements in the container");
+        --m_size;
+    }
+
     inline bool empty() const
     {
         return m_size == 0;
