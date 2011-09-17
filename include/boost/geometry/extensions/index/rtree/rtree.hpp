@@ -23,7 +23,7 @@
 #include <boost/geometry/extensions/index/rtree/options.hpp>
 
 #include <boost/geometry/extensions/index/rtree/predicates.hpp>
-//#include <boost/geometry/extensions/index/rtree/filters.hpp>
+#include <boost/geometry/extensions/index/rtree/filters.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 

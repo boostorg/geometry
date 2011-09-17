@@ -13,29 +13,29 @@
 #include <deque>
 #include <boost/static_assert.hpp>
 
-#include <boost/geometry/extensions/index/filters/spacial_filter.hpp>
-
-// TODO: awulkiew - implement nearest filter
-//#include <boost/geometry/extensions/index/filters/nearest_filter.hpp>
+#include <boost/geometry/extensions/index/filters/query_filter.hpp>
+#include <boost/geometry/extensions/index/filters/nearest_filter.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
 template <typename Value, typename Options, typename Translator>
 class rtree;
 
-namespace filters {
-
 template <typename Value, typename Options, typename Translator>
-class spatial_filter< index::rtree<Value, Options, Translator> >
+class query_filter< index::rtree<Value, Options, Translator> >
 {
 public:
-    typedef typename std::deque<Value>::iterator iterator;
-    typedef typename std::deque<Value>::const_iterator const_iterator;
+    typedef std::vector<Value> result_type;
+    typedef typename result_type::iterator iterator;
+    typedef typename result_type::const_iterator const_iterator;
     
-    template <typename Geometry>
-    inline spatial_filter(index::rtree<Value, Options, Translator> const& rtree, Geometry const& geom)
+    template <typename Predicates>
+    inline query_filter(
+        index::rtree<Value, Options, Translator> const& rtree,
+        Predicates const& pred
+    )
     {
-        rtree.find(geom, std::back_inserter(m_result));
+        rtree.query(pred, std::back_inserter(m_result));
     }
 
     inline iterator begin() { return m_result.begin(); }
@@ -44,23 +44,36 @@ public:
     inline const_iterator end() const { return m_result.end(); }
 
 private:
-    std::deque<Value> m_result;
+    result_type m_result;
 };
 
-} // namespace filters
+template <typename Value, typename Options, typename Translator>
+class nearest_filter< index::rtree<Value, Options, Translator> >
+{
+public:
+    typedef std::vector<Value> result_type;
+    typedef typename result_type::iterator iterator;
+    typedef typename result_type::const_iterator const_iterator;
 
-// TODO: awulkiew - filter may be implemented in operator|
+    template <typename Point, typename Predicates>
+    inline nearest_filter(
+        index::rtree<Value, Options, Translator> const& rtree,
+        Point const& pt,
+        size_t k,
+        Predicates const& pred
+    )
+    {
+        rtree.nearest(pt, k, pred, std::back_inserter(m_result));
+    }
 
-//template<typename Value, typename Translator, typename Tag, typename Geometry>
-//std::deque<Value>
-//operator|(
-//    index::rtree<Value, Translator, Tag> const& si,
-//    index::filters::detail::spatially_filtered<Geometry> const& f)
-//{
-//    std::deque<Value> result;
-//    si.find(f.geometry(), std::back_inserter(result));
-//    return result;
-//}
+    inline iterator begin() { return m_result.begin(); }
+    inline iterator end() { return m_result.end(); }
+    inline const_iterator begin() const { return m_result.begin(); }
+    inline const_iterator end() const { return m_result.end(); }
+
+private:
+    result_type m_result;
+};
 
 }}} // namespace boost::geometry::index
 
