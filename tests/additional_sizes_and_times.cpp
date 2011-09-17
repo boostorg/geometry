@@ -114,7 +114,8 @@ int main()
 
     // elements inserting test
     {
-        std::cout << "inserting time test...\n";
+        std::cout << "rtree inserting time test... ("
+            << values_count << ")\n";
         tim.restart();
         for (size_t i = 0 ; i < values_count ; ++i )
         {
@@ -123,6 +124,24 @@ int main()
             B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
 
             t.insert(std::make_pair(b, i));
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+    }
+
+    std::vector< std::pair<B, size_t> > v;
+
+    // elements inserting test
+    {
+        std::cout << "vector inserting time test... ("
+            << values_count << ")\n";
+        tim.restart();
+        for (size_t i = 0 ; i < values_count ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
+
+            v.push_back(std::make_pair(b, i));
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
     }
@@ -139,7 +158,8 @@ int main()
 
     // searching test
     {
-        std::cout << "query(intersects(B)) searching time test...\n";
+        std::cout << "query(intersects(B)) searching time test... ("
+            << queries_count << ")\n";
         tim.restart();    
         size_t temp = 0;
         for (size_t i = 0 ; i < queries_count ; ++i )
@@ -156,7 +176,8 @@ int main()
 
     // searching test
     {
-        std::cout << "query(B) searching time test...\n";
+        std::cout << "query(B) searching time test... ("
+            << queries_count << ")\n";
         tim.restart();    
         size_t temp = 0;
         for (size_t i = 0 ; i < queries_count ; ++i )
@@ -173,7 +194,36 @@ int main()
 
     // searching test
     {
-        std::cout << "nearest searching time test...\n";
+        std::cout << "vector searching time test... ("
+            << queries_count / 1000 << ")\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count / 1000 ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            std::deque< std::pair<B, size_t> > result;
+            for ( std::vector< std::pair<B, size_t> >::const_iterator it = v.begin();
+                  it != v.end() ;
+                  ++it )
+            {
+                if ( bg::intersects(
+                        it->first,
+                        B(P(x - 10, y - 10), P(x + 10, y + 10))
+                     )
+                )
+                    result.push_back(*it);
+            }
+            temp += result.size();
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << "found: " << temp << "\n";
+    }
+
+    // searching test
+    {
+        std::cout << "nearest searching time test... ("
+            << queries_count / 10 << ")\n";
         tim.restart();    
         size_t temp = 0;
         for (size_t i = 0 ; i < queries_count / 10 ; ++i )
@@ -189,7 +239,8 @@ int main()
 
     // searching test
     {
-        std::cout << "nearest searching time test...\n";
+        std::cout << "nearest 5 searching time test... ("
+            << queries_count / 10 << ")\n";
         tim.restart();    
         size_t temp = 0;
         for (size_t i = 0 ; i < queries_count / 10 ; ++i )
@@ -203,9 +254,43 @@ int main()
         std::cout << "found: " << temp << "\n";
     }
 
+    // searching test
+    {
+        std::cout << "vector nearest searching time test... ("
+            << queries_count / 1000 << ")\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count / 1000 ; ++i )
+        {
+            typedef bg::default_distance_result<P, B>::type distance_type;
+
+            float x = coords[i].first + 100;
+            float y = coords[i].second + 100;
+            std::pair<B, size_t> result;
+            distance_type dist = std::numeric_limits<distance_type>::max();
+
+            for ( std::vector< std::pair<B, size_t> >::const_iterator it = v.begin();
+                it != v.end();
+                ++it )
+            {
+                distance_type cd = bgi::mindist(P(x, y), it->first);
+
+                if ( cd < dist )
+                {
+                    result = *it;
+                    dist = cd;
+                }
+            }
+            temp += dist < std::numeric_limits<distance_type>::max() ? 1 : 0;
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << "found: " << temp << "\n";
+    }
+
     // elements removing test
     {
-        std::cout << "removing time test...\n";
+        std::cout << "removing time test... ("
+            << remove_count << ")\n";
         tim.restart();
         for (size_t i = 0 ; i < remove_count ; ++i )
         {
@@ -230,7 +315,8 @@ int main()
 
     // searching test
     {
-        std::cout << "searching time test...\n";
+        std::cout << "searching time test... ("
+            << queries_count << ")\n";
         tim.restart();    
         size_t temp = 0;
         for (size_t i = 0 ; i < queries_count ; ++i )
@@ -247,7 +333,8 @@ int main()
 
     // inserting test
     {
-        std::cout << "inserting time test...\n";
+        std::cout << "inserting time test... ("
+            << remove_count << ")\n";
         tim.restart();
         for (size_t i = 0 ; i < remove_count ; ++i )
         {
@@ -272,7 +359,8 @@ int main()
 
     // searching test
     {
-        std::cout << "searching time test...\n";
+        std::cout << "searching time test... ("
+            << queries_count << ")\n";
         tim.restart();    
         size_t temp = 0;
         for (size_t i = 0 ; i < queries_count ; ++i )
