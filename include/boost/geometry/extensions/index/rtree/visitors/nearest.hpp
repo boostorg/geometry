@@ -12,12 +12,17 @@
 
 #include <boost/geometry/extensions/index/algorithms/mindist.hpp>
 #include <boost/geometry/extensions/index/algorithms/minmaxdist.hpp>
+#include <boost/geometry/extensions/index/algorithms/maxdist.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
+
+// TODO: awulkiew - maby it's a good idea to check if curr_mindist < comp_mindist and then check predicates
+// in store() or break store to 2 functions e.g. should_store() and store()
+// - well not with this algorithm of storing k-th neighbor
 
 template <typename Value, typename Translator, typename Point>
 struct nearest_one
@@ -85,6 +90,7 @@ public:
         // TODO: awulkiew - test other methods:
         // heap, manual inserting
         // don't sort if size < k ?
+        // check the furthest distance at the first place, before push_back()
     }
 
     inline bool is_mindist_valid() const

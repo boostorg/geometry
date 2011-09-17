@@ -55,11 +55,11 @@ template <typename Point, typename Indexable>
 typename geometry::default_distance_result<Point, Indexable>::type
 maxdist(Point const& pt, Indexable const& i)
 {
-    return sum_for_indexable<
+    return detail::sum_for_indexable<
         Point,
         Indexable,
         typename index::traits::tag<Indexable>::type,
-        maxdist_tag,
+        detail::maxdist_tag,
         index::traits::dimension<Indexable>::value
     >::apply(pt, i);
 }
