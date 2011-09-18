@@ -25,6 +25,9 @@ namespace detail {
 
 struct empty {};
 
+//TODO: awulkiew - consider storing Geometry instead of Geometry const&
+// it's faster and eliminates problems with storing of references to temporaries
+
 template <typename Geometry>
 struct covered_by
     : nonassignable
