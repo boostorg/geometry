@@ -93,6 +93,8 @@ namespace detail
 
 // predicate check
 
+// TODO: use empty definitions here + MPL_ASSERT
+
 template <typename Geometry, typename Tag>
 struct predicate_check
 {

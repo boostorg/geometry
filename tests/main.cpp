@@ -11,16 +11,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include <tests/translators.hpp>
-#include <tests/rtree_native.hpp>
+#include <tests/rtree_function.hpp>
 #include <tests/rtree_filters.hpp>
 
-BOOST_AUTO_TEST_CASE( test_main )
+BOOST_AUTO_TEST_CASE( aaaa )
 {
     std::cout << "test\n";
-
-    tests_rtree_native_hpp< boost::geometry::index::linear<32, 8> >();
-    tests_rtree_native_hpp< boost::geometry::index::quadratic<32, 8> >();
-    tests_rtree_native_hpp< boost::geometry::index::rstar<32, 8> >();
 
     tests_rtree_filters_hpp();
 

@@ -34,7 +34,7 @@ struct tests_translators_val
 
 BOOST_AUTO_TEST_CASE(tests_translators)
 {
-    std::cout << "tests/translators.hpp\n";
+    std::cout << "tests/translators\n";
 
     namespace bg = boost::geometry;
     namespace bgm = bg::model;

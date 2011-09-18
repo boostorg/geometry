@@ -52,16 +52,18 @@ struct predicate_check<covered_by<Geometry>, rtree::node_predicates_tag>
 //        return geometry::intersects(i, p.geometry);
 //    }
 //};
-//
-//template <typename Geometry>
-//struct predicate_check<overlaps<Geometry>, rtree::node_predicates_tag>
-//{
-//    template <typename Indexable>
-//    static inline bool apply(overlaps<Geometry> const& p, Indexable const& i)
-//    {
-//        return geometry::overlaps(i, p.geometry);
-//    }
-//};
+
+template <typename Geometry>
+struct predicate_check<overlaps<Geometry>, rtree::node_predicates_tag>
+{
+    template <typename Indexable>
+    static inline bool apply(overlaps<Geometry> const& p, Indexable const& i)
+    {
+        // TODO: awulkiew - possibly change to the version without border case
+        // e.g. intersects_without_border(0,0x1,1, 1,1x2,2) should give false
+        return geometry::intersects(i, p.geometry);
+    }
+};
 
 template <typename Geometry>
 struct predicate_check<within<Geometry>, rtree::node_predicates_tag>

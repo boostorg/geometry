@@ -155,13 +155,16 @@ public:
         , m_result(r)
     {}
 
+    //TODO: awulkiew - check this approach: store one, global vector of active branches, add branches only if mindist is ok
+
     inline void operator()(internal_node const& n)
     {
         // array of active nodes
-        index::pushable_array<
+        /*index::pushable_array<
             std::pair<node_distance_type, const node *>,
             Options::parameters_type::max_elements
-        > active_branch_list;
+        > active_branch_list;*/
+        std::vector< std::pair<node_distance_type, const node *> > active_branch_list;
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
