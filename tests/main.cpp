@@ -14,7 +14,7 @@
 #include <tests/rtree_native.hpp>
 #include <tests/rtree_filters.hpp>
 
-BOOST_AUTO_TEST_CASE( main )
+BOOST_AUTO_TEST_CASE( test_main )
 {
     std::cout << "test\n";
 

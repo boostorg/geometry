@@ -34,6 +34,8 @@ struct tests_translators_val
 
 BOOST_AUTO_TEST_CASE(tests_translators)
 {
+    std::cout << "tests/translators.hpp\n";
+
     namespace bg = boost::geometry;
     namespace bgm = bg::model;
     namespace bgi = bg::index;
@@ -83,7 +85,7 @@ BOOST_AUTO_TEST_CASE(tests_translators)
     B tmp_b(P(2, 3), P(4, 5));
     std::pair<bgm::polygon<P>, B> tmp_ppb =
         std::make_pair(bgm::polygon<P>(), tmp_b);
-    std::pair<B, bgm::polygon<P>> tmp_pbp =
+    std::pair<B, bgm::polygon<P> > tmp_pbp =
         std::make_pair(tmp_b, bgm::polygon<P>());
 
     bgit::def< std::pair<bgm::polygon<P>, B> > ppb;
