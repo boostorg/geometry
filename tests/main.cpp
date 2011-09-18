@@ -10,14 +10,19 @@
 #define BOOST_TEST_MODULE test_module_boost_geometry_index
 #include <boost/test/unit_test.hpp>
 
+#include <ctime>
+
+BOOST_AUTO_TEST_CASE( first_test_case )
+{
+    ::srand( (unsigned)::time(NULL) );
+}
+
 #include <tests/translators.hpp>
 #include <tests/rtree_function.hpp>
 #include <tests/rtree_filters.hpp>
 
-BOOST_AUTO_TEST_CASE( aaaa )
+BOOST_AUTO_TEST_CASE( last_test_case )
 {
-    std::cout << "test\n";
-
     tests_rtree_filters_hpp();
 
 #ifdef _MSC_VER
