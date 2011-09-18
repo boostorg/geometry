@@ -278,17 +278,17 @@ struct tests_rtree_function_queries<P, B, boost::geometry::box_tag>
     }
 };
 
-template <typename Value, typename Options>
-void tests_rtree_function()
+template <typename Value, typename Options, typename Translator>
+void tests_rtree_function(Translator const& tr = Translator())
 {
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
 
-    bgi::rtree<Value, Options> t;
+    bgi::rtree<Value, Options, Translator> t(tr);
     std::vector<Value> v;
 
-    typedef typename bgi::rtree<Value, Options>::indexable_type I;
-    typedef typename bgi::rtree<Value, Options>::box_type B;
+    typedef typename bgi::rtree<Value, Options, Translator>::indexable_type I;
+    typedef typename bgi::rtree<Value, Options, Translator>::box_type B;
     typedef typename bgi::traits::point_type<B>::type P ;
 
     helpers::random_insert(t, v, 10, helpers::value_randomizer<Value>(10, 1));
@@ -305,11 +305,11 @@ BOOST_AUTO_TEST_CASE(tests_rtree_function_box3f)
 
     typedef bg::model::point<float, 3, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
-    typedef B val_t;
+    typedef B V;
 
-    tests_rtree_function< val_t, bgi::linear<4, 2> >();
-    tests_rtree_function< val_t, bgi::quadratic<4, 2> >();
-    tests_rtree_function< val_t, bgi::rstar<4, 2> >();
+    tests_rtree_function< V, bgi::linear<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::quadratic<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::rstar<4, 2>, bgi::translator::def<V> >();
 }
 
 BOOST_AUTO_TEST_CASE(tests_rtree_function_box2f)
@@ -321,11 +321,11 @@ BOOST_AUTO_TEST_CASE(tests_rtree_function_box2f)
 
     typedef bg::model::point<float, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
-    typedef B val_t;
+    typedef B V;
 
-    tests_rtree_function< val_t, bgi::linear<4, 2> >();
-    tests_rtree_function< val_t, bgi::quadratic<4, 2> >();
-    tests_rtree_function< val_t, bgi::rstar<4, 2> >();
+    tests_rtree_function< V, bgi::linear<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::quadratic<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::rstar<4, 2>, bgi::translator::def<V> >();
 }
 
 BOOST_AUTO_TEST_CASE(tests_rtree_function_point2f)
@@ -336,11 +336,11 @@ BOOST_AUTO_TEST_CASE(tests_rtree_function_point2f)
     namespace bgi = bg::index;
 
     typedef bg::model::point<float, 2, bg::cs::cartesian> P;
-    typedef P val_t;
+    typedef P V;
 
-    tests_rtree_function< val_t, bgi::linear<4, 2> >();
-    tests_rtree_function< val_t, bgi::quadratic<4, 2> >();
-    tests_rtree_function< val_t, bgi::rstar<4, 2> >();
+    tests_rtree_function< V, bgi::linear<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::quadratic<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::rstar<4, 2>, bgi::translator::def<V> >();
 }
 
 namespace helpers {
@@ -377,90 +377,48 @@ BOOST_AUTO_TEST_CASE(tests_rtree_function_pair_box2f_int)
     typedef bg::model::box<P> B;
     typedef std::pair<B, int> V;
 
-    tests_rtree_function< V, bgi::linear<4, 2> >();
-    tests_rtree_function< V, bgi::quadratic<4, 2> >();
-    tests_rtree_function< V, bgi::rstar<4, 2> >();
+    tests_rtree_function< V, bgi::linear<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::quadratic<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::rstar<4, 2>, bgi::translator::def<V> >();
 }
 
-  //  std::cout << "-------------------------------------------------\n";
-  //  std::cout << "-------------------------------------------------\n";
+namespace helpers {
 
-  //  std::cout << "boost::shared_ptr< std::pair<Box, int> >\n";
-  //  {
-  //      typedef bg::model::point<float, 2, bg::cs::cartesian> P;
-  //      typedef bg::model::box<P> B;
-  //      
-  //      typedef boost::shared_ptr< std::pair<B, int> > V;
+template <typename Indexable>
+struct value_randomizer< boost::shared_ptr< std::pair<Indexable, int> > >
+{
+    typedef boost::shared_ptr< std::pair<Indexable, int> > value_type;
 
-  //      V v1( new std::pair<B, int>(B(P(0, 0), P(1, 1)), 0) );
-  //      V v2( new std::pair<B, int>(B(P(2, 2), P(3, 3)), 1) );
-  //      V v3( new std::pair<B, int>(B(P(4, 4), P(5, 5)), 2) );
-  //      V v4( new std::pair<B, int>(B(P(6, 6), P(7, 7)), 3) );
-  //      V v5( new std::pair<B, int>(B(P(8, 8), P(9, 9)), 4) );
+    typedef typename boost::geometry::index::traits::coordinate_type<Indexable>::type coord_t;
 
-  //      bgi::rtree<V, Options> t;
-  //      bgi::insert(t, v1);
-  //      bgi::insert(t, v2);
-  //      bgi::insert(t, v3);
-  //      bgi::insert(t, v4);
-  //      bgi::insert(t, v5);
-  //      std::cerr << t;
-  //  }
+    inline value_randomizer(coord_t mm, coord_t ww)
+        : r(mm, ww)
+    {}
 
-  //  std::cout << "-------------------------------------------------\n";
-  //  std::cout << "-------------------------------------------------\n";
+    inline value_type operator()() const
+    {
+        return value_type(new std::pair<Indexable, int>(r(), ::rand()));
+    }
 
-  //  std::cout << "std::map<int, Box>::iterator\n";
-  //  {
-  //      typedef bg::model::point<float, 2, bg::cs::cartesian> P;
-  //      typedef bg::model::box<P> B;
-  //      
-  //      typedef std::map<int, B>::iterator V;
+    value_randomizer<Indexable> r;
+};
 
-  //      std::map<int, B> m;
-  //      m.insert(std::pair<int, B>(0, B(P(0, 0), P(1, 1))));
-  //      m.insert(std::pair<int, B>(1, B(P(2, 2), P(3, 3))));
-  //      m.insert(std::pair<int, B>(2, B(P(4, 4), P(5, 5))));
-  //      m.insert(std::pair<int, B>(3, B(P(6, 6), P(7, 7))));
-  //      m.insert(std::pair<int, B>(4, B(P(8, 8), P(9, 9))));
+} // namespace helpers
 
-  //      bgi::rtree<V, Options> t;
-  //      V vit = m.begin();
-  //      bgi::insert(t, vit++);
-  //      bgi::insert(t, vit++);
-  //      bgi::insert(t, vit++);
-  //      bgi::insert(t, vit++);
-  //      bgi::insert(t, vit);
-  //      std::cerr << t;
-  //  }
+BOOST_AUTO_TEST_CASE(tests_rtree_function_shared_ptr_pair_box2f_int)
+{
+    std::cout << "tests/rtree_function_shared_ptr_pair_box2f_int\n";
 
-  //  std::cout << "-------------------------------------------------\n";
-  //  std::cout << "-------------------------------------------------\n";
+    namespace bg = boost::geometry;
+    namespace bgi = bg::index;
 
-  //  std::cout << "size_t\n";
-  //  {
-  //      typedef bg::model::point<float, 2, bg::cs::cartesian> P;
-  //      typedef bg::model::box<P> B;
+    typedef bg::model::point<float, 2, bg::cs::cartesian> P;
+    typedef bg::model::box<P> B;
+    typedef boost::shared_ptr< std::pair<B, int> > V;
 
-  //      typedef size_t V;
-  //      typedef bgi::translator::index<std::vector<B> > Tr;
-
-  //      std::vector<B> v;
-  //      v.push_back(B(P(0, 0), P(1, 1)));
-  //      v.push_back(B(P(2, 2), P(3, 3)));
-  //      v.push_back(B(P(4, 4), P(5, 5)));
-  //      v.push_back(B(P(6, 6), P(7, 7)));
-  //      v.push_back(B(P(8, 8), P(9, 9)));
-
-		//Tr tr(v);
-  //      bgi::rtree<V, Options, Tr> t(tr);
-
-  //      bgi::insert(t, 0u);
-  //      bgi::insert(t, 1u);
-  //      bgi::insert(t, 2u);
-  //      bgi::insert(t, 3u);
-  //      bgi::insert(t, 4u);
-  //      std::cerr << t;
-  //  }
+    tests_rtree_function< V, bgi::linear<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::quadratic<4, 2>, bgi::translator::def<V> >();
+    tests_rtree_function< V, bgi::rstar<4, 2>, bgi::translator::def<V> >();
+}
 
 #endif // TESTS_RTREE_FUNCTION_HPP
