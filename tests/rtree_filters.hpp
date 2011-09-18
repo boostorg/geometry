@@ -37,17 +37,18 @@ void tests_rtree_filters_hpp()
     typedef boost::geometry::model::box<P> B;
 
     {
-        boost::geometry::index::rtree<B, boost::geometry::index::rstar<4, 2> > t;
-        boost::geometry::index::insert(t, B(P(0, 0), P(1, 1)));
-        boost::geometry::index::insert(t, B(P(2, 2), P(3, 3)));
-        boost::geometry::index::insert(t, B(P(4, 4), P(5, 5)));
-        boost::geometry::index::insert(t, B(P(6, 6), P(7, 7)));
-        boost::geometry::index::insert(t, B(P(8, 8), P(9, 9)));
+        namespace bgi = boost::geometry::index;
+
+        bgi::rtree<B, bgi::rstar<4, 2> > t;
+        bgi::insert(t, B(P(0, 0), P(1, 1)));
+        bgi::insert(t, B(P(2, 2), P(3, 3)));
+        bgi::insert(t, B(P(4, 4), P(5, 5)));
+        bgi::insert(t, B(P(6, 6), P(7, 7)));
+        bgi::insert(t, B(P(8, 8), P(9, 9)));
         std::cout << t;
 
         std::cout << "Query: (2.5, 2.5)x(4.5, 4.5)\n";
-        namespace f = boost::geometry::index::filters;
-        tests_rtree_filters_hpp_print_range(t | f::spatially_filtered(B(P(2.5f, 2.5f), P(4.5f, 4.5f))));
+        tests_rtree_filters_hpp_print_range(t | bgi::query_filtered(B(P(2.5f, 2.5f), P(4.5f, 4.5f))));
     }
 }
 

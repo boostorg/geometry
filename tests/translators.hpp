@@ -3,9 +3,8 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
-#include <boost/geometry/extensions/index/translator/translator.hpp>
+#include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <vector>
 #include <map>
@@ -16,6 +15,10 @@
 template <typename Indexable>
 struct tests_translators_val
 {
+    tests_translators_val(Indexable const& ii)
+        : i(ii)
+    {}
+
 	Indexable const& get_box() const
 	{
 		return i;
@@ -29,64 +32,70 @@ struct tests_translators_val
 	Indexable i;
 };
 
-void tests_translators_hpp()
+BOOST_AUTO_TEST_CASE(tests_translators)
 {
-	std::cout << "tests/translators.hpp\n";
+    namespace bg = boost::geometry;
+    namespace bgm = bg::model;
+    namespace bgi = bg::index;
+    namespace bgit = bgi::translator;
 
-    typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
-    typedef boost::geometry::model::box<P> B;
-    //typedef boost::geometry::index::rtree<B> I;
+	typedef bgm::point<float, 2, bg::cs::cartesian> P;
+    typedef bgm::box<P> B;
 
-    using namespace boost::geometry;
+    bgit::def< P > p;
+    bgit::def< P* > pp;
+    bgit::def< std::pair<int, P>* > ppip;
+    bgit::def< boost::shared_ptr<P> > sp;
+    bgit::def< std::vector<P>::iterator > ip;
+    bgit::def< std::map<int, P>::iterator > mip;
+    bgit::def< std::pair<int, P> > pip;
+    bgit::def< boost::shared_ptr< std::pair<int, P> > > spip;
+    bgit::def< boost::shared_ptr< std::pair<P, int> > > sppi;
+    bgit::def< boost::scoped_ptr< std::pair<P, int> > > scppi;
+    bgit::def< boost::scoped_ptr< std::pair<int, P> > > scpip;
 
-    index::translator::def<P> p;
-    index::translator::def<P*> pp;
-    index::translator::def<std::pair<int, P>*> pip;
-    index::translator::def< boost::shared_ptr<P> > sp;
-    index::translator::def< std::vector<P>::iterator > ip;
-    index::translator::def< std::map<int, P>::iterator > mip;
-    index::translator::def< std::pair<P, size_t> > ppi;
-    index::translator::def< boost::shared_ptr< std::pair<int, P> > > spip;
-    index::translator::def< boost::shared_ptr< std::pair<P, int> > > sppi;
-    index::translator::def< boost::scoped_ptr< std::pair<P, int> > > scppi;
-    index::translator::def< boost::scoped_ptr< std::pair<int, P> > > scpip;
-
-    P tmp_p;
-    boost::shared_ptr<P> tmp_sp(new P());
-    std::vector<P> tmp_v(1);
+    P tmp_p(2, 3);
+    boost::shared_ptr<P> tmp_sp(new P(2, 3));
+    std::vector<P> tmp_v(1, P(2, 3));
     std::map<int, P> tmp_m;
-    tmp_m.insert(std::pair<int, P>(0, P()));
-    std::pair<int, P> tmp_pip;
-    boost::shared_ptr< std::pair<int, P> > tmp_spip(new std::pair<int, P>(0, P()));
-    boost::shared_ptr< std::pair<P, int> > tmp_sppi(new std::pair<P, int>(P(), 0));
-    boost::scoped_ptr< std::pair<int, P> > tmp_scpip(new std::pair<int, P>(0, P()));
-    boost::scoped_ptr< std::pair<P, int> > tmp_scppi(new std::pair<P, int>(P(), 0));
+    tmp_m.insert(std::pair<int, P>(0, P(2, 3)));
+    std::pair<int, P> tmp_pip(0, P(2, 3));
+    boost::shared_ptr< std::pair<int, P> > tmp_spip(new std::pair<int, P>(0, P(2, 3)));
+    boost::shared_ptr< std::pair<P, int> > tmp_sppi(new std::pair<P, int>(P(2, 3), 0));
+    boost::scoped_ptr< std::pair<int, P> > tmp_scpip(new std::pair<int, P>(0, P(2, 3)));
+    boost::scoped_ptr< std::pair<P, int> > tmp_scppi(new std::pair<P, int>(P(2, 3), 0));
 
-    tmp_p = p(P());
-    tmp_p = pp(&tmp_p);
-    tmp_p = pip(&tmp_pip);
-    tmp_p = sp(tmp_sp);
-    tmp_p = ip(tmp_v.begin());
-    tmp_p = mip(tmp_m.begin());
-    tmp_p = ppi(std::pair<P, size_t>(P(), 0));
-    tmp_p = spip(tmp_spip);
-    tmp_p = sppi(tmp_sppi);
-    tmp_p = scpip(tmp_scpip);
-    tmp_p = scppi(tmp_scppi);
+    BOOST_CHECK( bg::equals(tmp_p, p(tmp_p)) );
+    BOOST_CHECK( bg::equals(tmp_p, pp(&tmp_p)) );
+    BOOST_CHECK( bg::equals(tmp_p, ppip(&tmp_pip)) );
+    BOOST_CHECK( bg::equals(tmp_p, sp(tmp_sp)) );
+    BOOST_CHECK( bg::equals(tmp_p, ip(tmp_v.begin())) );
+    BOOST_CHECK( bg::equals(tmp_p, mip(tmp_m.begin())) );
+    BOOST_CHECK( bg::equals(tmp_p, pip(tmp_pip)) );
+    BOOST_CHECK( bg::equals(tmp_p, spip(tmp_spip)) );
+    BOOST_CHECK( bg::equals(tmp_p, sppi(tmp_sppi)) );
+    BOOST_CHECK( bg::equals(tmp_p, scpip(tmp_scpip)) );
+    BOOST_CHECK( bg::equals(tmp_p, scppi(tmp_scppi)) );
+    
+    //bgit::def<int> d;					// error
+    //bgit::def< bgm::segment<P> > d;	// error
 
-    //index::translator::def<int> d;					// error
-    //index::translator::def< model::segment<P> > d;	// error
+    B tmp_b(P(2, 3), P(4, 5));
+    std::pair<bgm::polygon<P>, B> tmp_ppb =
+        std::make_pair(bgm::polygon<P>(), tmp_b);
+    std::pair<B, bgm::polygon<P>> tmp_pbp =
+        std::make_pair(tmp_b, bgm::polygon<P>());
 
-    index::translator::def< std::pair<model::polygon<P>, B> > d;
-    index::translator::def< std::pair<B, model::polygon<P> > > dd;
+    bgit::def< std::pair<bgm::polygon<P>, B> > ppb;
+    bgit::def< std::pair<B, bgm::polygon<P> > > pbp;
 
-    B tmp_b;
-    tmp_b = d( std::pair<model::polygon<P>, B>() );
-    tmp_b = dd( std::pair<B, model::polygon<P> >() );
+    BOOST_CHECK( bg::equals(tmp_b, ppb(tmp_ppb)) );
+    BOOST_CHECK( bg::equals(tmp_b, pbp(tmp_pbp)) );
 
-	tests_translators_val<P> val_p;
-	index::translator::getter<tests_translators_val<P>, P, &tests_translators_val<P>::get_box> tr_get_p;
-	tmp_p = tr_get_p(val_p);
+	tests_translators_val<P> val_p(tmp_p);
+	bgit::getter<tests_translators_val<P>, P, &tests_translators_val<P>::get_box> tr_get_p;
+
+    BOOST_CHECK( bg::equals(tmp_p, tr_get_p(val_p)) );
 }
 
 #endif // TESTS_TRANSLATORS_HPP
