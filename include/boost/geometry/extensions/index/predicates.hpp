@@ -96,7 +96,11 @@ namespace detail
 
 // predicate check
 
-// TODO: use empty definitions here + MPL_ASSERT
+// TODO: use empty definitions here + MPL_ASSERT ?
+// implement default values predicates applied to values in leafs, as a function/functor as simple as possible
+// bool fun(Value const& v);
+// distinguish between geometries and other types by use of geometry::tag
+// in predicate_check_default<..., GeomTag> -> predicate_check_default<..., void>
 
 template <typename Geometry, typename Tag>
 struct predicate_check

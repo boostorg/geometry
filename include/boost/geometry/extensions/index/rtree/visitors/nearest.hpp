@@ -14,6 +14,8 @@
 #include <boost/geometry/extensions/index/algorithms/minmaxdist.hpp>
 #include <boost/geometry/extensions/index/algorithms/maxdist.hpp>
 
+#include <boost/geometry/extensions/index/nearest_calc.hpp>
+
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -32,37 +34,37 @@ public:
     typedef typename geometry::default_distance_result<Point, indexable_type>::type distance_type;
 
     inline nearest_one()
-        : comp_mindist(std::numeric_limits<distance_type>::max())
+        : comp_dist(std::numeric_limits<distance_type>::max())
     {}
 
-    inline void store(Value const& val, distance_type const& curr_mindist)
+    inline void store(Value const& val, distance_type const& curr_comp_dist)
     {
-        if ( curr_mindist < comp_mindist )
+        if ( curr_comp_dist < comp_dist )
         {
-            comp_mindist = curr_mindist;
+            comp_dist = curr_mindist;
             value = val;
         }
     }
 
-    inline bool is_mindist_valid() const
+    inline bool is_comparable_distance_valid() const
     {
-        return comp_mindist < std::numeric_limits<distance_type>::max();
+        return comp_dist < std::numeric_limits<distance_type>::max();
     }
 
-    inline distance_type mindist() const
+    inline distance_type comparable_distance() const
     {
-        return comp_mindist;
+        return comp_dist;
     }
 
     inline size_t get(Value & v)
     {
         v = value;
-        return is_mindist_valid() ? 1 : 0;
+        return is_comparable_distance_valid() ? 1 : 0;
     }
 
 private:
     Value value;
-    distance_type comp_mindist;
+    distance_type comp_dist;
 };
 
 template <typename Value, typename Translator, typename Point>
@@ -79,9 +81,9 @@ public:
         m_neighbors.reserve(m_count + 1);
     }
 
-    inline void store(Value const& val, distance_type const& curr_mindist)
+    inline void store(Value const& val, distance_type const& curr_comp_dist)
     {
-        m_neighbors.push_back(std::make_pair(curr_mindist, val));
+        m_neighbors.push_back(std::make_pair(curr_comp_dist, val));
         std::sort(m_neighbors.begin(), m_neighbors.end(), neighbors_less);
 
         if ( m_count < m_neighbors.size() )
@@ -93,12 +95,12 @@ public:
         // check the furthest distance at the first place, before push_back()
     }
 
-    inline bool is_mindist_valid() const
+    inline bool is_comparable_distance_valid() const
     {
         return m_neighbors.size() == m_count;
     }
 
-    inline distance_type mindist() const
+    inline distance_type comparable_distance() const
     {
         return m_neighbors.size() < m_count ?
             std::numeric_limits<distance_type>::max() :
@@ -134,10 +136,7 @@ template <
     typename Box,
     typename Point,
     typename Predicates,
-    typename Result = typename geometry::default_distance_result<
-            Point,
-            typename Translator::indexable_type
-        >::type
+    typename Result
 >
 class nearest
     : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
@@ -230,11 +229,11 @@ private:
     inline void prune_nodes(ActiveBranchList & abl) const
     {
         // if some value were found
-        if ( m_result.is_mindist_valid() )
+        if ( m_result.is_comparable_distance_valid() )
         {
             // prune if box's mindist is further than value's mindist
             while ( !abl.empty() &&
-                    m_result.mindist() < abl.back().first )
+                    m_result.comparable_distance() < abl.back().first )
             {
                 abl.pop_back();
             }
