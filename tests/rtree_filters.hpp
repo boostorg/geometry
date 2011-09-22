@@ -31,7 +31,9 @@ void tests_rtree_filters_hpp_print_range(R const& r)
 
 void tests_rtree_filters_hpp()
 {
+#ifdef TEST_PRINT_INFO
 	std::cout << "tests/rtree_filters.hpp\n";
+#endif
 
     typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;
     typedef boost::geometry::model::box<P> B;

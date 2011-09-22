@@ -34,7 +34,9 @@ struct tests_translators_val
 
 BOOST_AUTO_TEST_CASE(tests_translators)
 {
+#ifdef TEST_PRINT_INFO
     std::cout << "tests/translators\n";
+#endif
 
     namespace bg = boost::geometry;
     namespace bgm = bg::model;

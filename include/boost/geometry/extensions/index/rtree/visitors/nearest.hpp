@@ -14,7 +14,7 @@
 #include <boost/geometry/extensions/index/algorithms/minmaxdist.hpp>
 #include <boost/geometry/extensions/index/algorithms/maxdist.hpp>
 
-#include <boost/geometry/extensions/index/nearest_calc.hpp>
+#include <boost/geometry/extensions/index/distance_calc.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
@@ -147,7 +147,7 @@ public:
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
-    typedef typename geometry::default_distance_result<Point, Box>::type node_distance_type;
+    typedef typename geometry::default_distance_result<PointData, Box>::type node_distance_type;
 
     inline nearest(Translator const& t, PointData const& point_data, Predicates const& pr, Result & r)
         : m_tr(t), m_point_data(point_data), m_pred(pr)
@@ -175,7 +175,7 @@ public:
             if ( index::predicates_check<rtree::node_predicates_tag>(m_pred, it->first) )
             {
                 active_branch_list.push_back(
-                    std::make_pair(index::mindist(m_point, it->first), it->second)
+                    std::make_pair(index::mindist(m_point_data, it->first), it->second)
                 );
             }
         }
@@ -212,7 +212,7 @@ public:
             if ( index::predicates_check<rtree::value_predicates_tag>(m_pred, m_tr(*it)) )
             {
                 // store value
-                m_result.store(*it, index::mindist(m_point, m_tr(*it)));
+                m_result.store(*it, index::mindist(m_point_data, m_tr(*it)));
             }
         }
     }
@@ -241,7 +241,7 @@ private:
     }
 
     Translator const& m_tr;
-    Point const& m_point_data;
+    PointData const& m_point_data;
     Predicates const& m_pred;
 
     Result & m_result;

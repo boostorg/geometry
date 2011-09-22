@@ -298,7 +298,9 @@ void tests_rtree_function(Translator const& tr = Translator())
 
 BOOST_AUTO_TEST_CASE(tests_rtree_function_box3f)
 {
+#ifdef TEST_PRINT_INFO
     std::cout << "tests/rtree_function_box3f\n";
+#endif
 
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
@@ -314,7 +316,9 @@ BOOST_AUTO_TEST_CASE(tests_rtree_function_box3f)
 
 BOOST_AUTO_TEST_CASE(tests_rtree_function_box2f)
 {
+#ifdef TEST_PRINT_INFO
     std::cout << "tests/rtree_function_box2f\n";
+#endif
 
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
@@ -330,7 +334,9 @@ BOOST_AUTO_TEST_CASE(tests_rtree_function_box2f)
 
 BOOST_AUTO_TEST_CASE(tests_rtree_function_point2f)
 {
+#ifdef TEST_PRINT_INFO
     std::cout << "tests/rtree_function_point2f\n";
+#endif
 
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
@@ -368,7 +374,9 @@ struct value_randomizer< std::pair<Indexable, int> >
 
 BOOST_AUTO_TEST_CASE(tests_rtree_function_pair_box2f_int)
 {
+#ifdef TEST_PRINT_INFO
     std::cout << "tests/rtree_function_pair_box2f_int\n";
+#endif
 
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
@@ -407,7 +415,9 @@ struct value_randomizer< boost::shared_ptr< std::pair<Indexable, int> > >
 
 BOOST_AUTO_TEST_CASE(tests_rtree_function_shared_ptr_pair_box2f_int)
 {
+#ifdef TEST_PRINT_INFO
     std::cout << "tests/rtree_function_shared_ptr_pair_box2f_int\n";
+#endif
 
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
