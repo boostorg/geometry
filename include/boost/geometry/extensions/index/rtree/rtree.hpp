@@ -75,6 +75,9 @@ public:
     {
         detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type> del_v;
         detail::rtree::apply_visitor(del_v, *m_root);
+
+        // TODO: awulkiew - move this into the destroy visitor?
+        detail::rtree::delete_node(m_root);
     }
 
     template <typename Predicates, typename OutIter>
