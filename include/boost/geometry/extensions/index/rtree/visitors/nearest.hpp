@@ -34,37 +34,37 @@ public:
     typedef typename geometry::default_distance_result<Point, indexable_type>::type distance_type;
 
     inline nearest_one()
-        : comp_dist(std::numeric_limits<distance_type>::max())
+        : m_comp_dist(std::numeric_limits<distance_type>::max())
     {}
 
     inline void store(Value const& val, distance_type const& curr_comp_dist)
     {
-        if ( curr_comp_dist < comp_dist )
+        if ( curr_comp_dist < m_comp_dist )
         {
-            comp_dist = curr_mindist;
-            value = val;
+            m_comp_dist = curr_comp_dist;
+            m_value = val;
         }
     }
 
     inline bool is_comparable_distance_valid() const
     {
-        return comp_dist < std::numeric_limits<distance_type>::max();
+        return m_comp_dist < std::numeric_limits<distance_type>::max();
     }
 
     inline distance_type comparable_distance() const
     {
-        return comp_dist;
+        return m_comp_dist;
     }
 
     inline size_t get(Value & v)
     {
-        v = value;
+        v = m_value;
         return is_comparable_distance_valid() ? 1 : 0;
     }
 
 private:
-    Value value;
-    distance_type comp_dist;
+    Value m_value;
+    distance_type m_comp_dist;
 };
 
 template <typename Value, typename Translator, typename Point>

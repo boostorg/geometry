@@ -81,21 +81,21 @@ template <typename Point>
 inline detail::distance_unbounded<Point, detail::distance_near_tag>
 distance_near(Point const& p)
 {
-    return detail::detail::distance_unbounded<Point, detail::distance_near_tag>(p);
+    return detail::distance_unbounded<Point, detail::distance_near_tag>(p);
 }
 
 template <typename Point>
 inline detail::distance_unbounded<Point, detail::distance_far_tag>
 distance_far(Point const& p)
 {
-    return detail::detail::distance_unbounded<Point, detail::distance_far_tag>(p);
+    return detail::distance_unbounded<Point, detail::distance_far_tag>(p);
 }
 
 template <typename Point>
 inline detail::distance_unbounded<Point, detail::distance_centroid_tag>
 distance_centroid(Point const& p)
 {
-    return detail::detail::distance_unbounded<Point, detail::distance_centroid_tag>(p);
+    return detail::distance_unbounded<Point, detail::distance_centroid_tag>(p);
 }
 
 template <typename Point>
@@ -104,7 +104,7 @@ distance_near(
     Point const& p,
     typename index::traits::coordinate_type<Point>::type const& distance_min)
 {
-    return detail::detail::distance_half_bounded<Point, detail::distance_near_tag, detail::distance_min_tag>(p, distance_min);
+    return detail::distance_half_bounded<Point, detail::distance_near_tag, detail::distance_min_tag>(p, distance_min);
 }
 
 template <typename Point>
@@ -113,7 +113,7 @@ distance_far(
     Point const& p,
     typename index::traits::coordinate_type<Point>::type const& distance_min)
 {
-    return detail::detail::distance_half_bounded<Point, detail::distance_far_tag, detail::distance_min_tag>(p, distance_min);
+    return detail::distance_half_bounded<Point, detail::distance_far_tag, detail::distance_min_tag>(p, distance_min);
 }
 
 template <typename Point>
@@ -122,7 +122,7 @@ distance_centroid(
     Point const& p,
     typename index::traits::coordinate_type<Point>::type const& distance_min)
 {
-    return detail::detail::distance_half_bounded<Point, detail::distance_centroid_tag, detail::distance_min_tag>(p, distance_min);
+    return detail::distance_half_bounded<Point, detail::distance_centroid_tag, detail::distance_min_tag>(p, distance_min);
 }
 
 template <typename Point>
@@ -132,7 +132,7 @@ distance_near(
     typename index::traits::coordinate_type<Point>::type const& distance_min,
     typename index::traits::coordinate_type<Point>::type const& distance_max)
 {
-    return detail::detail::distance_bounded<Point, detail::distance_near_tag>(p, distance_min, distance_max);
+    return detail::distance_bounded<Point, detail::distance_near_tag>(p, distance_min, distance_max);
 }
 
 template <typename Point>
@@ -142,7 +142,7 @@ distance_far(
     typename index::traits::coordinate_type<Point>::type const& distance_min,
     typename index::traits::coordinate_type<Point>::type const& distance_max)
 {
-    return detail::detail::distance_bounded<Point, detail::distance_far_tag>(p, distance_min, distance_max);
+    return detail::distance_bounded<Point, detail::distance_far_tag>(p, distance_min, distance_max);
 }
 
 template <typename Point>
@@ -152,7 +152,7 @@ distance_centroid(
     typename index::traits::coordinate_type<Point>::type const& distance_min,
     typename index::traits::coordinate_type<Point>::type const& distance_max)
 {
-    return detail::detail::distance_bounded<Point, detail::distance_centroid_tag>(p, distance_min, distance_max);
+    return detail::distance_bounded<Point, detail::distance_centroid_tag>(p, distance_min, distance_max);
 }
 
 // algorithms
