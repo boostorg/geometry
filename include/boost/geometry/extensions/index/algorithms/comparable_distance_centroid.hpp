@@ -1,28 +1,29 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.Index - mindist used in R-tree k nearest neighbors query
+// Boost.Index - squared distance between point and centroid of the box or point
 //
 // Copyright 2011 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MINDIST_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MINDIST_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_CENTROID_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_CENTROID_HPP
 
 #include <boost/geometry/extensions/index/algorithms/detail/sum_for_indexable.hpp>
+#include <boost/geometry/extensions/index/algorithms/detail/diff_abs.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
 namespace detail {
 
-struct mindist_tag {};
+struct comparable_distance_centroid_tag {};
 
 template <
     typename Point,
     typename PointIndexable,
     size_t N>
-struct sum_for_indexable<Point, PointIndexable, point_tag, mindist_tag, N>
+struct sum_for_indexable<Point, PointIndexable, point_tag, comparable_distance_centroid_tag, N>
 {
     typedef typename geometry::default_distance_result<Point, PointIndexable>::type result_type;
 
@@ -36,7 +37,7 @@ template <
     typename Point,
     typename BoxIndexable,
     size_t DimensionIndex>
-struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, mindist_tag, DimensionIndex>
+struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, comparable_distance_centroid_tag, DimensionIndex>
 {
     typedef typename geometry::default_distance_result<Point, BoxIndexable>::type result_type;
 
@@ -48,13 +49,11 @@ struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, mindist_tag, Di
         point_coord_t pt_c = geometry::get<DimensionIndex>(pt);
         indexable_coord_t ind_c_min = geometry::get<geometry::min_corner, DimensionIndex>(i);
         indexable_coord_t ind_c_max = geometry::get<geometry::max_corner, DimensionIndex>(i);
+        
+        indexable_coord_t ind_c_avg = ind_c_min + (ind_c_max - ind_c_min) / 2;
+        // TODO: awulkiew - is (ind_c_min + ind_c_max) / 2 safe?
 
-        result_type diff = 0;
-
-        if ( pt_c < ind_c_min )
-            diff = ind_c_min - pt_c;
-        else if ( ind_c_max < pt_c )
-            diff = pt_c - ind_c_max;
+        result_type diff = detail::diff_abs(ind_c_avg, pt_c);
 
         return diff * diff;
     }
@@ -64,17 +63,18 @@ struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, mindist_tag, Di
 
 template <typename Point, typename Indexable>
 typename geometry::default_distance_result<Point, Indexable>::type
-mindist(Point const& pt, Indexable const& i)
+comparable_distance_centroid(Point const& pt, Indexable const& i)
 {
     return detail::sum_for_indexable<
         Point,
         Indexable,
         typename index::traits::tag<Indexable>::type,
-        detail::mindist_tag,
+        detail::comparable_distance_centroid_tag,
         index::traits::dimension<Indexable>::value
     >::apply(pt, i);
 }
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MINDIST_HPP
+#endif // #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_CENTROID_HPP
+

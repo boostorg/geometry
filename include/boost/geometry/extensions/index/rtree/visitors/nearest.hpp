@@ -10,9 +10,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_HPP
 
-#include <boost/geometry/extensions/index/algorithms/mindist.hpp>
-#include <boost/geometry/extensions/index/algorithms/minmaxdist.hpp>
-#include <boost/geometry/extensions/index/algorithms/maxdist.hpp>
+#include <boost/geometry/extensions/index/algorithms/comparable_distance_near.hpp>
+#include <boost/geometry/extensions/index/algorithms/comparable_distance_far.hpp>
+#include <boost/geometry/extensions/index/algorithms/comparable_distance_centroid.hpp>
 
 #include <boost/geometry/extensions/index/distance_calc.hpp>
 
@@ -175,7 +175,10 @@ public:
             if ( index::predicates_check<rtree::node_predicates_tag>(m_pred, it->first) )
             {
                 active_branch_list.push_back(
-                    std::make_pair(index::mindist(m_point_data, it->first), it->second)
+                    std::make_pair(
+                        index::comparable_distance_near(m_point_data, it->first),
+                        it->second
+                    )
                 );
             }
         }
@@ -212,7 +215,10 @@ public:
             if ( index::predicates_check<rtree::value_predicates_tag>(m_pred, m_tr(*it)) )
             {
                 // store value
-                m_result.store(*it, index::mindist(m_point_data, m_tr(*it)));
+                m_result.store(
+                    *it,
+                    index::comparable_distance_near(m_point_data, m_tr(*it))
+                );
             }
         }
     }

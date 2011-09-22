@@ -160,6 +160,48 @@ distance_centroid(
 namespace detail
 {
 
+template <typename Point, typename Indexable, typename AlgoTag>
+struct distance_calc_impl
+{
+    BOOST_MPL_ASSERT_MSG(
+        (false),
+        NOT_IMPLEMENTED_FOR_THIS_TAG_TYPE,
+        (distance_calc_impl));
+};
+
+template <typename Point, typename Indexable>
+struct distance_calc_impl<Point, Indexable, detail::distance_near_tag>
+{
+    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
+
+    static inline result_type apply(Point const& p, Indexable const& i)
+    {
+        return index::comparable_distance_near(p, i);
+    }
+};
+
+template <typename Point, typename Indexable>
+struct distance_calc_impl<Point, Indexable, detail::distance_far_tag>
+{
+    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
+
+    static inline result_type apply(Point const& p, Indexable const& i)
+    {
+        return index::comparable_distance_far(p, i);
+    }
+};
+
+template <typename Point, typename Indexable>
+struct distance_calc_impl<Point, Indexable, detail::distance_centroid_tag>
+{
+    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
+
+    static inline result_type apply(Point const& p, Indexable const& i)
+    {
+        return index::comparable_distance_centroid(p, i);
+    }
+};
+
 // TODO:
 // to use it properly in case of rtree nodes there must be additional template parameter added: Tag
 // and typedef ... result_type - in case of bounded distance or half-bounded min maxdist must be calculated as well
@@ -173,40 +215,6 @@ namespace detail
 
 // rename distance_calc -> comparable_distance_calc ? or calculate_comparable_distance or distance_data_calc?
 
-template <typename Point, typename Indexable, typename AlgoTag>
-struct distance_calc_impl
-{
-    // TODO MPL_ASSERT
-};
-
-template <typename Point, typename Indexable>
-struct distance_calc_impl<Point, Indexable, detail::distance_near_tag>
-{
-    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
-
-    static inline result_type apply(Point const& p, Indexable const& i)
-    {
-        return index::mindist(p, i);
-    }
-};
-
-template <typename Point, typename Indexable>
-struct distance_calc_impl<Point, Indexable, detail::distance_far_tag>
-{
-    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
-
-    static inline result_type apply(Point const& p, Indexable const& i)
-    {
-        return index::maxdist(p, i);
-    }
-};
-
-// TODO distance_calc_impl<Point, Indexable, detail::distance_centroid_tag>
-// rename:
-// mindist -> comparable_distance_near
-// maxdist -> comparable_distance_far
-// add comparable_distance_centroid
-
 template <typename Point, typename Indexable, typename Tag>
 struct distance_calc
 {
@@ -214,7 +222,7 @@ struct distance_calc
 
     static inline result_type apply(Point const& p, Indexable const& i)
     {
-        return index::mindist(p, i);
+        return index::comparable_distance_near(p, i);
     }
 };
 

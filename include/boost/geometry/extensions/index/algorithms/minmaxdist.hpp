@@ -39,7 +39,8 @@ struct smallest_for_indexable_dimension<Point, BoxIndexable, box_tag, minmaxdist
         indexable_coord_t ind_c_min = geometry::get<geometry::min_corner, DimensionIndex>(i);
         indexable_coord_t ind_c_max = geometry::get<geometry::max_corner, DimensionIndex>(i);
 
-        indexable_coord_t ind_c_avg = (ind_c_min + ind_c_max) / 2;
+        indexable_coord_t ind_c_avg = ind_c_min + (ind_c_max - ind_c_min) / 2;
+        // TODO: awulkiew - is (ind_c_min + ind_c_max) / 2 safe?
 
         // TODO: awulkiew - optimize! don't calculate 2x pt_c <= ind_c_avg
         // take particular case pt_c == ind_c_avg into account

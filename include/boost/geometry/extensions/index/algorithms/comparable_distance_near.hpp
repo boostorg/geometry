@@ -1,31 +1,42 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.Index - maxdist used in R-tree k nearest neighbors query
+// Boost.Index - squared distance between point and nearest point of the box or point
 //
 // Copyright 2011 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MAXDIST_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MAXDIST_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_NEAR_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_NEAR_HPP
 
-#include <boost/geometry/extensions/index/algorithms/detail/diff_abs.hpp>
 #include <boost/geometry/extensions/index/algorithms/detail/sum_for_indexable.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
 namespace detail {
 
-// minmaxdist component
+struct comparable_distance_near_tag {};
 
-struct maxdist_tag {};
+template <
+    typename Point,
+    typename PointIndexable,
+    size_t N>
+struct sum_for_indexable<Point, PointIndexable, point_tag, comparable_distance_near_tag, N>
+{
+    typedef typename geometry::default_distance_result<Point, PointIndexable>::type result_type;
+
+    inline static result_type apply(Point const& pt, PointIndexable const& i)
+    {
+        return geometry::comparable_distance(pt, i);
+    }
+};
 
 template <
     typename Point,
     typename BoxIndexable,
     size_t DimensionIndex>
-struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, maxdist_tag, DimensionIndex>
+struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, comparable_distance_near_tag, DimensionIndex>
 {
     typedef typename geometry::default_distance_result<Point, BoxIndexable>::type result_type;
 
@@ -38,14 +49,14 @@ struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, maxdist_tag, Di
         indexable_coord_t ind_c_min = geometry::get<geometry::min_corner, DimensionIndex>(i);
         indexable_coord_t ind_c_max = geometry::get<geometry::max_corner, DimensionIndex>(i);
 
-        result_type further_diff = 0;
+        result_type diff = 0;
 
-        if ( (ind_c_min + ind_c_max) / 2 <= pt_c )
-            further_diff = pt_c - ind_c_min;
-        else
-            further_diff = detail::diff_abs(pt_c, ind_c_max); // unsigned values protection
+        if ( pt_c < ind_c_min )
+            diff = ind_c_min - pt_c;
+        else if ( ind_c_max < pt_c )
+            diff = pt_c - ind_c_max;
 
-        return further_diff * further_diff;
+        return diff * diff;
     }
 };
 
@@ -53,17 +64,17 @@ struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, maxdist_tag, Di
 
 template <typename Point, typename Indexable>
 typename geometry::default_distance_result<Point, Indexable>::type
-maxdist(Point const& pt, Indexable const& i)
+comparable_distance_near(Point const& pt, Indexable const& i)
 {
     return detail::sum_for_indexable<
         Point,
         Indexable,
         typename index::traits::tag<Indexable>::type,
-        detail::maxdist_tag,
+        detail::comparable_distance_near_tag,
         index::traits::dimension<Indexable>::value
     >::apply(pt, i);
 }
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MAXDIST_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_NEAR_HPP

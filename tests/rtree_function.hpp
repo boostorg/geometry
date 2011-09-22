@@ -182,7 +182,8 @@ namespace helpers
         template <typename Value>
         bool operator()(Value const& v1, Value const& v2)
         {
-            return boost::geometry::index::mindist(pt, tr(v1)) < boost::geometry::index::mindist(pt, tr(v2));
+            return boost::geometry::index::comparable_distance_near(pt, tr(v1))
+                < boost::geometry::index::comparable_distance_near(pt, tr(v2));
         }
 
         Point const& pt;

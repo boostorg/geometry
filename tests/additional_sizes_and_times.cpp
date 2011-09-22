@@ -273,7 +273,7 @@ int main()
                 it != v.end();
                 ++it )
             {
-                distance_type cd = bgi::mindist(P(x, y), it->first);
+                distance_type cd = bgi::comparable_distance_near(P(x, y), it->first);
 
                 if ( cd < dist )
                 {
