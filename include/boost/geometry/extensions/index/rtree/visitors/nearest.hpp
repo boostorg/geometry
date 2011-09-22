@@ -134,7 +134,7 @@ template <
     typename Options,
     typename Translator,
     typename Box,
-    typename Point,
+    typename PointData,
     typename Predicates,
     typename Result
 >
@@ -149,8 +149,8 @@ public:
 
     typedef typename geometry::default_distance_result<Point, Box>::type node_distance_type;
 
-    inline nearest(Translator const& t, Point const& pt, Predicates const& pr, Result & r)
-        : m_tr(t), m_point(pt), m_pred(pr)
+    inline nearest(Translator const& t, PointData const& point_data, Predicates const& pr, Result & r)
+        : m_tr(t), m_point_data(point_data), m_pred(pr)
         , m_result(r)
     {}
 
@@ -241,7 +241,7 @@ private:
     }
 
     Translator const& m_tr;
-    Point const& m_point;
+    Point const& m_point_data;
     Predicates const& m_pred;
 
     Result & m_result;

@@ -119,10 +119,10 @@ struct distance_calc<
     typedef typename geometry::default_distance_result<Point, Indexable>::type distance_type;
 
     static inline distance_type apply(
-        detail::distance_xxx<Point, detail::distance_near_tag> const& d,
+        detail::distance_xxx<Point, detail::distance_near_tag> const& dx,
         Indexable const& i)
     {
-        return index::mindist(d.point, i);
+        return index::mindist(dx.point, i);
     }
 };
 
@@ -136,15 +136,15 @@ struct distance_calc<
     typedef typename geometry::default_distance_result<Point, Indexable>::type distance_type;
 
     static inline distance_type apply(
-        detail::distance_xxx<Point, detail::distance_far_tag> const& d,
+        detail::distance_xxx<Point, detail::distance_far_tag> const& dx,
         Indexable const& i)
     {
-        return index::maxdist(d.point, i);
+        return index::maxdist(dx.point, i);
     }
 };
 
 template <typename Point>
-struct is_distance_ok
+struct distance_comp
 {
     template <typename DistanceType>
     static inline bool apply(Point const&, DistanceType const&)
@@ -154,7 +154,7 @@ struct is_distance_ok
 };
 
 template <typename Point, typename Tag>
-struct is_distance_ok< detail::distance_xxx<Point, Tag> >
+struct distance_comp< detail::distance_xxx<Point, Tag> >
 {
     template <typename DistanceType>
     static inline bool apply(
@@ -164,6 +164,33 @@ struct is_distance_ok< detail::distance_xxx<Point, Tag> >
         return dx.comparable_near <= d && d <= dx.comparable_far;
     }
 };
+
+// TODO: awulkiew - pruning for nodes!
+// if 0 < comp_near node is pruned if maxdist(point, node_box) < comp_near
+// if comp_far < INF node is pruned if comp_far < min_dist(point, node_box)
+// still nodes must be sorted by min_dist(point, node_box)
+
+// for values, proper distance values are calculated min, max or centroid
+// and tested with comp_near and/or comp_far
+
+// implement versions with only one comp or without comp distances?
+// less tests == speed increase
+// near_between, near_lesser, near_greater
+// far_xxx
+// centroid_xxx, center_xxx
+
+// distance_range, distance_bound, distance_upper_bound
+
+// distance_between<near | far| centroid tag> - now distance_xxx
+// distance_xxxxxx<near|far|centroid, less|more>
+// distance_point_only
+
+// distance_calc for each <near|far|centroid>
+// distance_comp for each class and xxxxxx<less|more>
+
+// + something in case of nodes
+// additional calculation of maxdist in case of distance_between and
+// distance_xxxxx<more> 
 
 } // namespace detail
 
@@ -177,9 +204,9 @@ distance_calc(PointData const& p, Indexable const& i)
 
 template <typename PointData, typename DistanceType>
 inline bool
-is_distance_ok(PointData const& p, DistanceType const& d)
+distance_comp(PointData const& p, DistanceType const& d)
 {
-    return detail::is_distance_ok<PointData>
+    return detail::distance_comp<PointData>
         ::apply(p, d);
 }
 
