@@ -14,7 +14,7 @@
 #include <boost/geometry/extensions/index/algorithms/comparable_distance_far.hpp>
 #include <boost/geometry/extensions/index/algorithms/comparable_distance_centroid.hpp>
 
-#include <boost/geometry/extensions/index/distance_calc.hpp>
+#include <boost/geometry/extensions/index/distance_predicates.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 

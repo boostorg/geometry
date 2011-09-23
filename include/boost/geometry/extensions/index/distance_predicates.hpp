@@ -1,14 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Boost.SpatialIndex - Spatial index distances calculators used in nearest query
+// Boost.SpatialIndex - Spatial index distance predicates, calculators and checkers used in nearest query
 //
 // Copyright 2011 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_DISTANCE_CALC_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_DISTANCE_CALC_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_DISTANCE_PREDICATES_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_DISTANCE_PREDICATES_HPP
 
 namespace boost { namespace geometry { namespace index {
 
@@ -16,6 +16,12 @@ namespace detail {
 
 //TODO: awulkiew - consider storing values instead of const references
 // it may be faster and it eliminates problems with storing of references to temporaries
+// moreover user may use boost::cref
+
+// TODO: awulkiew - what with coordinate systems other than cartesian?
+// do comparable_distance returns distance in coordinate system of objects used?
+// what if objects are in different systems?
+// should index algorithms work exactly like comparable_distance or not?
 
 // data
 
@@ -160,6 +166,8 @@ distance_centroid(
 namespace detail
 {
 
+// distance_calc_impl
+
 template <typename Point, typename Indexable, typename AlgoTag>
 struct distance_calc_impl
 {
@@ -202,18 +210,7 @@ struct distance_calc_impl<Point, Indexable, detail::distance_centroid_tag>
     }
 };
 
-// TODO:
-// to use it properly in case of rtree nodes there must be additional template parameter added: Tag
-// and typedef ... result_type - in case of bounded distance or half-bounded min maxdist must be calculated as well
-
-// distance_calc_result<Point, Indexable>::type or distance_calc<Point, Indexable>::result_type
-// sorting is needed only in rtree nodes so it shouldn't be here, use detail::rtree instead
-// should comp be here or only in detail::rtree?
-
-// in addition, maby don't use Tag, just implement different structure in detail::rtree specialized for rtree?
-// in addition, maby don't use Tag in predicates?
-
-// rename distance_calc -> comparable_distance_calc ? or calculate_comparable_distance or distance_data_calc?
+// distance_calc
 
 template <typename Point, typename Indexable, typename Tag>
 struct distance_calc
@@ -274,7 +271,74 @@ struct distance_calc<
     }
 };
 
-// TODO distance_comp
+// distance_check
+
+template <typename Point, typename Tag>
+struct distance_check
+{
+    template <typename DistanceType>
+    static inline bool apply(Point const&, DistanceType const&)
+    {
+        return true;
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Tag>
+struct distance_check<
+    detail::distance_unbounded<Point, AlgoTag>,
+    Tag>
+{
+    template <typename DistanceType>
+    static inline bool apply(
+        detail::distance_unbounded<Point, AlgoTag> const&,
+        DistanceType const&)
+    {
+        return true;
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Tag>
+struct distance_check<
+    detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag>,
+    Tag>
+{
+    template <typename DistanceType>
+    static inline bool apply(
+        detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag> const& dx,
+        DistanceType const& comparable_d)
+    {
+        return dx.comparable_limit <= comparable_d;
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Tag>
+struct distance_check<
+    detail::distance_half_bounded<Point, AlgoTag, detail::distance_max_tag>,
+    Tag>
+{
+    template <typename DistanceType>
+    static inline bool apply(
+        detail::distance_half_bounded<Point, AlgoTag, detail::distance_max_tag> const& dx,
+        DistanceType const& comparable_d)
+    {
+        return comparable_d <= dx.comparable_limit;
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Tag>
+struct distance_check<
+    detail::distance_bounded<Point, AlgoTag>,
+    Tag>
+{
+    template <typename DistanceType>
+    static inline bool apply(
+        detail::distance_bounded<Point, AlgoTag> const& dx,
+        DistanceType const& comparable_d)
+    {
+        return dx.comparable_min <= comparable_d && comparable_d <= dx.comparable_max;
+    }
+};
+
 // move distance_calc and distance_comp into geometry::index ?
 
 // TODO: awulkiew - pruning for nodes! <- inside detail::rtree so NOT HERE
@@ -309,4 +373,4 @@ struct distance_calc<
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_DISTANCE_CALC_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_DISTANCE_PREDICATES_HPP
