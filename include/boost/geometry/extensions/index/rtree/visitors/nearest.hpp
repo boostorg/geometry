@@ -10,11 +10,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_HPP
 
-#include <boost/geometry/extensions/index/algorithms/comparable_distance_near.hpp>
-#include <boost/geometry/extensions/index/algorithms/comparable_distance_far.hpp>
-#include <boost/geometry/extensions/index/algorithms/comparable_distance_centroid.hpp>
-
-#include <boost/geometry/extensions/index/distance_predicates.hpp>
+#include <boost/geometry/extensions/index/rtree/distance_predicates.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
@@ -134,7 +130,7 @@ template <
     typename Options,
     typename Translator,
     typename Box,
-    typename PointData,
+    typename DistancePredicate,
     typename Predicates,
     typename Result
 >
@@ -147,10 +143,17 @@ public:
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
-    typedef typename geometry::default_distance_result<PointData, Box>::type node_distance_type;
+    typedef index::detail::distance_calc<DistancePredicate, Box, rtree::node_distance_predicate_tag> node_distance_calc;
+    typedef typename node_distance_calc::result_type node_distance_type;
+    typedef index::detail::distance_predicate_check<DistancePredicate, Box, rtree::node_distance_predicate_tag> node_distance_predicate_check;
+    typedef rtree::distance_less<DistancePredicate, Box> node_distance_less;
 
-    inline nearest(Translator const& t, PointData const& point_data, Predicates const& pr, Result & r)
-        : m_tr(t), m_point_data(point_data), m_pred(pr)
+    typedef index::detail::distance_calc<DistancePredicate, typename Translator::indexable_type, rtree::value_distance_predicate_tag> value_distance_calc;
+    typedef typename value_distance_calc::result_type value_distance_type;
+    typedef index::detail::distance_predicate_check<DistancePredicate, typename Translator::indexable_type, rtree::value_distance_predicate_tag> value_distance_predicate_check;
+
+    inline nearest(Translator const& t, DistancePredicate const& dist_pred, Predicates const& pred, Result & r)
+        : m_tr(t), m_dist_pred(dist_pred), m_pred(pred)
         , m_result(r)
     {}
 
@@ -159,11 +162,10 @@ public:
     inline void operator()(internal_node const& n)
     {
         // array of active nodes
-        /*index::pushable_array<
+        index::pushable_array<
             std::pair<node_distance_type, const node *>,
             Options::parameters_type::max_elements
-        > active_branch_list;*/
-        std::vector< std::pair<node_distance_type, const node *> > active_branch_list;
+        > active_branch_list;
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
@@ -172,14 +174,18 @@ public:
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
+            // if current node meets predicates
             if ( index::predicates_check<rtree::node_predicates_tag>(m_pred, it->first) )
             {
-                active_branch_list.push_back(
-                    std::make_pair(
-                        index::comparable_distance_near(m_point_data, it->first),
-                        it->second
-                    )
-                );
+                // calculate node's distance(s) for distance predicate
+                node_distance_type node_dist_data = node_distance_calc::apply(m_dist_pred, it->first);
+
+                // if current node distance(s) meets distance predicate
+                if ( node_distance_predicate_check::apply(m_dist_pred, node_dist_data) )
+                {
+                    // add current node's data into the list
+                    active_branch_list.push_back( std::make_pair(node_dist_data, it->second) );
+                }
             }
         }
 
@@ -188,7 +194,7 @@ public:
             return;
         
         // sort array
-        std::sort(active_branch_list.begin(), active_branch_list.end(), abl_mindist_less);
+        std::sort(active_branch_list.begin(), active_branch_list.end(), node_distance_less());
 
         // recursively visit nodes
         for ( size_t i = 0 ;; ++i )
@@ -212,25 +218,23 @@ public:
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
+            // if value meets predicates
             if ( index::predicates_check<rtree::value_predicates_tag>(m_pred, m_tr(*it)) )
             {
-                // store value
-                m_result.store(
-                    *it,
-                    index::comparable_distance_near(m_point_data, m_tr(*it))
-                );
+                // calculate values distance for distance predicate
+                value_distance_type dist = value_distance_calc::apply(m_dist_pred, m_tr(*it));
+
+                // if distance meets distance predicate
+                if ( value_distance_predicate_check::apply(m_dist_pred, dist) )
+                {
+                    // store value
+                    m_result.store(*it, dist);
+                }
             }
         }
     }
 
 private:
-    inline static bool abl_mindist_less(
-        std::pair<node_distance_type, const node *> const& p1,
-        std::pair<node_distance_type, const node *> const& p2)
-    {
-        return p1.first < p2.first;
-    }
-
     template <typename ActiveBranchList>
     inline void prune_nodes(ActiveBranchList & abl) const
     {
@@ -239,7 +243,8 @@ private:
         {
             // prune if box's mindist is further than value's mindist
             while ( !abl.empty() &&
-                    m_result.comparable_distance() < abl.back().first )
+                    distance_node_pruning_check<DistancePredicate, Box>
+                        ::apply(m_result.comparable_distance(), abl.back().first) )
             {
                 abl.pop_back();
             }
@@ -247,7 +252,7 @@ private:
     }
 
     Translator const& m_tr;
-    PointData const& m_point_data;
+    DistancePredicate const& m_dist_pred;
     Predicates const& m_pred;
 
     Result & m_result;

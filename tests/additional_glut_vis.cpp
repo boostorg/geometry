@@ -26,9 +26,40 @@ boost::geometry::index::rtree<
     boost::geometry::index::rstar<4, 2> > t;
 std::vector<B> vect;
 
-bool is_nearest = false;
+size_t found_count = 0;
 P search_point;
+float min_distance = 20;
+float max_distance = 30;
+size_t count = 10;
 std::vector<B> nearest_boxes;
+
+void draw_search_area()
+{
+    float x = boost::geometry::get<0>(search_point);
+    float y = boost::geometry::get<1>(search_point);
+    float z = t.depth();
+
+    // search point
+    glBegin(GL_TRIANGLES);
+    glVertex3f(x, y, z);
+    glVertex3f(x + 1, y, z);
+    glVertex3f(x + 1, y + 1, z);
+    glEnd();
+
+    // search min circle
+
+    glBegin(GL_LINE_LOOP);
+    for(float a = 0 ; a < 3.14158f * 2 ; a += 3.14158f / 180)
+        glVertex3f(x + min_distance * ::cos(a), y + min_distance * ::sin(a), z);
+    glEnd();
+
+    // search max circle
+
+    glBegin(GL_LINE_LOOP);
+    for(float a = 0 ; a < 3.14158f * 2 ; a += 3.14158f / 180)
+        glVertex3f(x + max_distance * ::cos(a), y + max_distance * ::sin(a), z);
+    glEnd();
+}
 
 void render_scene(void)
 {
@@ -36,14 +67,10 @@ void render_scene(void)
 
     boost::geometry::index::gl_draw(t);
 
-    if ( is_nearest )
+    if ( found_count > 0 )
     {
         glColor3f(1.0f, 0.5f, 0.0f);
-        glBegin(GL_TRIANGLES);
-        glVertex3f(boost::geometry::get<0>(search_point), boost::geometry::get<1>(search_point), t.depth());
-        glVertex3f(boost::geometry::get<0>(search_point) + 1, boost::geometry::get<1>(search_point), t.depth());
-        glVertex3f(boost::geometry::get<0>(search_point) + 1, boost::geometry::get<1>(search_point) + 1, t.depth());
-        glEnd();
+        draw_search_area();
 
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
             boost::geometry::index::detail::rtree::visitors::detail::gl_draw_indexable(nearest_boxes[i], t.depth());
@@ -75,6 +102,9 @@ void resize(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
+    namespace bg = boost::geometry;
+    namespace bgi = bg::index;
+
     if ( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN )
     {
         float x = ( rand() % 100 );
@@ -88,12 +118,12 @@ void mouse(int button, int state, int x, int y)
         vect.push_back(b);
 
         std::cout << "inserted: ";
-        boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
+        bgi::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
 
         std::cout << "\n" << t << "\n";
-        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-        std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << ( bgi::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( bgi::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
         std::cout << "\n";
     }
     else if ( button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
@@ -104,16 +134,16 @@ void mouse(int button, int state, int x, int y)
         size_t i = rand() % vect.size();
         B b = vect[i];
 
-        boost::geometry::index::remove(t, b);
+        bgi::remove(t, b);
         vect.erase(vect.begin() + i);
 
         std::cout << "removed: ";
-        boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, b);
+        bgi::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
 
         std::cout << "\n" << t << "\n";
-        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-        std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << ( bgi::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( bgi::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
         std::cout << "\n";
     }
     else if ( button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN )
@@ -123,16 +153,16 @@ void mouse(int button, int state, int x, int y)
 
         search_point = P(x, y);
         nearest_boxes.clear();
-        is_nearest = t.nearest(search_point, 3, std::back_inserter(nearest_boxes));
+        found_count = t.nearest(bgi::distance_centroid(search_point, min_distance, max_distance), count, std::back_inserter(nearest_boxes));
 
-        if ( is_nearest )
+        if ( found_count > 0 )
         {
             std::cout << "search point: ";
-            boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, search_point);
+            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, search_point);
             std::cout << "\nfound: ";
             for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
             {
-                boost::geometry::index::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+                bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
                 std::cout << '\n';
             }
         }
@@ -140,8 +170,8 @@ void mouse(int button, int state, int x, int y)
             std::cout << "nearest not found\n";
 
         std::cout << "\n" << t << "\n";
-        std::cout << ( boost::geometry::index::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-        std::cout << ( boost::geometry::index::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << ( bgi::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( bgi::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
         std::cout << "\n";
     }
 

@@ -10,6 +10,10 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_DISTANCE_PREDICATES_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_DISTANCE_PREDICATES_HPP
 
+#include <boost/geometry/extensions/index/algorithms/comparable_distance_near.hpp>
+#include <boost/geometry/extensions/index/algorithms/comparable_distance_far.hpp>
+#include <boost/geometry/extensions/index/algorithms/comparable_distance_centroid.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail {
@@ -271,10 +275,10 @@ struct distance_calc<
     }
 };
 
-// distance_check
+// distance_predicate_check
 
-template <typename Point, typename Tag>
-struct distance_check
+template <typename Point, typename Indexable, typename Tag>
+struct distance_predicate_check
 {
     template <typename DistanceType>
     static inline bool apply(Point const&, DistanceType const&)
@@ -283,9 +287,10 @@ struct distance_check
     }
 };
 
-template <typename Point, typename AlgoTag, typename Tag>
-struct distance_check<
+template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
+struct distance_predicate_check<
     detail::distance_unbounded<Point, AlgoTag>,
+    Indexable,
     Tag>
 {
     template <typename DistanceType>
@@ -297,9 +302,10 @@ struct distance_check<
     }
 };
 
-template <typename Point, typename AlgoTag, typename Tag>
-struct distance_check<
+template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
+struct distance_predicate_check<
     detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag>,
+    Indexable,
     Tag>
 {
     template <typename DistanceType>
@@ -311,9 +317,10 @@ struct distance_check<
     }
 };
 
-template <typename Point, typename AlgoTag, typename Tag>
-struct distance_check<
+template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
+struct distance_predicate_check<
     detail::distance_half_bounded<Point, AlgoTag, detail::distance_max_tag>,
+    Indexable,
     Tag>
 {
     template <typename DistanceType>
@@ -325,9 +332,10 @@ struct distance_check<
     }
 };
 
-template <typename Point, typename AlgoTag, typename Tag>
-struct distance_check<
+template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
+struct distance_predicate_check<
     detail::distance_bounded<Point, AlgoTag>,
+    Indexable,
     Tag>
 {
     template <typename DistanceType>
@@ -339,37 +347,33 @@ struct distance_check<
     }
 };
 
-// move distance_calc and distance_comp into geometry::index ?
+// distance_point
 
-// TODO: awulkiew - pruning for nodes! <- inside detail::rtree so NOT HERE
-// if 0 < comp_near node is pruned if maxdist(point, node_box) < comp_near
-// if comp_far < INF node is pruned if comp_far < min_dist(point, node_box)
-// still nodes must be sorted by min_dist(point, node_box)
+template <typename Point>
+struct distance_point
+{
+    typedef Point type;
+};
 
-// for values, proper distance values are calculated min, max or centroid
-// and tested with comp_near and/or comp_far
+template <typename Point, typename AlgoTag>
+struct distance_point< detail::distance_unbounded<Point, AlgoTag> >
+{
+   typedef Point type;
+};
 
-// + something in case of nodes
-// additional calculation of maxdist in case of distance_between and
-// distance_xxxxx<more> 
+template <typename Point, typename AlgoTag, typename LimitTag>
+struct distance_point< detail::distance_half_bounded<Point, AlgoTag, LimitTag> >
+{
+    typedef Point type;
+};
+
+template <typename Point, typename AlgoTag>
+struct distance_point< detail::distance_bounded<Point, AlgoTag> >
+{
+    typedef Point type;
+};
 
 } // namespace detail
-
-//template <typename PointData, typename Indexable>
-//inline typename detail::distance_calc<PointData, Indexable>::distance_type
-//distance_calc(PointData const& p, Indexable const& i)
-//{
-//    return detail::distance_calc<PointData, Indexable>
-//        ::apply(p, i);
-//}
-//
-//template <typename PointData, typename DistanceType>
-//inline bool
-//distance_comp(PointData const& p, DistanceType const& d)
-//{
-//    return detail::distance_comp<PointData>
-//        ::apply(p, d);
-//}
 
 }}} // namespace boost::geometry::index
 

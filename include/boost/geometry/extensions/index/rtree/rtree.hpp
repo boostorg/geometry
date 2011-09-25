@@ -40,6 +40,7 @@
 namespace boost { namespace geometry { namespace index {
 
 // TODO copying
+// TODO move extensional/debug visitors to the other folder
 
 template <
     typename Value,
@@ -94,28 +95,28 @@ public:
     // TODO: awulkiew - change Point to Geometry?
     // return number of elements instead of bool?
 
-    template <typename Point>
-    inline size_t nearest(Point const& pt, value_type & v) const
+    template <typename DistancePredicate>
+    inline size_t nearest(DistancePredicate const& p, value_type & v) const
     {
-        return nearest_one(pt, detail::empty(), v);
+        return nearest_one(p, detail::empty(), v);
     }
 
-    template <typename Point, typename Predicates>
-    inline size_t nearest(Point const& pt, Predicates const& pred, value_type & v) const
+    template <typename DistancePredicate, typename Predicates>
+    inline size_t nearest(DistancePredicate const& p, Predicates const& pred, value_type & v) const
     {
-        return nearest_one(pt, pred, v);
+        return nearest_one(p, pred, v);
     }
 
-    template <typename Point, typename OutIter>
-    inline size_t nearest(Point const& pt, size_t k, OutIter out_it) const
+    template <typename DistancePredicate, typename OutIter>
+    inline size_t nearest(DistancePredicate const& p, size_t k, OutIter out_it) const
     {
-        return nearest_k(pt, k, detail::empty(), out_it);
+        return nearest_k(p, k, detail::empty(), out_it);
     }
 
-    template <typename Point, typename Predicates, typename OutIter>
-    inline size_t nearest(Point const& pt, size_t k, Predicates const& pred, OutIter out_it) const
+    template <typename DistancePredicate, typename Predicates, typename OutIter>
+    inline size_t nearest(DistancePredicate const& p, size_t k, Predicates const& pred, OutIter out_it) const
     {
-        return nearest_k(pt, k, pred, out_it);
+        return nearest_k(p, k, pred, out_it);
     }
 
     inline void insert(value_type const& value)
@@ -187,28 +188,52 @@ public:
     }
 
 private:
-    template <typename Point, typename Predicates>
-    inline size_t nearest_one(Point const& pt, Predicates const& pred, value_type & v) const
+    template <typename DistancePredicate, typename Predicates>
+    inline size_t nearest_one(DistancePredicate const& p, Predicates const& pred, value_type & v) const
     {
-        typedef detail::rtree::visitors::nearest_one<value_type, translator_type, Point> result_type;
+        typedef detail::rtree::visitors::nearest_one<
+            value_type,
+            translator_type,
+            typename detail::distance_point<DistancePredicate>::type
+        > result_type;
+
         result_type result;
 
-        detail::rtree::visitors::nearest<value_type, options_type, translator_type, box_type, Point, Predicates, result_type>
-            nearest_v(m_translator, pt, pred, result);
+        detail::rtree::visitors::nearest<
+            value_type,
+            options_type,
+            translator_type,
+            box_type,
+            DistancePredicate,
+            Predicates,
+            result_type
+        > nearest_v(m_translator, p, pred, result);
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
         return result.get(v);
     }
 
-    template <typename Point, typename Predicates, typename OutIter>
-    inline size_t nearest_k(Point const& pt, size_t k, Predicates const& pred, OutIter out_it) const
+    template <typename DistancePredicate, typename Predicates, typename OutIter>
+    inline size_t nearest_k(DistancePredicate const& p, size_t k, Predicates const& pred, OutIter out_it) const
     {
-        typedef detail::rtree::visitors::nearest_k<value_type, translator_type, Point> result_type;
+        typedef detail::rtree::visitors::nearest_k<
+            value_type,
+            translator_type,
+            typename detail::distance_point<DistancePredicate>::type
+        > result_type;
+
         result_type result(k);
 
-        detail::rtree::visitors::nearest<value_type, options_type, translator_type, box_type, Point, Predicates, result_type>
-            nearest_v(m_translator, pt, pred, result);
+        detail::rtree::visitors::nearest<
+            value_type,
+            options_type,
+            translator_type,
+            box_type,
+            DistancePredicate,
+            Predicates,
+            result_type
+        > nearest_v(m_translator, p, pred, result);
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
@@ -261,6 +286,18 @@ template <typename Value, typename Options, typename Translator, typename Point,
 inline size_t nearest(rtree<Value, Options, Translator> const& tree, Point const& pt, size_t k, Predicates const& pred, OutIter out_it)
 {
     return tree.nearest(pt, k, pred, out_it);
+}
+
+template <typename Value, typename Options, typename Translator>
+inline size_t size(rtree<Value, Options, Translator> const& tree)
+{
+    return tree.size();
+}
+
+template <typename Value, typename Options, typename Translator>
+inline bool empty(rtree<Value, Options, Translator> const& tree)
+{
+    return tree.empty();
 }
 
 }}} // namespace boost::geometry::index

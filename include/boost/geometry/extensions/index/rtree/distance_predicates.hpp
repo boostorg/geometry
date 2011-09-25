@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_DISTANCE_PREDICATES_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_DISTANCE_PREDICATES_HPP
 
+#include <boost/geometry/extensions/index/distance_predicates.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail {
@@ -26,7 +28,10 @@ struct node_distance_predicate_tag {};
 // distance_calc
 
 template <typename Point, typename Indexable>
-struct distance_calc<Point, Indexable, node_distance_predicate_tag>
+struct distance_calc<
+    Point,
+    Indexable,
+    rtree::node_distance_predicate_tag>
 {
     typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
 
@@ -36,60 +41,85 @@ struct distance_calc<Point, Indexable, node_distance_predicate_tag>
     }
 };
 
-// TODO - finish specializations for nodes
-
-template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
+template <typename Point, typename AlgoTag, typename Indexable>
 struct distance_calc<
     detail::distance_unbounded<Point, AlgoTag>,
     Indexable,
-    Tag>
+    rtree::node_distance_predicate_tag>
 {
-    typedef typename distance_calc_impl<Point, Indexable, AlgoTag>::result_type result_type;
+    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
 
     static inline result_type apply(
         detail::distance_unbounded<Point, AlgoTag> const& dx,
         Indexable const& i)
     {
-        return distance_calc_impl<Point, Indexable, AlgoTag>::apply(dx.point, i);
+        return index::comparable_distance_near(dx.point, i);
     }
 };
 
-template <typename Point, typename AlgoTag, typename LimitTag, typename Indexable, typename Tag>
+template <typename Point, typename AlgoTag, typename Indexable>
 struct distance_calc<
-    detail::distance_half_bounded<Point, AlgoTag, LimitTag>,
+    detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag>,
     Indexable,
-    Tag>
+    rtree::node_distance_predicate_tag>
 {
-    typedef typename distance_calc_impl<Point, Indexable, AlgoTag>::result_type result_type;
+    typedef typename geometry::default_distance_result<Point, Indexable>::type distance_type;
+    typedef std::pair<distance_type, distance_type> result_type;
 
     static inline result_type apply(
-        detail::distance_half_bounded<Point, AlgoTag, LimitTag> const& dx,
+        detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag> const& dx,
         Indexable const& i)
     {
-        return distance_calc_impl<Point, Indexable, AlgoTag>::apply(dx.point, i);
+        return std::make_pair(
+            index::comparable_distance_near(dx.point, i),
+            index::comparable_distance_far(dx.point, i)
+        );
     }
 };
 
-template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_calc<
+    detail::distance_half_bounded<Point, AlgoTag, detail::distance_max_tag>,
+    Indexable,
+    rtree::node_distance_predicate_tag>
+{
+    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
+
+    static inline result_type apply(
+        detail::distance_half_bounded<Point, AlgoTag, detail::distance_max_tag> const& dx,
+        Indexable const& i)
+    {
+        return index::comparable_distance_near(dx.point, i);
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Indexable>
 struct distance_calc<
     detail::distance_bounded<Point, AlgoTag>,
     Indexable,
-    Tag>
+    rtree::node_distance_predicate_tag>
 {
-    typedef typename distance_calc_impl<Point, Indexable, AlgoTag>::result_type result_type;
+    typedef typename geometry::default_distance_result<Point, Indexable>::type distance_type;
+    typedef std::pair<distance_type, distance_type> result_type;
 
     static inline result_type apply(
         detail::distance_bounded<Point, AlgoTag> const& dx,
         Indexable const& i)
     {
-        return distance_calc_impl<Point, Indexable, AlgoTag>::apply(dx.point, i);
+        return std::make_pair(
+            index::comparable_distance_near(dx.point, i),
+            index::comparable_distance_far(dx.point, i)
+        );
     }
 };
 
-// distance_check
+// distance_predicate_check
 
-template <typename Point, typename Tag>
-struct distance_check
+template <typename Point, typename Indexable>
+struct distance_predicate_check<
+    Point,
+    Indexable,
+    rtree::node_distance_predicate_tag>
 {
     template <typename DistanceType>
     static inline bool apply(Point const&, DistanceType const&)
@@ -98,10 +128,11 @@ struct distance_check
     }
 };
 
-template <typename Point, typename AlgoTag, typename Tag>
-struct distance_check<
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_predicate_check<
     detail::distance_unbounded<Point, AlgoTag>,
-    Tag>
+    Indexable,
+    rtree::node_distance_predicate_tag>
 {
     template <typename DistanceType>
     static inline bool apply(
@@ -112,24 +143,26 @@ struct distance_check<
     }
 };
 
-template <typename Point, typename AlgoTag, typename Tag>
-struct distance_check<
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_predicate_check<
     detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag>,
-    Tag>
+    Indexable,
+    rtree::node_distance_predicate_tag>
 {
     template <typename DistanceType>
     static inline bool apply(
         detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag> const& dx,
-        DistanceType const& comparable_d)
+        DistanceType const& d)
     {
-        return dx.comparable_limit <= comparable_d;
+        return dx.comparable_limit <= d.second;
     }
 };
 
-template <typename Point, typename AlgoTag, typename Tag>
-struct distance_check<
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_predicate_check<
     detail::distance_half_bounded<Point, AlgoTag, detail::distance_max_tag>,
-    Tag>
+    Indexable,
+    rtree::node_distance_predicate_tag>
 {
     template <typename DistanceType>
     static inline bool apply(
@@ -140,19 +173,104 @@ struct distance_check<
     }
 };
 
-template <typename Point, typename AlgoTag, typename Tag>
-struct distance_check<
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_predicate_check<
     detail::distance_bounded<Point, AlgoTag>,
-    Tag>
+    Indexable,
+    rtree::node_distance_predicate_tag>
 {
     template <typename DistanceType>
     static inline bool apply(
         detail::distance_bounded<Point, AlgoTag> const& dx,
-        DistanceType const& comparable_d)
+        DistanceType const& d)
     {
-        return dx.comparable_min <= comparable_d && comparable_d <= dx.comparable_max;
+        return dx.comparable_min <= d.second && d.first <= dx.comparable_max;
     }
 };
+
+// TODO implement alternative version for Indexable being a Point - don't need to calculate the distance 2x
+// TODO explicitly define DistanceType ?
+
+namespace rtree
+{
+
+// distance less comparator
+
+template <typename Point, typename Indexable>
+struct distance_less
+{
+    template <typename DistanceType>
+    inline bool operator()(DistanceType const& d1, DistanceType const& d2)
+    {
+        return d1 < d2;
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_less<
+    detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag>,
+    Indexable
+>
+{
+    template <typename DistanceType>
+    inline bool operator()(DistanceType const& d1, DistanceType const& d2)
+    {
+        return d1.first < d2.first;
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_less<
+    detail::distance_bounded<Point, AlgoTag>,
+    Indexable
+>
+{
+    template <typename DistanceType>
+    inline bool operator()(DistanceType const& d1, DistanceType const& d2)
+    {
+        return d1.first < d2.first;
+    }
+};
+
+// TODO distance_node_pruning_check
+
+template <typename Point, typename Indexable>
+struct distance_node_pruning_check
+{
+    template <typename SmallestDistanceType, typename NodeDistanceType>
+    static inline bool apply(SmallestDistanceType const& sd, NodeDistanceType const& nd)
+    {
+        return sd < nd;
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_node_pruning_check<
+    detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag>,
+    Indexable
+>
+{
+    template <typename SmallestDistanceType, typename NodeDistanceType>
+    static inline bool apply(SmallestDistanceType const& sd, NodeDistanceType const& nd)
+    {
+        return sd < nd.first;
+    }
+};
+
+template <typename Point, typename AlgoTag, typename Indexable>
+struct distance_node_pruning_check<
+    detail::distance_bounded<Point, AlgoTag>,
+    Indexable
+>
+{
+    template <typename SmallestDistanceType, typename NodeDistanceType>
+    static inline bool apply(SmallestDistanceType const& sd, NodeDistanceType const& nd)
+    {
+        return sd < nd.first;
+    }
+};
+
+} // namespace rtree
 
 // move distance_calc and distance_comp into geometry::index ?
 
