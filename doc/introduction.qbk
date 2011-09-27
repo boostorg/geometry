@@ -39,10 +39,17 @@ The library follows existing conventions:
 * conventions from the std library
 * conventions and names from one of the __ogc__ standards on geometry
 
-The library can be downloaded from [@http://svn.boost.org/svn/boost/trunk Boost.Trunk], 
-from [@http://svn.boost.org/svn/boost/branches/release Boost.Release], or will come
-to you by the normal Boost distribution process. Note that [*extensions] are 
-only distributed in Boost.Trunk, and that they are subject to change.
+The library was released with Boost 1.47.0 and from that point on it is oficially part of the Boost C++ Libraries.
+
+Latest stable version of the source code is included in the [@http://www.boost.org/users/download/ Boost packaged releases].
+It can also be downloaded from the current [@http://svn.boost.org/svn/boost/branches/release Boost release branch]
+in the Boost Subversion repository.
+
+The library development upstream is available from the [@http://svn.boost.org/svn/boost/trunk Boost trunk] in the Boost Subversion repository.
+
+Note that the library [*extensions] are not distributed in the official Boost releases, but  only available
+in the [@http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions/ Boost trunk] 
+and that they are subject to change.
 
 __boost_geometry__ was accepted by Boost at November 28, 2009
 ([@http://permalink.gmane.org/gmane.comp.lib.boost.announce/246 review report]).
