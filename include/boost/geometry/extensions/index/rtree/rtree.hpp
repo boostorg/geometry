@@ -96,27 +96,27 @@ public:
     // return number of elements instead of bool?
 
     template <typename DistancePredicate>
-    inline size_t nearest(DistancePredicate const& p, value_type & v) const
+    inline size_t nearest(DistancePredicate const& dpred, value_type & v) const
     {
-        return nearest_one(p, detail::empty(), v);
+        return nearest_one(dpred, detail::empty(), v);
     }
 
     template <typename DistancePredicate, typename Predicates>
-    inline size_t nearest(DistancePredicate const& p, Predicates const& pred, value_type & v) const
+    inline size_t nearest(DistancePredicate const& dpred, Predicates const& pred, value_type & v) const
     {
-        return nearest_one(p, pred, v);
+        return nearest_one(dpred, pred, v);
     }
 
     template <typename DistancePredicate, typename OutIter>
-    inline size_t nearest(DistancePredicate const& p, size_t k, OutIter out_it) const
+    inline size_t nearest(DistancePredicate const& dpred, size_t k, OutIter out_it) const
     {
-        return nearest_k(p, k, detail::empty(), out_it);
+        return nearest_k(dpred, k, detail::empty(), out_it);
     }
 
     template <typename DistancePredicate, typename Predicates, typename OutIter>
-    inline size_t nearest(DistancePredicate const& p, size_t k, Predicates const& pred, OutIter out_it) const
+    inline size_t nearest(DistancePredicate const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
-        return nearest_k(p, k, pred, out_it);
+        return nearest_k(dpred, k, pred, out_it);
     }
 
     inline void insert(value_type const& value)
@@ -189,7 +189,7 @@ public:
 
 private:
     template <typename DistancesPredicates, typename Predicates>
-    inline size_t nearest_one(DistancesPredicates const& p, Predicates const& pred, value_type & v) const
+    inline size_t nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
     {
         typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
         typedef typename detail::relation<point_relation>::value_type point_type;
@@ -210,7 +210,7 @@ private:
             DistancesPredicates,
             Predicates,
             result_type
-        > nearest_v(m_translator, p, pred, result);
+        > nearest_v(m_translator, dpred, pred, result);
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
@@ -218,7 +218,7 @@ private:
     }
 
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
-    inline size_t nearest_k(DistancesPredicates const& p, size_t k, Predicates const& pred, OutIter out_it) const
+    inline size_t nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
         typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
         typedef typename detail::relation<point_relation>::value_type point_type;
@@ -239,7 +239,7 @@ private:
             DistancesPredicates,
             Predicates,
             result_type
-        > nearest_v(m_translator, p, pred, result);
+        > nearest_v(m_translator, dpred, pred, result);
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
@@ -270,28 +270,28 @@ inline size_t query(rtree<Value, Options, Translator> const& tree, Predicates co
     return tree.query(pred, out_it);
 }
 
-template <typename Value, typename Options, typename Translator, typename Point>
-inline size_t nearest(rtree<Value, Options, Translator> const& tree, Point const& pt, Value & v)
+template <typename Value, typename Options, typename Translator, typename DistancesPredicates>
+inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPredicates const& dpred, Value & v)
 {
-    return tree.nearest(pt, v);
+    return tree.nearest(dpred, v);
 }
 
-template <typename Value, typename Options, typename Translator, typename Point, typename Predicates>
-inline size_t nearest(rtree<Value, Options, Translator> const& tree, Point const& pt, Predicates const& pred, Value & v)
+template <typename Value, typename Options, typename Translator, typename DistancesPredicates, typename Predicates>
+inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPredicates const& dpred, Predicates const& pred, Value & v)
 {
-    return tree.nearest(pt, pred, v);
+    return tree.nearest(dpred, pred, v);
 }
 
-template <typename Value, typename Options, typename Translator, typename Point, typename OutIter>
-inline size_t nearest(rtree<Value, Options, Translator> const& tree, Point const& pt, size_t k, OutIter out_it)
+template <typename Value, typename Options, typename Translator, typename DistancesPredicates, typename OutIter>
+inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPredicates const& dpred, size_t k, OutIter out_it)
 {
-    return tree.nearest(pt, k, out_it);
+    return tree.nearest(dpred, k, out_it);
 }
 
-template <typename Value, typename Options, typename Translator, typename Point, typename Predicates, typename OutIter>
-inline size_t nearest(rtree<Value, Options, Translator> const& tree, Point const& pt, size_t k, Predicates const& pred, OutIter out_it)
+template <typename Value, typename Options, typename Translator, typename DistancesPredicates, typename Predicates, typename OutIter>
+inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it)
 {
-    return tree.nearest(pt, k, pred, out_it);
+    return tree.nearest(dpred, k, pred, out_it);
 }
 
 template <typename Value, typename Options, typename Translator>

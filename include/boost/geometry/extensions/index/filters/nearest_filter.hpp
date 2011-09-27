@@ -23,10 +23,10 @@ class nearest_filter
     typedef int* iterator;
     typedef const int* const_iterator;
 
-    template <typename Point, typename Predicates>
+    template <typename DistancesPredicates, typename Predicates>
     inline nearest_filter(
         Index const&,
-        Point const&,
+        DistancesPredicates const&,
         size_t,
         Predicates const&
     )
@@ -40,42 +40,42 @@ class nearest_filter
 
 namespace detail {
 
-template<typename Point, typename Predicates>
+template<typename DistancesPredicates, typename Predicates>
 struct nearest_filtered
 {
     inline nearest_filtered(
-        Point const& pt,
+        DistancesPredicates const& dpred,
         size_t k,
         Predicates const& pred
     )
-        : point(pt)
+        : distances_predicates(dpred)
         , count(k)
         , predicates(pred)
     {}
 
-    Point const& point;
+    DistancesPredicates const& distances_predicates;
     size_t count;
     Predicates const& predicates;
 };
 
 } // namespace detail
 
-template <typename Point, typename Predicates>
-detail::nearest_filtered<Point, Predicates> nearest_filtered(
-    Point const& pt,
+template <typename DistancesPredicates, typename Predicates>
+detail::nearest_filtered<DistancesPredicates, Predicates> nearest_filtered(
+    DistancesPredicates const& dpred,
     size_t k,
     Predicates const& pred = detail::empty())
 {
-    return detail::nearest_filtered<Point, Predicates>(pt, k, pred);
+    return detail::nearest_filtered<DistancesPredicates, Predicates>(dpred, k, pred);
 }
 
-template<typename Index, typename Point, typename Predicates>
+template<typename Index, typename DistancesPredicates, typename Predicates>
 index::nearest_filter<Index>
 operator|(
     Index const& si,
-    detail::nearest_filtered<Point, Predicates> const& f)
+    detail::nearest_filtered<DistancesPredicates, Predicates> const& f)
 {
-    return index::nearest_filter<Index>(si, f.point, f.count, f.predicates);
+    return index::nearest_filter<Index>(si, f.distances_predicates, f.count, f.predicates);
 }
 
 }}} // namespace boost::geometry::index

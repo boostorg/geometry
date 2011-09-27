@@ -55,15 +55,15 @@ public:
     typedef typename result_type::iterator iterator;
     typedef typename result_type::const_iterator const_iterator;
 
-    template <typename Point, typename Predicates>
+    template <typename DistancesPredicates, typename Predicates>
     inline nearest_filter(
         index::rtree<Value, Options, Translator> const& rtree,
-        Point const& pt,
+        DistancesPredicates const& dpred,
         size_t k,
         Predicates const& pred
     )
     {
-        rtree.nearest(pt, k, pred, std::back_inserter(m_result));
+        rtree.nearest(dpred, k, pred, std::back_inserter(m_result));
     }
 
     inline iterator begin() { return m_result.begin(); }
