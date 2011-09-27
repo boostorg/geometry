@@ -130,7 +130,7 @@ template <
     typename Options,
     typename Translator,
     typename Box,
-    typename DistancePredicate,
+    typename DistancesPredicates,
     typename Predicates,
     typename Result
 >
@@ -143,16 +143,15 @@ public:
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
-    typedef index::detail::distance_calc<DistancePredicate, Box, rtree::node_distance_predicate_tag> node_distance_calc;
-    typedef typename node_distance_calc::result_type node_distance_type;
-    typedef index::detail::distance_predicate_check<DistancePredicate, Box, rtree::node_distance_predicate_tag> node_distance_predicate_check;
-    typedef rtree::distance_less<DistancePredicate, Box> node_distance_less;
+    typedef index::detail::distances_calc<DistancesPredicates, Box, rtree::node_tag> node_distances_calc;
+    typedef typename node_distances_calc::result_type node_distances_type;
+    typedef index::detail::distances_predicates_check<DistancesPredicates, Box, rtree::node_tag> node_distances_predicates_check;
 
-    typedef index::detail::distance_calc<DistancePredicate, typename Translator::indexable_type, rtree::value_distance_predicate_tag> value_distance_calc;
-    typedef typename value_distance_calc::result_type value_distance_type;
-    typedef index::detail::distance_predicate_check<DistancePredicate, typename Translator::indexable_type, rtree::value_distance_predicate_tag> value_distance_predicate_check;
+    typedef index::detail::distances_calc<DistancesPredicates, typename Translator::indexable_type, rtree::value_tag> value_distances_calc;
+    typedef typename value_distances_calc::result_type value_distances_type;
+    typedef index::detail::distances_predicates_check<DistancesPredicates, typename Translator::indexable_type, rtree::value_tag> value_distances_predicates_check;
 
-    inline nearest(Translator const& t, DistancePredicate const& dist_pred, Predicates const& pred, Result & r)
+    inline nearest(Translator const& t, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
         : m_tr(t), m_dist_pred(dist_pred), m_pred(pred)
         , m_result(r)
     {}
@@ -163,7 +162,7 @@ public:
     {
         // array of active nodes
         index::pushable_array<
-            std::pair<node_distance_type, const node *>,
+            std::pair<node_distances_type, const node *>,
             Options::parameters_type::max_elements
         > active_branch_list;
 
@@ -175,13 +174,13 @@ public:
             it != elements.end(); ++it)
         {
             // if current node meets predicates
-            if ( index::predicates_check<rtree::node_predicates_tag>(m_pred, it->first) )
+            if ( index::predicates_check<rtree::node_tag>(m_pred, it->first) )
             {
                 // calculate node's distance(s) for distance predicate
-                node_distance_type node_dist_data = node_distance_calc::apply(m_dist_pred, it->first);
+                node_distances_type node_dist_data = node_distances_calc::apply(m_dist_pred, it->first);
 
                 // if current node distance(s) meets distance predicate
-                if ( node_distance_predicate_check::apply(m_dist_pred, node_dist_data) )
+                if ( node_distances_predicates_check::apply(m_dist_pred, node_dist_data) )
                 {
                     // add current node's data into the list
                     active_branch_list.push_back( std::make_pair(node_dist_data, it->second) );
@@ -194,7 +193,7 @@ public:
             return;
         
         // sort array
-        std::sort(active_branch_list.begin(), active_branch_list.end(), node_distance_less());
+        std::sort(active_branch_list.begin(), active_branch_list.end(), abl_less);
 
         // recursively visit nodes
         for ( size_t i = 0 ;; ++i )
@@ -219,16 +218,23 @@ public:
             it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::predicates_check<rtree::value_predicates_tag>(m_pred, m_tr(*it)) )
+            if ( index::predicates_check<rtree::value_tag>(m_pred, m_tr(*it)) )
             {
                 // calculate values distance for distance predicate
-                value_distance_type dist = value_distance_calc::apply(m_dist_pred, m_tr(*it));
+                value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_tr(*it));
 
                 // if distance meets distance predicate
-                if ( value_distance_predicate_check::apply(m_dist_pred, dist) )
+                if ( value_distances_predicates_check::apply(m_dist_pred, distances) )
                 {
+                    typedef typename index::detail::point_relation<DistancesPredicates>::type point_relation_type;
+                    typedef typename index::detail::relation<point_relation_type>::tag point_relation_tag;
+
                     // store value
-                    m_result.store(*it, dist);
+                    m_result.store(
+                        *it,
+                        index::detail::cdist_value<value_distances_type>
+                            ::template get<point_relation_tag>(distances)
+                    );
                 }
             }
         }
@@ -243,16 +249,33 @@ private:
         {
             // prune if box's mindist is further than value's mindist
             while ( !abl.empty() &&
-                    distance_node_pruning_check<DistancePredicate, Box>
-                        ::apply(m_result.comparable_distance(), abl.back().first) )
+                    prune_node(m_result.comparable_distance(), abl.back().first) )
             {
                 abl.pop_back();
             }
         }
     }
 
+    static inline bool abl_less(
+        std::pair<node_distances_type, const node *> const& p1,
+        std::pair<node_distances_type, const node *> const& p2)
+    {
+        return index::detail::cdist_value<node_distances_type>
+                ::template get<index::detail::near_tag>(p1.first)
+            < index::detail::cdist_value<node_distances_type>
+                ::template get<index::detail::near_tag>(p2.first);
+    }
+
+    template <typename Distance>
+    static inline bool prune_node(Distance const& smallest_dist, node_distances_type const& d)
+    {
+        return smallest_dist
+            < index::detail::cdist_value<node_distances_type>
+                ::template get<index::detail::near_tag>(d);
+    }
+
     Translator const& m_tr;
-    DistancePredicate const& m_dist_pred;
+    DistancesPredicates const& m_dist_pred;
     Predicates const& m_pred;
 
     Result & m_result;

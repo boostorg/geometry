@@ -37,7 +37,7 @@ struct query
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            if ( index::predicates_check<rtree::node_predicates_tag>(pred, it->first) )
+            if ( index::predicates_check<rtree::node_tag>(pred, it->first) )
                 rtree::apply_visitor(*this, *it->second);
         }
     }
@@ -50,7 +50,7 @@ struct query
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            if ( index::predicates_check<rtree::value_predicates_tag>(pred, tr(*it)) )
+            if ( index::predicates_check<rtree::value_tag>(pred, tr(*it)) )
             {
                 out_iter = *it;
                 ++out_iter;

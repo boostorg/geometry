@@ -153,7 +153,14 @@ void mouse(int button, int state, int x, int y)
 
         search_point = P(x, y);
         nearest_boxes.clear();
-        found_count = t.nearest(bgi::distance_centroid(search_point, min_distance, max_distance), count, std::back_inserter(nearest_boxes));
+        found_count = t.nearest(
+            bgi::bounded(
+                search_point,
+                bgi::far(min_distance),
+                bgi::near(max_distance)),
+            count,
+            std::back_inserter(nearest_boxes)
+        );
 
         if ( found_count > 0 )
         {

@@ -164,7 +164,7 @@ namespace helpers
 
             for ( typename Cont::const_iterator it = c.begin() ; it != c.end() ; ++it )
             {
-                if ( bgi::predicates_check<bgi::detail::rtree::value_predicates_tag>(pred, t.get_translator()(*it)) )
+                if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, t.get_translator()(*it)) )
                     res2.push_back(*it);
             }
 
@@ -213,7 +213,7 @@ namespace helpers
 
             for ( typename Cont::const_iterator it = c.begin() ; it != c.end() ; ++it )
             {
-                if ( bgi::predicates_check<bgi::detail::rtree::value_predicates_tag>(pred, t.get_translator()(*it)) )
+                if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, t.get_translator()(*it)) )
                     res2.push_back(*it);
             }
             std::sort(

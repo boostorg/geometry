@@ -188,13 +188,16 @@ public:
     }
 
 private:
-    template <typename DistancePredicate, typename Predicates>
-    inline size_t nearest_one(DistancePredicate const& p, Predicates const& pred, value_type & v) const
+    template <typename DistancesPredicates, typename Predicates>
+    inline size_t nearest_one(DistancesPredicates const& p, Predicates const& pred, value_type & v) const
     {
+        typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
+        typedef typename detail::relation<point_relation>::value_type point_type;
+
         typedef detail::rtree::visitors::nearest_one<
             value_type,
             translator_type,
-            typename detail::distance_point<DistancePredicate>::type
+            point_type
         > result_type;
 
         result_type result;
@@ -204,7 +207,7 @@ private:
             options_type,
             translator_type,
             box_type,
-            DistancePredicate,
+            DistancesPredicates,
             Predicates,
             result_type
         > nearest_v(m_translator, p, pred, result);
@@ -214,13 +217,16 @@ private:
         return result.get(v);
     }
 
-    template <typename DistancePredicate, typename Predicates, typename OutIter>
-    inline size_t nearest_k(DistancePredicate const& p, size_t k, Predicates const& pred, OutIter out_it) const
+    template <typename DistancesPredicates, typename Predicates, typename OutIter>
+    inline size_t nearest_k(DistancesPredicates const& p, size_t k, Predicates const& pred, OutIter out_it) const
     {
+        typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
+        typedef typename detail::relation<point_relation>::value_type point_type;
+
         typedef detail::rtree::visitors::nearest_k<
             value_type,
             translator_type,
-            typename detail::distance_point<DistancePredicate>::type
+            point_type
         > result_type;
 
         result_type result(k);
@@ -230,7 +236,7 @@ private:
             options_type,
             translator_type,
             box_type,
-            DistancePredicate,
+            DistancesPredicates,
             Predicates,
             result_type
         > nearest_v(m_translator, p, pred, result);

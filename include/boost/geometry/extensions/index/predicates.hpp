@@ -25,15 +25,12 @@ namespace detail {
 
 struct empty {};
 
-//TODO: awulkiew - consider storing Geometry instead of Geometry const&
-// it's faster and eliminates problems with storing of references to temporaries
-
 template <typename Geometry>
 struct covered_by
     : nonassignable
 {
     covered_by(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
@@ -41,7 +38,7 @@ struct intersects
     : nonassignable
 {
     intersects(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
@@ -49,7 +46,7 @@ struct overlaps
     : nonassignable
 {
     overlaps(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
@@ -57,7 +54,7 @@ struct within
     : nonassignable
 {
     within(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 } // namespace detail

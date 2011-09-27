@@ -14,9 +14,9 @@
 #include <boost/geometry/extensions/index/algorithms/comparable_distance_far.hpp>
 #include <boost/geometry/extensions/index/algorithms/comparable_distance_centroid.hpp>
 
-namespace boost { namespace geometry { namespace index {
+#include <boost/geometry/extensions/index/tuples.hpp>
 
-namespace detail {
+namespace boost { namespace geometry { namespace index {
 
 //TODO: awulkiew - consider storing values instead of const references
 // it may be faster and it eliminates problems with storing of references to temporaries
@@ -27,351 +27,672 @@ namespace detail {
 // what if objects are in different systems?
 // should index algorithms work exactly like comparable_distance or not?
 
-// data
+namespace detail {
 
-struct distance_near_tag {};
-struct distance_far_tag {};
-struct distance_centroid_tag {};
+// relations
 
-struct distance_min_tag {};
-struct distance_max_tag {};
-
-template <typename Point, typename Tag>
-struct distance_unbounded
-    : nonassignable
+template <typename T>
+struct near
 {
-    typedef typename index::traits::coordinate_type<Point>::type coordinate_type;
-
-    inline explicit distance_unbounded(Point const& p)
-        : point(p)
-    {}
-
-    Point const& point;
+    near(T const& v) : value(v) {}
+    T value;
 };
 
-template <typename Point, typename Tag, typename LimitTag>
-struct distance_half_bounded
-    : nonassignable
+template <typename T>
+struct centroid
 {
-    typedef typename index::traits::coordinate_type<Point>::type coordinate_type;
-    typedef typename geometry::default_distance_result<Point, Point>::type distance_type;
-
-    inline explicit distance_half_bounded(Point const& p, coordinate_type const& distance_limit)
-        : point(p)
-        , comparable_limit(distance_limit * distance_limit)
-    {}
-
-    Point const& point;
-    distance_type comparable_limit;
+    centroid(T const& v) : value(v) {}
+    T value;
 };
 
-template <typename Point, typename Tag>
-struct distance_bounded
+template <typename T>
+struct far
+{
+    far(T const& v) : value(v) {}
+    T value;
+};
+
+// tags
+
+struct near_tag {};
+struct centroid_tag {};
+struct far_tag {};
+
+// relation
+
+template <typename T>
+struct relation
+{
+    typedef T value_type;
+    typedef near_tag tag;
+    static inline T const& value(T const& v) { return v; }
+    static inline T & value(T & v) { return v; }
+};
+
+template <typename T>
+struct relation< near<T> >
+{
+    typedef T value_type;
+    typedef near_tag tag;
+    static inline T const& value(near<T> const& r) { return r.value; }
+    static inline T & value(near<T> & r) { return r.value; }
+};
+
+template <typename T>
+struct relation< centroid<T> >
+{
+    typedef T value_type;
+    typedef centroid_tag tag;
+    static inline T const& value(centroid<T> const& r) { return r.value; }
+    static inline T & value(centroid<T> & r) { return r.value; }
+};
+
+template <typename T>
+struct relation< far<T> >
+{
+    typedef T value_type;
+    typedef far_tag tag;
+    static inline T const& value(far<T> const& r) { return r.value; }
+    static inline T & value(far<T> & r) { return r.value; }
+};
+
+} // namespace detail
+
+// relations generators
+
+template <typename T>
+detail::near<T> near(T const& v)
+{
+    return detail::near<T>(v);
+}
+
+template <typename T>
+detail::centroid<T> centroid(T const& v)
+{
+    return detail::centroid<T>(v);
+}
+
+template <typename T>
+detail::far<T> far(T const& v)
+{
+    return detail::far<T>(v);
+}
+
+// distance predicates
+
+namespace detail {
+
+template <typename PointRelation>
+struct unbounded
     : nonassignable
 {
-    typedef typename index::traits::coordinate_type<Point>::type coordinate_type;
-    typedef typename geometry::default_distance_result<Point, Point>::type distance_type;
-
-    inline explicit distance_bounded(Point const& p, coordinate_type const& distance_min, coordinate_type const& distance_max)
-        : point(p)
-        , comparable_min(distance_min * distance_min)
-        , comparable_max(distance_max * distance_max)
+    inline explicit unbounded(PointRelation const& pr)
+        : point_relation(pr)
     {}
 
-    Point const& point;
+    PointRelation point_relation;
+};
+
+template <typename PointRelation, typename MinRelation>
+struct min_bounded
+    : nonassignable
+{
+    typedef typename detail::relation<PointRelation>::value_type point_type;
+    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
+
+    inline min_bounded(PointRelation const& pr, MinRelation const& min_rel)
+        : point_relation(pr)
+        , comparable_min(
+            relation<MinRelation>::value(min_rel) *
+            relation<MinRelation>::value(min_rel) )
+    {}
+
+    PointRelation point_relation;
+    distance_type comparable_min;
+};
+
+template <typename PointRelation, typename MaxRelation>
+struct max_bounded
+    : nonassignable
+{
+    typedef typename detail::relation<PointRelation>::value_type point_type;
+    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
+
+    inline max_bounded(PointRelation const& pr, MaxRelation const& max_rel)
+        : point_relation(pr)
+        , comparable_max(
+            relation<MaxRelation>::value(max_rel) *
+            relation<MaxRelation>::value(max_rel) )
+    {}
+
+    PointRelation point_relation;
+    distance_type comparable_max;
+};
+
+template <typename PointRelation, typename MinRelation, typename MaxRelation>
+struct bounded
+    : nonassignable
+{
+    typedef typename detail::relation<PointRelation>::value_type point_type;
+    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
+
+    inline bounded(PointRelation const& pr, MinRelation const& min_rel, MaxRelation const& max_rel)
+        : point_relation(pr)
+        , comparable_min(
+            relation<MinRelation>::value(min_rel) *
+            relation<MinRelation>::value(min_rel) )
+        , comparable_max(
+            relation<MaxRelation>::value(max_rel) *
+            relation<MaxRelation>::value(max_rel) )
+    {}
+
+    PointRelation point_relation;
     distance_type comparable_min;
     distance_type comparable_max;
 };
 
 } // namespace detail
 
-// generators
+// distance predicates generators
 
-template <typename Point>
-inline detail::distance_unbounded<Point, detail::distance_near_tag>
-distance_near(Point const& p)
+template <typename PointRelation>
+inline detail::unbounded<PointRelation>
+unbounded(PointRelation const& pr)
 {
-    return detail::distance_unbounded<Point, detail::distance_near_tag>(p);
+    return detail::unbounded<PointRelation>(pr);
 }
 
-template <typename Point>
-inline detail::distance_unbounded<Point, detail::distance_far_tag>
-distance_far(Point const& p)
+template <typename PointRelation, typename MinRelation>
+inline detail::min_bounded<PointRelation, MinRelation>
+min_bounded(PointRelation const& pr, MinRelation const& minr)
 {
-    return detail::distance_unbounded<Point, detail::distance_far_tag>(p);
+    return detail::min_bounded<PointRelation, MinRelation>(pr, minr);
 }
 
-template <typename Point>
-inline detail::distance_unbounded<Point, detail::distance_centroid_tag>
-distance_centroid(Point const& p)
+template <typename PointRelation, typename MaxRelation>
+inline detail::max_bounded<PointRelation, MaxRelation>
+max_bounded(PointRelation const& pr, MaxRelation const& maxr)
 {
-    return detail::distance_unbounded<Point, detail::distance_centroid_tag>(p);
+    return detail::max_bounded<PointRelation, MaxRelation>(pr, maxr);
 }
 
-template <typename Point>
-inline detail::distance_half_bounded<Point, detail::distance_near_tag, detail::distance_min_tag>
-distance_near(
-    Point const& p,
-    typename index::traits::coordinate_type<Point>::type const& distance_min)
+template <typename PointRelation, typename MinRelation, typename MaxRelation>
+inline detail::bounded<PointRelation, MinRelation, MaxRelation>
+bounded(PointRelation const& pr, MinRelation const& minr, MaxRelation const& maxr)
 {
-    return detail::distance_half_bounded<Point, detail::distance_near_tag, detail::distance_min_tag>(p, distance_min);
-}
-
-template <typename Point>
-inline detail::distance_half_bounded<Point, detail::distance_far_tag, detail::distance_min_tag>
-distance_far(
-    Point const& p,
-    typename index::traits::coordinate_type<Point>::type const& distance_min)
-{
-    return detail::distance_half_bounded<Point, detail::distance_far_tag, detail::distance_min_tag>(p, distance_min);
-}
-
-template <typename Point>
-inline detail::distance_half_bounded<Point, detail::distance_centroid_tag, detail::distance_min_tag>
-distance_centroid(
-    Point const& p,
-    typename index::traits::coordinate_type<Point>::type const& distance_min)
-{
-    return detail::distance_half_bounded<Point, detail::distance_centroid_tag, detail::distance_min_tag>(p, distance_min);
-}
-
-template <typename Point>
-inline detail::distance_bounded<Point, detail::distance_near_tag>
-distance_near(
-    Point const& p,
-    typename index::traits::coordinate_type<Point>::type const& distance_min,
-    typename index::traits::coordinate_type<Point>::type const& distance_max)
-{
-    return detail::distance_bounded<Point, detail::distance_near_tag>(p, distance_min, distance_max);
-}
-
-template <typename Point>
-inline detail::distance_bounded<Point, detail::distance_far_tag>
-distance_far(
-    Point const& p,
-    typename index::traits::coordinate_type<Point>::type const& distance_min,
-    typename index::traits::coordinate_type<Point>::type const& distance_max)
-{
-    return detail::distance_bounded<Point, detail::distance_far_tag>(p, distance_min, distance_max);
-}
-
-template <typename Point>
-inline detail::distance_bounded<Point, detail::distance_centroid_tag>
-distance_centroid(
-    Point const& p,
-    typename index::traits::coordinate_type<Point>::type const& distance_min,
-    typename index::traits::coordinate_type<Point>::type const& distance_max)
-{
-    return detail::distance_bounded<Point, detail::distance_centroid_tag>(p, distance_min, distance_max);
+    return detail::bounded<PointRelation, MinRelation, MaxRelation>(pr, minr, maxr);
 }
 
 // algorithms
 
+namespace detail{
+
+// point_relation
+
+template <typename PointRelation>
+struct point_relation
+{
+    typedef PointRelation type;
+};
+
+template <typename PointRelation>
+struct point_relation< detail::unbounded<PointRelation> >
+{
+   typedef PointRelation type;
+};
+
+template <typename PointRelation, typename MinRelation>
+struct point_relation< detail::min_bounded<PointRelation, MinRelation> >
+{
+    typedef PointRelation type;
+};
+
+template <typename PointRelation, typename MaxRelation>
+struct point_relation< detail::max_bounded<PointRelation, MaxRelation> >
+{
+    typedef PointRelation type;
+};
+
+template <typename PointRelation, typename MinRelation, typename MaxRelation>
+struct point_relation< detail::bounded<PointRelation, MinRelation, MaxRelation> >
+{
+    typedef PointRelation type;
+};
+
+
+} // namespace detail
+
 namespace detail
 {
 
-// distance_calc_impl
+// cdist
 
-template <typename Point, typename Indexable, typename AlgoTag>
-struct distance_calc_impl
+template <typename T, typename Tag>
+struct cdist
 {
-    BOOST_MPL_ASSERT_MSG(
-        (false),
-        NOT_IMPLEMENTED_FOR_THIS_TAG_TYPE,
-        (distance_calc_impl));
+    T value;
 };
 
-template <typename Point, typename Indexable>
-struct distance_calc_impl<Point, Indexable, detail::distance_near_tag>
-{
-    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
+// cdist_merge
 
-    static inline result_type apply(Point const& p, Indexable const& i)
+template <typename CDistTuple, typename CDist>
+struct cdist_merge
+{
+    typedef typename index::tuples::add_unique<
+        CDistTuple,
+        CDist
+    >::type type;
+};
+
+template <typename T, typename Tag, typename OtherTag>
+struct cdist_merge<
+    cdist<T, Tag>,
+    cdist<T, OtherTag> >
+{
+    typedef boost::tuple<
+        cdist<T, Tag>,
+        cdist<T, OtherTag>
+    > type;
+};
+
+template <typename T, typename Tag>
+struct cdist_merge<
+    cdist<T, Tag>,
+    cdist<T, Tag> >
+{
+    typedef cdist<T, Tag> type;
+};
+
+// cdist_value_type
+
+template <typename CDistTuple>
+struct cdist_value
+{
+    typedef typename cdist_value<
+        typename boost::tuples::element<0, CDistTuple>::type
+    >::type type;
+
+    template <typename Tag>
+    static inline type & get(CDistTuple & cdtup)
+    {
+        return boost::get<
+            index::tuples::find_index<
+                CDistTuple,
+                cdist<type, Tag>
+            >::value
+        >(cdtup).value;
+    }
+
+    template <typename Tag>
+    static inline type const& get(CDistTuple const& cdtup)
+    {
+        return boost::get<
+            index::tuples::find_index<
+                CDistTuple,
+                cdist<type, Tag>
+            >::value
+        >(cdtup).value;
+    }
+};
+
+template <typename T, typename Tag>
+struct cdist_value<
+    cdist<T, Tag>
+>
+{
+    typedef T type;
+
+    template <typename Tag2>
+    static inline type & get(cdist<T, Tag> & cd)
+    {
+        // TODO MPL_ASSERT tuples::equal<CDist, cdist<T, Tag>>::value
+        return cd.value;
+    }
+
+    template <typename Tag2>
+    static inline type const& get(cdist<T, Tag> const& cd)
+    {
+        // TODO MPL_ASSERT tuples::equal<CDist, cdist<T, Tag>>::value
+        return cd.value;
+    }
+};
+
+} // namespace detail
+
+namespace detail {
+
+// distances_calc_impl_rel
+
+template <typename RelDist>
+struct distances_calc_impl_rel
+{
+    // TODO MPL_ASSERT not implemented for this RelDist
+};
+
+template <typename T>
+struct distances_calc_impl_rel<
+    cdist<T, detail::near_tag>
+>
+{
+    template <typename Point, typename Indexable>
+    typename geometry::default_distance_result<Point, Indexable>::type
+    static inline apply(Point const& p, Indexable const& i)
     {
         return index::comparable_distance_near(p, i);
     }
 };
 
-template <typename Point, typename Indexable>
-struct distance_calc_impl<Point, Indexable, detail::distance_far_tag>
+template <typename T>
+struct distances_calc_impl_rel<
+    cdist<T, detail::centroid_tag>
+>
 {
-    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
-
-    static inline result_type apply(Point const& p, Indexable const& i)
-    {
-        return index::comparable_distance_far(p, i);
-    }
-};
-
-template <typename Point, typename Indexable>
-struct distance_calc_impl<Point, Indexable, detail::distance_centroid_tag>
-{
-    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
-
-    static inline result_type apply(Point const& p, Indexable const& i)
+    template <typename Point, typename Indexable>
+    typename geometry::default_distance_result<Point, Indexable>::type
+    static inline apply(Point const& p, Indexable const& i)
     {
         return index::comparable_distance_centroid(p, i);
     }
 };
 
-// distance_calc
-
-template <typename Point, typename Indexable, typename Tag>
-struct distance_calc
+template <typename T>
+struct distances_calc_impl_rel<
+    cdist<T, detail::far_tag>
+>
 {
-    typedef typename geometry::default_distance_result<Point, Indexable>::type result_type;
-
-    static inline result_type apply(Point const& p, Indexable const& i)
+    template <typename Point, typename Indexable>
+    typename geometry::default_distance_result<Point, Indexable>::type
+    static inline apply(Point const& p, Indexable const& i)
     {
-        return index::comparable_distance_near(p, i);
+        return index::comparable_distance_far(p, i);
     }
 };
 
-template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
-struct distance_calc<
-    detail::distance_unbounded<Point, AlgoTag>,
-    Indexable,
-    Tag>
+// distances_calc_impl_tuple
+
+template <typename Distances, typename Point, typename Indexable, size_t N>
+struct distances_calc_impl_tuple
 {
-    typedef typename distance_calc_impl<Point, Indexable, AlgoTag>::result_type result_type;
+    // TODO MPL ASSERT 0 < N
+    static inline void apply(Distances & d, Point const& p, Indexable const&i)
+    {
+        boost::get<N - 1>(d).value =
+            distances_calc_impl_rel<
+                typename boost::tuples::element<N - 1, Distances>::type
+            >::apply(p, i);
+
+        distances_calc_impl_tuple<
+            Distances,
+            Point,
+            Indexable,
+            N - 1
+        >::apply(d, p, i);
+    }
+};
+
+template <typename Distances, typename Point, typename Indexable>
+struct distances_calc_impl_tuple<Distances, Point, Indexable, 1>
+{
+    static inline void apply(Distances & d, Point const& p, Indexable const&i)
+    {
+        boost::get<0>(d).value =
+            distances_calc_impl_rel<
+                typename boost::tuples::element<0, Distances>::type
+            >::apply(p, i);
+    }
+};
+
+// distances_calc_impl
+
+template <typename Distances, typename Point, typename Indexable>
+struct distances_calc_impl
+{
+    static inline void apply(Distances & d, Point const& p, Indexable const&i)
+    {
+        distances_calc_impl_tuple<
+            Distances,
+            Point,
+            Indexable,
+            boost::tuples::length<Distances>::value
+        >::apply(d, p, i);
+    }
+};
+
+template <typename T, typename Tag, typename Point, typename Indexable>
+struct distances_calc_impl<
+    cdist<T, Tag>,
+    Point,
+    Indexable
+>
+{
+    static inline void apply(cdist<T, Tag> & d, Point const& p, Indexable const&i)
+    {
+        d.value = distances_calc_impl_rel<
+            cdist<T, Tag>
+        >::apply(p, i);
+    }
+};
+
+// distances_calc
+
+template <typename PointRelation, typename Indexable, typename Tag>
+struct distances_calc
+{
+    typedef typename detail::relation<PointRelation>::value_type point_type;
+    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+    
+    typedef detail::cdist<distance_type, point_relation_tag> result_type;
+
+    static inline result_type apply(PointRelation const& p, Indexable const& i)
+    {
+        result_type res;
+        distances_calc_impl<result_type, point_type, Indexable>
+            ::apply(res, relation<PointRelation>::value(p), i);
+        return res;
+    }
+};
+
+template <typename PointRelation, typename Indexable, typename Tag>
+struct distances_calc<
+    detail::unbounded<PointRelation>,
+    Indexable,
+    Tag
+>
+{
+    typedef typename detail::relation<PointRelation>::value_type point_type;
+    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+
+    typedef detail::cdist<distance_type, point_relation_tag> result_type;
+
+    static inline result_type apply(detail::unbounded<PointRelation> const& pp, Indexable const& i)
+    {
+        result_type res;
+        distances_calc_impl<result_type, point_type, Indexable>
+            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+        return res;
+    }
+};
+
+template <typename PointRelation, typename MinRelation, typename Indexable, typename Tag>
+struct distances_calc<
+    detail::min_bounded<PointRelation, MinRelation>,
+    Indexable,
+    Tag
+>
+{
+    typedef typename detail::relation<PointRelation>::value_type point_type;
+    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
+
+    typedef typename detail::cdist_merge<
+        cdist<distance_type, point_relation_tag>,
+        cdist<distance_type, min_relation_tag>
+    >::type result_type;
+
+    static inline result_type apply(detail::min_bounded<PointRelation, MinRelation> const& pp, Indexable const& i)
+    {
+        result_type res;
+        distances_calc_impl<result_type, point_type, Indexable>
+            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+        return res;
+    }
+};
+
+template <typename PointRelation, typename MaxRelation, typename Indexable, typename Tag>
+struct distances_calc<
+    detail::max_bounded<PointRelation, MaxRelation>,
+    Indexable,
+    Tag
+>
+{
+    typedef typename detail::relation<PointRelation>::value_type point_type;
+    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
+
+    typedef typename detail::cdist_merge<
+        cdist<distance_type, point_relation_tag>,
+        cdist<distance_type, max_relation_tag>
+    >::type result_type;
+
+    static inline result_type apply(detail::max_bounded<PointRelation, MaxRelation> const& pp, Indexable const& i)
+    {
+        result_type res;
+        distances_calc_impl<result_type, point_type, Indexable>
+            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+        return res;
+    }
+};
+
+template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Indexable, typename Tag>
+struct distances_calc<
+    detail::bounded<PointRelation, MinRelation, MaxRelation>,
+    Indexable,
+    Tag
+>
+{
+    typedef typename detail::relation<PointRelation>::value_type point_type;
+    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
+    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
+
+    typedef typename detail::cdist_merge<
+        typename detail::cdist_merge<
+            cdist<distance_type, point_relation_tag>,
+            cdist<distance_type, min_relation_tag>
+        >::type,
+        cdist<distance_type, max_relation_tag>
+    >::type result_type;
 
     static inline result_type apply(
-        detail::distance_unbounded<Point, AlgoTag> const& dx,
+        detail::bounded<PointRelation, MinRelation, MaxRelation> const& pp,
         Indexable const& i)
     {
-        return distance_calc_impl<Point, Indexable, AlgoTag>::apply(dx.point, i);
+        result_type res;
+        distances_calc_impl<result_type, point_type, Indexable>
+            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+        return res;
     }
 };
 
-template <typename Point, typename AlgoTag, typename LimitTag, typename Indexable, typename Tag>
-struct distance_calc<
-    detail::distance_half_bounded<Point, AlgoTag, LimitTag>,
-    Indexable,
-    Tag>
+// distances_predicates_check
+
+// TODO explicitly define DistanceType ?
+// Indexable/Box is used in distances_predicates_check only for purpose of
+// this explicit DistanceType definition
+
+// move distance_calc and distance_comp into geometry::index ?
+
+template <typename PointRelation, typename Indexable, typename Tag>
+struct distances_predicates_check
 {
-    typedef typename distance_calc_impl<Point, Indexable, AlgoTag>::result_type result_type;
-
-    static inline result_type apply(
-        detail::distance_half_bounded<Point, AlgoTag, LimitTag> const& dx,
-        Indexable const& i)
-    {
-        return distance_calc_impl<Point, Indexable, AlgoTag>::apply(dx.point, i);
-    }
-};
-
-template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
-struct distance_calc<
-    detail::distance_bounded<Point, AlgoTag>,
-    Indexable,
-    Tag>
-{
-    typedef typename distance_calc_impl<Point, Indexable, AlgoTag>::result_type result_type;
-
-    static inline result_type apply(
-        detail::distance_bounded<Point, AlgoTag> const& dx,
-        Indexable const& i)
-    {
-        return distance_calc_impl<Point, Indexable, AlgoTag>::apply(dx.point, i);
-    }
-};
-
-// distance_predicate_check
-
-template <typename Point, typename Indexable, typename Tag>
-struct distance_predicate_check
-{
-    template <typename DistanceType>
-    static inline bool apply(Point const&, DistanceType const&)
+    template <typename Distances>
+    static inline bool apply(PointRelation const&, Distances const&)
     {
         return true;
     }
 };
 
-template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
-struct distance_predicate_check<
-    detail::distance_unbounded<Point, AlgoTag>,
+template <typename PointRelation, typename Indexable, typename Tag>
+struct distances_predicates_check<
+    detail::unbounded<PointRelation>,
     Indexable,
-    Tag>
+    Tag
+>
 {
-    template <typename DistanceType>
-    static inline bool apply(
-        detail::distance_unbounded<Point, AlgoTag> const&,
-        DistanceType const&)
+    template <typename Distances>
+    static inline bool apply(detail::unbounded<PointRelation> const&, Distances const&)
     {
         return true;
     }
 };
 
-template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
-struct distance_predicate_check<
-    detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag>,
+template <typename PointRelation, typename MinRelation, typename Indexable, typename Tag>
+struct distances_predicates_check<
+    detail::min_bounded<PointRelation, MinRelation>,
     Indexable,
-    Tag>
+    Tag
+>
 {
-    template <typename DistanceType>
+    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
+
+    template <typename Distances>
     static inline bool apply(
-        detail::distance_half_bounded<Point, AlgoTag, detail::distance_min_tag> const& dx,
-        DistanceType const& comparable_d)
+        detail::min_bounded<PointRelation, MinRelation> const& pred,
+        Distances const& d)
     {
-        return dx.comparable_limit <= comparable_d;
+        return pred.comparable_min <=
+            detail::cdist_value<Distances>::template get<min_relation_tag>(d);
     }
 };
 
-template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
-struct distance_predicate_check<
-    detail::distance_half_bounded<Point, AlgoTag, detail::distance_max_tag>,
+template <typename PointRelation, typename MaxRelation, typename Indexable, typename Tag>
+struct distances_predicates_check<
+    detail::max_bounded<PointRelation, MaxRelation>,
     Indexable,
-    Tag>
+    Tag
+>
 {
-    template <typename DistanceType>
+    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
+
+    template <typename Distances>
     static inline bool apply(
-        detail::distance_half_bounded<Point, AlgoTag, detail::distance_max_tag> const& dx,
-        DistanceType const& comparable_d)
+        detail::max_bounded<PointRelation, MaxRelation> const& pred,
+        Distances const& d)
     {
-        return comparable_d <= dx.comparable_limit;
+        return pred.comparable_max <=
+            detail::cdist_value<Distances>::template get<max_relation_tag>(d);
     }
 };
 
-template <typename Point, typename AlgoTag, typename Indexable, typename Tag>
-struct distance_predicate_check<
-    detail::distance_bounded<Point, AlgoTag>,
+template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Indexable, typename Tag>
+struct distances_predicates_check<
+    detail::bounded<PointRelation, MinRelation, MaxRelation>,
     Indexable,
-    Tag>
+    Tag
+>
 {
-    template <typename DistanceType>
+    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
+    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
+
+    template <typename Distances>
     static inline bool apply(
-        detail::distance_bounded<Point, AlgoTag> const& dx,
-        DistanceType const& comparable_d)
+        detail::bounded<PointRelation, MinRelation, MaxRelation> const& pred,
+        Distances const& d)
     {
-        return dx.comparable_min <= comparable_d && comparable_d <= dx.comparable_max;
+        return pred.comparable_min
+                <= detail::cdist_value<Distances>::template get<min_relation_tag>(d)
+            && detail::cdist_value<Distances>::template get<max_relation_tag>(d)
+                <= pred.comparable_max;
     }
 };
 
-// distance_point
-
-template <typename Point>
-struct distance_point
-{
-    typedef Point type;
-};
-
-template <typename Point, typename AlgoTag>
-struct distance_point< detail::distance_unbounded<Point, AlgoTag> >
-{
-   typedef Point type;
-};
-
-template <typename Point, typename AlgoTag, typename LimitTag>
-struct distance_point< detail::distance_half_bounded<Point, AlgoTag, LimitTag> >
-{
-    typedef Point type;
-};
-
-template <typename Point, typename AlgoTag>
-struct distance_point< detail::distance_bounded<Point, AlgoTag> >
-{
-    typedef Point type;
-};
+// TODO calculate all of this for Boxes only!
+// for Points calculate only 1 distance allways
 
 } // namespace detail
 

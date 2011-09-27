@@ -23,6 +23,8 @@ BOOST_AUTO_TEST_CASE( first_test_case )
 #include <tests/rtree_function.hpp>
 #include <tests/rtree_filters.hpp>
 
+#include <boost/geometry/extensions/index/rtree/rtree.hpp>
+
 BOOST_AUTO_TEST_CASE( last_test_case )
 {
     tests_rtree_filters_hpp();
