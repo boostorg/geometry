@@ -122,6 +122,8 @@ detail::far<T> far(T const& v)
 
 namespace detail {
 
+// TODO: awulkiew - consider storing points instead of PointRelations in predicates below
+
 template <typename PointRelation>
 struct unbounded
     : nonassignable

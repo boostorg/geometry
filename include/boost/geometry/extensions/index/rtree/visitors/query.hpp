@@ -34,10 +34,13 @@ struct query
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
+        // traverse nodes meeting predicates
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            if ( index::predicates_check<rtree::node_tag>(pred, it->first) )
+            // if node meets predicates
+            // 0 - dummy value
+            if ( index::predicates_check<rtree::node_tag>(pred, 0, it->first) )
                 rtree::apply_visitor(*this, *it->second);
         }
     }
@@ -47,10 +50,12 @@ struct query
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
+        // get all values meeting predicates
         for (typename elements_type::const_iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            if ( index::predicates_check<rtree::value_tag>(pred, tr(*it)) )
+            // if value meets predicates
+            if ( index::predicates_check<rtree::value_tag>(pred, *it, tr(*it)) )
             {
                 out_iter = *it;
                 ++out_iter;

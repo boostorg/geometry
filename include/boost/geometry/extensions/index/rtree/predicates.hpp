@@ -17,41 +17,24 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail {
 
-//template <typename Geometry>
-//struct predicate_check<Geometry, rtree::node_predicates_tag>
-//{
-//    template <typename Box>
-//    static inline bool apply(Geometry const& g, Box const& i)
-//    {
-//        return geometry::intersects(i, g);
-//    }
-//};
+// TODO: awulkiew - consider removing Value from parameters
+//                  then predicates_check must be implemented for nodes as well
 
 template <typename Geometry>
 struct predicate_check<covered_by<Geometry>, rtree::node_tag>
 {
-    template <typename Box>
-    static bool apply(covered_by<Geometry> const& p, Box const& i)
+    template <typename Value, typename Box>
+    static bool apply(covered_by<Geometry> const& p, Value const&, Box const& i)
     {
         return geometry::intersects(i, p.geometry);
     }
 };
 
-//template <typename Geometry>
-//struct predicate_check<intersects<Geometry>, rtree::node_predicates_tag>
-//{
-//    template <typename Box>
-//    static inline bool apply(intersects<Geometry> const& p, Box const& i)
-//    {
-//        return geometry::intersects(i, p.geometry);
-//    }
-//};
-
 template <typename Geometry>
 struct predicate_check<overlaps<Geometry>, rtree::node_tag>
 {
-    template <typename Box>
-    static inline bool apply(overlaps<Geometry> const& p, Box const& i)
+    template <typename Value, typename Box>
+    static inline bool apply(overlaps<Geometry> const& p, Value const&, Box const& i)
     {
         // TODO: awulkiew - possibly change to the version without border case
         // e.g. intersects_without_border(0,0x1,1, 1,1x2,2) should give false
@@ -62,12 +45,22 @@ struct predicate_check<overlaps<Geometry>, rtree::node_tag>
 template <typename Geometry>
 struct predicate_check<within<Geometry>, rtree::node_tag>
 {
-    template <typename Box>
-    static bool apply(within<Geometry> const& p, Box const& i)
+    template <typename Value, typename Box>
+    static bool apply(within<Geometry> const& p, Value const&, Box const& i)
     {
         // TODO: awulkiew - possibly change to the version without border case
         // e.g. intersects_without_border(0,0x1,1, 1,1x2,2) should give false
         return geometry::intersects(i, p.geometry);
+    }
+};
+
+template <typename ValuePredicate>
+struct predicate_check<value<ValuePredicate>, rtree::node_tag>
+{
+    template <typename Value, typename Box>
+    static bool apply(value<ValuePredicate> const&, Value const&, Box const&)
+    {
+        return true;
     }
 };
 
