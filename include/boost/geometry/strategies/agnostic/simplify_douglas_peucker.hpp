@@ -145,7 +145,7 @@ private :
 #ifdef GL_DEBUG_DOUGLAS_PEUCKER
             std::cout << "consider " << dsv(it->p)
                 << " at " << double(dist)
-                << ((dist > max_dist) ? " maybe" : " no")
+                << ((dist > max_dist) ? " maybe" : " no") // FIXME: shouldn't it read dist >148 md? --mloskot
                 << std::endl;
 
 #endif
