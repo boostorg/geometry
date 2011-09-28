@@ -125,6 +125,8 @@ private:
     std::vector< std::pair<distance_type, Value> > m_neighbors;
 };
 
+// TODO: awulkiew - add additional pruning before adding nodes to the ABL
+
 template <
     typename Value,
     typename Options,

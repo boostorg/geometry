@@ -25,10 +25,24 @@ namespace detail {
 
 struct empty {};
 
+template <typename ValuePredicate>
+struct value
+{
+    value(ValuePredicate const& vpred) : value_predicate(vpred) {}
+    ValuePredicate value_predicate;
+};
+
 template <typename Geometry>
 struct covered_by
 {
     covered_by(Geometry const& g) : geometry(g) {}
+    Geometry geometry;
+};
+
+template <typename Geometry>
+struct disjoint
+{
+    disjoint(Geometry const& g) : geometry(g) {}
     Geometry geometry;
 };
 
@@ -53,11 +67,39 @@ struct within
     Geometry geometry;
 };
 
-template <typename ValuePredicate>
-struct value
+template <typename Geometry>
+struct not_covered_by
 {
-    value(ValuePredicate const& vpred) : value_predicate(vpred) {}
-    ValuePredicate value_predicate;
+    not_covered_by(Geometry const& g) : geometry(g) {}
+    Geometry geometry;
+};
+
+template <typename Geometry>
+struct not_disjoint
+{
+    not_disjoint(Geometry const& g) : geometry(g) {}
+    Geometry geometry;
+};
+
+template <typename Geometry>
+struct not_intersects
+{
+    not_intersects(Geometry const& g) : geometry(g) {}
+    Geometry geometry;
+};
+
+template <typename Geometry>
+struct not_overlaps
+{
+    not_overlaps(Geometry const& g) : geometry(g) {}
+    Geometry geometry;
+};
+
+template <typename Geometry>
+struct not_within
+{
+    not_within(Geometry const& g) : geometry(g) {}
+    Geometry geometry;
 };
 
 } // namespace detail
@@ -67,10 +109,22 @@ inline detail::empty empty()
     return detail::empty();
 }
 
+template <typename ValuePredicate>
+inline detail::value<ValuePredicate> value(ValuePredicate const& vpred)
+{
+    return detail::value<ValuePredicate>(vpred);
+}
+
 template <typename Geometry>
 inline detail::covered_by<Geometry> covered_by(Geometry const& g)
 {
     return detail::covered_by<Geometry>(g);
+}
+
+template <typename Geometry>
+inline detail::disjoint<Geometry> disjoint(Geometry const& g)
+{
+    return detail::disjoint<Geometry>(g);
 }
 
 template <typename Geometry>
@@ -91,10 +145,34 @@ inline detail::within<Geometry> within(Geometry const& g)
     return detail::within<Geometry>(g);
 }
 
-template <typename ValuePredicate>
-inline detail::value<ValuePredicate> value(ValuePredicate const& vpred)
+template <typename Geometry>
+inline detail::not_covered_by<Geometry> not_covered_by(Geometry const& g)
 {
-    return detail::value<ValuePredicate>(vpred);
+    return detail::not_covered_by<Geometry>(g);
+}
+
+template <typename Geometry>
+inline detail::not_disjoint<Geometry> not_disjoint(Geometry const& g)
+{
+    return detail::not_disjoint<Geometry>(g);
+}
+
+template <typename Geometry>
+inline detail::not_intersects<Geometry> not_intersects(Geometry const& g)
+{
+    return detail::not_intersects<Geometry>(g);
+}
+
+template <typename Geometry>
+inline detail::not_overlaps<Geometry> not_overlaps(Geometry const& g)
+{
+    return detail::not_overlaps<Geometry>(g);
+}
+
+template <typename Geometry>
+inline detail::not_within<Geometry> not_within(Geometry const& g)
+{
+    return detail::not_within<Geometry>(g);
 }
 
 namespace detail
@@ -131,6 +209,16 @@ struct predicate_check<empty, Tag>
     }
 };
 
+template <typename ValuePredicate, typename Tag>
+struct predicate_check<value<ValuePredicate>, Tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(value<ValuePredicate> const& p, Value const& v, Indexable const&)
+    {
+        return p.value_predicate(v);
+    }
+};
+
 template <typename Geometry, typename Tag>
 struct predicate_check<covered_by<Geometry>, Tag>
 {
@@ -138,6 +226,16 @@ struct predicate_check<covered_by<Geometry>, Tag>
     static inline bool apply(covered_by<Geometry> const& p, Value const&, Indexable const& i)
     {
         return geometry::covered_by(i, p.geometry);
+    }
+};
+
+template <typename Geometry, typename Tag>
+struct predicate_check<disjoint<Geometry>, Tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(disjoint<Geometry> const& p, Value const&, Indexable const& i)
+    {
+        return geometry::disjoint(i, p.geometry);
     }
 };
 
@@ -171,13 +269,53 @@ struct predicate_check<within<Geometry>, Tag>
     }
 };
 
-template <typename ValuePredicate, typename Tag>
-struct predicate_check<value<ValuePredicate>, Tag>
+template <typename Geometry, typename Tag>
+struct predicate_check<not_covered_by<Geometry>, Tag>
 {
     template <typename Value, typename Indexable>
-    static inline bool apply(value<ValuePredicate> const& p, Value const& v, Indexable const&)
+    static inline bool apply(not_covered_by<Geometry> const& p, Value const&, Indexable const& i)
     {
-        return p.value_predicate(v);
+        return !geometry::covered_by(i, p.geometry);
+    }
+};
+
+template <typename Geometry, typename Tag>
+struct predicate_check<not_disjoint<Geometry>, Tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(not_disjoint<Geometry> const& p, Value const&, Indexable const& i)
+    {
+        return !geometry::disjoint(i, p.geometry);
+    }
+};
+
+template <typename Geometry, typename Tag>
+struct predicate_check<not_intersects<Geometry>, Tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(not_intersects<Geometry> const& p, Value const&, Indexable const& i)
+    {
+        return !geometry::intersects(i, p.geometry);
+    }
+};
+
+template <typename Geometry, typename Tag>
+struct predicate_check<not_overlaps<Geometry>, Tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(not_overlaps<Geometry> const& p, Value const&, Indexable const& i)
+    {
+        return !geometry::overlaps(i, p.geometry);
+    }
+};
+
+template <typename Geometry, typename Tag>
+struct predicate_check<not_within<Geometry>, Tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(not_within<Geometry> const& p, Value const&, Indexable const& i)
+    {
+        return !geometry::within(i, p.geometry);
     }
 };
 

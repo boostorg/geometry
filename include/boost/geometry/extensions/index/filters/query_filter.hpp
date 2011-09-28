@@ -38,6 +38,8 @@ class query_filter
 
 namespace detail {
 
+// TODO: awulkiew - consider removing reference from predicates
+
 template<typename Predicates>
 struct query_filtered
 {

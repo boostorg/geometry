@@ -40,6 +40,8 @@ class nearest_filter
 
 namespace detail {
 
+// TODO: awulkiew - consider removing references from predicates
+
 template<typename DistancesPredicates, typename Predicates>
 struct nearest_filtered
 {

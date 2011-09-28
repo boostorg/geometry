@@ -21,10 +21,60 @@ namespace detail {
 //                  then predicates_check must be implemented for nodes as well
 
 template <typename Geometry>
+struct predicate_check<Geometry, rtree::node_tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(Geometry const& g, Value const&, Indexable const& i)
+    {
+        return geometry::intersects(i, g);
+    }
+};
+
+template <>
+struct predicate_check<empty, rtree::node_tag>
+{
+    template <typename Geometry, typename Value, typename Indexable>
+    static inline bool apply(Geometry const&, Value const&, Indexable const&)
+    {
+        return true;
+    }
+};
+
+template <typename ValuePredicate>
+struct predicate_check<value<ValuePredicate>, rtree::node_tag>
+{
+    template <typename Value, typename Box>
+    static bool apply(value<ValuePredicate> const&, Value const&, Box const&)
+    {
+        return true;
+    }
+};
+
+template <typename Geometry>
 struct predicate_check<covered_by<Geometry>, rtree::node_tag>
 {
     template <typename Value, typename Box>
     static bool apply(covered_by<Geometry> const& p, Value const&, Box const& i)
+    {
+        return geometry::intersects(i, p.geometry);
+    }
+};
+
+template <typename Geometry>
+struct predicate_check<disjoint<Geometry>, rtree::node_tag>
+{
+    template <typename Value, typename Box>
+    static bool apply(disjoint<Geometry> const& p, Value const&, Box const& i)
+    {
+        return !geometry::covered_by(i, p.geometry);
+    }
+};
+
+template <typename Geometry>
+struct predicate_check<intersects<Geometry>, rtree::node_tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(intersects<Geometry> const& p, Value const&, Indexable const& i)
     {
         return geometry::intersects(i, p.geometry);
     }
@@ -54,13 +104,59 @@ struct predicate_check<within<Geometry>, rtree::node_tag>
     }
 };
 
-template <typename ValuePredicate>
-struct predicate_check<value<ValuePredicate>, rtree::node_tag>
+template <typename Geometry>
+struct predicate_check<not_covered_by<Geometry>, rtree::node_tag>
 {
     template <typename Value, typename Box>
-    static bool apply(value<ValuePredicate> const&, Value const&, Box const&)
+    static bool apply(not_covered_by<Geometry> const& p, Value const&, Box const& i)
     {
+        return !geometry::covered_by(i, p.geometry);
+    }
+};
+
+template <typename Geometry>
+struct predicate_check<not_disjoint<Geometry>, rtree::node_tag>
+{
+    template <typename Value, typename Box>
+    static bool apply(not_disjoint<Geometry> const& p, Value const&, Box const& i)
+    {
+        return !geometry::disjoint(i, p.geometry);
+    }
+};
+
+template <typename Geometry>
+struct predicate_check<not_intersects<Geometry>, rtree::node_tag>
+{
+    template <typename Value, typename Box>
+    static bool apply(not_intersects<Geometry> const& p, Value const&, Box const& i)
+    {
+        return !geometry::covered_by(i, p.geometry);
+    }
+};
+
+template <typename Geometry>
+struct predicate_check<not_overlaps<Geometry>, rtree::node_tag>
+{
+    template <typename Value, typename Box>
+    static bool apply(not_overlaps<Geometry> const& p, Value const&, Box const& i)
+    {
+        bool inters = geometry::intersects(i, p.geometry);
+
+        //return !inters || ( inters && !geometry::overlaps(i, p.geometry) );
+
+        // TODO: awulkiew - write working condition
+
         return true;
+    }
+};
+
+template <typename Geometry>
+struct predicate_check<not_within<Geometry>, rtree::node_tag>
+{
+    template <typename Value, typename Box>
+    static bool apply(not_within<Geometry> const& p, Value const&, Box const& i)
+    {
+        return !geometry::within(i, p.geometry);
     }
 };
 

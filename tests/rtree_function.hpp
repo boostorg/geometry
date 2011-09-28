@@ -126,7 +126,7 @@ namespace helpers
     }
 
     template <typename Cont, typename Translator>
-    bool results_comp(Cont const& c1, Cont const& c2, Translator const& tr)
+    bool results_compare(Cont const& c1, Cont const& c2, Translator const& tr)
     {
         if ( c1.size() != c2.size() )
             return false;
@@ -168,7 +168,10 @@ namespace helpers
                     res2.push_back(*it);
             }
 
-            BOOST_CHECK( helpers::results_comp(res1, res2, t.get_translator()) );
+            std::stringstream ss;
+            ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
+
+            BOOST_CHECK_MESSAGE( helpers::results_compare(res1, res2, t.get_translator()), ss.str());
         }
     }
 
@@ -227,7 +230,10 @@ namespace helpers
             if ( k < res2.size() )
                 res2.resize(k);
 
-            BOOST_CHECK( helpers::results_comp(res1, res2, t.get_translator()) );
+            std::stringstream ss;
+            ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
+
+            BOOST_CHECK_MESSAGE( helpers::results_compare(res1, res2, t.get_translator()), ss.str());
         }
     }
 }
@@ -244,15 +250,21 @@ struct tests_rtree_function_queries<P, B, boost::geometry::point_tag>
         namespace bgi = boost::geometry::index;
 
         helpers::random_query_check<B>(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
         helpers::random_query_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
         helpers::random_query_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
 
         helpers::random_nearest_check<bgi::detail::empty>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
         helpers::random_nearest_check<B>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
         helpers::random_nearest_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
         helpers::random_nearest_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
         helpers::random_nearest_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        helpers::random_nearest_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
     }
 };
 
@@ -265,10 +277,16 @@ struct tests_rtree_function_queries<P, B, boost::geometry::box_tag>
         namespace bgi = boost::geometry::index;
 
         helpers::random_query_check<B>(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
         helpers::random_query_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
         helpers::random_query_check<bgi::detail::overlaps<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
         helpers::random_query_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_overlaps<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        helpers::random_query_check<bgi::detail::not_within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
 
         helpers::random_nearest_check<bgi::detail::empty>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
         helpers::random_nearest_check<B>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
@@ -276,6 +294,7 @@ struct tests_rtree_function_queries<P, B, boost::geometry::box_tag>
         helpers::random_nearest_check<bgi::detail::overlaps<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
         helpers::random_nearest_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
         helpers::random_nearest_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        helpers::random_nearest_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
     }
 };
 
