@@ -167,7 +167,7 @@ public:
         , m_result(r)
     {}
 
-    //TODO: awulkiew - check this approach: store one, global vector of active branches, add branches only if mindist is ok
+    //TODO: awulkiew - consider this approach: store one, global vector of active branches, add branches only if mindist is ok
 
     inline void operator()(internal_node const& n)
     {
@@ -190,6 +190,17 @@ public:
             {
                 // calculate node's distance(s) for distance predicate
                 node_distances_type node_dist_data = node_distances_calc::apply(m_dist_pred, it->first);
+
+                // TODO: awulkiew - consider at first calculating just near distance,
+                //                  comparing it with m_result.comparable_distance if it's valid,
+                //                  after that calculate the rest of distances and check predicates
+
+                // if current node is further than found neighbors - don't analyze it
+                if ( m_result.is_comparable_distance_valid() &&
+                     is_node_prunable(m_result.comparable_distance(), node_dist_data) )
+                {
+                    continue;
+                }
 
                 // if current node distance(s) meets distance predicate
                 if ( node_distances_predicates_check::apply(m_dist_pred, node_dist_data) )
@@ -235,6 +246,10 @@ public:
                 // calculate values distance for distance predicate
                 value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_tr(*it));
 
+                // TODO: awulkiew - consider at first calculating just point relation distance,
+                //                  comparing it with m_result.comparable_distance if it's valid,
+                //                  after that calculate the rest of distances and check predicates
+
                 // if distance meets distance predicate
                 if ( value_distances_predicates_check::apply(m_dist_pred, distances) )
                 {
@@ -261,7 +276,7 @@ private:
         {
             // prune if box's mindist is further than value's mindist
             while ( !abl.empty() &&
-                    prune_node(m_result.comparable_distance(), abl.back().first) )
+                    is_node_prunable(m_result.comparable_distance(), abl.back().first) )
             {
                 abl.pop_back();
             }
@@ -279,7 +294,7 @@ private:
     }
 
     template <typename Distance>
-    static inline bool prune_node(Distance const& smallest_dist, node_distances_type const& d)
+    static inline bool is_node_prunable(Distance const& smallest_dist, node_distances_type const& d)
     {
         return smallest_dist
             < index::detail::cdist_value<node_distances_type>
