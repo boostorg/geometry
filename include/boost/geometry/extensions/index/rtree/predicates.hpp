@@ -140,12 +140,6 @@ struct predicate_check<not_overlaps<Geometry>, rtree::node_tag>
     template <typename Value, typename Box>
     static bool apply(not_overlaps<Geometry> const& p, Value const&, Box const& i)
     {
-        bool inters = geometry::intersects(i, p.geometry);
-
-        //return !inters || ( inters && !geometry::overlaps(i, p.geometry) );
-
-        // TODO: awulkiew - write working condition
-
         return true;
     }
 };

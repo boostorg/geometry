@@ -19,9 +19,9 @@
 
 namespace boost { namespace geometry { namespace index {
 
-// predicates
-
 namespace detail {
+
+// predicates
 
 struct empty {};
 
@@ -103,6 +103,8 @@ struct not_within
 };
 
 } // namespace detail
+
+// generators
 
 inline detail::empty empty()
 {
@@ -402,5 +404,77 @@ inline bool predicates_check(Predicates const& p, Value const& v, Indexable cons
 }
 
 }}} // namespace boost::geometry::index
+
+// operator! generators
+
+template <typename Geometry>
+boost::geometry::index::detail::not_covered_by<Geometry>
+operator!(boost::geometry::index::detail::covered_by<Geometry> const& p)
+{
+    return boost::geometry::index::detail::not_covered_by<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::covered_by<Geometry>
+operator!(boost::geometry::index::detail::not_covered_by<Geometry> const& p)
+{
+    return boost::geometry::index::detail::covered_by<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::not_disjoint<Geometry>
+operator!(boost::geometry::index::detail::disjoint<Geometry> const& p)
+{
+    return boost::geometry::index::detail::not_disjoint<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::disjoint<Geometry>
+operator!(boost::geometry::index::detail::not_disjoint<Geometry> const& p)
+{
+    return boost::geometry::index::detail::disjoint<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::not_intersects<Geometry>
+operator!(boost::geometry::index::detail::intersects<Geometry> const& p)
+{
+    return boost::geometry::index::detail::not_intersects<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::intersects<Geometry>
+operator!(boost::geometry::index::detail::not_intersects<Geometry> const& p)
+{
+    return boost::geometry::index::detail::intersects<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::not_overlaps<Geometry>
+operator!(boost::geometry::index::detail::overlaps<Geometry> const& p)
+{
+    return boost::geometry::index::detail::not_overlaps<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::overlaps<Geometry>
+operator!(boost::geometry::index::detail::not_overlaps<Geometry> const& p)
+{
+    return boost::geometry::index::detail::overlaps<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::not_within<Geometry>
+operator!(boost::geometry::index::detail::within<Geometry> const& p)
+{
+    return boost::geometry::index::detail::not_within<Geometry>(p.geometry);
+}
+
+template <typename Geometry>
+boost::geometry::index::detail::within<Geometry>
+operator!(boost::geometry::index::detail::not_within<Geometry> const& p)
+{
+    return boost::geometry::index::detail::within<Geometry>(p.geometry);
+}
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_PREDICATES_HPP

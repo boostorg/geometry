@@ -185,6 +185,24 @@ int main()
 
     // searching test
     {
+        std::cout << "query(!disjoint(B)) searching time test... ("
+            << queries_count << ")\n";
+        tim.restart();    
+        size_t temp = 0;
+        for (size_t i = 0 ; i < queries_count ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            std::deque< std::pair<B, size_t> > result;
+            t.query(!bgi::disjoint(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            temp += result.size();
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+        std::cout << "found: " << temp << "\n";
+    }
+
+    // searching test
+    {
         std::cout << "query(B) searching time test... ("
             << queries_count << ")\n";
         tim.restart();    
