@@ -73,22 +73,30 @@ public:
     inline explicit nearest_k(size_t k)
         : m_count(k)
     {
-        // TEMP?
-        m_neighbors.reserve(m_count + 1);
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_count, "Number of neighbors should be greater than 0");
+
+        m_neighbors.reserve(m_count);
     }
 
     inline void store(Value const& val, distance_type const& curr_comp_dist)
     {
-        m_neighbors.push_back(std::make_pair(curr_comp_dist, val));
-        std::sort(m_neighbors.begin(), m_neighbors.end(), neighbors_less);
+        if ( m_neighbors.size() < m_count )
+        {
+            m_neighbors.push_back(std::make_pair(curr_comp_dist, val));
 
-        if ( m_count < m_neighbors.size() )
-            m_neighbors.pop_back();
-
-        // TODO: awulkiew - test other methods:
-        // heap, manual inserting
-        // don't sort if size < k ?
-        // check the furthest distance at the first place, before push_back()
+            if ( m_neighbors.size() == m_count )
+                std::make_heap(m_neighbors.begin(), m_neighbors.end(), neighbors_less);
+        }
+        else
+        {
+            if ( curr_comp_dist < m_neighbors.front().first )
+            {
+                std::pop_heap(m_neighbors.begin(), m_neighbors.end(), neighbors_less);
+                m_neighbors.back().first = curr_comp_dist;
+                m_neighbors.back().second = val;
+                std::push_heap(m_neighbors.begin(), m_neighbors.end(), neighbors_less);
+            }
+        }
     }
 
     inline bool is_comparable_distance_valid() const
@@ -98,9 +106,9 @@ public:
 
     inline distance_type comparable_distance() const
     {
-        return m_neighbors.size() < m_count ?
-            std::numeric_limits<distance_type>::max() :
-            m_neighbors.back().first;
+        return m_neighbors.size() < 0
+            ? std::numeric_limits<distance_type>::max()
+            : m_neighbors.front().first;
     }
 
     template <typename OutIter>
@@ -123,6 +131,7 @@ private:
 
     size_t m_count;
     std::vector< std::pair<distance_type, Value> > m_neighbors;
+    distance_type m_biggest_comp_dist;
 };
 
 // TODO: awulkiew - add additional pruning before adding nodes to the ABL

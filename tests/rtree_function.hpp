@@ -148,6 +148,43 @@ namespace helpers
         return true;
     }
 
+    template <typename Point, typename Cont, typename Translator>
+    bool nearest_results_compare(Point const& p, Cont const& c1, Cont const& c2, Translator const& tr)
+    {
+        namespace bg = boost::geometry;
+        namespace bgi = boost::geometry::index;
+
+        typedef typename Translator::indexable_type indexable_type;
+        typedef bg::default_distance_result<Point, indexable_type>::type distance_type;
+
+        if ( c1.size() != c2.size() )
+            return false;
+
+        if ( c1.size() == 0 && c2.size() == 0 )
+            return true;
+
+        distance_type biggest_distance1 = 0;
+
+        for ( typename Cont::const_iterator it = c1.begin() ; it != c1.end() ; ++it )
+        {
+            distance_type curr_distance = bgi::comparable_distance_near(p, tr(*it));
+
+            if ( biggest_distance1 < curr_distance )
+                biggest_distance1 = curr_distance;
+        }
+
+        distance_type biggest_distance2 = 0;
+        for ( typename Cont::const_iterator it = c2.begin() ; it != c2.end() ; ++it )
+        {
+            distance_type curr_distance = bgi::comparable_distance_near(p, tr(*it));
+
+            if ( biggest_distance2 < curr_distance )
+                biggest_distance2 = curr_distance;
+        }
+
+        return biggest_distance1 == biggest_distance2;
+    }
+
     template <typename Predicate, typename Rtree, typename Cont, typename Randomizer>
     void random_query_check(Rtree const& t, Cont const& c, size_t n, Randomizer r)
     {
@@ -233,7 +270,7 @@ namespace helpers
             std::stringstream ss;
             ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
 
-            BOOST_CHECK_MESSAGE( helpers::results_compare(res1, res2, t.get_translator()), ss.str());
+            BOOST_CHECK_MESSAGE(helpers::nearest_results_compare(pt, res1, res2, t.get_translator()), ss.str());
         }
     }
 }
