@@ -224,7 +224,7 @@ Box values_box(Iter first, Iter last, Translator const& tr)
 } // namespace helpers
 
 template <typename Predicate, typename Rtree, typename Cont, typename Randomizer>
-void random_query_check(Rtree const& t, Cont const& c, size_t n, Randomizer r)
+void random_query_check(Rtree const& t, Rtree const& t_copy, Cont const& c, size_t n, Randomizer r)
 {
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
@@ -233,26 +233,32 @@ void random_query_check(Rtree const& t, Cont const& c, size_t n, Randomizer r)
     {
         Predicate pred = Predicate(r());
 
-        std::vector<typename Rtree::value_type> res1, res2;
+        std::vector<typename Rtree::value_type> res1, res2, res3;
 
         bgi::query(t, pred, std::back_inserter(res1));
+        bgi::query(t_copy, pred, std::back_inserter(res2));
 
         for ( typename Cont::const_iterator it = c.begin() ; it != c.end() ; ++it )
         {
-            if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, *it, t.get_translator()(*it)) )
-                res2.push_back(*it);
+            if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, *it, t.translator()(*it)) )
+                res3.push_back(*it);
         }
 
         std::stringstream ss;
-        ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
+        ss << "\nPredicate: " << typeid(Predicate).name() << "\n"
+            << "res1: " << res1.size()
+            << ", res2: " << res2.size()
+            << ", res3: " << res3.size() << '\n';
 
-        BOOST_CHECK_MESSAGE( helpers::results_compare(res1, res2, t.get_translator()), ss.str());
+        BOOST_CHECK_MESSAGE( helpers::results_compare(res1, res2, t.translator()), ss.str());
+        BOOST_CHECK_MESSAGE( helpers::results_compare(res1, res3, t.translator()), ss.str());
     }
 }
 
 template <typename Predicate, typename Rtree, typename Cont, typename PointRandomizer, typename PredicateRandomizer>
 void random_nearest_check(
     Rtree const& t,
+    Rtree const& t_copy,
     Cont const& c,
     size_t n,
     PointRandomizer const& pr,
@@ -267,30 +273,36 @@ void random_nearest_check(
         typename PointRandomizer::value_type pt = pr();
         Predicate pred = Predicate(r());
 
-        std::vector<typename Rtree::value_type> res1, res2;
+        std::vector<typename Rtree::value_type> res1, res2, res3;
 
         bgi::nearest(t, pt, k, pred, std::back_inserter(res1));
 
+        bgi::nearest(t_copy, pt, k, pred, std::back_inserter(res2));
+
         for ( typename Cont::const_iterator it = c.begin() ; it != c.end() ; ++it )
         {
-            if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, *it, t.get_translator()(*it)) )
-                res2.push_back(*it);
+            if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, *it, t.translator()(*it)) )
+                res3.push_back(*it);
         }
         std::sort(
-            res2.begin(),
-            res2.end(),
+            res3.begin(),
+            res3.end(),
             helpers::val_mindist_cmp<
                 typename PointRandomizer::value_type,
                 typename Rtree::translator_type
-            >(pt, t.get_translator())
+            >(pt, t.translator())
         );
-        if ( k < res2.size() )
-            res2.resize(k);
+        if ( k < res3.size() )
+            res3.resize(k);
 
         std::stringstream ss;
-        ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
+        ss << "\nPredicate: " << typeid(Predicate).name() << "\n"
+            << "res1: " << res1.size()
+            << ", res2: " << res2.size()
+            << ", res3: " << res3.size() << '\n';
 
-        BOOST_CHECK_MESSAGE(helpers::nearest_results_compare(pt, res1, res2, t.get_translator()), ss.str());
+        BOOST_CHECK_MESSAGE(helpers::nearest_results_compare(pt, res1, res2, t.translator()), ss.str());
+        BOOST_CHECK_MESSAGE(helpers::nearest_results_compare(pt, res1, res3, t.translator()), ss.str());
     }
 }
 
@@ -301,26 +313,26 @@ template <typename P, typename B>
 struct tests_rtree_function_queries<P, B, boost::geometry::point_tag>
 {
     template <typename Rtree, typename Cont>
-    inline static void apply(Rtree const& t, Cont const& v)
+    inline static void apply(Rtree const& t, Rtree const& t_copy, Cont const& v)
     {
         namespace bgi = boost::geometry::index;
 
-        random_query_check<B>(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<B>(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::covered_by<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::disjoint<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::intersects<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::within<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_covered_by<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_disjoint<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_intersects<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_within<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
 
-        random_nearest_check<bgi::detail::empty>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
-        random_nearest_check<B>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::empty>(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
+        random_nearest_check<B>(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::intersects<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::within<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::covered_by<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::disjoint<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
     }
 };
 
@@ -328,29 +340,29 @@ template <typename P, typename B>
 struct tests_rtree_function_queries<P, B, boost::geometry::box_tag>
 {
     template <typename Rtree, typename Cont>
-    inline static void apply(Rtree const& t, Cont const& v)
+    inline static void apply(Rtree const& t, Rtree const& t_copy, Cont const& v)
     {
         namespace bgi = boost::geometry::index;
 
-        random_query_check<B>(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::overlaps<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_overlaps<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        random_query_check<bgi::detail::not_within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<B>(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::covered_by<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::disjoint<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::intersects<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::overlaps<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::within<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_covered_by<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_disjoint<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_intersects<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_overlaps<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_within<B> >(t, t_copy, v, 5, helpers::value_randomizer<B>(10, 5));
 
-        random_nearest_check<bgi::detail::empty>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
-        random_nearest_check<B>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::overlaps<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        random_nearest_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::empty>(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
+        random_nearest_check<B>(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::intersects<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::overlaps<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::within<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::covered_by<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::disjoint<B> >(t, t_copy, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
     }
 };
 
@@ -369,11 +381,17 @@ void tests_rtree_function(Translator const& tr = Translator())
 
     helpers::random_insert(t, v, 10, helpers::value_randomizer<Value>(10, 1));
 
+    bgi::rtree<Value, Options, Translator> t_copy(t);
+
+    BOOST_CHECK(bgi::size(t) == 10);
+    BOOST_CHECK(bgi::size(t) == bgi::size(t_copy));
+    BOOST_CHECK(bg::equals(bgi::box(t), bgi::box(t_copy)));
+
     B bt = bgi::box(t);
     B bv = helpers::values_box<B>(v.begin(), v.end(), tr);
     BOOST_CHECK(bg::equals(bt, bv));
 
-    tests_rtree_function_queries<P, B, bgi::traits::tag<I>::type>::apply(t, v);
+    tests_rtree_function_queries<P, B, bgi::traits::tag<I>::type>::apply(t, t_copy, v);
 
     bgi::clear(t);
     BOOST_CHECK(bgi::empty(t));

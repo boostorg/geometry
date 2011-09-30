@@ -27,8 +27,7 @@ BOOST_AUTO_TEST_CASE( first_test_case )
 
 BOOST_AUTO_TEST_CASE( last_test_case )
 {
-    tests_rtree_filters_hpp();
-
+    
 #ifdef _MSC_VER
     std::cin.get();
 #endif

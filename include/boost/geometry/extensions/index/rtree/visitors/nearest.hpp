@@ -191,7 +191,7 @@ public:
                 // calculate node's distance(s) for distance predicate
                 node_distances_type node_dist_data = node_distances_calc::apply(m_dist_pred, it->first);
 
-                // TODO: awulkiew - consider at first calculating just near distance,
+                // TODO: awulkiew - consider at first calculating near distance only,
                 //                  comparing it with m_result.comparable_distance if it's valid,
                 //                  after that calculate the rest of distances and check predicates
 
@@ -246,7 +246,7 @@ public:
                 // calculate values distance for distance predicate
                 value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_tr(*it));
 
-                // TODO: awulkiew - consider at first calculating just point relation distance,
+                // TODO: awulkiew - consider at first calculating point relation distance only,
                 //                  comparing it with m_result.comparable_distance if it's valid,
                 //                  after that calculate the rest of distances and check predicates
 

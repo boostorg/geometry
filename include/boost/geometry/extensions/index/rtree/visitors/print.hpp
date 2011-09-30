@@ -185,7 +185,7 @@ std::ostream & operator<<(std::ostream & os, rtree<Value, Options, Translator> c
     typedef typename rtree<Value, Options, Translator>::options_type options_type;
     typedef typename rtree<Value, Options, Translator>::translator_type translator_type;
     typedef typename rtree<Value, Options, Translator>::box_type box_type;
-    detail::rtree::visitors::print<value_type, options_type, translator_type, box_type> print_v(os, tree.get_translator());
+    detail::rtree::visitors::print<value_type, options_type, translator_type, box_type> print_v(os, tree.translator());
     tree.apply_visitor(print_v);
     return os;
 }

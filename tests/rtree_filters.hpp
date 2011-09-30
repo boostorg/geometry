@@ -12,24 +12,24 @@
 #include <boost/range/algorithm.hpp>
 #include <boost/foreach.hpp>
 
-template <typename R>
-void tests_rtree_filters_hpp_print_range(R const& r)
-{
-    BOOST_FOREACH(typename boost::iterator_value<typename R::const_iterator>::type const& b, r)
-    {
-        float min_x = b.min_corner().template get<0>();
-        float min_y = b.min_corner().template get<1>();
-        float max_x = b.max_corner().template get<0>();
-        float max_y = b.max_corner().template get<1>();
-        std::cout << "(" << min_x << ", " << min_y << ")";
-        std::cout << 'x';
-        std::cout << "(" << max_x << ", " << max_y << ")";
-        std::cout << '\n';
-    }
-    std::cout << std::endl;
-}
+//template <typename R>
+//void tests_rtree_filters_hpp_print_range(R const& r)
+//{
+//    BOOST_FOREACH(typename boost::iterator_value<typename R::const_iterator>::type const& b, r)
+//    {
+//        float min_x = b.min_corner().template get<0>();
+//        float min_y = b.min_corner().template get<1>();
+//        float max_x = b.max_corner().template get<0>();
+//        float max_y = b.max_corner().template get<1>();
+//        std::cout << "(" << min_x << ", " << min_y << ")";
+//        std::cout << 'x';
+//        std::cout << "(" << max_x << ", " << max_y << ")";
+//        std::cout << '\n';
+//    }
+//    std::cout << std::endl;
+//}
 
-void tests_rtree_filters_hpp()
+BOOST_AUTO_TEST_CASE(tests_rtree_query_filter)
 {
 #ifdef TEST_PRINT_INFO
 	std::cout << "tests/rtree_filters.hpp\n";
@@ -47,10 +47,14 @@ void tests_rtree_filters_hpp()
         bgi::insert(t, B(P(4, 4), P(5, 5)));
         bgi::insert(t, B(P(6, 6), P(7, 7)));
         bgi::insert(t, B(P(8, 8), P(9, 9)));
-        std::cout << t;
 
-        std::cout << "Query: (2.5, 2.5)x(4.5, 4.5)\n";
-        tests_rtree_filters_hpp_print_range(t | bgi::query_filtered(B(P(2.5f, 2.5f), P(4.5f, 4.5f))));
+        size_t n = 0;
+        BOOST_FOREACH(B const& b, t | bgi::query_filtered(B(P(1.5f, 1.5f), P(4.5f, 4.5f))))
+        {
+            ++n;
+        }
+
+        BOOST_CHECK(n == 2);
     }
 }
 

@@ -27,11 +27,12 @@
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
-#include <boost/geometry/extensions/index/rtree/visitors/query.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/nearest.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/remove.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/copy.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/query.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/nearest.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/children_box.hpp>
 
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
@@ -47,6 +48,7 @@ namespace boost { namespace geometry { namespace index {
 // iterators, begin/end/etc.
 
 // TODO: copy, assignment
+// allow copying of a tree with different template parameters? e.g. Parameters, Translator?
 
 // TODO: should funcions like empty() clear() box() be free functions?
 // change name of empty() - empty predicate generator?
@@ -84,9 +86,14 @@ public:
         create();
     }
 
-    ~rtree()
+    inline rtree(rtree const& src)
     {
-        destroy();
+        copy(src, *this);
+    }
+
+    inline ~rtree()
+    {
+        destroy(*this);
     }
 
     template <typename Predicates, typename OutIter>
@@ -162,12 +169,19 @@ public:
 
     inline void clear()
     {
-        destroy();
+        destroy(*this);
         create();
     }
 
     inline box_type box() const
     {
+        if ( empty() )
+        {
+            box_type result;
+            geometry::assign_inverse(result);
+            return result;
+        }
+
         detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type>
             children_box_v(m_translator);
 
@@ -182,7 +196,7 @@ public:
         detail::rtree::apply_visitor(visitor, *m_root);
     }
 
-    inline translator_type const& get_translator() const
+    inline translator_type const& translator() const
     {
         return  m_translator;
     }
@@ -205,19 +219,30 @@ private:
         m_leafs_level = 0;
     }
 
-    inline void destroy()
+    inline void destroy(rtree & t)
     {
         detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type> del_v;
-        detail::rtree::apply_visitor(del_v, *m_root);
+        detail::rtree::apply_visitor(del_v, *t.m_root);
 
         // TODO: awulkiew - consider moving this into the destroy visitor
         //                  but have in mind that visitors works on references
         //                  and address from reference would be passed here
-        detail::rtree::delete_node(m_root);
+        detail::rtree::delete_node(t.m_root);
 
-        m_root = 0;
-        m_values_count = 0;
-        m_leafs_level = 0;
+        t.m_root = 0;
+        t.m_values_count = 0;
+        t.m_leafs_level = 0;
+    }
+
+    inline void copy(rtree const& src, rtree & dst) const
+    {
+        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type> copy_v;
+        detail::rtree::apply_visitor(copy_v, *src.m_root);
+
+        dst.m_root = copy_v.result;
+        dst.m_values_count = src.m_values_count;
+        dst.m_leafs_level = src.m_leafs_level;
+        dst.m_translator = src.m_translator;
     }
 
     template <typename DistancesPredicates, typename Predicates>

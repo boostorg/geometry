@@ -117,7 +117,7 @@ bool are_boxes_ok(rtree<Value, Options, Translator> const& tree)
         typename rt::value_type,
         typename rt::options_type,
         typename rt::translator_type,
-        typename rt::box_type> v(tree.get_translator());
+        typename rt::box_type> v(tree.translator());
     
     tree.apply_visitor(v);
 

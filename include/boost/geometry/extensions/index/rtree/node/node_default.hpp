@@ -153,7 +153,7 @@ struct element_indexable_type<
 
 template <typename Value, typename Translator>
 inline typename Translator::indexable_type const&
-	element_indexable(Value const& el, Translator const& tr)
+element_indexable(Value const& el, Translator const& tr)
 {
 	return tr(el);
 }
@@ -207,14 +207,14 @@ struct elements_type
 
 template <typename Node>
 inline typename elements_type<Node>::type &
-	elements(Node & n)
+elements(Node & n)
 {
 	return n.elements;
 }
 
 template <typename Node>
 inline typename elements_type<Node>::type const&
-	elements(Node const& n)
+elements(Node const& n)
 {
 	return n.elements;
 }
@@ -224,13 +224,9 @@ inline typename elements_type<Node>::type const&
 template <typename Box, typename FwdIter, typename Translator>
 inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
 {
-	Box result;
+    BOOST_GEOMETRY_INDEX_ASSERT(first != last, "Can't calculate element's box");
 
-	if (first == last)
-	{    
-		geometry::assign_zero(result);
-		return result;
-	}
+	Box result;
 
 	geometry::convert(element_indexable(*first, tr), result);
 	++first;

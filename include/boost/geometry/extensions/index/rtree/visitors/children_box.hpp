@@ -27,20 +27,14 @@ class children_box
 public:
     inline children_box(Translator const& tr)
         : m_tr(tr)
-    {
-        geometry::assign_inverse(result);
-    }
+    {}
 
     inline void operator()(internal_node const& n)
     {
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        for( typename elements_type::const_iterator it = elements.begin();
-            it != elements.end() ; ++it)
-        {
-            geometry::expand(result, it->first);
-        }
+        result = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
     }
 
     inline void operator()(leaf const& n)
@@ -48,11 +42,7 @@ public:
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        for(typename elements_type::const_iterator it = elements.begin();
-            it != elements.end() ; ++it)
-        {
-            geometry::expand(result, m_tr(*it));
-        }
+        result = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
     }
 
     Box result;
