@@ -15,263 +15,282 @@
 
 namespace helpers
 {
-    template <typename Indexable, size_t DI, typename Tag>
-    struct value_randomizer_impl_set {};
 
-    template <typename Box, size_t DI>
-    struct value_randomizer_impl_set<Box, DI, boost::geometry::box_tag>
+template <typename Indexable, size_t DI, typename Tag>
+struct value_randomizer_impl_set {};
+
+template <typename Box, size_t DI>
+struct value_randomizer_impl_set<Box, DI, boost::geometry::box_tag>
+{
+    inline static void apply(
+        Box & b,
+        typename boost::geometry::index::traits::coordinate_type<Box>::type m,
+        typename boost::geometry::index::traits::coordinate_type<Box>::type w)
     {
-        inline static void apply(
-            Box & b,
-            typename boost::geometry::index::traits::coordinate_type<Box>::type m,
-            typename boost::geometry::index::traits::coordinate_type<Box>::type w)
-        {
-            namespace bg = boost::geometry;
-            typedef typename bg::index::traits::coordinate_type<Box>::type coord_t;
+        namespace bg = boost::geometry;
+        typedef typename bg::index::traits::coordinate_type<Box>::type coord_t;
 
-            coord_t c1 = ::rand() / coord_t(RAND_MAX / m);
-            coord_t c2 = ::rand() / coord_t(RAND_MAX / w);
+        coord_t c1 = ::rand() / coord_t(RAND_MAX / m);
+        coord_t c2 = ::rand() / coord_t(RAND_MAX / w);
 
-            bg::set<bg::min_corner, DI>(b, c1 - c2);
-            bg::set<bg::max_corner, DI>(b, c1 + c2);
-        }
-    };
+        bg::set<bg::min_corner, DI>(b, c1 - c2);
+        bg::set<bg::max_corner, DI>(b, c1 + c2);
+    }
+};
 
-    template <typename Point, size_t DI>
-    struct value_randomizer_impl_set<Point, DI, boost::geometry::point_tag>
+template <typename Point, size_t DI>
+struct value_randomizer_impl_set<Point, DI, boost::geometry::point_tag>
+{
+    inline static void apply(
+        Point & p,
+        typename boost::geometry::index::traits::coordinate_type<Point>::type m,
+        typename boost::geometry::index::traits::coordinate_type<Point>::type)
     {
-        inline static void apply(
-            Point & p,
-            typename boost::geometry::index::traits::coordinate_type<Point>::type m,
-            typename boost::geometry::index::traits::coordinate_type<Point>::type)
-        {
-            namespace bg = boost::geometry;
-            typedef typename bg::index::traits::coordinate_type<Point>::type coord_t;
+        namespace bg = boost::geometry;
+        typedef typename bg::index::traits::coordinate_type<Point>::type coord_t;
 
-            coord_t c = ::rand() / coord_t(RAND_MAX / m);
+        coord_t c = ::rand() / coord_t(RAND_MAX / m);
 
-            bg::set<DI>(p, c);
-        }
-    };
+        bg::set<DI>(p, c);
+    }
+};
 
-    template <typename Indexable, size_t D>
-    struct value_randomizer_impl
+template <typename Indexable, size_t D>
+struct value_randomizer_impl
+{
+    inline static void apply(
+        Indexable & i,
+        typename boost::geometry::index::traits::coordinate_type<Indexable>::type m,
+        typename boost::geometry::index::traits::coordinate_type<Indexable>::type w)
     {
-        inline static void apply(
-            Indexable & i,
-            typename boost::geometry::index::traits::coordinate_type<Indexable>::type m,
-            typename boost::geometry::index::traits::coordinate_type<Indexable>::type w)
-        {
-            value_randomizer_impl<Indexable, D - 1>::apply(i, m, w);
-            value_randomizer_impl_set<
-                Indexable,
-                D - 1,
-                typename boost::geometry::index::traits::tag<Indexable>::type
-            >::apply(i, m, w);
-        }
-    };
+        value_randomizer_impl<Indexable, D - 1>::apply(i, m, w);
+        value_randomizer_impl_set<
+            Indexable,
+            D - 1,
+            typename boost::geometry::index::traits::tag<Indexable>::type
+        >::apply(i, m, w);
+    }
+};
 
-    template <typename Indexable>
-    struct value_randomizer_impl<Indexable, 1>
+template <typename Indexable>
+struct value_randomizer_impl<Indexable, 1>
+{
+    inline static void apply(
+        Indexable & i,
+        typename boost::geometry::index::traits::coordinate_type<Indexable>::type m,
+        typename boost::geometry::index::traits::coordinate_type<Indexable>::type w)
     {
-        inline static void apply(
-            Indexable & i,
-            typename boost::geometry::index::traits::coordinate_type<Indexable>::type m,
-            typename boost::geometry::index::traits::coordinate_type<Indexable>::type w)
-        {
-            value_randomizer_impl_set<
-                Indexable,
-                0,
-                typename boost::geometry::index::traits::tag<Indexable>::type
-            >::apply(i, m, w);
-        }
-    };
+        value_randomizer_impl_set<
+            Indexable,
+            0,
+            typename boost::geometry::index::traits::tag<Indexable>::type
+        >::apply(i, m, w);
+    }
+};
 
-    template <typename Indexable>
-    struct value_randomizer
-    {
-        typedef Indexable value_type;
+template <typename Indexable>
+struct value_randomizer
+{
+    typedef Indexable value_type;
 
-        typedef typename boost::geometry::index::traits::coordinate_type<Indexable>::type coord_t;
+    typedef typename boost::geometry::index::traits::coordinate_type<Indexable>::type coord_t;
         
-        inline value_randomizer(coord_t mm, coord_t ww)
-            : m(mm), w(ww)
-        {}
+    inline value_randomizer(coord_t mm, coord_t ww)
+        : m(mm), w(ww)
+    {}
 
-        inline Indexable operator()() const
-        {
-            namespace bg = boost::geometry;
-            namespace bgi = bg::index;
-
-            Indexable i;
-            value_randomizer_impl<Indexable, bgi::traits::dimension<Indexable>::value>::apply(i, m, w);
-            return i;
-        }
-
-        coord_t m, w;
-    };
-
-    template <typename Rtree, typename Cont, typename Randomizer>
-    void random_insert(Rtree & t, Cont & c, size_t n, Randomizer r)
+    inline Indexable operator()() const
     {
         namespace bg = boost::geometry;
         namespace bgi = bg::index;
 
-        for ( size_t i = 0 ; i < n ; ++i )
-        {
-            typename Randomizer::value_type v = r();
-            bgi::insert(t, v);
-            c.push_back(v);
-        }
+        Indexable i;
+        value_randomizer_impl<Indexable, bgi::traits::dimension<Indexable>::value>::apply(i, m, w);
+        return i;
     }
 
-    template <typename Cont, typename Translator>
-    bool results_compare(Cont const& c1, Cont const& c2, Translator const& tr)
+    coord_t m, w;
+};
+
+template <typename Rtree, typename Cont, typename Randomizer>
+void random_insert(Rtree & t, Cont & c, size_t n, Randomizer r)
+{
+    namespace bg = boost::geometry;
+    namespace bgi = bg::index;
+
+    for ( size_t i = 0 ; i < n ; ++i )
     {
-        if ( c1.size() != c2.size() )
-            return false;
+        typename Randomizer::value_type v = r();
+        bgi::insert(t, v);
+        c.push_back(v);
+    }
+}
 
-        for ( typename Cont::const_iterator it = c1.begin() ; it != c1.end() ; ++it )
-        {
-            bool found = false;
-            for ( typename Cont::const_iterator it2 = c2.begin() ; it2 != c2.end() ; ++it2 )
-                if ( tr.equals(*it, *it2) )
-                {
-                    found = true;
-                    break;
-                }
+template <typename Cont, typename Translator>
+bool results_compare(Cont const& c1, Cont const& c2, Translator const& tr)
+{
+    if ( c1.size() != c2.size() )
+        return false;
 
-                if ( !found )
-                    return false;
-        }
+    for ( typename Cont::const_iterator it = c1.begin() ; it != c1.end() ; ++it )
+    {
+        bool found = false;
+        for ( typename Cont::const_iterator it2 = c2.begin() ; it2 != c2.end() ; ++it2 )
+            if ( tr.equals(*it, *it2) )
+            {
+                found = true;
+                break;
+            }
 
+            if ( !found )
+                return false;
+    }
+
+    return true;
+}
+
+template <typename Point, typename Cont, typename Translator>
+bool nearest_results_compare(Point const& p, Cont const& c1, Cont const& c2, Translator const& tr)
+{
+    namespace bg = boost::geometry;
+    namespace bgi = boost::geometry::index;
+
+    typedef typename Translator::indexable_type indexable_type;
+    typedef bg::default_distance_result<Point, indexable_type>::type distance_type;
+
+    if ( c1.size() != c2.size() )
+        return false;
+
+    if ( c1.size() == 0 && c2.size() == 0 )
         return true;
+
+    distance_type biggest_distance1 = 0;
+
+    for ( typename Cont::const_iterator it = c1.begin() ; it != c1.end() ; ++it )
+    {
+        distance_type curr_distance = bgi::comparable_distance_near(p, tr(*it));
+
+        if ( biggest_distance1 < curr_distance )
+            biggest_distance1 = curr_distance;
     }
 
-    template <typename Point, typename Cont, typename Translator>
-    bool nearest_results_compare(Point const& p, Cont const& c1, Cont const& c2, Translator const& tr)
+    distance_type biggest_distance2 = 0;
+    for ( typename Cont::const_iterator it = c2.begin() ; it != c2.end() ; ++it )
     {
-        namespace bg = boost::geometry;
-        namespace bgi = boost::geometry::index;
+        distance_type curr_distance = bgi::comparable_distance_near(p, tr(*it));
 
-        typedef typename Translator::indexable_type indexable_type;
-        typedef bg::default_distance_result<Point, indexable_type>::type distance_type;
-
-        if ( c1.size() != c2.size() )
-            return false;
-
-        if ( c1.size() == 0 && c2.size() == 0 )
-            return true;
-
-        distance_type biggest_distance1 = 0;
-
-        for ( typename Cont::const_iterator it = c1.begin() ; it != c1.end() ; ++it )
-        {
-            distance_type curr_distance = bgi::comparable_distance_near(p, tr(*it));
-
-            if ( biggest_distance1 < curr_distance )
-                biggest_distance1 = curr_distance;
-        }
-
-        distance_type biggest_distance2 = 0;
-        for ( typename Cont::const_iterator it = c2.begin() ; it != c2.end() ; ++it )
-        {
-            distance_type curr_distance = bgi::comparable_distance_near(p, tr(*it));
-
-            if ( biggest_distance2 < curr_distance )
-                biggest_distance2 = curr_distance;
-        }
-
-        return biggest_distance1 == biggest_distance2;
+        if ( biggest_distance2 < curr_distance )
+            biggest_distance2 = curr_distance;
     }
 
-    template <typename Predicate, typename Rtree, typename Cont, typename Randomizer>
-    void random_query_check(Rtree const& t, Cont const& c, size_t n, Randomizer r)
+    return biggest_distance1 == biggest_distance2;
+}
+
+template <typename Point, typename Translator>
+struct val_mindist_cmp
+{
+    val_mindist_cmp(Point const& p, Translator const& t)
+        : pt(p), tr(t) 
+    {}
+
+    template <typename Value>
+    bool operator()(Value const& v1, Value const& v2)
     {
-        namespace bg = boost::geometry;
-        namespace bgi = bg::index;
-
-        for ( size_t i = 0 ; i < n ; ++i )
-        {
-            Predicate pred = Predicate(r());
-
-            std::vector<typename Rtree::value_type> res1, res2;
-
-            bgi::query(t, pred, std::back_inserter(res1));
-
-            for ( typename Cont::const_iterator it = c.begin() ; it != c.end() ; ++it )
-            {
-                if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, *it, t.get_translator()(*it)) )
-                    res2.push_back(*it);
-            }
-
-            std::stringstream ss;
-            ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
-
-            BOOST_CHECK_MESSAGE( helpers::results_compare(res1, res2, t.get_translator()), ss.str());
-        }
+        return boost::geometry::index::comparable_distance_near(pt, tr(v1))
+            < boost::geometry::index::comparable_distance_near(pt, tr(v2));
     }
 
-    template <typename Point, typename Translator>
-    struct val_mindist_cmp
-    {
-        val_mindist_cmp(Point const& p, Translator const& t)
-            : pt(p), tr(t) 
-        {}
+    Point const& pt;
+    Translator const& tr;
+};
 
-        template <typename Value>
-        bool operator()(Value const& v1, Value const& v2)
+template <typename Box, typename Iter, typename Translator>
+Box values_box(Iter first, Iter last, Translator const& tr)
+{
+    namespace bg = boost::geometry;
+    namespace bgi = bg::index;
+
+    Box b;
+    bg::assign_inverse(b);
+
+    for ( ; first != last ; ++first )
+    {
+        bg::expand(b, tr(*first));
+    }
+
+    return b;
+}
+
+} // namespace helpers
+
+template <typename Predicate, typename Rtree, typename Cont, typename Randomizer>
+void random_query_check(Rtree const& t, Cont const& c, size_t n, Randomizer r)
+{
+    namespace bg = boost::geometry;
+    namespace bgi = bg::index;
+
+    for ( size_t i = 0 ; i < n ; ++i )
+    {
+        Predicate pred = Predicate(r());
+
+        std::vector<typename Rtree::value_type> res1, res2;
+
+        bgi::query(t, pred, std::back_inserter(res1));
+
+        for ( typename Cont::const_iterator it = c.begin() ; it != c.end() ; ++it )
         {
-            return boost::geometry::index::comparable_distance_near(pt, tr(v1))
-                < boost::geometry::index::comparable_distance_near(pt, tr(v2));
+            if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, *it, t.get_translator()(*it)) )
+                res2.push_back(*it);
         }
 
-        Point const& pt;
-        Translator const& tr;
-    };
+        std::stringstream ss;
+        ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
 
-    template <typename Predicate, typename Rtree, typename Cont, typename PointRandomizer, typename PredicateRandomizer>
-    void random_nearest_check(
-        Rtree const& t,
-        Cont const& c,
-        size_t n,
-        PointRandomizer const& pr,
-        size_t k,
-        PredicateRandomizer const& r)
+        BOOST_CHECK_MESSAGE( helpers::results_compare(res1, res2, t.get_translator()), ss.str());
+    }
+}
+
+template <typename Predicate, typename Rtree, typename Cont, typename PointRandomizer, typename PredicateRandomizer>
+void random_nearest_check(
+    Rtree const& t,
+    Cont const& c,
+    size_t n,
+    PointRandomizer const& pr,
+    size_t k,
+    PredicateRandomizer const& r)
+{
+    namespace bg = boost::geometry;
+    namespace bgi = bg::index;
+
+    for ( size_t i = 0 ; i < n ; ++i )
     {
-        namespace bg = boost::geometry;
-        namespace bgi = bg::index;
+        typename PointRandomizer::value_type pt = pr();
+        Predicate pred = Predicate(r());
 
-        for ( size_t i = 0 ; i < n ; ++i )
+        std::vector<typename Rtree::value_type> res1, res2;
+
+        bgi::nearest(t, pt, k, pred, std::back_inserter(res1));
+
+        for ( typename Cont::const_iterator it = c.begin() ; it != c.end() ; ++it )
         {
-            typename PointRandomizer::value_type pt = pr();
-            Predicate pred = Predicate(r());
-
-            std::vector<typename Rtree::value_type> res1, res2;
-
-            bgi::nearest(t, pt, k, pred, std::back_inserter(res1));
-
-            for ( typename Cont::const_iterator it = c.begin() ; it != c.end() ; ++it )
-            {
-                if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, *it, t.get_translator()(*it)) )
-                    res2.push_back(*it);
-            }
-            std::sort(
-                res2.begin(),
-                res2.end(),
-                val_mindist_cmp<
-                    typename PointRandomizer::value_type,
-                    typename Rtree::translator_type
-                >(pt, t.get_translator())
-            );
-            if ( k < res2.size() )
-                res2.resize(k);
-
-            std::stringstream ss;
-            ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
-
-            BOOST_CHECK_MESSAGE(helpers::nearest_results_compare(pt, res1, res2, t.get_translator()), ss.str());
+            if ( bgi::predicates_check<bgi::detail::rtree::value_tag>(pred, *it, t.get_translator()(*it)) )
+                res2.push_back(*it);
         }
+        std::sort(
+            res2.begin(),
+            res2.end(),
+            helpers::val_mindist_cmp<
+                typename PointRandomizer::value_type,
+                typename Rtree::translator_type
+            >(pt, t.get_translator())
+        );
+        if ( k < res2.size() )
+            res2.resize(k);
+
+        std::stringstream ss;
+        ss << "\nPredicate: " << typeid(Predicate).name() << "\nres1: " << res1.size() << ", res2: " << res2.size() << '\n';
+
+        BOOST_CHECK_MESSAGE(helpers::nearest_results_compare(pt, res1, res2, t.get_translator()), ss.str());
     }
 }
 
@@ -286,22 +305,22 @@ struct tests_rtree_function_queries<P, B, boost::geometry::point_tag>
     {
         namespace bgi = boost::geometry::index;
 
-        helpers::random_query_check<B>(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<B>(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
 
-        helpers::random_nearest_check<bgi::detail::empty>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
-        helpers::random_nearest_check<B>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::empty>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
+        random_nearest_check<B>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
     }
 };
 
@@ -313,25 +332,25 @@ struct tests_rtree_function_queries<P, B, boost::geometry::box_tag>
     {
         namespace bgi = boost::geometry::index;
 
-        helpers::random_query_check<B>(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::overlaps<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_overlaps<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
-        helpers::random_query_check<bgi::detail::not_within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<B>(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::overlaps<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_covered_by<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_disjoint<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_intersects<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_overlaps<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
+        random_query_check<bgi::detail::not_within<B> >(t, v, 5, helpers::value_randomizer<B>(10, 5));
 
-        helpers::random_nearest_check<bgi::detail::empty>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
-        helpers::random_nearest_check<B>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::overlaps<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
-        helpers::random_nearest_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::empty>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, bgi::empty);
+        random_nearest_check<B>(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::intersects<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::overlaps<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::within<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::covered_by<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
+        random_nearest_check<bgi::detail::disjoint<B> >(t, v, 5, helpers::value_randomizer<P>(10, 0), 3, helpers::value_randomizer<B>(10, 5));
     }
 };
 
@@ -350,7 +369,18 @@ void tests_rtree_function(Translator const& tr = Translator())
 
     helpers::random_insert(t, v, 10, helpers::value_randomizer<Value>(10, 1));
 
+    B bt = bgi::box(t);
+    B bv = helpers::values_box<B>(v.begin(), v.end(), tr);
+    BOOST_CHECK(bg::equals(bt, bv));
+
     tests_rtree_function_queries<P, B, bgi::traits::tag<I>::type>::apply(t, v);
+
+    bgi::clear(t);
+    BOOST_CHECK(bgi::empty(t));
+    bt = bgi::box(t);
+    B be;
+    bg::assign_inverse(be);
+    BOOST_CHECK(bg::equals(be, bt));
 }
 
 BOOST_AUTO_TEST_CASE(tests_rtree_function_box3f)

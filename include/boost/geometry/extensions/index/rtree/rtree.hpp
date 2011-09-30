@@ -32,6 +32,7 @@
 #include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/remove.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/children_box.hpp>
 
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
 #include <boost/geometry/extensions/index/rtree/quadratic/quadratic.hpp>
@@ -41,6 +42,17 @@ namespace boost { namespace geometry { namespace index {
 
 // TODO copying
 // TODO move extensional/debug visitors to the other folder
+
+// TODO: awulkiew
+// iterators, begin/end/etc.
+
+// TODO: copy, assignment
+
+// TODO: should funcions like empty() clear() box() be free functions?
+// change name of empty() - empty predicate generator?
+
+// TODO which types should be public and which one should be private?
+// nodes, options etc. probably shouldn't
 
 template <
     typename Value,
@@ -69,16 +81,12 @@ public:
         , m_leafs_level(0)
         , m_translator(translator)
     {
-        m_root = detail::rtree::create_node(leaf());
+        create();
     }
 
     ~rtree()
     {
-        detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type> del_v;
-        detail::rtree::apply_visitor(del_v, *m_root);
-
-        // TODO: awulkiew - move this into the destroy visitor?
-        detail::rtree::delete_node(m_root);
+        destroy();
     }
 
     template <typename Predicates, typename OutIter>
@@ -91,9 +99,6 @@ public:
 
         return find_v.found_count;
     }
-
-    // TODO: awulkiew - change Point to Geometry?
-    // return number of elements instead of bool?
 
     template <typename DistancePredicate>
     inline size_t nearest(DistancePredicate const& dpred, value_type & v) const
@@ -155,16 +160,21 @@ public:
         return 0 == m_values_count;
     }
 
-    // TODO: awulkiew
-    // clear()
-    // aabb/box/get_box/etc.
-    // iterators, begin/end/etc.
+    inline void clear()
+    {
+        destroy();
+        create();
+    }
 
-    //inline void clear()
-    //{
-    //    // TODO: awulkiew - implement
-    //    BOOST_GEOMETRY_INDEX_ASSERT(false, "not implemented");
-    //}
+    inline box_type box() const
+    {
+        detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type>
+            children_box_v(m_translator);
+
+        detail::rtree::apply_visitor(children_box_v, *m_root);
+
+        return children_box_v.result;
+    }
 
     template <typename Visitor>
     inline void apply_visitor(Visitor & visitor) const
@@ -188,6 +198,28 @@ public:
     }
 
 private:
+    inline void create()
+    {
+        m_root = detail::rtree::create_node(leaf());
+        m_values_count = 0;
+        m_leafs_level = 0;
+    }
+
+    inline void destroy()
+    {
+        detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type> del_v;
+        detail::rtree::apply_visitor(del_v, *m_root);
+
+        // TODO: awulkiew - consider moving this into the destroy visitor
+        //                  but have in mind that visitors works on references
+        //                  and address from reference would be passed here
+        detail::rtree::delete_node(m_root);
+
+        m_root = 0;
+        m_values_count = 0;
+        m_leafs_level = 0;
+    }
+
     template <typename DistancesPredicates, typename Predicates>
     inline size_t nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
     {
@@ -295,6 +327,12 @@ inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPr
 }
 
 template <typename Value, typename Options, typename Translator>
+inline void clear(rtree<Value, Options, Translator> & tree)
+{
+    return tree.clear();
+}
+
+template <typename Value, typename Options, typename Translator>
 inline size_t size(rtree<Value, Options, Translator> const& tree)
 {
     return tree.size();
@@ -304,6 +342,13 @@ template <typename Value, typename Options, typename Translator>
 inline bool empty(rtree<Value, Options, Translator> const& tree)
 {
     return tree.empty();
+}
+
+template <typename Value, typename Options, typename Translator>
+inline typename rtree<Value, Options, Translator>::box_type
+box(rtree<Value, Options, Translator> const& tree)
+{
+    return tree.box();
 }
 
 }}} // namespace boost::geometry::index
