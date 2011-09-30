@@ -41,20 +41,24 @@
 
 namespace boost { namespace geometry { namespace index {
 
-// TODO copying
 // TODO move extensional/debug visitors to the other folder
+// move gldraw indexable (+ value with translator) to geometry::index namespace
 
-// TODO: awulkiew
-// iterators, begin/end/etc.
+// TODO: awulkiew - implement iterators ?
 
-// TODO: copy, assignment
-// allow copying of a tree with different template parameters? e.g. Parameters, Translator?
+// TODO: allow copying of a tree with different template parameters? e.g. Parameters, Translator?
 
-// TODO: should funcions like empty() clear() box() be free functions?
-// change name of empty() - empty predicate generator?
+// TODO: should funcions like empty(tree) clear(tree) box(tree) be free functions?
+// change name of empty predicate generator - empty()?
 
 // TODO which types should be public and which one should be private?
-// nodes, options etc. probably shouldn't
+// nodes, options etc. probably shouldn't be public
+
+// TODO change remove() to erase() or just add erase() ?
+// erase works on iterators of this container so this may be confusing with remove(ValIt, ValIt)
+
+// TODO add third parameter to insert(It, It) - unary_op, like in std::transform
+// transforming It::value_type to rtree::value_type ?
 
 template <
     typename Value,
@@ -86,14 +90,76 @@ public:
         create();
     }
 
-    inline rtree(rtree const& src)
+    template<typename Iterator>
+    inline explicit rtree(Iterator first, Iterator last, translator_type const& translator = translator_type())
+        : m_values_count(0)
+        , m_root(0)
+        , m_leafs_level(0)
+        , m_translator(translator)
     {
-        copy(src, *this);
+        create();
+        insert(first, last);
     }
 
     inline ~rtree()
     {
         destroy(*this);
+    }
+
+    inline rtree(rtree const& src)
+    {
+        copy(src, *this);
+    }
+
+    inline rtree & operator=(rtree const& src)
+    {
+        if ( &src == this )
+            return *this;
+
+        destroy(*this);
+        copy(src, *this);
+
+        return *this;
+    }
+
+    inline void insert(value_type const& value)
+    {
+        // TODO: awulkiew - assert for correct value
+
+        detail::rtree::visitors::insert<value_type, value_type, options_type, translator_type, box_type, typename options_type::insert_tag>
+            insert_v(m_root, m_leafs_level, value, m_translator);
+
+        detail::rtree::apply_visitor(insert_v, *m_root);
+
+        ++m_values_count;
+    }
+
+    template <typename Iterator>
+    inline void insert(Iterator first, Iterator last)
+    {
+        for ( ; first != last ; ++first )
+            insert(*first);
+    }
+
+    inline void remove(value_type const& value)
+    {
+        // TODO: awulkiew - assert for correct value
+
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there is no elements in the rtree");
+
+        detail::rtree::visitors::remove<value_type, options_type, translator_type, box_type>
+            remove_v(m_root, m_leafs_level, value, m_translator);
+
+        detail::rtree::apply_visitor(remove_v, *m_root);
+
+        --m_values_count;
+    }
+
+    template <typename Iterator>
+    inline void remove(Iterator first, Iterator last)
+    {
+        for ( ; first != last ; ++first )
+            remove(*first);
     }
 
     template <typename Predicates, typename OutIter>
@@ -129,32 +195,6 @@ public:
     inline size_t nearest(DistancePredicate const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
         return nearest_k(dpred, k, pred, out_it);
-    }
-
-    inline void insert(value_type const& value)
-    {
-        // TODO: awulkiew - assert for correct value
-
-        detail::rtree::visitors::insert<value_type, value_type, options_type, translator_type, box_type, typename options_type::insert_tag>
-            insert_v(m_root, m_leafs_level, value, m_translator);
-
-        detail::rtree::apply_visitor(insert_v, *m_root);
-
-        ++m_values_count;
-    }
-
-    inline void remove(value_type const& value)
-    {
-        // TODO: awulkiew - assert for correct value
-
-        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there is no elements in the rtree");
-
-        detail::rtree::visitors::remove<value_type, options_type, translator_type, box_type>
-            remove_v(m_root, m_leafs_level, value, m_translator);
-
-        detail::rtree::apply_visitor(remove_v, *m_root);
-
-        --m_values_count;
     }
 
     inline size_t size() const
@@ -315,10 +355,22 @@ inline void insert(rtree<Value, Options, Translator> & tree, Value const& v)
     tree.insert(v);
 }
 
+template<typename Iterator, typename Value, typename Options, typename Translator>
+inline void insert(rtree<Value, Options, Translator> & tree, Iterator first, Iterator last)
+{
+    tree.insert(first, last);
+}
+
 template <typename Value, typename Options, typename Translator>
 inline void remove(rtree<Value, Options, Translator> & tree, Value const& v)
 {
     tree.remove(v);
+}
+
+template<typename Iterator, typename Value, typename Options, typename Translator>
+inline void remove(rtree<Value, Options, Translator> & tree, Iterator first, Iterator last)
+{
+    tree.remove(first, last);
 }
 
 template <typename Value, typename Options, typename Translator, typename Predicates, typename OutIter>
