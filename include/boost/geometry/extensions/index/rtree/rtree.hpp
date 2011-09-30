@@ -57,9 +57,6 @@ namespace boost { namespace geometry { namespace index {
 // TODO change remove() to erase() or just add erase() ?
 // erase works on iterators of this container so this may be confusing with remove(ValIt, ValIt)
 
-// TODO add third parameter to insert(It, It) - unary_op, like in std::transform
-// transforming It::value_type to rtree::value_type ?
-
 template <
     typename Value,
     typename Parameters,
@@ -355,7 +352,7 @@ inline void insert(rtree<Value, Options, Translator> & tree, Value const& v)
     tree.insert(v);
 }
 
-template<typename Iterator, typename Value, typename Options, typename Translator>
+template<typename Value, typename Options, typename Translator, typename Iterator>
 inline void insert(rtree<Value, Options, Translator> & tree, Iterator first, Iterator last)
 {
     tree.insert(first, last);
@@ -367,7 +364,7 @@ inline void remove(rtree<Value, Options, Translator> & tree, Value const& v)
     tree.remove(v);
 }
 
-template<typename Iterator, typename Value, typename Options, typename Translator>
+template<typename Value, typename Options, typename Translator, typename Iterator>
 inline void remove(rtree<Value, Options, Translator> & tree, Iterator first, Iterator last)
 {
     tree.remove(first, last);

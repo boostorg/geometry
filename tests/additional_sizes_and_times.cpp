@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
+#include <boost/geometry/extensions/index/inserter.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
@@ -133,6 +134,25 @@ int main()
             B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
 
             t.insert(std::make_pair(b, i));
+        }
+        std::cout << "time: " << tim.elapsed() << "s\n";
+    }
+
+    // elements inserting test using insert_iterator
+    {
+        RT t;
+
+        std::cout << "rtree inserting time test using insert_iterator<>... ("
+            << values_count << ")\n";
+        bgi::insert_iterator<RT> ii = bgi::inserter(t);
+        tim.restart();
+        for (size_t i = 0 ; i < values_count ; ++i )
+        {
+            float x = coords[i].first;
+            float y = coords[i].second;
+            B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
+
+            *ii++ = std::make_pair(b, i);
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
     }

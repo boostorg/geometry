@@ -5,6 +5,7 @@
 
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 #include <boost/geometry/extensions/index/translator/index.hpp>
+#include <boost/geometry/extensions/index/inserter.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/print.hpp>
 
@@ -118,10 +119,13 @@ void random_insert(Rtree & t, Cont & c, size_t n, Randomizer r)
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
 
+    bgi::insert_iterator<Rtree> ii = bgi::inserter(t);
+
     for ( size_t i = 0 ; i < n ; ++i )
     {
         typename Randomizer::value_type v = r();
-        bgi::insert(t, v);
+        //bgi::insert(t, v);
+        *ii++ = v;
         c.push_back(v);
     }
 }
