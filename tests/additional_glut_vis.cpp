@@ -9,7 +9,6 @@
 
 #include <gl/glut.h>
 
-//#define BOOST_GEOMETRY_INDEX_USE_VARIANT_NODES
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/gl_draw.hpp>

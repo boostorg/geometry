@@ -57,6 +57,8 @@ namespace boost { namespace geometry { namespace index {
 // TODO change remove() to erase() or just add erase() ?
 // erase works on iterators of this container so this may be confusing with remove(ValIt, ValIt)
 
+// TODO delete unneeded nodes types (using vectors) and change the name of currently used one to node_default
+
 template <
     typename Value,
     typename Parameters,
@@ -251,6 +253,8 @@ public:
 private:
     inline void create()
     {
+        // TODO: awulkiew - consider moving create_node into the insert visitor
+        //                  and here setting m_root to 0
         m_root = detail::rtree::create_node(leaf());
         m_values_count = 0;
         m_leafs_level = 0;
