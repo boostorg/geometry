@@ -147,38 +147,59 @@ element_indexable(std::pair<
     return el.first;
 }
 
-// create leaf node
+// create_node
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
-inline typename node<Value, Parameters, Box, Tag>::type *
-create_node(leaf_variant<Value, Parameters, Box, Tag> const& l)
+template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+struct create_node<
+    Allocators,
+    internal_node_variant<Value, Parameters, Box, Tag>
+>
 {
-    typedef typename node<Value, Parameters, Box, Tag>::type node;
-    node * n = new node(l);
-    return n;
-}
+    static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
+    {
+        return new typename node<Value, Parameters, Box, Tag>::type(
+            internal_node_variant<Value, Parameters, Box, Tag>() );
+    }
+};
 
-// create internal node
-
-template <typename Value, typename Parameters, typename Box, typename Tag>
-inline typename node<Value, Parameters, Box, Tag>::type *
-create_node(internal_node_variant<Value, Parameters, Box, Tag> const& in)
+template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+struct create_node<
+    Allocators,
+    leaf_variant<Value, Parameters, Box, Tag>
+>
 {
-    typedef typename node<Value, Parameters, Box, Tag>::type node;
-    node * n = new node(in);
-    return n;
-}
+    static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
+    {
+        return new typename node<Value, Parameters, Box, Tag>::type(
+            leaf_variant<Value, Parameters, Box, Tag>() );
+    }
+};
 
-// default node
+// destroy_node
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
-inline void delete_node(boost::variant<
-						    leaf_variant<Value, Parameters, Box, Tag>,
-							internal_node_variant<Value, Parameters, Box, Tag>
-						> * n)
+template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+struct destroy_node<
+    Allocators,
+    internal_node_variant<Value, Parameters, Box, Tag>
+>
 {
-    delete n;
-}
+    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
+    {
+        delete n;
+    }
+};
+
+template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+struct destroy_node<
+    Allocators,
+    leaf_variant<Value, Parameters, Box, Tag>
+>
+{
+    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
+    {
+        delete n;
+    }
+};
 
 }} // namespace detail::rtree
 

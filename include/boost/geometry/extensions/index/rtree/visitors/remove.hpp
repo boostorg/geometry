@@ -21,7 +21,7 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree { namespace visitors {
 
 // Default remove algorithm
-template <typename Value, typename Options, typename Translator, typename Box>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class remove
     : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
     , index::nonassignable
@@ -36,9 +36,11 @@ public:
     inline remove(node* & root,
                   size_t & leafs_level,
                   Value const& v,
-                  Translator const& t)
+                  Translator const& t,
+                  Allocators & allocators)
         : m_value(v)
         , m_tr(t)
+        , m_allocators(allocators)
         , m_root_node(root)
         , m_leafs_level(leafs_level)
         , m_is_value_removed(false)
@@ -115,16 +117,27 @@ public:
                     is_leaf<Value, Options, Box> ilv;
                     rtree::apply_visitor(ilv, *it->second);
                     if ( ilv.result )
+                    {
                         reinsert_elements(rtree::get<leaf>(*it->second), it->first);
+
+                        rtree::destroy_node<Allocators, leaf>::apply(m_allocators, it->second);
+                    }
                     else
+                    {
                         reinsert_elements(rtree::get<internal_node>(*it->second), it->first);
+
+                        rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, it->second);
+                    }
                 }
 
                 // shorten the tree
                 if ( rtree::elements(n).size() == 1 )
                 {
+                    node * root_to_destroy = m_root_node;
                     m_root_node = rtree::elements(n)[0].second;
                     --m_leafs_level;
+
+                    rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, root_to_destroy);
                 }
             }
         }
@@ -190,11 +203,20 @@ private:
         for ( typename elements_type::iterator it = elements.begin();
             it != elements.end() ; ++it )
         {
-            visitors::insert<typename elements_type::value_type, Value, Options, Translator, Box, typename Options::insert_tag> insert_v(
+            visitors::insert<
+                typename elements_type::value_type,
+                Value,
+                Options,
+                Translator,
+                Box,
+                Allocators,
+                typename Options::insert_tag
+            > insert_v(
                 m_root_node,
                 m_leafs_level,
                 *it,
                 m_tr,
+                m_allocators,
                 node_relative_level - 1);
 
             rtree::apply_visitor(insert_v, *m_root_node);
@@ -203,6 +225,7 @@ private:
 
     Value const& m_value;
     Translator const& m_tr;
+    Allocators & m_allocators;
 
     node* & m_root_node;
     size_t & m_leafs_level;

@@ -101,16 +101,17 @@ protected:
     typedef typename Options::parameters_type parameters_type;
 
 public:
-    template <typename Node>
+    template <typename Node, typename Allocators>
     static inline void apply(node* & root_node,
                              size_t & leafs_level,
                              Node & n,
                              internal_node *parent_node,
                              size_t current_child_index,
-                             Translator const& tr)
+                             Translator const& tr,
+                             Allocators & allocators)
     {
         // create additional node
-        node * second_node = rtree::create_node(Node());
+        node * second_node = rtree::create_node<Allocators, Node>::apply(allocators);
         Node & n2 = rtree::get<Node>(*second_node);
 
         // redistribute elements
@@ -140,7 +141,7 @@ public:
             BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(root_node), "node should be the root");
 
             // create new root and add nodes
-            node * new_root = rtree::create_node(internal_node());
+            node * new_root = rtree::create_node<Allocators, internal_node>::apply(allocators);
 
             rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root_node));
             rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
@@ -154,7 +155,7 @@ public:
 // ----------------------------------------------------------------------- //
 
 // Default insert visitor
-template <typename Element, typename Value, typename Options, typename Translator, typename Box>
+template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class insert
     : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
     , index::nonassignable
@@ -170,6 +171,7 @@ protected:
                   size_t & leafs_level,
                   Element const& element,
                   Translator const& t,
+                  Allocators & allocators,
                   size_t relative_level = 0
     )
         : m_element(element)
@@ -181,6 +183,7 @@ protected:
         , m_parent(0)
         , m_current_child_index(0)
         , m_current_level(0)
+        , m_allocators(allocators)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_relative_level <= leafs_level, "unexpected level value");
         BOOST_GEOMETRY_INDEX_ASSERT(m_level <= m_leafs_level, "unexpected level value");
@@ -245,7 +248,7 @@ protected:
     template <typename Node>
     inline void split(Node & n) const
     {
-        detail::split<Value, Options, Translator, Box, typename Options::split_tag>::apply(m_root_node, m_leafs_level, n, m_parent, m_current_child_index, m_tr);
+        detail::split<Value, Options, Translator, Box, typename Options::split_tag>::apply(m_root_node, m_leafs_level, n, m_parent, m_current_child_index, m_tr, m_allocators);
     }
 
     // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation
@@ -262,20 +265,22 @@ protected:
     internal_node *m_parent;
     size_t m_current_child_index;
     size_t m_current_level;
+
+    Allocators & m_allocators;
 };
 
 } // namespace detail
 
 // Insert visitor forward declaration
-template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename InsertTag>
+template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename InsertTag>
 struct insert;
 
 // Default insert visitor used for nodes elements
-template <typename Element, typename Value, typename Options, typename Translator, typename Box>
-struct insert<Element, Value, Options, Translator, Box, insert_default_tag>
-    : public detail::insert<Element, Value, Options, Translator, Box>
+template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag>
+    : public detail::insert<Element, Value, Options, Translator, Box, Allocators>
 {
-    typedef detail::insert<Element, Value, Options, Translator, Box> base;
+    typedef detail::insert<Element, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -284,9 +289,10 @@ struct insert<Element, Value, Options, Translator, Box, insert_default_tag>
                   size_t & leafs_level,
                   Element const& element,
                   Translator const& tr,
+                  Allocators & allocators,
                   size_t relative_level = 0
     )
-        : base(root, leafs_level, element, tr, relative_level)
+        : base(root, leafs_level, element, tr, allocators, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -316,11 +322,11 @@ struct insert<Element, Value, Options, Translator, Box, insert_default_tag>
 };
 
 // Default insert visitor specialized for Values elements
-template <typename Value, typename Options, typename Translator, typename Box>
-struct insert<Value, Value, Options, Translator, Box, insert_default_tag>
-    : public detail::insert<Value, Value, Options, Translator, Box>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct insert<Value, Value, Options, Translator, Box, Allocators, insert_default_tag>
+    : public detail::insert<Value, Value, Options, Translator, Box, Allocators>
 {
-    typedef detail::insert<Value, Value, Options, Translator, Box> base;
+    typedef detail::insert<Value, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -329,9 +335,10 @@ struct insert<Value, Value, Options, Translator, Box, insert_default_tag>
                   size_t & leafs_level,
                   Value const& v,
                   Translator const& t,
+                  Allocators & allocators,
                   size_t relative_level = 0
     )
-        : base(root, leafs_level, v, t, relative_level)
+        : base(root, leafs_level, v, t, allocators, relative_level)
     {}
 
     inline void operator()(internal_node & n)

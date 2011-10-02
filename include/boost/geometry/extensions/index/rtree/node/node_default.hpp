@@ -167,36 +167,6 @@ element_indexable(
     return el.first;
 }
 
-// create leaf node
-
-template <typename Value, typename Parameters, typename Box, typename Tag>
-inline typename node<Value, Parameters, Box, Tag>::type *
-create_node(leaf_poly<Value, Parameters, Box, Tag> const& l)
-{
-	typedef typename node<Value, Parameters, Box, Tag>::type node;
-	node * n = new leaf_poly<Value, Parameters, Box, Tag>(l);
-	return n;
-}
-
-// create internal node
-
-template <typename Value, typename Parameters, typename Box, typename Tag>
-inline typename node<Value, Parameters, Box, Tag>::type *
-create_node(internal_node_poly<Value, Parameters, Box, Tag> const& in)
-{
-	typedef typename node<Value, Parameters, Box, Tag>::type node;
-	node * n = new internal_node_poly<Value, Parameters, Box, Tag>(in);
-	return n;
-}
-
-// default node
-
-template <typename Value, typename Parameters, typename Box, typename Tag>
-inline void delete_node(node_poly<Value, Parameters, Box, Tag> * n)
-{
-	delete n;
-}
-
 // nodes elements
 
 template <typename Node>
@@ -236,6 +206,106 @@ inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
 
 	return result;
 }
+
+// allocators
+
+template <typename Value, typename Parameters, typename Box, typename Tag, typename Allocator>
+struct allocators
+{
+    typedef Allocator allocator_type;
+    typedef typename allocator_type::size_type size_type;
+
+    typedef typename allocator_type::template rebind<
+        typename internal_node<Value, Parameters, Box, Tag>::type
+    >::other internal_node_allocator_type;
+
+    typedef typename allocator_type::template rebind<
+        typename leaf<Value, Parameters, Box, Tag>::type
+    >::other leaf_allocator_type;
+
+    inline explicit allocators(Allocator alloc)
+        : allocator(alloc)
+        , internal_node_allocator(allocator)
+        , leaf_allocator(allocator)
+    {}
+
+    allocator_type allocator;
+    internal_node_allocator_type internal_node_allocator;
+    leaf_allocator_type leaf_allocator;
+};
+
+// create_node
+
+template <typename Allocators, typename Node>
+struct create_node
+{
+    BOOST_MPL_ASSERT_MSG(
+        (false),
+        NOT_IMPLEMENTED_FOR_THIS_NODE_TYPE,
+        (create_node));
+};
+
+template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+struct create_node<
+    Allocators,
+    internal_node_poly<Value, Parameters, Box, Tag>
+>
+{
+    static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
+    {
+        return new internal_node_poly<Value, Parameters, Box, Tag>();
+    }
+};
+
+template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+struct create_node<
+    Allocators,
+    leaf_poly<Value, Parameters, Box, Tag>
+>
+{
+    static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
+    {
+        return new leaf_poly<Value, Parameters, Box, Tag>();
+    }
+};
+
+// destroy_node
+
+template <typename Allocators, typename Node>
+struct destroy_node
+{
+    BOOST_MPL_ASSERT_MSG(
+        (false),
+        NOT_IMPLEMENTED_FOR_THIS_NODE_TYPE,
+        (destroy_node));
+};
+
+template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+struct destroy_node<
+    Allocators,
+    internal_node_poly<Value, Parameters, Box, Tag>
+>
+{
+    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
+    {
+        delete n;
+    }
+};
+
+template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
+struct destroy_node<
+    Allocators,
+    leaf_poly<Value, Parameters, Box, Tag>
+>
+{
+    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
+    {
+        delete n;
+    }
+};
+
+// To delete variant node one must pass node *
+// To delete poly node one must pass internal_node or leaf
 
 }} // namespace detail::rtree
 

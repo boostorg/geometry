@@ -64,7 +64,8 @@ namespace boost { namespace geometry { namespace index {
 template <
     typename Value,
     typename Parameters,
-    typename Translator = translator::def<Value>
+    typename Translator = translator::def<Value>,
+    typename Allocator = std::allocator<Value>
 >
 class rtree
     : public boost::noncopyable
@@ -82,17 +83,22 @@ public:
     typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, node_tag>::type internal_node;
     typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, node_tag>::type leaf;
 
-    inline explicit rtree(translator_type const& translator = translator_type())
+    typedef Allocator allocator_type;
+    typedef detail::rtree::allocators<value_type, typename options_type::parameters_type, box_type, node_tag, allocator_type> allocators_type;
+    typedef typename allocators_type::size_type size_type;
+
+    inline explicit rtree(translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
         : m_values_count(0)
         , m_root(0)
         , m_leafs_level(0)
         , m_translator(translator)
+        , m_allocators(allocator)
     {
         create();
     }
 
     template<typename Iterator>
-    inline explicit rtree(Iterator first, Iterator last, translator_type const& translator = translator_type())
+    inline explicit rtree(Iterator first, Iterator last, translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
         : m_values_count(0)
         , m_root(0)
         , m_leafs_level(0)
@@ -108,6 +114,7 @@ public:
     }
 
     inline rtree(rtree const& src)
+        : m_allocators(src.m_allocators)
     {
         copy(src, *this);
     }
@@ -118,6 +125,8 @@ public:
             return *this;
 
         destroy(*this);
+        
+        m_allocators = src.m_allocators;
         copy(src, *this);
 
         return *this;
@@ -133,8 +142,9 @@ public:
             options_type,
             translator_type,
             box_type,
+            allocators_type,
             typename options_type::insert_tag
-        > insert_v(m_root, m_leafs_level, value, m_translator);
+        > insert_v(m_root, m_leafs_level, value, m_translator, m_allocators);
 
         detail::rtree::apply_visitor(insert_v, *m_root);
 
@@ -158,8 +168,9 @@ public:
             value_type,
             options_type,
             translator_type,
-            box_type
-        > remove_v(m_root, m_leafs_level, value, m_translator);
+            box_type,
+            allocators_type
+        > remove_v(m_root, m_leafs_level, value, m_translator, m_allocators);
 
         detail::rtree::apply_visitor(remove_v, *m_root);
 
@@ -174,7 +185,7 @@ public:
     }
 
     template <typename Predicates, typename OutIter>
-    inline size_t query(Predicates const& pred, OutIter out_it) const
+    inline size_type query(Predicates const& pred, OutIter out_it) const
     {
         detail::rtree::visitors::query<value_type, options_type, translator_type, box_type, Predicates, OutIter>
             find_v(m_translator, pred, out_it);
@@ -185,30 +196,30 @@ public:
     }
 
     template <typename DistancePredicate>
-    inline size_t nearest(DistancePredicate const& dpred, value_type & v) const
+    inline size_type nearest(DistancePredicate const& dpred, value_type & v) const
     {
         return nearest_one(dpred, detail::empty(), v);
     }
 
     template <typename DistancePredicate, typename Predicates>
-    inline size_t nearest(DistancePredicate const& dpred, Predicates const& pred, value_type & v) const
+    inline size_type nearest(DistancePredicate const& dpred, Predicates const& pred, value_type & v) const
     {
         return nearest_one(dpred, pred, v);
     }
 
     template <typename DistancePredicate, typename OutIter>
-    inline size_t nearest(DistancePredicate const& dpred, size_t k, OutIter out_it) const
+    inline size_type nearest(DistancePredicate const& dpred, size_t k, OutIter out_it) const
     {
         return nearest_k(dpred, k, detail::empty(), out_it);
     }
 
     template <typename DistancePredicate, typename Predicates, typename OutIter>
-    inline size_t nearest(DistancePredicate const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
+    inline size_type nearest(DistancePredicate const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
         return nearest_k(dpred, k, pred, out_it);
     }
 
-    inline size_t size() const
+    inline size_type size() const
     {
         return m_values_count;
     }
@@ -252,12 +263,12 @@ public:
         return  m_translator;
     }
 
-    inline size_t values_count() const
+    inline size_type values_count() const
     {
         return m_values_count;
     }
 
-    inline size_t depth() const
+    inline size_type depth() const
     {
         return m_leafs_level;
     }
@@ -265,16 +276,15 @@ public:
 private:
     inline void create()
     {
-        m_root = detail::rtree::create_node(leaf());
+        m_root = detail::rtree::create_node<allocators_type, leaf>::apply(m_allocators);
         m_values_count = 0;
         m_leafs_level = 0;
     }
 
     inline void destroy(rtree & t)
     {
-        detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type> del_v;
+        detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
         detail::rtree::apply_visitor(del_v, *t.m_root);
-        detail::rtree::delete_node(t.m_root);
 
         t.m_root = 0;
         t.m_values_count = 0;
@@ -283,7 +293,9 @@ private:
 
     inline void copy(rtree const& src, rtree & dst) const
     {
-        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type> copy_v;
+        //dst.m_allocators = src.m_allocators;
+
+        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type> copy_v(dst.m_allocators);
         detail::rtree::apply_visitor(copy_v, *src.m_root);
 
         dst.m_root = copy_v.result;
@@ -293,7 +305,7 @@ private:
     }
 
     template <typename DistancesPredicates, typename Predicates>
-    inline size_t nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
+    inline size_type nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
     {
         typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
         typedef typename detail::relation<point_relation>::value_type point_type;
@@ -322,7 +334,7 @@ private:
     }
 
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
-    inline size_t nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
+    inline size_type nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
         typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
         typedef typename detail::relation<point_relation>::value_type point_type;
@@ -350,87 +362,88 @@ private:
         return result.get(out_it);
     }
 
-    size_t m_values_count;
+    size_type m_values_count;
     node *m_root;
-    size_t m_leafs_level;
+    size_type m_leafs_level;
     translator_type m_translator;
+    allocators_type m_allocators;
 };
 
-template <typename Value, typename Options, typename Translator>
-inline void insert(rtree<Value, Options, Translator> & tree, Value const& v)
+template <typename Value, typename Options, typename Translator, typename Allocator>
+inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 {
     tree.insert(v);
 }
 
-template<typename Value, typename Options, typename Translator, typename Iterator>
-inline void insert(rtree<Value, Options, Translator> & tree, Iterator first, Iterator last)
+template<typename Value, typename Options, typename Translator, typename Allocator, typename Iterator>
+inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
 {
     tree.insert(first, last);
 }
 
-template <typename Value, typename Options, typename Translator>
-inline void remove(rtree<Value, Options, Translator> & tree, Value const& v)
+template <typename Value, typename Options, typename Translator, typename Allocator>
+inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 {
     tree.remove(v);
 }
 
-template<typename Value, typename Options, typename Translator, typename Iterator>
-inline void remove(rtree<Value, Options, Translator> & tree, Iterator first, Iterator last)
+template<typename Value, typename Options, typename Translator, typename Allocator, typename Iterator>
+inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
 {
     tree.remove(first, last);
 }
 
-template <typename Value, typename Options, typename Translator, typename Predicates, typename OutIter>
-inline size_t query(rtree<Value, Options, Translator> const& tree, Predicates const& pred, OutIter out_it)
+template <typename Value, typename Options, typename Translator, typename Allocator, typename Predicates, typename OutIter>
+inline size_t query(rtree<Value, Options, Translator, Allocator> const& tree, Predicates const& pred, OutIter out_it)
 {
     return tree.query(pred, out_it);
 }
 
-template <typename Value, typename Options, typename Translator, typename DistancesPredicates>
-inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPredicates const& dpred, Value & v)
+template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates>
+inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, Value & v)
 {
     return tree.nearest(dpred, v);
 }
 
-template <typename Value, typename Options, typename Translator, typename DistancesPredicates, typename Predicates>
-inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPredicates const& dpred, Predicates const& pred, Value & v)
+template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename Predicates>
+inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, Predicates const& pred, Value & v)
 {
     return tree.nearest(dpred, pred, v);
 }
 
-template <typename Value, typename Options, typename Translator, typename DistancesPredicates, typename OutIter>
-inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPredicates const& dpred, size_t k, OutIter out_it)
+template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename OutIter>
+inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, OutIter out_it)
 {
     return tree.nearest(dpred, k, out_it);
 }
 
-template <typename Value, typename Options, typename Translator, typename DistancesPredicates, typename Predicates, typename OutIter>
-inline size_t nearest(rtree<Value, Options, Translator> const& tree, DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it)
+template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename Predicates, typename OutIter>
+inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it)
 {
     return tree.nearest(dpred, k, pred, out_it);
 }
 
-template <typename Value, typename Options, typename Translator>
-inline void clear(rtree<Value, Options, Translator> & tree)
+template <typename Value, typename Options, typename Translator, typename Allocator>
+inline void clear(rtree<Value, Options, Translator, Allocator> & tree)
 {
     return tree.clear();
 }
 
-template <typename Value, typename Options, typename Translator>
-inline size_t size(rtree<Value, Options, Translator> const& tree)
+template <typename Value, typename Options, typename Translator, typename Allocator>
+inline size_t size(rtree<Value, Options, Translator, Allocator> const& tree)
 {
     return tree.size();
 }
 
-template <typename Value, typename Options, typename Translator>
-inline bool empty(rtree<Value, Options, Translator> const& tree)
+template <typename Value, typename Options, typename Translator, typename Allocator>
+inline bool empty(rtree<Value, Options, Translator, Allocator> const& tree)
 {
     return tree.empty();
 }
 
-template <typename Value, typename Options, typename Translator>
-inline typename rtree<Value, Options, Translator>::box_type
-box(rtree<Value, Options, Translator> const& tree)
+template <typename Value, typename Options, typename Translator, typename Allocator>
+inline typename rtree<Value, Options, Translator, Allocator>::box_type
+box(rtree<Value, Options, Translator, Allocator> const& tree)
 {
     return tree.box();
 }

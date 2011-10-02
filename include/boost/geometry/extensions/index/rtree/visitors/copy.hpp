@@ -16,21 +16,24 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box>
-struct copy
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+class copy
     : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+    , boost::noncopyable
 {
+public:
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
 
-    explicit inline copy()
+    explicit inline copy(Allocators & allocators)
         : result(0)
+        , m_allocators(allocators)
     {}
 
     inline void operator()(internal_node & n)
     {
-        node * new_node = rtree::create_node(internal_node());
+        node * new_node = rtree::create_node<Allocators, internal_node>::apply(m_allocators);
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type & elements = rtree::elements(n);
@@ -50,7 +53,7 @@ struct copy
 
     inline void operator()(leaf & l)
     {
-        node * new_node = rtree::create_node(leaf());
+        node * new_node = rtree::create_node<Allocators, leaf>::apply(m_allocators);
         
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type & elements = rtree::elements(l);
@@ -67,6 +70,9 @@ struct copy
     }
 
     node * result;
+
+private:
+    Allocators & m_allocators;
 };
 
 }}} // namespace detail::rtree::visitors

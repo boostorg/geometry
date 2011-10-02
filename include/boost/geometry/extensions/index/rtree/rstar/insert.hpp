@@ -119,11 +119,11 @@ struct level_insert_elements_type<0, Value, Value, Options, Box>
 	>::type type;
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box>
+template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct level_insert_base
-	: public detail::insert<Element, Value, Options, Translator, Box>
+	: public detail::insert<Element, Value, Options, Translator, Box, Allocators>
 {
-	typedef detail::insert<Element, Value, Options, Translator, Box> base;
+	typedef detail::insert<Element, Value, Options, Translator, Box, Allocators> base;
 	typedef typename base::node node;
 	typedef typename base::internal_node internal_node;
 	typedef typename base::leaf leaf;
@@ -135,8 +135,9 @@ struct level_insert_base
 		 					 size_t & leafs_level,
 		 					 Element const& element,
 							 Translator const& tr,
+                             Allocators & allocators,
 							 size_t relative_level)
-		: base(root, leafs_level, element, tr, relative_level)
+		: base(root, leafs_level, element, tr, allocators, relative_level)
 		, result_relative_level(0)
 	{}
 
@@ -192,11 +193,11 @@ struct level_insert_base
 	elements_type result_elements;
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box>
+template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct level_insert
-    : public level_insert_base<InsertIndex, Element, Value, Options, Translator, Box>
+    : public level_insert_base<InsertIndex, Element, Value, Options, Translator, Box, Allocators>
 {
-	typedef level_insert_base<InsertIndex, Element, Value, Options, Translator, Box> base;
+	typedef level_insert_base<InsertIndex, Element, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -205,8 +206,9 @@ struct level_insert
                         size_t & leafs_level,
                         Element const& element,
                         Translator const& tr,
+                        Allocators & allocators,
                         size_t relative_level)
-        : base(root, leafs_level, element, tr, relative_level)
+        : base(root, leafs_level, element, tr, allocators, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -257,11 +259,11 @@ struct level_insert
     }
 };
 
-template <size_t InsertIndex, typename Value, typename Options, typename Translator, typename Box>
-struct level_insert<InsertIndex, Value, Value, Options, Translator, Box>
-    : public level_insert_base<InsertIndex, Value, Value, Options, Translator, Box>
+template <size_t InsertIndex, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocators>
+    : public level_insert_base<InsertIndex, Value, Value, Options, Translator, Box, Allocators>
 {
-    typedef level_insert_base<InsertIndex, Value, Value, Options, Translator, Box> base;
+    typedef level_insert_base<InsertIndex, Value, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -270,8 +272,9 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box>
                         size_t & leafs_level,
                         Value const& v,
                         Translator const& t,
+                        Allocators & allocators,
                         size_t relative_level)
-        : base(root, leafs_level, v, t, relative_level)
+        : base(root, leafs_level, v, t, allocators, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -303,11 +306,11 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box>
     }
 };
 
-template <typename Value, typename Options, typename Translator, typename Box>
-struct level_insert<0, Value, Value, Options, Translator, Box>
-    : public level_insert_base<0, Value, Value, Options, Translator, Box>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
+    : public level_insert_base<0, Value, Value, Options, Translator, Box, Allocators>
 {
-    typedef level_insert_base<0, Value, Value, Options, Translator, Box> base;
+    typedef level_insert_base<0, Value, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
@@ -316,8 +319,9 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
                         size_t & leafs_level,
                         Value const& v,
                         Translator const& t,
+                        Allocators & allocators,
                         size_t relative_level)
-        : base(root, leafs_level, v, t, relative_level)
+        : base(root, leafs_level, v, t, allocators, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -349,8 +353,8 @@ struct level_insert<0, Value, Value, Options, Translator, Box>
 } // namespace detail
 
 // R*-tree insert visitor
-template <typename Element, typename Value, typename Options, typename Translator, typename Box>
-class insert<Element, Value, Options, Translator, Box, insert_reinsert_tag>
+template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+class insert<Element, Value, Options, Translator, Box, Allocators, insert_reinsert_tag>
 	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
 	, index::nonassignable
 {
@@ -364,17 +368,18 @@ public:
 				  size_t & leafs_level,
 				  Element const& element,
 				  Translator const& tr,
+                  Allocators & allocators,
 				  size_t relative_level = 0)
 		: m_root(root), m_leafs_level(leafs_level), m_element(element)
-		, m_tr(tr), m_relative_level(relative_level)
+		, m_tr(tr), m_relative_level(relative_level), m_allocators(allocators)
 	{}
 
 	inline void operator()(internal_node & BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(n))
 	{
 		BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root), "current node should be the root");
 		
-		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
-			m_root, m_leafs_level, m_element, m_tr, m_relative_level);
+		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
+			m_root, m_leafs_level, m_element, m_tr, m_allocators, m_relative_level);
 
 		rtree::apply_visitor(lins_v, *m_root);
 
@@ -388,8 +393,8 @@ public:
 	{
 		BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<leaf>(m_root), "current node should be the root");
 
-		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box> lins_v(
-			m_root, m_leafs_level, m_element, m_tr, m_relative_level);
+		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
+			m_root, m_leafs_level, m_element, m_tr, m_allocators, m_relative_level);
 
 		rtree::apply_visitor(lins_v, *m_root);
 
@@ -407,8 +412,8 @@ private:
 		for ( typename Elements::const_reverse_iterator it = elements.rbegin();
 			it != elements.rend(); ++it)
 		{
-			detail::rstar::level_insert<1, element_type, Value, Options, Translator, Box> lins_v(
-				m_root, m_leafs_level, *it, m_tr, relative_level);
+			detail::rstar::level_insert<1, element_type, Value, Options, Translator, Box, Allocators> lins_v(
+				m_root, m_leafs_level, *it, m_tr, m_allocators, relative_level);
 
 			rtree::apply_visitor(lins_v, *m_root);
 
@@ -427,6 +432,8 @@ private:
 	Element const& m_element;
 	Translator const& m_tr;
 	size_t m_relative_level;
+
+    Allocators m_allocators;
 };
 
 }}} // namespace detail::rtree::visitors

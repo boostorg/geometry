@@ -18,11 +18,11 @@
 
 namespace boost { namespace geometry { namespace index {
 
-template <typename Value, typename Options, typename Translator>
+template <typename Value, typename Options, typename Translator, typename Allocator>
 class rtree;
 
-template <typename Value, typename Options, typename Translator>
-class query_filter< index::rtree<Value, Options, Translator> >
+template <typename Value, typename Options, typename Translator, typename Allocator>
+class query_filter< index::rtree<Value, Options, Translator, Allocator> >
 {
 public:
     typedef std::vector<Value> result_type;
@@ -31,7 +31,7 @@ public:
     
     template <typename Predicates>
     inline query_filter(
-        index::rtree<Value, Options, Translator> const& rtree,
+        index::rtree<Value, Options, Translator, Allocator> const& rtree,
         Predicates const& pred
     )
     {
@@ -47,8 +47,8 @@ private:
     result_type m_result;
 };
 
-template <typename Value, typename Options, typename Translator>
-class nearest_filter< index::rtree<Value, Options, Translator> >
+template <typename Value, typename Options, typename Translator, typename Allocator>
+class nearest_filter< index::rtree<Value, Options, Translator, Allocator> >
 {
 public:
     typedef std::vector<Value> result_type;
@@ -57,7 +57,7 @@ public:
 
     template <typename DistancesPredicates, typename Predicates>
     inline nearest_filter(
-        index::rtree<Value, Options, Translator> const& rtree,
+        index::rtree<Value, Options, Translator, Allocator> const& rtree,
         DistancesPredicates const& dpred,
         size_t k,
         Predicates const& pred
