@@ -32,6 +32,7 @@ struct rstar_tag {};
 struct node_default_tag {};
 struct node_default_variant_tag {};
 struct node_default_static_tag {};
+struct node_default_static_variant_tag {};
 
 // TODO: awulkiew - implement those:
 //if ( m_min_elems_per_node < 1 )

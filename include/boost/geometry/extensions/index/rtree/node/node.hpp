@@ -14,5 +14,6 @@
 #include <boost/geometry/extensions/index/rtree/node/node_default_variant.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node_default_static.hpp>
+#include <boost/geometry/extensions/index/rtree/node/node_default_static_variant.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_HPP

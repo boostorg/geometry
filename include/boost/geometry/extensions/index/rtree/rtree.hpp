@@ -274,6 +274,7 @@ private:
     {
         detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type> del_v;
         detail::rtree::apply_visitor(del_v, *t.m_root);
+        detail::rtree::delete_node(t.m_root);
 
         t.m_root = 0;
         t.m_values_count = 0;

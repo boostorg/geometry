@@ -31,14 +31,12 @@ struct destroy : public rtree::visitor<Value, typename Options::parameters_type,
             it != elements.end(); ++it)
         {
             rtree::apply_visitor(*this, *it->second);
+            rtree::delete_node(it->second);
         }
-
-        rtree::delete_node(&n);
     }
 
     inline void operator()(leaf &n)
     {
-        rtree::delete_node(&n);
     }
 };
 

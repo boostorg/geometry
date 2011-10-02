@@ -21,7 +21,10 @@ struct internal_node_poly<Value, Parameters, Box, node_default_static_tag>
 	: public node_poly<Value, Parameters, Box, node_default_static_tag>
 {
     typedef index::pushable_array<
-        std::pair<Box, node_poly<Value, Parameters, Box, node_default_static_tag> *>,
+        std::pair<
+            Box,
+            node_poly<Value, Parameters, Box, node_default_static_tag> *
+        >,
 		Parameters::max_elements + 1
     > elements_type;
 
