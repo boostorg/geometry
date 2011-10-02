@@ -27,6 +27,8 @@
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
+#include <boost/geometry/extensions/index/algorithms/is_valid.hpp>
+
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/remove.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/copy.hpp>
@@ -123,10 +125,16 @@ public:
 
     inline void insert(value_type const& value)
     {
-        // TODO: awulkiew - assert for correct value
+        BOOST_GEOMETRY_INDEX_ASSERT(index::is_valid(m_translator(value)), "Indexable is invalid");
 
-        detail::rtree::visitors::insert<value_type, value_type, options_type, translator_type, box_type, typename options_type::insert_tag>
-            insert_v(m_root, m_leafs_level, value, m_translator);
+        detail::rtree::visitors::insert<
+            value_type,
+            value_type,
+            options_type,
+            translator_type,
+            box_type,
+            typename options_type::insert_tag
+        > insert_v(m_root, m_leafs_level, value, m_translator);
 
         detail::rtree::apply_visitor(insert_v, *m_root);
 
@@ -142,12 +150,16 @@ public:
 
     inline void remove(value_type const& value)
     {
-        // TODO: awulkiew - assert for correct value
+        // TODO: awulkiew - assert for correct value (indexable) ?
 
         BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there is no elements in the rtree");
 
-        detail::rtree::visitors::remove<value_type, options_type, translator_type, box_type>
-            remove_v(m_root, m_leafs_level, value, m_translator);
+        detail::rtree::visitors::remove<
+            value_type,
+            options_type,
+            translator_type,
+            box_type
+        > remove_v(m_root, m_leafs_level, value, m_translator);
 
         detail::rtree::apply_visitor(remove_v, *m_root);
 
@@ -253,8 +265,6 @@ public:
 private:
     inline void create()
     {
-        // TODO: awulkiew - consider moving create_node into the insert visitor
-        //                  and here setting m_root to 0
         m_root = detail::rtree::create_node(leaf());
         m_values_count = 0;
         m_leafs_level = 0;
@@ -264,11 +274,6 @@ private:
     {
         detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type> del_v;
         detail::rtree::apply_visitor(del_v, *t.m_root);
-
-        // TODO: awulkiew - consider moving this into the destroy visitor
-        //                  but have in mind that visitors works on references
-        //                  and address from reference would be passed here
-        detail::rtree::delete_node(t.m_root);
 
         t.m_root = 0;
         t.m_values_count = 0;

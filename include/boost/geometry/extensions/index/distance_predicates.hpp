@@ -347,14 +347,22 @@ struct cdist_value<
     template <typename Tag2>
     static inline type & get(cdist<T, Tag> & cd)
     {
-        // TODO MPL_ASSERT tuples::equal<CDist, cdist<T, Tag>>::value
+        BOOST_MPL_ASSERT_MSG(
+            (tuples::equal< cdist<T, Tag2>, cdist<T, Tag> >::value),
+            TAGS_DO_NOT_MATCH,
+            (cdist_value));
+
         return cd.value;
     }
 
     template <typename Tag2>
     static inline type const& get(cdist<T, Tag> const& cd)
     {
-        // TODO MPL_ASSERT tuples::equal<CDist, cdist<T, Tag>>::value
+        BOOST_MPL_ASSERT_MSG(
+            (tuples::equal< cdist<T, Tag2>, cdist<T, Tag> >::value),
+            TAGS_DO_NOT_MATCH,
+            (cdist_value));
+
         return cd.value;
     }
 };
@@ -368,7 +376,10 @@ namespace detail {
 template <typename RelDist>
 struct distances_calc_impl_rel
 {
-    // TODO MPL_ASSERT not implemented for this RelDist
+    BOOST_MPL_ASSERT_MSG(
+        (false),
+        NOT_IMPLEMENTED_FOR_THIS_RELATION,
+        (distances_calc_impl_rel));
 };
 
 template <typename T>
@@ -603,11 +614,8 @@ struct distances_calc<
 
 // distances_predicates_check
 
-// TODO explicitly define DistanceType ?
-// Indexable/Box is used in distances_predicates_check only for purpose of
-// this explicit DistanceType definition
-
-// move distance_calc and distance_comp into geometry::index ?
+// TODO explicitly define Distances type ?
+// TODO move distance_calc and distance_comp into geometry::index ?
 
 template <typename PointRelation, typename Indexable, typename Tag>
 struct distances_predicates_check

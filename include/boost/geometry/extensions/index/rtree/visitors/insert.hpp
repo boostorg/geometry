@@ -184,6 +184,7 @@ protected:
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_relative_level <= leafs_level, "unexpected level value");
         BOOST_GEOMETRY_INDEX_ASSERT(m_level <= m_leafs_level, "unexpected level value");
+        BOOST_GEOMETRY_INDEX_ASSERT(0 != m_root_node, "there is no root node");
         // TODO
         // assert - check if Box is correct
     }
