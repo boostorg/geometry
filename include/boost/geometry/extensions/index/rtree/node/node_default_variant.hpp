@@ -147,6 +147,27 @@ element_indexable(std::pair<
     return el.first;
 }
 
+// allocators
+
+template <typename Value, typename Parameters, typename Box, typename Allocator>
+struct allocators<Value, Parameters, Box, node_default_variant_tag, Allocator>
+{
+    typedef Allocator allocator_type;
+    typedef typename allocator_type::size_type size_type;
+
+    typedef typename allocator_type::template rebind<
+        typename node<Value, Parameters, Box, node_default_variant_tag>::type
+    >::other node_allocator_type;
+
+    inline explicit allocators(Allocator alloc)
+        : allocator(alloc)
+        , node_allocator(allocator)
+    {}
+
+    allocator_type allocator;
+    node_allocator_type node_allocator;
+};
+
 // create_node
 
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
@@ -155,10 +176,20 @@ struct create_node<
     internal_node_variant<Value, Parameters, Box, Tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
+    static inline typename node<Value, Parameters, Box, Tag>::type *
+    apply(Allocators & allocators)
     {
-        return new typename node<Value, Parameters, Box, Tag>::type(
-            internal_node_variant<Value, Parameters, Box, Tag>() );
+        /*return new typename node<Value, Parameters, Box, Tag>::type(
+            internal_node_variant<Value, Parameters, Box, Tag>() );*/
+
+        typename node<Value, Parameters, Box, Tag>::type * p
+            = allocators.node_allocator.allocate(1);
+
+        allocators.node_allocator.construct(
+            p,
+            internal_node_variant<Value, Parameters, Box, Tag>());
+
+        return p;
     }
 };
 
@@ -170,8 +201,17 @@ struct create_node<
 {
     static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
     {
-        return new typename node<Value, Parameters, Box, Tag>::type(
-            leaf_variant<Value, Parameters, Box, Tag>() );
+        /*return new typename node<Value, Parameters, Box, Tag>::type(
+            leaf_variant<Value, Parameters, Box, Tag>() );*/
+
+        typename node<Value, Parameters, Box, Tag>::type * p
+            = allocators.node_allocator.allocate(1);
+
+        allocators.node_allocator.construct(
+            p,
+            leaf_variant<Value, Parameters, Box, Tag>());
+
+        return p;
     }
 };
 
@@ -185,7 +225,10 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
     {
-        delete n;
+        //delete n;
+
+        allocators.node_allocator.destroy(n);
+        allocators.node_allocator.deallocate(n, 1);
     }
 };
 
@@ -197,7 +240,10 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
     {
-        delete n;
+        //delete n;
+
+        allocators.node_allocator.destroy(n);
+        allocators.node_allocator.deallocate(n, 1);
     }
 };
 

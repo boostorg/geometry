@@ -71,6 +71,27 @@ struct visitor<Value, Parameters, Box, node_default_static_variant_tag, IsVisita
     typedef static_visitor<> type;
 };
 
+// allocators
+
+template <typename Value, typename Parameters, typename Box, typename Allocator>
+struct allocators<Value, Parameters, Box, node_default_static_variant_tag, Allocator>
+{
+    typedef Allocator allocator_type;
+    typedef typename allocator_type::size_type size_type;
+
+    typedef typename allocator_type::template rebind<
+        typename node<Value, Parameters, Box, node_default_static_variant_tag>::type
+    >::other node_allocator_type;
+
+    inline explicit allocators(Allocator alloc)
+        : allocator(alloc)
+        , node_allocator(allocator)
+    {}
+
+    allocator_type allocator;
+    node_allocator_type node_allocator;
+};
+
 }} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index

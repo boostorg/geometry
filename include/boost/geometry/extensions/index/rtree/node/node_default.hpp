@@ -253,7 +253,15 @@ struct create_node<
 {
     static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
     {
-        return new internal_node_poly<Value, Parameters, Box, Tag>();
+        //return new internal_node_poly<Value, Parameters, Box, Tag>();
+        internal_node_poly<Value, Parameters, Box, Tag> * p
+            = allocators.internal_node_allocator.allocate(1);
+
+        allocators.internal_node_allocator.construct(
+            p,
+            internal_node_poly<Value, Parameters, Box, Tag>());
+
+        return p;
     }
 };
 
@@ -265,7 +273,16 @@ struct create_node<
 {
     static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
     {
-        return new leaf_poly<Value, Parameters, Box, Tag>();
+        //return new leaf_poly<Value, Parameters, Box, Tag>();
+
+        leaf_poly<Value, Parameters, Box, Tag> * p
+            = allocators.leaf_allocator.allocate(1);
+
+        allocators.leaf_allocator.construct(
+            p,
+            leaf_poly<Value, Parameters, Box, Tag>());
+
+        return p;
     }
 };
 
@@ -288,7 +305,12 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
     {
-        delete n;
+        //delete n;
+
+        internal_node_poly<Value, Parameters, Box, Tag> * p
+            = rtree::get< internal_node_poly<Value, Parameters, Box, Tag> >(n);
+        allocators.internal_node_allocator.destroy(p);
+        allocators.internal_node_allocator.deallocate(p, 1);
     }
 };
 
@@ -300,12 +322,14 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
     {
-        delete n;
+        //delete n;
+
+        leaf_poly<Value, Parameters, Box, Tag> * p
+            = rtree::get< leaf_poly<Value, Parameters, Box, Tag> >(n);
+        allocators.leaf_allocator.destroy(p);
+        allocators.leaf_allocator.deallocate(p, 1);
     }
 };
-
-// To delete variant node one must pass node *
-// To delete poly node one must pass internal_node or leaf
 
 }} // namespace detail::rtree
 
