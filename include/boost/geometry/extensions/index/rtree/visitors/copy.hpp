@@ -18,13 +18,13 @@ namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class copy
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
     , boost::noncopyable
 {
 public:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     explicit inline copy(Allocators & allocators)
         : result(0)

@@ -141,18 +141,19 @@ template <
     typename Options,
     typename Translator,
     typename Box,
+    typename Allocators,
     typename DistancesPredicates,
     typename Predicates,
     typename Result
 >
 class nearest
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
     , index::nonassignable
 {
 public:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef index::detail::distances_calc<DistancesPredicates, Box, rtree::node_tag> node_distances_calc;
     typedef typename node_distances_calc::result_type node_distances_type;

@@ -59,8 +59,6 @@ namespace boost { namespace geometry { namespace index {
 // TODO change remove() to erase() or just add erase() ?
 // erase works on iterators of this container so this may be confusing with remove(ValIt, ValIt)
 
-// TODO delete unneeded nodes types (using vectors) and change the name of currently used one to node_default
-
 template <
     typename Value,
     typename Parameters,
@@ -75,17 +73,17 @@ public:
     typedef Translator translator_type;
     typedef typename translator_type::indexable_type indexable_type;
     typedef typename index::default_box_type<indexable_type>::type box_type;
-    
+
     typedef typename detail::rtree::options_type<Parameters>::type options_type;
     typedef typename options_type::node_tag node_tag;
 
-    typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, node_tag>::type node;
-    typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, node_tag>::type internal_node;
-    typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, node_tag>::type leaf;
-
     typedef Allocator allocator_type;
-    typedef typename detail::rtree::allocators<value_type, typename options_type::parameters_type, box_type, node_tag, allocator_type>::type allocators_type;
+    typedef typename detail::rtree::allocators<allocator_type, value_type, typename options_type::parameters_type, box_type, node_tag>::type allocators_type;
     typedef typename allocators_type::size_type size_type;
+
+    typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type node;
+    typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type internal_node;
+    typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
 
     inline explicit rtree(translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
         : m_values_count(0)
@@ -220,7 +218,7 @@ public:
     template <typename Predicates, typename OutIter>
     inline size_type query(Predicates const& pred, OutIter out_it) const
     {
-        detail::rtree::visitors::query<value_type, options_type, translator_type, box_type, Predicates, OutIter>
+        detail::rtree::visitors::query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
             find_v(m_translator, pred, out_it);
 
         detail::rtree::apply_visitor(find_v, *m_root);
@@ -277,7 +275,7 @@ public:
             return result;
         }
 
-        detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type>
+        detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type, allocators_type>
             children_box_v(m_translator);
 
         detail::rtree::apply_visitor(children_box_v, *m_root);
@@ -356,6 +354,7 @@ private:
             options_type,
             translator_type,
             box_type,
+            allocators_type,
             DistancesPredicates,
             Predicates,
             result_type
@@ -385,6 +384,7 @@ private:
             options_type,
             translator_type,
             box_type,
+            allocators_type,
             DistancesPredicates,
             Predicates,
             result_type

@@ -93,11 +93,11 @@ inline void gl_draw_indexable(Indexable const& i, typename index::traits::coordi
 
 } // namespace detail
 
-template <typename Value, typename Options, typename Translator, typename Box>
-struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
 {
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     inline gl_draw(Translator const& t,
                    size_t level_first = 0,
@@ -186,21 +186,24 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Options, typename Translator>
-void gl_draw(rtree<Value, Options, Translator> const& tree,
+template <typename Value, typename Options, typename Translator, typename Allocator>
+void gl_draw(rtree<Value, Options, Translator, Allocator> const& tree,
              size_t level_first = 0,
              size_t level_last = std::numeric_limits<size_t>::max(),
              typename index::traits::coordinate_type<
-                    typename rtree<Value, Options, Translator>::box_type
+                    typename rtree<Value, Options, Translator, Allocator>::box_type
                 >::type z_coord_level_multiplier = 1
              )
 {
-    typedef typename rtree<Value, Options, Translator>::value_type value_type;
-    typedef typename rtree<Value, Options, Translator>::options_type options_type;
-    typedef typename rtree<Value, Options, Translator>::translator_type translator_type;
-    typedef typename rtree<Value, Options, Translator>::box_type box_type;
+    typedef rtree<Value, Options, Translator, Allocator> rtree_type;
 
-    detail::rtree::visitors::gl_draw<value_type, options_type, translator_type, box_type>
+    typedef typename rtree_type::value_type value_type;
+    typedef typename rtree_type::options_type options_type;
+    typedef typename rtree_type::translator_type translator_type;
+    typedef typename rtree_type::box_type box_type;
+    typedef typename rtree_type::allocators_type allocators_type;
+
+    detail::rtree::visitors::gl_draw<value_type, options_type, translator_type, box_type, allocators_type>
         gl_draw_v(tree.translator(), level_first, level_last, z_coord_level_multiplier);
 
     tree.apply_visitor(gl_draw_v);

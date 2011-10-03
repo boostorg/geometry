@@ -17,13 +17,13 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class are_boxes_ok
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, true>::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
     , index::nonassignable
 {
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
     inline are_boxes_ok(Translator const& tr)
@@ -109,15 +109,17 @@ private:
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Options, typename Translator>
-bool are_boxes_ok(rtree<Value, Options, Translator> const& tree)
+template <typename Value, typename Options, typename Translator, typename Allocator>
+bool are_boxes_ok(rtree<Value, Options, Translator, Allocator> const& tree)
 {
-    typedef rtree<Value, Options, Translator> rt;
+    typedef rtree<Value, Options, Translator, Allocator> rt;
     detail::rtree::visitors::are_boxes_ok<
         typename rt::value_type,
         typename rt::options_type,
         typename rt::translator_type,
-        typename rt::box_type> v(tree.translator());
+        typename rt::box_type,
+        typename rt::allocators_type
+    > v(tree.translator());
     
     tree.apply_visitor(v);
 

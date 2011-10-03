@@ -308,12 +308,12 @@ struct partial_sort<Corner, 1>
 
 } // namespace rstar
 
-template <typename Value, typename Options, typename Translator, typename Box>
-struct redistribute_elements<Value, Options, Translator, Box, rstar_tag>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_tag>
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 	typedef typename Options::parameters_type parameters_type;
 

@@ -21,15 +21,15 @@ namespace detail { namespace rtree { namespace visitors {
 namespace detail {
 
 // Default choose_next_node
-template <typename Value, typename Options, typename Box, typename ChooseNextNodeTag>
+template <typename Value, typename Options, typename Box, typename Allocators, typename ChooseNextNodeTag>
 struct choose_next_node;
 
-template <typename Value, typename Options, typename Box>
-struct choose_next_node<Value, Options, Box, choose_by_content_diff_tag>
+template <typename Value, typename Options, typename Box, typename Allocators>
+struct choose_next_node<Value, Options, Box, Allocators, choose_by_content_diff_tag>
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
 
@@ -80,28 +80,28 @@ struct choose_next_node<Value, Options, Box, choose_by_content_diff_tag>
 // ----------------------------------------------------------------------- //
 
 // Not implemented here
-template <typename Value, typename Options, typename Translator, typename Box, typename RedistributeTag>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename RedistributeTag>
 struct redistribute_elements;
 
 // ----------------------------------------------------------------------- //
 
 // Split algorithm
-template <typename Value, typename Options, typename Translator, typename Box, typename SplitTag>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename SplitTag>
 class split;
 
 // Default split algorithm
-template <typename Value, typename Options, typename Translator, typename Box>
-class split<Value, Options, Translator, Box, split_default_tag>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+class split<Value, Options, Translator, Box, Allocators, split_default_tag>
 {
 protected:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Options::parameters_type parameters_type;
 
 public:
-    template <typename Node, typename Allocators>
+    template <typename Node>
     static inline void apply(node* & root_node,
                              size_t & leafs_level,
                              Node & n,
@@ -116,7 +116,7 @@ public:
 
         // redistribute elements
         Box box1, box2;
-        redistribute_elements<Value, Options, Translator, Box, typename Options::redistribute_tag>::
+        redistribute_elements<Value, Options, Translator, Box, Allocators, typename Options::redistribute_tag>::
             apply(n, n2, box1, box2, tr);
 
         // check numbers of elements
@@ -157,13 +157,13 @@ public:
 // Default insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class insert
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
     , index::nonassignable
 {
 protected:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Options::parameters_type parameters_type;
 
@@ -196,7 +196,7 @@ protected:
     inline void traverse(Visitor & visitor, internal_node & n)
     {
         // choose next node
-        size_t choosen_node_index = detail::choose_next_node<Value, Options, Box, typename Options::choose_next_node_tag>::
+        size_t choosen_node_index = detail::choose_next_node<Value, Options, Box, Allocators, typename Options::choose_next_node_tag>::
             apply(n, rtree::element_indexable(m_element, m_tr), m_leafs_level - m_current_level);
 
         // expand the node to contain value
@@ -248,7 +248,7 @@ protected:
     template <typename Node>
     inline void split(Node & n) const
     {
-        detail::split<Value, Options, Translator, Box, typename Options::split_tag>::apply(m_root_node, m_leafs_level, n, m_parent, m_current_child_index, m_tr, m_allocators);
+        detail::split<Value, Options, Translator, Box, Allocators, typename Options::split_tag>::apply(m_root_node, m_leafs_level, n, m_parent, m_current_child_index, m_tr, m_allocators);
     }
 
     // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation

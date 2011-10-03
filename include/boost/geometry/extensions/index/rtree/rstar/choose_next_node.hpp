@@ -27,12 +27,12 @@ namespace detail { namespace rtree { namespace visitors {
 
 namespace detail {
 
-template <typename Value, typename Options, typename Box>
-class choose_next_node<Value, Options, Box, choose_by_overlap_diff_tag>
+template <typename Value, typename Options, typename Box, typename Allocators>
+class choose_next_node<Value, Options, Box, Allocators, choose_by_overlap_diff_tag>
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
 	typedef typename children_type::value_type child_type;

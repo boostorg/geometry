@@ -12,81 +12,91 @@
 
 #include <vector>
 
-#include <boost/geometry/algorithms/expand.hpp>
-
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
 
 // visitor forward declaration
-template <typename Value, typename Parameters, typename Box, typename Tag, bool IsVisitableConst>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, bool IsVisitableConst>
 struct visitor_poly;
 
 // nodes types
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct node_poly
 {
     virtual ~node_poly() {}
-    virtual void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, false> &) = 0;
-    virtual void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, true> &) const = 0;
+    virtual void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, Tag, false> &) = 0;
+    virtual void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, Tag, true> &) const = 0;
 };
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
-struct internal_node_poly : public node_poly<Value, Parameters, Box, Tag>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
+struct internal_node_poly : public node_poly<Value, Parameters, Box, Allocators, Tag>
 {
     typedef std::vector<
-        std::pair<Box, node_poly<Value, Parameters, Box, Tag> *>
+        std::pair<Box, node_poly<Value, Parameters, Box, Allocators, Tag> *>,
+        typename Allocators::internal_node_elements_allocator_type
     > elements_type;
 
-    void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, false> & v) { v(*this); }
-    void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, true> & v) const { v(*this); }
+    inline internal_node_poly(typename Allocators::internal_node_elements_allocator_type & al)
+        : elements(al)
+    {}
+
+    void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, Tag, false> & v) { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, Tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
-struct leaf_poly : public node_poly<Value, Parameters, Box, Tag>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
+struct leaf_poly : public node_poly<Value, Parameters, Box, Allocators, Tag>
 {
-    typedef std::vector<Value> elements_type;
+    typedef std::vector<
+        Value,
+        typename Allocators::leaf_elements_allocator_type
+    > elements_type;
 
-    void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, false> & v) { v(*this); }
-    void apply_visitor(visitor_poly<Value, Parameters, Box, Tag, true> & v) const { v(*this); }
+    inline leaf_poly(typename Allocators::leaf_elements_allocator_type & al)
+        : elements(al)
+    {}
+
+    void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, Tag, false> & v) { v(*this); }
+    void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, Tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
 
 // nodes traits
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct node
 {
-    typedef node_poly<Value, Parameters, Box, Tag> type;
+    typedef node_poly<Value, Parameters, Box, Allocators, Tag> type;
 };
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct internal_node
 {
-    typedef internal_node_poly<Value, Parameters, Box, Tag> type;
+    typedef internal_node_poly<Value, Parameters, Box, Allocators, Tag> type;
 };
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct leaf
 {
-    typedef leaf_poly<Value, Parameters, Box, Tag> type;
+    typedef leaf_poly<Value, Parameters, Box, Allocators, Tag> type;
 };
 
 // nodes conversion
 
-template <typename Derived, typename Parameters, typename Value, typename Box, typename Tag>
-inline Derived & get(node_poly<Value, Parameters, Box, Tag> & n)
+template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
+inline Derived & get(node_poly<Value, Parameters, Box, Allocators, Tag> & n)
 {
     assert(dynamic_cast<Derived*>(&n));
     return static_cast<Derived&>(n);
 }
 
-template <typename Derived, typename Parameters, typename Value, typename Box, typename Tag>
-inline Derived * get(node_poly<Value, Parameters, Box, Tag> * n)
+template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
+inline Derived * get(node_poly<Value, Parameters, Box, Allocators, Tag> * n)
 {
     assert(dynamic_cast<Derived*>(n));
     return static_cast<Derived*>(n);
@@ -94,11 +104,11 @@ inline Derived * get(node_poly<Value, Parameters, Box, Tag> * n)
 
 // visitor
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
-struct visitor_poly<Value, Parameters, Box, Tag, true>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
+struct visitor_poly<Value, Parameters, Box, Allocators, Tag, true>
 {
-    typedef typename internal_node<Value, Parameters, Box, Tag>::type internal_node;
-    typedef typename leaf<Value, Parameters, Box, Tag>::type leaf;
+    typedef typename internal_node<Value, Parameters, Box, Allocators, Tag>::type internal_node;
+    typedef typename leaf<Value, Parameters, Box, Allocators, Tag>::type leaf;
 
     virtual ~visitor_poly() {}
 
@@ -106,11 +116,11 @@ struct visitor_poly<Value, Parameters, Box, Tag, true>
     virtual void operator()(leaf const&) = 0;
 };
 
-template <typename Value, typename Parameters, typename Box, typename Tag>
-struct visitor_poly<Value, Parameters, Box, Tag, false>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
+struct visitor_poly<Value, Parameters, Box, Allocators, Tag, false>
 {
-    typedef typename internal_node<Value, Parameters, Box, Tag>::type internal_node;
-    typedef typename leaf<Value, Parameters, Box, Tag>::type leaf;
+    typedef typename internal_node<Value, Parameters, Box, Allocators, Tag>::type internal_node;
+    typedef typename leaf<Value, Parameters, Box, Allocators, Tag>::type leaf;
 
     virtual ~visitor_poly() {}
 
@@ -120,10 +130,10 @@ struct visitor_poly<Value, Parameters, Box, Tag, false>
 
 // visitor traits
 
-template <typename Value, typename Parameters, typename Box, typename Tag, bool IsVisitableConst>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, bool IsVisitableConst>
 struct visitor
 {
-    typedef visitor_poly<Value, Parameters, Box, Tag, IsVisitableConst> type;
+    typedef visitor_poly<Value, Parameters, Box, Allocators, Tag, IsVisitableConst> type;
 };
 
 template <typename Visitor, typename Visitable>
@@ -140,9 +150,9 @@ struct element_indexable_type
 	typedef typename Translator::indexable_type type;
 };
 
-template <typename Value, typename Parameters, typename Box, typename Tag, typename Translator>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
 struct element_indexable_type<
-    std::pair<Box, node_poly<Value, Parameters, Box, Tag> *>,
+    std::pair<Box, node_poly<Value, Parameters, Box, Allocators, Tag> *>,
     Translator
 >
 {
@@ -158,10 +168,10 @@ element_indexable(Value const& el, Translator const& tr)
 	return tr(el);
 }
 
-template <typename Value, typename Parameters, typename Box, typename Tag, typename Translator>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
 inline Box const&
 element_indexable(
-    std::pair< Box, node_poly<Value, Parameters, Box, Tag> *> const& el,
+    std::pair< Box, node_poly<Value, Parameters, Box, Allocators, Tag> *> const& el,
     Translator const&)
 {
     return el.first;
@@ -189,79 +199,73 @@ elements(Node const& n)
 	return n.elements;
 }
 
-// elements box
-
-template <typename Box, typename FwdIter, typename Translator>
-inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
-{
-    BOOST_GEOMETRY_INDEX_ASSERT(first != last, "Can't calculate element's box");
-
-	Box result;
-
-	geometry::convert(element_indexable(*first, tr), result);
-	++first;
-
-	for ( ; first != last ; ++first )
-		geometry::expand(result, element_indexable(*first, tr));
-
-	return result;
-}
-
 // allocators
 
-template <typename Value, typename Parameters, typename Box, typename Tag, typename Allocator>
+template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>
 struct allocators_poly
 {
     typedef Allocator allocator_type;
     typedef typename allocator_type::size_type size_type;
 
     typedef typename allocator_type::template rebind<
-        typename internal_node<Value, Parameters, Box, Tag>::type
+        typename internal_node<Value, Parameters, Box, allocators_poly, Tag>::type
     >::other internal_node_allocator_type;
 
     typedef typename allocator_type::template rebind<
-        typename leaf<Value, Parameters, Box, Tag>::type
+        typename leaf<Value, Parameters, Box, allocators_poly, Tag>::type
     >::other leaf_allocator_type;
+
+    typedef typename allocator_type::template rebind<
+        std::pair<Box, node_poly<Value, Parameters, Box, allocators_poly, Tag> *>
+    >::other internal_node_elements_allocator_type;
+
+    typedef typename allocator_type::template rebind<
+        Value
+    >::other leaf_elements_allocator_type;
 
     inline explicit allocators_poly(Allocator alloc)
         : allocator(alloc)
         , internal_node_allocator(allocator)
         , leaf_allocator(allocator)
+        , internal_node_elements_allocator(allocator)
+        , leaf_elements_allocator(allocator)
     {}
 
     allocator_type allocator;
     internal_node_allocator_type internal_node_allocator;
     leaf_allocator_type leaf_allocator;
+    internal_node_elements_allocator_type internal_node_elements_allocator;
+    leaf_elements_allocator_type leaf_elements_allocator;
 };
 
 // allocators
 
-template <typename Value, typename Parameters, typename Box, typename Tag, typename Allocator>
+template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>
 struct allocators
 {
-    typedef allocators_poly<Value, Parameters, Box, Tag, Allocator> type;
+    typedef allocators_poly<Allocator, Value, Parameters, Box, Tag> type;
 };
 
-// create_node_poly
+// create_node_impl
 
-template <typename Allocator, typename Node>
+template <typename Node>
 struct create_node_poly
 {
-    template <typename RetNode>
-    static inline RetNode * apply(Allocator & allocator)
+    template <typename RetNode, typename AllocNode, typename AllocElems>
+    static inline RetNode * apply(AllocNode & alloc_node, AllocElems & alloc_elems)
     {
-        Node * p = allocator.allocate(1);
+        Node * p = alloc_node.allocate(1);
 
         if ( 0 == p )
             throw std::bad_alloc();
 
         try
         {
-            allocator.construct(p, Node());
+            alloc_node.construct(p, Node(alloc_elems));
         }
         catch(...)
         {
-            allocator.deallocate(p, 1);
+            alloc_node.deallocate(p, 1);
             throw;
         }
 
@@ -269,17 +273,17 @@ struct create_node_poly
     }
 };
 
-// destroy_node_poly
+// destroy_node_impl
 
-template <typename Allocator, typename Node>
+template <typename Node>
 struct destroy_node_poly
 {
-    template <typename BaseNode>
-    static inline void apply(Allocator & allocator, BaseNode * n)
+    template <typename AllocNode, typename BaseNode>
+    static inline void apply(AllocNode & alloc_node, BaseNode * n)
     {
         Node * p = rtree::get<Node>(n);
-        allocator.destroy(p);
-        allocator.deallocate(p, 1);
+        alloc_node.destroy(p);
+        alloc_node.deallocate(p, 1);
     }
 };
 
@@ -297,34 +301,34 @@ struct create_node
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct create_node<
     Allocators,
-    internal_node_poly<Value, Parameters, Box, Tag>
+    internal_node_poly<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
+    static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
+    apply(Allocators & allocators)
     {
         return create_node_poly<
-            typename Allocators::internal_node_allocator_type,
-            internal_node_poly<Value, Parameters, Box, Tag>
+            internal_node_poly<Value, Parameters, Box, Allocators, Tag>
         >::template apply<
-            typename node<Value, Parameters, Box, Tag>::type
-        >(allocators.internal_node_allocator);
+            typename node<Value, Parameters, Box, Allocators, Tag>::type
+        >(allocators.internal_node_allocator, allocators.internal_node_elements_allocator);
     }
 };
 
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct create_node<
     Allocators,
-    leaf_poly<Value, Parameters, Box, Tag>
+    leaf_poly<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
+    static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
+    apply(Allocators & allocators)
     {
         return create_node_poly<
-            typename Allocators::leaf_allocator_type,
-            leaf_poly<Value, Parameters, Box, Tag>
+            leaf_poly<Value, Parameters, Box, Allocators, Tag>
         >::template apply<
-            typename node<Value, Parameters, Box, Tag>::type
-        >(allocators.leaf_allocator);
+            typename node<Value, Parameters, Box, Allocators, Tag>::type
+        >(allocators.leaf_allocator, allocators.leaf_elements_allocator);
     }
 };
 
@@ -342,14 +346,13 @@ struct destroy_node
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct destroy_node<
     Allocators,
-    internal_node_poly<Value, Parameters, Box, Tag>
+    internal_node_poly<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
+    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
     {
         destroy_node_poly<
-            typename Allocators::internal_node_allocator_type,
-            internal_node_poly<Value, Parameters, Box, Tag>
+            internal_node_poly<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.internal_node_allocator, n);
     }
 };
@@ -357,14 +360,13 @@ struct destroy_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct destroy_node<
     Allocators,
-    leaf_poly<Value, Parameters, Box, Tag>
+    leaf_poly<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
+    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
     {
         destroy_node_poly<
-            typename Allocators::leaf_allocator_type,
-            leaf_poly<Value, Parameters, Box, Tag>
+            leaf_poly<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.leaf_allocator, n);
     }
 };

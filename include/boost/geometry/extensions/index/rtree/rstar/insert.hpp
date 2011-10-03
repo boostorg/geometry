@@ -20,13 +20,13 @@ namespace detail {
 
 namespace rstar {
 
-template <typename Value, typename Options, typename Translator, typename Box>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class remove_elements_to_reinsert
 {
 public:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 	typedef typename Options::parameters_type parameters_type;
 
@@ -103,19 +103,19 @@ private:
     }
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Box>
+template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Box, typename Allocators>
 struct level_insert_elements_type
 {
 	typedef typename rtree::elements_type<
-		typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type
+		typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type
 	>::type type;
 };
 
-template <typename Value, typename Options, typename Box>
-struct level_insert_elements_type<0, Value, Value, Options, Box>
+template <typename Value, typename Options, typename Box, typename Allocators>
+struct level_insert_elements_type<0, Value, Value, Options, Box, Allocators>
 {
 	typedef typename rtree::elements_type<
-		typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type
+		typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type
 	>::type type;
 };
 
@@ -128,7 +128,7 @@ struct level_insert_base
 	typedef typename base::internal_node internal_node;
 	typedef typename base::leaf leaf;
 
-	typedef typename level_insert_elements_type<InsertIndex, Element, Value, Options, Box>::type elements_type;
+	typedef typename level_insert_elements_type<InsertIndex, Element, Value, Options, Box, Allocators>::type elements_type;
 	typedef typename Options::parameters_type parameters_type;
 
 	inline level_insert_base(node* & root,
@@ -154,7 +154,7 @@ struct level_insert_base
 			// node isn't root node
 			if ( base::m_parent )
 			{
-				rstar::remove_elements_to_reinsert<Value, Options, Translator, Box>::apply(
+				rstar::remove_elements_to_reinsert<Value, Options, Translator, Box, Allocators>::apply(
 					result_elements, n,
 					base::m_parent, base::m_current_child_index,
 					base::m_tr);
@@ -355,13 +355,13 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
 // R*-tree insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class insert<Element, Value, Options, Translator, Box, Allocators, insert_reinsert_tag>
-	: public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+	: public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
 	, index::nonassignable
 {
 private:
-	typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-	typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-	typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+	typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+	typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+	typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
 	inline insert(node* & root,

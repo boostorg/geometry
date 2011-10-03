@@ -75,14 +75,14 @@ struct pick_seeds
 
 } // namespace quadratic
 
-template <typename Value, typename Options, typename Translator, typename Box>
-struct redistribute_elements<Value, Options, Translator, Box, quadratic_tag>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadratic_tag>
 {
 	typedef typename Options::parameters_type parameters_type;
 
-    typedef typename rtree::node<Value, parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename index::default_content_result<Box>::type content_type;
 

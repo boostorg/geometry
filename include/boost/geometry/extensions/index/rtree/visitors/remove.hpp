@@ -23,12 +23,12 @@ namespace detail { namespace rtree { namespace visitors {
 // Default remove algorithm
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class remove
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, typename Options::node_tag, false>::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
     , index::nonassignable
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, typename Options::node_tag>::type leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Options::parameters_type parameters_type;
 
@@ -114,7 +114,7 @@ public:
                 for ( typename std::vector< std::pair<size_t, node*> >::reverse_iterator it = m_underflowed_nodes.rbegin();
                         it != m_underflowed_nodes.rend() ; ++it )
                 {
-                    is_leaf<Value, Options, Box> ilv;
+                    is_leaf<Value, Options, Box, Allocators> ilv;
                     rtree::apply_visitor(ilv, *it->second);
                     if ( ilv.result )
                     {
