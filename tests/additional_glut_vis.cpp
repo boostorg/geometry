@@ -25,7 +25,8 @@ typedef bg::model::box<P> B;
 
 bgi::rtree<
     B,
-    bgi::rstar<4, 2> > t;
+    bgi::rstar<4, 2>
+> t;
 std::vector<B> vect;
 
 size_t found_count = 0;
@@ -51,9 +52,10 @@ void knn()
     nearest_boxes.clear();
     found_count = t.nearest(
         bgi::bounded(
-        search_point,
-        bgi::far(min_distance),
-        bgi::near(max_distance)),
+            search_point,
+            bgi::far(min_distance),
+            bgi::near(max_distance)
+        ),
         count,
         std::back_inserter(nearest_boxes)
         );

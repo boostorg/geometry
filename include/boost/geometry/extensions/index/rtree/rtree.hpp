@@ -59,6 +59,8 @@ namespace boost { namespace geometry { namespace index {
 // TODO change remove() to erase() or just add erase() ?
 // erase works on iterators of this container so this may be confusing with remove(ValIt, ValIt)
 
+// bgi::near and bgi::far conflicts with WINDOWS macros!!!
+
 template <
     typename Value,
     typename Parameters,
@@ -85,7 +87,7 @@ public:
     typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type internal_node;
     typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
 
-    inline explicit rtree(translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
+    inline explicit rtree(translator_type const& translator = translator_type(), Allocator allocator = Allocator())
         : m_values_count(0)
         , m_root(0)
         , m_leafs_level(0)

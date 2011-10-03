@@ -20,6 +20,12 @@
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 
+/*#include <boost/pool/pool_alloc.hpp>
+#undef near
+#undef far
+#undef min
+#undef max*/
+
 template <typename V>
 struct test_pred
 {
@@ -39,7 +45,12 @@ int main()
     //typedef bg::model::d2::point_xy<double> P;
     typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
-    typedef bgi::rtree<std::pair<B, size_t>, bgi::linear<32, 8> > RT;
+    typedef bgi::rtree<
+        std::pair<B, size_t>,
+        bgi::linear<32, 8>,
+        bgi::translator::def< std::pair<B, size_t> >/*,
+        boost::fast_pool_allocator< std::pair<B, size_t> >*/
+    > RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::quadratic<32, 8> > RT;
     //typedef bgi::rtree<std::pair<B, size_t>, bgi::rstar<32, 8> > RT;
     /*typedef bgi::rtree<
