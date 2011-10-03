@@ -149,8 +149,8 @@ element_indexable(std::pair<
 
 // allocators
 
-template <typename Value, typename Parameters, typename Box, typename Allocator>
-struct allocators<Value, Parameters, Box, node_default_variant_tag, Allocator>
+template <typename Value, typename Parameters, typename Box, typename Tag, typename Allocator>
+struct allocators_variant
 {
     typedef Allocator allocator_type;
     typedef typename allocator_type::size_type size_type;
@@ -159,13 +159,61 @@ struct allocators<Value, Parameters, Box, node_default_variant_tag, Allocator>
         typename node<Value, Parameters, Box, node_default_variant_tag>::type
     >::other node_allocator_type;
 
-    inline explicit allocators(Allocator alloc)
+    inline explicit allocators_variant(Allocator alloc)
         : allocator(alloc)
         , node_allocator(allocator)
     {}
 
     allocator_type allocator;
     node_allocator_type node_allocator;
+};
+
+// allocators
+
+template <typename Value, typename Parameters, typename Box, typename Allocator>
+struct allocators<Value, Parameters, Box, node_default_variant_tag, Allocator>
+{
+    typedef allocators_variant<Value, Parameters, Box, node_default_variant_tag, Allocator> type;
+};
+
+// create_node_variant
+
+template <typename Allocator, typename Node>
+struct create_node_variant
+{
+    template <typename RetNode>
+    static inline RetNode * apply(Allocator & allocator)
+    {
+        RetNode * p = allocator.allocate(1);
+
+        if ( 0 == p )
+            throw std::bad_alloc();
+
+        try
+        {
+            allocator.construct(p, Node());
+        }
+        catch(...)
+        {
+            allocator.deallocate(p, 1);
+            throw;
+        }
+
+        return p;
+    }
+};
+
+// destroy_node_variant
+
+template <typename Allocator, typename Node>
+struct destroy_node_variant
+{
+    template <typename BaseNode>
+    static inline void apply(Allocator & allocator, BaseNode * n)
+    {
+        allocator.destroy(n);
+        allocator.deallocate(n, 1);
+    }
 };
 
 // create_node
@@ -179,17 +227,12 @@ struct create_node<
     static inline typename node<Value, Parameters, Box, Tag>::type *
     apply(Allocators & allocators)
     {
-        /*return new typename node<Value, Parameters, Box, Tag>::type(
-            internal_node_variant<Value, Parameters, Box, Tag>() );*/
-
-        typename node<Value, Parameters, Box, Tag>::type * p
-            = allocators.node_allocator.allocate(1);
-
-        allocators.node_allocator.construct(
-            p,
-            internal_node_variant<Value, Parameters, Box, Tag>());
-
-        return p;
+        return create_node_variant<
+            typename Allocators::node_allocator_type,
+            internal_node_variant<Value, Parameters, Box, Tag>
+        >::template apply<
+            typename node<Value, Parameters, Box, Tag>::type
+        >(allocators.node_allocator);
     }
 };
 
@@ -201,17 +244,12 @@ struct create_node<
 {
     static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
     {
-        /*return new typename node<Value, Parameters, Box, Tag>::type(
-            leaf_variant<Value, Parameters, Box, Tag>() );*/
-
-        typename node<Value, Parameters, Box, Tag>::type * p
-            = allocators.node_allocator.allocate(1);
-
-        allocators.node_allocator.construct(
-            p,
-            leaf_variant<Value, Parameters, Box, Tag>());
-
-        return p;
+        return create_node_variant<
+            typename Allocators::node_allocator_type,
+            leaf_variant<Value, Parameters, Box, Tag>
+        >::template apply<
+            typename node<Value, Parameters, Box, Tag>::type
+        >(allocators.node_allocator);
     }
 };
 
@@ -225,10 +263,10 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
     {
-        //delete n;
-
-        allocators.node_allocator.destroy(n);
-        allocators.node_allocator.deallocate(n, 1);
+        destroy_node_variant<
+            typename Allocators::node_allocator_type,
+            internal_node_variant<Value, Parameters, Box, Tag>
+        >::apply(allocators.node_allocator, n);
     }
 };
 
@@ -240,10 +278,10 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
     {
-        //delete n;
-
-        allocators.node_allocator.destroy(n);
-        allocators.node_allocator.deallocate(n, 1);
+        destroy_node_variant<
+            typename Allocators::node_allocator_type,
+            leaf_variant<Value, Parameters, Box, Tag>
+        >::apply(allocators.node_allocator, n);
     }
 };
 

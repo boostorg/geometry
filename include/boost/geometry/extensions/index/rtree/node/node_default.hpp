@@ -210,7 +210,7 @@ inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
 // allocators
 
 template <typename Value, typename Parameters, typename Box, typename Tag, typename Allocator>
-struct allocators
+struct allocators_poly
 {
     typedef Allocator allocator_type;
     typedef typename allocator_type::size_type size_type;
@@ -223,7 +223,7 @@ struct allocators
         typename leaf<Value, Parameters, Box, Tag>::type
     >::other leaf_allocator_type;
 
-    inline explicit allocators(Allocator alloc)
+    inline explicit allocators_poly(Allocator alloc)
         : allocator(alloc)
         , internal_node_allocator(allocator)
         , leaf_allocator(allocator)
@@ -232,6 +232,55 @@ struct allocators
     allocator_type allocator;
     internal_node_allocator_type internal_node_allocator;
     leaf_allocator_type leaf_allocator;
+};
+
+// allocators
+
+template <typename Value, typename Parameters, typename Box, typename Tag, typename Allocator>
+struct allocators
+{
+    typedef allocators_poly<Value, Parameters, Box, Tag, Allocator> type;
+};
+
+// create_node_poly
+
+template <typename Allocator, typename Node>
+struct create_node_poly
+{
+    template <typename RetNode>
+    static inline RetNode * apply(Allocator & allocator)
+    {
+        Node * p = allocator.allocate(1);
+
+        if ( 0 == p )
+            throw std::bad_alloc();
+
+        try
+        {
+            allocator.construct(p, Node());
+        }
+        catch(...)
+        {
+            allocator.deallocate(p, 1);
+            throw;
+        }
+
+        return p;
+    }
+};
+
+// destroy_node_poly
+
+template <typename Allocator, typename Node>
+struct destroy_node_poly
+{
+    template <typename BaseNode>
+    static inline void apply(Allocator & allocator, BaseNode * n)
+    {
+        Node * p = rtree::get<Node>(n);
+        allocator.destroy(p);
+        allocator.deallocate(p, 1);
+    }
 };
 
 // create_node
@@ -253,15 +302,12 @@ struct create_node<
 {
     static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
     {
-        //return new internal_node_poly<Value, Parameters, Box, Tag>();
-        internal_node_poly<Value, Parameters, Box, Tag> * p
-            = allocators.internal_node_allocator.allocate(1);
-
-        allocators.internal_node_allocator.construct(
-            p,
-            internal_node_poly<Value, Parameters, Box, Tag>());
-
-        return p;
+        return create_node_poly<
+            typename Allocators::internal_node_allocator_type,
+            internal_node_poly<Value, Parameters, Box, Tag>
+        >::template apply<
+            typename node<Value, Parameters, Box, Tag>::type
+        >(allocators.internal_node_allocator);
     }
 };
 
@@ -273,16 +319,12 @@ struct create_node<
 {
     static inline typename node<Value, Parameters, Box, Tag>::type * apply(Allocators & allocators)
     {
-        //return new leaf_poly<Value, Parameters, Box, Tag>();
-
-        leaf_poly<Value, Parameters, Box, Tag> * p
-            = allocators.leaf_allocator.allocate(1);
-
-        allocators.leaf_allocator.construct(
-            p,
-            leaf_poly<Value, Parameters, Box, Tag>());
-
-        return p;
+        return create_node_poly<
+            typename Allocators::leaf_allocator_type,
+            leaf_poly<Value, Parameters, Box, Tag>
+        >::template apply<
+            typename node<Value, Parameters, Box, Tag>::type
+        >(allocators.leaf_allocator);
     }
 };
 
@@ -305,12 +347,10 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
     {
-        //delete n;
-
-        internal_node_poly<Value, Parameters, Box, Tag> * p
-            = rtree::get< internal_node_poly<Value, Parameters, Box, Tag> >(n);
-        allocators.internal_node_allocator.destroy(p);
-        allocators.internal_node_allocator.deallocate(p, 1);
+        destroy_node_poly<
+            typename Allocators::internal_node_allocator_type,
+            internal_node_poly<Value, Parameters, Box, Tag>
+        >::apply(allocators.internal_node_allocator, n);
     }
 };
 
@@ -322,12 +362,10 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Tag>::type * n)
     {
-        //delete n;
-
-        leaf_poly<Value, Parameters, Box, Tag> * p
-            = rtree::get< leaf_poly<Value, Parameters, Box, Tag> >(n);
-        allocators.leaf_allocator.destroy(p);
-        allocators.leaf_allocator.deallocate(p, 1);
+        destroy_node_poly<
+            typename Allocators::leaf_allocator_type,
+            leaf_poly<Value, Parameters, Box, Tag>
+        >::apply(allocators.leaf_allocator, n);
     }
 };
 

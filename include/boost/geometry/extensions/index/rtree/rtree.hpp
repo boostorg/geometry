@@ -84,7 +84,7 @@ public:
     typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, node_tag>::type leaf;
 
     typedef Allocator allocator_type;
-    typedef detail::rtree::allocators<value_type, typename options_type::parameters_type, box_type, node_tag, allocator_type> allocators_type;
+    typedef typename detail::rtree::allocators<value_type, typename options_type::parameters_type, box_type, node_tag, allocator_type>::type allocators_type;
     typedef typename allocators_type::size_type size_type;
 
     inline explicit rtree(translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
@@ -116,7 +116,15 @@ public:
     inline rtree(rtree const& src)
         : m_allocators(src.m_allocators)
     {
-        copy(src, *this);
+        try
+        {
+            copy(src, *this);
+        }
+        catch(...)
+        {
+            destroy(*this);
+            throw;
+        }
     }
 
     inline rtree & operator=(rtree const& src)
@@ -127,7 +135,16 @@ public:
         destroy(*this);
         
         m_allocators = src.m_allocators;
-        copy(src, *this);
+
+        try
+        {
+            copy(src, *this);
+        }
+        catch(...)
+        {
+            destroy(*this);
+            throw;
+        }
 
         return *this;
     }
@@ -136,19 +153,27 @@ public:
     {
         BOOST_GEOMETRY_INDEX_ASSERT(index::is_valid(m_translator(value)), "Indexable is invalid");
 
-        detail::rtree::visitors::insert<
-            value_type,
-            value_type,
-            options_type,
-            translator_type,
-            box_type,
-            allocators_type,
-            typename options_type::insert_tag
-        > insert_v(m_root, m_leafs_level, value, m_translator, m_allocators);
+        try
+        {
+            detail::rtree::visitors::insert<
+                value_type,
+                value_type,
+                options_type,
+                translator_type,
+                box_type,
+                allocators_type,
+                typename options_type::insert_tag
+            > insert_v(m_root, m_leafs_level, value, m_translator, m_allocators);
 
-        detail::rtree::apply_visitor(insert_v, *m_root);
+            detail::rtree::apply_visitor(insert_v, *m_root);
 
-        ++m_values_count;
+            ++m_values_count;
+        }
+        catch(...)
+        {
+            destroy(*this);
+            throw;
+        }
     }
 
     template <typename Iterator>
@@ -162,19 +187,27 @@ public:
     {
         // TODO: awulkiew - assert for correct value (indexable) ?
 
-        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there is no elements in the rtree");
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there are no elements in the rtree");
 
-        detail::rtree::visitors::remove<
-            value_type,
-            options_type,
-            translator_type,
-            box_type,
-            allocators_type
-        > remove_v(m_root, m_leafs_level, value, m_translator, m_allocators);
+        try
+        {
+            detail::rtree::visitors::remove<
+                value_type,
+                options_type,
+                translator_type,
+                box_type,
+                allocators_type
+            > remove_v(m_root, m_leafs_level, value, m_translator, m_allocators);
 
-        detail::rtree::apply_visitor(remove_v, *m_root);
+            detail::rtree::apply_visitor(remove_v, *m_root);
 
-        --m_values_count;
+            --m_values_count;
+        }
+        catch(...)
+        {
+            destroy(*this);
+            throw;
+        }
     }
 
     template <typename Iterator>
