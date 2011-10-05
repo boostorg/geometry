@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="ml01_multipolygon_simplify"
+	Name="ml02_distance_strategy"
 	ProjectGUID="{E7BFC111-F0E5-420F-869C-1FC3212270B5}"
-	RootNamespace="ml01_multipolygon_simplify"
+	RootNamespace="ml02_distance_strategy"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\ml01_multipolygon_simplify"
+			IntermediateDirectory="$(ConfigurationName)\ml02_distance_strategy"
 			ConfigurationType="1"
 			InheritedPropertySheets=".\boost.vsprops"
 			CharacterSet="1"
@@ -90,7 +90,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\ml01_multipolygon_simplify"
+			IntermediateDirectory="$(ConfigurationName)\ml02_distance_strategy"
 			ConfigurationType="1"
 			InheritedPropertySheets=".\boost.vsprops"
 			CharacterSet="1"
