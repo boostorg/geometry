@@ -32,16 +32,28 @@
 #endif
 
 
-
 #include <boost/foreach.hpp>
 
 
 // Include some always-included-for-testing files
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-#  include <boost/test/floating_point_comparison.hpp>
-#  include <boost/test/included/test_exec_monitor.hpp>
+
+// Until Boost fixes it, silence warning issued by clang:
+// warning: unused variable 'check_is_close' [-Wunused-variable]
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+
+# include <boost/test/floating_point_comparison.hpp>
+# include <boost/test/included/test_exec_monitor.hpp>
 //#  include <boost/test/included/prg_exec_monitor.hpp>
-#  include <boost/test/impl/execution_monitor.ipp>
+# include <boost/test/impl/execution_monitor.ipp>
+
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
+
 #endif
 
 
