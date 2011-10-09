@@ -189,11 +189,12 @@ struct check_duplicate_loop
 
     static inline bool apply(Segment const& seg)
     {
-        coordinate_type const diff =
-            geometry::get<1, Dimension>(seg) - geometry::get<0, Dimension>(seg);
-
-        coordinate_type const zero = 0;
-        if (! geometry::math::equals(diff, zero))
+        if (! geometry::math::equals
+                (
+                    geometry::get<0, Dimension>(seg), 
+                    geometry::get<1, Dimension>(seg)
+                )
+            )
         {
             return false;
         }

@@ -50,7 +50,7 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
     map_type selected;
     std::map<bg::ring_identifier, int> empty;
 
-    bg::detail::overlay::select_rings<OverlayType>(geometry1, geometry2, empty, selected);
+    bg::detail::overlay::select_rings<OverlayType>(geometry1, geometry2, empty, selected, true);
 
     BOOST_CHECK_EQUAL(selected.size(), expected_ids.size());
     BOOST_CHECK_EQUAL(selected.size(), expected_withins.size());

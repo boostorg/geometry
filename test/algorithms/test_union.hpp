@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/algorithms/unique.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -55,10 +54,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         area += bg::area(*it);
         holes += bg::num_interior_rings(*it);
 
-        // Get a correct point-count without duplicate points
-        // (note that overlay might be adapted to avoid duplicates)
-        OutputType simplified;
-        bg::unique(*it);
         n += bg::num_points(*it, true);
     }
 

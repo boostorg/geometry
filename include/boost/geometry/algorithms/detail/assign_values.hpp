@@ -90,14 +90,7 @@ struct assign_inverse_box_or_segment
 
     static inline void apply(BoxOrSegment& geometry)
     {
-        typedef typename coordinate_type<point_type>::type coordinate_type;
-
-        typedef typename boost::mpl::if_
-            <
-                typename boost::is_arithmetic<coordinate_type>::type,
-                coordinate_type,
-                double
-            >::type bound_type;
+        typedef typename coordinate_type<point_type>::type bound_type;
 
         initialize
             <
@@ -207,7 +200,7 @@ struct assign_point_from_index
     {
         geometry::set<Dimension>( point, boost::numeric_cast
             <
-                typename coordinate_type<Geometry>::type
+                typename coordinate_type<Point>::type
             >(geometry::get<Index, Dimension>(geometry)));
 
         assign_point_from_index

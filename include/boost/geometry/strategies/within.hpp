@@ -16,7 +16,6 @@
 
 #include <boost/mpl/assert.hpp>
 
-#include <boost/geometry/strategies/tags.hpp>
 
 namespace boost { namespace geometry
 {
@@ -29,28 +28,32 @@ namespace services
 {
 
 /*!
-    \brief Traits class binding a within determination strategy to a coordinate system
-    \ingroup within
-    \tparam CsTagContained tag of coordinate system of point-type
-    \tparam CsTagContained tag of coordinate system of segment-type
-    \tparam Point point-type of input points
-    \tparam PointContaining point-type of input segment-points
+\brief Traits class binding a within determination strategy to a coordinate system
+\ingroup within
+\tparam TagContained tag (possibly casted) of point-type
+\tparam TagContained tag (possibly casted) of (possibly) containing type
+\tparam CsTagContained tag of coordinate system of point-type
+\tparam CsTagContaining tag of coordinate system of (possibly) containing type
+\tparam Geometry geometry-type of input (often point, or box)
+\tparam GeometryContaining geometry-type of input (possibly) containing type
 */
 template
 <
     typename TagContained,
     typename TagContaining,
+    typename CastedTagContained,
+    typename CastedTagContaining,
     typename CsTagContained,
     typename CsTagContaining,
-    typename Point,
-    typename PointContaining
+    typename GeometryContained,
+    typename GeometryContaining
 >
 struct default_strategy
 {
     BOOST_MPL_ASSERT_MSG
         (
             false, NOT_IMPLEMENTED_FOR_THIS_TYPES
-            , (types<Point, PointContaining>)
+            , (types<GeometryContained, GeometryContaining>)
         );
 };
 

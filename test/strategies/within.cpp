@@ -11,16 +11,21 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
+#include <boost/geometry/strategies/cartesian/box_in_box.hpp>
+#include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 
 #include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
@@ -36,7 +41,7 @@ void test_point_in_polygon(std::string const& case_id,
             Strategy const& strategy, std::string const& strategy_id,
             bool expected)
 {
-    BOOST_CONCEPT_ASSERT( (bg::concept::WithinStrategy<Strategy>) );
+    BOOST_CONCEPT_ASSERT( (bg::concept::WithinStrategyPolygonal<Strategy>) );
     bool detected = bg::within(point, polygon, strategy);
 
     BOOST_CHECK_MESSAGE(detected == expected,
@@ -68,11 +73,63 @@ void test_geometry(std::string const& case_id, std::string const& wkt_point
         "cross.mult", boost::contains(deviations, "c") ? !expected : expected);
 }
 
+template <typename Point>
+void test_box_of(std::string const& wkt_point, std::string const& wkt_box, 
+              bool expected_within, bool expected_covered_by)
+{
+    typedef bg::model::box<Point> box_type;
+
+    Point point;
+    box_type box;
+    bg::read_wkt(wkt_point, point);
+    bg::read_wkt(wkt_box, box);
+
+    bool detected_within = bg::within(point, box);
+    bool detected_covered_by = bg::covered_by(point, box);
+    BOOST_CHECK_EQUAL(detected_within, expected_within);
+    BOOST_CHECK_EQUAL(detected_covered_by, expected_covered_by);
+
+    // Also test with the non-default agnostic side version
+    namespace wi = bg::strategy::within;
+    wi::point_in_box_by_side<Point, box_type> within_strategy;
+    wi::point_in_box_by_side<Point, box_type, wi::decide_covered_by> covered_by_strategy;
+
+    detected_within = bg::within(point, box, within_strategy);
+    detected_covered_by = bg::covered_by(point, box, covered_by_strategy);
+    BOOST_CHECK_EQUAL(detected_within, expected_within);
+    BOOST_CHECK_EQUAL(detected_covered_by, expected_covered_by);
+
+    // We might exchange strategies between within/covered by.
+    // So the lines below might seem confusing, but are as intended
+    detected_within = bg::covered_by(point, box, within_strategy);
+    detected_covered_by = bg::within(point, box, covered_by_strategy);
+    BOOST_CHECK_EQUAL(detected_within, expected_within);
+    BOOST_CHECK_EQUAL(detected_covered_by, expected_covered_by);
+
+    // Finally we call the strategies directly
+    detected_within = within_strategy.apply(point, box);
+    detected_covered_by = covered_by_strategy.apply(point, box);
+    BOOST_CHECK_EQUAL(detected_within, expected_within);
+    BOOST_CHECK_EQUAL(detected_covered_by, expected_covered_by);
+}
+
+template <typename Point>
+void test_box()
+{
+    test_box_of<Point>("POINT(1 1)", "BOX(0 0,2 2)", true, true);
+    test_box_of<Point>("POINT(0 0)", "BOX(0 0,2 2)", false, true);
+    test_box_of<Point>("POINT(2 2)", "BOX(0 0,2 2)", false, true);
+    test_box_of<Point>("POINT(0 1)", "BOX(0 0,2 2)", false, true);
+    test_box_of<Point>("POINT(1 0)", "BOX(0 0,2 2)", false, true);
+    test_box_of<Point>("POINT(3 3)", "BOX(0 0,2 2)", false, false);
+}
 
 
 template <typename Point>
 void test_all()
 {
+    test_box<Point>();
+
     typedef bg::model::polygon<Point> polygon;
 
     std::string const box = "POLYGON((0 0,0 2,2 2,2 0,0 0))";

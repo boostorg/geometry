@@ -32,16 +32,28 @@
 #endif
 
 
-
 #include <boost/foreach.hpp>
 
 
 // Include some always-included-for-testing files
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-#  include <boost/test/floating_point_comparison.hpp>
-#  include <boost/test/included/test_exec_monitor.hpp>
+
+// Until Boost fixes it, silence warning issued by clang:
+// warning: unused variable 'check_is_close' [-Wunused-variable]
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+
+# include <boost/test/floating_point_comparison.hpp>
+# include <boost/test/included/test_exec_monitor.hpp>
 //#  include <boost/test/included/prg_exec_monitor.hpp>
-#  include <boost/test/impl/execution_monitor.ipp>
+# include <boost/test/impl/execution_monitor.ipp>
+
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
+
 #endif
 
 
@@ -82,6 +94,11 @@ template <> struct string_from_type<long double>
     { static std::string name() { return "t"; }  };
 #endif
 
+#if defined(BOOST_RATIONAL_HPP) 
+template <typename T> struct string_from_type<boost::rational<T> >
+{ static std::string name() { return "r"; }  };
+#endif
+
 
 #if defined(HAVE_GMP)
     template <> struct string_from_type<boost::numeric_adaptor::gmp_value_type>
@@ -92,6 +109,24 @@ template <> struct string_from_type<long double>
     template <> struct string_from_type<boost::numeric_adaptor::cln_value_type>
     { static std::string name() { return "c"; }  };
 #endif
+
+
+template <typename CoordinateType, typename T>
+inline T if_typed_tt(T value_tt, T value)
+{
+#if defined(HAVE_TTMATH)
+    return boost::is_same<CoordinateType, ttmath_big>::value ? value_tt : value;
+#else
+    return value;
+#endif
+}
+
+template <typename CoordinateType, typename Specified, typename T>
+inline T if_typed(T value_typed, T value)
+{
+    return boost::is_same<CoordinateType, Specified>::value ? value_typed : value;
+}
+
 
 
 

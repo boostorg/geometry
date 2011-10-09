@@ -20,11 +20,15 @@
 //#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 
 
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/register/linestring.hpp>
+
+#include <boost/geometry/util/rational.hpp>
+
 #include <algorithms/test_intersection.hpp>
 #include <algorithms/test_overlay.hpp>
 
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/register/linestring.hpp>
+#include <algorithms/overlay/overlay_cases.hpp>
 
 #include <test_common/test_point.hpp>
 #include <test_common/with_pointer.hpp>
@@ -155,17 +159,40 @@ void test_areal()
         crossed[0], crossed[1],
         3, 0, 1.5);
 
+    typedef typename bg::coordinate_type<Polygon>::type ct;
+
 #ifdef _MSC_VER
-    {
-        // Isovist (submitted by Brandon during Formal Review)
-        std::string tn = string_from_type<typename bg::coordinate_type<Polygon>::type>::name();
-        test_one<Polygon, Polygon, Polygon>("isovist",
-            isovist1[0], isovist1[1],
-            1,
-            tn == std::string("f") ? 19 : tn == std::string("d") ? 22 : 20,
-            88.19203,
-            tn == std::string("f") ? 0.5 : tn == std::string("d") ? 0.1 : 0.01);
-    }
+    // Isovist (submitted by Brandon during Formal Review)
+    test_one<Polygon, Polygon, Polygon>("isovist",
+        isovist1[0], isovist1[1],
+        1,
+        if_typed<ct, float>(19, if_typed<ct, double>(20, 20)),
+        88.19203,
+        if_typed<ct, float>(0.5, if_typed<ct, double>(0.1, 0.01)));
+#endif
+
+    //std::cout << typeid(ct).name() << std::endl;
+
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
+        ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
+        1, if_typed_tt<ct>(5, 4), 
+        0.6649875, 
+        if_typed<ct, float>(1.0, 0.01)); 
+        
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
+        ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
+        1, 4, 0.4, 0.01);
+
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
+        ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
+        1, if_typed_tt<ct>(6, 5), 11151.6618);
+
+#ifdef _MSC_VER // gcc/linux behaves differently
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
+        ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
+        3, 
+        if_typed<ct, float>(19, if_typed<ct, double>(22, 21)),
+        35723.8506317139);
 #endif
 
     return;
@@ -236,6 +263,23 @@ void test_boxes(std::string const& wkt1, std::string const& wkt2, double expecte
     }
 }
 
+
+template <typename P>
+void test_point_output()
+{
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::box<P> box;
+    typedef bg::model::segment<P> segment;
+
+    test_point_output<polygon, polygon>(simplex_normal[0], simplex_normal[1], 6);
+    test_point_output<box, polygon>("box(1 1,6 4)", simplex_normal[0], 4);
+    test_point_output<linestring, polygon>("linestring(0 2,6 2)", simplex_normal[0], 2);
+    // NYI because of sectionize:
+    // test_point_output<segment, polygon>("linestring(0 2,6 2)", simplex_normal[0], 2);
+    // NYI because needs special treatment:
+    // test_point_output<box, box>("box(0 0,4 4)", "box(2 2,6 6)", 2);
+}
 
 template <typename P>
 void test_all()
@@ -311,6 +355,8 @@ void test_all()
     test_boxes<box>("box(2 2,8 7)", "box(14 4,20 10)", 0, false);
     test_boxes<box>("box(2 2,4 4)", "box(4 4,8 8)", 0, true);
 
+    test_point_output<P>();
+
 
     /*
     test_one<polygon, box, polygon>(99, "box(115041.10 471900.10, 118334.60 474523.40)",
@@ -375,10 +421,18 @@ void test_exception()
     BOOST_CHECK_MESSAGE(false, "No exception thrown");
 }
 
+template <typename Point>
+void test_rational()
+{
+    typedef bg::model::polygon<Point> polygon;
+    test_one<polygon, polygon, polygon>("simplex_normal",
+        simplex_normal[0], simplex_normal[1],
+        1, 7, 5.47363293);
+}
+
+
 int test_main(int, char* [])
 {
-    test_exception<bg::model::d2::point_xy<double> >();
-
     test_all<bg::model::d2::point_xy<double> >();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
@@ -388,8 +442,11 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
-    //test_pointer_version();
 #endif
+
+    test_exception<bg::model::d2::point_xy<double> >();
+    test_pointer_version();
+    test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
 
     return 0;
 }

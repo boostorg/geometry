@@ -70,7 +70,16 @@ struct segments_intersection_points
         promoted_type const da = (promoted_type(dx2) * wy) - (promoted_type(dy2) * wx);
 
         // r: ratio 0-1 where intersection divides A/B
-        promoted_type const r = da / d;
+        promoted_type r = da / d;
+		// Handle robustness issues
+		if (r < 0)
+		{
+			r = 0;
+		}
+		else if (r > 1)
+		{
+			r = 1;
+		}
 
         result.count = 1;
         set<0>(result.intersections[0],

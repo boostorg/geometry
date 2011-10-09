@@ -46,8 +46,7 @@ void test_all()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::ring<P> ring;
 
-    bool const is_float =
-        boost::is_same<typename bg::coordinate_type<P>::type, float>::value;
+    typedef typename bg::coordinate_type<P>::type ct;
 
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
@@ -93,7 +92,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
         2, 0, 8.7048386,
-        is_float ? 1 : 2, // The too small one is discarded for floating point
+        if_typed<ct, float>(1, 2), // The too small one is discarded for floating point
         0, 0.0098387);
 
 
@@ -200,17 +199,54 @@ void test_all()
     ***/
 
 #ifdef _MSC_VER
-    {
-        // Isovist (submitted by Brandon during Formal Review)
-        std::string tn = string_from_type<typename bg::coordinate_type<polygon>::type>::name();
-        test_one<polygon, polygon, polygon>("isovist",
-            isovist1[0], isovist1[1],
-            4, 0, 0.279121891701124,
-            4, 0, 224.889211358929,
-            0.01);
-    }
-#endif
+    // Isovist (submitted by Brandon during Formal Review)
+    test_one<polygon, polygon, polygon>("isovist",
+        isovist1[0], isovist1[1],
+        4, 0, 0.279121891701124,
+        4, 0, 224.889211358929,
+        0.01);
 
+    test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
+        ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
+        1, 0, 71495.3331,
+        2, 0, 8960.49049); 
+#endif
+        
+    test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
+        ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
+        1, 0, 16815.6,
+        1, 0, 3200.4,
+        0.01);
+
+    test_one<polygon, polygon, polygon>("ggl_list_20110716_enrico",
+        ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
+        3, 0, 35723.8506317139,
+        1, 0, 58456.4964294434
+        );
+
+    test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
+        ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
+        1, 0, 2.8570121719168924,
+        1, 0, 64.498061986388564); 
+
+
+
+#ifdef _MSC_VER
+    // 2011-07-02
+    // Interesting FP-precision case.
+    // sql server gives: 6.62295817619452E-05
+    // PostGIS gives: 0.0 (no output)
+    // Boost.Geometry gives results depending on FP-type, and compiler, and operating system.
+    // For double, it is zero (skipped). On gcc/Linux, for float either.
+    // Because we cannot predict this, we only test for MSVC
+    test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
+        ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
+        if_typed<ct, double>(0, 1), 0, 
+            if_typed_tt<ct>(0.0000000000001105367, 0.0), 
+        1, 0, 3577.40960816756,
+        0.01
+        );
+#endif
 
     // Other combi's
     {

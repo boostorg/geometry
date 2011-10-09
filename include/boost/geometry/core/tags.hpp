@@ -20,18 +20,21 @@ namespace boost { namespace geometry
 
 // Tags defining strategies linked to coordinate systems
 
+/// Tag used for casting spherical/geographic coordinate systems
+struct spherical_tag {};
+
 
 /// Tag indicating Cartesian coordinate system family (cartesian,epsg)
 struct cartesian_tag {};
 
 /// Tag indicating Spherical polar coordinate system family
-struct spherical_polar_tag {};
+struct spherical_polar_tag : spherical_tag {};
 
 /// Tag indicating Spherical equatorial coordinate system family
-struct spherical_equatorial_tag {};
+struct spherical_equatorial_tag : spherical_tag {};
 
 /// Tag indicating Geographic coordinate system family (geographic)
-struct geographic_tag {};
+struct geographic_tag : spherical_tag {};
 
 
 
@@ -53,6 +56,9 @@ struct linear_tag {};
 /// For areal types (polygon, multi_polygon, box, ring)
 struct areal_tag {};
 
+// Subset of areal types (polygon, multi_polygon, ring)
+struct polygonal_tag : areal_tag {}; 
+
 /// For volume types (also box (?), polyhedron)
 struct volumetric_tag {};
 
@@ -70,10 +76,10 @@ struct point_tag : single_tag, pointlike_tag {};
 struct linestring_tag : single_tag, linear_tag {};
 
 /// OGC Polygon identifying tag
-struct polygon_tag : single_tag, areal_tag {};
+struct polygon_tag : single_tag, polygonal_tag {};
 
 /// Convenience (linear) ring identifying tag
-struct ring_tag : single_tag, areal_tag {};
+struct ring_tag : single_tag, polygonal_tag {};
 
 /// Convenience 2D or 3D box (mbr / aabb) identifying tag
 struct box_tag : single_tag, areal_tag {};

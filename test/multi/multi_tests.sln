@@ -42,6 +42,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_difference", "algorit
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_transform", "algorithms\multi_transform.vcproj", "{64985954-0A74-46F5-908F-865E905C3414}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_covered_by", "algorithms\multi_covered_by.vcproj", "{680E56F0-229C-4377-BDC0-80EB9B59314B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_convert", "algorithms\multi_convert.vcproj", "{21B7EF55-23C3-4FD2-9F2F-FD8F0F3FE167}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -132,6 +136,14 @@ Global
 		{64985954-0A74-46F5-908F-865E905C3414}.Debug|Win32.Build.0 = Debug|Win32
 		{64985954-0A74-46F5-908F-865E905C3414}.Release|Win32.ActiveCfg = Release|Win32
 		{64985954-0A74-46F5-908F-865E905C3414}.Release|Win32.Build.0 = Release|Win32
+		{680E56F0-229C-4377-BDC0-80EB9B59314B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{680E56F0-229C-4377-BDC0-80EB9B59314B}.Debug|Win32.Build.0 = Debug|Win32
+		{680E56F0-229C-4377-BDC0-80EB9B59314B}.Release|Win32.ActiveCfg = Release|Win32
+		{680E56F0-229C-4377-BDC0-80EB9B59314B}.Release|Win32.Build.0 = Release|Win32
+		{21B7EF55-23C3-4FD2-9F2F-FD8F0F3FE167}.Debug|Win32.ActiveCfg = Debug|Win32
+		{21B7EF55-23C3-4FD2-9F2F-FD8F0F3FE167}.Debug|Win32.Build.0 = Debug|Win32
+		{21B7EF55-23C3-4FD2-9F2F-FD8F0F3FE167}.Release|Win32.ActiveCfg = Release|Win32
+		{21B7EF55-23C3-4FD2-9F2F-FD8F0F3FE167}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

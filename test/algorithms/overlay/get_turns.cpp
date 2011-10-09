@@ -303,6 +303,11 @@ void test_all()
             4,
             ggl_list_20110306_javier[0], ggl_list_20110306_javier[1]);
 
+#ifdef _MSC_VER // gcc returns 14 for float
+    test_get_turns<polygon, polygon>::apply("ggl_list_20110716_enrico",
+            13,
+            ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1]);
+#endif
 
     // pies
     test_get_turns<polygon, polygon>::apply("pie_23_16_16", 3, pie_23_16_16[0], pie_23_16_16[1]);

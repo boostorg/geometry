@@ -165,7 +165,7 @@ struct tag
                            fusion_adapt_detail::is_fusion_sequence<Sequence> \
                        >::type \
                > \
-    { typedef cs::cartesian type; }; \
+    { typedef CoordinateSystem type; }; \
     }}}
 
 

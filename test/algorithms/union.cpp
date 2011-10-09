@@ -25,26 +25,12 @@
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-static std::string javier4[2] =
-    {
-    "POLYGON((-2 2, 1842 2, 1842 -2362, -2 -2362, -2 2), (0 0, 0 -2360, 1840 -2360, 1840 0, 0 0))",
-    // "POLYGON((-0.01 -1960, 0 -1960, 0 -1880, 0.01 -1960, -0.01 -1960))"
-    "POLYGON ((-0.01 -1960, 80.01 -1960, 0 -1880, -0.01 -1960))"
-    };
-
-
-
-
-
-
 
 
 template <typename Ring, typename Polygon>
 void test_areal()
 {
-    test_one<Polygon, Polygon, Polygon>("javier4",
-        javier4[0], javier4[1],
-        1, 1, 13, 20016.4);
+    typedef typename bg::coordinate_type<Polygon>::type ct;
 
     test_one<Polygon, Polygon, Polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
@@ -63,12 +49,7 @@ void test_areal()
     // This sample was selected because of the border case, and ttmath generates one point more.
     test_one<Polygon, Polygon, Polygon>("star_poly", example_star, example_polygon,
         1, 1,
-#if defined(HAVE_TTMATH)
-        boost::is_same<typename bg::coordinate_type<Ring>::type, ttmath_big>::value ? 28 : 27,
-#else
-        27,
-#endif
-            5.647949);
+        if_typed_tt<ct>(28, 27), 5.647949);
 
     // Pseudo-box as Polygon
     // (note, internally, the intersection points is different, so yes,
@@ -237,20 +218,34 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, 1, 16, 80456.4904910401);
+        
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
+        ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
+        1, 1, 13, 20016.4);
+
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
+        ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
+        1, 0, 
+        if_typed<ct, double>(5, if_typed_tt<ct>(8, 7)), 
+        14729.07145);
+        
+#ifdef TEST_ENRICO
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
+        ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
+        1, 1, 
+        if_typed<ct, double>(18, 17), 
+        129904.197692871);
+#endif
 
 #ifdef _MSC_VER
-    {
-        // Isovist (submitted by Brandon during Formal Review)
-        std::string tn = string_from_type<typename bg::coordinate_type<Polygon>::type>::name();
-        test_one<Polygon, Polygon, Polygon>("isovist",
-            isovist1[0], isovist1[1],
-            1,
-            0,
-            tn == std::string("f") ? 71
-                : tn == std::string("d") ? 72
-                : 73,
-            313.36036462);
-    }
+    // Isovist (submitted by Brandon during Formal Review)
+    test_one<Polygon, Polygon, Polygon>("isovist",
+        isovist1[0], isovist1[1],
+        1,
+        0,
+        if_typed<ct, float>(71, 
+            if_typed<ct, double>(70, 73)),
+        313.36036462);
 #endif
 }
 

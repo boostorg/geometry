@@ -94,7 +94,12 @@ class douglas_peucker
 {
 public :
 
-    typedef typename strategy::distance::services::comparable_type<PointDistanceStrategy>::type distance_strategy_type;
+	// See also ticket 5954 https://svn.boost.org/trac/boost/ticket/5954
+	// Comparable is currently not possible here because it has to be compared to the squared of max_distance, and more.
+	// For now we have to take the real distance.
+	typedef PointDistanceStrategy distance_strategy_type;
+    // typedef typename strategy::distance::services::comparable_type<PointDistanceStrategy>::type distance_strategy_type;
+
     typedef typename strategy::distance::services::return_type<distance_strategy_type>::type return_type;
 
 private :
@@ -145,7 +150,7 @@ private :
 #ifdef GL_DEBUG_DOUGLAS_PEUCKER
             std::cout << "consider " << dsv(it->p)
                 << " at " << double(dist)
-                << ((dist > max_dist) ? " maybe" : " no")
+                << ((dist > max_dist) ? " maybe" : " no") 
                 << std::endl;
 
 #endif

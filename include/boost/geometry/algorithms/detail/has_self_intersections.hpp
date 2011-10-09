@@ -59,11 +59,10 @@ namespace detail { namespace overlay
 template <typename Geometry>
 inline bool has_self_intersections(Geometry const& geometry)
 {
-    using namespace boost::geometry;
     typedef typename point_type<Geometry>::type point_type;
     typedef detail::overlay::turn_info<point_type> turn_info;
     std::deque<turn_info> turns;
-    detail::get_turns::no_interrupt_policy policy;
+    detail::disjoint::disjoint_interrupt_policy policy;
     geometry::self_turns<detail::overlay::assign_null_policy>(geometry, turns, policy);
     
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS

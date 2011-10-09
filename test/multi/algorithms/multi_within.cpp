@@ -29,16 +29,20 @@ void test_all()
 {
     typedef bg::model::multi_polygon<bg::model::polygon<P> > mp;
 
-    // trivial cases
+    // test multi-with-one-polygon (trivial case)
     test_geometry<P, mp>("POINT(1 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", true);
     test_geometry<P, mp>("POINT(3 3)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", false);
+    test_geometry<P, mp>("POINT(0 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", false);
+    test_geometry<P, mp>("POINT(4 4)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", false);
 
     // test if it is in one of them
-    test_geometry<P, mp>("POINT(4 4)", "MULTIPOLYGON("
+    std::string multi("MULTIPOLYGON("
         "((0 0,0 2,2 2,2 0,0 0))"
         "((3 3,3 6,6 6,6 3,3 3))"
-        ")",
-        true);
+        ")");
+    test_geometry<P, mp>("POINT(4 4)", multi, true);
+    test_geometry<P, mp>("POINT(1 1)", multi, true);
+    test_geometry<P, mp>("POINT(0 1)", multi, false);
 }
 
 int test_main( int , char* [] )

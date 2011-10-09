@@ -11,7 +11,7 @@
 =============================================================================/]
 
 [heading Complexity]
-Linear
+Logarithmic
 
 [heading Example]
 [convex_hull]

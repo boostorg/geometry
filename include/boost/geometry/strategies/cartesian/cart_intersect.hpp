@@ -16,6 +16,8 @@
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 
+#include <boost/geometry/algorithms/detail/assign_values.hpp>
+
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
@@ -54,6 +56,19 @@ struct segment_arrange
     }
 };
 
+template <std::size_t Index, typename Segment>
+inline typename geometry::point_type<Segment>::type get_from_index(
+            Segment const& segment)
+{
+    typedef typename geometry::point_type<Segment>::type point_type;
+    point_type point;
+    geometry::detail::assign::assign_point_from_index
+        <
+            Segment, point_type, Index, 0, dimension<Segment>::type::value
+        >::apply(segment, point);
+    return point;
+}
+
 }
 #endif
 
@@ -91,10 +106,10 @@ struct relate_cartesian_segments
     /// Relate segments a and b
     static inline return_type apply(segment_type1 const& a, segment_type2 const& b)
     {
-        coordinate_type dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
-        coordinate_type dx_b = get<1, 0>(b) - get<0, 0>(b);
-        coordinate_type dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
-        coordinate_type dy_b = get<1, 1>(b) - get<0, 1>(b);
+        coordinate_type const dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
+        coordinate_type const dx_b = get<1, 0>(b) - get<0, 0>(b);
+        coordinate_type const dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
+        coordinate_type const dy_b = get<1, 1>(b) - get<0, 1>(b);
         return apply(a, b, dx_a, dy_a, dx_b, dy_b);
     }
 
@@ -133,8 +148,15 @@ struct relate_cartesian_segments
         // Note: Do NOT yet calculate the determinant here, but use the SIDE strategy.
         // Determinant calculation is not robust; side (orient) can be made robust
         // (and is much robuster even without measures)
-        sides.set<1>(side::apply(a.first, a.second, b.first),
-                side::apply(a.first, a.second, b.second));
+        sides.set<1>
+            (
+                side::apply(detail::get_from_index<0>(a)
+                    , detail::get_from_index<1>(a)
+                    , detail::get_from_index<0>(b)),
+                side::apply(detail::get_from_index<0>(a)
+                    , detail::get_from_index<1>(a)
+                    , detail::get_from_index<1>(b))
+            );
 
         if (sides.same<1>())
         {
@@ -143,8 +165,15 @@ struct relate_cartesian_segments
         }
 
         // 2b) For other segment
-        sides.set<0>(side::apply(b.first, b.second, a.first),
-                side::apply(b.first, b.second, a.second));
+        sides.set<0>
+            (
+                side::apply(detail::get_from_index<0>(b)
+                    , detail::get_from_index<1>(b)
+                    , detail::get_from_index<0>(a)),
+                side::apply(detail::get_from_index<0>(b)
+                    , detail::get_from_index<1>(b)
+                    , detail::get_from_index<1>(a))
+            );
 
         if (sides.same<0>())
         {
@@ -164,7 +193,7 @@ struct relate_cartesian_segments
 
         bool collinear = sides.collinear();
 
-        // Get the same type, but at least a double (also used for divisions
+        // Get the same type, but at least a double (also used for divisions)
         typedef typename select_most_precise
             <
                 coordinate_type, double
@@ -347,8 +376,8 @@ private :
                 // In robustness it can occur that a point of A is inside B AND a point of B is inside A,
                 // still while has_common_points is true (so one point equals the other).
                 // If that is the case we select on length.
-                coordinate_type const length_a = abs(a_1 - a_2);
-                coordinate_type const length_b = abs(b_1 - b_2);
+                coordinate_type const length_a = geometry::math::abs(a_1 - a_2);
+                coordinate_type const length_b = geometry::math::abs(b_1 - b_2);
                 if (length_a > length_b)
                 {
                     a_in_b = false;

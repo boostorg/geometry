@@ -12,97 +12,237 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <geometry_test_common.hpp>
+
+#include <algorithms/test_convert.hpp>
 
 
-#include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/make.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
 
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/adapted/c_array.hpp>
-#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
-#include <test_common/test_point.hpp>
-
-BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
-BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
-
-
-template <typename P>
-void test_all()
+template <typename Point1, typename Point2>
+void test_mixed_point_types()
 {
-    typedef bg::model::box<P> box_type;
+    // Point
+    test_mixed_identical_result<Point1, Point2>("POINT(1 2)");
 
-    P p;
-    bg::assign_values(p, 1, 2);
+    // Linestring
+    test_mixed_identical_result
+        <
+            bg::model::linestring<Point1>, 
+            bg::model::linestring<Point2> 
+        >
+        ("LINESTRING(1 1,2 2)");
 
-    box_type b;
-    bg::convert(p, b);
+    // Ring
+    test_mixed_identical_result
+        <
+            bg::model::ring<Point1>, 
+            bg::model::ring<Point2> 
+        >
+        ("POLYGON((1 1,2 2,3 0,1 1))");
+    test_mixed_reversible_result
+        <
+            bg::model::ring<Point1, true>, 
+            bg::model::ring<Point2, false> 
+        >
+        (
+            "POLYGON((1 1,2 2,3 0,1 1))", 
+            "POLYGON((1 1,3 0,2 2,1 1))"
+        );
+    test_mixed
+        <
+            bg::model::ring<Point1, true, true>, 
+            bg::model::ring<Point2, true, false> 
+        >
+        (
+            "POLYGON((1 1,2 2,3 0,1 1))", 
+            "POLYGON((1 1,2 2,3 0))"
+        );
+    test_mixed
+        <
+            bg::model::ring<Point1, true, false>, 
+            bg::model::ring<Point2, true, true> 
+        >
+        (
+            "POLYGON((1 1,2 2,3 0))", 
+            "POLYGON((1 1,2 2,3 0,1 1))"
+        );
 
-    BOOST_CHECK_CLOSE((bg::get<0, 0>(b)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE((bg::get<0, 1>(b)), 2.0, 0.001);
-    BOOST_CHECK_CLOSE((bg::get<1, 0>(b)), 1.0, 0.001);
-    BOOST_CHECK_CLOSE((bg::get<1, 1>(b)), 2.0, 0.001);
+    // Polygon
+    test_mixed_reversible_result
+        <
+            bg::model::polygon<Point1, true>, 
+            bg::model::polygon<Point2, false> 
+        >
+        (
+            "POLYGON((0 0,0 5,5 5,5 0,0 0),(1 1,3 2,2 4,1 1))", 
+            "POLYGON((0 0,5 0,5 5,0 5,0 0),(1 1,2 4,3 2,1 1))"
+        );
+    test_mixed
+        <
+            bg::model::polygon<Point1>,
+            bg::model::polygon<Point2, false, false> 
+        >
+        (
+            "POLYGON((0 0,0 5,5 5,5 0,0 0),(1 1,3 2,2 4,1 1))", 
+            "POLYGON((0 0,5 0,5 5,0 5),(1 1,2 4,3 2))"
+        );
+    // (polygon uses ring, so other tests omitted here)
+
+    // Combinations:
+    // ring <-> polygon
+    test_mixed_identical_result
+        <
+            bg::model::polygon<Point1>, 
+            bg::model::ring<Point2> 
+        >
+        ("POLYGON((1 1,2 2,3 0,1 1))");
+    test_mixed_reversible_result
+        <
+            bg::model::polygon<Point1, true>, 
+            bg::model::ring<Point2, false> 
+        >
+        (   
+            "POLYGON((1 1,2 2,3 0,1 1))", 
+            "POLYGON((1 1,3 0,2 2,1 1))"
+        );
+    // Any hole will be omitted going from polygon to ring
+    test_mixed
+        <
+            bg::model::polygon<Point1>, 
+            bg::model::ring<Point2> 
+        >
+        (
+            "POLYGON((0 0,0 5,5 5,5 0,0 0),(1 1,3 2,2 4,1 1))", 
+            "POLYGON((0 0,0 5,5 5,5 0,0 0))"
+        );
+
+    // point -> box
+    test_mixed
+        <
+            Point1, 
+            bg::model::box<Point2> 
+        >
+        (
+            "POINT(0 0)", 
+            "POLYGON((0 0,0 0,0 0,0 0,0 0))"
+        );
+
+    // segment -> line
+    test_mixed
+        <
+            bg::model::segment<Point1>,
+            bg::model::linestring<Point2> 
+        >
+        (
+            "LINESTRING(0 0,1 1)", 
+            "LINESTRING(0 0,1 1)"
+        );
+
+    // box -> ring ( <- is NYI)
+    test_mixed
+        <
+            bg::model::box<Point1>, 
+            bg::model::ring<Point2> 
+        >
+        (
+            "BOX(0 0,2 2)", 
+            "POLYGON((0 0,0 2,2 2,2 0,0 0))"
+        );
+    test_mixed
+        <
+            bg::model::box<Point1>, 
+            bg::model::ring<Point2, false> 
+        >
+        (
+            "BOX(0 0,2 2)", 
+            "POLYGON((0 0,2 0,2 2,0 2,0 0))"
+        );
+    test_mixed
+        <
+            bg::model::box<Point1>, 
+            bg::model::ring<Point2, true, false> 
+        >
+        (
+            "BOX(0 0,2 2)", 
+            "POLYGON((0 0,0 2,2 2,2 0))"
+        );
+    test_mixed
+        <
+            bg::model::box<Point1>, 
+            bg::model::ring<Point2, false, false> 
+        >
+        (
+            "BOX(0 0,2 2)", 
+            "POLYGON((0 0,2 0,2 2,0 2))"
+        );
+
+    // box -> polygon ( <- is NYI)
+    test_mixed
+        <
+            bg::model::box<Point1>, 
+            bg::model::polygon<Point2> 
+        >
+        (
+            "BOX(0 0,2 2)", 
+            "POLYGON((0 0,0 2,2 2,2 0,0 0))"
+        );
+    test_mixed
+        <
+            bg::model::box<Point1>, 
+            bg::model::polygon<Point2, false> 
+        >
+        (
+            "BOX(0 0,2 2)", 
+            "POLYGON((0 0,2 0,2 2,0 2,0 0))"
+        );
+    test_mixed
+        <
+            bg::model::box<Point1>, 
+            bg::model::polygon<Point2, true, false> 
+        >
+        (
+            "BOX(0 0,2 2)", 
+            "POLYGON((0 0,0 2,2 2,2 0))"
+        );
+    test_mixed
+        <
+            bg::model::box<Point1>, 
+            bg::model::polygon<Point2, false, false> 
+        >
+        (
+            "BOX(0 0,2 2)", 
+            "POLYGON((0 0,2 0,2 2,0 2))"
+        );
 }
 
-template <typename P>
-void test_std()
+template <typename Point1, typename Point2>
+void test_mixed_types()
 {
-    test_all<P>();
+    test_mixed_point_types<Point1, Point2>();
+    test_mixed_point_types<Point2, Point1>();
+}
 
-    typedef bg::model::box<P> box_type;
-    typedef bg::model::ring<P> ring_type;
-    typedef bg::model::polygon<P> polygon_type;
-
-    box_type b;
-    bg::set<bg::min_corner, 0>(b, 1);
-    bg::set<bg::min_corner, 1>(b, 2);
-    bg::set<bg::max_corner, 0>(b, 3);
-    bg::set<bg::max_corner, 1>(b, 4);
-
-    ring_type ring;
-    bg::convert(b, ring);
-
-    //std::cout << bg::wkt(b) << std::endl;
-    //std::cout << bg::wkt(ring) << std::endl;
-
-    typename boost::range_const_iterator<ring_type>::type it = ring.begin();
-    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
-    it++;
-    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(bg::get<1>(*it), 4.0, 0.001);
-    it++;
-    BOOST_CHECK_CLOSE(bg::get<0>(*it), 3.0, 0.001);
-    BOOST_CHECK_CLOSE(bg::get<1>(*it), 4.0, 0.001);
-    it++;
-    BOOST_CHECK_CLOSE(bg::get<0>(*it), 3.0, 0.001);
-    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
-    it++;
-    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
-    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
-
-    BOOST_CHECK_EQUAL(ring.size(), 5u);
-
-
-    polygon_type polygon;
-
-    bg::convert(ring, polygon);
-    BOOST_CHECK_EQUAL(bg::num_points(polygon), 5u);
-
-    bg::convert(polygon, ring);
-    BOOST_CHECK_EQUAL(bg::num_points(ring), 5u);
+void test_array()
+{
+    int a[2] = {1, 2};
+    int b[2];
+    bg::convert(a, b);
+    BOOST_CHECK_EQUAL(b[0], 1);
+    BOOST_CHECK_EQUAL(b[1], 2);
 }
 
 int test_main(int, char* [])
 {
-    test_std<bg::model::point<int, 2, bg::cs::cartesian> >();
-    test_std<bg::model::point<float, 2, bg::cs::cartesian> >();
-    test_std<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_mixed_types
+        <
+            bg::model::point<int, 2, bg::cs::cartesian>,
+            bg::model::point<double, 2, bg::cs::cartesian>
+        >();
+    test_mixed_types
+        <
+            boost::tuple<float, float>,
+            bg::model::point<float, 2, bg::cs::cartesian>
+        >();
 
-#ifdef HAVE_TTMATH
-    test_std<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
-#endif
+    test_array();
     return 0;
 }
