@@ -76,7 +76,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
-#include <boost/geometry/util/write_dsv.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 #include <boost/geometry/views/box_view.hpp>
 #include <boost/geometry/views/segment_view.hpp>

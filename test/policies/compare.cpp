@@ -12,7 +12,7 @@
 #include <algorithm>
 
 #include <boost/geometry/algorithms/make.hpp>
-#include <boost/geometry/util/write_dsv.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 
