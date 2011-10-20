@@ -29,7 +29,7 @@
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read_multi.hpp>
 
 
 // This test is a little different from transform.cpp test.

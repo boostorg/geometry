@@ -22,7 +22,7 @@
 #endif
 
 
-#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write.hpp>
 
 
 
