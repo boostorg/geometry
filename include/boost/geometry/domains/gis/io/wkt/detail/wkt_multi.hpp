@@ -15,7 +15,7 @@
 #define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_DETAIL_WKT_MULTI_HPP
 
 
-#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/write.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
 
