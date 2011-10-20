@@ -18,7 +18,7 @@
 #include <boost/geometry/geometries/adapted/boost_fusion.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/util/write_dsv.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 BOOST_GEOMETRY_REGISTER_BOOST_FUSION_CS(cs::cartesian);
 

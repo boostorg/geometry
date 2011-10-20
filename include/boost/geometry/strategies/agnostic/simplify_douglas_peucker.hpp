@@ -27,7 +27,7 @@
 //#define GL_DEBUG_DOUGLAS_PEUCKER
 
 #ifdef GL_DEBUG_DOUGLAS_PEUCKER
-#include <boost/geometry/util/write_dsv.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 #endif
 
 

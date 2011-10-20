@@ -58,7 +58,7 @@
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
 #  include <sstream>
-#  include <boost/geometry/util/write_dsv.hpp>
+#  include <boost/geometry/io/dsv/write.hpp>
 #endif
 
 

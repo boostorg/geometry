@@ -17,7 +17,7 @@
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/register/box.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/util/write_dsv.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 struct my_point
 {

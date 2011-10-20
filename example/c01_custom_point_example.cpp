@@ -16,7 +16,7 @@
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/util/write_dsv.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 // Sample point, defining three color values
 struct my_color_point
