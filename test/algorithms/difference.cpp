@@ -285,18 +285,32 @@ void test_all()
 
 
 
-    // Multi
+    // Multi/box (should be moved to multi)
     {
+        /* Tested with SQL Geometry:
+                with viewy as (select geometry::STGeomFromText(
+                        'MULTIPOLYGON(((0 1,2 5,5 3,0 1)),((1 1,5 2,5 0,1 1)))',0) as  p,
+                  geometry::STGeomFromText(
+                        'POLYGON((2 2,2 4,4 4,4 2,2 2))',0) as q)
+                  
+                select 
+                    p.STDifference(q).STArea(),p.STDifference(q).STNumGeometries(),p.STDifference(q) as p_min_q,
+                    q.STDifference(p).STArea(),q.STDifference(p).STNumGeometries(),q.STDifference(p) as q_min_p,
+                    p.STSymDifference(q).STArea(),q.STSymDifference(p) as p_xor_q
+                from viewy
+
+        */
         typedef bg::model::multi_polygon<polygon> mp;
 
         static std::string const clip = "POLYGON((2 2,4 4))";
 
         test_one<polygon, box, mp>("simplex_multi_box_mp",
             clip, case_multi_simplex[0],
-            2, 11, 0.53333333333, 3, 11, 8.53333333333);
+            2, -1, 0.53333333333, 3, -1, 8.53333333333);
         test_one<polygon, mp, box>("simplex_multi_mp_box",
             case_multi_simplex[0], clip,
-            3, 11, 8.53333333333, 2, 11, 0.53333333333);
+            3, -1, 8.53333333333, 2, -1, 0.53333333333);
+
     }
 
     /***
