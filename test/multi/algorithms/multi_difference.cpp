@@ -81,6 +81,21 @@ void test_areal()
         case_78_multi[0], case_78_multi[1],
             1, 1, 1.0, 1, 1, 1.0);
 
+    // Ticket on GGL list 2011/10/25
+    // to mix polygon/multipolygon in call to difference
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20111025_vd_pp",
+        ggl_list_20111025_vd[0], ggl_list_20111025_vd[1],
+            1, -999, 8.0, 1, -999, 12.5);
+    test_one<Polygon, Polygon, MultiPolygon>("ggl_list_20111025_vd_pm",
+        ggl_list_20111025_vd[0], ggl_list_20111025_vd[3],
+            1, -999, 8.0, 1, -999, 12.5);
+    test_one<Polygon, MultiPolygon, Polygon>("ggl_list_20111025_vd_mp",
+        ggl_list_20111025_vd[2], ggl_list_20111025_vd[1],
+            1, -999, 8.0, 1, -999, 12.5);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20111025_vd_mm",
+        ggl_list_20111025_vd[2], ggl_list_20111025_vd[3],
+            1, -999, 8.0, 1, -999, 12.5);
+
     /* TODO: fix
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],

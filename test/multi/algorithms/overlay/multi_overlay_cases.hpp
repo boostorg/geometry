@@ -410,5 +410,15 @@ static std::string pie_7_2_1_0_15[2] =
     "MULTIPOLYGON(((2500 2500,2791 3586,3062 3474,2500 2500)),((2500 2500,3474 3062,3586 2791,3625 2500,3586 2208,3474 1937,3295 1704,3062 1525,2791 1413,2499 1375,2208 1413,1937 1525,1704 1704,1525 1937,1413 2208,1375 2500,2500 2500)))" 
 };
 
+// Case, not literally on this list but derived, to mix polygon/multipolygon in call to difference
+static std::string ggl_list_20111025_vd[4] =
+    {
+    "POLYGON((0 0,0 4,4 0,0 0))",
+    "POLYGON((10 0,10 5,15 0,10 0))",
+    "MULTIPOLYGON(((0 0,0 4,4 0,0 0)))",
+    "MULTIPOLYGON(((10 0,10 5,15 0,10 0)))"
+    };
+    
+
 
 #endif // BOOST_GEOMETRY_TEST_MULTI_OVERLAY_CASES_HPP
