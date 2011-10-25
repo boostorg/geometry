@@ -293,10 +293,10 @@ void test_all()
 
         test_one<polygon, box, mp>("simplex_multi_box_mp",
             clip, case_multi_simplex[0],
-            3, 11, 4.53333, 3, 11, 8.53333);
+            2, 11, 0.53333333333, 3, 11, 8.53333333333);
         test_one<polygon, mp, box>("simplex_multi_mp_box",
             case_multi_simplex[0], clip,
-            3, 11, 8.53333, 3, 11, 4.53333);
+            3, 11, 8.53333333333, 2, 11, 0.53333333333);
     }
 
     /***
