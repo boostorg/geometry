@@ -418,6 +418,13 @@ static std::string ggl_list_20111025_vd[4] =
     "MULTIPOLYGON(((0 0,0 4,4 0,0 0)))",
     "MULTIPOLYGON(((10 0,10 5,15 0,10 0)))"
     };
+
+// Same, mail with other case with text "Say the MP is the 2 squares below and P is the blue-ish rectangle."    
+static std::string ggl_list_20111025_vd_2[2] =
+    {
+    "POLYGON((5 0,5 4,8 4,8 0,5 0))",
+    "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((4 0,4 2,6 2,6 0,4 0)))"
+    };
     
 
 
