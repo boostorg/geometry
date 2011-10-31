@@ -68,7 +68,6 @@ template <
     typename Allocator = std::allocator<Value>
 >
 class rtree
-    : public boost::noncopyable
 {
 public:
     typedef Value value_type;
