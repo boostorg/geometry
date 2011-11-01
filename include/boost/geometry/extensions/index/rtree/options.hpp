@@ -22,6 +22,7 @@ struct choose_by_overlap_diff_tag {};
 
 // SplitTag
 struct split_default_tag {};
+//struct split_kmeans_tag {};
 
 // RedistributeTag
 struct linear_tag {};
@@ -92,6 +93,13 @@ struct rtree
 
 } // namespace options
 
+//template <size_t MaxElements, size_t MinElements>
+//struct kmeans
+//{
+//    static const size_t max_elements = MaxElements;
+//    static const size_t min_elements = MinElements;
+//};
+
 namespace detail { namespace rtree {
 
 template <typename Parameters>
@@ -138,6 +146,19 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
         node_default_static_tag
     > type;
 };
+
+//template <size_t MaxElements, size_t MinElements>
+//struct options_type< kmeans<MaxElements, MinElements> >
+//{
+//    typedef options::rtree<
+//        kmeans<MaxElements, MinElements>,
+//        insert_default_tag,
+//        choose_by_content_diff_tag, // change it?
+//        split_kmeans_tag,
+//        int, // dummy tag - not used for now
+//        node_default_static_tag
+//    > type;
+//};
 
 }} // namespace detail::rtree
 

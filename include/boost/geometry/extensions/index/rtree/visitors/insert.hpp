@@ -81,13 +81,25 @@ struct choose_next_node<Value, Options, Box, Allocators, choose_by_content_diff_
 
 // Not implemented here
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename RedistributeTag>
-struct redistribute_elements;
+struct redistribute_elements
+{
+    BOOST_MPL_ASSERT_MSG(
+        (false),
+        NOT_IMPLEMENTED_FOR_THIS_REDISTRIBUTE_TAG_TYPE,
+        (redistribute_elements));
+};
 
 // ----------------------------------------------------------------------- //
 
 // Split algorithm
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename SplitTag>
-class split;
+class split
+{
+    BOOST_MPL_ASSERT_MSG(
+        (false),
+        NOT_IMPLEMENTED_FOR_THIS_SPLIT_TAG_TYPE,
+        (split));
+};
 
 // Default split algorithm
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>

@@ -40,6 +40,7 @@
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
 #include <boost/geometry/extensions/index/rtree/quadratic/quadratic.hpp>
 #include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
+//#include <boost/geometry/extensions/index/rtree/kmeans/kmeans.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
