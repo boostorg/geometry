@@ -46,6 +46,20 @@ namespace boost { namespace geometry
 namespace detail { namespace dissolve
 {
 
+struct no_interrupt_policy
+{
+    static bool const enabled = false;
+    static bool const has_intersections = false;
+
+
+    template <typename Range>
+    static inline bool apply(Range const&)
+    {
+        return false;
+    }
+};
+
+
 template<typename Geometry>
 class backtrack_for_dissolve
 {
@@ -91,7 +105,7 @@ struct dissolve_ring_or_polygon
             > turn_info;
 
         std::vector<turn_info> turns;
-        detail::get_turns::no_interrupt_policy policy;
+        detail::dissolve::no_interrupt_policy policy;
         geometry::self_turns
             <
                 detail::overlay::calculate_distance_policy
