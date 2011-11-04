@@ -6,7 +6,6 @@
 	ProjectGUID="{22DD12E5-4AAD-4066-9C4F-4C360F7759AA}"
 	RootNamespace="selected"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -42,10 +41,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../..;.."
+				AdditionalIncludeDirectories="../../../..;..;../../test"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				RuntimeLibrary="1"
 				ExceptionHandling="2"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				DebugInformationFormat="1"
 			/>
@@ -83,6 +82,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -112,7 +114,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../..;.."
+				AdditionalIncludeDirectories="../../../..;..;../../test"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
@@ -150,6 +152,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
