@@ -113,12 +113,14 @@ protected:
     typedef typename Options::parameters_type parameters_type;
 
 public:
-    template <typename Node, typename OutIter>
-    static inline void apply(Node & n,
+    typedef index::pushable_array<std::pair<Box, node*>, 1> nodes_container_type;
+
+    template <typename Node>
+    static inline void apply(nodes_container_type & additional_nodes,
+                             Node & n,
                              Box & n_box,
                              Translator const& tr,
-                             Allocators & allocators,
-                             OutIter out_it)
+                             Allocators & allocators)
     {
         // create additional node
         node * second_node = rtree::create_node<Allocators, Node>::apply(allocators);
@@ -137,7 +139,7 @@ public:
             rtree::elements(n2).size() <= parameters_type::max_elements,
             "unexpected number of elements");
 
-        *out_it++ = std::make_pair(box2, second_node);
+        additional_nodes.push_back(std::make_pair(box2, second_node));
     }
 };
 
@@ -237,14 +239,12 @@ protected:
     template <typename Node>
     inline void split(Node & n) const
     {
-        index::pushable_array<
-            std::pair<Box, node*>, 1
-        > additional_nodes;
+        typedef detail::split<Value, Options, Translator, Box, Allocators, typename Options::split_tag> split_algo;
 
+        typename split_algo::nodes_container_type additional_nodes;
         Box n_box;
 
-        detail::split<Value, Options, Translator, Box, Allocators, typename Options::split_tag>
-            ::apply(n, n_box, m_tr, m_allocators, std::back_inserter(additional_nodes));
+        split_algo::apply(additional_nodes, n, n_box, m_tr, m_allocators);
 
         BOOST_GEOMETRY_INDEX_ASSERT(additional_nodes.size() == 1, "unexpected number of additional nodes");
 
