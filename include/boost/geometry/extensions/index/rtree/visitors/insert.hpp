@@ -113,23 +113,21 @@ protected:
     typedef typename Options::parameters_type parameters_type;
 
 public:
-    template <typename Node>
-    static inline void apply(node* & root_node,
-                             size_t & leafs_level,
-                             Node & n,
-                             internal_node *parent_node,
-                             size_t current_child_index,
+    template <typename Node, typename OutIter>
+    static inline void apply(Node & n,
+                             Box & n_box,
                              Translator const& tr,
-                             Allocators & allocators)
+                             Allocators & allocators,
+                             OutIter out_it)
     {
         // create additional node
         node * second_node = rtree::create_node<Allocators, Node>::apply(allocators);
         Node & n2 = rtree::get<Node>(*second_node);
 
         // redistribute elements
-        Box box1, box2;
+        Box box2;
         redistribute_elements<Value, Options, Translator, Box, Allocators, typename Options::redistribute_tag>::
-            apply(n, n2, box1, box2, tr);
+            apply(n, n2, n_box, box2, tr);
 
         // check numbers of elements
         BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n).size() &&
@@ -139,28 +137,7 @@ public:
             rtree::elements(n2).size() <= parameters_type::max_elements,
             "unexpected number of elements");
 
-        // node is not the root - just add the new node
-        if ( parent_node != 0 )
-        {
-            // update old node's box
-            rtree::elements(*parent_node)[current_child_index].first = box1;
-            // add new node to the parent's children
-            rtree::elements(*parent_node).push_back(std::make_pair(box2, second_node));
-        }
-        // node is the root - add level
-        else
-        {
-            BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(root_node), "node should be the root");
-
-            // create new root and add nodes
-            node * new_root = rtree::create_node<Allocators, internal_node>::apply(allocators);
-
-            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box1, root_node));
-            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(box2, second_node));
-
-            root_node = new_root;
-            ++leafs_level;
-        }
+        *out_it++ = std::make_pair(box2, second_node);
     }
 };
 
@@ -260,7 +237,39 @@ protected:
     template <typename Node>
     inline void split(Node & n) const
     {
-        detail::split<Value, Options, Translator, Box, Allocators, typename Options::split_tag>::apply(m_root_node, m_leafs_level, n, m_parent, m_current_child_index, m_tr, m_allocators);
+        index::pushable_array<
+            std::pair<Box, node*>, 1
+        > additional_nodes;
+
+        Box n_box;
+
+        detail::split<Value, Options, Translator, Box, Allocators, typename Options::split_tag>
+            ::apply(n, n_box, m_tr, m_allocators, std::back_inserter(additional_nodes));
+
+        BOOST_GEOMETRY_INDEX_ASSERT(additional_nodes.size() == 1, "unexpected number of additional nodes");
+
+        // node is not the root - just add the new node
+        if ( m_parent != 0 )
+        {
+            // update old node's box
+            rtree::elements(*m_parent)[m_current_child_index].first = n_box;
+            // add new node to the parent's children
+            rtree::elements(*m_parent).push_back(additional_nodes[0]);
+        }
+        // node is the root - add level
+        else
+        {
+            BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(m_root_node), "node should be the root");
+
+            // create new root and add nodes
+            node * new_root = rtree::create_node<Allocators, internal_node>::apply(m_allocators);
+
+            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(n_box, m_root_node));
+            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(additional_nodes[0]);
+
+            m_root_node = new_root;
+            ++m_leafs_level;
+        }
     }
 
     // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation

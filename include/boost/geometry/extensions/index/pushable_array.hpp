@@ -28,6 +28,8 @@ public:
     typedef typename array_type::const_iterator const_iterator;
     typedef typename array_type::reverse_iterator reverse_iterator;
     typedef typename array_type::const_reverse_iterator const_reverse_iterator;
+    typedef typename array_type::reference reference;
+    typedef typename array_type::const_reference const_reference;
 
     inline pushable_array()
         : m_size(0)
