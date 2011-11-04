@@ -8,6 +8,16 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
+import testing ;
+
+project boost-geometry-test
+    :
+    requirements
+        <include>../test
+        <include>../../../boost/geometry/extensions/contrib/ttmath
+        <toolset>msvc:<asynch-exceptions>on
+    ;
+
 build-project algorithms ;
 build-project arithmetic ;
 build-project gis ;
