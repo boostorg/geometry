@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vincenty", "vincenty.vcproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cross_track", "cross_track.vcproj", "{572678FB-A286-4F68-B2D5-F9C9EAC392FE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "area_geo", "area_geo.vcproj", "{C18C6BFA-B0CF-488B-BED0-92AF41CE4BE8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -55,6 +57,10 @@ Global
 		{572678FB-A286-4F68-B2D5-F9C9EAC392FE}.Debug|Win32.Build.0 = Debug|Win32
 		{572678FB-A286-4F68-B2D5-F9C9EAC392FE}.Release|Win32.ActiveCfg = Release|Win32
 		{572678FB-A286-4F68-B2D5-F9C9EAC392FE}.Release|Win32.Build.0 = Release|Win32
+		{C18C6BFA-B0CF-488B-BED0-92AF41CE4BE8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C18C6BFA-B0CF-488B-BED0-92AF41CE4BE8}.Debug|Win32.Build.0 = Debug|Win32
+		{C18C6BFA-B0CF-488B-BED0-92AF41CE4BE8}.Release|Win32.ActiveCfg = Release|Win32
+		{C18C6BFA-B0CF-488B-BED0-92AF41CE4BE8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
