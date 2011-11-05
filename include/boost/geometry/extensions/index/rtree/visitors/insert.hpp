@@ -236,6 +236,8 @@ protected:
         m_current_level = current_level_bckup;
     }
 
+    // TODO: consider - split result returned as OutIter is faster than reference to the container. Why?
+
     template <typename Node>
     inline void split(Node & n) const
     {
@@ -247,6 +249,15 @@ protected:
         split_algo::apply(additional_nodes, n, n_box, m_tr, m_allocators);
 
         BOOST_GEOMETRY_INDEX_ASSERT(additional_nodes.size() == 1, "unexpected number of additional nodes");
+
+        // TODO add all additional nodes
+        // elements number may be greater than node max elements count
+        // split and reinsert must take node with some elements count
+        // and container of additional elements (std::pair<Box, node*>s or Values)
+        // and translator + allocators
+        // where node_elements_count + additional_elements > node_max_elements_count
+        // What with elements other than std::pair<Box, node*> ???
+        // Implement template <node_tag> struct node_element_type or something like that
 
         // node is not the root - just add the new node
         if ( m_parent != 0 )
