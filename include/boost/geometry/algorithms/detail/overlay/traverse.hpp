@@ -23,7 +23,9 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
-#if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT)
+#if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) \
+    || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT) \
+    || defined(BOOST_GEOMETRY_DEBUG_TRAVERSE)
 #  include <string>
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #  include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
@@ -46,10 +48,12 @@ inline void debug_traverse(Turn const& turn, Operation op,
 #ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
     std::cout << header
         << " at " << op.seg_id
+        << " meth: " << method_char(turn.method)
         << " op: " << operation_char(op.operation)
         << " vis: " << visited_char(op.visited)
         << " of:  " << operation_char(turn.operations[0].operation)
         << operation_char(turn.operations[1].operation)
+        << " " << geometry::wkt(turn.point)
         << std::endl;
 
     if (boost::contains(header, "Finished"))

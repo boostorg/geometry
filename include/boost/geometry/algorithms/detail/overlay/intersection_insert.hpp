@@ -111,6 +111,24 @@ template
 >
 struct intersection_linestring_polygon
 {
+
+#if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
+        template <typename Turn, typename Operation>
+        static inline void debug_follow(Turn const& turn, Operation op, 
+                    int index)
+        {
+            std::cout << index
+                << " at " << op.seg_id
+                << " meth: " << method_char(turn.method)
+                << " op: " << operation_char(op.operation)
+                << " vis: " << visited_char(op.visited)
+                << " of:  " << operation_char(turn.operations[0].operation)
+                << operation_char(turn.operations[1].operation)
+                << " " << geometry::wkt(turn.point)
+                << std::endl;
+        }
+#endif
+
     static inline OutputIterator apply(LineString const& linestring, Polygon const& polygon,
             OutputIterator out,
             Strategy const& strategy)
@@ -119,6 +137,7 @@ struct intersection_linestring_polygon
         {
             return out;
         }
+
         typedef typename point_type<LineStringOut>::type point_type;
 
         typedef detail::overlay::traversal_turn_info<point_type> turn_info;
@@ -132,6 +151,8 @@ struct intersection_linestring_polygon
 
         if (turns.empty())
         {
+            // No intersection points, it is either completely inside 
+            // or completely outside
             if (geometry::within(linestring[0], polygon))
             {
                 LineStringOut copy;
@@ -141,9 +162,22 @@ struct intersection_linestring_polygon
             return out;
         }
 
-        return detail::overlay::follow<LineStringOut>
+#if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
+        int index = 0;
+        BOOST_FOREACH(turn_info const& turn, turns)
+        {
+            debug_follow(turn, turn.operations[0], index++);
+        }
+#endif
+
+        return detail::overlay::follow
+            <
+                LineStringOut,
+                LineString,
+                Polygon
+            >::apply
                 (
-                    linestring, 
+                    linestring, polygon,
                     geometry::detail::overlay::operation_intersection,
                     turns, out
                 );
