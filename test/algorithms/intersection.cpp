@@ -245,6 +245,7 @@ void test_areal_clip()
         1, 4, 0.75);
 }
 
+
 template <typename Box>
 void test_boxes(std::string const& wkt1, std::string const& wkt2, double expected_area, bool expected_result)
 {
@@ -281,6 +282,25 @@ void test_point_output()
     // test_point_output<box, box>("box(0 0,4 4)", "box(2 2,6 6)", 2);
 }
 
+
+template <typename Polygon, typename LineString>
+void test_polygon_linestring()
+{
+    std::string const poly_simplex = "POLYGON((1 1,1 3,3 3,3 1,1 1))";
+    test_one<LineString, Polygon, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);
+    test_one<LineString, Polygon, LineString>("case2",   poly_simplex, "LINESTRING(0 1,4 3)", 1, 2, sqrt(5.0));
+    test_one<LineString, Polygon, LineString>("case3", "POLYGON((2 0,2 5,5 5,5 0,2 0))", "LINESTRING(0 1,1 2,3 2,4 3,6 3,7 4)", 1, 4, 2 + sqrt(2.0));
+    test_one<LineString, Polygon, LineString>("case4", "POLYGON((0 0,0 4,2 4,2 0,0 0))", "LINESTRING(1 1,3 2,1 3)", 2, 4, sqrt(5.0));
+
+    test_one<LineString, Polygon, LineString>("case5", poly_simplex, "LINESTRING(0 1,3 4)", 1, 2, sqrt(2.0));
+    test_one<LineString, Polygon, LineString>("case6", "POLYGON((2 0,2 4,3 4,3 1,4 1,4 3,5 3,5 1,6 1,6 3,7 3,7 1,8 1,8 3,9 3,9 0,2 0))", "LINESTRING(1 1,10 3)", 4, 8, 
+            // Pieces are 1 x 2/9:
+            4.0 * sqrt(1.0 + 4.0/81.0));
+    test_one<LineString, Polygon, LineString>("case7", poly_simplex, "LINESTRING(1.5 1.5,2.5 2.5)", 1, 2, sqrt(2.0));
+    test_one<LineString, Polygon, LineString>("case8", poly_simplex, "LINESTRING(1 0,2 0)", 0, 0, 0.0);
+}
+
+
 template <typename P>
 void test_all()
 {
@@ -301,6 +321,8 @@ void test_all()
     test_areal<polygon_ccw>();
     test_areal<polygon_open>();
     test_areal<polygon_ccw_open>();
+
+    test_polygon_linestring<polygon, linestring>();
 
     test_areal_clip<polygon, box>();
     test_areal_clip<polygon_ccw, box>();
