@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/follow.hpp>
 #include <boost/geometry/views/segment_view.hpp>
 
 
@@ -101,6 +102,55 @@ struct intersection_linestring_linestring_point
         return out;
     }
 };
+
+template
+<
+    typename LineString, typename Polygon,
+    typename OutputIterator, typename LineStringOut,
+    typename Strategy
+>
+struct intersection_linestring_polygon
+{
+    static inline OutputIterator apply(LineString const& linestring, Polygon const& polygon,
+            OutputIterator out,
+            Strategy const& strategy)
+    {
+        if (boost::size(linestring) == 0)
+        {
+            return out;
+        }
+        typedef typename point_type<LineStringOut>::type point_type;
+
+        typedef detail::overlay::traversal_turn_info<point_type> turn_info;
+        std::deque<turn_info> turns;
+
+        detail::get_turns::no_interrupt_policy policy;
+        geometry::get_turns
+            <
+                false, false, detail::overlay::calculate_distance_policy
+            >(linestring, polygon, turns, policy);
+
+        if (turns.empty())
+        {
+            if (geometry::within(linestring[0], polygon))
+            {
+                LineStringOut copy;
+                geometry::convert(linestring, copy);
+                *out++ = copy;
+            }
+            return out;
+        }
+
+        return detail::overlay::follow<LineStringOut>
+                (
+                    linestring, 
+                    geometry::detail::overlay::operation_intersection,
+                    turns, out
+                );
+    }
+};
+
+
 
 }} // namespace detail::intersection
 #endif // DOXYGEN_NO_DETAIL
@@ -263,6 +313,33 @@ struct intersection_insert
             <GeometryOut>(box, linestring, out, lb_strategy);
     }
 };
+
+
+template
+<
+    typename Linestring, typename Polygon,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        linestring_tag, polygon_tag, linestring_tag,
+        false, true, false,
+        Linestring, Polygon,
+        Reverse1, Reverse2, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_linestring_polygon
+            <
+                Linestring, Polygon,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
+
 
 template
 <
