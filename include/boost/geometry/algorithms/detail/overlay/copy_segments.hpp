@@ -98,6 +98,41 @@ struct copy_segments_ring
     }
 };
 
+template
+<
+    typename LineString,
+    bool Reverse,
+    typename SegmentIdentifier,
+    typename RangeOut
+>
+struct copy_segments_linestring
+{
+
+    typedef typename boost::range_iterator<LineString const>::type iterator;
+
+    static inline void apply(LineString const& ls,
+            SegmentIdentifier const& seg_id, int to_index,
+            RangeOut& current_output)
+    {
+        int const from_index = seg_id.segment_index + 1;
+
+        // Sanity check
+        if (from_index > to_index || from_index < 0 || to_index >= boost::size(ls))
+        {
+            return;
+        }
+
+        typedef typename boost::range_difference<LineString>::type size_type;
+        size_type const count = to_index - from_index + 1;
+
+        typename boost::range_iterator<LineString const>::type it = boost::begin(ls) + from_index;
+
+        for (size_type i = 0; i < count; ++i, ++it)
+        {
+            detail::overlay::append_no_duplicates(current_output, *it);
+        }
+    }
+};
 
 template
 <
@@ -207,6 +242,21 @@ struct copy_segments<ring_tag, Ring, Reverse, SegmentIdentifier, RangeOut>
         >
 {};
 
+
+
+template
+<
+    typename LineString,
+    bool Reverse,
+    typename SegmentIdentifier,
+    typename RangeOut
+>
+struct copy_segments<linestring_tag, LineString, Reverse, SegmentIdentifier, RangeOut>
+    : detail::copy_segments::copy_segments_linestring
+        <
+            LineString, Reverse, SegmentIdentifier, RangeOut
+        >
+{};
 
 template
 <
