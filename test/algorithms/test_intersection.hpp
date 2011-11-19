@@ -39,11 +39,15 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         G1 const& g1, G2 const& g2,
         std::size_t expected_count = 0, std::size_t expected_point_count = 0,
         double expected_length_or_area = 0,
-        double percentage = 0.0001)
+        double percentage = 0.0001,
+        bool debug = false)
 {
     static const bool is_line = bg::geometry_id<OutputType>::type::value == 2;
 
-    //std::cout << caseid << std::endl;
+    if (debug)
+    {
+        std::cout << std::endl << "case " << caseid << std::endl;
+    }
 
 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
@@ -83,12 +87,10 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             ? bg::length(*it)
             : bg::area(*it);
 
-        /*
-        std::cout << std::endl << "case " << caseid << " ";
-        std::cout
-            << std::setprecision(20)
-            << bg::dsv(*it) << std::endl;
-        */
+        if (debug)
+        {
+            std::cout << std::setprecision(20) << bg::wkt(*it) << std::endl;
+        }
     }
 
 
@@ -159,6 +161,11 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     }
 #endif
 
+    if (debug)
+    {
+        std::cout << "end case " << caseid << std::endl;
+    }
+
     return length_or_area;
 }
 
@@ -167,7 +174,8 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
         std::size_t expected_count = 0, std::size_t expected_point_count = 0,
         double expected_length_or_area = 0,
-        double percentage = 0.0001)
+        double percentage = 0.0001,
+        bool debug = false)
 {
     G1 g1;
     bg::read_wkt(wkt1, g1);
@@ -181,7 +189,35 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
 
     return test_intersection<OutputType, void>(caseid, g1, g2,
         expected_count, expected_point_count,
-        expected_length_or_area, percentage);
+        expected_length_or_area, percentage,
+        debug);
+}
+
+template <typename OutputType, typename Areal, typename Linear>
+void test_one_lp(std::string const& caseid,
+        std::string const& wkt_areal, std::string const& wkt_linear,
+        std::size_t expected_count = 0, std::size_t expected_point_count = 0,
+        double expected_length = 0,
+        double percentage = 0.0001,
+        bool debug1 = false, bool debug2 = false)
+{
+    Areal areal;
+    bg::read_wkt(wkt_areal, areal);
+    bg::correct(areal);
+
+    Linear linear;
+    bg::read_wkt(wkt_linear, linear);
+
+    test_intersection<OutputType, void>(caseid, areal, linear,
+        expected_count, expected_point_count,
+        expected_length, percentage, debug1);
+
+    // A linestring reversed should deliver exactly the same.
+    bg::reverse(linear);
+
+    test_intersection<OutputType, void>(caseid, areal, linear,
+        expected_count, expected_point_count,
+        expected_length, percentage, debug2);
 }
 
 template <typename Geometry1, typename Geometry2>
