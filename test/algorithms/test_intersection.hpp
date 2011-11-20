@@ -63,6 +63,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         > strategy;
 
     // Check both normal behaviour, and _inserter behaviour
+    if (! debug)
     {
         std::vector<OutputType> out;
         bg::intersection(g1, g2, out);
