@@ -64,7 +64,17 @@ class follow
     template <typename Turn, typename Operation>
     static inline bool is_entering(Turn const& turn, Operation const& op)
     {
-        return op.operation == operation_intersection;
+        // (Blocked means: blocked for polygon/polygon intersection, because
+        // they are reversed. But for polygon/line it is similar to continue)
+        switch(op.operation)
+        {
+            case operation_intersection : 
+            case operation_continue : 
+            case operation_blocked : 
+                return true;
+        }
+
+        return false;
     }
 
     template <typename Turn, typename Operation>
@@ -74,20 +84,10 @@ class follow
     {
         if (op.operation == operation_union)
         {
-            if (turn.method == method_crosses)
-            {
-                return true;
-            }
-
-            if (entered)
-            {
-                return true;
-            }
-            if (first)
-            {
-                // Check if first point of line is inside polygon
-                return geometry::within(linestring[0], polygon);
-            }
+            return entered 
+                || turn.method == method_crosses
+                || (first && geometry::within(linestring[0], polygon))
+                ;
         }
         return false;
     }
@@ -100,21 +100,19 @@ class follow
     {
         if (turn.method == method_crosses)
         {
+            // The normal case, this is completely covered with entering/leaving 
+            // so stay out of this time consuming "within"
             return false;
         }
 
-        if (op.operation == operation_intersection)
+        switch(op.operation)
         {
-            if (entered)
-            {
-                return true;
-            }
-            if (first)
-            {
-                // Check if first point of line is inside polygon
-                return geometry::within(linestring[0], polygon);
-            }
+            case operation_intersection : 
+            case operation_continue : 
+            case operation_blocked : 
+                return entered || (first && geometry::within(linestring[0], polygon));
         }
+
         return false;
     }
 
