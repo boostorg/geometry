@@ -66,15 +66,10 @@ class follow
     {
         // (Blocked means: blocked for polygon/polygon intersection, because
         // they are reversed. But for polygon/line it is similar to continue)
-        switch(op.operation)
-        {
-            case operation_intersection : 
-            case operation_continue : 
-            case operation_blocked : 
-                return true;
-        }
-
-        return false;
+        return op.operation == operation_intersection
+            || op.operation == operation_continue
+            || op.operation == operation_blocked
+            ;
     }
 
     template <typename Turn, typename Operation>
@@ -105,12 +100,9 @@ class follow
             return false;
         }
 
-        switch(op.operation)
+        if (is_entering(turn, op))
         {
-            case operation_intersection : 
-            case operation_continue : 
-            case operation_blocked : 
-                return entered || (first && geometry::within(linestring[0], polygon));
+            return entered || (first && geometry::within(linestring[0], polygon));
         }
 
         return false;
