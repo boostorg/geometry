@@ -222,6 +222,32 @@ struct intersection_insert
 {};
 
 
+template
+<
+    typename Linestring, typename MultiPolygon,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        linestring_tag, multi_polygon_tag, linestring_tag,
+        false, true, false,
+        Linestring, MultiPolygon,
+        Reverse1, Reverse2, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_linestring_with_areal
+            <
+                Linestring, MultiPolygon,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
+
+
 } // namespace dispatch
 #endif
 
