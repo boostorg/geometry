@@ -151,11 +151,14 @@ void test_point_output()
     test_point_output<box, multi_polygon>("box(3 0,4 6)", case_multi_simplex[0], 8);
 }
 
-template <typename LineString, typename MultiPolygon, typename MultiLineString>
-void test_polygon_linestring()
+template <typename MultiPolygon, typename MultiLineString>
+void test_areal_linear()
 {
-    //test_one_lp<LineString, MultiPolygon, MultiLineString>("case_mp_mls_1", case_multi_simplex[0], "MULTILINESTRING((2 0,2 5),(3 0,3 5))", 4, 8, 10.0);
+    typedef typename boost::range_value<MultiPolygon>::type Polygon;
+    typedef typename boost::range_value<MultiLineString>::type LineString;
     test_one_lp<LineString, MultiPolygon, LineString>("case_mp_ls_1", case_multi_simplex[0], "LINESTRING(2 0,2 5)", 2, 4, 3.70);
+    test_one_lp<LineString, Polygon, MultiLineString>("case_p_mls_1", case_single_simplex, "MULTILINESTRING((2 0,2 5),(3 0,3 5))", 2, 4, 7.5);
+    test_one_lp<LineString, MultiPolygon, MultiLineString>("case_mp_mls_1", case_multi_simplex[0], "MULTILINESTRING((2 0,2 5),(3 0,3 5))", 4, 8, 6.8333333);
 }
 
 template <typename P>
@@ -191,7 +194,7 @@ void test_all()
     typedef bg::model::multi_linestring<linestring> multi_linestring;
 
     test_linear<linestring, multi_linestring, box>();
-    test_polygon_linestring<linestring, multi_polygon, multi_linestring>();
+    test_areal_linear<multi_polygon, multi_linestring>();
 #endif
 
     test_point_output<P>();
