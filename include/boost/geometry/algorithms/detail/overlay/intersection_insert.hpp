@@ -105,11 +105,11 @@ struct intersection_linestring_linestring_point
 
 /*!
 \brief Version of linestring with an areal feature (polygon or multipolygon)
-\ingroup intersection
 */
 template
 <
     typename LineString, typename Areal,
+    bool ReverseAreal,
     typename OutputIterator, typename LineStringOut,
     typename Strategy
 >
@@ -150,7 +150,7 @@ struct intersection_of_linestring_with_areal
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
             <
-                false, false, detail::overlay::calculate_distance_policy
+                false, ReverseAreal, detail::overlay::calculate_distance_policy
             >(linestring, areal, turns, policy);
 
         if (turns.empty())
@@ -355,7 +355,7 @@ struct intersection_insert
 template
 <
     typename Linestring, typename Polygon,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool ReverseLinestring, bool ReversePolygon, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
     overlay_type OverlayType,
     typename Strategy
@@ -365,18 +365,45 @@ struct intersection_insert
         linestring_tag, polygon_tag, linestring_tag,
         false, true, false,
         Linestring, Polygon,
-        Reverse1, Reverse2, ReverseOut,
+        ReverseLinestring, ReversePolygon, ReverseOut,
         OutputIterator, GeometryOut,
         OverlayType,
         Strategy
     > : detail::intersection::intersection_of_linestring_with_areal
             <
                 Linestring, Polygon,
+                ReversePolygon,
                 OutputIterator, GeometryOut,
                 Strategy
             >
 {};
 
+
+template
+<
+    typename Linestring, typename Ring,
+    bool ReverseLinestring, bool ReverseRing, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        linestring_tag, ring_tag, linestring_tag,
+        false, true, false,
+        Linestring, Ring,
+        ReverseLinestring, ReverseRing, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_linestring_with_areal
+            <
+                Linestring, Ring,
+                ReverseRing,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
 
 template
 <
