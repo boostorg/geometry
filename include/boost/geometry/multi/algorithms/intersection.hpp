@@ -109,6 +109,64 @@ struct intersection_linestring_multi_linestring_point
 };
 
 
+// This loop is quite similar to the loop above, but beacuse the iterator
+// is second (above) or first (below) argument, it is not trivial to merge them.
+template
+<
+    typename MultiLinestring, typename Areal,
+    typename OutputIterator, typename LineStringOut,
+    typename Strategy
+>
+struct intersection_of_multi_linestring_with_areal
+{
+    static inline OutputIterator apply(MultiLinestring const& ml, Areal const& areal,
+            OutputIterator out,
+            Strategy const& strategy)
+    {
+        for (typename boost::range_iterator
+                <
+                    MultiLinestring const
+                >::type it = boost::begin(ml);
+            it != boost::end(ml);
+            ++it)
+        {
+            out = intersection_of_linestring_with_areal
+                <
+                    typename boost::range_value<MultiLinestring>::type,
+                    Areal,
+                    OutputIterator, LineStringOut, Strategy
+                >::apply(*it, areal, out, strategy);
+        }
+
+        return out;
+
+    }
+};
+
+// This one calls the one above with reversed arguments
+template
+<
+    typename Areal, typename MultiLinestring,
+    typename OutputIterator, typename LineStringOut,
+    typename Strategy
+>
+struct intersection_of_areal_with_multi_linestring
+{
+    static inline OutputIterator apply(Areal const& areal, MultiLinestring const& ml,
+            OutputIterator out,
+            Strategy const& strategy)
+    {
+        return intersection_of_multi_linestring_with_areal
+            <
+                MultiLinestring, Areal,
+                OutputIterator, LineStringOut,
+                Strategy
+            >::apply(ml, areal, out, strategy);
+    }
+};
+
+
+
 template
 <
     typename MultiLinestring, typename Box,
@@ -242,6 +300,60 @@ struct intersection_insert
     > : detail::intersection::intersection_of_linestring_with_areal
             <
                 Linestring, MultiPolygon,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
+
+
+// Derives from areal/mls because runtime arguments are in that order.
+// areal/mls reverses it itself to mls/areal
+template
+<
+    typename Polygon, typename MultiLinestring,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        polygon_tag, multi_linestring_tag, linestring_tag,
+        true, false, false,
+        Polygon, MultiLinestring,
+        Reverse1, Reverse2, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_areal_with_multi_linestring
+            <
+                Polygon, MultiLinestring,
+                OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
+
+
+template
+<
+    typename MultiLinestring, typename MultiPolygon,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        multi_linestring_tag, multi_polygon_tag, linestring_tag,
+        false, true, false,
+        MultiLinestring, MultiPolygon,
+        Reverse1, Reverse2, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_multi_linestring_with_areal
+            <
+                MultiLinestring, MultiPolygon,
                 OutputIterator, GeometryOut,
                 Strategy
             >
