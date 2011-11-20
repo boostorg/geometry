@@ -103,13 +103,17 @@ struct intersection_linestring_linestring_point
     }
 };
 
+/*!
+\brief Version of linestring with an areal feature (polygon or multipolygon)
+\ingroup intersection
+*/
 template
 <
-    typename LineString, typename Polygon,
+    typename LineString, typename Areal,
     typename OutputIterator, typename LineStringOut,
     typename Strategy
 >
-struct intersection_linestring_polygon
+struct intersection_of_linestring_with_areal
 {
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
@@ -129,7 +133,7 @@ struct intersection_linestring_polygon
         }
 #endif
 
-    static inline OutputIterator apply(LineString const& linestring, Polygon const& polygon,
+    static inline OutputIterator apply(LineString const& linestring, Areal const& areal,
             OutputIterator out,
             Strategy const& strategy)
     {
@@ -147,13 +151,13 @@ struct intersection_linestring_polygon
         geometry::get_turns
             <
                 false, false, detail::overlay::calculate_distance_policy
-            >(linestring, polygon, turns, policy);
+            >(linestring, areal, turns, policy);
 
         if (turns.empty())
         {
             // No intersection points, it is either completely inside 
             // or completely outside
-            if (geometry::within(linestring[0], polygon))
+            if (geometry::within(linestring[0], areal))
             {
                 LineStringOut copy;
                 geometry::convert(linestring, copy);
@@ -174,16 +178,15 @@ struct intersection_linestring_polygon
             <
                 LineStringOut,
                 LineString,
-                Polygon
+                Areal
             >::apply
                 (
-                    linestring, polygon,
+                    linestring, areal,
                     geometry::detail::overlay::operation_intersection,
                     turns, out
                 );
     }
 };
-
 
 
 }} // namespace detail::intersection
@@ -366,7 +369,7 @@ struct intersection_insert
         OutputIterator, GeometryOut,
         OverlayType,
         Strategy
-    > : detail::intersection::intersection_linestring_polygon
+    > : detail::intersection::intersection_of_linestring_with_areal
             <
                 Linestring, Polygon,
                 OutputIterator, GeometryOut,
