@@ -287,7 +287,7 @@ void test_point_output()
 
 
 template <typename Polygon, typename LineString>
-void test_polygon_linestring()
+void test_areal_linear()
 {
     std::string const poly_simplex = "POLYGON((1 1,1 3,3 3,3 1,1 1))";
 
@@ -321,6 +321,10 @@ void test_polygon_linestring()
     // Compile test - arguments in any order:
     test_one<LineString, Polygon, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);
     test_one<LineString, LineString, Polygon>("simplex", "LINESTRING(0 2,4 2)", poly_simplex, 1, 2, 2.0);
+
+    typedef typename bg::point_type<Polygon>::type Point;
+    test_one<LineString, bg::model::ring<Point>, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);
+
 }
 
 
@@ -338,7 +342,10 @@ void test_all()
 
     std::string clip = "box(2 2,8 8)";
 
-    test_polygon_linestring<polygon, linestring>();
+    test_areal_linear<polygon, linestring>();
+    test_areal_linear<polygon_open, linestring>();
+    test_areal_linear<polygon_ccw, linestring>();
+    test_areal_linear<polygon_ccw_open, linestring>();
 
     // Test polygons clockwise and counter clockwise
     test_areal<polygon>();
