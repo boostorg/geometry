@@ -216,7 +216,7 @@ void test_one_lp(std::string const& caseid,
     // A linestring reversed should deliver exactly the same.
     bg::reverse(linear);
 
-    test_intersection<OutputType, void>(caseid, areal, linear,
+    test_intersection<OutputType, void>(caseid + "_rev", areal, linear,
         expected_count, expected_point_count,
         expected_length, percentage, debug2);
 }
