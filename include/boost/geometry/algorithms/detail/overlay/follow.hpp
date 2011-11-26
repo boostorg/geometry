@@ -16,10 +16,8 @@
 #include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/algorithms/within.hpp>
 
 
 namespace boost { namespace geometry
@@ -108,6 +106,18 @@ class follow
         return false;
     }
 
+    template <typename Turn>
+    static inline bool was_entered(Turn const& turn, bool first)
+    {
+        if (first && (turn.method == method_collinear || turn.method == method_equal))
+        {
+            // If it is the very first point, and either equal or collinear, there is only one
+            // IP generated (on purpose). So consider this as having entered. 
+            // Maybe it will leave immediately after that (u/i) but that is checked later.
+            return true;
+        }
+        return false;
+    }
 
 public :
     template<typename Turns, typename OutputIterator>
@@ -136,6 +146,12 @@ public :
         for (turn_iterator it = boost::begin(turns); it != boost::end(turns); ++it)
         {
             turn_operation_iterator_type iit = boost::begin(it->operations);
+
+            if (was_entered(*it, first))
+            {
+                debug_traverse(*it, *iit, "-> Was entered");
+                entered = true;
+            }
 
             if (is_staying_inside(*it, *iit, entered, first, linestring, polygon))
             {
