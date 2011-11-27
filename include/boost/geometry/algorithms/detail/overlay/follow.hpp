@@ -110,7 +110,7 @@ template<overlay_type OverlayType>
 struct action_selector
 {
     // If you get here the overlay type is not intersection or difference
-    BOOST_MPL_ASSERT(false);
+    // BOOST_MPL_ASSERT(false);
 };
 
 // Specialization for intersection, containing the implementation
