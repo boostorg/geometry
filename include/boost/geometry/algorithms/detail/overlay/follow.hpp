@@ -12,6 +12,7 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
+#include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
@@ -28,7 +29,7 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-
+    
 
 /*!
 \brief Follows a linestring from intersection point to intersection point, outputting which
@@ -39,7 +40,8 @@ template
 <
     typename LineStringOut,
     typename LineString,
-    typename Polygon
+    typename Polygon,
+    overlay_type OverlayType
 >
 class follow
 {
@@ -119,7 +121,94 @@ class follow
         return false;
     }
 
+    // Template specialization structure to call the right actions for the right type
+    template<overlay_type OverlayType>
+    struct action_selector
+    {
+        // If you get here the overlay type is not intersection or difference
+        BOOST_MPL_ASSERT(false);
+    };
+
+    // Specialization for intersection, containing the implementation
+    template<>
+    struct action_selector<overlay_intersection>
+    {
+        template<typename OutputIterator, typename Point, typename Operation>
+        static inline void enter(LineStringOut& current_piece, LineString const& linestring, segment_identifier& segment_id, int index, Point const& point, Operation const& operation, OutputIterator& out)
+        {
+            // On enter, append the intersection point and remember starting point
+            detail::overlay::append_no_duplicates(current_piece, point);
+            segment_id = operation.seg_id;
+        }
+
+        template<typename OutputIterator, typename Point, typename Operation>
+        static inline void leave(LineStringOut& current_piece, LineString const& linestring, segment_identifier& segment_id, int index, Point const& point, Operation const& operation, OutputIterator& out)
+        {
+            // On leave, copy all segments from starting point, append the intersection point
+            // and add the output piece
+            geometry::copy_segments<false>(linestring, segment_id, index, current_piece);
+            detail::overlay::append_no_duplicates(current_piece, point);
+            if (! current_piece.empty())
+            {
+                *out++ = current_piece;
+                current_piece.clear();
+            }
+        }
+
+        static inline bool is_entered(bool entered)
+        {
+            return entered;
+        }
+
+        template <typename Point, typename Geometry>
+        static inline bool included(Point const& point, Geometry const& geometry)
+        {
+            return geometry::within(point, geometry);
+        }
+
+    };
+
+    // Specialization for difference, which reverses these actions
+    template<>
+    struct action_selector<overlay_difference>
+    {
+        typedef action_selector<overlay_intersection> normal_action;
+
+        template<typename OutputIterator, typename Point, typename Operation>
+        static inline void enter(LineStringOut& current_piece, LineString const& linestring, segment_identifier& segment_id, int index, Point const& point, Operation const& operation, OutputIterator& out)
+        {
+            normal_action::leave(current_piece, linestring, segment_id, index, point, operation, out);
+        }
+
+        template<typename OutputIterator, typename Point, typename Operation>
+        static inline void leave(LineStringOut& current_piece, LineString const& linestring, segment_identifier& segment_id, int index, Point const& point, Operation const& operation, OutputIterator& out)
+        {
+            normal_action::enter(current_piece, linestring, segment_id, index, point, operation, out);
+        }
+
+        static inline bool is_entered(bool entered)
+        {
+            return ! normal_action::is_entered(entered);
+        }
+
+        template <typename Point, typename Geometry>
+        static inline bool included(Point const& point, Geometry const& geometry)
+        {
+            return ! normal_action::included(point, geometry);
+        }
+
+    };
+
+
+
 public :
+
+    template <typename Point, typename Geometry>
+    static inline bool included(Point const& point, Geometry const& geometry)
+    {
+        return action_selector<OverlayType>::included(point, geometry);
+    }
+
     template<typename Turns, typename OutputIterator>
     static inline OutputIterator apply(LineString const& linestring, Polygon const& polygon,
                 detail::overlay::operation_type operation,
@@ -131,7 +220,6 @@ public :
             <
                 typename turn_type::container_type
             >::type turn_operation_iterator_type;
-
 
         // Sort intersection points on segments-along-linestring, and distance
         // (like in enrich is done for poly/poly)
@@ -164,42 +252,33 @@ public :
                 debug_traverse(*it, *iit, "-> Entering");
 
                 entered = true;
-                detail::overlay::append_no_duplicates(current_piece, it->point);
-                current_segment_id = iit->seg_id;
+                action_selector<OverlayType>::enter(current_piece, linestring, current_segment_id, iit->seg_id.segment_index, it->point, *iit, out);
             }
             else if (is_leaving(*it, *iit, entered, first, linestring, polygon))
             {
                 debug_traverse(*it, *iit, "-> Leaving");
 
                 entered = false;
-                geometry::copy_segments<false>(linestring, current_segment_id,
-                        iit->seg_id.segment_index,
-                        current_piece);
-                detail::overlay::append_no_duplicates(current_piece, it->point);
-
-                if (! current_piece.empty())
-                {
-                    *out++ = current_piece;
-                    current_piece.clear();
-                }
+                action_selector<OverlayType>::leave(current_piece, linestring, current_segment_id, iit->seg_id.segment_index, it->point, *iit, out);
             }
             first = false;
         }
 
-        if (entered)
+        if (action_selector<OverlayType>::is_entered(entered))
         {
-            geometry::copy_segments<false>(linestring, current_segment_id, 
+            geometry::copy_segments<false>(linestring, current_segment_id,
                     boost::size(linestring) - 1,
                     current_piece);
         }
 
-        // Add the last one, if applicable
+        // Output the last one, if applicable
         if (! current_piece.empty())
         {
             *out++ = current_piece;
         }
         return out;
     }
+
 };
 
 

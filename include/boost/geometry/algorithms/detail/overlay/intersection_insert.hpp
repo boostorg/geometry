@@ -29,6 +29,9 @@
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
 #include <boost/geometry/views/segment_view.hpp>
 
+#if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
+#include <boost/foreach.hpp>
+#endif
 
 namespace boost { namespace geometry
 {
@@ -111,10 +114,18 @@ template
     typename LineString, typename Areal,
     bool ReverseAreal,
     typename OutputIterator, typename LineStringOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_of_linestring_with_areal
 {
+    typedef detail::overlay::follow
+            <
+                LineStringOut,
+                LineString,
+                Areal,
+                OverlayType
+            > follower;
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
         template <typename Turn, typename Operation>
@@ -150,14 +161,17 @@ struct intersection_of_linestring_with_areal
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
             <
-                false, ReverseAreal, detail::overlay::calculate_distance_policy
+                false,
+                (OverlayType == overlay_intersection ? ReverseAreal : !ReverseAreal),
+                detail::overlay::calculate_distance_policy
             >(linestring, areal, turns, policy);
 
         if (turns.empty())
         {
-            // No intersection points, it is either completely inside 
+            // No intersection points, it is either completely 
+            // inside (interior + borders)
             // or completely outside
-            if (geometry::within(linestring[0], areal))
+            if (follower::included(*boost::begin(linestring), areal))
             {
                 LineStringOut copy;
                 geometry::convert(linestring, copy);
@@ -174,12 +188,7 @@ struct intersection_of_linestring_with_areal
         }
 #endif
 
-        return detail::overlay::follow
-            <
-                LineStringOut,
-                LineString,
-                Areal
-            >::apply
+        return follower::apply
                 (
                     linestring, areal,
                     geometry::detail::overlay::operation_intersection,
@@ -374,6 +383,7 @@ struct intersection_insert
                 Linestring, Polygon,
                 ReversePolygon,
                 OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >
 {};
@@ -401,6 +411,7 @@ struct intersection_insert
                 Linestring, Ring,
                 ReverseRing,
                 OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >
 {};

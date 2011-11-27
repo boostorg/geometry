@@ -116,6 +116,7 @@ template
     typename MultiLinestring, typename Areal,
     bool ReverseAreal,
     typename OutputIterator, typename LineStringOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_of_multi_linestring_with_areal
@@ -135,7 +136,7 @@ struct intersection_of_multi_linestring_with_areal
                 <
                     typename boost::range_value<MultiLinestring>::type,
                     Areal, ReverseAreal,
-                    OutputIterator, LineStringOut, Strategy
+                    OutputIterator, LineStringOut, OverlayType, Strategy
                 >::apply(*it, areal, out, strategy);
         }
 
@@ -150,6 +151,7 @@ template
     typename Areal, typename MultiLinestring,
     bool ReverseAreal,
     typename OutputIterator, typename LineStringOut,
+    overlay_type OverlayType,
     typename Strategy
 >
 struct intersection_of_areal_with_multi_linestring
@@ -162,6 +164,7 @@ struct intersection_of_areal_with_multi_linestring
             <
                 MultiLinestring, Areal, ReverseAreal,
                 OutputIterator, LineStringOut,
+                OverlayType,
                 Strategy
             >::apply(ml, areal, out, strategy);
     }
@@ -304,6 +307,7 @@ struct intersection_insert
                 Linestring, MultiPolygon,
                 ReverseMultiPolygon,
                 OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >
 {};
@@ -333,6 +337,7 @@ struct intersection_insert
                 Polygon, MultiLinestring,
                 ReversePolygon,
                 OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >
 {};
@@ -360,6 +365,7 @@ struct intersection_insert
                 MultiLinestring, Ring,
                 ReverseRing,
                 OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >
 {};
@@ -389,6 +395,7 @@ struct intersection_insert
                 MultiLinestring, MultiPolygon,
                 ReverseMultiPolygon,
                 OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >
 {};
