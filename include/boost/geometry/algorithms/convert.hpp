@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
+#include <boost/geometry/algorithms/detail/convert_box_to_box.hpp>
 
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
@@ -251,6 +252,17 @@ template
 struct convert<false, point_tag, point_tag, DimensionCount, Geometry1, Geometry2>
     : detail::conversion::point_to_point<Geometry1, Geometry2, 0, DimensionCount>
 {};
+
+
+template
+<
+    std::size_t DimensionCount,
+    typename Box1, typename Box2
+>
+struct convert<false, box_tag, box_tag, DimensionCount, Box1, Box2>
+    : detail::conversion::box_to_box<Box1, Box2, 0, DimensionCount>
+{};
+
 
 template <std::size_t DimensionCount, typename Segment, typename LineString>
 struct convert<false, segment_tag, linestring_tag, DimensionCount, Segment, LineString>
