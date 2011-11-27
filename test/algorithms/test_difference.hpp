@@ -22,6 +22,7 @@
 #include <boost/geometry/algorithms/sym_difference.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
