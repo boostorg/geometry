@@ -9,7 +9,12 @@
 
 //#define BOOST_GEOMETRY_CHECK_WITH_POSTGIS
 
+//#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+//#define BOOST_GEOMETRY_DEBUG_INTERSECTION
+//#define BOOST_GEOMETRY_DEBUG_TRAVERSE
+//#define BOOST_GEOMETRY_DEBUG_FOLLOW
 //#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
+//#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 
 
 #include <iostream>
@@ -39,14 +44,61 @@
 #endif
 
 
+
+template <typename Polygon, typename LineString>
+void test_areal_linear()
+{
+    std::string const poly_simplex = "POLYGON((1 1,1 3,3 3,3 1,1 1))";
+    test_one_lp<LineString, LineString, Polygon>("simplex", "LINESTRING(0 2,4 2)", poly_simplex, 2, 4, 2.0);
+    test_one_lp<LineString, LineString, Polygon>("case2",  "LINESTRING(0 1,4 3)", poly_simplex, 2, 4, sqrt(5.0));
+    test_one_lp<LineString, LineString, Polygon>("case3", "LINESTRING(0 1,1 2,3 2,4 3,6 3,7 4)", "POLYGON((2 0,2 5,5 5,5 0,2 0))", 2, 6, 2.0 + 2.0 * sqrt(2.0));
+    test_one_lp<LineString, LineString, Polygon>("case4", "LINESTRING(1 1,3 2,1 3)", "POLYGON((0 0,0 4,2 4,2 0,0 0))", 1, 3, sqrt(5.0));
+
+    test_one_lp<LineString, LineString, Polygon>("case5", "LINESTRING(0 1,3 4)", poly_simplex, 2, 4, 2.0 * sqrt(2.0));
+    test_one_lp<LineString, LineString, Polygon>("case6", "LINESTRING(1 1,10 3)", "POLYGON((2 0,2 4,3 4,3 1,4 1,4 3,5 3,5 1,6 1,6 3,7 3,7 1,8 1,8 3,9 3,9 0,2 0))", 5, 10, 
+            // Pieces are 1 x 2/9:
+            5.0 * sqrt(1.0 + 4.0/81.0));
+
+
+    test_one_lp<LineString, LineString, Polygon>("case7", "LINESTRING(1.5 1.5,2.5 2.5)", poly_simplex, 0, 0, 0.0);
+    test_one_lp<LineString, LineString, Polygon>("case8", "LINESTRING(1 0,2 0)", poly_simplex, 1, 2, 1.0);
+
+    std::string const poly_9 = "POLYGON((1 1,1 4,4 4,4 1,1 1))";
+    test_one_lp<LineString, LineString, Polygon>("case9", "LINESTRING(0 1,1 2,2 2)", poly_9, 1, 2, sqrt(2.0));
+    test_one_lp<LineString, LineString, Polygon>("case10", "LINESTRING(0 1,1 2,0 2)", poly_9, 1, 3, 1.0 + sqrt(2.0));
+    test_one_lp<LineString, LineString, Polygon>("case11", "LINESTRING(2 2,4 2,3 3)", poly_9, 0, 0, 0.0);
+    test_one_lp<LineString, LineString, Polygon>("case12", "LINESTRING(2 3,4 4,5 6)", poly_9, 1, 2, sqrt(5.0));
+
+    test_one_lp<LineString, LineString, Polygon>("case13", "LINESTRING(3 2,4 4,2 3)", poly_9, 0, 0, 0.0);
+    test_one_lp<LineString, LineString, Polygon>("case14", "LINESTRING(5 6,4 4,6 5)", poly_9, 1, 3, 2.0 * sqrt(5.0));
+
+    //return;
+    // The rest compiles but is NOT yet correct
+
+    test_one_lp<LineString, LineString, Polygon>("case15", "LINESTRING(0 2,1 2,1 3,0 3)", poly_9, 2, 4, 2.0);
+    test_one_lp<LineString, LineString, Polygon>("case16", "LINESTRING(2 2,1 2,1 3,2 3)", poly_9, 0, 0, 0.0);
+
+    std::string const angly = "LINESTRING(2 2,2 1,4 1,4 2,5 2,5 3,4 3,4 4,5 4,3 6,3 5,2 5,2 6,0 4)";
+    test_one_lp<LineString, LineString, Polygon>("case17", angly, "POLYGON((1 1,1 5,4 5,4 1,1 1))", 3, 11, 6.0 + 4.0 * sqrt(2.0));
+    test_one_lp<LineString, LineString, Polygon>("case18", angly, "POLYGON((1 1,1 5,5 5,5 1,1 1))", 2, 6, 2.0 + 3.0 * sqrt(2.0));
+    test_one_lp<LineString, LineString, Polygon>("case19", "LINESTRING(1 2,1 3,0 3)", poly_9, 1, 2, 1.0);
+    test_one_lp<LineString, LineString, Polygon>("case20", "LINESTRING(1 2,1 3,2 3)", poly_9, 0, 0, 0.0);
+
+    test_one_lp<LineString, LineString, Polygon>("case21", "LINESTRING(1 2,1 4,4 4,4 1,2 1,2 2)", poly_9, 0, 0, 0.0);
+}
+
 template <typename P>
 void test_all()
 {
     typedef bg::model::box<P> box;
     typedef bg::model::polygon<P> polygon;
+    typedef bg::model::linestring<P> linestring;
     typedef bg::model::ring<P> ring;
 
     typedef typename bg::coordinate_type<P>::type ct;
+
+    test_areal_linear<polygon, linestring>();
+
 
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
