@@ -23,6 +23,13 @@ void test_mixed_point_types()
     // Point
     test_mixed_identical_result<Point1, Point2>("POINT(1 2)");
 
+    // Box
+    test_mixed_identical_result
+        <
+            bg::model::box<Point1>, 
+            bg::model::box<Point2>
+        >("POLYGON((1 2,1 4,3 4,3 2,1 2))");
+
     // Linestring
     test_mixed_identical_result
         <
