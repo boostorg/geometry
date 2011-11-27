@@ -370,6 +370,32 @@ struct intersection_insert
             >
 {};
 
+template
+<
+    typename MultiLinestring, typename Polygon,
+    bool ReverseMultiLinestring, bool ReverseRing, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        multi_linestring_tag, polygon_tag, linestring_tag,
+        false, true, false,
+        MultiLinestring, Polygon,
+        ReverseMultiLinestring, ReverseRing, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_multi_linestring_with_areal
+            <
+                MultiLinestring, Polygon,
+                ReverseRing,
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
+            >
+{};
 
 
 
