@@ -25,13 +25,13 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="index.rtree"></a>R-tree</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="rtree.html#id798399">R-tree creation</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id798477">Values, Indexables and default Translator</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id798556">Inserting and splitting algorithms</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id798596">Inserting and removing Values</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id798621">Spatial queries</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id798665">Spatial predicates</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id798716">Nearest neighbor queries</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id789661">R-tree creation</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id789748">Values, Indexables and default Translator</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id789861">Inserting and splitting algorithms</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id789906">Inserting and removing Values</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id789931">Spatial queries</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id789980">Spatial predicates</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id790041">Nearest neighbors queries</a></span></dt>
 </dl></div>
 <p>
 R-tree is a self-balancing search tree with nodes stored with their axis aligned
@@ -42,7 +42,7 @@ which may be stored inside the node are user defined.
 </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id798399"></a>R-tree creation</h3></div></div></div>
+<a name="id789661"></a>R-tree creation</h3></div></div></div>
 <p>
 R-tree has 4 parameters:
 </p>
@@ -56,10 +56,13 @@ rtree&lt;Value, Parameters, Translator, Allocator&gt;
 <code class="computeroutput">Value</code> - type of object which will be stored in the container.
 </li>
 <li class="listitem">
-<code class="computeroutput">Parameters</code> - compile-time parameters, e.g. inserting/splitting algorithm with min and max nodes' elements numbers.
+<code class="computeroutput">Parameters</code> - compile-time parameters, e.g. inserting/splitting
+algorithm with min and max nodes' elements numbers.
 </li>
 <li class="listitem">
-<code class="computeroutput">Translator</code> - type of object translating Value objects to Indexable objects (<code class="computeroutput">Point</code> or <code class="computeroutput">Box</code>) which R-tree can handle.
+<code class="computeroutput">Translator</code> - type of object translating <code class="computeroutput">Value</code> objects
+to <code class="computeroutput">Indexable</code> objects (<code class="computeroutput">Point</code> or <code class="computeroutput">Box</code>) which
+R-tree can handle.
 </li>
 <li class="listitem">
 <code class="computeroutput">Allocator</code> - the allocator.
@@ -68,7 +71,8 @@ rtree&lt;Value, Parameters, Translator, Allocator&gt;
 <p>
 </p>
 <p>
-In order to create a R-tree object storing values of type <code class="computeroutput">std::pair&lt;Box, int&gt;</code> one may use the following code
+In order to create a R-tree object storing values of type
+<code class="computeroutput">std::pair&lt;Box, int&gt;</code> one may use the following code
 </p>
 <pre class="programlisting">
 using namespace boost::geometry;
@@ -80,13 +84,15 @@ index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id798477"></a>Values, Indexables and default Translator</h3></div></div></div>
+<a name="id789748"></a>Values, Indexables and default Translator</h3></div></div></div>
 <p>
-R-tree may store Values of any type as long as there is passed the Translator which knows how to interpret
-those Values and extract an object understandable by the R-tree. Those objects are called Indexables
-and they are simply of type adapted to Point or Box concept. Default translator
-<code class="computeroutput">index::translator::def&lt;Value&gt;</code> is able to handle <code class="computeroutput">Point</code>, <code class="computeroutput">Box</code>,
-<code class="computeroutput">std::pair&lt;...&gt;</code>, pointer, iterator or smart pointer.
+R-tree may store <code class="computeroutput">Value</code>s of any type as long as there is passed
+the <code class="computeroutput">Translator</code> which knows how to interpret those <code class="computeroutput">Value</code>s
+and extract an object understandable by the R-tree. Those objects are called
+<code class="computeroutput">Indexables</code> and they are simply of type adapted to <code class="computeroutput">Point</code>
+or <code class="computeroutput">Box</code> concept. Default translator <code class="computeroutput">index::translator::def&lt;Value&gt;</code>
+is able to handle <code class="computeroutput">Point</code>, <code class="computeroutput">Box</code>, <code class="computeroutput">std::pair&lt;...&gt;</code>,
+pointer, iterator or smart pointer.
 </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem"><code class="computeroutput">Indexable = Point | Box</code></li>
@@ -94,7 +100,7 @@ and they are simply of type adapted to Point or Box concept. Default translator
 <li class="listitem"><code class="computeroutput">Value = BasicValue | BasicValue* | Iterator&lt;BasicValue&gt; | SmartPtr&lt;BasicValue&gt;</code></li>
 </ul></div>
 <p>
-Examples of Value types:
+Examples of <code class="computeroutput">Value</code> types:
 </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem"><code class="computeroutput">geometry::model::point&lt;...&gt;</code></li>
@@ -107,9 +113,9 @@ Examples of Value types:
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id798556"></a>Inserting and splitting algorithms</h3></div></div></div>
+<a name="id789861"></a>Inserting and splitting algorithms</h3></div></div></div>
 <p>
-Values may be inserted to the R-tree in many various ways. Final structure of nodes depends
+<code class="computeroutput">Value</code>s may be inserted to the R-tree in many various ways. Final structure of nodes depends
 on algorithms used in the process, especially nodes' splitting algorithm. Currently, three
 well-known types of R-trees may be created.
 </p>
@@ -138,7 +144,7 @@ index::rtree&lt; Value, index::rstar&lt;32, 8&gt; &gt; rt;
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id798596"></a>Inserting and removing Values</h3></div></div></div>
+<a name="id789906"></a>Inserting and removing Values</h3></div></div></div>
 <p>
 Create
 </p>
@@ -168,10 +174,10 @@ index::remove(rt, v);
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id798621"></a>Spatial queries</h3></div></div></div>
+<a name="id789931"></a>Spatial queries</h3></div></div></div>
 <p>
 There are three ways to perform a spatial query. Following queries returns
-Values intersecting some box_region.
+<code class="computeroutput">Value</code>s intersecting some box_region.
 </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
@@ -204,9 +210,9 @@ BOOST_FOREACH(Value &amp;v, rt | index::query_filtered(box_region))
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id798665"></a>Spatial predicates</h3></div></div></div>
+<a name="id789980"></a>Spatial predicates</h3></div></div></div>
 <p>
-It is possible to define other relations between queried Values and region/regions
+It is possible to define other relations between queried <code class="computeroutput">Value</code>s and region/regions
 of interest. Names of predicates corresponds to names of Boost.Geometry algorithms.
 </p>
 <pre class="programlisting">
@@ -245,7 +251,7 @@ rt.query(
 </pre>
 <p>
 There is special predicate <code class="computeroutput">index::value(Fun)</code> taking user-defined function/functor
-which checks if Value should be returned by the query.
+which checks if <code class="computeroutput">Value</code> should be returned by the query.
 </p>
 <pre class="programlisting">
 bool fun(Value const&amp; v)
@@ -264,8 +270,159 @@ rt.query(
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id798716"></a>Nearest neighbor queries</h3></div></div></div>
-TODO
+<a name="id790041"></a>Nearest neighbors queries</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="rtree.html#id790047">k nearest neighbors</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id797757">One nearest neighbor</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id797793">Distances predicates</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id797832">Using spatial predicates</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id790047"></a>k nearest neighbors</h4></div></div></div>
+<p>
+There are three ways of performing knn queries. Following queries returns
+k <code class="computeroutput">Value</code>s closest to some point in space. For <code class="computeroutput">Box</code>es
+<code class="computeroutput">Indexable</code>s closest point of a <code class="computeroutput">Box</code> is taken into
+account by default.
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+Method call
+<pre class="programlisting">
+std::vector&lt;Value&gt; returned_values;
+Point pt(...);
+rt.nearest(pt, k, std::back_inserter(returned_values));
+</pre>
+</li>
+<li class="listitem">
+Function call
+<pre class="programlisting">
+std::vector&lt;Value&gt; returned_values;
+Point pt(...);
+index::nearest(rt, pt, k, std::back_inserter(returned_values));
+</pre>
+</li>
+<li class="listitem">
+Use of <code class="computeroutput">operator |</code><pre class="programlisting">
+Point pt(...);
+BOOST_FOREACH(Value &amp;v, rt | index::nearest_filtered(pt, k))
+  ;// do something with v
+</pre>
+</li>
+</ul></div>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id797757"></a>One nearest neighbor</h4></div></div></div>
+<p>
+Another type of nearest neighbor query is searching for the one closest <code class="computeroutput">Value</code>.
+If it is found, 1 is returned by the method or function. This kind of query
+has only two forms.
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+Method call
+<pre class="programlisting">
+Value returned_value;
+Point pt(...);
+size_t n = rt.nearest(pt, returned_value);
+</pre>
+</li>
+<li class="listitem">
+Function call
+<pre class="programlisting">
+Value returned_value;
+Point pt(...);
+size_t n = index::nearest(rt, pt, returned_value);
+</pre>
+</li>
+</ul></div>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id797793"></a>Distances predicates</h4></div></div></div>
+<p>
+It is possible to define if calculated distance between query point and <code class="computeroutput">Value</code> should be
+greater, lesser or between some other distances. Those are called <code class="computeroutput">DistancesPredicate</code>s and
+may be defined as follows.
+</p>
+<pre class="programlisting">
+std::vector&lt;Value&gt; returned_values;
+Point pt(...);
+
+/* default - without bounds */
+index::nearest(rt, pt, k, std::back_inserter(returned_values));
+
+/* same as default */
+index::nearest(rt, index::unbounded(pt), k, std::back_inserter(returned_values));
+
+/* distance must be greater than or equal to 10 */
+index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
+
+/* distance must be lesser than or equal to 500 */
+index::nearest(rt, index::max_bounded(pt, 500), k, std::back_inserter(returned_values));
+
+/* distance must be between 10 and 500 */
+index::nearest(rt, index::bounded(pt, 10, 500), k, std::back_inserter(returned_values));
+
+</pre>
+<p>
+</p>
+<p>
+Furthermore, it's possible to define if the closest, furthest or centroidal point of the
+non-point <code class="computeroutput">Indexable</code> should be taken into account in the routine calculating distance.
+</p>
+<pre class="programlisting">
+std::vector&lt;Value&gt; returned_values;
+Point pt(...);
+
+/* default - distance between Indexable's closest point and a query point
+must be greater than 10 */
+index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
+
+/* same as default - distance between Indexable's closest point and a query point
+must be greater than 10 */
+index::nearest(rt, index::min_bounded(pt, index::near(10)), k, std::back_inserter(returned_values));
+
+/* distance between Indexable's furthest point and a query point
+must be greater than 10 */
+index::nearest(rt, index::min_bounded(pt, index::far(10)), k, std::back_inserter(returned_values));
+
+/* distance between Indexable's centroid and a query point
+must be greater than 10 */
+index::nearest(rt, index::min_bounded(pt, index::centroid(10)), k, std::back_inserter(returned_values));
+</pre>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id797832"></a>Using spatial predicates</h4></div></div></div>
+<p>
+It is possible to use spatial predicates described before in knn queries.
+</p>
+<pre class="programlisting">
+Value returned_value;
+std::vector&lt;Value&gt; returned_values;
+
+Point pt(...);
+Box b(...);
+
+size_t n1 = rt.nearest(index::bounded(pt, index::far(1), 10), index::intersects(b), returned_value);
+
+size_t n2 = index::nearest(rt, pt, k, index::within(b), std::back_inserter(returned_values));
+
+BOOST_FOREACH(Value &amp;v, rt | index::nearest_filtered(pt, k, index::covered_by(b)))
+  ;// do something with v
+</pre>
+<p>
+</p>
+</div>
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>

@@ -68,10 +68,13 @@ rtree&lt;Value, Parameters, Translator, Allocator&gt;
 <code>Value</code> - type of object which will be stored in the container.
 </listitem>
 <listitem>
-<code>Parameters</code> - compile-time parameters, e.g. inserting/splitting algorithm with min and max nodes' elements numbers.
+<code>Parameters</code> - compile-time parameters, e.g. inserting/splitting
+algorithm with min and max nodes' elements numbers.
 </listitem>
 <listitem>
-<code>Translator</code> - type of object translating Value objects to Indexable objects (<code>Point</code> or <code>Box</code>) which R-tree can handle.
+<code>Translator</code> - type of object translating <code>Value</code> objects
+to <code>Indexable</code> objects (<code>Point</code> or <code>Box</code>) which
+R-tree can handle.
 </listitem>
 <listitem>
 <code>Allocator</code> - the allocator.
@@ -79,7 +82,8 @@ rtree&lt;Value, Parameters, Translator, Allocator&gt;
 </itemizedlist>
 </para>
 <para>
-In order to create a R-tree object storing values of type <code>std::pair&lt;Box, int&gt;</code> one may use the following code
+In order to create a R-tree object storing values of type
+<code>std::pair&lt;Box, int&gt;</code> one may use the following code
 <programlisting>
 using namespace boost::geometry;
 typedef std::pair&lt;Box, int&gt; Value;
@@ -91,17 +95,19 @@ index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
 <section>
 <title>Values, Indexables and default Translator</title>
 <para>
-R-tree may store Values of any type as long as there is passed the Translator which knows how to interpret
-those Values and extract an object understandable by the R-tree. Those objects are called Indexables
-and they are simply of type adapted to Point or Box concept. Default translator
-<code>index::translator::def&lt;Value&gt;</code> is able to handle <code>Point</code>, <code>Box</code>,
-<code>std::pair&lt;...&gt;</code>, pointer, iterator or smart pointer.
+R-tree may store <code>Value</code>s of any type as long as there is passed
+the <code>Translator</code> which knows how to interpret those <code>Value</code>s
+and extract an object understandable by the R-tree. Those objects are called
+<code>Indexables</code> and they are simply of type adapted to <code>Point</code>
+or <code>Box</code> concept. Default translator <code>index::translator::def&lt;Value&gt;</code>
+is able to handle <code>Point</code>, <code>Box</code>, <code>std::pair&lt;...&gt;</code>,
+pointer, iterator or smart pointer.
 <itemizedlist>
 <listitem><code>Indexable = Point | Box</code></listitem>
 <listitem><code>BasicValue = Indexable | std::pair&lt;Indexable, T&gt; | std::pair&lt;T, Indexable&gt;</code></listitem>
 <listitem><code>Value = BasicValue | BasicValue* | Iterator&lt;BasicValue&gt; | SmartPtr&lt;BasicValue&gt;</code></listitem>
 </itemizedlist>
-Examples of Value types:
+Examples of <code>Value</code> types:
 <itemizedlist>
 <listitem><code>geometry::model::point&lt;...&gt;</code></listitem>
 <listitem><code>geometry::model::point_xy&lt;...&gt;</code></listitem>
@@ -114,7 +120,7 @@ Examples of Value types:
 <section>
 <title>Inserting and splitting algorithms</title>
 <para>
-Values may be inserted to the R-tree in many various ways. Final structure of nodes depends
+<code>Value</code>s may be inserted to the R-tree in many various ways. Final structure of nodes depends
 on algorithms used in the process, especially nodes' splitting algorithm. Currently, three
 well-known types of R-trees may be created.
 <itemizedlist>
@@ -168,7 +174,7 @@ index::remove(rt, v);
 <title>Spatial queries</title>
 <para>
 There are three ways to perform a spatial query. Following queries returns
-Values intersecting some box_region.
+<code>Value</code>s intersecting some box_region.
 <itemizedlist>
 <listitem>
 Method call
@@ -201,7 +207,7 @@ BOOST_FOREACH(Value &amp;v, rt | index::query_filtered(box_region))
 <section>
 <title>Spatial predicates</title>
 <para>
-It is possible to define other relations between queried Values and region/regions
+It is possible to define other relations between queried <code>Value</code>s and region/regions
 of interest. Names of predicates corresponds to names of Boost.Geometry algorithms.
 <programlisting>
 rt.query(box, std::back_inserter(result)); // default case - intersects
@@ -232,7 +238,7 @@ rt.query(
   , std::back_inserter(result));
 </programlisting>
 There is special predicate <code>index::value(Fun)</code> taking user-defined function/functor
-which checks if Value should be returned by the query.
+which checks if <code>Value</code> should be returned by the query.
 <programlisting>
 bool fun(Value const&amp; v)
 {
@@ -249,8 +255,147 @@ rt.query(
 </section>
 
 <section>
-<title>Nearest neighbor queries</title>
-TODO
+<title>Nearest neighbors queries</title>
+
+<section>
+<title>k nearest neighbors</title>
+<para>
+There are three ways of performing knn queries. Following queries returns
+k <code>Value</code>s closest to some point in space. For <code>Box</code>es
+<code>Indexable</code>s closest point of a <code>Box</code> is taken into
+account by default.
+<itemizedlist>
+<listitem>
+Method call
+<programlisting>
+std::vector&lt;Value&gt; returned_values;
+Point pt(...);
+rt.nearest(pt, k, std::back_inserter(returned_values));
+</programlisting>
+</listitem>
+<listitem>
+Function call
+<programlisting>
+std::vector&lt;Value&gt; returned_values;
+Point pt(...);
+index::nearest(rt, pt, k, std::back_inserter(returned_values));
+</programlisting>
+</listitem>
+<listitem>
+Use of <code>operator |</code>
+<programlisting>
+Point pt(...);
+BOOST_FOREACH(Value &amp;v, rt | index::nearest_filtered(pt, k))
+  ;// do something with v
+</programlisting>
+</listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section>
+<title>One nearest neighbor</title>
+<para>
+Another type of nearest neighbor query is searching for the one closest <code>Value</code>.
+If it is found, 1 is returned by the method or function. This kind of query
+has only two forms.
+<itemizedlist>
+<listitem>
+Method call
+<programlisting>
+Value returned_value;
+Point pt(...);
+size_t n = rt.nearest(pt, returned_value);
+</programlisting>
+</listitem>
+<listitem>
+Function call
+<programlisting>
+Value returned_value;
+Point pt(...);
+size_t n = index::nearest(rt, pt, returned_value);
+</programlisting>
+</listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section>
+<title>Distances predicates</title>
+<para>
+It is possible to define if calculated distance between query point and <code>Value</code> should be
+greater, lesser or between some other distances. Those are called <code>DistancesPredicate</code>s and
+may be defined as follows.
+<programlisting>
+std::vector&lt;Value&gt; returned_values;
+Point pt(...);
+
+/* default - without bounds */
+index::nearest(rt, pt, k, std::back_inserter(returned_values));
+
+/* same as default */
+index::nearest(rt, index::unbounded(pt), k, std::back_inserter(returned_values));
+
+/* distance must be greater than or equal to 10 */
+index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
+
+/* distance must be lesser than or equal to 500 */
+index::nearest(rt, index::max_bounded(pt, 500), k, std::back_inserter(returned_values));
+
+/* distance must be between 10 and 500 */
+index::nearest(rt, index::bounded(pt, 10, 500), k, std::back_inserter(returned_values));
+
+</programlisting>
+</para>
+
+<para>
+Furthermore, it's possible to define if the closest, furthest or centroidal point of the
+non-point <code>Indexable</code> should be taken into account in the routine calculating distance.
+<programlisting>
+std::vector&lt;Value&gt; returned_values;
+Point pt(...);
+
+/* default - distance between Indexable's closest point and a query point
+must be greater than 10 */
+index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
+
+/* same as default - distance between Indexable's closest point and a query point
+must be greater than 10 */
+index::nearest(rt, index::min_bounded(pt, index::near(10)), k, std::back_inserter(returned_values));
+
+/* distance between Indexable's furthest point and a query point
+must be greater than 10 */
+index::nearest(rt, index::min_bounded(pt, index::far(10)), k, std::back_inserter(returned_values));
+
+/* distance between Indexable's centroid and a query point
+must be greater than 10 */
+index::nearest(rt, index::min_bounded(pt, index::centroid(10)), k, std::back_inserter(returned_values));
+</programlisting>
+</para>
+
+</section>
+
+<section>
+<title>Using spatial predicates</title>
+<para>
+It is possible to use spatial predicates described before in knn queries.
+<programlisting>
+Value returned_value;
+std::vector&lt;Value&gt; returned_values;
+
+Point pt(...);
+Box b(...);
+
+size_t n1 = rt.nearest(index::bounded(pt, index::far(1), 10), index::intersects(b), returned_value);
+
+size_t n2 = index::nearest(rt, pt, k, index::within(b), std::back_inserter(returned_values));
+
+BOOST_FOREACH(Value &amp;v, rt | index::nearest_filtered(pt, k, index::covered_by(b)))
+  ;// do something with v
+</programlisting>
+</para>
+</section>
+
 </section>
 
 </section>
