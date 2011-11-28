@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE library PUBLIC "-//Boost//DTD BoostBook XML V1.0//EN"
+  "http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<library name="Geometry.Index" dirname="index" id="index" 
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+<libraryinfo>
+  <author>
+    <firstname>Federico J.</firstname>
+    <surname>Fernandez</surname>
+  </author>
+  <author>
+    <firstname>Adam</firstname>
+    <surname>Wulkiewicz</surname>
+  </author>
+
+  <copyright>
+    <year>2008</year>
+    <holder>Federico J. Fernandez</holder>
+  </copyright>
+  <copyright>
+    <year>2011</year>
+    <holder>Adam Wulkiewicz</holder>
+  </copyright>
+
+  <legalnotice>
+    <para>Use, modification and distribution is subject to the Boost
+    Software License, Version 1.0. (See accompanying file
+    <filename>LICENSE_1_0.txt</filename> or copy at <ulink
+    url="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</ulink>)</para>
+  </legalnotice>
+
+  <librarypurpose>Spatial indexes for faster spatial and knn queries.</librarypurpose>
+  <librarycategory name="category:data-structures"/>
+</libraryinfo>
+
+<title>Boost.Geometry.Index</title>
+
+<section id="index.intro">
+<title>Introduction</title> 
+<para>The Boost.Geometry.Index library is intetended to gather containers
+(spatial indexes) used for speeding spatial queries up. In general, indexes
+stores geometric objects' representations and allows searching for objects
+occupying some space or close to some point in space.
+</para>
+
+<para>Currently, only one spatial index is implemented - the R-tree.</para>
+</section>
+
+<section id="index.rtree">
+<title>R-tree</title>
+<para>
+R-tree is a self-balancing search tree with nodes stored with their axis aligned
+bounding boxes. Each node's box describes the space occupied by children nodes.
+At the bottom of the structure, there are leaf-nodes which contains values
+(geometric objects representations). Minimal and maximal numbers of values/children
+which may be stored inside the node are user defined.
+</para>
+
+<section>
+<title>R-tree creation</title>
+<para>
+R-tree has 4 parameters:
+<programlisting>
+rtree&lt;Value, Parameters, Translator, Allocator&gt;
+</programlisting>
+<itemizedlist>
+<listitem>
+Value - type of object which will be stored in the container.
+</listitem>
+<listitem>
+Parameters - compile-time parameters, e.g. inserting/splitting algorithm with min and max nodes' elements numbers.
+</listitem>
+<listitem>
+Translator - type of object translating Value objects to Indexable objects (Point or Box) which R-tree can handle.
+</listitem>
+<listitem>
+Allocator - the allocator.
+</listitem>
+</itemizedlist>
+</para>
+<para>
+In order to create a R-tree object storing values of type std::pair&lt;Box, int&gt; one may use the following code
+<programlisting>
+using namespace boost::geometry;
+typedef std::pair&lt;Box, int&gt; Value;
+index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
+</programlisting>
+</para>
+</section>
+
+<section>
+<title>Values, Indexables and default Translator</title>
+<para>
+R-tree may store Values of any type as long as there is passed the Translator which knows how to interpret
+those Values and extract an object understandable by the R-tree. Those objects are called Indexables
+and they are simply of type adapted to Point or Box concept. Default translator
+index::translator::def&lt;Value&gt; is able to handle Points, Boxes, std::pairs, pointers and iterators.
+<itemizedlist>
+<listitem>Indexable = Point | Box</listitem>
+<listitem>BasicValue = Indexable | std::pair&lt;Indexable, T&gt; | std::pair&lt;T, Indexable&gt;</listitem>
+<listitem>Value = BasicValue | BasicValue* | Iterator&lt;BasicValue&gt;</listitem>
+</itemizedlist>
+Examples of Value types:
+<itemizedlist>
+<listitem>geometry::model::point&lt;...&gt;</listitem>
+<listitem>geometry::model::point_xy&lt;...&gt;</listitem>
+<listitem>geometry::model::box&lt;...&gt;</listitem>
+<listitem>std::pair&le;geometry::model::box&lt;...&gt;, size_t&gt;</listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section>
+<title>Inserting and splitting algorithms</title>
+<para>
+Values may be inserted to the R-tree in many various ways. Final structure of nodes depends
+on algorithms used in the process, especially nodes' splitting algorithm. Currently, three
+well-known types of R-trees may be created.
+<itemizedlist>
+<listitem>
+Linear - classic R-tree using splitting algorithm of linear complexity
+<programlisting>
+index::rtree&lt; Value, index::linear&lt;32, 8&gt; &gt; rt;
+</programlisting>
+</listitem>
+<listitem>
+Quadratic - classic R-tree using splitting algorithm of quadratic complexity
+<programlisting>
+index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
+</programlisting>
+</listitem>
+<listitem>
+R*-tree - splitting algorithm minimizing nodes' overlap with forced reinsertions
+<programlisting>
+index::rtree&lt; Value, index::rstar&lt;32, 8&gt; &gt; rt;
+</programlisting>
+</listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section>
+<title>Inserting and removing Values</title>
+<para>
+Create
+<programlisting>
+using namespace boost::geometry;
+typedef std::pair&lt;Box, int&gt; Value;
+index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
+</programlisting>
+Insert and remove by method call
+<programlisting>
+rt.insert(std::make_pair(Box(...), 0));
+rt.remove(std::make_pair(Box(...), 0));
+</programlisting>
+or by function call
+<programlisting>
+index::insert(rt, std::make_pair(Box(...), 0));
+index::remove(rt, std::make_pair(Box(...), 0));
+</programlisting>
+</para>
+</section>
+
+<section>
+<title>Spatial queries</title>
+<para>
+There are three ways to perform a spatial query. Following queries returns
+Values intersecting some box_region.
+<itemizedlist>
+<listitem>
+Method call
+<programlisting>
+std::vector&lt;Value&gt; returned_values;
+Box box_region(...);
+rt.query(box_region, std::back_inserter(returned_values));
+</programlisting>
+</listitem>
+<listitem>
+Function call
+<programlisting>
+std::vector&lt;Value&gt; returned_values;
+Box box_region(...);
+index::query(rt, box_region, std::back_inserter(returned_values));
+</programlisting>
+</listitem>
+<listitem>
+Use of operator | (as with ranges)
+<programlisting>
+Box box_region(...);
+BOOST_FOREACH(Value &amp;v, rt | index::query_filtered(box_region))
+  ;// do something with v
+</programlisting>
+</listitem>
+</itemizedlist>
+</para>
+</section>
+
+<section>
+<title>Spatial predicates</title>
+<para>
+It is possible to define other relations between queried Values and region/regions
+of interest. Names of predicates corresponds to names of Boost.Geometry algorithms.
+<programlisting>
+rt.query(box, std::back_inserter(result)); // default case - intersects
+rt.query(index::intersects(box), std::back_inserter(result)); // same as default
+rt.query(index::covered_by(box), std::back_inserter(result));
+rt.query(index::disjont(box), std::back_inserter(result));
+rt.query(index::overlaps(box), std::back_inserter(result));
+rt.query(index::within(box), std::back_inserter(result));
+</programlisting>
+All predicates may be negated, e.g.:
+<programlisting>
+rt.query(index::not_intersects(box), std::back_inserter(result));
+// or
+rt.query(!index::intersects(box), std::back_inserter(result));
+// the same as
+rt.query(index::disjoint(box), std::back_inserter(result));
+</programlisting>
+It's possible to use some number of predicates by passing std::pair&lt;P1, P2&gt;
+<programlisting>
+rt.query(
+  std::make_pair(index::intersects(box1), !index::within(box2))
+  , std::back_inserter(result));
+</programlisting>
+or boost::tuple&lt;P1, P2, P3, ...&gt;
+<programlisting>
+rt.query(
+  boost::make_tuple(index::intersects(box1), !index::within(box2), index::overlaps(box3))
+  , std::back_inserter(result));
+</programlisting>
+There is special predicate index::value taking user-defined function/functor
+which checks if Value should be returned by the query.
+<programlisting>
+bool fun(Value const&amp; v)
+{
+  return v.is_red();
+}
+
+// ...
+
+rt.query(
+  boost::make_pair(index::intersects(box), index::value(fun))
+  , std::back_inserter(result));
+</programlisting>
+</para>
+</section>
+
+<section>
+<title>Nearest neighbor queries</title>
+TODO
+</section>
+
+</section>
+
+</library>

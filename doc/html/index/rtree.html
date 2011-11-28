@@ -1,0 +1,280 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>R-tree</title>
+<link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Boost.Geometry.Index">
+<link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Boost.Geometry.Index">
+<link rel="prev" href="../index.html" title="Chapter&#160;1.&#160;Boost.Geometry.Index">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="http://www.boost.org/doc/libs/release/boost.png"></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/index.html">Home</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="index.rtree"></a>R-tree</h2></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="rtree.html#id824613">R-tree creation</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id824657">Values, Indexables and default Translator</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id824700">Inserting and splitting algorithms</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id824739">Inserting and removing Values</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id824765">Spatial queries</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id824804">Spatial predicates</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id824839">Nearest neighbor queries</a></span></dt>
+</dl></div>
+<p>
+R-tree is a self-balancing search tree with nodes stored with their axis aligned
+bounding boxes. Each node's box describes the space occupied by children nodes.
+At the bottom of the structure, there are leaf-nodes which contains values
+(geometric objects representations). Minimal and maximal numbers of values/children
+which may be stored inside the node are user defined.
+</p>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id824613"></a>R-tree creation</h3></div></div></div>
+<p>
+R-tree has 4 parameters:
+</p>
+<pre class="programlisting">
+rtree&lt;Value, Parameters, Translator, Allocator&gt;
+</pre>
+<p>
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+Value - type of object which will be stored in the container.
+</li>
+<li class="listitem">
+Parameters - compile-time parameters, e.g. inserting/splitting algorithm with min and max nodes' elements numbers.
+</li>
+<li class="listitem">
+Translator - type of object translating Value objects to Indexable objects (Point or Box) which R-tree can handle.
+</li>
+<li class="listitem">
+Allocator - the allocator.
+</li>
+</ul></div>
+<p>
+</p>
+<p>
+In order to create a R-tree object storing values of type std::pair&lt;Box, int&gt; one may use the following code
+</p>
+<pre class="programlisting">
+using namespace boost::geometry;
+typedef std::pair&lt;Box, int&gt; Value;
+index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
+</pre>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id824657"></a>Values, Indexables and default Translator</h3></div></div></div>
+<p>
+R-tree may store Values of any type as long as there is passed the Translator which knows how to interpret
+those Values and extract an object understandable by the R-tree. Those objects are called Indexables
+and they are simply of type adapted to Point or Box concept. Default translator
+index::translator::def&lt;Value&gt; is able to handle Points, Boxes, std::pairs, pointers and iterators.
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">Indexable = Point | Box</li>
+<li class="listitem">BasicValue = Indexable | std::pair&lt;Indexable, T&gt; | std::pair&lt;T, Indexable&gt;</li>
+<li class="listitem">Value = BasicValue | BasicValue* | Iterator&lt;BasicValue&gt;</li>
+</ul></div>
+<p>
+Examples of Value types:
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">geometry::model::point&lt;...&gt;</li>
+<li class="listitem">geometry::model::point_xy&lt;...&gt;</li>
+<li class="listitem">geometry::model::box&lt;...&gt;</li>
+<li class="listitem">std::pair&#8804;geometry::model::box&lt;...&gt;, size_t&gt;</li>
+</ul></div>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id824700"></a>Inserting and splitting algorithms</h3></div></div></div>
+<p>
+Values may be inserted to the R-tree in many various ways. Final structure of nodes depends
+on algorithms used in the process, especially nodes' splitting algorithm. Currently, three
+well-known types of R-trees may be created.
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+Linear - classic R-tree using splitting algorithm of linear complexity
+<pre class="programlisting">
+index::rtree&lt; Value, index::linear&lt;32, 8&gt; &gt; rt;
+</pre>
+</li>
+<li class="listitem">
+Quadratic - classic R-tree using splitting algorithm of quadratic complexity
+<pre class="programlisting">
+index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
+</pre>
+</li>
+<li class="listitem">
+R*-tree - splitting algorithm minimizing nodes' overlap with forced reinsertions
+<pre class="programlisting">
+index::rtree&lt; Value, index::rstar&lt;32, 8&gt; &gt; rt;
+</pre>
+</li>
+</ul></div>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id824739"></a>Inserting and removing Values</h3></div></div></div>
+<p>
+Create
+</p>
+<pre class="programlisting">
+using namespace boost::geometry;
+typedef std::pair&lt;Box, int&gt; Value;
+index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
+</pre>
+<p>
+Insert and remove by method call
+</p>
+<pre class="programlisting">
+rt.insert(std::make_pair(Box(...), 0));
+rt.remove(std::make_pair(Box(...), 0));
+</pre>
+<p>
+or by function call
+</p>
+<pre class="programlisting">
+index::insert(rt, std::make_pair(Box(...), 0));
+index::remove(rt, std::make_pair(Box(...), 0));
+</pre>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id824765"></a>Spatial queries</h3></div></div></div>
+<p>
+There are three ways to perform a spatial query. Following queries returns
+Values intersecting some box_region.
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+Method call
+<pre class="programlisting">
+std::vector&lt;Value&gt; returned_values;
+Box box_region(...);
+rt.query(box_region, std::back_inserter(returned_values));
+</pre>
+</li>
+<li class="listitem">
+Function call
+<pre class="programlisting">
+std::vector&lt;Value&gt; returned_values;
+Box box_region(...);
+index::query(rt, box_region, std::back_inserter(returned_values));
+</pre>
+</li>
+<li class="listitem">
+Use of operator | (as with ranges)
+<pre class="programlisting">
+Box box_region(...);
+BOOST_FOREACH(Value &amp;v, rt | index::query_filtered(box_region))
+  ;// do something with v
+</pre>
+</li>
+</ul></div>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id824804"></a>Spatial predicates</h3></div></div></div>
+<p>
+It is possible to define other relations between queried Values and region/regions
+of interest. Names of predicates corresponds to names of Boost.Geometry algorithms.
+</p>
+<pre class="programlisting">
+rt.query(box, std::back_inserter(result)); // default case - intersects
+rt.query(index::intersects(box), std::back_inserter(result)); // same as default
+rt.query(index::covered_by(box), std::back_inserter(result));
+rt.query(index::disjont(box), std::back_inserter(result));
+rt.query(index::overlaps(box), std::back_inserter(result));
+rt.query(index::within(box), std::back_inserter(result));
+</pre>
+<p>
+All predicates may be negated, e.g.:
+</p>
+<pre class="programlisting">
+rt.query(index::not_intersects(box), std::back_inserter(result));
+// or
+rt.query(!index::intersects(box), std::back_inserter(result));
+// the same as
+rt.query(index::disjoint(box), std::back_inserter(result));
+</pre>
+<p>
+It's possible to use some number of predicates by passing std::pair&lt;P1, P2&gt;
+</p>
+<pre class="programlisting">
+rt.query(
+  std::make_pair(index::intersects(box1), !index::within(box2))
+  , std::back_inserter(result));
+</pre>
+<p>
+or boost::tuple&lt;P1, P2, P3, ...&gt;
+</p>
+<pre class="programlisting">
+rt.query(
+  boost::make_tuple(index::intersects(box1), !index::within(box2), index::overlaps(box3))
+  , std::back_inserter(result));
+</pre>
+<p>
+There is special predicate index::value taking user-defined function/functor
+which checks if Value should be returned by the query.
+</p>
+<pre class="programlisting">
+bool fun(Value const&amp; v)
+{
+  return v.is_red();
+}
+
+// ...
+
+rt.query(
+  boost::make_pair(index::intersects(box), index::value(fun))
+  , std::back_inserter(result));
+</pre>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id824839"></a>Nearest neighbor queries</h3></div></div></div>
+TODO
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2008 Federico J. Fernandez<br>Copyright &#169; 2011 Adam Wulkiewicz<p>Use, modification and distribution is subject to the Boost
+    Software License, Version 1.0. (See accompanying file
+    <code class="filename">LICENSE_1_0.txt</code> or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)</p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a>
+</div>
+</body>
+</html>
