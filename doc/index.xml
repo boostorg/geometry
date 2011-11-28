@@ -65,21 +65,21 @@ rtree&lt;Value, Parameters, Translator, Allocator&gt;
 </programlisting>
 <itemizedlist>
 <listitem>
-Value - type of object which will be stored in the container.
+<code>Value</code> - type of object which will be stored in the container.
 </listitem>
 <listitem>
-Parameters - compile-time parameters, e.g. inserting/splitting algorithm with min and max nodes' elements numbers.
+<code>Parameters</code> - compile-time parameters, e.g. inserting/splitting algorithm with min and max nodes' elements numbers.
 </listitem>
 <listitem>
-Translator - type of object translating Value objects to Indexable objects (Point or Box) which R-tree can handle.
+<code>Translator</code> - type of object translating Value objects to Indexable objects (<code>Point</code> or <code>Box</code>) which R-tree can handle.
 </listitem>
 <listitem>
-Allocator - the allocator.
+<code>Allocator</code> - the allocator.
 </listitem>
 </itemizedlist>
 </para>
 <para>
-In order to create a R-tree object storing values of type std::pair&lt;Box, int&gt; one may use the following code
+In order to create a R-tree object storing values of type <code>std::pair&lt;Box, int&gt;</code> one may use the following code
 <programlisting>
 using namespace boost::geometry;
 typedef std::pair&lt;Box, int&gt; Value;
@@ -94,18 +94,19 @@ index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
 R-tree may store Values of any type as long as there is passed the Translator which knows how to interpret
 those Values and extract an object understandable by the R-tree. Those objects are called Indexables
 and they are simply of type adapted to Point or Box concept. Default translator
-index::translator::def&lt;Value&gt; is able to handle Points, Boxes, std::pairs, pointers and iterators.
+<code>index::translator::def&lt;Value&gt;</code> is able to handle <code>Point</code>, <code>Box</code>,
+<code>std::pair&lt;...&gt;</code>, pointer, iterator or smart pointer.
 <itemizedlist>
-<listitem>Indexable = Point | Box</listitem>
-<listitem>BasicValue = Indexable | std::pair&lt;Indexable, T&gt; | std::pair&lt;T, Indexable&gt;</listitem>
-<listitem>Value = BasicValue | BasicValue* | Iterator&lt;BasicValue&gt;</listitem>
+<listitem><code>Indexable = Point | Box</code></listitem>
+<listitem><code>BasicValue = Indexable | std::pair&lt;Indexable, T&gt; | std::pair&lt;T, Indexable&gt;</code></listitem>
+<listitem><code>Value = BasicValue | BasicValue* | Iterator&lt;BasicValue&gt; | SmartPtr&lt;BasicValue&gt;</code></listitem>
 </itemizedlist>
 Examples of Value types:
 <itemizedlist>
-<listitem>geometry::model::point&lt;...&gt;</listitem>
-<listitem>geometry::model::point_xy&lt;...&gt;</listitem>
-<listitem>geometry::model::box&lt;...&gt;</listitem>
-<listitem>std::pair&le;geometry::model::box&lt;...&gt;, size_t&gt;</listitem>
+<listitem><code>geometry::model::point&lt;...&gt;</code></listitem>
+<listitem><code>geometry::model::point_xy&lt;...&gt;</code></listitem>
+<listitem><code>geometry::model::box&lt;...&gt;</code></listitem>
+<listitem><code>std::pair&lt;geometry::model::box&lt;...&gt;, size_t&gt;</code></listitem>
 </itemizedlist>
 </para>
 </section>
@@ -150,13 +151,15 @@ index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
 </programlisting>
 Insert and remove by method call
 <programlisting>
-rt.insert(std::make_pair(Box(...), 0));
-rt.remove(std::make_pair(Box(...), 0));
+Value v = std::make_pair(Box(...), 0);
+rt.insert(v);
+rt.remove(v);
 </programlisting>
 or by function call
 <programlisting>
-index::insert(rt, std::make_pair(Box(...), 0));
-index::remove(rt, std::make_pair(Box(...), 0));
+Value v = std::make_pair(Box(...), 0);
+index::insert(rt, v);
+index::remove(rt, v);
 </programlisting>
 </para>
 </section>
@@ -184,7 +187,7 @@ index::query(rt, box_region, std::back_inserter(returned_values));
 </programlisting>
 </listitem>
 <listitem>
-Use of operator | (as with ranges)
+Use of <code>operator |</code> (as with ranges)
 <programlisting>
 Box box_region(...);
 BOOST_FOREACH(Value &amp;v, rt | index::query_filtered(box_region))
@@ -216,19 +219,19 @@ rt.query(!index::intersects(box), std::back_inserter(result));
 // the same as
 rt.query(index::disjoint(box), std::back_inserter(result));
 </programlisting>
-It's possible to use some number of predicates by passing std::pair&lt;P1, P2&gt;
+It's possible to use some number of predicates by passing <code>std::pair&lt;Pred1, Pred2&gt;</code>
 <programlisting>
 rt.query(
   std::make_pair(index::intersects(box1), !index::within(box2))
   , std::back_inserter(result));
 </programlisting>
-or boost::tuple&lt;P1, P2, P3, ...&gt;
+or <code>boost::tuple&lt;Pred1, Pred2, Pred3, ...&gt;</code>
 <programlisting>
 rt.query(
   boost::make_tuple(index::intersects(box1), !index::within(box2), index::overlaps(box3))
   , std::back_inserter(result));
 </programlisting>
-There is special predicate index::value taking user-defined function/functor
+There is special predicate <code>index::value(Fun)</code> taking user-defined function/functor
 which checks if Value should be returned by the query.
 <programlisting>
 bool fun(Value const&amp; v)

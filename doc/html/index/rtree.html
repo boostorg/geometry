@@ -25,13 +25,13 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="index.rtree"></a>R-tree</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="rtree.html#id824613">R-tree creation</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id824657">Values, Indexables and default Translator</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id824700">Inserting and splitting algorithms</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id824739">Inserting and removing Values</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id824765">Spatial queries</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id824804">Spatial predicates</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id824839">Nearest neighbor queries</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id798399">R-tree creation</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id798477">Values, Indexables and default Translator</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id798556">Inserting and splitting algorithms</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id798596">Inserting and removing Values</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id798621">Spatial queries</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id798665">Spatial predicates</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id798716">Nearest neighbor queries</a></span></dt>
 </dl></div>
 <p>
 R-tree is a self-balancing search tree with nodes stored with their axis aligned
@@ -42,7 +42,7 @@ which may be stored inside the node are user defined.
 </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id824613"></a>R-tree creation</h3></div></div></div>
+<a name="id798399"></a>R-tree creation</h3></div></div></div>
 <p>
 R-tree has 4 parameters:
 </p>
@@ -53,22 +53,22 @@ rtree&lt;Value, Parameters, Translator, Allocator&gt;
 </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
-Value - type of object which will be stored in the container.
+<code class="computeroutput">Value</code> - type of object which will be stored in the container.
 </li>
 <li class="listitem">
-Parameters - compile-time parameters, e.g. inserting/splitting algorithm with min and max nodes' elements numbers.
+<code class="computeroutput">Parameters</code> - compile-time parameters, e.g. inserting/splitting algorithm with min and max nodes' elements numbers.
 </li>
 <li class="listitem">
-Translator - type of object translating Value objects to Indexable objects (Point or Box) which R-tree can handle.
+<code class="computeroutput">Translator</code> - type of object translating Value objects to Indexable objects (<code class="computeroutput">Point</code> or <code class="computeroutput">Box</code>) which R-tree can handle.
 </li>
 <li class="listitem">
-Allocator - the allocator.
+<code class="computeroutput">Allocator</code> - the allocator.
 </li>
 </ul></div>
 <p>
 </p>
 <p>
-In order to create a R-tree object storing values of type std::pair&lt;Box, int&gt; one may use the following code
+In order to create a R-tree object storing values of type <code class="computeroutput">std::pair&lt;Box, int&gt;</code> one may use the following code
 </p>
 <pre class="programlisting">
 using namespace boost::geometry;
@@ -80,33 +80,34 @@ index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id824657"></a>Values, Indexables and default Translator</h3></div></div></div>
+<a name="id798477"></a>Values, Indexables and default Translator</h3></div></div></div>
 <p>
 R-tree may store Values of any type as long as there is passed the Translator which knows how to interpret
 those Values and extract an object understandable by the R-tree. Those objects are called Indexables
 and they are simply of type adapted to Point or Box concept. Default translator
-index::translator::def&lt;Value&gt; is able to handle Points, Boxes, std::pairs, pointers and iterators.
+<code class="computeroutput">index::translator::def&lt;Value&gt;</code> is able to handle <code class="computeroutput">Point</code>, <code class="computeroutput">Box</code>,
+<code class="computeroutput">std::pair&lt;...&gt;</code>, pointer, iterator or smart pointer.
 </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
-<li class="listitem">Indexable = Point | Box</li>
-<li class="listitem">BasicValue = Indexable | std::pair&lt;Indexable, T&gt; | std::pair&lt;T, Indexable&gt;</li>
-<li class="listitem">Value = BasicValue | BasicValue* | Iterator&lt;BasicValue&gt;</li>
+<li class="listitem"><code class="computeroutput">Indexable = Point | Box</code></li>
+<li class="listitem"><code class="computeroutput">BasicValue = Indexable | std::pair&lt;Indexable, T&gt; | std::pair&lt;T, Indexable&gt;</code></li>
+<li class="listitem"><code class="computeroutput">Value = BasicValue | BasicValue* | Iterator&lt;BasicValue&gt; | SmartPtr&lt;BasicValue&gt;</code></li>
 </ul></div>
 <p>
 Examples of Value types:
 </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
-<li class="listitem">geometry::model::point&lt;...&gt;</li>
-<li class="listitem">geometry::model::point_xy&lt;...&gt;</li>
-<li class="listitem">geometry::model::box&lt;...&gt;</li>
-<li class="listitem">std::pair&#8804;geometry::model::box&lt;...&gt;, size_t&gt;</li>
+<li class="listitem"><code class="computeroutput">geometry::model::point&lt;...&gt;</code></li>
+<li class="listitem"><code class="computeroutput">geometry::model::point_xy&lt;...&gt;</code></li>
+<li class="listitem"><code class="computeroutput">geometry::model::box&lt;...&gt;</code></li>
+<li class="listitem"><code class="computeroutput">std::pair&lt;geometry::model::box&lt;...&gt;, size_t&gt;</code></li>
 </ul></div>
 <p>
 </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id824700"></a>Inserting and splitting algorithms</h3></div></div></div>
+<a name="id798556"></a>Inserting and splitting algorithms</h3></div></div></div>
 <p>
 Values may be inserted to the R-tree in many various ways. Final structure of nodes depends
 on algorithms used in the process, especially nodes' splitting algorithm. Currently, three
@@ -137,7 +138,7 @@ index::rtree&lt; Value, index::rstar&lt;32, 8&gt; &gt; rt;
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id824739"></a>Inserting and removing Values</h3></div></div></div>
+<a name="id798596"></a>Inserting and removing Values</h3></div></div></div>
 <p>
 Create
 </p>
@@ -150,22 +151,24 @@ index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
 Insert and remove by method call
 </p>
 <pre class="programlisting">
-rt.insert(std::make_pair(Box(...), 0));
-rt.remove(std::make_pair(Box(...), 0));
+Value v = std::make_pair(Box(...), 0);
+rt.insert(v);
+rt.remove(v);
 </pre>
 <p>
 or by function call
 </p>
 <pre class="programlisting">
-index::insert(rt, std::make_pair(Box(...), 0));
-index::remove(rt, std::make_pair(Box(...), 0));
+Value v = std::make_pair(Box(...), 0);
+index::insert(rt, v);
+index::remove(rt, v);
 </pre>
 <p>
 </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id824765"></a>Spatial queries</h3></div></div></div>
+<a name="id798621"></a>Spatial queries</h3></div></div></div>
 <p>
 There are three ways to perform a spatial query. Following queries returns
 Values intersecting some box_region.
@@ -188,7 +191,7 @@ index::query(rt, box_region, std::back_inserter(returned_values));
 </pre>
 </li>
 <li class="listitem">
-Use of operator | (as with ranges)
+Use of <code class="computeroutput">operator |</code> (as with ranges)
 <pre class="programlisting">
 Box box_region(...);
 BOOST_FOREACH(Value &amp;v, rt | index::query_filtered(box_region))
@@ -201,7 +204,7 @@ BOOST_FOREACH(Value &amp;v, rt | index::query_filtered(box_region))
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id824804"></a>Spatial predicates</h3></div></div></div>
+<a name="id798665"></a>Spatial predicates</h3></div></div></div>
 <p>
 It is possible to define other relations between queried Values and region/regions
 of interest. Names of predicates corresponds to names of Boost.Geometry algorithms.
@@ -225,7 +228,7 @@ rt.query(!index::intersects(box), std::back_inserter(result));
 rt.query(index::disjoint(box), std::back_inserter(result));
 </pre>
 <p>
-It's possible to use some number of predicates by passing std::pair&lt;P1, P2&gt;
+It's possible to use some number of predicates by passing <code class="computeroutput">std::pair&lt;Pred1, Pred2&gt;</code>
 </p>
 <pre class="programlisting">
 rt.query(
@@ -233,7 +236,7 @@ rt.query(
   , std::back_inserter(result));
 </pre>
 <p>
-or boost::tuple&lt;P1, P2, P3, ...&gt;
+or <code class="computeroutput">boost::tuple&lt;Pred1, Pred2, Pred3, ...&gt;</code>
 </p>
 <pre class="programlisting">
 rt.query(
@@ -241,7 +244,7 @@ rt.query(
   , std::back_inserter(result));
 </pre>
 <p>
-There is special predicate index::value taking user-defined function/functor
+There is special predicate <code class="computeroutput">index::value(Fun)</code> taking user-defined function/functor
 which checks if Value should be returned by the query.
 </p>
 <pre class="programlisting">
@@ -261,7 +264,7 @@ rt.query(
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id824839"></a>Nearest neighbor queries</h3></div></div></div>
+<a name="id798716"></a>Nearest neighbor queries</h3></div></div></div>
 TODO
 </div>
 </div>
