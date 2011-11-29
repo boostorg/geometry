@@ -25,14 +25,15 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="index.rtree"></a>R-tree</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="rtree.html#id789661">R-tree creation</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id789748">Values, Indexables and default Translator</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id789861">Inserting and splitting algorithms</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id789906">Inserting and removing Values</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id789931">Spatial queries</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id789980">Spatial predicates</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id790041">Nearest neighbors queries</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id821333">Introduction</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id821353">R-tree creation</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id821613">Inserting and removing Values</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id821638">Spatial queries</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id829402">Nearest neighbors queries</a></span></dt>
 </dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id821333"></a>Introduction</h3></div></div></div>
 <p>
 R-tree is a self-balancing search tree with nodes stored with their axis aligned
 bounding boxes. Each node's box describes the space occupied by children nodes.
@@ -40,9 +41,42 @@ At the bottom of the structure, there are leaf-nodes which contains values
 (geometric objects representations). Minimal and maximal numbers of values/children
 which may be stored inside the node are user defined.
 </p>
+<p>
+In order to use the R-tree one must include folowing file.
+</p>
+<pre class="programlisting">
+#include &lt;boost/geometry/extensions/index/rtree/rtree.hpp&gt;
+</pre>
+<p>
+</p>
+</div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id789661"></a>R-tree creation</h3></div></div></div>
+<a name="id821353"></a>R-tree creation</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="rtree.html#id821359">Quick start</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id821381">R-tree template parameters</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id821454">Values, Indexables and default Translator</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id821567">Inserting and splitting algorithms</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id821359"></a>Quick start</h4></div></div></div>
+<p>
+In order to create a R-tree object storing values of type
+<code class="computeroutput">std::pair&lt;Box, int&gt;</code> one may use the following code
+</p>
+<pre class="programlisting">
+using namespace boost::geometry;
+typedef std::pair&lt;Box, int&gt; Value;
+index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
+</pre>
+<p>
+</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id821381"></a>R-tree template parameters</h4></div></div></div>
 <p>
 R-tree has 4 parameters:
 </p>
@@ -70,21 +104,10 @@ R-tree can handle.
 </ul></div>
 <p>
 </p>
-<p>
-In order to create a R-tree object storing values of type
-<code class="computeroutput">std::pair&lt;Box, int&gt;</code> one may use the following code
-</p>
-<pre class="programlisting">
-using namespace boost::geometry;
-typedef std::pair&lt;Box, int&gt; Value;
-index::rtree&lt; Value, index::quadratic&lt;32, 8&gt; &gt; rt;
-</pre>
-<p>
-</p>
 </div>
 <div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="id789748"></a>Values, Indexables and default Translator</h3></div></div></div>
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id821454"></a>Values, Indexables and default Translator</h4></div></div></div>
 <p>
 R-tree may store <code class="computeroutput">Value</code>s of any type as long as there is passed
 the <code class="computeroutput">Translator</code> which knows how to interpret those <code class="computeroutput">Value</code>s
@@ -112,8 +135,8 @@ Examples of <code class="computeroutput">Value</code> types:
 </p>
 </div>
 <div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="id789861"></a>Inserting and splitting algorithms</h3></div></div></div>
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id821567"></a>Inserting and splitting algorithms</h4></div></div></div>
 <p>
 <code class="computeroutput">Value</code>s may be inserted to the R-tree in many various ways. Final structure of nodes depends
 on algorithms used in the process, especially nodes' splitting algorithm. Currently, three
@@ -142,9 +165,10 @@ index::rtree&lt; Value, index::rstar&lt;32, 8&gt; &gt; rt;
 <p>
 </p>
 </div>
+</div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id789906"></a>Inserting and removing Values</h3></div></div></div>
+<a name="id821613"></a>Inserting and removing Values</h3></div></div></div>
 <p>
 Create
 </p>
@@ -174,7 +198,14 @@ index::remove(rt, v);
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id789931"></a>Spatial queries</h3></div></div></div>
+<a name="id821638"></a>Spatial queries</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="rtree.html#id821644">Basic queries</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id821693">Spatial predicates</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id821644"></a>Basic queries</h4></div></div></div>
 <p>
 There are three ways to perform a spatial query. Following queries returns
 <code class="computeroutput">Value</code>s intersecting some box_region.
@@ -209,8 +240,8 @@ BOOST_FOREACH(Value &amp;v, rt | index::query_filtered(box_region))
 </p>
 </div>
 <div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="id789980"></a>Spatial predicates</h3></div></div></div>
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id821693"></a>Spatial predicates</h4></div></div></div>
 <p>
 It is possible to define other relations between queried <code class="computeroutput">Value</code>s and region/regions
 of interest. Names of predicates corresponds to names of Boost.Geometry algorithms.
@@ -268,18 +299,19 @@ rt.query(
 <p>
 </p>
 </div>
+</div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id790041"></a>Nearest neighbors queries</h3></div></div></div>
+<a name="id829402"></a>Nearest neighbors queries</h3></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="rtree.html#id790047">k nearest neighbors</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id797757">One nearest neighbor</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id797793">Distances predicates</a></span></dt>
-<dt><span class="section"><a href="rtree.html#id797832">Using spatial predicates</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id829408">k nearest neighbors</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id829471">One nearest neighbor</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id829507">Distances predicates</a></span></dt>
+<dt><span class="section"><a href="rtree.html#id829546">Using spatial predicates</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id790047"></a>k nearest neighbors</h4></div></div></div>
+<a name="id829408"></a>k nearest neighbors</h4></div></div></div>
 <p>
 There are three ways of performing knn queries. Following queries returns
 k <code class="computeroutput">Value</code>s closest to some point in space. For <code class="computeroutput">Box</code>es
@@ -316,7 +348,7 @@ BOOST_FOREACH(Value &amp;v, rt | index::nearest_filtered(pt, k))
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id797757"></a>One nearest neighbor</h4></div></div></div>
+<a name="id829471"></a>One nearest neighbor</h4></div></div></div>
 <p>
 Another type of nearest neighbor query is searching for the one closest <code class="computeroutput">Value</code>.
 If it is found, 1 is returned by the method or function. This kind of query
@@ -345,7 +377,7 @@ size_t n = index::nearest(rt, pt, returned_value);
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id797793"></a>Distances predicates</h4></div></div></div>
+<a name="id829507"></a>Distances predicates</h4></div></div></div>
 <p>
 It is possible to define if calculated distance between query point and <code class="computeroutput">Value</code> should be
 greater, lesser or between some other distances. Those are called <code class="computeroutput">DistancesPredicate</code>s and
@@ -402,9 +434,9 @@ index::nearest(rt, index::min_bounded(pt, index::centroid(10)), k, std::back_ins
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id797832"></a>Using spatial predicates</h4></div></div></div>
+<a name="id829546"></a>Using spatial predicates</h4></div></div></div>
 <p>
-It is possible to use spatial predicates described before in knn queries.
+It is possible to use spatial predicates described before in nearest neighbors queries.
 </p>
 <pre class="programlisting">
 Value returned_value;
