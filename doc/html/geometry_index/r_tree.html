@@ -1,0 +1,502 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>R-tree</title>
+<link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Geometry Index 0.7">
+<link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Geometry Index 0.7">
+<link rel="prev" href="introduction.html" title="Introduction">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="http://www.boost.org/doc/libs/release/boost.png"></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/index.html">Home</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="introduction.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="geometry_index.r_tree"></a><a class="link" href="r_tree.html" title="R-tree">R-tree</a>
+</h2></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.introduction">Introduction</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation">R-tree creation</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation.quick_start">Quick
+        start</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation.r_tree_template_parameters">R-tree
+        template parameters</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation.values__indexables_and_default_translator">Values,
+        Indexables and default Translator</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation.inserting_and_splitting_algorithms">Inserting
+        and splitting algorithms</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.inserting_and_removing_values">Inserting
+      and removing Values</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.spatial_queries">Spatial queries</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.spatial_queries.basic_queries">Basic
+        queries</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.spatial_queries.spatial_predicates">Spatial
+        predicates</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries">Nearest
+      neighbors queries</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.k_nearest_neighbors">k
+        nearest neighbors</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.one_nearest_neighbor">One
+        nearest neighbor</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.distances_predicates">Distances
+        predicates</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.using_spatial_predicates">Using
+        spatial predicates</a></span></dt>
+</dl></dd>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="geometry_index.r_tree.introduction"></a><a class="link" href="r_tree.html#geometry_index.r_tree.introduction" title="Introduction">Introduction</a>
+</h3></div></div></div>
+<p>
+        R-tree is a self-balancing search tree with nodes stored with their axis
+        aligned bounding boxes. Each node's box describes the space occupied by children
+        nodes. At the bottom of the structure, there are leaf-nodes which contains
+        values (geometric objects representations). Minimal and maximal numbers of
+        values/children which may be stored inside the node are user defined.
+      </p>
+<p>
+        In order to use the R-tree one must include folowing file.
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">extensions</span><span class="special">/</span><span class="identifier">index</span><span class="special">/</span><span class="identifier">rtree</span><span class="special">/</span><span class="identifier">rtree</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="geometry_index.r_tree.r_tree_creation"></a><a class="link" href="r_tree.html#geometry_index.r_tree.r_tree_creation" title="R-tree creation">R-tree creation</a>
+</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation.quick_start">Quick
+        start</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation.r_tree_template_parameters">R-tree
+        template parameters</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation.values__indexables_and_default_translator">Values,
+        Indexables and default Translator</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.r_tree_creation.inserting_and_splitting_algorithms">Inserting
+        and splitting algorithms</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.r_tree_creation.quick_start"></a><a class="link" href="r_tree.html#geometry_index.r_tree.r_tree_creation.quick_start" title="Quick start">Quick
+        start</a>
+</h4></div></div></div>
+<p>
+          In order to create a R-tree object storing values of type <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a><span class="special">,</span> <span class="identifier">size_t</span><span class="special">&gt;</span></code> one may use the following code:
+        </p>
+<pre class="programlisting"><span class="keyword">using</span> <span class="keyword">namespace</span> <a href="http://www.boost.org/libs/libraries.htm" target="_top">boost</a><span class="special">::</span><a href="http://www.boost.org/libs/geometry/doc/html/index.html" target="_top">geometry</a><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a><span class="special">,</span> <span class="identifier">size_t</span><span class="special">&gt;</span> <span class="identifier">Value</span><span class="special">;</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> <span class="identifier">Value</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.r_tree_creation.r_tree_template_parameters"></a><a class="link" href="r_tree.html#geometry_index.r_tree.r_tree_creation.r_tree_template_parameters" title="R-tree template parameters">R-tree
+        template parameters</a>
+</h4></div></div></div>
+<p>
+          R-tree has 4 parameters:
+        </p>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Parameters</span><span class="special">,</span> <span class="identifier">Translator</span><span class="special">,</span> <span class="identifier">Allocator</span><span class="special">&gt;</span>
+</pre>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+              <code class="computeroutput"><span class="identifier">Value</span></code> - type of object
+              which will be stored in the container.
+            </li>
+<li class="listitem">
+              <code class="computeroutput"><span class="identifier">Parameters</span></code> - compile-time
+              parameters, e.g. inserting/splitting algorithm with min and max nodes'
+              elements numbers.
+            </li>
+<li class="listitem">
+              <code class="computeroutput"><span class="identifier">Translator</span></code> - type of
+              object translating <code class="computeroutput"><span class="identifier">Value</span></code>
+              objects to <code class="computeroutput"><span class="identifier">Indexable</span></code>
+              objects (<code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
+              or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>)
+              which R-tree can handle.
+            </li>
+<li class="listitem">
+              <code class="computeroutput"><span class="identifier">Allocator</span></code> - the allocator.
+            </li>
+</ul></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.r_tree_creation.values__indexables_and_default_translator"></a><a class="link" href="r_tree.html#geometry_index.r_tree.r_tree_creation.values__indexables_and_default_translator" title="Values, Indexables and default Translator">Values,
+        Indexables and default Translator</a>
+</h4></div></div></div>
+<p>
+          R-tree may store <code class="computeroutput">Value</code>s of any type as long as there is passed
+          the <code class="computeroutput">Translator</code> which knows how to interpret those <code class="computeroutput">Value</code>s
+          and extract an object understandable by the R-tree. Those objects are called
+          <code class="computeroutput">Indexable</code>s and they are simply of type adapted to <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
+          or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
+          concept. Default <code class="computeroutput">Translator</code> <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code> is able to handle <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>,
+          <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>,
+          <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;...&gt;</span></code>,
+          pointer, iterator or smart pointer.
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+              <code class="computeroutput">Indexable <span class="special">=</span> <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a>
+              <span class="special">|</span> <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
+            </li>
+<li class="listitem">
+              <code class="computeroutput"><span class="identifier">BasicValue</span> <span class="special">=</span>
+              <span class="identifier">Indexable</span> <span class="special">|</span>
+              <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span>Indexable<span class="special">,</span> <span class="identifier">T</span><span class="special">&gt;</span> <span class="special">|</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">,</span> Indexable<span class="special">&gt;</span></code>
+            </li>
+<li class="listitem">
+              <code class="computeroutput">Value <span class="special">=</span> <span class="identifier">BasicValue</span>
+              <span class="special">|</span> <span class="identifier">BasicValue</span><span class="special">*</span> <span class="special">|</span> <span class="identifier">Iterator</span><span class="special">&lt;</span><span class="identifier">BasicValue</span><span class="special">&gt;</span>
+              <span class="special">|</span> <span class="identifier">SmartPtr</span><span class="special">&lt;</span><span class="identifier">BasicValue</span><span class="special">&gt;</span></code>
+            </li>
+</ul></div>
+<p>
+          Examples of <code class="computeroutput">Value</code> types:
+        </p>
+<pre class="programlisting"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;...&gt;</span>
+<span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point_xy</span><span class="special">&lt;...&gt;</span>
+<span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;...&gt;</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;...&gt;,</span> <span class="identifier">size_t</span><span class="special">&gt;</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.r_tree_creation.inserting_and_splitting_algorithms"></a><a class="link" href="r_tree.html#geometry_index.r_tree.r_tree_creation.inserting_and_splitting_algorithms" title="Inserting and splitting algorithms">Inserting
+        and splitting algorithms</a>
+</h4></div></div></div>
+<p>
+          <code class="computeroutput">Value</code>s may be inserted to the R-tree in many various ways.
+          Final structure of nodes depends on algorithms used in the process, especially
+          nodes' splitting algorithm. Currently, three well-known types of R-trees
+          may be created.
+        </p>
+<p>
+          Linear - classic R-tree using splitting algorithm of linear complexity
+        </p>
+<pre class="programlisting"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">linear</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
+</pre>
+<p>
+          Quadratic - classic R-tree using splitting algorithm of quadratic complexity
+        </p>
+<pre class="programlisting"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
+</pre>
+<p>
+          R*-tree - splitting algorithm minimizing nodes' overlap with forced reinsertions
+        </p>
+<pre class="programlisting"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">rstar</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
+</pre>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="geometry_index.r_tree.inserting_and_removing_values"></a><a class="link" href="r_tree.html#geometry_index.r_tree.inserting_and_removing_values" title="Inserting and removing Values">Inserting
+      and removing Values</a>
+</h3></div></div></div>
+<p>
+        Create
+      </p>
+<pre class="programlisting"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">,</span> <span class="keyword">int</span><span class="special">&gt;</span> Value<span class="special">;</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
+</pre>
+<p>
+        Insert and remove by method call
+      </p>
+<pre class="programlisting">Value <span class="identifier">v</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a><span class="special">(...),</span> <span class="number">0</span><span class="special">);</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">v</span><span class="special">);</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">v</span><span class="special">);</span>
+</pre>
+<p>
+        or by function call
+      </p>
+<pre class="programlisting">Value <span class="identifier">v</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a><span class="special">(...),</span> <span class="number">0</span><span class="special">);</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">v</span><span class="special">);</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">v</span><span class="special">);</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="geometry_index.r_tree.spatial_queries"></a><a class="link" href="r_tree.html#geometry_index.r_tree.spatial_queries" title="Spatial queries">Spatial queries</a>
+</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.spatial_queries.basic_queries">Basic
+        queries</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.spatial_queries.spatial_predicates">Spatial
+        predicates</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.spatial_queries.basic_queries"></a><a class="link" href="r_tree.html#geometry_index.r_tree.spatial_queries.basic_queries" title="Basic queries">Basic
+        queries</a>
+</h4></div></div></div>
+<p>
+          There are three ways to perform a spatial query. Following queries returns
+          <code class="computeroutput">Value</code>s intersecting some box_region.
+        </p>
+<p>
+          Method call
+        </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a> <span class="identifier">box_region</span><span class="special">(...);</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">box_region</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+</pre>
+<p>
+          Function call
+        </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a> <span class="identifier">box_region</span><span class="special">(...);</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">box_region</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+</pre>
+<p>
+          Use of <code class="computeroutput"><span class="keyword">operator</span> <span class="special">|</span></code>
+          (as with ranges)
+        </p>
+<pre class="programlisting"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a> <span class="identifier">box_region</span><span class="special">(...);</span>
+<span class="identifier">BOOST_FOREACH</span><span class="special">(</span>Value <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">rt</span> <span class="special">|</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">query_filtered</span><span class="special">(</span><span class="identifier">box_region</span><span class="special">))</span>
+  <span class="special">;</span> <span class="comment">// do something with v</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.spatial_queries.spatial_predicates"></a><a class="link" href="r_tree.html#geometry_index.r_tree.spatial_queries.spatial_predicates" title="Spatial predicates">Spatial
+        predicates</a>
+</h4></div></div></div>
+<p>
+          It is possible to define other relations between queried <code class="computeroutput">Value</code>s
+          and region/regions of interest. Names of predicates corresponds to names
+          of <a href="http://www.boost.org/libs/geometry/doc/html/index.html" target="_top">Boost.Geometry</a>
+          algorithms.
+        </p>
+<pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">box</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span> <span class="comment">// default case - intersects</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span> <span class="comment">// same as default</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">covered_by</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">disjont</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          All predicates may be negated, e.g.:
+        </p>
+<pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">not_intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="comment">// or</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(!</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="comment">// the same as</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">disjoint</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          It's possible to use some number of predicates by passing <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Pred1</span><span class="special">,</span> <span class="identifier">Pred2</span><span class="special">&gt;</span></code>
+        </p>
+<pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box1</span><span class="special">),</span> <span class="special">!</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box2</span><span class="special">))</span>
+  <span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          or <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;</span><span class="identifier">Pred1</span><span class="special">,</span> <span class="identifier">Pred2</span><span class="special">,</span> <span class="identifier">Pred3</span><span class="special">,</span> <span class="special">...&gt;</span></code>
+        </p>
+<pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span>
+  <span class="identifier">boost</span><span class="special">::</span><span class="identifier">make_tuple</span><span class="special">(</span>
+    <span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box1</span><span class="special">),</span> <span class="special">!</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box2</span><span class="special">),</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box3</span><span class="special">))</span>
+  <span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          There is also a unique predicate <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">(...)</span></code> taking user-defined function/functor
+          which checks if <code class="computeroutput">Value</code> should be returned by the query.
+        </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="identifier">fun</span><span class="special">(</span><span class="identifier">__value</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span>
+<span class="special">{</span>
+  <span class="keyword">return</span> <span class="identifier">v</span><span class="special">.</span><span class="identifier">is_red</span><span class="special">();</span>
+<span class="special">}</span>
+
+<span class="comment">// ...</span>
+
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span>
+  <span class="identifier">boost</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">(</span><span class="identifier">fun</span><span class="special">))</span>
+  <span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="geometry_index.r_tree.nearest_neighbors_queries"></a><a class="link" href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries" title="Nearest neighbors queries">Nearest
+      neighbors queries</a>
+</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.k_nearest_neighbors">k
+        nearest neighbors</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.one_nearest_neighbor">One
+        nearest neighbor</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.distances_predicates">Distances
+        predicates</a></span></dt>
+<dt><span class="section"><a href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.using_spatial_predicates">Using
+        spatial predicates</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.nearest_neighbors_queries.k_nearest_neighbors"></a><a class="link" href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.k_nearest_neighbors" title="k nearest neighbors">k
+        nearest neighbors</a>
+</h4></div></div></div>
+<p>
+          There are three ways of performing knn queries. Following queries returns
+          k <code class="computeroutput">Value</code>s closest to some point in space. For <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>es
+          <code class="computeroutput">Indexable</code>s closest point of a <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
+          is taken into account by default.
+        </p>
+<p>
+          Method call
+        </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a> <span class="identifier">pt</span><span class="special">(...);</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+</pre>
+<p>
+          Function call
+        </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a> <span class="identifier">pt</span><span class="special">(...);</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">pt</span><span class="special">,</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+</pre>
+<p>
+          Use of <code class="computeroutput"><span class="keyword">operator</span> <span class="special">|</span></code>
+        </p>
+<pre class="programlisting"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a> <span class="identifier">pt</span><span class="special">(...);</span>
+<span class="identifier">BOOST_FOREACH</span><span class="special">(</span>Value <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">rt</span> <span class="special">|</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest_filtered</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="identifier">k</span><span class="special">))</span>
+  <span class="special">;</span> <span class="comment">// do something with v</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.nearest_neighbors_queries.one_nearest_neighbor"></a><a class="link" href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.one_nearest_neighbor" title="One nearest neighbor">One
+        nearest neighbor</a>
+</h4></div></div></div>
+<p>
+          Another type of nearest neighbor query is searching for the one closest
+          <code class="computeroutput">Value</code>. If it is found, 1 is returned by the method or function.
+          This kind of query has only two forms.
+        </p>
+<p>
+          Method call
+        </p>
+<pre class="programlisting">Value <span class="identifier">returned_value</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a> <span class="identifier">pt</span><span class="special">(...);</span>
+<span class="identifier">size_t</span> <span class="identifier">n</span> <span class="special">=</span> <span class="identifier">rt</span><span class="special">.</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="identifier">returned_value</span><span class="special">);</span>
+</pre>
+<p>
+          Function call
+        </p>
+<pre class="programlisting">Value <span class="identifier">Value</span> <span class="identifier">returned_value</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a> <span class="identifier">pt</span><span class="special">(...);</span>
+<span class="identifier">size_t</span> <span class="identifier">n</span> <span class="special">=</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">pt</span><span class="special">,</span> <span class="identifier">returned_value</span><span class="special">);</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.nearest_neighbors_queries.distances_predicates"></a><a class="link" href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.distances_predicates" title="Distances predicates">Distances
+        predicates</a>
+</h4></div></div></div>
+<p>
+          It is possible to define if calculated distance between query point and
+          <code class="computeroutput">Value</code> should be greater, lesser or between some other distances.
+          Those are called <code class="computeroutput"><span class="identifier">DistancesPredicate</span></code>s
+          and may be defined as follows.
+        </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">__Value__</span><span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a> <span class="identifier">pt</span><span class="special">(...);</span>
+
+<span class="comment">/* default - without bounds */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">pt</span><span class="special">,</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+
+<span class="comment">/* same as default */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">unbounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">),</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+
+<span class="comment">/* distance must be greater than or equal to 10 */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">min_bounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">10</span><span class="special">),</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+
+<span class="comment">/* distance must be lesser than or equal to 500 */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">max_bounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">500</span><span class="special">),</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+
+<span class="comment">/* distance must be between 10 and 500 */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">bounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">10</span><span class="special">,</span> <span class="number">500</span><span class="special">),</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+</pre>
+<p>
+          Furthermore, it's possible to define if the closest, furthest or centroidal
+          point of the non-point <code class="computeroutput"><span class="identifier">__Indexable__</span></code>
+          should be taken into account in the routine calculating distance.
+        </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a> <span class="identifier">pt</span><span class="special">(...);</span>
+
+<span class="comment">/* default - distance between __indexable__'s closest point and a query point
+must be greater than 10 */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">min_bounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">10</span><span class="special">),</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+
+<span class="comment">/* same as default - distance between __indexable__'s closest point and a query point
+must be greater than 10 */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">min_bounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">near</span><span class="special">(</span><span class="number">10</span><span class="special">)),</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+
+<span class="comment">/* distance between __indexable__'s furthest point and a query point
+must be greater than 10 */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">min_bounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">far</span><span class="special">(</span><span class="number">10</span><span class="special">)),</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+
+<span class="comment">/* distance between __indexable__'s centroid and a query point
+must be greater than 10 */</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">min_bounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">centroid</span><span class="special">(</span><span class="number">10</span><span class="special">)),</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.nearest_neighbors_queries.using_spatial_predicates"></a><a class="link" href="r_tree.html#geometry_index.r_tree.nearest_neighbors_queries.using_spatial_predicates" title="Using spatial predicates">Using
+        spatial predicates</a>
+</h4></div></div></div>
+<p>
+          It is possible to use spatial predicates described before in nearest neighbors
+          queries.
+        </p>
+<pre class="programlisting">Value <span class="identifier">returned_value</span><span class="special">;</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a> <span class="identifier">pt</span><span class="special">(...);</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a> <span class="identifier">b</span><span class="special">(...);</span>
+
+<span class="identifier">size_t</span> <span class="identifier">n1</span> <span class="special">=</span> <span class="identifier">rt</span><span class="special">.</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">bounded</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">far</span><span class="special">(</span><span class="number">1</span><span class="special">),</span> <span class="number">10</span><span class="special">),</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">b</span><span class="special">),</span> <span class="identifier">returned_value</span><span class="special">);</span>
+
+<span class="identifier">size_t</span> <span class="identifier">n2</span> <span class="special">=</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">pt</span><span class="special">,</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">b</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+
+<span class="identifier">BOOST_FOREACH</span><span class="special">(</span><span class="identifier">Value</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">rt</span> <span class="special">|</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">nearest_filtered</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">covered_by</span><span class="special">(</span><span class="identifier">b</span><span class="special">)))</span>
+  <span class="special">;</span> <span class="comment">// do something with v</span>
+</pre>
+</div>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2011 Adam Wulkiewicz, Federico J. Fernandez<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="introduction.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a>
+</div>
+</body>
+</html>

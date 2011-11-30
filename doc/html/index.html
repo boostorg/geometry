@@ -1,11 +1,11 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<title>Chapter&#160;1.&#160;Boost.Geometry.Index</title>
+<title>Chapter&#160;1.&#160;Geometry Index 0.7</title>
 <link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
-<link rel="home" href="index.html" title="Chapter&#160;1.&#160;Boost.Geometry.Index">
-<link rel="next" href="index/rtree.html" title="R-tree">
+<link rel="home" href="index.html" title="Chapter&#160;1.&#160;Geometry Index 0.7">
+<link rel="next" href="geometry_index/introduction.html" title="Introduction">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -17,55 +17,47 @@
 <td align="center"><a href="http://www.boost.org/doc/libs/release/more/index.htm">More</a></td>
 </tr></table>
 <hr>
-<div class="spirit-nav"><a accesskey="n" href="index/rtree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a></div>
+<div class="spirit-nav"><a accesskey="n" href="geometry_index/introduction.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a></div>
 <div class="chapter">
 <div class="titlepage"><div>
 <div><h2 class="title">
-<a name="index"></a>Chapter&#160;1.&#160;Boost.Geometry.Index</h2></div>
-<div><div class="author"><h3 class="author">
-<span class="firstname">Federico J.</span> <span class="surname">Fernandez</span>
-</h3></div></div>
+<a name="geometry"></a>Chapter&#160;1.&#160;Geometry Index 0.7</h2></div>
 <div><div class="author"><h3 class="author">
 <span class="firstname">Adam</span> <span class="surname">Wulkiewicz</span>
 </h3></div></div>
-<div><p class="copyright">Copyright &#169; 2008 Federico J. Fernandez</p></div>
-<div><p class="copyright">Copyright &#169; 2011 Adam Wulkiewicz</p></div>
+<div><div class="author"><h3 class="author">
+<span class="firstname">Federico J.</span> <span class="surname">Fernandez</span>
+</h3></div></div>
+<div><p class="copyright">Copyright &#169; 2011 Adam Wulkiewicz, Federico J. Fernandez</p></div>
 <div><div class="legalnotice">
-<a name="id821289"></a><p>Use, modification and distribution is subject to the Boost
-    Software License, Version 1.0. (See accompanying file
-    <code class="filename">LICENSE_1_0.txt</code> or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)</p>
+<a name="id783458"></a><p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
 </div></div>
 </div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="index.html#index.intro">Introduction</a></span></dt>
-<dt><span class="section"><a href="index/rtree.html">R-tree</a></span></dt>
+<dt><span class="section"><a href="geometry_index/introduction.html">Introduction</a></span></dt>
+<dt><span class="section"><a href="geometry_index/r_tree.html">R-tree</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="index/rtree.html#id821333">Introduction</a></span></dt>
-<dt><span class="section"><a href="index/rtree.html#id821353">R-tree creation</a></span></dt>
-<dt><span class="section"><a href="index/rtree.html#id821613">Inserting and removing Values</a></span></dt>
-<dt><span class="section"><a href="index/rtree.html#id821638">Spatial queries</a></span></dt>
-<dt><span class="section"><a href="index/rtree.html#id829402">Nearest neighbors queries</a></span></dt>
+<dt><span class="section"><a href="geometry_index/r_tree.html#geometry_index.r_tree.introduction">Introduction</a></span></dt>
+<dt><span class="section"><a href="geometry_index/r_tree.html#geometry_index.r_tree.r_tree_creation">R-tree creation</a></span></dt>
+<dt><span class="section"><a href="geometry_index/r_tree.html#geometry_index.r_tree.inserting_and_removing_values">Inserting
+      and removing Values</a></span></dt>
+<dt><span class="section"><a href="geometry_index/r_tree.html#geometry_index.r_tree.spatial_queries">Spatial queries</a></span></dt>
+<dt><span class="section"><a href="geometry_index/r_tree.html#geometry_index.r_tree.nearest_neighbors_queries">Nearest
+      neighbors queries</a></span></dt>
 </dl></dd>
 </dl>
 </div>
-<div class="section">
-<div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="index.intro"></a>Introduction</h2></div></div></div>
-<p>The Boost.Geometry.Index library is intetended to gather containers
-(spatial indexes) used for speeding spatial queries up. In general, indexes
-stores geometric objects' representations and allows searching for objects
-occupying some space or close to some point in space.
-</p>
-<p>Currently, only one spatial index is implemented - the R-tree.</p>
-</div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
+<td align="left"><p><small>Last revised: November 30, 2011 at 03:13:32 GMT</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>
-<div class="spirit-nav"><a accesskey="n" href="index/rtree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a></div>
+<div class="spirit-nav"><a accesskey="n" href="geometry_index/introduction.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a></div>
 </body>
 </html>
