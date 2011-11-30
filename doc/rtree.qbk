@@ -275,19 +275,19 @@ non-point `__Indexable__` should be taken into account in the routine calculatin
  std::vector<__value__> returned_values;
  __point__ pt(...);
 
- /* default - distance between __indexable__'s closest point and a query point
+ /* default - distance between Indexable's closest point and a query point
  must be greater than 10 */
  index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
 
- /* same as default - distance between __indexable__'s closest point and a query point
+ /* same as default - distance between Indexable's closest point and a query point
  must be greater than 10 */
  index::nearest(rt, index::min_bounded(pt, index::near(10)), k, std::back_inserter(returned_values));
 
- /* distance between __indexable__'s furthest point and a query point
+ /* distance between Indexable's furthest point and a query point
  must be greater than 10 */
  index::nearest(rt, index::min_bounded(pt, index::far(10)), k, std::back_inserter(returned_values));
 
- /* distance between __indexable__'s centroid and a query point
+ /* distance between Indexable's centroid and a query point
  must be greater than 10 */
  index::nearest(rt, index::min_bounded(pt, index::centroid(10)), k, std::back_inserter(returned_values));
 
