@@ -270,7 +270,7 @@ may be defined as follows.
  index::nearest(rt, index::bounded(pt, 10, 500), k, std::back_inserter(returned_values));
 
 Furthermore, it's possible to define if the closest, furthest or centroidal point of the
-non-point `__Indexable__` should be taken into account in the routine calculating distance.
+non-point `__indexable__` should be taken into account in the routine calculating distance.
 
  std::vector<__value__> returned_values;
  __point__ pt(...);
