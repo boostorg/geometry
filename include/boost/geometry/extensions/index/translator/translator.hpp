@@ -12,6 +12,19 @@
 
 #include <boost/geometry/extensions/index/translator/def.hpp>
 #include <boost/geometry/extensions/index/translator/index.hpp>
-#include <boost/geometry/extensions/index/translator/getter.hpp>
+
+namespace boost { namespace geometry { namespace index { namespace translator {
+
+template <typename Translator>
+struct indexable_type
+{
+    typedef typename boost::remove_const<
+        typename boost::remove_reference<
+            typename Translator::result_type
+        >::type
+    >::type type;
+};
+
+}}}} // namespace boost::geometry::index::translator
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_TRANSLATOR_TRANSLATOR_HPP

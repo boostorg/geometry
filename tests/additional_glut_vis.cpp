@@ -38,7 +38,7 @@ std::vector<B> nearest_boxes;
 B search_box;
 
 enum query_mode_type {
-    qm_knn, qm_c, qm_d, qm_i, qm_o, qm_w, qm_nc, qm_nd, qm_ni, qm_no, qm_nw
+    qm_knn, qm_c, qm_d, qm_i, qm_o, qm_w, qm_nc, qm_nd, qm_ni, qm_no, qm_nw, qm_all
 } query_mode = qm_knn;
 
 bool search_valid = false;
@@ -78,14 +78,23 @@ void knn()
 template <typename Predicate>
 void query()
 {
-    float x = ( rand() % 1000 ) / 10.0f;
-    float y = ( rand() % 1000 ) / 10.0f;
-    float w = 10 + ( rand() % 1000 ) / 100.0f;
-    float h = 10 + ( rand() % 1000 ) / 100.0f;
+    if ( query_mode != qm_all )
+    {
+        float x = ( rand() % 1000 ) / 10.0f;
+        float y = ( rand() % 1000 ) / 10.0f;
+        float w = 10 + ( rand() % 1000 ) / 100.0f;
+        float h = 10 + ( rand() % 1000 ) / 100.0f;
 
-    search_box = B(P(x - w, y - h), P(x + w, y + h));
-    nearest_boxes.clear();
-    found_count = t.query(Predicate(search_box), std::back_inserter(nearest_boxes) );
+        search_box = B(P(x - w, y - h), P(x + w, y + h));
+        nearest_boxes.clear();
+        found_count = t.query(Predicate(search_box), std::back_inserter(nearest_boxes) );
+    }
+    else
+    {
+        search_box = t.box();
+        nearest_boxes.clear();
+        found_count = t.query(Predicate(search_box), std::back_inserter(nearest_boxes) );
+    }
 
     if ( found_count > 0 )
     {
@@ -99,7 +108,7 @@ void query()
         }
     }
     else
-        std::cout << "nearest not found\n";
+        std::cout << "boxes not found\n";
 }
 
 void search()
@@ -126,6 +135,8 @@ void search()
         query< bgi::detail::not_overlaps<B> >();
     else if ( query_mode == qm_nw )
         query< bgi::detail::not_within<B> >();
+    else if ( query_mode == qm_all )
+        query< bgi::detail::intersects<B> >();
 
     search_valid = true;
 }
@@ -305,6 +316,8 @@ void keyboard(unsigned char key, int x, int y)
                 query_mode = qm_no;
             else if ( current_line == "nw" )
                 query_mode = qm_nw;
+            else if ( current_line == "all" )
+                query_mode = qm_all;
             
             search();
             glutPostRedisplay();

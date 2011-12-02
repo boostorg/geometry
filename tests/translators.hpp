@@ -95,11 +95,6 @@ BOOST_AUTO_TEST_CASE(tests_translators)
 
     BOOST_CHECK( bg::equals(tmp_b, ppb(tmp_ppb)) );
     BOOST_CHECK( bg::equals(tmp_b, pbp(tmp_pbp)) );
-
-	tests_translators_val<P> val_p(tmp_p);
-	bgit::getter<tests_translators_val<P>, P, &tests_translators_val<P>::get_box> tr_get_p;
-
-    BOOST_CHECK( bg::equals(tmp_p, tr_get_p(val_p)) );
 }
 
 #endif // TESTS_TRANSLATORS_HPP

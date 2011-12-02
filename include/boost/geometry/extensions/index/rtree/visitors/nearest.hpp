@@ -13,6 +13,7 @@
 #include <boost/geometry/extensions/index/rtree/distance_predicates.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
+#include <boost/geometry/extensions/index/translator/translator.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -26,8 +27,10 @@ template <typename Value, typename Translator, typename Point>
 struct nearest_one
 {
 public:
-    typedef typename Translator::indexable_type indexable_type;
-    typedef typename geometry::default_distance_result<Point, indexable_type>::type distance_type;
+    typedef typename geometry::default_distance_result<
+        Point,
+        typename translator::indexable_type<Translator>::type
+    >::type distance_type;
 
     inline nearest_one()
         : m_comp_dist(std::numeric_limits<distance_type>::max())
@@ -67,8 +70,10 @@ template <typename Value, typename Translator, typename Point>
 struct nearest_k
 {
 public:
-    typedef typename Translator::indexable_type indexable_type;
-    typedef typename geometry::default_distance_result<Point, indexable_type>::type distance_type;
+    typedef typename geometry::default_distance_result<
+        Point,
+        typename translator::indexable_type<Translator>::type
+    >::type distance_type;
 
     inline explicit nearest_k(size_t k)
         : m_count(k)
@@ -159,9 +164,17 @@ public:
     typedef typename node_distances_calc::result_type node_distances_type;
     typedef index::detail::distances_predicates_check<DistancesPredicates, Box, rtree::node_tag> node_distances_predicates_check;
 
-    typedef index::detail::distances_calc<DistancesPredicates, typename Translator::indexable_type, rtree::value_tag> value_distances_calc;
+    typedef index::detail::distances_calc<
+        DistancesPredicates,
+        typename translator::indexable_type<Translator>::type,
+        rtree::value_tag
+    > value_distances_calc;
     typedef typename value_distances_calc::result_type value_distances_type;
-    typedef index::detail::distances_predicates_check<DistancesPredicates, typename Translator::indexable_type, rtree::value_tag> value_distances_predicates_check;
+    typedef index::detail::distances_predicates_check<
+        DistancesPredicates,
+        typename translator::indexable_type<Translator>::type,
+        rtree::value_tag
+    > value_distances_predicates_check;
 
     inline nearest(Translator const& t, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
         : m_tr(t), m_dist_pred(dist_pred), m_pred(pred)

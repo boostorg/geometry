@@ -147,7 +147,7 @@ inline void apply_visitor(Visitor &v, Visitable & n)
 template <typename Value, typename Translator>
 struct element_indexable_type
 {
-	typedef typename Translator::indexable_type type;
+    typedef typename translator::indexable_type<Translator>::type type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
@@ -162,7 +162,7 @@ struct element_indexable_type<
 // element's indexable getter
 
 template <typename Value, typename Translator>
-inline typename Translator::indexable_type const&
+inline typename Translator::result_type
 element_indexable(Value const& el, Translator const& tr)
 {
 	return tr(el);

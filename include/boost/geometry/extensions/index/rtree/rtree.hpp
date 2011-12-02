@@ -73,7 +73,7 @@ class rtree
 public:
     typedef Value value_type;
     typedef Translator translator_type;
-    typedef typename translator_type::indexable_type indexable_type;
+    typedef typename translator::indexable_type<Translator>::type indexable_type;
     typedef typename index::default_box_type<indexable_type>::type box_type;
 
     typedef typename detail::rtree::options_type<Parameters>::type options_type;

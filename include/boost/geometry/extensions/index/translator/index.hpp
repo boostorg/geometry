@@ -19,11 +19,11 @@ class index
 {
 public:
     typedef typename detail::extract_indexable
-        <typename Container::value_type>::type indexable_type;
+        <typename Container::value_type>::type const& result_type;
 
     explicit index(Container const& c) : m_c(c) {}
 
-    indexable_type const& operator()(size_t i) const
+    result_type operator()(size_t i) const
     {
         return detail::extract_indexable
             <typename Container::value_type>::get(m_c[i]);

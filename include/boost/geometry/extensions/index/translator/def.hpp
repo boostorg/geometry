@@ -22,9 +22,9 @@ namespace dispatch {
 template <typename Value, bool IsIterator, bool IsSmartPtr>
 struct def
 {
-    typedef typename detail::extract_indexable<Value>::type indexable_type;
+    typedef typename detail::extract_indexable<Value>::type const& result_type;
 
-    indexable_type const& operator()(Value const& v) const
+    result_type operator()(Value const& v) const
     {
         return detail::extract_indexable<Value>::get(v);
     }
@@ -39,9 +39,9 @@ struct def
 template <typename Value, bool IsSmartPtr>
 struct def<Value, true, IsSmartPtr>
 {
-    typedef typename detail::extract_indexable<typename Value::value_type>::type indexable_type;
+    typedef typename detail::extract_indexable<typename Value::value_type>::type const& result_type;
 
-    indexable_type const& operator()(Value const& v) const
+    result_type operator()(Value const& v) const
     {
         return detail::extract_indexable<typename Value::value_type>::get(*v);
     }
@@ -56,9 +56,9 @@ struct def<Value, true, IsSmartPtr>
 template <typename Value>
 struct def<Value, false, true>
 {
-    typedef typename detail::extract_indexable<typename Value::element_type>::type indexable_type;
+    typedef typename detail::extract_indexable<typename Value::element_type>::type const& result_type;
 
-    indexable_type const& operator()(Value const& v) const
+    result_type operator()(Value const& v) const
     {
         return detail::extract_indexable<typename Value::element_type>::get(*v);
     }
@@ -85,9 +85,9 @@ struct def
 template <typename Value>
 struct def<Value*>
 {
-    typedef typename detail::extract_indexable<Value>::type indexable_type;
+    typedef typename detail::extract_indexable<Value>::type const& result_type;
 
-    indexable_type const& operator()(const Value *v) const
+    result_type operator()(const Value *v) const
     {
         return detail::extract_indexable<Value>::get(*v);
     }

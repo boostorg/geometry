@@ -159,7 +159,7 @@ bool nearest_results_compare(Point const& p, Cont const& c1, Cont const& c2, Tra
     namespace bg = boost::geometry;
     namespace bgi = boost::geometry::index;
 
-    typedef typename Translator::indexable_type indexable_type;
+    typedef typename bgi::translator::indexable_type<Translator>::type indexable_type;
     typedef bg::default_distance_result<Point, indexable_type>::type distance_type;
 
     if ( c1.size() != c2.size() )
