@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CONVERT_BOX_TO_BOX_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CONVERT_BOX_TO_BOX_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CONVERT_INDEXED_TO_INDEXED_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CONVERT_INDEXED_TO_INDEXED_HPP
 
 
 #include <cstddef>
@@ -38,38 +38,38 @@ template
     std::size_t Dimension, 
     std::size_t DimensionCount
 >
-struct box_to_box
+struct indexed_to_indexed
 {
     static inline void apply(Source const& source, Destination& destination)
     {
         typedef typename coordinate_type<Destination>::type coordinate_type;
 
-        geometry::set<Dimension, min_corner>(destination, 
+        geometry::set<min_corner, Dimension>(destination, 
             boost::numeric_cast<coordinate_type>(
-                geometry::get<Dimension, min_corner>(source)));
-        geometry::set<Dimension, max_corner>(destination, 
+                geometry::get<min_corner, Dimension>(source)));
+        geometry::set<max_corner, Dimension>(destination, 
             boost::numeric_cast<coordinate_type>(
-                geometry::get<Dimension, max_corner>(source)));
-        box_to_box<Source, Destination, Dimension + 1, DimensionCount>::apply(
-            source, destination);
+                geometry::get<max_corner, Dimension>(source)));
+                
+        indexed_to_indexed
+            <
+                Source, Destination, 
+                Dimension + 1, DimensionCount
+            >::apply(source, destination);
     }
 };
 
-template <typename Source, typename Destination, std::size_t DimensionCount>
-struct box_to_box<Source, Destination, DimensionCount, DimensionCount>
+template 
+<
+    typename Source, 
+    typename Destination, 
+    std::size_t DimensionCount
+>
+struct indexed_to_indexed<Source, Destination, DimensionCount, DimensionCount>
 {
     static inline void apply(Source const& , Destination& )
     {}
 };
-
-
-template <typename Source, typename Destination>
-inline void convert_box_to_box(Source const& source, Destination& destination)
-{
-    box_to_box<Source, Destination, 0, dimension<Destination>::value>::apply(
-        source, destination);
-}
-
 
 
 }} // namespace detail::conversion
@@ -77,4 +77,4 @@ inline void convert_box_to_box(Source const& source, Destination& destination)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_CONVERT_BOX_TO_BOX_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_CONVERT_INDEXED_TO_INDEXED_HPP
