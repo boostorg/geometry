@@ -30,6 +30,12 @@ void test_mixed_point_types()
             bg::model::box<Point2>
         >("POLYGON((1 2,1 4,3 4,3 2,1 2))");
 
+    test_mixed_identical_result
+        <
+            bg::model::segment<Point1>, 
+            bg::model::segment<Point2>
+        >("LINESTRING(1 1,2 2)");
+
     // Linestring
     test_mixed_identical_result
         <
@@ -222,10 +228,41 @@ void test_mixed_point_types()
 }
 
 template <typename Point1, typename Point2>
+void test_mixed_point_types_3d()
+{
+    // Point
+    test_mixed_identical_result<Point1, Point2>("POINT(1 2 3)");
+
+    test_mixed_identical_result
+        <
+            bg::model::segment<Point1>, 
+            bg::model::segment<Point2>
+        >("LINESTRING(1 1 1,2 2 2)");
+
+    // Linestring
+    test_mixed_identical_result
+        <
+            bg::model::linestring<Point1>, 
+            bg::model::linestring<Point2> 
+        >
+        ("LINESTRING(1 1 1,2 2 2,3 3 3)");
+}
+
+
+
+template <typename Point1, typename Point2>
 void test_mixed_types()
 {
     test_mixed_point_types<Point1, Point2>();
     test_mixed_point_types<Point2, Point1>();
+}
+
+
+template <typename Point1, typename Point2>
+void test_mixed_types_3d()
+{
+    test_mixed_point_types_3d<Point1, Point2>();
+    test_mixed_point_types_3d<Point2, Point1>();
 }
 
 void test_array()
@@ -248,6 +285,11 @@ int test_main(int, char* [])
         <
             boost::tuple<float, float>,
             bg::model::point<float, 2, bg::cs::cartesian>
+        >();
+    test_mixed_types_3d
+        <
+            boost::tuple<double, double, double>,
+            bg::model::point<double, 3, bg::cs::cartesian>
         >();
 
     test_array();
