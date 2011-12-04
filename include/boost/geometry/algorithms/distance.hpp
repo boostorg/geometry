@@ -28,6 +28,8 @@
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 
+#include <boost/geometry/algorithms/not_implemented.hpp>
+
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -253,11 +255,12 @@ template
     typename Geometry1, typename Geometry2,
     typename StrategyTag, typename Strategy
 >
-struct distance
+struct distance: boost::geometry::not_implemented
 {
     BOOST_MPL_ASSERT_MSG
         (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD,
+            NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
             , (types<Geometry1, Geometry2>)
         );
 };
