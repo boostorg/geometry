@@ -57,8 +57,8 @@ struct tester
         typedef typename boost::geometry::tag<T1>::type tag1;
         typedef typename boost::geometry::tag<T2>::type tag2;
 
-        if (boost::is_base_of<boost::geometry::not_implemented, check<tag1, tag2, T1, T2> >::type::value
-         && boost::is_base_of<boost::geometry::not_implemented, check<tag2, tag1, T2, T1> >::type::value)
+        if (boost::is_base_of<boost::geometry::not_implemented<T1, T2>, check<tag1, tag2, T1, T2> >::type::value
+         && boost::is_base_of<boost::geometry::not_implemented<T2, T1>, check<tag2, tag1, T2, T1> >::type::value)
         {
             std::cout << "-\t";
         }
