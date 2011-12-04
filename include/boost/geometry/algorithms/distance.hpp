@@ -19,10 +19,6 @@
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
-#include <boost/static_assert.hpp>
-
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
@@ -255,15 +251,8 @@ template
     typename Geometry1, typename Geometry2,
     typename StrategyTag, typename Strategy
 >
-struct distance: boost::geometry::not_implemented
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD,
-            NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry1, Geometry2>)
-        );
-};
+struct distance: not_implemented<Geometry1, Geometry2>
+{};
 
 
 template <typename P1, typename P2, typename Strategy>

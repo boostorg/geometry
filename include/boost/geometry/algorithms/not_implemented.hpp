@@ -16,6 +16,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_NOT_IMPLEMENTED_HPP
 
 
+#include <boost/mpl/assert.hpp>
+
+
 namespace boost { namespace geometry
 {
 
@@ -25,7 +28,16 @@ namespace boost { namespace geometry
 #endif
 
 
-struct not_implemented {};
+template <typename Geometry1, typename Geometry2>
+struct not_implemented
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD,
+            NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
+            , (types<Geometry1, Geometry2>)
+        );
+};
 
 
 }} // namespace boost::geometry
