@@ -11,23 +11,6 @@
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 
 
-template <typename Tag1, typename Tag2, typename G1, typename G2>
-struct check
-  : boost::geometry::dispatch::distance<
-        Tag1,
-        Tag2,
-        G1,
-        G2,
-        boost::geometry::strategy_tag_distance_point_point,
-        typename boost::geometry::strategy::distance::services::default_strategy<
-            boost::geometry::point_tag,
-            G1,
-            G2
-        >::type
-    >
-{};
-
-
 typedef boost::geometry::cs::cartesian cartesian;
 
 typedef boost::geometry::model::point<double, 2, cartesian> point_type;
@@ -47,9 +30,37 @@ typedef boost::mpl::vector<
 > types;
 
 
+template <typename Tag1, typename Tag2, typename G1, typename G2>
+struct check_distance
+  : boost::geometry::dispatch::distance<
+        Tag1,
+        Tag2,
+        G1,
+        G2,
+        boost::geometry::strategy_tag_distance_point_point,
+        typename boost::geometry::strategy::distance::services::default_strategy<
+            boost::geometry::point_tag,
+            G1,
+            G2
+        >::type
+    >
+{};
+
+template <typename G1, typename G2>
+struct check_convert
+  : boost::geometry::dispatch::convert<
+        boost::is_same<G1, G2>::value && !boost::is_array<G1>::value,
+        typename boost::geometry::tag_cast<typename boost::geometry::tag<G1>::type, boost::geometry::multi_tag>::type,
+        typename boost::geometry::tag_cast<typename boost::geometry::tag<G2>::type, boost::geometry::multi_tag>::type,
+        boost::geometry::dimension<G1>::type::value,
+        G1,
+        G2
+    >
+{};
+
 
 template <class T1>
-struct tester
+struct distance_tester
 {
     template <typename T2>
     void operator()(T2)
@@ -57,8 +68,8 @@ struct tester
         typedef typename boost::geometry::tag<T1>::type tag1;
         typedef typename boost::geometry::tag<T2>::type tag2;
 
-        if (boost::is_base_of<boost::geometry::not_implemented<T1, T2>, check<tag1, tag2, T1, T2> >::type::value
-         && boost::is_base_of<boost::geometry::not_implemented<T2, T1>, check<tag2, tag1, T2, T1> >::type::value)
+        if (boost::is_base_of<boost::geometry::not_implemented<T1, T2>, check_distance<tag1, tag2, T1, T2> >::type::value
+         && boost::is_base_of<boost::geometry::not_implemented<T2, T1>, check_distance<tag2, tag1, T2, T1> >::type::value)
         {
             std::cout << "-\t";
         }
@@ -70,12 +81,41 @@ struct tester
 };
 
 template <>
-struct tester<void>
+struct distance_tester<void>
 {
     template <typename T>
     void operator()(T)
     {
-        boost::mpl::for_each<types>(tester<T>());
+        boost::mpl::for_each<types>(distance_tester<T>());
+        std::cout << std::endl;
+    }
+};
+
+
+template <class T1>
+struct convert_tester
+{
+    template <typename T2>
+    void operator()(T2)
+    {
+        if (boost::is_base_of<boost::geometry::not_implemented<T1, T2>, check_convert<T1, T2> >::type::value)
+        {
+            std::cout << "-\t";
+        }
+        else
+        {
+            std::cout << "OK\t";
+        }
+    }
+};
+
+template <>
+struct convert_tester<void>
+{
+    template <typename T>
+    void operator()(T)
+    {
+        boost::mpl::for_each<types>(convert_tester<T>());
         std::cout << std::endl;
     }
 };
@@ -83,7 +123,13 @@ struct tester<void>
 
 int main()
 {
-    boost::mpl::for_each<types>(tester<void>());
+    std::cout << "DISTANCE" << std::endl;
+    boost::mpl::for_each<types>(distance_tester<void>());
+    std::cout << std::endl;
+
+    std::cout << "CONVERT" << std::endl;
+    boost::mpl::for_each<types>(convert_tester<void>());
+    std::cout << std::endl;
 
     return 0;
 }

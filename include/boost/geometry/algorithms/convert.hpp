@@ -22,6 +22,7 @@
 #include <boost/type_traits/is_array.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
@@ -218,14 +219,8 @@ template
     std::size_t DimensionCount,
     typename Geometry1, typename Geometry2
 >
-struct convert
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPES
-            , (types<Geometry1, Geometry2>)
-        );
-};
+struct convert: not_implemented<Geometry1, Geometry2>
+{};
 
 
 template
