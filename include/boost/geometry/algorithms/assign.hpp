@@ -168,7 +168,6 @@ inline void assign(Geometry1& geometry1, Geometry2 const& geometry2)
             false,
             typename tag<Geometry2>::type,
             typename tag<Geometry1>::type,
-            dimension<Geometry1>::type::value,
             Geometry2,
             Geometry1
         >::apply(geometry2, geometry1);
