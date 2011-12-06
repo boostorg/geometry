@@ -73,8 +73,8 @@ namespace dispatch
 // Note that, even if the multi-types are mutually different, their single
 // version types might be the same and therefore we call boost::is_same again
 
-template <std::size_t DimensionCount, typename Multi1, typename Multi2>
-struct convert<false, multi_tag, multi_tag, DimensionCount, Multi1, Multi2>
+template <typename Multi1, typename Multi2, std::size_t DimensionCount>
+struct convert<false, multi_tag, multi_tag, Multi1, Multi2, DimensionCount>
     : detail::conversion::multi_to_multi
         <
             Multi1, 
@@ -94,15 +94,15 @@ struct convert<false, multi_tag, multi_tag, DimensionCount, Multi1, Multi2>
                                 <
                                     typename tag<Multi2>::type
                                 >::type,
-                    DimensionCount,
                     typename boost::range_value<Multi1>::type,
-                    typename boost::range_value<Multi2>::type
+                    typename boost::range_value<Multi2>::type,
+                    DimensionCount
                 >
         >
 {};
 
-template <std::size_t DimensionCount, typename SingleTag, typename Single, typename Multi>
-struct convert<false, SingleTag, multi_tag, DimensionCount, Single, Multi>
+template <typename SingleTag, typename Single, typename Multi, std::size_t DimensionCount>
+struct convert<false, SingleTag, multi_tag, Single, Multi, DimensionCount>
     : detail::conversion::single_to_multi
         <
             Single, 
@@ -115,9 +115,9 @@ struct convert<false, SingleTag, multi_tag, DimensionCount, Single, Multi>
                                 <
                                     typename tag<Multi>::type
                                 >::type,
-                    DimensionCount,
                     Single,
-                    typename boost::range_value<Multi>::type
+                    typename boost::range_value<Multi>::type,
+                    DimensionCount
                 >
         >
 {};
