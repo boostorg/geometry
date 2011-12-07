@@ -214,10 +214,11 @@ namespace dispatch
 
 template
 <
-    bool UseAssignment,
     typename Tag1, typename Tag2,
     typename Geometry1, typename Geometry2,
-    std::size_t DimensionCount = dimension<Geometry1>::type::value
+    std::size_t DimensionCount = dimension<Geometry1>::type::value,
+    bool UseAssignment = boost::is_same<Geometry1, Geometry2>::value
+                         && !boost::is_array<Geometry1>::value
 >
 struct convert: boost::geometry::not_implemented<Geometry1, Geometry2>
 {};
@@ -229,7 +230,7 @@ template
     typename Geometry1, typename Geometry2,
     std::size_t DimensionCount
 >
-struct convert<true, Tag, Tag, Geometry1, Geometry2, DimensionCount>
+struct convert<Tag, Tag, Geometry1, Geometry2, DimensionCount, true>
 {
     // Same geometry type -> copy whole geometry
     static inline void apply(Geometry1 const& source, Geometry2& destination)
@@ -244,7 +245,7 @@ template
     typename Geometry1, typename Geometry2,
     std::size_t DimensionCount
 >
-struct convert<false, point_tag, point_tag, Geometry1, Geometry2, DimensionCount>
+struct convert<point_tag, point_tag, Geometry1, Geometry2, DimensionCount, false>
     : detail::conversion::point_to_point<Geometry1, Geometry2, 0, DimensionCount>
 {};
 
@@ -254,7 +255,7 @@ template
     typename Box1, typename Box2,
     std::size_t DimensionCount
 >
-struct convert<false, box_tag, box_tag, Box1, Box2, DimensionCount>
+struct convert<box_tag, box_tag, Box1, Box2, DimensionCount, false>
     : detail::conversion::indexed_to_indexed<Box1, Box2, 0, DimensionCount>
 {};
 
@@ -264,19 +265,19 @@ template
     typename Segment1, typename Segment2,
     std::size_t DimensionCount
 >
-struct convert<false, segment_tag, segment_tag, Segment1, Segment2, DimensionCount>
+struct convert<segment_tag, segment_tag, Segment1, Segment2, DimensionCount, false>
     : detail::conversion::indexed_to_indexed<Segment1, Segment2, 0, DimensionCount>
 {};
 
 
 template <typename Segment, typename LineString, std::size_t DimensionCount>
-struct convert<false, segment_tag, linestring_tag, Segment, LineString, DimensionCount>
+struct convert<segment_tag, linestring_tag, Segment, LineString, DimensionCount, false>
     : detail::conversion::segment_to_range<Segment, LineString>
 {};
 
 
 template <typename Ring1, typename Ring2, std::size_t DimensionCount>
-struct convert<false, ring_tag, ring_tag, Ring1, Ring2, DimensionCount>
+struct convert<ring_tag, ring_tag, Ring1, Ring2, DimensionCount, false>
     : detail::conversion::range_to_range
         <   
             Ring1, 
@@ -287,17 +288,17 @@ struct convert<false, ring_tag, ring_tag, Ring1, Ring2, DimensionCount>
 {};
 
 template <typename LineString1, typename LineString2, std::size_t DimensionCount>
-struct convert<false, linestring_tag, linestring_tag, LineString1, LineString2, DimensionCount>
+struct convert<linestring_tag, linestring_tag, LineString1, LineString2, DimensionCount, false>
     : detail::conversion::range_to_range<LineString1, LineString2>
 {};
 
 template <typename Polygon1, typename Polygon2, std::size_t DimensionCount>
-struct convert<false, polygon_tag, polygon_tag, Polygon1, Polygon2, DimensionCount>
+struct convert<polygon_tag, polygon_tag, Polygon1, Polygon2, DimensionCount, false>
     : detail::conversion::polygon_to_polygon<Polygon1, Polygon2>
 {};
 
 template <typename Box, typename Ring>
-struct convert<false, box_tag, ring_tag, Box, Ring, 2>
+struct convert<box_tag, ring_tag, Box, Ring, 2, false>
     : detail::conversion::box_to_range
         <
             Box, 
@@ -309,7 +310,7 @@ struct convert<false, box_tag, ring_tag, Box, Ring, 2>
 
 
 template <typename Box, typename Polygon>
-struct convert<false, box_tag, polygon_tag, Box, Polygon, 2>
+struct convert<box_tag, polygon_tag, Box, Polygon, 2, false>
 {
     static inline void apply(Box const& box, Polygon& polygon)
     {
@@ -317,15 +318,16 @@ struct convert<false, box_tag, polygon_tag, Box, Polygon, 2>
 
         convert
             <
-                false, box_tag, ring_tag,
-                Box, ring_type, 2
+                box_tag, ring_tag,
+                Box, ring_type,
+                2, false
             >::apply(box, exterior_ring(polygon));
     }
 };
 
 
 template <typename Point, typename Box, std::size_t DimensionCount>
-struct convert<false, point_tag, box_tag, Point, Box, DimensionCount>
+struct convert<point_tag, box_tag, Point, Box, DimensionCount, false>
 {
     static inline void apply(Point const& point, Box& box)
     {
@@ -342,22 +344,23 @@ struct convert<false, point_tag, box_tag, Point, Box, DimensionCount>
 
 
 template <typename Ring, typename Polygon, std::size_t DimensionCount>
-struct convert<false, ring_tag, polygon_tag, Ring, Polygon, DimensionCount>
+struct convert<ring_tag, polygon_tag, Ring, Polygon, DimensionCount, false>
 {
     static inline void apply(Ring const& ring, Polygon& polygon)
     {
         typedef typename ring_type<Polygon>::type ring_type;
         convert
             <
-                false, ring_tag, ring_tag,
-                Ring, ring_type, DimensionCount
+                ring_tag, ring_tag,
+                Ring, ring_type,
+                DimensionCount, false
             >::apply(ring, exterior_ring(polygon));
     }
 };
 
 
 template <typename Polygon, typename Ring, std::size_t DimensionCount>
-struct convert<false, polygon_tag, ring_tag, Polygon, Ring, DimensionCount>
+struct convert<polygon_tag, ring_tag, Polygon, Ring, DimensionCount, false>
 {
     static inline void apply(Polygon const& polygon, Ring& ring)
     {
@@ -365,9 +368,9 @@ struct convert<false, polygon_tag, ring_tag, Polygon, Ring, DimensionCount>
 
         convert
             <
-                false,
                 ring_tag, ring_tag,
-                ring_type, Ring, DimensionCount
+                ring_type, Ring,
+                DimensionCount, false
             >::apply(exterior_ring(polygon), ring);
     }
 };
@@ -399,9 +402,6 @@ inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
 
     dispatch::convert
         <
-            boost::is_same<Geometry1, Geometry2>::value 
-                // && boost::has_assign<Geometry2>::value, -- type traits extensions
-                && ! boost::is_array<Geometry1>::value,
             typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
             typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
             Geometry1,
