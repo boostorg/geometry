@@ -49,7 +49,6 @@ struct check_distance
 template <typename G1, typename G2>
 struct check_convert
   : boost::geometry::dispatch::convert<
-        boost::is_same<G1, G2>::value && !boost::is_array<G1>::value,
         typename boost::geometry::tag_cast<typename boost::geometry::tag<G1>::type, boost::geometry::multi_tag>::type,
         typename boost::geometry::tag_cast<typename boost::geometry::tag<G2>::type, boost::geometry::multi_tag>::type,
         G1,

@@ -165,7 +165,6 @@ inline void assign(Geometry1& geometry1, Geometry2 const& geometry2)
 
     dispatch::convert
         <
-            false,
             typename tag<Geometry2>::type,
             typename tag<Geometry1>::type,
             Geometry2,
