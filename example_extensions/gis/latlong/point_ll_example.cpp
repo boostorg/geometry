@@ -12,10 +12,7 @@
 #include <iomanip>
 
 #include <boost/geometry/geometry.hpp>
-
-
-#include <boost/geometry/algorithms/parse.hpp>
-
+#include <boost/geometry/extensions/algorithms/parse.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 
 // Formula to get the course (direction) between two points.
