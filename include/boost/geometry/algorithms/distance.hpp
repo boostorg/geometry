@@ -247,11 +247,12 @@ using strategy::distance::services::return_type;
 
 template
 <
-    typename GeometryTag1, typename GeometryTag2,
+    typename Tag1, typename Tag2,
     typename Geometry1, typename Geometry2,
     typename StrategyTag, typename Strategy
 >
-struct distance: not_implemented<Geometry1, Geometry2>
+struct distance: not_implemented<for_geometry<Tag1>,
+                                 and_geometry<Tag2> >
 {};
 
 

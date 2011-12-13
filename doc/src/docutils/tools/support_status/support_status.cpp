@@ -66,8 +66,8 @@ struct distance_tester
         typedef typename boost::geometry::tag<T1>::type tag1;
         typedef typename boost::geometry::tag<T2>::type tag2;
 
-        if (boost::is_base_of<boost::geometry::not_implemented<T1, T2>, check_distance<tag1, tag2, T1, T2> >::type::value
-         && boost::is_base_of<boost::geometry::not_implemented<T2, T1>, check_distance<tag2, tag1, T2, T1> >::type::value)
+        if (boost::is_base_of<boost::geometry::not_implemented_base, check_distance<tag1, tag2, T1, T2> >::type::value
+         && boost::is_base_of<boost::geometry::not_implemented_base, check_distance<tag2, tag1, T2, T1> >::type::value)
         {
             std::cout << "-\t";
         }
@@ -96,7 +96,7 @@ struct convert_tester
     template <typename T2>
     void operator()(T2)
     {
-        if (boost::is_base_of<boost::geometry::not_implemented<T1, T2>, check_convert<T1, T2> >::type::value)
+        if (boost::is_base_of<boost::geometry::not_implemented_base, check_convert<T1, T2> >::type::value)
         {
             std::cout << "-\t";
         }
