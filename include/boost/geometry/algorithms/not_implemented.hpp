@@ -17,10 +17,67 @@
 
 
 #include <boost/mpl/assert.hpp>
+#include <boost/mpl/fold.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/remove.hpp>
+#include <boost/mpl/apply_wrap.hpp>
 
 
 namespace boost { namespace geometry
 {
+
+
+// Class containing the elements of the actual user-facing error message
+
+template <class>
+struct FOR_GEOMETRY_TYPE
+{
+    template <class>
+    struct AND_GEOMETRY_TYPE
+    {
+        template <size_t>
+        struct IN_DIMENSION
+        {};
+    };
+
+    template <size_t>
+    struct IN_DIMENSION
+    {};
+};
+
+
+// Unary metafunction class templates which return their corresponding error
+// message element nested in the previous one.
+
+template <class G>
+struct for_geometry
+{
+    template <class>
+    struct apply
+    {
+        typedef FOR_GEOMETRY_TYPE<G> type;
+    };
+};
+
+template <class G>
+struct and_geometry
+{
+    template <class Prev>
+    struct apply
+    {
+        typedef typename Prev::template AND_GEOMETRY_TYPE<G> type;
+    };
+};
+
+template <size_t D>
+struct in_dimension
+{
+    template <class Prev>
+    struct apply
+    {
+        typedef typename Prev::template IN_DIMENSION<D> type;
+    };
+};
 
 
 #ifndef BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD
@@ -28,14 +85,30 @@ namespace boost { namespace geometry
 #endif
 
 
-template <typename Geometry1, typename Geometry2>
-struct not_implemented
+struct not_implemented_base {};
+
+
+template <
+    typename Word1 = void,
+    typename Word2 = void,
+    typename Word3 = void
+>
+struct not_implemented: not_implemented_base
 {
     BOOST_MPL_ASSERT_MSG
         (
             BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD,
-            NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry1, Geometry2>)
+            THIS_OPERATION_IS_NOT_OR_NOT_YET_IMPLEMENTED,
+            (
+                typename boost::mpl::fold<
+                    typename boost::mpl::remove<
+                        boost::mpl::vector<Word1, Word2, Word3>,
+                        void
+                    >::type,
+                    void,
+                    boost::mpl::apply_wrap1<boost::mpl::_2, boost::mpl::_1>
+                >::type
+            )
         );
 };
 
