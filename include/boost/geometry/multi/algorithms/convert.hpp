@@ -74,13 +74,15 @@ namespace dispatch
 // version types might be the same and therefore we call boost::is_same again
 
 template <typename Multi1, typename Multi2, std::size_t DimensionCount>
-struct convert<multi_tag, multi_tag, Multi1, Multi2, DimensionCount, false>
+struct convert<Multi1, Multi2, multi_tag, multi_tag, DimensionCount, false>
     : detail::conversion::multi_to_multi
         <
             Multi1, 
             Multi2,
             convert
                 <
+                    typename boost::range_value<Multi1>::type,
+                    typename boost::range_value<Multi2>::type,
                     typename single_tag_of
                                 <
                                     typename tag<Multi1>::type
@@ -89,28 +91,26 @@ struct convert<multi_tag, multi_tag, Multi1, Multi2, DimensionCount, false>
                                 <
                                     typename tag<Multi2>::type
                                 >::type,
-                    typename boost::range_value<Multi1>::type,
-                    typename boost::range_value<Multi2>::type,
                     DimensionCount
                 >
         >
 {};
 
-template <typename SingleTag, typename Single, typename Multi, std::size_t DimensionCount>
-struct convert<SingleTag, multi_tag, Single, Multi, DimensionCount, false>
+template <typename Single, typename Multi, typename SingleTag, std::size_t DimensionCount>
+struct convert<Single, Multi, SingleTag, multi_tag, DimensionCount, false>
     : detail::conversion::single_to_multi
         <
             Single, 
             Multi,
             convert
                 <
+                    Single,
+                    typename boost::range_value<Multi>::type,
                     typename tag<Single>::type,
                     typename single_tag_of
                                 <
                                     typename tag<Multi>::type
                                 >::type,
-                    Single,
-                    typename boost::range_value<Multi>::type,
                     DimensionCount,
                     false
                 >
