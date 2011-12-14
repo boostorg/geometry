@@ -47,17 +47,11 @@ struct check_distance
 {};
 
 template <typename G1, typename G2>
-struct check_convert
-  : boost::geometry::dispatch::convert<
-        typename boost::geometry::tag_cast<typename boost::geometry::tag<G1>::type, boost::geometry::multi_tag>::type,
-        typename boost::geometry::tag_cast<typename boost::geometry::tag<G2>::type, boost::geometry::multi_tag>::type,
-        G1,
-        G2
-    >
+struct check_convert: boost::geometry::dispatch::convert<G1, G2>
 {};
 
 
-template <class T1>
+template <typename T1>
 struct distance_tester
 {
     template <typename T2>
@@ -90,7 +84,7 @@ struct distance_tester<void>
 };
 
 
-template <class T1>
+template <typename T1>
 struct convert_tester
 {
     template <typename T2>

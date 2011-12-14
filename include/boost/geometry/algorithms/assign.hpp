@@ -163,13 +163,7 @@ inline void assign(Geometry1& geometry1, Geometry2 const& geometry2)
             , (types<Geometry1, Geometry2>)
         );
 
-    dispatch::convert
-        <
-            typename tag<Geometry2>::type,
-            typename tag<Geometry1>::type,
-            Geometry2,
-            Geometry1
-        >::apply(geometry2, geometry1);
+    dispatch::convert<Geometry2, Geometry1>::apply(geometry2, geometry1);
 }
 
 
