@@ -250,7 +250,8 @@ template
     typename Geometry1, typename Geometry2,
     typename StrategyTag, typename Strategy,
     typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
-    typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type
+    typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
+    bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct distance: not_implemented<for_geometry<Tag1>,
                                  and_geometry<Tag2> >
@@ -262,10 +263,43 @@ struct distance
     <
         P1, P2,
         strategy_tag_distance_point_point, Strategy,
-        point_tag, point_tag
+        point_tag, point_tag,
+        false
     >
     : detail::distance::point_to_point<P1, P2, Strategy>
 {};
+
+
+// If reversal is needed, perform it
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename StrategyTag, typename Strategy,
+    typename Tag1,
+    typename Tag2
+>
+struct distance
+<
+    Geometry1, Geometry2,
+    StrategyTag, Strategy,
+    Tag1, Tag2,
+    true
+>: distance<Geometry2, Geometry1, StrategyTag, Strategy, Tag2, Tag1, false>
+{
+    static inline typename return_type<Strategy>::type apply(
+        Geometry1 const& g1,
+        Geometry2 const& g2,
+        Strategy const& strategy)
+    {
+        return distance
+            <
+                Geometry2, Geometry1,
+                StrategyTag, Strategy,
+                Tag2, Tag1,
+                false
+            >::apply(g2, g1, strategy);
+    }
+};
 
 
 // Point-line version 1, where point-point strategy is specified
@@ -274,7 +308,8 @@ struct distance
 <
     Point, Linestring,
     strategy_tag_distance_point_point, Strategy,
-    point_tag, linestring_tag
+    point_tag, linestring_tag,
+    false
 >
 {
 
@@ -303,7 +338,8 @@ struct distance
 <
     Point, Linestring,
     strategy_tag_distance_point_segment, Strategy,
-    point_tag, linestring_tag
+    point_tag, linestring_tag,
+    false
 >
 {
     static inline typename return_type<Strategy>::type apply(Point const& point,
@@ -324,7 +360,8 @@ struct distance
 <
     Point, Ring,
     strategy_tag_distance_point_point, Strategy,
-    point_tag, ring_tag
+    point_tag, ring_tag,
+    false
 >
 {
     typedef typename return_type<Strategy>::type return_type;
@@ -359,7 +396,8 @@ struct distance
 <
     Point, Polygon,
     strategy_tag_distance_point_point, Strategy,
-    point_tag, polygon_tag
+    point_tag, polygon_tag,
+    false
 >
 {
     typedef typename return_type<Strategy>::type return_type;
@@ -395,7 +433,8 @@ struct distance
 <
     Point, Segment,
     strategy_tag_distance_point_point, Strategy,
-    point_tag, segment_tag
+    point_tag, segment_tag,
+    false
 > : detail::distance::point_to_segment<Point, Segment, Strategy>
 {};
 
@@ -404,8 +443,9 @@ template <typename Point, typename Segment, typename Strategy>
 struct distance
 <
     Point, Segment,
+    strategy_tag_distance_point_segment, Strategy,
     point_tag, segment_tag,
-    strategy_tag_distance_point_segment, Strategy
+    false
 >
 {
     static inline typename return_type<Strategy>::type apply(Point const& point,
@@ -420,27 +460,6 @@ struct distance
 };
 
 
-
-// Strictly spoken this might be in namespace <impl> again
-template
-<
-    typename G1, typename G2,
-    typename StrategyTag, typename Strategy,
-    typename GeometryTag1 = typename tag_cast<typename tag<G1>::type, multi_tag>::type,
-    typename GeometryTag2 = typename tag_cast<typename tag<G2>::type, multi_tag>::type
->
-struct distance_reversed
-{
-    static inline typename return_type<Strategy>::type apply(G1 const& g1,
-                G2 const& g2, Strategy const& strategy)
-    {
-        return distance
-            <
-                G2, G1,
-                StrategyTag, Strategy
-            >::apply(g2, g1, strategy);
-    }
-};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
@@ -489,24 +508,13 @@ inline typename strategy::distance::services::return_type<Strategy>::type distan
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return boost::mpl::if_
-        <
-            typename geometry::reverse_dispatch<Geometry1, Geometry2>::type,
-            dispatch::distance_reversed
-                <
-                    Geometry1,
-                    Geometry2,
-                    typename strategy::distance::services::tag<Strategy>::type,
-                    Strategy
-                >,
-                dispatch::distance
-                <
-                    Geometry1,
-                    Geometry2,
-                    typename strategy::distance::services::tag<Strategy>::type,
-                    Strategy
-                >
-        >::type::apply(geometry1, geometry2, strategy);
+    return dispatch::distance
+               <
+                   Geometry1,
+                   Geometry2,
+                   typename strategy::distance::services::tag<Strategy>::type,
+                   Strategy
+               >::apply(geometry1, geometry2, strategy);
 }
 
 
