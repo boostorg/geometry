@@ -55,8 +55,7 @@ struct distance_tester
     template <typename T2>
     void operator()(T2)
     {
-        if (boost::is_base_of<boost::geometry::not_implemented_base, check_distance<T1, T2> >::type::value
-         && boost::is_base_of<boost::geometry::not_implemented_base, check_distance<T2, T1> >::type::value)
+        if (boost::is_base_of<boost::geometry::not_implemented_base, check_distance<T1, T2> >::type::value)
         {
             std::cout << "-\t";
         }
