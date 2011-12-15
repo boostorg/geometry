@@ -30,11 +30,9 @@ typedef boost::mpl::vector<
 > types;
 
 
-template <typename Tag1, typename Tag2, typename G1, typename G2>
+template <typename G1, typename G2>
 struct check_distance
   : boost::geometry::dispatch::distance<
-        Tag1,
-        Tag2,
         G1,
         G2,
         boost::geometry::strategy_tag_distance_point_point,
@@ -57,11 +55,8 @@ struct distance_tester
     template <typename T2>
     void operator()(T2)
     {
-        typedef typename boost::geometry::tag<T1>::type tag1;
-        typedef typename boost::geometry::tag<T2>::type tag2;
-
-        if (boost::is_base_of<boost::geometry::not_implemented_base, check_distance<tag1, tag2, T1, T2> >::type::value
-         && boost::is_base_of<boost::geometry::not_implemented_base, check_distance<tag2, tag1, T2, T1> >::type::value)
+        if (boost::is_base_of<boost::geometry::not_implemented_base, check_distance<T1, T2> >::type::value
+         && boost::is_base_of<boost::geometry::not_implemented_base, check_distance<T2, T1> >::type::value)
         {
             std::cout << "-\t";
         }
