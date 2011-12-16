@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_HPP
-#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_HPP
+#ifndef BOOST_GEOMETRY_IO_WKT_READ_HPP
+#define BOOST_GEOMETRY_IO_WKT_READ_HPP
 
 #include <string>
 
@@ -23,9 +23,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
 
-
 #include <boost/type_traits.hpp>
-
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/append.hpp>
@@ -43,12 +41,10 @@
 
 #include <boost/geometry/util/coordinate_cast.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/detail/wkt.hpp>
+#include <boost/geometry/io/wkt/detail/prefix.hpp>
 
 namespace boost { namespace geometry
 {
-
-
 
 /*!
 \brief Exception showing things wrong with WKT parsing
@@ -90,7 +86,6 @@ private :
     std::string wkt;
     std::string complete;
 };
-
 
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -652,7 +647,6 @@ struct read_wkt<segment_tag, Segment>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
-
 /*!
 \brief Parses OGC Well-Known Text (\ref WKT) into a geometry (any geometry)
 \ingroup wkt
@@ -688,5 +682,4 @@ inline void read_wkt(std::string const& wkt, Geometry& geometry)
 
 }} // namespace boost::geometry
 
-
-#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_HPP
+#endif // BOOST_GEOMETRY_IO_WKT_READ_HPP

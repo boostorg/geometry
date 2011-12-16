@@ -11,5 +11,11 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef BOOST_GEOMETRY_IO_WKT_WKT_HPP
+#define BOOST_GEOMETRY_IO_WKT_WKT_HPP
 
-Note, the wkt is moved to /boost/geometry/domains/gis/io/wkt
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
+#include <boost/geometry/io/wkt/iomanip.hpp>
+
+#endif // BOOST_GEOMETRY_IO_WKT_WKT_HPP

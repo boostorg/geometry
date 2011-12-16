@@ -11,10 +11,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_STREAM_WKT_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_STREAM_WKT_HPP
+#ifndef BOOST_GEOMETRY_IO_WKT_IOMANIP_HPP
+#define BOOST_GEOMETRY_IO_WKT_IOMANIP_HPP
 
-#include <boost/geometry/domains/gis/io/wkt/write.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 
 // This short file contains only one manipulator, streaming as WKT
 // Don't move contents to as_wkt, developers must be able to choose how to stream
@@ -43,4 +43,4 @@ inline std::basic_ostream<Char,Traits>& operator<<
 
 //}} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_IO_WKT_STREAM_WKT_HPP
+#endif // BOOST_GEOMETRY_IO_WKT_IOMANIP_HPP

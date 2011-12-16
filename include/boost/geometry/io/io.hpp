@@ -11,27 +11,21 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_HPP
-#define BOOST_GEOMETRY_DOMAINS_GIS_IO_HPP
+#ifndef BOOST_GEOMETRY_IO_HPP
+#define BOOST_GEOMETRY_IO_HPP
 
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write.hpp>
-
-#include <boost/geometry/domains/gis/io/wkt/read_multi.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write_multi.hpp>
-
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 struct format_wkt {};
-struct format_wkb {};
-struct format_dsv {};
+struct format_wkb {}; // TODO
+struct format_dsv {}; // TODO
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-
 template <typename Tag, typename Geometry>
 struct read
 {
@@ -46,11 +40,8 @@ struct read<format_wkt, Geometry>
     }
 };
 
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
-
-
 
 template <typename Format, typename Geometry>
 inline void read(Geometry& geometry, std::string const& wkt)
@@ -59,7 +50,8 @@ inline void read(Geometry& geometry, std::string const& wkt)
     dispatch::read<Format, Geometry>::apply(geometry, wkt);
 }
 
+// TODO: wriite
+
 }} // namespace boost::geometry
 
-
-#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_HPP
+#endif // BOOST_GEOMETRY_IO_HPP

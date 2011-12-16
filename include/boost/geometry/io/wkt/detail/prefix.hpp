@@ -11,13 +11,34 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WKT_HPP
-#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WKT_HPP
+#ifndef BOOST_GEOMETRY_IO_WKT_DETAIL_PREFIX_HPP
+#define BOOST_GEOMETRY_IO_WKT_DETAIL_PREFIX_HPP
 
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write.hpp>
+namespace boost { namespace geometry
+{
 
-#include <boost/geometry/domains/gis/io/wkt/read_multi.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write_multi.hpp>
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace wkt {
 
-#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WKT_HPP
+struct prefix_point
+{
+    static inline const char* apply() { return "POINT"; }
+};
+
+struct prefix_polygon
+{
+    static inline const char* apply() { return "POLYGON"; }
+};
+
+struct prefix_linestring
+{
+    static inline const char* apply() { return "LINESTRING"; }
+};
+
+}} // namespace wkt::impl
+#endif
+
+
+}} // namespace boost::geometry
+
+#endif // BOOST_GEOMETRY_IO_WKT_DETAIL_PREFIX_HPP

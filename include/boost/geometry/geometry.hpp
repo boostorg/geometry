@@ -16,7 +16,6 @@
 
 // Shortcut to include all header files
 
-
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
@@ -81,7 +80,6 @@
 #include <boost/geometry/views/box_view.hpp>
 #include <boost/geometry/views/segment_view.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
-
+#include <boost/geometry/io/io.hpp>
 
 #endif // BOOST_GEOMETRY_GEOMETRY_HPP

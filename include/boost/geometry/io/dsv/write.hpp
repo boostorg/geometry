@@ -14,7 +14,6 @@
 #ifndef BOOST_GEOMETRY_IO_DSV_WRITE_HPP
 #define BOOST_GEOMETRY_IO_DSV_WRITE_HPP
 
-
 #include <cstddef>
 #include <ostream>
 #include <string>
@@ -30,14 +29,12 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-
 namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace dsv
 {
-
 
 struct dsv_settings
 {
@@ -99,7 +96,6 @@ struct stream_coordinate<Point, Count, Count>
     }
 };
 
-
 /*!
 \brief Stream indexed coordinate of a box/segment as \ref DSV
 */
@@ -135,8 +131,6 @@ struct stream_indexed<Geometry, Index, Count, Count>
     {
     }
 };
-
-
 
 /*!
 \brief Stream points as \ref DSV
@@ -201,7 +195,6 @@ private:
 \note Used in polygon, all multi-geometries
 */
 
-
 template <typename Polygon>
 struct dsv_poly
 {
@@ -246,7 +239,6 @@ struct dsv_per_index
     }
 };
 
-
 template <typename Geometry>
 struct dsv_indexed
 {
@@ -268,7 +260,6 @@ struct dsv_indexed
 }} // namespace detail::dsv
 #endif // DOXYGEN_NO_DETAIL
 
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
@@ -276,18 +267,15 @@ namespace dispatch
 template <typename Tag, typename Geometry>
 struct dsv {};
 
-
 template <typename Point>
 struct dsv<point_tag, Point>
     : detail::dsv::dsv_point<Point>
 {};
 
-
 template <typename Linestring>
 struct dsv<linestring_tag, Linestring>
     : detail::dsv::dsv_range<Linestring>
 {};
-
 
 template <typename Box>
 struct dsv<box_tag, Box>
@@ -299,27 +287,22 @@ struct dsv<segment_tag, Segment>
     : detail::dsv::dsv_indexed<Segment>
 {};
 
-
 template <typename Ring>
 struct dsv<ring_tag, Ring>
     : detail::dsv::dsv_range<Ring>
 {};
-
 
 template <typename Polygon>
 struct dsv<polygon_tag, Polygon>
     : detail::dsv::dsv_poly<Polygon>
 {};
 
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
-
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace dsv
 {
-
 
 // FIXME: This class is not copyable/assignable but it is used as such --mloskot
 template <typename Geometry>
@@ -356,10 +339,8 @@ private:
     dsv_settings m_settings;
 };
 
-
 }} // namespace detail::dsv
 #endif // DOXYGEN_NO_DETAIL
-
 
 /*!
 \brief Main DSV-streaming function
@@ -389,8 +370,6 @@ inline detail::dsv::dsv_manipulator<Geometry> dsv(Geometry const& geometry
             list_open, list_close, list_separator));
 }
 
-
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_IO_DSV_WRITE_HPP
