@@ -21,7 +21,7 @@
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/transform/matrix_transformers.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 #if defined(HAVE_SVG)
 #  include <boost/geometry/extensions/io/svg/write_svg.hpp>

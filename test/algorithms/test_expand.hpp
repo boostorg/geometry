@@ -14,7 +14,7 @@
 
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 

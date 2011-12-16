@@ -17,7 +17,7 @@
 
 #include <boost/geometry/algorithms/make.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/write.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>

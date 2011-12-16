@@ -18,7 +18,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>

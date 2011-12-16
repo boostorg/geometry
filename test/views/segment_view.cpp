@@ -17,7 +17,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/views/segment_view.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 
 

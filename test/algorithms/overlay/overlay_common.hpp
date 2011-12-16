@@ -25,8 +25,8 @@
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 
 
 #if defined(TEST_WITH_SVG)

@@ -15,21 +15,16 @@
 
 #include <geometry_test_common.hpp>
 
-
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+#include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
 #include <boost/geometry/extensions/gis/geographic/strategies/distance_cross_track.hpp>
-
-#include <boost/geometry/strategies/concepts/distance_concept.hpp>
-
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
-
-
 
 
 template <typename Point>
@@ -61,8 +56,6 @@ void test_distance(
         );
 
     //typedef bg::strategy::distance::andoyer<Point, Point> andoyer_type;
-
-
 
     Point p1, p2, p3;
     bg::assign(p1, lon1, lat1);

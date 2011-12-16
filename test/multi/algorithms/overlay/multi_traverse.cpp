@@ -34,7 +34,7 @@
 
 #include <boost/geometry/multi/views/detail/range_type.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read_multi.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
 
 
 #include "multi_overlay_cases.hpp"

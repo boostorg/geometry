@@ -14,26 +14,20 @@
 
 #include <geometry_test_common.hpp>
 
-
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
-
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-
+#include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/extensions/gis/io/wkt/read_wkt.hpp>
 #include <boost/geometry/extensions/gis/latlong/point_ll.hpp>
 #include <boost/geometry/extensions/gis/geographic/strategies/area_huiller_earth.hpp>
-
-
 #include <boost/geometry/extensions/gis/projections/epsg.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/sterea.hpp>
 
 //#include <test_common/test_point.hpp>
-
 
 template <typename PRJ, typename XY, typename LL>
 void add_to_ring(PRJ const& prj, LL const& ll,

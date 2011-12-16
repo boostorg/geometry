@@ -16,7 +16,7 @@
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 
 template<typename Box, std::size_t DimensionCount>
