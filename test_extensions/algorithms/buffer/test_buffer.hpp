@@ -60,7 +60,7 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 
 

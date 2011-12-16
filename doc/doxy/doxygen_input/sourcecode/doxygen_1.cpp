@@ -21,8 +21,7 @@ OBSOLETE
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
-
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 // All functions below are referred to in the documentation of Boost.Geometry
 // Don't rename them.
@@ -427,8 +426,6 @@ void example_point_ll_construct()
         );
     */
 }
-
-
 
 int main(void)
 {

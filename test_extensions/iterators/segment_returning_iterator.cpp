@@ -21,7 +21,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/extensions/iterators/segment_returning_iterator.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 template <typename C>
 void test_linestring(std::string const& wkt, std::string const& expected)

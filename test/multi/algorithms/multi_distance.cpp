@@ -11,7 +11,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/distance.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
@@ -20,7 +20,7 @@
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read_multi.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

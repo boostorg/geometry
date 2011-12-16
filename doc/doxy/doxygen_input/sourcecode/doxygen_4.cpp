@@ -17,7 +17,7 @@ OBSOLETE
 
 #include <boost/geometry/multi/multi.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/extensions/io/svg/write_svg_multi.hpp>
 
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>

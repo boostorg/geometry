@@ -18,7 +18,7 @@
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 
 #include <boost/geometry/geometries/point.hpp>

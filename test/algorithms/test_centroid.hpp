@@ -18,7 +18,7 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 
 template <std::size_t D>

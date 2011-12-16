@@ -23,8 +23,8 @@
 #include <boost/geometry/geometries/register/ring.hpp>
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/extensions/algorithms/selected.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read_multi.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
 
 
 // wxWidgets, if these headers are NOT found, adapt include path (and lib path)

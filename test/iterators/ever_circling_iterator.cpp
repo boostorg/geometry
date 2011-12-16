@@ -20,7 +20,7 @@
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 

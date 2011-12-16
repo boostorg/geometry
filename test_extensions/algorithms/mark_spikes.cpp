@@ -24,7 +24,7 @@
 #include <boost/geometry/extensions/algorithms/mark_spikes.hpp>
 #include <boost/geometry/extensions/algorithms/remove_marked.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 
 
