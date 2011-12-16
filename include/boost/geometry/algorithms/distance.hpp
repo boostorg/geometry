@@ -272,17 +272,6 @@ struct distance: not_implemented<for_geometry<Tag1>,
 {};
 
 
-template <typename P1, typename P2, typename Strategy>
-struct distance
-    <
-        P1, P2, Strategy,
-        point_tag, point_tag, strategy_tag_distance_point_point,
-        false
-    >
-    : detail::distance::point_to_point<P1, P2, Strategy>
-{};
-
-
 // If reversal is needed, perform it
 template
 <
@@ -348,6 +337,18 @@ struct distance
             >::apply(g2, g1, strategy);
     }
 };
+
+
+// Point-point
+template <typename P1, typename P2, typename Strategy>
+struct distance
+    <
+        P1, P2, Strategy,
+        point_tag, point_tag, strategy_tag_distance_point_point,
+        false
+    >
+    : detail::distance::point_to_point<P1, P2, Strategy>
+{};
 
 
 // Point-line version 1, where point-point strategy is specified
