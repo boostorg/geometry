@@ -35,7 +35,6 @@ struct check_distance
   : boost::geometry::dispatch::distance<
         G1,
         G2,
-        boost::geometry::strategy_tag_distance_point_point,
         typename boost::geometry::strategy::distance::services::default_strategy<
             boost::geometry::point_tag,
             G1,
