@@ -12,21 +12,16 @@
 #include <fstream>
 #include "shapefil.h"
 
-
 #include <boost/noncopyable.hpp>
 #include <boost/type_traits/promote.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object.hpp>
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object_multi.hpp>
 #include <boost/geometry/extensions/gis/io/shapelib/dbf_write_attribute.hpp>
 
-
-namespace boost { namespace geometry
-{
-
-
+namespace boost { namespace geometry {
 
 class shapelib_file_create_exception : public geometry::exception
 {
@@ -44,9 +39,7 @@ private :
     std::string m_filename;
 };
 
-
-namespace detail
-{
+namespace detail {
 
 template <typename Tag>
 struct SHPType
@@ -64,7 +57,7 @@ template <> struct SHPType<multi_point_tag> { static int const value = SHPT_MULT
 template <> struct SHPType<multi_linestring_tag> { static int const value = SHPT_ARC; };
 template <> struct SHPType<multi_polygon_tag> { static int const value = SHPT_POLYGON; };
 
-}
+} // namespace detail
 
 template
 <
@@ -88,12 +81,12 @@ public :
             throw shapelib_file_create_exception(name);
         }
     }
+
     virtual ~shape_creator()
     {
         if (m_shp) ::SHPClose(m_shp);
         if (m_dbf) ::DBFClose(m_dbf);
     }
-
 
     // Returns: index in shapefile
     inline int AddShape(Geometry const& geometry)
@@ -104,7 +97,6 @@ public :
         ::SHPDestroyObject( obj );
         return result;
     }
-
 
     template <typename T>
     inline void AddField(std::string const& name, int width = 16, int decimals = 0)
@@ -148,7 +140,6 @@ public :
         }
     }
 
-
 private :
     ::SHPHandle m_shp;
     ::DBFHandle m_dbf;
@@ -156,8 +147,6 @@ private :
 
 };
 
-
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_EXT_GIS_IO_SHAPELIB_SHAPE_CREATOR_HPP

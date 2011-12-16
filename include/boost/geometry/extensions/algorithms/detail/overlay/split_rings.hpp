@@ -11,40 +11,30 @@
 
 #define BOOST_GEOMETRY_CHECK_SPLIT_RINGS
 
-
 #include <deque>
 #include <string>
 
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
-
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/util/math.hpp>
-
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-
 #if defined(BOOST_GEOMETRY_DEBUG_SPLIT_RINGS) || defined(BOOST_GEOMETRY_CHECK_SPLIT_RINGS)
-#  include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#  include <boost/geometry/io/wkt/wkt.hpp>
 #endif
 
-
-
-namespace boost { namespace geometry
-{
-
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace split_rings
-{
-
+namespace detail { namespace split_rings {
 
 template <typename Range>
 struct split_range
@@ -272,7 +262,6 @@ struct split_calculate_distance_policy
 };
 
 
-
 template <typename Range, typename RingCollection>
 class range_split_rings
 {
@@ -345,9 +334,6 @@ class range_split_rings
     }
 
 
-
-
-
     static void call(Range range, RingCollection& ring_collection)
     {
         typedef split_turn_info<point_type> turn_info;
@@ -393,7 +379,6 @@ class range_split_rings
 
         std::sort(turns.begin(), turns.end(), sorter<turn_info>());
         //report(turns, "sorted");
-
 
         while(turns.size() > 0)
         {
@@ -473,7 +458,6 @@ class range_split_rings
         insert_rings<ring_tag, RingCollection, Range>::apply(ring_collection, range);
     }
 
-
 public :
     // Copy by value of range is intentional, copy is modified here
     static inline void apply(Range range, RingCollection& ring_collection)
@@ -481,7 +465,6 @@ public :
         call(range, ring_collection);
     }
 };
-
 
 template <typename Polygon, typename RingCollection>
 struct polygon_split_rings
@@ -558,6 +541,5 @@ inline void split_rings(Geometry const& geometry, RingCollection& out)
 }
 
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_DETAIL_OVERLAY_SPLIT_RINGS_HPP

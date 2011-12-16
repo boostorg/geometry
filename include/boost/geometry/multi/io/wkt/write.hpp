@@ -11,22 +11,17 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_MULTI_HPP
-#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_MULTI_HPP
+#ifndef BOOST_GEOMETRY_MULTI_IO_WKT_WRITE_HPP
+#define BOOST_GEOMETRY_MULTI_IO_WKT_WRITE_HPP
 
 #include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/multi/io/wkt/detail/prefix.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/write.hpp>
-#include <boost/geometry/domains/gis/io/wkt/detail/wkt_multi.hpp>
-
-
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace wkt
-{
-
+namespace detail { namespace wkt {
 
 template <typename Multi, typename StreamPolicy, typename PrefixPolicy>
 struct wkt_multi
@@ -58,11 +53,8 @@ struct wkt_multi
 }} // namespace wkt::impl
 #endif
 
-
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
-
+namespace dispatch {
 
 template <typename Multi>
 struct wkt<multi_point_tag, Multi>
@@ -78,7 +70,6 @@ struct wkt<multi_point_tag, Multi>
         >
 {};
 
-
 template <typename Multi>
 struct wkt<multi_linestring_tag, Multi>
     : detail::wkt::wkt_multi
@@ -91,7 +82,6 @@ struct wkt<multi_linestring_tag, Multi>
             detail::wkt::prefix_multilinestring
         >
 {};
-
 
 template <typename Multi>
 struct wkt<multi_polygon_tag, Multi>
@@ -112,4 +102,4 @@ struct wkt<multi_polygon_tag, Multi>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_MULTI_HPP
+#endif // BOOST_GEOMETRY_MULTI_IO_WKT_WRITE_HPP

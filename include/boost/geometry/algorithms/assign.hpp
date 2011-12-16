@@ -29,22 +29,18 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
-
-#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
-
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry{
 
 /*!
 \brief Assign a range of points to a linestring, ring or polygon

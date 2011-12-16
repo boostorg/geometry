@@ -9,7 +9,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_HPP
 
-
 #include <cstddef>
 
 #include <boost/range.hpp>
@@ -22,24 +21,18 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-
 #if defined(BOOST_GEOMETRY_DEBUG_INTERSECTION) \
     || defined(BOOST_GEOMETRY_OVERLAY_REPORT_WKT) \
     || defined(BOOST_GEOMETRY_DEBUG_TRAVERSE)
 #  include <string>
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-#  include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#  include <boost/geometry/io/wkt/wkt.hpp>
 #endif
 
-
-
-namespace boost { namespace geometry
-{
-
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
-{
+namespace detail { namespace overlay {
 
 template <typename Turn, typename Operation>
 inline void debug_traverse(Turn const& turn, Operation op, 
@@ -391,8 +384,6 @@ public :
 }} // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_HPP

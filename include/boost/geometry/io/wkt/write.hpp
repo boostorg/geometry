@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_HPP
-#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_HPP
+#ifndef BOOST_GEOMETRY_IO_WKT_WRITE_HPP
+#define BOOST_GEOMETRY_IO_WKT_WRITE_HPP
 
 #include <ostream>
 #include <string>
@@ -21,7 +21,6 @@
 #include <boost/concept/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
-
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
@@ -32,8 +31,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/detail/wkt.hpp>
-
+#include <boost/geometry/io/wkt/detail/prefix.hpp>
 
 namespace boost { namespace geometry
 {
@@ -86,9 +84,6 @@ struct double_closing_parenthesis
 {
     static inline const char* apply() { return "))"; }
 };
-
-
-
 
 /*!
 \brief Stream points as \ref WKT
@@ -147,9 +142,6 @@ private:
 \brief Stream sequence of points as WKT-part, e.g. (1 2),(3 4)
 \note Used in polygon, all multi-geometries
 */
-
-
-
 template <typename Range>
 struct wkt_sequence
     : wkt_range
@@ -159,7 +151,6 @@ struct wkt_sequence
             closing_parenthesis
         >
 {};
-
 
 template <typename Polygon, typename PrefixPolicy>
 struct wkt_poly
@@ -185,7 +176,6 @@ struct wkt_poly
         os << ")";
     }
 };
-
 
 template <typename Box>
 struct wkt_box
@@ -246,7 +236,6 @@ struct wkt_segment
 }} // namespace detail::wkt
 #endif // DOXYGEN_NO_DETAIL
 
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
@@ -261,7 +250,6 @@ struct wkt
         );
 };
 
-
 template <typename Point>
 struct wkt<point_tag, Point>
     : detail::wkt::wkt_point
@@ -270,7 +258,6 @@ struct wkt<point_tag, Point>
             detail::wkt::prefix_point
         >
 {};
-
 
 template <typename Linestring>
 struct wkt<linestring_tag, Linestring>
@@ -281,7 +268,6 @@ struct wkt<linestring_tag, Linestring>
             detail::wkt::closing_parenthesis
         >
 {};
-
 
 /*!
 \brief Specialization to stream a box as WKT
@@ -297,7 +283,6 @@ template <typename Segment>
 struct wkt<segment_tag, Segment>
     : detail::wkt::wkt_segment<Segment>
 {};
-
 
 /*!
 \brief Specialization to stream a ring as WKT
@@ -315,7 +300,6 @@ struct wkt<ring_tag, Ring>
         >
 {};
 
-
 /*!
 \brief Specialization to stream polygon as WKT
 */
@@ -328,10 +312,8 @@ struct wkt<polygon_tag, Polygon>
         >
 {};
 
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
-
 
 /*!
 \brief Generic geometry template manipulator class, takes corresponding output class from traits class
@@ -391,4 +373,4 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WRITE_HPP
+#endif // BOOST_GEOMETRY_IO_WKT_WRITE_HPP
