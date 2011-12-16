@@ -234,6 +234,18 @@ struct point_to_polygon
 };
 
 
+// Helper metafunction for default strategy retrieval
+template <typename Geometry1, typename Geometry2>
+struct default_strategy
+    : strategy::distance::services::default_strategy
+          <
+              point_tag,
+              typename point_type<Geometry1>::type,
+              typename point_type<Geometry2>::type
+          >
+{};
+
+
 }} // namespace detail::distance
 #endif // DOXYGEN_NO_DETAIL
 
@@ -242,12 +254,14 @@ struct point_to_polygon
 namespace dispatch
 {
 
+
 using strategy::distance::services::return_type;
 
 
 template
 <
-    typename Geometry1, typename Geometry2, typename Strategy,
+    typename Geometry1, typename Geometry2,
+    typename Strategy = typename detail::distance::default_strategy<Geometry1, Geometry2>::type,
     typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
     typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
     typename StrategyTag = typename strategy::distance::services::tag<Strategy>::type,
@@ -280,8 +294,47 @@ struct distance
     Geometry1, Geometry2, Strategy,
     Tag1, Tag2, StrategyTag,
     true
->: distance<Geometry2, Geometry1, Strategy, Tag2, Tag1, StrategyTag, false>
+>
+    : distance<Geometry2, Geometry1, Strategy, Tag2, Tag1, StrategyTag, false>
 {
+    static inline typename return_type<Strategy>::type apply(
+        Geometry1 const& g1,
+        Geometry2 const& g2,
+        Strategy const& strategy)
+    {
+        return distance
+            <
+                Geometry2, Geometry1, Strategy,
+                Tag2, Tag1, StrategyTag,
+                false
+            >::apply(g2, g1, strategy);
+    }
+};
+
+// If reversal is needed and we got the strategy by default, invert it before
+// proceeding to the reversal.
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename Tag1, typename Tag2, typename StrategyTag
+>
+struct distance
+<
+    Geometry1, Geometry2,
+    typename detail::distance::default_strategy<Geometry1, Geometry2>::type,
+    Tag1, Tag2, StrategyTag,
+    true
+>
+    : distance
+          <
+              Geometry2, Geometry1,
+              typename detail::distance::default_strategy<Geometry2, Geometry1>::type,
+              Tag2, Tag1, StrategyTag,
+              false
+          >
+{
+    typedef typename detail::distance::default_strategy<Geometry2, Geometry1>::type Strategy;
+    
     static inline typename return_type<Strategy>::type apply(
         Geometry1 const& g1,
         Geometry2 const& g2,
@@ -491,8 +544,8 @@ for return_type<...> for your strategy.
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>
 inline typename strategy::distance::services::return_type<Strategy>::type distance(
-                Geometry1 const& geometry1,
-                Geometry2 const& geometry2, Strategy const& strategy)
+                Geometry1 const& geometry1, Geometry2 const& geometry2,
+                Strategy const& strategy)
 {
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
@@ -525,29 +578,8 @@ inline typename default_distance_result<Geometry1, Geometry2>::type distance(
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    typedef typename point_type<Geometry1>::type point1_type;
-    typedef typename point_type<Geometry2>::type point2_type;
-
-    // Define a point-point-distance-strategy
-    // for either the normal case, either the reversed case
-    typedef typename boost::mpl::if_c
-        <
-            geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
-            typename strategy::distance::services::default_strategy
-                <
-                    point_tag,
-                    point2_type,
-                    point1_type
-                >::type,
-            typename strategy::distance::services::default_strategy
-                <
-                    point_tag,
-                    point1_type,
-                    point2_type
-                >::type
-        >::type strategy;
-
-    return distance(geometry1, geometry2, strategy());
+    return distance(geometry1, geometry2,
+                    typename detail::distance::default_strategy<Geometry1, Geometry2>::type());
 }
 
 }} // namespace boost::geometry

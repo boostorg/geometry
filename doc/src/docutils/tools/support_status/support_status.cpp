@@ -31,16 +31,7 @@ typedef boost::mpl::vector<
 
 
 template <typename G1, typename G2>
-struct check_distance
-  : boost::geometry::dispatch::distance<
-        G1,
-        G2,
-        typename boost::geometry::strategy::distance::services::default_strategy<
-            boost::geometry::point_tag,
-            G1,
-            G2
-        >::type
-    >
+struct check_distance: boost::geometry::dispatch::distance<G1, G2>
 {};
 
 template <typename G1, typename G2>
