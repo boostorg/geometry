@@ -247,10 +247,10 @@ using strategy::distance::services::return_type;
 
 template
 <
-    typename Geometry1, typename Geometry2,
-    typename StrategyTag, typename Strategy,
+    typename Geometry1, typename Geometry2, typename Strategy,
     typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
     typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
+    typename StrategyTag = typename strategy::distance::services::tag<Strategy>::type,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct distance: not_implemented<for_geometry<Tag1>,
@@ -261,9 +261,8 @@ struct distance: not_implemented<for_geometry<Tag1>,
 template <typename P1, typename P2, typename Strategy>
 struct distance
     <
-        P1, P2,
-        strategy_tag_distance_point_point, Strategy,
-        point_tag, point_tag,
+        P1, P2, Strategy,
+        point_tag, point_tag, strategy_tag_distance_point_point,
         false
     >
     : detail::distance::point_to_point<P1, P2, Strategy>
@@ -273,18 +272,15 @@ struct distance
 // If reversal is needed, perform it
 template
 <
-    typename Geometry1, typename Geometry2,
-    typename StrategyTag, typename Strategy,
-    typename Tag1,
-    typename Tag2
+    typename Geometry1, typename Geometry2, typename Strategy,
+    typename Tag1, typename Tag2, typename StrategyTag
 >
 struct distance
 <
-    Geometry1, Geometry2,
-    StrategyTag, Strategy,
-    Tag1, Tag2,
+    Geometry1, Geometry2, Strategy,
+    Tag1, Tag2, StrategyTag,
     true
->: distance<Geometry2, Geometry1, StrategyTag, Strategy, Tag2, Tag1, false>
+>: distance<Geometry2, Geometry1, Strategy, Tag2, Tag1, StrategyTag, false>
 {
     static inline typename return_type<Strategy>::type apply(
         Geometry1 const& g1,
@@ -293,9 +289,8 @@ struct distance
     {
         return distance
             <
-                Geometry2, Geometry1,
-                StrategyTag, Strategy,
-                Tag2, Tag1,
+                Geometry2, Geometry1, Strategy,
+                Tag2, Tag1, StrategyTag,
                 false
             >::apply(g2, g1, strategy);
     }
@@ -306,9 +301,8 @@ struct distance
 template <typename Point, typename Linestring, typename Strategy>
 struct distance
 <
-    Point, Linestring,
-    strategy_tag_distance_point_point, Strategy,
-    point_tag, linestring_tag,
+    Point, Linestring, Strategy,
+    point_tag, linestring_tag, strategy_tag_distance_point_point,
     false
 >
 {
@@ -336,9 +330,8 @@ struct distance
 template <typename Point, typename Linestring, typename Strategy>
 struct distance
 <
-    Point, Linestring,
-    strategy_tag_distance_point_segment, Strategy,
-    point_tag, linestring_tag,
+    Point, Linestring, Strategy,
+    point_tag, linestring_tag, strategy_tag_distance_point_segment,
     false
 >
 {
@@ -358,9 +351,8 @@ struct distance
 template <typename Point, typename Ring, typename Strategy>
 struct distance
 <
-    Point, Ring,
-    strategy_tag_distance_point_point, Strategy,
-    point_tag, ring_tag,
+    Point, Ring, Strategy,
+    point_tag, ring_tag, strategy_tag_distance_point_point,
     false
 >
 {
@@ -394,9 +386,8 @@ struct distance
 template <typename Point, typename Polygon, typename Strategy>
 struct distance
 <
-    Point, Polygon,
-    strategy_tag_distance_point_point, Strategy,
-    point_tag, polygon_tag,
+    Point, Polygon, Strategy,
+    point_tag, polygon_tag, strategy_tag_distance_point_point,
     false
 >
 {
@@ -431,9 +422,8 @@ struct distance
 template <typename Point, typename Segment, typename Strategy>
 struct distance
 <
-    Point, Segment,
-    strategy_tag_distance_point_point, Strategy,
-    point_tag, segment_tag,
+    Point, Segment, Strategy,
+    point_tag, segment_tag, strategy_tag_distance_point_point,
     false
 > : detail::distance::point_to_segment<Point, Segment, Strategy>
 {};
@@ -442,9 +432,8 @@ struct distance
 template <typename Point, typename Segment, typename Strategy>
 struct distance
 <
-    Point, Segment,
-    strategy_tag_distance_point_segment, Strategy,
-    point_tag, segment_tag,
+    Point, Segment, Strategy,
+    point_tag, segment_tag, strategy_tag_distance_point_segment,
     false
 >
 {
@@ -512,7 +501,6 @@ inline typename strategy::distance::services::return_type<Strategy>::type distan
                <
                    Geometry1,
                    Geometry2,
-                   typename strategy::distance::services::tag<Strategy>::type,
                    Strategy
                >::apply(geometry1, geometry2, strategy);
 }
