@@ -17,7 +17,8 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 struct format_wkt {};
 struct format_wkb {}; // TODO

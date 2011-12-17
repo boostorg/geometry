@@ -25,7 +25,8 @@
 
 #include <boost/geometry/extensions/index/rtree/helpers.hpp>
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index
+{
 
 /// forward declaration
 template <typename Box, typename Value>

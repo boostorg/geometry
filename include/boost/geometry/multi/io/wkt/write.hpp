@@ -18,10 +18,12 @@
 #include <boost/geometry/multi/io/wkt/detail/prefix.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace wkt {
+namespace detail { namespace wkt
+{
 
 template <typename Multi, typename StreamPolicy, typename PrefixPolicy>
 struct wkt_multi
@@ -54,7 +56,8 @@ struct wkt_multi
 #endif
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+namespace dispatch
+{
 
 template <typename Multi>
 struct wkt<multi_point_tag, Multi>

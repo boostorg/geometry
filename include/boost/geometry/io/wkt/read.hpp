@@ -90,7 +90,8 @@ private :
 
 #ifndef DOXYGEN_NO_DETAIL
 // (wkt: Well Known Text, defined by OGC for all geometries and implemented by e.g. databases (MySQL, PostGIS))
-namespace detail { namespace wkt {
+namespace detail { namespace wkt
+{
 
 typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 

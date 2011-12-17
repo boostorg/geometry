@@ -33,10 +33,12 @@
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay {
+namespace detail { namespace overlay
+{
 
 // Wraps "turn_operation" from turn_info.hpp,
 // giving it extra information

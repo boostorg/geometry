@@ -22,9 +22,11 @@
 #include <boost/geometry/multi/io/wkt/detail/prefix.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
-namespace detail { namespace wkt {
+namespace detail { namespace wkt
+{
 
 template <typename MultiGeometry, template<typename> class Parser, typename PrefixPolicy>
 struct multi_parser
