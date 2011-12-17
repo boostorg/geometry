@@ -32,6 +32,7 @@
 #include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>

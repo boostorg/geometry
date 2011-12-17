@@ -15,6 +15,7 @@
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 
 

@@ -11,6 +11,7 @@
 #include <boost/geometry/multi/algorithms/num_interior_rings.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
