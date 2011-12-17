@@ -14,6 +14,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/multi/geometries/register/multi_point.hpp>
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 typedef boost::tuple<float, float> point_type;
 
