@@ -42,7 +42,8 @@ namespace boost { namespace geometry
 // };
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace wkb {
+namespace detail { namespace wkb
+{
 
 // TODO: Replace 'struct' with scoped enum from <boost/detail/scoped_enum_emulation.hpp>
 // For older Boost, copy

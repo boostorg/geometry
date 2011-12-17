@@ -40,7 +40,8 @@
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
-namespace boost { namespace geometry{
+namespace boost { namespace geometry
+{
 
 /*!
 \brief Assign a range of points to a linestring, ring or polygon

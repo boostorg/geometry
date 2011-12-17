@@ -19,8 +19,8 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
-namespace boost { namespace geometry {
-
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DISPATCH

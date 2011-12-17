@@ -21,7 +21,8 @@
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object_multi.hpp>
 #include <boost/geometry/extensions/gis/io/shapelib/dbf_write_attribute.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 class shapelib_file_create_exception : public geometry::exception
 {
@@ -39,7 +40,8 @@ private :
     std::string m_filename;
 };
 
-namespace detail {
+namespace detail
+{
 
 template <typename Tag>
 struct SHPType

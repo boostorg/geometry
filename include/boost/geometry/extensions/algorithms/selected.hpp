@@ -38,7 +38,8 @@ namespace boost { namespace geometry
     \ingroup impl
  */
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace selected {
+namespace detail { namespace selected
+{
 
 /*!
 \details Checks, per dimension, if d[I] not larger than search distance. If true for all

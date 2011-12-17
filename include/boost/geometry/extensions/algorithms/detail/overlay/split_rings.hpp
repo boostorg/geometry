@@ -31,10 +31,12 @@
 #  include <boost/geometry/io/wkt/wkt.hpp>
 #endif
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace split_rings {
+namespace detail { namespace split_rings
+{
 
 template <typename Range>
 struct split_range

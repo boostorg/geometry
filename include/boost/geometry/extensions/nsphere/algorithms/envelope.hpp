@@ -24,7 +24,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace envelope {
+namespace detail { namespace envelope
+{
 
 /// Calculate envelope of an n-sphere, circle or sphere (currently only for Cartesian 2D points)
 template<typename Box, typename Nsphere, typename Strategy>

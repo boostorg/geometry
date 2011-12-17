@@ -33,7 +33,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace wkb {
+namespace detail { namespace wkb
+{
 
 template <typename T>
 struct value_parser

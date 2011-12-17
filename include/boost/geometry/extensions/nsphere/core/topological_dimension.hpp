@@ -21,11 +21,13 @@
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace core_dispatch {
+namespace core_dispatch
+{
 
 
 

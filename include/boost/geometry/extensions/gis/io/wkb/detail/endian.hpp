@@ -36,8 +36,10 @@
 // TODO: mloskot - add static asserts to validate compile-time pre-conditions
 
 namespace boost { namespace geometry
+{
 
-{ namespace detail { namespace endian {
+namespace detail { namespace endian
+{
 
 // Endianness tag used to indicate load/store directoin
 
