@@ -7,6 +7,7 @@
 #define BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD true
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 
@@ -30,22 +31,23 @@ typedef boost::mpl::vector<
 > types;
 
 
-template <typename G1, typename G2>
-struct check_distance: boost::geometry::dispatch::distance<G1, G2>
-{};
+#define DECLARE_CHECK(algorithm) \
+    template <typename G1, typename G2> \
+    struct check_##algorithm: boost::geometry::dispatch::algorithm<G1, G2> \
+    {};
 
-template <typename G1, typename G2>
-struct check_convert: boost::geometry::dispatch::convert<G1, G2>
-{};
+DECLARE_CHECK(distance)
+DECLARE_CHECK(convert)
+DECLARE_CHECK(append)
 
 
-template <typename T1>
-struct distance_tester
+template <template <typename, typename> class Dispatcher, typename G1 = void>
+struct tester
 {
-    template <typename T2>
-    void operator()(T2)
+    template <typename G2>
+    void operator()(G2)
     {
-        if (boost::is_base_of<boost::geometry::not_implemented_base, check_distance<T1, T2> >::type::value)
+        if (boost::is_base_of<boost::geometry::not_implemented_base, Dispatcher<G1, G2> >::type::value)
         {
             std::cout << "-\t";
         }
@@ -56,42 +58,13 @@ struct distance_tester
     }
 };
 
-template <>
-struct distance_tester<void>
+template <template <typename, typename> class Dispatcher>
+struct tester<Dispatcher, void>
 {
-    template <typename T>
-    void operator()(T)
+    template <typename G>
+    void operator()(G)
     {
-        boost::mpl::for_each<types>(distance_tester<T>());
-        std::cout << std::endl;
-    }
-};
-
-
-template <typename T1>
-struct convert_tester
-{
-    template <typename T2>
-    void operator()(T2)
-    {
-        if (boost::is_base_of<boost::geometry::not_implemented_base, check_convert<T1, T2> >::type::value)
-        {
-            std::cout << "-\t";
-        }
-        else
-        {
-            std::cout << "OK\t";
-        }
-    }
-};
-
-template <>
-struct convert_tester<void>
-{
-    template <typename T>
-    void operator()(T)
-    {
-        boost::mpl::for_each<types>(convert_tester<T>());
+        boost::mpl::for_each<types>(tester<Dispatcher, G>());
         std::cout << std::endl;
     }
 };
@@ -100,11 +73,11 @@ struct convert_tester<void>
 int main()
 {
     std::cout << "DISTANCE" << std::endl;
-    boost::mpl::for_each<types>(distance_tester<void>());
+    boost::mpl::for_each<types>(tester<check_distance>());
     std::cout << std::endl;
 
     std::cout << "CONVERT" << std::endl;
-    boost::mpl::for_each<types>(convert_tester<void>());
+    boost::mpl::for_each<types>(tester<check_convert>());
     std::cout << std::endl;
 
     return 0;
