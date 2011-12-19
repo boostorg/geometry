@@ -221,9 +221,7 @@ template
     bool UseAssignment = boost::is_same<Geometry1, Geometry2>::value
                          && !boost::is_array<Geometry1>::value
 >
-struct convert: boost::geometry::not_implemented<for_geometry<Tag1>,
-                                                 and_geometry<Tag2>,
-                                                 in_dimension<DimensionCount> >
+struct convert: not_implemented<Tag1, Tag2, mpl::int_<DimensionCount> >
 {};
 
 

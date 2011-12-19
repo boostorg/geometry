@@ -267,8 +267,7 @@ template
     typename StrategyTag = typename strategy::distance::services::tag<Strategy>::type,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
-struct distance: not_implemented<for_geometry<Tag1>,
-                                 and_geometry<Tag2> >
+struct distance: not_implemented<Tag1, Tag2>
 {};
 
 
