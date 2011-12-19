@@ -15,7 +15,7 @@
 typedef boost::geometry::cs::cartesian cartesian;
 
 typedef boost::geometry::model::point<double, 2, cartesian> point_type;
-typedef boost::geometry::model::linestring<point_type>      line_type;
+typedef boost::geometry::model::linestring<point_type>      linestring_type;
 typedef boost::geometry::model::polygon<point_type>         polygon_type;
 typedef boost::geometry::model::box<point_type>             box_type;
 typedef boost::geometry::model::ring<point_type>            ring_type;
@@ -23,7 +23,7 @@ typedef boost::geometry::model::segment<point_type>         segment_type;
 
 typedef boost::mpl::vector<
     point_type,
-    line_type,
+    linestring_type,
     polygon_type,
     box_type,
     ring_type,
@@ -47,7 +47,7 @@ struct tester
     template <typename G2>
     void operator()(G2)
     {
-        if (boost::is_base_of<boost::geometry::not_implemented_base, Dispatcher<G1, G2> >::type::value)
+        if (boost::is_base_of<boost::geometry::nyi::not_implemented_tag, Dispatcher<G1, G2> >::type::value)
         {
             std::cout << "-\t";
         }
