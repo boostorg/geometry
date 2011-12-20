@@ -323,7 +323,7 @@ struct distance
 {
     typedef typename detail::distance::default_strategy<Geometry2, Geometry1>::type Strategy;
     
-    static inline typename return_type<Strategy>::type apply(
+    static inline typename strategy::distance::services::return_type<Strategy>::type apply(
         Geometry1 const& g1,
         Geometry2 const& g2,
         Strategy const& strategy)
