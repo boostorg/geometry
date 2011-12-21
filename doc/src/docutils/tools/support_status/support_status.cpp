@@ -7,6 +7,7 @@
 #define BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD true
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
@@ -30,15 +31,19 @@ typedef boost::mpl::vector<
     segment_type
 > types;
 
+#define DECLARE_CHECK_1(algorithm) \
+    template <typename G, typename> \
+    struct check_##algorithm: boost::geometry::dispatch::algorithm<G, point_type> \
+    {};
 
-#define DECLARE_CHECK(algorithm) \
+#define DECLARE_CHECK_2(algorithm) \
     template <typename G1, typename G2> \
     struct check_##algorithm: boost::geometry::dispatch::algorithm<G1, G2> \
     {};
 
-DECLARE_CHECK(distance)
-DECLARE_CHECK(convert)
-DECLARE_CHECK(append)
+DECLARE_CHECK_1(append)
+DECLARE_CHECK_2(distance)
+DECLARE_CHECK_2(convert)
 
 
 template <template <typename, typename> class Dispatcher, typename G1 = void>
@@ -72,6 +77,10 @@ struct tester<Dispatcher, void>
 
 int main()
 {
+    std::cout << "APPEND" << std::endl;
+    boost::mpl::for_each<boost::mpl::vector<int> >(tester<check_append>());
+    std::cout << std::endl;
+
     std::cout << "DISTANCE" << std::endl;
     boost::mpl::for_each<types>(tester<check_distance>());
     std::cout << std::endl;
