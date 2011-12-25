@@ -324,7 +324,7 @@ ErrorCode error;
 
 /*!
 	pointer to the currently reading char
-	when an error has occured it may be used to count the index of the wrong character
+	when an error has occurred it may be used to count the index of the wrong character
 */
 const char * pstring;
 
