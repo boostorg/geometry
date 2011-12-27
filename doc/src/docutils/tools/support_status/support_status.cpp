@@ -1,4 +1,6 @@
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/mpl/for_each.hpp>
@@ -29,28 +31,24 @@ typedef boost::mpl::vector<
     box_type,
     ring_type,
     segment_type
-> types;
+> all_types;
 
-#define DECLARE_CHECK_1(algorithm) \
-    template <typename G, typename> \
-    struct check_##algorithm: boost::geometry::dispatch::algorithm<G, point_type> \
-    {};
 
-#define DECLARE_CHECK_2(algorithm) \
+#define DECLARE_BINARY_ALGORITHM(algorithm) \
     template <typename G1, typename G2> \
-    struct check_##algorithm: boost::geometry::dispatch::algorithm<G1, G2> \
+    struct algorithm: boost::geometry::dispatch::algorithm<G1, G2> \
     {};
 
-DECLARE_CHECK_1(append)
-DECLARE_CHECK_2(distance)
-DECLARE_CHECK_2(convert)
+DECLARE_BINARY_ALGORITHM(append)
+DECLARE_BINARY_ALGORITHM(distance)
+DECLARE_BINARY_ALGORITHM(convert)
 
 
-template <template <typename, typename> class Dispatcher, typename G1 = void>
-struct tester
+template <template <typename, typename> class Dispatcher, typename G2>
+struct do_test
 {
-    template <typename G2>
-    void operator()(G2)
+    template <typename G1>
+    void operator()(G1)
     {
         if (boost::is_base_of<boost::geometry::nyi::not_implemented_tag, Dispatcher<G1, G2> >::type::value)
         {
@@ -63,31 +61,32 @@ struct tester
     }
 };
 
-template <template <typename, typename> class Dispatcher>
-struct tester<Dispatcher, void>
+template <template <typename, typename> class Dispatcher, typename Types>
+struct test
 {
-    template <typename G>
-    void operator()(G)
+    template <typename G2>
+    void operator()(G2)
     {
-        boost::mpl::for_each<types>(tester<Dispatcher, G>());
+        boost::mpl::for_each<Types>(do_test<Dispatcher, G2>());
         std::cout << std::endl;
     }
 };
 
 
+template<template <typename, typename> class Dispatcher, typename Types1, typename Types2>
+void test_binary_algorithm(const std::string& name)
+{
+    std::cout << name << std::endl;
+    boost::mpl::for_each<Types1>(test<Dispatcher, Types2>());
+    std::cout << std::endl;
+}
+
+
 int main()
 {
-    std::cout << "APPEND" << std::endl;
-    boost::mpl::for_each<boost::mpl::vector<int> >(tester<check_append>());
-    std::cout << std::endl;
-
-    std::cout << "DISTANCE" << std::endl;
-    boost::mpl::for_each<types>(tester<check_distance>());
-    std::cout << std::endl;
-
-    std::cout << "CONVERT" << std::endl;
-    boost::mpl::for_each<types>(tester<check_convert>());
-    std::cout << std::endl;
+    test_binary_algorithm<append,   all_types, boost::mpl::vector<point_type, std::vector<point_type> > >("APPEND");
+    test_binary_algorithm<convert,  all_types, all_types>("CONVERT");
+    test_binary_algorithm<distance, all_types, all_types>("DISTANCE");
 
     return 0;
 }
