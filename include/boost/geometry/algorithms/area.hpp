@@ -135,9 +135,9 @@ namespace dispatch
 
 template
 <
-    typename Tag,
     typename Geometry,
-    typename Strategy
+    typename Strategy,
+    typename Tag = typename tag<Geometry>::type
 >
 struct area
     : detail::calculate_null
@@ -153,7 +153,7 @@ template
     typename Geometry,
     typename Strategy
 >
-struct area<box_tag, Geometry, Strategy>
+struct area<Geometry, Strategy, box_tag>
     : detail::area::box_area<Geometry, Strategy>
 {};
 
@@ -163,7 +163,7 @@ template
     typename Ring,
     typename Strategy
 >
-struct area<ring_tag, Ring, Strategy>
+struct area<Ring, Strategy, ring_tag>
     : detail::area::ring_area
         <
             Ring,
@@ -179,7 +179,7 @@ template
     typename Polygon,
     typename Strategy
 >
-struct area<polygon_tag, Polygon, Strategy>
+struct area<Polygon, Strategy, polygon_tag>
     : detail::calculate_polygon_sum
         <
             typename Strategy::return_type,
@@ -236,7 +236,6 @@ inline typename default_area_result<Geometry>::type area(Geometry const& geometr
 
     return dispatch::area
         <
-            typename tag<Geometry>::type,
             Geometry,
             strategy_type
         >::apply(geometry, strategy_type());
@@ -274,7 +273,6 @@ inline typename Strategy::return_type area(
 
     return dispatch::area
         <
-            typename tag<Geometry>::type,
             Geometry,
             Strategy
         >::apply(geometry, strategy);
