@@ -136,7 +136,14 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Strategy,
+    typename Strategy = typename strategy::area::services::default_strategy
+                                 <
+                                     typename cs_tag
+                                     <
+                                         typename point_type<Geometry>::type
+                                     >::type,
+                                     typename point_type<Geometry>::type
+                                 >::type,
     typename Tag = typename tag<Geometry>::type
 >
 struct area
@@ -236,8 +243,7 @@ inline typename default_area_result<Geometry>::type area(Geometry const& geometr
 
     return dispatch::area
         <
-            Geometry,
-            strategy_type
+            Geometry
         >::apply(geometry, strategy_type());
 }
 
