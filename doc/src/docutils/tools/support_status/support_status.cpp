@@ -97,22 +97,20 @@ struct test
     template <typename G2>
     void operator()(G2)
     {
-         m_outputter.begin_row<G2>();
+         m_outputter.template begin_row<G2>();
          boost::mpl::for_each<Types>(do_test<Dispatcher, Outputter, G2>(m_outputter));
          m_outputter.end_row();
     }
 };
 
-template <template <typename, typename> class Dispatcher, typename Types1, typename Types2, typename OutputFactory>
+template <template <typename, typename> class Dispatcher, typename Types1, typename Types2, typename Outputter>
 void test_binary_algorithm(std::string const& name)
 {
-    typedef typename OutputFactory::type outputter_type;
-
-    outputter_type outputter = OutputFactory::create(name);
+    Outputter outputter(name);
     outputter.header(name);
 
-    outputter.table_header<Types2>(); 
-    boost::mpl::for_each<Types1>(test<Dispatcher, Types2, outputter_type>(outputter));
+    outputter.template table_header<Types2>();
+    boost::mpl::for_each<Types1>(test<Dispatcher, Types2, Outputter>(outputter));
 
     outputter.table_footer();
 }
@@ -131,11 +129,11 @@ int main(int argc, char** argv)
 {
     if (argc > 1 && ! strcmp(argv[1], "qbk"))
     {
-        support_status<qbk_output_factory>();
+        support_status<qbk_outputter>();
     }
     else
     {
-        support_status<text_output_factory>();
+        support_status<text_outputter>();
     }
     return 0;
 }

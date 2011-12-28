@@ -14,6 +14,8 @@
 
 struct text_outputter
 {
+    explicit text_outputter(const std::string&) {}
+
     static inline void ok() { std::cout << "OK\t"; }
     static inline void nyi() { std::cout << "-\t"; }
     static inline void header(std::string const& algo) { std::cout << algo << std::endl; }
@@ -28,16 +30,6 @@ struct text_outputter
 
     static inline void end_row() { std::cout << std::endl; }
 
-};
-
-struct text_output_factory
-{
-    typedef text_outputter type;
-
-    static inline text_outputter create(std::string const& name)
-    {
-        return text_outputter();
-    }
 };
 
 #endif // BOOST_GEOMETRY_SUPPORT_STATUS_TEXT_OUTPUTTER_HPP

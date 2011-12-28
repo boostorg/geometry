@@ -56,7 +56,7 @@ struct qbk_outputter
         return out.str();
     }
 
-    qbk_outputter(std::string const& name)
+    explicit qbk_outputter(std::string const& name)
         : m_out(filename(name).c_str())
     {
     }
@@ -101,15 +101,5 @@ struct qbk_outputter
 
 };
 
-
-struct qbk_output_factory
-{
-    typedef qbk_outputter type;
-
-    static inline qbk_outputter create(std::string const& name)
-    {
-        return qbk_outputter(name);
-    }
-};
 
 #endif // BOOST_GEOMETRY_SUPPORT_STATUS_QBK_OUTPUTTER_HPP
