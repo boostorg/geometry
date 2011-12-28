@@ -321,19 +321,19 @@ struct distance
               false
           >
 {
-    typedef typename detail::distance::default_strategy<Geometry2, Geometry1>::type Strategy;
-    
-    static inline typename strategy::distance::services::return_type<Strategy>::type apply(
+    typedef typename detail::distance::default_strategy<Geometry2, Geometry1>::type reversed_strategy;
+
+    static inline typename strategy::distance::services::return_type<reversed_strategy>::type apply(
         Geometry1 const& g1,
         Geometry2 const& g2,
-        Strategy const& strategy)
+        typename detail::distance::default_strategy<Geometry1, Geometry2>::type const&)
     {
         return distance
             <
-                Geometry2, Geometry1, Strategy,
+                Geometry2, Geometry1, reversed_strategy,
                 Tag2, Tag1, StrategyTag,
                 false
-            >::apply(g2, g1, strategy);
+            >::apply(g2, g1, reversed_strategy());
     }
 };
 
