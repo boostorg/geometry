@@ -23,7 +23,8 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace wkt {
+namespace detail { namespace wkt
+{
 
 struct prefix_null
 {

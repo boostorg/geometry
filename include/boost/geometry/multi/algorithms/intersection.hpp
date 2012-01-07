@@ -109,6 +109,69 @@ struct intersection_linestring_multi_linestring_point
 };
 
 
+// This loop is quite similar to the loop above, but beacuse the iterator
+// is second (above) or first (below) argument, it is not trivial to merge them.
+template
+<
+    typename MultiLinestring, typename Areal,
+    bool ReverseAreal,
+    typename OutputIterator, typename LineStringOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_of_multi_linestring_with_areal
+{
+    static inline OutputIterator apply(MultiLinestring const& ml, Areal const& areal,
+            OutputIterator out,
+            Strategy const& strategy)
+    {
+        for (typename boost::range_iterator
+                <
+                    MultiLinestring const
+                >::type it = boost::begin(ml);
+            it != boost::end(ml);
+            ++it)
+        {
+            out = intersection_of_linestring_with_areal
+                <
+                    typename boost::range_value<MultiLinestring>::type,
+                    Areal, ReverseAreal,
+                    OutputIterator, LineStringOut, OverlayType, Strategy
+                >::apply(*it, areal, out, strategy);
+        }
+
+        return out;
+
+    }
+};
+
+// This one calls the one above with reversed arguments
+template
+<
+    typename Areal, typename MultiLinestring,
+    bool ReverseAreal,
+    typename OutputIterator, typename LineStringOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_of_areal_with_multi_linestring
+{
+    static inline OutputIterator apply(Areal const& areal, MultiLinestring const& ml,
+            OutputIterator out,
+            Strategy const& strategy)
+    {
+        return intersection_of_multi_linestring_with_areal
+            <
+                MultiLinestring, Areal, ReverseAreal,
+                OutputIterator, LineStringOut,
+                OverlayType,
+                Strategy
+            >::apply(ml, areal, out, strategy);
+    }
+};
+
+
+
 template
 <
     typename MultiLinestring, typename Box,
@@ -217,6 +280,148 @@ struct intersection_insert
             <
                 MultiLinestring, Box,
                 OutputIterator, GeometryOut,
+                Strategy
+            >
+{};
+
+
+template
+<
+    typename Linestring, typename MultiPolygon,
+    bool ReverseLinestring, bool ReverseMultiPolygon, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        linestring_tag, multi_polygon_tag, linestring_tag,
+        false, true, false,
+        Linestring, MultiPolygon,
+        ReverseLinestring, ReverseMultiPolygon, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_linestring_with_areal
+            <
+                Linestring, MultiPolygon,
+                ReverseMultiPolygon,
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
+            >
+{};
+
+
+// Derives from areal/mls because runtime arguments are in that order.
+// areal/mls reverses it itself to mls/areal
+template
+<
+    typename Polygon, typename MultiLinestring,
+    bool ReversePolygon, bool ReverseMultiLinestring, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        polygon_tag, multi_linestring_tag, linestring_tag,
+        true, false, false,
+        Polygon, MultiLinestring,
+        ReversePolygon, ReverseMultiLinestring, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_areal_with_multi_linestring
+            <
+                Polygon, MultiLinestring,
+                ReversePolygon,
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
+            >
+{};
+
+
+template
+<
+    typename MultiLinestring, typename Ring,
+    bool ReverseMultiLinestring, bool ReverseRing, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        multi_linestring_tag, ring_tag, linestring_tag,
+        false, true, false,
+        MultiLinestring, Ring,
+        ReverseMultiLinestring, ReverseRing, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_multi_linestring_with_areal
+            <
+                MultiLinestring, Ring,
+                ReverseRing,
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
+            >
+{};
+
+template
+<
+    typename MultiLinestring, typename Polygon,
+    bool ReverseMultiLinestring, bool ReverseRing, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        multi_linestring_tag, polygon_tag, linestring_tag,
+        false, true, false,
+        MultiLinestring, Polygon,
+        ReverseMultiLinestring, ReverseRing, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_multi_linestring_with_areal
+            <
+                MultiLinestring, Polygon,
+                ReverseRing,
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
+            >
+{};
+
+
+
+template
+<
+    typename MultiLinestring, typename MultiPolygon,
+    bool ReverseMultiLinestring, bool ReverseMultiPolygon, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        multi_linestring_tag, multi_polygon_tag, linestring_tag,
+        false, true, false,
+        MultiLinestring, MultiPolygon,
+        ReverseMultiLinestring, ReverseMultiPolygon, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_multi_linestring_with_areal
+            <
+                MultiLinestring, MultiPolygon,
+                ReverseMultiPolygon,
+                OutputIterator, GeometryOut,
+                OverlayType,
                 Strategy
             >
 {};

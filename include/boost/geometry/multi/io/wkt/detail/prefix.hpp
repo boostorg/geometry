@@ -11,19 +11,17 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_DETAIL_WKT_MULTI_HPP
-#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_DETAIL_WKT_MULTI_HPP
+#ifndef BOOST_GEOMETRY_MULTI_IO_WKT_DETAIL_PREFIX_HPP
+#define BOOST_GEOMETRY_MULTI_IO_WKT_DETAIL_PREFIX_HPP
 
-
-#include <boost/geometry/domains/gis/io/wkt/write.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
-
 
 namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace wkt {
+namespace detail { namespace wkt
+{
 
 struct prefix_null
 {
@@ -45,12 +43,9 @@ struct prefix_multipolygon
     static inline const char* apply() { return "MULTIPOLYGON"; }
 };
 
-
-
 }} // namespace wkt::impl
 #endif
 
-
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_DETAIL_WKT_MULTI_HPP
+#endif // BOOST_GEOMETRY_MULTI_IO_WKT_DETAIL_PREFIX_HPP

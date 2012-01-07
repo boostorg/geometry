@@ -11,13 +11,11 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WKT_HPP
-#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WKT_HPP
+#ifndef BOOST_GEOMETRY_IO_WKT_WKT_HPP
+#define BOOST_GEOMETRY_IO_WKT_WKT_HPP
 
-#include <boost/geometry/domains/gis/io/wkt/read.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
+#include <boost/geometry/io/wkt/iomanip.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read_multi.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write_multi.hpp>
-
-#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_WKT_HPP
+#endif // BOOST_GEOMETRY_IO_WKT_WKT_HPP

@@ -26,7 +26,7 @@
 #include <boost/geometry/util/math.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK
-#  include <boost/geometry/util/write_dsv.hpp>
+#  include <boost/geometry/io/dsv/write.hpp>
 #endif
 
 

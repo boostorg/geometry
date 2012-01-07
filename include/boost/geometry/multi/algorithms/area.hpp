@@ -30,7 +30,7 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 template <typename MultiGeometry, typename Strategy>
-struct area<multi_polygon_tag, MultiGeometry, Strategy>
+struct area<MultiGeometry, Strategy, multi_polygon_tag>
     : detail::multi_sum
         <
             typename Strategy::return_type,
@@ -38,9 +38,9 @@ struct area<multi_polygon_tag, MultiGeometry, Strategy>
             Strategy,
             area
                 <
-                    polygon_tag,
                     typename boost::range_value<MultiGeometry>::type,
-                    Strategy
+                    Strategy,
+                    polygon_tag
                 >
     >
 {};

@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_WKT_MULTI_HPP
-#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_WKT_MULTI_HPP
+#ifndef BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_MULTI_HPP
+#define BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_MULTI_HPP
 
 #include <string>
 
@@ -20,7 +20,7 @@
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/domains/gis/io/wkt/read.hpp>
 #include <boost/geometry/domains/gis/io/wkt/detail/wkt_multi.hpp>
 
 
@@ -109,4 +109,4 @@ struct read_wkt<multi_polygon_tag, MultiGeometry>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_WKT_MULTI_HPP
+#endif // BOOST_GEOMETRY_DOMAINS_GIS_IO_WKT_READ_MULTI_HPP

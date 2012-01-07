@@ -105,17 +105,27 @@ namespace dispatch
 
 template
 <
-    typename SingleGeometryTag,
     typename G1,
     typename G2,
-    typename Strategy
+    typename Strategy,
+    typename SingleGeometryTag
 >
-struct distance<SingleGeometryTag, multi_tag, G1, G2, strategy_tag_distance_point_point, Strategy>
+struct distance
+<
+    G1, G2, Strategy,
+    SingleGeometryTag, multi_tag, strategy_tag_distance_point_point,
+    false
+>
     : detail::distance::distance_single_to_multi<G1, G2, Strategy>
 {};
 
 template <typename G1, typename G2, typename Strategy>
-struct distance<multi_tag, multi_tag, G1, G2, strategy_tag_distance_point_point, Strategy>
+struct distance
+<
+    G1, G2, Strategy,
+    multi_tag, multi_tag, strategy_tag_distance_point_point,
+    false
+>
     : detail::distance::distance_multi_to_multi<G1, G2, Strategy>
 {};
 
