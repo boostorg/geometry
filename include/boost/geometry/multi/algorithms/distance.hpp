@@ -76,7 +76,7 @@ struct distance_single_to_multi
 
 template<typename Multi1, typename Multi2, typename Strategy>
 struct distance_multi_to_multi
-    : distance_single_to_multi
+    : private distance_single_to_multi
       <
           typename range_value<Multi1>::type,
           Multi2,
