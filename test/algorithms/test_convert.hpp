@@ -15,7 +15,7 @@
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>

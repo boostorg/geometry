@@ -28,8 +28,8 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
-#include <boost/geometry/domains/gis/io/wkt/write_wkt.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 
 
 

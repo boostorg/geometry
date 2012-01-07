@@ -26,7 +26,7 @@
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/read_wkt_multi.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
@@ -81,6 +81,43 @@ void test_areal()
         case_78_multi[0], case_78_multi[1],
             1, 1, 1.0, 1, 1, 1.0);
 
+    // Ticket on GGL list 2011/10/25
+    // to mix polygon/multipolygon in call to difference
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20111025_vd_pp",
+        ggl_list_20111025_vd[0], ggl_list_20111025_vd[1],
+            1, -999, 8.0, 1, -999, 12.5);
+    test_one<Polygon, Polygon, MultiPolygon>("ggl_list_20111025_vd_pm",
+        ggl_list_20111025_vd[0], ggl_list_20111025_vd[3],
+            1, -999, 8.0, 1, -999, 12.5);
+    test_one<Polygon, MultiPolygon, Polygon>("ggl_list_20111025_vd_mp",
+        ggl_list_20111025_vd[2], ggl_list_20111025_vd[1],
+            1, -999, 8.0, 1, -999, 12.5);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20111025_vd_mm",
+        ggl_list_20111025_vd[2], ggl_list_20111025_vd[3],
+            1, -999, 8.0, 1, -999, 12.5);
+
+    // Second case
+    // This can be tested with this SQL for SQL-Server
+    /*
+    with viewy as (select geometry::STGeomFromText(
+            'POLYGON((5 0,5 4,8 4,8 0,5 0))',0) as  p,
+      geometry::STGeomFromText(
+            'MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((4 0,4 2,6 2,6 0,4 0)))',0) as q)
+    select 
+        p.STDifference(q).STArea(),p.STDifference(q).STNumGeometries(),p.STDifference(q) as p_min_q,
+        q.STDifference(p).STArea(),q.STDifference(p).STNumGeometries(),q.STDifference(p) as q_min_p,
+        p.STSymDifference(q).STArea(),q.STSymDifference(p) as p_xor_q
+    from viewy
+
+    Outputting:
+    10, 1, <WKB>, 6, 2, <WKB>, 16, <WKB>
+    */
+
+    test_one<Polygon, Polygon, MultiPolygon>("ggl_list_20111025_vd_2",
+        ggl_list_20111025_vd_2[0], ggl_list_20111025_vd_2[1],
+            1, -999, 10.0, 2, -999, 6.0);
+
+
     /* TODO: fix
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
@@ -106,6 +143,20 @@ void test_areal()
 */
 }
 
+template <typename MultiPolygon, typename MultiLineString>
+void test_areal_linear()
+{
+    typedef typename boost::range_value<MultiPolygon>::type Polygon;
+    typedef typename boost::range_value<MultiLineString>::type LineString;
+    typedef typename bg::point_type<Polygon>::type Point;
+    typedef bg::model::ring<Point> Ring;
+
+    test_one_lp<LineString, LineString, MultiPolygon>("case_mp_ls_1", "LINESTRING(2 0,2 5)", case_multi_simplex[0], 3, 5, 1.30);
+    test_one_lp<LineString, MultiLineString, Polygon>("case_p_mls_1", "MULTILINESTRING((2 0,2 5),(3 0,3 5))", case_single_simplex, 3, 6, 2.5);
+    test_one_lp<LineString, MultiLineString, MultiPolygon>("case_mp_mls_1", "MULTILINESTRING((2 0,2 5),(3 0,3 5))", case_multi_simplex[0], 6, 11, 3.1666667);
+    test_one_lp<LineString, MultiLineString, Ring>("case_r_mls_1", "MULTILINESTRING((2 0,2 5),(3 0,3 5))", case_single_simplex, 3, 6, 2.5);
+}
+
 
 template <typename P>
 void test_all()
@@ -115,6 +166,7 @@ void test_all()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
     test_areal<ring, polygon, multi_polygon>();
+    test_areal_linear<multi_polygon, bg::model::multi_linestring<bg::model::linestring<P> > >();
 }
 
 

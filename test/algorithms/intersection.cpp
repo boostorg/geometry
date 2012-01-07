@@ -15,7 +15,10 @@
 #include <iostream>
 #include <string>
 
+//#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+//#define BOOST_GEOMETRY_DEBUG_INTERSECTION
 //#define BOOST_GEOMETRY_DEBUG_TRAVERSE
+//#define BOOST_GEOMETRY_DEBUG_FOLLOW
 //#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 //#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 
@@ -245,6 +248,7 @@ void test_areal_clip()
         1, 4, 0.75);
 }
 
+
 template <typename Box>
 void test_boxes(std::string const& wkt1, std::string const& wkt2, double expected_area, bool expected_result)
 {
@@ -281,6 +285,53 @@ void test_point_output()
     // test_point_output<box, box>("box(0 0,4 4)", "box(2 2,6 6)", 2);
 }
 
+
+template <typename Polygon, typename LineString>
+void test_areal_linear()
+{
+    std::string const poly_simplex = "POLYGON((1 1,1 3,3 3,3 1,1 1))";
+
+    test_one_lp<LineString, Polygon, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);
+    test_one_lp<LineString, Polygon, LineString>("case2",   poly_simplex, "LINESTRING(0 1,4 3)", 1, 2, sqrt(5.0));
+    test_one_lp<LineString, Polygon, LineString>("case3", "POLYGON((2 0,2 5,5 5,5 0,2 0))", "LINESTRING(0 1,1 2,3 2,4 3,6 3,7 4)", 1, 4, 2 + sqrt(2.0));
+    test_one_lp<LineString, Polygon, LineString>("case4", "POLYGON((0 0,0 4,2 4,2 0,0 0))", "LINESTRING(1 1,3 2,1 3)", 2, 4, sqrt(5.0));
+
+    test_one_lp<LineString, Polygon, LineString>("case5", poly_simplex, "LINESTRING(0 1,3 4)", 1, 2, sqrt(2.0));
+    test_one_lp<LineString, Polygon, LineString>("case6", "POLYGON((2 0,2 4,3 4,3 1,4 1,4 3,5 3,5 1,6 1,6 3,7 3,7 1,8 1,8 3,9 3,9 0,2 0))", "LINESTRING(1 1,10 3)", 4, 8, 
+            // Pieces are 1 x 2/9:
+            4.0 * sqrt(1.0 + 4.0/81.0));
+    test_one_lp<LineString, Polygon, LineString>("case7", poly_simplex, "LINESTRING(1.5 1.5,2.5 2.5)", 1, 2, sqrt(2.0));
+    test_one_lp<LineString, Polygon, LineString>("case8", poly_simplex, "LINESTRING(1 0,2 0)", 0, 0, 0.0);
+
+    std::string const poly_9 = "POLYGON((1 1,1 4,4 4,4 1,1 1))";
+    test_one_lp<LineString, Polygon, LineString>("case9", poly_9, "LINESTRING(0 1,1 2,2 2)", 1, 2, 1.0);
+    test_one_lp<LineString, Polygon, LineString>("case10", poly_9, "LINESTRING(0 1,1 2,0 2)", 0, 0, 0.0);
+    test_one_lp<LineString, Polygon, LineString>("case11", poly_9, "LINESTRING(2 2,4 2,3 3)", 1, 3, 2.0 + sqrt(2.0));
+    test_one_lp<LineString, Polygon, LineString>("case12", poly_9, "LINESTRING(2 3,4 4,5 6)", 1, 2, sqrt(5.0));
+
+    test_one_lp<LineString, Polygon, LineString>("case13", poly_9, "LINESTRING(3 2,4 4,2 3)", 1, 3, 2.0 * sqrt(5.0));
+    test_one_lp<LineString, Polygon, LineString>("case14", poly_9, "LINESTRING(5 6,4 4,6 5)", 0, 0, 0.0);
+    test_one_lp<LineString, Polygon, LineString>("case15", poly_9, "LINESTRING(0 2,1 2,1 3,0 3)", 1, 2, 1.0);
+    test_one_lp<LineString, Polygon, LineString>("case16", poly_9, "LINESTRING(2 2,1 2,1 3,2 3)", 1, 4, 3.0);
+
+    std::string const angly = "LINESTRING(2 2,2 1,4 1,4 2,5 2,5 3,4 3,4 4,5 4,3 6,3 5,2 5,2 6,0 4)";
+    test_one_lp<LineString, Polygon, LineString>("case17", "POLYGON((1 1,1 5,4 5,4 1,1 1))", angly, 3, 8, 6.0);
+    test_one_lp<LineString, Polygon, LineString>("case18", "POLYGON((1 1,1 5,5 5,5 1,1 1))", angly, 2, 12, 10.0 + sqrt(2.0));
+    test_one_lp<LineString, Polygon, LineString>("case19", poly_9, "LINESTRING(1 2,1 3,0 3)", 1, 2, 1.0);
+    test_one_lp<LineString, Polygon, LineString>("case20", poly_9, "LINESTRING(1 2,1 3,2 3)", 1, 3, 2.0);
+
+    test_one_lp<LineString, Polygon, LineString>("case21", poly_9, "LINESTRING(1 2,1 4,4 4,4 1,2 1,2 2)", 1, 6, 11.0);
+
+    // Compile test - arguments in any order:
+    test_one<LineString, Polygon, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);
+    test_one<LineString, LineString, Polygon>("simplex", "LINESTRING(0 2,4 2)", poly_simplex, 1, 2, 2.0);
+
+    typedef typename bg::point_type<Polygon>::type Point;
+    test_one<LineString, bg::model::ring<Point>, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);
+
+}
+
+
 template <typename P>
 void test_all()
 {
@@ -295,12 +346,18 @@ void test_all()
 
     std::string clip = "box(2 2,8 8)";
 
+    test_areal_linear<polygon, linestring>();
+    test_areal_linear<polygon_open, linestring>();
+    test_areal_linear<polygon_ccw, linestring>();
+    test_areal_linear<polygon_ccw_open, linestring>();
+
     // Test polygons clockwise and counter clockwise
     test_areal<polygon>();
 
     test_areal<polygon_ccw>();
     test_areal<polygon_open>();
     test_areal<polygon_ccw_open>();
+
 
     test_areal_clip<polygon, box>();
     test_areal_clip<polygon_ccw, box>();

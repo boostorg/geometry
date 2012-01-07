@@ -16,7 +16,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/util/rational.hpp>
 
 void test_coordinate_cast(std::string const& s, int expected_nom, int expected_denom)

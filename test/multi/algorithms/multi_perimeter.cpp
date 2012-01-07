@@ -10,7 +10,8 @@
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/multi/algorithms/perimeter.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>

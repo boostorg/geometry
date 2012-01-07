@@ -19,7 +19,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/concepts/linestring_concept.hpp>
 
-#include <boost/geometry/util/write_dsv.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 
 #include <test_common/test_point.hpp>

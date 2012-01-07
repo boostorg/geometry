@@ -17,7 +17,6 @@ project boost-geometry-test
         <include>../../../boost/geometry/extensions/contrib/ttmath
         <toolset>msvc:<asynch-exceptions>on
     ;
-    
 
 build-project core ;
 build-project point_concept ; 
@@ -27,7 +26,8 @@ build-project algorithms ;
 build-project iterators ;
 build-project strategies ;
 build-project policies ;
+build-project io ;
 build-project util ;
 build-project views ;
 build-project multi ;
-build-project domains ;
+#build-project domains ;

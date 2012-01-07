@@ -36,7 +36,7 @@ void create_svg(std::string const& filename, Geometry const& a, Geometry const& 
     mapper.map(a, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:2");
     mapper.map(b, "fill-opacity:0.3;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:2");
     int i = 0;
-    BOOST_FOREACH(Geometry const& g, range)
+    BOOST_FOREACH(typename boost::range_value<Range>::type const& g, range)
     {
         mapper.map(g, "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
         std::ostringstream out;

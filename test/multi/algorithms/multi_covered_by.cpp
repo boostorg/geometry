@@ -7,8 +7,6 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
-
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 
@@ -20,6 +18,9 @@
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
+
+#include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 #include <algorithms/test_covered_by.hpp>
 

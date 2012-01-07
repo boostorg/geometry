@@ -21,7 +21,7 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/domains/gis/io/wkt/stream_wkt.hpp>
+#include <boost/geometry/io/wkt/iomanip.hpp>
 
 using namespace boost::geometry;
 

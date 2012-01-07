@@ -22,6 +22,7 @@
 #include <boost/geometry/algorithms/sym_difference.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
@@ -33,7 +34,7 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 
 #if defined(TEST_WITH_SVG)
@@ -41,9 +42,42 @@
 #endif
 
 
+template <typename Output, typename G1, typename G2>
+void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Output const& output)
+{
+#if defined(TEST_WITH_SVG)
+    {
+        typedef typename bg::coordinate_type<G1>::type coordinate_type;
+        typedef typename bg::point_type<G1>::type point_type;
+
+        std::ostringstream filename;
+        filename << "difference_"
+            << caseid << "_"
+            << string_from_type<coordinate_type>::name()
+            << ".svg";
+
+        std::ofstream svg(filename.str().c_str());
+
+        bg::svg_mapper<point_type> mapper(svg, 500, 500);
+
+        mapper.add(g1);
+        mapper.add(g2);
+
+        mapper.map(g1, "fill-opacity:0.3;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:3");
+        mapper.map(g2, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:3");
 
 
-template <typename OutputType, typename CalculationType, typename G1, typename G2>
+        for (typename Output::const_iterator it = output.begin(); it != output.end(); ++it)
+        {
+            mapper.map(*it,
+                //sym ? "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,255,0);stroke:rgb(255,0,255);stroke-width:8" :
+                "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);stroke:rgb(255,0,255);stroke-width:8");
+        }
+    }
+#endif
+}
+
+template <typename OutputType, typename G1, typename G2>
 void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         std::size_t expected_count, std::size_t expected_point_count,
         double expected_area,
@@ -53,7 +87,6 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
     std::vector<OutputType> clip;
 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
-    typedef typename bg::point_type<G1>::type point_type;
 
     if (sym)
     {
@@ -77,6 +110,8 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 
         area += bg::area(*it);
     }
+
+    difference_output(caseid, g1, g2, clip);
 
 #ifndef BOOST_GEOMETRY_DEBUG_ASSEMBLE
     {
@@ -124,34 +159,6 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 #endif
 
 
-#if defined(TEST_WITH_SVG)
-    {
-        std::ostringstream filename;
-        filename << "difference_"
-            << caseid << "_"
-            << string_from_type<coordinate_type>::name()
-            << string_from_type<CalculationType>::name()
-            << ".svg";
-
-        std::ofstream svg(filename.str().c_str());
-
-        bg::svg_mapper<point_type> mapper(svg, 500, 500);
-
-        mapper.add(g1);
-        mapper.add(g2);
-
-        mapper.map(g1, "fill-opacity:0.3;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:3");
-        mapper.map(g2, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:3");
-
-        for (typename std::vector<OutputType>::const_iterator it = clip.begin();
-                it != clip.end(); ++it)
-        {
-            mapper.map(*it,
-                //sym ? "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,255,0);stroke:rgb(255,0,255);stroke-width:8" :
-                "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);stroke:rgb(255,0,255);stroke-width:8");
-        }
-    }
-#endif
 }
 
 
@@ -195,16 +202,16 @@ void test_one(std::string const& caseid,
     bg::correct(g1);
     bg::correct(g2);
 
-    test_difference<OutputType, void>(caseid + "_a", g1, g2,
+    test_difference<OutputType>(caseid + "_a", g1, g2,
         expected_count1, expected_point_count1,
         expected_area1, percentage);
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
     return;
 #endif
-    test_difference<OutputType, void>(caseid + "_b", g2, g1,
+    test_difference<OutputType>(caseid + "_b", g2, g1,
         expected_count2, expected_point_count2,
         expected_area2, percentage);
-    test_difference<OutputType, void>(caseid + "_s", g1, g2,
+    test_difference<OutputType>(caseid + "_s", g1, g2,
         expected_count1 + expected_count2,
         expected_point_count1 + expected_point_count2,
         expected_area1 + expected_area2,
@@ -243,6 +250,51 @@ void test_one(std::string const& caseid,
         << std::endl;
 #endif
 
+}
+
+template <typename OutputType, typename G1, typename G2>
+void test_one_lp(std::string const& caseid,
+        std::string const& wkt1, std::string const& wkt2,
+        std::size_t expected_count,
+        std::size_t expected_point_count,
+        double expected_length)
+{
+    G1 g1;
+    bg::read_wkt(wkt1, g1);
+
+    G2 g2;
+    bg::read_wkt(wkt2, g2);
+
+    bg::correct(g1);
+
+    std::vector<OutputType> pieces;
+    bg::difference(g1, g2, pieces);
+
+    typename bg::default_length_result<G1>::type length = 0;
+    std::size_t n = 0;
+    for (typename std::vector<OutputType>::iterator it = pieces.begin();
+            it != pieces.end();
+            ++it)
+    {
+        if (expected_point_count > 0)
+        {
+            n += bg::num_points(*it);
+        }
+
+        length += bg::length(*it);
+    }
+
+    BOOST_CHECK_MESSAGE(pieces.size() == expected_count,
+            "difference: " << caseid
+            << " #outputs expected: " << expected_count
+            << " detected: " << pieces.size()
+            );
+
+    BOOST_CHECK_EQUAL(n, expected_point_count);
+
+    BOOST_CHECK_CLOSE(length, expected_length, 0.001);
+
+    difference_output(caseid, g1, g2, pieces);
 }
 
 

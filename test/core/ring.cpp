@@ -27,7 +27,7 @@
 #include <boost/geometry/geometries/polygon.hpp>
 
 
-#include <boost/geometry/domains/gis/io/wkt/read_wkt.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 
 

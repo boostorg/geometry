@@ -22,7 +22,7 @@
 #include <boost/geometry/geometries/adapted/boost_polygon/ring.hpp>
 #include <boost/geometry/geometries/adapted/boost_polygon/polygon.hpp>
 
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <iostream>
 

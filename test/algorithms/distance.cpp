@@ -221,6 +221,8 @@ void test_all()
     // open
     test_geometry<P, bg::model::polygon<P, true, false> >("POINT(2 2)", "POLYGON ((0 0,1 9,8 1),(1 1,4 1,1 4))", 0.5 * sqrt(2.0));
 
+    // Should (currently) give compiler assertion
+    // test_geometry<bg::model::polygon<P>, bg::model::polygon<P> >(donut, donut, 0.5 * sqrt(2.0));
 
     // DOES NOT COMPILE - cannot do read_wkt (because boost::array is not variably sized)
     // test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));

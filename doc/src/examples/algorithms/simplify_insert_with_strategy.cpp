@@ -15,10 +15,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/domains/gis/io/wkt/wkt.hpp>
-#include <boost/geometry/domains/gis/io/wkt/stream_wkt.hpp>
-
-
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 int main()
 {

@@ -19,7 +19,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/ring.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/util/write_dsv.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 
 struct triangle : public boost::array<boost::geometry::model::d2::point_xy<double>, 4>
