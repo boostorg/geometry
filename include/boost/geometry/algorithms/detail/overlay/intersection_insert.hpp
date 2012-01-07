@@ -26,8 +26,12 @@
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/follow.hpp>
 #include <boost/geometry/views/segment_view.hpp>
 
+#if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
+#include <boost/foreach.hpp>
+#endif
 
 namespace boost { namespace geometry
 {
@@ -101,6 +105,98 @@ struct intersection_linestring_linestring_point
         return out;
     }
 };
+
+/*!
+\brief Version of linestring with an areal feature (polygon or multipolygon)
+*/
+template
+<
+    typename LineString, typename Areal,
+    bool ReverseAreal,
+    typename OutputIterator, typename LineStringOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_of_linestring_with_areal
+{
+    typedef detail::overlay::follow
+            <
+                LineStringOut,
+                LineString,
+                Areal,
+                OverlayType
+            > follower;
+
+#if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
+        template <typename Turn, typename Operation>
+        static inline void debug_follow(Turn const& turn, Operation op, 
+                    int index)
+        {
+            std::cout << index
+                << " at " << op.seg_id
+                << " meth: " << method_char(turn.method)
+                << " op: " << operation_char(op.operation)
+                << " vis: " << visited_char(op.visited)
+                << " of:  " << operation_char(turn.operations[0].operation)
+                << operation_char(turn.operations[1].operation)
+                << " " << geometry::wkt(turn.point)
+                << std::endl;
+        }
+#endif
+
+    static inline OutputIterator apply(LineString const& linestring, Areal const& areal,
+            OutputIterator out,
+            Strategy const& strategy)
+    {
+        if (boost::size(linestring) == 0)
+        {
+            return out;
+        }
+
+        typedef typename point_type<LineStringOut>::type point_type;
+
+        typedef detail::overlay::traversal_turn_info<point_type> turn_info;
+        std::deque<turn_info> turns;
+
+        detail::get_turns::no_interrupt_policy policy;
+        geometry::get_turns
+            <
+                false,
+                (OverlayType == overlay_intersection ? ReverseAreal : !ReverseAreal),
+                detail::overlay::calculate_distance_policy
+            >(linestring, areal, turns, policy);
+
+        if (turns.empty())
+        {
+            // No intersection points, it is either completely 
+            // inside (interior + borders)
+            // or completely outside
+            if (follower::included(*boost::begin(linestring), areal))
+            {
+                LineStringOut copy;
+                geometry::convert(linestring, copy);
+                *out++ = copy;
+            }
+            return out;
+        }
+
+#if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
+        int index = 0;
+        BOOST_FOREACH(turn_info const& turn, turns)
+        {
+            debug_follow(turn, turn.operations[0], index++);
+        }
+#endif
+
+        return follower::apply
+                (
+                    linestring, areal,
+                    geometry::detail::overlay::operation_intersection,
+                    turns, out
+                );
+    }
+};
+
 
 }} // namespace detail::intersection
 #endif // DOXYGEN_NO_DETAIL
@@ -263,6 +359,62 @@ struct intersection_insert
             <GeometryOut>(box, linestring, out, lb_strategy);
     }
 };
+
+
+template
+<
+    typename Linestring, typename Polygon,
+    bool ReverseLinestring, bool ReversePolygon, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        linestring_tag, polygon_tag, linestring_tag,
+        false, true, false,
+        Linestring, Polygon,
+        ReverseLinestring, ReversePolygon, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_linestring_with_areal
+            <
+                Linestring, Polygon,
+                ReversePolygon,
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
+            >
+{};
+
+
+template
+<
+    typename Linestring, typename Ring,
+    bool ReverseLinestring, bool ReverseRing, bool ReverseOut,
+    typename OutputIterator, typename GeometryOut,
+    overlay_type OverlayType,
+    typename Strategy
+>
+struct intersection_insert
+    <
+        linestring_tag, ring_tag, linestring_tag,
+        false, true, false,
+        Linestring, Ring,
+        ReverseLinestring, ReverseRing, ReverseOut,
+        OutputIterator, GeometryOut,
+        OverlayType,
+        Strategy
+    > : detail::intersection::intersection_of_linestring_with_areal
+            <
+                Linestring, Ring,
+                ReverseRing,
+                OutputIterator, GeometryOut,
+                OverlayType,
+                Strategy
+            >
+{};
 
 template
 <

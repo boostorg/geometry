@@ -29,19 +29,16 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
-
-#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-
 #include <boost/geometry/util/for_each_coordinate.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -163,15 +160,7 @@ inline void assign(Geometry1& geometry1, Geometry2 const& geometry2)
             , (types<Geometry1, Geometry2>)
         );
 
-    dispatch::convert
-        <
-            false,
-            typename tag<Geometry2>::type,
-            typename tag<Geometry1>::type,
-            dimension<Geometry1>::type::value,
-            Geometry2,
-            Geometry1
-        >::apply(geometry2, geometry1);
+    dispatch::convert<Geometry2, Geometry1>::apply(geometry2, geometry1);
 }
 
 
