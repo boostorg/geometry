@@ -22,6 +22,7 @@ struct text_outputter
 
     template <typename T>
     static inline void table_header() {  }
+    static inline void table_header() {  }
 
     static inline void table_footer() { std::cout << std::endl; }
 

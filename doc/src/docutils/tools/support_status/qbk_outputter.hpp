@@ -76,6 +76,11 @@ struct qbk_outputter
         boost::mpl::for_each<Types>(qbk_table_row_header(m_out));
         m_out << "]" << std::endl;
     }
+    inline void table_header()
+    {
+        m_out << "[table" << std::endl;
+    }
+
     inline void table_footer() 
     {
         m_out << "]" << std::endl;
