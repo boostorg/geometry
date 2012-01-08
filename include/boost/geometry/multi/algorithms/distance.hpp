@@ -36,6 +36,12 @@ namespace detail { namespace distance
 
 template<typename Geometry, typename MultiGeometry, typename Strategy>
 struct distance_single_to_multi
+    : private dispatch::distance
+      <
+          Geometry,
+          typename range_value<MultiGeometry>::type,
+          Strategy
+      >
 {
     typedef typename strategy::distance::services::return_type<Strategy>::type return_type;
 
@@ -50,7 +56,13 @@ struct distance_single_to_multi
                 it != boost::end(multi);
                 ++it)
         {
-            return_type dist = geometry::distance(geometry, *it);
+            return_type dist = dispatch::distance
+                <
+                    Geometry,
+                    typename range_value<MultiGeometry>::type,
+                    Strategy
+                >::apply(geometry, *it, strategy);
+
             if (first || dist < mindist)
             {
                 mindist = dist;
@@ -64,6 +76,12 @@ struct distance_single_to_multi
 
 template<typename Multi1, typename Multi2, typename Strategy>
 struct distance_multi_to_multi
+    : private distance_single_to_multi
+      <
+          typename range_value<Multi1>::type,
+          Multi2,
+          Strategy
+      >
 {
     typedef typename strategy::distance::services::return_type<Strategy>::type return_type;
 
