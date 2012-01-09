@@ -79,7 +79,11 @@ struct no_action
 namespace dispatch
 {
 
-template <typename Tag, typename Geometry>
+template
+<
+    typename Geometry,
+    typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
+>
 struct clear
 {
     BOOST_MPL_ASSERT_MSG
@@ -91,34 +95,34 @@ struct clear
 
 // Point/box/segment do not have clear. So specialize to do nothing.
 template <typename Geometry>
-struct clear<point_tag, Geometry>
+struct clear<Geometry, point_tag>
     : detail::clear::no_action<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<box_tag, Geometry>
+struct clear<Geometry, box_tag>
     : detail::clear::no_action<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<segment_tag, Geometry>
+struct clear<Geometry, segment_tag>
     : detail::clear::no_action<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<linestring_tag, Geometry>
+struct clear<Geometry, linestring_tag>
     : detail::clear::collection_clear<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<ring_tag, Geometry>
+struct clear<Geometry, ring_tag>
     : detail::clear::collection_clear<Geometry>
 {};
 
 
 // Polygon can (indirectly) use std for clear
 template <typename Polygon>
-struct clear<polygon_tag, Polygon>
+struct clear<Polygon, polygon_tag>
     : detail::clear::polygon_clear<Polygon>
 {};
 
@@ -145,11 +149,7 @@ inline void clear(Geometry& geometry)
 {
     concept::check<Geometry>();
 
-    dispatch::clear
-        <
-            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry
-        >::apply(geometry);
+    dispatch::clear<Geometry>::apply(geometry);
 }
 
 
