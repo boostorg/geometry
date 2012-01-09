@@ -78,7 +78,7 @@ struct qbk_outputter
     }
     inline void table_header()
     {
-        m_out << "[table" << std::endl;
+        m_out << "[table" << std::endl << "[[Geometry][Status]]" << std::endl;
     }
 
     inline void table_footer() 
