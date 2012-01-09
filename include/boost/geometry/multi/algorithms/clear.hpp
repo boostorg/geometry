@@ -28,7 +28,7 @@ namespace dispatch
 {
 
 template <typename Geometry>
-struct clear<multi_tag, Geometry>
+struct clear<Geometry, multi_tag>
     : detail::clear::collection_clear<Geometry>
 {};
 
