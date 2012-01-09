@@ -67,6 +67,7 @@ typedef boost::mpl::vector<
 
 DECLARE_BINARY_ALGORITHM(append)
 DECLARE_UNARY_ALGORITHM (area)
+DECLARE_UNARY_ALGORITHM (clear)
 DECLARE_BINARY_ALGORITHM(distance)
 DECLARE_BINARY_ALGORITHM(convert)
 
@@ -179,6 +180,7 @@ void support_status()
 {
     test_binary_algorithm<append, all_types, boost::mpl::vector<point_type, std::vector<point_type> >, OutputFactory>("append");
     test_unary_algorithm<area, all_types, OutputFactory>("area");
+    test_unary_algorithm<clear, all_types, OutputFactory>("clear");
     test_binary_algorithm<distance, all_types, all_types, OutputFactory>("distance");
     test_binary_algorithm<convert, all_types, all_types, OutputFactory>("convert");
 }
