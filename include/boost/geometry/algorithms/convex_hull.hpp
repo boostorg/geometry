@@ -98,7 +98,6 @@ namespace dispatch
 
 template
 <
-    typename Tag1,
     typename Geometry,
     typename Output,
     typename Strategy
@@ -110,10 +109,9 @@ struct convex_hull
 
 template
 <
-    typename GeometryTag,
     order_selector Order,
     typename GeometryIn, typename Strategy
- >
+>
 struct convex_hull_insert
     : detail::convex_hull::hull_insert<GeometryIn, Order, Strategy>
 {};
@@ -138,7 +136,6 @@ inline void convex_hull(Geometry1 const& geometry,
 
     dispatch::convex_hull
         <
-            typename tag<Geometry1>::type,
             Geometry1,
             Geometry2,
             Strategy
@@ -196,7 +193,6 @@ inline OutputIterator convex_hull_insert(Geometry const& geometry,
 
     return dispatch::convex_hull_insert
         <
-            typename tag<Geometry>::type,
             geometry::point_order<Geometry>::value,
             Geometry, Strategy
         >::apply(geometry, out, strategy);
