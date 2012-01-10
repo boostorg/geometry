@@ -30,7 +30,12 @@ namespace boost { namespace geometry
     \tparam Geometry the geometry type (hull operates internally per hull over geometry)
     \tparam Point point-type of output points
 */
-template <typename Tag, typename Geometry, typename Point>
+template
+<
+    typename Geometry1,
+    typename Point,
+    typename CsTag = typename cs_tag<Point>::type
+>
 struct strategy_convex_hull
 {
     typedef strategy::not_implemented type;
