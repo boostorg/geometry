@@ -87,6 +87,17 @@ struct hull_to_geometry
 };
 
 
+// Helper metafunction for default strategy retrieval
+template <typename Geometry>
+struct default_strategy
+    : strategy_convex_hull
+          <
+              Geometry,
+              typename point_type<Geometry>::type
+          >
+{};
+
+
 }} // namespace detail::convex_hull
 #endif // DOXYGEN_NO_DETAIL
 
@@ -100,7 +111,7 @@ template
 <
     typename Geometry,
     typename Output,
-    typename Strategy
+    typename Strategy = typename detail::convex_hull::default_strategy<Geometry>::type
 >
 struct convex_hull
     : detail::convex_hull::hull_to_geometry<Geometry, Output, Strategy>
@@ -154,24 +165,17 @@ inline void convex_hull(Geometry1 const& geometry,
 
 \qbk{[include reference/algorithms/convex_hull.qbk]}
  */
-template<typename Geometry1, typename Geometry2>
-inline void convex_hull(Geometry1 const& geometry,
-            Geometry2& hull)
+template<typename Geometry, typename OutputGeometry>
+inline void convex_hull(Geometry const& geometry,
+            OutputGeometry& hull)
 {
     concept::check_concepts_and_equal_dimensions
         <
-            const Geometry1,
-            Geometry2
+            const Geometry,
+            OutputGeometry
         >();
 
-    typedef typename point_type<Geometry2>::type point_type;
-
-    typedef typename strategy_convex_hull
-        <
-            typename cs_tag<point_type>::type,
-            Geometry1,
-            point_type
-        >::type strategy_type;
+    typedef typename detail::convex_hull::default_strategy<Geometry>::type strategy_type;
 
     convex_hull(geometry, hull, strategy_type());
 }
@@ -220,14 +224,7 @@ inline OutputIterator convex_hull_insert(Geometry const& geometry,
     concept::check<Geometry const>();
     concept::check<typename point_type<Geometry>::type>();
 
-    typedef typename point_type<Geometry>::type point_type;
-
-    typedef typename strategy_convex_hull
-        <
-            typename cs_tag<point_type>::type,
-            Geometry,
-            point_type
-        >::type strategy_type;
+    typedef typename detail::convex_hull::default_strategy<Geometry>::type strategy_type;
 
     return convex_hull_insert(geometry, out, strategy_type());
 }

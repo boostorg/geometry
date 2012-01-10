@@ -414,7 +414,7 @@ private:
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 template <typename InputGeometry, typename OutputPoint>
-struct strategy_convex_hull<cartesian_tag, InputGeometry, OutputPoint>
+struct strategy_convex_hull<InputGeometry, OutputPoint, cartesian_tag>
 {
     typedef strategy::convex_hull::graham_andrew<InputGeometry, OutputPoint> type;
 };
