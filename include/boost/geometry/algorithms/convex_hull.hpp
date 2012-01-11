@@ -63,11 +63,11 @@ struct hull_insert
 template
 <
     typename Geometry,
-    typename OutputGeometry,
     typename Strategy
 >
 struct hull_to_geometry
 {
+    template <typename OutputGeometry>
     static inline void apply(Geometry const& geometry, OutputGeometry& out,
             Strategy const& strategy)
     {
@@ -110,21 +110,20 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Output,
     typename Strategy = typename detail::convex_hull::default_strategy<Geometry>::type
 >
 struct convex_hull
-    : detail::convex_hull::hull_to_geometry<Geometry, Output, Strategy>
+    : detail::convex_hull::hull_to_geometry<Geometry, Strategy>
 {};
 
 
 template
 <
     order_selector Order,
-    typename GeometryIn, typename Strategy
+    typename Geometry, typename Strategy
 >
 struct convex_hull_insert
-    : detail::convex_hull::hull_insert<GeometryIn, Order, Strategy>
+    : detail::convex_hull::hull_insert<Geometry, Order, Strategy>
 {};
 
 
@@ -132,14 +131,14 @@ struct convex_hull_insert
 #endif // DOXYGEN_NO_DISPATCH
 
 
-template<typename Geometry1, typename Geometry2, typename Strategy>
-inline void convex_hull(Geometry1 const& geometry,
-            Geometry2& out, Strategy const& strategy)
+template<typename Geometry, typename OutputGeometry, typename Strategy>
+inline void convex_hull(Geometry const& geometry,
+            OutputGeometry& out, Strategy const& strategy)
 {
     concept::check_concepts_and_equal_dimensions
         <
-            const Geometry1,
-            Geometry2
+            const Geometry,
+            OutputGeometry
         >();
 
     BOOST_CONCEPT_ASSERT( (geometry::concept::ConvexHullStrategy<Strategy>) );
@@ -147,8 +146,7 @@ inline void convex_hull(Geometry1 const& geometry,
 
     dispatch::convex_hull
         <
-            Geometry1,
-            Geometry2,
+            Geometry,
             Strategy
         >::apply(geometry, out, strategy);
 }
