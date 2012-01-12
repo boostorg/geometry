@@ -25,12 +25,14 @@
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
+#include <algorithms/overlay/overlay_cases.hpp>
 
 
 #if defined(TEST_WITH_SVG)
@@ -54,7 +56,7 @@ struct test_self_intersection_points
 
         ///bg::get_intersection_points(geometry, turns);
 
-        bg::detail::get_turns::no_interrupt_policy policy;
+        bg::detail::self_get_turn_points::no_interrupt_policy policy;
         bg::self_turns
             <
                 bg::detail::overlay::assign_null_policy
@@ -190,18 +192,18 @@ void test_self_all()
 
     // Hole: interior tangent to exterior
 
-    test_self_overlay<polygon>("h1", boost::make_tuple(2, 2, 4),
+    test_self_overlay<polygon>("h1", boost::make_tuple(1, 2, 4),
             "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 2,2 4,3 2,1 2))");
 
 
     // Hole: interior intersecting exterior
 
-    test_self_overlay<polygon>("h2", boost::make_tuple(4, 4, 3.5),
+    test_self_overlay<polygon>("h2", boost::make_tuple(2, 4, 3.5),
             "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 3,5 4,1 1))");
 
 
     // Hole: two intersecting holes
-    test_self_overlay<polygon>("h3", boost::make_tuple(4, 2.5, 2.5),
+    test_self_overlay<polygon>("h3", boost::make_tuple(2, 2.5, 2.5),
             "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 3,3 3,3 1,1 1),(2 2,2 3.5,3.5 3.5,3.5 2,2 2))");
 
     // Hole: self-intersecting hole

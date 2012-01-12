@@ -32,6 +32,22 @@ namespace boost { namespace geometry
 namespace detail { namespace self_get_turn_points
 {
 
+struct no_interrupt_policy
+{
+    static bool const enabled = false;
+    static bool const has_intersections = false;
+
+
+    template <typename Range>
+    static inline bool apply(Range const&)
+    {
+        return false;
+    }
+};
+
+
+
+
 class self_ip_exception : public geometry::exception {};
 
 template
