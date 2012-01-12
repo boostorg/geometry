@@ -38,6 +38,7 @@
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <multi/algorithms/overlay/multi_overlay_cases.hpp>
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 
 #ifdef HAVE_TTMATH
