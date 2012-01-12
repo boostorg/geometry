@@ -7,7 +7,6 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="&quot;$(TTMATH_ROOT)&quot;;&quot;../$(TTMATH_ROOT)&quot;;&quot;../../$(TTMATH_ROOT)&quot;"
-		PreprocessorDefinitions="HAVE_TTMATH"
 	/>
 	<UserMacro
 		Name="TTMATH_ROOT"
