@@ -92,7 +92,7 @@ struct per_segment_buffer
     typedef typename point_type<GeometryOut>::type point_type;
     typedef typename coordinate_type<point_type>::type coordinate_type;
     typedef coordinate_type distance_type; // TODO promote to FP
-    typedef segment<point_type const> segment_type;
+    typedef model::segment<point_type const> segment_type;
     typedef typename geometry::ring_type<GeometryOut>::type ring_type;
     typedef typename strategy::side::services::default_strategy<typename cs_tag<point_type>::type>::type side;
 
