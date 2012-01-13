@@ -122,7 +122,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         bg::detail::buffer::polygon_buffer
             <
                 Geometry, GeometryOut, join_strategy
-            >::apply(geometry, buffered_step1, distance_left, join_strategy(5));
+            >::apply(geometry, buffered_step1, distance_left, join_strategy());
         buffered.push_back(buffered_step1);
     }
 #else
@@ -141,6 +141,14 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             >::apply(geometry, inserter, distance(distance_left, distance_left / 2.0), join_strategy());
     }
 #endif
+
+    //std::cout << caseid << std::endl;
+    //std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
+    //std::cout << "OUTPUT:" << std::endl;
+    //BOOST_FOREACH(GeometryOut const& polygon, buffered)
+    //{
+    //    std::cout << bg::wkt(polygon) << std::endl;
+    //}
 
     {
         std::ostringstream filename;
@@ -167,11 +175,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         {
             mapper.map(polygon, "opacity:0.8;fill:none;stroke:rgb(0,0,0);stroke-width:2");
             post_map(polygon, mapper);
-            std::cout << bg::wkt(polygon) << std::endl;
         }
-
     }
-
 
 }
 
