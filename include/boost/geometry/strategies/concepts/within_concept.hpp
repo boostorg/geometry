@@ -152,9 +152,9 @@ class WithinStrategyPointBox
 
 
             // CHECK: calling method apply
-            Strategy const* str;
-            point_type const* p;
-            box_type const* bx;
+            Strategy const* str = 0;
+            point_type const* p = 0;
+            box_type const* bx = 0;
 
             bool b = str->apply(*p, *bx);
 
@@ -216,9 +216,9 @@ class WithinStrategyBoxBox
 
 
             // CHECK: calling method apply
-            Strategy const* str;
-            box_type1 const* b1;
-            box_type2 const* b2;
+            Strategy const* str = 0;
+            box_type1 const* b1 = 0;
+            box_type2 const* b2 = 0;
 
             bool b = str->apply(*b1, *b2);
 
