@@ -53,8 +53,7 @@ void test_all()
     namespace buf = bg::strategy::buffer;
 
     typedef bg::model::polygon<P> polygon_type;
-
-    goto debug;
+goto debug;
 
     test_one<polygon_type, buf::join_miter, polygon_type>("L", letter_L, 'm', 14, 0.5);
     test_one<polygon_type, buf::join_round, polygon_type>("L", letter_L, 'r', 13.7254516100806, 0.5);
@@ -131,7 +130,6 @@ void test_all()
 
     //test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
 
-debug:
     for (int i = 1; i < 12; i++)
     {
         std::ostringstream out;
