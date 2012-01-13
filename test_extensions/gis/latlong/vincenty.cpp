@@ -43,8 +43,8 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
 
     P1 p1, p2;
 
-    bg::assign(p1, lon1, lat1);
-    bg::assign(p2, lon2, lat2);
+    bg::assign_values(p1, lon1, lat1);
+    bg::assign_values(p2, lon2, lat2);
 
     BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(1000.0) * return_type(expected_km), 0.001);
 }

@@ -43,8 +43,8 @@ void test_andoyer(double lon1, double lat1, double lon2, double lat2, double exp
 
     P1 p1, p2;
 
-    bg::assign(p1, lon1, lat1);
-    bg::assign(p2, lon2, lat2);
+    bg::assign_values(p1, lon1, lat1);
+    bg::assign_values(p2, lon2, lat2);
 
     BOOST_CHECK_CLOSE(andoyer.apply(p1, p2), return_type(1000.0 * expected_km), 0.001);
 }
