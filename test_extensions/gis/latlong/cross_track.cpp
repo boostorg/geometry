@@ -58,9 +58,9 @@ void test_distance(
     //typedef bg::strategy::distance::andoyer<Point, Point> andoyer_type;
 
     Point p1, p2, p3;
-    bg::assign(p1, lon1, lat1);
-    bg::assign(p2, lon2, lat2);
-    bg::assign(p3, lon3, lat3);
+    bg::assign_values(p1, lon1, lat1);
+    bg::assign_values(p2, lon2, lat2);
+    bg::assign_values(p3, lon3, lat3);
 
     strategy_type strategy;
     return_type d = strategy.apply(p1, p2, p3);
