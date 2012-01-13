@@ -10,6 +10,8 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
+[include generated/convex_hull_status.qbk]
+
 [heading Complexity]
 Logarithmic
 

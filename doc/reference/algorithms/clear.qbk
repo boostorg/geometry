@@ -12,6 +12,8 @@
 
 [def __is_cleared__ is cleared]
 
+[include generated/clear_status.qbk]
+
 [heading Behavior]
 [table
 [[Case] [Behavior] ]

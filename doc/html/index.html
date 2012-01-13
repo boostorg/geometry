@@ -1,16 +1,113 @@
-
-<!--
-Copyright 2010 Barend Gehrels.
-Distributed under the Boost Software License, Version 1.0. (See accompanying
-file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
--->
-
 <html>
 <head>
-    <meta http-equiv="refresh" content="0; URL=http://boost-sandbox.sourceforge.net/libs/geometry/doc/html/">
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Chapter&#160;1.&#160;Geometry 1.0</title>
+<link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<link rel="home" href="index.html" title="Chapter&#160;1.&#160;Geometry 1.0">
+<link rel="next" href="geometry/introduction.html" title="Introduction">
 </head>
-<body>
-Automatic redirection failed, please go to
-<a href="http://boost-sandbox.sourceforge.net/libs/geometry/doc/html/">http://boost-sandbox.sourceforge.net/libs/geometry/doc/html/</a>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../boost.png"></td>
+<td align="center"><a href="../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav"><a accesskey="n" href="geometry/introduction.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+<div class="chapter">
+<div class="titlepage"><div>
+<div><h2 class="title">
+<a name="geometry"></a>Chapter&#160;1.&#160;Geometry 1.0</h2></div>
+<div><div class="author"><h3 class="author">
+<span class="firstname">Barend</span> <span class="surname">Gehrels</span>
+</h3></div></div>
+<div><div class="author"><h3 class="author">
+<span class="firstname">Bruno</span> <span class="surname">Lalande</span>
+</h3></div></div>
+<div><div class="author"><h3 class="author">
+<span class="firstname">Mateusz</span> <span class="surname">Loskot</span>
+</h3></div></div>
+<div><p class="copyright">Copyright &#169; 2012 Barend Gehrels, Bruno Lalande, Mateusz Loskot</p></div>
+<div><div class="legalnotice">
+<a name="id666441"></a><p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></div>
+</div></div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt><span class="section"><a href="geometry/introduction.html">Introduction</a></span></dt>
+<dt><span class="section"><a href="geometry/quickstart.html">Quick Start</a></span></dt>
+<dt><span class="section"><a href="geometry/design.html">Design Rationale</a></span></dt>
+<dt><span class="section"><a href="geometry/compilation.html">Compilation</a></span></dt>
+<dt><span class="section"><a href="geometry/indexes.html">Indexes</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="geometry/indexes/matrix.html">Reference matrix</a></span></dt>
+<dt><span class="section"><a href="geometry/indexes/alphabetical_index.html">Alphabetical Index</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="geometry/reference.html">Reference</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="geometry/reference/access.html">Access Functions</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/adapted.html">Adapted models</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/algorithms.html">Algorithms</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/arithmetic.html">Arithmetic</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/concepts.html">Concepts</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/constants.html">Constants</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/cs.html">Coordinate Systems</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/core.html">Core Metafunctions</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/enumerations.html">Enumerations</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/exceptions.html">Exceptions</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/iterators.html">Iterators</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/models.html">Models</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/strategies.html">Strategies</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/views.html">Views</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="geometry/aboutdoc.html">About this documentation</a></span></dt>
+<dt><span class="section"><a href="geometry/acknowledgments.html">Acknowledgments</a></span></dt>
+</dl>
+</div>
+<a name="geometry.contributions"></a><h3>
+<a name="geometry.contributions-heading"></a>
+    <a class="link" href="index.html#geometry.contributions">Contributions</a>
+  </h3>
+<p>
+    Boost.Geometry contains contributions by:
+  </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+        Akira Takahashi (adaption of Boost.Fusion)
+      </li>
+<li class="listitem">
+        Alfredo Correa (adaption of Boost.Array)
+      </li>
+<li class="listitem">
+        Adam Wulkiewicz (spatial indexes) <sup>[<a name="id697753" href="#ftn.id697753" class="footnote">1</a>]</sup>
+      </li>
+<li class="listitem">
+        Federico Fern&#225;ndez (spatial indexes) <sup>[<a name="id697767" href="#ftn.id697767" class="footnote">2</a>]</sup>
+      </li>
+</ul></div>
+<div class="footnotes">
+<br><hr width="100" align="left">
+<div class="footnote"><p><sup>[<a name="ftn.id697753" href="#id697753" class="para">1</a>] </sup>
+          Currently an extension
+        </p></div>
+<div class="footnote"><p><sup>[<a name="ftn.id697767" href="#id697767" class="para">2</a>] </sup>
+          Currently an extension
+        </p></div>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"><p><small>Last revised: January 13, 2012 at 11:52:50 GMT</small></p></td>
+<td align="right"><div class="copyright-footer"></div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav"><a accesskey="n" href="geometry/introduction.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
 </body>
 </html>
