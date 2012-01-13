@@ -89,9 +89,9 @@ private :
                 >::type tag;
 
             // 7) must implement apply with arguments
-            Strategy* str;
-            ptype1 *p1;
-            ptype2 *p2;
+            Strategy* str = 0;
+            ptype1 *p1 = 0;
+            ptype2 *p2 = 0;
             rtype r = str->apply(*p1, *p2);
 
             // 8) must define (meta)struct "get_similar" with apply
@@ -179,10 +179,10 @@ private :
                 );
 
 
-            Strategy *str;
-            ptype *p;
-            sptype *sp1;
-            sptype *sp2;
+            Strategy *str = 0;
+            ptype *p = 0;
+            sptype *sp1 = 0;
+            sptype *sp2 = 0;
 
             rtype r = str->apply(*p, *sp1, *sp2);
 

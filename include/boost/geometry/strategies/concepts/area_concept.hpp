@@ -44,11 +44,11 @@ class AreaStrategy
     {
         static void apply()
         {
-            Strategy const* str;
-            state_type *st;
+            Strategy const* str = 0;
+            state_type *st = 0;
 
             // 4) must implement a method apply with the following signature
-            spoint_type const* sp;
+            spoint_type const* sp = 0;
             str->apply(*sp, *sp, *st);
 
             // 5) must implement a static method result with the following signature

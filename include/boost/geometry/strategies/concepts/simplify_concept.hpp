@@ -79,9 +79,9 @@ private :
                     (concept::PointSegmentDistanceStrategy<ds_type>)
                 );
 
-            Strategy *str;
-            std::vector<point_type> const* v1;
-            std::vector<point_type> * v2;
+            Strategy *str = 0;
+            std::vector<point_type> const* v1 = 0;
+            std::vector<point_type> * v2 = 0;
 
             // 2) must implement method apply with arguments
             //    - Range
