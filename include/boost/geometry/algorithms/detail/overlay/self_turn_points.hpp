@@ -87,6 +87,7 @@ struct self_section_visitor
                     >::apply(
                             0, m_geometry, sec1,
                             0, m_geometry, sec2,
+                            false,
                             m_turns, m_interrupt_policy);
         }
         if (m_interrupt_policy.has_intersections)
