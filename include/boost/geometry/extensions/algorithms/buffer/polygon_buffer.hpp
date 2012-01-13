@@ -17,6 +17,7 @@
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
 
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
@@ -50,7 +51,7 @@ struct ring_buffer
 #endif
             )
     {
-        typedef segment<output_point_type const> segment_type;
+        typedef model::referring_segment<output_point_type const> segment_type;
         typedef typename boost::range_iterator
             <
                 RingInput const
@@ -205,9 +206,9 @@ struct polygon_buffer
 #endif
                 );
 
-        typename interior_return_type<Polygon const>::type rings
+        typename interior_return_type<PolygonInput const>::type rings
                     = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings); it != boost::end(rings); ++it)
+        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             output_ring_type ring;
             policy::apply(*it, ring, distance, join_strategy
