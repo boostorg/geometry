@@ -34,15 +34,15 @@
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/extensions/algorithms/dissolve.hpp>
-#include <boost/geometry/extensions/algorithms/detail/overlay/split_rings.hpp>
+//#include <boost/geometry/extensions/algorithms/detail/overlay/split_rings.hpp>
 
 //#include <boost/geometry/extensions/algorithms/buffer.hpp>
 
-#include <boost/geometry/extensions/algorithms/buffer/remove_within_distance.hpp>
+//#include <boost/geometry/extensions/algorithms/buffer/remove_within_distance.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/linestring_buffer.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/polygon_buffer.hpp>
 //#include <boost/geometry/extensions/algorithms/buffer/unioning_buffer.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/segmenting_buffer.hpp>
+//#include <boost/geometry/extensions/algorithms/buffer/segmenting_buffer.hpp>
 
 #include <boost/geometry/extensions/strategies/buffer.hpp>
 

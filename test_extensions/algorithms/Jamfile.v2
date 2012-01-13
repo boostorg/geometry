@@ -16,3 +16,6 @@ test-suite boost-geometry-extensions-algorithms
     [ run midpoints.cpp ]
     [ run selected.cpp ]
     ;
+
+build-project buffer
+    ;
