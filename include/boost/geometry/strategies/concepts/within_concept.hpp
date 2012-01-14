@@ -85,10 +85,10 @@ class WithinStrategyPolygonal
 
 
             // CHECK: calling method apply and result
-            Strategy const* str;
-            state_type* st;
-            point_type const* p;
-            segment_point_type const* sp;
+            Strategy const* str = 0;
+            state_type* st = 0;
+            point_type const* p = 0;
+            segment_point_type const* sp = 0;
 
             bool b = str->apply(*p, *sp, *sp, *st);
             int r = str->result(*st);
