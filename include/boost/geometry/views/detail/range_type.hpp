@@ -66,7 +66,7 @@ struct range_type<polygon_tag, Geometry>
 template <typename Geometry>
 struct range_type<box_tag, Geometry>
 {
-    typedef typename box_view<Geometry> type;
+    typedef box_view<Geometry> type;
 };
 
 
