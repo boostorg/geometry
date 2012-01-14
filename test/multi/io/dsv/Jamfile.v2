@@ -8,5 +8,8 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-build-project wkt ; 
-build-project dsv ; 
+test-suite boost-geometry-multi-io-dsv
+    :
+    [ run dsv.cpp ]
+    ;
+
