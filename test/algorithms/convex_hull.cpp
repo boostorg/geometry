@@ -45,7 +45,12 @@ void test_all()
                 12, 8, 5.245);
 
     // Waits for next cycle test_geometry<bg::model::box<P> >("box(0 0,2 2)", 5, 5, 4);
+
+    test_convex_hull_exception<bg::model::linestring<P> >();
+    test_convex_hull_exception<bg::model::polygon<P> >();
+    test_convex_hull_exception<bg::model::ring<P> >();
 }
+
 
 int test_main(int, char* [])
 {

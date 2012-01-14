@@ -108,5 +108,26 @@ void test_geometry(std::string const& wkt,
     test_geometry_order<Geometry, false>(wkt, size_original, size_hull, expected_area);
 }
 
+template <typename Geometry>
+void test_convex_hull_exception()
+{
+    Geometry geometry;
+    try
+    {
+        bg::model::polygon
+            <
+                typename bg::point_type<Geometry>::type
+            > hull;
+
+        bg::convex_hull(geometry, hull);
+    }
+    catch(bg::convex_hull_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "A convex_hull_exception should have been thrown" );
+}
+
+
 
 #endif
