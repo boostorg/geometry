@@ -29,6 +29,7 @@
 #include <boost/geometry/multi/algorithms/area.hpp>
 #include <boost/geometry/multi/algorithms/centroid.hpp>
 #include <boost/geometry/multi/algorithms/clear.hpp>
+#include <boost/geometry/multi/algorithms/convert.hpp>
 #include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/algorithms/envelope.hpp>
@@ -68,6 +69,7 @@
 
 #include <boost/geometry/multi/util/write_dsv.hpp>
 
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 
 #endif // BOOST_GEOMETRY_MULTI_HPP
