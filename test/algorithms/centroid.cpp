@@ -73,10 +73,6 @@ void test_2d()
 
     test_centroid<bg::model::box<P> >("POLYGON((1 2,3 4))", 2, 3);
     test_centroid<P>("POINT(3 3)", 3, 3);
-
-    //test_centroid_exception<bg::model::linestring<P> >("LINESTRING EMPTY");
-///    test_centroid_exception<bg::model::polygon<P> >("POLYGON EMPTY");
-//    test_centroid_exception<bg::model::ring<P> >("POLYGON EMPTY");
 }
 
 
@@ -97,9 +93,19 @@ void test_5d()
                                              4.9202312983547678, 0.69590937869808345, 1.2632138719797417, 6.0468332057401986, 23.082402715244868);
 }
 
+template <typename P>
+void test_exceptions()
+{
+    test_centroid_exception<bg::model::linestring<P> >();
+    test_centroid_exception<bg::model::polygon<P> >();
+    test_centroid_exception<bg::model::ring<P> >();
+}
+
 
 int test_main(int, char* [])
 {
+    test_exceptions<bg::model::d2::point_xy<double> >();
+
     test_2d<bg::model::d2::point_xy<double> >();
     test_2d<boost::tuple<float, float> >();
     test_2d<bg::model::d2::point_xy<float> >();
