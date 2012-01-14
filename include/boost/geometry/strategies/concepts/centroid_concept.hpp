@@ -45,17 +45,17 @@ class CentroidStrategy
     {
         static void apply()
         {
-            Strategy *str;
-            state_type *st;
+            Strategy *str = 0;
+            state_type *st = 0;
 
             // 4) must implement a static method apply,
             // getting two segment-points
-            spoint_type const* sp;
+            spoint_type const* sp = 0;
             str->apply(*sp, *sp, *st);
 
             // 5) must implement a static method result
             //  getting the centroid
-            point_type *c;
+            point_type *c = 0;
             bool r = str->result(*st, *c);
 
             boost::ignore_unused_variable_warning(str);
