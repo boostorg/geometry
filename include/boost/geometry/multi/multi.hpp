@@ -67,8 +67,7 @@
 #include <boost/geometry/multi/views/detail/range_type.hpp>
 #include <boost/geometry/multi/strategies/cartesian/centroid_average.hpp>
 
-#include <boost/geometry/multi/util/write_dsv.hpp>
-
+#include <boost/geometry/multi/io/dsv/write.hpp>
 #include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 
