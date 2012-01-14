@@ -14,7 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_HPP
 
-
+#include <boost/array.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_order.hpp>
@@ -29,6 +29,7 @@
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/detail/as_range.hpp>
+#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 
 
 namespace boost { namespace geometry
@@ -139,11 +140,40 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Strategy = typename detail::convex_hull::default_strategy<Geometry>::type
+    typename Strategy = typename detail::convex_hull::default_strategy<Geometry>::type,
+    typename Tag = typename tag<Geometry>::type
 >
 struct convex_hull
     : detail::convex_hull::hull_to_geometry<Geometry, Strategy>
 {};
+
+template
+<
+    typename Box,
+    typename Strategy
+>
+struct convex_hull<Box, Strategy, box_tag>
+{
+    template <typename OutputGeometry>
+    static inline void apply(Box const& box, OutputGeometry& out,
+            Strategy const& )
+    {
+        static bool const Close
+            = geometry::closure<OutputGeometry>::value == closed;
+        static bool const Reverse
+            = geometry::point_order<OutputGeometry>::value == counterclockwise;
+
+        // A hull for boxes is trivial. Any strategy is (currently) skipped.
+        boost::array<typename point_type<Box>::type, 4> range;
+        geometry::detail::assign_box_corners_oriented<Reverse>(box, range);
+        geometry::append(out, range);
+        if (Close)
+        {
+            geometry::append(out, *boost::begin(range));
+        }
+    }
+};
+
 
 
 template
