@@ -67,12 +67,17 @@ struct get_extremes
     StrategyLess less;
     StrategyGreater greater;
 
-    get_extremes()
+    inline get_extremes()
         : first(true)
     {}
 
     inline void apply(InputRange const& range)
     {
+        if (boost::size(range) == 0)
+        {
+            return;
+        }
+
         // First iterate through this range
         // (this two-stage approach avoids many point copies,
         //  because iterators are kept in memory. Because iterators are

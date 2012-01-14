@@ -47,6 +47,7 @@
 #include <boost/geometry/multi/algorithms/unique.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
+#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
 
