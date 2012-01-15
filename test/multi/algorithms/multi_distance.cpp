@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -9,6 +9,8 @@
 
 
 #include <geometry_test_common.hpp>
+
+#include <algorithms/test_distance.hpp>
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
@@ -128,6 +130,23 @@ void test_mixed()
     test_distance<mp2, P2>(pythagoras<P2, P2>(), "MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
 }
 
+template <typename P>
+void test_empty_input()
+{
+    P p;
+    bg::model::multi_point<P> mp_empty;
+    bg::model::multi_linestring<bg::model::linestring<P> > ml_empty;
+
+    test_empty_input(p, mp_empty);
+    test_empty_input(p, ml_empty);
+    test_empty_input(mp_empty, mp_empty);
+
+    // Test behaviour if one of the inputs is empty
+    bg::model::multi_point<P> mp;
+    mp.push_back(p);
+    test_empty_input(mp_empty, mp);
+    test_empty_input(mp, mp_empty);
+}
 
 
 int test_main( int , char* [] )
@@ -145,6 +164,8 @@ int test_main( int , char* [] )
     test_2d<bg::model::d2::point_xy<ttmath_big> >();
     test_mixed<bg::model::d2::point_xy<ttmath_big>, bg::model::d2::point_xy<double> >();
 #endif
+
+    test_empty_input<bg::model::d2::point_xy<int> >();
 
     return 0;
 }

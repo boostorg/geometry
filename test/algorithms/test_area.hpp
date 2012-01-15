@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -64,6 +64,20 @@ void test_geometry(std::string const& wkt,
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
     test_area(geometry, expected_area);
+}
+
+template <typename Geometry>
+void test_empty_input(Geometry const& geometry)
+{
+    try
+    {
+        bg::area(geometry);
+    }
+    catch(bg::empty_input_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown" );
 }
 
 

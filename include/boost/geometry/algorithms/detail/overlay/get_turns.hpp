@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -158,6 +158,7 @@ public :
     static inline bool apply(
             int source_id1, Geometry1 const& geometry1, Section1 const& sec1,
             int source_id2, Geometry2 const& geometry2, Section2 const& sec2,
+            bool skip_larger,
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
@@ -229,7 +230,7 @@ public :
                     // Also skip if index1 < index2 to avoid getting all
                     // intersections twice (only do this on same source!)
 
-                    skip = index1 >= index2
+                    skip = (skip_larger && index1 >= index2)
                         || ndi2 == ndi1 + 1
                         || neighbouring<Geometry1>(sec1, index1, index2)
                         ;
@@ -405,6 +406,7 @@ struct section_visitor
                     >::apply(
                             m_source_id1, m_geometry1, sec1,
                             m_source_id2, m_geometry2, sec2,
+                            false,
                             m_turns, m_interrupt_policy);
         }
         return true;

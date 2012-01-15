@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -18,9 +18,10 @@
 
 \section header Boost.Geometry (aka GGL, Generic Geometry Library)
 
-<em>Copyright &copy; 1995-2010 <b>Barend Gehrels</b>, Geodan, Amsterdam, the Netherlands.\n
-Copyright &copy; 2008-2010 <b>Bruno Lalande</b>, Paris, France.\n
-Copyright &copy; 2010 <b>Mateusz Loskot</b>, Cadcorp, London, UK.\n
+<em>
+Copyright &copy; 1995-2012 <b>Barend Gehrels</b>, Geodan, Amsterdam, the Netherlands.\n
+Copyright &copy; 2008-2012 <b>Bruno Lalande</b>, Paris, France.\n
+Copyright &copy; 2010-2012 <b>Mateusz Loskot</b>, Cadcorp, London, UK.\n
 Distributed under the Boost Software License, Version 1.0.\n
 (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 </em>

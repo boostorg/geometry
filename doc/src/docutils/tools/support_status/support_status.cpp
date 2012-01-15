@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Tool reporting Implementation Support Status in QBK or plain text format
 
-// Copyright (c) 2011 Bruno Lalande, Paris, France.
-// Copyright (c) 2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,9 +22,11 @@
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/algorithms/append.hpp>
+#include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/convex_hull.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
-#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 #include "text_outputter.hpp"
 #include "qbk_outputter.hpp"
@@ -54,21 +56,50 @@ typedef boost::mpl::vector<
     multi_polygon_type
 > all_types;
 
+#define DECLARE_UNARY_ALGORITHM(algorithm) \
+    template <typename G> \
+    struct algorithm: boost::geometry::dispatch::algorithm<G> \
+    {};
+
 #define DECLARE_BINARY_ALGORITHM(algorithm) \
     template <typename G1, typename G2> \
     struct algorithm: boost::geometry::dispatch::algorithm<G1, G2> \
     {};
 
 DECLARE_BINARY_ALGORITHM(append)
-DECLARE_BINARY_ALGORITHM(distance)
+DECLARE_UNARY_ALGORITHM (area)
+DECLARE_UNARY_ALGORITHM (clear)
 DECLARE_BINARY_ALGORITHM(convert)
+DECLARE_UNARY_ALGORITHM (convex_hull)
+DECLARE_BINARY_ALGORITHM(distance)
 
 
-template <template <typename, typename> class Dispatcher, typename Outputter, typename G2 = void>
-struct do_test
+template <template <typename> class Dispatcher, typename Outputter, typename G>
+struct do_unary_test
 {
     Outputter& m_outputter;
-    inline do_test(Outputter& outputter)
+    inline do_unary_test(Outputter& outputter)
+        : m_outputter(outputter)
+    {}
+
+    void operator()()
+    {
+        if (boost::is_base_of<boost::geometry::nyi::not_implemented_tag, Dispatcher<G> >::type::value)
+        {
+            m_outputter.nyi();
+        }
+        else
+        {
+            m_outputter.ok();
+        }
+    }
+};
+
+template <template <typename, typename> class Dispatcher, typename Outputter, typename G2 = void>
+struct do_binary_test
+{
+    Outputter& m_outputter;
+    inline do_binary_test(Outputter& outputter)
         : m_outputter(outputter)
     {}
 
@@ -86,11 +117,29 @@ struct do_test
     }
 };
 
-template <template <typename, typename> class Dispatcher, typename Types, typename Outputter>
-struct test
+template <template <typename> class Dispatcher, typename Outputter>
+struct unary_test
 {
     Outputter& m_outputter;
-    inline test(Outputter& outputter)
+    inline unary_test(Outputter& outputter)
+        : m_outputter(outputter)
+    {}
+
+    template <typename G>
+    void operator()(G)
+    {
+         m_outputter.template begin_row<G>();
+         do_unary_test<Dispatcher, Outputter, G> test(m_outputter);
+         test();
+         m_outputter.end_row();
+    }
+};
+
+template <template <typename, typename> class Dispatcher, typename Types, typename Outputter>
+struct binary_test
+{
+    Outputter& m_outputter;
+    inline binary_test(Outputter& outputter)
         : m_outputter(outputter)
     {}
 
@@ -98,10 +147,22 @@ struct test
     void operator()(G2)
     {
          m_outputter.template begin_row<G2>();
-         boost::mpl::for_each<Types>(do_test<Dispatcher, Outputter, G2>(m_outputter));
+         boost::mpl::for_each<Types>(do_binary_test<Dispatcher, Outputter, G2>(m_outputter));
          m_outputter.end_row();
     }
 };
+
+template <template <typename> class Dispatcher, typename Types, typename Outputter>
+void test_unary_algorithm(std::string const& name)
+{
+    Outputter outputter(name);
+    outputter.header(name);
+
+    outputter.template table_header();
+    boost::mpl::for_each<Types>(unary_test<Dispatcher, Outputter>(outputter));
+
+    outputter.table_footer();
+}
 
 template <template <typename, typename> class Dispatcher, typename Types1, typename Types2, typename Outputter>
 void test_binary_algorithm(std::string const& name)
@@ -110,7 +171,7 @@ void test_binary_algorithm(std::string const& name)
     outputter.header(name);
 
     outputter.template table_header<Types2>();
-    boost::mpl::for_each<Types1>(test<Dispatcher, Types2, Outputter>(outputter));
+    boost::mpl::for_each<Types1>(binary_test<Dispatcher, Types2, Outputter>(outputter));
 
     outputter.table_footer();
 }
@@ -120,8 +181,11 @@ template <typename OutputFactory>
 void support_status()
 {
     test_binary_algorithm<append, all_types, boost::mpl::vector<point_type, std::vector<point_type> >, OutputFactory>("append");
-    test_binary_algorithm<distance, all_types, all_types, OutputFactory>("distance");
+    test_unary_algorithm<area, all_types, OutputFactory>("area");
+    test_unary_algorithm<clear, all_types, OutputFactory>("clear");
     test_binary_algorithm<convert, all_types, all_types, OutputFactory>("convert");
+    test_unary_algorithm<convex_hull, all_types, OutputFactory>("convex_hull");
+    test_binary_algorithm<distance, all_types, all_types, OutputFactory>("distance");
 }
 
 
@@ -135,5 +199,6 @@ int main(int argc, char** argv)
     {
         support_status<text_outputter>();
     }
+
     return 0;
 }

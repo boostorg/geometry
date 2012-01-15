@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -33,6 +33,12 @@ void test_all()
     test_geometry<bg::model::polygon<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 0);
 }
 
+template <typename P>
+void test_empty_input()
+{
+    test_empty_input(bg::model::linestring<P>());
+}
+
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<int> >();
@@ -42,6 +48,8 @@ int test_main(int, char* [])
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
+
+    test_empty_input<bg::model::d2::point_xy<int> >();
 
     return 0;
 }

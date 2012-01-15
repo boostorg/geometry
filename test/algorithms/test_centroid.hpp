@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -77,6 +77,22 @@ void test_centroid(std::string const& wkt, T const& d1, T const& d2, T const& d3
 #endif
 
 #endif
+}
+
+template <typename Geometry>
+void test_centroid_exception()
+{
+    Geometry geometry;
+    try
+    {
+        typename bg::point_type<Geometry>::type c;
+        bg::centroid(geometry, c);
+    }
+    catch(bg::centroid_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "A centroid_exception should have been thrown" );
 }
 
 

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -31,6 +31,22 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace self_get_turn_points
 {
+
+struct no_interrupt_policy
+{
+    static bool const enabled = false;
+    static bool const has_intersections = false;
+
+
+    template <typename Range>
+    static inline bool apply(Range const&)
+    {
+        return false;
+    }
+};
+
+
+
 
 class self_ip_exception : public geometry::exception {};
 
@@ -71,6 +87,7 @@ struct self_section_visitor
                     >::apply(
                             0, m_geometry, sec1,
                             0, m_geometry, sec2,
+                            false,
                             m_turns, m_interrupt_policy);
         }
         if (m_interrupt_policy.has_intersections)

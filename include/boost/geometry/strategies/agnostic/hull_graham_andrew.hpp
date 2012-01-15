@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -67,12 +67,17 @@ struct get_extremes
     StrategyLess less;
     StrategyGreater greater;
 
-    get_extremes()
+    inline get_extremes()
         : first(true)
     {}
 
     inline void apply(InputRange const& range)
     {
+        if (boost::size(range) == 0)
+        {
+            return;
+        }
+
         // First iterate through this range
         // (this two-stage approach avoids many point copies,
         //  because iterators are kept in memory. Because iterators are
@@ -414,7 +419,7 @@ private:
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 template <typename InputGeometry, typename OutputPoint>
-struct strategy_convex_hull<cartesian_tag, InputGeometry, OutputPoint>
+struct strategy_convex_hull<InputGeometry, OutputPoint, cartesian_tag>
 {
     typedef strategy::convex_hull::graham_andrew<InputGeometry, OutputPoint> type;
 };

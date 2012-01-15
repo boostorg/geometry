@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library) 
 // Unit Test
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -107,6 +107,20 @@ void test_geometry(std::string const& wkt,
     test_geometry_order<Geometry, true>(wkt, size_original, size_hull, expected_area);
     test_geometry_order<Geometry, false>(wkt, size_original, size_hull, expected_area);
 }
+
+template <typename Geometry>
+void test_empty_input()
+{
+    Geometry geometry;
+    bg::model::polygon
+        <
+            typename bg::point_type<Geometry>::type
+        > hull;
+
+    bg::convex_hull(geometry, hull);
+    BOOST_CHECK_MESSAGE(bg::num_points(hull) == 0, "Output convex hull should be empty" );
+}
+
 
 
 #endif

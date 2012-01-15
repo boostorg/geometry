@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library) 
 // Unit Test
 
-// Copyright (c) 2010-2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -138,6 +138,20 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2, double expe
     bg::read_wkt(wkt2, geometry2);
 
     test_distance(geometry1, geometry2, expected_distance);
+}
+
+template <typename Geometry1, typename Geometry2>
+void test_empty_input(Geometry1 const& geometry1, Geometry2 const& geometry2)
+{
+    try
+    {
+        bg::distance(geometry1, geometry2);
+    }
+    catch(bg::empty_input_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown" );
 }
 
 
