@@ -49,8 +49,7 @@ void test_empty_input(Geometry const& geometry)
 {
     try
     {
-        typename bg::default_length_result<Geometry>::type length
-                    = bg::length(geometry);
+        bg::length(geometry);
     }
     catch(bg::empty_input_exception const& )
     {
