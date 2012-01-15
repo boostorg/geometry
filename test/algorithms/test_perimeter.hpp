@@ -52,8 +52,7 @@ void test_empty_input(Geometry const& geometry)
 {
     try
     {
-        typename bg::default_distance_result<Geometry>::type peri
-                    = bg::perimeter(geometry);
+        bg::perimeter(geometry);
     }
     catch(bg::empty_input_exception const& )
     {

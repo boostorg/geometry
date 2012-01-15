@@ -71,8 +71,7 @@ void test_empty_input(Geometry const& geometry)
 {
     try
     {
-        typename bg::default_area_result<Geometry>::type area
-                    = bg::area(geometry);
+        bg::area(geometry);
     }
     catch(bg::empty_input_exception const& )
     {
