@@ -53,7 +53,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     {
         area += bg::area(*it);
         holes += bg::num_interior_rings(*it);
-
         n += bg::num_points(*it, true);
     }
 
@@ -65,10 +64,16 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         boost::copy(array_with_one_empty_geometry, bg::detail::union_::union_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
 
         typename bg::default_area_result<G1>::type area_inserted = 0;
+        int index = 0;
         for (typename std::vector<OutputType>::iterator it = inserted.begin();
-                it != inserted.end(); ++it)
+                it != inserted.end();
+                ++it, ++index)
         {
-            area_inserted += bg::area(*it);
+            // Skip the empty polygon created above to avoid the empty_input_exception
+            if (bg::num_points(*it) > 0)
+            {
+                area_inserted += bg::area(*it);
+            }
         }
         BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
         BOOST_CHECK_CLOSE(area_inserted, expected_area, percentage);
