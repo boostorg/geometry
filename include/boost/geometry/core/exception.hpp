@@ -29,6 +29,32 @@ class exception : public std::exception
 {};
 
 
+/*!
+\brief Empty Input Exception
+\ingroup core
+\details The empty_input_exception is thrown if free functions, e.g. distance,
+    are called with empty geometries, e.g. a linestring
+    without points, a polygon without points, an empty multi-geometry.
+\qbk{
+[heading See also]
+\* [link geometry.reference.algorithms.area the area function]
+\* [link geometry.reference.algorithms.distance the distance function]
+\* [link geometry.reference.algorithms.length the length function]
+}
+ */
+class empty_input_exception : public geometry::exception
+{
+public:
+
+    inline empty_input_exception() {}
+
+    virtual char const* what() const throw()
+    {
+        return "Boost.Geometry Empty-Input exception";
+    }
+};
+
+
 }} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_CORE_EXCEPTION_HPP

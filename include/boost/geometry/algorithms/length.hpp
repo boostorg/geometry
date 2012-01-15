@@ -28,6 +28,7 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
+#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_length_result.hpp>
@@ -151,6 +152,8 @@ inline typename default_length_result<Geometry>::type length(
 {
     concept::check<Geometry const>();
 
+    detail::throw_on_empty_input(geometry);
+
     typedef typename strategy::distance::services::default_strategy
         <
             point_tag, typename point_type<Geometry>::type
@@ -185,6 +188,8 @@ inline typename default_length_result<Geometry>::type length(
 {
     concept::check<Geometry const>();
 
+    detail::throw_on_empty_input(geometry);
+    
     return dispatch::length
         <
             typename tag<Geometry>::type,

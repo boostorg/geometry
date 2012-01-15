@@ -109,23 +109,16 @@ void test_geometry(std::string const& wkt,
 }
 
 template <typename Geometry>
-void test_convex_hull_exception()
+void test_empty_input()
 {
     Geometry geometry;
-    try
-    {
-        bg::model::polygon
-            <
-                typename bg::point_type<Geometry>::type
-            > hull;
+    bg::model::polygon
+        <
+            typename bg::point_type<Geometry>::type
+        > hull;
 
-        bg::convex_hull(geometry, hull);
-    }
-    catch(bg::convex_hull_exception const& )
-    {
-        return;
-    }
-    BOOST_CHECK_MESSAGE(false, "A convex_hull_exception should have been thrown" );
+    bg::convex_hull(geometry, hull);
+    BOOST_CHECK_MESSAGE(bg::num_points(hull) == 0, "Output convex hull should be empty" );
 }
 
 

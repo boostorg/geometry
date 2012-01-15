@@ -53,9 +53,9 @@ void test_all()
     test_geometry<ml>("multilinestring((2 4, 3 4, 3 5), (4 3,4 4,5 4))", 6, 5, 3.0);
     test_geometry<mpoly>("multipolygon(((1 4,1 6,2 5,3 5,4 6,4 4,1 4)), ((4 2,4 3,6 3,6 2,4 2)))", 12, 7, 14.0);
 
-    test_convex_hull_exception<mp>();
-    test_convex_hull_exception<ml>();
-    test_convex_hull_exception<mpoly>();
+    test_empty_input<mp>();
+    test_empty_input<ml>();
+    test_empty_input<mpoly>();
 }
 
 
