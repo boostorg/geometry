@@ -11,33 +11,42 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_CLEAR_HPP
-#define BOOST_GEOMETRY_MULTI_ALGORITHMS_CLEAR_HPP
+#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_APPEND_HPP
+#define BOOST_GEOMETRY_MULTI_ALGORITHMS_APPEND_HPP
 
+#include <boost/geometry/algorithms/append.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/algorithms/clear.hpp>
 
 
 namespace boost { namespace geometry
 {
 
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
 
-template <typename Geometry>
-struct clear<Geometry, multi_tag>
-    : detail::clear::collection_clear<Geometry>
+namespace splitted_dispatch
+{
+
+template <typename Geometry, typename Point>
+struct append_point<multi_point_tag, Geometry, Point>
+    : detail::append::append_point<Geometry, Point>
 {};
+
+template <typename Geometry, typename Range>
+struct append_range<multi_point_tag, Geometry, Range>
+    : detail::append::append_range<Geometry, Range>
+{};
+
+}
 
 
 } // namespace dispatch
-#endif
+#endif // DOXYGEN_NO_DISPATCH
 
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_CLEAR_HPP
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_APPEND_HPP

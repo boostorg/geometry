@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -23,6 +23,7 @@
 #include <boost/geometry/multi/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 
@@ -49,12 +50,12 @@ struct distance_single_to_multi
                 MultiGeometry const& multi,
                 Strategy const& strategy)
     {
+        return_type mindist = return_type();
         bool first = true;
-        return_type mindist;
 
         for(typename range_iterator<MultiGeometry const>::type it = boost::begin(multi);
                 it != boost::end(multi);
-                ++it)
+                ++it, first = false)
         {
             return_type dist = dispatch::distance
                 <
@@ -67,7 +68,6 @@ struct distance_single_to_multi
             {
                 mindist = dist;
             }
-            first = false;
         }
 
         return mindist;
@@ -88,12 +88,12 @@ struct distance_multi_to_multi
     static inline return_type apply(Multi1 const& multi1,
                 Multi2 const& multi2, Strategy const& strategy)
     {
+        return_type mindist = return_type();
         bool first = true;
-        return_type mindist;
 
         for(typename range_iterator<Multi1 const>::type it = boost::begin(multi1);
                 it != boost::end(multi1);
-                ++it)
+                ++it, first = false)
         {
             return_type dist = distance_single_to_multi
                 <
@@ -105,7 +105,6 @@ struct distance_multi_to_multi
             {
                 mindist = dist;
             }
-            first = false;
         }
 
         return mindist;

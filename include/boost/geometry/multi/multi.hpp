@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -29,6 +29,7 @@
 #include <boost/geometry/multi/algorithms/area.hpp>
 #include <boost/geometry/multi/algorithms/centroid.hpp>
 #include <boost/geometry/multi/algorithms/clear.hpp>
+#include <boost/geometry/multi/algorithms/convert.hpp>
 #include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/algorithms/envelope.hpp>
@@ -46,6 +47,7 @@
 #include <boost/geometry/multi/algorithms/unique.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
+#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
 
@@ -66,8 +68,8 @@
 #include <boost/geometry/multi/views/detail/range_type.hpp>
 #include <boost/geometry/multi/strategies/cartesian/centroid_average.hpp>
 
-#include <boost/geometry/multi/util/write_dsv.hpp>
-
+#include <boost/geometry/multi/io/dsv/write.hpp>
+#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 
 #endif // BOOST_GEOMETRY_MULTI_HPP
