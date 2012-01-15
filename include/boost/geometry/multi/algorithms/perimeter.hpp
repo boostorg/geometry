@@ -22,6 +22,7 @@
 #include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
+#include <boost/geometry/multi/algorithms/num_points.hpp>
 
 namespace boost { namespace geometry
 {
