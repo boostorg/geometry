@@ -51,9 +51,12 @@ void test_wkt(std::string const& wkt, std::size_t n, double len = 0,
     */
 
     BOOST_CHECK_EQUAL(bg::num_points(geometry), n);
-    BOOST_CHECK_CLOSE(double(bg::length(geometry)), len, 0.0001);
-    BOOST_CHECK_CLOSE(double(bg::area(geometry)), ar, 0.0001);
-    BOOST_CHECK_CLOSE(double(bg::perimeter(geometry)), peri, 0.0001);
+    if (n > 0)
+    {
+        BOOST_CHECK_CLOSE(double(bg::length(geometry)), len, 0.0001);
+        BOOST_CHECK_CLOSE(double(bg::area(geometry)), ar, 0.0001);
+        BOOST_CHECK_CLOSE(double(bg::perimeter(geometry)), peri, 0.0001);
+    }
 
     // String comparison: only for int/double/float etc
     // GMP/CLN add +e01, L0, etc
