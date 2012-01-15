@@ -20,6 +20,7 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 #include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
+#include <boost/geometry/multi/algorithms/num_points.hpp>
 
 
 namespace boost { namespace geometry
