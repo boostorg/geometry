@@ -140,5 +140,20 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2, double expe
     test_distance(geometry1, geometry2, expected_distance);
 }
 
+template <typename Geometry1, typename Geometry2>
+void test_empty_input(Geometry1 const& geometry1, Geometry2 const& geometry2)
+{
+    try
+    {
+        typename bg::default_distance_result<Geometry1>::type distance
+                    = bg::distance(geometry1, geometry2);
+    }
+    catch(bg::empty_input_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown" );
+}
+
 
 #endif

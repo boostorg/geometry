@@ -228,6 +228,20 @@ void test_all()
     // test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_geometry<P, test::wrapped_boost_array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+
+}
+
+template <typename P>
+void test_empty_input()
+{
+    P p;
+    bg::model::linestring<P> line_empty;
+    bg::model::polygon<P> poly_empty;
+    bg::model::ring<P> ring_empty;
+
+    test_empty_input(p, line_empty);
+    test_empty_input(p, poly_empty);
+    test_empty_input(p, ring_empty);
 }
 
 int test_main(int, char* [])
@@ -247,6 +261,8 @@ int test_main(int, char* [])
 #ifdef HAVE_TTMATH
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
+
+    test_empty_input<bg::model::d2::point_xy<int> >();
 
     return 0;
 }

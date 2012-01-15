@@ -194,7 +194,15 @@ void test_open_ccw()
     // Note the triangular testcase used in CCW is not sensible for open/close
 }
 
+template <typename P>
+void test_empty_input()
+{
+    bg::model::polygon<P> poly_empty;
+    bg::model::ring<P> ring_empty;
 
+    test_empty_input(poly_empty);
+    test_empty_input(ring_empty);
+}
 
 int test_main(int, char* [])
 {
@@ -213,6 +221,8 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
     test_spherical<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 #endif
+
+    test_empty_input<bg::model::d2::point_xy<int> >();
 
     return 0;
 }

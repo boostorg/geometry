@@ -66,5 +66,20 @@ void test_geometry(std::string const& wkt,
     test_area(geometry, expected_area);
 }
 
+template <typename Geometry>
+void test_empty_input(Geometry const& geometry)
+{
+    try
+    {
+        typename bg::default_area_result<Geometry>::type area
+                    = bg::area(geometry);
+    }
+    catch(bg::empty_input_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown" );
+}
+
 
 #endif

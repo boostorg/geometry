@@ -44,11 +44,11 @@ void test_all()
         ", 5.3 2.6, 5.4 1.2, 4.9 0.8, 2.9 0.7,2.0 1.3))",
                 12, 8, 5.245);
 
-    // Waits for next cycle test_geometry<bg::model::box<P> >("box(0 0,2 2)", 5, 5, 4);
-
-    test_convex_hull_exception<bg::model::linestring<P> >();
-    test_convex_hull_exception<bg::model::polygon<P> >();
-    test_convex_hull_exception<bg::model::ring<P> >();
+    test_geometry<bg::model::box<P> >("box(0 0,2 2)", 4, 5, 4);
+    
+    test_empty_input<bg::model::linestring<P> >();
+    test_empty_input<bg::model::ring<P> >();
+    test_empty_input<bg::model::polygon<P> >();
 }
 
 

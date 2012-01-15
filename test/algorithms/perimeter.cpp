@@ -35,6 +35,15 @@ void test_open()
     test_geometry<open_polygon>("POLYGON((0 0,0 1,1 1,1 0))", 4);
 }
 
+template <typename P>
+void test_empty_input()
+{
+    bg::model::polygon<P> poly_empty;
+    bg::model::ring<P> ring_empty;
+
+    test_empty_input(poly_empty);
+    test_empty_input(ring_empty);
+}
 
 int test_main(int, char* [])
 {
@@ -47,6 +56,8 @@ int test_main(int, char* [])
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
+
+    test_empty_input<bg::model::d2::point_xy<int> >();
 
     return 0;
 }
