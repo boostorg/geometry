@@ -25,7 +25,9 @@
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
 
-#define BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
+// This should NOT be defined, it omits essential points in concavities.
+// Code is commented now
+// #define BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
 
 
 namespace boost { namespace geometry
@@ -136,11 +138,11 @@ struct join_miter
         if (side::apply(perp1, ip, perp2) == signum)
         {
 
-#ifdef BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
+//#ifdef BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
             // Because perp1 crosses perp2 at IP, it is not necessary to
             // include IP
-            buffered.push_back(ip);
-#else
+            //buffered.push_back(ip);
+//#else
             // If it is concave (corner to left), add helperline
             // The helper-line IS essential for buffering holes. Without,
             // holes might be generated, while they should NOT be there.
@@ -148,7 +150,7 @@ struct join_miter
             // We might consider to make it optional (because more efficient)
             buffered.push_back(perp1);
             buffered.push_back(perp2);
-#endif
+//#endif
         }
         else
         {
@@ -312,13 +314,13 @@ struct join_round
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
-#ifdef BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
-            buffered.push_back(ip);
-#else
+//#ifdef BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
+//            buffered.push_back(ip);
+//#else
             // If it is concave (corner to left), add helperline
             buffered.push_back(perp1);
             buffered.push_back(perp2);
-#endif
+//#endif
         }
         else
         {
