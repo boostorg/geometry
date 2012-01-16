@@ -10,6 +10,7 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
+#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 #define TEST_WITH_SVG
 
 #include <fstream>
@@ -73,7 +74,7 @@ void post_map(Geometry const& geometry, Mapper& mapper)
 
     BOOST_FOREACH(turn_info const& turn, turns)
     {
-        mapper.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1");
+        mapper.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 3);
     }
 }
 
@@ -103,6 +104,33 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typedef typename bg::ring_type<GeometryOut>::type ring_type;
 
+    std::ostringstream filename;
+    filename << "buffer_"
+        << (bg::geometry_id<Geometry>::value == 2 ? "line" : "poly") << "_"
+        << caseid << "_"
+        << string_from_type<coordinate_type>::name()
+        << "_" << join
+        << ".svg";
+
+    std::ofstream svg(filename.str().c_str());
+
+    bg::svg_mapper<point_type> mapper(svg, 500, 500);
+
+    {
+        bg::model::box<point_type> box;
+        bg::envelope(geometry, box);
+        double d = distance_left;
+        if (distance_right > 0)
+        {
+            d += distance_right;
+        }
+
+        bg::buffer(box, box, d * 1.1);
+        mapper.add(box);
+    }
+
+
+
     typedef JoinStrategy
         <
             point_type,
@@ -110,8 +138,13 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , bg::svg_mapper<point_type>
 #endif
-        > join_strategy;
+        > join_strategy_type;
 
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+    join_strategy_type join_strategy(mapper);
+#else
+    join_strategy_type join_strategy;
+#endif
 
 
     std::vector<GeometryOut> buffered;
@@ -121,8 +154,14 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         GeometryOut buffered_step1;
         bg::detail::buffer::polygon_buffer
             <
-                Geometry, GeometryOut, join_strategy
-            >::apply(geometry, buffered_step1, distance_left, join_strategy());
+                Geometry, GeometryOut, join_strategy_type
+            >::apply(geometry, buffered_step1, 
+                            distance_left, 
+                            join_strategy
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+                            , mapper
+#endif
+                                    );
         buffered.push_back(buffered_step1);
     }
 #else
@@ -137,8 +176,14 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
         bg::detail::buffer::linestring_buffer
             <
-                Geometry, GeometryOut, distance, join_strategy
-            >::apply(geometry, inserter, distance(distance_left, distance_left / 2.0), join_strategy());
+                Geometry, GeometryOut, distance, join_strategy_type
+            >::apply(geometry, inserter, 
+                            distance(distance_left, distance_left / 2.0), 
+                            join_strategy
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+                            , mapper
+#endif
+                                    );
     }
 #endif
 
@@ -150,35 +195,17 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     //    std::cout << bg::wkt(polygon) << std::endl;
     //}
 
+
+    // Map input geometry in green
+    mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:1");
+
+    BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
-        std::ostringstream filename;
-        filename << "buffer_"
-            << (bg::geometry_id<Geometry>::value == 2 ? "line" : "poly") << "_"
-            << caseid << "_"
-            << string_from_type<coordinate_type>::name()
-            << "_" << join
-            << ".svg";
-
-        std::ofstream svg(filename.str().c_str());
-
-        bg::svg_mapper<point_type> mapper(svg, 500, 500);
-
-        BOOST_FOREACH(GeometryOut const& polygon, buffered)
-        {
-            mapper.add(polygon);
-        }
-
-        // Map input geometry in green
-        mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:1");
-
-        BOOST_FOREACH(GeometryOut const& polygon, buffered)
-        {
-            mapper.map(polygon, "opacity:0.8;fill:none;stroke:rgb(0,0,0);stroke-width:2");
-            post_map(polygon, mapper);
-        }
+        mapper.map(polygon, "opacity:0.8;fill:none;stroke:rgb(0,0,0);stroke-width:2");
+        post_map(polygon, mapper);
     }
-
 }
+
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
 static int counter = 0;
