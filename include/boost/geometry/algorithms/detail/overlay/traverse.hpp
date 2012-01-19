@@ -37,10 +37,10 @@ namespace detail { namespace overlay
 {
 
 template <typename Turn, typename Operation>
+#ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
 inline void debug_traverse(Turn const& turn, Operation op, 
                 std::string const& header)
 {
-#ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
     std::cout << header
         << " at " << op.seg_id
         << " meth: " << method_char(turn.method)
@@ -55,8 +55,12 @@ inline void debug_traverse(Turn const& turn, Operation op,
     {
         std::cout << std::endl;
     }
-#endif
 }
+#else
+inline void debug_traverse(Turn const& , Operation, std::string const& )
+{
+}
+#endif
 
 
 template <typename Info, typename Turn>

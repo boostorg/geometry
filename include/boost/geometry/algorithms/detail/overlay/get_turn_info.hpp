@@ -89,7 +89,7 @@ struct touch_interior : public base_turn_handler
         typename DirInfo
     >
     static inline void apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                Point1 const& pi, Point1 const& pj, Point1 const& ,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
@@ -399,10 +399,10 @@ struct equal : public base_turn_handler
     >
     static inline void apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point2 const& , Point2 const& qj, Point2 const& qk,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
-                DirInfo const& dir_info)
+                DirInfo const& )
     {
         ti.method = method_equal;
         // Copy the SECOND intersection point
@@ -656,8 +656,8 @@ struct crosses : public base_turn_handler
         typename DirInfo
     >
     static inline void apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& , Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info)
@@ -687,7 +687,7 @@ struct crosses : public base_turn_handler
 struct assign_null_policy
 {
     template <typename Point1, typename Point2, typename Info>
-    static inline void apply(Info& info, Point1 const& p1, Point2 const& p2)
+    static inline void apply(Info& , Point1 const& , Point2 const& )
     {}
 
 };

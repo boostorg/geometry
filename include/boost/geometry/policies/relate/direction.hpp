@@ -241,7 +241,7 @@ struct segments_direction
         return return_type('p', false);
     }
 
-    static inline return_type error(std::string const& msg)
+    static inline return_type error(std::string const&)
     {
         // msg
         return return_type('d', false);
