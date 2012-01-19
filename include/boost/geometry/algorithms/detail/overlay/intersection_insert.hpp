@@ -86,7 +86,7 @@ struct intersection_linestring_linestring_point
 {
     static inline OutputIterator apply(Linestring1 const& linestring1,
             Linestring2 const& linestring2, OutputIterator out,
-            Strategy const& strategy)
+            Strategy const& )
     {
         typedef typename point_type<PointOut>::type point_type;
 

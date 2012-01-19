@@ -120,7 +120,7 @@ struct segments_intersection_points
         return collinear_inside(s, index1, 1 - index1);
     }
 
-    static inline return_type collinear_a_in_b(S1 const& s, bool opposite)
+    static inline return_type collinear_a_in_b(S1 const& s, bool)
     {
         return collinear_inside(s);
     }
@@ -144,7 +144,7 @@ struct segments_intersection_points
         return result;
     }
 
-    static inline return_type segment_equal(S1 const& s, bool opposite)
+    static inline return_type segment_equal(S1 const& s, bool)
     {
         return_type result;
         result.count = 2;
@@ -160,7 +160,7 @@ struct segments_intersection_points
     {
         return return_type();
     }
-    static inline return_type error(std::string const& msg)
+    static inline return_type error(std::string const&)
     {
         return return_type();
     }

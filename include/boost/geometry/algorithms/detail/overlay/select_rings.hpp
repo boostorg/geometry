@@ -40,7 +40,7 @@ namespace dispatch
     struct select_rings<box_tag, Box>
     {
         template <typename Geometry, typename Map>
-        static inline void apply(Box const& box, Geometry const& geometry, 
+        static inline void apply(Box const& box, Geometry const& , 
                 ring_identifier const& id, Map& map, bool midpoint)
         {
             map[id] = typename Map::mapped_type(box, midpoint);
@@ -58,7 +58,7 @@ namespace dispatch
     struct select_rings<ring_tag, Ring>
     {
         template <typename Geometry, typename Map>
-        static inline void apply(Ring const& ring, Geometry const& geometry,
+        static inline void apply(Ring const& ring, Geometry const& ,
                     ring_identifier const& id, Map& map, bool midpoint)
         {
             if (boost::size(ring) > 0)
@@ -129,7 +129,7 @@ template<>
 struct decide<overlay_union>
 {
     template <typename Code>
-    static bool include(ring_identifier const& id, Code const& code)
+    static bool include(ring_identifier const& , Code const& code)
     {
         return code.within_code * -1 == 1;
     }
@@ -162,7 +162,7 @@ template<>
 struct decide<overlay_intersection>
 {
     template <typename Code>
-    static bool include(ring_identifier const& id, Code const& code)
+    static bool include(ring_identifier const& , Code const& code)
     {
         return code.within_code * 1 == 1;
     }

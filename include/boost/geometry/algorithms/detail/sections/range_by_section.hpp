@@ -36,7 +36,7 @@ namespace detail { namespace section
 template <typename Range, typename Section>
 struct full_section_range
 {
-    static inline Range const& apply(Range const& range, Section const& section)
+    static inline Range const& apply(Range const& range, Section const& )
     {
         return range;
     }
