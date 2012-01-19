@@ -80,7 +80,7 @@ struct correct_box_loop
 template <typename Box, std::size_t DimensionCount>
 struct correct_box_loop<Box, DimensionCount, DimensionCount>
 {
-    static inline void apply(Box& box)
+    static inline void apply(Box& )
     {}
 
 };

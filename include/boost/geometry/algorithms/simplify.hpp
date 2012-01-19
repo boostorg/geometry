@@ -67,7 +67,7 @@ struct simplify_copy
 {
     template <typename Distance>
     static inline void apply(Range const& range, Range& out,
-                    Distance const& max_distance, Strategy const& strategy)
+                    Distance const& , Strategy const& )
     {
         std::copy
             (
@@ -179,7 +179,7 @@ struct simplify<point_tag, Point, Strategy>
 {
     template <typename Distance>
     static inline void apply(Point const& point, Point& out,
-                    Distance const& max_distance, Strategy const& strategy)
+                    Distance const& , Strategy const& )
     {
         geometry::convert(point, out);
     }

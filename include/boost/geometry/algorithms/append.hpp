@@ -38,7 +38,7 @@ namespace detail { namespace append
 template <typename Geometry, typename Point>
 struct append_no_action
 {
-    static inline void apply(Geometry& geometry, Point const& point,
+    static inline void apply(Geometry& , Point const& ,
                 int = 0, int = 0)
     {
     }

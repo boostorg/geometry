@@ -73,7 +73,7 @@ struct covered_by<box_tag, box_tag, Box1, Box2, Strategy>
 template <typename Point, typename Ring, typename Strategy>
 struct covered_by<point_tag, ring_tag, Point, Ring, Strategy>
 {
-    static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
+    static inline bool apply(Point const& point, Ring const& ring, Strategy const& )
     {
         return detail::within::point_in_ring
             <

@@ -33,7 +33,7 @@ namespace following
 {
     
 template <typename Turn, typename Operation>
-static inline bool is_entering(Turn const& turn, Operation const& op)
+static inline bool is_entering(Turn const& /* TODO remove this parameter */, Operation const& op)
 {
     // (Blocked means: blocked for polygon/polygon intersection, because
     // they are reversed. But for polygon/line it is similar to continue)
@@ -126,10 +126,10 @@ struct action_selector<overlay_intersection>
         typename Operation
     >
     static inline void enter(LineStringOut& current_piece,
-                LineString const& linestring,
+                LineString const& , 
                 segment_identifier& segment_id,
-                int index, Point const& point,
-                Operation const& operation, OutputIterator& out)
+                int , Point const& point,
+                Operation const& operation, OutputIterator& )
     {
         // On enter, append the intersection point and remember starting point
         detail::overlay::append_no_duplicates(current_piece, point);
@@ -148,7 +148,7 @@ struct action_selector<overlay_intersection>
                 LineString const& linestring,
                 segment_identifier& segment_id,
                 int index, Point const& point,
-                Operation const& operation, OutputIterator& out)
+                Operation const& , OutputIterator& out)
     {
         // On leave, copy all segments from starting point, append the intersection point
         // and add the output piece
@@ -273,7 +273,7 @@ public :
 
     template<typename Turns, typename OutputIterator>
     static inline OutputIterator apply(LineString const& linestring, Polygon const& polygon,
-                detail::overlay::operation_type operation,
+                detail::overlay::operation_type ,  // TODO: this parameter might be redundant
                 Turns& turns, OutputIterator out)
     {
         typedef typename boost::range_iterator<Turns>::type turn_iterator;

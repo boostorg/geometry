@@ -60,8 +60,7 @@ namespace detail
         {}
 
         // Necessary for proper compilation
-        inline douglas_peucker_point<Point> operator=(
-                    douglas_peucker_point<Point> const& other)
+        inline douglas_peucker_point<Point> operator=(douglas_peucker_point<Point> const& )
         {
             return douglas_peucker_point<Point>(*this);
         }

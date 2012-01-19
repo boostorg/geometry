@@ -66,7 +66,7 @@ template
 struct transform_coordinates<Src, Dst, N, N, F>
 {
     template <typename T>
-    static inline void transform(Src const& source, Dst& dest, T value)
+    static inline void transform(Src const& , Dst& , T )
     {
     }
 };

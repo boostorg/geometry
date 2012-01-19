@@ -219,7 +219,7 @@ struct get_comparable<pythagoras<Point1, Point2, CalculationType> >
 {
     typedef comparable::pythagoras<Point1, Point2, CalculationType> comparable_type;
 public :
-    static inline comparable_type apply(pythagoras<Point1, Point2, CalculationType> const& input)
+    static inline comparable_type apply(pythagoras<Point1, Point2, CalculationType> const& )
     {
         return comparable_type();
     }
@@ -303,7 +303,7 @@ struct get_comparable<comparable::pythagoras<Point1, Point2, CalculationType> >
 {
     typedef comparable::pythagoras<Point1, Point2, CalculationType> comparable_type;
 public :
-    static inline comparable_type apply(comparable::pythagoras<Point1, Point2, CalculationType> const& input)
+    static inline comparable_type apply(comparable::pythagoras<Point1, Point2, CalculationType> const& )
     {
         return comparable_type();
     }
