@@ -64,7 +64,7 @@ template<typename Point, typename Segment, typename Strategy>
 struct point_to_segment
 {
     static inline typename return_type<Strategy>::type apply(Point const& point,
-                Segment const& segment, Strategy const& strategy)
+                Segment const& segment, Strategy const& )
     {
         typename strategy::distance::services::default_strategy
             <

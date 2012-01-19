@@ -50,7 +50,7 @@ struct intersection_segment_segment_point
 {
     static inline OutputIterator apply(Segment1 const& segment1,
             Segment2 const& segment2, OutputIterator out,
-            Strategy const& strategy)
+            Strategy const& )
     {
         typedef typename point_type<PointOut>::type point_type;
 
@@ -146,7 +146,7 @@ struct intersection_of_linestring_with_areal
 
     static inline OutputIterator apply(LineString const& linestring, Areal const& areal,
             OutputIterator out,
-            Strategy const& strategy)
+            Strategy const& )
     {
         if (boost::size(linestring) == 0)
         {
@@ -351,7 +351,7 @@ struct intersection_insert
     >
 {
     static inline OutputIterator apply(Linestring const& linestring,
-            Box const& box, OutputIterator out, Strategy const& strategy)
+            Box const& box, OutputIterator out, Strategy const& )
     {
         typedef typename point_type<GeometryOut>::type point_type;
         strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
@@ -436,7 +436,7 @@ struct intersection_insert
     >
 {
     static inline OutputIterator apply(Segment const& segment,
-            Box const& box, OutputIterator out, Strategy const& strategy)
+            Box const& box, OutputIterator out, Strategy const& )
     {
         geometry::segment_view<Segment> range(segment);
 
@@ -469,7 +469,7 @@ struct intersection_insert
     >
 {
     static inline OutputIterator apply(Geometry1 const& geometry1,
-            Geometry2 const& geometry2, OutputIterator out, Strategy const& strategy)
+            Geometry2 const& geometry2, OutputIterator out, Strategy const& )
     {
 
         typedef detail::overlay::turn_info<PointOut> turn_info;

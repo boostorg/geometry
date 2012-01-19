@@ -218,7 +218,7 @@ public :
     // constructor takes an optional third argument doing nothing.
     inline translate_transformer(coordinate_type const& translate_x,
                 coordinate_type const& translate_y,
-                coordinate_type const& dummy = 0)
+                coordinate_type const& = 0)
         : ublas_transformer<P1, P2, 2, 2>(
                 1, 0, translate_x,
                 0, 1, translate_y,
@@ -275,7 +275,7 @@ class scale_transformer<P1, P2, 2, 2> : public ublas_transformer<P1, P2, 2, 2>
 public :
     inline scale_transformer(coordinate_type const& scale_x,
                 coordinate_type const& scale_y,
-                coordinate_type const& dummy = 0)
+                coordinate_type const& = 0)
         : ublas_transformer<P1, P2, 2, 2>(
                 scale_x, 0,       0,
                 0,       scale_y, 0,
