@@ -146,6 +146,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     join_strategy_type join_strategy;
 #endif
 
+    typedef bg::strategy::buffer::distance_assymetric<coordinate_type> distance_strategy_type;
+    distance_strategy_type distance_strategy(distance_left, distance_left / 2.0); // TODO: distance_right
 
     std::vector<GeometryOut> buffered;
 
@@ -154,9 +156,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         GeometryOut buffered_step1;
         bg::detail::buffer::polygon_buffer
             <
-                Geometry, GeometryOut, join_strategy_type
+                Geometry, GeometryOut, distance_strategy_type, join_strategy_type
             >::apply(geometry, buffered_step1, 
-                            distance_left, 
+                            distance_strategy, 
                             join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                             , mapper
@@ -166,7 +168,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     }
 #else
     {
-        typedef bg::strategy::buffer::distance_assymetric<coordinate_type> distance;
         typedef bg::detail::buffer::intersecting_inserter
             <
                 std::vector<GeometryOut>
@@ -176,9 +177,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
         bg::detail::buffer::linestring_buffer
             <
-                Geometry, GeometryOut, distance, join_strategy_type
-            >::apply(geometry, inserter, 
-                            distance(distance_left, distance_left / 2.0), 
+                Geometry, GeometryOut, distance_strategy_type, join_strategy_type
+            >::apply(geometry, inserter, distance_strategy,
                             join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                             , mapper

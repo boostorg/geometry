@@ -45,8 +45,8 @@ template
 >
 struct linestring_buffer
 {
-    typedef typename coordinate_type<Polygon>::type coordinate_type;
     typedef typename point_type<Polygon>::type output_point_type;
+    typedef typename coordinate_type<Polygon>::type coordinate_type;
     typedef model::referring_segment<output_point_type const> segment_type;
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
@@ -64,8 +64,9 @@ struct linestring_buffer
     static inline void iterate(Inserter& inserter,
                 Iterator begin, Iterator end,
                 buffer_side_selector side,
+
                 DistanceStrategy const& distance,
-                JoinStrategy const& join
+                JoinStrategy const& join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                 , Mapper& mapper
 #endif
@@ -86,6 +87,8 @@ struct linestring_buffer
             if (! detail::equals::equals_point_point(*prev, *it))
             {
                 bool skip = false;
+
+                // Generate a block along (left or right of) the segment
 
                 // Simulate a vector d (dx,dy)
                 coordinate_type dx = get<0>(*it) - get<0>(*prev);
@@ -131,7 +134,7 @@ struct linestring_buffer
                     segment_type s2(previous_p1, previous_p2);
                     if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p))
                     {
-                        join.apply(p, *prev, previous_p2, p1,
+                        join_strategy.apply(p, *prev, previous_p2, p1,
                                     distance.apply(*prev, *it, side),
                                     inserter.get_ring());
                         {
@@ -181,7 +184,7 @@ struct linestring_buffer
     >
     static inline void apply(Linestring const& linestring, Inserter& inserter,
             DistanceStrategy const& distance,
-            JoinStrategy const& join
+            JoinStrategy const& join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper
 #endif
@@ -196,14 +199,14 @@ struct linestring_buffer
 
         iterate(inserter, boost::begin(linestring), boost::end(linestring),
             buffer_side_left,
-            distance, join
+            distance, join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , mapper
 #endif
             );
 
         iterate(inserter, boost::rbegin(linestring), boost::rend(linestring),
-            buffer_side_right, distance, join
+            buffer_side_right, distance, join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , mapper
 #endif

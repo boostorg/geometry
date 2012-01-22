@@ -34,51 +34,57 @@ namespace detail { namespace buffer
 {
 
 
-template <typename RingInput, typename RingOutput, typename JoinStrategy>
+template
+<
+    typename RingInput,
+    typename RingOutput,
+    typename DistanceStrategy,
+    typename JoinStrategy
+>
 struct ring_buffer
 {
     typedef typename point_type<RingOutput>::type output_point_type;
     typedef typename coordinate_type<output_point_type>::type coordinate_type;
+    typedef model::referring_segment<output_point_type const> segment_type;
 
+    template
+    <
+        typename Iterator
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    template <typename Mapper>
+        , typename Mapper
 #endif
-    static inline void apply(RingInput const& ring, RingOutput& buffered,
-            coordinate_type distance,
-            JoinStrategy const& join_strategy
+    >
+    static inline void iterate(RingOutput& buffered,
+                Iterator begin, Iterator end,
+                buffer_side_selector side,
+                DistanceStrategy const& distance,
+                JoinStrategy const& join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            , Mapper& mapper
+                , Mapper& mapper
 #endif
             )
     {
-        typedef model::referring_segment<output_point_type const> segment_type;
-        typedef typename boost::range_iterator
-            <
-                RingInput const
-            >::type iterator_type;
-
         output_point_type previous_p1, previous_p2;
         output_point_type first_p1, first_p2;
-        bool first = true;
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
         int index = 0;
 #endif
 
-        iterator_type it = boost::begin(ring);
-        for (iterator_type prev = it++;
-            it != boost::end(ring); ++it)
+        bool first = true;
+
+        Iterator it = begin;
+        for (Iterator prev = it++; it != end; ++it)
         {
             if (! detail::equals::equals_point_point(*prev, *it))
             {
                 bool skip = false;
 
-                // Generate a block along (int most cases to the left of) the segment
+                // Generate a block along (left or right of) the segment
 
                 // Simulate a vector d (dx,dy)
                 coordinate_type dx = get<0>(*it) - get<0>(*prev);
                 coordinate_type dy = get<1>(*it) - get<1>(*prev);
-
 
                 // For normalization [0,1] (=dot product d.d, sqrt)
                 coordinate_type length = sqrt(dx * dx + dy * dy);
@@ -92,7 +98,7 @@ struct ring_buffer
 
                 output_point_type p1, p2;
 
-                coordinate_type d = distance;
+                coordinate_type d = distance.apply(*prev, *it, side);
 
                 set<0>(p2, get<0>(*it) + px * d);
                 set<1>(p2, get<1>(*it) + py * d);
@@ -101,6 +107,7 @@ struct ring_buffer
                 set<1>(p1, get<1>(*prev) + py * d);
 
                 {
+    #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                     RingOutput block;
                     block.push_back(*prev);
                     block.push_back(*it);
@@ -108,7 +115,6 @@ struct ring_buffer
                     block.push_back(p1);
                     block.push_back(*prev);
 
-    #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                     mapper.map(block, "opacity:0.4;fill:rgb(255,128,0);stroke:rgb(0,0,0);stroke-width:1");
     #endif
                 }
@@ -120,7 +126,9 @@ struct ring_buffer
                     segment_type s2(previous_p1, previous_p2);
                     if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p))
                     {
-                        join_strategy.apply(p, *prev, previous_p2, p1, distance, buffered);
+                        join_strategy.apply(p, *prev, previous_p2, p1,
+                                    distance.apply(*prev, *it, side),
+                                    buffered);
                         {
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                             mapper.map(p, "fill:rgb(0,0,0);", 3);
@@ -159,7 +167,9 @@ struct ring_buffer
             segment_type s2(first_p1, first_p2);
             line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p);
 
-            join_strategy.apply(p, *boost::begin(ring), previous_p2, first_p1, distance, buffered);
+            join_strategy.apply(p, *begin, previous_p2, first_p1,
+                distance.apply(*(end - 1), *begin, side),
+                buffered);
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             mapper.map(p, "fill:rgb(0,0,0);", 3);
@@ -168,6 +178,30 @@ struct ring_buffer
             mapper.text(p, out.str(), "fill:rgb(0,0,0);font-family='Arial';", 5, 5);
 #endif
         }
+    }
+
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+    template <typename Mapper>
+#endif
+    static inline void apply(RingInput const& ring,
+                RingOutput& buffered,
+
+                DistanceStrategy const& distance,
+
+            JoinStrategy const& join_strategy
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+            , Mapper& mapper
+#endif
+            )
+    {
+        iterate(buffered, boost::begin(ring), boost::end(ring),
+                buffer_side_left,
+                distance, join_strategy
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+            , mapper
+#endif
+            );
+
 
         // Close the generated buffer
         {
@@ -179,14 +213,20 @@ struct ring_buffer
 
 
 
-template <typename PolygonInput, typename PolygonOutput, typename JoinStrategy>
+template
+<
+    typename PolygonInput,
+    typename PolygonOutput,
+    typename DistanceStrategy,
+    typename JoinStrategy
+>
 struct polygon_buffer
 {
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     template <typename Mapper>
 #endif
     static inline void apply(PolygonInput const& polygon, PolygonOutput& buffered,
-            typename coordinate_type<PolygonOutput>::type distance,
+            DistanceStrategy const& distance,
             JoinStrategy const& join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper
@@ -198,7 +238,7 @@ struct polygon_buffer
         typedef typename ring_type<PolygonInput>::type input_ring_type;
         typedef typename ring_type<PolygonOutput>::type output_ring_type;
 
-        typedef ring_buffer<input_ring_type, output_ring_type, JoinStrategy> policy;
+        typedef ring_buffer<input_ring_type, output_ring_type, DistanceStrategy, JoinStrategy> policy;
         policy::apply(exterior_ring(polygon), exterior_ring(buffered),
                 distance, join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
