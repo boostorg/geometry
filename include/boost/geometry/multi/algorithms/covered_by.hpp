@@ -30,7 +30,7 @@ namespace dispatch
 {
 
 template <typename Point, typename MultiPolygon, typename Strategy>
-struct covered_by<point_tag, multi_polygon_tag, Point, MultiPolygon, Strategy>
+struct covered_by<Point, MultiPolygon, Strategy, point_tag, multi_polygon_tag>
 {
     static inline bool apply(Point const& point, 
                 MultiPolygon const& multi_polygon, Strategy const& strategy)

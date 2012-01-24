@@ -33,11 +33,11 @@ namespace dispatch
 
 template
 <
-    typename Tag1,
-    typename Tag2,
     typename Geometry1,
     typename Geometry2,
-    typename Strategy
+    typename Strategy,
+    typename Tag1 = typename tag<Geometry1>::type,
+    typename Tag2 = typename tag<Geometry2>::type
 >
 struct covered_by
 {
@@ -50,7 +50,7 @@ struct covered_by
 
 
 template <typename Point, typename Box, typename Strategy>
-struct covered_by<point_tag, box_tag, Point, Box, Strategy>
+struct covered_by<Point, Box, Strategy, point_tag, box_tag>
 {
     static inline bool apply(Point const& point, Box const& box, Strategy const& strategy)
     {
@@ -59,7 +59,7 @@ struct covered_by<point_tag, box_tag, Point, Box, Strategy>
 };
 
 template <typename Box1, typename Box2, typename Strategy>
-struct covered_by<box_tag, box_tag, Box1, Box2, Strategy>
+struct covered_by<Box1, Box2, Strategy, box_tag, box_tag>
 {
     static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const& strategy)
     {
@@ -71,7 +71,7 @@ struct covered_by<box_tag, box_tag, Box1, Box2, Strategy>
 
 
 template <typename Point, typename Ring, typename Strategy>
-struct covered_by<point_tag, ring_tag, Point, Ring, Strategy>
+struct covered_by<Point, Ring, Strategy, point_tag, ring_tag>
 {
     static inline bool apply(Point const& point, Ring const& ring, Strategy const& )
     {
@@ -87,7 +87,7 @@ struct covered_by<point_tag, ring_tag, Point, Ring, Strategy>
 };
 
 template <typename Point, typename Polygon, typename Strategy>
-struct covered_by<point_tag, polygon_tag, Point, Polygon, Strategy>
+struct covered_by<Point, Polygon, Strategy, point_tag, polygon_tag>
 {
     static inline bool apply(Point const& point, Polygon const& polygon, Strategy const& strategy)
     {
@@ -151,8 +151,6 @@ inline bool covered_by(Geometry1 const& geometry1, Geometry2 const& geometry2)
 
     return dispatch::covered_by
         <
-            typename tag<Geometry1>::type,
-            typename tag<Geometry2>::type,
             Geometry1,
             Geometry2,
             strategy_type
@@ -193,8 +191,6 @@ inline bool covered_by(Geometry1 const& geometry1, Geometry2 const& geometry2,
 
     return dispatch::covered_by
         <
-            typename tag<Geometry1>::type,
-            typename tag<Geometry2>::type,
             Geometry1,
             Geometry2,
             Strategy
