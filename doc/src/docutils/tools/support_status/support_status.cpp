@@ -186,7 +186,7 @@ void support_status()
     test_unary_algorithm<clear, all_types, OutputFactory>("clear");
     test_binary_algorithm<convert, all_types, all_types, OutputFactory>("convert");
     test_unary_algorithm<convex_hull, all_types, OutputFactory>("convex_hull");
-    test_unary_algorithm<convex_hull, all_types, OutputFactory>("correct");
+    test_unary_algorithm<correct, all_types, OutputFactory>("correct");
     test_binary_algorithm<distance, all_types, all_types, OutputFactory>("distance");
 }
 
