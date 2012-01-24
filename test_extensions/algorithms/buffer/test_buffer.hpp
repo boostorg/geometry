@@ -151,9 +151,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     std::vector<GeometryOut> buffered;
 
+    GeometryOut buffered_step1;
 #ifdef BOOST_GEOMETRY_TEST_BUFFER_POLYGON
     {
-        GeometryOut buffered_step1;
         bg::detail::buffer::polygon_buffer
             <
                 Geometry, GeometryOut, distance_strategy_type, join_strategy_type
@@ -164,21 +164,13 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                             , mapper
 #endif
                                     );
-        buffered.push_back(buffered_step1);
     }
 #else
     {
-        typedef bg::detail::buffer::intersecting_inserter
-            <
-                std::vector<GeometryOut>
-            > inserter_type;
-
-        inserter_type inserter(buffered);
-
         bg::detail::buffer::linestring_buffer
             <
                 Geometry, GeometryOut, distance_strategy_type, join_strategy_type
-            >::apply(geometry, inserter, distance_strategy,
+            >::apply(geometry, buffered_step1, distance_strategy,
                             join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                             , mapper
@@ -186,6 +178,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                                     );
     }
 #endif
+    buffered.push_back(buffered_step1);
 
     //std::cout << caseid << std::endl;
     //std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;

@@ -25,21 +25,11 @@
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
 
-// This should NOT be defined, it omits essential points in concavities.
-// Code is commented now
-// #define BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
-
-
 namespace boost { namespace geometry
 {
 
-
-
-
 namespace strategy { namespace buffer
 {
-
-
 
 /*
 
@@ -81,11 +71,11 @@ struct join_mapper
         : m_mapper(mapper)
     {}
 
-    template <typename Ring>
+    template <typename BufferAppender>
     inline void map(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2) const
     {
-        Ring corner;
+        typename BufferAppender::range_type corner;
         corner.push_back(vertex);
         corner.push_back(perp1);
         corner.push_back(ip);
@@ -98,7 +88,7 @@ struct join_mapper
 };
 #endif
 
-
+// TODO: merge join_miter with join_round, lot of duplicate code
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 // Forget this, it will go
@@ -122,35 +112,24 @@ struct join_miter
     typedef typename coordinate_type<PointIn>::type coordinate_type;
 
 
-    template <typename Ring>
+    template <typename BufferAppender>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
-                Ring& buffered) const
+                BufferAppender& appender) const
     {
         coordinate_type zero = 0;
-        int signum = buffer_distance > zero
-            ? 1
-            : buffer_distance < zero
-                ? -1
-                : 0;
+        int signum = buffer_distance > zero ? 1
+                   : buffer_distance < zero ? -1
+                   : 0;
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
-
-//#ifdef BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
-            // Because perp1 crosses perp2 at IP, it is not necessary to
-            // include IP
-            //buffered.push_back(ip);
-//#else
             // If it is concave (corner to left), add helperline
             // The helper-line IS essential for buffering holes. Without,
             // holes might be generated, while they should NOT be there.
-            // DOES NOT WORK ALWAYS buffered.push_back(ip);
-            // We might consider to make it optional (because more efficient)
-            buffered.push_back(perp1);
-            buffered.push_back(perp2);
-//#endif
+            appender.append(perp1);
+            appender.append(perp2);
         }
         else
         {
@@ -181,13 +160,12 @@ struct join_miter
 #endif
             }
 
-            buffered.push_back(p);
+            appender.append(p);
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            map<Ring>(ip, vertex, perp1, perp2);
+            map<BufferAppender>(ip, vertex, perp1, perp2);
 #endif
         }
-
 
     }
 };
@@ -214,17 +192,17 @@ struct join_bevel
 
     typedef typename coordinate_type<PointIn>::type coordinate_type;
 
-    template <typename Ring>
+    template <typename BufferAppender>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
-                Ring& buffered) const
+                BufferAppender& appender) const
     {
-        buffered.push_back(perp1);
-        buffered.push_back(perp2);
+        appender.append(perp1);
+        appender.append(perp2);
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            map<Ring>(ip, vertex, perp1, perp2);
+            map<BufferAppender>(ip, vertex, perp1, perp2);
 #endif
     }
 };
@@ -259,11 +237,11 @@ struct join_round
     int m_max_level;
 
 
-    template <typename Ring>
+    template <typename BufferAppender>
     inline void mid_points(PointIn const& vertex,
                 PointIn const& p1, PointIn const& p2,
                 coordinate_type const& buffer_distance,
-                Ring& buffered,
+                BufferAppender& appender,
                 int level = 1) const
     {
         // Generate 'vectors'
@@ -288,39 +266,33 @@ struct join_round
 
         if (level < m_max_level)
         {
-            mid_points(vertex, p1, mid_point, buffer_distance, buffered, level + 1);
+            mid_points(vertex, p1, mid_point, buffer_distance, appender, level + 1);
         }
-        buffered.push_back(mid_point);
+        appender.append(mid_point);
         if (level < m_max_level)
         {
-            mid_points(vertex, mid_point, p2, buffer_distance, buffered, level + 1);
+            mid_points(vertex, mid_point, p2, buffer_distance, appender, level + 1);
         }
 
     }
 
 
-    template <typename Ring>
+    template <typename BufferAppender>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
-                Ring& buffered) const
+                BufferAppender& appender) const
     {
         coordinate_type zero = 0;
-        int signum = buffer_distance > zero
-            ? 1
-            : buffer_distance < zero
-                ? -1
-                : 0;
+        int signum = buffer_distance > zero ? 1
+                   : buffer_distance < zero ? -1
+                   : 0;
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
-//#ifdef BOOST_GEOMETRY_BUFFER_NO_HELPER_POINTS
-//            buffered.push_back(ip);
-//#else
             // If it is concave (corner to left), add helperline
-            buffered.push_back(perp1);
-            buffered.push_back(perp2);
-//#endif
+            appender.append(perp1);
+            appender.append(perp2);
         }
         else
         {
@@ -340,23 +312,23 @@ struct join_round
 
             if (m_max_level <= 1)
             {
-                buffered.push_back(perp1);
+                appender.append(perp1);
                 if (m_max_level == 1)
                 {
-                    buffered.push_back(bp);
+                    appender.append(bp);
                 }
-                buffered.push_back(perp2);
+                appender.append(perp2);
             }
             else
             {
-                buffered.push_back(perp1);
-                mid_points(vertex, perp1, bp, bd, buffered);
-                mid_points(vertex, bp, perp2, bd, buffered);
-                buffered.push_back(perp2);
+                appender.append(perp1);
+                mid_points(vertex, perp1, bp, bd, appender);
+                mid_points(vertex, bp, perp2, bd, appender);
+                appender.append(perp2);
             }
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            map<Ring>(bp, vertex, perp1, perp2);
+            map<BufferAppender>(bp, vertex, perp1, perp2);
 #endif
         }
     }
