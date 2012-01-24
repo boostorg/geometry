@@ -194,14 +194,8 @@ namespace dispatch
 {
 
 template <typename Geometry, typename Tag = typename tag<Geometry>::type>
-struct correct
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
+struct correct: not_implemented<Tag>
+{};
 
 template <typename Point>
 struct correct<Point, point_tag>
