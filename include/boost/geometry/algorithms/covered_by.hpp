@@ -17,9 +17,8 @@
 
 #include <cstddef>
 
-
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/within.hpp>
-
 
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
@@ -38,14 +37,8 @@ template
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
 >
-struct covered_by
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry1, Geometry2>)
-        );
-};
+struct covered_by: not_implemented<Tag1, Tag2>
+{};
 
 
 template <typename Point, typename Box>
