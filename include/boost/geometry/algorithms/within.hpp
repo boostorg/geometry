@@ -167,7 +167,6 @@ template
 <
     typename Geometry1,
     typename Geometry2,
-    typename Strategy,
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
 >
@@ -181,18 +180,20 @@ struct within
 };
 
 
-template <typename Point, typename Box, typename Strategy>
-struct within<Point, Box, Strategy, point_tag, box_tag>
+template <typename Point, typename Box>
+struct within<Point, Box, point_tag, box_tag>
 {
+    template <typename Strategy>
     static inline bool apply(Point const& point, Box const& box, Strategy const& strategy)
     {
         return strategy.apply(point, box);
     }
 };
 
-template <typename Box1, typename Box2, typename Strategy>
-struct within<Box1, Box2, Strategy, box_tag, box_tag>
+template <typename Box1, typename Box2>
+struct within<Box1, Box2, box_tag, box_tag>
 {
+    template <typename Strategy>
     static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const& strategy)
     {
         assert_dimension_equal<Box1, Box2>();
@@ -202,9 +203,10 @@ struct within<Box1, Box2, Strategy, box_tag, box_tag>
 
 
 
-template <typename Point, typename Ring, typename Strategy>
-struct within<Point, Ring, Strategy, point_tag, ring_tag>
+template <typename Point, typename Ring>
+struct within<Point, Ring, point_tag, ring_tag>
 {
+    template <typename Strategy>
     static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
     {
         return detail::within::point_in_ring
@@ -218,9 +220,10 @@ struct within<Point, Ring, Strategy, point_tag, ring_tag>
     }
 };
 
-template <typename Point, typename Polygon, typename Strategy>
-struct within<Point, Polygon, Strategy, point_tag, polygon_tag>
+template <typename Point, typename Polygon>
+struct within<Point, Polygon, point_tag, polygon_tag>
 {
+    template <typename Strategy>
     static inline bool apply(Point const& point, Polygon const& polygon, Strategy const& strategy)
     {
         return detail::within::point_in_polygon
@@ -292,8 +295,7 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
     return dispatch::within
         <
             Geometry1,
-            Geometry2,
-            strategy_type
+            Geometry2
         >::apply(geometry1, geometry2, strategy_type());
 }
 
@@ -343,8 +345,7 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,
     return dispatch::within
         <
             Geometry1,
-            Geometry2,
-            Strategy
+            Geometry2
         >::apply(geometry1, geometry2, strategy);
 }
 
