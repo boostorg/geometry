@@ -75,6 +75,7 @@ DECLARE_UNARY_ALGORITHM (convex_hull)
 DECLARE_UNARY_ALGORITHM (correct)
 DECLARE_BINARY_ALGORITHM(covered_by)
 DECLARE_BINARY_ALGORITHM(distance)
+DECLARE_BINARY_ALGORITHM(within)
 
 
 template <template <typename> class Dispatcher, typename Outputter, typename G>
@@ -191,6 +192,7 @@ void support_status()
     test_unary_algorithm<correct, all_types, OutputFactory>("correct");
     test_binary_algorithm<covered_by, all_types, all_types, OutputFactory>("covered_by");
     test_binary_algorithm<distance, all_types, all_types, OutputFactory>("distance");
+    test_binary_algorithm<within, all_types, all_types, OutputFactory>("within");
 }
 
 
