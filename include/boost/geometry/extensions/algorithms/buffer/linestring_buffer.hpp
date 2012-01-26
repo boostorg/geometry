@@ -46,12 +46,9 @@ struct linestring_buffer
         >
 {
 
-    template
-    <
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        typename Mapper
+    template<typename Mapper>
 #endif
-    >
     static inline void apply(Linestring const& linestring, Polygon& buffered,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy
@@ -60,9 +57,18 @@ struct linestring_buffer
 #endif
             )
     {
-        buffer_appender<typename geometry::ring_type<Polygon>::type> appender
+        buffer_appender
+            <
+                typename geometry::ring_type<Polygon>::type
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+                , Mapper
+#endif
+            > appender
             (
                 geometry::exterior_ring(buffered)
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+                , mapper
+#endif
             );
 
         iterate(appender, boost::begin(linestring), boost::end(linestring),

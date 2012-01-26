@@ -103,12 +103,22 @@ struct polygon_buffer
         typedef typename ring_type<PolygonInput>::type input_ring_type;
         typedef typename ring_type<PolygonOutput>::type output_ring_type;
 
-        typedef buffer_appender<output_ring_type> appender_type;
+        typedef buffer_appender
+            <
+                output_ring_type
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+                , Mapper
+#endif
+            > appender_type;
 
         typedef ring_buffer<input_ring_type, output_ring_type, DistanceStrategy, JoinStrategy> policy;
 
         {
-            appender_type appender(geometry::exterior_ring(buffered));
+            appender_type appender(geometry::exterior_ring(buffered)
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+                    , mapper
+#endif
+                );
             policy::apply(exterior_ring(polygon), appender,
                     distance, join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
@@ -123,7 +133,11 @@ struct polygon_buffer
         {
             output_ring_type ring;
 
-            appender_type appender(ring);
+            appender_type appender(ring
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+                , mapper
+#endif
+                );
 
             policy::apply(*it, appender, distance, join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER

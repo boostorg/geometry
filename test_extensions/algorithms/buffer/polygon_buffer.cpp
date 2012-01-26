@@ -54,12 +54,12 @@ void test_all()
 
     typedef bg::model::polygon<P> polygon_type;
 
-    test_one<polygon_type, buf::join_miter, polygon_type>("L", letter_L, 'm', 14, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>("L", letter_L, 'r', 13.7254516100806, 0.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>("simplex", simplex, 'm', 52.8733092508931, 1.5);
-    test_one<polygon_type, buf::join_round, polygon_type>("simplex", simplex, 'r', 47.9004943967109, 1.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>("concave_simplex", concave_simplex, 'm', 16.3861105439862, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>("concave_simplex", concave_simplex, 'r', 14.5563908986706, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "L", letter_L, 'm', 12.875, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "L", letter_L, 'r', 12.73128, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "simplex", simplex, 'm', 47.2, 1.5);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "simplex", simplex, 'r', 44.1156, 1.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "concave_simplex", concave_simplex, 'm', 14.47708, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "concave_simplex", concave_simplex, 'r', 13.10366, 0.5);
 
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation4", indentation, 'm', 25.7741125496954, 0.4);
     test_one<polygon_type, buf::join_round, polygon_type>("indentation4", indentation, 'r', 25.5641980024698, 0.4);
@@ -95,11 +95,11 @@ void test_all()
     test_one<polygon_type, buf::join_miter, polygon_type>("arrow6", arrow, 'm', 34.9025533178038, 0.6);
     test_one<polygon_type, buf::join_round, polygon_type>("arrow6", arrow, 'r', 32.2572740033805, 0.6);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>("tipped_aitch3", tipped_aitch, 'm', 55.36, 0.3);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'm', 54.865, 0.3);
     test_one<polygon_type, buf::join_miter, polygon_type>("tipped_aitch9", tipped_aitch, 'm', 77.44, 0.9);
     test_one<polygon_type, buf::join_miter, polygon_type>("tipped_aitch13", tipped_aitch, 'm', 92.16, 1.3);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>("snake4", snake, 'm', 64.44, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake4", snake, 'm', 63.76, 0.4);
     test_one<polygon_type, buf::join_miter, polygon_type>("snake5", snake, 'm', 72, 0.5);
     test_one<polygon_type, buf::join_miter, polygon_type>("snake6", snake, 'm', 75.44, 0.6);
     test_one<polygon_type, buf::join_miter, polygon_type>("snake16", snake, 'm', 114.24, 1.6);
@@ -107,7 +107,7 @@ void test_all()
     //return;
 
 
-    test_one<polygon_type, buf::join_round, polygon_type>("flower1", flower, 'r', 67.48584413272776, 0.1);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower1", flower, 'r', 71.986, 0.1);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower25", flower, 'm', 78.225583936485492, 0.25);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower30", flower, 'm', 81.492494146177947, 0.30);
     //test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
@@ -128,20 +128,50 @@ void test_all()
     test_one<polygon_type, buf::join_round, polygon_type>("flower60", flower, 'r', 99.4081550761828, 0.60);
 
     //test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
+    // Saw
+    {
+        int const n = 12;
+        double expected_round[n] = 
+            { 
+                69.87495, 90.22175, 111.5404, 133.87848, 157.452972, 182.397264,
+                208.773, -1, -1, -1, -1, -1
+            };
+        double expected_miter[n] = 
+            {
+               73.03597, 98.80428, 127.8049, 160.0379, 195.5032, 234.2009,
+               276.1309,-1, -1, -1, -1, -1
+            };
 
-    for (int i = 1; i < 12; i++)
-    {
-        std::ostringstream out;
-        out << "saw_" << i;
-        test_one<polygon_type, buf::join_round, polygon_type>(out.str(), saw, 'r', 99.4081550761828, double(i) / 2.0);
-        test_one<polygon_type, buf::join_miter, polygon_type>(out.  str(), saw, 'm', 99.4081550761828, double(i) / 2.0);
+        for (int i = 1; i <= n; i++)
+        {
+            std::ostringstream out;
+            out << "saw_" << i;
+            test_one<polygon_type, buf::join_round, polygon_type>(i <= 7, out.str(), saw, 'r', expected_round[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_miter, polygon_type>(i <= 7, out.str(), saw, 'm', expected_miter[i - 1], double(i) / 2.0);
+        }
     }
-    for (int i = 1; i < 12; i++)
+
+    // Bowl
     {
-        std::ostringstream out;
-        out << "bowl_" << i;
-        test_one<polygon_type, buf::join_round, polygon_type>(out.str(), bowl, 'r', 99.4081550761828, double(i) / 2.0);
-        test_one<polygon_type, buf::join_miter, polygon_type>(out.  str(), bowl, 'm', 99.4081550761828, double(i) / 2.0);
+        int const n = 12;
+        double expected_round[n] = 
+            { 
+                44.49221, 60.02458, 77.09711, 95.70980, 115.8626, 137.4720,
+                -1, -1, -1, -1, -1, -1
+            };
+        double expected_miter[n] = 
+            {
+               44.86448, 61.01367, 78.94756, 98.66614, 120.1694, 143.3738,
+               167.9742, 193.9427, 221.2792, -1, -1, -1
+            };
+
+        for (int i = 1; i <= n; i++)
+        {
+            std::ostringstream out;
+            out << "bowl_" << i;
+            test_one<polygon_type, buf::join_round, polygon_type>(i <= 6, out.str(), bowl, 'r', expected_round[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_miter, polygon_type>(i <= 9, out.str(), bowl, 'm', expected_miter[i - 1], double(i) / 2.0);
+        }
     }
     test_one<polygon_type, buf::join_round, polygon_type>("county1", county1, 'r', 99.4081550761828, 0.01);
     test_one<polygon_type, buf::join_miter, polygon_type>("county1", county1, 'm', 99.4081550761828, 0.01);

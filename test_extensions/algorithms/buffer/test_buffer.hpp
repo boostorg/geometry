@@ -93,7 +93,7 @@ template
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
             char join,
-            double expected_area,
+            bool check, double expected_area,
             double distance_left, double distance_right)
 {
     namespace bg = boost::geometry;
@@ -188,6 +188,17 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     //    std::cout << bg::wkt(polygon) << std::endl;
     //}
 
+    if (check)
+    {
+        double area = 0;
+        BOOST_FOREACH(GeometryOut const& polygon, buffered)
+        {
+            area += bg::area(polygon);
+        }
+        BOOST_CHECK_CLOSE(area, expected_area, 0.01);
+    }
+
+
 
     // Map input geometry in green
     mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:1");
@@ -248,8 +259,55 @@ void test_one(std::string const& caseid, std::string const& wkt,
 #endif
 
     test_buffer<GeometryOut, JoinStrategy>
-            (caseid, g, join, expected_area, distance_left, distance_right);
+            (caseid, g, join, false, expected_area, distance_left, distance_right);
 }
 
+
+template
+<
+    typename Geometry,
+    template
+        <
+            typename
+            , typename
+#if defined(BOOST_GEOMETRY_DEBUG_WITH_MAPPER)
+            , typename
+#endif
+        > class JoinStrategy,
+    typename GeometryOut
+>
+void test_one(bool check, std::string const& caseid, std::string const& wkt,
+        char join, double expected_area,
+        double distance_left, double distance_right = -999)
+{
+    namespace bg = boost::geometry;
+    Geometry g;
+    bg::read_wkt(wkt, g);
+
+    typedef typename bg::point_type<Geometry>::type point_type;
+
+    //std::cout << caseid << std::endl;
+    if (join == 'm')
+    {
+        //return;
+    }
+
+
+
+#ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
+    std::cout
+        << (counter > 0 ? "union " : "")
+        << "select " << counter++
+        << ", '" << caseid << "' as caseid"
+        << ", ST_Area(ST_Buffer(ST_GeomFromText('" << wkt << "'), "
+        << distance_left
+        << ", 'endcap=flat join=" << (join == 'm' ? "miter" : "round") << "'))"
+        << ", "  << expected_area
+        << std::endl;
+#endif
+
+    test_buffer<GeometryOut, JoinStrategy>
+            (caseid, g, join, check, expected_area, distance_left, distance_right);
+}
 
 #endif
