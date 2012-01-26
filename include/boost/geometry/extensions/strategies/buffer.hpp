@@ -128,8 +128,8 @@ struct join_miter
             // If it is concave (corner to left), add helperline
             // The helper-line IS essential for buffering holes. Without,
             // holes might be generated, while they should NOT be there.
-            appender.append(perp1);
-            appender.append(perp2);
+            appender.append_begin_hooklet(perp1);
+            appender.append_end_hooklet(perp2);
         }
         else
         {
@@ -160,7 +160,7 @@ struct join_miter
 #endif
             }
 
-            appender.append(p);
+            appender.append_begin_join(p);
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             map<BufferAppender>(ip, vertex, perp1, perp2);
@@ -291,8 +291,8 @@ struct join_round
         if (side::apply(perp1, ip, perp2) == signum)
         {
             // If it is concave (corner to left), add helperline
-            appender.append(perp1);
-            appender.append(perp2);
+            appender.append_begin_hooklet(perp1);
+            appender.append_end_hooklet(perp2);
         }
         else
         {
@@ -310,22 +310,20 @@ struct join_round
             set<0>(bp, get<0>(vertex) + vix * prop);
             set<1>(bp, get<1>(vertex) + viy * prop);
 
+            appender.append_begin_join(perp1);
             if (m_max_level <= 1)
             {
-                appender.append(perp1);
                 if (m_max_level == 1)
                 {
                     appender.append(bp);
                 }
-                appender.append(perp2);
             }
             else
             {
-                appender.append(perp1);
                 mid_points(vertex, perp1, bp, bd, appender);
                 mid_points(vertex, bp, perp2, bd, appender);
-                appender.append(perp2);
             }
+            appender.append(perp2);
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             map<BufferAppender>(bp, vertex, perp1, perp2);
