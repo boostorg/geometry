@@ -162,7 +162,7 @@ void test_unary_algorithm(std::string const& name)
     Outputter outputter(name);
     outputter.header(name);
 
-    outputter.template table_header();
+    outputter.table_header();
     boost::mpl::for_each<Types>(unary_test<Dispatcher, Outputter>(outputter));
 
     outputter.table_footer();
