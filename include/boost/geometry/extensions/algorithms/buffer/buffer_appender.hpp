@@ -11,6 +11,7 @@
 
 
 #include <cstddef>
+#include <deque>
 
 #include <boost/range.hpp>
 
@@ -52,9 +53,6 @@ struct buffer_appender
                 > policy;
 
 
-    int m_index_begin_join;
-    int m_index_end_hooklet;
-    int m_index_begin_hooklet;
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     Mapper const& m_mapper;
@@ -66,16 +64,48 @@ struct buffer_appender
         : m_range(r)
 #endif
 
-        , m_index_begin_join(-1)
-        , m_index_end_hooklet(-1)
-        , m_index_begin_hooklet(-1)
     {}
 
     inline void append(point_type const& point)
     {
-        m_range.push_back(point);
-        m_index_end_hooklet = -1;
-        m_index_begin_hooklet = -1;
+        if (! m_pieces.empty())
+        {
+            check(point);
+        }
+        do_append(point);
+    }
+
+    inline void append_begin_join(point_type const& point)
+    {
+        if (! check(point))
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+            const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,255,0);", 5);
+#endif
+        }
+
+        int index = do_append(point);
+        m_pieces.push_back(piece(index));
+    }
+
+    inline void append_end_join(point_type const& point)
+    {
+        do_append(point);
+    }
+
+    inline void append_begin_hooklet(point_type const& point)
+    {
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+        const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,0,192);", 3);
+#endif
+
+        check(point);
+
+        int index = do_append(point);
+        if (!m_pieces.empty() && m_pieces.back().end == -1)
+        {
+            m_pieces.back().end = index;
+        }
     }
 
     inline void append_end_hooklet(point_type const& point)
@@ -84,75 +114,107 @@ struct buffer_appender
         const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,0,255);", 4);
 #endif
 
-        m_index_end_hooklet = boost::size(m_range);
-        m_range.push_back(point);
-    }
-
-    inline void append_begin_hooklet(point_type const& point)
-    {
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,0,192);", 3);
-#endif
-        if (m_index_begin_hooklet > 0)
-        {
-            calculate(point, m_index_begin_hooklet - 1, boost::size(m_range) - 1);
-        }
-
-        m_index_begin_hooklet = boost::size(m_range);
-        m_range.push_back(point);
-    }
-
-    inline void append_begin_join(point_type const& point)
-    {
-        if (m_index_begin_join >= 0 && m_index_end_hooklet >= 0)
-        {
-            calculate(point, m_index_begin_join, m_index_end_hooklet);
-        }
-        else
-        {
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,255,0);", 5);
-#endif
-        }
-
-        m_index_begin_join = boost::size(m_range);
-        m_range.push_back(point);
+        int index = do_append(point);
     }
 
 
 private :
-    Range& m_range;
 
-    inline bool calculate(point_type const& point, int begin, int end)
+    struct piece
     {
+        int begin, end;
+
+        inline piece(int b = -1)
+            : begin(b)
+            , end(-1)
+        {}
+    };
+
+    Range& m_range;
+    point_type m_previous_point;
+    std::deque<piece> m_pieces;
+
+    inline int do_append(point_type const& point)
+    {
+        //check(point);
+        int result = boost::size(m_range);
+        m_range.push_back(point);
+        m_previous_point = point;
+        return result;
+    }
+
+    inline bool check(point_type const& point)
+    {
+        for (std::deque<piece>::reverse_iterator rit 
+                    = m_pieces.rbegin();
+            rit != m_pieces.rend();
+            ++rit)
+        {
+            if (rit->end >= rit->begin)
+            {
+                if (calculate(point, *rit))
+                {
+                    // We HAVE to leave here 
+                    // because the deque is cleared in between
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    inline bool calculate(point_type const& point, piece& the_piece)
+    {
+        int const n = boost::size(m_range);
+
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
         const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(255,0,0);", 4);
-        for (int i = begin; i < end; i++)
+        for (int i = the_piece.begin; i <= the_piece.end && i < n; i++)
         {
             //const_cast<Mapper&>(m_mapper).map(m_range[i], "fill:rgb(0,255,255);", 3);
         }
 #endif
 
-        segment_type segment1(m_range[end], point);
+        segment_type segment1(m_previous_point, point);
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        //const_cast<Mapper&>(m_mapper).map(segment1, "stroke:rgb(0,255,255);stroke-width:4");
-#endif
-
-        for (int i = begin; i < end - 1; i++)
+        for (int i = the_piece.begin;
+            i < the_piece.end && i + 1 < n;
+            i++)
         {
             segment_type segment2(m_range[i], m_range[i + 1]);
-            segment_intersection_points<point_type> is = policy::apply(segment1, segment2);
-            if (is.count > 0)
+            segment_intersection_points<point_type> is 
+                = policy::apply(segment1, segment2);
+            if (is.count == 1)
             {
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                 const_cast<Mapper&>(m_mapper).map(is.intersections[0], "fill:rgb(255,0,255);", 4);
+
+                // Draw red line of cut-off piece
+                model::linestring<point_type> temp;
+                temp.push_back(is.intersections[0]);
+                for (int j = i + 1; j < n; j++)
+                {
+                    temp.push_back(m_range[j]);
+                }
+                temp.push_back(is.intersections[0]);
+                const_cast<Mapper&>(m_mapper).map(temp, "fill:none;stroke:rgb(255,0,0);stroke-width:2");
+
 #endif
 
                 // Remove all points until this point, and add intersection point.
                 m_range.resize(i + 1);
-                m_range.push_back(is.intersections[0]);
-                m_index_end_hooklet = -1;
+
+                // Add this IP also as first point on the deque.
+                // We clear the deque - the indexes might be invalidated anyway
+                int index = do_append(is.intersections[0]);
+
+                // For many the index of intersection point is OK, but
+                // for bowls >= 6 (see test-program) we need to intersect with the same segment again:
+                index = the_piece.begin;
+
+                m_pieces.resize(0);
+                m_pieces.push_back(piece(index));
+
                 return true;
             }
         }
