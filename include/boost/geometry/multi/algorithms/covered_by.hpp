@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_COVERED_BY_HPP
 
 
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
