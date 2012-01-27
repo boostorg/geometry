@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 #define TEST_WITH_SVG
 
 #include <fstream>
@@ -104,13 +104,15 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typedef typename bg::ring_type<GeometryOut>::type ring_type;
 
-    std::ostringstream filename;
-    filename << "buffer_"
+    std::ostringstream complete;
+    complete
         << (bg::geometry_id<Geometry>::value == 2 ? "line" : "poly") << "_"
         << caseid << "_"
         << string_from_type<coordinate_type>::name()
-        << "_" << join
-        << ".svg";
+        << "_" << join;
+
+    std::ostringstream filename;
+    filename << "buffer_" << complete.str() << ".svg";
 
     std::ofstream svg(filename.str().c_str());
 
@@ -194,8 +196,21 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         BOOST_FOREACH(GeometryOut const& polygon, buffered)
         {
             area += bg::area(polygon);
+
+            // Be sure resulting polygon does not contain
+            // self-intersections
+            BOOST_CHECK( ! bg::intersects(polygon) );
         }
-        BOOST_CHECK_CLOSE(area, expected_area, 0.01);
+
+        BOOST_CHECK_MESSAGE
+            (
+                std::abs(area - expected_area) < 0.01, 
+                complete.str() << " not as expected. " 
+                << " Expected: "  << expected_area
+                << " Detected: "  << area
+            );
+
+        //BOOST_CHECK_CLOSE(area, expected_area, 0.01);
     }
 
 
