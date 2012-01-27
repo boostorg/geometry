@@ -323,7 +323,7 @@ struct join_round
                 mid_points(vertex, perp1, bp, bd, appender);
                 mid_points(vertex, bp, perp2, bd, appender);
             }
-            appender.append(perp2);
+            appender.append_end_join(perp2);
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             map<BufferAppender>(bp, vertex, perp1, perp2);
