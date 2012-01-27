@@ -63,7 +63,8 @@ void test_all()
 
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation4", indentation, 'm', 25.7741125496954, 0.4);
     test_one<polygon_type, buf::join_round, polygon_type>("indentation4", indentation, 'r', 25.5641980024698, 0.4);
-
+    test_one<polygon_type, buf::join_miter, polygon_type>("indentation5", indentation, 'm', 25.7741125496954, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>("indentation5", indentation, 'r', 25.5641980024698, 0.5);
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation8", indentation, 'm', 35.594305909533, 0.8);
     test_one<polygon_type, buf::join_round, polygon_type>("indentation8", indentation, 'r', 35.0012686715019, 0.8);
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation12", indentation, 'm', 46.3541038841777, 1.2);
@@ -96,8 +97,11 @@ void test_all()
     test_one<polygon_type, buf::join_round, polygon_type>("arrow6", arrow, 'r', 32.2572740033805, 0.6);
 
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'm', 54.865, 0.3);
-    test_one<polygon_type, buf::join_miter, polygon_type>("tipped_aitch9", tipped_aitch, 'm', 77.44, 0.9);
-    test_one<polygon_type, buf::join_miter, polygon_type>("tipped_aitch13", tipped_aitch, 'm', 92.16, 1.3);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'm', 75.685, 0.9);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'm', 89.365, 1.3);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'r', 54.7552, 0.3);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'r', 75.2957, 0.9);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'r', 88.6906, 1.3);
 
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake4", snake, 'm', 63.76, 0.4);
     test_one<polygon_type, buf::join_miter, polygon_type>("snake5", snake, 'm', 72, 0.5);
@@ -133,21 +137,21 @@ void test_all()
         int const n = 12;
         double expected_round[n] = 
             { 
-                69.87495, 90.22175, 111.5404, 133.87848, 157.452972, 182.397264,
-                208.773, -1, -1, -1, -1, -1
+                 69.875,  90.222, 111.540, 133.878, 157.453, 182.397,
+                208.773, 236.616, 265.950, 296.802, 329.186, 363.111
             };
         double expected_miter[n] = 
             {
-               73.03597, 98.80428, 127.8049, 160.0379, 195.5032, 234.2009,
-               276.1309,-1, -1, -1, -1, -1
+                73.0360,  98.804, 127.805, 160.038, 195.503, 234.201,
+               276.1309, 321.293, 369.688, 421.315, 476.174, 534.266
             };
 
         for (int i = 1; i <= n; i++)
         {
             std::ostringstream out;
             out << "saw_" << i;
-            test_one<polygon_type, buf::join_round, polygon_type>(i <= 7, out.str(), saw, 'r', expected_round[i - 1], double(i) / 2.0);
-            test_one<polygon_type, buf::join_miter, polygon_type>(i <= 7, out.str(), saw, 'm', expected_miter[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_round, polygon_type>(true, out.str(), saw, 'r', expected_round[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_miter, polygon_type>(true, out.str(), saw, 'm', expected_miter[i - 1], double(i) / 2.0);
         }
     }
 
@@ -156,27 +160,27 @@ void test_all()
         int const n = 12;
         double expected_round[n] = 
             { 
-                44.49221, 60.02458, 77.09711, 95.70980, 115.8626, 137.4720,
-                -1, -1, -1, -1, -1, -1
+                 44.492,  60.025,  77.097,  95.710, 115.863, 137.472,
+                160.235, 184.244, 209.672, 236.586, 265.015, 294.978
             };
+
+
         double expected_miter[n] = 
             {
-               44.86448, 61.01367, 78.94756, 98.66614, 120.1694, 143.3738,
-               167.9742, 193.9427, 221.2792, -1, -1, -1
+                44.865,  61.014,  78.948,  98.666, 120.169, 143.374,
+               167.974, 193.943, 221.279, 250.000, 280.375, 312.500
             };
 
         for (int i = 1; i <= n; i++)
         {
             std::ostringstream out;
             out << "bowl_" << i;
-            test_one<polygon_type, buf::join_round, polygon_type>(i <= 6, out.str(), bowl, 'r', expected_round[i - 1], double(i) / 2.0);
-            test_one<polygon_type, buf::join_miter, polygon_type>(i <= 9, out.str(), bowl, 'm', expected_miter[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_round, polygon_type>(true, out.str(), bowl, 'r', expected_round[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_miter, polygon_type>(true, out.str(), bowl, 'm', expected_miter[i - 1], double(i) / 2.0);
         }
     }
-    test_one<polygon_type, buf::join_round, polygon_type>("county1", county1, 'r', 99.4081550761828, 0.01);
-    test_one<polygon_type, buf::join_miter, polygon_type>("county1", county1, 'm', 99.4081550761828, 0.01);
-
-
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "county1", county1, 'r', 0.63748, 0.01);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "county1", county1, 'm', 1.08907, 0.01);
 
     return;
 
