@@ -19,6 +19,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits.hpp>
 
+#include <boost/geometry/arithmetic/cross_product.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
@@ -177,7 +178,7 @@ public :
         calculation_type const y1 = boost::numeric_cast<calculation_type>(get<1>(p1));
         calculation_type const x2 = boost::numeric_cast<calculation_type>(get<0>(p2));
         calculation_type const y2 = boost::numeric_cast<calculation_type>(get<1>(p2));
-        calculation_type const ai = x1 * y2 - x2 * y1;
+        calculation_type const ai = geometry::cross_product2<calculation_type>(p1, p2);
         state.count++;
         state.sum_a2 += ai;
         state.sum_x += ai * (x1 + x2);
