@@ -85,6 +85,7 @@ template
         <
             typename
             , typename
+            , bool
 #if defined(BOOST_GEOMETRY_DEBUG_WITH_MAPPER)
             , typename
 #endif
@@ -136,7 +137,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     typedef JoinStrategy
         <
             point_type,
-            typename bg::point_type<GeometryOut>::type
+            typename bg::point_type<GeometryOut>::type,
+            true
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , bg::svg_mapper<point_type>
 #endif
@@ -253,6 +255,7 @@ template
         <
             typename
             , typename
+            , bool
 #if defined(BOOST_GEOMETRY_DEBUG_WITH_MAPPER)
             , typename
 #endif
@@ -294,6 +297,7 @@ template
         <
             typename
             , typename
+            , bool
 #if defined(BOOST_GEOMETRY_DEBUG_WITH_MAPPER)
             , typename
 #endif
