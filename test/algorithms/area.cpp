@@ -204,6 +204,24 @@ void test_empty_input()
     test_empty_input(ring_empty);
 }
 
+void test_large_integers()
+{
+    typedef bg::model::point<int, 2, bg::cs::cartesian> int_point_type;
+    typedef bg::model::point<double, 2, bg::cs::cartesian> double_point_type;
+
+    bg::model::polygon<int_point_type> int_poly;
+    bg::model::polygon<double_point_type> double_poly;
+
+    std::string const polygon_li = "POLYGON((1872000 528000,1872000 192000,1536119 192000,1536000 528000,1200000 528000,1200000 863880,1536000 863880,1872000 863880,1872000 528000))";
+    bg::read_wkt(polygon_li, int_poly);
+    bg::read_wkt(polygon_li, double_poly);
+
+    double int_area = bg::area(int_poly);
+    double double_area = bg::area(double_poly);
+
+    BOOST_CHECK_CLOSE(int_area, double_area, 0.0001);
+}
+
 int test_main(int, char* [])
 {
     test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
@@ -221,6 +239,8 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
     test_spherical<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 #endif
+
+    test_large_integers();
 
     test_empty_input<bg::model::d2::point_xy<int> >();
 
