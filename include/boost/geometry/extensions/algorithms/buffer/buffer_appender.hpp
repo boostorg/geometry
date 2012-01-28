@@ -84,8 +84,10 @@ struct buffer_appender
 #endif
         }
 
+        cleanup();
+
         int index = do_append(point);
-        m_pieces.push_back(piece(index));
+        m_pieces.push_back(piece('J', index));
     }
 
     inline void append_end_join(point_type const& point)
@@ -122,11 +124,13 @@ private :
 
     struct piece
     {
+        char type; // For DEBUG, this will either go or changed into enum
         int begin, end;
 
-        inline piece(int b = -1)
-            : begin(b)
-            , end(-1)
+        inline piece(char t = '\0', int b = -1, int e = -1)
+            : type(t)
+            , begin(b)
+            , end(e)
         {}
     };
 
@@ -145,7 +149,7 @@ private :
 
     inline bool check(point_type const& point)
     {
-        for (std::deque<piece>::reverse_iterator rit 
+        for (std::deque<piece>::const_reverse_iterator rit 
                     = m_pieces.rbegin();
             rit != m_pieces.rend();
             ++rit)
@@ -163,7 +167,7 @@ private :
         return false;
     }
 
-    inline bool calculate(point_type const& point, piece& the_piece)
+    inline bool calculate(point_type const& point, piece const& the_piece)
     {
         int const n = boost::size(m_range);
 
@@ -206,19 +210,28 @@ private :
 
                 // Add this IP also as first point on the deque.
                 // We clear the deque - the indexes might be invalidated anyway
-                int index = do_append(is.intersections[0]);
+                int is_index = do_append(is.intersections[0]);
 
                 // For many the index of intersection point is OK, but
                 // for bowls >= 6 (see test-program) we need to intersect with the same segment again:
-                index = the_piece.begin;
+                int begin_index = the_piece.begin;
 
                 m_pieces.resize(0);
-                m_pieces.push_back(piece(index));
+                m_pieces.push_back(piece('F', begin_index, is_index));
+                m_pieces.push_back(piece('I', is_index));
 
                 return true;
             }
         }
         return false;
+    }
+
+    void cleanup()
+    {
+        if (m_pieces.size() > 0 && m_pieces.back().end == -1)
+        {
+            m_pieces.resize(0);
+        }
     }
 };
 
