@@ -116,7 +116,7 @@ struct buffer_appender
         const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,0,255);", 4);
 #endif
 
-        int index = do_append(point);
+        do_append(point);
     }
 
 
@@ -149,7 +149,7 @@ private :
 
     inline bool check(point_type const& point)
     {
-        for (std::deque<piece>::const_reverse_iterator rit 
+        for (typename std::deque<piece>::const_reverse_iterator rit 
                     = m_pieces.rbegin();
             rit != m_pieces.rend();
             ++rit)
