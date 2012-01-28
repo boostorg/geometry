@@ -61,10 +61,15 @@ void test_all()
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "concave_simplex", concave_simplex, 'm', 14.47708, 0.5);
     test_one<polygon_type, buf::join_round, polygon_type>(true, "concave_simplex", concave_simplex, 'r', 13.10366, 0.5);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>("indentation4", indentation, 'm', 25.7741125496954, 0.4);
-    test_one<polygon_type, buf::join_round, polygon_type>("indentation4", indentation, 'r', 25.5641980024698, 0.4);
-    test_one<polygon_type, buf::join_miter, polygon_type>("indentation5", indentation, 'm', 25.7741125496954, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>("indentation5", indentation, 'r', 25.5641980024698, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation4", indentation, 'm', 25.7741, 0.4);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation4", indentation, 'r', 24.5695, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation5", indentation, 'm', 28.2426, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation5", indentation, 'r', 26.7452, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation6", indentation, 'm', 30.6712, 0.6);
+
+    // SQL Server gives 30.34479159164
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation6", indentation, 'r', 30.3445, 0.6);
+
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation8", indentation, 'm', 35.594305909533, 0.8);
     test_one<polygon_type, buf::join_round, polygon_type>("indentation8", indentation, 'r', 35.0012686715019, 0.8);
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation12", indentation, 'm', 46.3541038841777, 1.2);

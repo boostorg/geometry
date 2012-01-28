@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+// #define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 #define TEST_WITH_SVG
 
 #include <fstream>
@@ -180,7 +180,19 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                                     );
     }
 #endif
-    buffered.push_back(buffered_step1);
+
+    if (boost::contains(complete.str(), "indentation4")
+     || boost::contains(complete.str(), "indentation5")
+     || boost::contains(complete.str(), "indentation6"))
+    {
+        // Some controlled cases are already dissolved,
+        // such that we can detect regressions there
+        bg::dissolve(buffered_step1, buffered);
+    }
+    else
+    {
+        buffered.push_back(buffered_step1);
+    }
 
     //std::cout << caseid << std::endl;
     //std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
@@ -252,13 +264,6 @@ void test_one(std::string const& caseid, std::string const& wkt,
     bg::read_wkt(wkt, g);
 
     typedef typename bg::point_type<Geometry>::type point_type;
-
-    //std::cout << caseid << std::endl;
-    if (join == 'm')
-    {
-        //return;
-    }
-
 
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
