@@ -756,11 +756,11 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         test_traverse<polygon, polygon, operation_union>::apply("hv3", 1, 1624.22079205664, hv_3[0], hv_3[1], deviation);
         test_traverse<polygon, polygon, operation_intersection>::apply("hv3", 1, 1623.8265057282042, hv_3[0], hv_3[1], deviation);
 
-        test_traverse<polygon, polygon, operation_union>::apply("hv4", 1, 1626.5146964146334, hv_4[0], hv_4[1], deviation);
-        test_traverse<polygon, polygon, operation_intersection>::apply("hv4", 1, 1626.2580370864305, hv_4[0], hv_4[1], deviation);
 
         if (! is_float)
         {
+            test_traverse<polygon, polygon, operation_union>::apply("hv4", 1, 1626.5146964146334, hv_4[0], hv_4[1], deviation);
+            test_traverse<polygon, polygon, operation_intersection>::apply("hv4", 1, 1626.2580370864305, hv_4[0], hv_4[1], deviation);
             test_traverse<polygon, polygon, operation_union>::apply("hv5", 1, 1624.2158307261871, hv_5[0], hv_5[1], deviation);
             test_traverse<polygon, polygon, operation_intersection>::apply("hv5", 1, 1623.4506071521519, hv_5[0], hv_5[1], deviation);
 
