@@ -127,7 +127,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             d += distance_right;
         }
 
-        bg::buffer(box, box, d * 1.1);
+        bg::buffer(box, box, std::abs(d) * 1.1);
         mapper.add(box);
     }
 
@@ -181,12 +181,16 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     }
 #endif
 
-    if (boost::contains(complete.str(), "indentation4")
-     || boost::contains(complete.str(), "indentation5")
-     || boost::contains(complete.str(), "indentation6"))
+    if (boost::contains(complete.str(), "indentation4_d")
+     || boost::contains(complete.str(), "indentation5_d")
+     || boost::contains(complete.str(), "indentation6_d")
+     || boost::contains(complete.str(), "indentation7_d")
+     || boost::contains(complete.str(), "indentation8_d")
+     || boost::contains(complete.str(), "indentation12_d")
+     )
     {
-        // Some controlled cases are already dissolved,
-        // such that we can detect regressions there
+        // We dissolve some controlled cases (already, later we will dissolve all),
+        // such that we can detect regressions
         bg::dissolve(buffered_step1, buffered);
     }
     else
