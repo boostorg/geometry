@@ -92,7 +92,7 @@ struct join_mapper
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 // Forget this, it will go
-template<typename PointIn, typename PointOut, typename Mapper>
+template<typename PointIn, typename PointOut, bool AddHooklets, typename Mapper>
 struct join_miter : public join_mapper<PointIn, Mapper>
 {
     join_miter(Mapper const& mapper) : join_mapper(mapper) {}
@@ -102,7 +102,8 @@ struct join_miter : public join_mapper<PointIn, Mapper>
 template
 <
     typename PointIn,
-    typename PointOut
+    typename PointOut,
+    bool AddHooklets = true
 >
 struct join_miter
 {
@@ -125,11 +126,15 @@ struct join_miter
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
-            // If it is concave (corner to left), add helperline
-            // The helper-line IS essential for buffering holes. Without,
-            // holes might be generated, while they should NOT be there.
-            appender.append_begin_hooklet(perp1);
-            appender.append_end_hooklet(perp2);
+            if (AddHooklets)
+            {
+                appender.append_begin_hooklet(perp1);
+                appender.append_end_hooklet(perp2);
+            }
+            else
+            {
+                appender.append(ip);
+            }
         }
         else
         {
@@ -210,7 +215,7 @@ struct join_bevel
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 // Forget this, it will go
-template<typename PointIn, typename PointOut, typename Mapper>
+template<typename PointIn, typename PointOut, bool Hooklets, typename Mapper>
 struct join_round : public join_mapper<PointIn, Mapper>
 {
     join_round(Mapper const& mapper, int max_level = 4)
@@ -223,7 +228,8 @@ struct join_round : public join_mapper<PointIn, Mapper>
 template
 <
     typename PointIn,
-    typename PointOut
+    typename PointOut,
+    bool AddHooklets = true
 >
 struct join_round
 {
@@ -291,8 +297,15 @@ struct join_round
         if (side::apply(perp1, ip, perp2) == signum)
         {
             // If it is concave (corner to left), add helperline
-            appender.append_begin_hooklet(perp1);
-            appender.append_end_hooklet(perp2);
+            if (AddHooklets)
+            {
+                appender.append_begin_hooklet(perp1);
+                appender.append_end_hooklet(perp2);
+            }
+            else
+            {
+                appender.append(ip);
+            }
         }
         else
         {
