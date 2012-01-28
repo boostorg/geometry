@@ -215,7 +215,7 @@ struct join_bevel
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 // Forget this, it will go
-template<typename PointIn, typename PointOut, bool Hooklets, typename Mapper>
+template<typename PointIn, typename PointOut, bool AddHooklets, typename Mapper>
 struct join_round : public join_mapper<PointIn, Mapper>
 {
     join_round(Mapper const& mapper, int max_level = 4)
