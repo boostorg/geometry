@@ -9,11 +9,21 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_OFFSET_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_OFFSET_HPP
 
+#include <boost/config.hpp>
+
+#if defined(BOOST_MSVC_FULL_VER)
+#pragma message ("WARNING: offset might give wrong results, will be harmonized with range_buffer")
+#else
+#warning "WARNING: offset might give wrong results, will be harmonized with range_buffer"
+#endif
+
+
 
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/buffer_appender.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -43,8 +53,9 @@ struct offset_range
     typedef model::referring_segment<output_point_type const> segment_type;
     typedef typename boost::range_iterator<Range const>::type iterator_type;
 
+    template <typename Appender>
     static inline void apply(Range const& range,
-                RangeOut& out,
+                Appender& appender,
                 JoinStrategy const& join,
                 Distance const& distance)
     {
@@ -58,8 +69,6 @@ struct offset_range
         {
             if (! detail::equals::equals_point_point(*prev, *it))
             {
-                bool skip = false;
-
                 // Simulate a vector d (dx,dy)
                 coordinate_type dx = get<0>(*it) - get<0>(*prev);
                 coordinate_type dy = get<1>(*it) - get<1>(*prev);
@@ -89,11 +98,7 @@ struct offset_range
                     segment_type s2(previous_p1, previous_p2);
                     if (detail::buffer::line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p))
                     {
-                        join.apply(p, *prev, previous_p2, p1, distance, out);
-                    }
-                    else
-                    {
-                        skip = false;
+                        join.apply(p, *prev, previous_p2, p1, distance, appender);
                     }
                 }
                 else
@@ -102,20 +107,17 @@ struct offset_range
                     first_p1 = p1;
                     first_p2 = p2;
 
-                    out.push_back(p1);
+                    appender.append(p1);
                 }
 
-                if (! skip)
-                {
-                    previous_p1 = p1;
-                    previous_p2 = p2;
-                    prev = it;
-                }
+                previous_p1 = p1;
+                previous_p2 = p2;
+                prev = it;
             }
         }
 
         // Last one
-        out.push_back(previous_p2);
+        appender.append(previous_p2);
 
     }
 };
@@ -186,6 +188,13 @@ inline void offset(Geometry const& geometry, GeometryOut& out,
     concept::check<Geometry const>();
     concept::check<GeometryOut>();
 
+    typedef detail::buffer::buffer_appender
+        <
+            GeometryOut
+        > appender_type;
+    
+    appender_type appender(out);
+
     dispatch::offset
     <
         typename tag<Geometry>::type,
@@ -194,7 +203,7 @@ inline void offset(Geometry const& geometry, GeometryOut& out,
         GeometryOut,
         JoinStrategy,
         Distance
-    >::apply(geometry, out, join, distance);
+    >::apply(geometry, appender, join, distance);
 }
 
 
