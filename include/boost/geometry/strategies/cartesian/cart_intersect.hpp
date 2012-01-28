@@ -16,6 +16,7 @@
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 
+#include <boost/geometry/arithmetic/cross_product.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -199,13 +200,19 @@ struct relate_cartesian_segments
                 coordinate_type, double
             >::type promoted_type;
 
+        // Calculate the determinant/2D cross product
+        // (Note, because we only check on zero,
+        //  the order a/b does not care)
+        promoted_type const d = geometry::determinant
+            <
+                promoted_type
+            >(dx_a, dy_a, dx_b, dy_b);
 
-        promoted_type const d = (dy_b * dx_a) - (dx_b * dy_a);
         // Determinant d should be nonzero.
         // If it is zero, we have an robustness issue here,
         // (and besides that we cannot divide by it)
-        if(math::equals(d, zero) && ! collinear)
-        //if(! collinear && sides.as_collinear())
+        promoted_type const pt_zero = promoted_type();
+        if(math::equals(d, pt_zero) && ! collinear)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
             std::cout << "Determinant zero? Type : "
