@@ -63,6 +63,7 @@ public :
 
     inline void append_begin_join(point_type const& point)
     {
+        DEBUG("begin join");
         check(point);
 
         cleanup();
@@ -73,11 +74,15 @@ public :
 
     inline void append_end_join(point_type const& point)
     {
+        clean_split_offs();
+
+        DEBUG("end join");
         do_append(point);
     }
 
     inline void append_begin_hooklet(point_type const& point)
     {
+        DEBUG("begin hooklet");
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
         const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,0,192);", 3);
 #endif
@@ -93,6 +98,7 @@ public :
 
     inline void append_end_hooklet(point_type const& point)
     {
+        DEBUG("end hooklet");
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
         const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,0,255);", 4);
 #endif
@@ -149,16 +155,34 @@ private :
         {
             if (rit->end >= rit->begin
                 && calculate_ip(point, *rit))
+                {
+                    // We HAVE to leave here 
+                    // because the deque is cleared in between
+                    return;
+                }
+        }
+
+        // Second loop to check for intersections on intersected pieces
+        for (typename std::deque<piece>::const_reverse_iterator rit 
+                    = m_pieces.rbegin();
+            rit != m_pieces.rend();
+            ++rit)
+        {
+            if (rit->end >= rit->begin)
             {
-                // We HAVE to leave here 
-                // because the deque is cleared in between
-                return;
+                if (calculate_ip2(point, *rit))
+                {
+                    return;
+                }
             }
+        }
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,255,0);", 5);
-#endif
+        if (! m_pieces.empty() && m_pieces.back().end > m_pieces.back().begin)
+        {
+            const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,255,0);", 4);
         }
+#endif
     }
 
     inline bool calculate_ip(point_type const& point, piece const& the_piece)
@@ -199,6 +223,46 @@ private :
                 }
 
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    inline bool calculate_ip2(point_type const& point, piece const& the_piece)
+    {
+        segment_type segment1(m_previous_point, point);
+
+        // No IP found. Check if it is in the split off
+        if (! the_piece.split_off.empty() && the_piece.type == 'I')
+        {
+            //typedef typename boost::reverse_iterator<Range const>::type ritt;
+            typedef typename Range::const_reverse_iterator ritt;
+            ritt previous = the_piece.split_off.rbegin();
+            for (ritt rit = previous++; rit != the_piece.split_off.rend(); ++rit)
+            {
+                segment_type segment2(*rit, *previous);
+                segment_intersection_points<point_type> is 
+                                        = policy::apply(segment1, segment2);
+                if (is.count == 1)
+                {
+                    Range split_off;
+                    if (get_valid_split(is.intersections[0], the_piece.begin + 1, split_off))
+                    {
+                        DEBUG("split off from splitted off");
+
+                        add_ip(is.intersections[0], the_piece.begin + 1, the_piece, split_off);
+
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+                        const_cast<Mapper&>(m_mapper).map(is.intersections[0], "fill:rgb(255,255,0);", 4);
+                        const_cast<Mapper&>(m_mapper).map(m_range[the_piece.begin], "fill:rgb(255,192,0);", 4);
+                        const_cast<Mapper&>(m_mapper).map(split_off, "fill:none;stroke:rgb(255,192,0);stroke-width:2");
+#endif
+                        return true;
+                    }
+
+                }
+                previous = rit;
             }
         }
         return false;
@@ -248,6 +312,32 @@ private :
         {
             m_pieces.resize(0);
         }
+    }
+
+    inline void clean_split_offs()
+    {
+        for (typename std::deque<piece>::iterator it = m_pieces.begin();
+            it != m_pieces.end();
+            ++it)
+        {
+            it->split_off.resize(0);
+        }
+    }
+
+    inline void DEBUG(std::string const& caption)
+    {
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_APPENDER
+        std::cout << "  " << caption;
+        for (typename std::deque<piece>::iterator it 
+                    = m_pieces.begin();
+            it != m_pieces.end();
+            ++it)
+        {
+            std::cout << " " << it->type << " " << it->begin << "-" << it->end 
+                << " " << it->split_off.size();
+        }
+        std::cout << std::endl;
+#endif
     }
 };
 

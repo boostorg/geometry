@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-// #define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 #define TEST_WITH_SVG
 
 #include <fstream>
@@ -112,6 +112,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         << string_from_type<coordinate_type>::name()
         << "_" << join;
 
+    //std::cout << complete.str() << std::endl;
+
     std::ostringstream filename;
     filename << "buffer_" << complete.str() << ".svg";
 
@@ -183,17 +185,19 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     }
 #endif
 
-    if (boost::contains(complete.str(), "indentation4_d")
-     || boost::contains(complete.str(), "indentation5_d")
-     || boost::contains(complete.str(), "indentation6_d")
-     || boost::contains(complete.str(), "indentation7_d")
-     || boost::contains(complete.str(), "indentation8_d")
-     || boost::contains(complete.str(), "indentation12_d")
+    if (boost::contains(complete.str(), "bowl")
+     || boost::contains(complete.str(), "aitch")
+     || boost::contains(complete.str(), "snake")
+     || (boost::contains(complete.str(), "indentation")
+            && ! boost::contains(complete.str(), "neg"))
+     || (boost::contains(complete.str(), "flower") 
+            && boost::contains(complete.str(), "d_r"))
      )
     {
         // We dissolve some controlled cases (already, later we will dissolve all),
         // such that we can detect regressions
         bg::dissolve(buffered_step1, buffered);
+        mapper.map(buffered_step1, "opacity:0.3;fill:none;stroke:rgb(0,0,200);stroke-width:2");
     }
     else
     {
