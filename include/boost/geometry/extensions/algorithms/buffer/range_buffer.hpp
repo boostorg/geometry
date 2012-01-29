@@ -135,11 +135,11 @@ struct range_buffer
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                         {
-                            mapper.map(p, "fill:rgb(0,0,0);", 3);
+                            //mapper.map(p, "fill:rgb(0,0,0);", 3);
 
-                            std::ostringstream out;
-                            out << index++;
-                            mapper.text(p, out.str(), "fill:rgb(0,0,0);font-family='Arial';", 5, 5);
+                            //std::ostringstream out;
+                            //out << index++;
+                            //mapper.text(p, out.str(), "fill:rgb(0,0,0);font-family='Arial';", 5, 5);
                         }
 #endif
                     }
@@ -150,11 +150,7 @@ struct range_buffer
                     first_p1 = p1;
                     first_p2 = p2;
 
-                    // Might be replaced by specialization
-                    if(boost::is_same<Tag, linestring_tag>::value)
-                    {
-                        appender.append(p1);
-                    }
+                    appender.append(p1);
                 }
 
                 previous_p1 = p1;
@@ -180,15 +176,14 @@ struct range_buffer
                 distance.apply(*(end - 1), *begin, side),
                 appender);
 
-            // Close the generated buffer (NOT FOR OPEN POLYGONS - TODO)
-            appender.append(first_p1);
+            // Buffer is closed automatically by last closing corner (NOT FOR OPEN POLYGONS - TODO)
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             {
-                mapper.map(p, "fill:rgb(0,0,0);", 3);
-                std::ostringstream out;
-                out << index++;
-                mapper.text(p, out.str(), "fill:rgb(0,0,0);font-family='Arial';", 5, 5);
+                //mapper.map(p, "fill:rgb(0,0,0);", 3);
+                //std::ostringstream out;
+                //out << index++;
+                //mapper.text(p, out.str(), "fill:rgb(0,0,0);font-family='Arial';", 5, 5);
             }
 #endif
         }
