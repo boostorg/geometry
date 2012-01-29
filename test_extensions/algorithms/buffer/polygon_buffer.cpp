@@ -115,9 +115,9 @@ void test_all()
     test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'r', 90.641, 1.3);
 
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake4", snake, 'm', 64.36, 0.4);
-    test_one<polygon_type, buf::join_miter, polygon_type>("snake5", snake, 'm', 72, 0.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>("snake6", snake, 'm', 75.44, 0.6);
-    test_one<polygon_type, buf::join_miter, polygon_type>("snake16", snake, 'm', 114.24, 1.6);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake5", snake, 'm', 72, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake6", snake, 'm', 75.44, 0.6);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake16", snake, 'm', 114.24, 1.6);
 
     //return;
 
