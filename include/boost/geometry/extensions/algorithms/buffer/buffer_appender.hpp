@@ -56,10 +56,8 @@ public :
 
     inline void append(point_type const& point)
     {
-        if (! m_pieces.empty())
-        {
-            check(point);
-        }
+        check(point);
+
         do_append(point);
     }
 
@@ -136,7 +134,6 @@ private :
 
     inline int do_append(point_type const& point)
     {
-        //check(point);
         int result = boost::size(m_range);
         m_range.push_back(point);
         m_previous_point = point;
