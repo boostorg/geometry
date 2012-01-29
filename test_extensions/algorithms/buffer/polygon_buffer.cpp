@@ -54,17 +54,17 @@ void test_all()
 
     typedef bg::model::polygon<P> polygon_type;
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "L", letter_L, 'm', 12.875, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "L", letter_L, 'r', 12.73128, 0.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "simplex", simplex, 'm', 47.2, 1.5);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "simplex", simplex, 'r', 44.1156, 1.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "concave_simplex", concave_simplex, 'm', 14.47708, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "concave_simplex", concave_simplex, 'r', 13.10366, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "L", letter_L, 'm', 13.875, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "L", letter_L, 'r', 13.7314, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "simplex", simplex, 'm', 51.2434, 1.5);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "simplex", simplex, 'r', 47.9408, 1.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "concave_simplex", concave_simplex, 'm', 15.8861, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "concave_simplex", concave_simplex, 'r', 14.5616, 0.5);
 
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation4", indentation, 'm', 25.7741, 0.4);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation4", indentation, 'r', 24.5695, 0.4);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation4", indentation, 'r', 25.5695, 0.4);
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation5", indentation, 'm', 28.2426, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation5", indentation, 'r', 26.7452, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation5", indentation, 'r', 27.9953, 0.5);
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation6", indentation, 'm', 30.6712, 0.6);
 
     // SQL Server gives 30.34479159164
@@ -105,16 +105,16 @@ void test_all()
     test_one<polygon_type, buf::join_miter, polygon_type>("arrow6", arrow, 'm', 34.9025533178038, 0.6);
     test_one<polygon_type, buf::join_round, polygon_type>("arrow6", arrow, 'r', 32.2572740033805, 0.6);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'm', 54.865, 0.3);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'm', 55.315, 0.3);
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'm', 77.44, 0.9);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'm', 89.365, 1.3);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'm', 91.315, 1.3);
 
     // SQL Server: 55.205415532967 76.6468846383224 90.642916957136
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'r', 54.7552, 0.3);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'r', 55.2053, 0.3);
     test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'r', 76.6457, 0.9);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'r', 88.6906, 1.3);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'r', 90.641, 1.3);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake4", snake, 'm', 63.76, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake4", snake, 'm', 64.36, 0.4);
     test_one<polygon_type, buf::join_miter, polygon_type>("snake5", snake, 'm', 72, 0.5);
     test_one<polygon_type, buf::join_miter, polygon_type>("snake6", snake, 'm', 75.44, 0.6);
     test_one<polygon_type, buf::join_miter, polygon_type>("snake16", snake, 'm', 114.24, 1.6);
@@ -133,9 +133,9 @@ void test_all()
     test_one<polygon_type, buf::join_miter, polygon_type>("flower55", flower, 'm', 96.848737155342079, 0.55);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower60", flower, 'm', 99.724324149315279, 0.60);
 
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower1", flower, 'r', 71.986, 0.1);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower1", flower, 'r', 67.4861, 0.1);
     test_one<polygon_type, buf::join_round, polygon_type>(true, "flower20", flower, 'r', 74.7020267929856, 0.20);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower25", flower, 'r', 78.0709684961456, 0.25);
+    test_one<polygon_type, buf::join_round, polygon_type>(false, "flower25", flower, 'r', 78.0709684961456, 0.25);
     test_one<polygon_type, buf::join_round, polygon_type>(true, "flower30", flower, 'r', 81.3528270913593, 0.30);
     test_one<polygon_type, buf::join_round, polygon_type>(true, "flower35", flower, 'r', 84.5467340913191, 0.35);
     test_one<polygon_type, buf::join_round, polygon_type>(true, "flower40", flower, 'r', 87.6653813523005, 0.40);
@@ -152,13 +152,13 @@ void test_all()
         int const n = 12;
         double expected_round[n] = 
             { 
-                 69.875,  90.222, 111.540, 133.878, 157.453, 182.397,
-                208.773, 236.616, 265.950, 296.802, 329.186, 363.111
+                 68.6252,  90.222, 112.792, 136.382, 161.208, 187.405,
+                215.033, 244.129, 274.717, 306.82, 340.456, 375.633
             };
         double expected_miter[n] = 
             {
-                73.0360,  98.804, 127.805, 160.038, 195.503, 234.201,
-               276.1309, 321.293, 369.688, 421.315, 476.174, 534.266
+                70.8956,  98.804, 131.726, 169.661, 212.609, 260.57,
+               313.545,  371.532, 434.533, 502.546, 575.573, 653.613
             };
 
         for (int i = 1; i <= n; i++)
@@ -172,24 +172,22 @@ void test_all()
 
     // Bowl
     {
-        // Note the values are not completely equal to SQL Server yet.
-        // This will be caused by the sometimes sloppy rounded corners we still have
-        // See query below.
+        // SQL Server values - see query below.
 //1	43.2425133175081 60.0257800296593 78.3497997564532 98.2145746255142 119.620102487345 142.482792724034
 //2	166.499856911107 191.763334982583 218.446279387336 246.615018368511 276.300134755606 307.518458532186
 
         int const n = 12;
         double expected_round[n] = 
             { 
-                 44.492,  60.025,  77.097,  95.710, 115.863, 137.472,
-                166.485, 191.744, 209.672, 236.586, 265.015, 294.978
+                 43.2423,  60.025,  78.3477,  98.2109, 119.614, 142.475,
+                166.485, 191.744, 218.428, 246.593, 276.273, 307.486
             };
 
 
         double expected_miter[n] = 
             {
-                44.865,  61.014,  78.948,  98.666, 120.169, 143.374,
-               167.974, 207.443, 221.279, 250.000, 280.375, 312.500
+                43.6145,  61.014,  80.1976,  101.166, 123.919, 148.374,
+               174.224, 207.443, 230.029, 260.000, 291.625, 325.000
             };
 
         for (int i = 1; i <= n; i++)
@@ -200,8 +198,8 @@ void test_all()
             test_one<polygon_type, buf::join_miter, polygon_type>(true, out.str(), bowl, 'm', expected_miter[i - 1], double(i) / 2.0);
         }
     }
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "county1", county1, 'r', 0.63748, 0.01);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "county1", county1, 'm', 1.08907, 0.01);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "county1", county1, 'r', 0.00114092, 0.01);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "county1", county1, 'm', 0.52286, 0.01);
 
     return;
 
@@ -283,7 +281,7 @@ int test_main(int, char* [])
 {
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
-
+    
     return 0;
 }
 
