@@ -106,10 +106,12 @@ void test_all()
     test_one<polygon_type, buf::join_round, polygon_type>("arrow6", arrow, 'r', 32.2572740033805, 0.6);
 
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'm', 54.865, 0.3);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'm', 75.685, 0.9);
+    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'm', 77.44, 0.9);
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'm', 89.365, 1.3);
+
+    // SQL Server: 55.205415532967 76.6468846383224 90.642916957136
     test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'r', 54.7552, 0.3);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'r', 75.2957, 0.9);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'r', 76.6457, 0.9);
     test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'r', 88.6906, 1.3);
 
     test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake4", snake, 'm', 63.76, 0.4);
@@ -120,29 +122,33 @@ void test_all()
     //return;
 
 
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower1", flower, 'r', 71.986, 0.1);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower1", flower, 'm', 67.613949189084963, 0.1);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower20", flower, 'm', 74.7020267929856, 0.20);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower25", flower, 'm', 78.225583936485492, 0.25);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower30", flower, 'm', 81.492494146177947, 0.30);
     //test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
-    test_one<polygon_type, buf::join_miter, polygon_type>("flower4", flower, 'm', 87.8306529577, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower40", flower, 'm', 87.8306529577, 0.40);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower45", flower, 'm', 90.901901559536029, 0.45);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower50", flower, 'm', 93.907929625415662, 0.50);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower55", flower, 'm', 96.848737155342079, 0.55);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower60", flower, 'm', 99.724324149315279, 0.60);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>("flower1", flower, 'm', 67.613949189084963, 0.1);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower25", flower, 'r', 78.0709684961456, 0.25);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower30", flower, 'r', 81.3528270913593, 0.30);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower35", flower, 'r', 84.5467340913191, 0.35);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower4", flower, 'r', 87.6653813523005, 0.4);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower45", flower, 'r', 90.7092077149493, 0.45);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower50", flower, 'r', 93.6802057531291, 0.50);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower55", flower, 'r', 96.5796252237181, 0.55);
-    test_one<polygon_type, buf::join_round, polygon_type>("flower60", flower, 'r', 99.4081550761828, 0.60);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower1", flower, 'r', 71.986, 0.1);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower20", flower, 'r', 74.7020267929856, 0.20);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower25", flower, 'r', 78.0709684961456, 0.25);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower30", flower, 'r', 81.3528270913593, 0.30);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower35", flower, 'r', 84.5467340913191, 0.35);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower40", flower, 'r', 87.6653813523005, 0.40);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower45", flower, 'r', 90.7092077149493, 0.45);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower50", flower, 'r', 93.6802057531291, 0.50);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower55", flower, 'r', 96.5796252237181, 0.55);
+    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower60", flower, 'r', 99.4081550761828, 0.60);
 
-    //test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
     // Saw
     {
+        // SQL Server:
+// 68.6258859984014 90.2254986930165 112.799509089077 136.392823913949 161.224547934625 187.427508982734
+//215.063576036522 244.167935815974 274.764905445676 306.878264367143 340.530496138041 375.720107548269
         int const n = 12;
         double expected_round[n] = 
             { 
@@ -166,18 +172,24 @@ void test_all()
 
     // Bowl
     {
+        // Note the values are not completely equal to SQL Server yet.
+        // This will be caused by the sometimes sloppy rounded corners we still have
+        // See query below.
+//1	43.2425133175081 60.0257800296593 78.3497997564532 98.2145746255142 119.620102487345 142.482792724034
+//2	166.499856911107 191.763334982583 218.446279387336 246.615018368511 276.300134755606 307.518458532186
+
         int const n = 12;
         double expected_round[n] = 
             { 
                  44.492,  60.025,  77.097,  95.710, 115.863, 137.472,
-                160.235, 184.244, 209.672, 236.586, 265.015, 294.978
+                166.485, 191.744, 209.672, 236.586, 265.015, 294.978
             };
 
 
         double expected_miter[n] = 
             {
                 44.865,  61.014,  78.948,  98.666, 120.169, 143.374,
-               167.974, 193.943, 221.279, 250.000, 280.375, 312.500
+               167.974, 207.443, 221.279, 250.000, 280.375, 312.500
             };
 
         for (int i = 1; i <= n; i++)
@@ -274,3 +286,35 @@ int test_main(int, char* [])
 
     return 0;
 }
+
+
+/*
+BOWL QUERY
+===
+with bowl as
+(
+	select geometry::STGeomFromText('POLYGON((1 2,1 7,2 7,3 5,5 4,7 5,8 7,9 7,9 2,1 2))',0) as q
+)
+select 
+'1-6' as row
+,q.STBuffer(0.5).STArea() as b1
+,q.STBuffer(1.0).STArea() as b2
+,q.STBuffer(1.5).STArea() as b3
+,q.STBuffer(2.0).STArea() as b4
+,q.STBuffer(2.5).STArea() as b5
+,q.STBuffer(3.0).STArea() as b6
+
+from bowl
+union all
+select 
+'7-12'
+,q.STBuffer(3.5).STArea() as b7
+,q.STBuffer(4.0).STArea() as b8
+,q.STBuffer(4.5).STArea() as b9
+,q.STBuffer(5.0).STArea() as b10
+,q.STBuffer(5.5).STArea() as b11
+,q.STBuffer(6.0).STArea() as b12
+from bowl
+	
+
+*/
