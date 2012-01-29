@@ -334,6 +334,7 @@ struct join_round
             else
             {
                 mid_points(vertex, perp1, bp, bd, appender);
+                appender.append(bp);
                 mid_points(vertex, bp, perp2, bd, appender);
             }
             appender.append_end_join(perp2);
