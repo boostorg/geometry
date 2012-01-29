@@ -119,7 +119,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     std::ofstream svg(filename.str().c_str());
 
-    bg::svg_mapper<point_type> mapper(svg, 500, 500);
+    bg::svg_mapper<point_type> mapper(svg, 1000, 1000);
 
     {
         bg::model::box<point_type> box;
@@ -204,26 +204,23 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         buffered.push_back(buffered_step1);
     }
 
-    //std::cout << caseid << std::endl;
+    double area = 0;
+    BOOST_FOREACH(GeometryOut const& polygon, buffered)
+    {
+        area += bg::area(polygon);
+    }
+
+    //std::cout << caseid << " " << distance_left << std::endl;
     //std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
-    //std::cout << "OUTPUT:" << std::endl;
+    //std::cout << "OUTPUT: " << area << std::endl;
     //BOOST_FOREACH(GeometryOut const& polygon, buffered)
     //{
     //    std::cout << bg::wkt(polygon) << std::endl;
     //}
 
+
     if (check)
     {
-        double area = 0;
-        BOOST_FOREACH(GeometryOut const& polygon, buffered)
-        {
-            area += bg::area(polygon);
-
-            // Be sure resulting polygon does not contain
-            // self-intersections
-            BOOST_CHECK( ! bg::intersects(polygon) );
-        }
-
         BOOST_CHECK_MESSAGE
             (
                 std::abs(area - expected_area) < 0.01, 
@@ -232,7 +229,20 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                 << " Detected: "  << area
             );
 
-        //BOOST_CHECK_CLOSE(area, expected_area, 0.01);
+        // Be sure resulting polygon does not contain
+        // self-intersections
+        // But indentation5 should contain 1 self-ip
+        if (! boost::contains(complete.str(), "indentation5_d_r"))
+        {
+            BOOST_FOREACH(GeometryOut const& polygon, buffered)
+            {
+                BOOST_CHECK_MESSAGE
+                    (
+                        ! bg::intersects(polygon), 
+                        complete.str() << " is self-intersecting. " 
+                    );
+            }
+        }
     }
 
 
