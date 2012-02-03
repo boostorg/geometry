@@ -58,11 +58,6 @@ static void test_segment_intersection(std::string const& case_id,
                 int expected_x2 = -99, int expected_y2 = -99)
 
 {
-
-//#ifdef REPORT
-    std::cout << "Case: " << case_id << std::endl;
-//#endif
-
     typedef typename bg::coordinate_type<P>::type coordinate_type;
     typedef bg::model::referring_segment<const P> segment_type;
 
