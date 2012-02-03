@@ -30,6 +30,9 @@ namespace detail { namespace overlay
  */
 struct calculate_distance_policy
 {
+    static bool const include_no_turn = false;
+    static bool const include_degenerate = false;
+
     template <typename Point1, typename Point2, typename Info>
     static inline void apply(Info& info, Point1 const& p1, Point2 const& p2)
     {

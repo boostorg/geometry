@@ -167,14 +167,6 @@ struct segments_de9im
                 true);
     }
 
-
-    static inline return_type parallel()
-    {
-        return de9im_segment(0,0,
-                -1, -1, 1,
-                -1, -1, 0,
-                 1,  0, 2, false, false, true);
-    }
 };
 
 

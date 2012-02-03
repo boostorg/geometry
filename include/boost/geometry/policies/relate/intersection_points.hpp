@@ -169,10 +169,7 @@ struct segments_intersection_points
     {
         return return_type();
     }
-    static inline return_type parallel()
-    {
-        return return_type();
-    }
+
     static inline return_type degenerate(S1 const& s, bool)
     {
         return_type result;

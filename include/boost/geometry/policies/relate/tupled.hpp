@@ -164,15 +164,6 @@ struct segments_tupled
             );
     }
 
-
-    static inline return_type parallel()
-    {
-        return boost::make_tuple
-            (
-                Policy1::parallel(),
-                Policy2::parallel()
-            );
-    }
 };
 
 }} // namespace policies::relate
