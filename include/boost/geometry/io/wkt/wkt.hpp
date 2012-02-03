@@ -16,6 +16,10 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
-#include <boost/geometry/io/wkt/iomanip.hpp>
+
+// BSG 2011-02-03
+// We don't include iomanip by default. That tries to stream anything not known
+// by default (such as ttmath) and reports errors.
+// Users can include iomanip themselves (if they want to)
 
 #endif // BOOST_GEOMETRY_IO_WKT_WKT_HPP
