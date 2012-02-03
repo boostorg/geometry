@@ -162,14 +162,14 @@ template <typename Polygon>
 struct correct_polygon
 {
     typedef typename ring_type<Polygon>::type ring_type;
-    typedef typename coordinate_type<Polygon>::type coordinate_type;
+    typedef typename default_area_result<Polygon>::type area_result_type;
 
     static inline void apply(Polygon& poly)
     {
         correct_ring
             <
                 ring_type,
-                std::less<typename default_area_result<Polygon>::type>
+                std::less<area_result_type>
             >::apply(exterior_ring(poly));
 
         typename interior_return_type<Polygon>::type rings
@@ -179,7 +179,7 @@ struct correct_polygon
             correct_ring
                 <
                     ring_type,
-                    std::greater<coordinate_type>
+                    std::greater<area_result_type>
                 >::apply(*it);
         }
     }
