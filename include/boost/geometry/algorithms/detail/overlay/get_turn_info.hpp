@@ -36,6 +36,9 @@ public:
         message += method;
     }
 
+    virtual ~turn_info_exception() throw()
+    {}
+
     virtual char const* what() const throw()
     {
         return message.c_str();
