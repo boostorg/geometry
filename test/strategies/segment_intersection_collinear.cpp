@@ -238,6 +238,15 @@ void test_all()
         6, 0, 2, 0,
         'e', true, 0, 0,
         2, 0, 6, 0);
+
+    //   a1---------->a2
+    //   b2<----------b1
+    test_segment_intersection<P>("case_recursive_boxes_1",
+        10, 7, 10, 6,
+        10, 10, 10, 9,
+        'd', false, 0, 0,
+        -1, -1, -1, -1);
+
 }
 
 int test_main(int, char* [])

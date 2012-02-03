@@ -161,6 +161,10 @@ void test_all()
         // Parallel, disjoint
         test_disjoint<ls, ls>("c-d", "linestring(2 0,6 0)", "linestring(2 1,6 1)", true);
 
+        // Error still there until 1.48 (reported "error", was reported to disjoint, so that's why it did no harm)
+        test_disjoint<ls, ls>("case_recursive_boxes_1", 
+            "linestring(10 7,10 6)", "linestring(10 10,10 9)", true);
+
     }
 
     // TODO test_disjoint<segment, ls>("s/ls 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
