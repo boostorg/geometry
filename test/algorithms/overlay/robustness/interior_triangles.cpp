@@ -17,6 +17,7 @@
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 #define BOOST_GEOMETRY_TIME_OVERLAY
 
+#include <test_overlay_p_q.hpp>
 
 #include <boost/program_options.hpp>
 #include <boost/random/linear_congruential.hpp>
@@ -24,15 +25,6 @@
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/timer.hpp>
-
-#include <test_overlay_p_q.hpp>
-
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/multi/multi.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
-#include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
-
 
 template <typename Polygon>
 inline void make_polygon(Polygon& polygon, int count_x, int count_y, int index, int offset)
