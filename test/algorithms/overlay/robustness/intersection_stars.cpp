@@ -12,24 +12,11 @@
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
-// For mixing int/float
-#if defined(_MSC_VER)
-#pragma warning( disable : 4267 )
-#endif
 
-
-#include <boost/program_options.hpp>
-
-//#include <algorithms/test_intersection.hpp>
-//#include <algorithms/test_overlay.hpp>
-
-
-#include <boost/timer.hpp>
-
-#include <boost/geometry/geometry.hpp>
 #include <test_overlay_p_q.hpp>
 
-
+#include <boost/program_options.hpp>
+#include <boost/timer.hpp>
 
 template <typename Polygon>
 inline void make_star(Polygon& polygon,
