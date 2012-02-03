@@ -23,6 +23,25 @@
 namespace boost { namespace geometry
 {
 
+#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
+class turn_info_exception : public geometry::exception
+{
+    std::string message;
+public:
+
+    // NOTE: "char" will be replaced by enum in future version
+    inline turn_info_exception(char const method) 
+    {
+        message = "Boost.Geometry Turn exception: ";
+        message += method;
+    }
+
+    virtual char const* what() const throw()
+    {
+        return message.c_str();
+    }
+};
+#endif
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
@@ -677,6 +696,18 @@ struct crosses : public base_turn_handler
     }
 };
 
+template<typename TurnInfo>
+struct only_convert
+{
+    template<typename IntersectionInfo>
+    static inline void apply(TurnInfo& ti, IntersectionInfo const& intersection_info)
+    {
+        ti.method = method_collinear;
+        geometry::convert(intersection_info.intersections[0], ti.point);
+        ti.operations[0].operation = operation_continue;
+        ti.operations[1].operation = operation_continue;
+    }
+};
 
 /*!
 \brief Policy doing nothing
@@ -686,6 +717,9 @@ struct crosses : public base_turn_handler
  */
 struct assign_null_policy
 {
+    static bool const include_no_turn = false;
+    static bool const include_degenerate = false;
+
     template <typename Point1, typename Point2, typename Info>
     static inline void apply(Info& , Point1 const& , Point2 const& )
     {}
@@ -703,14 +737,16 @@ struct assign_null_policy
     \tparam TurnInfo type of class getting intersection and turn info
     \tparam AssignPolicy policy to assign extra info,
         e.g. to calculate distance from segment's first points
-        to intersection points
+        to intersection points.
+        It also defines if a certain class of points
+        (degenerate, non-turns) should be included.
  */
 template
 <
     typename Point1,
     typename Point2,
     typename TurnInfo,
-    typename AssignPolicy = assign_null_policy
+    typename AssignPolicy
 >
 struct get_turn_info
 {
@@ -749,10 +785,20 @@ struct get_turn_info
         // Select method and apply
         switch(method)
         {
-            case 'a' :
-            case 'f' :
-            case 's' :
-            case 'd' :
+            case 'a' : // collinear, "at"
+            case 'f' : // collinear, "from"
+            case 's' : // starts from the middle
+                if (AssignPolicy::include_no_turn
+                    && result.template get<0>().count > 0)
+                {
+                    only_convert<TurnInfo>::apply(tp,
+                                result.template get<0>());
+                    AssignPolicy::apply(tp, pi, qi);
+                    *out++ = tp;
+                }
+                break;
+
+            case 'd' : // disjoint: never do anything
                 break;
 
             case 'm' :
@@ -873,13 +919,23 @@ struct get_turn_info
             }
             break;
             case '0' :
-               // degenerate points
-               break;
+            {
+                // degenerate points
+                if (AssignPolicy::include_degenerate)
+                {
+                    only_convert<TurnInfo>::apply(tp, result.template get<0>());
+                    AssignPolicy::apply(tp, pi, qi);
+                    *out++ = tp;
+                }
+            }
+            break;
             default :
-#ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS
-                std::cout << "get_turns, nyi: " << method << std::endl;
+            {
+#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
+                throw turn_info_exception(method);
 #endif
-                break;
+            }
+            break;
         }
 
         return out;

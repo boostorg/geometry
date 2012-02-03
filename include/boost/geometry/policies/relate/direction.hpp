@@ -32,6 +32,8 @@ namespace policies { namespace relate
 
 struct direction_type
 {
+    // NOTE: "char" will be replaced by enum in future version
+
     inline direction_type(side_info const& s, char h,
                 int ha, int hb,
                 int da = 0, int db = 0,
@@ -61,6 +63,8 @@ struct direction_type
     }
 
 
+    // TODO: replace this
+    // NOTE: "char" will be replaced by enum in future version
     // "How" is the intersection formed?
     char how;
 
@@ -236,16 +240,12 @@ struct segments_direction
         return return_type('d', false);
     }
 
-
-    static inline return_type parallel()
-    {
-        return return_type('p', false);
-    }
-
     static inline return_type error(std::string const&)
     {
-        // msg
-        return return_type('d', false);
+        // Return "E" to denote error
+        // This will throw an error in get_turn_info
+        // TODO: change to enum or similar
+        return return_type('E', false);
     }
 
 private :
