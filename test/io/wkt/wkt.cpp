@@ -12,7 +12,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -58,37 +57,24 @@ void test_wkt(std::string const& wkt, std::size_t n, double len = 0,
         BOOST_CHECK_CLOSE(double(bg::perimeter(geometry)), peri, 0.0001);
     }
 
-    // String comparison: only for int/double/float etc
-    // GMP/CLN add +e01, L0, etc
-    if (boost::is_fundamental
-        <
-            typename bg::coordinate_type<G>::type
-        >::type::value)
-    {
-        std::ostringstream out;
-        out << bg::wkt(geometry);
-        BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()),
-                    boost::to_upper_copy(wkt));
-    }
+    std::ostringstream out;
+    out << bg::wkt(geometry);
+    BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()),
+                boost::to_upper_copy(wkt));
 }
 
 template <typename G>
 void test_relaxed_wkt(std::string const& wkt, std::string const& expected)
 {
-    if (boost::is_fundamental
-        <
-            typename bg::coordinate_type<G>::type
-        >::type::value)
-    {
-        std::string e;
-        G geometry;
-        bg::read_wkt(wkt, geometry);
-        std::ostringstream out;
-        out << bg::wkt(geometry);
+    std::string e;
+    G geometry;
+    bg::read_wkt(wkt, geometry);
+    std::ostringstream out;
+    out << bg::wkt(geometry);
 
-        BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()), boost::to_upper_copy(expected));
-    }
+    BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()), boost::to_upper_copy(expected));
 }
+
 
 
 
@@ -106,8 +92,29 @@ void test_wrong_wkt(std::string const& wkt, std::string const& start)
         e = ex.what();
         boost::to_lower(e);
     }
-    BOOST_CHECK_MESSAGE(boost::starts_with(e, start), "  Expected:"
-                << start << " Got:" << e << " with WKT: " << wkt);
+    catch(...)
+    {
+        e = "other exception";
+    }
+
+    bool check = true;
+
+#if defined(HAVE_TTMATH)
+    // For ttmath we skip bad lexical casts
+    typedef typename bg::coordinate_type<G>::type ct;
+
+    if (boost::is_same<ct, ttmath_big>::type::value
+        && boost::starts_with(start, "bad lexical cast"))
+    {
+        check = false;
+    }
+#endif
+
+    if (check)
+    {
+        BOOST_CHECK_MESSAGE(boost::starts_with(e, start), "  Expected:"
+                    << start << " Got:" << e << " with WKT: " << wkt);
+    }
 }
 
 template <typename G>
@@ -126,7 +133,7 @@ void test_all()
     using namespace boost::geometry;
     typedef bg::model::point<T, 2, bg::cs::cartesian> P;
 
-    test_wkt<P >("POINT(1 2)", 1);
+    test_wkt<P>("POINT(1 2)", 1);
     test_wkt<bg::model::linestring<P> >("LINESTRING(1 1,2 2,3 3)", 3, 2 * sqrt(2.0));
     test_wkt<bg::model::polygon<P> >("POLYGON((0 0,0 4,4 4,4 0,0 0)"
             ",(1 1,1 2,2 2,2 1,1 1),(1 1,1 2,2 2,2 1,1 1))", 15, 0, 18, 24);
