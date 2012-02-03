@@ -17,30 +17,24 @@
 #include <boost/geometry/io/wkt/write.hpp>
 
 // This short file contains only one manipulator, streaming as WKT
-// Don't move contents to as_wkt, developers must be able to choose how to stream
+// Don't include this in any standard-included header file.
 
 // Don't use namespace boost::geometry, to enable the library to stream custom geometries which
-// are living outside the namespace boost { namespace geometry
-
-//namespace boost { namespace geometry
-//{
-
+// are living outside the namespace boost::geometry
 
 /*!
 \brief Streams a geometry as Well-Known Text
 \ingroup wkt
 */
 template<typename Char, typename Traits, typename Geometry>
-inline std::basic_ostream<Char,Traits>& operator<<
+inline std::basic_ostream<Char, Traits>& operator<<
     (
-        std::basic_ostream<Char,Traits> &os,
+        std::basic_ostream<Char, Traits> &os,
         Geometry const& geom
     )
 {
     os << boost::geometry::wkt(geom);
     return os;
 }
-
-//}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_IO_WKT_IOMANIP_HPP
