@@ -23,16 +23,18 @@
 #include <geometry_test_common.hpp>
 
 
-//#define BOOST_GEOMETRY_DEBUG_ENRICH
+// #define BOOST_GEOMETRY_DEBUG_ENRICH
 //#define BOOST_GEOMETRY_DEBUG_RELATIVE_ORDER
 
-#define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
-#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+// #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
+// #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 
 
 #define BOOST_GEOMETRY_TEST_OVERLAY_NOT_EXCHANGED
 
-
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+#  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
+#endif
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -885,15 +887,19 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             1, 2304.41633605957,
             geos_4[0], geos_4[1]);
 
-    return;
-
-    // Cases below still have errors
-
-    // ticket#17
-    test_traverse<polygon, box, operation_intersection>::apply("ticket_17", 2, 2.687433027e-006,
-                ticket_17[0], ticket_17[1], 0.1);
-    test_traverse<polygon, box, operation_union>::apply("ticket_17", 3, 0.00922511561516,
-                ticket_17[0], ticket_17[1], 0.1);
+    if (! is_float)
+    {
+		// Calculate intersection/union of two triangles. Robustness case.
+        // ttmath can form a very small intersection triangle 
+        // (which is even not accomplished by SQL Server/PostGIS)
+        std::string const caseid = "ggl_list_20110820_christophe";
+        test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
+            1, if_typed_tt<T>(3.63794e-17, 0.0), 
+            ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
+        test_traverse<polygon, polygon, operation_union>::apply(caseid, 
+            1, 67.3550722317627, 
+            ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
+    }
 }
 
 template <typename T>
