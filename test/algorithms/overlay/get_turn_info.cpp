@@ -47,7 +47,11 @@ void test_with_point(std::string const& caseid,
     typedef std::vector<turn_info> tp_vector;
     turn_info model;
     tp_vector info;
-    bg::detail::overlay::get_turn_info<P, P, turn_info>::apply(pi, pj, pk, qi, qj, qk,
+    bg::detail::overlay::get_turn_info
+        <
+            P, P, turn_info,
+            bg::detail::overlay::assign_null_policy
+        >::apply(pi, pj, pk, qi, qj, qk,
         model, std::back_inserter(info));
 
 
