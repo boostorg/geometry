@@ -16,7 +16,7 @@
 #include <boost/concept_check.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
-#include <boost/geometry/arithmetic/cross_product.hpp>
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -64,8 +64,8 @@ struct segments_intersection_points
         // Calculate other determinants - Cramers rule
         promoted_type const wx = get<0, 0>(s1) - get<0, 0>(s2);
         promoted_type const wy = get<0, 1>(s1) - get<0, 1>(s2);
-        promoted_type const d = geometry::determinant<promoted_type>(dx1, dy1, dx2, dy2);
-        promoted_type const da = geometry::determinant<promoted_type>(dx2, dy2, wx, wy);
+        promoted_type const d = detail::determinant<promoted_type>(dx1, dy1, dx2, dy2);
+        promoted_type const da = detail::determinant<promoted_type>(dx2, dy2, wx, wy);
 
         // r: ratio 0-1 where intersection divides A/B
         promoted_type r = da / d;

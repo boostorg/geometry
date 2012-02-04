@@ -15,7 +15,7 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/geometry/arithmetic/cross_product.hpp>
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -263,7 +263,7 @@ private :
         // Waiting for implementing spherical...
 
         rtype const zero = rtype();
-        return geometry::cross_product2<rtype>(ux, uy, vx, vy) > zero;
+        return geometry::detail::determinant<rtype>(ux, uy, vx, vy) > zero;
     }
 
     template <std::size_t I>
