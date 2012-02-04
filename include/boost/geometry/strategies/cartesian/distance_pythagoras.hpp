@@ -22,8 +22,7 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 
-#include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/calculation_type.hpp>
 
 
 
@@ -82,7 +81,8 @@ template
 class pythagoras
 {
 public :
-    typedef typename select_calculation_type
+
+    typedef typename util::calculation_type::geometric::binary
             <
                 Point1,
                 Point2,
@@ -136,10 +136,14 @@ class pythagoras
 {
     typedef comparable::pythagoras<Point1, Point2, CalculationType> comparable_type;
 public :
-    typedef typename promote_floating_point
-        <
-            typename services::return_type<comparable_type>::type
-        >::type calculation_type;
+    typedef typename util::calculation_type::geometric::binary
+            <
+                Point1,
+                Point2,
+                CalculationType,
+                double,
+                double // promote integer to double
+            >::type calculation_type;
 
     /*!
     \brief applies the distance calculation using pythagoras
