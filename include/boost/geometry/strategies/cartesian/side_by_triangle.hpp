@@ -17,7 +17,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
 
-#include <boost/geometry/arithmetic/cross_product.hpp>
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
@@ -86,7 +86,7 @@ public :
         promoted_type const dpy = y - sy1;
 
         promoted_type const s 
-            = geometry::cross_product2<promoted_type>
+            = detail::determinant<promoted_type>
                 (
                     dx, dy, 
                     dpx, dpy

@@ -16,7 +16,7 @@
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 
-#include <boost/geometry/arithmetic/cross_product.hpp>
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -203,7 +203,7 @@ struct relate_cartesian_segments
         // Calculate the determinant/2D cross product
         // (Note, because we only check on zero,
         //  the order a/b does not care)
-        promoted_type const d = geometry::determinant
+        promoted_type const d = geometry::detail::determinant
             <
                 promoted_type
             >(dx_a, dy_a, dx_b, dy_b);

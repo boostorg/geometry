@@ -17,7 +17,7 @@
 
 #include <boost/mpl/if.hpp>
 
-#include <boost/geometry/arithmetic/cross_product.hpp>
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
@@ -99,7 +99,7 @@ public :
                 summation& state)
     {
         // SUM += x2 * y1 - x1 * y2;
-        state.sum += geometry::cross_product2<return_type>(p2, p1);
+        state.sum += detail::determinant<return_type>(p2, p1);
     }
 
     static inline return_type result(summation const& state)
