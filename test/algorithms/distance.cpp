@@ -244,6 +244,49 @@ void test_empty_input()
     test_empty_input(p, ring_empty);
 }
 
+void test_large_integers()
+{
+    typedef bg::model::point<int, 2, bg::cs::cartesian> int_point_type;
+    typedef bg::model::point<double, 2, bg::cs::cartesian> double_point_type;
+
+    // point-point
+    {
+        std::string const a = "POINT(2544000 528000)";
+        std::string const b = "POINT(2768040 528000)";
+        int_point_type ia, ib;
+        double_point_type da, db;
+        bg::read_wkt(a, ia);
+        bg::read_wkt(b, ib);
+        bg::read_wkt(a, da);
+        bg::read_wkt(b, db);
+
+        BOOST_AUTO(idist, bg::distance(ia, ib));
+        BOOST_AUTO(ddist, bg::distance(da, db));
+
+        BOOST_CHECK_MESSAGE(std::abs(idist - ddist) < 0.1, 
+                "within<a double> different from within<an int>");
+    }
+    // Point-segment
+    {
+        std::string const a = "POINT(2600000 529000)";
+        std::string const b = "LINESTRING(2544000 528000, 2768040 528000)";
+        int_point_type ia;
+        double_point_type da;
+        bg::model::segment<int_point_type> ib;
+        bg::model::segment<double_point_type> db;
+        bg::read_wkt(a, ia);
+        bg::read_wkt(b, ib);
+        bg::read_wkt(a, da);
+        bg::read_wkt(b, db);
+
+        BOOST_AUTO(idist, bg::distance(ia, ib));
+        BOOST_AUTO(ddist, bg::distance(da, db));
+
+        BOOST_CHECK_MESSAGE(std::abs(idist - ddist) < 0.1, 
+                "within<a double> different from within<an int>");
+    }
+}
+
 int test_main(int, char* [])
 {
 #ifdef TEST_ARRAY
@@ -252,6 +295,8 @@ int test_main(int, char* [])
     //test_all<double[2]>();
     //test_all<test::test_point>(); // located here because of 3D
 #endif
+
+    test_large_integers();
 
     test_all<bg::model::d2::point_xy<int> >();
     test_all<boost::tuple<float, float> >();
