@@ -188,7 +188,7 @@ public :
     static inline bool result(sums const& state, Point& centroid)
     {
         calculation_type const zero = calculation_type();
-        if (state.count > 0 && state.sum_a2 != zero)
+        if (state.count > 0 && ! math::equals(state.sum_a2, zero))
         {
             calculation_type const v3 = 3;
             calculation_type const a3 = v3 * state.sum_a2;

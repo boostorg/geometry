@@ -86,7 +86,7 @@ public :
         promoted_type const dpy = y - sy1;
 
         promoted_type const s 
-            = detail::determinant<promoted_type>
+            = geometry::detail::determinant<promoted_type>
                 (
                     dx, dy, 
                     dpx, dpy
