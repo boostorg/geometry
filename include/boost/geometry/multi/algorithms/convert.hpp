@@ -30,7 +30,7 @@ namespace detail { namespace conversion
 {
 
 template <typename Single, typename Multi, typename Policy>
-struct single_to_multi
+struct single_to_multi: private Policy
 {
     static inline void apply(Single const& single, Multi& multi)
     {
@@ -42,7 +42,7 @@ struct single_to_multi
 
 
 template <typename Multi1, typename Multi2, typename Policy>
-struct multi_to_multi
+struct multi_to_multi: private Policy
 {
     static inline void apply(Multi1 const& multi1, Multi2& multi2)
     {
