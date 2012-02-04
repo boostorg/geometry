@@ -18,33 +18,14 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 
 
-#include <boost/mpl/int.hpp>
+struct user_defined {};
 
-
-using namespace boost::geometry;
-
-struct user_defined
-{
-};
-
-template <typename T> struct check_selection : public boost::mpl::int_<0> {};
-
-template <> struct check_selection<short int> : public boost::mpl::int_<1> {};
-template <> struct check_selection<int> : public boost::mpl::int_<2> {};
-template <> struct check_selection<float> : public boost::mpl::int_<11> {};
-template <> struct check_selection<double> : public boost::mpl::int_<12> {};
-template <> struct check_selection<long double> : public boost::mpl::int_<13> {};
-template <> struct check_selection<user_defined> : public boost::mpl::int_<99> {};
-
-template <> struct check_selection<void> : public boost::mpl::int_<98> {};
-
-
-template <typename T1, typename T2, typename TypeToBeSelected>
+template <typename T1, typename T2, typename ExpectedType>
 void test()
 {
     typedef typename bg::select_most_precise<T1, T2>::type type;
-    BOOST_CHECK_EQUAL(check_selection<type>::type::value,
-        check_selection<TypeToBeSelected>::type::value);
+
+    BOOST_CHECK((boost::is_same<type, ExpectedType>::type::value));
 }
 
 int test_main(int, char* [])
