@@ -112,7 +112,7 @@ template <typename T> struct string_from_type<boost::rational<T> >
 
 
 template <typename CoordinateType, typename T1, typename T2>
-inline CoordinateType if_typed_tt(T1 value_tt, T2 value)
+inline T1 if_typed_tt(T1 value_tt, T2 value)
 {
 #if defined(HAVE_TTMATH)
     return boost::is_same<CoordinateType, ttmath_big>::type::value ? value_tt : value;

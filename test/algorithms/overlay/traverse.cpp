@@ -891,12 +891,12 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     {
 
 #if defined(_MSC_VER)
-        T const expected = if_typed_tt<T>(3.63794e-17, 0.0);
+        double const expected = if_typed_tt<T>(3.63794e-17, 0.0);
 #else
-	T const expected = if_typed<T, long double>(2.77555756156289135106e-17, 0.0);
+        double const expected = if_typed<T, long double>(2.77555756156289135106e-17, 0.0);
 #endif
 
-	// Calculate intersection/union of two triangles. Robustness case.
+        // Calculate intersection/union of two triangles. Robustness case.
         // ttmath can form a very small intersection triangle 
         // (which is even not accomplished by SQL Server/PostGIS)
         std::string const caseid = "ggl_list_20110820_christophe";
