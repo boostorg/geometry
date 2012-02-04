@@ -20,13 +20,21 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
-#include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/convex_hull.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/multi/algorithms/append.hpp>
+#include <boost/geometry/multi/algorithms/area.hpp>
+#include <boost/geometry/multi/algorithms/clear.hpp>
+#include <boost/geometry/multi/algorithms/convert.hpp>
+#include <boost/geometry/multi/algorithms/correct.hpp>
+#include <boost/geometry/multi/algorithms/covered_by.hpp>
+#include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "text_outputter.hpp"
