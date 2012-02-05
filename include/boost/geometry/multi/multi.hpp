@@ -17,15 +17,15 @@
 
 #include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
-#include <boost/geometry/multi/core/is_areal.hpp>
 #include <boost/geometry/multi/core/interior_rings.hpp>
+#include <boost/geometry/multi/core/is_areal.hpp>
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
 #include <boost/geometry/multi/core/ring_type.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/core/topological_dimension.hpp>
 
-
+#include <boost/geometry/multi/algorithms/append.hpp>
 #include <boost/geometry/multi/algorithms/area.hpp>
 #include <boost/geometry/multi/algorithms/centroid.hpp>
 #include <boost/geometry/multi/algorithms/clear.hpp>
@@ -59,6 +59,7 @@
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/multi/geometries/concepts/check.hpp>
