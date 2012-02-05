@@ -37,7 +37,7 @@ int main()
         << "hull: " << dsv(hull) << std::endl
         ;
 
-    /*<-*/ create_svg("envelope.svg", poly, hull); /*->*/
+    /*<-*/ create_svg("hull.svg", poly, hull); /*->*/
     return 0;
 }
 

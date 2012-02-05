@@ -16,6 +16,10 @@
 [heading Boost 1.49]
 [/=================]
 
+[*Breaking changes]
+
+* point_xy was accidentally included in one of the headerfiles. If the point_xy class is used, it should be included explicitly now.
+
 [*Bugfixes]
 
 * bugfix: distance for multi-geometries ignored specified distance strategy. Fixed
@@ -24,12 +28,15 @@
 * bugfix: multi DSV did not correctly use settings, fixed
 * bugfix: self-intersections could sometimes be missed (introduced in 1.48), fixed
 * bugfix: convex hull crashed on empty range (e.g. empty multi point), fixed
+* bugfix: area/centroid/side/intersection/distance did not work for "int" type filled with large (but not overflowing) integers. Fixed.
+* bugfix: disjoint/intersect did not work for degenerate linestrings. Fixed.
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/6019 6019] convex_hull / area, fixed.
+* [@https://svn.boost.org/trac/boost/ticket/6021 6021] convex_hull / append (multipoint), fixed.
 * [@https://svn.boost.org/trac/boost/ticket/6028 6028] Documentation: closure, fixed.
 * [@https://svn.boost.org/trac/boost/ticket/6178 6178] Missing headerfile, fixed.
-* [@https://svn.boost.org/trac/boost/ticket/6021 6021] convex hull of multipoint, fixed.
 
 [*Additional functionality]
 
@@ -40,13 +47,14 @@
 
 [*Documentation]
 
-* updated support status
+* updated support status in several algorithms
 
 [*Internal changes]
 
-* updates in specializations/not_implemented for distance/convert/assign/area
+* updates in specializations/not_implemented for distance/convert/assign/area/with/covered_by
 * move of wkt/dsv to io folder, making domains redundant
-* strategy concepts assigned to zero to avoid clang warnings (patched by Vishnu)
+* warnings: strategy concepts assigned to zero to avoid clang warnings (patched by Vishnu)
+* warnings: there were several unused parameters, for which gcc/clang warned. Fixed.
 
 [/=================]
 [heading Boost 1.48]
