@@ -297,8 +297,43 @@ void test_all()
         4, "0..4|4..5|5..8|8..11", "+|-|+|-");
 }
 
+void test_large_integers()
+{
+    typedef bg::model::point<int, 2, bg::cs::cartesian> int_point_type;
+    typedef bg::model::point<double, 2, bg::cs::cartesian> double_point_type;
+
+    std::string const polygon_li = "POLYGON((1872000 528000,1872000 192000,1536119 192000,1536000 528000,1200000 528000,1200000 863880,1536000 863880,1872000 863880,1872000 528000))";
+    bg::model::polygon<int_point_type> int_poly;
+    bg::model::polygon<double_point_type> double_poly;
+    bg::read_wkt(polygon_li, int_poly);
+    bg::read_wkt(polygon_li, double_poly);
+
+    bg::sections<bg::model::box<int_point_type>, 1> int_sections;
+    bg::sections<bg::model::box<double_point_type>, 1> double_sections;
+
+    bg::sectionalize<false>(int_poly, int_sections);
+    bg::sectionalize<false>(double_poly, double_sections);
+    
+    bool equally_sized = int_sections.size() == double_sections.size();
+    BOOST_CHECK(equally_sized);
+    if (! equally_sized)
+    {
+        return;
+    }
+
+    for (unsigned int i = 0; i < int_sections.size(); i++)
+    {
+        BOOST_CHECK(int_sections[i].begin_index == double_sections[i].begin_index);
+        BOOST_CHECK(int_sections[i].count == double_sections[i].count);
+    }
+
+}
+
+
 int test_main(int, char* [])
 {
+    test_large_integers();
+
     //test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
 
