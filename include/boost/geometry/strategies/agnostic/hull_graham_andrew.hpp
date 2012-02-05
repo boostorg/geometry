@@ -96,7 +96,7 @@ struct get_extremes
         }
 
         // Then compare with earlier
-        if (first && boost::size(range) > 0)
+        if (first)
         {
             // First time, assign left/right
             left = *left_it;
