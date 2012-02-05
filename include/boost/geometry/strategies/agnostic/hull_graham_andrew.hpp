@@ -225,8 +225,15 @@ public:
     {
         // First pass.
         // Get min/max (in most cases left / right) points
-        // This makes use of the geometry::less/greater predicates with the optional
-        // direction template parameter to indicate x direction
+        // This makes use of the geometry::less/greater predicates
+
+        // For the left boundary it is important that multiple points
+        // are sorted from bottom to top. Therefore the less predicate
+        // does not take the x-only template parameter (this fixes ticket #6019.
+        // For the right boundary it is not necessary (though also not harmful), 
+        // because points are sorted from bottom to top in a later stage.
+        // For symmetry and to get often more balanced lower/upper halves
+        // we keep it.
 
         typedef typename geometry::detail::range_type<InputGeometry>::type range_type;
 
@@ -239,8 +246,8 @@ public:
             <
                 range_type,
                 range_iterator,
-                geometry::less<point_type, 0>,
-                geometry::greater<point_type, 0>
+                geometry::less<point_type>,
+                geometry::greater<point_type>
             > extremes;
         geometry::detail::for_each_range(geometry, extremes);
 
