@@ -238,6 +238,7 @@ void test_large_integers()
     bool wi = bg::within(int_point, int_poly);
     bool wd = bg::within(double_point, double_poly);
 
+    BOOST_CHECK_MESSAGE(wi == wd, "within<a double> different from within<an int>");
 }
 
 int test_main( int , char* [] )
