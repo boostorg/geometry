@@ -71,30 +71,6 @@ struct cross_product<P1, P2, 3>
     }
 };
 
-
-template <typename ReturnType, typename U, typename V>
-class cross_product2
-{
-    template <typename T>
-    static inline ReturnType rt(T const& v)
-    {
-        return boost::numeric_cast<ReturnType>(v);
-    }
-
-public :
-
-    // Most common dimension, as also defined by Wolfram:
-    // http://mathworld.wolfram.com/CrossProduct.html
-    // "In two dimensions, the analog of the cross product for u=(u_x,u_y) and v=(v_x,v_y) is
-    //   uxv = det(uv)	
-    //   = u_x v_y - u_y v_x"
-    static inline ReturnType apply(U const& ux, U const& uy
-                                 , V const& vx, V const& vy)
-    {
-        return rt(ux) * rt(vy) - rt(uy) * rt(vx);
-    }
-};
-
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
@@ -126,52 +102,6 @@ inline P1 cross_product(P1 const& p1, P2 const& p2)
             P1, P2,
             dimension<P1>::type::value
         >::apply(p1, p2);
-}
-
-
-/*!
-\brief Computes the cross product of two vectors, version for four values
-\details Because we often have the four coordinate values (often differences)
-    available, it is convenient to have a version which works directly on these,
-    without having to make a (temporary) Point or Vector
-\ingroup arithmetic
-\return the cross product value
- */
-template <typename ReturnType, typename U, typename V>
-inline ReturnType cross_product2(U const& ux, U const& uy
-                               , V const& vx, V const& vy)
-{
-    return detail::cross_product2
-        <
-            ReturnType, U, V
-        >::apply(ux, uy, vx, vy);
-}
-
-// Synonym, because yes, sometimes the algorithm calls it "determinant"
-template <typename ReturnType, typename U, typename V>
-inline ReturnType determinant(U const& ux, U const& uy
-                            , V const& vx, V const& vy)
-{
-    return detail::cross_product2
-        <
-            ReturnType, U, V
-        >::apply(ux, uy, vx, vy);
-}
-
-
-// TEMPORARY, to be harmonized with cross_product
-template <typename ReturnType, typename U, typename V>
-inline ReturnType cross_product2(U const& u, V const& v)
-{
-    BOOST_CONCEPT_ASSERT( (concept::ConstPoint<U>) );
-    BOOST_CONCEPT_ASSERT( (concept::ConstPoint<V>) );
-
-    return detail::cross_product2
-        <
-            ReturnType, 
-            typename geometry::coordinate_type<U>::type,
-            typename geometry::coordinate_type<V>::type
-        >::apply(get<0>(u), get<1>(u), get<0>(v), get<1>(v));
 }
 
 
