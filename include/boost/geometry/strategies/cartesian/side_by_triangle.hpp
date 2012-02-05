@@ -17,10 +17,9 @@
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
 
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/access.hpp>
-
 #include <boost/geometry/util/select_coordinate_type.hpp>
-
 #include <boost/geometry/strategies/side.hpp>
 
 
@@ -66,7 +65,6 @@ public :
                 CalculationType
             >::type coordinate_type;
 
-//std::cout << "side: " << typeid(coordinate_type).name() << std::endl;
         coordinate_type const x = get<0>(p);
         coordinate_type const y = get<1>(p);
 
@@ -87,7 +85,12 @@ public :
         promoted_type const dpx = x - sx1;
         promoted_type const dpy = y - sy1;
 
-        promoted_type const s = dx * dpy - dy * dpx;
+        promoted_type const s 
+            = geometry::detail::determinant<promoted_type>
+                (
+                    dx, dy, 
+                    dpx, dpy
+                );
 
         promoted_type const zero = promoted_type();
         return math::equals(s, zero) ? 0 

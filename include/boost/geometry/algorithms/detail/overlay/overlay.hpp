@@ -145,9 +145,19 @@ struct overlay
                 OutputIterator out,
                 Strategy const& )
     {
-        if (geometry::num_points(geometry1) == 0 && geometry::num_points(geometry2) == 0)
+        if (geometry::num_points(geometry1) == 0
+            && geometry::num_points(geometry2) == 0)
         {
             return out;
+        }
+
+        if (geometry::num_points(geometry1) == 0
+            || geometry::num_points(geometry2) == 0)
+        {
+            return return_if_one_input_is_empty
+                <
+                    GeometryOut, Direction, ReverseOut
+                >(geometry1, geometry2, out);
         }
 
         typedef typename geometry::point_type<GeometryOut>::type point_type;
@@ -159,15 +169,6 @@ struct overlay
                 typename geometry::ring_type<GeometryOut>::type
             > ring_container_type;
 
-        if (geometry::num_points(geometry1) == 0
-            || geometry::num_points(geometry2) == 0)
-        {
-            return return_if_one_input_is_empty
-                <
-                    GeometryOut, Direction, ReverseOut
-                >(geometry1, geometry2, out);
-        }
-        
         container_type turn_points;
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY

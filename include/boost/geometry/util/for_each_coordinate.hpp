@@ -54,7 +54,7 @@ struct coordinates_scanner<Point, DimensionCount, DimensionCount, IsConst>
         <
             IsConst,
             Point
-        >::type& point, Op operation)
+        >::type& , Op operation)
     {
         return operation;
     }

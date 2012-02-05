@@ -16,6 +16,7 @@
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -120,7 +121,7 @@ struct relate_cartesian_segments
             coordinate_type const& dx_a, coordinate_type const& dy_a,
             coordinate_type const& dx_b, coordinate_type const& dy_b)
     {
-        // 1) Handle "disjoint", probably common case.
+        // 1) Handle "disjoint", common case.
         // per dimension, 2 cases: a_1----------a_2    b_1-------b_2 or B left of A
         coordinate_type ax_1, ax_2, bx_1, bx_2;
         bool ax_swapped = false, bx_swapped = false;
@@ -136,7 +137,7 @@ struct relate_cartesian_segments
         bool ay_swapped = false, by_swapped = false;
         detail::segment_arrange<segment_type1, 1>::apply(a, ay_1, ay_2, ay_swapped);
         detail::segment_arrange<segment_type2, 1>::apply(b, by_1, by_2, by_swapped);
-        if (ay_2 < ay_1 || ay_1 > by_2)
+        if (ay_2 < by_1 || ay_1 > by_2)
         {
             return Policy::disjoint();
         }
@@ -199,13 +200,19 @@ struct relate_cartesian_segments
                 coordinate_type, double
             >::type promoted_type;
 
+        // Calculate the determinant/2D cross product
+        // (Note, because we only check on zero,
+        //  the order a/b does not care)
+        promoted_type const d = geometry::detail::determinant
+            <
+                promoted_type
+            >(dx_a, dy_a, dx_b, dy_b);
 
-        promoted_type const d = (dy_b * dx_a) - (dx_b * dy_a);
         // Determinant d should be nonzero.
         // If it is zero, we have an robustness issue here,
         // (and besides that we cannot divide by it)
-        if(math::equals(d, zero) && ! collinear)
-        //if(! collinear && sides.as_collinear())
+        promoted_type const pt_zero = promoted_type();
+        if(math::equals(d, pt_zero) && ! collinear)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
             std::cout << "Determinant zero? Type : "

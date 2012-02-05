@@ -181,7 +181,7 @@ template
 struct clip_multi_linestring
 {
     static inline OutputIterator apply(MultiLinestring const& multi_linestring,
-            Box const& box, OutputIterator out, Strategy const& strategy)
+            Box const& box, OutputIterator out, Strategy const& )
     {
         typedef typename point_type<LinestringOut>::type point_type;
         strategy::intersection::liang_barsky<Box, point_type> lb_strategy;

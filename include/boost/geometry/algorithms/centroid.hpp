@@ -191,7 +191,7 @@ struct centroid_range_state
             it != end;
             ++previous, ++it)
         {
-            Strategy::apply(*previous, *it, state);
+            strategy.apply(*previous, *it, state);
         }
     }
 };
@@ -211,7 +211,7 @@ struct centroid_range
                     Closure,
                     Strategy
                 >::apply(range, strategy, state);
-            Strategy::result(state, centroid);
+            strategy.result(state, centroid);
         }
     }
 };
@@ -262,7 +262,7 @@ struct centroid_polygon
                     Polygon,
                     Strategy
                 >::apply(poly, strategy, state);
-            Strategy::result(state, centroid);
+            strategy.result(state, centroid);
         }
     }
 };

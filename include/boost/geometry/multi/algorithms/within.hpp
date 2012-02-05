@@ -69,9 +69,10 @@ struct geometry_multi_within_code
 namespace dispatch
 {
 
-template <typename Point, typename MultiPolygon, typename Strategy>
-struct within<point_tag, multi_polygon_tag, Point, MultiPolygon, Strategy>
+template <typename Point, typename MultiPolygon>
+struct within<Point, MultiPolygon, point_tag, multi_polygon_tag>
 {
+    template <typename Strategy>
     static inline bool apply(Point const& point, 
                 MultiPolygon const& multi_polygon, Strategy const& strategy)
     {

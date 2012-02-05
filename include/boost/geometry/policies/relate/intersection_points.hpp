@@ -16,6 +16,7 @@
 #include <boost/concept_check.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -40,9 +41,6 @@ struct segments_intersection_points
             S1, S2, CalculationType
         >::type coordinate_type;
 
-    // Get the same type, but at least a double
-    typedef typename select_most_precise<coordinate_type, double>::type rtype;
-
     static inline return_type segments_intersect(side_info const&,
                     coordinate_type const& dx1, coordinate_type const& dy1,
                     coordinate_type const& dx2, coordinate_type const& dy2,
@@ -54,7 +52,7 @@ struct segments_intersection_points
                 typename return_type::point_type
             >::type coordinate_type;
 
-        // Get the same type, but at least a double (also used for divisions
+        // Get the same type, but at least a double (also used for divisions)
         typedef typename select_most_precise
             <
                 coordinate_type, double
@@ -66,19 +64,21 @@ struct segments_intersection_points
         // Calculate other determinants - Cramers rule
         promoted_type const wx = get<0, 0>(s1) - get<0, 0>(s2);
         promoted_type const wy = get<0, 1>(s1) - get<0, 1>(s2);
-        promoted_type const d = (dy2 * dx1) - (dx2 * dy1);
-        promoted_type const da = (promoted_type(dx2) * wy) - (promoted_type(dy2) * wx);
+        promoted_type const d = detail::determinant<promoted_type>(dx1, dy1, dx2, dy2);
+        promoted_type const da = detail::determinant<promoted_type>(dx2, dy2, wx, wy);
 
         // r: ratio 0-1 where intersection divides A/B
         promoted_type r = da / d;
+        promoted_type const zero = promoted_type();
+        promoted_type const one = 1;
 		// Handle robustness issues
-		if (r < 0)
+		if (r < zero)
 		{
-			r = 0;
+			r = zero;
 		}
-		else if (r > 1)
+		else if (r > one)
 		{
-			r = 1;
+			r = one;
 		}
 
         result.count = 1;
@@ -120,7 +120,7 @@ struct segments_intersection_points
         return collinear_inside(s, index1, 1 - index1);
     }
 
-    static inline return_type collinear_a_in_b(S1 const& s, bool opposite)
+    static inline return_type collinear_a_in_b(S1 const& s, bool)
     {
         return collinear_inside(s);
     }
@@ -144,7 +144,7 @@ struct segments_intersection_points
         return result;
     }
 
-    static inline return_type segment_equal(S1 const& s, bool opposite)
+    static inline return_type segment_equal(S1 const& s, bool)
     {
         return_type result;
         result.count = 2;
@@ -160,7 +160,7 @@ struct segments_intersection_points
     {
         return return_type();
     }
-    static inline return_type error(std::string const& msg)
+    static inline return_type error(std::string const&)
     {
         return return_type();
     }
@@ -169,10 +169,7 @@ struct segments_intersection_points
     {
         return return_type();
     }
-    static inline return_type parallel()
-    {
-        return return_type();
-    }
+
     static inline return_type degenerate(S1 const& s, bool)
     {
         return_type result;

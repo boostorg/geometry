@@ -31,13 +31,6 @@
 #include <boost/geometry/views/reversible_view.hpp>
 
 
-// Temporary, comparing sorting, this can be removed in the end
-//#define BOOST_GEOMETRY_USE_FLEX_SORT
-//#define BOOST_GEOMETRY_USE_FLEX_SORT2
-#if defined(BOOST_GEOMETRY_USE_FLEX_SORT)
-#  include <boost/algorithm/sorting/flex_sort.hpp>
-#endif
-
 namespace boost { namespace geometry
 {
 
@@ -103,7 +96,7 @@ struct get_extremes
         }
 
         // Then compare with earlier
-        if (first && boost::size(range) > 0)
+        if (first)
         {
             // First time, assign left/right
             left = *left_it;
@@ -178,61 +171,14 @@ struct assign_range
     }
 };
 
-
 template <typename Range>
 static inline void sort(Range& range)
 {
     typedef typename boost::range_value<Range>::type point_type;
     typedef geometry::less<point_type> comparator;
 
-#if defined(GGL_USE_FLEX_SORT)
-
-    #if defined(GGL_USE_FLEX_SORT1)
-    typedef boost::detail::default_predicate
-        <
-            boost::sort_filter_cutoff
-            <
-                18,
-                boost::detail::insert_sort_core,
-                boost::sort_filter_ground
-                    <
-                        30,
-                        boost::detail::heap_sort_core,
-                        boost::detail::quick_sort_core
-                            <
-                                boost::pivot_median_of_three,
-                                boost::default_partitionner
-                            >
-                    >
-            >,
-            comparator> my_sort;
-    my_sort sort;
-    #elif defined(GGL_USE_FLEX_SORT2)
-
-    // 1, 5, 9, 18, 25: 0.75
-    // 50: 0.81
-
-    typedef boost::detail::default_predicate<boost::sort_filter_cutoff
-    <
-        35,
-        boost::detail::insert_sort_core,
-        boost::detail::quick_sort_core<boost::pivot_middle, boost::default_partitionner>
-    >, comparator
-    > barend_sort;
-
-    barend_sort sort;
-    #else
-    #error Define sub-flex-sort
-    #endif
-
-    sort(boost::begin(range), boost::end(range));
-
-#else
-    std::sort
-        (boost::begin(range), boost::end(range), comparator());
-#endif
+    std::sort(boost::begin(range), boost::end(range), comparator());
 }
-
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
@@ -279,8 +225,15 @@ public:
     {
         // First pass.
         // Get min/max (in most cases left / right) points
-        // This makes use of the geometry::less/greater predicates with the optional
-        // direction template parameter to indicate x direction
+        // This makes use of the geometry::less/greater predicates
+
+        // For the left boundary it is important that multiple points
+        // are sorted from bottom to top. Therefore the less predicate
+        // does not take the x-only template parameter (this fixes ticket #6019.
+        // For the right boundary it is not necessary (though also not harmful), 
+        // because points are sorted from bottom to top in a later stage.
+        // For symmetry and to get often more balanced lower/upper halves
+        // we keep it.
 
         typedef typename geometry::detail::range_type<InputGeometry>::type range_type;
 
@@ -293,8 +246,8 @@ public:
             <
                 range_type,
                 range_iterator,
-                geometry::less<point_type, 0>,
-                geometry::greater<point_type, 0>
+                geometry::less<point_type>,
+                geometry::greater<point_type>
             > extremes;
         geometry::detail::for_each_range(geometry, extremes);
 

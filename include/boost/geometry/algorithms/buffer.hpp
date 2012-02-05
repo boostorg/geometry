@@ -83,7 +83,7 @@ template <typename BoxIn, typename T, typename BoxOut>
 struct buffer<box_tag, box_tag, BoxIn, T, BoxOut>
 {
     static inline void apply(BoxIn const& box_in, T const& distance,
-                T const& chord_length, BoxIn& box_out)
+                T const& , BoxIn& box_out)
     {
         detail::buffer::buffer_box(box_in, distance, box_out);
     }

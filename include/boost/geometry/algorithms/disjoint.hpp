@@ -44,6 +44,19 @@ namespace boost { namespace geometry
 namespace detail { namespace disjoint
 {
 
+struct assign_disjoint_policy
+{
+    // We want to include all points:
+    static bool const include_no_turn = true;
+    static bool const include_degenerate = true;
+
+    // We don't assign extra info:
+    template <typename Point1, typename Point2, typename Info>
+    static inline void apply(Info& , Point1 const& , Point2 const& )
+    {}
+};
+   
+
 template <typename Geometry1, typename Geometry2>
 struct disjoint_linear
 {
@@ -54,12 +67,14 @@ struct disjoint_linear
         typedef overlay::turn_info<point_type> turn_info;
         std::deque<turn_info> turns;
 
-        // Get (and stop on) any intersection
+        // Specify two policies:
+        // 1) Stop at any intersection
+        // 2) In assignment, include also degenerate points (which are normally skipped)
         disjoint_interrupt_policy policy;
         geometry::get_turns
             <
-                false, false,
-                overlay::assign_null_policy
+                false, false, 
+                assign_disjoint_policy
             >(geometry1, geometry2, turns, policy);
         if (policy.has_intersections)
         {

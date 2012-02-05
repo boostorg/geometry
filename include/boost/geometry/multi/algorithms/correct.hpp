@@ -32,19 +32,19 @@ namespace dispatch
 {
 
 template <typename MultiPoint>
-struct correct<multi_point_tag, MultiPoint>
+struct correct<MultiPoint, multi_point_tag>
     : detail::correct::correct_nop<MultiPoint>
 {};
 
 
 template <typename MultiLineString>
-struct correct<multi_linestring_tag, MultiLineString>
+struct correct<MultiLineString, multi_linestring_tag>
     : detail::correct::correct_nop<MultiLineString>
 {};
 
 
 template <typename Geometry>
-struct correct<multi_polygon_tag, Geometry>
+struct correct<Geometry, multi_polygon_tag>
     : detail::multi_modify
         <
             Geometry,

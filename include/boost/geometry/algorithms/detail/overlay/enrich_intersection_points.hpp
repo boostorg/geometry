@@ -294,9 +294,9 @@ template
 >
 inline void enrich_assign(Container& operations,
             TurnPoints& turn_points,
-            operation_type for_operation,
-            Geometry1 const& geometry1, Geometry2 const& geometry2,
-            Strategy const& strategy)
+            operation_type ,
+            Geometry1 const& , Geometry2 const& ,
+            Strategy const& )
 {
     typedef typename IndexType::type operations_type;
     typedef typename boost::range_iterator<Container const>::type iterator_type;
