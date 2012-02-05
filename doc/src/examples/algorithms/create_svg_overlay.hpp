@@ -44,6 +44,11 @@ void create_svg(std::string const& filename, Geometry const& a, Geometry const& 
         mapper.text(boost::geometry::return_centroid<point_type>(g), out.str(),
                     "fill:rgb(0,0,0);font-family:Arial;font-size:10px");
     }
+#else
+    boost::ignore_unused_variable_warning(filename);
+    boost::ignore_unused_variable_warning(a);
+    boost::ignore_unused_variable_warning(b);
+    boost::ignore_unused_variable_warning(range);
 #endif    
 }
 

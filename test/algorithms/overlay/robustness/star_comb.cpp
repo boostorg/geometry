@@ -7,16 +7,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <iomanip>
-#include <string>
 
 #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 #define BOOST_GEOMETRY_TIME_OVERLAY
 
+
+#include <test_overlay_p_q.hpp>
 
 #include <boost/program_options.hpp>
 #include <boost/random/linear_congruential.hpp>
@@ -26,14 +23,6 @@
 #include <boost/timer.hpp>
 
 #include <star_comb.hpp>
-#include <test_overlay_p_q.hpp>
-
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/multi/multi.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
-#include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
 
 template <typename Polygon>

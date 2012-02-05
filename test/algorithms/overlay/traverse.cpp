@@ -23,16 +23,18 @@
 #include <geometry_test_common.hpp>
 
 
-//#define BOOST_GEOMETRY_DEBUG_ENRICH
+// #define BOOST_GEOMETRY_DEBUG_ENRICH
 //#define BOOST_GEOMETRY_DEBUG_RELATIVE_ORDER
 
-#define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
-#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+// #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
+// #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 
 
 #define BOOST_GEOMETRY_TEST_OVERLAY_NOT_EXCHANGED
 
-
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+#  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
+#endif
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -756,11 +758,11 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         test_traverse<polygon, polygon, operation_union>::apply("hv3", 1, 1624.22079205664, hv_3[0], hv_3[1], deviation);
         test_traverse<polygon, polygon, operation_intersection>::apply("hv3", 1, 1623.8265057282042, hv_3[0], hv_3[1], deviation);
 
-        test_traverse<polygon, polygon, operation_union>::apply("hv4", 1, 1626.5146964146334, hv_4[0], hv_4[1], deviation);
-        test_traverse<polygon, polygon, operation_intersection>::apply("hv4", 1, 1626.2580370864305, hv_4[0], hv_4[1], deviation);
 
         if (! is_float)
         {
+            test_traverse<polygon, polygon, operation_union>::apply("hv4", 1, 1626.5146964146334, hv_4[0], hv_4[1], deviation);
+            test_traverse<polygon, polygon, operation_intersection>::apply("hv4", 1, 1626.2580370864305, hv_4[0], hv_4[1], deviation);
             test_traverse<polygon, polygon, operation_union>::apply("hv5", 1, 1624.2158307261871, hv_5[0], hv_5[1], deviation);
             test_traverse<polygon, polygon, operation_intersection>::apply("hv5", 1, 1623.4506071521519, hv_5[0], hv_5[1], deviation);
 
@@ -884,16 +886,27 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     test_traverse<polygon, polygon, operation_union>::apply("geos_4",
             1, 2304.41633605957,
             geos_4[0], geos_4[1]);
+	
+    if (! is_float)
+    {
 
-    return;
+#if defined(_MSC_VER)
+        double const expected = if_typed_tt<T>(3.63794e-17, 0.0);
+#else
+        double const expected = if_typed<T, long double>(2.77555756156289135106e-17, 0.0);
+#endif
 
-    // Cases below still have errors
-
-    // ticket#17
-    test_traverse<polygon, box, operation_intersection>::apply("ticket_17", 2, 2.687433027e-006,
-                ticket_17[0], ticket_17[1], 0.1);
-    test_traverse<polygon, box, operation_union>::apply("ticket_17", 3, 0.00922511561516,
-                ticket_17[0], ticket_17[1], 0.1);
+        // Calculate intersection/union of two triangles. Robustness case.
+        // ttmath can form a very small intersection triangle 
+        // (which is even not accomplished by SQL Server/PostGIS)
+        std::string const caseid = "ggl_list_20110820_christophe";
+        test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
+            1, expected,
+            ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
+        test_traverse<polygon, polygon, operation_union>::apply(caseid, 
+            1, 67.3550722317627, 
+            ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
+    }
 }
 
 template <typename T>

@@ -233,6 +233,43 @@ void test_big_2d_string()
         "987654.32100001", "876543.21900001");
 }
 
+template <typename CoordinateType>
+void test_integer(bool check_types)
+{
+    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
+
+    point_type p1, p2;
+    bg::assign_values(p1, 12345678, 23456789);
+    bg::assign_values(p2, 98765432, 87654321);
+
+    typedef bg::strategy::distance::pythagoras
+        <
+            point_type
+        > pythagoras_type;
+    pythagoras_type pythagoras;
+    BOOST_AUTO(distance, pythagoras.apply(p1, p2));
+    BOOST_CHECK_CLOSE(distance, 107655455.02347542, 0.001);
+
+    typedef typename bg::strategy::distance::services::comparable_type
+        <
+            pythagoras_type
+        >::type comparable_type;
+    comparable_type comparable;
+    BOOST_AUTO(cdistance, comparable.apply(p1, p2));
+    BOOST_CHECK_EQUAL(cdistance, 11589696996311540);
+
+    typedef BOOST_TYPEOF(cdistance) cdistance_type;
+    typedef BOOST_TYPEOF(distance) distance_type;
+
+    distance_type distance2 = sqrt(distance_type(cdistance));
+    BOOST_CHECK_CLOSE(distance, distance2, 0.001);
+
+    if (check_types)
+    {
+        BOOST_CHECK((boost::is_same<distance_type, double>::type::value));
+        BOOST_CHECK((boost::is_same<cdistance_type, boost::long_long_type>::type::value));
+    }
+}
 
 
 template <typename P1, typename P2>
@@ -284,6 +321,10 @@ void time_compare(int const n)
 
 int test_main(int, char* [])
 {
+    test_integer<int>(true);
+    test_integer<boost::long_long_type>(true);
+    test_integer<double>(false);
+
     test_all_3d<int[3]>();
     test_all_3d<float[3]>();
     test_all_3d<double[3]>();
@@ -303,7 +344,8 @@ int test_main(int, char* [])
     test_services<double[3], test::test_point, float>();
 
 
-    time_compare<bg::model::point<double, 2, bg::cs::cartesian> >(10000);
+    // TODO move this to another non-unit test
+    // time_compare<bg::model::point<double, 2, bg::cs::cartesian> >(10000);
 
 #if defined(HAVE_TTMATH)
 

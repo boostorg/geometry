@@ -7,20 +7,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <iostream>
-#include <string>
 
 #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
-#include <boost/program_options.hpp>
-#include <boost/timer.hpp>
-
 #include <test_overlay_p_q.hpp>
 
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/multi/multi.hpp>
-
+#include <boost/program_options.hpp>
+#include <boost/timer.hpp>
 
 template <typename Polygon>
 inline void make_pie(Polygon& polygon,

@@ -20,12 +20,21 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
-#include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/convex_hull.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/multi/algorithms/append.hpp>
+#include <boost/geometry/multi/algorithms/area.hpp>
+#include <boost/geometry/multi/algorithms/clear.hpp>
+#include <boost/geometry/multi/algorithms/convert.hpp>
+#include <boost/geometry/multi/algorithms/correct.hpp>
+#include <boost/geometry/multi/algorithms/covered_by.hpp>
+#include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "text_outputter.hpp"
@@ -71,7 +80,10 @@ DECLARE_UNARY_ALGORITHM (area)
 DECLARE_UNARY_ALGORITHM (clear)
 DECLARE_BINARY_ALGORITHM(convert)
 DECLARE_UNARY_ALGORITHM (convex_hull)
+DECLARE_UNARY_ALGORITHM (correct)
+DECLARE_BINARY_ALGORITHM(covered_by)
 DECLARE_BINARY_ALGORITHM(distance)
+DECLARE_BINARY_ALGORITHM(within)
 
 
 template <template <typename> class Dispatcher, typename Outputter, typename G>
@@ -158,7 +170,7 @@ void test_unary_algorithm(std::string const& name)
     Outputter outputter(name);
     outputter.header(name);
 
-    outputter.template table_header();
+    outputter.table_header();
     boost::mpl::for_each<Types>(unary_test<Dispatcher, Outputter>(outputter));
 
     outputter.table_footer();
@@ -185,7 +197,10 @@ void support_status()
     test_unary_algorithm<clear, all_types, OutputFactory>("clear");
     test_binary_algorithm<convert, all_types, all_types, OutputFactory>("convert");
     test_unary_algorithm<convex_hull, all_types, OutputFactory>("convex_hull");
+    test_unary_algorithm<correct, all_types, OutputFactory>("correct");
+    test_binary_algorithm<covered_by, all_types, all_types, OutputFactory>("covered_by");
     test_binary_algorithm<distance, all_types, all_types, OutputFactory>("distance");
+    test_binary_algorithm<within, all_types, all_types, OutputFactory>("within");
 }
 
 

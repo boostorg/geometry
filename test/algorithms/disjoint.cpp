@@ -112,6 +112,61 @@ void test_all()
     test_disjoint<ls, ls>("ls/ls 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
     test_disjoint<segment, segment>("s/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
     test_disjoint<segment, segment>("s/s 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
+
+    // Degenerate linestrings
+    {
+        // Submitted by Zachary on the Boost.Geometry Mailing List, on 2012-01-29
+        std::string const a = "linestring(100 10, 0 10)";
+        std::string const b = "linestring(50 10, 50 10)"; // one point only, with same y-coordinate
+        std::string const c = "linestring(100 10, 100 10)"; // idem, at left side
+        test_disjoint<ls, ls>("dls/dls 1", a, b, false);
+        test_disjoint<ls, ls>("dls/dls 2", b, a, false);
+        test_disjoint<segment, segment>("ds/ds 1", a, b, false);
+        test_disjoint<segment, segment>("ds/ds 2", b, a, false);
+        test_disjoint<ls, ls>("dls/dls 1", a, c, false);
+    }
+
+    // Linestrings making angles normally ignored
+    {
+        // These (non-disjoint) cases 
+        // correspond to the test "segment_intersection_collinear"
+
+        // Collinear ('a')
+        //       a1---------->a2
+        // b1--->b2
+        test_disjoint<ls, ls>("n1", "linestring(2 0,0 6)", "linestring(0 0,2 0)", false);
+
+        //       a1---------->a2
+        //                    b1--->b2
+        test_disjoint<ls, ls>("n7", "linestring(2 0,6 0)", "linestring(6 0,8 0)", false);
+
+        // Collinear - opposite ('f')
+        //       a1---------->a2
+        // b2<---b1
+        test_disjoint<ls, ls>("o1", "linestring(2 0,6 0)", "linestring(2 0,0 0)", false);
+    }
+
+    {
+        // Starting in the middle ('s')
+        //           b2
+        //           ^
+        //           |
+        //           |
+        // a1--------b1----->a2
+        test_disjoint<ls, ls>("case_s", "linestring(0 0,4 0)", "linestring(2 0,2 2)", false); 
+
+        // Collinear, but disjoint
+        test_disjoint<ls, ls>("c-d", "linestring(2 0,6 0)", "linestring(7 0,8 0)", true);
+
+        // Parallel, disjoint
+        test_disjoint<ls, ls>("c-d", "linestring(2 0,6 0)", "linestring(2 1,6 1)", true);
+
+        // Error still there until 1.48 (reported "error", was reported to disjoint, so that's why it did no harm)
+        test_disjoint<ls, ls>("case_recursive_boxes_1", 
+            "linestring(10 7,10 6)", "linestring(10 10,10 9)", true);
+
+    }
+
     // TODO test_disjoint<segment, ls>("s/ls 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
     // TODO test_disjoint<segment, ls>("s/ls 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
     // TODO test_disjoint<ls, segment>("ls/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);

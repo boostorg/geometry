@@ -101,11 +101,34 @@ void test_exceptions()
     test_centroid_exception<bg::model::ring<P> >();
 }
 
+void test_large_integers()
+{
+    typedef bg::model::point<int, 2, bg::cs::cartesian> int_point_type;
+    typedef bg::model::point<double, 2, bg::cs::cartesian> double_point_type;
+
+    bg::model::polygon<int_point_type> int_poly;
+    bg::model::polygon<double_point_type> double_poly;
+
+    std::string const polygon_li = "POLYGON((1872000 528000,1872000 192000,1536119 192000,1536000 528000,1200000 528000,1200000 863880,1536000 863880,1872000 863880,1872000 528000))";
+    bg::read_wkt(polygon_li, int_poly);
+    bg::read_wkt(polygon_li, double_poly);
+
+    int_point_type int_centroid;
+    double_point_type double_centroid;
+
+    bg::centroid(int_poly, int_centroid);
+    bg::centroid(double_poly, double_centroid);
+
+    int_point_type double_centroid_as_int;
+    bg::assign(int_centroid, double_centroid_as_int);
+
+    BOOST_CHECK_EQUAL(bg::get<0>(int_centroid), bg::get<0>(double_centroid_as_int));
+    BOOST_CHECK_EQUAL(bg::get<1>(int_centroid), bg::get<1>(double_centroid_as_int));
+}
+
 
 int test_main(int, char* [])
 {
-    test_exceptions<bg::model::d2::point_xy<double> >();
-
     test_2d<bg::model::d2::point_xy<double> >();
     test_2d<boost::tuple<float, float> >();
     test_2d<bg::model::d2::point_xy<float> >();
@@ -118,6 +141,9 @@ int test_main(int, char* [])
     test_2d<bg::model::d2::point_xy<ttmath_big> >();
     test_3d<boost::tuple<ttmath_big, ttmath_big, ttmath_big> >();
 #endif
+
+    test_large_integers();
+    test_exceptions<bg::model::d2::point_xy<double> >();
 
     return 0;
 }

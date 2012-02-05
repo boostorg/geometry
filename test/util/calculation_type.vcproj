@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="wkt"
-	ProjectGUID="{1FA2ADE2-F649-4245-951E-A8F5935E7127}"
-	RootNamespace="wkt"
+	Name="calculation_type"
+	ProjectGUID="{CF8FE803-A26B-4553-B605-9C28225B5595}"
+	RootNamespace="calculation_type"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,9 +18,9 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\wkt"
+			IntermediateDirectory="$(ConfigurationName)\calculation_type"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops;..\..\ttmath.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../../..;../.."
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
@@ -91,9 +91,9 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\wkt"
+			IntermediateDirectory="$(ConfigurationName)\calculation_type"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\boost.vsprops;..\..\ttmath.vsprops"
+			InheritedPropertySheets="..\boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -114,7 +114,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../../..;../.."
+				AdditionalIncludeDirectories="../../../..;.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\wkt.cpp"
+			RelativePath=".\calculation_type.cpp"
 			>
 		</File>
 	</Files>
