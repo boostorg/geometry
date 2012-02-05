@@ -31,13 +31,6 @@
 #include <boost/geometry/views/reversible_view.hpp>
 
 
-// Temporary, comparing sorting, this can be removed in the end
-//#define BOOST_GEOMETRY_USE_FLEX_SORT
-//#define BOOST_GEOMETRY_USE_FLEX_SORT2
-#if defined(BOOST_GEOMETRY_USE_FLEX_SORT)
-#  include <boost/algorithm/sorting/flex_sort.hpp>
-#endif
-
 namespace boost { namespace geometry
 {
 
@@ -178,61 +171,14 @@ struct assign_range
     }
 };
 
-
 template <typename Range>
 static inline void sort(Range& range)
 {
     typedef typename boost::range_value<Range>::type point_type;
     typedef geometry::less<point_type> comparator;
 
-#if defined(GGL_USE_FLEX_SORT)
-
-    #if defined(GGL_USE_FLEX_SORT1)
-    typedef boost::detail::default_predicate
-        <
-            boost::sort_filter_cutoff
-            <
-                18,
-                boost::detail::insert_sort_core,
-                boost::sort_filter_ground
-                    <
-                        30,
-                        boost::detail::heap_sort_core,
-                        boost::detail::quick_sort_core
-                            <
-                                boost::pivot_median_of_three,
-                                boost::default_partitionner
-                            >
-                    >
-            >,
-            comparator> my_sort;
-    my_sort sort;
-    #elif defined(GGL_USE_FLEX_SORT2)
-
-    // 1, 5, 9, 18, 25: 0.75
-    // 50: 0.81
-
-    typedef boost::detail::default_predicate<boost::sort_filter_cutoff
-    <
-        35,
-        boost::detail::insert_sort_core,
-        boost::detail::quick_sort_core<boost::pivot_middle, boost::default_partitionner>
-    >, comparator
-    > barend_sort;
-
-    barend_sort sort;
-    #else
-    #error Define sub-flex-sort
-    #endif
-
-    sort(boost::begin(range), boost::end(range));
-
-#else
-    std::sort
-        (boost::begin(range), boost::end(range), comparator());
-#endif
+    std::sort(boost::begin(range), boost::end(range), comparator());
 }
-
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
