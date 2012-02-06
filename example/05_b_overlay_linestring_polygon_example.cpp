@@ -10,6 +10,10 @@
 //
 // Linestring Polygon Overlay Example
 
+// NOTE: this example is obsolete. Boost.Geometry can now
+// overlay linestrings/polygons.
+// This sample will be removed in next version.
+
 #include <fstream>
 #include <iostream>
 #include <string>

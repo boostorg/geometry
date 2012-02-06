@@ -210,6 +210,26 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\error.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\pgsql\"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\pgsql\"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="$(SOCI_ROOT)\src\backends\postgresql\factory.cpp"
 				>
 				<FileConfiguration

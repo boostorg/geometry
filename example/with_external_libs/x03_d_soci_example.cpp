@@ -28,12 +28,13 @@
 #include <string>
 #include <vector>
 
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry.hpp>
+
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+
 #include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
-#include <boost/geometry/io/wkt/wkt.hpp>
 
 int main()
 {
@@ -65,7 +66,7 @@ int main()
             if (!boost::geometry::hex2wkb(*it, std::back_inserter(wkb)))
                 throw std::runtime_error("hex2wkb translation failed");
 
-            boost::geometry::model::d2::polygon parcel;
+            boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double> > parcel;
             if (!boost::geometry::read_wkb(wkb.begin(), wkb.end(), parcel))
                 throw std::runtime_error("read_wkb failed");
 
