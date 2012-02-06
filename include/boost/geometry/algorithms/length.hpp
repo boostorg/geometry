@@ -188,7 +188,7 @@ inline typename default_length_result<Geometry>::type length(
 {
     concept::check<Geometry const>();
 
-    detail::throw_on_empty_input(geometry);
+    // detail::throw_on_empty_input(geometry);
     
     return dispatch::length
         <
