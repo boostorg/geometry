@@ -279,7 +279,7 @@ inline typename Strategy::return_type area(
 {
     concept::check<Geometry const>();
 
-    detail::throw_on_empty_input(geometry);
+    // detail::throw_on_empty_input(geometry);
     
     return dispatch::area
         <
