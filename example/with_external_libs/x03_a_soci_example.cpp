@@ -36,7 +36,6 @@
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
-#include <boost/geometry/io/wkt/wkt.hpp>
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
 
