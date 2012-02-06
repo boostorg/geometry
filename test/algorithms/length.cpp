@@ -49,7 +49,7 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
-    test_empty_input<bg::model::d2::point_xy<int> >();
+    // test_empty_input<bg::model::d2::point_xy<int> >();
 
     return 0;
 }
