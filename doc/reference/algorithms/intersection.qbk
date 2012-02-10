@@ -15,8 +15,10 @@
 [[Case] [Behavior] ]
 [[[qbk_out __point__]][Calculates intersection points of input geometries]]
 [[[qbk_out __linestring__]][Calculates intersection linestrings of input geometries (NYI)]]
-[[[qbk_out __polygon__]][Calculates intersection polygons input (multi)polygons and/or boxes]]
+[[[qbk_out __polygon__]][Calculates intersection polygons of input (multi)polygons and/or boxes]]
 ]
+
+[include reference/algorithms/geometry_rules.qbk]
 
 [heading Example]
 [intersection]

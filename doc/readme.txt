@@ -30,3 +30,15 @@ reference: generated documentation QBK files (by doxygen_xml2qbk)
 	because it is used in the final URL and we want to have "reference" in it]
 src: examples used in documentation and tools (doxygen_xml2qbk)
 
+Per new algorithm (e.g. foo), one should add:
+1) in file boost/geometry/algorithms/foo.hpp, include a "\ingroup foo" in the doxygen comments
+2) in file doc/doxy/doxygen_input/groups/groups.hpp, define the group "foo"
+3) in file doc/make_qbk.py, include the algorithm "foo"
+4) in file doc/reference.qbk, include the foo.qbk ([include generated/foo.qbk])
+5) in file doc/quickref.xml, include a section on foo conform other sections
+6) in file doc/src/docutils/tools/support_status/support_status.cpp include the algorithm (3 places) (optionally)
+7) in file doc/reference/foo.qbk (to be created), include the support status and write other text, and include examples (optionally)
+8) in file doc/imports.qbk, include the example foo.cpp (if any)
+9) create file doc/src/examples/algorithm/foo.cpp (optional)
+
+

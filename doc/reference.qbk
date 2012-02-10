@@ -84,6 +84,10 @@
 [include generated/convex_hull.qbk]
 [include generated/correct.qbk]
 
+[section:covered_by covered_by]
+[include generated/covered_by.qbk]
+[endsect]
+
 [include generated/difference.qbk]
 [include generated/disjoint.qbk]
 
