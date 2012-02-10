@@ -18,9 +18,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/centroid.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/multi/core/point_type.hpp>
-#include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 
 
@@ -73,12 +71,14 @@ struct centroid_multi
     static inline void apply(Multi const& multi, Point& centroid,
             Strategy const& strategy)
     {
+#if ! defined(BOOST_GEOMETRY_CENTROID_NO_THROW)
         // If there is nothing in any of the ranges, it is not possible
         // to calculate the centroid
         if (geometry::num_points(multi) == 0)
         {
             throw centroid_exception();
         }
+#endif
 
         typename Strategy::state_type state;
 
