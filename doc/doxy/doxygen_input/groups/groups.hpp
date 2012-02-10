@@ -23,6 +23,7 @@
 \defgroup convex_hull convex hull: calculate the convex hull of a geometry
 \defgroup core core: meta-functions for geometry types
 \defgroup correct correct: correct geometries
+\defgroup covered_by covered_by: detect if a geometry is inside or on the border of another geometry, a.o. point-in-polygon (border included)
 \defgroup cs coordinate systems
 \defgroup difference difference: difference of two geometries
 \defgroup disjoint disjoint: detect if geometries are not spatially related

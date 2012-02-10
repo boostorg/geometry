@@ -294,7 +294,8 @@ void test_one_lp(std::string const& caseid,
 
     BOOST_CHECK_CLOSE(length, expected_length, 0.001);
 
-    difference_output(caseid, g1, g2, pieces);
+    std::string lp = "lp_";
+    difference_output(lp + caseid, g1, g2, pieces);
 }
 
 

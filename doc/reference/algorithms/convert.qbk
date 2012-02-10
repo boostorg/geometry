@@ -10,8 +10,8 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[tip convert is not defined within OGC or ISO]
-[tip convert is modelled as source -> target 
+[note convert is not defined within OGC or ISO]
+[note convert is modelled as source -> target 
     (where assign is modelled as target := source)]
 
 [include generated/convert_status.qbk]

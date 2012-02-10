@@ -241,10 +241,8 @@ struct within<Point, Polygon, point_tag, polygon_tag>
 \details \details_check12{within, is completely inside}.
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\param geometry1 \param_geometry
-\param geometry2 \param_geometry
-\param geometry1 geometry which might be within the second geometry
-\param geometry2 geometry which might contain the first geometry
+\param geometry1 \param_geometry which might be within the second geometry
+\param geometry2 \param_geometry which might contain the first geometry
 \return true if geometry1 is completely contained within geometry2,
     else false
 \note The default strategy is used for within detection
@@ -299,9 +297,7 @@ inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
 \details \details_check12{within, is completely inside}, \brief_strategy. \details_strategy_reasons
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\param geometry1 \param_geometry
-\param geometry2 \param_geometry
-\param geometry1 \param_geometry geometry which might be within the second geometry
+\param geometry1 \param_geometry which might be within the second geometry
 \param geometry2 \param_geometry which might contain the first geometry
 \param strategy strategy to be used
 \return true if geometry1 is completely contained within geometry2,

@@ -28,6 +28,13 @@ The Ring Concept is defined as following:
 * there might be a specialization of `traits::point_order` defining the order or orientation of its points, `clockwise` or `counterclockwise`
 * there might be a specialization of `traits::closure` defining the closure, `open` or `closed`
 
+[heading Rules]
+
+Besides the Concepts, which are checks on compile-time, there are
+rules that valid rings must fulfill. See the
+[link geometry.reference.concepts.concept_polygon Polygon Concept] for more information
+on the rules a polygon (and also a ring) must fulfill.
+
 [heading Available Models]	
 * [link geometry.reference.models.model_ring ring]
 * a Boost.Polygon polygon_data (requires `#include boost/geometry/geometries/adapted/boost_polygon/ring.hpp>`)
