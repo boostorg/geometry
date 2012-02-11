@@ -182,11 +182,11 @@ struct action_selector<overlay_intersection>
         // and add the output piece
         geometry::copy_segments<false>(linestring, segment_id, index, current_piece);
         detail::overlay::append_no_duplicates(current_piece, point);
-        if (! current_piece.empty())
+        if (current_piece.size() > 1)
         {
             *out++ = current_piece;
-            current_piece.clear();
         }
+        current_piece.clear();
     }
 
     static inline bool is_entered(bool entered)
@@ -277,14 +277,46 @@ class follow
     template<typename Turn>
     struct sort_on_segment
     {
+        // In case of turn point at the same location, we want to have continue/blocked LAST
+        // because that should be followed (intersection) or skipped (difference).
+        // By chance the enumeration is ordered like that but we keep the safe way here.
+        inline int operation_order(Turn const& turn) const
+        {
+            operation_type const& operation = turn.operations[0].operation;
+            switch(operation)
+            {
+                case operation_none : return 0;
+                case operation_union : return 1;
+                case operation_intersection : return 2;
+                case operation_blocked : return 3;
+                case operation_continue : return 4;
+            }
+            return -1;
+        };
+
+        inline bool use_operation(Turn const& left, Turn const& right) const
+        {
+            // If they are the same, OK. 
+            return operation_order(left) < operation_order(right);
+        }
+
+        inline bool use_distance(Turn const& left, Turn const& right) const
+        {
+            return geometry::math::equals(left.operations[0].enriched.distance, right.operations[0].enriched.distance)
+                ? use_operation(left, right)
+                : left.operations[0].enriched.distance < right.operations[0].enriched.distance
+                ;
+        }
+
         inline bool operator()(Turn const& left, Turn const& right) const
         {
             segment_identifier const& sl = left.operations[0].seg_id;
             segment_identifier const& sr = right.operations[0].seg_id;
 
             return sl == sr
-                ? left.operations[0].enriched.distance < right.operations[0].enriched.distance
-                : sl < sr;
+                ? use_distance(left, right)
+                : sl < sr
+                ;
 
         }
     };
@@ -364,7 +396,7 @@ public :
         }
 
         // Output the last one, if applicable
-        if (! current_piece.empty())
+        if (current_piece.size() > 1)
         {
             *out++ = current_piece;
         }
