@@ -68,7 +68,7 @@ template <typename Point, typename Ring>
 struct covered_by<Point, Ring, point_tag, ring_tag>
 {
     template <typename Strategy>
-    static inline bool apply(Point const& point, Ring const& ring, Strategy const& )
+    static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
     {
         return detail::within::point_in_ring
             <
@@ -77,7 +77,7 @@ struct covered_by<Point, Ring, point_tag, ring_tag>
                 order_as_direction<geometry::point_order<Ring>::value>::value,
                 geometry::closure<Ring>::value,
                 Strategy
-            >::apply(point, ring) >= 0;
+            >::apply(point, ring, strategy) >= 0;
     }
 };
 
