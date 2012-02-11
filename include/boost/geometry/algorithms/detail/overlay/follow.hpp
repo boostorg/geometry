@@ -14,11 +14,12 @@
 #include <boost/range.hpp>
 #include <boost/mpl/assert.hpp>
 
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 
 
 namespace boost { namespace geometry
@@ -50,6 +51,29 @@ template
     typename LineString, 
     typename Polygon
 >
+static inline bool last_covered_by(Turn const& turn, Operation const& op, 
+                LineString const& linestring, Polygon const& polygon)
+{
+    // Check any point between the this one and the first IP 
+    typedef typename geometry::point_type<LineString>::type point_type;
+    point_type point_in_between;
+    detail::point_on_border::midpoint_helper
+        <
+            point_type,
+            0, dimension<point_type>::value
+        >::apply(point_in_between, linestring[op.seg_id.segment_index], turn.point);
+
+    return geometry::covered_by(point_in_between, polygon);
+}
+
+
+template 
+<
+    typename Turn, 
+    typename Operation, 
+    typename LineString, 
+    typename Polygon
+>
 static inline bool is_leaving(Turn const& turn, Operation const& op, 
                 bool entered, bool first, 
                 LineString const& linestring, Polygon const& polygon)
@@ -58,7 +82,7 @@ static inline bool is_leaving(Turn const& turn, Operation const& op,
     {
         return entered 
             || turn.method == method_crosses
-            || (first && geometry::within(linestring[0], polygon))
+            || (first && last_covered_by(turn, op, linestring, polygon))
             ;
     }
     return false;
@@ -79,27 +103,31 @@ static inline bool is_staying_inside(Turn const& turn, Operation const& op,
     if (turn.method == method_crosses)
     {
         // The normal case, this is completely covered with entering/leaving 
-        // so stay out of this time consuming "within"
+        // so stay out of this time consuming "covered_by"
         return false;
     }
 
     if (is_entering(turn, op))
     {
-        return entered || (first && geometry::within(linestring[0], polygon));
+        return entered || (first && last_covered_by(turn, op, linestring, polygon));
     }
 
     return false;
 }
 
-template <typename Turn>
-static inline bool was_entered(Turn const& turn, bool first)
+template 
+<
+    typename Turn, 
+    typename Operation, 
+    typename Linestring, 
+    typename Polygon
+>
+static inline bool was_entered(Turn const& turn, Operation const& op, bool first,
+                Linestring const& linestring, Polygon const& polygon)
 {
     if (first && (turn.method == method_collinear || turn.method == method_equal))
     {
-        // If it is the very first point, and either equal or collinear, there is only one
-        // IP generated (on purpose). So consider this as having entered. 
-        // Maybe it will leave immediately after that (u/i) but that is checked later.
-        return true;
+        return last_covered_by(turn, op, linestring, polygon);
     }
     return false;
 }
@@ -169,7 +197,7 @@ struct action_selector<overlay_intersection>
     template <typename Point, typename Geometry>
     static inline bool included(Point const& point, Geometry const& geometry)
     {
-        return geometry::within(point, geometry);
+        return geometry::covered_by(point, geometry);
     }
 
 };
@@ -299,7 +327,7 @@ public :
         {
             turn_operation_iterator_type iit = boost::begin(it->operations);
 
-            if (following::was_entered(*it, first))
+            if (following::was_entered(*it, *iit, first, linestring, polygon))
             {
                 debug_traverse(*it, *iit, "-> Was entered");
                 entered = true;
