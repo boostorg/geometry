@@ -22,6 +22,7 @@
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
@@ -171,7 +172,17 @@ struct intersection_of_linestring_with_areal
             // No intersection points, it is either completely 
             // inside (interior + borders)
             // or completely outside
-            if (follower::included(*boost::begin(linestring), areal))
+
+            // Use border point (on a segment) to check this
+            // (because turn points might skip some cases)
+            point_type border_point;
+            if (! geometry::point_on_border(border_point, linestring, true))
+            {
+                return out;
+            }
+
+
+            if (follower::included(border_point, areal))
             {
                 LineStringOut copy;
                 geometry::convert(linestring, copy);
