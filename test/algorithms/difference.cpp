@@ -84,6 +84,14 @@ void test_areal_linear()
     test_one_lp<LineString, LineString, Polygon>("case20", "LINESTRING(1 2,1 3,2 3)", poly_9, 0, 0, 0.0);
 
     test_one_lp<LineString, LineString, Polygon>("case21", "LINESTRING(1 2,1 4,4 4,4 1,2 1,2 2)", poly_9, 0, 0, 0.0);
+
+    // More collinear (opposite) cases
+    test_one_lp<LineString, LineString, Polygon>("case22", "LINESTRING(4 1,4 4,7 4)", poly_9, 1, 2, 3.0);
+    test_one_lp<LineString, LineString, Polygon>("case23", "LINESTRING(4 0,4 4,7 4)", poly_9, 2, 4, 4.0);
+    test_one_lp<LineString, LineString, Polygon>("case24", "LINESTRING(4 1,4 5,7 5)", poly_9, 1, 3, 4.0);
+    test_one_lp<LineString, LineString, Polygon>("case25", "LINESTRING(4 0,4 5,7 5)", poly_9, 2, 5, 5.0);
+    test_one_lp<LineString, LineString, Polygon>("case26", "LINESTRING(4 0,4 3,4 5,7 5)", poly_9, 2, 5, 5.0);
+    test_one_lp<LineString, LineString, Polygon>("case27", "LINESTRING(4 4,4 5,5 5)", poly_9, 1, 3, 2.0);
 }
 
 template <typename P>
