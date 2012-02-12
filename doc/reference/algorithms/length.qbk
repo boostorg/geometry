@@ -10,6 +10,10 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
+[def __this_function__ length]
+
+[heading_conformance_ogc __this_function__..Length]
+
 [heading Behavior]
 [table
 [[Case] [Behavior] ]

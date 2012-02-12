@@ -16,7 +16,7 @@
 [concept Linestring..linestring]
 
 A linestring is ['a Curve with linear interpolation between Points]. 
-([@http://portal.opengeospatial.org/files/?artifact_id=25355 opengeospatial]).
+(__ogc_sf__).
 
 [heading Concept Definition]
 

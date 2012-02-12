@@ -10,6 +10,11 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
+[def __this_function__ union]
+
+[heading_conformance_ogc __this_function__..Union]
+[note __boost_geometry__ adds an underscore to avoid using the `union` keyword]
+
 [heading Behavior]
 [table
 [[Case] [Behavior] ]

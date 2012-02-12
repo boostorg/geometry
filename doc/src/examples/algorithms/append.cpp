@@ -32,14 +32,14 @@ int main()
 
     // Append a range
     append(poly, tuple_list_of(0, 0)(0, 10)(11, 11)(10, 0)); /*< tuple_list_of delivers a range and can therefore be used in boost::geometry::append >*/
-    // Append a point (in this case the closing point
+    // Append a point (in this case the closing point)
     append(poly, make_tuple(0, 0));
 
     // Create an interior ring (append does not do this automatically)
     boost::geometry::interior_rings(poly).resize(1);
 
     // Append a range to the interior ring
-    append(poly, tuple_list_of(2, 2)(2, 5)(6, 6)(5, 2), 0);
+    append(poly, tuple_list_of(2, 2)(2, 5)(6, 6)(5, 2), 0); /*< The last parameter ring_index 0 denotes the first interior ring >*/
     // Append a point to the first interior ring
     append(poly, make_tuple(2, 2), 0);
 
