@@ -1,3 +1,4 @@
+[/NOTE: adapted manually, multi-linestring/multi-polygon do compile but not run!]
 [heading Supported geometries]
 [table
 [[ ][Point][Range]]
@@ -8,6 +9,6 @@
 [[Ring][ [$img/ok.png] ][ [$img/ok.png] ]]
 [[Polygon][ [$img/ok.png] ][ [$img/ok.png] ]]
 [[MultiPoint][ [$img/ok.png] ][ [$img/ok.png] ]]
-[[MultiLinestring][ [$img/ok.png] ][ [$img/ok.png] ]]
-[[MultiPolygon][ [$img/ok.png] ][ [$img/ok.png] ]]
+[[MultiLinestring][ [$img/nyi.png] ][ [$img/nyi.png] ]]
+[[MultiPolygon][ [$img/nyi.png] ][ [$img/nyi.png] ]]
 ]

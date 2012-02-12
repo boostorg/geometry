@@ -16,7 +16,7 @@
 [concept Polygon..polygon]
 
 A polygon is ['A polygon is a planar surface defined by one exterior boundary and zero or more interior boundaries] 
-([@http://portal.opengeospatial.org/files/?artifact_id=25355 opengeospatial]).
+(__ogc_sf__).
 
 So the definition of a Boost.Geometry polygon differs a bit from e.g. Wiki, where a polygon does not have holes. A
 polygon of Boost.Geometry is a polygon with or without holes.

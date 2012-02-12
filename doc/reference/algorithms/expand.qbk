@@ -10,7 +10,11 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
+[def __this_function__ expand]
 [def __apply_expand__ Box is expanded to include the specified]
+
+[heading_conformance_no_ogc __this_function__]
+
 
 [heading Behavior]
 [table
@@ -20,7 +24,6 @@
 [[__box__ / __other__][__nyiversion__]]
 ]
 
-[tip Expand is not defined within OGC or ISO]
 [note To use expand with another geometry type then specified, use expand(make_envelope<box_type>(geometry)]
 
 [heading Complexity]
