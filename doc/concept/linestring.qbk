@@ -16,7 +16,7 @@
 [concept Linestring..linestring]
 
 A linestring is ['a Curve with linear interpolation between Points]. 
-([@http://portal.opengeospatial.org/files/?artifact_id=25355 opengeospatial]).
+(__ogc_sf__).
 
 [heading Concept Definition]
 
@@ -27,9 +27,19 @@ The Linestring Concept is defined as following:
 * The type defined by the metafunction `range_value<...>::type` must fulfill 
 	the [link geometry.reference.concepts.concept_point Point Concept]
 
+[heading Rules]
+
+Besides the Concepts, which are checks on compile-time, there are rules that
+valid linestrings must fulfill. Most algorithms work on any linestring, so either
+self-crossing or not. However, for correct results using the overlay algorithms
+(intersection and difference algorithms in combination with a polygon) 
+self-intersections can disturb the process and result in incorrect results.
+    
 [heading Available Models]	
 * [link geometry.reference.models.model_linestring model::linestring]
 * a std::vector (requires registration)
 * a std::deque (requires registration)
+
+[see_boost_range_sample Linestring]
 
 [endsect]

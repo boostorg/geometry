@@ -10,26 +10,7 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[def __this_function__ expand]
-[def __apply_expand__ Box is expanded to include the specified]
+[def __this_function__ for_each_point]
 
 [heading_conformance_no_ogc __this_function__]
-
-
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__box__ / __point__][__apply_expand__ __point__]]
-[[__box__ / __box__][__apply_expand__ __box__]]
-[[__box__ / __other__][__nyiversion__]]
-]
-
-[note To use expand with another geometry type then specified, use expand(make_envelope<box_type>(geometry)]
-
-[heading Complexity]
-Linear
-
-[heading Example]
-[expand]
-[expand_output]
-
+[conformance_std __this_function__..std::for_each function]

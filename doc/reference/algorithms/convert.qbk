@@ -10,9 +10,9 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[note convert is not defined within OGC or ISO]
-[note convert is modelled as source -> target 
-    (where assign is modelled as target := source)]
+[def __this_function__ convert]
+
+[heading_conformance_no_ogc __this_function__]
 
 [include generated/convert_status.qbk]
 [note In this status matrix above: columns are source types
@@ -29,4 +29,5 @@ Linear
 [heading See also]
 * [link geometry.reference.algorithms.assign.assign assign]
 
-
+[note convert is modelled as source -> target 
+    (where assign is modelled as target := source)]

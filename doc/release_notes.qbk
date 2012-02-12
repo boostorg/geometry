@@ -23,13 +23,14 @@
 [*Bugfixes]
 
 * bugfix: distance for multi-geometries ignored specified distance strategy. Fixed
-* bugfix in difference for polygon/multi_polygon (reported 2011/10/24 on GGL-list)
+* bugfix: difference for polygon/multi_polygon (reported 2011/10/24 on GGL-list)
 * bugfix: raise exception for calculation of distances of multi-geometrie(s) where one of them is empty
 * bugfix: multi DSV did not correctly use settings, fixed
 * bugfix: self-intersections could sometimes be missed (introduced in 1.48), fixed
 * bugfix: convex hull crashed on empty range (e.g. empty multi point), fixed
 * bugfix: area/centroid/side/intersection/distance did not work for "int" type filled with large (but not overflowing) integers. Fixed.
 * bugfix: disjoint/intersect did not work for degenerate linestrings. Fixed.
+* bugfix: covered_by did not compile for a ring. Fixed.
 
 [*Solved tickets]
 
@@ -43,18 +44,20 @@
 * support for line/polygon intersections and differences
 * support for convert of segment/box of different point types
 * support for append for multi point
-* scalar functions (distance, area, length, perimeter) now throw an empty_input_exception on empty input
+* the scalar function distance now throws an empty_input_exception on empty input
 
 [*Documentation]
 
 * updated support status in several algorithms
+* updated conformance to OGC or std
+* other updates and fixes
 
 [*Internal changes]
 
 * updates in specializations/not_implemented for distance/convert/assign/area/with/covered_by
 * move of wkt/dsv to io folder, making domains redundant
 * warnings: strategy concepts assigned to zero to avoid clang warnings (patched by Vishnu)
-* warnings: there were several unused parameters, for which gcc/clang warned. Fixed.
+* warnings: there were several unused parameters, for which gcc/clang warned (patched by Christophe)
 
 [/=================]
 [heading Boost 1.48]

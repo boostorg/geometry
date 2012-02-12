@@ -10,6 +10,23 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
+[def __this_function__ simplify]
+
+[heading_conformance_no_ogc __this_function__]
+[note PostGIS contains an algorithm with the same name and the 
+  same functionality.
+  See the [@http://www.postgis.org/docs/ST_Simplify.html PostGIS documentation]. 
+]
+[note SQL Server contains an algorithm Reduce() with the same functionality.
+  See the [@http://msdn.microsoft.com/en-us/library/bb933814.aspx MSDN documentation].
+]  
+
+[heading Behavior]
+Simplification is done using [@http://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm Douglas-Peucker] (if the default strategy is used).
+[note Geometries might become invalid by using simplify. The simplification
+process might create self-intersections.
+]
+
 [heading Examples]
 [simplify]
 [simplify_output]

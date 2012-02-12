@@ -35,6 +35,7 @@ namespace boost { namespace geometry
 \return \return_check{is self-intersecting}
 
 \qbk{distinguish,one geometry}
+\qbk{[def __one_parameter__]}
 \qbk{[include reference/algorithms/intersects.qbk]}
 */
 template <typename Geometry>

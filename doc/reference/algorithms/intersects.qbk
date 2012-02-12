@@ -10,6 +10,11 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
+[def __this_function__ intersects]
+
+[heading_conformance_ogc __this_function__..Intersects]
+[? __one_parameter__ The version with one parameter is additional and not described in the OGC standard]
+
 [heading Examples]
 [intersects_linestring]
 [intersects_linestring_output]

@@ -13,3 +13,6 @@
 [heading Examples]
 [point]
 [point_output]
+
+[include reference/geometries/point_assign_warning.qbk]
+
