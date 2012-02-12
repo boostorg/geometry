@@ -10,9 +10,7 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[heading Examples]
-[point]
-[point_output]
+[def __this_function__ for_each_segment]
 
-[include reference/geometries/point_assign_warning.qbk]
-
+[heading_conformance_no_ogc __this_function__]
+[conformance_std __this_function__..std::for_each function]

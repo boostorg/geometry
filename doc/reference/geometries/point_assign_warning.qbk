@@ -10,9 +10,7 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[heading Examples]
-[point]
-[point_output]
-
-[include reference/geometries/point_assign_warning.qbk]
-
+[heading Notes]
+[note Coordinates are not initialized. If the constructor with parameters is not
+called and points are not assigned using `set` or `assign` then the coordinate
+values will contain garbage]

@@ -10,9 +10,6 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[heading Examples]
-[point]
-[point_output]
+[def __this_function__ overlaps]
 
-[include reference/geometries/point_assign_warning.qbk]
-
+[heading_conformance_ogc __this_function__..Overlaps]

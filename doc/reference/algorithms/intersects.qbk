@@ -13,7 +13,7 @@
 [def __this_function__ intersects]
 
 [heading_conformance_ogc __this_function__..Intersects]
-[note The one argument version is added for __boost_geometry__]
+[? __one_parameter__ The version with one parameter is additional and not described in the OGC standard]
 
 [heading Examples]
 [intersects_linestring]

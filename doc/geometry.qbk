@@ -95,6 +95,13 @@ The function [function] implements function [ogc_function] from the __ogc_sf__.
 The function [function] conforms to the [std_function] of the C++ std-library.
 ]
 
+[template see_boost_range_sample[concept]
+[note See also the sample in the [@../../../range/doc/html/range/reference/extending/method_2.html Boost.Range documentation]
+  showing how a type can be adapted to a Boost.Range to fulfill the concept of a [concept]
+]
+]
+
+
 [heading Contributions]
 
 Boost.Geometry contains contributions by:
