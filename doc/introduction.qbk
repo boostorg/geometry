@@ -37,27 +37,35 @@ The library follows existing conventions:
 
 * conventions from boost
 * conventions from the std library
-* conventions and names from one of the __ogc__ standards on geometry
+* conventions and names from one of the __ogc__ standards on geometry and, more
+    specificly, from the
+    [@http://portal.opengeospatial.org/files/?artifact_id=25355 Simple Feature Specification]
 
-The library was released with Boost 1.47.0 and from that point on it is oficially part of the Boost C++ Libraries.
+The library was released with Boost 1.47.0 and from that point on it is 
+officially part of the Boost C++ Libraries.
 
-Latest stable version of the source code is included in the [@http://www.boost.org/users/download/ Boost packaged releases].
-It can also be downloaded from the current [@http://svn.boost.org/svn/boost/branches/release Boost release branch]
+Latest stable version of the source code is included in the 
+[@http://www.boost.org/users/download/ Boost packaged releases].
+It can also be downloaded from the current 
+[@http://svn.boost.org/svn/boost/branches/release Boost release branch]
 in the Boost Subversion repository.
 
-The library development upstream is available from the [@http://svn.boost.org/svn/boost/trunk Boost trunk] in the Boost Subversion repository.
+The library development upstream is available from the 
+[@http://svn.boost.org/svn/boost/trunk Boost trunk] in the Boost Subversion 
+repository.
 
-Note that the library [*extensions] are not distributed in the official Boost releases, but  only available
-in the [@http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions/ Boost trunk] 
+Note that the library [*extensions] are not distributed in the official Boost 
+releases, but  only available
+in the [@http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions/ Boost 
+trunk] 
 and that they are subject to change.
 
 __boost_geometry__ was accepted by Boost at November 28, 2009
 ([@http://permalink.gmane.org/gmane.comp.lib.boost.announce/246 review report]).
 
-There are two mailing lists
-where __boost_geometry__ is discussed: the boost developers list, and also the 
-[@http://lists.osgeo.org/mailman/listinfo/ggl GGL mailing list] at osgeo, at which, at the moment of writing, more than 70 people
-are subscribed. The mailing list is also accessible from  
-[@http://boost-geometry.203548.n3.nabble.com/ Nabble] as Boost Geometry.
+There is a __boost_geometry__ [@http://lists.boost.org/mailman/listinfo.cgi/geometry 
+mailing list]. The mailing list and its messages are also accessible from  
+[@http://boost-geometry.203548.n3.nabble.com/ Nabble] as Boost Geometry. Also on 
+the Boost Developers list and on the Boost Users list __boost_geometry__ is discussed.
 
 [endsect]

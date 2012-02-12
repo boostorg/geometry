@@ -13,7 +13,10 @@
 [heading Behavior]
 [table
 [[Case] [Behavior] ]
+[[[qbk_out __polygon__]][Calculates union polygons of input (multi)polygons and/or boxes]]
 ]
+
+[include reference/algorithms/geometry_rules.qbk]
 
 [heading Example]
 [union]

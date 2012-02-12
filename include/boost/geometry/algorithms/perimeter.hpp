@@ -22,7 +22,7 @@
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
-#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+// #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 
 
 namespace boost { namespace geometry
@@ -98,7 +98,7 @@ inline typename default_length_result<Geometry>::type perimeter(
             point_tag, point_type
         >::type strategy_type;
 
-    detail::throw_on_empty_input(geometry);
+    // detail::throw_on_empty_input(geometry);
         
     return dispatch::perimeter
         <
@@ -128,7 +128,7 @@ inline typename default_length_result<Geometry>::type perimeter(
 {
     concept::check<Geometry const>();
 
-    detail::throw_on_empty_input(geometry);
+    // detail::throw_on_empty_input(geometry);
     
     return dispatch::perimeter
         <

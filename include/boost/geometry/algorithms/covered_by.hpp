@@ -68,7 +68,7 @@ template <typename Point, typename Ring>
 struct covered_by<Point, Ring, point_tag, ring_tag>
 {
     template <typename Strategy>
-    static inline bool apply(Point const& point, Ring const& ring, Strategy const& )
+    static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
     {
         return detail::within::point_in_ring
             <
@@ -77,7 +77,7 @@ struct covered_by<Point, Ring, point_tag, ring_tag>
                 order_as_direction<geometry::point_order<Ring>::value>::value,
                 geometry::closure<Ring>::value,
                 Strategy
-            >::apply(point, ring) >= 0;
+            >::apply(point, ring, strategy) >= 0;
     }
 };
 
@@ -108,13 +108,13 @@ struct covered_by<Point, Polygon, point_tag, polygon_tag>
 \details \details_check12{covered_by, is inside or on border}.
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\param geometry1 \param_geometry
-\param geometry2 \param_geometry
-\param geometry1 geometry which might be covered_by the second geometry
-\param geometry2 geometry which might contain the first geometry
-\return true if geometry1 is completely contained covered_by geometry2,
+\param geometry1 \param_geometry which might be inside or on the border of the second geometry
+\param geometry2 \param_geometry which might cover the first geometry
+\return true if geometry1 is inside of or on the border of geometry2,
     else false
 \note The default strategy is used for covered_by detection
+
+\qbk{[include reference/algorithms/covered_by.qbk]}
 
  */
 template<typename Geometry1, typename Geometry2>
@@ -158,15 +158,14 @@ inline bool covered_by(Geometry1 const& geometry1, Geometry2 const& geometry2)
 \details \details_check12{covered_by, is inside or on border}, \brief_strategy. \details_strategy_reasons
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\param geometry1 \param_geometry
-\param geometry2 \param_geometry
-\param geometry1 \param_geometry geometry which might be covered_by the second geometry
-\param geometry2 \param_geometry which might contain the first geometry
+\param geometry1 \param_geometry which might be inside or on the border of the second geometry
+\param geometry2 \param_geometry which might cover the first geometry
 \param strategy strategy to be used
 \return true if geometry1 is inside of or on the border of geometry2,
     else false
 
 \qbk{distinguish,with strategy}
+\qbk{[include reference/algorithms/covered_by.qbk]}
 
 */
 template<typename Geometry1, typename Geometry2, typename Strategy>

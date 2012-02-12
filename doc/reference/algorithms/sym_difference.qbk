@@ -10,13 +10,9 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[heading Behavior]
-[table
-[[Case] [Behavior] ]
-[[__2dim__][All combinations of: box, ring, polygon, multi_polygon]]
-[[__other__][Not supported]]
+[include reference/algorithms/difference_behavior.qbk]
 
-]
+[include reference/algorithms/geometry_rules.qbk]
 
 [heading Example]
 [sym_difference]

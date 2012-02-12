@@ -29,7 +29,7 @@
 
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
-#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+// #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 
 #include <boost/geometry/strategies/area.hpp>
 #include <boost/geometry/strategies/default_area_result.hpp>
@@ -241,7 +241,7 @@ inline typename default_area_result<Geometry>::type area(Geometry const& geometr
             point_type
         >::type strategy_type;
 
-    detail::throw_on_empty_input(geometry);
+    // detail::throw_on_empty_input(geometry);
         
     return dispatch::area
         <
@@ -279,7 +279,7 @@ inline typename Strategy::return_type area(
 {
     concept::check<Geometry const>();
 
-    detail::throw_on_empty_input(geometry);
+    // detail::throw_on_empty_input(geometry);
     
     return dispatch::area
         <

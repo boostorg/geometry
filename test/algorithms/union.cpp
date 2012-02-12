@@ -302,6 +302,20 @@ void test_all()
     test_one<polygon, box, polygon>("box_poly8", "box(0 0, 3 3)",
             "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))",
                 1, 0, 8, 10.25);
+
+    // Ticket 5103 https://svn.boost.org/trac/boost/ticket/5103
+    // This ticket was actually reported for Boost.Polygon
+    // but it is apparently a difficult case so we check it for Boost.Geometry as well.
+    // SQL Server gives:     2515271331437.69
+    // PostGIS gives:        2515271327070.52
+    // Boost.Geometry gives: 2515271327070.5237746891 (ttmath)
+    //                       2515271327070.5156 (double)
+    //                       2515271320603.0000	(int)
+    // Note the int-test was tested externally - it is in two points 0.37 off (makes sense).
+    // Because of the width of the polygon (400000 meter) this might indeed cause a substantial difference.
+
+    test_one<polygon, polygon, polygon>("ticket_5103", ticket_5103[0], ticket_5103[1],
+                1, 0, 25, 2515271327070.5);
 }
 
 

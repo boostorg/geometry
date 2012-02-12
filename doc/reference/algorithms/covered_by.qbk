@@ -10,21 +10,23 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[include generated/within_status.qbk]
+[include generated/covered_by_status.qbk]
 [note In this status matrix above: columns are types of first parameter
   and rows are types of second parameter. So a point can be checked to be 
-  within a polygon, but not vice versa.]
-  
-[heading Notes]
-If a point is located exactly on the border of a geometry, the result depends on the strategy.
-The default strategy ([link geometry.reference.strategies.strategy_within_winding Winding (coordinate system agnostic)]) 
-returns false in that case.
+  covered by a polygon, but not vice versa.
+]
 
-If a polygon has a reverse oriented (e.g. counterclockwise for a clockwise typed polygon), the result also depends on the strategy.
-The default strategy returns still true if a point is completely within the reversed polygon. There is a specific strategy which returns false in this case.
+[note convert is not defined within OGC or ISO. However, both PostGIS
+  and Oracle contain an algorithm with the same name and the same functionality.
+  See the [@http://www.postgis.org/docs/ST_CoveredBy.html PostGIS documentation]. 
+]
 
 [heading Complexity]
 Linear
 
 [heading See also]
-* [link geometry.reference.algorithms.covered_by covered_by]
+* [link geometry.reference.algorithms.within within]
+
+[note The difference with the `within` algorithm is that this algorithm checks the
+  border by default
+]

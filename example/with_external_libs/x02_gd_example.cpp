@@ -27,13 +27,11 @@
 
 #include <boost/foreach.hpp>
 
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/multi/multi.hpp>
-#include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/geographic/strategies/area_huiller_earth.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
 
 
 #include <gd.h>

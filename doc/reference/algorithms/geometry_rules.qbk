@@ -8,15 +8,5 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[include reference/algorithms/difference_behavior.qbk]
-
-[include reference/algorithms/geometry_rules.qbk]
-
-[heading Example]
-[difference] [difference_output]
-
-[heading See also]
-* [link geometry.reference.algorithms.sym_difference sym_difference (symmetric difference)]
-* [link geometry.reference.algorithms.intersection intersection]
-* [link geometry.reference.algorithms.union_ union]
-
+[note Check the [link geometry.reference.concepts.concept_polygon Polygon Concept]
+    for the rules that polygon input for this algorithm should fulfill]

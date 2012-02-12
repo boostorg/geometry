@@ -8,11 +8,13 @@
 
 
 Download gd from 
-http://www.libgd.og/
+http://www.libgd.org/
+(currently from: https://bitbucket.org/pierrejoye/gd-libgd/downloads)
+
 and extract to this folder.
+(currently: extract from ../src/ into this folder)
 
 Nothing has to be installed.
 
 This is used in x02_gd_example.cpp
-
 

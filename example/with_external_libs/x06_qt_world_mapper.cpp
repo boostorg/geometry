@@ -23,13 +23,15 @@
 #include <boost/foreach.hpp>
 
 #include <boost/geometry/geometry.hpp>
+
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/multi/geometries/multi_geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
+
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/register/ring.hpp>
 
-#include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/extensions/algorithms/selected.hpp>
-#include <boost/geometry/io/wkt/wkt.hpp>
 
 
 

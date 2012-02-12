@@ -319,6 +319,7 @@
     </simplelist>
     <bridgehead renderas="sect3">Predicates</bridgehead>
     <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.covered_by">covered_by</link></member>
      <member><link linkend="geometry.reference.algorithms.disjoint">disjoint</link></member>
      <member><link linkend="geometry.reference.algorithms.equals">equals</link></member>
      <member><link linkend="geometry.reference.algorithms.intersects">intersects</link></member>
