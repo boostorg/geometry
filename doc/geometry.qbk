@@ -12,7 +12,7 @@
 
 [library Geometry
     [quickbook 1.5]
-    [version 1.0]
+    [version 1.49]
     [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz]]
     [copyright 2009-2012 Barend Gehrels, Bruno Lalande, Mateusz Loskot]
     [purpose Documentation of Boost.Geometry library]

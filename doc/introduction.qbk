@@ -37,7 +37,9 @@ The library follows existing conventions:
 
 * conventions from boost
 * conventions from the std library
-* conventions and names from one of the __ogc__ standards on geometry
+* conventions and names from one of the __ogc__ standards on geometry and, more
+    specificly, from the
+    [@http://portal.opengeospatial.org/files/?artifact_id=25355 Simple Feature Specification]
 
 The library was released with Boost 1.47.0 and from that point on it is 
 officially part of the Boost C++ Libraries.
@@ -63,8 +65,7 @@ __boost_geometry__ was accepted by Boost at November 28, 2009
 
 There is a __boost_geometry__ [@http://lists.boost.org/mailman/listinfo.cgi/geometry 
 mailing list]. The mailing list and its messages are also accessible from  
-[@http://boost-geometry.203548.n3.nabble.com/ Nabble] as Boost Geometry. On 
-the Boost Developers list and on the Boost Users list are also sometimes 
-messages about __boost_geometry__.
+[@http://boost-geometry.203548.n3.nabble.com/ Nabble] as Boost Geometry. Also on 
+the Boost Developers list and on the Boost Users list __boost_geometry__ is discussed.
 
 [endsect]
