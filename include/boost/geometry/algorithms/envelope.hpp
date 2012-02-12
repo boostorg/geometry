@@ -216,14 +216,7 @@ struct envelope
 \param geometry \param_geometry
 \param mbr \param_box \param_set{envelope}
 
-\par Example:
-Example showing envelope calculation, using point_ll latlong points
-\dontinclude doxygen_1.cpp
-\skip example_envelope_polygon
-\line {
-\until }
-
-
+\qbk{[include reference/algorithms/envelope.qbk]}
 \qbk{
 [heading Example]
 [envelope] [envelope_output]
@@ -253,6 +246,7 @@ inline void envelope(Geometry const& geometry, Box& mbr)
 \param geometry \param_geometry
 \return \return_calc{envelope}
 
+\qbk{[include reference/algorithms/envelope.qbk]}
 \qbk{
 [heading Example]
 [return_envelope] [return_envelope_output]

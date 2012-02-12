@@ -36,6 +36,9 @@ namespace model { namespace d2
 [heading Model of]
 [link geometry.reference.concepts.concept_point Point Concept]
 }
+
+\qbk{[include reference/geometries/point_assign_warning.qbk]}
+
 */
 template<typename CoordinateType, typename CoordinateSystem = cs::cartesian>
 class point_xy : public model::point<CoordinateType, 2, CoordinateSystem>

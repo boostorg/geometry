@@ -228,7 +228,9 @@ struct disjoint_reversed
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \return \return_check2{are disjoint}
- */
+
+\qbk{[include reference/algorithms/disjoint.qbk]}
+*/
 template <typename Geometry1, typename Geometry2>
 inline bool disjoint(Geometry1 const& geometry1,
             Geometry2 const& geometry2)

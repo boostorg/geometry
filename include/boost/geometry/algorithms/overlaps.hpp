@@ -179,7 +179,9 @@ struct overlaps<box_tag, box_tag, Box1, Box2>
 \brief \brief_check2{overlap}
 \ingroup overlaps
 \return \return_check2{overlap}
- */
+
+\qbk{[include reference/algorithms/overlaps.qbk]}
+*/
 template <typename Geometry1, typename Geometry2>
 inline bool overlaps(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
