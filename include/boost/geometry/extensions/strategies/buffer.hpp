@@ -59,65 +59,25 @@ namespace strategy { namespace buffer
 */
 
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-template
-<
-    typename PointIn, typename Mapper
->
-struct join_mapper
-{
-    Mapper const& m_mapper;
-    join_mapper(Mapper const& mapper)
-        : m_mapper(mapper)
-    {}
-
-    template <typename BufferAppender>
-    inline void map(PointIn const& ip, PointIn const& vertex,
-                PointIn const& perp1, PointIn const& perp2) const
-    {
-        typename BufferAppender::range_type corner;
-        corner.push_back(vertex);
-        corner.push_back(perp1);
-        corner.push_back(ip);
-        corner.push_back(perp2);
-        corner.push_back(vertex);
-
-        const_cast<Mapper&>(m_mapper).map(corner,
-            "opacity:0.4;fill:rgb(255,0,0);stroke:rgb(0,0,0);stroke-width:1");
-    }
-};
-#endif
 
 // TODO: merge join_miter with join_round, lot of duplicate code
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-// Forget this, it will go
-template<typename PointIn, typename PointOut, bool AddHooklets, typename Mapper>
-struct join_miter : public join_mapper<PointIn, Mapper>
-{
-    join_miter(Mapper const& mapper) : join_mapper(mapper) {}
-#else
-
 
 template
 <
     typename PointIn,
-    typename PointOut,
-    bool AddHooklets = true
+    typename PointOut
 >
 struct join_miter
 {
-
-#endif
     typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointIn>::type coordinate_type;
 
 
-    template <typename BufferAppender>
+    template <typename RangeOut>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
-                BufferAppender& appender) const
+                RangeOut& range_out) const
     {
         coordinate_type zero = 0;
         int signum = buffer_distance > zero ? 1
@@ -126,15 +86,6 @@ struct join_miter
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
-            if (AddHooklets)
-            {
-                appender.append_begin_hooklet(perp1);
-                appender.append_end_hooklet(perp2);
-            }
-            else
-            {
-                appender.append(ip);
-            }
         }
         else
         {
@@ -165,24 +116,13 @@ struct join_miter
 #endif
             }
 
-            appender.append_begin_join(p);
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            map<BufferAppender>(ip, vertex, perp1, perp2);
-#endif
+            range_out.push_back(perp1);
+            range_out.push_back(p);
+            range_out.push_back(perp2);
         }
 
     }
 };
-
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-// Forget this, it will go
-template<typename PointIn, typename PointOut, typename Mapper>
-struct join_bevel : public join_mapper<PointIn, Mapper>
-{
-    join_bevel(Mapper const& mapper) : join_mapper(mapper) {}
-#else
 
 
 template
@@ -192,62 +132,39 @@ template
 >
 struct join_bevel
 {
-#endif
-
-
     typedef typename coordinate_type<PointIn>::type coordinate_type;
 
-    template <typename BufferAppender>
+    template <typename RangeOut>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
-                BufferAppender& appender) const
+                RangeOut& range_out) const
     {
-        appender.append(perp1);
-        appender.append(perp2);
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            map<BufferAppender>(ip, vertex, perp1, perp2);
-#endif
     }
 };
-
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-// Forget this, it will go
-template<typename PointIn, typename PointOut, bool AddHooklets, typename Mapper>
-struct join_round : public join_mapper<PointIn, Mapper>
-{
-    join_round(Mapper const& mapper, int max_level = 4)
-        : join_mapper(mapper)
-        , m_max_level(max_level)
-    {}
-#else
 
 
 template
 <
     typename PointIn,
-    typename PointOut,
-    bool AddHooklets = true
+    typename PointOut
 >
 struct join_round
 {
-    inline join_round(int max_level = 4)
+    inline join_round(int max_level = 6)
         : m_max_level(max_level)
     {}
-#endif
 
     typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointOut>::type coordinate_type;
     int m_max_level;
 
 
-    template <typename BufferAppender>
+    template <typename RangeOut>
     inline void mid_points(PointIn const& vertex,
                 PointIn const& p1, PointIn const& p2,
                 coordinate_type const& buffer_distance,
-                BufferAppender& appender,
+                RangeOut& range_out,
                 int level = 1) const
     {
         // Generate 'vectors'
@@ -272,22 +189,22 @@ struct join_round
 
         if (level < m_max_level)
         {
-            mid_points(vertex, p1, mid_point, buffer_distance, appender, level + 1);
+            mid_points(vertex, p1, mid_point, buffer_distance, range_out, level + 1);
         }
-        appender.append(mid_point);
+        range_out.push_back(mid_point);
         if (level < m_max_level)
         {
-            mid_points(vertex, mid_point, p2, buffer_distance, appender, level + 1);
+            mid_points(vertex, mid_point, p2, buffer_distance, range_out, level + 1);
         }
 
     }
 
 
-    template <typename BufferAppender>
+    template <typename RangeOut>
     inline void apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
-                BufferAppender& appender) const
+                RangeOut& range_out) const
     {
         coordinate_type zero = 0;
         int signum = buffer_distance > zero ? 1
@@ -296,16 +213,6 @@ struct join_round
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
-            // If it is concave (corner to left), add helperline
-            if (AddHooklets)
-            {
-                appender.append_begin_hooklet(perp1);
-                appender.append_end_hooklet(perp2);
-            }
-            else
-            {
-                appender.append(ip);
-            }
         }
         else
         {
@@ -323,25 +230,21 @@ struct join_round
             set<0>(bp, get<0>(vertex) + vix * prop);
             set<1>(bp, get<1>(vertex) + viy * prop);
 
-            appender.append_begin_join(perp1);
+            range_out.push_back(perp1);
             if (m_max_level <= 1)
             {
                 if (m_max_level == 1)
                 {
-                    appender.append(bp);
+                    range_out.push_back(bp);
                 }
             }
             else
             {
-                mid_points(vertex, perp1, bp, bd, appender);
-                appender.append(bp);
-                mid_points(vertex, bp, perp2, bd, appender);
+                mid_points(vertex, perp1, bp, bd, range_out);
+                range_out.push_back(bp);
+                mid_points(vertex, bp, perp2, bd, range_out);
             }
-            appender.append_end_join(perp2);
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            map<BufferAppender>(bp, vertex, perp1, perp2);
-#endif
+            range_out.push_back(perp2);
         }
     }
 };
