@@ -54,29 +54,31 @@ void test_all()
 
     typedef bg::model::polygon<P> polygon_type;
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "L", letter_L, 'm', 13.875, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "L", letter_L, 'r', 13.7314, 0.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "simplex", simplex, 'm', 51.2434, 1.5);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "simplex", simplex, 'r', 47.9408, 1.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "concave_simplex", concave_simplex, 'm', 15.8861, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "concave_simplex", concave_simplex, 'r', 14.5616, 0.5);
+test_one<polygon_type, buf::join_round, polygon_type>("saw", saw, 'r', -1, 1.0);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation4", indentation, 'm', 25.7741, 0.4);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation4", indentation, 'r', 25.5695, 0.4);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation5", indentation, 'm', 28.2426, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation5", indentation, 'r', 27.9953, 0.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation6", indentation, 'm', 30.6712, 0.6);
+    test_one<polygon_type, buf::join_miter, polygon_type>("L", letter_L, 'm', 14.0, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>("L", letter_L, 'r', 13.7314, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>("simplex", simplex, 'm', 52.8733, 1.5);
+    test_one<polygon_type, buf::join_round, polygon_type>("simplex", simplex, 'r', 47.9408, 1.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>("concave_simplex", concave_simplex, 'm', 16.3861, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>("concave_simplex", concave_simplex, 'r', 14.5616, 0.5);
+
+    test_one<polygon_type, buf::join_miter, polygon_type>("indentation4", indentation, 'm', 25.7741, 0.4);
+    test_one<polygon_type, buf::join_round, polygon_type>("indentation4", indentation, 'r', 25.5695, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>("indentation5", indentation, 'm', 28.2426, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>("indentation5", indentation, 'r', 27.9953, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>("indentation6", indentation, 'm', 30.6712, 0.6);
 
     // SQL Server gives 30.34479159164
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation6", indentation, 'r', 30.3445, 0.6);
+    test_one<polygon_type, buf::join_round, polygon_type>("indentation6", indentation, 'r', 30.3445, 0.6);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation7", indentation, 'm', 33.0958, 0.7);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation7", indentation, 'r', 32.6533, 0.7);
+    test_one<polygon_type, buf::join_miter, polygon_type>("indentation7", indentation, 'm', 33.0958, 0.7);
+    test_one<polygon_type, buf::join_round, polygon_type>("indentation7", indentation, 'r', 32.6533, 0.7);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation8", indentation, 'm', 35.5943, 0.8);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation8", indentation, 'r', 35.0164, 0.8);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "indentation12", indentation, 'm', 46.3541, 1.2);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "indentation12", indentation, 'r', 45.0537, 1.2);
+    test_one<polygon_type, buf::join_miter, polygon_type>("indentation8", indentation, 'm', 35.5943, 0.8);
+    test_one<polygon_type, buf::join_round, polygon_type>("indentation8", indentation, 'r', 35.0164, 0.8);
+    test_one<polygon_type, buf::join_miter, polygon_type>("indentation12", indentation, 'm', 46.3541, 1.2);
+    test_one<polygon_type, buf::join_round, polygon_type>("indentation12", indentation, 'r', 45.0537, 1.2);
 
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation4_neg", indentation, 'm', 6.99098413022335, -0.4);
     //test_one<polygon_type, buf::join_round, polygon_type>("indentation4_neg", indentation, 'r', 7.25523322189147, -0.4);
@@ -85,64 +87,65 @@ void test_all()
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation12_neg", indentation, 'm', 0, -1.2);
     //test_one<polygon_type, buf::join_round, polygon_type>("indentation12_neg", indentation, 'r', 0, -1.2);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex6", donut_simplex, 'm', 53.6479838666524, 0.6);
-    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex6", donut_simplex, 'r', 52.8197383107592, 0.6);
-    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex8", donut_simplex, 'm', 61.1323012599270, 0.8);
-    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex8", donut_simplex, 'r', 59.6598647161168, 0.8);
-    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex10", donut_simplex, 'm', 68.6698998096905, 1.0);
-    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex10", donut_simplex, 'r', 66.3692177099870, 1.0);
-    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex12", donut_simplex, 'm', 76.6051864381534, 1.2);
-    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex12", donut_simplex, 'r', 73.2922042145803, 1.2);
-    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex14", donut_simplex, 'm', 84.9742419554578, 1.4);
-    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex14", donut_simplex, 'r', 80.4649050400389, 1.4);
-    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex16", donut_simplex, 'm', 93.7770663616038, 1.6);
-    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex16", donut_simplex, 'r', 87.8873201863629, 1.6);
+    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex6", donut_simplex, 'm', 53.648, 0.6);
+    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex6", donut_simplex, 'r', 52.820, 0.6);
+    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex8", donut_simplex, 'm', 61.132, 0.8);
+    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex8", donut_simplex, 'r', 59.6713, 0.8);
+    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex10", donut_simplex, 'm', 68.670, 1.0);
+    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex10", donut_simplex, 'r', 66.387, 1.0);
+    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex12", donut_simplex, 'm', 76.605, 1.2);
+    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex12", donut_simplex, 'r', 73.3179, 1.2);
+    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex14", donut_simplex, 'm', 84.974, 1.4);
+    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex14", donut_simplex, 'r', 80.500, 1.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>("donut_simplex16", donut_simplex, 'm', 93.777, 1.6);
+    test_one<polygon_type, buf::join_round, polygon_type>("donut_simplex16", donut_simplex, 'r', 87.933, 1.6);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>("arrow4", arrow, 'm', 28.2654860719170, 0.4);
-    test_one<polygon_type, buf::join_round, polygon_type>("arrow4", arrow, 'r', 27.0385824776218, 0.4);
-    test_one<polygon_type, buf::join_miter, polygon_type>("arrow5", arrow, 'm', 31.5003260106997, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>("arrow5", arrow, 'r', 29.6211879021183, 0.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>("arrow6", arrow, 'm', 34.9025533178038, 0.6);
-    test_one<polygon_type, buf::join_round, polygon_type>("arrow6", arrow, 'r', 32.2572740033805, 0.6);
+    test_one<polygon_type, buf::join_miter, polygon_type>("arrow4", arrow, 'm', 28.265, 0.4);
+    test_one<polygon_type, buf::join_round, polygon_type>("arrow4", arrow, 'r', 27.039, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>("arrow5", arrow, 'm', 31.500, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>("arrow5", arrow, 'r', 29.621, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>("arrow6", arrow, 'm', 34.903, 0.6);
+    test_one<polygon_type, buf::join_round, polygon_type>("arrow6", arrow, 'r', 32.268, 0.6);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'm', 55.315, 0.3);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'm', 77.44, 0.9);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'm', 91.315, 1.3);
+    test_one<polygon_type, buf::join_miter, polygon_type>("tipped_aitch3", tipped_aitch, 'm', 55.36, 0.3);
+    test_one<polygon_type, buf::join_miter, polygon_type>("tipped_aitch9", tipped_aitch, 'm', 77.44, 0.9);
+    test_one<polygon_type, buf::join_miter, polygon_type>("tipped_aitch13", tipped_aitch, 'm', 92.16, 1.3);
 
     // SQL Server: 55.205415532967 76.6468846383224 90.642916957136
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch3", tipped_aitch, 'r', 55.2053, 0.3);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch9", tipped_aitch, 'r', 76.6457, 0.9);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "tipped_aitch13", tipped_aitch, 'r', 90.641, 1.3);
+    test_one<polygon_type, buf::join_round, polygon_type>("tipped_aitch3", tipped_aitch, 'r', 55.2053, 0.3);
+    test_one<polygon_type, buf::join_round, polygon_type>("tipped_aitch9", tipped_aitch, 'r', 76.6457, 0.9);
+    test_one<polygon_type, buf::join_round, polygon_type>("tipped_aitch13", tipped_aitch, 'r', 90.641, 1.3);
 
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake4", snake, 'm', 64.36, 0.4);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake5", snake, 'm', 72, 0.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake6", snake, 'm', 75.44, 0.6);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "snake16", snake, 'm', 114.24, 1.6);
+    test_one<polygon_type, buf::join_miter, polygon_type>("snake4", snake, 'm', 64.44, 0.4);
+    test_one<polygon_type, buf::join_miter, polygon_type>("snake5", snake, 'm', 72, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>("snake6", snake, 'm', 75.44, 0.6);
+    test_one<polygon_type, buf::join_miter, polygon_type>("snake16", snake, 'm', 114.24, 1.6);
 
     //return;
 
-
-    test_one<polygon_type, buf::join_miter, polygon_type>("flower1", flower, 'm', 67.613949189084963, 0.1);
-    test_one<polygon_type, buf::join_miter, polygon_type>("flower20", flower, 'm', 74.7020267929856, 0.20);
-    test_one<polygon_type, buf::join_miter, polygon_type>("flower25", flower, 'm', 78.225583936485492, 0.25);
+    // TODO: fix the flowers-with-miter
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower1", flower, 'm', 67.614, 0.1);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower20", flower, 'm', 74.894, 0.20);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower25", flower, 'm', 78.226, 0.25);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower30", flower, 'm', 81.492494146177947, 0.30);
-    //test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
+    test_one<polygon_type, buf::join_miter, polygon_type>("flower35", flower, 'm', 84.694183819917185, 0.35);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower40", flower, 'm', 87.8306529577, 0.40);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower45", flower, 'm', 90.901901559536029, 0.45);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower50", flower, 'm', 93.907929625415662, 0.50);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower55", flower, 'm', 96.848737155342079, 0.55);
     test_one<polygon_type, buf::join_miter, polygon_type>("flower60", flower, 'm', 99.724324149315279, 0.60);
 
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower1", flower, 'r', 67.4861, 0.1);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower20", flower, 'r', 74.7020267929856, 0.20);
-    test_one<polygon_type, buf::join_round, polygon_type>(false, "flower25", flower, 'r', 78.0709684961456, 0.25);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower30", flower, 'r', 81.3528270913593, 0.30);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower35", flower, 'r', 84.5467340913191, 0.35);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower40", flower, 'r', 87.6653813523005, 0.40);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower45", flower, 'r', 90.7092077149493, 0.45);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower50", flower, 'r', 93.6802057531291, 0.50);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower55", flower, 'r', 96.5796252237181, 0.55);
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "flower60", flower, 'r', 99.4081550761828, 0.60);
+
+    test_one<polygon_type, buf::join_round, polygon_type>("flower10", flower, 'r', 67.486, 0.10);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower20", flower, 'r', 74.702, 0.20);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower25", flower, 'r', 78.071, 0.25);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower30", flower, 'r', 81.352, 0.30);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower35", flower, 'r', 84.547, 0.35);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower40", flower, 'r', 87.665, 0.40);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower45", flower, 'r', 90.709, 0.45);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower50", flower, 'r', 93.680, 0.50);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower55", flower, 'r', 96.580, 0.55);
+    test_one<polygon_type, buf::join_round, polygon_type>("flower60", flower, 'r', 99.408, 0.60);
 
     // Saw
     {
@@ -152,21 +155,21 @@ void test_all()
         int const n = 12;
         double expected_round[n] = 
             { 
-                 68.6252,  90.222, 112.792, 136.382, 161.208, 187.405,
-                215.033, 244.129, 274.717, 306.82, 340.456, 375.633
+                 68.6252,  90.222, 112.792, 136.397, 161.230, 187.435,
+                215.073, 244.179, 274.779, 306.894, 340.543, 375.734
             };
         double expected_miter[n] = 
             {
-                70.8956,  98.804, 131.726, 169.661, 212.609, 260.57,
-               313.545,  371.532, 434.533, 502.546, 575.573, 653.613
+                70.7706,  98.804, 132.101, 170.661, 214.484, 263.57,
+               317.92,  377.532, 442.408, 512.546, 587.948, 668.613
             };
 
         for (int i = 1; i <= n; i++)
         {
             std::ostringstream out;
             out << "saw_" << i;
-            test_one<polygon_type, buf::join_round, polygon_type>(true, out.str(), saw, 'r', expected_round[i - 1], double(i) / 2.0);
-            test_one<polygon_type, buf::join_miter, polygon_type>(true, out.str(), saw, 'm', expected_miter[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_round, polygon_type>(out.str(), saw, 'r', expected_round[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_miter, polygon_type>(out.str(), saw, 'm', expected_miter[i - 1], double(i) / 2.0);
         }
     }
 
@@ -179,27 +182,27 @@ void test_all()
         int const n = 12;
         double expected_round[n] = 
             { 
-                 43.2423,  60.025,  78.3477,  98.2109, 119.614, 142.475,
-                166.485, 191.744, 218.428, 246.593, 276.273, 307.486
+                 43.2423,  60.025,  78.3477,  98.2109, 119.614, 142.487,
+                166.505, 191.77, 218.455, 246.625, 276.312, 307.532
             };
 
 
         double expected_miter[n] = 
             {
-                43.6145,  61.014,  80.1976,  101.166, 123.919, 148.374,
-               174.224, 207.443, 230.029, 260.000, 291.625, 325.000
+                43.4895,  61.014,  80.5726,  102.166, 125.794, 151.374,
+               178.599, 207.443, 237.904, 270.000, 304.0, 340.000
             };
 
         for (int i = 1; i <= n; i++)
         {
             std::ostringstream out;
             out << "bowl_" << i;
-            test_one<polygon_type, buf::join_round, polygon_type>(true, out.str(), bowl, 'r', expected_round[i - 1], double(i) / 2.0);
-            test_one<polygon_type, buf::join_miter, polygon_type>(true, out.str(), bowl, 'm', expected_miter[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_round, polygon_type>(out.str(), bowl, 'r', expected_round[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_miter, polygon_type>(out.str(), bowl, 'm', expected_miter[i - 1], double(i) / 2.0);
         }
     }
-    test_one<polygon_type, buf::join_round, polygon_type>(true, "county1", county1, 'r', 0.00114092, 0.01);
-    test_one<polygon_type, buf::join_miter, polygon_type>(true, "county1", county1, 'm', 0.52286, 0.01);
+    test_one<polygon_type, buf::join_round, polygon_type>("county1", county1, 'r', 0.00114092, 0.01);
+    test_one<polygon_type, buf::join_miter, polygon_type>("county1", county1, 'm', 0.00132859, 0.01);
 
     return;
 
