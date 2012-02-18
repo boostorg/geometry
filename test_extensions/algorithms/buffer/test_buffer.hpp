@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 #define TEST_WITH_SVG
 
 #include <fstream>
@@ -27,23 +27,15 @@
 #include <boost/geometry/algorithms/union.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-#include <boost/geometry/extensions/algorithms/detail/overlay/dissolver.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
-#include <boost/geometry/extensions/algorithms/dissolve.hpp>
-//#include <boost/geometry/extensions/algorithms/detail/overlay/split_rings.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
 
-//#include <boost/geometry/extensions/algorithms/buffer.hpp>
-
-//#include <boost/geometry/extensions/algorithms/buffer/remove_within_distance.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/linestring_buffer.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/polygon_buffer.hpp>
-//#include <boost/geometry/extensions/algorithms/buffer/unioning_buffer.hpp>
-//#include <boost/geometry/extensions/algorithms/buffer/segmenting_buffer.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/buffer_inserter.hpp>
 
 #include <boost/geometry/extensions/strategies/buffer.hpp>
 
@@ -81,15 +73,7 @@ void post_map(Geometry const& geometry, Mapper& mapper)
 template
 <
     typename GeometryOut,
-    template
-        <
-            typename
-            , typename
-            , bool
-#if defined(BOOST_GEOMETRY_DEBUG_WITH_MAPPER)
-            , typename
-#endif
-        > class JoinStrategy,
+    template<typename, typename> class JoinStrategy,
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
@@ -134,75 +118,26 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         mapper.add(box);
     }
 
-
-
     typedef JoinStrategy
         <
             point_type,
-            typename bg::point_type<GeometryOut>::type,
-            true
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            , bg::svg_mapper<point_type>
-#endif
+            typename bg::point_type<GeometryOut>::type
         > join_strategy_type;
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    join_strategy_type join_strategy(mapper);
-#else
     join_strategy_type join_strategy;
-#endif
 
     typedef bg::strategy::buffer::distance_assymetric<coordinate_type> distance_strategy_type;
     distance_strategy_type distance_strategy(distance_left, distance_left / 2.0); // TODO: distance_right
 
     std::vector<GeometryOut> buffered;
 
-    GeometryOut buffered_step1;
-#ifdef BOOST_GEOMETRY_TEST_BUFFER_POLYGON
-    {
-        bg::detail::buffer::polygon_buffer
-            <
-                Geometry, GeometryOut, distance_strategy_type, join_strategy_type
-            >::apply(geometry, buffered_step1, 
-                            distance_strategy, 
-                            join_strategy
+    bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
+                        distance_strategy, 
+                        join_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-                            , mapper
+                        , mapper
 #endif
-                                    );
-    }
-#else
-    {
-        bg::detail::buffer::linestring_buffer
-            <
-                Geometry, GeometryOut, distance_strategy_type, join_strategy_type
-            >::apply(geometry, buffered_step1, distance_strategy,
-                            join_strategy
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-                            , mapper
-#endif
-                                    );
-    }
-#endif
-
-    if (boost::contains(complete.str(), "bowl")
-     || boost::contains(complete.str(), "aitch")
-     || boost::contains(complete.str(), "snake")
-     || (boost::contains(complete.str(), "indentation")
-            && ! boost::contains(complete.str(), "neg"))
-     || (boost::contains(complete.str(), "flower") 
-            && boost::contains(complete.str(), "d_r"))
-     )
-    {
-        // We dissolve some controlled cases (already, later we will dissolve all),
-        // such that we can detect regressions
-        bg::dissolve(buffered_step1, buffered);
-        mapper.map(buffered_step1, "opacity:0.3;fill:none;stroke:rgb(0,0,200);stroke-width:2");
-    }
-    else
-    {
-        buffered.push_back(buffered_step1);
-    }
+                                );
 
     double area = 0;
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
@@ -219,11 +154,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     //}
 
 
-    if (check)
+    if (distance_left > 0 && expected_area > -0.1)
     {
         BOOST_CHECK_MESSAGE
             (
-                std::abs(area - expected_area) < 0.01, 
+                std::abs(area - expected_area) < 0.01,
                 complete.str() << " not as expected. " 
                 << " Expected: "  << expected_area
                 << " Detected: "  << area
@@ -231,8 +166,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
         // Be sure resulting polygon does not contain
         // self-intersections
-        // But indentation5 should contain 1 self-ip
-        if (! boost::contains(complete.str(), "indentation5_d_r"))
+        // But indentation5 should contain 1 self-ip TODO give this check as an argument
+        if (! boost::contains(complete.str(), "indentation5_d_r")
+            && ! boost::contains(complete.str(), "flower25_d_r"))
         {
             BOOST_FOREACH(GeometryOut const& polygon, buffered)
             {
@@ -252,7 +188,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
-        mapper.map(polygon, "opacity:0.8;fill:none;stroke:rgb(0,0,0);stroke-width:2");
+        mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
         post_map(polygon, mapper);
     }
 }
@@ -265,15 +201,7 @@ static int counter = 0;
 template
 <
     typename Geometry,
-    template
-        <
-            typename
-            , typename
-            , bool
-#if defined(BOOST_GEOMETRY_DEBUG_WITH_MAPPER)
-            , typename
-#endif
-        > class JoinStrategy,
+    template<typename, typename> class JoinStrategy,
     typename GeometryOut
 >
 void test_one(std::string const& caseid, std::string const& wkt,
@@ -307,15 +235,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 template
 <
     typename Geometry,
-    template
-        <
-            typename
-            , typename
-            , bool
-#if defined(BOOST_GEOMETRY_DEBUG_WITH_MAPPER)
-            , typename
-#endif
-        > class JoinStrategy,
+    template<typename, typename> class JoinStrategy,
     typename GeometryOut
 >
 void test_one(bool check, std::string const& caseid, std::string const& wkt,
