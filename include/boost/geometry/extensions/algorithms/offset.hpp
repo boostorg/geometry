@@ -14,9 +14,7 @@
 #include <boost/range/functions.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/range_buffer.hpp>
-#include <boost/geometry/extensions/algorithms/offset_appender.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/buffer_inserter.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -34,26 +32,25 @@ namespace detail { namespace offset
 template
 <
     typename Range,
-    typename RangeOut,
-    typename JoinStrategy,
-    typename DistanceStrategy
+    typename RangeOut
 >
 struct offset_range
-    : public geometry::detail::buffer::range_buffer
+    : public geometry::detail::buffer::buffer_range
         <
             RangeOut, 
-            DistanceStrategy, 
-            JoinStrategy,
             linestring_tag
         >
 {
-    template <typename Appender>
-    static inline void apply(Range const& range,
-                Appender& appender,
+    template
+    <
+        typename Collection, typename DistanceStrategy, typename JoinStrategy
+    >
+    static inline void apply(Collection& collection, Range const& range,
                 DistanceStrategy const& distance,
                 JoinStrategy const& join)
     {
-        iterate(appender, boost::begin(range), boost::end(range), 
+        collection.add_input();
+        iterate(collection, boost::begin(range), boost::end(range), 
             buffer_side_left,
             distance, join);
     }
@@ -73,9 +70,7 @@ template
     typename GeometryTag,
     typename GeometryOutTag,
     typename Geometry,
-    typename GeometryOut,
-    typename JoinStrategy,
-    typename DistanceStrategy
+    typename GeometryOut
 >
 struct offset
 {};
@@ -84,25 +79,19 @@ struct offset
 template
 <
     typename Geometry,
-    typename GeometryOut,
-    typename JoinStrategy,
-    typename DistanceStrategy
+    typename GeometryOut
 >
 struct offset
     <
         linestring_tag,
         linestring_tag,
         Geometry,
-        GeometryOut,
-        JoinStrategy,
-        DistanceStrategy
+        GeometryOut
     >
     : detail::offset::offset_range
         <
             Geometry,
-            GeometryOut,
-            JoinStrategy,
-            DistanceStrategy
+            GeometryOut
         >
 {};
 
@@ -131,23 +120,20 @@ inline void offset(Geometry const& geometry, GeometryOut& out,
         > distance_strategy_type;
     distance_strategy_type distance_strategy(distance, distance);
 
-
-    typedef detail::offset::offset_appender
+    detail::buffer::buffered_piece_collection
         <
-            GeometryOut
-        > appender_type;
-    
-    appender_type appender(out);
+            //typename geometry::ring_type<GeometryOut>::type
+            // TODO the piece collection will not require a polygonal argument
+            model::ring<typename point_type<Geometry>::type> 
+        > collection;
 
     dispatch::offset
     <
         typename tag<Geometry>::type,
         typename tag<GeometryOut>::type,
         Geometry,
-        GeometryOut,
-        JoinStrategy,
-        distance_strategy_type
-    >::apply(geometry, appender, distance_strategy, join);
+        GeometryOut
+    >::apply(collection, geometry, distance_strategy, join);
 }
 
 
