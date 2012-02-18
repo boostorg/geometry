@@ -20,9 +20,11 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
 

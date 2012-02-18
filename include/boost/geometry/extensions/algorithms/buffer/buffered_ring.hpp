@@ -16,13 +16,12 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>

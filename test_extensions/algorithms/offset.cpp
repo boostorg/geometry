@@ -45,8 +45,7 @@ void test_offset(std::string const& caseid, Geometry const& geometry,
     typedef bg::strategy::buffer::join_round
         <
             point_type,
-            point_type,
-            false
+            point_type
         > join_strategy;
 
     GeometryOut moved_by_offset;

@@ -763,8 +763,9 @@ struct get_turn_info
 
     typedef typename si::segment_intersection_strategy_type strategy;
 
-
-
+    // Intersect pi-pj with qi-qj
+    // The points pk and qk are only used do determine more information
+    // about the turn.
     template <typename OutputIterator>
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
