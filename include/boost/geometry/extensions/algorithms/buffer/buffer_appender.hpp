@@ -29,29 +29,15 @@ namespace detail { namespace buffer
 // Appends points to an output range (always a ring).
 // On the way, special points can be marked, and marked points
 // forming a hooklet, loop, curve, curl, or how you call it are checked on intersections.
-template
-    <
-        typename Range
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        , typename Mapper
-#endif
-    >
+template<typename Range>
 class buffer_appender
 {
 public :
     typedef Range range_type;
     typedef typename geometry::point_type<Range>::type point_type;
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    Mapper const& m_mapper;
-    inline buffer_appender(Range& r, Mapper const& mapper)
-        : m_range(r)
-        , m_mapper(mapper)
-#else
     inline buffer_appender(Range& r)
         : m_range(r)
-#endif
-
     {}
 
     inline void append(point_type const& point)
@@ -83,9 +69,6 @@ public :
     inline void append_begin_hooklet(point_type const& point)
     {
         DEBUG("begin hooklet");
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,0,192);", 3);
-#endif
 
         check(point);
 
@@ -99,9 +82,6 @@ public :
     inline void append_end_hooklet(point_type const& point)
     {
         DEBUG("end hooklet");
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,0,255);", 4);
-#endif
 
         do_append(point);
     }
@@ -177,12 +157,6 @@ private :
             }
         }
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        if (! m_pieces.empty() && m_pieces.back().end > m_pieces.back().begin)
-        {
-            const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(0,255,0);", 4);
-        }
-#endif
     }
 
     inline bool calculate_ip(point_type const& point, piece const& the_piece)
@@ -192,14 +166,6 @@ private :
         {
             return false;
         }
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        const_cast<Mapper&>(m_mapper).map(point, "fill:rgb(255,0,0);", 4);
-        for (int i = the_piece.begin; i <= the_piece.end && i < n; i++)
-        {
-            //const_cast<Mapper&>(m_mapper).map(m_range[i], "fill:rgb(0,255,255);", 3);
-        }
-#endif
 
         segment_type segment1(m_previous_point, point);
 
@@ -215,11 +181,6 @@ private :
                 if (get_valid_split(is.intersections[0], i + 1, split_off))
                 {
                     add_ip(is.intersections[0], i + 1, the_piece, split_off);
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-                    const_cast<Mapper&>(m_mapper).map(is.intersections[0], "fill:rgb(255,0,255);", 4);
-                    const_cast<Mapper&>(m_mapper).map(split_off, "fill:none;stroke:rgb(255,0,0);stroke-width:2");
-#endif
                 }
 
                 return true;
@@ -253,11 +214,6 @@ private :
 
                         add_ip(is.intersections[0], the_piece.begin + 1, the_piece, split_off);
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-                        const_cast<Mapper&>(m_mapper).map(is.intersections[0], "fill:rgb(255,255,0);", 4);
-                        const_cast<Mapper&>(m_mapper).map(m_range[the_piece.begin], "fill:rgb(255,192,0);", 4);
-                        const_cast<Mapper&>(m_mapper).map(split_off, "fill:none;stroke:rgb(255,192,0);stroke-width:2");
-#endif
                         return true;
                     }
 
