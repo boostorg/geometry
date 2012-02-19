@@ -151,7 +151,7 @@ template
 >
 struct join_round
 {
-    inline join_round(int max_level = 6)
+    inline join_round(int max_level = 4)
         : m_max_level(max_level)
     {}
 

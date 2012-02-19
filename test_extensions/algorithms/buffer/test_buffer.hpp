@@ -158,7 +158,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         BOOST_CHECK_MESSAGE
             (
-                std::abs(area - expected_area) < 0.01,
+                std::abs(area - expected_area) < 0.11,
                 complete.str() << " not as expected. " 
                 << " Expected: "  << expected_area
                 << " Detected: "  << area

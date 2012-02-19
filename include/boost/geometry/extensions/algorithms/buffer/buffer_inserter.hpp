@@ -43,6 +43,42 @@ struct buffer_range
     typedef typename coordinate_type<RingOutput>::type coordinate_type;
     typedef model::referring_segment<output_point_type const> segment_type;
 
+
+    template
+        <
+            typename Point,
+            typename DistanceStrategy
+        >
+    static inline void generate_side(Point const& ip1, Point const& ip2,
+                buffer_side_selector side,
+                DistanceStrategy const& distance,
+                output_point_type& p1, output_point_type& p2)
+    {
+        // Generate a block along (left or right of) the segment
+
+        // Simulate a vector d (dx,dy)
+        coordinate_type dx = get<0>(ip2) - get<0>(ip1);
+        coordinate_type dy = get<1>(ip2) - get<1>(ip1);
+
+        // For normalization [0,1] (=dot product d.d, sqrt)
+        // TODO promoted_type
+        coordinate_type const length = sqrt(dx * dx + dy * dy);
+
+        // Because coordinates are not equal, length should not be zero
+        BOOST_ASSERT((! geometry::math::equals(length, 0)));
+
+        // Generate the normalized perpendicular p, to the left (ccw)
+        coordinate_type const px = -dy / length;
+        coordinate_type const py = dx / length;
+
+        coordinate_type const d = distance.apply(ip1, ip2, side);
+
+        set<0>(p1, get<0>(ip1) + px * d);
+        set<1>(p1, get<1>(ip1) + py * d);
+        set<0>(p2, get<0>(ip2) + px * d);
+        set<1>(p2, get<1>(ip2) + py * d);
+    }
+
     template
     <
         typename Collection,
@@ -54,8 +90,7 @@ struct buffer_range
                 Iterator begin, Iterator end,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
-                JoinStrategy const& join_strategy
-            )
+                JoinStrategy const& join_strategy)
     {
         output_point_type previous_p1, previous_p2;
         output_point_type first_p1, first_p2;
@@ -63,35 +98,20 @@ struct buffer_range
         bool first = true;
 
         Iterator it = begin;
+
+        // We want to memorize the last vector too.
+        typedef BOOST_TYPEOF(*it) point_type;
+        point_type last_ip1, last_ip2;
+
+
         for (Iterator prev = it++; it != end; ++it)
         {
             if (! detail::equals::equals_point_point(*prev, *it))
             {
-                // Generate a block along (left or right of) the segment
-
-                // Simulate a vector d (dx,dy)
-                coordinate_type dx = get<0>(*it) - get<0>(*prev);
-                coordinate_type dy = get<1>(*it) - get<1>(*prev);
-
-                // For normalization [0,1] (=dot product d.d, sqrt)
-                coordinate_type length = sqrt(dx * dx + dy * dy);
-
-                // Because coordinates are not equal, length should not be zero
-                BOOST_ASSERT((! geometry::math::equals(length, 0)));
-
-                // Generate the normalized perpendicular p, to the left (ccw)
-                coordinate_type px = -dy / length;
-                coordinate_type py = dx / length;
-
                 output_point_type p1, p2;
-
-                coordinate_type d = distance.apply(*prev, *it, side);
-
-                set<0>(p2, get<0>(*it) + px * d);
-                set<1>(p2, get<1>(*it) + py * d);
-
-                set<0>(p1, get<0>(*prev) + px * d);
-                set<1>(p1, get<1>(*prev) + py * d);
+                last_ip1 = *prev;
+                last_ip2 = *it;
+                generate_side(*prev, *it, side, distance, p1, p2);
 
                 std::vector<output_point_type> range_out;
                 if (! first)
@@ -145,6 +165,23 @@ struct buffer_range
             }
 
             // Buffer is closed automatically by last closing corner (NOT FOR OPEN POLYGONS - TODO)
+        }
+        else if (boost::is_same<Tag, linestring_tag>::value)
+        {
+            // Assume flat-end-strategy for now
+            output_point_type rp1, rp2;
+            generate_side(last_ip2, last_ip1, 
+                    side == buffer_side_left 
+                    ? buffer_side_right 
+                    : buffer_side_left, 
+                distance, rp2, rp1);
+
+            std::vector<output_point_type> range_out;
+            range_out.push_back(previous_p2);
+            range_out.push_back(*(end - 1));
+            range_out.push_back(rp2);
+            // For flat:
+            collection.add_piece(last_ip2, range_out);
         }
     }
 };
@@ -218,7 +255,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         iterate(collection, boost::begin(linestring), boost::end(linestring),
                 buffer_side_left,
                 distance, join_strategy);
-
+                
         iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
                 buffer_side_right,
                 distance, join_strategy);
