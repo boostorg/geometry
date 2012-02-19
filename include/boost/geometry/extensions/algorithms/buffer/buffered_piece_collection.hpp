@@ -101,12 +101,38 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
     {}
 };
 
+// In the end this will go (if we have a multi-point within/covered_by geometry)
+// which is optimized for multi-points and skips linestrings
+template <typename tag>
+struct check_original
+{
+};
+
+template <>
+struct check_original<polygon_tag>
+{
+    template <typename Point, typename Geometry>
+    static inline bool apply(Point const& point, Geometry const& geometry)
+    {
+        return geometry::covered_by(point, geometry);
+    }
+};
+
+template <>
+struct check_original<linestring_tag>
+{
+    template <typename Point, typename Geometry>
+    static inline bool apply(Point const& point, Geometry const& geometry)
+    {
+        return false;
+    }
+};
 
 template <typename Ring>
 struct buffered_piece_collection
 {
     typedef typename geometry::point_type<Ring>::type Point;
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<Point>::type>::type side;
+    typedef typename strategy::side::services::default_strategy<typename cs_tag<Point>::type>::type side_strategy;
 
     enum piece_type
     {
@@ -128,27 +154,11 @@ struct buffered_piece_collection
         int index;
         segment_identifier seg_id;
 
-        // -----------------------------------------------------------------
-        // type=buffered_segment:
-
-        // This buffered_segment (2 points of the original)
-        Point p1, p2;
-
-        // The buffered buffered_segment (offsetted with certain distance to left/right)
-        Point b1, b2;
-
-        // -----------------------------------------------------------------
-        // type=buffered_join
-        Point p;
-
-        // Corner next to this buffered_segment (so connected to p2 and b2).
-        // In case p2 is a concave point, corner is empty
-        Ring corner; // TODO redundant
-
-        // Filled for both:
         typedef geometry::model::linestring<Point> buffered_vector_type;
 
-        buffered_vector_type offseted_segment;
+        // These both form a complete clockwise ring for each piece (with one dupped point)
+        buffered_vector_type offsetted_segment;
+        buffered_vector_type helper_segments; // 3 for segment, 2 for join - might be empty too
     };
 
     typedef std::vector<piece> piece_vector;
@@ -177,18 +187,46 @@ struct buffered_piece_collection
             turn.operations[0].operation == detail::overlay::operation_continue
             && turn.operations[0].operation == detail::overlay::operation_continue;
 
-        // For now: use within, using built-up corner (which will be redundant later)
+        // TODO factor out the two loops
 
-        // Because pieces are always concave we only have to verify if it is left of all segments.
-        // As soon as it is right of one, we can quit. This is faster than the normal within,
-        // and we don't have to build up the polygon.
-        if (collinear)
+        typedef typename boost::range_iterator
+            <
+                typename piece::buffered_vector_type const
+            >::type iterator_type;
+
+        if (boost::size(pc.helper_segments) > 0)
         {
-            // ONLY for the outer-boundary: return within
-            return geometry::within(turn.point, pc.corner);
+            iterator_type it = boost::begin(pc.helper_segments);
+            for (iterator_type prev = it++;
+                it != boost::end(pc.helper_segments);
+                prev = it++)
+            {
+                int side = side_strategy::apply(turn.point, *prev, *it);
+                switch(side)
+                {
+                    case 1 : return false;
+                    case 0 : return true;
+                }
+            }
         }
 
-        return geometry::covered_by(turn.point, pc.corner);
+        if (boost::size(pc.offsetted_segment) > 0)
+        {
+            iterator_type it = boost::begin(pc.offsetted_segment);
+            for (iterator_type prev = it++;
+                it != boost::end(pc.offsetted_segment);
+                prev = it++)
+            {
+                int side = side_strategy::apply(turn.point, *prev, *it);
+                switch(side)
+                {
+                    case 1 : return false;
+                    case 0 : return !collinear;
+                }
+            }
+        }
+
+        return true;
     }
 
     // Checks if an intersection point is within one of all pieces
@@ -238,7 +276,7 @@ struct buffered_piece_collection
         // Next point in current offseted:
         Iterator next = it;
         ++next;
-        if (next != boost::end(piece.offseted_segment))
+        if (next != boost::end(piece.offsetted_segment))
         {
             return *next;
         }
@@ -250,7 +288,7 @@ struct buffered_piece_collection
         {
             next_index = 0;
         }
-        return piece.offseted_segment[1];
+        return piece.offsetted_segment[1];
     }
 
     inline void calculate_turns(piece const& piece1, piece const& piece2)
@@ -261,17 +299,17 @@ struct buffered_piece_collection
 
         // TODO use partition
         typedef typename boost::range_iterator<typename piece::buffered_vector_type const>::type iterator;
-        iterator it1 = boost::begin(piece1.offseted_segment);
+        iterator it1 = boost::begin(piece1.offsetted_segment);
         for (iterator prev1 = it1++; 
-                it1 != boost::end(piece1.offseted_segment); 
+                it1 != boost::end(piece1.offsetted_segment); 
                 prev1 = it1++, the_model.operations[0].seg_id.segment_index++)
         {
             the_model.operations[1].piece_index = piece2.index;
             the_model.operations[1].seg_id = piece2.seg_id;
 
-            iterator it2 = boost::begin(piece2.offseted_segment);
+            iterator it2 = boost::begin(piece2.offsetted_segment);
             for (iterator prev2 = it2++; 
-                    it2 != boost::end(piece2.offseted_segment); 
+                    it2 != boost::end(piece2.offsetted_segment); 
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
                 // Revert (this is used more often - should be common function TODO)
@@ -284,7 +322,7 @@ struct buffered_piece_collection
                                     *prev2, *it2, next_point(piece2, it2),
                                     the_model, std::back_inserter(turns));
 
-                // Add buffered_segment identifier info
+                // Check if it is inside any of the pieces
                 for (typename boost::range_iterator<turn_vector_type>::type it =
                     boost::begin(turns); it != boost::end(turns); ++it)
                 {
@@ -306,12 +344,13 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(turn_vector); it != boost::end(turn_vector); ++it)
         {
-            if (it->location == location_ok)
+            if (it->location == location_ok
+                && check_original
+                        <
+                            typename geometry::tag<Geometry>::type
+                        >::apply(it->point, input_geometry))
             {
-                if (geometry::covered_by(it->point, input_geometry))
-                {
-                    it->location = inside_original;
-                }
+                it->location = inside_original;
             }
         }
     }
@@ -389,11 +428,6 @@ struct buffered_piece_collection
 
         piece& pc = add_piece(buffered_segment, last_type_join);
 
-        pc.p1 = p1;
-        pc.p2 = p2;
-        pc.b1 = b1;
-        pc.b2 = b2;
-
         // If it follows the same piece-type point both should be added.
         // There should be two intersections later and it should be discarded.
         // But for need it to calculate intersections
@@ -403,29 +437,22 @@ struct buffered_piece_collection
         }
         add_point(b2);
 
-        // TEMPORARY
-        pc.corner.push_back(p1);
-        pc.corner.push_back(b1);
-        pc.corner.push_back(b2);
-        pc.corner.push_back(p2);
-        pc.corner.push_back(p1);
-        // END TEMPORARY
-
-        pc.offseted_segment.push_back(b1);
-        pc.offseted_segment.push_back(b2);
+        pc.offsetted_segment.push_back(b1);
+        pc.offsetted_segment.push_back(b2);
+        pc.helper_segments.push_back(b2);
+        pc.helper_segments.push_back(p2);
+        pc.helper_segments.push_back(p1);
+        pc.helper_segments.push_back(b1);
     }
 
-    template <typename Corner>
-    inline void add_piece(Point const& p, Corner const& corner)
+    template <typename Range>
+    inline piece& add_piece(Range const& range)
     {
         piece& pc = add_piece(buffered_join, true);
 
-        pc.p = p;
-
-        pc.corner.push_back(p);// TEMPORARY
         bool first = true;
-        for (typename Corner::const_iterator it = boost::begin(corner);
-            it != boost::end(corner);
+        for (typename Range::const_iterator it = boost::begin(range);
+            it != boost::end(range);
             ++it)
         {
             bool add = true;
@@ -439,10 +466,23 @@ struct buffered_piece_collection
             {
                 add_point(*it);
             }
-            pc.corner.push_back(*it); // TEMPORARY
-            pc.offseted_segment.push_back(*it); // REDUNDANT
+
+            pc.offsetted_segment.push_back(*it);
         }
-        pc.corner.push_back(p);// TEMPORARY
+        return pc;
+    }
+
+    template <typename Range>
+    inline void add_piece(Point const& p, Range const& range)
+    {
+        piece& pc = add_piece(range);
+
+        if (boost::size(range) > 0)
+        {
+            pc.helper_segments.push_back(range.back());
+            pc.helper_segments.push_back(p);
+            pc.helper_segments.push_back(range.front());
+        }
     }
 
     inline void enrich()
@@ -482,7 +522,8 @@ struct buffered_piece_collection
     {
         // Erase all points being inside
         turn_vector.erase(
-            std::remove_if(boost::begin(turn_vector), boost::end(turn_vector), redundant_turn<buffer_turn_info<Point> >()),
+            std::remove_if(boost::begin(turn_vector), boost::end(turn_vector),
+            redundant_turn<buffer_turn_info<Point> >()),
             boost::end(turn_vector));
 
     }
@@ -573,33 +614,34 @@ struct buffered_piece_collection
             it != boost::end(all_pieces);
             ++it)
         {
+            Ring corner;
+            std::copy(boost::begin(it->offsetted_segment), 
+                    boost::end(it->offsetted_segment), 
+                    std::back_inserter(corner));
+            std::copy(boost::begin(it->helper_segments), 
+                    boost::end(it->helper_segments), 
+                    std::back_inserter(corner));
+
             if (it->type == buffered_segment)
             {
-                geometry::model::ring<Point> ring;
-                ring.push_back(it->p1);
-                ring.push_back(it->b1);
-                ring.push_back(it->b2);
-                ring.push_back(it->p2);
-                ring.push_back(it->p1);
-
                 if(boost::is_same<Tag, ring_tag>::value || boost::is_same<Tag, polygon_tag>::value)
                 {
-                    mapper.map(ring, "opacity:0.3;fill:rgb(255,128,0);stroke:rgb(0,0,0);stroke-width:1");
+                    mapper.map(corner, "opacity:0.3;fill:rgb(255,128,0);stroke:rgb(0,0,0);stroke-width:1");
                 }
                 else if(boost::is_same<Tag, linestring_tag>::value)
                 {
-                    mapper.map(ring, "opacity:0.3;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
+                    mapper.map(corner, "opacity:0.3;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
                 }
             }
             else
             {
-                mapper.map(it->corner, "opacity:0.3;fill:rgb(255,0,0);stroke:rgb(0,0,0);stroke-width:1");
+                mapper.map(corner, "opacity:0.3;fill:rgb(255,0,0);stroke:rgb(0,0,0);stroke-width:1");
             }
 
 
             // Put starting segment_index in centroid
             Point centroid;
-            geometry::centroid(it->corner, centroid);
+            geometry::centroid(corner, centroid);
             std::ostringstream out;
             out << it->seg_id.segment_index;
             mapper.text(centroid, out.str(), "fill:rgb(255,0,0);font-family='Arial';", 5, 5);
