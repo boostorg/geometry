@@ -13,6 +13,25 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.50]
+[/=================]
+
+[*Breaking changes]
+
+[*Bugfixes]
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/6585 6585] patch for alternative syntax multipoint, applied
+
+[*Additional functionality]
+
+[*Documentation]
+
+[*Internal changes]
+
+
+[/=================]
 [heading Boost 1.49]
 [/=================]
 
