@@ -25,7 +25,8 @@
 
 * [@https://svn.boost.org/trac/boost/ticket/6585 6585] patch for alternative syntax multipoint, applied
 * [@https://svn.boost.org/trac/boost/ticket/6584 6584] patch for bug in distance, applied
-
+* [@https://svn.boost.org/trac/boost/ticket/5730 5730] same issue as 6584, fixed
+* [@https://svn.boost.org/trac/boost/ticket/6166 6166] patch for missing transformation, applied
 
 [*Additional functionality]
 
