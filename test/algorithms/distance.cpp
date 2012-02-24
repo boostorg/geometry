@@ -194,7 +194,11 @@ void test_all()
     test_geometry<P, P>("POINT(0 3)", "POINT(4 0)", 5.0);
     test_geometry<P, bg::model::linestring<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
     test_geometry<P, bg::model::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    test_geometry<P, bg::model::linestring<P> >("POINT(50 50)", "LINESTRING(50 40, 40 50)", sqrt(50.0));
+    test_geometry<P, bg::model::linestring<P> >("POINT(50 50)", "LINESTRING(50 40, 40 50, 0 90)", sqrt(50.0));
     test_geometry<bg::model::linestring<P>, P>("LINESTRING(1 1,4 4)", "POINT(1 3)", sqrt(2.0));
+    test_geometry<bg::model::linestring<P>, P>("LINESTRING(50 40, 40 50)", "POINT(50 50)", sqrt(50.0));
+    test_geometry<bg::model::linestring<P>, P>("LINESTRING(50 40, 40 50, 0 90)", "POINT(50 50)", sqrt(50.0));
 
     // Rings
     test_geometry<P, bg::model::ring<P> >("POINT(1 3)", "POLYGON((1 1,4 4,5 0,1 1))", sqrt(2.0));
