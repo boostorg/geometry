@@ -278,7 +278,7 @@ struct touch : public base_turn_handler
                 if (side_pk_q1 == 0)
                 {
                     ti.operations[0].operation = operation_blocked;
-                    // Q turns right -> union (both independant),
+                    // Q turns right -> union (both independent),
                     // Q turns left -> intersection
                     ti.operations[1].operation = block_q ? operation_blocked
                         : q_turns_left ? operation_intersection
@@ -682,18 +682,11 @@ public:
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info)
     {
-        /*
-        std::cout << "arrivals: "
-            << dir_info.arrival[0]
-            << "/" << dir_info.arrival[1]
-            << std::endl;
-        */
-
         TurnInfo tp = tp_model;
 
         tp.method = method_collinear;
 
-        // If P arrives within Q, there is a turn dependant on P
+        // If P arrives within Q, there is a turn dependent on P
         if (dir_info.arrival[0] == 1
             && set_tp<0>(pi, pj, pk, tp, intersection_info))
         {
@@ -701,17 +694,9 @@ public:
             *out++ = tp;
         }
 
-        // If Q arrives within P, there is a turn dependant on Q
+        // If Q arrives within P, there is a turn dependent on Q
         if (dir_info.arrival[1] == 1
             && set_tp<1>(qi, qj, qk, tp, intersection_info))
-        {
-            AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
-            *out++ = tp;
-        }
-
-        // If P arrives within Q, there is a turn dependant on P
-        if (dir_info.arrival[0] == 1
-            && set_tp<0>(pi, pj, pk, tp, intersection_info))
         {
             AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
             *out++ = tp;

@@ -279,12 +279,12 @@ class follow
     {
         // In case of turn point at the same location, we want to have continue/blocked LAST
         // because that should be followed (intersection) or skipped (difference).
-        // By chance the enumeration is ordered like that but we keep the safe way here.
         inline int operation_order(Turn const& turn) const
         {
             operation_type const& operation = turn.operations[0].operation;
             switch(operation)
             {
+                case operation_opposite : return 0;
                 case operation_none : return 0;
                 case operation_union : return 1;
                 case operation_intersection : return 2;
