@@ -28,7 +28,8 @@ enum operation_type
     operation_union,
     operation_intersection,
     operation_blocked,
-    operation_continue
+    operation_continue,
+    operation_opposite
 };
 
 
@@ -113,6 +114,10 @@ struct turn_info
     inline bool blocked() const
     {
         return both(operation_blocked);
+    }
+    inline bool opposite() const
+    {
+        return both(operation_opposite);
     }
     inline bool any_blocked() const
     {

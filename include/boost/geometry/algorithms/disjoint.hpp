@@ -49,10 +49,19 @@ struct assign_disjoint_policy
     // We want to include all points:
     static bool const include_no_turn = true;
     static bool const include_degenerate = true;
+    static bool const include_opposite = true;
 
     // We don't assign extra info:
-    template <typename Point1, typename Point2, typename Info>
-    static inline void apply(Info& , Point1 const& , Point2 const& )
+    template 
+	<
+		typename Info,
+		typename Point1,
+		typename Point2,
+		typename IntersectionInfo,
+		typename DirInfo
+	>
+    static inline void apply(Info& , Point1 const& , Point2 const&,
+                IntersectionInfo const&, DirInfo const&)
     {}
 };
    
