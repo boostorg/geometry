@@ -32,9 +32,18 @@ struct calculate_distance_policy
 {
     static bool const include_no_turn = false;
     static bool const include_degenerate = false;
+    static bool const include_opposite = false;
 
-    template <typename Point1, typename Point2, typename Info>
-    static inline void apply(Info& info, Point1 const& p1, Point2 const& p2)
+    template 
+	<
+		typename Info,
+		typename Point1,
+		typename Point2,
+		typename IntersectionInfo,
+		typename DirInfo
+	>
+    static inline void apply(Info& info, Point1 const& p1, Point2 const& p2,
+                IntersectionInfo const&, DirInfo const&)
     {
         info.operations[0].enriched.distance
                     = geometry::comparable_distance(info.point, p1);

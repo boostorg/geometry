@@ -113,6 +113,12 @@ void test_all()
     test_disjoint<segment, segment>("s/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
     test_disjoint<segment, segment>("s/s 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
 
+    // Collinear opposite
+    test_disjoint<ls, ls>("ls/ls co", "linestring(0 0,2 2)", "linestring(1 1,0 0)", false);
+    // Collinear opposite and equal
+    test_disjoint<ls, ls>("ls/ls co-e", "linestring(0 0,1 1)", "linestring(1 1,0 0)", false);
+
+
     // Degenerate linestrings
     {
         // Submitted by Zachary on the Boost.Geometry Mailing List, on 2012-01-29
