@@ -1,5 +1,5 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-// Robustness Test
+// Robustness Test - convex_hull
 
 // Copyright (c) 2012 Barend Gehrels, Amsterdam, the Netherlands.
 
