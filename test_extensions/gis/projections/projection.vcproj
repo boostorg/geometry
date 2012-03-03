@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\projection"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\boost.vsprops"
+			InheritedPropertySheets="..\..\boost.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/bigobj"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../../../..;../../.."
+				AdditionalIncludeDirectories="../../../../..;../../../test"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS"
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
@@ -94,7 +94,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\projection"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\boost.vsprops"
+			InheritedPropertySheets="..\..\boost.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -116,7 +116,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/bigobj"
-				AdditionalIncludeDirectories="../../../../../..;../../.."
+				AdditionalIncludeDirectories="../../../../..;../../../test"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS"
 				ExceptionHandling="2"
 				UsePrecompiledHeader="0"
