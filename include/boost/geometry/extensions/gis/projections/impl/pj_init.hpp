@@ -257,7 +257,7 @@ parameters pj_init(R const& arguments, bool use_defaults = true)
 
 inline parameters pj_init_plus(std::string const& definition, bool use_defaults = true)
 {
-    static const char* sep = " +";
+    const char* sep = " +";
 
     /* split into arguments based on '+' and trim white space */
 
