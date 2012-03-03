@@ -31,6 +31,9 @@ static std::string const two_bends = "LINESTRING(0 0,4 5,7 4,10 6)";
 static std::string const overlapping = "LINESTRING(0 0,4 5,7 4,10 6, 10 2,2 2)";
 static std::string const curve = "LINESTRING(2 7,3 5,5 4,7 5,8 7)";
 
+static std::string const for_collinear = "LINESTRING(2 0,0 0,0 4,6 4,6 0,4 0)";
+static std::string const for_collinear2 = "LINESTRING(2 1,2 0,0 0,0 4,6 4,6 0,4 0,4 1)";
+
 static std::string const chained2 = "LINESTRING(0 0,1 1,2 2)";
 static std::string const chained3 = "LINESTRING(0 0,1 1,2 2,3 3)";
 static std::string const chained4 = "LINESTRING(0 0,1 1,2 2,3 3,4 4)";
@@ -46,32 +49,55 @@ void test_all()
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::polygon<P> polygon;
 
-    double factor = +1.0; // does NOT yet work for negative buffer
-    double right = factor * 1.0;
+    test_one<linestring, buf::join_round, polygon>("simplex", simplex, 'r', 19.209, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, polygon>("simplex", simplex, 'm', 19.209, 1.5, 1.5);
 
-    test_one<linestring, buf::join_round, polygon>("simplex", simplex, 'r', 19.2093727122985, 1.5, right);
-    test_one<linestring, buf::join_miter, polygon>("simplex", simplex, 'm', 19.2093727122985, 1.5, right);
+    test_one<linestring, buf::join_miter, polygon>("simplex_asym_neg", simplex, 'm', 3.202, +1.5, -1.0);
+    test_one<linestring, buf::join_miter, polygon>("simplex_asym_pos", simplex, 'm', 3.202, -1.5, +1.0);
 
-    test_one<linestring, buf::join_round, polygon>("straight", straight, 'r', 19.2093727122985, 1.5, right);
-    test_one<linestring, buf::join_miter, polygon>("straight", straight, 'm', 19.2093727122985, 1.5, right);
+    //test_one<linestring, buf::join_round, polygon>("straight", straight, 'r', 19.2093727122985, 1.5, 1.5);
+    //test_one<linestring, buf::join_miter, polygon>("straight", straight, 'm', 19.2093727122985, 1.5, 1.5);
 
-    test_one<linestring, buf::join_round, polygon>("one_bend", one_bend, 'r', 28.4879539312069, 1.5, right);
-    test_one<linestring, buf::join_miter, polygon>("one_bend", one_bend, 'm', 28.6962056928037, 1.5, right);
+    test_one<linestring, buf::join_round, polygon>("one_bend", one_bend, 'r', 28.488, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, polygon>("one_bend", one_bend, 'm', 28.696, 1.5, 1.5);
 
-    test_one<linestring, buf::join_round, polygon>("two_bends", two_bends, 'r', 39.2220036534424, 1.5, right);
-    test_one<linestring, buf::join_miter, polygon>("two_bends", two_bends, 'm', 39.5128595191957, 1.5, right);
+    test_one<linestring, buf::join_round, polygon>("two_bends", two_bends, 'r', 39.222, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, polygon>("two_bends", two_bends, 'm', 39.513, 1.5, 1.5);
+    test_one<linestring, buf::join_round, polygon>("two_bends_left", two_bends, 'r', 20.028, 1.5, 0.0);
+    test_one<linestring, buf::join_miter, polygon>("two_bends_left", two_bends, 'm', 20.225, 1.5, 0.0);
+    test_one<linestring, buf::join_round, polygon>("two_bends_right", two_bends, 'r', 19.211, 0.0, 1.5);
+    test_one<linestring, buf::join_miter, polygon>("two_bends_right", two_bends, 'm', 19.288, 0.0, 1.5);
 
-    test_one<linestring, buf::join_round, polygon>("overlapping", overlapping, 'r', 65.646005724872, 1.5, right);
-    test_one<linestring, buf::join_miter, polygon>("overlapping", overlapping, 'm', 68.1395194809293, 1.5, right);
 
-    test_one<linestring, buf::join_round, polygon>("curve", curve, 'r', 65.646005724872, 5.0, factor * 3.0);
-    test_one<linestring, buf::join_miter, polygon>("curve", curve, 'm', 68.1395194809293, 5.0, factor * 3.0);
+	// Next (and all similar cases) which a offsetted-one-sided buffer has to be fixed.
+    //test_one<linestring, buf::join_miter, polygon>("two_bends_neg", two_bends, 'm', 99, +1.5, -1.0);
+    //test_one<linestring, buf::join_miter, polygon>("two_bends_pos", two_bends, 'm', 99, -1.5, +1.0);
+    //test_one<linestring, buf::join_round, polygon>("two_bends_neg", two_bends, 'r', 99, +1.5, -1.0);
+    //test_one<linestring, buf::join_round, polygon>("two_bends_pos", two_bends, 'r', 99, -1.5, +1.0);
 
-    test_one<linestring, buf::join_round, polygon>("chained2", chained2, 'r', 65.646005724872, 2.5, factor * 1.5);
-    test_one<linestring, buf::join_round, polygon>("chained3", chained3, 'r', 65.646005724872, 2.5, factor * 1.5);
-    test_one<linestring, buf::join_round, polygon>("chained4", chained4, 'r', 65.646005724872, 2.5, factor * 1.5);
+    test_one<linestring, buf::join_round, polygon>("overlapping150", overlapping, 'r', 65.646, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, polygon>("overlapping150", overlapping, 'm', 68.140, 1.5, 1.5);
+	// Different cases with intersection points on flat and (left/right from line itself)
+    test_one<linestring, buf::join_round, polygon>("overlapping_asym_150_010", overlapping, 'r', 48.308, 1.5, 0.25);
+    test_one<linestring, buf::join_miter, polygon>("overlapping_asym_150_010", overlapping, 'm', 50.770, 1.5, 0.25);
+    test_one<linestring, buf::join_round, polygon>("overlapping_asym_150_075", overlapping, 'r', 58.506, 1.5, 0.75);
+    test_one<linestring, buf::join_miter, polygon>("overlapping_asym_150_075", overlapping, 'm', 60.985, 1.5, 0.75);
+    test_one<linestring, buf::join_round, polygon>("overlapping_asym_150_100", overlapping, 'r', 62.514, 1.5, 1.0);
+    test_one<linestring, buf::join_miter, polygon>("overlapping_asym_150_100", overlapping, 'm', 64.984, 1.5, 1.0);
 
-    test_one<linestring, buf::join_round, polygon>("reallife1", reallife1, 'r', 65.646005724872, 16.5, factor * 6.5);
+    test_one<linestring, buf::join_round, polygon>("for_collinear", for_collinear, 'r', 68.561, 2.0, 2.0);
+    test_one<linestring, buf::join_miter, polygon>("for_collinear", for_collinear, 'm', 72, 2.0, 2.0);
+    test_one<linestring, buf::join_round, polygon>("for_collinear2", for_collinear2, 'r', 74.387, 2.0, 2.0);
+    test_one<linestring, buf::join_miter, polygon>("for_collinear2", for_collinear2, 'm', 78.0, 2.0, 2.0);
+
+    //test_one<linestring, buf::join_round, polygon>("curve", curve, 'r', 99, 5.0, 3.0);
+    //test_one<linestring, buf::join_miter, polygon>("curve", curve, 'm', 99, 5.0, 3.0);
+
+    //test_one<linestring, buf::join_round, polygon>("chained2", chained2, 'r', 99, 2.5, 1.5);
+    //test_one<linestring, buf::join_round, polygon>("chained3", chained3, 'r', 99, 2.5, 1.5);
+    //test_one<linestring, buf::join_round, polygon>("chained4", chained4, 'r', 99, 2.5, 1.5);
+
+    //test_one<linestring, buf::join_round, polygon>("reallife1", reallife1, 'r', 99, 16.5, 6.5);
 }
 
 
@@ -85,7 +111,6 @@ int test_main(int, char* [])
 {
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
-
 
     return 0;
 }

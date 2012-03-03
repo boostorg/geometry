@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,6 +22,10 @@
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
+
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+#  include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection_with_mapper.hpp>
+#endif
 
 
 namespace boost { namespace geometry
@@ -90,7 +94,7 @@ struct buffer_range
                 Iterator begin, Iterator end,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
-                JoinStrategy const& join_strategy)
+                JoinStrategy const& join_strategy, bool close = false)
     {
         output_point_type previous_p1, previous_p2;
         output_point_type first_p1, first_p2;
@@ -135,10 +139,10 @@ struct buffer_range
                 }
                 if (! range_out.empty())
                 {
-                    collection.add_piece(*prev, range_out);
+                    collection.add_piece(buffered_join, *prev, range_out);
                     range_out.clear();
                 }
-                collection.add_piece(*prev, *it, p1, p2);
+                collection.add_piece(buffered_segment, *prev, *it, p1, p2);
 
                 previous_p1 = p1;
                 previous_p2 = p2;
@@ -161,7 +165,7 @@ struct buffer_range
                 range_out);
             if (! range_out.empty())
             {
-                collection.add_piece(*begin, range_out);
+                collection.add_piece(buffered_join, *begin, range_out);
             }
 
             // Buffer is closed automatically by last closing corner (NOT FOR OPEN POLYGONS - TODO)
@@ -169,6 +173,7 @@ struct buffer_range
         else if (boost::is_same<Tag, linestring_tag>::value)
         {
             // Assume flat-end-strategy for now
+            // TODO fix this (approach) for one-side buffer (1.5 - -1.0)
             output_point_type rp1, rp2;
             generate_side(last_ip2, last_ip1, 
                     side == buffer_side_left 
@@ -176,12 +181,14 @@ struct buffer_range
                     : buffer_side_left, 
                 distance, rp2, rp1);
 
+            // For flat end:
             std::vector<output_point_type> range_out;
             range_out.push_back(previous_p2);
-            range_out.push_back(*(end - 1));
-            range_out.push_back(rp2);
-            // For flat:
-            collection.add_piece(last_ip2, range_out);
+            if (close)
+            {
+                range_out.push_back(rp2);
+            }
+            collection.add_piece(buffered_flat_end, range_out);
         }
     }
 };
@@ -251,14 +258,14 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy)
     {
-        collection.add_input();
+        collection.start_new_ring();
         iterate(collection, boost::begin(linestring), boost::end(linestring),
                 buffer_side_left,
                 distance, join_strategy);
                 
         iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
                 buffer_side_right,
-                distance, join_strategy);
+                distance, join_strategy, true);
 
     }
 };
@@ -284,8 +291,7 @@ struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
         typedef buffer_inserter<ring_tag, input_ring_type, output_ring_type> policy;
 
         {
-            collection.add_input();
-
+            collection.start_new_ring();
             policy::apply(exterior_ring(polygon), collection,
                     distance, join_strategy);
         }
@@ -294,10 +300,7 @@ struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
                     = interior_rings(polygon);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
-            output_ring_type ring;
-
-            collection.add_input();
-
+            collection.start_new_ring();
             policy::apply(*it, collection, distance, join_strategy);
         }
 
@@ -327,7 +330,14 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 #endif
     )
 {
-    detail::buffer::buffered_piece_collection<typename geometry::ring_type<GeometryOutput>::type> collection;
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+    detail::buffer::buffered_piece_collection_with_mapper
+#else
+    detail::buffer::buffered_piece_collection
+#endif
+        <
+            typename geometry::ring_type<GeometryOutput>::type
+        > collection;
 
     dispatch::buffer_inserter
         <
@@ -336,20 +346,23 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             GeometryOutput
         >::apply(geometry_input, collection, distance_strategy, join_strategy);
 
-    collection.get_turns(geometry_input);
+    collection.get_turns(geometry_input, distance_strategy.factor());
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    collection.map_offsetted(mapper);
+    //collection.map_offsetted(mapper);
+    collection.map_turns(mapper);
+    //collection.map_opposite_locations(mapper);
 #endif
 
-    collection.discard_points();
+    collection.discard_rings();
+    collection.discard_turns();
     collection.enrich();
     collection.traverse();
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    //collection.map<geometry::polygon_tag>(mapper);
-    collection.map_turns(mapper);
-    collection.map_traverse(mapper);
+    //collection.map_turns(mapper);
+    collection.map_pieces<geometry::polygon_tag>(mapper); //, false, true);
+    //collection.map_traverse(mapper);
 #endif
 
     collection.assign<GeometryOutput>(out);
