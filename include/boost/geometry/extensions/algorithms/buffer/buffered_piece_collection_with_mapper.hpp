@@ -123,7 +123,6 @@ struct buffered_piece_collection_with_mapper
 					<< "-" << it->count_on_corner
 					<< "-" << it->count_on_offsetted
 					<< "-" << it->count_on_closed
-					//|| it->count_on_opposite > 0
 					//<< it->debug_string
 					;
 				out << color << std::endl;

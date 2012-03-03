@@ -86,16 +86,6 @@ struct check_original<linestring_tag>
 };
 
 
-// Returns a pair, taking care that pair.first is smaller than pair.second
-template <typename T>
-inline std::pair<T, T> make_ordered_pair(T const& first, T const& second)
-{
-	return first < second 
-		? std::make_pair(first, second) 
-		: std::make_pair(second, first)
-		;
-}
-
 // TODO replace double by T
 template <typename P1, typename P2>
 inline double calculate_angle(P1 const& from_point, P2 const& to_point)
@@ -191,10 +181,7 @@ struct buffered_piece_collection
     turn_vector_type m_turns;
 
 
-	// Segment pairs which are opposite are used to discard turns lying on them
-    typedef std::set<std::pair<segment_identifier, segment_identifier> > opposite_set_type;
-    opposite_set_type m_opposite_segments;
-	// To fast check if it is in:
+	// To check clustered locations we keep track of segments being opposite somewhere
 	std::set<segment_identifier> m_in_opposite_segments;
 
 
@@ -286,7 +273,6 @@ struct buffered_piece_collection
         {
 			if (it->is_opposite)
 			{
-				m_opposite_segments.insert(make_ordered_pair(it->operations[0].seg_id, it->operations[1].seg_id));
 				m_in_opposite_segments.insert(it->operations[0].seg_id);
 				m_in_opposite_segments.insert(it->operations[1].seg_id);
 			}
@@ -387,42 +373,6 @@ struct buffered_piece_collection
         }
     }
 
-    inline void classify_opposed(int index, buffer_turn_info<point_type>& turn)
-    {
-		if (m_in_opposite_segments.count(turn.operations[0].seg_id) > 0
-			|| m_in_opposite_segments.count(turn.operations[1].seg_id) > 0)
-        {
-            add_segment(index, turn.point, turn.operations[0]);
-            add_segment(index, turn.point, turn.operations[1]);
-        }
-
-		bool check_opposite =
-			! turn.opposite()
-			&& ! turn.blocked()
-			&& ((turn.operations[0].operation != detail::overlay::operation_blocked && m_in_opposite_segments.count(turn.operations[0].seg_id) > 0)
-				|| (turn.operations[1].operation != detail::overlay::operation_blocked && m_in_opposite_segments.count(turn.operations[1].seg_id) > 0));
-
-		if (! check_opposite)
-		{
-            return;
-        }
-
-        for (opposite_set_type::const_iterator it = boost::begin(m_opposite_segments);
-            it != boost::end(m_opposite_segments);
-            ++it)
-        {
-            // TODO: if it has something todo with it (operations/first/second):
-            segment_relation_code const code1 = get_segment_relation(turn.point, it->first);
-            segment_relation_code const code2 = get_segment_relation(turn.point, it->second);
-
-            if (code1 == segment_relation_within && code2 == segment_relation_within)
-            {
-                turn.count_on_opposite++;
-                return;
-            }
-        }
-    }
-
 
     inline void classify_turn(buffer_turn_info<point_type>& turn, piece const& pc) const
     {
@@ -510,7 +460,7 @@ struct buffered_piece_collection
         }
     }
 
-	inline void classify_closed()
+	inline void classify_clustered()
 	{
 		struct angle_sort
 		{
@@ -567,13 +517,21 @@ struct buffered_piece_collection
         }
 	}
 
-	inline void classify_opposed()
+	inline void get_clusters()
     {
+		fill_opposite_segments();
+
         int index = 0;
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
-            classify_opposed(index, *it);
+			buffer_turn_info<point_type>& turn = *it;
+			if (m_in_opposite_segments.count(turn.operations[0].seg_id) > 0
+				|| m_in_opposite_segments.count(turn.operations[1].seg_id) > 0)
+			{
+				add_segment(index, turn.point, turn.operations[0]);
+				add_segment(index, turn.point, turn.operations[1]);
+			}
 		}
 	}
 
@@ -587,7 +545,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
 		{
-            if (it->count_on_opposite == 0 && it->count_on_closed == 0)
+            if (it->count_on_closed == 0)
             {
                 typename std::vector<piece>::const_iterator pit;
                 for (pit = boost::begin(m_pieces);
@@ -605,7 +563,6 @@ struct buffered_piece_collection
         {
             if (it->count_within > 0 
                 || it->count_on_helper > 0
-				|| it->count_on_opposite > 0
 				|| it->count_on_closed > 0
 				)
             {
@@ -656,9 +613,8 @@ struct buffered_piece_collection
             }
         }
 
-		fill_opposite_segments();
-		classify_opposed();
-        classify_closed();
+		get_clusters();
+        classify_clustered();
         classify_turns();
 
         if (boost::is_same<typename tag_cast<typename tag<Geometry>::type, areal_tag>::type, areal_tag>())

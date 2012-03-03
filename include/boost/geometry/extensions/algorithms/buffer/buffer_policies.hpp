@@ -111,7 +111,7 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
     intersection_location_type location;
     
     int count_within, count_on_helper, count_on_offsetted, count_on_corner;
-	int count_on_opposite, count_on_closed;
+	int count_on_closed;
     
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 	std::string debug_string;
@@ -124,7 +124,6 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
         , count_on_helper(0)
         , count_on_offsetted(0)
         , count_on_corner(0)
-		, count_on_opposite(0)
 		, count_on_closed(0)
     {}
 };
