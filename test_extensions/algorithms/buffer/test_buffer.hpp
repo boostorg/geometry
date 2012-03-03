@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 #define TEST_WITH_SVG
 
 #include <fstream>
@@ -96,7 +96,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         << string_from_type<coordinate_type>::name()
         << "_" << join;
 
-    //std::cout << complete.str() << std::endl;
+    std::cout << complete.str() << std::endl;
 
     std::ostringstream filename;
     filename << "buffer_" << complete.str() << ".svg";
@@ -108,13 +108,13 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         bg::model::box<point_type> box;
         bg::envelope(geometry, box);
-        double d = distance_left;
-        if (distance_right > 0)
-        {
-            d += distance_right;
-        }
+        double d = std::abs(distance_left);
+		if (distance_right > -998)
+		{
+			d += std::abs(distance_right);
+		}
 
-        bg::buffer(box, box, std::abs(d) * 1.1);
+        bg::buffer(box, box, d * 1.1);
         mapper.add(box);
     }
 
@@ -127,7 +127,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     join_strategy_type join_strategy;
 
     typedef bg::strategy::buffer::distance_assymetric<coordinate_type> distance_strategy_type;
-    distance_strategy_type distance_strategy(distance_left, distance_left / 2.0); // TODO: distance_right
+    distance_strategy_type distance_strategy(distance_left, distance_right);
 
     std::vector<GeometryOut> buffered;
 
@@ -154,7 +154,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     //}
 
 
-    if (distance_left > 0 && expected_area > -0.1)
+    if (expected_area > -0.1)
     {
         BOOST_CHECK_MESSAGE
             (
@@ -181,14 +181,13 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         }
     }
 
-
-
     // Map input geometry in green
-    mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:1");
+    mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:10");
 
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
         mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
+        //mapper.map(polygon, "opacity:0.2;fill:none;stroke:rgb(255,0,0);stroke-width:3");
         post_map(polygon, mapper);
     }
 }

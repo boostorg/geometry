@@ -270,6 +270,11 @@ public :
     {
         return side == buffer_side_left ? m_left : m_right;
     }
+    
+    inline int factor() const
+    {
+        return m_left < 0 ? -1 : 1;
+    }
 
 private :
     CoordinateType m_left;
