@@ -136,8 +136,6 @@ namespace boost { namespace geometry { namespace projection
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double s; boost::ignore_unused_variable_warning(s);
-
                     xy_y /= this->m_proj_parm.C_y;
                     lp_lat = this->m_proj_parm.m ? aasin((this->m_proj_parm.m * xy_y + sin(xy_y)) / this->m_proj_parm.n) :
                         ( this->m_proj_parm.n != 1. ? aasin(sin(xy_y) / this->m_proj_parm.n) : xy_y );
