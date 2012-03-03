@@ -51,9 +51,9 @@ namespace detail
 /* reduce argument to range +/- PI */
 inline double adjlon (double lon)
 {
-    static const double SPI = 3.14159265359;
-    static const double TWOPI = 6.2831853071795864769;
-    static const double ONEPI = 3.14159265358979323846;
+    const double SPI = 3.14159265359;
+    const double TWOPI = 6.2831853071795864769;
+    const double ONEPI = 3.14159265358979323846;
 
     if (geometry::math::abs(lon) <= SPI)
     {
