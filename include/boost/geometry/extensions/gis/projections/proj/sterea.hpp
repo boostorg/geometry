@@ -80,15 +80,15 @@ namespace boost { namespace geometry { namespace projection
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    double cosc, sinc, cosl, k;
+                    double cosc, sinc, cosl_, k;
 
                     detail::gauss::gauss(m_proj_parm.en, lp_lon, lp_lat);
                     sinc = sin(lp_lat);
                     cosc = cos(lp_lat);
-                    cosl = cos(lp_lon);
-                    k = this->m_par.k0 * this->m_proj_parm.R2 / (1. + this->m_proj_parm.sinc0 * sinc + this->m_proj_parm.cosc0 * cosc * cosl);
+                    cosl_ = cos(lp_lon);
+                    k = this->m_par.k0 * this->m_proj_parm.R2 / (1. + this->m_proj_parm.sinc0 * sinc + this->m_proj_parm.cosc0 * cosc * cosl_);
                     xy_x = k * cosc * sin(lp_lon);
-                    xy_y = k * (this->m_proj_parm.cosc0 * sinc - this->m_proj_parm.sinc0 * cosc * cosl);
+                    xy_y = k * (this->m_proj_parm.cosc0 * sinc - this->m_proj_parm.sinc0 * cosc * cosl_);
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
