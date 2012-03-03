@@ -84,7 +84,7 @@ namespace boost { namespace geometry { namespace projection
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    double s; boost::ignore_unused_variable_warning(s);
+                    double s;
 
                     if ((s = fabs(lp_lat = pj_inv_mlfn(xy_y, this->m_par.es, this->m_proj_parm.en))) < HALFPI) {
                         s = sin(lp_lat);
