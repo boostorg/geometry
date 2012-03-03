@@ -16,7 +16,7 @@
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels (Geodan, Amsterdam)
 
 // Original copyright notice:
-
+ 
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -47,7 +47,7 @@
 namespace boost { namespace geometry { namespace projection
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace cea{
+    namespace detail { namespace cea{ 
             static const double EPS = 1e-10;
 
             struct par_cea
@@ -108,7 +108,7 @@ namespace boost { namespace geometry { namespace projection
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t;
-
+                
                     if ((t = fabs(xy_y *= this->m_par.k0)) - EPS <= 1.) {
                         if (t >= 1.)
                             lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
@@ -123,11 +123,10 @@ namespace boost { namespace geometry { namespace projection
             template <typename Parameters>
             void setup_cea(Parameters& par, par_cea& proj_parm)
             {
-                double t;
+                double t = 0;
                 if (pj_param(par.params, "tlat_ts").i &&
-                    (par.k0 = cos(t = pj_param(par.params, "rlat_ts").f)) < 0.) throw proj_exception(-24);
-                else
-                    t = 0.;
+                    (par.k0 = cos(t = pj_param(par.params, "rlat_ts").f)) < 0.)
+                  throw proj_exception(-24);
                 if (par.es) {
                     t = sin(t);
                     par.k0 /= sqrt(1. - par.es * t * t);
@@ -143,7 +142,7 @@ namespace boost { namespace geometry { namespace projection
             }
 
         }} // namespace detail::cea
-    #endif // doxygen
+    #endif // doxygen 
 
     /*!
         \brief Equal Area Cylindrical projection
@@ -215,7 +214,7 @@ namespace boost { namespace geometry { namespace projection
             factory.add_to_factory("cea", new cea_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail
+    } // namespace detail 
     #endif // doxygen
 
 }}} // namespace boost::geometry::projection

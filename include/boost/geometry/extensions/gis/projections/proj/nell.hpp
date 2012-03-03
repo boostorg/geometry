@@ -16,7 +16,7 @@
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels (Geodan, Amsterdam)
 
 // Original copyright notice:
-
+ 
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -45,7 +45,7 @@
 namespace boost { namespace geometry { namespace projection
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nell{
+    namespace detail { namespace nell{ 
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
@@ -68,7 +68,7 @@ namespace boost { namespace geometry { namespace projection
                 {
                     double k, V;
                     int i;
-
+                
                     k = 2. * sin(lp_lat);
                     V = lp_lat * lp_lat;
                     lp_lat *= 1.00371 + V * (-0.0935382 + V * -0.011412);
@@ -84,8 +84,6 @@ namespace boost { namespace geometry { namespace projection
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-
-
                     lp_lon = 2. * xy_x / (1. + cos(xy_y));
                     lp_lat = aasin(0.5 * (xy_y + sin(xy_y)));
                 }
@@ -101,7 +99,7 @@ namespace boost { namespace geometry { namespace projection
             }
 
         }} // namespace detail::nell
-    #endif // doxygen
+    #endif // doxygen 
 
     /*!
         \brief Nell projection
@@ -145,7 +143,7 @@ namespace boost { namespace geometry { namespace projection
             factory.add_to_factory("nell", new nell_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail
+    } // namespace detail 
     #endif // doxygen
 
 }}} // namespace boost::geometry::projection
