@@ -9,8 +9,10 @@
 #include "shapefil.h"
 
 #include <boost/noncopyable.hpp>
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/multi/multi.hpp>
+
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/multi/geometries/multi_geometries.hpp>
 
 #include <boost/geometry/extensions/gis/io/shapelib/shape_creator.hpp>
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object.hpp>
