@@ -459,9 +459,6 @@ struct buffered_piece_collection
             }
         }
     }
-
-	inline void classify_clustered()
-	{
 		struct angle_sort
 		{
 			inline bool operator()(angle_info const& left, angle_info const& right) const
@@ -473,6 +470,9 @@ struct buffered_piece_collection
 			}
 		};
 
+	inline void classify_clustered()
+	{
+
         for (typename boost::range_iterator<clustered_location_type>::type it =
 	            boost::begin(clustered_turn_locations);
 			it != boost::end(clustered_turn_locations); ++it)
@@ -481,11 +481,6 @@ struct buffered_piece_collection
 			if (boost::size(admin.angles) > 1)
 			{
 				std::sort(admin.angles.begin(), admin.angles.end(), angle_sort());
-
-				if (boost::size(admin.angles) == 10)
-				{
-					int kkk = 0;
-				}
 
 				// Verify if completely closed
 				bool closed = true;
@@ -759,9 +754,6 @@ struct buffered_piece_collection
             }
         }
     }
-                    
-    inline void discard_turns()
-    {
 		struct redundant_turn
 		{
 			inline bool operator()(buffer_turn_info<point_type> const& turn) const
@@ -773,6 +765,9 @@ struct buffered_piece_collection
 			}
 		};
 
+                    
+    inline void discard_turns()
+    {
         m_turns.erase
 			(
 				std::remove_if(boost::begin(m_turns), boost::end(m_turns),
