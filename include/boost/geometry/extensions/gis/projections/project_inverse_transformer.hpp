@@ -18,7 +18,7 @@
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 
@@ -67,7 +67,7 @@ struct project_inverse_transformer
 
 };
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 
 #endif // BOOST_GEOMETRY_STRATEGY_PROJECT_INVERSE_TRANSFORMER_HPP

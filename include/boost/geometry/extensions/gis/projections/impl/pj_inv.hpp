@@ -43,7 +43,7 @@
 
 /* general inverse projection */
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 namespace detail
@@ -75,6 +75,6 @@ void pj_inv(PRJ const& prj, PAR const& par, XY const& xy, LL& ll)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif

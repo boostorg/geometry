@@ -39,7 +39,7 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
 
-namespace boost { namespace geometry { namespace projection { namespace detail {
+namespace boost { namespace geometry { namespace projections { namespace detail {
 
     /* evaluate complex polynomial */
 
@@ -95,6 +95,6 @@ namespace boost { namespace geometry { namespace projection { namespace detail {
         return a;
     }
 
-}}}} // namespace boost::geometry::projection::impl
+}}}} // namespace boost::geometry::projections::detail
 
 #endif

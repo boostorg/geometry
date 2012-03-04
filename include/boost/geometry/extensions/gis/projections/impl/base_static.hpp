@@ -20,7 +20,7 @@
 #include <boost/geometry/extensions/gis/projections/impl/pj_fwd.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_inv.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 
@@ -99,7 +99,7 @@ public :
 #endif // DOXYGEN_NO_DETAIL
 
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_BASE_STATIC_HPP

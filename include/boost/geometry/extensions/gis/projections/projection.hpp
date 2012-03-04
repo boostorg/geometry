@@ -13,7 +13,7 @@
 #include <string>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 /*!
@@ -57,7 +57,7 @@ class projection
 
 };
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 
 

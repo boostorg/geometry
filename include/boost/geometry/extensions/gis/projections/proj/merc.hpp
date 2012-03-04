@@ -45,7 +45,7 @@
 #include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_phi2.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace merc{ 
@@ -207,7 +207,7 @@ namespace boost { namespace geometry { namespace projection
     } // namespace detail 
     #endif // doxygen
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_MERC_HPP
 

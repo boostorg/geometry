@@ -45,7 +45,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/moll.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gn_sinu.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace goode{ 
@@ -154,7 +154,7 @@ namespace boost { namespace geometry { namespace projection
     } // namespace detail 
     #endif // doxygen
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_GOODE_HPP
 

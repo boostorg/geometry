@@ -36,7 +36,7 @@
 #define BOOST_GEOMETRY_PROJECTIONS_PJ_QSFN_HPP
 
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 { namespace detail {
 
 /* determine small q */
@@ -79,6 +79,6 @@ inline double proj_qsfn(double phi, const AUTHALIC& a)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif

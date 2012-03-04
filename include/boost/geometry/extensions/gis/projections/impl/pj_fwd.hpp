@@ -44,7 +44,7 @@
 
 /* general forward projection */
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
@@ -93,6 +93,6 @@ inline void pj_fwd(Prj const& prj, P const& par, LL const& ll, XY& xy)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_FWD_HPP

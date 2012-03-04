@@ -11,7 +11,7 @@
 
 #include <cmath>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 // Functions to resolve ambiguity when compiling with coordinates of different types
@@ -30,6 +30,6 @@ inline int int_floor(double f)
     return int(std::floor(f));
 }
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_FUNCTION_OVERLOADS_HPP

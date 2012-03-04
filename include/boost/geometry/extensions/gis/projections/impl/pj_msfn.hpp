@@ -36,7 +36,7 @@
 #define BOOST_GEOMETRY_PROJECTIONS_PJ_MSFN_HPP
 
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
@@ -49,6 +49,6 @@ inline double pj_msfn(double sinphi, double cosphi, double es)
 
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif

@@ -39,7 +39,7 @@
 #include <boost/geometry/util/math.hpp>
 
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail { namespace gauss {
 
@@ -125,6 +125,6 @@ inline void inv_gauss(GAUSS const& en, T& lam, T& phi)
 }
 
 }} // namespace detail::gauss
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_GAUSS_HPP

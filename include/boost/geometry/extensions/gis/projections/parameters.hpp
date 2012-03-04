@@ -18,7 +18,7 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 template <typename R>
 inline parameters init(const R& arguments)
@@ -61,5 +61,5 @@ parameters init(const std::map<std::string, std::string>& arguments)
 
 
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 #endif

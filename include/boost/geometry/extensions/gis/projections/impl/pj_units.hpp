@@ -37,7 +37,7 @@
 
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 namespace detail {
 
 /* Field 2 that contains the multiplier to convert named units to meters
@@ -70,6 +70,6 @@ static const PJ_UNITS pj_units[] =
 };
 
 } // detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_UNITS_HPP
