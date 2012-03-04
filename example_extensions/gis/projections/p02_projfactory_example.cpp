@@ -8,9 +8,9 @@
 //
 // Projection example 2, using factory
 
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/io/wkt/stream.hpp>
+
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 #include <boost/geometry/extensions/gis/projections/factory.hpp>
@@ -45,7 +45,7 @@ int main()
     // Do the forward projection
     if (prj->forward(amsterdam, pa) && prj->forward(barcelona, pb))
     {
-        std::cout << "Amsterdam: " << pa << std::endl << "Barcelona: " << pb << std::endl;
+        std::cout << "Amsterdam: " << wkt(pa) << std::endl << "Barcelona: " << wkt(pb) << std::endl;
 
         std::cout << "Distance (unprojected):" << distance(amsterdam, barcelona) / 1000.0 << " km" << std::endl;
         std::cout << "Distance (  projected):" << distance(pa, pb) / 1000.0 << " km" << std::endl;
@@ -54,8 +54,8 @@ int main()
         point_ll_deg a1;
         if (prj->inverse(pa, a1))
         {
-            std::cout << "Amsterdam (original): " << amsterdam  << std::endl
-                << "Amsterdam (projected, and back):" << a1 << std::endl;
+            std::cout << "Amsterdam (original): " << wkt(amsterdam)  << std::endl
+                << "Amsterdam (projected, and back):" << wkt(a1) << std::endl;
             std::cout << "Distance a-a': " << distance(amsterdam, a1) << " meter" << std::endl;
         }
     }
