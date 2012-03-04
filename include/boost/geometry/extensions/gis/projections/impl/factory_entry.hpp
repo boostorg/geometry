@@ -13,7 +13,7 @@
 
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 namespace detail
@@ -38,6 +38,6 @@ public:
 };
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_FACTORY_ENTRY_HPP

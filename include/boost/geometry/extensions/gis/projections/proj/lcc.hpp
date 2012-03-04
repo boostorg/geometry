@@ -47,7 +47,7 @@
 
 #include <boost/geometry/extensions/gis/projections/epsg_traits.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace lcc{ 
@@ -243,7 +243,7 @@ namespace boost { namespace geometry { namespace projection
 
     #endif // doxygen
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_LCC_HPP
 

@@ -109,7 +109,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/wink1.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/wink2.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 template <typename LatLong, typename Cartesian, typename Parameters = parameters>
@@ -250,6 +250,6 @@ public:
     }
 };
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_FACTORY_HPP

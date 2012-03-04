@@ -42,7 +42,7 @@
 #include <boost/concept_check.hpp>
 #include <boost/math/constants/constants.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -181,5 +181,5 @@ public:
     }
 };
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PROJECTS_HPP

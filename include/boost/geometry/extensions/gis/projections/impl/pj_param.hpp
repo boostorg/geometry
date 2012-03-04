@@ -44,7 +44,7 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
@@ -150,6 +150,6 @@ inline pvalue pj_param(std::vector<pvalue> const& pl, std::string opt)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif

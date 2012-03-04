@@ -15,7 +15,7 @@
 
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -101,6 +101,6 @@ public :
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_BASE_DYNAMIC_HPP

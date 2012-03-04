@@ -41,7 +41,7 @@
 #include <boost/geometry/util/math.hpp>
 
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 namespace detail
@@ -101,7 +101,7 @@ inline double aatan2(double n, double d)
 } // namespace detail
 
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_AASINCOS_HPP

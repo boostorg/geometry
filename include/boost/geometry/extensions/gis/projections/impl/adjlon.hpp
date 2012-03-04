@@ -38,7 +38,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/geometry/util/math.hpp>
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 namespace detail
@@ -56,7 +56,7 @@ inline T adjlon (T lon)
     /* adjust to 0..2pi rad */
     lon += boost::math::constants::pi<T>();
     /* remove integral # of 'revolutions'*/
-    lon -= boost::math::constants::two_pi<T>() * 
+    lon -= boost::math::constants::two_pi<T>() *
                 std::floor(lon / boost::math::constants::two_pi<T>());
     /* adjust back to -pi..pi rad */
     lon -= boost::math::constants::pi<T>();
@@ -65,6 +65,6 @@ inline T adjlon (T lon)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_ADJLON_HPP

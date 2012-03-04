@@ -37,7 +37,7 @@
 
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
@@ -101,6 +101,6 @@ static const PJ_PRIME_MERIDIANS pj_prime_meridians[] =
 };
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_DATUMS_HPP

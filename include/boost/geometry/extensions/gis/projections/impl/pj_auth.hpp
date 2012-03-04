@@ -38,7 +38,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
@@ -80,6 +80,6 @@ inline double pj_authlat(double beta, const double* APA)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_AUTH_HPP

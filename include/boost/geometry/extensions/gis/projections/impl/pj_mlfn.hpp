@@ -40,7 +40,7 @@
 #include <boost/geometry/util/math.hpp>
 
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
@@ -106,6 +106,6 @@ inline double pj_inv_mlfn(double arg, double es, const double *en)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif

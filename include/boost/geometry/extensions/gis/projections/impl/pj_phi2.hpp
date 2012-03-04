@@ -39,7 +39,7 @@
 #include <boost/geometry/util/math.hpp>
 
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 namespace detail {
 
 namespace phi2
@@ -68,6 +68,6 @@ inline double pj_phi2(double ts, double e)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif

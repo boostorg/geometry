@@ -19,7 +19,7 @@
 
 
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 /*!
     \brief Transformation strategy to do transform using a Map Projection
@@ -59,7 +59,7 @@ struct project_transformer
 
 };
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 
 #endif // BOOST_GEOMETRY_STRATEGY_PROJECT_TRANSFORMER_HPP

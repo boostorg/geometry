@@ -44,7 +44,7 @@
 #include <boost/geometry/extensions/gis/projections/impl/pj_param.hpp>
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
@@ -162,6 +162,6 @@ inline void pj_datum_set(std::vector<pvalue>& pvalues, parameters& projdef)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_DATUM_SET_HPP

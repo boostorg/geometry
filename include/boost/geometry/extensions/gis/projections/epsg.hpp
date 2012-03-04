@@ -17,7 +17,7 @@
 // Only to be included if EPSG codes are necessary.
 // It is not included automatically
 
-namespace boost { namespace geometry { namespace projection
+namespace boost { namespace geometry { namespace projections
 {
 
 
@@ -3563,6 +3563,6 @@ inline parameters init(int epsg_code)
     return detail::pj_init_plus(args, false);
 }
 
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif

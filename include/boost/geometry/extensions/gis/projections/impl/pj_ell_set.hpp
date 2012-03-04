@@ -43,7 +43,7 @@
 #include <boost/geometry/extensions/gis/projections/impl/pj_ellps.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_param.hpp>
 
-namespace boost { namespace geometry { namespace projection {
+namespace boost { namespace geometry { namespace projections {
 
 namespace detail {
 
@@ -150,6 +150,6 @@ inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
 }
 
 } // namespace detail
-}}} // namespace boost::geometry::projection
+}}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_ELL_SET_HPP
