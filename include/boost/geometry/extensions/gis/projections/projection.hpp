@@ -35,6 +35,10 @@ class projection
         typedef double XY_T;
 
     public :
+
+        typedef LL geographic_point_type; ///< latlong point type
+        typedef XY cartesian_point_type;  ///< xy point type
+
         /// Forward projection, from Latitude-Longitude to Cartesian
         virtual bool forward(LL const& lp, XY& xy) const = 0;
 

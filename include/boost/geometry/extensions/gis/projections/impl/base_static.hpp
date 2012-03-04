@@ -34,6 +34,9 @@ struct base_t_f
 {
 public:
 
+    typedef LL geographic_point_type; ///< latlong point type
+    typedef XY cartesian_point_type;  ///< xy point type
+
     inline base_t_f(Prj const& prj, P const& params)
         : m_par(params), m_prj(prj)
     {}
