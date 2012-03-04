@@ -42,7 +42,7 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type y,
               std::string const& parameters)
 {
-    bg::projection::parameters par = bg::projection::detail::pj_init_plus(parameters);
+    bg::projections::parameters par = bg::projections::detail::pj_init_plus(parameters);
     Prj prj(par);
 
     P1 ll;
@@ -63,7 +63,7 @@ void test_all()
     typedef bg::model::ll::point<bg::degree, coord_type> point_type;
 
     // aea
-    test_one<bg::projection::aea_ellipsoid<point_type, P>, point_type, P>
+    test_one<bg::projections::aea_ellipsoid<point_type, P>, point_type, P>
         (4.897000, 52.371000, 334609.583974, 5218502.503686,
          "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
 }

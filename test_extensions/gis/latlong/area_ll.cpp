@@ -70,7 +70,7 @@ void test_area_polygon_ll(bool concave, bool hole, double perc)
 
 
     // For checking calculated area, use the Dutch projection (RD), this is EPSG code 28992
-    bg::projection::sterea_ellipsoid<LL, XY> dutch_prj(bg::projection::init(28992));
+    bg::projections::sterea_ellipsoid<LL, XY> dutch_prj(bg::projections::init(28992));
 
     // Add them in clockwise direction
     bg::model::polygon<LL> randstad;

@@ -61,12 +61,12 @@ int main()
     transform(city3, city3_rad);
 
     /*
-    projection::sterea_ellipsoid<model::ll::point<radian>, xy_point> proj
-        (projection::init(
+    projections::sterea_ellipsoid<model::ll::point<radian>, xy_point> proj
+        (projections::init(
         "+lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m"));
     */
-    projection::laea_ellipsoid<model::ll::point<radian>, xy_point> proj
-        (projection::init(
+    projections::laea_ellipsoid<model::ll::point<radian>, xy_point> proj
+        (projections::init(
         " +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m"));
 
 

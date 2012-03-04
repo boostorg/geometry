@@ -44,8 +44,8 @@ void test_one(double lon, double lat,
 {
     typedef typename bg::coordinate_type<P2>::type coord_type;
 
-    typedef bg::projection::epsg_traits<E, P1, P2> epsg_traits;
-    bg::projection::parameters par = bg::projection::detail::pj_init_plus(epsg_traits::par());
+    typedef bg::projections::epsg_traits<E, P1, P2> epsg_traits;
+    bg::projections::parameters par = bg::projections::detail::pj_init_plus(epsg_traits::par());
 
     typedef typename epsg_traits::type prj_type;
     prj_type prj(par);

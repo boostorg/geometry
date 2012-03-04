@@ -70,10 +70,10 @@ void test_forward(std::string const& name,
     ll.lon(lon);
     ll.lat(lat);
 
-    bg::projection::parameters params = bg::projection::detail::pj_init_plus(parameters);
-    bg::projection::factory<lonlat_type, P, bg::projection::parameters> pf;
+    bg::projections::parameters params = bg::projections::detail::pj_init_plus(parameters);
+    bg::projections::factory<lonlat_type, P, bg::projections::parameters> pf;
 
-    boost::shared_ptr<bg::projection::projection<lonlat_type, P> > prj(pf.create_new(params));
+    boost::shared_ptr<bg::projections::projection<lonlat_type, P> > prj(pf.create_new(params));
 
     P xy;
     prj->forward(ll, xy);
@@ -98,10 +98,10 @@ void test_inverse(std::string const& name,
     bg::set<0>(xy, x);
     bg::set<1>(xy, y);
 
-    bg::projection::parameters params = bg::projection::detail::pj_init_plus(parameters);
-    bg::projection::factory<lonlat_type, P, bg::projection::parameters> pf;
+    bg::projections::parameters params = bg::projections::detail::pj_init_plus(parameters);
+    bg::projections::factory<lonlat_type, P, bg::projections::parameters> pf;
 
-    boost::shared_ptr<bg::projection::projection<lonlat_type, P> > prj(pf.create_new(params));
+    boost::shared_ptr<bg::projections::projection<lonlat_type, P> > prj(pf.create_new(params));
 
     lonlat_type ll;
     prj->inverse(xy, ll);
