@@ -61,7 +61,7 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     std::vector<model::polygon<point_xy> > xy_polygons;
 
     // Declare transformation strategy which contains a projection
-    projection::project_transformer
+    projections::project_transformer
         <
             point_ll_deg,
             point_xy
@@ -109,7 +109,7 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
 
     // Create the background
     boost::geometry::model::box<svg_point> box;
-    boost::geometry::assign(box, 0, 0, 800, 600);
+    boost::geometry::assign_values(box, 0, 0, 800, 600);
     out << boost::geometry::svg(box, "fill:rgb(0,0,255)") << std::endl;
 
     for (std::vector<model::polygon<point_xy> >::const_iterator it = xy_polygons.begin();

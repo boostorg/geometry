@@ -22,7 +22,7 @@ int main()
     using namespace boost::geometry;
 
     // Initialize projection parameters. For construction using a factory the projection name is required.
-    projection::parameters par = projection::init("+proj=robin +ellps=WGS84 +units=m");
+    projections::parameters par = projections::init("+proj=robin +ellps=WGS84 +units=m");
 
     // Construct the specified projection, using specified point types
     // Note that this is the only difference from p01_projection_example. It constructs a projection
@@ -30,8 +30,8 @@ int main()
     // convenience we use a boost shared pointer here.
     typedef model::ll::point<degree> point_ll_deg;
     typedef model::d2::point_xy<double> point_xy;
-    projection::factory<point_ll_deg, point_xy> fac;
-    boost::shared_ptr<projection::projection<point_ll_deg, point_xy> > prj(fac.create_new(par));
+    projections::factory<point_ll_deg, point_xy> fac;
+    boost::shared_ptr<projections::projection<point_ll_deg, point_xy> > prj(fac.create_new(par));
 
     // Define Amsterdam / Barcelona in decimal degrees / degrees/minutes
     point_ll_deg amsterdam(longitude<>(5.9), latitude<>(52.4));
