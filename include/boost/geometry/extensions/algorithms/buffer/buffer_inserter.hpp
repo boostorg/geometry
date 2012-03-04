@@ -223,6 +223,11 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
             ring_tag
         >
 {
+    typedef detail::buffer::buffer_range
+        <
+            RingOutput, 
+            ring_tag
+        > base;
 
     template
     <
@@ -233,7 +238,7 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy)
     {
-        iterate(collection, boost::begin(ring), boost::end(ring),
+        base::iterate(collection, boost::begin(ring), boost::end(ring),
                 buffer_side_left,
                 distance, join_strategy);
     }
@@ -252,6 +257,11 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             linestring_tag
         >
 {
+    typedef detail::buffer::buffer_range
+        <
+            typename ring_type<Polygon>::type, 
+            linestring_tag
+        > base;
 
     template<typename Collection, typename DistanceStrategy, typename JoinStrategy>
     static inline void apply(Linestring const& linestring, Collection& collection,
@@ -259,11 +269,11 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             JoinStrategy const& join_strategy)
     {
         collection.start_new_ring();
-        iterate(collection, boost::begin(linestring), boost::end(linestring),
+        base::iterate(collection, boost::begin(linestring), boost::end(linestring),
                 buffer_side_left,
                 distance, join_strategy);
                 
-        iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
+        base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
                 buffer_side_right,
                 distance, join_strategy, true);
 
