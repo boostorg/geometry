@@ -6,16 +6,16 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-// Projection example 3, combined with shapelib and GD
+// Projection example 3, combined with shapelib and SVG
 
 #include <fstream>
 
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
+
 #include <boost/geometry/extensions/io/svg/write_svg.hpp>
-#include <boost/geometry/multi/io/wkt/read.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/projections/project_transformer.hpp>
 
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
         // Note, file location: trunk/libs/geometry/example/data
         // update path below if necessary
         read_wkt_and_project_and_write_svg(
-            "../../../data/world.wkt",
+            "../../../example/data/world.wkt",
             "+proj=moll +ellps=clrk66",
             "world.svg");
     }
