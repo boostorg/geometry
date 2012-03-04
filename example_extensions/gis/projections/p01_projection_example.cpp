@@ -21,14 +21,14 @@ int main()
     using namespace boost::geometry;
 
     // Initialize projection parameters
-    projection::parameters par = projection::init("+ellps=WGS84 +units=m");
+    projections::parameters par = projections::init("+ellps=WGS84 +units=m");
 
     // Construct a Robinson projection, using specified point types
     // (This delivers a projection without virtual methods. Note that in p02 example
     //  the projection is created using a factory, which delivers a projection with virtual methods)
     typedef model::ll::point<degree> point_ll_deg;
     typedef model::d2::point_xy<double> point_xy;
-    projection::robin_spheroid<point_ll_deg, point_xy> prj(par);
+    projections::robin_spheroid<point_ll_deg, point_xy> prj(par);
 
     // Define Amsterdam / Barcelona in decimal degrees / degrees/minutes
     point_ll_deg amsterdam = parse<point_ll_deg>("52.4N", "5.9E");
