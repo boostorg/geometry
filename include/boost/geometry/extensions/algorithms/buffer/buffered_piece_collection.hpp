@@ -10,8 +10,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_PIECE_COLLECTION_HPP
 
 
+#include <algorithm>
 #include <cstddef>
-
 #include <set>
 #include <boost/range.hpp>
 
@@ -352,11 +352,11 @@ struct buffered_piece_collection
 
     inline void add_segment(int index, point_type const& point, buffer_turn_operation<point_type> const& operation)
     {
-        clustered_location_type::iterator it = clustered_turn_locations.find(point);
+        typename clustered_location_type::iterator it = clustered_turn_locations.find(point);
         if (it == boost::end(clustered_turn_locations))
         {
             buffer_cluster_info a;
-			std::pair<clustered_location_type::iterator, bool> pair = clustered_turn_locations.insert(std::make_pair(point, a));
+            std::pair<typename clustered_location_type::iterator, bool> pair = clustered_turn_locations.insert(std::make_pair(point, a));
             it = pair.first;
         }
 
