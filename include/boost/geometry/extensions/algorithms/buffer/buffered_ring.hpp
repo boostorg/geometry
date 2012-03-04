@@ -43,8 +43,9 @@ struct buffered_ring_collection_tag : polygonal_tag, multi_tag
 template <typename Ring>
 struct buffered_ring : public Ring
 {
-    bool has_discarded_intersections;
     bool has_accepted_intersections;
+    bool has_discarded_intersections;
+
     inline buffered_ring()
         : has_accepted_intersections(false)
         , has_discarded_intersections(false)
