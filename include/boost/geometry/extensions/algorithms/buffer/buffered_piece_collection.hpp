@@ -27,9 +27,9 @@
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/occupation_info.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 
-#include <boost/geometry/iterators/closing_iterator.hpp>
 
 #include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
@@ -86,65 +86,11 @@ struct check_original<linestring_tag>
 };
 
 
-// TODO replace double by T
-template <typename P1, typename P2>
-inline double calculate_angle(P1 const& from_point, P2 const& to_point)
-{
-    typedef P1 vector_type;
-    vector_type v = from_point;
-    geometry::subtract_point(v, to_point);
-    return atan2(geometry::get<1>(v), geometry::get<0>(v));
-}
-
-template <typename Iterator, typename Vector>
-inline Iterator advance_circular(Iterator it, Vector const& vector, int increment = 1)
-{
-	if (it == boost::begin(vector) && increment < 0)
-	{
-		it = boost::end(vector);
-	}
-	it += increment;
-	if (it == boost::end(vector))
-	{
-		it = boost::begin(vector);
-	}
-	return it;
-}
-
-
-// BEGIN clustered
-// TODO will be restructured and moved to clustered-manager
-
-struct angle_info
-{
-    double angle; // TODO: T
-    bool incoming;
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    std::string debug_info;
-    bool debug;
-#endif
-
-};
-
-struct cluster_info
-{
-    std::vector<angle_info> angles;
-};
-
-struct buffer_cluster_info : public cluster_info
-{
-    std::set<segment_identifier> seg_ids;
-    std::set<int> turn_indices;
-};
-
-// END clustered
-
-
 template <typename Ring>
 struct buffered_piece_collection
 {
     typedef typename geometry::point_type<Ring>::type point_type;
+    typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
 
     struct piece
     {
@@ -160,6 +106,7 @@ struct buffered_piece_collection
 		// 2: half, not part (will be indexed in one vector too)
         std::vector<point_type> helper_segments; // 3 points for segment, 2 points for join - 0 points for flat-end
     };
+
 
     typedef typename strategy::side::services::default_strategy
 		<
@@ -184,9 +131,26 @@ struct buffered_piece_collection
 	// To check clustered locations we keep track of segments being opposite somewhere
 	std::set<segment_identifier> m_in_opposite_segments;
 
+	struct buffer_occupation_info : public occupation_info<angle_info<coordinate_type> >
+	{
+		std::set<segment_identifier> seg_ids;
+		std::set<int> turn_indices;
+	};
 
-    typedef std::map<point_type, buffer_cluster_info, geometry::less<point_type> > clustered_location_type;
-    clustered_location_type clustered_turn_locations;
+    typedef occupation_map<point_type, buffer_occupation_info> occupation_map_type;
+    occupation_map_type m_occupation_map;
+
+
+	struct redundant_turn
+	{
+		inline bool operator()(buffer_turn_info<point_type> const& turn) const
+		{
+			// Erase discarded turns (location not OK) and the turns
+			// only used to detect oppositeness.
+			return turn.location != location_ok 
+				|| turn.opposite();
+		}
+	};
 
 
     inline bool is_neighbor(piece const& piece1, piece const& piece2) const
@@ -304,75 +268,19 @@ struct buffered_piece_collection
         return segment_relation_disjoint;
 	}
 
-	// TODO will be restructured and moved to clustered-manager
-    inline void get_points(point_type const& point, buffer_turn_operation<point_type> const& operation, angle_info& tp1, angle_info& tp2) const
+    inline void add_angles(int index, point_type const& point, buffer_turn_operation<point_type> const& operation)
     {
-        typedef typename boost::range_iterator
-            <
-                Ring const
-            >::type iterator_type;
-
-        //typedef geometry::ever_circling_iterator<iterator_type> ec_iterator_type;
-
-        std::ostringstream out;
-        out << operation.seg_id.segment_index << "/" << operation.other_id.segment_index << " " << operation_char(operation.operation);
-
-        // Get the vectors (coming in, and going out of this point)
-        buffered_ring<Ring> const& ring = offsetted_rings[operation.seg_id.multi_index];
-
-		iterator_type it = boost::begin(ring) + operation.seg_id.segment_index;
-
-        if (geometry::equals(point, *it))
+        buffer_occupation_info& info = m_occupation_map.find_or_insert(point);
+        info.turn_indices.insert(index);
+        if (info.seg_ids.count(operation.seg_id) <= 0)
         {
-			it = advance_circular(it, ring, -1);
-        }
-
-        tp1.incoming = true;
-        tp1.angle = calculate_angle(*it, point);
-
-		it = advance_circular(it, ring);
-		int const n = boost::size(ring);
-        for (int defensive_check = 0; 
-			geometry::equals(point, *it) && defensive_check < n; 
-			defensive_check++)
-        {
-			it = advance_circular(it, ring);
-        }
-
-        tp2.incoming = false;
-        tp2.angle = calculate_angle(*it, point);
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-        tp1.debug = operation.seg_id.segment_index == 32;
-        tp1.debug_info = out.str();
-        tp2.debug_info = out.str();
-        tp2.debug = operation.seg_id.segment_index == 32;
-#endif
-    }
-
-    inline void add_segment(int index, point_type const& point, buffer_turn_operation<point_type> const& operation)
-    {
-        typename clustered_location_type::iterator it = clustered_turn_locations.find(point);
-        if (it == boost::end(clustered_turn_locations))
-        {
-            buffer_cluster_info a;
-            std::pair<typename clustered_location_type::iterator, bool> pair = clustered_turn_locations.insert(std::make_pair(point, a));
-            it = pair.first;
-        }
-
-        buffer_cluster_info& admin = it->second;
-        admin.turn_indices.insert(index);
-        if (admin.seg_ids.count(operation.seg_id) <= 0)
-        {
-            admin.seg_ids.insert(operation.seg_id);
-
-            angle_info tp[2];
-            get_points(point, operation, tp[0], tp[1]);
-            admin.angles.push_back(tp[0]);
-            admin.angles.push_back(tp[1]);
+            info.seg_ids.insert(operation.seg_id);
+            add_incoming_and_outgoing_angles(point, 
+						offsetted_rings[operation.seg_id.multi_index], 
+						operation.seg_id.segment_index, 
+						info);
         }
     }
-
 
     inline void classify_turn(buffer_turn_info<point_type>& turn, piece const& pc) const
     {
@@ -459,60 +367,27 @@ struct buffered_piece_collection
             }
         }
     }
-		struct angle_sort
-		{
-			inline bool operator()(angle_info const& left, angle_info const& right) const
-			{
-				return geometry::math::equals(left.angle, right.angle)
-					? int(left.incoming) < int(right.incoming)
-					: left.angle < right.angle
-					;
-			}
-		};
 
-	inline void classify_clustered()
+	inline void classify_occupied_locations()
 	{
-
-        for (typename boost::range_iterator<clustered_location_type>::type it =
-	            boost::begin(clustered_turn_locations);
-			it != boost::end(clustered_turn_locations); ++it)
+        for (typename boost::range_iterator<typename occupation_map_type::map_type>::type it =
+	            boost::begin(m_occupation_map.map);
+			it != boost::end(m_occupation_map.map); ++it)
         {
-	        buffer_cluster_info& admin = it->second;
-			if (boost::size(admin.angles) > 1)
+	        buffer_occupation_info& info = it->second;
+			if (info.occupied())
 			{
-				std::sort(admin.angles.begin(), admin.angles.end(), angle_sort());
-
-				// Verify if completely closed
-				bool closed = true;
-
-				typedef geometry::closing_iterator<std::vector<angle_info> const> closing_iterator;
-				closing_iterator vit(admin.angles);
-				closing_iterator end(admin.angles, true);
-
-				closing_iterator prev = vit++;
-				for( ; vit != end && closed; prev = vit++)
+				for (std::set<int>::const_iterator sit = info.turn_indices.begin();
+					sit != info.turn_indices.end();
+					++sit)
 				{
-					if (! geometry::math::equals(prev->angle, vit->angle)
-						&& ! prev->incoming
-						&& vit->incoming)
-					{
-						closed = false;
-					}
-				}
-				if (closed)
-				{
-					for (std::set<int>::iterator sit = admin.turn_indices.begin();
-						sit != admin.turn_indices.end();
-						++sit)
-					{
-						m_turns[*sit].count_on_closed++;
-					}
+					m_turns[*sit].count_on_occupied++;
 				}
 			}
         }
 	}
 
-	inline void get_clusters()
+	inline void get_occupation()
     {
 		fill_opposite_segments();
 
@@ -524,12 +399,11 @@ struct buffered_piece_collection
 			if (m_in_opposite_segments.count(turn.operations[0].seg_id) > 0
 				|| m_in_opposite_segments.count(turn.operations[1].seg_id) > 0)
 			{
-				add_segment(index, turn.point, turn.operations[0]);
-				add_segment(index, turn.point, turn.operations[1]);
+				add_angles(index, turn.point, turn.operations[0]);
+				add_angles(index, turn.point, turn.operations[1]);
 			}
 		}
 	}
-
 
     inline void classify_turns()
     {
@@ -540,7 +414,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
 		{
-            if (it->count_on_closed == 0)
+            if (it->count_on_occupied == 0)
             {
                 typename std::vector<piece>::const_iterator pit;
                 for (pit = boost::begin(m_pieces);
@@ -558,7 +432,7 @@ struct buffered_piece_collection
         {
             if (it->count_within > 0 
                 || it->count_on_helper > 0
-				|| it->count_on_closed > 0
+				|| it->count_on_occupied > 0
 				)
             {
                 it->location = inside_buffer;
@@ -608,8 +482,8 @@ struct buffered_piece_collection
             }
         }
 
-		get_clusters();
-        classify_clustered();
+		get_occupation();
+        classify_occupied_locations();
         classify_turns();
 
         if (boost::is_same<typename tag_cast<typename tag<Geometry>::type, areal_tag>::type, areal_tag>())
@@ -754,17 +628,6 @@ struct buffered_piece_collection
             }
         }
     }
-		struct redundant_turn
-		{
-			inline bool operator()(buffer_turn_info<point_type> const& turn) const
-			{
-				// Erase discarded turns (location not OK) and the turns
-				// only used to detect oppositeness.
-				return turn.location != location_ok 
-					|| turn.opposite();
-			}
-		};
-
                     
     inline void discard_turns()
     {
