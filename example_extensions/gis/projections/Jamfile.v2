@@ -16,3 +16,5 @@ project boost-geometry-example-extensions-gis-latlong
 exe p01_projection_example : p01_projection_example.cpp ;
 exe p02_projfactory_example : p02_projfactory_example.cpp ;
 exe p03_projmap_example : p03_projmap_example.cpp ;
+exe p04_example : p04_example.cpp ;
+exe p05_example : p05_example.cpp ;
