@@ -188,6 +188,7 @@ void test_all()
     test_forward<P>("murd1", 4.897000, 52.371000, 333340.993642, 5839071.944597, "+proj=murd1 +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n");
     test_forward<P>("murd2", 4.897000, 52.371000, 317758.821713, 6759296.097305, "+proj=murd2 +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n");
     test_forward<P>("murd3", 4.897000, 52.371000, 331696.409000, 5839224.186916, "+proj=murd3 +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n");
+    test_forward<P>("natearth", 4.897000, 52.371000, 409886.629231, 5862282.218987, "+proj=natearth +ellps=WGS84 +units=m");
     test_forward<P>("nell", 4.897000, 52.371000, 454576.246081, 5355027.851999, "+proj=nell +ellps=WGS84 +units=m");
     test_forward<P>("nell_h", 4.897000, 52.371000, 438979.742911, 5386970.539995, "+proj=nell_h +ellps=WGS84 +units=m");
     test_forward<P>("nicol", 4.897000, 52.371000, 360493.071000, 5836451.532406, "+proj=nicol +ellps=WGS84 +units=m");
@@ -304,6 +305,7 @@ void test_all()
     test_inverse<P>("murd1", 333340.993642, 5839071.944597, 4.897000, 52.371000, "+proj=murd1 +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n");
     test_inverse<P>("murd2", 317758.821713, 6759296.097305, 4.897000, 52.371000, "+proj=murd2 +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n");
     test_inverse<P>("murd3", 331696.409000, 5839224.186916, 4.897000, 52.371000, "+proj=murd3 +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n");
+    test_inverse<P>("natearth", 409886.629231, 5862282.218987, 4.897000, 52.371000, "+proj=natearth +ellps=WGS84 +units=m");
     test_inverse<P>("nell", 454576.246081, 5355027.851999, 4.897000, 52.371000, "+proj=nell +ellps=WGS84 +units=m");
     test_inverse<P>("nell_h", 438979.742911, 5386970.539995, 4.897000, 52.371000, "+proj=nell_h +ellps=WGS84 +units=m");
     test_inverse<P>("nsper", 0.521191, 7.919806, 4.897000, 52.371000, "+proj=nsper +ellps=WGS84 +units=m +a=10 +h=40000000");
