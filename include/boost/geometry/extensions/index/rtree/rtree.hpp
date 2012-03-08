@@ -3,7 +3,7 @@
 // Boost.Index - R-tree implementation
 //
 // Copyright 2008 Federico J. Fernandez.
-// Copyright 2011 Adam Wulkiewicz.
+// Copyright 2011, 2012 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -44,24 +44,14 @@
 
 namespace boost { namespace geometry { namespace index {
 
-// TODO move extensional/debug visitors to the other folder
-// move gldraw indexable (+ value with translator) to geometry::index namespace
+/*!
+The R-tree spatial index.
 
-// TODO: awulkiew - implement iterators ?
-
-// TODO: allow copying of a tree with different template parameters? e.g. Parameters, Translator?
-
-// TODO: should funcions like empty(tree) clear(tree) box(tree) be free functions?
-// change name of empty predicate generator - empty()?
-
-// TODO which types should be public and which one should be private?
-// nodes, options etc. probably shouldn't be public
-
-// TODO change remove() to erase() or just add erase() ?
-// erase works on iterators of this container so this may be confusing with remove(ValIt, ValIt)
-
-// bgi::near and bgi::far conflicts with WINDOWS macros!!!
-
+\tparam Value       The type of objects stored in the container.
+\tparam Parameters  Compile-time parameters.
+\tparam Translator  The type of the translator.
+\tparam Allocator   The allocator.
+*/
 template <
     typename Value,
     typename Parameters,
@@ -87,6 +77,12 @@ public:
     typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type internal_node;
     typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
 
+    /*!
+    The constructor.
+
+    \param translator   The translator object.
+    \param allocator    The allocator object.
+    */
     inline explicit rtree(translator_type const& translator = translator_type(), Allocator allocator = Allocator())
         : m_values_count(0)
         , m_root(0)
@@ -97,6 +93,14 @@ public:
         create();
     }
 
+    /*!
+    The constructor.
+
+    \param first        The beginning of the range of Values.
+    \param last         The end of the range of Values.
+    \param translator   The translator object.
+    \param allocator    The allocator object.
+    */
     template<typename Iterator>
     inline explicit rtree(Iterator first, Iterator last, translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
         : m_values_count(0)
@@ -108,11 +112,17 @@ public:
         insert(first, last);
     }
 
+    /*!
+    The destructor.
+    */
     inline ~rtree()
     {
         destroy(*this);
     }
 
+    /*!
+    The copy constructor.
+    */
     inline rtree(rtree const& src)
         : m_allocators(src.m_allocators)
     {
@@ -127,6 +137,9 @@ public:
         }
     }
 
+    /*!
+    The assignment operator.
+    */
     inline rtree & operator=(rtree const& src)
     {
         if ( &src == this )
@@ -149,6 +162,11 @@ public:
         return *this;
     }
 
+    /*!
+    Insert a value to the index.
+
+    \param value    The value which will be stored in the container.
+    */
     inline void insert(value_type const& value)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(index::is_valid(m_translator(value)), "Indexable is invalid");
@@ -176,6 +194,12 @@ public:
         }
     }
 
+    /*!
+    Insert a range of values to the index.
+
+    \param first    The beginning of the range of values.
+    \param last     The end of the range of values.
+    */
     template <typename Iterator>
     inline void insert(Iterator first, Iterator last)
     {
@@ -183,6 +207,11 @@ public:
             insert(*first);
     }
 
+    /*!
+    Remove the value from the container.
+
+    \param value    The value which will be removed from the container.
+    */
     inline void remove(value_type const& value)
     {
         // TODO: awulkiew - assert for correct value (indexable) ?
@@ -210,6 +239,12 @@ public:
         }
     }
 
+    /*!
+    Remove the range of values from the container.
+
+    \param first    The beginning of the range of values.
+    \param last     The end of the range of values.
+    */
     template <typename Iterator>
     inline void remove(Iterator first, Iterator last)
     {
@@ -217,6 +252,14 @@ public:
             remove(*first);
     }
 
+    /*!
+    Find values meeting spatial predicates, e.g. intersecting some box.
+
+    \param pred     The spatial predicates.
+    \param out_it   The output iterator of the result range. E.g. a back_insert_iterator.
+
+    \return         The number of values found.
+    */
     template <typename Predicates, typename OutIter>
     inline size_type query(Predicates const& pred, OutIter out_it) const
     {
@@ -228,46 +271,104 @@ public:
         return find_v.found_count;
     }
 
-    template <typename DistancePredicate>
-    inline size_type nearest(DistancePredicate const& dpred, value_type & v) const
+    /*!
+    Find one value meeting distances predicates, e.g. nearest to some point.
+
+    \param dpred    The distances predicates.
+    \param v        The reference to the object which will contain the result.
+
+    \return         The number of values found.
+    */
+    template <typename DistancesPredicates>
+    inline size_type nearest(DistancesPredicates const& dpred, value_type & v) const
     {
         return nearest_one(dpred, detail::empty(), v);
     }
 
-    template <typename DistancePredicate, typename Predicates>
-    inline size_type nearest(DistancePredicate const& dpred, Predicates const& pred, value_type & v) const
+    /*!
+    Find one value meeting distances predicates and spatial predicates,
+    e.g. nearest to some point and intersecting some box.
+
+    \param dpred    The distances predicates.
+    \param pred     The spatial predicates.
+    \param v        The reference to the object which will contain the result.
+
+    \return         The number of values found.
+    */
+    template <typename DistancesPredicates, typename Predicates>
+    inline size_type nearest(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
     {
         return nearest_one(dpred, pred, v);
     }
 
-    template <typename DistancePredicate, typename OutIter>
-    inline size_type nearest(DistancePredicate const& dpred, size_t k, OutIter out_it) const
+    /*!
+    Find k values meeting distances predicates, e.g. k nearest values to some point.
+
+    \param dpred    The distance predicate.
+    \param k        The max number of values.
+    \param out_it   The output iterator of the result range. E.g. a back_insert_iterator.
+
+    \return         The number of values found.
+    */
+    template <typename DistancesPredicates, typename OutIter>
+    inline size_type nearest(DistancesPredicates const& dpred, size_t k, OutIter out_it) const
     {
         return nearest_k(dpred, k, detail::empty(), out_it);
     }
 
-    template <typename DistancePredicate, typename Predicates, typename OutIter>
-    inline size_type nearest(DistancePredicate const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
+    /*!
+    Find k values meeting distances predicates and spatial predicates,
+    e.g. k nearest values to some point and intersecting some box.
+
+    \param dpred    The distances predicates.
+    \param k        The max number of values.
+    \param pred     The spatial predicates.
+    \param out_it   The output iterator of the result range. E.g. a back_insert_iterator.
+
+    \return         The number of values found.
+    */
+    template <typename DistancesPredicates, typename Predicates, typename OutIter>
+    inline size_type nearest(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
         return nearest_k(dpred, k, pred, out_it);
     }
 
+    /*!
+    Returns the number of stored values.
+
+    \return         The number of stored values.
+    */
     inline size_type size() const
     {
         return m_values_count;
     }
 
+    /*!
+    Query if the container is empty.
+
+    \return         true if the container is empty.
+    */
     inline bool empty() const
     {
         return 0 == m_values_count;
     }
 
+    /*!
+    Removes all values stored in the container.
+    */
     inline void clear()
     {
         destroy(*this);
         create();
     }
 
+    /*!
+    Returns the box containing all values stored in the container.
+    If the container is empty the result of geometry::assign_inverse() is returned.
+
+    \return     The box containing all values stored in the container or an invalid box if
+                there are no values in the container.
+    */
     inline box_type box() const
     {
         if ( empty() )
@@ -285,35 +386,70 @@ public:
         return children_box_v.result;
     }
 
+    /*!
+    Apply a visitor to the nodes structure in order to perform some operator.
+    This function is not a part of the 'official' interface. However it makes
+    possible to e.g. draw the tree structure.
+
+    \param visitor  The visitor object.
+    */
     template <typename Visitor>
     inline void apply_visitor(Visitor & visitor) const
     {
         detail::rtree::apply_visitor(visitor, *m_root);
     }
 
+    /*!
+    Returns the translator object.
+    This function is not a part of the 'official' interface.
+
+    \return     The translator object.
+    */
     inline translator_type const& translator() const
     {
         return  m_translator;
     }
 
+    /*!
+    Returns the number of stored objects. Same as size()
+    This function is not a part of the 'official' interface. 
+
+    \return     The number of stored objects.
+    */
     inline size_type values_count() const
     {
         return m_values_count;
     }
 
+    /*!
+    Returns the depth of the R-tree.
+    This function is not a part of the 'official' interface. 
+
+    \return     The depth of the R-tree.
+    */
     inline size_type depth() const
     {
         return m_leafs_level;
     }
 
 private:
+    /*!
+    Create an empty R-tree i.e. new empty root node and clear other attributes.
+    */
     inline void create()
     {
+        assert(0 == m_root);
+
         m_root = detail::rtree::create_node<allocators_type, leaf>::apply(m_allocators);
         m_values_count = 0;
         m_leafs_level = 0;
     }
 
+    /*!
+    Destroy the R-tree i.e. all nodes and clear attributes.
+
+    \param t    The container which is going to be destroyed.
+    */
     inline void destroy(rtree & t)
     {
         detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
@@ -324,6 +460,12 @@ private:
         t.m_leafs_level = 0;
     }
 
+    /*!
+    Copy the R-tree i.e. whole nodes structure, values and other attributes.
+
+    \param src    The source R-tree.
+    \param dst    The destination R-tree.
+    */
     inline void copy(rtree const& src, rtree & dst) const
     {
         //dst.m_allocators = src.m_allocators;
@@ -337,6 +479,9 @@ private:
         dst.m_translator = src.m_translator;
     }
 
+    /*!
+    Find one value meeting distances and spatial predicates.
+    */
     template <typename DistancesPredicates, typename Predicates>
     inline size_type nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
     {
@@ -367,6 +512,9 @@ private:
         return result.get(v);
     }
 
+    /*!
+    Find k values meeting distances and spatial predicates.
+    */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
     inline size_type nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
@@ -404,78 +552,179 @@ private:
     allocators_type m_allocators;
 };
 
+/*!
+Insert a value to the index.
+
+\param tree The spatial index.
+\param v    The value which will be stored in the index.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator>
 inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 {
     tree.insert(v);
 }
 
+/*!
+Insert a range of values to the index.
+
+\param tree     The spatial index.
+\param first    The beginning of the range of values.
+\param last     The end of the range of values.
+*/
 template<typename Value, typename Options, typename Translator, typename Allocator, typename Iterator>
 inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
 {
     tree.insert(first, last);
 }
 
+/*!
+Remove a value from the index.
+
+\param tree The spatial index.
+\param v    The value which will be removed from the index.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator>
 inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 {
     tree.remove(v);
 }
 
+/*!
+Remove a range of values from the index.
+
+\param tree     The spatial index.
+\param first    The beginning of the range of values.
+\param last     The end of the range of values.
+*/
 template<typename Value, typename Options, typename Translator, typename Allocator, typename Iterator>
 inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
 {
     tree.remove(first, last);
 }
 
+/*!
+Find values meeting spatial predicates.
+
+\param tree     The spatial index.
+\param pred     The spatial predicates.
+\param out_it   The output iterator of the result range.
+
+\return         The number of found values.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator, typename Predicates, typename OutIter>
 inline size_t query(rtree<Value, Options, Translator, Allocator> const& tree, Predicates const& pred, OutIter out_it)
 {
     return tree.query(pred, out_it);
 }
 
+/*!
+Find the value meeting distances predicates.
+
+\param tree     The spatial index.
+\param dpred    The distances predicates.
+\param v        The result.
+
+\return         The number of found values.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates>
 inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, Value & v)
 {
     return tree.nearest(dpred, v);
 }
 
+/*!
+Find the value meeting distances and spatial predicates.
+
+\param tree     The spatial index.
+\param dpred    The distances predicates.
+\param pred     The spatial predicates.
+\param v        The result.
+
+\return         The number of found values.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename Predicates>
 inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, Predicates const& pred, Value & v)
 {
     return tree.nearest(dpred, pred, v);
 }
 
+/*!
+Find k values meeting distances predicates.
+
+\param tree     The spatial index.
+\param dpred    The distances predicates.
+\param k        The max number of values.
+\param out_it   The output iterator of the result range.
+
+\return         The number of found values.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename OutIter>
 inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, OutIter out_it)
 {
     return tree.nearest(dpred, k, out_it);
 }
 
+/*!
+Find k values meeting distances and spatial predicates.
+
+\param tree     The spatial index.
+\param dpred    The distances predicates.
+\param k        The max number of values.
+\param pred     The spatial predicates.
+\param out_it   The output iterator of the result range.
+
+\return         The number of found values.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename Predicates, typename OutIter>
 inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it)
 {
     return tree.nearest(dpred, k, pred, out_it);
 }
 
+/*!
+Remove all values from the index.
+
+\param tree     The spatial index.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator>
 inline void clear(rtree<Value, Options, Translator, Allocator> & tree)
 {
     return tree.clear();
 }
 
+/*!
+Get the number of values stored in the index.
+
+\param tree     The spatial index.
+
+\return         The number of values stored in the index.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator>
 inline size_t size(rtree<Value, Options, Translator, Allocator> const& tree)
 {
     return tree.size();
 }
 
+/*!
+Query if there are no values stored in the index.
+
+\param tree     The spatial index.
+
+\return         true if there are no values in the index.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator>
 inline bool empty(rtree<Value, Options, Translator, Allocator> const& tree)
 {
     return tree.empty();
 }
 
+/*!
+Get the box containing all stored values or an invalid box if the index has no values.
+
+\param tree     The spatial index.
+
+\return         The box containing all stored values or an invalid box.
+*/
 template <typename Value, typename Options, typename Translator, typename Allocator>
 inline typename rtree<Value, Options, Translator, Allocator>::box_type
 box(rtree<Value, Options, Translator, Allocator> const& tree)
