@@ -44,11 +44,21 @@ struct equals
 template <typename Type>
 struct equals<Type, true>
 {
+	static inline Type get_max(Type const& a, Type const& b, Type const& c)
+	{
+		return (std::max)((std::max)(a, b), c);
+	}
+
     static inline bool apply(Type const& a, Type const& b)
     {
+		if (a == b)
+		{
+			return true;
+		}
+
         // See http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17,
         // FUTURE: replace by some boost tool or boost::test::close_at_tolerance
-        return std::abs(a - b) <= std::numeric_limits<Type>::epsilon() * std::abs(a);
+        return std::abs(a - b) <= std::numeric_limits<Type>::epsilon() * get_max(std::abs(a), std::abs(b), 1.0);
     }
 };
 
