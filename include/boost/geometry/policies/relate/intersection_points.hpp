@@ -36,56 +36,33 @@ struct segments_intersection_points
     typedef ReturnType return_type;
     typedef S1 segment_type1;
     typedef S2 segment_type2;
+
     typedef typename select_calculation_type
         <
             S1, S2, CalculationType
         >::type coordinate_type;
 
+	template <typename R>
     static inline return_type segments_intersect(side_info const&,
+					R const& r,
                     coordinate_type const& dx1, coordinate_type const& dy1,
                     coordinate_type const& dx2, coordinate_type const& dy2,
                     S1 const& s1, S2 const& s2)
     {
-        return_type result;
         typedef typename geometry::coordinate_type
             <
                 typename return_type::point_type
-            >::type coordinate_type;
+            >::type return_coordinate_type;
 
-        // Get the same type, but at least a double (also used for divisions)
-        typedef typename select_most_precise
-            <
-                coordinate_type, double
-            >::type promoted_type;
+        coordinate_type const s1x = get<0, 0>(s1);
+        coordinate_type const s1y = get<0, 1>(s1);
 
-        promoted_type const s1x = get<0, 0>(s1);
-        promoted_type const s1y = get<0, 1>(s1);
-
-        // Calculate other determinants - Cramers rule
-        promoted_type const wx = get<0, 0>(s1) - get<0, 0>(s2);
-        promoted_type const wy = get<0, 1>(s1) - get<0, 1>(s2);
-        promoted_type const d = detail::determinant<promoted_type>(dx1, dy1, dx2, dy2);
-        promoted_type const da = detail::determinant<promoted_type>(dx2, dy2, wx, wy);
-
-        // r: ratio 0-1 where intersection divides A/B
-        promoted_type r = da / d;
-        promoted_type const zero = promoted_type();
-        promoted_type const one = 1;
-		// Handle robustness issues
-		if (r < zero)
-		{
-			r = zero;
-		}
-		else if (r > one)
-		{
-			r = one;
-		}
-
+        return_type result;
         result.count = 1;
         set<0>(result.intersections[0],
-            boost::numeric_cast<coordinate_type>(s1x + r * promoted_type(dx1)));
+            boost::numeric_cast<return_coordinate_type>(R(s1x) + r * R(dx1)));
         set<1>(result.intersections[0],
-            boost::numeric_cast<coordinate_type>(s1y + r * promoted_type(dy1)));
+            boost::numeric_cast<return_coordinate_type>(R(s1y) + r * R(dy1)));
 
         return result;
     }

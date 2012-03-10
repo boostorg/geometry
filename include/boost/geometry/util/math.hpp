@@ -62,6 +62,28 @@ struct equals<Type, true>
     }
 };
 
+template <typename Type, bool IsFloatingPoint>
+struct smaller
+{
+    static inline bool apply(Type const& a, Type const& b)
+    {
+        return a < b;
+    }
+};
+
+template <typename Type>
+struct smaller<Type, true>
+{
+    static inline bool apply(Type const& a, Type const& b)
+    {
+		if (equals<Type, true>::apply(a, b))
+		{
+			return false;
+		}
+		return a < b;
+    }
+};
+
 
 template <typename Type, bool IsFloatingPoint> 
 struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
@@ -124,6 +146,28 @@ inline bool equals_with_epsilon(T1 const& a, T2 const& b)
             select_type, 
             boost::is_floating_point<select_type>::type::value
         >::apply(a, b);
+}
+
+template <typename T1, typename T2>
+inline bool smaller(T1 const& a, T2 const& b)
+{
+    typedef typename select_most_precise<T1, T2>::type select_type;
+    return detail::smaller
+        <
+            select_type,
+            boost::is_floating_point<select_type>::type::value
+        >::apply(a, b);
+}
+
+template <typename T1, typename T2>
+inline bool larger(T1 const& a, T2 const& b)
+{
+    typedef typename select_most_precise<T1, T2>::type select_type;
+    return detail::smaller
+        <
+            select_type,
+            boost::is_floating_point<select_type>::type::value
+        >::apply(b, a);
 }
 
 
