@@ -155,15 +155,19 @@ struct buffered_piece_collection
 
     inline bool is_neighbor(piece const& piece1, piece const& piece2) const
     {
+        if (piece1.first_seg_id.multi_index != piece2.first_seg_id.multi_index)
+        {
+            return false;
+        }
+
         if (std::abs(piece1.index - piece2.index) == 1)
         {
             return true;
         }
 
-        // TODO: of the same multi_index
-        int const b = boost::size(m_pieces) - 1; // back
-        return (piece1.index == 0 && piece2.index == b)
-            || (piece1.index == b && piece2.index == 0)
+        int const last = boost::size(m_pieces) - 1;
+        return (piece1.index == 0 && piece2.index == last)
+            || (piece1.index == last && piece2.index == 0)
             ;
     }
 
@@ -173,21 +177,29 @@ struct buffered_piece_collection
     }
 
     template <typename Range, typename Iterator>
-    inline typename boost::range_value<Range const>::type next_point(Range const& range, Iterator it) const
+    inline void move_to_next_point(Range const& range, Iterator& next) const
     {
-        Iterator next = it;
         ++next;
+		if (next == boost::end(range))
+		{
+			next = boost::begin(range) + 1;
+		}
+    }
 
-		// Get next point. If end get second point (because ring is assumed to be closed)
-		return next != boost::end(range) ? *next : *(boost::begin(range) + 1);
+    template <typename Range, typename Iterator>
+    inline Iterator next_point(Range const& range, Iterator it) const
+    {
+        Iterator result = it;
+		move_to_next_point(range, result);
+		while(geometry::equals(*it, *result))
+		{
+			move_to_next_point(range, result);
+		}
+		return result;
     }
 
     inline void calculate_turns(piece const& piece1, piece const& piece2)
     {
-        buffer_turn_info<point_type> the_model;
-        the_model.operations[0].piece_index = piece1.index;
-        the_model.operations[0].seg_id = piece1.first_seg_id;
-
         typedef typename boost::range_iterator<buffered_ring<Ring> const>::type iterator;
 
 		segment_identifier seg_id1 = piece1.first_seg_id;
@@ -206,6 +218,10 @@ struct buffered_piece_collection
 		iterator it2_first = boost::begin(ring2) + seg_id2.segment_index;
 		iterator it2_last = boost::begin(ring2) + piece2.last_segment_index;
 
+        buffer_turn_info<point_type> the_model;
+        the_model.operations[0].piece_index = piece1.index;
+        the_model.operations[0].seg_id = piece1.first_seg_id;
+
         iterator it1 = it1_first;
         for (iterator prev1 = it1++; 
                 it1 != it1_last; 
@@ -213,6 +229,8 @@ struct buffered_piece_collection
         {
             the_model.operations[1].piece_index = piece2.index;
             the_model.operations[1].seg_id = piece2.first_seg_id;
+
+			iterator next1 = next_point(ring1, it1);
 
             iterator it2 = it2_first;
             for (iterator prev2 = it2++; 
@@ -223,8 +241,15 @@ struct buffered_piece_collection
                 the_model.operations[0].other_id = the_model.operations[1].seg_id;
                 the_model.operations[1].other_id = the_model.operations[0].seg_id;
 
-                turn_policy::apply(*prev1, *it1, next_point(ring1, it1),
-                                    *prev2, *it2, next_point(ring2, it2),
+				iterator next2 = next_point(ring2, it2);
+
+				if (piece1.index == 21 && piece2.index == 32)
+				{
+					int kkk = 0;
+				}
+
+                turn_policy::apply(*prev1, *it1, *next1,
+                                    *prev2, *it2, *next2,
                                     the_model, std::back_inserter(m_turns));
             }
         }
@@ -239,6 +264,7 @@ struct buffered_piece_collection
 			{
 				m_in_opposite_segments.insert(it->operations[0].seg_id);
 				m_in_opposite_segments.insert(it->operations[1].seg_id);
+//std::cout << " " << it->operations[0].seg_id.segment_index;
 			}
 		}
 	}
@@ -344,8 +370,11 @@ struct buffered_piece_collection
         }
         if (side_helper == 0)
         {
-            if (geometry::equals(turn.point, pc.helper_segments.back())
-                || geometry::equals(turn.point, pc.helper_segments.front()))
+			//BOOST_AUTO(d1, geometry::comparable_distance(turn.point, pc.helper_segments.back()));
+			//BOOST_AUTO(d2, geometry::comparable_distance(turn.point, pc.helper_segments.front()));
+            //if (d1 < 0.1 || d2 < 0.1)
+			if (geometry::equals(turn.point, pc.helper_segments.back())
+				|| geometry::equals(turn.point, pc.helper_segments.front()))
             {
                 turn.count_on_corner++;
             }
@@ -384,6 +413,7 @@ struct buffered_piece_collection
 					m_turns[*sit].count_on_occupied++;
 				}
 			}
+//std::cout << geometry::wkt(it->first) << " " << int(info.occupied()) << std::endl;
         }
 	}
 
@@ -401,6 +431,24 @@ struct buffered_piece_collection
 			{
 				add_angles(index, turn.point, turn.operations[0]);
 				add_angles(index, turn.point, turn.operations[1]);
+			}
+		}
+
+        index = 0;
+        for (typename boost::range_iterator<turn_vector_type>::type it =
+            boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
+        {
+			buffer_turn_info<point_type>& turn = *it;
+			if (m_in_opposite_segments.count(turn.operations[0].seg_id) == 0
+				&& m_in_opposite_segments.count(turn.operations[1].seg_id) ==  0)
+			{
+                // See if it is in the map
+                if (m_occupation_map.contains(turn.point))
+                {
+//std::cout << "Adding point " << geometry::wkt(turn.point) << std::endl;
+				    add_angles(index, turn.point, turn.operations[0]);
+				    add_angles(index, turn.point, turn.operations[1]);
+                }
 			}
 		}
 	}
@@ -621,7 +669,7 @@ struct buffered_piece_collection
                 offsetted_rings[it->operations[0].seg_id.multi_index].has_discarded_intersections = true;
                 offsetted_rings[it->operations[1].seg_id.multi_index].has_discarded_intersections = true;
             }
-            else
+            else if (! it->both(detail::overlay::operation_union))
             {
                 offsetted_rings[it->operations[0].seg_id.multi_index].has_accepted_intersections = true;
                 offsetted_rings[it->operations[1].seg_id.multi_index].has_accepted_intersections = true;
@@ -673,6 +721,8 @@ struct buffered_piece_collection
                 ring_identifier id(0, index, -1);
                 selected[id] = properties(*it, true);
             }
+
+//std::cout << geometry::wkt(*it) << std::endl;
         }
 
         // Select all created rings
@@ -682,11 +732,11 @@ struct buffered_piece_collection
                 it != boost::end(traversed_rings);
                 ++it, ++index)
         {
-            ring_identifier id(2, index, -1);
-            selected[id] = properties(*it, true);
+			ring_identifier id(2, index, -1);
+			selected[id] = properties(*it, true);
         }
 
-        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected);
+        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, false);
         return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
     }
 

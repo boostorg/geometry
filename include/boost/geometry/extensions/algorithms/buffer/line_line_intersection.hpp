@@ -52,7 +52,7 @@ struct line_line_intersection
         {
             set<0>(p, x2);
             set<1>(p, y2);
-            return true;
+            return false;
         }
 
         coordinate_type d1 = det(x1, y1, x2, y2);

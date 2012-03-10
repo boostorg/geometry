@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 #define TEST_WITH_SVG
 
 #include <fstream>
@@ -79,7 +79,7 @@ template
 void test_buffer(std::string const& caseid, Geometry const& geometry,
             char join,
             bool check, double expected_area,
-            double distance_left, double distance_right)
+            double distance_left, double distance_right, int expected_self_tangencies)
 {
     namespace bg = boost::geometry;
 
@@ -89,9 +89,17 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typedef typename bg::ring_type<GeometryOut>::type ring_type;
 
+	typedef typename bg::tag<Geometry>::type tag;
+	std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
+		: boost::is_same<tag, bg::linestring_tag>::value ? "line"
+		: boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
+		: boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
+		: ""
+		;
+
     std::ostringstream complete;
     complete
-        << (bg::geometry_id<Geometry>::value == 2 ? "line" : "poly") << "_"
+        << type << "_"
         << caseid << "_"
         << string_from_type<coordinate_type>::name()
         << "_" << join;
@@ -113,8 +121,12 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 		{
 			d += std::abs(distance_right);
 		}
+        else
+        {
+            distance_right = distance_left;
+        }
 
-        bg::buffer(box, box, d * 1.1);
+        bg::buffer(box, box, d * (join == 'm' ? 2.0 : 1.1));
         mapper.add(box);
     }
 
@@ -167,7 +179,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         // Be sure resulting polygon does not contain
         // self-intersections
         // But indentation5 should contain 1 self-ip TODO give this check as an argument
-        if (! boost::contains(complete.str(), "indentation5_d_r")
+        if (expected_self_tangencies == 0
+            && ! boost::contains(complete.str(), "indentation5_d_r")
             && ! boost::contains(complete.str(), "flower25_d_r"))
         {
             BOOST_FOREACH(GeometryOut const& polygon, buffered)
@@ -205,7 +218,7 @@ template
 >
 void test_one(std::string const& caseid, std::string const& wkt,
         char join, double expected_area,
-        double distance_left, double distance_right = -999)
+        double distance_left, double distance_right = -999, int expected_self_tangencies = 0)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -227,48 +240,10 @@ void test_one(std::string const& caseid, std::string const& wkt,
 #endif
 
     test_buffer<GeometryOut, JoinStrategy>
-            (caseid, g, join, false, expected_area, distance_left, distance_right);
+            (caseid, g, join, false, expected_area,
+            distance_left, distance_right, expected_self_tangencies);
 }
 
 
-template
-<
-    typename Geometry,
-    template<typename, typename> class JoinStrategy,
-    typename GeometryOut
->
-void test_one(bool check, std::string const& caseid, std::string const& wkt,
-        char join, double expected_area,
-        double distance_left, double distance_right = -999)
-{
-    namespace bg = boost::geometry;
-    Geometry g;
-    bg::read_wkt(wkt, g);
-
-    typedef typename bg::point_type<Geometry>::type point_type;
-
-    //std::cout << caseid << std::endl;
-    if (join == 'm')
-    {
-        //return;
-    }
-
-
-
-#ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
-    std::cout
-        << (counter > 0 ? "union " : "")
-        << "select " << counter++
-        << ", '" << caseid << "' as caseid"
-        << ", ST_Area(ST_Buffer(ST_GeomFromText('" << wkt << "'), "
-        << distance_left
-        << ", 'endcap=flat join=" << (join == 'm' ? "miter" : "round") << "'))"
-        << ", "  << expected_area
-        << std::endl;
-#endif
-
-    test_buffer<GeometryOut, JoinStrategy>
-            (caseid, g, join, check, expected_area, distance_left, distance_right);
-}
 
 #endif
