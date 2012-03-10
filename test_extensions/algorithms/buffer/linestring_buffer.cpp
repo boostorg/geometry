@@ -93,9 +93,9 @@ void test_all()
     //test_one<linestring, buf::join_round, polygon>("curve", curve, 'r', 99, 5.0, 3.0);
     //test_one<linestring, buf::join_miter, polygon>("curve", curve, 'm', 99, 5.0, 3.0);
 
-    //test_one<linestring, buf::join_round, polygon>("chained2", chained2, 'r', 99, 2.5, 1.5);
-    //test_one<linestring, buf::join_round, polygon>("chained3", chained3, 'r', 99, 2.5, 1.5);
-    //test_one<linestring, buf::join_round, polygon>("chained4", chained4, 'r', 99, 2.5, 1.5);
+    test_one<linestring, buf::join_round, polygon>("chained2", chained2, 'r', 11.3137, 2.5, 1.5);
+    test_one<linestring, buf::join_round, polygon>("chained3", chained3, 'r', 16.9706, 2.5, 1.5);
+    test_one<linestring, buf::join_round, polygon>("chained4", chained4, 'r', 22.6274, 2.5, 1.5);
 
     //test_one<linestring, buf::join_round, polygon>("reallife1", reallife1, 'r', 99, 16.5, 6.5);
 }

@@ -186,7 +186,7 @@ public :
     typedef std::map<Point, OccupationInfo, geometry::less<Point> > map_type;
     map_type map;
 
-    OccupationInfo& find_or_insert(Point point)
+    inline OccupationInfo& find_or_insert(Point const& point)
     {
         typename map_type::iterator it = map.find(point);
         if (it == boost::end(map))
@@ -199,6 +199,11 @@ public :
         return it->second;
     }
 
+    inline bool contains(Point const& point) const
+    {
+        typename map_type::const_iterator it = map.find(point);
+        return it != boost::end(map);
+    }
 };
 
 

@@ -19,6 +19,9 @@ static std::string const simplex
     = "POLYGON ((0 0,1 5,6 1,0 0))";
 static std::string const concave_simplex
     = "POLYGON ((0 0,3 5,3 3,5 3,0 0))";
+static std::string const chained_box
+    = "POLYGON((0 0,0 4,4 4,8 4,12 4,12 0,8 0,4 0,0 0))";
+
 static std::string const donut_simplex
     = "POLYGON ((0 0,1 9,8 1,0 0),(1 1,4 1,1 4,1 1))";
 static std::string const letter_L
@@ -65,12 +68,14 @@ void test_all()
 
     typedef bg::model::polygon<P> polygon_type;
 
-    test_one<polygon_type, buf::join_miter, polygon_type>("L", letter_L, 'm', 14.0, 0.5);
-    test_one<polygon_type, buf::join_round, polygon_type>("L", letter_L, 'r', 13.7314, 0.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>("simplex", simplex, 'm', 52.8733, 1.5);
     test_one<polygon_type, buf::join_round, polygon_type>("simplex", simplex, 'r', 47.9408, 1.5);
-    test_one<polygon_type, buf::join_miter, polygon_type>("concave_simplex", concave_simplex, 'm', 16.3861, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>("simplex", simplex, 'm', 52.8733, 1.5);
     test_one<polygon_type, buf::join_round, polygon_type>("concave_simplex", concave_simplex, 'r', 14.5616, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>("concave_simplex", concave_simplex, 'm', 16.3861, 0.5);
+    test_one<polygon_type, buf::join_round, polygon_type>("chained_box", chained_box, 'r', 83.1403, 1.0);
+    test_one<polygon_type, buf::join_miter, polygon_type>("chained_box", chained_box, 'm', 84, 1.0);
+    test_one<polygon_type, buf::join_round, polygon_type>("L", letter_L, 'r', 13.7314, 0.5);
+    test_one<polygon_type, buf::join_miter, polygon_type>("L", letter_L, 'm', 14.0, 0.5);
 
     test_one<polygon_type, buf::join_miter, polygon_type>("indentation4", indentation, 'm', 25.7741, 0.4);
     test_one<polygon_type, buf::join_round, polygon_type>("indentation4", indentation, 'r', 25.5695, 0.4);

@@ -21,6 +21,7 @@
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
@@ -157,9 +158,20 @@ struct join_round
 
     typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointOut>::type coordinate_type;
+
+    typedef typename geometry::select_most_precise
+        <
+            typename geometry::select_most_precise
+                <
+                    typename geometry::coordinate_type<PointIn>::type,
+                    typename geometry::coordinate_type<PointOut>::type
+                >::type,
+            double
+        >::type promoted_type;
+
     int m_max_level;
 
-
+#ifdef BOOST_GEOMETRY_BUFFER_USE_MIDPOINTS
     template <typename RangeOut>
     inline void mid_points(PointIn const& vertex,
                 PointIn const& p1, PointIn const& p2,
@@ -196,9 +208,55 @@ struct join_round
         {
             mid_points(vertex, mid_point, p2, buffer_distance, range_out, level + 1);
         }
-
     }
+#endif
 
+    template <typename RangeOut>
+    inline void generate_points(PointIn const& vertex,
+                PointIn const& perp1, PointIn const& perp2,
+                promoted_type const& buffer_distance,
+                RangeOut& range_out) const
+    {
+        promoted_type dx1 = get<0>(perp1) - get<0>(vertex);
+        promoted_type dy1 = get<1>(perp1) - get<1>(vertex);
+        promoted_type dx2 = get<0>(perp2) - get<0>(vertex);
+        promoted_type dy2 = get<1>(perp2) - get<1>(vertex);
+
+        dx1 /= buffer_distance;
+        dy1 /= buffer_distance;
+        dx2 /= buffer_distance;
+        dy2 /= buffer_distance;
+
+        promoted_type angle_diff = std::acos(dx1 * dx2 + dy1 * dy2);
+
+        // Default might be 100 steps for a full circle (2 pi)
+        promoted_type const steps_per_circle = 100.0;
+        int n = int(steps_per_circle * angle_diff 
+                    / (2.0 * geometry::math::pi<promoted_type>()));
+
+		if (n > 1000)
+		{
+			std::cout << dx1 << ", " << dy1 << " .. " << dx2 << ", " << dy2 << std::endl;
+			std::cout << angle_diff << " -> " << n << std::endl;
+			n = 1000;
+		}
+		else if (n <= 1)
+		{
+			return;
+		}
+
+        promoted_type const angle1 = std::atan2(dy1, dx1);
+        promoted_type diff = angle_diff / promoted_type(n);
+        promoted_type a = angle1 - diff;
+
+        for (int i = 0; i < n - 1; i++, a -= diff)
+        {
+            PointIn p;
+            set<0>(p, get<0>(vertex) + buffer_distance * cos(a));
+            set<1>(p, get<1>(vertex) + buffer_distance * sin(a));
+            range_out.push_back(p);
+        }
+    }
 
     template <typename RangeOut>
     inline void apply(PointIn const& ip, PointIn const& vertex,
@@ -206,6 +264,12 @@ struct join_round
                 coordinate_type const& buffer_distance,
                 RangeOut& range_out) const
     {
+		if (geometry::equals(perp1, perp2))
+		{
+			//std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+			return;
+		}
+
         coordinate_type zero = 0;
         int signum = buffer_distance > zero ? 1
                    : buffer_distance < zero ? -1
@@ -231,6 +295,8 @@ struct join_round
             set<1>(bp, get<1>(vertex) + viy * prop);
 
             range_out.push_back(perp1);
+
+#ifdef BOOST_GEOMETRY_BUFFER_USE_MIDPOINTS
             if (m_max_level <= 1)
             {
                 if (m_max_level == 1)
@@ -244,6 +310,10 @@ struct join_round
                 range_out.push_back(bp);
                 mid_points(vertex, bp, perp2, bd, range_out);
             }
+#else
+            generate_points(vertex, perp1, perp2, bd, range_out);
+#endif
+
             range_out.push_back(perp2);
         }
     }
