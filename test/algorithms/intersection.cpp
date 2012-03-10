@@ -15,6 +15,8 @@
 #include <iostream>
 #include <string>
 
+#define TEST_ISOVIST
+
 //#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 //#define BOOST_GEOMETRY_DEBUG_INTERSECTION
 //#define BOOST_GEOMETRY_DEBUG_TRAVERSE
@@ -164,14 +166,17 @@ void test_areal()
 
     typedef typename bg::coordinate_type<Polygon>::type ct;
 
+#ifdef TEST_ISOVIST
 #ifdef _MSC_VER
-    // Isovist (submitted by Brandon during Formal Review)
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
-        1,
-        if_typed<ct, float>(19, if_typed<ct, double>(20, 20)),
-        88.19203,
-        if_typed<ct, float>(0.5, if_typed<ct, double>(0.1, 0.01)));
+        1, 20, 88.19203,
+        if_typed_tt<ct>(0.01, 0.1));
+
+    // SQL Server gives: 88.1920416352664
+    // PostGIS gives:    88.19203677911
+
+#endif
 #endif
 
     //std::cout << typeid(ct).name() << std::endl;
@@ -191,12 +196,19 @@ void test_areal()
         1, if_typed_tt<ct>(6, 5), 11151.6618);
 
 #ifdef _MSC_VER // gcc/linux behaves differently
-    test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
-        ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-        3, 
-        if_typed<ct, float>(19, if_typed<ct, double>(22, 21)),
-        35723.8506317139);
+    if (! boost::is_same<ct, float>::value)
+    {
+        test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
+            ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
+            3, 
+            if_typed<ct, float>(19, if_typed<ct, double>(22, 21)),
+            35723.8506317139);
+    }
 #endif
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
+                1, 4,  0.00029437899183903937, 0.01);
+
 
     return;
 
@@ -496,6 +508,7 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<float> >();
 
 #if defined(HAVE_TTMATH)
+    std::cout << "Testing TTMATH" << std::endl;
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 

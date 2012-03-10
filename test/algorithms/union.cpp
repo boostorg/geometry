@@ -15,6 +15,8 @@
 #include <iostream>
 #include <string>
 
+#define TEST_ISOVIST
+
 //#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 //#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 
@@ -237,16 +239,40 @@ void test_areal()
         129904.197692871);
 #endif
 
+#ifdef TEST_ISOVIST
 #ifdef _MSC_VER
-    // Isovist (submitted by Brandon during Formal Review)
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
         1,
         0,
-        if_typed<ct, float>(71, 
-            if_typed<ct, double>(70, 73)),
-        313.36036462);
+        if_typed<ct, float>(71, if_typed<ct, double>(70, 73)),
+        313.36036462, 0.1);
+
+    // SQL Server gives: 313.360374193241
+    // PostGIS gives:    313.360364623393
+
 #endif
+#endif
+
+    // Ticket 5103 https://svn.boost.org/trac/boost/ticket/5103
+    // This ticket was actually reported for Boost.Polygon
+    // We check it for Boost.Geometry as well.
+    // SQL Server gives:     2515271331437.69
+    // PostGIS gives:        2515271327070.52
+    // Boost.Geometry gives: 2515271327070.5237746891 (ttmath)
+    //                       2515271327070.5156 (double)
+    //                       2515271320603.0000	(int)
+    // Note the int-test was tested outside of this unit test. It is in two points 0.37 off (logical for an int).
+    // Because of the width of the polygon (400000 meter) this causes a substantial difference.
+
+    test_one<Polygon, Polygon, Polygon>("ticket_5103", ticket_5103[0], ticket_5103[1],
+                1, 0, 25, 2515271327070.5);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_a", buffer_rt_a[0], buffer_rt_a[1],
+                1, 0, 265, 19.280667);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
+                1, 0, if_typed<ct, double>(22, 23), 4.60853);
 }
 
 template <typename P>
@@ -302,20 +328,6 @@ void test_all()
     test_one<polygon, box, polygon>("box_poly8", "box(0 0, 3 3)",
             "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))",
                 1, 0, 8, 10.25);
-
-    // Ticket 5103 https://svn.boost.org/trac/boost/ticket/5103
-    // This ticket was actually reported for Boost.Polygon
-    // but it is apparently a difficult case so we check it for Boost.Geometry as well.
-    // SQL Server gives:     2515271331437.69
-    // PostGIS gives:        2515271327070.52
-    // Boost.Geometry gives: 2515271327070.5237746891 (ttmath)
-    //                       2515271327070.5156 (double)
-    //                       2515271320603.0000	(int)
-    // Note the int-test was tested externally - it is in two points 0.37 off (makes sense).
-    // Because of the width of the polygon (400000 meter) this might indeed cause a substantial difference.
-
-    test_one<polygon, polygon, polygon>("ticket_5103", ticket_5103[0], ticket_5103[1],
-                1, 0, 25, 2515271327070.5);
 }
 
 
@@ -328,6 +340,7 @@ int test_main(int, char* [])
     //test_all<bg::model::d2::point_xy<long double> >();
 
 #if defined(HAVE_TTMATH)
+    std::cout << "Testing TTMATH" << std::endl;
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 #endif
