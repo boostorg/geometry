@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ADD_RINGS_HPP
 
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/detail/overlay/convert_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 
@@ -78,7 +79,7 @@ inline OutputIterator add_rings(SelectionMap const& map,
 	typedef typename property_type::area_type area_type;
 
 	area_type const zero = 0;
-	int const min_num_points = core_detail::closure::minimum_ring_size
+	std::size_t const min_num_points = core_detail::closure::minimum_ring_size
 		<
 			geometry::closure
 				<
