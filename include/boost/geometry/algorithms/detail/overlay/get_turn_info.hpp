@@ -533,6 +533,13 @@ struct collinear : public base_turn_handler
          - if P arrives and P turns right: intersection for P
          - if Q arrives and Q turns left: union for Q (=intersection for P)
          - if Q arrives and Q turns right: intersection for Q (=union for P)
+
+         ROBUSTNESS: p and q are collinear, so you would expect
+         that side qk//p1 == pk//q1. But that is not always the case
+         in near-epsilon ranges. Then decision logic is different.
+         If p arrives, q is further, so the angle qk//p1 is (normally) 
+         more precise than pk//p1
+
     */
     template
     <
@@ -555,10 +562,13 @@ struct collinear : public base_turn_handler
         // Should not be 0, this is checked before
         BOOST_ASSERT(arrival != 0);
 
+        int const side_p = SideStrategy::apply(pi, pj, pk);
+        int const side_q = SideStrategy::apply(qi, qj, qk);
+
         // If p arrives, use p, else use q
         int const side_p_or_q = arrival == 1
-            ? SideStrategy::apply(pi, pj, pk)
-            : SideStrategy::apply(qi, qj, qk)
+            ? side_p
+            : side_q
             ;
 
         // See comments above,
@@ -574,8 +584,42 @@ struct collinear : public base_turn_handler
         }
         else
         {
-            ui_else_iu(product == 1, ti);
+            int const side_pk = SideStrategy::apply(qi, qj, pk);
+            int const side_qk = SideStrategy::apply(pi, pj, qk);
+
+            if (side_pk != side_p || side_qk != side_q)
+            {
+                std::cout << " -> Collinear " 
+                    << " arr: " << arrival
+                    << " prod: " << product
+                    << " dir: " << side_p << " " << side_q
+                    << " rev: " << side_pk << " " << side_qk
+                    << std::endl;
+
+                handle_robustness(ti, product, side_p, side_q, side_pk, side_qk);
+            }
+            else
+            {
+                // The normal case
+                ui_else_iu(product == 1, ti);
+            }
         }
+    }
+
+    static inline void handle_robustness(TurnInfo& ti,
+                    int product, 
+                    int side_p, int side_q,
+                    int side_pk, int side_qk)
+    {
+        bool take_ui = product == 1;
+        if (product == 1 && side_p == 1 && side_pk != 1
+            || product == -1 && side_q == 1 && side_qk != 1)
+        {
+            std::cout << " -> Reverse" << std::endl;
+            take_ui = ! take_ui;
+        }
+
+        ui_else_iu(take_ui, ti);
     }
 };
 
