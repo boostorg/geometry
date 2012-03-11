@@ -232,13 +232,16 @@ void test_areal()
         if_typed<ct, double>(5, if_typed_tt<ct>(8, 7)), 
         14729.07145);
         
-#ifdef TEST_ENRICO
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 
         if_typed<ct, double>(18, 17), 
         129904.197692871);
-#endif
+
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe", 
+        ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
+        1, 0, 8, 67.3550722317627);
+
 
 #ifdef TEST_ISOVIST
 #ifdef _MSC_VER
