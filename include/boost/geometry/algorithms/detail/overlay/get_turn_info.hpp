@@ -589,12 +589,12 @@ struct collinear : public base_turn_handler
 
             if (side_pk != side_p || side_qk != side_q)
             {
-                std::cout << " -> Collinear " 
-                    << " arr: " << arrival
-                    << " prod: " << product
-                    << " dir: " << side_p << " " << side_q
-                    << " rev: " << side_pk << " " << side_qk
-                    << std::endl;
+                //std::cout << " -> Collinear " 
+                //    << " arr: " << arrival
+                //    << " prod: " << product
+                //    << " dir: " << side_p << " " << side_q
+                //    << " rev: " << side_pk << " " << side_qk
+                //    << std::endl;
 
                 handle_robustness(ti, product, side_p, side_q, side_pk, side_qk);
             }
@@ -612,10 +612,10 @@ struct collinear : public base_turn_handler
                     int side_pk, int side_qk)
     {
         bool take_ui = product == 1;
-        if (product == 1 && side_p == 1 && side_pk != 1
-            || product == -1 && side_q == 1 && side_qk != 1)
+        if ((product == 1 && side_p == 1 && side_pk != 1)
+            || (product == -1 && side_q == 1 && side_qk != 1))
         {
-            std::cout << " -> Reverse" << std::endl;
+            //std::cout << " -> Reverse" << std::endl;
             take_ui = ! take_ui;
         }
 
