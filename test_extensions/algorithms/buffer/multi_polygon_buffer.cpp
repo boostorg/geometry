@@ -66,7 +66,6 @@ void test_all()
 
     typedef bg::model::polygon<P> polygon_type;
     typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
-// goto wrong;
     test_one<multi_polygon_type, buf::join_round, polygon_type>("multi_simplex_05", simplex, 'r', 23.7030, 0.5);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("multi_simplex_05", simplex, 'm', 24.5965, 0.5);
     test_one<multi_polygon_type, buf::join_round, polygon_type>("multi_simplex_10", simplex, 'r', 34.2532, 1.0);
@@ -101,11 +100,8 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_e", rt_e, 'm', 15.1198, 0.3);
     test_one<multi_polygon_type, buf::join_round, polygon_type>("rt_f", rt_f, 'r', 4.28937, 0.3);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_f", rt_f, 'm', 4.60853, 0.3);
-
-//  TO BE FIXED:
-// wrong:
-//    test_one<multi_polygon_type, buf::join_round, polygon_type>("rt_g", rt_g, 'r', 99, 1.0);
-//    test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_g", rt_g, 'm', 99, 1.0);
+    test_one<multi_polygon_type, buf::join_round, polygon_type>("rt_g", rt_g, 'r', 24.719, 1.0);
+    test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_g", rt_g, 'm', 30.3137, 1.0);
 }
 
 
