@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 #define TEST_ISOVIST
 
 //#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
@@ -271,8 +272,16 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_a", buffer_rt_a[0], buffer_rt_a[1],
                 1, 0, 265, 19.280667);
 
+    // Robustness issues, followed out buffer-robustness-tests, test them also reverse
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 0, if_typed<ct, double>(22, 23), 4.60853);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
+                1, 0, if_typed<ct, double>(22, 23), 4.60853);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
+                1, 0, 17, 16.571);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
+                1, 0, 17, 16.571);
 }
 
 template <typename P>
@@ -284,6 +293,7 @@ void test_all()
 
     test_areal<ring, polygon>();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Open
     test_areal<bg::model::ring<P, true, false>, bg::model::polygon<P, true, false> >();
 
@@ -292,6 +302,7 @@ void test_all()
 
     // Counter clockwise and open
     test_areal<bg::model::ring<P, false, false>, bg::model::polygon<P, false, false> >();
+#endif
 
     test_one<polygon, box, polygon>("box_ring", example_box, example_ring,
         1, 1, 15, 6.38875);

@@ -7,6 +7,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+// #define BOOST_GEOMETRY_OVERLAY_NO_THROW
+// #define TEST_WITH_SVG
 
 #include <iostream>
 #include <iomanip>
@@ -832,13 +835,12 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             and STUnion
         */
 
-        // Boost.List during Formal Review, isovists Brandon
         // For FP, they may deviate more.
         test_traverse<polygon, polygon, operation_intersection>::apply("isov",
-                1, 88.1920416352664, isovist[0], isovist[1],
+                1, 88.2558788829, isovist[0], isovist[1],
                 float_might_deviate_more);
         test_traverse<polygon, polygon, operation_union>::apply("isov",
-                1, 313.360374193241, isovist[0], isovist[1],
+                1, 313.29652252, isovist[0], isovist[1],
                 float_might_deviate_more);
     }
 
@@ -907,6 +909,51 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             1, 67.3550722317627, 
             ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
     }
+
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_f", 
+        1, 4.60853, 
+        buffer_rt_f[0], buffer_rt_f[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("buffer_rt_f", 
+        1, 0.0002943725152286, 
+        buffer_rt_f[0], buffer_rt_f[1]);
+
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g", 
+        1, 16.571, 
+        buffer_rt_g[0], buffer_rt_g[1]);
+
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes1", 
+        1, 20, 
+        buffer_rt_g_boxes[0], buffer_rt_g_boxes[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes2", 
+        1, 24, 
+        buffer_rt_g_boxes[0], buffer_rt_g_boxes[2]);
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes3", 
+        1, 28, 
+        buffer_rt_g_boxes[0], buffer_rt_g_boxes[3]);
+
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes43", 
+        1, 30, 
+        buffer_rt_g_boxes[4], buffer_rt_g_boxes[3]);
+
+#ifdef BOOST_GEOMETRY_OVERLAY_NO_THROW
+    {
+        // NOTE: currently throws (normally)
+        std::string caseid = "ggl_list_20120229_volker";
+        test_traverse<polygon, polygon, operation_union>::apply(caseid, 
+            1, 99, 
+            ggl_list_20120229_volker[0], ggl_list_20120229_volker[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
+            1, 99, 
+            ggl_list_20120229_volker[0], ggl_list_20120229_volker[1]);
+        caseid = "ggl_list_20120229_volker_2";
+        test_traverse<polygon, polygon, operation_union>::apply(caseid, 
+            1, 99, 
+            ggl_list_20120229_volker[2], ggl_list_20120229_volker[1]);
+        test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
+            1, 99, 
+            ggl_list_20120229_volker[2], ggl_list_20120229_volker[1]);
+    }
+#endif
 }
 
 template <typename T>
