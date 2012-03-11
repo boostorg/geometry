@@ -203,6 +203,26 @@ struct relate_cartesian_segments
 				promoted_type const zero = 0;
 				promoted_type const one = 1;
 				promoted_type const epsilon = std::numeric_limits<double>::epsilon();
+
+                if (sides.crossing() && math::abs(da-d) < 0.1)
+                {
+                    // ROBUSTNESS: the r value can in epsilon-cases be 1.14, while (with perfect arithmetic)
+                    // it should be one. If segments are crossing (we can see that with the sides)
+                    // and one is inside the other, there must be an intersection point.
+                    // We correct for that.
+                    // TODO: find more cases (this only solves case called ggl_list_20110820_christophe in unit tests
+                    if (r > one)
+                    {
+                        // std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
+                        r = one;
+                    }
+                    else if (r < zero)
+                    {
+                        // std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
+    					r = zero;
+                    }
+                }
+
 				if (r < zero)
 				{
 					if (r < -epsilon)

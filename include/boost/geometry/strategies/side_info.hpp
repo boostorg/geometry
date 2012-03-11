@@ -67,6 +67,13 @@ public :
             && sides[1].second == 0;
     }
 
+    inline bool crossing() const
+    {
+        return sides[0].first * sides[0].second == -1
+            && sides[1].first * sides[1].second == -1;
+    }
+
+
     template <int Which>
     inline bool zero() const
     {
