@@ -285,6 +285,12 @@ void test_areal()
                 1, 0, 17, 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, 17, 16.571);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
+                1, 0, 13, 13.6569);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
+                1, 0, 13, 13.6569);
+
 }
 
 template <typename P>
