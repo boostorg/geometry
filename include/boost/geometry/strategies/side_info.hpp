@@ -73,6 +73,13 @@ public :
             && sides[1].first * sides[1].second == -1;
     }
 
+    inline bool touching() const
+    {
+        return (sides[0].first * sides[1].first == -1
+            && sides[0].second == 0 && sides[1].second == 0)
+            || (sides[1].first * sides[0].first == -1
+            && sides[1].second == 0 && sides[0].second == 0);
+    }
 
     template <int Which>
     inline bool zero() const

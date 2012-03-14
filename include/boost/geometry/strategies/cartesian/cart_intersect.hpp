@@ -204,41 +204,47 @@ struct relate_cartesian_segments
 				promoted_type const one = 1;
 				promoted_type const epsilon = std::numeric_limits<double>::epsilon();
 
-                if (sides.crossing() && math::abs(da-d) < 0.1)
+                if (r < zero || r > one)
                 {
-                    // ROBUSTNESS: the r value can in epsilon-cases be 1.14, while (with perfect arithmetic)
-                    // it should be one. If segments are crossing (we can see that with the sides)
-                    // and one is inside the other, there must be an intersection point.
-                    // We correct for that.
-                    // TODO: find more cases (this only solves case called ggl_list_20110820_christophe in unit tests
-                    if (r > one)
+                    if (sides.crossing() || sides.touching())
                     {
-                        // std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
-                        r = one;
+                        // ROBUSTNESS: the r value can in epsilon-cases be 1.14, while (with perfect arithmetic)
+                        // it should be one. If segments are crossing (we can see that with the sides)
+                        // and one is inside the other, there must be an intersection point.
+                        // We correct for that.
+                        // This is (only) in case #ggl_list_20110820_christophe in unit tests
+                        // If segments are touching (two sides zero), of course they should intersect
+                        // This is (only) in case #buffer_rt_i in the unit tests)
+                        // TODO: find more cases
+                        if (r > one)
+                        {
+                            // std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
+                            r = one;
+                        }
+                        else if (r < zero)
+                        {
+                            // std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
+    					    r = zero;
+                        }
                     }
-                    else if (r < zero)
-                    {
-                        // std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
-    					r = zero;
-                    }
+                
+				    if (r < zero)
+				    {
+					    if (r < -epsilon)
+					    {
+						    return Policy::disjoint();
+					    }
+					    r = zero;
+				    }
+				    else if (r > one)
+				    {
+					    if (r > one + epsilon)
+					    {
+						    return Policy::disjoint();
+					    }
+					    r = one;
+				    }
                 }
-
-				if (r < zero)
-				{
-					if (r < -epsilon)
-					{
-						return Policy::disjoint();
-					}
-					r = zero;
-				}
-				else if (r > one)
-				{
-					if (r > one + epsilon)
-					{
-						return Policy::disjoint();
-					}
-					r = one;
-				}
 			}
 		}
 
