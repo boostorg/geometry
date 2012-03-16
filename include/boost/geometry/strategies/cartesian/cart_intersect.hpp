@@ -152,6 +152,33 @@ struct relate_cartesian_segments
             collinear = true;
 		}
 
+        if (sides.meeting())
+        {
+            // If two segments meet each other at their segment-points, two sides are zero,
+            // the other two are not (unless collinear but we don't mean those here).
+            // However, in near-epsilon ranges it can happen that two sides are zero
+            // but they do not meet at their segment-points.
+            // In that case they are nearly collinear and handled as such.
+            if (! point_equals
+                    (
+                        select(sides.zero_index<0>(), a),
+                        select(sides.zero_index<1>(), b)
+                    )
+                )
+            {
+                //std::cout << "ROBUSTNESS: Suspicious ";
+                //sides.debug();
+                //std::cout << std::endl;
+                //std::cout << " " << d << " " << da << std::endl;
+                //std::cout << " -> " << geometry::wkt(a) << " " << geometry::wkt(b) << std::endl;
+                //std::cout << " -> " << dx_a << " " << dy_a << " " << dx_b << " " << dy_b << std::endl;
+
+                sides.set<0>(0,0);
+                sides.set<1>(0,0);
+                collinear = true;
+            }
+        }
+
         if (sides.same<0>() || sides.same<1>())
         {
             // Both points are at same side of other segment, we can leave
@@ -206,51 +233,47 @@ struct relate_cartesian_segments
 
                 if (r < zero || r > one)
                 {
-                    if (sides.crossing() || sides.touching())
+					if (double_check_disjoint<0>(a, b) 
+						|| double_check_disjoint<1>(a, b))
+					{
+						// Can still be disjoint (even if not one is left or right from another)
+                        // This is e.g. in case #snake4 of buffer test.
+						return Policy::disjoint();
+					}
+
+                    //std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
+                    // sides.debug()
+
+                    // ROBUSTNESS: the r value can in epsilon-cases much larger than 1, while (with perfect arithmetic)
+                    // it should be one. It can be 1.14 or even 1.98049 or 2 (while still intersecting)
+
+                    // If segments are crossing (we can see that with the sides)
+                    // and one is inside the other, there must be an intersection point.
+                    // We correct for that.
+                    // This is (only) in case #ggl_list_20110820_christophe in unit tests
+
+                    // If segments are touching (two sides zero), of course they should intersect
+                    // This is (only) in case #buffer_rt_i in the unit tests)
+
+                    // If one touches in the middle, they also should intersect (#buffer_rt_j)
+
+                    // Note that even for ttmath r is occasionally > 1, e.g. 1.0000000000000000000000036191231203575
+
+                    if (r > one)
                     {
-                        // ROBUSTNESS: the r value can in epsilon-cases be 1.14, while (with perfect arithmetic)
-                        // it should be one. If segments are crossing (we can see that with the sides)
-                        // and one is inside the other, there must be an intersection point.
-                        // We correct for that.
-                        // This is (only) in case #ggl_list_20110820_christophe in unit tests
-                        // If segments are touching (two sides zero), of course they should intersect
-                        // This is (only) in case #buffer_rt_i in the unit tests)
-                        // TODO: find more cases
-                        if (r > one)
-                        {
-                            // std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
-                            r = one;
-                        }
-                        else if (r < zero)
-                        {
-                            // std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
-    					    r = zero;
-                        }
+                        r = one;
                     }
-                
-				    if (r < zero)
-				    {
-					    if (r < -epsilon)
-					    {
-						    return Policy::disjoint();
-					    }
-					    r = zero;
-				    }
-				    else if (r > one)
-				    {
-					    if (r > one + epsilon)
-					    {
-						    return Policy::disjoint();
-					    }
-					    r = one;
-				    }
+                    else if (r < zero)
+                    {
+    					r = zero;
+                    }
                 }
 			}
 		}
 
         if(collinear)
         {
-            if (math::abs(dx_a) + math::abs(dx_b) < math::abs(dy_a) + math::abs(dy_a))
+            if (math::abs(dx_a) + math::abs(dx_b) < math::abs(dy_a) + math::abs(dy_b))
             {
 				// Y direction contains larger segments (maybe dx is zero)
                 return relate_collinear<1>(a, b);
@@ -267,6 +290,38 @@ struct relate_cartesian_segments
     }
 
 private :
+
+	template <std::size_t Dimension>
+    static inline bool double_check_disjoint(segment_type1 const& a, 
+					segment_type2 const& b)
+	{
+		coordinate_type a_1, a_2, b_1, b_2;
+		bool a_swapped = false, b_swapped = false;
+		detail::segment_arrange<Dimension>(a, a_1, a_2, a_swapped);
+		detail::segment_arrange<Dimension>(b, b_1, b_2, b_swapped);
+		return math::smaller(a_2, b_1) || math::larger(a_1, b_2);
+	}
+
+    template <typename Segment>
+    static inline typename point_type<Segment>::type select(int index, Segment const& segment)
+    {
+        return index == 0 
+            ? detail::get_from_index<0>(segment)
+            : detail::get_from_index<1>(segment)
+            ;
+    }
+
+    // We cannot use geometry::equals here. Besides that this will be changed
+    // to compare segment-coordinate-values directly (not necessary to retrieve point first)
+    template <typename Point1, typename Point2>
+    static inline bool point_equals(Point1 const& point1, Point2 const& point2)
+    {
+        return math::equals(get<0>(point1), get<0>(point2))
+            && math::equals(get<1>(point1), get<1>(point2))
+            ;
+    }
+
+
 
 	template <std::size_t Dimension>
     static inline return_type relate_collinear(segment_type1 const& a,
