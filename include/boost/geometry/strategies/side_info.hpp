@@ -81,11 +81,31 @@ public :
             && sides[1].second == 0 && sides[0].second == 0);
     }
 
+    inline bool meeting() const
+    {
+        // Two of them (in each segment) zero, two not
+        return one_zero<0>() && one_zero<1>();
+    }
+
     template <int Which>
     inline bool zero() const
     {
         return sides[Which].first == 0 && sides[Which].second == 0;
     }
+
+    template <int Which>
+    inline bool one_zero() const
+    {
+        return (sides[Which].first == 0 && sides[Which].second != 0)
+            || (sides[Which].first != 0 && sides[Which].second == 0);
+    }
+
+    template <int Which>
+    inline int zero_index() const
+    {
+        return sides[Which].first == 0 ? 0 : 1;
+    }
+
 
     inline void debug() const
     {
