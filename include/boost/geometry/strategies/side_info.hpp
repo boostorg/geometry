@@ -45,6 +45,19 @@ public :
     }
 
     template <int Which, int Index>
+    inline void correct_to_zero()
+    {
+        if (Index == 0)
+        {
+            sides[Which].first = 0;
+        }
+        else
+        {
+            sides[Which].second = 0;
+        }
+    }
+
+    template <int Which, int Index>
     inline int get() const
     {
         return Index == 0 ? sides[Which].first : sides[Which].second;
@@ -81,6 +94,15 @@ public :
             && sides[1].second == 0 && sides[0].second == 0);
     }
 
+    template <int Which>
+    inline bool one_touching() const
+    {
+        // This is normally a situation which can't occur:
+        // If one is completely left or right, the other cannot touch
+        return one_zero<Which>()
+            && sides[1 - Which].first * sides[1 - Which].second == 1;
+    }
+
     inline bool meeting() const
     {
         // Two of them (in each segment) zero, two not
@@ -99,6 +121,16 @@ public :
         return (sides[Which].first == 0 && sides[Which].second != 0)
             || (sides[Which].first != 0 && sides[Which].second == 0);
     }
+
+    inline bool one_of_all_zero() const
+    {
+        int const sum = std::abs(sides[0].first)
+                + std::abs(sides[0].second)
+                + std::abs(sides[1].first)
+                + std::abs(sides[1].second);
+        return sum == 3;
+    }
+
 
     template <int Which>
     inline int zero_index() const
