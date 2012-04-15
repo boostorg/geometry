@@ -571,6 +571,9 @@ struct collinear : public base_turn_handler
             : side_q
             ;
 
+        int const side_pk = SideStrategy::apply(qi, qj, pk);
+        int const side_qk = SideStrategy::apply(pi, pj, qk);
+
         // See comments above,
         // resulting in a strange sort of mathematic rule here:
         // The arrival-info multiplied by the relevant side
@@ -578,53 +581,55 @@ struct collinear : public base_turn_handler
 
         int const product = arrival * side_p_or_q;
 
-        if(product == 0)
+        // Robustness: side_p is supposed to be equal to side_pk (because p/q are collinear)
+        // and side_q to side_qk
+        bool const robustness_issue = side_pk != side_p || side_qk != side_q;
+
+        if (robustness_issue)
+        {
+            handle_robustness(ti, arrival, side_p, side_q, side_pk, side_qk);
+        }
+        else if(product == 0)
         {
             both(ti, operation_continue);
         }
         else
         {
-            int const side_pk = SideStrategy::apply(qi, qj, pk);
-            int const side_qk = SideStrategy::apply(pi, pj, qk);
-
-            if (side_pk != side_p || side_qk != side_q)
-            {
-                //std::cout << "ROBUSTNESS -> Collinear " 
-                //    << " arr: " << arrival
-                //    << " prod: " << product
-                //    << " dir: " << side_p << " " << side_q
-                //    << " rev: " << side_pk << " " << side_qk
-                //    << std::endl;
-
-                handle_robustness(ti, arrival, product, 
-                            side_p, side_q, side_pk, side_qk);
-            }
-            else
-            {
-                // The normal case
-                ui_else_iu(product == 1, ti);
-            }
+            ui_else_iu(product == 1, ti);
         }
     }
 
-    static inline void handle_robustness(TurnInfo& ti,
-                    int arrival, int product, 
-                    int side_p, int side_q,
-                    int side_pk, int side_qk)
+    static inline void handle_robustness(TurnInfo& ti, int arrival, 
+                    int side_p, int side_q, int side_pk, int side_qk)
     {
-        bool take_ui = product == 1;
-        if (product == arrival)
+        // We take the longer one, i.e. if q arrives in p (arrival == -1),
+        // then p exceeds q and we should take p for a union...
+
+        bool use_p_for_union = arrival == -1;
+
+        // ... unless one of the sides consistently directs to the other side
+        int const consistent_side_p = side_p == side_pk ? side_p : 0;
+        int const consistent_side_q = side_q == side_qk ? side_q : 0;
+        if (arrival == -1 && (consistent_side_p == -1 || consistent_side_q == 1))
         {
-            if ((product == 1 && side_p == 1 && side_pk != 1)
-                || (product == -1 && side_q == 1 && side_qk != 1))
-            {
-                //std::cout << "ROBUSTNESS: -> Reverse" << std::endl;
-                take_ui = ! take_ui;
-            }
+            use_p_for_union = false;
+        }
+        if (arrival == 1 && (consistent_side_p == 1 || consistent_side_q == -1))
+        {
+            use_p_for_union = true;
         }
 
-        ui_else_iu(take_ui, ti);
+        //std::cout << "ROBUSTNESS -> Collinear " 
+        //    << " arr: " << arrival
+        //    << " dir: " << side_p << " " << side_q
+        //    << " rev: " << side_pk << " " << side_qk
+        //    << " cst: " << cside_p << " " << cside_q
+        //    << std::boolalpha << " " << use_p_for_union
+        //    << std::endl;
+
+        ui_else_iu(use_p_for_union, ti);
     }
+
 };
 
 template
