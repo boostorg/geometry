@@ -17,19 +17,21 @@ namespace boost { namespace geometry { namespace index { namespace translator {
 template <typename Container>
 class index
 {
+    typedef typename Container::size_type size_type;
+
 public:
     typedef typename detail::extract_indexable
         <typename Container::value_type>::type const& result_type;
 
     explicit index(Container const& c) : m_c(c) {}
 
-    result_type operator()(size_t i) const
+    result_type operator()(size_type i) const
     {
         return detail::extract_indexable
             <typename Container::value_type>::get(m_c[i]);
     }
 
-    bool equals(size_t i1, size_t i2) const
+    bool equals(size_type i1, size_type i2) const
     {
         return i1 == i2;
     }
