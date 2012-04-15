@@ -235,12 +235,15 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 
-        if_typed<ct, double>(18, 17), 
+        if_typed<ct, double>(18, if_typed<ct, float>(15, 17)), 
         129904.197692871);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe", 
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
-        1, 0, 8, 67.3550722317627);
+        if_typed<ct, float>(2, 1), 
+        0, 
+        if_typed_tt<ct>(9, 8), 
+        67.3550722317627);
 
 
 #ifdef TEST_ISOVIST
@@ -290,6 +293,36 @@ void test_areal()
                 1, 0, 13, 13.6569);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
                 1, 0, 13, 13.6569);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_j", buffer_rt_j[0], buffer_rt_j[1],
+                1, 0, -1, 16.5711);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_j_rev", buffer_rt_j[1], buffer_rt_j[0],
+                1, 0, -1, 16.5711);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_l", buffer_rt_l[0], buffer_rt_l[1],
+                1, 0, -1, 19.3995);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_l_rev", buffer_rt_l[1], buffer_rt_l[0],
+                1, 0, -1, 19.3995);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_m1", buffer_rt_m1[0], buffer_rt_m1[1],
+                1, 0, if_typed_tt<ct>(14, 13), 19.4852);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_m1_rev", buffer_rt_m1[1], buffer_rt_m1[0],
+                1, 0, if_typed_tt<ct>(14, 13), 19.4852);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_m2", buffer_rt_m2[0], buffer_rt_m2[1],
+                1, 0, if_typed_tt<ct>(20, 19), 21.4853);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
+                1, 0, if_typed_tt<ct>(20, 19), 21.4853);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
+                1, 0, if_typed<ct, float>(18, 17), 18.5710);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
+                1, 0, if_typed<ct, float>(18, 17), 18.5710);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
+                1, 0, if_typed<ct, float>(19, 20), 21.07612);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
+                1, 0, if_typed_tt<ct>(20, 19), 21.07612);
 }
 
 template <typename P>
@@ -353,6 +386,10 @@ void test_all()
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double> >();
+#if defined(HAVE_TTMATH)
+    std::cout << "Testing TTMATH" << std::endl;
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
+#endif
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();
