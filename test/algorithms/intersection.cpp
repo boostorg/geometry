@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 #define TEST_ISOVIST
 
 //#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER

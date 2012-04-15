@@ -826,21 +826,11 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     }
 
     {
-        // Note: values are checked with SQL Server,
-        /*
-            select geometry::STGeomFromText('POLYGON((...))', 0)
-                .STIntersection(geometry::STGeomFromText('...))', 0))
-                .STArea()
-
-            and STUnion
-        */
-
-        // For FP, they may deviate more.
         test_traverse<polygon, polygon, operation_intersection>::apply("isov",
-                1, 88.2558788829, isovist[0], isovist[1],
+                1, 88.1920, isovist[0], isovist[1],
                 float_might_deviate_more);
         test_traverse<polygon, polygon, operation_union>::apply("isov",
-                1, 313.29652252, isovist[0], isovist[1],
+                1, 313.3604, isovist[0], isovist[1],
                 float_might_deviate_more);
     }
 
