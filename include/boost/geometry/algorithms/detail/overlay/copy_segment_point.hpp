@@ -55,14 +55,14 @@ struct copy_segment_point_range
         if (second)
         {
             index++;
-            if (index >= boost::size(range))
+            if (index >= int(boost::size(range)))
             {
                 index = 0;
             }
         }
 
         // Exception?
-        if (index >= boost::size(range))
+        if (index >= int(boost::size(range)))
         {
             return false;
         }
