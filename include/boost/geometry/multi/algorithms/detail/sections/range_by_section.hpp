@@ -46,7 +46,7 @@ struct full_section_multi
         BOOST_ASSERT
             (
                 section.ring_id.multi_index >= 0
-                && section.ring_id.multi_index < boost::size(multi)
+                && section.ring_id.multi_index < int(boost::size(multi))
             );
 
         return Policy::apply(multi[section.ring_id.multi_index], section);

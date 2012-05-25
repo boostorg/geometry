@@ -35,7 +35,7 @@ struct get_ring<multi_polygon_tag>
         BOOST_ASSERT
             (
                 id.multi_index >= 0
-                && id.multi_index < boost::size(multi_polygon)
+                && id.multi_index < int(boost::size(multi_polygon))
             );
         return get_ring<polygon_tag>::apply(id,
                     multi_polygon[id.multi_index]);
