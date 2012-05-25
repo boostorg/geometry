@@ -92,7 +92,7 @@ struct ring_area
         // An open ring has at least three points,
         // A closed ring has at least four points,
         // if not, there is no (zero) area
-        if (boost::size(ring)
+        if (int(boost::size(ring))
                 < core_detail::closure::minimum_ring_size<Closure>::value)
         {
             return type();

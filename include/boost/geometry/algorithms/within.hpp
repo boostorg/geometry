@@ -65,7 +65,7 @@ struct point_in_ring
     static inline int apply(Point const& point, Ring const& ring,
             Strategy const& strategy)
     {
-        if (boost::size(ring)
+        if (int(boost::size(ring))
                 < core_detail::closure::minimum_ring_size<Closure>::value)
         {
             return -1;

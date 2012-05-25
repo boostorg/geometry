@@ -78,7 +78,7 @@ struct copy_segments_ring
         int const from_index = seg_id.segment_index + 1;
 
         // Sanity check
-        BOOST_ASSERT(from_index < boost::size(view));
+        BOOST_ASSERT(from_index < int(boost::size(view)));
 
         ec_iterator it(boost::begin(view), boost::end(view),
                     boost::begin(view) + from_index);
