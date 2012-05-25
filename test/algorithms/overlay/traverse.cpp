@@ -86,7 +86,7 @@ struct test_traverse
 {
 
     static void apply(std::string const& id,
-            int expected_count, double expected_area,
+            std::size_t expected_count, double expected_area,
             G1 const& g1, G2 const& g2,
             double precision)
     {
@@ -356,7 +356,7 @@ struct test_traverse
             G1, G2, Direction, Reverse1, Reverse2
         > detail_test_traverse;
 
-    inline static void apply(std::string const& id, int expected_count, double expected_area,
+    inline static void apply(std::string const& id, std::size_t expected_count, double expected_area,
                 std::string const& wkt1, std::string const& wkt2,
                 double precision = 0.001)
     {
