@@ -76,7 +76,7 @@ void test_non_geometry()
     it += 2;
     BOOST_CHECK_EQUAL(*it, 1);
 
-    BOOST_CHECK_EQUAL(boost::size(view), 4);
+    BOOST_CHECK_EQUAL(boost::size(view), 4u);
 }
 
 

@@ -58,7 +58,7 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 // ----------------------------------------------------------------------------
 
 template <typename G>
-void test_geometry(G const& geometry, int expected_size = 0)
+void test_geometry(G const& geometry, std::size_t expected_size = 0)
 {
 #if defined(BOOST_GEOMETRY_TEST_RING)
     BOOST_CONCEPT_ASSERT( (bg::concept::ConstRing<G>) );
