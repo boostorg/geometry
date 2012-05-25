@@ -54,7 +54,7 @@ struct test_get_turns
 {
     template<typename G1, typename G2>
     static void apply(std::string const& id,
-            int expected_count,
+            std::size_t expected_count,
             G1 const& g1, G2 const& g2, double precision)
     {
             typedef bg::detail::overlay::turn_info
@@ -133,7 +133,7 @@ struct test_get_turns
 template<typename G1, typename G2>
 struct test_get_turns
 {
-    inline static void apply(std::string const& id, int expected_count, 
+    inline static void apply(std::string const& id, std::size_t expected_count, 
                 std::string const& wkt1, std::string const& wkt2,
                 double precision = 0.001)
     {
