@@ -33,7 +33,6 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/util/as_range.hpp>
-#include <boost/geometry/io/wkt/iomanip.hpp>
 
 
 template <typename Geometry>
@@ -83,7 +82,7 @@ void test_geometry(std::string const& wkt,
        }
 
        std::cout
-           << " " << (*it3)
+           << " " << bg::wkt(*it3)
            << " " << bg::wkt(*it2)
            << " " << bg::wkt(*it1)
            << " " << s
