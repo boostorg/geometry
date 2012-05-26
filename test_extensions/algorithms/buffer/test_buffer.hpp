@@ -151,7 +151,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 #endif
                                 );
 
-    double area = 0;
+    typename bg::default_area_result<GeometryOut>::type area = 0;
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
         area += bg::area(polygon);
@@ -168,9 +168,14 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     if (expected_area > -0.1)
     {
+		typename bg::default_area_result<GeometryOut>::type tolerance = 0.01;
+		if (join == 'r')
+		{
+			tolerance = 0.1;
+		}
         BOOST_CHECK_MESSAGE
             (
-                std::abs(area - expected_area) < 0.11,
+                bg::math::abs(area - expected_area) < tolerance,
                 complete.str() << " not as expected. " 
                 << " Expected: "  << expected_area
                 << " Detected: "  << area
