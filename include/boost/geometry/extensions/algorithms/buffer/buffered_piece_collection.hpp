@@ -20,7 +20,12 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
+
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
+
+#include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/side_on_convex_range.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -29,11 +34,6 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/occupation_info.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
-
-
-#include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/side_on_convex_range.hpp>
 
 
 namespace boost { namespace geometry
@@ -86,6 +86,60 @@ struct check_original<linestring_tag>
 };
 
 
+template <typename P>
+class relaxed_side
+{
+public :
+
+    // Template member function, because it is not always trivial
+    // or convenient to explicitly mention the typenames in the
+    // strategy-struct itself.
+
+    // Types can be all three different. Therefore it is
+    // not implemented (anymore) as "segment"
+
+    static inline int apply(P const& p1, P const& p2, P const& p)
+    {
+        typedef typename coordinate_type<P>::type coordinate_type;
+
+        coordinate_type const x = get<0>(p);
+        coordinate_type const y = get<1>(p);
+
+        coordinate_type const sx1 = get<0>(p1);
+        coordinate_type const sy1 = get<1>(p1);
+        coordinate_type const sx2 = get<0>(p2);
+        coordinate_type const sy2 = get<1>(p2);
+
+        // Promote float->double, small int->int
+        typedef typename geometry::select_most_precise
+            <
+                coordinate_type,
+                double
+            >::type promoted_type;
+
+        promoted_type const dx = sx2 - sx1;
+        promoted_type const dy = sy2 - sy1;
+        promoted_type const dpx = x - sx1;
+        promoted_type const dpy = y - sy1;
+
+        promoted_type const s 
+            = geometry::detail::determinant<promoted_type>
+                (
+                    dx, dy, 
+                    dpx, dpy
+                );
+
+        promoted_type const zero = promoted_type();
+        promoted_type const relaxed_epsilon = std::numeric_limits<double>::epsilon() * 5.0;
+
+        return math::abs(s) < relaxed_epsilon ? 0
+            : s > zero ? 1 
+            : -1;
+    }
+};
+
+
+
 template <typename Ring>
 struct buffered_piece_collection
 {
@@ -131,7 +185,7 @@ struct buffered_piece_collection
 	// To check clustered locations we keep track of segments being opposite somewhere
 	std::set<segment_identifier> m_in_opposite_segments;
 
-	struct buffer_occupation_info : public occupation_info<angle_info<coordinate_type> >
+	struct buffer_occupation_info : public occupation_info<angle_info<point_type, coordinate_type> >
 	{
 		std::set<segment_identifier> seg_ids;
 		std::set<int> turn_indices;
@@ -243,11 +297,6 @@ struct buffered_piece_collection
 
 				iterator next2 = next_point(ring2, it2);
 
-				if (piece1.index == 21 && piece2.index == 32)
-				{
-					int kkk = 0;
-				}
-
                 turn_policy::apply(*prev1, *it1, *next1,
                                     *prev2, *it2, *next2,
                                     the_model, std::back_inserter(m_turns));
@@ -294,23 +343,45 @@ struct buffered_piece_collection
         return segment_relation_disjoint;
 	}
 
-    inline void add_angles(int index, point_type const& point, buffer_turn_operation<point_type> const& operation)
+    inline void add_angles(int turn_index, int operation_index, point_type const& point, buffer_turn_operation<point_type> const& operation)
     {
-        buffer_occupation_info& info = m_occupation_map.find_or_insert(point);
-        info.turn_indices.insert(index);
-        if (info.seg_ids.count(operation.seg_id) <= 0)
-        {
-            info.seg_ids.insert(operation.seg_id);
-            add_incoming_and_outgoing_angles(point, 
-						offsetted_rings[operation.seg_id.multi_index], 
-						operation.seg_id.segment_index, 
-						info);
-        }
+        point_type mapped_point;
+        buffer_occupation_info& info = m_occupation_map.find_or_insert(point, mapped_point);
+    	info.turn_indices.insert(turn_index);
+        info.seg_ids.insert(operation.seg_id);
+        add_incoming_and_outgoing_angles(mapped_point, point, 
+					offsetted_rings[operation.seg_id.multi_index], 
+                    turn_index, operation_index,
+					operation.seg_id, 
+					info);
     }
+
+    inline void add_angles(int turn_index)
+    {
+		if (! m_occupation_map.contains_turn_index(turn_index))
+		{
+			m_occupation_map.insert_turn_index(turn_index);
+
+			buffer_turn_info<point_type> const& turn = m_turns[turn_index];
+
+//std::cout << "Adding point " << turn_index << " " << geometry::wkt(turn.point) << std::endl;
+
+			add_angles(turn_index, 0, turn.point, turn.operations[0]);
+			add_angles(turn_index, 1, turn.point, turn.operations[1]);
+		}
+    }
+
+
 
     inline void classify_turn(buffer_turn_info<point_type>& turn, piece const& pc) const
     {
         if (pc.type == buffered_flat_end)
+        {
+            return;
+        }
+
+        // Don't check against a piece of which is was preferred in the "situations" for multi - map
+        if (turn.piece_indices_to_skip.count(pc.index) > 0)
         {
             return;
         }
@@ -346,11 +417,19 @@ struct buffered_piece_collection
 			return;
 		}
 
+        if (turn.operations[0].piece_index == 9 && turn.operations[1].piece_index == 35
+            && (pc.index == 3 || pc.index == 9 || pc.index == 35))
+        {
+            double epsilon = std::numeric_limits<double>::epsilon();
+            int kkk = 0;
+        }
+
+
 		segment_identifier on_segment_seg_id;
 
 		buffered_ring<Ring> const& ring = offsetted_rings[seg_id.multi_index];
 
-        int const side_offsetted = side_on_convex_range<side_strategy>(turn.point, 
+        int const side_offsetted = side_on_convex_range<side_strategy >(turn.point, 
 						boost::begin(ring) + seg_id.segment_index, 
 						boost::begin(ring) + pc.last_segment_index,
 						seg_id, on_segment_seg_id);
@@ -370,9 +449,6 @@ struct buffered_piece_collection
         }
         if (side_helper == 0)
         {
-			//BOOST_AUTO(d1, geometry::comparable_distance(turn.point, pc.helper_segments.back()));
-			//BOOST_AUTO(d2, geometry::comparable_distance(turn.point, pc.helper_segments.front()));
-            //if (d1 < 0.1 || d2 < 0.1)
 			if (geometry::equals(turn.point, pc.helper_segments.back())
 				|| geometry::equals(turn.point, pc.helper_segments.front()))
             {
@@ -397,43 +473,509 @@ struct buffered_piece_collection
         }
     }
 
+    inline void debug_preference(std::string const& caption, std::set<int> const& indices) const
+    {
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
+        std::cout << caption << ": " << indices.size() << std::endl;
+        for (auto sit = indices.begin(); sit != indices.end(); ++sit)
+        {
+            int const index = *sit;
+            std::cout << "Keep "  << index // << "[" << sit->second << "]"
+                << " "<< si(m_turns[index].operations[0].seg_id)
+                << " "<< si(m_turns[index].operations[1].seg_id)
+                << " " << m_turns[index].operations[0].piece_index
+                << "/" << m_turns[index].operations[1].piece_index
+                << " " << method_char(m_turns[index].method)
+                << " " << operation_char(m_turns[index].operations[0].operation)
+                << "/" << operation_char(m_turns[index].operations[1].operation)
+				<< std::endl;
+        }
+#endif
+    }
+
+    template <typename T>
+    static inline std::pair<T, T> ordered_pair(T const& first, T const& second)
+    {
+        return first < second ? std::make_pair(first, second) : std::make_pair(second, first);
+    }
+
+    std::map<std::pair<segment_identifier, segment_identifier>, std::set<int> > turns_per_segment;
+    inline void fill_segment_map()
+    {
+        turns_per_segment.clear();
+        int index = 0;
+        for (typename boost::range_iterator<turn_vector_type>::type it =
+            boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
+        {
+            turns_per_segment
+                [
+                    ordered_pair
+                        (
+                            m_turns[index].operations[0].seg_id,
+                            m_turns[index].operations[1].seg_id
+                        )
+                ].insert(index);
+        }
+    }
+
+    template <std::size_t Index, typename Turn>
+    static inline bool corresponds(Turn const& turn, segment_identifier const& seg_id)
+    {
+        return turn.operations[Index].operation == detail::overlay::operation_union
+            && turn.operations[Index].seg_id == seg_id;
+    }
+
+    inline bool prefer_one(std::set<int>& indices) const
+    {
+        std::map<segment_identifier, int> map;
+        for (auto sit = indices.begin(); sit != indices.end(); ++sit)
+        {
+            int const index = *sit;
+            map[m_turns[index].operations[0].seg_id]++;
+            map[m_turns[index].operations[1].seg_id]++;
+        }
+        std::set<segment_identifier> segment_occuring_once;
+        for (auto mit = map.begin(); mit != map.end(); ++mit)
+        {
+            if (mit->second == 1)
+            {
+                segment_occuring_once.insert(mit->first);
+            }
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_PREFER
+            std::cout << si(mit->first) << " " << mit->second << std::endl;
+#endif
+        }
+
+        if (segment_occuring_once.size() == 2)
+        {
+            // Try to find within all turns a turn with these two segments
+
+            std::set<segment_identifier>::const_iterator soo_it = segment_occuring_once.begin();
+            segment_identifier front = *soo_it;
+            soo_it++;
+            segment_identifier back = *soo_it;
+
+            std::pair<segment_identifier, segment_identifier> pair = ordered_pair(front, back);
+            auto it = turns_per_segment.find(pair);
+            if (it != turns_per_segment.end())
+            {
+                debug_preference("Found", it->second);
+                // Check which is the union/continue
+                segment_identifier good;
+                for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
+                {
+                    if (m_turns[*sit].operations[0].operation == detail::overlay::operation_union)
+                    {
+                        good = m_turns[*sit].operations[0].seg_id;
+                    }
+                    else if (m_turns[*sit].operations[1].operation == detail::overlay::operation_union)
+                    {
+                        good = m_turns[*sit].operations[1].seg_id;
+                    }
+                }
+
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_PREFER
+                std::cout << "Good: " << si(good) << std::endl;
+#endif
+
+                // Find in indexes-to-keep this segment with the union. Discard the other one
+                std::set<int> ok_indices;
+                for (auto sit = indices.begin(); sit != indices.end(); ++sit)
+                {
+                    if (corresponds<0>(m_turns[*sit], good) || corresponds<1>(m_turns[*sit], good))
+                    {
+                        ok_indices.insert(*sit);
+                    }
+                }
+                if (ok_indices.size() > 0 && ok_indices.size() < indices.size())
+                {
+                    indices = ok_indices;
+                    ////std::cout << "^";
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+	inline void get_left_turns(buffer_occupation_info& info)
+	{
+        std::set<std::pair<int, int> > keep_indices;
+		info.get_left_turns(m_turns, info.turn_indices, keep_indices);
+
+		if (keep_indices.empty())
+		{
+			return;
+		}
+
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
+		for (std::set<std::pair<int, int> >::const_iterator sit = keep_indices.begin();
+			sit != keep_indices.end();
+			++sit)
+        {
+            std::cout << " " << sit->first << "[" << sit->second << "]";
+        }
+        std::cout << std::endl;
+#endif
+
+        // We have to create a version of the set with only turn_indices, ki
+        std::set<int> ki;
+		for (std::set<std::pair<int, int> >::const_iterator sit = keep_indices.begin();
+			sit != keep_indices.end();
+			++sit)
+		{
+            ki.insert(sit->first);
+
+            if (m_turns[sit->first].both(detail::overlay::operation_union))
+            {
+                // Avoid both turns of a u/u turn to be included.
+                if (keep_indices.count(std::make_pair(sit->first, 1 - sit->second)) == 0)
+                {
+                    m_turns[sit->first].operations[1 - sit->second].operation = detail::overlay::operation_none;
+                }
+#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
+                else if (m_turns[sit->first].both(detail::overlay::operation_union))
+                {
+                    m_turns[sit->first].count_on_uu++;
+                }
+#endif
+            }
+
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
+                std::cout << "Keep "  << sit->first << "[" << sit->second << "]"
+                    << " "<< si(m_turns[sit->first].operations[0].seg_id)
+                    << " "<< si(m_turns[sit->first].operations[1].seg_id)
+                    << " " << m_turns[sit->first].operations[0].piece_index
+                    << "/" << m_turns[sit->first].operations[1].piece_index
+                    << " " << method_char(m_turns[sit->first].method)
+                    << " " << operation_char(m_turns[sit->first].operations[0].operation)
+                    << "/" << operation_char(m_turns[sit->first].operations[1].operation)
+
+					<< std::endl;
+#endif
+
+        }
+
+        if (ki.size() == 2)
+        {
+            debug_preference("Keep", ki);
+            prefer_one(ki);
+            debug_preference("Kept", ki);
+        }
+
+		for (std::set<int>::const_iterator sit1 = info.turn_indices.begin();
+			sit1 != info.turn_indices.end();
+			++sit1)
+		{
+			if (ki.count(*sit1) == 0)
+			{
+        		m_turns[*sit1].count_on_multi++;
+            }
+            else
+            {
+		        for (std::set<int>::const_iterator sit2 = info.turn_indices.begin();
+			        sit2 != info.turn_indices.end();
+			        ++sit2)
+		        {
+			        if (sit2 != sit1)
+			        {
+				        m_turns[*sit1].piece_indices_to_skip.insert(m_turns[*sit2].operations[0].piece_index);
+				        m_turns[*sit1].piece_indices_to_skip.insert(m_turns[*sit2].operations[1].piece_index);
+			        }
+		        }
+            }
+        }
+	}
+
+	inline int piece_count(buffer_occupation_info const& info)
+	{
+		std::set<int> piece_indices;
+
+		for (std::set<int>::const_iterator sit = info.turn_indices.begin();
+			sit != info.turn_indices.end();
+			++sit)
+		{
+			piece_indices.insert(m_turns[*sit].operations[0].piece_index);
+			piece_indices.insert(m_turns[*sit].operations[1].piece_index);
+		}
+		return piece_indices.size();
+	}
+
 	inline void classify_occupied_locations()
 	{
+        fill_segment_map();
+
         for (typename boost::range_iterator<typename occupation_map_type::map_type>::type it =
 	            boost::begin(m_occupation_map.map);
 			it != boost::end(m_occupation_map.map); ++it)
         {
 	        buffer_occupation_info& info = it->second;
-			if (info.occupied())
+            int const pc = piece_count(info);
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
+            std::cout << std::endl << "left turns: " << pc << " "
+                //<< std::setprecision(20)
+                << geometry::wkt(it->first) << std::endl;
+#endif
+			if (pc > 2)
 			{
-				for (std::set<int>::const_iterator sit = info.turn_indices.begin();
-					sit != info.turn_indices.end();
-					++sit)
+				if (info.occupied())
 				{
-					m_turns[*sit].count_on_occupied++;
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
+                    std::cout << "-> occupied" << std::endl;
+
+                    // std::set<int> turn_indices;
+                    //std::set<std::pair<int, int> > keep_indices;
+                    //info.get_left_turns(it->first, m_turns, turn_indices, keep_indices); // just for debug-info
+
+#endif
+					for (std::set<int>::const_iterator sit = info.turn_indices.begin();
+						sit != info.turn_indices.end();
+						++sit)
+					{
+						m_turns[*sit].count_on_occupied++;
+					}
 				}
+				else
+				{
+					get_left_turns(info);
+				}
+	//std::cout << geometry::wkt(it->first) << " " << int(info.occupied()) << std::endl;
 			}
-//std::cout << geometry::wkt(it->first) << " " << int(info.occupied()) << std::endl;
         }
 	}
+
+#define BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
+	inline int get_side(point_type const& point, Ring const& ring, int segment_index)
+	{
+		auto it = boost::begin(ring) + segment_index;
+		auto prev = it++;
+		return side_strategy::apply(point, *prev, *it);
+	}
+#endif
+
+    template <typename Iterator>
+    static inline point_type const& select_for_side(Iterator first, Iterator second, int index)
+    {
+        return index == 0 ? *first : *second;
+    }
+
+
+	inline int get_side(segment_identifier const& seg_id1, segment_identifier const& seg_id2, int which = 1) const
+	{
+        Ring const& ring1 = offsetted_rings[seg_id1.multi_index];
+        Ring const& ring2 = offsetted_rings[seg_id2.multi_index];
+
+		auto it1 = boost::begin(ring1) + seg_id1.segment_index;
+		auto it2 = boost::begin(ring2) + seg_id2.segment_index;
+
+		auto prev1 = it1++;
+		auto prev2 = it2++;
+
+		int code1 = side_strategy::apply(select_for_side(prev1, it1, which), *prev2, *it2);
+		int code2 = side_strategy::apply(select_for_side(prev2, it2, which), *prev1, *it1);
+
+        if (code1 == 1 && code2 == -1) return 1;
+        if (code1 == -1 && code2 == 1) return -1;
+
+        // ROBUSTNESS: in near collinear cases one might be zero, the other non-zero.
+        // This happens several times.
+        if (code1 != 0) return code1;
+        if (code2 != 0) return -code2;
+
+  //      // Check if the other side gives some more info
+  //      // (I've never seen this is the case though it might be so, if they are much longer.
+		//int code1f = side_strategy::apply(*prev1, *prev2, *it2);
+		//int code2f = side_strategy::apply(*prev2, *prev1, *it1);
+
+  //      if (code1f != 0 || code2f != 0)
+  //      {
+  //          std::cout << "From: " << code1f << " " << code2f << std::endl;
+  //          if (code1f != 0) return -code1f;
+  //          if (code2f != 0) return code2f;
+  //      }
+
+        // Collinear?
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
+        //std::cout << "Collinear: " << code1 << " " << code2 << std::endl;
+#endif
+        return 0;
+	}
+
+
+
+	inline void debug_segment(segment_identifier id)
+	{
+        auto const& ring = offsetted_rings[id.multi_index];
+		auto it = boost::begin(ring) + id.segment_index;
+		auto prev = it++;
+		geometry::model::referring_segment<point_type const&> segment(*prev, *it);
+        //std::cout << geometry::wkt(*prev) << " " << geometry::wkt(*it) << std::endl;
+	}
+
+
+	struct cluster_info
+	{
+		inline cluster_info(int i, point_type p, buffer_turn_operation<point_type> op)
+			: turn_index(i)
+			, point(p)
+			, operation(op)
+		{}
+
+		inline cluster_info()
+			: turn_index(-1)
+    	{}
+
+		int turn_index;
+		point_type point;
+		buffer_turn_operation<point_type> operation;
+	};
+
+    struct clustered_info
+    {
+        std::vector<cluster_info> intersecting_segments;
+        std::set<segment_identifier> intersecting_ids;
+        int piece_index;
+    };
+
+#ifdef OLD
+    struct situation_info
+    {
+        std::set<int> turn_indices;
+        std::set<segment_identifier> seg_ids;
+    };
+#endif
+
+	inline bool add_mutual_intersection(clustered_info const& cluster, segment_identifier const& seg_id)
+	{
+		bool result = false;
+        //if (cluster.intersecting_ids.count(seg_id) > 0)
+		for(auto it = cluster.intersecting_segments.begin(); it != cluster.intersecting_segments.end(); it++)
+		{
+			if (it->operation.seg_id == seg_id)
+			{
+                //add_angles(it->turn_index);
+				//add_angles(it->turn_index, it->point, it->operation);
+				result = true;
+    		}
+		}
+		return result;
+	}
+
+	inline void add_mutual_intersections(clustered_info const& cluster, std::map<segment_identifier, clustered_info> const& map)
+	{
+		for(auto it1 = cluster.intersecting_segments.begin(); it1 != cluster.intersecting_segments.end(); it1++)
+		{
+			auto const& other_cluster_it = map.find(it1->operation.seg_id);
+			if (other_cluster_it != map.end())
+			{
+				for(auto it2 = it1 + 1; it2 != cluster.intersecting_segments.end(); it2++)
+				{
+					if (! m_occupation_map.contains_turn_index(it1->turn_index)
+						|| ! m_occupation_map.contains_turn_index(it2->turn_index))
+					{
+						// Either these two segments intersect, or they are perfectly collinear.
+						// First check the intersection:
+						if (add_mutual_intersection(other_cluster_it->second, it2->operation.seg_id))
+						{
+							////std::cout << "#";
+							add_angles(it1->turn_index);
+							add_angles(it2->turn_index);
+						}
+						else
+						{
+							// Then the collinearity
+							int const code = get_side(it1->operation.seg_id, it2->operation.seg_id);
+							if (code == 0)
+							{
+								////std::cout << "1";
+								add_angles(it1->turn_index);
+								add_angles(it2->turn_index);
+							}
+							else 
+							{
+								int const code = get_side(it1->operation.seg_id, it2->operation.seg_id, 0);
+								if (code == 0)
+								{
+									////std::cout << "0";
+									add_angles(it1->turn_index);
+									add_angles(it2->turn_index);
+								}
+								else if (geometry::equals(it1->point, it2->point))
+								{
+									////std::cout << "*";
+									add_angles(it1->turn_index);
+									add_angles(it2->turn_index);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+    inline void add_multi_intersections_to_occupation_map()
+	{
+        // Pass 1: create map of all segments
+		typedef std::map<segment_identifier, clustered_info> map_type;
+		map_type map;
+
+		int index = 0;
+        for (typename boost::range_iterator<turn_vector_type>::type it =
+            boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
+        {
+			buffer_turn_info<point_type> const& turn = *it;
+
+			// if (! turn.both(detail::overlay::operation_union))
+			{
+
+				// Take care with all the indices
+				map[turn.operations[0].seg_id].piece_index = turn.operations[0].piece_index;
+				map[turn.operations[0].seg_id].intersecting_segments.push_back(cluster_info(index, turn.point, turn.operations[1]));
+				map[turn.operations[0].seg_id].intersecting_ids.insert(turn.operations[1].seg_id);
+
+				map[turn.operations[1].seg_id].piece_index = turn.operations[1].piece_index;
+				map[turn.operations[1].seg_id].intersecting_segments.push_back(cluster_info(index, turn.point, turn.operations[0]));
+				map[turn.operations[1].seg_id].intersecting_ids.insert(turn.operations[0].seg_id);
+			}
+		}
+
+        // Pass 2: 
+        // Verify all segments crossing with more than one segment, and if they intersect each other,
+        // at that pair
+		for (typename map_type::const_iterator mit = map.begin(); mit != map.end(); ++mit)
+		{
+			if (mit->second.intersecting_segments.size() > 1)
+			{
+				add_mutual_intersections(mit->second, map);
+			}
+		}
+    }
 
 	inline void get_occupation()
     {
 		fill_opposite_segments();
 
+        // Pass 1: fill all segments part of opposite segments
         int index = 0;
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
 			buffer_turn_info<point_type>& turn = *it;
+//std::cout << "Referring to point " << geometry::wkt(turn.point) << std::endl;
 			if (m_in_opposite_segments.count(turn.operations[0].seg_id) > 0
 				|| m_in_opposite_segments.count(turn.operations[1].seg_id) > 0)
 			{
-				add_angles(index, turn.point, turn.operations[0]);
-				add_angles(index, turn.point, turn.operations[1]);
+				add_angles(index);
 			}
 		}
 
+        // Pass 2: add multi intersection
+        add_multi_intersections_to_occupation_map();
+
+        // Pass 3: fill all segments intersecting in points present in the map
         index = 0;
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
@@ -445,9 +987,7 @@ struct buffered_piece_collection
                 // See if it is in the map
                 if (m_occupation_map.contains(turn.point))
                 {
-//std::cout << "Adding point " << geometry::wkt(turn.point) << std::endl;
-				    add_angles(index, turn.point, turn.operations[0]);
-				    add_angles(index, turn.point, turn.operations[1]);
+				    add_angles(index);
                 }
 			}
 		}
@@ -462,7 +1002,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
 		{
-            if (it->count_on_occupied == 0)
+            //if (it->count_on_occupied == 0)
             {
                 typename std::vector<piece>::const_iterator pit;
                 for (pit = boost::begin(m_pieces);
@@ -473,18 +1013,38 @@ struct buffered_piece_collection
                 }
             }
         }
+    }
 
+    template <typename Turn>
+    inline bool classify_turn_inside(Turn const& turn) const
+    {
+        return turn.count_within > 0 
+            || turn.count_on_multi > 0
+            || turn.count_on_helper > 0
+			|| turn.count_on_occupied > 0
+            ;
+    }
+
+    inline void classify_inside()
+    {
 		// Set results:
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            if (it->count_within > 0 
-                || it->count_on_helper > 0
-				|| it->count_on_occupied > 0
-				)
+            if (classify_turn_inside(*it))
             {
                 it->location = inside_buffer;
             }
+
+#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
+            else if (it->count_on_uu > 0)
+            {
+                extern int g_count_double_uu;
+                g_count_double_uu++;
+                std::cout << "UU";
+            }
+#endif
+
         }
     }
 
@@ -533,6 +1093,7 @@ struct buffered_piece_collection
 		get_occupation();
         classify_occupied_locations();
         classify_turns();
+        classify_inside();
 
         if (boost::is_same<typename tag_cast<typename tag<Geometry>::type, areal_tag>::type, areal_tag>())
         {

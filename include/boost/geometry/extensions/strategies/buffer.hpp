@@ -227,12 +227,13 @@ struct join_round
         dx2 /= buffer_distance;
         dy2 /= buffer_distance;
 
-        promoted_type angle_diff = std::acos(dx1 * dx2 + dy1 * dy2);
+        promoted_type angle_diff = acos(dx1 * dx2 + dy1 * dy2);
 
         // Default might be 100 steps for a full circle (2 pi)
         promoted_type const steps_per_circle = 100.0;
-        int n = int(steps_per_circle * angle_diff 
-                    / (2.0 * geometry::math::pi<promoted_type>()));
+		promoted_type two = 2.0;
+        int n = boost::numeric_cast<int>(steps_per_circle * angle_diff 
+                    / (two * geometry::math::pi<promoted_type>()));
 
 		if (n > 1000)
 		{
@@ -245,7 +246,7 @@ struct join_round
 			return;
 		}
 
-        promoted_type const angle1 = std::atan2(dy1, dx1);
+        promoted_type const angle1 = atan2(dy1, dx1);
         promoted_type diff = angle_diff / promoted_type(n);
         promoted_type a = angle1 - diff;
 
