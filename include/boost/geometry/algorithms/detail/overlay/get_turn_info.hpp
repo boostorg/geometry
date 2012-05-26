@@ -250,9 +250,15 @@ struct touch : public base_turn_handler
             int const side_pk_q2 = SideStrategy::apply(qj, qk, pk);
             int const side_pk_p  = SideStrategy::apply(pi, pj, pk);
             int const side_qk_q  = SideStrategy::apply(qi, qj, qk);
+
+            bool const both_continue = side_pk_p == 0 && side_qk_q == 0;
+            bool const robustness_issue_in_continue = both_continue && side_pk_q2 != 0;
+
             bool const q_turns_left = side_qk_q == 1;
             bool const block_q = side_qk_p1 == 0
-                        && ! same(side_qi_p1, side_qk_q);
+                        && ! same(side_qi_p1, side_qk_q)
+                        && ! robustness_issue_in_continue
+                        ;
 
             // If Pk at same side as Qi/Qk
             // (the "or" is for collinear case)
