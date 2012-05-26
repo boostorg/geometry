@@ -122,7 +122,7 @@ inline void part_area_and_perimeter(Range const& range,
     // Do the same for distance to get correct ratio (though this might be discussed)
     perimeter += distance_strategy.apply(*it2, *it1);
 
-    area = abs(area_strategy.result(area_state));
+    area = geometry::math::abs(area_strategy.result(area_state));
 }
 
 

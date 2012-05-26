@@ -278,7 +278,7 @@ struct remove_elongated_spikes
             coordinate_type p = geometry::perimeter(triangle);
             if (p > m_zero)
             {
-                coordinate_type a = abs(geometry::area(triangle));
+                coordinate_type a = geometry::math::abs(geometry::area(triangle));
                 coordinate_type prop1 = a / p;
                 coordinate_type prop2 = d1 / p;
 
