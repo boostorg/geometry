@@ -323,6 +323,11 @@ void test_areal()
                 1, 0, if_typed<ct, float>(19, 20), 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
                 1, 0, if_typed_tt<ct>(20, 19), 21.07612);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
+                1, 0, if_typed_tt<ct>(16, 14), 15.6569);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_t_ref", buffer_rt_t[1], buffer_rt_t[0],
+                1, 0, if_typed_tt<ct>(16, 14), 15.6569);
 }
 
 template <typename P>
