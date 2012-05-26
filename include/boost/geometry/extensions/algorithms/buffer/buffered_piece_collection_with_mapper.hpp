@@ -35,42 +35,45 @@ struct buffered_piece_collection_with_mapper
     template <typename Mapper>
     inline void map_opposite_locations(Mapper& mapper)
     {
-        for (typename boost::range_iterator<clustered_location_type const>::type it =
-            boost::begin(clustered_turn_locations); 
-            it != boost::end(clustered_turn_locations); ++it)
+        for (typename boost::range_iterator<typename occupation_map_type::map_type>::type it =
+            boost::begin(m_occupation_map.map); 
+            it != boost::end(m_occupation_map.map); ++it)
         {
-			mapper.map(it->first, "fill:rgb(0,128,0);", 3);
+			mapper.map(it->first, it->second.occupied() ? "fill:rgb(255,0,255);" : "fill:rgb(0,192,0);", 7);
 
     		std::ostringstream out;
-			out << it->second.angles.size();
+			out << it->second.angles.size() << std::endl;
             for (std::set<int>::const_iterator sit = it->second.turn_indices.begin(); sit != it->second.turn_indices.end(); ++sit)
             {
                 out << "," << *sit;
             }
-    		mapper.text(it->first, out.str(), "fill:rgb(0,128,0);font-family='Arial';font-size:8px", 6, 8);
+    		mapper.text(it->first, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:10px", 6, 8);
 
             for (unsigned int i = 0; i < it->second.angles.size(); i++)
             {
+                double const angle = it->second.angles[i].angle;
+                bool const incoming = it->second.angles[i].incoming;
+                segment_identifier seg_id = it->second.angles[i].seg_id;
+
                 geometry::model::linestring<point_type> line;
-                angle_info const& tp = it->second.angles[i];
                 point_type p1, p2;
-                geometry::set<0>(p1, geometry::get<0>(it->first) + cos(tp.angle) * 0.1);
-                geometry::set<1>(p1, geometry::get<1>(it->first) + sin(tp.angle) * 0.1);
-                geometry::set<0>(p2, geometry::get<0>(it->first) + cos(tp.angle) * 0.4);
-                geometry::set<1>(p2, geometry::get<1>(it->first) + sin(tp.angle) * 0.4);
+                geometry::set<0>(p1, geometry::get<0>(it->first) + cos(angle) * 0.1);
+                geometry::set<1>(p1, geometry::get<1>(it->first) + sin(angle) * 0.1);
+                geometry::set<0>(p2, geometry::get<0>(it->first) + cos(angle) * 0.4);
+                geometry::set<1>(p2, geometry::get<1>(it->first) + sin(angle) * 0.4);
     			std::ostringstream out;
-                //out << tp.angle << " " << int(tp.incoming);
-                out << (tp.incoming ? "i" : "o") << " " << i;
-                if (tp.incoming)
+                out << (incoming ? "i" : "o") << " " << si(seg_id);
+                // out << " " << angle;
+                if (incoming)
                 {
                     int offset = 7;
-                    if (tp.debug) offset += 5;
-                    out << " " << tp.debug_info;
+                    //if (tp.debug) offset += 5;
+                    //out << " " << tp.debug_info;
                     line.push_back(p1);
                     line.push_back(p2);
     			    mapper.map(line, "stroke:rgb(0,0,255);stroke-width:1", 1);
     			    mapper.map(p1, "fill:rgb(0,0,0);", 2);
-    			    mapper.text(p2, out.str(), "fill:rgb(0,0,255);font-family='Arial';font-size:8px", 2, offset);
+    			    mapper.text(p2, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:8px", 2, offset);
                 }
                 else
                 {
@@ -78,7 +81,7 @@ struct buffered_piece_collection_with_mapper
                     line.push_back(p2);
     			    mapper.map(line, "stroke:rgb(255,0,0);stroke-width:1", 1);
     			    mapper.map(p2, "fill:rgb(0,0,0);", 2);
-    			    mapper.text(p2, out.str(), "fill:rgb(0,0,255);font-family='Arial';font-size:8px", 2, -2);
+    			    mapper.text(p2, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:8px", 2, -2);
                 }
             }
         }
@@ -108,7 +111,9 @@ struct buffered_piece_collection_with_mapper
 					case inside_original : fill = "fill:rgb(0,0,255);"; color = 'b'; break;
 				}
 				std::ostringstream out;
-				out << it->operations[0].piece_index << "/" << it->operations[1].piece_index << std::endl;
+				out << it->operations[0].piece_index << "/" << it->operations[1].piece_index 
+                    << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
+                    << std::endl;
 				//out << " " <<  m_pieces[it->operations[0].piece_index].first_seg_id.segment_index
 				//     << "+" << m_pieces[it->operations[1].piece_index].first_seg_id.segment_index;
 				//out << " " <<  m_pieces[it->operations[0].piece_index].index
@@ -123,6 +128,7 @@ struct buffered_piece_collection_with_mapper
 					<< "-" << it->count_on_corner
 					<< "-" << it->count_on_offsetted
 					<< "-" << it->count_on_occupied
+					<< "-" << it->count_on_multi
 					//<< it->debug_string
 					;
 				out << color << std::endl;

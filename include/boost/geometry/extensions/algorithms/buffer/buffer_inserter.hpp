@@ -157,15 +157,16 @@ struct buffer_range
             output_point_type p;
             segment_type s1(previous_p1, previous_p2);
             segment_type s2(first_p1, first_p2);
-            line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p);
-
-            std::vector<output_point_type> range_out;
-            join_strategy.apply(p, *begin, previous_p2, first_p1,
-                distance.apply(*(end - 1), *begin, side),
-                range_out);
-            if (! range_out.empty())
+            if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p))
             {
-                collection.add_piece(buffered_join, *begin, range_out);
+                std::vector<output_point_type> range_out;
+                join_strategy.apply(p, *begin, previous_p2, first_p1,
+                    distance.apply(*(end - 1), *begin, side),
+                    range_out);
+                if (! range_out.empty())
+                {
+                    collection.add_piece(buffered_join, *begin, range_out);
+                }
             }
 
             // Buffer is closed automatically by last closing corner (NOT FOR OPEN POLYGONS - TODO)
@@ -367,8 +368,8 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     //collection.map_offsetted(mapper);
 	//collection.map_offsetted_points(mapper);
-    collection.map_turns(mapper);
-    //collection.map_opposite_locations(mapper);
+	//collection.map_turns(mapper);
+    collection.map_opposite_locations(mapper);
 #endif
 
     collection.discard_rings();

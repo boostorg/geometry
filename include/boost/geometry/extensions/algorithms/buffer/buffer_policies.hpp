@@ -55,7 +55,12 @@ public :
                 state_type& state
                 )
     {
-std::cout << "WARNING " << reason << std::endl;
+#if defined(BOOST_GEOMETRY_COUNT_BACKTRACK_WARNINGS)
+extern int g_backtrack_warning_count;
+g_backtrack_warning_count++;
+#endif
+//std::cout << "!";
+//std::cout << "WARNING " << reason << std::endl;
 
         // TODO this is a copy of dissolve, check this for buffer
         state.m_good = false;
@@ -112,6 +117,11 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
     
     int count_within, count_on_helper, count_on_offsetted, count_on_corner;
 	int count_on_occupied;
+    int count_on_multi;
+#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
+    int count_on_uu;
+#endif
+    std::set<int> piece_indices_to_skip;
     
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 	std::string debug_string;
@@ -125,12 +135,38 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
         , count_on_offsetted(0)
         , count_on_corner(0)
 		, count_on_occupied(0)
+        , count_on_multi(0)
+#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
+        , count_on_uu(0)
+#endif
     {}
 };
 
 
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
+
+
+class si
+{
+private :
+    segment_identifier m_id;
+
+public :
+    inline si(segment_identifier const& id)
+        : m_id(id)
+    {}
+
+    template <typename Char, typename Traits>
+    inline friend std::basic_ostream<Char, Traits>& operator<<(
+            std::basic_ostream<Char, Traits>& os,
+            si const& s)
+    {
+        os << s.m_id.multi_index << "." << s.m_id.segment_index;
+        return os;
+    }
+};
+
 
 
 }} // namespace boost::geometry

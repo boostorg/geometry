@@ -22,9 +22,8 @@ namespace detail { namespace buffer
 template <int D>
 struct collinear_point_on_segment_check
 {
-    typedef double coordinate_type; // TODO just use one - they're all the same (for buffer)
-
-    static inline bool apply_sorted(coordinate_type const& subject, coordinate_type const& c1, coordinate_type const& c2)
+	template <typename T>
+    static inline bool apply_sorted(T const& subject, T const& c1, T const& c2)
     {
         return subject >= c1 && subject <= c2;
     }
@@ -32,6 +31,7 @@ struct collinear_point_on_segment_check
     template <typename P0, typename P1, typename P2>
     static inline bool apply(P0 const& subject, P1 const& p1, P2 const& p2)
     {
+	    typedef typename geometry::coordinate_type<P0>::type coordinate_type;
         coordinate_type const cs = geometry::get<D>(subject);
         coordinate_type const c1 = geometry::get<D>(p1);
         coordinate_type const c2 = geometry::get<D>(p2);
