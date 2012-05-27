@@ -9,7 +9,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OCCUPATION_INFO_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OCCUPATION_INFO_HPP
 
- #define BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
+#if ! defined(NDEBUG)
+  #define BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
+#endif
 
 #include <algorithm>
 #include <boost/range.hpp>
@@ -19,7 +21,8 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/iterators/closing_iterator.hpp>
-#include <boost/geometry/iterators/ever_circling_iterator.hpp>
+
+#include <boost/geometry/algorithms/detail/get_left_turns.hpp>
 
 
 namespace boost { namespace geometry
@@ -42,8 +45,7 @@ public :
     inline relaxed_less()
     {
         // TODO: adapt for ttmath, and maybe build the map in another way 
-        // (e.g. exact constellations of segment-id's, maybe adaptive.
-        //       for the moment take the sqrt (to consider it as comparable distances)
+        // (e.g. exact constellations of segment-id's), maybe adaptive.
         epsilon = std::numeric_limits<double>::epsilon() * 100.0;
     }
 
@@ -211,163 +213,14 @@ public :
 		return m_occupied;
 	}
 
-    static inline void debug_left_turn(AngleInfo const& ai, AngleInfo const& previous)
+    template <typename Turns, typename TurnSegmentIndices>
+    inline void get_left_turns(
+                    Turns& turns, TurnSegmentIndices const& turn_segment_indices,
+                    std::set<int>& keep_indices)
     {
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-		std::cout << "Angle: " << (ai.incoming ? "i" : "o") 
-            // << " " << si(ai.seg_id) 
-            << " " << (math::r2d * (ai.angle) )
-            << " turn: " << ai.turn_index << "[" << ai.operation_index << "]";
-
-        if (ai.turn_index != previous.turn_index
-            || ai.operation_index != previous.operation_index)
-        {
-            std::cout << " diff: " << math::r2d * math::abs(previous.angle - ai.angle);
-        }
-        std::cout << std::endl;
-#endif
+        std::sort(angles.begin(), angles.end(), angle_sort());
+        calculate_left_turns<AngleInfo>(angles, turns, turn_segment_indices, keep_indices);
     }
-
-    static inline void debug_left_turn(std::string const& caption, AngleInfo const& ai, AngleInfo const& previous,
-                int code = -99, int code2 = -99, int code3 = -99, int code4 = -99)
-    {
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-		std::cout << " " << caption << ": " 
-                << (ai.incoming ? "i" : "o") 
-                << " " << (math::r2d * (ai.angle) )
-                << " turn: " << ai.turn_index << "[" << ai.operation_index << "]"
-                << " " << (previous.incoming ? "i" : "o") 
-                << " " << (math::r2d * (previous.angle) )
-                << " turn: " << previous.turn_index << "[" << previous.operation_index << "]";
-
-        if (code != -99)
-        {
-            std::cout << " code: " << code << " , " << code2 << " , " << code3 << " , " << code4;
-        }
-        std::cout << std::endl;
-#endif
-    }
-
-    template <typename Turns>
-    static inline void include_left_turn(AngleInfo const& outgoing, AngleInfo const& incoming,
-                    Turns const& turns,
-                    std::set<int> const& turn_indices, 
-                    std::set<std::pair<int, int> >& keep_indices)
-    {
-        // Safety check
-		if (turn_indices.count(outgoing.turn_index) > 0
-            && turn_indices.count(incoming.turn_index) > 0)
-		{
-            // Check if this is the intended turn (of the two segments making an open angle with each other)
-            if (turns[outgoing.turn_index].operations[outgoing.operation_index].other_id == 
-                turns[incoming.turn_index].operations[incoming.operation_index].seg_id)
-            {
-                //if (turns[outgoing.turn_index].operations[outgoing.operation_index].operation == detail::overlay::operation_union
-                //    || turns[outgoing.turn_index].operations[outgoing.operation_index].operation == detail::overlay::operation_continue)
-                {
-                    // This is the left turn. Mark it and don't check it for other pieces
-                    keep_indices.insert(std::make_pair(outgoing.turn_index, outgoing.operation_index));
-                    //std::cout << " INC";
-                }
-            }
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-            //else
-            //{
-            //    std::cout << " SKIP " << outgoing.turn_index << "[" << outgoing.operation_index << "]" << std::endl;
-            //}
-#endif
-        }
-    }
-
-
-    template <typename Turns>
-    inline void get_left_turns(Turns const& turns, 
-                    std::set<int> const& turn_indices, 
-                    std::set<std::pair<int, int> >& keep_indices)
-    {
-        typedef typename strategy::side::services::default_strategy
-		    <
-			    typename cs_tag<typename AngleInfo::point_type>::type
-		    >::type side_strategy;
-
-		std::sort(angles.begin(), angles.end(), angle_sort());
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-        std::cout << "get_left_turns()" << std::endl;
-#endif
-
-		std::size_t i = 0;
-		std::size_t n = boost::size(angles);
-
-		typedef geometry::ever_circling_range_iterator<collection_type const> circling_iterator;
-		circling_iterator cit(angles);
-
-        debug_left_turn(*cit, *cit);
-		for(circling_iterator prev = cit++; i < n; prev = cit++, i++)
-		{
-            debug_left_turn(*cit, *prev);
-
-            bool include = ! geometry::math::equals(prev->angle, cit->angle)
-				&& ! prev->incoming
-				&& cit->incoming;
-
-            if (include)
-			{
-                // Go back to possibly include more same left outgoing angles:
-                // Because we check on side too we can take a large "epsilon"
-                circling_iterator back = prev - 1;
-
-				typename AngleInfo::angle_type eps = 0.00001;
-                int b = 1;
-				for(std::size_t d = 0; 
-                        math::abs(prev->angle - back->angle) < eps 
-                            && ! back->incoming 
-                            && d < n;
-                    d++)
-				{
-                    --back;
-                    ++b;
-                }
-
-                // Same but forward to possibly include more incoming angles
-                int f = 1;
-                circling_iterator forward = cit + 1;
-				for(std::size_t d = 0;
-                        math::abs(cit->angle - forward->angle) < eps 
-                            && forward->incoming 
-                            && d < n;
-                        d++)
-				{
-					++forward;
-                    ++f;
-                }
-
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-                std::cout << "HANDLE " << b << "/" << f << " ANGLES" << std::endl;
-#endif
-
-		        for(circling_iterator bit = prev; bit != back; --bit)
-		        {
-                    int code = side_strategy::apply(bit->direction_point, prev->intersection_point, prev->direction_point);
-                    int code2 = side_strategy::apply(prev->direction_point, bit->intersection_point, bit->direction_point);
-		            for(circling_iterator fit = cit; fit != forward; ++fit)
-		            {
-                        int code3 = side_strategy::apply(fit->direction_point, cit->intersection_point, cit->direction_point);
-                        int code4 = side_strategy::apply(cit->direction_point, fit->intersection_point, fit->direction_point);
-
-                        if (! (code == -1 && code2 == 1))
-                        {
-                            include_left_turn(*bit, *fit, turns, turn_indices, keep_indices);
-                            debug_left_turn("ALSO", *fit, *bit, code, code2, code3, code4);
-                        }
-                    }
-                }
-			}
-		}
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-        std::cout << "USE " << keep_indices.size() << " OF " << turn_indices.size() << " TURNS" << std::endl;
-#endif
-    }
-
 };
 
 
