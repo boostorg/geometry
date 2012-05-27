@@ -368,8 +368,8 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     //collection.map_offsetted(mapper);
 	//collection.map_offsetted_points(mapper);
-	//collection.map_turns(mapper);
-    collection.map_opposite_locations(mapper);
+	collection.map_turns(mapper);
+    //collection.map_opposite_locations(mapper);
 #endif
 
     collection.discard_rings();

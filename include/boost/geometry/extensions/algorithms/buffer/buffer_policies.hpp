@@ -101,9 +101,11 @@ template <typename Point>
 struct buffer_turn_operation : public detail::overlay::traversal_turn_operation<Point>
 {
     int piece_index;
+    bool include_in_occupation_map;
 
     inline buffer_turn_operation()
         : piece_index(-1)
+        , include_in_occupation_map(false)
     {}
 };
 
@@ -115,12 +117,14 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
     
     intersection_location_type location;
     
+    int priority;
     int count_within, count_on_helper, count_on_offsetted, count_on_corner;
 	int count_on_occupied;
     int count_on_multi;
 #if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
     int count_on_uu;
 #endif
+
     std::set<int> piece_indices_to_skip;
     
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
@@ -130,6 +134,7 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
     inline buffer_turn_info()
 		: is_opposite(false)
         , location(location_ok)
+        , priority(0)
         , count_within(0)
         , count_on_helper(0)
         , count_on_offsetted(0)
