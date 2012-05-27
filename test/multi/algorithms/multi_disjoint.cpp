@@ -21,6 +21,7 @@
 #include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 #include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
+#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 #include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
@@ -87,11 +88,15 @@ void test_all()
         false);
 
     // Not disjoint and not inside each other (in first ring) but wrapped (in second rings)
-    // TODO: fix this case
-    //test_disjoint<mp, mp>("no_ips2", 
-    //    "MULTIPOLYGON(((2 2,2 8,8 8,8 2,2 2)),((20 0,20 10,30 10,30 0,20 0)))",
-    //        "MULTIPOLYGON(((2 12,2 18,8 18,8 12,2 12)),((22 2,28 2,28 8,22 8,22 2)))",
-    //    false);
+    test_disjoint<mp, mp>("no_ips2", 
+        "MULTIPOLYGON(((2 2,2 8,8 8,8 2,2 2)),((20 0,20 10,30 10,30 0,20 0)))",
+            "MULTIPOLYGON(((2 12,2 18,8 18,8 12,2 12)),((22 2,28 2,28 8,22 8,22 2)))",
+        false);
+
+    test_disjoint<mp, mp>("no_ips2_rev", 
+        "MULTIPOLYGON(((2 12,2 18,8 18,8 12,2 12)),((22 2,28 2,28 8,22 8,22 2)))",
+        "MULTIPOLYGON(((2 2,2 8,8 8,8 2,2 2)),((20 0,20 10,30 10,30 0,20 0)))",
+        false);
 }
 
 int test_main(int, char* [])
