@@ -23,6 +23,7 @@
 
 
 
+
 static std::string const simplex
     = "MULTIPOLYGON(((0 1,2 5,5 3,0 1)),((1 1,5 2,5 0,1 1)))";
 
@@ -183,6 +184,27 @@ static std::string const rt_p16
 static std::string const rt_p17
     = "MULTIPOLYGON(((4 8,5 9,5 8,4 8)),((1 8,2 9,2 8,1 8)),((2 6,3 7,3 6,2 6)))";
 
+// Occupation map - outputting no valid turns (needing to take other turns into account)
+static std::string const rt_p18
+	= "MULTIPOLYGON(((7 6,8 7,8 6,7 6)),((7 3,7 4,8 3,7 3)),((5 4,6 5,6 4,5 4)))";
+
+// Occupation map - showing wrong approach in p17/p18, now new approach with keep_indices
+static std::string const rt_p19
+	= "MULTIPOLYGON(((0 5,1 6,1 5,0 5)),((0 7,0 8,1 7,0 7)),((3 4,3 5,4 4,3 4)))";
+
+// Occupation map: two non-collinear segments non-intersecting, needing relaxed_equal
+static std::string const rt_p20
+	= "MULTIPOLYGON(((2 3,2 4,3 4,3 3,2 3)),((0 5,0 6,1 6,0 5)),((2 7,2 8,3 8,2 7)))";
+
+// Occupation map: turn more right should still be included
+static std::string const rt_p21
+    = "MULTIPOLYGON(((4 2,4 3,5 3,4 2)),((4 1,5 2,5 1,4 1)),((5 2,6 3,6 2,5 2)))";
+
+
+static std::string const rt_p22
+    = "MULTIPOLYGON(((4 8,5 9,5 8,4 8)),((5 9,6 10,6 9,5 9)),((1 7,1 8,2 8,2 7,1 7)),((2 6,3 7,3 6,2 6)))";
+
+
 // Occupation map with a uu-turn
 static std::string const rt_q1
     = "MULTIPOLYGON(((4 6,4 7,5 7,5 6,4 6)),((1 6,1 7,2 7,2 6,1 6)),((1 9,1 10,2 10,2 9,1 9)))";
@@ -203,12 +225,9 @@ static std::string const rt_s1
 static std::string const rt_s2
     = "MULTIPOLYGON(((0 0,1 1,1 0,0 0)),((2 4,2 5,3 4,2 4)),((3.5 3.5,4 4,4 3,3 3,3 4,3.5 3.5)))";
 
-
-static std::string const rt_t1
-	= "MULTIPOLYGON(((5 4,5 5,6 4,5 4)),((1 2,2 3,2 2,1 2)),((6 0,7 1,7 0,6 0)),((1 0,2 1,2 0,1 0)),((7 5,7 6,8 5,7 5)),((6 2,6 3,7 3,6 2)),((8 4,8 5,9 5,8 4)),((4 4,4 5,5 5,4 4)))";
-static std::string const rt_t2
-	= "MULTIPOLYGON(((7 6,8 7,8 6,7 6)),((7 3,7 4,8 3,7 3)),((5 4,6 5,6 4,5 4)))";
-
+// Robustness issue in get_turn_info (touch, collinear, blocking q)
+static std::string const rt_t
+    = "MULTIPOLYGON(((1 3,1 4,2 3,1 3)),((1 4,0 3,0 4,0 5,1 4)))";
 
 
 
@@ -307,6 +326,10 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_p15", rt_p15, 'm', 23.6569, 1.0);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_p16", rt_p16, 'm', 23.4853, 1.0);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_p17", rt_p17, 'm', 25.3137, 1.0);
+    test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_p18", rt_p18, 'm', 23.3137, 1.0);
+    test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_p19", rt_p19, 'm', 25.5637, 1.0);
+    test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_p20", rt_p20, 'm', 25.4853, 1.0);
+    test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_p21", rt_p21, 'm', 17.1716, 1.0);
 
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_q1", rt_q1, 'm', 27, 1.0);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_q2", rt_q2, 'm', 26.4853, 1.0);
@@ -314,9 +337,9 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_r", rt_r, 'm', 21.0761, 1.0);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_s1", rt_s1, 'm', 20.4853, 1.0);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_s2", rt_s2, 'm', 24.6495, 1.0);
+    test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_t", rt_t, 'm', 15.6569, 1.0);
 
-    //test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_t1", rt_t1, 'm', 99, 1.0);
-    //test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_t2", rt_t2, 'm', 99, 1.0);
+    test_one<multi_polygon_type, buf::join_miter, polygon_type>("rt_p22", rt_p22, 'm', 99, 1.0);
 
 }
 
