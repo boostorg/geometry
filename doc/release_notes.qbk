@@ -33,6 +33,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/6696 6696] invalid intersection output, was (by chance) already fixed in Trunk before reported
 
 [*Additional functionality]
+* added algorithm "touches" (OGC SF compliant) for *polygon/*polygon
 
 [*Documentation]
 

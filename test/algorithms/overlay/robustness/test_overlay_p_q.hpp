@@ -31,6 +31,8 @@
 #include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/touches.hpp>
 
 struct p_q_settings
 {
@@ -99,6 +101,19 @@ static bool test_overlay_p_q(std::string const& caseid,
 
         if (wrong_d1 || wrong_d2)
         {
+            wrong = true;
+        }
+    }
+
+    if (true)
+    {
+        if ((area_i > 0 && bg::touches(p, q))
+            || (area_i <= 0 && bg::intersects(p, q) && ! bg::touches(p, q)))
+        {
+            std::cout << "Wrong 'touch'! " 
+                << " Intersection area: " << area_i
+                << " Touch gives: " << std::boolalpha << bg::touches(p, q)
+                << std::endl;
             wrong = true;
         }
     }
