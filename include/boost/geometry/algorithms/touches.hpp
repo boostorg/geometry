@@ -72,6 +72,10 @@ inline bool has_only_turns(Turns const& turns)
                     return false;
                 }
                 break;
+            case detail::overlay::method_none :
+            case detail::overlay::method_disjoint :
+            case detail::overlay::method_error :
+                break;
         }
     }
     return has_touch;
