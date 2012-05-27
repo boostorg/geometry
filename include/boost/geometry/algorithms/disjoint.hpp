@@ -45,6 +45,39 @@ namespace boost { namespace geometry
 namespace detail { namespace disjoint
 {
 
+template<typename Geometry>
+struct check_each_ring_for_within
+{
+    bool has_within;
+    Geometry const& m_geometry;
+
+    inline check_each_ring_for_within(Geometry const& g)
+        : has_within(false)
+        , m_geometry(g)
+    {}
+
+    template <typename Range>
+    inline void apply(Range const& range)
+    {
+        typename geometry::point_type<Range>::type p;
+        geometry::point_on_border(p, range);
+        if (geometry::within(p, m_geometry))
+        {
+            has_within = true;
+        }
+    }
+};
+
+template <typename FirstGeometry, typename SecondGeometry>
+inline bool rings_containing(FirstGeometry const& geometry1,
+                SecondGeometry const& geometry2)
+{
+    check_each_ring_for_within<FirstGeometry> checker(geometry1);
+    geometry::detail::for_each_range(geometry2, checker);
+    return checker.has_within;
+}
+
+
 struct assign_disjoint_policy
 {
     // We want to include all points:
@@ -117,45 +150,9 @@ struct disjoint_segment
     }
 };
 
-template<typename Geometry>
-struct check_each_ring_for_within
-{
-    bool has_within;
-    Geometry const& m_geometry;
-
-    inline check_each_ring_for_within(Geometry const& g)
-        : has_within(false)
-        , m_geometry(g)
-    {}
-
-    template <typename Range>
-    inline void apply(Range const& range)
-    {
-        typename geometry::point_type<Range>::type p;
-        geometry::point_on_border(p, range);
-        if (geometry::within(p, m_geometry))
-        {
-            has_within = true;
-        }
-    }
-};
-
-
-
 template <typename Geometry1, typename Geometry2>
 struct general_areal
 {
-
-    template <typename FirstGeometry, typename SecondGeometry>
-    static inline bool containing(FirstGeometry const& geometry1,
-                    SecondGeometry const& geometry2)
-    {
-        check_each_ring_for_within<FirstGeometry> checker(geometry1);
-        geometry::detail::for_each_range(geometry2, checker);
-        return checker.has_within;
-    }
-
-
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
         if (! disjoint_linear<Geometry1, Geometry2>::apply(geometry1, geometry2))
@@ -165,8 +162,8 @@ struct general_areal
 
         // If there is no intersection of segments, they might located
         // inside each other
-        if (containing(geometry1, geometry2)
-            || containing(geometry2, geometry1))
+        if (rings_containing(geometry1, geometry2)
+            || rings_containing(geometry2, geometry1))
         {
             return false;
         }
