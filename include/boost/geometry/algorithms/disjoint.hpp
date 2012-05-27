@@ -27,6 +27,7 @@
 #include <boost/geometry/core/reverse_dispatch.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/within.hpp>
@@ -116,11 +117,45 @@ struct disjoint_segment
     }
 };
 
+template<typename Geometry>
+struct check_each_ring_for_within
+{
+    bool has_within;
+    Geometry const& m_geometry;
+
+    inline check_each_ring_for_within(Geometry const& g)
+        : has_within(false)
+        , m_geometry(g)
+    {}
+
+    template <typename Range>
+    inline void apply(Range const& range)
+    {
+        typename geometry::point_type<Range>::type p;
+        geometry::point_on_border(p, range);
+        if (geometry::within(p, m_geometry))
+        {
+            has_within = true;
+        }
+    }
+};
+
 
 
 template <typename Geometry1, typename Geometry2>
 struct general_areal
 {
+
+    template <typename FirstGeometry, typename SecondGeometry>
+    static inline bool containing(FirstGeometry const& geometry1,
+                    SecondGeometry const& geometry2)
+    {
+        check_each_ring_for_within<FirstGeometry> checker(geometry1);
+        geometry::detail::for_each_range(geometry2, checker);
+        return checker.has_within;
+    }
+
+
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
         if (! disjoint_linear<Geometry1, Geometry2>::apply(geometry1, geometry2))
@@ -128,20 +163,10 @@ struct general_areal
             return false;
         }
 
-        typedef typename geometry::point_type<Geometry1>::type point_type;
-
         // If there is no intersection of segments, they might located
         // inside each other
-        point_type p1;
-        geometry::point_on_border(p1, geometry1);
-        if (geometry::within(p1, geometry2))
-        {
-            return false;
-        }
-
-        typename geometry::point_type<Geometry1>::type p2;
-        geometry::point_on_border(p2, geometry2);
-        if (geometry::within(p2, geometry1))
+        if (containing(geometry1, geometry2)
+            || containing(geometry2, geometry1))
         {
             return false;
         }
