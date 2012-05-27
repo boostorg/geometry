@@ -20,6 +20,9 @@
 
 [*Bugfixes]
 * the return type of comparable projected point strategy for integer points was wrong (integer), fixed
+* several robustness issues in intersection of segments and polygons, fixed
+* invalid intersection output is filtered out
+* disjoint for multi_polygon's might incorrectly return true, fixed
 
 [*Solved tickets]
 
@@ -27,6 +30,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/6584 6584] patch for bug in distance, applied
 * [@https://svn.boost.org/trac/boost/ticket/5730 5730] same issue as 6584, fixed
 * [@https://svn.boost.org/trac/boost/ticket/6166 6166] patch for missing transformation, applied
+* [@https://svn.boost.org/trac/boost/ticket/6696 6696] invalid intersection output, was (by chance) already fixed in Trunk before reported
 
 [*Additional functionality]
 
