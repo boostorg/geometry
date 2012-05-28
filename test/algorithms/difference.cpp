@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define TEST_ISOVIST
+// #define TEST_ISOVIST
 
 //#define BOOST_GEOMETRY_CHECK_WITH_POSTGIS
 
