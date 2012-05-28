@@ -84,13 +84,13 @@ inline bool has_only_turns(Turns const& turns)
 }}
 
 /*!
-\brief \brief_check{has at least one intersection (crossing or self-tangency)}
-\note This function can be called for one geometry (self-intersection) and
-    also for two geometries (intersection)
+\brief \brief_check{has at least one touching point (self-tangency)}
+\note This function can be called for one geometry (self-tangency) and
+    also for two geometries (touch)
 \ingroup touches
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
-\return \return_check{is self-intersecting}
+\return \return_check{is self-touching}
 
 \qbk{distinguish,one geometry}
 \qbk{[def __one_parameter__]}
@@ -129,13 +129,13 @@ inline bool touches(Geometry const& geometry)
 
 
 /*!
-\brief \brief_check2{have at least one intersection}
+\brief \brief_check2{have at least one touching point (tangent - non overlapping)}
 \ingroup touches
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
-\return \return_check2{intersect each other}
+\return \return_check2{touch each other}
 
 \qbk{distinguish,two geometries}
 \qbk{[include reference/algorithms/touches.qbk]}
