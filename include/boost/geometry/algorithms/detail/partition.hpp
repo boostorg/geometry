@@ -153,7 +153,7 @@ class partition_one_collection
     static inline void next_level(Box const& box,
             InputCollection const& collection,
             index_vector_type const& input,
-            int level, int min_elements,
+            int level, std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
     {
         if (boost::size(input) > 0)
@@ -176,7 +176,7 @@ public :
             InputCollection const& collection,
             index_vector_type const& input,
             int level,
-            int min_elements,
+            std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
     {
         box_policy.apply(box, level);
@@ -230,7 +230,7 @@ class partition_two_collections
             index_vector_type const& input1,
             InputCollection const& collection2,
             index_vector_type const& input2,
-            int level, int min_elements,
+            int level, std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
     {
         if (boost::size(input1) > 0 && boost::size(input2) > 0)
@@ -257,7 +257,7 @@ public :
             InputCollection const& collection1, index_vector_type const& input1,
             InputCollection const& collection2, index_vector_type const& input2,
             int level,
-            int min_elements,
+            std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
     {
         box_policy.apply(box, level);
@@ -335,7 +335,7 @@ public :
     template <typename InputCollection, typename VisitPolicy>
     static inline void apply(InputCollection const& collection,
             VisitPolicy& visitor,
-            int min_elements = 16,
+            std::size_t min_elements = 16,
             VisitBoxPolicy box_visitor = visit_no_policy()
             )
     {
@@ -377,7 +377,7 @@ public :
     static inline void apply(InputCollection const& collection1,
                 InputCollection const& collection2,
                 VisitPolicy& visitor,
-                int min_elements = 16,
+                std::size_t min_elements = 16,
                 VisitBoxPolicy box_visitor = visit_no_policy()
                 )
     {

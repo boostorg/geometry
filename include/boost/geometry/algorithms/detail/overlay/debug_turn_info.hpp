@@ -28,6 +28,7 @@ inline char method_char(detail::overlay::method_type const& method)
         case method_touch_interior : return 'm';
         case method_collinear : return 'c';
         case method_equal : return 'e';
+        case method_error : return '!';
         default : return '?';
     }
 }
@@ -42,6 +43,7 @@ inline char operation_char(detail::overlay::operation_type const& operation)
         case operation_intersection : return 'i';
         case operation_blocked : return 'x';
         case operation_continue : return 'c';
+        case operation_opposite : return 'o';
         default : return '?';
     }
 }

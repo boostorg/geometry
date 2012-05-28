@@ -87,15 +87,15 @@ void test_linestring()
     typedef typename bg::point_type<G>::type P;
 
     bg::clear(geometry);
-    BOOST_CHECK_EQUAL(boost::size(geometry), 0);
+    BOOST_CHECK_EQUAL(boost::size(geometry), 0u);
 
     bg::append(geometry, bg::make_zero<P>());
-    BOOST_CHECK_EQUAL(boost::size(geometry), 1);
+    BOOST_CHECK_EQUAL(boost::size(geometry), 1u);
 
     //std::cout << geometry << std::endl;
 
     bg::clear(geometry);
-    BOOST_CHECK_EQUAL(boost::size(geometry), 0);
+    BOOST_CHECK_EQUAL(boost::size(geometry), 0u);
 
 
     //P p = boost::range::front(geometry);

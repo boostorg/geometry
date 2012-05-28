@@ -42,7 +42,7 @@ struct copy_segment_point_multi
         BOOST_ASSERT
             (
                 seg_id.multi_index >= 0
-                && seg_id.multi_index < boost::size(multi)
+                && seg_id.multi_index < int(boost::size(multi))
             );
 
         // Call the single-version

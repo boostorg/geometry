@@ -83,7 +83,7 @@ struct get_ring<polygon_tag>
         BOOST_ASSERT
             (
                 id.ring_index >= -1
-                && id.ring_index < boost::size(interior_rings(polygon))
+                && id.ring_index < int(boost::size(interior_rings(polygon)))
             );
         return id.ring_index < 0
             ? exterior_ring(polygon)

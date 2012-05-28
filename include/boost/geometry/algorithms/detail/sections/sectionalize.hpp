@@ -254,7 +254,7 @@ struct sectionalize_part
                 Range const& range,
                 ring_identifier ring_id)
     {
-        if (boost::size(range) <= index)
+        if (int(boost::size(range)) <= index)
         {
             return;
         }

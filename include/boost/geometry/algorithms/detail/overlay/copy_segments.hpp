@@ -78,7 +78,7 @@ struct copy_segments_ring
         int const from_index = seg_id.segment_index + 1;
 
         // Sanity check
-        BOOST_ASSERT(from_index < boost::size(view));
+        BOOST_ASSERT(from_index < int(boost::size(view)));
 
         ec_iterator it(boost::begin(view), boost::end(view),
                     boost::begin(view) + from_index);
@@ -89,7 +89,7 @@ struct copy_segments_ring
         typedef typename boost::range_difference<Ring>::type size_type;
         size_type const count = from_index <= to_index
             ? to_index - from_index + 1
-            : boost::size(view) - from_index + to_index + 1;
+            : int(boost::size(view)) - from_index + to_index + 1;
 
         for (size_type i = 0; i < count; ++i, ++it)
         {
@@ -117,7 +117,7 @@ struct copy_segments_linestring
         int const from_index = seg_id.segment_index + 1;
 
         // Sanity check
-        if (from_index > to_index || from_index < 0 || to_index >= boost::size(ls))
+        if (from_index > to_index || from_index < 0 || to_index >= int(boost::size(ls)))
         {
             return;
         }

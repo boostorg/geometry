@@ -105,7 +105,7 @@ void test_areal()
         1, 0, 14, 100.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-        18, 0, 160, 56.5); // Area from SQL Server
+        17, 0, 159, 56.5); // Area from SQL Server
 }
 
 template <typename P>
@@ -134,6 +134,7 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<double> >();
 
 #ifdef HAVE_TTMATH
+    std::cout << "Testing TTMATH" << std::endl;
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 

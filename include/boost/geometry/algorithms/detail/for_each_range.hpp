@@ -22,6 +22,7 @@
 #include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/util/add_const_if_c.hpp>
+#include <boost/geometry/views/box_view.hpp>
 
 
 namespace boost { namespace geometry

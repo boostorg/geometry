@@ -38,7 +38,7 @@
 template <typename OutputType, typename G1, typename G2>
 void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         std::size_t expected_count, std::size_t expected_hole_count,
-        std::size_t expected_point_count, double expected_area,
+        int expected_point_count, double expected_area,
         double percentage)
 {
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
@@ -90,13 +90,15 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         << std::endl;
     ***/
 
-    BOOST_CHECK_MESSAGE(std::size_t(n) == expected_point_count,
-            "union: " << caseid
-            << " #points expected: " << expected_point_count
-            << " detected: " << n
-            << " type: " << string_from_type<coordinate_type>::name()
-            );
-
+    if (expected_point_count >= 0)
+    {
+        BOOST_CHECK_MESSAGE(n == std::size_t(expected_point_count),
+                "union: " << caseid
+                << " #points expected: " << expected_point_count
+                << " detected: " << n
+                << " type: " << string_from_type<coordinate_type>::name()
+                );
+    }
 
     BOOST_CHECK_EQUAL(clip.size(), expected_count);
     BOOST_CHECK_EQUAL(holes, expected_hole_count);
@@ -149,7 +151,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 template <typename OutputType, typename G1, typename G2>
 void test_one(std::string const& caseid, std::string const& wkt1, std::string const& wkt2,
         std::size_t expected_count, std::size_t expected_hole_count,
-        std::size_t expected_point_count, double expected_area,
+        int expected_point_count, double expected_area,
         double percentage = 0.001)
 {
     G1 g1;

@@ -15,6 +15,9 @@
 #include <iostream>
 #include <string>
 
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+#define TEST_ISOVIST
+
 //#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 //#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 
@@ -229,24 +232,102 @@ void test_areal()
         if_typed<ct, double>(5, if_typed_tt<ct>(8, 7)), 
         14729.07145);
         
-#ifdef TEST_ENRICO
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 
-        if_typed<ct, double>(18, 17), 
+        if_typed<ct, double>(18, if_typed<ct, float>(15, 17)), 
         129904.197692871);
-#endif
 
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe", 
+        ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
+        if_typed<ct, float>(2, 1), 
+        0, 
+        if_typed_tt<ct>(9, 8), 
+        67.3550722317627);
+
+
+#ifdef TEST_ISOVIST
 #ifdef _MSC_VER
-    // Isovist (submitted by Brandon during Formal Review)
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
         1,
         0,
-        if_typed<ct, float>(71, 
-            if_typed<ct, double>(70, 73)),
-        313.36036462);
+        if_typed<ct, float>(71, if_typed<ct, double>(70, 73)),
+        313.36036462, 0.1);
+
+    // SQL Server gives: 313.360374193241
+    // PostGIS gives:    313.360364623393
+
 #endif
+#endif
+
+    // Ticket 5103 https://svn.boost.org/trac/boost/ticket/5103
+    // This ticket was actually reported for Boost.Polygon
+    // We check it for Boost.Geometry as well.
+    // SQL Server gives:     2515271331437.69
+    // PostGIS gives:        2515271327070.52
+    // Boost.Geometry gives: 2515271327070.5237746891 (ttmath)
+    //                       2515271327070.5156 (double)
+    //                       2515271320603.0000	(int)
+    // Note the int-test was tested outside of this unit test. It is in two points 0.37 off (logical for an int).
+    // Because of the width of the polygon (400000 meter) this causes a substantial difference.
+
+    test_one<Polygon, Polygon, Polygon>("ticket_5103", ticket_5103[0], ticket_5103[1],
+                1, 0, 25, 2515271327070.5);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_a", buffer_rt_a[0], buffer_rt_a[1],
+                1, 0, 265, 19.280667);
+
+    // Robustness issues, followed out buffer-robustness-tests, test them also reverse
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
+                1, 0, if_typed<ct, double>(22, 23), 4.60853);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
+                1, 0, if_typed<ct, double>(22, 23), 4.60853);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
+                1, 0, 17, 16.571);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
+                1, 0, 17, 16.571);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
+                1, 0, 13, 13.6569);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
+                1, 0, 13, 13.6569);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_j", buffer_rt_j[0], buffer_rt_j[1],
+                1, 0, -1, 16.5711);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_j_rev", buffer_rt_j[1], buffer_rt_j[0],
+                1, 0, -1, 16.5711);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_l", buffer_rt_l[0], buffer_rt_l[1],
+                1, 0, -1, 19.3995);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_l_rev", buffer_rt_l[1], buffer_rt_l[0],
+                1, 0, -1, 19.3995);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_m1", buffer_rt_m1[0], buffer_rt_m1[1],
+                1, 0, if_typed_tt<ct>(14, 13), 19.4852);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_m1_rev", buffer_rt_m1[1], buffer_rt_m1[0],
+                1, 0, if_typed_tt<ct>(14, 13), 19.4852);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_m2", buffer_rt_m2[0], buffer_rt_m2[1],
+                1, 0, if_typed_tt<ct>(20, 19), 21.4853);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
+                1, 0, if_typed_tt<ct>(20, 19), 21.4853);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
+                1, 0, if_typed<ct, float>(18, 17), 18.5710);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
+                1, 0, if_typed<ct, float>(18, 17), 18.5710);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
+                1, 0, if_typed<ct, float>(19, 20), 21.07612);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
+                1, 0, if_typed_tt<ct>(20, 19), 21.07612);
+
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
+                1, 0, if_typed_tt<ct>(16, 14), 15.6569);
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_t_ref", buffer_rt_t[1], buffer_rt_t[0],
+                1, 0, if_typed_tt<ct>(16, 14), 15.6569);
 }
 
 template <typename P>
@@ -258,6 +339,7 @@ void test_all()
 
     test_areal<ring, polygon>();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Open
     test_areal<bg::model::ring<P, true, false>, bg::model::polygon<P, true, false> >();
 
@@ -266,6 +348,7 @@ void test_all()
 
     // Counter clockwise and open
     test_areal<bg::model::ring<P, false, false>, bg::model::polygon<P, false, false> >();
+#endif
 
     test_one<polygon, box, polygon>("box_ring", example_box, example_ring,
         1, 1, 15, 6.38875);
@@ -302,32 +385,23 @@ void test_all()
     test_one<polygon, box, polygon>("box_poly8", "box(0 0, 3 3)",
             "POLYGON((2 2, 1 4, 2 4, 3 3, 2 2))",
                 1, 0, 8, 10.25);
-
-    // Ticket 5103 https://svn.boost.org/trac/boost/ticket/5103
-    // This ticket was actually reported for Boost.Polygon
-    // but it is apparently a difficult case so we check it for Boost.Geometry as well.
-    // SQL Server gives:     2515271331437.69
-    // PostGIS gives:        2515271327070.52
-    // Boost.Geometry gives: 2515271327070.5237746891 (ttmath)
-    //                       2515271327070.5156 (double)
-    //                       2515271320603.0000	(int)
-    // Note the int-test was tested externally - it is in two points 0.37 off (makes sense).
-    // Because of the width of the polygon (400000 meter) this might indeed cause a substantial difference.
-
-    test_one<polygon, polygon, polygon>("ticket_5103", ticket_5103[0], ticket_5103[1],
-                1, 0, 25, 2515271327070.5);
 }
 
 
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double> >();
+#if defined(HAVE_TTMATH)
+    std::cout << "Testing TTMATH" << std::endl;
+    test_all<bg::model::d2::point_xy<ttmath_big> >();
+#endif
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();
     //test_all<bg::model::d2::point_xy<long double> >();
 
 #if defined(HAVE_TTMATH)
+    std::cout << "Testing TTMATH" << std::endl;
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 #endif
