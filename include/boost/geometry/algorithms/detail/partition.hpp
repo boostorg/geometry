@@ -158,7 +158,7 @@ class partition_one_collection
     {
         if (boost::size(input) > 0)
         {
-            if (boost::size(input) > min_elements && level < 100)
+            if (std::size_t(boost::size(input)) > min_elements && level < 100)
             {
                 sub_divide::apply(box, collection, input, level + 1,
                             min_elements, policy, box_policy);
@@ -235,8 +235,8 @@ class partition_two_collections
     {
         if (boost::size(input1) > 0 && boost::size(input2) > 0)
         {
-            if (boost::size(input1) > min_elements
-                && boost::size(input2) > min_elements
+            if (std::size_t(boost::size(input1)) > min_elements
+                && std::size_t(boost::size(input2)) > min_elements
                 && level < 100)
             {
                 sub_divide::apply(box, collection1, input1, collection2,
@@ -339,7 +339,7 @@ public :
             VisitBoxPolicy box_visitor = visit_no_policy()
             )
     {
-        if (boost::size(collection) > min_elements)
+        if (std::size_t(boost::size(collection)) > min_elements)
         {
             index_vector_type index_vector;
             Box total;
@@ -381,8 +381,8 @@ public :
                 VisitBoxPolicy box_visitor = visit_no_policy()
                 )
     {
-        if (boost::size(collection1) > min_elements
-            && boost::size(collection2) > min_elements)
+        if (std::size_t(boost::size(collection1)) > min_elements
+            && std::size_t(boost::size(collection2)) > min_elements)
         {
             index_vector_type index_vector1, index_vector2;
             Box total;
