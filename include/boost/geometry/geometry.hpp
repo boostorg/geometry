@@ -64,6 +64,7 @@
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/sym_difference.hpp>
+#include <boost/geometry/algorithms/touches.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/algorithms/unique.hpp>

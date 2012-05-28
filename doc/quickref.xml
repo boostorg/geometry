@@ -322,6 +322,7 @@
      <member><link linkend="geometry.reference.algorithms.equals">equals</link></member>
      <member><link linkend="geometry.reference.algorithms.intersects">intersects</link></member>
      <member><link linkend="geometry.reference.algorithms.overlaps">overlaps</link></member>
+     <member><link linkend="geometry.reference.algorithms.touches">touches</link></member>
      <member><link linkend="geometry.reference.algorithms.within">within</link></member>
      </simplelist>
    </entry>

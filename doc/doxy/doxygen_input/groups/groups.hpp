@@ -58,6 +58,7 @@
 \defgroup strategies strategies: strategies
 \defgroup svg x Extension svg: Stream SVG (Scalable Vector Graphics)
 \defgroup sym_difference sym_difference: sym_difference of two geometries
+\defgroup touches touches: detect if a geometry self-touches or if two geometries touch
 \defgroup traits traits: adapt geometries
 \defgroup transform transform: apply transformations on geometries
 \defgroup union union: calculate new geometry containing geometries A or B
