@@ -119,6 +119,15 @@ void test_all()
     test_disjoint<ls, ls>("ls/ls co-e", "linestring(0 0,1 1)", "linestring(1 1,0 0)", false);
 
 
+    // Problem described by Volker/Albert 2012-06-01
+    test_disjoint<polygon, box>("volker_albert_1", 
+        "POLYGON((1992 3240,1992 1440,3792 1800,3792 3240,1992 3240))", 
+        "BOX(1941 2066, 2055 2166)", false);
+
+    test_disjoint<polygon, box>("volker_albert_2", 
+        "POLYGON((1941 2066,2055 2066,2055 2166,1941 2166))", 
+        "BOX(1941 2066, 2055 2166)", false);
+
     // Degenerate linestrings
     {
         // Submitted by Zachary on the Boost.Geometry Mailing List, on 2012-01-29
