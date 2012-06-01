@@ -25,6 +25,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 
 
@@ -50,7 +51,8 @@ struct get_point
 template<typename Point, std::size_t Dimension, std::size_t DimensionCount>
 struct midpoint_helper
 {
-    static inline bool apply(Point& p, Point const& p1, Point const& p2)
+    template <typename InputPoint>
+    static inline bool apply(Point& p, InputPoint const& p1, InputPoint const& p2)
     {
         typename coordinate_type<Point>::type const two = 2;
         set<Dimension>(p,
@@ -63,7 +65,8 @@ struct midpoint_helper
 template <typename Point, std::size_t DimensionCount>
 struct midpoint_helper<Point, DimensionCount, DimensionCount>
 {
-    static inline bool apply(Point& , Point const& , Point const& )
+    template <typename InputPoint>
+    static inline bool apply(Point& , InputPoint const& , InputPoint const& )
     {
         return true;
     }
@@ -102,7 +105,7 @@ struct point_on_range
 
         if (n > 0)
         {
-            point = *boost::begin(range);
+            geometry::detail::conversion::convert_point_to_point(*boost::begin(range), point);
             return true;
         }
         return false;
