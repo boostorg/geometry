@@ -233,7 +233,7 @@ std::cout << "traverse" << std::endl;
         std::cout << "map_turns: " << timer.elapsed() << std::endl;
 #endif
 
-        typedef ring_properties<typename geometry::point_type<Geometry1>::type> properties;
+        typedef ring_properties<typename geometry::point_type<GeometryOut>::type> properties;
 
         std::map<ring_identifier, properties> selected;
         select_rings<Direction>(geometry1, geometry2, map, selected, ! turn_points.empty());
