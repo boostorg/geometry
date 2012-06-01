@@ -495,7 +495,7 @@ struct get_turns_cs
                 int source_id1, Range const& range,
                 int source_id2, Box const& box,
                 Turns& turns,
-                InterruptPolicy& ,
+                InterruptPolicy& interrupt_policy,
                 int multi_index = -1, int ring_index = -1)
     {
         if (boost::size(range) <= 1)
@@ -557,7 +557,7 @@ struct get_turns_cs
                 get_turns_with_box(seg_id, source_id2,
                         *prev, *it, *next,
                         bp[0], bp[1], bp[2], bp[3],
-                        turns);
+                        turns, interrupt_policy);
                 // Future performance enhancement: 
                 // return if told by the interrupt policy 
             }
@@ -596,7 +596,8 @@ private:
             box_point_type const& bp2,
             box_point_type const& bp3,
             // Output
-            Turns& turns)
+            Turns& turns,
+            InterruptPolicy& interrupt_policy)
     {
         // Depending on code some relations can be left out
 
@@ -622,6 +623,12 @@ private:
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
         TurnPolicy::apply(rp0, rp1, rp2, bp3, bp0, bp1,
                 ti, std::back_inserter(turns));
+
+        if (InterruptPolicy::enabled)
+        {
+            interrupt_policy.apply(turns);
+        }
+
     }
 
 };
