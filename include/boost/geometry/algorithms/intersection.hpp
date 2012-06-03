@@ -26,11 +26,11 @@ template
 <
     typename Box1, typename Box2,
     typename BoxOut,
-    typename Strategy,
     std::size_t Dimension, std::size_t DimensionCount
 >
 struct intersection_box_box
 {
+    template <typename Strategy>
     static inline bool apply(Box1 const& box1,
             Box2 const& box2, BoxOut& box_out,
             Strategy const& strategy)
@@ -52,7 +52,7 @@ struct intersection_box_box
 
         return intersection_box_box
             <
-                Box1, Box2, BoxOut, Strategy,
+                Box1, Box2, BoxOut,
                 Dimension + 1, DimensionCount
             >::apply(box1, box2, box_out, strategy);
     }
@@ -62,11 +62,11 @@ template
 <
     typename Box1, typename Box2,
     typename BoxOut,
-    typename Strategy,
     std::size_t DimensionCount
 >
-struct intersection_box_box<Box1, Box2, BoxOut, Strategy, DimensionCount, DimensionCount>
+struct intersection_box_box<Box1, Box2, BoxOut, DimensionCount, DimensionCount>
 {
+    template <typename Strategy>
     static inline bool apply(Box1 const&, Box2 const&, BoxOut&, Strategy const&)
     {
         return true;
@@ -88,13 +88,13 @@ template
 <
     typename Tag1, typename Tag2, typename TagOut,
     typename Geometry1, typename Geometry2,
-    typename GeometryOut,
-    typename Strategy
+    typename GeometryOut
 >
 struct intersection
 {
     typedef std::back_insert_iterator<GeometryOut> output_iterator;
 
+    template <class Strategy>
     static inline bool apply(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             GeometryOut& geometry_out,
@@ -126,18 +126,15 @@ struct intersection
 template
 <
     typename Box1, typename Box2,
-    typename BoxOut,
-    typename Strategy
+    typename BoxOut
 >
 struct intersection
     <
         box_tag, box_tag, box_tag,
-        Box1, Box2, BoxOut,
-        Strategy
+        Box1, Box2, BoxOut
     > : public detail::intersection::intersection_box_box
             <
                 Box1, Box2, BoxOut,
-                Strategy,
                 0, geometry::dimension<Box1>::value
             >
 {};
@@ -147,11 +144,11 @@ template
 <
     typename Tag1, typename Tag2, typename TagOut,
     typename Geometry1, typename Geometry2,
-    typename GeometryOut,
-    typename Strategy
+    typename GeometryOut
 >
 struct intersection_reversed
 {
+    template <class Strategy>
     static inline bool apply(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             GeometryOut& geometry_out,
@@ -161,7 +158,7 @@ struct intersection_reversed
             <
                 Tag2, Tag1, TagOut,
                 Geometry2, Geometry1,
-                GeometryOut, Strategy
+                GeometryOut
             >::apply(geometry2, geometry1, geometry_out, strategy);
     }
 };
@@ -218,14 +215,14 @@ inline bool intersection(Geometry1 const& geometry1,
                     typename geometry::tag<Geometry1>::type,
                     typename geometry::tag<Geometry2>::type,
                     typename geometry::tag<GeometryOut>::type,
-                    Geometry1, Geometry2, GeometryOut, strategy
+                    Geometry1, Geometry2, GeometryOut
             >,
             dispatch::intersection
             <
                     typename geometry::tag<Geometry1>::type,
                     typename geometry::tag<Geometry2>::type,
                     typename geometry::tag<GeometryOut>::type,
-                    Geometry1, Geometry2, GeometryOut, strategy
+                    Geometry1, Geometry2, GeometryOut
             >
         >::type::apply(geometry1, geometry2, geometry_out, strategy());
 }
