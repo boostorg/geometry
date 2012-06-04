@@ -25,12 +25,11 @@ namespace detail { namespace intersection
 template
 <
     typename Box1, typename Box2,
-    typename BoxOut,
     std::size_t Dimension, std::size_t DimensionCount
 >
 struct intersection_box_box
 {
-    template <typename Strategy>
+    template <typename BoxOut, typename Strategy>
     static inline bool apply(Box1 const& box1,
             Box2 const& box2, BoxOut& box_out,
             Strategy const& strategy)
@@ -52,7 +51,7 @@ struct intersection_box_box
 
         return intersection_box_box
             <
-                Box1, Box2, BoxOut,
+                Box1, Box2,
                 Dimension + 1, DimensionCount
             >::apply(box1, box2, box_out, strategy);
     }
@@ -61,12 +60,11 @@ struct intersection_box_box
 template
 <
     typename Box1, typename Box2,
-    typename BoxOut,
     std::size_t DimensionCount
 >
-struct intersection_box_box<Box1, Box2, BoxOut, DimensionCount, DimensionCount>
+struct intersection_box_box<Box1, Box2, DimensionCount, DimensionCount>
 {
-    template <typename Strategy>
+    template <typename BoxOut, typename Strategy>
     static inline bool apply(Box1 const&, Box2 const&, BoxOut&, Strategy const&)
     {
         return true;
@@ -86,20 +84,20 @@ namespace dispatch
 // By default, all is forwarded to the intersection_insert-dispatcher
 template
 <
-    typename Tag1, typename Tag2, typename TagOut,
     typename Geometry1, typename Geometry2,
-    typename GeometryOut
+    typename Tag1 = typename geometry::tag<Geometry1>::type,
+    typename Tag2 = typename geometry::tag<Geometry2>::type,
+    bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct intersection
 {
-    typedef std::back_insert_iterator<GeometryOut> output_iterator;
-
-    template <class Strategy>
+    template <typename GeometryOut, typename Strategy>
     static inline bool apply(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             GeometryOut& geometry_out,
             Strategy const& strategy)
     {
+        typedef std::back_insert_iterator<GeometryOut> output_iterator;
         typedef typename boost::range_value<GeometryOut>::type OneOut;
 
         intersection_insert
@@ -123,47 +121,51 @@ struct intersection
 };
 
 
+// If reversal is needed, perform it
 template
 <
-    typename Box1, typename Box2,
-    typename BoxOut
+    typename Geometry1, typename Geometry2,
+    typename Tag1, typename Tag2
 >
 struct intersection
-    <
-        box_tag, box_tag, box_tag,
-        Box1, Box2, BoxOut
-    > : public detail::intersection::intersection_box_box
-            <
-                Box1, Box2, BoxOut,
-                0, geometry::dimension<Box1>::value
-            >
-{};
-
-
-template
 <
-    typename Tag1, typename Tag2, typename TagOut,
-    typename Geometry1, typename Geometry2,
-    typename GeometryOut
+    Geometry1, Geometry2,
+    Tag1, Tag2,
+    true
 >
-struct intersection_reversed
+    : intersection<Geometry2, Geometry1, Tag2, Tag1, false>
 {
-    template <class Strategy>
-    static inline bool apply(Geometry1 const& geometry1,
-            Geometry2 const& geometry2,
-            GeometryOut& geometry_out,
-            Strategy const& strategy)
+    template <typename GeometryOut, typename Strategy>
+    static inline bool apply(
+        Geometry1 const& g1,
+        Geometry2 const& g2,
+        GeometryOut& out,
+        Strategy const& strategy)
     {
-        return intersection
-            <
-                Tag2, Tag1, TagOut,
-                Geometry2, Geometry1,
-                GeometryOut
-            >::apply(geometry2, geometry1, geometry_out, strategy);
+        return intersection<
+                   Geometry2, Geometry1,
+                   Tag2, Tag1,
+                   false
+               >::apply(g2, g1, out, strategy);
     }
 };
 
 
+template
+<
+    typename Box1, typename Box2, bool Reverse
+>
+struct intersection
+    <
+        Box1, Box2,
+        box_tag, box_tag,
+        Reverse
+    > : public detail::intersection::intersection_box_box
+            <
+                Box1, Box2,
+                0, geometry::dimension<Box1>::value
+            >
+{};
 
 
 } // namespace dispatch
@@ -207,24 +209,10 @@ inline bool intersection(Geometry1 const& geometry1,
         > strategy;
 
 
-    return boost::mpl::if_c
-        <
-            geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
-            dispatch::intersection_reversed
-            <
-                    typename geometry::tag<Geometry1>::type,
-                    typename geometry::tag<Geometry2>::type,
-                    typename geometry::tag<GeometryOut>::type,
-                    Geometry1, Geometry2, GeometryOut
-            >,
-            dispatch::intersection
-            <
-                    typename geometry::tag<Geometry1>::type,
-                    typename geometry::tag<Geometry2>::type,
-                    typename geometry::tag<GeometryOut>::type,
-                    Geometry1, Geometry2, GeometryOut
-            >
-        >::type::apply(geometry1, geometry2, geometry_out, strategy());
+    return dispatch::intersection<
+               Geometry1,
+               Geometry2
+           >::apply(geometry1, geometry2, geometry_out, strategy());
 }
 
 
