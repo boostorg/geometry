@@ -51,13 +51,12 @@ namespace detail { namespace equals
 
 template
 <
-    typename Box1,
-    typename Box2,
     std::size_t Dimension,
     std::size_t DimensionCount
 >
 struct box_box
 {
+    template <typename Box1, typename Box2>
     static inline bool apply(Box1 const& box1, Box2 const& box2)
     {
         if (!geometry::math::equals(get<min_corner, Dimension>(box1), get<min_corner, Dimension>(box2))
@@ -65,13 +64,14 @@ struct box_box
         {
             return false;
         }
-        return box_box<Box1, Box2, Dimension + 1, DimensionCount>::apply(box1, box2);
+        return box_box<Dimension + 1, DimensionCount>::apply(box1, box2);
     }
 };
 
-template <typename Box1, typename Box2, std::size_t DimensionCount>
-struct box_box<Box1, Box2, DimensionCount, DimensionCount>
+template <std::size_t DimensionCount>
+struct box_box<DimensionCount, DimensionCount>
 {
+    template <typename Box1, typename Box2>
     static inline bool apply(Box1 const& , Box2 const& )
     {
         return true;
@@ -103,9 +103,10 @@ struct length_check
 };
 
 
-template <typename Geometry1, typename Geometry2, typename TrivialCheck>
+template <typename TrivialCheck>
 struct equals_by_collection
 {
+    template <typename Geometry1, typename Geometry2>
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
         if (! TrivialCheck::apply(geometry1, geometry2))
@@ -152,17 +153,18 @@ namespace dispatch
 
 template
 <
-    typename Tag1, typename Tag2,
     typename Geometry1,
     typename Geometry2,
-    std::size_t DimensionCount
+    typename Tag1 = typename tag<Geometry1>::type,
+    typename Tag2 = typename tag<Geometry2>::type,
+    std::size_t DimensionCount = dimension<Geometry1>::type::value
 >
 struct equals
 {};
 
 
 template <typename P1, typename P2, std::size_t DimensionCount>
-struct equals<point_tag, point_tag, P1, P2, DimensionCount>
+struct equals<P1, P2, point_tag, point_tag, DimensionCount>
     : geometry::detail::not_
         <
             P1,
@@ -173,77 +175,54 @@ struct equals<point_tag, point_tag, P1, P2, DimensionCount>
 
 
 template <typename Box1, typename Box2, std::size_t DimensionCount>
-struct equals<box_tag, box_tag, Box1, Box2, DimensionCount>
-    : detail::equals::box_box<Box1, Box2, 0, DimensionCount>
+struct equals<Box1, Box2, box_tag, box_tag, DimensionCount>
+    : detail::equals::box_box<0, DimensionCount>
 {};
 
 
 template <typename Ring1, typename Ring2>
-struct equals<ring_tag, ring_tag, Ring1, Ring2, 2>
-    : detail::equals::equals_by_collection
-        <
-            Ring1, Ring2,
-            detail::equals::area_check
-        >
+struct equals<Ring1, Ring2, ring_tag, ring_tag, 2>
+    : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
 template <typename Polygon1, typename Polygon2>
-struct equals<polygon_tag, polygon_tag, Polygon1, Polygon2, 2>
-    : detail::equals::equals_by_collection
-        <
-            Polygon1, Polygon2,
-            detail::equals::area_check
-        >
+struct equals<Polygon1, Polygon2, polygon_tag, polygon_tag, 2>
+    : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
 template <typename LineString1, typename LineString2>
-struct equals<linestring_tag, linestring_tag, LineString1, LineString2, 2>
-    : detail::equals::equals_by_collection
-        <
-            LineString1, LineString2,
-            detail::equals::length_check
-        >
+struct equals<LineString1, LineString2, linestring_tag, linestring_tag, 2>
+    : detail::equals::equals_by_collection<detail::equals::length_check>
 {};
 
 
 template <typename Polygon, typename Ring>
-struct equals<polygon_tag, ring_tag, Polygon, Ring, 2>
-    : detail::equals::equals_by_collection
-        <
-            Polygon, Ring,
-            detail::equals::area_check
-        >
+struct equals<Polygon, Ring, polygon_tag, ring_tag, 2>
+    : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
 template <typename Ring, typename Box>
-struct equals<ring_tag, box_tag, Ring, Box, 2>
-    : detail::equals::equals_by_collection
-        <
-            Ring, Box,
-            detail::equals::area_check
-        >
+struct equals<Ring, Box, ring_tag, box_tag, 2>
+    : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
 template <typename Polygon, typename Box>
-struct equals<polygon_tag, box_tag, Polygon, Box, 2>
-    : detail::equals::equals_by_collection
-        <
-            Polygon, Box,
-            detail::equals::area_check
-        >
+struct equals<Polygon, Box, polygon_tag, box_tag, 2>
+    : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
 template
 <
-    typename Tag1, typename Tag2,
     typename Geometry1,
     typename Geometry2,
-    std::size_t DimensionCount
+    typename Tag1 = typename tag<Geometry1>::type,
+    typename Tag2 = typename tag<Geometry2>::type,
+    std::size_t DimensionCount = dimension<Geometry1>::type::value
 >
 struct equals_reversed
 {
@@ -251,8 +230,8 @@ struct equals_reversed
     {
         return equals
             <
-                Tag2, Tag1,
                 Geometry2, Geometry1,
+                Tag2, Tag1,
                 DimensionCount
             >::apply(g2, g1);
     }
@@ -294,19 +273,13 @@ inline bool equals(Geometry1 const& geometry1, Geometry2 const& geometry2)
             reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::equals_reversed
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
                 Geometry1,
-                Geometry2,
-                dimension<Geometry1>::type::value
+                Geometry2
             >,
             dispatch::equals
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
                 Geometry1,
-                Geometry2,
-                dimension<Geometry1>::type::value
+                Geometry2
             >
         >::type::apply(geometry1, geometry2);
 }
