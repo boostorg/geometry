@@ -18,8 +18,6 @@
 #include <cstddef>
 #include <vector>
 
-#include <boost/mpl/if.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -30,6 +28,7 @@
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/not.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 
 // For trivial checks
 #include <boost/geometry/algorithms/area.hpp>
@@ -160,7 +159,7 @@ template
     std::size_t DimensionCount = dimension<Geometry1>::type::value,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
-struct equals
+struct equals: not_implemented<Tag1, Tag2>
 {};
 
 
