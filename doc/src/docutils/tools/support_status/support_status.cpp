@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/append.hpp>
 #include <boost/geometry/multi/algorithms/area.hpp>
 #include <boost/geometry/multi/algorithms/clear.hpp>
@@ -36,6 +37,7 @@
 #include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/multi/algorithms/covered_by.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>
+#include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "text_outputter.hpp"
@@ -85,6 +87,7 @@ DECLARE_UNARY_ALGORITHM (correct)
 DECLARE_BINARY_ALGORITHM(covered_by)
 DECLARE_BINARY_ALGORITHM(disjoint)
 DECLARE_BINARY_ALGORITHM(distance)
+DECLARE_UNARY_ALGORITHM (envelope)
 DECLARE_BINARY_ALGORITHM(within)
 
 
@@ -203,6 +206,7 @@ void support_status()
     test_binary_algorithm<covered_by, all_types, all_types, OutputFactory>("covered_by");
     test_binary_algorithm<disjoint, all_types, all_types, OutputFactory>("disjoint");
     test_binary_algorithm<distance, all_types, all_types, OutputFactory>("distance");
+    test_unary_algorithm<envelope, all_types, OutputFactory>("envelope");
     test_binary_algorithm<within, all_types, all_types, OutputFactory>("within");
 }
 
