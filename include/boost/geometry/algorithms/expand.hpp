@@ -19,6 +19,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -199,12 +200,13 @@ namespace dispatch
 
 template
 <
-    typename BoxOut, typename Geometry,
+    typename GeometryOut, typename Geometry,
     typename StrategyLess = strategy::compare::default_strategy,
     typename StrategyGreater = strategy::compare::default_strategy,
+    typename TagOut = typename tag<GeometryOut>::type,
     typename Tag = typename tag<Geometry>::type
 >
-struct expand
+struct expand: not_implemented<TagOut, Tag>
 {};
 
 
@@ -214,7 +216,7 @@ template
     typename BoxOut, typename Point,
     typename StrategyLess, typename StrategyGreater
 >
-struct expand<BoxOut, Point, StrategyLess, StrategyGreater, point_tag>
+struct expand<BoxOut, Point, StrategyLess, StrategyGreater, box_tag, point_tag>
     : detail::expand::point_loop
         <
             StrategyLess, StrategyGreater,
@@ -229,7 +231,7 @@ template
     typename BoxOut, typename BoxIn,
     typename StrategyLess, typename StrategyGreater
 >
-struct expand<BoxOut, BoxIn, StrategyLess, StrategyGreater, box_tag>
+struct expand<BoxOut, BoxIn, StrategyLess, StrategyGreater, box_tag, box_tag>
     : detail::expand::expand_indexed<StrategyLess, StrategyGreater>
 {};
 
@@ -238,7 +240,7 @@ template
     typename Box, typename Segment,
     typename StrategyLess, typename StrategyGreater
 >
-struct expand<Box, Segment, StrategyLess, StrategyGreater, segment_tag>
+struct expand<Box, Segment, StrategyLess, StrategyGreater, box_tag, segment_tag>
     : detail::expand::expand_indexed<StrategyLess, StrategyGreater>
 {};
 
