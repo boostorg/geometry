@@ -27,6 +27,7 @@
 #include <boost/geometry/algorithms/convex_hull.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/multi/algorithms/append.hpp>
 #include <boost/geometry/multi/algorithms/area.hpp>
@@ -82,6 +83,7 @@ DECLARE_BINARY_ALGORITHM(convert)
 DECLARE_UNARY_ALGORITHM (convex_hull)
 DECLARE_UNARY_ALGORITHM (correct)
 DECLARE_BINARY_ALGORITHM(covered_by)
+DECLARE_BINARY_ALGORITHM(disjoint)
 DECLARE_BINARY_ALGORITHM(distance)
 DECLARE_BINARY_ALGORITHM(within)
 
@@ -199,6 +201,7 @@ void support_status()
     test_unary_algorithm<convex_hull, all_types, OutputFactory>("convex_hull");
     test_unary_algorithm<correct, all_types, OutputFactory>("correct");
     test_binary_algorithm<covered_by, all_types, all_types, OutputFactory>("covered_by");
+    test_binary_algorithm<disjoint, all_types, all_types, OutputFactory>("disjoint");
     test_binary_algorithm<distance, all_types, all_types, OutputFactory>("distance");
     test_binary_algorithm<within, all_types, all_types, OutputFactory>("within");
 }
