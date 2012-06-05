@@ -35,9 +35,9 @@ namespace detail { namespace envelope
 
 
 /// Calculate envelope of an 2D or 3D segment
-template<typename Geometry, typename Box>
 struct envelope_expand_one
 {
+    template<typename Geometry, typename Box>
     static inline void apply(Geometry const& geometry, Box& mbr)
     {
         assign_inverse(mbr);
@@ -63,10 +63,10 @@ inline void envelope_range_additional(Range const& range, Box& mbr)
 
 
 /// Generic range dispatching struct
-template <typename Range, typename Box>
 struct envelope_range
 {
     /// Calculate envelope of range using a strategy
+    template <typename Range, typename Box>
     static inline void apply(Range const& range, Box& mbr)
     {
         assign_inverse(mbr);
@@ -88,9 +88,8 @@ namespace dispatch
 
 template
 <
-    typename Tag1, typename Tag2,
-    typename Geometry, typename Box,
-    typename StrategyLess, typename StrategyGreater
+    typename Geometry,
+    typename Tag1 = typename tag<Geometry>::type
 >
 struct envelope
 {
@@ -102,102 +101,45 @@ struct envelope
 };
 
 
-template
-<
-    typename Point, typename Box,
-    typename StrategyLess, typename StrategyGreater
->
-struct envelope
-    <
-        point_tag, box_tag,
-        Point, Box,
-        StrategyLess, StrategyGreater
-    >
-    : detail::envelope::envelope_expand_one<Point, Box>
+template <typename Point>
+struct envelope<Point, point_tag>
+    : detail::envelope::envelope_expand_one
 {};
 
 
-template
-<
-    typename BoxIn, typename BoxOut,
-    typename StrategyLess, typename StrategyGreater
->
-struct envelope
-    <
-        box_tag, box_tag,
-        BoxIn, BoxOut,
-        StrategyLess, StrategyGreater
-    >
-    : detail::envelope::envelope_expand_one<BoxIn, BoxOut>
+template <typename Box>
+struct envelope<Box, box_tag>
+    : detail::envelope::envelope_expand_one
 {};
 
 
-template
-<
-    typename Segment, typename Box,
-    typename StrategyLess, typename StrategyGreater
->
-struct envelope
-    <
-        segment_tag, box_tag,
-        Segment, Box,
-        StrategyLess, StrategyGreater
-    >
-    : detail::envelope::envelope_expand_one<Segment, Box>
+template <typename Segment>
+struct envelope<Segment, segment_tag>
+    : detail::envelope::envelope_expand_one
 {};
 
 
-template
-<
-    typename Linestring, typename Box,
-    typename StrategyLess, typename StrategyGreater
->
-struct envelope
-    <
-        linestring_tag, box_tag,
-        Linestring, Box,
-        StrategyLess, StrategyGreater
-    >
-    : detail::envelope::envelope_range<Linestring, Box>
+template <typename Linestring>
+struct envelope<Linestring, linestring_tag>
+    : detail::envelope::envelope_range
 {};
 
 
-template
-<
-    typename Ring, typename Box,
-    typename StrategyLess, typename StrategyGreater
->
-struct envelope
-    <
-        ring_tag, box_tag,
-        Ring, Box,
-        StrategyLess, StrategyGreater
-    >
-    : detail::envelope::envelope_range<Ring, Box>
+template <typename Ring>
+struct envelope<Ring, ring_tag>
+    : detail::envelope::envelope_range
 {};
 
 
-template
-<
-    typename Polygon, typename Box,
-    typename StrategyLess, typename StrategyGreater
->
-struct envelope
-    <
-        polygon_tag, box_tag,
-        Polygon, Box,
-        StrategyLess, StrategyGreater
-    >
+template <typename Polygon>
+struct envelope<Polygon, polygon_tag>
+    : detail::envelope::envelope_range
 {
+    template <typename Box>
     static inline void apply(Polygon const& poly, Box& mbr)
     {
         // For polygon, inspecting outer ring is sufficient
-
-        detail::envelope::envelope_range
-            <
-                typename ring_type<Polygon>::type,
-                Box
-            >::apply(exterior_ring(poly), mbr);
+        detail::envelope::envelope_range::apply(exterior_ring(poly), mbr);
     }
 
 };
@@ -228,12 +170,7 @@ inline void envelope(Geometry const& geometry, Box& mbr)
     concept::check<Geometry const>();
     concept::check<Box>();
 
-    dispatch::envelope
-        <
-            typename tag<Geometry>::type, typename tag<Box>::type,
-            Geometry, Box,
-            void, void
-        >::apply(geometry, mbr);
+    dispatch::envelope<Geometry>::apply(geometry, mbr);
 }
 
 
@@ -259,12 +196,7 @@ inline Box return_envelope(Geometry const& geometry)
     concept::check<Box>();
 
     Box mbr;
-    dispatch::envelope
-        <
-            typename tag<Geometry>::type, typename tag<Box>::type,
-            Geometry, Box,
-            void, void
-        >::apply(geometry, mbr);
+    dispatch::envelope<Geometry>::apply(geometry, mbr);
     return mbr;
 }
 
