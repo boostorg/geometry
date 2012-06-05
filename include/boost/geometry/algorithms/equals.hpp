@@ -157,14 +157,38 @@ template
     typename Geometry2,
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type,
-    std::size_t DimensionCount = dimension<Geometry1>::type::value
+    std::size_t DimensionCount = dimension<Geometry1>::type::value,
+    bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct equals
 {};
 
 
-template <typename P1, typename P2, std::size_t DimensionCount>
-struct equals<P1, P2, point_tag, point_tag, DimensionCount>
+// If reversal is needed, perform it
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename Tag1, typename Tag2,
+    std::size_t DimensionCount
+>
+struct equals<Geometry1, Geometry2, Tag1, Tag2, DimensionCount, true>
+    : equals<Geometry2, Geometry1, Tag2, Tag1, DimensionCount, false>
+{
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    {
+        return equals
+            <
+                Geometry2, Geometry1,
+                Tag2, Tag1,
+                DimensionCount,
+                false
+            >::apply(g2, g1);
+    }
+};
+
+
+template <typename P1, typename P2, std::size_t DimensionCount, bool Reverse>
+struct equals<P1, P2, point_tag, point_tag, DimensionCount, Reverse>
     : geometry::detail::not_
         <
             P1,
@@ -174,68 +198,46 @@ struct equals<P1, P2, point_tag, point_tag, DimensionCount>
 {};
 
 
-template <typename Box1, typename Box2, std::size_t DimensionCount>
-struct equals<Box1, Box2, box_tag, box_tag, DimensionCount>
+template <typename Box1, typename Box2, std::size_t DimensionCount, bool Reverse>
+struct equals<Box1, Box2, box_tag, box_tag, DimensionCount, Reverse>
     : detail::equals::box_box<0, DimensionCount>
 {};
 
 
-template <typename Ring1, typename Ring2>
-struct equals<Ring1, Ring2, ring_tag, ring_tag, 2>
+template <typename Ring1, typename Ring2, bool Reverse>
+struct equals<Ring1, Ring2, ring_tag, ring_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
-template <typename Polygon1, typename Polygon2>
-struct equals<Polygon1, Polygon2, polygon_tag, polygon_tag, 2>
+template <typename Polygon1, typename Polygon2, bool Reverse>
+struct equals<Polygon1, Polygon2, polygon_tag, polygon_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
-template <typename LineString1, typename LineString2>
-struct equals<LineString1, LineString2, linestring_tag, linestring_tag, 2>
+template <typename LineString1, typename LineString2, bool Reverse>
+struct equals<LineString1, LineString2, linestring_tag, linestring_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::length_check>
 {};
 
 
-template <typename Polygon, typename Ring>
-struct equals<Polygon, Ring, polygon_tag, ring_tag, 2>
+template <typename Polygon, typename Ring, bool Reverse>
+struct equals<Polygon, Ring, polygon_tag, ring_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
-template <typename Ring, typename Box>
-struct equals<Ring, Box, ring_tag, box_tag, 2>
+template <typename Ring, typename Box, bool Reverse>
+struct equals<Ring, Box, ring_tag, box_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
-template <typename Polygon, typename Box>
-struct equals<Polygon, Box, polygon_tag, box_tag, 2>
+template <typename Polygon, typename Box, bool Reverse>
+struct equals<Polygon, Box, polygon_tag, box_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
-
-
-template
-<
-    typename Geometry1,
-    typename Geometry2,
-    typename Tag1 = typename tag<Geometry1>::type,
-    typename Tag2 = typename tag<Geometry2>::type,
-    std::size_t DimensionCount = dimension<Geometry1>::type::value
->
-struct equals_reversed
-{
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
-    {
-        return equals
-            <
-                Geometry2, Geometry1,
-                Tag2, Tag1,
-                DimensionCount
-            >::apply(g2, g1);
-    }
-};
 
 
 } // namespace dispatch
@@ -268,20 +270,7 @@ inline bool equals(Geometry1 const& geometry1, Geometry2 const& geometry2)
             Geometry2 const
         >();
 
-    return boost::mpl::if_c
-        <
-            reverse_dispatch<Geometry1, Geometry2>::type::value,
-            dispatch::equals_reversed
-            <
-                Geometry1,
-                Geometry2
-            >,
-            dispatch::equals
-            <
-                Geometry1,
-                Geometry2
-            >
-        >::type::apply(geometry1, geometry2);
+    return dispatch::equals<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
 
