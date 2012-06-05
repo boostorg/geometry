@@ -14,13 +14,13 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 
-#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -82,23 +82,13 @@ namespace dispatch
 {
 
 
-// Note, the strategy is for future use (less/greater -> compare spherical
-// using other methods), defaults are OK for now.
-// However, they are already in the template methods
-
 template
 <
     typename Geometry,
-    typename Tag1 = typename tag<Geometry>::type
+    typename Tag = typename tag<Geometry>::type
 >
-struct envelope
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
+struct envelope: not_implemented<Tag>
+{};
 
 
 template <typename Point>
