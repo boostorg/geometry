@@ -17,9 +17,9 @@
 
 #include <cstddef>
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/access.hpp>
+
+#include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -143,14 +143,8 @@ template
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
 >
-struct overlaps
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry1, Geometry2>)
-        );
-};
+struct overlaps: not_implemented<Tag1, Tag2>
+{};
 
 
 template <typename Box1, typename Box2>
