@@ -41,3 +41,5 @@ boostbook geometry
        <format>pdf:<xsl:param>img.src.path=$(images_location)/    
 ;
 
+install pdf-install : geometry : <location>. <name>geometry.pdf <install-type>PDF ;
+
