@@ -42,4 +42,4 @@ boostbook geometry
 ;
 
 install pdf-install : geometry : <location>. <name>geometry.pdf <install-type>PDF ;
-
+explicit pdf-install ;
