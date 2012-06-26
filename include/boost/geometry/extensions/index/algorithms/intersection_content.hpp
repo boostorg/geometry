@@ -2,7 +2,8 @@
 //
 // Boost.SpatialIndex - boxes union/intersection area/volume
 //
-// Copyright 2011 Adam Wulkiewicz.
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -21,14 +22,13 @@ namespace boost { namespace geometry { namespace index {
 template <typename Box>
 inline typename default_content_result<Box>::type intersection_content(Box const& box1, Box const& box2)
 {
-    typename default_content_result<Box>::type result = 0;
     if ( geometry::intersects(box1, box2) )
     {
         Box box_intersection;
         geometry::intersection(box1, box2, box_intersection);
-        result = index::content(box_intersection);
+        return index::content(box_intersection);
     }
-    return result;
+    return 0;
 }
 
 }}} // namespace boost::geometry::index

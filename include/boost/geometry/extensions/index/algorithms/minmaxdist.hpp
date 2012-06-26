@@ -2,7 +2,8 @@
 //
 // Boost.Index - minmaxdist used in R-tree k nearest neighbors query
 //
-// Copyright 2011 Adam Wulkiewicz.
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -10,11 +11,12 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MINMAXDIST_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MINMAXDIST_HPP
 
+#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
+
 #include <boost/geometry/extensions/index/algorithms/detail/diff_abs.hpp>
 #include <boost/geometry/extensions/index/algorithms/detail/sum_for_indexable.hpp>
 #include <boost/geometry/extensions/index/algorithms/detail/smallest_for_indexable.hpp>
-
-#include <boost/geometry/extensions/index/algorithms/maxdist.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -49,7 +51,7 @@ struct smallest_for_indexable_dimension<Point, BoxIndexable, box_tag, minmaxdist
         if ( pt_c <= ind_c_avg )
             closer_comp = detail::diff_abs(pt_c, ind_c_min); // unsigned values protection
         else
-            closer_comp = detail::diff_abs(pt_c, ind_c_max); // unsigned values protection
+            closer_comp = ind_c_max - pt_c;
         
         result_type further_comp = 0;
         if ( ind_c_avg <= pt_c )
@@ -88,7 +90,7 @@ struct minmaxdist_impl<Point, Indexable, box_tag>
 
     inline static result_type apply(Point const& pt, Indexable const& i)
     {
-        result_type maxd = maxdist(pt, i);
+        result_type maxd = geometry::comparable_distance(pt, i);
 
         return smallest_for_indexable<
             Point,
@@ -102,6 +104,9 @@ struct minmaxdist_impl<Point, Indexable, box_tag>
 
 } // namespace detail
 
+/**
+ * This is comparable distace.
+ */
 template <typename Point, typename Indexable>
 typename geometry::default_distance_result<Point, Indexable>::type
 minmaxdist(Point const& pt, Indexable const& i)
