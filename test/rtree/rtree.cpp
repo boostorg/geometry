@@ -18,35 +18,74 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
-template<typename P, typename Algo>
-void test_rtree_by_point2()
+template <typename Value, typename Algo, typename Box>
+void test_intersects(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
-    typedef bg::model::box<P> B;
+    std::vector<Value> expected_output;
 
-    std::vector<B> input;
-
-    for ( size_t i = 0 ; i < 20 ; i += 3 )
-    {
-        for ( size_t j = 1 ; j < 31 ; j += 4 )
-        {
-            input.push_back(B(P(i, j), P(i + 2, j + 3)));
-        }
-    }
-
-    bgi::rtree<B, Algo> tree;
-    tree.insert(input.begin(), input.end());
-
-    std::vector<B> expected_output;
-    expected_output.push_back(B(P(3, 1), P(5, 4)));
-    expected_output.push_back(B(P(6, 1), P(8, 4)));
-
-    B qbox(P(4, 2), P(7, 3));
+    BOOST_FOREACH(Value const& v, input)
+        if ( bg::intersects(tree.translator()(v), qbox) )
+            expected_output.push_back(v);
 
     test(tree, qbox, expected_output);
     test(tree, bgi::intersects(qbox), expected_output);
     test(tree, !bgi::not_intersects(qbox), expected_output);
     test(tree, !bgi::disjoint(qbox), expected_output);
     test(tree, bgi::not_disjoint(qbox), expected_output);
+}
+
+template<typename P, typename Algo>
+void test_rtree_point_2d()
+{
+    typedef bg::model::box<P> B;
+
+    std::vector<P> input;
+    B qbox;
+    test_generate<2>::apply(std::back_inserter(input), qbox, test_gen_point<P>);
+
+    bgi::rtree<P, Algo> tree;
+    tree.insert(input.begin(), input.end());
+
+    test_intersects(tree, input, qbox);
+}
+
+template<typename P, typename Algo>
+void test_rtree_box_2d()
+{
+    typedef bg::model::box<P> B;
+    
+    std::vector<B> input;
+    B qbox;
+    test_generate<2>::apply(std::back_inserter(input), qbox, test_gen_box<P>);
+
+    bgi::rtree<B, Algo> tree;
+    tree.insert(input.begin(), input.end());
+
+    test_intersects(tree, input, qbox);
+}
+
+template<typename P, typename Algo>
+void test_rtree_box_pair_2d()
+{
+    typedef bg::model::box<P> B;
+    typedef std::pair<B, int> V;
+
+    std::vector<V> input;
+    B qbox;
+    test_generate<2>::apply(std::back_inserter(input), qbox, test_gen_box_pair<P>);
+
+    bgi::rtree<V, Algo> tree;
+    tree.insert(input.begin(), input.end());
+
+    test_intersects(tree, input, qbox);
+}
+
+template<typename P, typename Algo>
+void test_rtree_by_point2()
+{
+    test_rtree_point_2d<P, Algo>();
+    test_rtree_box_2d<P, Algo>();
+    test_rtree_box_pair_2d<P, Algo>();
 }
 
 int test_main(int, char* [])

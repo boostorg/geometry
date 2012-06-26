@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 
+#include <boost/type_traits/is_unsigned.hpp>
+
 #include <boost/geometry/extensions/index/algorithms/content.hpp>
 #include <boost/geometry/extensions/index/algorithms/union_content.hpp>
 
@@ -29,6 +31,11 @@ namespace linear {
 // TODO: awulkiew - there are loops inside find_greatest_normalized_separation::apply()
 // iteration is done for each DimensionIndex.
 // Separations and seeds for all DimensionIndex(es) could be calculated at once, stored, then the greatest would be choosen.
+
+// TODO: Implement separate version for Points
+
+// What if width calculated inside find_greatest_normalized_separation::apply() is near 0?
+// What epsilon should be taken to calculation and what would be the value of resulting separation?
 
 // from void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
 
@@ -89,16 +96,29 @@ struct find_greatest_normalized_separation
 
         coordinate_type const width = highest_high - lowest_low;
 
-        separation = (highest_low - lowest_high) / width;
+        // TODO: awulkiew - following separation calculation has two flaws:
+        // 1. for floating point numbers width should be compared witn some EPS
+        // 2. separation calculation won't work for unsigned numbers
+        //    but there should be possible to calculate negative value (cast to some floating point type?)
+
+        // Temporary workaround
+        BOOST_STATIC_ASSERT(!boost::is_unsigned<coordinate_type>::value);
+
+        if ( width == 0 )
+            separation = 0;
+            // (highest_low - lowest_high) == 0
+        else
+            separation = (highest_low - lowest_high) / width;
+
         seed1 = highest_low_index;
         seed2 = lowest_high_index;
     }
 };
 
-template <typename Elements, typename Parameters, typename Translator, size_t DimensionIndex>
+template <typename Elements, typename Parameters, typename Translator, size_t Dimension>
 struct pick_seeds_impl
 {
-    BOOST_STATIC_ASSERT(0 < DimensionIndex);
+    BOOST_STATIC_ASSERT(0 < Dimension);
 
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
@@ -110,11 +130,11 @@ struct pick_seeds_impl
                              size_t & seed1,
                              size_t & seed2)
     {
-        pick_seeds_impl<Elements, Parameters, Translator, DimensionIndex - 1>::apply(elements, tr, separation, seed1, seed2);
+        pick_seeds_impl<Elements, Parameters, Translator, Dimension - 1>::apply(elements, tr, separation, seed1, seed2);
 
         coordinate_type current_separation;
         size_t s1, s2;
-        find_greatest_normalized_separation<Elements, Parameters, Translator, DimensionIndex - 1>::apply(elements, tr, current_separation, s1, s2);
+        find_greatest_normalized_separation<Elements, Parameters, Translator, Dimension - 1>::apply(elements, tr, current_separation, s1, s2);
 
         // in the old implementation different operator was used: <= (y axis prefered)
         if ( separation < current_separation )
@@ -209,7 +229,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
 
         // prepare nodes' elements containers
         elements1.clear();
-        assert(elements2.empty());
+        BOOST_GEOMETRY_INDEX_ASSERT(elements2.empty(), "unexpected container state");
 
         // add seeds
         elements1.push_back(elements_copy[seed1]);
