@@ -8,20 +8,8 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-import testing ;
-
-project boost-geometry-index-test
+test-suite boost-geometry-index-rtree
     :
-    requirements
-        <include>.
-		<include>..
-		<include>../..
-		<include>../../..
-        #<include>../../../boost/geometry/extensions/contrib/ttmath
-        <toolset>msvc:<asynch-exceptions>on
+    [ run rtree.cpp ]
     ;
-
-build-project algorithms ;
-build-project rtree ;
-#build-project filters ;
-#build-project translator ;
+    
