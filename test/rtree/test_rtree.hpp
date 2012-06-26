@@ -25,6 +25,78 @@
 #include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
 
+// Values, input and rtree generation
+
+template <typename Value>
+struct test_generate_value
+{};
+
+template <typename T, typename C>
+struct test_generate_value< bg::model::point<T, 2, C> >
+{
+    typedef bg::model::point<T, 2, C> P;
+    static P apply(int x, int y)
+    {
+        return P(x, y);
+    }
+};
+
+template <typename T, typename C>
+struct test_generate_value< bg::model::box< bg::model::point<T, 2, C> > >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef bg::model::box<P> B;
+    static B apply(int x, int y)
+    {
+        return B(P(x, y), P(x + 2, y + 3));
+    }
+};
+
+template <typename T, typename C>
+struct test_generate_value< std::pair<bg::model::box< bg::model::point<T, 2, C> >, int> >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef bg::model::box<P> B;
+    typedef std::pair<B, int> R;
+    static R apply(int x, int y)
+    {
+        return std::make_pair(B(P(x, y), P(x + 2, y + 3)), x + y * 100);
+    }
+};
+
+template <typename T, typename C>
+struct test_generate_value< bg::model::point<T, 3, C> >
+{
+    typedef bg::model::point<T, 3, C> P;
+    static P apply(int x, int y, int z)
+    {
+        return P(x, y, z);
+    }
+};
+
+template <typename T, typename C>
+struct test_generate_value< bg::model::box< bg::model::point<T, 3, C> > >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef bg::model::box<P> B;
+    static B apply(int x, int y, int z)
+    {
+        return B(P(x, y, z), P(x + 2, y + 3, z + 4));
+    }
+};
+
+template <typename T, typename C>
+struct test_generate_value< std::pair<bg::model::box< bg::model::point<T, 3, C> >, int> >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef bg::model::box<P> B;
+    typedef std::pair<B, int> R;
+    static R apply(int x, int y, int z)
+    {
+        return std::make_pair(B(P(x, y, z), P(x + 2, y + 3, z + 4)), x + y * 100 + z * 10000);
+    }
+};
+
 template <size_t Dimension>
 struct test_generate
 {};
@@ -32,14 +104,14 @@ struct test_generate
 template <>
 struct test_generate<2>
 {
-    template <typename OutIter, typename Box, typename Gen>
-    static void apply(OutIter out, Box & qbox, Gen gen)
+    template <typename Value, typename Box>
+    static void apply(std::vector<Value> & input, Box & qbox)
     {
         for ( int i = 0 ; i < 12 ; i += 3 )
         {
             for ( int j = 1 ; j < 25 ; j += 4 )
             {
-                *out++ = gen(i, j);
+                input.push_back( test_generate_value<Value>::apply(i, j) );
             }
         }
 
@@ -52,16 +124,17 @@ struct test_generate<2>
 template <>
 struct test_generate<3>
 {
-    template <typename OutIter, typename Box, typename Gen>
-    static void apply(OutIter out, Box & qbox, Gen gen)
+    template <typename Value, typename Box>
+    static void apply(std::vector<Value> & input, Box & qbox)
     {
         for ( int i = 0 ; i < 12 ; i += 3 )
         {
             for ( int j = 1 ; j < 25 ; j += 4 )
             {
-                for ( int k = 2 ; k < 12 ; i += 5 )
-
-                *out++ = gen(i, j, k);
+                for ( int k = 2 ; k < 12 ; k += 5 )
+                {
+                    input.push_back( test_generate_value<Value>::apply(i, j, k) );
+                }
             }
         }
 
@@ -71,26 +144,39 @@ struct test_generate<3>
     }
 };
 
-// TODO
-// test_generate_value + specialization generating various types of values for 2d and 3d
-
-template <typename P>
-P test_gen_point(int x, int y)
+template<typename Value, typename Algo, typename Box>
+void test_generate_rtree(bgi::rtree<Value, Algo> & tree, std::vector<Value> & input, Box & qbox)
 {
-    return P(x, y);
+    typedef bgi::rtree<Value, Algo> T;
+    typedef T::box_type B;
+    typedef T::value_type V;
+
+    test_generate<
+        bgi::traits::dimension<T::indexable_type>::value
+    >::apply(input, qbox);
+
+    tree.insert(input.begin(), input.end());
 }
 
-template <typename P>
-bg::model::box<P> test_gen_box(int x, int y)
+// rtree queries tests
+
+template <typename Value, typename Algo, typename Box>
+void test_intersects(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
-    return bg::model::box<P>(P(x, y), P(x + 2, y + 3));
+    std::vector<Value> expected_output;
+
+    BOOST_FOREACH(Value const& v, input)
+        if ( bg::intersects(tree.translator()(v), qbox) )
+            expected_output.push_back(v);
+
+    test(tree, qbox, expected_output);
+    test(tree, bgi::intersects(qbox), expected_output);
+    test(tree, !bgi::not_intersects(qbox), expected_output);
+    test(tree, !bgi::disjoint(qbox), expected_output);
+    test(tree, bgi::not_disjoint(qbox), expected_output);
 }
 
-template <typename P>
-std::pair<bg::model::box<P>, int> test_gen_box_pair(int x, int y)
-{
-    return std::make_pair(bg::model::box<P>(P(x, y), P(x + 2, y + 3)), x + y * 100);
-}
+// low level test functions
 
 template <typename Rtree, typename Iter, typename Value>
 Iter test_find(Rtree const& rtree, Iter first, Iter last, Value const& value)

@@ -10,6 +10,7 @@
 
 test-suite boost-geometry-index-rtree
     :
-    [ run rtree.cpp ]
+    [ run rtree2d.cpp ]
+	[ run rtree3d.cpp ]
     ;
     
