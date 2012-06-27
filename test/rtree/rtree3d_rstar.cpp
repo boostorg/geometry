@@ -4,6 +4,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -24,12 +25,6 @@ int test_main(int, char* [])
     typedef bg::model::point<float, 3, bg::cs::cartesian> P3fc;
     typedef bg::model::point<double, 3, bg::cs::cartesian> P3dc;
 
-    test_rtree<P3ic, bgi::linear<4, 2> >();
-    test_rtree<P3fc, bgi::linear<4, 2> >();
-    test_rtree<P3dc, bgi::linear<4, 2> >();
-    test_rtree<P3ic, bgi::quadratic<4, 2> >();
-    test_rtree<P3fc, bgi::quadratic<4, 2> >();
-    test_rtree<P3dc, bgi::quadratic<4, 2> >();
     test_rtree<P3ic, bgi::rstar<4, 2> >();
     test_rtree<P3fc, bgi::rstar<4, 2> >();
     test_rtree<P3dc, bgi::rstar<4, 2> >();
@@ -37,8 +32,6 @@ int test_main(int, char* [])
 #ifdef HAVE_TTMATH
     typedef bg::model::point<ttmath_big, 3, bg::cs::cartesian> P3ttmc;
 
-    test_rtree<P3ttmc, bgi::linear<4, 2> >();
-    test_rtree<P3ttmc, bgi::quadratic<4, 2> >();
     test_rtree<P3ttmc, bgi::rstar<4, 2> >();
 #endif
 

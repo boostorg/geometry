@@ -4,6 +4,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -27,19 +28,11 @@ int test_main(int, char* [])
     test_rtree<P2ic, bgi::linear<4, 2> >();
     test_rtree<P2fc, bgi::linear<4, 2> >();
     test_rtree<P2dc, bgi::linear<4, 2> >();
-    test_rtree<P2ic, bgi::quadratic<4, 2> >();
-    test_rtree<P2fc, bgi::quadratic<4, 2> >();
-    test_rtree<P2dc, bgi::quadratic<4, 2> >();
-    test_rtree<P2ic, bgi::rstar<4, 2> >();
-    test_rtree<P2fc, bgi::rstar<4, 2> >();
-    test_rtree<P2dc, bgi::rstar<4, 2> >();
     
 #ifdef HAVE_TTMATH
     typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;
 
     test_rtree<P2ttmc, bgi::linear<4, 2> >();
-    test_rtree<P2ttmc, bgi::quadratic<4, 2> >();
-    test_rtree<P2ttmc, bgi::rstar<4, 2> >();
 #endif
 
     return 0;
