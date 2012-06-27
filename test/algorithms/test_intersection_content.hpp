@@ -14,7 +14,6 @@
 #include <geometry_index_test_common.hpp>
 
 #include <boost/geometry/extensions/index/algorithms/intersection_content.hpp>
-#include <boost/geometry/extensions/index/algorithms/overlap.hpp>
 
 template <typename Geometry>
 void test_intersection_content(Geometry const& geometry1, Geometry const& geometry2,
@@ -34,9 +33,6 @@ void test_intersection_content(Geometry const& geometry1, Geometry const& geomet
 #endif
 
     BOOST_CHECK_CLOSE(value, expected_value, 0.0001);
-
-    // temp
-    BOOST_CHECK_CLOSE(bgi::overlap(geometry1, geometry2), expected_value, 0.0001);
 }
 
 template <typename Geometry>

@@ -15,7 +15,7 @@
 #include <boost/geometry/algorithms/expand.hpp>
 
 #include <boost/geometry/extensions/index/algorithms/content.hpp>
-#include <boost/geometry/extensions/index/algorithms/overlap.hpp>
+#include <boost/geometry/extensions/index/algorithms/intersection_content.hpp>
 #include <boost/geometry/extensions/index/algorithms/union_content.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
@@ -40,7 +40,6 @@ class choose_next_node<Value, Options, Box, Allocators, choose_by_overlap_diff_t
 	typedef typename Options::parameters_type parameters_type;
 
     typedef typename index::default_content_result<Box>::type content_type;
-    typedef typename index::default_overlap_result<Box>::type overlap_type;
 
 public:
     template <typename Indexable>
@@ -70,7 +69,7 @@ private:
 
         // choose index with smallest overlap change value, or content change or smallest content
         size_t choosen_index = 0;
-        overlap_type smallest_overlap_diff = std::numeric_limits<overlap_type>::max();
+        content_type smallest_overlap_diff = std::numeric_limits<content_type>::max();
         content_type smallest_content_diff = std::numeric_limits<content_type>::max();
         content_type smallest_content = std::numeric_limits<content_type>::max();
 
@@ -87,8 +86,8 @@ private:
             content_type content = index::content(ch_i.first);
             content_type content_diff = index::content(box_exp) - content;
 
-            overlap_type overlap = 0;
-            overlap_type overlap_exp = 0;
+            content_type overlap = 0;
+            content_type overlap_exp = 0;
 
             // calculate overlap
             for ( size_t j = 0 ; j < children_count ; ++j )
@@ -97,12 +96,12 @@ private:
                 {
                     child_type const& ch_j = children[j];
 
-                    overlap += index::overlap(ch_i.first, ch_j.first);
-                    overlap_exp += index::overlap(box_exp, ch_j.first);
+                    overlap += index::intersection_content(ch_i.first, ch_j.first);
+                    overlap_exp += index::intersection_content(box_exp, ch_j.first);
                 }
             }
 
-            overlap_type overlap_diff = overlap_exp - overlap;
+            content_type overlap_diff = overlap_exp - overlap;
 
             // update result
             if ( overlap_diff < smallest_overlap_diff ||
@@ -148,7 +147,7 @@ private:
 
 		// for overlap_cost_threshold child nodes find the one with smallest overlap value
 		size_t choosen_index = 0;
-		overlap_type smallest_overlap_diff = std::numeric_limits<overlap_type>::max();
+		content_type smallest_overlap_diff = std::numeric_limits<content_type>::max();
 
 		// for each node
 		for (size_t i = 0 ; i < parameters_type::overlap_cost_threshold ; ++i )
@@ -162,8 +161,8 @@ private:
 			// calculate expanded box of child node ch_i
 			geometry::expand(box_exp, indexable);
 
-			overlap_type overlap = 0;
-			overlap_type overlap_exp = 0;
+			content_type overlap = 0;
+			content_type overlap_exp = 0;
 
 			// calculate overlap
 			for ( size_t j = 0 ; j < children_count ; ++j )
@@ -172,12 +171,12 @@ private:
 				{
 					child_type const& ch_j = children[j];
 
-					overlap += index::overlap(ch_i.first, ch_j.first);
-					overlap_exp += index::overlap(box_exp, ch_j.first);
+					overlap += index::intersection_content(ch_i.first, ch_j.first);
+					overlap_exp += index::intersection_content(box_exp, ch_j.first);
 				}
 			}
 
-			overlap_type overlap_diff = overlap_exp - overlap;
+			content_type overlap_diff = overlap_exp - overlap;
 
 			// update result
 			if ( overlap_diff < smallest_overlap_diff )

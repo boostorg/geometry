@@ -40,9 +40,6 @@ void test_large_integers()
     double double_value = bgi::intersection_content(double_box1, double_box2);
 
     BOOST_CHECK_CLOSE(int_value, double_value, 0.0001);
-
-    // temp
-    BOOST_CHECK_CLOSE(bgi::overlap(int_box1, int_box2), bgi::overlap(double_box1, double_box2), 0.0001);
 }
 
 int test_main(int, char* [])
