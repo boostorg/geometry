@@ -18,54 +18,28 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
-template<typename P, typename Algo>
-void test_rtree_by_point()
-{
-    typedef bg::model::box<P> B;
-    typedef std::pair<B, int> V;
-    B qbox;
-    {
-        bgi::rtree<P, Algo> tree;
-        std::vector<P> input;        
-        test_generate_rtree(tree, input, qbox);
-        test_intersects(tree, input, qbox);
-    }
-    {
-        bgi::rtree<B, Algo> tree;
-        std::vector<B> input;
-        test_generate_rtree(tree, input, qbox);
-        test_intersects(tree, input, qbox);
-    }
-    {
-        bgi::rtree<V, Algo> tree;
-        std::vector<V> input;
-        test_generate_rtree(tree, input, qbox);
-        test_intersects(tree, input, qbox);
-    }
-}
-
 int test_main(int, char* [])
 {
     typedef bg::model::point<int, 2, bg::cs::cartesian> P2ic;
     typedef bg::model::point<float, 2, bg::cs::cartesian> P2fc;
     typedef bg::model::point<double, 2, bg::cs::cartesian> P2dc;
 
-    test_rtree_by_point<P2ic, bgi::linear<4, 2> >();
-    test_rtree_by_point<P2fc, bgi::linear<4, 2> >();
-    test_rtree_by_point<P2dc, bgi::linear<4, 2> >();
-    test_rtree_by_point<P2ic, bgi::quadratic<4, 2> >();
-    test_rtree_by_point<P2fc, bgi::quadratic<4, 2> >();
-    test_rtree_by_point<P2dc, bgi::quadratic<4, 2> >();
-    test_rtree_by_point<P2ic, bgi::rstar<4, 2> >();
-    test_rtree_by_point<P2fc, bgi::rstar<4, 2> >();
-    test_rtree_by_point<P2dc, bgi::rstar<4, 2> >();
+    test_rtree<P2ic, bgi::linear<4, 2> >();
+    test_rtree<P2fc, bgi::linear<4, 2> >();
+    test_rtree<P2dc, bgi::linear<4, 2> >();
+    test_rtree<P2ic, bgi::quadratic<4, 2> >();
+    test_rtree<P2fc, bgi::quadratic<4, 2> >();
+    test_rtree<P2dc, bgi::quadratic<4, 2> >();
+    test_rtree<P2ic, bgi::rstar<4, 2> >();
+    test_rtree<P2fc, bgi::rstar<4, 2> >();
+    test_rtree<P2dc, bgi::rstar<4, 2> >();
     
 #ifdef HAVE_TTMATH
     typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;
 
-    test_rtree_by_point<P2ttmc, bgi::linear<4, 2> >();
-    test_rtree_by_point<P2ttmc, bgi::quadratic<4, 2> >();
-    test_rtree_by_point<P2ttmc, bgi::rstar<4, 2> >();
+    test_rtree<P2ttmc, bgi::linear<4, 2> >();
+    test_rtree<P2ttmc, bgi::quadratic<4, 2> >();
+    test_rtree<P2ttmc, bgi::rstar<4, 2> >();
 #endif
 
     return 0;
