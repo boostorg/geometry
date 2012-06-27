@@ -60,6 +60,13 @@ struct overlaps
     Geometry geometry;
 };
 
+//template <typename Geometry>
+//struct touches
+//{
+//    touches(Geometry const& g) : geometry(g) {}
+//    Geometry geometry;
+//};
+
 template <typename Geometry>
 struct within
 {
@@ -94,6 +101,13 @@ struct not_overlaps
     not_overlaps(Geometry const& g) : geometry(g) {}
     Geometry geometry;
 };
+
+//template <typename Geometry>
+//struct not_touches
+//{
+//    not_touches(Geometry const& g) : geometry(g) {}
+//    Geometry geometry;
+//};
 
 template <typename Geometry>
 struct not_within
@@ -141,6 +155,12 @@ inline detail::overlaps<Geometry> overlaps(Geometry const& g)
     return detail::overlaps<Geometry>(g);
 }
 
+//template <typename Geometry>
+//inline detail::touches<Geometry> touches(Geometry const& g)
+//{
+//    return detail::touches<Geometry>(g);
+//}
+
 template <typename Geometry>
 inline detail::within<Geometry> within(Geometry const& g)
 {
@@ -170,6 +190,12 @@ inline detail::not_overlaps<Geometry> not_overlaps(Geometry const& g)
 {
     return detail::not_overlaps<Geometry>(g);
 }
+
+//template <typename Geometry>
+//inline detail::not_touches<Geometry> not_touches(Geometry const& g)
+//{
+//    return detail::not_touches<Geometry>(g);
+//}
 
 template <typename Geometry>
 inline detail::not_within<Geometry> not_within(Geometry const& g)
@@ -255,6 +281,16 @@ struct predicate_check<overlaps<Geometry>, Tag>
     }
 };
 
+//template <typename Geometry, typename Tag>
+//struct predicate_check<touches<Geometry>, Tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(touches<Geometry> const& p, Value const&, Indexable const& i)
+//    {
+//        return geometry::touches(i, p.geometry);
+//    }
+//};
+
 template <typename Geometry, typename Tag>
 struct predicate_check<within<Geometry>, Tag>
 {
@@ -304,6 +340,16 @@ struct predicate_check<not_overlaps<Geometry>, Tag>
         return !geometry::overlaps(i, p.geometry);
     }
 };
+
+//template <typename Geometry, typename Tag>
+//struct predicate_check<not_touches<Geometry>, Tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(not_touches<Geometry> const& p, Value const&, Indexable const& i)
+//    {
+//        return !geometry::touches(i, p.geometry);
+//    }
+//};
 
 template <typename Geometry, typename Tag>
 struct predicate_check<not_within<Geometry>, Tag>
@@ -456,6 +502,20 @@ operator!(boost::geometry::index::detail::not_overlaps<Geometry> const& p)
 {
     return boost::geometry::index::detail::overlaps<Geometry>(p.geometry);
 }
+
+//template <typename Geometry>
+//boost::geometry::index::detail::not_touches<Geometry>
+//operator!(boost::geometry::index::detail::touches<Geometry> const& p)
+//{
+//    return boost::geometry::index::detail::not_touches<Geometry>(p.geometry);
+//}
+//
+//template <typename Geometry>
+//boost::geometry::index::detail::touches<Geometry>
+//operator!(boost::geometry::index::detail::not_touches<Geometry> const& p)
+//{
+//    return boost::geometry::index::detail::touches<Geometry>(p.geometry);
+//}
 
 template <typename Geometry>
 boost::geometry::index::detail::not_within<Geometry>

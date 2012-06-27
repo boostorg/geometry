@@ -92,6 +92,16 @@ struct predicate_check<overlaps<Geometry>, rtree::node_tag>
     }
 };
 
+//template <typename Geometry>
+//struct predicate_check<touches<Geometry>, rtree::node_tag>
+//{
+//    template <typename Value, typename Box>
+//    static bool apply(touches<Geometry> const& p, Value const&, Box const& i)
+//    {
+//        return geometry::intersects(i, p.geometry);
+//    }
+//};
+
 template <typename Geometry>
 struct predicate_check<within<Geometry>, rtree::node_tag>
 {
@@ -143,6 +153,16 @@ struct predicate_check<not_overlaps<Geometry>, rtree::node_tag>
         return true;
     }
 };
+
+//template <typename Geometry>
+//struct predicate_check<not_touches<Geometry>, rtree::node_tag>
+//{
+//    template <typename Value, typename Box>
+//    static bool apply(not_touches<Geometry> const& p, Value const&, Box const& i)
+//    {
+//        return !geometry::intersects(i, p.geometry);
+//    }
+//};
 
 template <typename Geometry>
 struct predicate_check<not_within<Geometry>, rtree::node_tag>
