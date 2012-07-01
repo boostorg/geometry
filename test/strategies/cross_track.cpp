@@ -15,6 +15,7 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/io/wkt/read.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
@@ -84,6 +85,40 @@ void test_distance(
 }
 
 
+template <typename Point>
+void test_case_boost_geometry_list_20120625()
+{
+    // This function tests the bug submitted by Karsten Ahnert
+    // on Boost.Geometry list at 2012-06-25, and wherefore he
+    // submitted a patch a few days later.
+
+    Point p1, p2;
+    bg::model::segment<Point> s1, s2;
+
+    bg::read_wkt("POINT(1 1)", p1);
+    bg::read_wkt("POINT(5 1)", p2);
+    bg::read_wkt("LINESTRING(0 2,2 2)", s1);
+    bg::read_wkt("LINESTRING(2 2,4 2)", s2);
+
+    BOOST_CHECK_CLOSE(boost::geometry::distance(p1, s1), 0.0174586, 0.0001);
+    BOOST_CHECK_CLOSE(boost::geometry::distance(p1, s2), 0.0246783, 0.0001);
+    BOOST_CHECK_CLOSE(boost::geometry::distance(p2, s1), 0.0551745, 0.0001);
+    BOOST_CHECK_CLOSE(boost::geometry::distance(p2, s2), 0.0246783, 0.0001);
+
+    // Check degenerated segments
+    bg::model::segment<Point> s3;
+    bg::read_wkt("LINESTRING(2 2,2 2)", s3);
+    BOOST_CHECK_CLOSE(boost::geometry::distance(p1, s3), 0.0246783, 0.0001);
+    BOOST_CHECK_CLOSE(boost::geometry::distance(p2, s3), 0.0551745, 0.0001);
+
+    // Point/Point distance should be identical:
+    Point p3;
+    bg::read_wkt("POINT(2 2)", p3);
+    BOOST_CHECK_CLOSE(boost::geometry::distance(p1, p3), 0.0246783, 0.0001);
+    BOOST_CHECK_CLOSE(boost::geometry::distance(p2, p3), 0.0551745, 0.0001);
+}
+
+
 template <typename Point, typename LatitudePolicy>
 void test_all()
 {
@@ -95,6 +130,8 @@ void test_all()
     typename bg::coordinate_type<Point>::type const p_to_ab = 86.798321 * 1000.0;
     test_distance<Point, LatitudePolicy>(2, 48, 4, 52, 2, 41, average_earth_radius, p_to_ab, 0.1);
     test_distance<Point, LatitudePolicy>(2, 48, 2, 41, 4, 52, average_earth_radius, p_to_ab, 0.1);
+
+    test_case_boost_geometry_list_20120625<Point>();
 }
 
 
