@@ -14,7 +14,9 @@
 
 #include <boost/foreach.hpp>
 
-#include <boost/geometry/geometry.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/ring.hpp>
 
 BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(std::vector)
@@ -32,42 +34,42 @@ struct my_point
 
 namespace boost { namespace geometry { namespace traits {
 
-template<> struct tag<my_point*>
+template<> struct tag<my_point>
 { typedef point_tag type; };
 
-template<> struct coordinate_type<my_point*>
+template<> struct coordinate_type<my_point>
 { typedef double type; };
 
-template<> struct coordinate_system<my_point*>
+template<> struct coordinate_system<my_point>
 { typedef cs::cartesian type; };
 
-template<> struct dimension<my_point*> : boost::mpl::int_<2> {};
+template<> struct dimension<my_point> : boost::mpl::int_<2> {};
 
 template<>
-struct access<my_point*, 0>
+struct access<my_point, 0>
 {
-    static double get(my_point const* p)
+    static double get(my_point const& p)
     {
-        return p->x;
+        return p.x;
     }
 
-    static void set(my_point* p, double const& value)
+    static void set(my_point& p, double const& value)
     {
-        p->x = value;
+        p.x = value;
     }
 };
 
 template<>
-struct access<my_point*, 1>
+struct access<my_point, 1>
 {
-    static double get(my_point const* p)
+    static double get(my_point const& p)
     {
-        return p->y;
+        return p.y;
     }
 
-    static void set(my_point* p, double const& value)
+    static void set(my_point& p, double const& value)
     {
-        p->y = value;
+        p.y = value;
     }
 };
 
@@ -101,30 +103,33 @@ int main()
     //std::vector<ring_type> unioned;
     //boost::geometry::union<ring_type>(a, b, unioned);
 
-    /* This once worked, using pointers, but has to be fixed or deprecated
-    typedef boost::geometry::model::ring<boost::geometry::model::d2::point_xy<double> > ring_2d;
-    std::vector<ring_2d> unioned;
-    std::vector<ring_2d> intersected;
+    // BEGIN TODO
+    // This compiles (and once worked) using pointers, but has to be fixed or deprecated
+    // The problem is now the cart_intersect/side where a temporary point is generated
+    //typedef boost::geometry::model::ring<boost::geometry::model::d2::point_xy<double> > ring_2d;
+    //std::vector<ring_2d> unioned;
+    //std::vector<ring_2d> intersected;
 
-    boost::geometry::intersection(a, b, intersected);
-    boost::geometry::union_(a, b, unioned);
+    //boost::geometry::intersection(a, b, intersected);
+    //boost::geometry::union_(a, b, unioned);
 
-    double ai = 0, au = 0;
-    BOOST_FOREACH(ring_2d const& ring, intersected)
-    {
-        ai += boost::geometry::area(ring);
-    }
-    BOOST_FOREACH(ring_2d const& ring, unioned)
-    {
-        au += boost::geometry::area(ring);
-    }
+    //double ai = 0, au = 0;
+    //BOOST_FOREACH(ring_2d const& ring, intersected)
+    //{
+    //    ai += boost::geometry::area(ring);
+    //}
+    //BOOST_FOREACH(ring_2d const& ring, unioned)
+    //{
+    //    au += boost::geometry::area(ring);
+    //}
 
-    std::cout << "a: " << aa << std::endl;
-    std::cout << "b: " << ab << std::endl;
-    std::cout << "a & b: " << ai << std::endl;
-    std::cout << "a | b: " << au << std::endl;
-    std::cout << "a + b - (a & b): " << (aa + ab - ai) << std::endl;
-    */
+    //std::cout << "a: " << aa << std::endl;
+    //std::cout << "b: " << ab << std::endl;
+    //std::cout << "a & b: " << ai << std::endl;
+    //std::cout << "a | b: " << au << std::endl;
+    //std::cout << "a + b - (a & b): " << (aa + ab - ai) << std::endl;
+    // END TODO
+
 
     // free
     BOOST_FOREACH(my_point* p, a)
