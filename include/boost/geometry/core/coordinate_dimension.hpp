@@ -20,9 +20,9 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/util/bare_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -58,7 +58,7 @@ template <typename T, typename G>
 struct dimension : dimension<point_tag, typename point_type<T, G>::type> {};
 
 template <typename P>
-struct dimension<point_tag, P> : traits::dimension<P> {};
+struct dimension<point_tag, P> : traits::dimension<typename geometry::util::bare_type<P>::type> {};
 
 } // namespace core_dispatch
 #endif
@@ -75,7 +75,7 @@ struct dimension
     : core_dispatch::dimension
         <
             typename tag<Geometry>::type,
-            typename boost::remove_const<Geometry>::type
+			typename geometry::util::bare_type<Geometry>::type
         >
 {};
 

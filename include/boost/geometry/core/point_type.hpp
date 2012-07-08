@@ -22,6 +22,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/util/bare_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -115,11 +116,10 @@ struct point_type<polygon_tag, Polygon>
 template <typename Geometry>
 struct point_type
 {
-    typedef typename boost::remove_const<Geometry>::type ncg;
     typedef typename core_dispatch::point_type
         <
             typename tag<Geometry>::type,
-            ncg
+            typename boost::geometry::util::bare_type<Geometry>::type
         >::type type;
 };
 
