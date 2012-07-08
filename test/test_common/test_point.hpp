@@ -18,6 +18,9 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag.hpp>
 
+// NOTE: since Boost 1.51 the Point type may always be a pointer.
+// Therefore the traits class don't need to add a pointer.
+// This obsoletes this whole test-point-type
 
 namespace test
 {
