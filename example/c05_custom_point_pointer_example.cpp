@@ -35,42 +35,42 @@ struct my_point
 
 namespace boost { namespace geometry { namespace traits {
 
-template<> struct tag<my_point*>
+template<> struct tag<my_point>
 { typedef point_tag type; };
 
-template<> struct coordinate_type<my_point*>
+template<> struct coordinate_type<my_point>
 { typedef double type; };
 
-template<> struct coordinate_system<my_point*>
+template<> struct coordinate_system<my_point>
 { typedef cs::cartesian type; };
 
-template<> struct dimension<my_point*> : boost::mpl::int_<2> {};
+template<> struct dimension<my_point> : boost::mpl::int_<2> {};
 
 template<>
-struct access<my_point*, 0>
+struct access<my_point, 0>
 {
-    static double get(my_point const* p)
+    static double get(my_point const& p)
     {
-        return p->x;
+        return p.x;
     }
 
-    static void set(my_point* p, double const& value)
+    static void set(my_point& p, double const& value)
     {
-        p->x = value;
+        p.x = value;
     }
 };
 
 template<>
-struct access<my_point*, 1>
+struct access<my_point, 1>
 {
-    static double get(my_point const* p)
+    static double get(my_point const& p)
     {
-        return p->y;
+        return p.y;
     }
 
-    static void set(my_point* p, double const& value)
+    static void set(my_point& p, double const& value)
     {
-        p->y = value;
+        p.y = value;
     }
 };
 

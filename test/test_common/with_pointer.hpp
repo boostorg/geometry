@@ -19,6 +19,11 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag.hpp>
 
+// NOTE: since Boost 1.51 the Point type may always be a pointer.
+// Therefore the traits class don't need to add a pointer.
+// This obsoletes this whole test-point-type
+
+
 
 namespace test
 {
@@ -34,44 +39,44 @@ struct test_point_xy
 
 namespace boost { namespace geometry { namespace traits {
 
-template<> struct tag<test::test_point_xy*>
+template<> struct tag<test::test_point_xy>
 { typedef point_tag type; };
 
-template<> struct coordinate_type<test::test_point_xy*>
+template<> struct coordinate_type<test::test_point_xy>
 { typedef double type; };
 
-template<> struct coordinate_system<test::test_point_xy*>
+template<> struct coordinate_system<test::test_point_xy>
 { typedef cs::cartesian type; };
 
-template<> struct dimension<test::test_point_xy*> : boost::mpl::int_<2> {};
+template<> struct dimension<test::test_point_xy> : boost::mpl::int_<2> {};
 
 template<>
-struct access<test::test_point_xy*, 0>
+struct access<test::test_point_xy, 0>
 {
-    static double get(test::test_point_xy const* p)
+    static double get(test::test_point_xy const& p)
     {
-        return p->x;
+        return p.x;
     }
 
-    static void set(test::test_point_xy* p, double const& value)
+    static void set(test::test_point_xy& p, double const& value)
     {
-        p->x = value;
+        p.x = value;
     }
 
 };
 
 
 template<>
-struct access<test::test_point_xy*, 1>
+struct access<test::test_point_xy, 1>
 {
-    static double get(test::test_point_xy const* p)
+    static double get(test::test_point_xy const& p)
     {
-        return p->y;
+        return p.y;
     }
 
-    static void set(test::test_point_xy* p, double const& value)
+    static void set(test::test_point_xy& p, double const& value)
     {
-        p->y = value;
+        p.y = value;
     }
 
 };

@@ -16,9 +16,10 @@
 
 
 #include <boost/mpl/assert.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
+#include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/util/bare_type.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 
 
@@ -63,11 +64,16 @@ struct coordinate_type
 template <typename Point>
 struct coordinate_type<point_tag, Point>
 {
-    typedef typename traits::coordinate_type<Point>::type type;
+    typedef typename traits::coordinate_type
+		<
+            typename geometry::util::bare_type<Point>::type
+		>::type type;
 };
+
 
 } // namespace core_dispatch
 #endif // DOXYGEN_NO_DISPATCH
+
 
 /*!
 \brief \brief_meta{type, coordinate type (int\, float\, double\, etc), \meta_point_type}
@@ -79,11 +85,11 @@ struct coordinate_type<point_tag, Point>
 template <typename Geometry>
 struct coordinate_type
 {
-    typedef typename core_dispatch::coordinate_type
-        <
-            typename tag<Geometry>::type,
-            typename boost::remove_const<Geometry>::type
-        >::type type;
+	typedef typename core_dispatch::coordinate_type
+				<
+					typename tag<Geometry>::type,
+					typename geometry::util::bare_type<Geometry>::type
+				>::type type;
 };
 
 template <typename Geometry>
