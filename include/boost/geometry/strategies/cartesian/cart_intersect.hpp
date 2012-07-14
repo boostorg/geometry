@@ -193,7 +193,7 @@ struct relate_cartesian_segments
             }
             else
             {
-                r = da / d;
+                r = promoted_type(da) / promoted_type(d);
 
                 if (! robustness_verify_r(a, b, r))
                 {
