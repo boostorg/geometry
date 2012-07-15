@@ -228,6 +228,46 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
     }
 }
 
+static void copy_string_property(std::string const& source, std::string& target)
+{
+    if (target.empty())
+    {
+        target = source;
+    }
+}
+
+
+template <typename Parameters>
+static void copy_parameter_properties(parameter const& source, Parameters& target)
+{
+    BOOST_FOREACH(parameter& t, target)
+    {
+        if (source.name == t.name)
+        {
+            t.skip = source.skip;
+            copy_string_property(source.brief_description, t.brief_description);
+            copy_string_property(source.type, t.type);
+            copy_string_property(source.default_value, t.default_value);
+            copy_string_property(source.fulltype, t.fulltype);
+
+            return;
+        }
+    }
+    // If not found, write a warning
+    std::cerr << "Parameter not found: " << source.name << std::endl;
+}
+
+
+template <typename Parameters>
+static void copy_parameters_properties(Parameters const& source, Parameters& target)
+{
+    BOOST_FOREACH(parameter const& s, source)
+    {
+        copy_parameter_properties(s, target);
+    }
+}
+
+
 
 template <typename Element>
 static void parse_element(rapidxml::xml_node<>* node, configuration const& config, std::string const& parent, Element& el)
@@ -290,13 +330,25 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
             std::string kind = get_attribute(node, "kind");
             if (kind == "param")
             {
-                parse_parameter_list(node->first_node(), el.parameters);
+                // Parse parameters and their descriptions.
+                // NOTE: they are listed here, but the order might not be the order in the function call
+                std::vector<parameter> parameters;
+                parse_parameter_list(node->first_node(), parameters);
+                copy_parameters_properties(parameters, el.parameters);
             }
             else if (kind == "templateparam")
             {
                 parse_parameter_list(node->first_node(), el.template_parameters);
             }
         }
+        else if (full == ".param")
+        {
+            // Parse one parameter, and add it to el.parameters
+            parameter p;
+            parse_parameter(node->first_node(), p);
+            el.parameters.push_back(p);
+        }
+
 
         parse_element(node->first_node(), config, full, el);
         parse_element(node->next_sibling(), config, parent, el);
