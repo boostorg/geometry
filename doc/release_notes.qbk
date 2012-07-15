@@ -17,6 +17,10 @@
 [heading Boost 1.51]
 [/=================]
 
+[*Breaking changes]
+
+* points accessed through a pointer (e.g. in a linestring) should now be specialized without the pointer. In previous versions a type `my_point` used like `linestring<my_point*>` had to be specalized like: `template<> struct tag<my_point*>`. Now the library itself removes the pointer before calling the traits class, so now it should be like: `template<> struct tag<my_point>`
+
 [*Bugfixes]
 
 * intersection was sometimes wrong for integer points, fixed
