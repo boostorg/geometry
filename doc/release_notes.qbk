@@ -12,11 +12,24 @@
 
 [section:release_notes Release Notes]
 
+
+[/=================]
+[heading Boost 1.51]
+[/=================]
+
+[*Bugfixes]
+
+* intersection was sometimes wrong for integer points, fixed
+* documentation, order of parameters in simplify was wrong, fixed
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/7030 7030] spherical distance, fixed (by patch of Karsten Ahnert)
+
+
 [/=================]
 [heading Boost 1.50]
 [/=================]
-
-[*Breaking changes]
 
 [*Bugfixes]
 
@@ -36,11 +49,6 @@
 [*Additional functionality]
 
 * added algorithm "touches" (OGC SF compliant) for *polygon/*polygon
-
-[*Documentation]
-
-[*Internal changes]
-
 
 [/=================]
 [heading Boost 1.49]
