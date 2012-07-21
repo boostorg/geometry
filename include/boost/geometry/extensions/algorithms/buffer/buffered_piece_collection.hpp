@@ -28,13 +28,21 @@
 #include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/side_on_convex_range.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
+#include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
 #include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/occupation_info.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
+
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
+#  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#  include <boost/geometry/io/wkt/wkt.hpp>
+#endif
 
 
 namespace boost { namespace geometry
@@ -396,7 +404,7 @@ struct buffered_piece_collection
         }
 
 		int flat_ends_involved = 0;
-        for (int i = 0; i < boost::size(turn.operations); i++)
+        for (int i = 0; i < int(boost::size(turn.operations)); i++)
         {
 			// Don't check any turn against a piece of which is itself the result
 			if (turn.operations[i].piece_index == pc.index)
@@ -486,7 +494,7 @@ struct buffered_piece_collection
     {
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
         std::cout << caption << ": " << indices.size() << std::endl;
-        for (auto sit = indices.begin(); sit != indices.end(); ++sit)
+        for (std::set<int>::const_iterator sit = indices.begin(); sit != indices.end(); ++sit)
         {
             int const index = *sit;
             std::cout << "Keep "  << index // << "[" << sit->second << "]"
@@ -675,8 +683,9 @@ struct buffered_piece_collection
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
 	inline int get_side(point_type const& point, Ring const& ring, int segment_index)
 	{
-		auto it = boost::begin(ring) + segment_index;
-		auto prev = it++;
+        typedef typename boost::range_iterator<Ring const> iterator_type;
+		iterator_type it = boost::begin(ring) + segment_index;
+		iterator_type prev = it++;
 		return side_strategy::apply(point, *prev, *it);
 	}
 #endif
@@ -690,14 +699,16 @@ struct buffered_piece_collection
 
 	inline int get_side(segment_identifier const& seg_id1, segment_identifier const& seg_id2, int which = 1) const
 	{
+        typedef typename boost::range_iterator<Ring const>::type iterator_type;
+
         Ring const& ring1 = offsetted_rings[seg_id1.multi_index];
         Ring const& ring2 = offsetted_rings[seg_id2.multi_index];
 
-		auto it1 = boost::begin(ring1) + seg_id1.segment_index;
-		auto it2 = boost::begin(ring2) + seg_id2.segment_index;
+		iterator_type it1 = boost::begin(ring1) + seg_id1.segment_index;
+		iterator_type it2 = boost::begin(ring2) + seg_id2.segment_index;
 
-		auto prev1 = it1++;
-		auto prev2 = it2++;
+		iterator_type prev1 = it1++;
+		iterator_type prev2 = it2++;
 
 		int code1 = side_strategy::apply(select_for_side(prev1, it1, which), *prev2, *it2);
 		int code2 = side_strategy::apply(select_for_side(prev2, it2, which), *prev1, *it1);
@@ -777,7 +788,8 @@ struct buffered_piece_collection
 	{
 		bool result = false;
         //if (cluster.intersecting_ids.count(seg_id) > 0)
-		for(auto it = cluster.intersecting_segments.begin(); it != cluster.intersecting_segments.end(); it++)
+        typedef typename boost::range_iterator<std::vector<cluster_info> const>::type iterator_type;
+		for(iterator_type it = cluster.intersecting_segments.begin(); it != cluster.intersecting_segments.end(); it++)
 		{
 			if (it->operation.seg_id == seg_id)
 			{
@@ -829,12 +841,15 @@ struct buffered_piece_collection
 
 	inline void add_mutual_intersections(clustered_info const& cluster, std::map<segment_identifier, clustered_info> const& map)
 	{
-		for(auto it1 = cluster.intersecting_segments.begin(); it1 != cluster.intersecting_segments.end(); it1++)
+        typedef std::map<segment_identifier, clustered_info> map_type;
+        typedef typename boost::range_iterator<map_type const>::type map_it;
+        typedef typename boost::range_iterator<std::vector<cluster_info> const>::type cluster_it;
+        for(cluster_it it1 = cluster.intersecting_segments.begin(); it1 != cluster.intersecting_segments.end(); it1++)
 		{
-			auto const& other_cluster_it = map.find(it1->operation.seg_id);
+			map_it const& other_cluster_it = map.find(it1->operation.seg_id);
 			if (other_cluster_it != map.end())
 			{
-				for(auto it2 = it1 + 1; it2 != cluster.intersecting_segments.end(); it2++)
+				for(cluster_it it2 = it1 + 1; it2 != cluster.intersecting_segments.end(); it2++)
 				{
 					if (! m_occupation_map.contains_turn_index(it1->turn_index)
 						|| ! m_occupation_map.contains_turn_index(it2->turn_index))
