@@ -20,6 +20,7 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 

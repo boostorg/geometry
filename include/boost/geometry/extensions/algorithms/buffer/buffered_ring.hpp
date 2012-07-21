@@ -246,7 +246,7 @@ struct get_ring<detail::buffer::buffered_ring_collection_tag>
         BOOST_ASSERT
             (
                 id.multi_index >= 0
-                && id.multi_index < boost::size(multi_ring)
+                && id.multi_index < int(boost::size(multi_ring))
             );
         return get_ring<ring_tag>::apply(id, multi_ring[id.multi_index]);
     }
