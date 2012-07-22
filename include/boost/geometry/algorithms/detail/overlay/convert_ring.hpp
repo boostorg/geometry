@@ -77,15 +77,15 @@ struct convert_ring<polygon_tag>
         }
         else
         {
-            // Avoid adding interior rings which are invalid because of number of points:
-            if (geometry::num_points(source) >=
-                    core_detail::closure::minimum_ring_size
-                        <
-                            geometry::closure
-                                <
-                                    Destination
-                                >::value
-                        >::value)
+            // Avoid adding interior rings which are invalid
+            // because of its number of points:
+            std::size_t const min_num_points
+                    = core_detail::closure::minimum_ring_size
+                            <
+                                geometry::closure<Destination>::value
+                            >::value;
+
+            if (geometry::num_points(source) >= min_num_points)
             {
                 interior_rings(destination).resize(
                             interior_rings(destination).size() + 1);
