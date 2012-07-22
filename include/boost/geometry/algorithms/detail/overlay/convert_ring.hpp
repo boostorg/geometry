@@ -77,12 +77,23 @@ struct convert_ring<polygon_tag>
         }
         else
         {
-            interior_rings(destination).resize(
-                        interior_rings(destination).size() + 1);
-            geometry::convert(source, interior_rings(destination).back());
-            if (reverse)
+            // Avoid adding interior rings which are invalid because of number of points:
+            if (geometry::num_points(source) >=
+                    core_detail::closure::minimum_ring_size
+                        <
+                            geometry::closure
+                                <
+                                    Destination
+                                >::value
+                        >::value)
             {
-                boost::reverse(interior_rings(destination).back());
+                interior_rings(destination).resize(
+                            interior_rings(destination).size() + 1);
+                geometry::convert(source, interior_rings(destination).back());
+                if (reverse)
+                {
+                    boost::reverse(interior_rings(destination).back());
+                }
             }
         }
     }
