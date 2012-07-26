@@ -113,6 +113,12 @@ void test_all()
     test_disjoint<segment, segment>("s/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
     test_disjoint<segment, segment>("s/s 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
 
+    // Test degenerate segments (patched by Karsten Ahnert on 2012-07-25)
+    test_disjoint<segment, segment>("s/s 3", "linestring(0 0,0 0)", "linestring(1 0,0 1)", true);
+    test_disjoint<segment, segment>("s/s 4", "linestring(0 0,0 0)", "linestring(0 0,0 0)", false);
+    test_disjoint<segment, segment>("s/s 5", "linestring(0 0,0 0)", "linestring(1 0,1 0)", true);
+    test_disjoint<segment, segment>("s/s 6", "linestring(0 0,0 0)", "linestring(0 1,0 1)", true);
+
     // Collinear opposite
     test_disjoint<ls, ls>("ls/ls co", "linestring(0 0,2 2)", "linestring(1 1,0 0)", false);
     // Collinear opposite and equal
