@@ -173,6 +173,12 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 		{
 			tolerance = 0.1;
 		}
+
+		if (expected_area < 1.0e-5)
+		{
+			tolerance = 1.0e-10;
+		}
+
         BOOST_CHECK_MESSAGE
             (
                 bg::math::abs(area - expected_area) < tolerance,
