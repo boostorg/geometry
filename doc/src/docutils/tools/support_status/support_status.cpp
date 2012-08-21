@@ -33,6 +33,7 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
+#include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/append.hpp>
 #include <boost/geometry/multi/algorithms/area.hpp>
 #include <boost/geometry/multi/algorithms/clear.hpp>
@@ -95,6 +96,7 @@ DECLARE_UNARY_ALGORITHM (envelope)
 DECLARE_BINARY_ALGORITHM(equals)
 DECLARE_BINARY_ALGORITHM(expand)
 DECLARE_BINARY_ALGORITHM(overlaps)
+DECLARE_UNARY_ALGORITHM(simplify)
 DECLARE_BINARY_ALGORITHM(within)
 
 
@@ -217,6 +219,7 @@ void support_status()
     test_binary_algorithm<equals, all_types, all_types, OutputFactory>("equals");
     test_binary_algorithm<expand, all_types, all_types, OutputFactory>("expand");
     test_binary_algorithm<overlaps, all_types, all_types, OutputFactory>("overlaps");
+    test_unary_algorithm<simplify, all_types, OutputFactory>("simplify");
     test_binary_algorithm<within, all_types, all_types, OutputFactory>("within");
 }
 
