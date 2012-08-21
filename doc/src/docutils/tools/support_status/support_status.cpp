@@ -43,6 +43,7 @@
 #include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/equals.hpp>
+#include <boost/geometry/multi/algorithms/simplify.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "text_outputter.hpp"
