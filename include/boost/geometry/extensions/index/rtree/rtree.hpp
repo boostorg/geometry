@@ -184,7 +184,7 @@ public:
     {
         //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
 
-        if ( &src == this )
+        if ( this == &src )
             return *this;
 
         if ( !this->empty() )
@@ -220,7 +220,7 @@ public:
 
         //m_allocators = src.m_allocators;
 
-        if ( m_allocators == src.m_allocators)
+        if ( m_allocators.allocator == src.m_allocators.allocator)
         {
             m_values_count = src.m_values_count;
             src.m_values_count = 0;
@@ -242,6 +242,8 @@ public:
                 throw;
             }
         }
+
+        return *this;
     }
 
     /*!

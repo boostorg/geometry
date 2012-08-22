@@ -195,12 +195,36 @@ Iter test_find(Rtree const& rtree, Iter first, Iter last, Value const& value)
 template <typename Rtree, typename Value>
 void test_compare_outputs(Rtree const& rtree, std::vector<Value> const& output, std::vector<Value> const& expected_output)
 {
-    typename Rtree::translator_type tr = rtree.translator();
-
-    BOOST_CHECK( expected_output.size() == output.size() );
-    BOOST_FOREACH(Value const& v, expected_output)
+    bool are_sizes_ok = (expected_output.size() == output.size());
+    BOOST_CHECK( are_sizes_ok );
+    if ( are_sizes_ok )
     {
-        BOOST_CHECK(test_find(rtree, output.begin(), output.end(), v) != output.end() );
+        BOOST_FOREACH(Value const& v, expected_output)
+        {
+            BOOST_CHECK(test_find(rtree, output.begin(), output.end(), v) != output.end() );
+        }
+    }
+}
+
+template <typename Rtree, typename Range1, typename Range2>
+void test_exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Range2 const& expected_output)
+{
+    size_t s1 = std::distance(output.begin(), output.end());
+    size_t s2 = std::distance(expected_output.begin(), expected_output.end());
+    BOOST_CHECK(s1 == s2);
+
+    if ( s1 == s2 )
+    {
+        Range1::const_iterator it1 = output.begin();
+        Range2::const_iterator it2 = expected_output.begin();
+        for ( ; it1 != output.end() && it2 != expected_output.end() ; ++it1, ++it2 )
+        {
+            if ( !rtree.translator().equals(*it1, *it2) )
+            {
+                BOOST_CHECK(false);
+                break;
+            }
+        }
     }
 }
 
@@ -215,6 +239,14 @@ void test_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const&
 
     BOOST_CHECK( expected_output.size() == n );
     test_compare_outputs(rtree, output, expected_output);
+
+    std::vector<Value> output2;
+    size_t n2 = query(rtree, pred, std::back_inserter(output2));
+
+    BOOST_CHECK( n == n2 );
+    test_exactly_the_same_outputs(rtree, output, output2);
+
+    test_exactly_the_same_outputs(rtree, output, rtree | bgi::query_filtered(pred));
 }
 
 // rtree queries tests
@@ -330,8 +362,43 @@ void test_within(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& 
     test_query(tree, bgi::within(qbox), expected_output);
 }
 
+template <typename Value, typename Algo, typename Box>
+void test_copy_assignment_move(bgi::rtree<Value, Algo> & tree, Box const& qbox)
+{
+    std::vector<Value> expected_output;
+    tree.query(qbox, std::back_inserter(expected_output));
+
+    // copy constructor
+    bgi::rtree<Value, Algo> t1(tree);
+
+    std::vector<Value> output;
+    t1.query(qbox, std::back_inserter(output));
+    test_exactly_the_same_outputs(t1, output, expected_output);
+
+    // copying assignment operator
+    t1 = tree;
+
+    output.clear();
+    t1.query(qbox, std::back_inserter(output));
+    test_exactly_the_same_outputs(t1, output, expected_output);
+
+    // moving constructor
+    bgi::rtree<Value, Algo> t2(boost::move(tree));
+
+    output.clear();
+    t2.query(qbox, std::back_inserter(output));
+    test_exactly_the_same_outputs(t2, output, expected_output);
+
+    // moving assignment operator
+    t2 = boost::move(t1);
+
+    output.clear();
+    t2.query(qbox, std::back_inserter(output));
+    test_exactly_the_same_outputs(t2, output, expected_output);
+}
+
 template <typename Value, typename Algo>
-void test_rtree_queries()
+void test_rtree_by_value()
 {
     typedef bgi::rtree<Value, Algo> Tree;
     typedef typename Tree::box_type B;
@@ -341,11 +408,14 @@ void test_rtree_queries()
     B qbox;
 
     generate_rtree(tree, input, qbox);
+
     test_intersects_and_disjoint(tree, input, qbox);
     test_covered_by(tree, input, qbox);
     test_overlaps(tree, input, qbox);
     //test_touches(tree, input, qbox);
     test_within(tree, input, qbox);
+
+    test_copy_assignment_move(tree, qbox);
 }
 
 template<typename Point, typename Algo>
@@ -355,10 +425,10 @@ void test_rtree()
     typedef std::pair<Box, int> PairB;
     typedef std::pair<Point, int> PairP;
 
-    test_rtree_queries<Point, Algo>();
-    test_rtree_queries<Box, Algo>();
-    test_rtree_queries<PairB, Algo>();
-    test_rtree_queries<PairP, Algo>();
+    test_rtree_by_value<Point, Algo>();
+    test_rtree_by_value<Box, Algo>();
+    test_rtree_by_value<PairB, Algo>();
+    test_rtree_by_value<PairP, Algo>();
 }
 
 #endif
