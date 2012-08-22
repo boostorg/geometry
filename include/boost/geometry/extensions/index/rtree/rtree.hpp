@@ -12,7 +12,9 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RTREE_HPP
 
 #include <algorithm>
+
 #include <boost/tuple/tuple.hpp>
+#include <boost/move/move.hpp>
 
 #include <boost/geometry/geometry.hpp>
 
@@ -60,6 +62,8 @@ template <
 >
 class rtree
 {
+    BOOST_COPYABLE_AND_MOVABLE(rtree)
+
 public:
     typedef Value value_type;
     typedef Translator translator_type;
@@ -90,7 +94,7 @@ public:
         , m_translator(translator)
         , m_allocators(allocator)
     {
-        create();
+        this->create();
     }
 
     /*!
@@ -102,14 +106,15 @@ public:
     \param allocator    The allocator object.
     */
     template<typename Iterator>
-    inline explicit rtree(Iterator first, Iterator last, translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
+    inline rtree(Iterator first, Iterator last, translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
         : m_values_count(0)
         , m_root(0)
         , m_leafs_level(0)
         , m_translator(translator)
+        , m_allocators(allocator)
     {
-        create();
-        insert(first, last);
+        this->create();
+        this->insert(first, last);
     }
 
     /*!
@@ -117,7 +122,8 @@ public:
     */
     inline ~rtree()
     {
-        destroy(*this);
+        if ( !this->empty() )
+            this->destroy(*this);
     }
 
     /*!
@@ -126,40 +132,116 @@ public:
     inline rtree(rtree const& src)
         : m_allocators(src.m_allocators)
     {
+        //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
+
         try
         {
-            copy(src, *this);
+            this->copy(src, *this);
         }
         catch(...)
         {
-            destroy(*this);
+            this->destroy(*this);
             throw;
         }
     }
 
     /*!
-    The assignment operator.
+    The copy constructor.
     */
-    inline rtree & operator=(rtree const& src)
+    inline rtree(rtree const& src, Allocator const& allocator)
+        : m_allocators(allocator)
     {
-        if ( &src == this )
-            return *this;
-
-        destroy(*this);
-        
-        m_allocators = src.m_allocators;
-
         try
         {
-            copy(src, *this);
+            this->copy(src, *this);
         }
         catch(...)
         {
-            destroy(*this);
+            this->destroy(*this);
+            throw;
+        }
+    }
+
+    /*!
+    The moving constructor.
+    */
+    inline rtree(BOOST_RV_REF(rtree) src)
+        : m_values_count(src.m_values_count)
+        , m_root(src.m_root)
+        , m_leafs_level(src.m_leafs_level)
+        , m_translator(src.m_translator)
+        , m_allocators(src.m_allocators)
+    {
+        src.m_values_count = 0;
+        src.m_root = 0;
+        src.m_leafs_level = 0;
+    }
+
+    /*!
+    The assignment operator.
+    */
+    inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
+    {
+        //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
+
+        if ( &src == this )
+            return *this;
+
+        if ( !this->empty() )
+            this->destroy(*this);
+        
+        //m_allocators = src.m_allocators;
+
+        try
+        {
+            this->copy(src, *this);
+        }
+        catch(...)
+        {
+            this->destroy(*this);
             throw;
         }
 
         return *this;
+    }
+
+    /*!
+    The moving assignment.
+    */
+    inline rtree & operator=(BOOST_RV_REF(rtree) src)
+    {
+        //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
+
+        if ( this == &src )
+            return *this;
+
+        if ( !this->empty() )
+            this->destroy(*this);
+
+        //m_allocators = src.m_allocators;
+
+        if ( m_allocators == src.m_allocators)
+        {
+            m_values_count = src.m_values_count;
+            src.m_values_count = 0;
+            m_root = src.m_root;
+            src.m_root = 0;
+            m_leafs_level = src.m_leafs_level;
+            src.m_leafs_level = 0;
+            m_translator = src.m_translator;
+        }
+        else
+        {
+            try
+            {
+                this->copy(src, *this);
+            }
+            catch(...)
+            {
+                this->destroy(*this);
+                throw;
+            }
+        }
     }
 
     /*!
@@ -189,7 +271,7 @@ public:
         }
         catch(...)
         {
-            destroy(*this);
+            this->destroy(*this);
             throw;
         }
     }
@@ -204,7 +286,7 @@ public:
     inline void insert(Iterator first, Iterator last)
     {
         for ( ; first != last ; ++first )
-            insert(*first);
+            this->insert(*first);
     }
 
     /*!
@@ -234,7 +316,7 @@ public:
         }
         catch(...)
         {
-            destroy(*this);
+            this->destroy(*this);
             throw;
         }
     }
@@ -249,7 +331,7 @@ public:
     inline void remove(Iterator first, Iterator last)
     {
         for ( ; first != last ; ++first )
-            remove(*first);
+            this->remove(*first);
     }
 
     /*!
@@ -358,8 +440,8 @@ public:
     */
     inline void clear()
     {
-        destroy(*this);
-        create();
+        this->destroy(*this);
+        this->create();
     }
 
     /*!
@@ -371,7 +453,7 @@ public:
     */
     inline box_type box() const
     {
-        if ( empty() )
+        if ( this->empty() )
         {
             box_type result;
             geometry::assign_inverse(result);
