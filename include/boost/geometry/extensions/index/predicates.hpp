@@ -120,83 +120,202 @@ struct not_within
 
 // generators
 
+/*!
+Generate empty predicate.
+*/
 inline detail::empty empty()
 {
     return detail::empty();
 }
 
+/*!
+Generate value predicate. A wrapper around user-defined functor
+describing if Value should be returned by spatial query.
+
+\tparam ValuePredicate  Functor type.
+
+\param vpred            The functor.
+*/
 template <typename ValuePredicate>
 inline detail::value<ValuePredicate> value(ValuePredicate const& vpred)
 {
     return detail::value<ValuePredicate>(vpred);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::covered_by(Indexable, Geometry)
+returns true.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::covered_by<Geometry> covered_by(Geometry const& g)
 {
     return detail::covered_by<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::disjoint(Indexable, Geometry)
+returns true.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::disjoint<Geometry> disjoint(Geometry const& g)
 {
     return detail::disjoint<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::intersects(Indexable, Geometry)
+returns true.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::intersects<Geometry> intersects(Geometry const& g)
 {
     return detail::intersects<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::overlaps(Indexable, Geometry)
+returns true.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::overlaps<Geometry> overlaps(Geometry const& g)
 {
     return detail::overlaps<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::touches(Indexable, Geometry)
+returns true.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 //template <typename Geometry>
 //inline detail::touches<Geometry> touches(Geometry const& g)
 //{
 //    return detail::touches<Geometry>(g);
 //}
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::within(Indexable, Geometry)
+returns true.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::within<Geometry> within(Geometry const& g)
 {
     return detail::within<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::covered_by(Indexable, Geometry)
+returns false.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::not_covered_by<Geometry> not_covered_by(Geometry const& g)
 {
     return detail::not_covered_by<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::disjoint(Indexable, Geometry)
+returns false.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::not_disjoint<Geometry> not_disjoint(Geometry const& g)
 {
     return detail::not_disjoint<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::intersects(Indexable, Geometry)
+returns false.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::not_intersects<Geometry> not_intersects(Geometry const& g)
 {
     return detail::not_intersects<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::overlaps(Indexable, Geometry)
+returns false.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::not_overlaps<Geometry> not_overlaps(Geometry const& g)
 {
     return detail::not_overlaps<Geometry>(g);
 }
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::touches(Indexable, Geometry)
+returns false.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 //template <typename Geometry>
 //inline detail::not_touches<Geometry> not_touches(Geometry const& g)
 //{
 //    return detail::not_touches<Geometry>(g);
 //}
 
+/*!
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if bg::within(Indexable, Geometry)
+returns false.
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
 template <typename Geometry>
 inline detail::not_within<Geometry> not_within(Geometry const& g)
 {
