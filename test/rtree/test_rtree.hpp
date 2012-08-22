@@ -15,6 +15,7 @@
 
 #include <boost/foreach.hpp>
 #include <vector>
+#include <algorithm>
 
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
@@ -215,18 +216,20 @@ void test_exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Ran
 
     if ( s1 == s2 )
     {
-        Range1::const_iterator it1 = output.begin();
-        Range2::const_iterator it2 = expected_output.begin();
+        typename Range1::const_iterator it1 = output.begin();
+        typename Range2::const_iterator it2 = expected_output.begin();
         for ( ; it1 != output.end() && it2 != expected_output.end() ; ++it1, ++it2 )
         {
             if ( !rtree.translator().equals(*it1, *it2) )
             {
-                BOOST_CHECK(false);
+                BOOST_CHECK(false && "rtree.translator().equals(*it1, *it2)");
                 break;
             }
         }
     }
 }
+
+// spatial query
 
 template <typename Rtree, typename Value, typename Predicates>
 void test_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
@@ -249,7 +252,7 @@ void test_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const&
     test_exactly_the_same_outputs(rtree, output, rtree | bgi::query_filtered(pred));
 }
 
-// rtree queries tests
+// rtree specific queries tests
 
 template <typename Value, typename Algo, typename Box>
 void test_intersects_and_disjoint(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
@@ -362,6 +365,128 @@ void test_within(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& 
     test_query(tree, bgi::within(qbox), expected_output);
 }
 
+// rtree nearest queries
+
+template <typename Rtree, typename Value, typename Point>
+void test_nearest(Rtree const& rtree, std::vector<Value> const& input, Point const& pt)
+{
+    // TODO: Nearest object may not be the same as found by the rtree if distances are equal
+    // Should all objects with the same closest distance be picked?
+
+    typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
+    D smallest_d = std::numeric_limits<D>::max();
+    Value expected_output;
+    BOOST_FOREACH(Value const& v, input)
+    {
+        D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+        if ( d < smallest_d )
+        {
+            smallest_d = d;
+            expected_output = v;
+        }
+    }
+    size_t n = ( std::numeric_limits<D>::max() == smallest_d ) ? 0 : 1;
+
+    Value output;
+    size_t n_res = rtree.nearest(pt, output);
+
+    BOOST_CHECK(n == n_res);
+    if ( n == n_res && 0 < n )
+    {
+        // TODO - perform explicit check here?
+        // should all objects which are closest be checked and should exactly the same be found?
+
+        if ( !rtree.translator().equals(output, expected_output) )
+        {
+            D d1 = bgi::comparable_distance_near(pt, rtree.translator()(output));
+            D d2 = bgi::comparable_distance_near(pt, rtree.translator()(expected_output));
+            BOOST_CHECK(d1 == d2);
+        }
+    }
+}
+
+template <typename Rtree, typename Point>
+struct TestNearestKLess
+{
+    typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
+
+    template <typename Value>
+    bool operator()(std::pair<D, Value> const& p1, std::pair<D, Value> const& p2) const
+    {
+        return p1.first < p2.first;
+    }
+};
+
+template <typename Rtree, typename Point>
+struct TestNearestKTransform
+{
+    typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
+
+    template <typename Value>
+    Value const& operator()(std::pair<D, Value> const& p) const
+    {
+        return p.second;
+    }
+};
+
+template <typename Rtree, typename Value, typename Point>
+void test_nearest_k(Rtree const& rtree, std::vector<Value> const& input, Point const& pt, size_t k)
+{
+    // TODO: Nearest object may not be the same as found by the rtree if distances are equal
+    // All objects with the same closest distance should be picked
+
+    typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
+
+    std::vector< std::pair<D, Value> > test_output;
+
+    // calculate test output - k closest values pairs
+    BOOST_FOREACH(Value const& v, input)
+    {
+        D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+
+        if ( test_output.size() < k )
+            test_output.push_back(std::make_pair(d, v));
+        else
+        {
+            std::sort(test_output.begin(), test_output.end(), TestNearestKLess<Rtree, Point>());
+            if ( d < test_output.back().first )
+                test_output.back() = std::make_pair(d, v);
+        }
+    }
+
+    // caluclate biggest distance
+    std::sort(test_output.begin(), test_output.end(), TestNearestKLess<Rtree, Point>());
+    D biggest_d = test_output.back().first;
+    
+    // transform test output to vector of values
+    std::vector<Value> expected_output(test_output.size());
+    std::transform(test_output.begin(), test_output.end(), expected_output.begin(), TestNearestKTransform<Rtree, Point>());
+
+    // calculate output using rtree
+    std::vector<Value> output;
+    rtree.nearest(pt, k, std::back_inserter(output));
+
+    // check output
+    bool are_sizes_ok = (expected_output.size() == output.size());
+    BOOST_CHECK( are_sizes_ok );
+    if ( are_sizes_ok )
+    {
+        BOOST_FOREACH(Value const& v, output)
+        {
+            // TODO - perform explicit check here?
+            // should all objects which are closest be checked and should exactly the same be found?
+
+            if ( test_find(rtree, expected_output.begin(), expected_output.end(), v) == expected_output.end() )
+            {
+                D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+                BOOST_CHECK(d == biggest_d);
+            }
+        }
+    }
+}
+
+// rtree copying and moving
+
 template <typename Value, typename Algo, typename Box>
 void test_copy_assignment_move(bgi::rtree<Value, Algo> & tree, Box const& qbox)
 {
@@ -397,6 +522,9 @@ void test_copy_assignment_move(bgi::rtree<Value, Algo> & tree, Box const& qbox)
     test_exactly_the_same_outputs(t2, output, expected_output);
 }
 
+// run all tests for a single Algorithm and single rtree
+// defined by Value
+
 template <typename Value, typename Algo>
 void test_rtree_by_value()
 {
@@ -415,8 +543,18 @@ void test_rtree_by_value()
     //test_touches(tree, input, qbox);
     test_within(tree, input, qbox);
 
+    typedef typename bgi::traits::point_type<B>::type P;
+    P pt;
+    bg::centroid(qbox, pt);
+    
+    test_nearest(tree, input, pt);
+    test_nearest_k(tree, input, pt, 10);
+
     test_copy_assignment_move(tree, qbox);
 }
+
+// run all tests for one Algorithm for some number of rtrees
+// defined by some number of Values constructed from given Point
 
 template<typename Point, typename Algo>
 void test_rtree()

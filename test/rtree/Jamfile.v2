@@ -11,11 +11,34 @@
 
 test-suite boost-geometry-index-rtree
     :
-    [ run rtree2d_linear.cpp ]
-    [ run rtree2d_quadratic.cpp ]
-    [ run rtree2d_rstar.cpp ]
-    [ run rtree3d_linear.cpp ]
-    [ run rtree3d_quadratic.cpp ]
-    [ run rtree3d_rstar.cpp ]
+    [ run rtree2d_linear_i.cpp ]
+    [ run rtree2d_linear_f.cpp ]
+    [ run rtree2d_linear_d.cpp ]
+    [ run rtree2d_linear_tt.cpp ]
+
+    [ run rtree2d_quadratic_i.cpp ]
+    [ run rtree2d_quadratic_f.cpp ]
+    [ run rtree2d_quadratic_d.cpp ]
+    [ run rtree2d_quadratic_tt.cpp ]
+
+    [ run rtree2d_rstar_i.cpp ]
+    [ run rtree2d_rstar_f.cpp ]
+    [ run rtree2d_rstar_d.cpp ]
+    [ run rtree2d_rstar_tt.cpp ]
+
+    [ run rtree3d_linear_i.cpp ]
+    [ run rtree3d_linear_f.cpp ]
+    [ run rtree3d_linear_d.cpp ]
+    [ run rtree3d_linear_tt.cpp ]
+
+    [ run rtree3d_quadratic_i.cpp ]
+    [ run rtree3d_quadratic_f.cpp ]
+    [ run rtree3d_quadratic_d.cpp ]
+    [ run rtree3d_quadratic_tt.cpp ]
+
+    [ run rtree3d_rstar_i.cpp ]
+    [ run rtree3d_rstar_f.cpp ]
+    [ run rtree3d_rstar_d.cpp ]
+    [ run rtree3d_rstar_tt.cpp ]
     ;
     

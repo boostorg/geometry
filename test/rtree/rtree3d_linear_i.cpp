@@ -21,19 +21,9 @@
 
 int test_main(int, char* [])
 {
-    typedef bg::model::point<int, 2, bg::cs::cartesian> P2ic;
-    typedef bg::model::point<float, 2, bg::cs::cartesian> P2fc;
-    typedef bg::model::point<double, 2, bg::cs::cartesian> P2dc;
-
-    test_rtree<P2ic, bgi::rstar<4, 2> >();
-    test_rtree<P2fc, bgi::rstar<4, 2> >();
-    test_rtree<P2dc, bgi::rstar<4, 2> >();
+    typedef bg::model::point<int, 3, bg::cs::cartesian> P3ic;
     
-#ifdef HAVE_TTMATH
-    typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;
-
-    test_rtree<P2ttmc, bgi::rstar<4, 2> >();
-#endif
-
+    test_rtree<P3ic, bgi::linear<4, 2> >();
+    
     return 0;
 }
