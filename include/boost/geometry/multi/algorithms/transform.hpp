@@ -31,10 +31,10 @@ namespace detail { namespace transform
 /*!
     \brief Is able to transform any multi-geometry, calling the single-version as policy
 */
-template <typename Multi1, typename Multi2, typename Policy>
+template <typename Policy>
 struct transform_multi
 {
-    template <typename S>
+    template <typename Multi1, typename Multi2, typename S>
     static inline bool apply(Multi1 const& multi1, Multi2& multi2, S const& strategy)
     {
         traits::resize<Multi2>::apply(multi2, boost::size(multi1));
@@ -74,8 +74,6 @@ struct transform
     >
     : detail::transform::transform_multi
         <
-            Multi1,
-            Multi2,
             transform
                 <
                     typename single_tag_of
