@@ -1,6 +1,6 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry Index
 //
-// Boost.SpatialIndex - n-dimensional box's content (2d-area/3d-volume/...)
+// n-dimensional box's content (hypervolume) - 2d area, 3d volume, ...
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //

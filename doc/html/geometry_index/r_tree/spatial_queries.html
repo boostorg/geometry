@@ -1,0 +1,138 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Spatial queries</title>
+<link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
+<link rel="up" href="../r_tree.html" title="R-tree">
+<link rel="prev" href="r_tree_creation.html" title="R-tree creation">
+<link rel="next" href="nearest_neighbours_queries.html" title="Nearest neighbours queries">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="http://www.boost.org/doc/libs/release/boost.png"></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/index.html">Home</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="r_tree_creation.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="nearest_neighbours_queries.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="geometry_index.r_tree.spatial_queries"></a><a class="link" href="spatial_queries.html" title="Spatial queries">Spatial queries</a>
+</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="spatial_queries.html#geometry_index.r_tree.spatial_queries.basic_queries">Basic
+        queries</a></span></dt>
+<dt><span class="section"><a href="spatial_queries.html#geometry_index.r_tree.spatial_queries.spatial_predicates">Spatial
+        predicates</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.spatial_queries.basic_queries"></a><a class="link" href="spatial_queries.html#geometry_index.r_tree.spatial_queries.basic_queries" title="Basic queries">Basic
+        queries</a>
+</h4></div></div></div>
+<p>
+          There are three ways to perform a spatial query. Following queries returns
+          <code class="computeroutput">Value</code>s intersecting some box_region.
+        </p>
+<p>
+          Method call
+        </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a> <span class="identifier">box_region</span><span class="special">(...);</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">box_region</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+</pre>
+<p>
+          Function call
+        </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">returned_values</span><span class="special">;</span>
+<a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a> <span class="identifier">box_region</span><span class="special">(...);</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">box_region</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">returned_values</span><span class="special">));</span>
+</pre>
+<p>
+          Use of pipe operator generating a range
+        </p>
+<pre class="programlisting"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a> <span class="identifier">box_region</span><span class="special">(...);</span>
+<span class="identifier">BOOST_FOREACH</span><span class="special">(</span>Value <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">rt</span> <span class="special">|</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">query_filtered</span><span class="special">(</span><span class="identifier">box_region</span><span class="special">))</span>
+  <span class="special">;</span> <span class="comment">// do something with v</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.spatial_queries.spatial_predicates"></a><a class="link" href="spatial_queries.html#geometry_index.r_tree.spatial_queries.spatial_predicates" title="Spatial predicates">Spatial
+        predicates</a>
+</h4></div></div></div>
+<p>
+          It is possible to define other relations between queried <code class="computeroutput">Value</code>s
+          and region/regions of interest. Names of predicates corresponds to names
+          of <a href="http://www.boost.org/libs/geometry/doc/html/index.html" target="_top">Boost.Geometry</a>
+          algorithms.
+        </p>
+<pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">box</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span> <span class="comment">// default case - intersects</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span> <span class="comment">// same as default</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">covered_by</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">disjont</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          All predicates may be negated, e.g.:
+        </p>
+<pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">not_intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="comment">// or</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(!</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="comment">// the same as</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">disjoint</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          It's possible to use some number of predicates by passing <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Pred1</span><span class="special">,</span> <span class="identifier">Pred2</span><span class="special">&gt;</span></code>
+        </p>
+<pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box1</span><span class="special">),</span> <span class="special">!</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box2</span><span class="special">))</span>
+  <span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          or <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;</span><span class="identifier">Pred1</span><span class="special">,</span> <span class="identifier">Pred2</span><span class="special">,</span> <span class="identifier">Pred3</span><span class="special">,</span> <span class="special">...&gt;</span></code>
+        </p>
+<pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span>
+  <span class="identifier">boost</span><span class="special">::</span><span class="identifier">make_tuple</span><span class="special">(</span>
+    <span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box1</span><span class="special">),</span> <span class="special">!</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box2</span><span class="special">),</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box3</span><span class="special">))</span>
+  <span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          There is also a unique predicate <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">(...)</span></code> taking user-defined function/functor
+          which checks if <code class="computeroutput">Value</code> should be returned by the query.
+        </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="identifier">fun</span><span class="special">(</span>Value <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span>
+<span class="special">{</span>
+  <span class="keyword">return</span> <span class="identifier">v</span><span class="special">.</span><span class="identifier">is_red</span><span class="special">();</span>
+<span class="special">}</span>
+
+<span class="comment">// ...</span>
+
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span>
+  <span class="identifier">boost</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">(</span><span class="identifier">fun</span><span class="special">))</span>
+  <span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2011 Adam Wulkiewicz, Federico J. Fernandez<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="r_tree_creation.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="nearest_neighbours_queries.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

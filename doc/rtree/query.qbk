@@ -1,0 +1,86 @@
+[/============================================================================
+  Boost.Geometry Index
+
+  Copyright (c) 2011-2012 Adam Wulkiewicz.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section Spatial queries]
+
+[section Basic queries]
+
+There are three ways to perform a spatial query. Following queries returns
+`__value__`s intersecting some box_region.
+
+Method call
+
+ std::vector<__value__> returned_values;
+ __box__ box_region(...);
+ rt.query(box_region, std::back_inserter(returned_values));
+
+Function call
+
+ std::vector<__value__> returned_values;
+ __box__ box_region(...);
+ index::query(rt, box_region, std::back_inserter(returned_values));
+
+Use of pipe operator generating a range
+
+ __box__ box_region(...);
+ BOOST_FOREACH(__value__ & v, rt | index::query_filtered(box_region))
+   ; // do something with v
+[endsect]
+
+[section Spatial predicates]
+
+It is possible to define other relations between queried `__value__`s and region/regions
+of interest. Names of predicates corresponds to names of __boost_geometry__ algorithms.
+
+ rt.query(box, std::back_inserter(result)); // default case - intersects
+ rt.query(index::intersects(box), std::back_inserter(result)); // same as default
+ rt.query(index::covered_by(box), std::back_inserter(result));
+ rt.query(index::disjont(box), std::back_inserter(result));
+ rt.query(index::overlaps(box), std::back_inserter(result));
+ rt.query(index::within(box), std::back_inserter(result));
+
+All predicates may be negated, e.g.:
+
+ rt.query(index::not_intersects(box), std::back_inserter(result));
+ // or
+ rt.query(!index::intersects(box), std::back_inserter(result));
+ // the same as
+ rt.query(index::disjoint(box), std::back_inserter(result));
+
+It's possible to use some number of predicates by passing `std::pair<Pred1, Pred2>`
+
+ rt.query(
+   std::make_pair(index::intersects(box1), !index::within(box2))
+   , std::back_inserter(result));
+
+or `boost::tuple<Pred1, Pred2, Pred3, ...>`
+
+ rt.query(
+   boost::make_tuple(
+     index::intersects(box1), !index::within(box2), index::overlaps(box3))
+   , std::back_inserter(result));
+
+There is also a unique predicate `index::value(...)` taking user-defined function/functor
+which checks if `__value__` should be returned by the query.
+
+ bool fun(__value__ const& v)
+ {
+   return v.is_red();
+ }
+
+ // ...
+
+ rt.query(
+   boost::make_pair(index::intersects(box), index::value(fun))
+   , std::back_inserter(result));
+
+[endsect]
+
+[endsect] [/ Spatial queries /]

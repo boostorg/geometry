@@ -1,7 +1,6 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry Index
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,

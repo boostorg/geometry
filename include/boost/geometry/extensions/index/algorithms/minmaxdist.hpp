@@ -1,6 +1,6 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry Index
 //
-// Boost.Index - minmaxdist used in R-tree k nearest neighbors query
+// minmaxdist used in R-tree k nearest neighbors query
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //

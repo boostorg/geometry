@@ -1,0 +1,18 @@
+[/============================================================================
+  Boost.Geometry Index
+
+  Copyright (c) 2011-2012 Adam Wulkiewicz.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section Introduction]
+
+__rtree__ is a self-balancing search tree. Each tree's node store a box descring the space occupied by children nodes.
+At the bottom of the structure, there are leaf-nodes which contains values
+(geometric objects representations). Minimal and maximal numbers of values/children
+which may be stored inside each node are user defined.
+
+[endsect]

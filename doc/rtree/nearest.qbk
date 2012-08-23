@@ -1,0 +1,126 @@
+[/============================================================================
+  Boost.Geometry Index
+
+  Copyright (c) 2011-2012 Adam Wulkiewicz.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section Nearest neighbours queries]
+
+[section k nearest neighbours]
+
+There are three ways of performing knn queries. Following queries returns
+k `__value__`s closest to some point in space. For `__box__`es
+`__indexable__`s the distance to the nearest point is calculated by default.
+
+Method call
+
+ std::vector<__value__> returned_values;
+ __point__ pt(...);
+ rt.nearest(pt, k, std::back_inserter(returned_values));
+
+Function call
+
+ std::vector<__value__> returned_values;
+ __point__ pt(...);
+ index::nearest(rt, pt, k, std::back_inserter(returned_values));
+
+Use of `operator |`
+
+ __point__ pt(...);
+ BOOST_FOREACH(__value__ & v, rt | index::nearest_filtered(pt, k))
+   ; // do something with v
+
+[endsect]
+
+[section One nearest neighbour]
+
+Another type of nearest neighbour query is searching for the one closest `__value__`.
+If it is found, 1 is returned by the method or function. This kind of query
+has only two forms.
+
+Method call
+
+ __value__ returned_value;
+ __point__ pt(...);
+ size_t n = rt.nearest(pt, returned_value);
+
+Function call
+
+ __value__ Value returned_value;
+ __point__ pt(...);
+ size_t n = index::nearest(rt, pt, returned_value);
+
+[endsect]
+ 
+[section Distances predicates]
+
+It is possible to define if calculated distance between query point and `__value__` should be
+greater, lesser or between some other distances. Those are called `DistancesPredicate`s and
+may be defined as follows.
+
+ std::vector<__Value__> returned_values;
+ __point__ pt(...);
+
+ /* default - without bounds */
+ index::nearest(rt, pt, k, std::back_inserter(returned_values));
+
+ /* same as default */
+ index::nearest(rt, index::unbounded(pt), k, std::back_inserter(returned_values));
+
+ /* distance must be greater than or equal to 10 */
+ index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
+
+ /* distance must be lesser than or equal to 500 */
+ index::nearest(rt, index::max_bounded(pt, 500), k, std::back_inserter(returned_values));
+
+ /* distance must be between 10 and 500 */
+ index::nearest(rt, index::bounded(pt, 10, 500), k, std::back_inserter(returned_values));
+
+Furthermore, it's possible to define if the closest, furthest or centroidal point of the
+non-point `__indexable__` should be taken into account in the routine calculating distance.
+
+ std::vector<__value__> returned_values;
+ __point__ pt(...);
+
+ /* default - distance between Indexable's closest point and a query point
+ must be greater than 10 */
+ index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
+
+ /* same as default - distance between Indexable's closest point and a query point
+ must be greater than 10 */
+ index::nearest(rt, index::min_bounded(pt, index::near(10)), k, std::back_inserter(returned_values));
+
+ /* distance between Indexable's furthest point and a query point
+ must be greater than 10 */
+ index::nearest(rt, index::min_bounded(pt, index::far(10)), k, std::back_inserter(returned_values));
+
+ /* distance between Indexable's centroid and a query point
+ must be greater than 10 */
+ index::nearest(rt, index::min_bounded(pt, index::centroid(10)), k, std::back_inserter(returned_values));
+
+[endsect]
+
+[section Using spatial predicates]
+
+It is possible to use spatial predicates described before in nearest neighbours queries.
+
+ __value__ returned_value;
+ std::vector<__value__> returned_values;
+
+ __point__ pt(...);
+ __box__ b(...);
+
+ size_t n1 = rt.nearest(index::bounded(pt, index::far(1), 10), index::intersects(b), returned_value);
+
+ size_t n2 = index::nearest(rt, pt, k, index::within(b), std::back_inserter(returned_values));
+
+ BOOST_FOREACH(Value & v, rt | index::nearest_filtered(pt, k, index::covered_by(b)))
+   ; // do something with v
+
+[endsect]
+
+[endsect] [/ Nearest neighbours queries /]

@@ -1,8 +1,9 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry Index
 //
-// Boost.Index - Get smallest value calculated for indexable's dimensions, used in R-tree k nearest neighbors query
+// Get smallest value calculated for indexable's dimensions, used in R-tree k nearest neighbors query
 //
-// Copyright 2011 Adam Wulkiewicz.
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)

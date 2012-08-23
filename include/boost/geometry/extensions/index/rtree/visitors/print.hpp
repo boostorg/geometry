@@ -1,9 +1,9 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry Index
 //
-// Boost.Index - R-tree printing visitor
+// R-tree ostreaming visitor implementation
 //
-// Copyright 2008 Federico J. Fernandez.
-// Copyright 2011 Adam Wulkiewicz.
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
