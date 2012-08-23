@@ -68,22 +68,14 @@ namespace dispatch
 template <typename Multi1, typename Multi2, typename Strategy>
 struct transform
     <
-        multi_tag, multi_tag,
         Multi1, Multi2,
-        Strategy
+        Strategy,
+        multi_tag, multi_tag
     >
     : detail::transform::transform_multi
         <
             transform
                 <
-                    typename single_tag_of
-                                <
-                                    typename tag<Multi1>::type
-                                >::type,
-                    typename single_tag_of
-                                <
-                                    typename tag<Multi2>::type
-                                >::type,
                     typename boost::range_value<Multi1>::type,
                     typename boost::range_value<Multi2>::type,
                     Strategy
