@@ -232,49 +232,48 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Strategy,
     typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
     typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type
 >
 struct transform {};
 
-template <typename Point1, typename Point2, typename Strategy>
-struct transform<Point1, Point2, Strategy, point_tag, point_tag>
+template <typename Point1, typename Point2>
+struct transform<Point1, Point2, point_tag, point_tag>
     : detail::transform::transform_point
 {
 };
 
 
-template <typename Linestring1, typename Linestring2, typename Strategy>
+template <typename Linestring1, typename Linestring2>
 struct transform
     <
-        Linestring1, Linestring2, Strategy,
+        Linestring1, Linestring2,
         linestring_tag, linestring_tag
     >
     : detail::transform::transform_range
 {
 };
 
-template <typename Range1, typename Range2, typename Strategy>
-struct transform<Range1, Range2, Strategy, ring_tag, ring_tag>
+template <typename Range1, typename Range2>
+struct transform<Range1, Range2, ring_tag, ring_tag>
     : detail::transform::transform_range
 {
 };
 
-template <typename Polygon1, typename Polygon2, typename Strategy>
-struct transform<Polygon1, Polygon2, Strategy, polygon_tag, polygon_tag>
+template <typename Polygon1, typename Polygon2>
+struct transform<Polygon1, Polygon2, polygon_tag, polygon_tag>
     : detail::transform::transform_polygon
 {
 };
 
-template <typename Box1, typename Box2, typename Strategy>
-struct transform<Box1, Box2, Strategy, box_tag, box_tag>
+template <typename Box1, typename Box2>
+struct transform<Box1, Box2, box_tag, box_tag>
     : detail::transform::transform_box
 {
 };
 
-template <typename Segment1, typename Segment2, typename Strategy>
-struct transform<Segment1, Segment2, Strategy, segment_tag, segment_tag>
+template <typename Segment1, typename Segment2>
+struct transform<Segment1, Segment2, segment_tag, segment_tag>
     : detail::transform::transform_box_or_segment
 {
 };
@@ -306,7 +305,7 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
     concept::check<Geometry1 const>();
     concept::check<Geometry2>();
 
-    typedef dispatch::transform<Geometry1, Geometry2, Strategy> transform_type;
+    typedef dispatch::transform<Geometry1, Geometry2> transform_type;
 
     return transform_type::apply(geometry1, geometry2, strategy);
 }
