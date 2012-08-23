@@ -41,9 +41,9 @@ namespace boost { namespace geometry
 namespace detail { namespace transform
 {
 
-template <typename Point1, typename Point2, typename Strategy>
 struct transform_point
 {
+    template <typename Point1, typename Point2, typename Strategy>
     static inline bool apply(Point1 const& p1, Point2& p2,
                 Strategy const& strategy)
     {
@@ -52,9 +52,9 @@ struct transform_point
 };
 
 
-template <typename Box1, typename Box2, typename Strategy>
 struct transform_box
 {
+    template <typename Box1, typename Box2, typename Strategy>
     static inline bool apply(Box1 const& b1, Box2& b2,
                 Strategy const& strategy)
     {
@@ -91,9 +91,9 @@ struct transform_box
     }
 };
 
-template <typename Geometry1, typename Geometry2, typename Strategy>
 struct transform_box_or_segment
 {
+    template <typename Geometry1, typename Geometry2, typename Strategy>
     static inline bool apply(Geometry1 const& source, Geometry2& target,
                 Strategy const& strategy)
     {
@@ -133,12 +133,7 @@ inline bool transform_range_out(Range const& range,
         it != boost::end(range);
         ++it)
     {
-        if (! transform_point
-                <
-                    typename point_type<Range>::type,
-                    PointOut,
-                    Strategy
-                >::apply(*it, point_out, strategy))
+        if (! transform_point::apply(*it, point_out, strategy))
         {
             return false;
         }
@@ -148,9 +143,9 @@ inline bool transform_range_out(Range const& range,
 }
 
 
-template <typename Polygon1, typename Polygon2, typename Strategy>
 struct transform_polygon
 {
+    template <typename Polygon1, typename Polygon2, typename Strategy>
     static inline bool apply(Polygon1 const& poly1, Polygon2& poly2,
                 Strategy const& strategy)
     {
@@ -211,9 +206,9 @@ struct select_strategy
         >::type type;
 };
 
-template <typename Range1, typename Range2, typename Strategy>
 struct transform_range
 {
+    template <typename Range1, typename Range2, typename Strategy>
     static inline bool apply(Range1 const& range1,
             Range2& range2, Strategy const& strategy)
     {
@@ -244,7 +239,7 @@ struct transform {};
 
 template <typename Point1, typename Point2, typename Strategy>
 struct transform<point_tag, point_tag, Point1, Point2, Strategy>
-    : detail::transform::transform_point<Point1, Point2, Strategy>
+    : detail::transform::transform_point
 {
 };
 
@@ -255,31 +250,31 @@ struct transform
         linestring_tag, linestring_tag,
         Linestring1, Linestring2, Strategy
     >
-    : detail::transform::transform_range<Linestring1, Linestring2, Strategy>
+    : detail::transform::transform_range
 {
 };
 
 template <typename Range1, typename Range2, typename Strategy>
 struct transform<ring_tag, ring_tag, Range1, Range2, Strategy>
-    : detail::transform::transform_range<Range1, Range2, Strategy>
+    : detail::transform::transform_range
 {
 };
 
 template <typename Polygon1, typename Polygon2, typename Strategy>
 struct transform<polygon_tag, polygon_tag, Polygon1, Polygon2, Strategy>
-    : detail::transform::transform_polygon<Polygon1, Polygon2, Strategy>
+    : detail::transform::transform_polygon
 {
 };
 
 template <typename Box1, typename Box2, typename Strategy>
 struct transform<box_tag, box_tag, Box1, Box2, Strategy>
-    : detail::transform::transform_box<Box1, Box2, Strategy>
+    : detail::transform::transform_box
 {
 };
 
 template <typename Segment1, typename Segment2, typename Strategy>
 struct transform<segment_tag, segment_tag, Segment1, Segment2, Strategy>
-    : detail::transform::transform_box_or_segment<Segment1, Segment2, Strategy>
+    : detail::transform::transform_box_or_segment
 {
 };
 
