@@ -71,6 +71,12 @@ struct def<Value, false, true>
 
 } // namespace dispatch
 
+/*!
+The default translator. It translates Value object to Indexable object. This is done in
+operator() which takes const reference to Value and returns const reference to Indexable.
+
+\tparam Value       The Value type which the translator translates to Indexable.
+*/
 template <typename Value>
 struct def
     : public dispatch::def
@@ -82,6 +88,13 @@ struct def
 {
 };
 
+/*!
+The default translator. It translates Value object to Indexable object. Since this is
+a specialization for pointers to Values operator() takes const ptr to Value and returns
+const reference to Indexable.
+
+\tparam Value       The Value type which the translator translates to Indexable.
+*/
 template <typename Value>
 struct def<Value*>
 {
