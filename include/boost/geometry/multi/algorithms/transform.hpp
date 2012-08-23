@@ -65,11 +65,10 @@ struct transform_multi
 namespace dispatch
 {
 
-template <typename Multi1, typename Multi2, typename Strategy>
+template <typename Multi1, typename Multi2>
 struct transform
     <
         Multi1, Multi2,
-        Strategy,
         multi_tag, multi_tag
     >
     : detail::transform::transform_multi
@@ -77,8 +76,7 @@ struct transform
             transform
                 <
                     typename boost::range_value<Multi1>::type,
-                    typename boost::range_value<Multi2>::type,
-                    Strategy
+                    typename boost::range_value<Multi2>::type
                 >
         >
 {};
