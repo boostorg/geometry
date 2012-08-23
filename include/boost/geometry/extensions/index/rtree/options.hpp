@@ -41,6 +41,12 @@ struct node_default_static_variant_tag {};
 //if ( m_max_elems_per_node < 2 )
 //    m_max_elems_per_node = 2;
 
+/*!
+Linear r-tree creation algorithm parameters.
+
+\tparam MaxElements     Maximum number of elements in nodes.
+\tparam MinElements     Minimum number of elements in nodes.
+*/
 template <size_t MaxElements, size_t MinElements>
 struct linear
 {
@@ -48,6 +54,12 @@ struct linear
     static const size_t min_elements = MinElements;
 };
 
+/*!
+Quadratic r-tree creation algorithm parameters.
+
+\tparam MaxElements     Maximum number of elements in nodes.
+\tparam MinElements     Minimum number of elements in nodes.
+*/
 template <size_t MaxElements, size_t MinElements>
 struct quadratic
 {
@@ -65,6 +77,16 @@ struct default_rstar_reinserted_elements
 
 }} // namespace options::detail
 
+/*!
+Quadratic r-tree creation algorithm parameters.
+
+\tparam MaxElements             Maximum number of elements in nodes.
+\tparam MinElements             Minimum number of elements in nodes.
+\tparam OverlapCostThreshold    The number of leaf node children elements above which
+                                nearly minimum overlap cost is calculated instead of minimum
+                                overlap cost. If 0 minimum overlap cost is always calculated.
+\tparam ReinsertedElements      Number of elements reinserted by forced reinsertions algorithm.
+*/
 template <size_t MaxElements,
           size_t MinElements,
           size_t OverlapCostThreshold = 0,
