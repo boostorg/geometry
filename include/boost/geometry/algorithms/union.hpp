@@ -32,7 +32,6 @@ template
 <
     // real types
     typename Geometry1, typename Geometry2,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator,
     typename GeometryOut,
     typename Strategy,
@@ -41,7 +40,10 @@ template
     typename TagOut = typename tag<GeometryOut>::type,
     bool Areal1 = geometry::is_areal<Geometry1>::value,
     bool Areal2 = geometry::is_areal<Geometry2>::value,
-    bool ArealOut = geometry::is_areal<GeometryOut>::value
+    bool ArealOut = geometry::is_areal<GeometryOut>::value,
+    bool Reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+    bool Reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+    bool ReverseOut = detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value
 >
 struct union_insert
 {
@@ -56,20 +58,20 @@ struct union_insert
 template
 <
     typename Geometry1, typename Geometry2,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator,
     typename GeometryOut,
     typename Strategy,
-    typename TagIn1, typename TagIn2, typename TagOut
+    typename TagIn1, typename TagIn2, typename TagOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct union_insert
     <
         Geometry1, Geometry2,
-        Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
         Strategy,
         TagIn1, TagIn2, TagOut,
-        true, true, true
+        true, true, true,
+        Reverse1, Reverse2, ReverseOut
     > : detail::overlay::overlay
         <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, overlay_union, Strategy>
 {};
@@ -79,7 +81,6 @@ struct union_insert
 template
 <
     typename Geometry1, typename Geometry2,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
     typename Strategy,
     typename TagIn1 = typename tag<Geometry1>::type,
@@ -87,7 +88,10 @@ template
     typename TagOut = typename tag<GeometryOut>::type,
     bool Areal1 = geometry::is_areal<Geometry1>::value,
     bool Areal2 = geometry::is_areal<Geometry2>::value,
-    bool ArealOut = geometry::is_areal<GeometryOut>::value
+    bool ArealOut = geometry::is_areal<GeometryOut>::value,
+    bool Reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+    bool Reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+    bool ReverseOut = detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value
 >
 struct union_insert_reversed
 {
@@ -98,7 +102,6 @@ struct union_insert_reversed
         return union_insert
             <
                 Geometry2, Geometry1,
-                Reverse2, Reverse1, ReverseOut,
                 OutputIterator, GeometryOut,
                 Strategy
             >::apply(g2, g1, out, strategy);
@@ -131,18 +134,12 @@ inline OutputIterator insert(Geometry1 const& geometry1,
             dispatch::union_insert_reversed
             <
                 Geometry1, Geometry2,
-                overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
-                overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
                 OutputIterator, GeometryOut,
                 Strategy
             >,
             dispatch::union_insert
             <
                 Geometry1, Geometry2,
-                overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
-                overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
                 OutputIterator, GeometryOut,
                 Strategy
             >
