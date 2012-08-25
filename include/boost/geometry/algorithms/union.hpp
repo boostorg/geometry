@@ -30,8 +30,6 @@ namespace dispatch
 
 template
 <
-    // tag dispatching:
-    typename TagIn1, typename TagIn2, typename TagOut,
     // metafunction finetuning helpers:
     bool Areal1, bool Areal2, bool ArealOut,
     // real types
@@ -39,7 +37,10 @@ template
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator,
     typename GeometryOut,
-    typename Strategy
+    typename Strategy,
+    typename TagIn1 = typename tag<Geometry1>::type,
+    typename TagIn2 = typename tag<Geometry2>::type,
+    typename TagOut = typename tag<GeometryOut>::type
 >
 struct union_insert
 {
@@ -53,21 +54,21 @@ struct union_insert
 
 template
 <
-    typename TagIn1, typename TagIn2, typename TagOut,
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator,
     typename GeometryOut,
-    typename Strategy
+    typename Strategy,
+    typename TagIn1, typename TagIn2, typename TagOut
 >
 struct union_insert
     <
-        TagIn1, TagIn2, TagOut,
         true, true, true,
         Geometry1, Geometry2,
         Reverse1, Reverse2, ReverseOut,
         OutputIterator, GeometryOut,
-        Strategy
+        Strategy,
+        TagIn1, TagIn2, TagOut
     > : detail::overlay::overlay
         <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, overlay_union, Strategy>
 {};
@@ -76,12 +77,14 @@ struct union_insert
 
 template
 <
-    typename GeometryTag1, typename GeometryTag2, typename GeometryTag3,
     bool Areal1, bool Areal2, bool ArealOut,
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename OutputIterator, typename GeometryOut,
-    typename Strategy
+    typename Strategy,
+    typename TagIn1 = typename tag<Geometry1>::type,
+    typename TagIn2 = typename tag<Geometry2>::type,
+    typename TagOut = typename tag<GeometryOut>::type
 >
 struct union_insert_reversed
 {
@@ -91,7 +94,6 @@ struct union_insert_reversed
     {
         return union_insert
             <
-                GeometryTag2, GeometryTag1, GeometryTag3,
                 Areal2, Areal1, ArealOut,
                 Geometry2, Geometry1,
                 Reverse2, Reverse1, ReverseOut,
@@ -126,9 +128,6 @@ inline OutputIterator insert(Geometry1 const& geometry1,
             geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::union_insert_reversed
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
-                typename tag<GeometryOut>::type,
                 geometry::is_areal<Geometry1>::value,
                 geometry::is_areal<Geometry2>::value,
                 geometry::is_areal<GeometryOut>::value,
@@ -141,9 +140,6 @@ inline OutputIterator insert(Geometry1 const& geometry1,
             >,
             dispatch::union_insert
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
-                typename tag<GeometryOut>::type,
                 geometry::is_areal<Geometry1>::value,
                 geometry::is_areal<Geometry2>::value,
                 geometry::is_areal<GeometryOut>::value,
