@@ -31,7 +31,6 @@ template
     typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename GeometryOut,
-    typename Strategy,
     typename TagIn1 = typename tag<Geometry1>::type,
     typename TagIn2 = typename tag<Geometry2>::type,
     typename TagOut = typename tag<GeometryOut>::type,
@@ -60,7 +59,6 @@ template
     typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename GeometryOut,
-    typename Strategy,
     typename TagIn1, typename TagIn2, typename TagOut,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
@@ -68,13 +66,13 @@ struct union_insert
     <
         Geometry1, Geometry2,
         OutputIterator, GeometryOut,
-        Strategy,
         TagIn1, TagIn2, TagOut,
         true, true, true,
         Reverse1, Reverse2, ReverseOut,
         true
-    >: union_insert<Geometry2, Geometry1, OutputIterator, GeometryOut, Strategy>
+    >: union_insert<Geometry2, Geometry1, OutputIterator, GeometryOut>
 {
+    template <typename Strategy>
     static inline OutputIterator apply(Geometry1 const& g1,
             Geometry2 const& g2, OutputIterator out,
             Strategy const& strategy)
@@ -82,8 +80,7 @@ struct union_insert
         return union_insert
             <
                 Geometry2, Geometry1,
-                OutputIterator, GeometryOut,
-                Strategy
+                OutputIterator, GeometryOut
             >::apply(g2, g1, out, strategy);
     }
 };
@@ -94,7 +91,6 @@ template
     typename Geometry1, typename Geometry2,
     typename OutputIterator,
     typename GeometryOut,
-    typename Strategy,
     typename TagIn1, typename TagIn2, typename TagOut,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
@@ -102,13 +98,12 @@ struct union_insert
     <
         Geometry1, Geometry2,
         OutputIterator, GeometryOut,
-        Strategy,
         TagIn1, TagIn2, TagOut,
         true, true, true,
         Reverse1, Reverse2, ReverseOut,
         false
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, overlay_union, Strategy>
+        <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, overlay_union>
 {};
 
 
@@ -134,8 +129,7 @@ inline OutputIterator insert(Geometry1 const& geometry1,
     return dispatch::union_insert
            <
                Geometry1, Geometry2,
-               OutputIterator, GeometryOut,
-               Strategy
+               OutputIterator, GeometryOut
            >::apply(geometry1, geometry2, out, strategy);
 }
 
