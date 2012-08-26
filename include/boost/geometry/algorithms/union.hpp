@@ -16,6 +16,7 @@
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 
 
@@ -40,14 +41,8 @@ template
     bool ReverseOut = detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
     bool Reverse = geometry::reverse_dispatch<Geometry1, Geometry2>::type::value
 >
-struct union_insert
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPES
-            , (types<Geometry1, Geometry2, GeometryOut>)
-        );
-};
+struct union_insert: not_implemented<TagIn1, TagIn2, TagOut>
+{};
 
 
 // If reversal is needed, perform it first
