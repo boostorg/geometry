@@ -52,8 +52,8 @@ struct choose_next_node<Value, Options, Box, Allocators, choose_by_content_diff_
 
         // choose index with smallest content change or smallest content
         size_t choosen_index = 0;
-        content_type smallest_content_diff = std::numeric_limits<content_type>::max();
-        content_type smallest_content = std::numeric_limits<content_type>::max();
+        content_type smallest_content_diff = (std::numeric_limits<content_type>::max)();
+        content_type smallest_content = (std::numeric_limits<content_type>::max)();
 
         // caculate areas and areas of all nodes' boxes
         for ( size_t i = 0 ; i < children_count ; ++i )
@@ -403,7 +403,7 @@ struct insert<Value, Value, Options, Translator, Box, Allocators, insert_default
     inline void operator()(leaf & n)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
-        BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == std::numeric_limits<size_t>::max(), "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
         
         rtree::elements(n).push_back(base::m_element);
 

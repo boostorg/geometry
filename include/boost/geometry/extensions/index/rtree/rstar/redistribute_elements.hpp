@@ -77,8 +77,8 @@ struct choose_split_axis_and_index_for_corner
         // init outputs
         choosen_index = parameters.get_min_elements();
         sum_of_margins = 0;
-        smallest_overlap = std::numeric_limits<content_type>::max();
-        smallest_content = std::numeric_limits<content_type>::max();
+        smallest_overlap = (std::numeric_limits<content_type>::max)();
+        smallest_content = (std::numeric_limits<content_type>::max)();
 
         // calculate sum of margins for all distributions
         size_t index_last = parameters.get_max_elements() - parameters.get_min_elements() + 2;
@@ -129,8 +129,8 @@ struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
     {
         size_t index1 = 0;
         margin_type som1 = 0;
-        content_type ovl1 = std::numeric_limits<content_type>::max();
-        content_type con1 = std::numeric_limits<content_type>::max();
+        content_type ovl1 = (std::numeric_limits<content_type>::max)();
+        content_type con1 = (std::numeric_limits<content_type>::max)();
 
         choose_split_axis_and_index_for_corner<Parameters, Box, min_corner, AxisIndex>::
             apply(elements, index1,
@@ -139,8 +139,8 @@ struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
 
         size_t index2 = 0;
         margin_type som2 = 0;
-        content_type ovl2 = std::numeric_limits<content_type>::max();
-        content_type con2 = std::numeric_limits<content_type>::max();
+        content_type ovl2 = (std::numeric_limits<content_type>::max)();
+        content_type con2 = (std::numeric_limits<content_type>::max)();
 
         choose_split_axis_and_index_for_corner<Parameters, Box, max_corner, AxisIndex>::
             apply(elements, index2,
@@ -222,8 +222,8 @@ struct choose_split_axis_and_index
         size_t corner = min_corner;
         size_t index = 0;
 
-        content_type overlap_val = std::numeric_limits<content_type>::max();
-        content_type content_val = std::numeric_limits<content_type>::max();
+        content_type overlap_val = (std::numeric_limits<content_type>::max)();
+        content_type content_val = (std::numeric_limits<content_type>::max)();
 
         choose_split_axis_and_index_for_axis<
             Parameters,
@@ -344,9 +344,9 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
         size_t split_axis = 0;
         size_t split_corner = 0;
         size_t split_index = parameters.get_min_elements();
-        margin_type smallest_sum_of_margins = std::numeric_limits<margin_type>::max();
-        content_type smallest_overlap = std::numeric_limits<content_type>::max();
-        content_type smallest_content = std::numeric_limits<content_type>::max();
+        margin_type smallest_sum_of_margins = (std::numeric_limits<margin_type>::max)();
+        content_type smallest_overlap = (std::numeric_limits<content_type>::max)();
+        content_type smallest_content = (std::numeric_limits<content_type>::max)();
 
         rstar::choose_split_axis_and_index<typename Options::parameters_type, Box, index::traits::dimension<Box>::value>::
             apply(elements1,

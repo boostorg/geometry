@@ -34,7 +34,7 @@ public:
     >::type distance_type;
 
     inline nearest_one()
-        : m_comp_dist(std::numeric_limits<distance_type>::max())
+        : m_comp_dist((std::numeric_limits<distance_type>::max)())
     {}
 
     inline void store(Value const& val, distance_type const& curr_comp_dist)
@@ -48,7 +48,7 @@ public:
 
     inline bool is_comparable_distance_valid() const
     {
-        return m_comp_dist < std::numeric_limits<distance_type>::max();
+        return m_comp_dist < (std::numeric_limits<distance_type>::max)();
     }
 
     inline distance_type comparable_distance() const
@@ -113,7 +113,7 @@ public:
     inline distance_type comparable_distance() const
     {
         return m_neighbors.size() < 0
-            ? std::numeric_limits<distance_type>::max()
+            ? (std::numeric_limits<distance_type>::max)()
             : m_neighbors.front().first;
     }
 

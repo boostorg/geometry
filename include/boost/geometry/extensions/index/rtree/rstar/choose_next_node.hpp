@@ -74,9 +74,9 @@ private:
 
         // choose index with smallest overlap change value, or content change or smallest content
         size_t choosen_index = 0;
-        content_type smallest_overlap_diff = std::numeric_limits<content_type>::max();
-        content_type smallest_content_diff = std::numeric_limits<content_type>::max();
-        content_type smallest_content = std::numeric_limits<content_type>::max();
+        content_type smallest_overlap_diff = (std::numeric_limits<content_type>::max)();
+        content_type smallest_content_diff = (std::numeric_limits<content_type>::max)();
+        content_type smallest_content = (std::numeric_limits<content_type>::max)();
 
         // for each child node
         for (size_t i = 0 ; i < children_count ; ++i )
@@ -154,7 +154,7 @@ private:
 
 		// for overlap_cost_threshold child nodes find the one with smallest overlap value
 		size_t choosen_index = 0;
-		content_type smallest_overlap_diff = std::numeric_limits<content_type>::max();
+		content_type smallest_overlap_diff = (std::numeric_limits<content_type>::max)();
 
 		// for each node
 		for (size_t i = 0 ; i < overlap_cost_threshold ; ++i )
@@ -209,8 +209,8 @@ private:
 
         // choose index with smallest content change or smallest content
         size_t choosen_index = 0;
-        content_type smallest_content_diff = std::numeric_limits<content_type>::max();
-        content_type smallest_content = std::numeric_limits<content_type>::max();
+        content_type smallest_content_diff = (std::numeric_limits<content_type>::max)();
+        content_type smallest_content = (std::numeric_limits<content_type>::max)();
 
         // choose the child which requires smallest box expansion to store the indexable
         for ( size_t i = 0 ; i < children_count ; ++i )

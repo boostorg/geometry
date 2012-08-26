@@ -27,7 +27,7 @@ class are_levels_ok
 
 public:
     inline are_levels_ok(Translator const& tr)
-        : result(true), m_tr(tr), m_leafs_level(std::numeric_limits<size_t>::max()), m_current_level(0)
+        : result(true), m_tr(tr), m_leafs_level((std::numeric_limits<size_t>::max)()), m_current_level(0)
     {}
 
     inline void operator()(internal_node const& n)
@@ -68,7 +68,7 @@ public:
             return;
         }
 
-        if ( m_leafs_level == std::numeric_limits<size_t>::max() )
+        if ( m_leafs_level == (std::numeric_limits<size_t>::max)() )
         {
             m_leafs_level = m_current_level;
         }

@@ -102,7 +102,7 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
 
     inline gl_draw(Translator const& t,
                    size_t level_first = 0,
-                   size_t level_last = std::numeric_limits<size_t>::max(),
+                   size_t level_last = (std::numeric_limits<size_t>::max)(),
                    typename index::traits::coordinate_type<Box>::type z_coord_level_multiplier = 1
     )
         : tr(t)
@@ -190,7 +190,7 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
 template <typename Value, typename Options, typename Translator, typename Allocator>
 void gl_draw(rtree<Value, Options, Translator, Allocator> const& tree,
              size_t level_first = 0,
-             size_t level_last = std::numeric_limits<size_t>::max(),
+             size_t level_last = (std::numeric_limits<size_t>::max)(),
              typename index::traits::coordinate_type<
                     typename rtree<Value, Options, Translator, Allocator>::box_type
                 >::type z_coord_level_multiplier = 1

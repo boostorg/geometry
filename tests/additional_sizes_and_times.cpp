@@ -397,7 +397,7 @@ int main()
             float x = coords[i].first + 100;
             float y = coords[i].second + 100;
             std::pair<B, size_t> result;
-            distance_type dist = std::numeric_limits<distance_type>::max();
+            distance_type dist = (std::numeric_limits<distance_type>::max)();
 
             for ( std::vector< std::pair<B, size_t> >::const_iterator it = v.begin();
                 it != v.end();
@@ -411,7 +411,7 @@ int main()
                     dist = cd;
                 }
             }
-            temp += dist < std::numeric_limits<distance_type>::max() ? 1 : 0;
+            temp += dist < (std::numeric_limits<distance_type>::max)() ? 1 : 0;
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
         std::cout << "found: " << temp << "\n";

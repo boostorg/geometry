@@ -18,10 +18,6 @@
 
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
-// TODO: fix this issue differently
-#ifdef max
-#undef max
-#endif
 #include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
 
@@ -373,7 +369,7 @@ void test_nearest(Rtree const& rtree, std::vector<Value> const& input, Point con
     // Should all objects with the same closest distance be picked?
 
     typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
-    D smallest_d = std::numeric_limits<D>::max();
+    D smallest_d = (std::numeric_limits<D>::max)();
     Value expected_output;
     BOOST_FOREACH(Value const& v, input)
     {
@@ -384,7 +380,7 @@ void test_nearest(Rtree const& rtree, std::vector<Value> const& input, Point con
             expected_output = v;
         }
     }
-    size_t n = ( std::numeric_limits<D>::max() == smallest_d ) ? 0 : 1;
+    size_t n = ( (std::numeric_limits<D>::max)() == smallest_d ) ? 0 : 1;
 
     Value output;
     size_t n_res = rtree.nearest(pt, output);

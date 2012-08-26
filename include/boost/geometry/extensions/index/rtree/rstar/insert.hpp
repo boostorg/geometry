@@ -311,7 +311,7 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocat
     inline void operator()(leaf & n)
     {
 		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == std::numeric_limits<size_t>::max(), "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
         
         rtree::elements(n).push_back(base::m_element);
 
@@ -354,7 +354,7 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
     inline void operator()(leaf & n)
     {
 		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == std::numeric_limits<size_t>::max(), "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
 
         rtree::elements(n).push_back(base::m_element);
 
