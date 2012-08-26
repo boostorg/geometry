@@ -44,16 +44,19 @@ class choose_next_node<Value, Options, Box, Allocators, choose_by_overlap_diff_t
 
 public:
     template <typename Indexable>
-    static inline size_t apply(internal_node & n, Indexable const& indexable, size_t node_relative_level)
+    static inline size_t apply(internal_node & n,
+                               Indexable const& indexable,
+                               parameters_type const& parameters,
+                               size_t node_relative_level)
     {
         children_type & children = rtree::elements(n);
         
         // children are leafs
         if ( node_relative_level <= 1 )
 		{
-			if ( 0 < parameters_type::overlap_cost_threshold &&
-				 parameters_type::overlap_cost_threshold < children.size() )
-				return choose_by_nearly_minimum_overlap_cost(children, indexable);
+			if ( 0 < parameters.get_overlap_cost_threshold() &&
+				 parameters.get_overlap_cost_threshold() < children.size() )
+				return choose_by_nearly_minimum_overlap_cost(children, indexable, parameters.get_overlap_cost_threshold());
 			else
 				return choose_by_minimum_overlap_cost(children, indexable);
 		}
@@ -64,7 +67,8 @@ public:
 
 private:
     template <typename Indexable>
-    static inline size_t choose_by_minimum_overlap_cost(children_type const& children, Indexable const& indexable)
+    static inline size_t choose_by_minimum_overlap_cost(children_type const& children,
+                                                        Indexable const& indexable)
     {
         size_t children_count = children.size();
 
@@ -120,7 +124,9 @@ private:
     }
 
 	template <typename Indexable>
-	static inline size_t choose_by_nearly_minimum_overlap_cost(children_type const& children, Indexable const& indexable)
+	static inline size_t choose_by_nearly_minimum_overlap_cost(children_type const& children,
+                                                               Indexable const& indexable,
+                                                               size_t overlap_cost_threshold)
 	{
 		const size_t children_count = children.size();
 
@@ -144,14 +150,14 @@ private:
 		// sort by content_diff
 		std::sort(sorted_children.begin(), sorted_children.end(), content_diff_less);
 
-		BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::overlap_cost_threshold <= children_count, "there are not enough children");
+		BOOST_GEOMETRY_INDEX_ASSERT(overlap_cost_threshold <= children_count, "there are not enough children");
 
 		// for overlap_cost_threshold child nodes find the one with smallest overlap value
 		size_t choosen_index = 0;
 		content_type smallest_overlap_diff = std::numeric_limits<content_type>::max();
 
 		// for each node
-		for (size_t i = 0 ; i < parameters_type::overlap_cost_threshold ; ++i )
+		for (size_t i = 0 ; i < overlap_cost_threshold ; ++i )
 		{
 			size_t child_index = boost::get<0>(sorted_children[i]);
 

@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_OPTIONS_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_OPTIONS_HPP
 
+#include <limits>
+
 namespace boost { namespace geometry { namespace index {
 
 // InsertTag
@@ -53,6 +55,9 @@ struct linear
 {
     static const size_t max_elements = MaxElements;
     static const size_t min_elements = MinElements;
+
+    size_t get_max_elements() const { return max_elements; }
+    size_t get_min_elements() const { return min_elements; }
 };
 
 /*!
@@ -66,6 +71,9 @@ struct quadratic
 {
     static const size_t max_elements = MaxElements;
     static const size_t min_elements = MinElements;
+
+    size_t get_max_elements() const { return max_elements; }
+    size_t get_min_elements() const { return min_elements; }
 };
 
 namespace options { namespace detail { 
@@ -99,7 +107,75 @@ struct rstar
     static const size_t min_elements = MinElements;
     static const size_t overlap_cost_threshold = OverlapCostThreshold;
     static const size_t reinserted_elements = ReinsertedElements;
+
+    size_t get_max_elements() const { return max_elements; }
+    size_t get_min_elements() const { return min_elements; }
+    size_t get_overlap_cost_threshold() const { return overlap_cost_threshold; }
+    size_t get_reinserted_elements() const { return reinserted_elements; }
 };
+
+namespace runtime {
+
+class linear
+{
+public:
+    linear(size_t max_elements_, size_t min_elements_)
+        : max_elements(max_elements_)
+        , min_elements(min_elements_)
+    {}
+
+    size_t get_max_elements() const { return max_elements; }
+    size_t get_min_elements() const { return min_elements; }
+
+private:
+    size_t max_elements;
+    size_t min_elements;
+};
+
+class quadratic
+{
+public:
+    quadratic(size_t max_elements_, size_t min_elements_)
+        : max_elements(max_elements_)
+        , min_elements(min_elements_)
+    {}
+
+    size_t get_max_elements() const { return max_elements; }
+    size_t get_min_elements() const { return min_elements; }
+
+private:
+    size_t max_elements;
+    size_t min_elements;
+};
+
+class rstar
+{
+public:
+    static const size_t default_reinserted_elements = -1;
+
+    rstar(size_t max_elements_,
+          size_t min_elements_,
+          size_t overlap_cost_threshold_ = 0,
+          size_t reinserted_elements_ = default_reinserted_elements)
+        : max_elements(max_elements_)
+        , min_elements(min_elements_)
+        , overlap_cost_threshold(overlap_cost_threshold_)
+        , reinserted_elements(default_reinserted_elements == reinserted_elements_ ? (max_elements_ * 3) / 10 : reinserted_elements_)
+    {}
+
+    size_t get_max_elements() const { return max_elements; }
+    size_t get_min_elements() const { return min_elements; }
+    size_t get_overlap_cost_threshold() const { return overlap_cost_threshold; }
+    size_t get_reinserted_elements() const { return reinserted_elements; }
+
+private:
+    size_t max_elements;
+    size_t min_elements;
+    size_t overlap_cost_threshold;
+    size_t reinserted_elements;
+};
+
+}
 
 namespace options {
 
@@ -182,6 +258,45 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
 //        node_default_static_tag
 //    > type;
 //};
+
+template <>
+struct options_type< runtime::linear >
+{
+    typedef options::rtree<
+        runtime::linear,
+        insert_default_tag,
+        choose_by_content_diff_tag,
+        split_default_tag,
+        linear_tag,
+        node_default_tag
+    > type;
+};
+
+template <>
+struct options_type< runtime::quadratic >
+{
+    typedef options::rtree<
+        runtime::quadratic,
+        insert_default_tag,
+        choose_by_content_diff_tag,
+        split_default_tag,
+        quadratic_tag,
+        node_default_tag
+    > type;
+};
+
+template <>
+struct options_type< runtime::rstar >
+{
+    typedef options::rtree<
+        runtime::rstar,
+        insert_reinsert_tag,
+        choose_by_overlap_diff_tag,
+        split_default_tag,
+        rstar_tag,
+        node_default_tag
+    > type;
+};
 
 }} // namespace detail::rtree
 

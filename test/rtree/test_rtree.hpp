@@ -487,13 +487,19 @@ void test_nearest_k(Rtree const& rtree, std::vector<Value> const& input, Point c
 // rtree copying and moving
 
 template <typename Value, typename Algo, typename Box>
-void test_copy_assignment_move(bgi::rtree<Value, Algo> & tree, Box const& qbox)
+void test_copy_assignment_move(bgi::rtree<Value, Algo> const& tree, Box const& qbox)
 {
+    size_t s = tree.size();
+
+    BOOST_CHECK(s);    
+
     std::vector<Value> expected_output;
     tree.query(qbox, std::back_inserter(expected_output));
 
     // copy constructor
     bgi::rtree<Value, Algo> t1(tree);
+
+    BOOST_CHECK(tree.size() == t1.size());
 
     std::vector<Value> output;
     t1.query(qbox, std::back_inserter(output));
@@ -502,35 +508,65 @@ void test_copy_assignment_move(bgi::rtree<Value, Algo> & tree, Box const& qbox)
     // copying assignment operator
     t1 = tree;
 
+    BOOST_CHECK(tree.size() == t1.size());
+
     output.clear();
     t1.query(qbox, std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
 
     // moving constructor
-    bgi::rtree<Value, Algo> t2(boost::move(tree));
+    bgi::rtree<Value, Algo> t2(boost::move(t1));
+
+    BOOST_CHECK(t2.size() == s);
+    BOOST_CHECK(t1.size() == 0);
 
     output.clear();
     t2.query(qbox, std::back_inserter(output));
     test_exactly_the_same_outputs(t2, output, expected_output);
 
     // moving assignment operator
-    t2 = boost::move(t1);
+    t1 = boost::move(t2);
+
+    BOOST_CHECK(t1.size() == s);
+    BOOST_CHECK(t2.size() == 0);
 
     output.clear();
-    t2.query(qbox, std::back_inserter(output));
-    test_exactly_the_same_outputs(t2, output, expected_output);
+    t1.query(qbox, std::back_inserter(output));
+    test_exactly_the_same_outputs(t1, output, expected_output);
+}
+
+// rtree removing
+
+template <typename Value, typename Algo, typename Box>
+void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
+{
+    size_t prev_size = tree.size();
+
+    std::vector<Value> output;
+    tree.query(qbox, std::back_inserter(output));
+
+    BOOST_CHECK(0 < output.size());
+
+    tree.remove(output.begin(), output.end());
+
+    BOOST_CHECK(tree.size() == prev_size - output.size());
+
+    output.clear();
+    tree.query(qbox, std::back_inserter(output));
+
+    BOOST_CHECK(0 == output.size());
 }
 
 // run all tests for a single Algorithm and single rtree
 // defined by Value
 
-template <typename Value, typename Algo>
-void test_rtree_by_value()
+template <typename Value, typename Parameters>
+void test_rtree_by_value(Parameters const& parameters)
 {
-    typedef bgi::rtree<Value, Algo> Tree;
+    typedef bgi::rtree<Value, Parameters> Tree;
     typedef typename Tree::box_type B;
 
-    Tree tree;
+    Tree tree(parameters);
     std::vector<Value> input;
     B qbox;
 
@@ -550,22 +586,24 @@ void test_rtree_by_value()
     test_nearest_k(tree, input, pt, 10);
 
     test_copy_assignment_move(tree, qbox);
+
+    test_remove(tree, qbox);
 }
 
 // run all tests for one Algorithm for some number of rtrees
 // defined by some number of Values constructed from given Point
 
-template<typename Point, typename Algo>
-void test_rtree()
+template<typename Point, typename Parameters>
+void test_rtree(Parameters const& parameters = Parameters())
 {
     typedef bg::model::box<Point> Box;
     typedef std::pair<Box, int> PairB;
     typedef std::pair<Point, int> PairP;
 
-    test_rtree_by_value<Point, Algo>();
-    test_rtree_by_value<Box, Algo>();
-    test_rtree_by_value<PairB, Algo>();
-    test_rtree_by_value<PairP, Algo>();
+    test_rtree_by_value<Point, Parameters>(parameters);
+    test_rtree_by_value<Box, Parameters>(parameters);
+    test_rtree_by_value<PairB, Parameters>(parameters);
+    test_rtree_by_value<PairP, Parameters>(parameters);
 }
 
 #endif

@@ -157,9 +157,11 @@ class nearest
     , index::nonassignable
 {
 public:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef index::detail::distances_calc<DistancesPredicates, Box, rtree::node_tag> node_distances_calc;
     typedef typename node_distances_calc::result_type node_distances_type;
@@ -177,8 +179,9 @@ public:
         rtree::value_tag
     > value_distances_predicates_check;
 
-    inline nearest(Translator const& t, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
-        : m_tr(t), m_dist_pred(dist_pred), m_pred(pred)
+    inline nearest(parameters_type const& parameters, Translator const& translator, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
+        : m_parameters(parameters), m_translator(translator)
+        , m_dist_pred(dist_pred), m_pred(pred)
         , m_result(r)
     {}
 
@@ -186,13 +189,15 @@ public:
 
     inline void operator()(internal_node const& n)
     {
-        // array of active nodes
-        index::pushable_array<
-            std::pair<node_distances_type, const node *>,
-            Options::parameters_type::max_elements
-        > active_branch_list;
-
         typedef typename rtree::elements_type<internal_node>::type elements_type;
+
+        // array of active nodes
+        typename index::detail::rtree::container_from_elements_type<
+            elements_type,
+            std::pair<node_distances_type, const node *>
+        >::type active_branch_list;
+        active_branch_list.reserve(m_parameters.get_max_elements());
+        
         elements_type const& elements = rtree::elements(n);
 
         // fill array of nodes meeting predicates
@@ -256,10 +261,10 @@ public:
             it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::predicates_check<rtree::value_tag>(m_pred, *it, m_tr(*it)) )
+            if ( index::predicates_check<rtree::value_tag>(m_pred, *it, m_translator(*it)) )
             {
                 // calculate values distance for distance predicate
-                value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_tr(*it));
+                value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_translator(*it));
 
                 // TODO: awulkiew - consider at first calculating point relation distance only,
                 //                  comparing it with m_result.comparable_distance if it's valid,
@@ -316,7 +321,8 @@ private:
                 ::template get<index::detail::near_tag>(d);
     }
 
-    Translator const& m_tr;
+    parameters_type const& m_parameters;
+    Translator const& m_translator;
     DistancesPredicates const& m_dist_pred;
     Predicates const& m_pred;
 

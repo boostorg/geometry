@@ -28,16 +28,21 @@ struct choose_next_node;
 template <typename Value, typename Options, typename Box, typename Allocators>
 struct choose_next_node<Value, Options, Box, Allocators, choose_by_content_diff_tag>
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
 
     typedef typename index::default_content_result<Box>::type content_type;
 
     template <typename Indexable>
-    static inline size_t apply(internal_node & n, Indexable const& indexable, size_t /*node_relative_level*/)
+    static inline size_t apply(internal_node & n,
+                               Indexable const& indexable,
+                               parameters_type const& /*parameters*/,
+                               size_t /*node_relative_level*/)
     {
         children_type & children = rtree::elements(n);
 
@@ -107,11 +112,11 @@ template <typename Value, typename Options, typename Translator, typename Box, t
 class split<Value, Options, Translator, Box, Allocators, split_default_tag>
 {
 protected:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
-
     typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
     typedef index::pushable_array<std::pair<Box, node*>, 1> nodes_container_type;
@@ -120,7 +125,8 @@ public:
     static inline void apply(nodes_container_type & additional_nodes,
                              Node & n,
                              Box & n_box,
-                             Translator const& tr,
+                             parameters_type const& parameters,
+                             Translator const& translator,
                              Allocators & allocators)
     {
         // create additional node
@@ -130,14 +136,14 @@ public:
         // redistribute elements
         Box box2;
         redistribute_elements<Value, Options, Translator, Box, Allocators, typename Options::redistribute_tag>::
-            apply(n, n2, n_box, box2, tr);
+            apply(n, n2, n_box, box2, parameters, translator);
 
         // check numbers of elements
-        BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n).size() &&
-            rtree::elements(n).size() <= parameters_type::max_elements,
+        BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n).size() &&
+            rtree::elements(n).size() <= parameters.get_max_elements(),
             "unexpected number of elements");
-        BOOST_GEOMETRY_INDEX_ASSERT(parameters_type::min_elements <= rtree::elements(n2).size() &&
-            rtree::elements(n2).size() <= parameters_type::max_elements,
+        BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n2).size() &&
+            rtree::elements(n2).size() <= parameters.get_max_elements(),
             "unexpected number of elements");
 
         additional_nodes.push_back(std::make_pair(box2, second_node));
@@ -153,21 +159,23 @@ class insert
     , index::nonassignable
 {
 protected:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
-
     typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     inline insert(node* & root,
                   size_t & leafs_level,
                   Element const& element,
-                  Translator const& t,
+                  parameters_type const& parameters,
+                  Translator const& translator,
                   Allocators & allocators,
                   size_t relative_level = 0
     )
         : m_element(element)
-        , m_tr(t)
+        , m_parameters(parameters)
+        , m_translator(translator)
         , m_relative_level(relative_level)
         , m_level(leafs_level - relative_level)
         , m_root_node(root)
@@ -189,12 +197,12 @@ protected:
     {
         // choose next node
         size_t choosen_node_index = detail::choose_next_node<Value, Options, Box, Allocators, typename Options::choose_next_node_tag>::
-            apply(n, rtree::element_indexable(m_element, m_tr), m_leafs_level - m_current_level);
+            apply(n, rtree::element_indexable(m_element, m_translator), m_parameters, m_leafs_level - m_current_level);
 
         // expand the node to contain value
         geometry::expand(
             rtree::elements(n)[choosen_node_index].first,
-            rtree::element_indexable(m_element, m_tr));
+            rtree::element_indexable(m_element, m_translator));
 
         // next traversing step
         traverse_apply_visitor(visitor, n, choosen_node_index);
@@ -209,7 +217,7 @@ protected:
                                     "if node isn't the root current_child_index should be valid");
 
         // handle overflow
-        if ( parameters_type::max_elements < rtree::elements(n).size() )
+        if ( m_parameters.get_max_elements() < rtree::elements(n).size() )
         {
             split(n);
         }
@@ -247,7 +255,7 @@ protected:
         typename split_algo::nodes_container_type additional_nodes;
         Box n_box;
 
-        split_algo::apply(additional_nodes, n, n_box, m_tr, m_allocators);
+        split_algo::apply(additional_nodes, n, n_box, m_parameters, m_translator, m_allocators);
 
         BOOST_GEOMETRY_INDEX_ASSERT(additional_nodes.size() == 1, "unexpected number of additional nodes");
 
@@ -287,7 +295,8 @@ protected:
     // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation
 
     Element const& m_element;
-    Translator const& m_tr;
+    parameters_type const& m_parameters;
+    Translator const& m_translator;
     const size_t m_relative_level;
     const size_t m_level;
 
@@ -318,14 +327,17 @@ struct insert<Element, Value, Options, Translator, Box, Allocators, insert_defau
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
+    typedef typename Options::parameters_type parameters_type;
+
     inline insert(node* & root,
                   size_t & leafs_level,
                   Element const& element,
-                  Translator const& tr,
+                  parameters_type const& parameters,
+                  Translator const& translator,
                   Allocators & allocators,
                   size_t relative_level = 0
     )
-        : base(root, leafs_level, element, tr, allocators, relative_level)
+        : base(root, leafs_level, element, parameters, translator, allocators, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -364,14 +376,17 @@ struct insert<Value, Value, Options, Translator, Box, Allocators, insert_default
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
+    typedef typename Options::parameters_type parameters_type;
+
     inline insert(node* & root,
                   size_t & leafs_level,
-                  Value const& v,
-                  Translator const& t,
+                  Value const& value,
+                  parameters_type const& parameters,
+                  Translator const& translator,
                   Allocators & allocators,
                   size_t relative_level = 0
     )
-        : base(root, leafs_level, v, t, allocators, relative_level)
+        : base(root, leafs_level, value, parameters, translator, allocators, relative_level)
     {}
 
     inline void operator()(internal_node & n)

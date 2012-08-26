@@ -46,6 +46,12 @@ public:
         m_size = s;
     }
 
+    inline void reserve(size_type s)
+    {
+        //BOOST_GEOMETRY_INDEX_ASSERT(s <= Capacity, "size too big");
+        // do nothing
+    }
+
     inline Element & operator[](size_type i)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(i < m_size, "index of the element outside the container");

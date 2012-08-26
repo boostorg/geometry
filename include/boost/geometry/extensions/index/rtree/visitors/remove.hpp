@@ -27,20 +27,22 @@ class remove
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
     , index::nonassignable
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
-
     typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
     inline remove(node* & root,
                   size_t & leafs_level,
-                  Value const& v,
-                  Translator const& t,
+                  Value const& value,
+                  parameters_type const& parameters,
+                  Translator const& translator,
                   Allocators & allocators)
-        : m_value(v)
-        , m_tr(t)
+        : m_value(value)
+        , m_parameters(parameters)
+        , m_translator(translator)
         , m_allocators(allocators)
         , m_root_node(root)
         , m_leafs_level(leafs_level)
@@ -63,7 +65,7 @@ public:
         size_t child_node_index = 0;
         for ( ; child_node_index < children.size() ; ++child_node_index )
         {
-            if ( geometry::covered_by(m_tr(m_value), children[child_node_index].first) )
+            if ( geometry::covered_by(m_translator(m_value), children[child_node_index].first) )
             {
                 // next traversing step
                 traverse_apply_visitor(n, child_node_index);
@@ -90,7 +92,7 @@ public:
                 elements.erase(underfl_el_it);
 
                 // calc underflow
-                m_is_underflow = elements.size() < parameters_type::min_elements;
+                m_is_underflow = elements.size() < m_parameters.get_min_elements();
             }
 
             // n is not root - adjust aabb
@@ -99,10 +101,10 @@ public:
                 // underflow state should be ok here
                 // note that there may be less than min_elems elements in root
                 // so this condition should be checked only here
-                assert((elements.size() < parameters_type::min_elements) == m_is_underflow);
+                BOOST_GEOMETRY_INDEX_ASSERT((elements.size() < m_parameters.get_min_elements()) == m_is_underflow, "unexpected state");
 
                 rtree::elements(*m_parent)[m_current_child_index].first
-                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
+                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
             }
             // n is root node
             else
@@ -152,7 +154,7 @@ public:
         // find value and remove it
         for ( typename elements_type::iterator it = elements.begin() ; it != elements.end() ; ++it )
         {
-            if ( m_tr.equals(*it, m_value) )
+            if ( m_translator.equals(*it, m_value) )
             {
                 elements.erase(it);
                 m_is_value_removed = true;
@@ -164,13 +166,13 @@ public:
         if ( m_is_value_removed )
         {
             // calc underflow
-            m_is_underflow = elements.size() < parameters_type::min_elements;
+            m_is_underflow = elements.size() <  m_parameters.get_min_elements();
 
             // n is not root - adjust aabb
             if ( 0 != m_parent )
             {
                 rtree::elements(*m_parent)[m_current_child_index].first
-                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
+                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
             }
         }
     }
@@ -216,7 +218,8 @@ private:
                 m_root_node,
                 m_leafs_level,
                 *it,
-                m_tr,
+                m_parameters,
+                m_translator,
                 m_allocators,
                 node_relative_level - 1);
 
@@ -225,7 +228,8 @@ private:
     }
 
     Value const& m_value;
-    Translator const& m_tr;
+    parameters_type const& m_parameters;
+    Translator const& m_translator;
     Allocators & m_allocators;
 
     node* & m_root_node;

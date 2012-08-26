@@ -96,13 +96,15 @@ public:
     /*!
     The constructor.
 
+    \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
     */
-    inline explicit rtree(translator_type const& translator = translator_type(), Allocator allocator = Allocator())
+    inline explicit rtree(Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = Allocator())
         : m_values_count(0)
         , m_root(0)
         , m_leafs_level(0)
+        , m_parameters(parameters)
         , m_translator(translator)
         , m_allocators(allocator)
     {
@@ -114,14 +116,16 @@ public:
 
     \param first        The beginning of the range of Values.
     \param last         The end of the range of Values.
+    \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
     */
     template<typename Iterator>
-    inline rtree(Iterator first, Iterator last, translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
+    inline rtree(Iterator first, Iterator last, Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
         : m_values_count(0)
         , m_root(0)
         , m_leafs_level(0)
+        , m_parameters(parameters)
         , m_translator(translator)
         , m_allocators(allocator)
     {
@@ -142,7 +146,9 @@ public:
     The copy constructor.
     */
     inline rtree(rtree const& src)
-        : m_allocators(src.m_allocators)
+        : m_parameters(src.m_parameters)
+        , m_translator(src.m_translator)
+        , m_allocators(src.m_allocators)
     {
         //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
 
@@ -161,7 +167,9 @@ public:
     The copy constructor.
     */
     inline rtree(rtree const& src, Allocator const& allocator)
-        : m_allocators(allocator)
+        : m_parameters(src.m_parameters)
+        , m_translator(src.m_translator)
+        , m_allocators(allocator)
     {
         try
         {
@@ -181,6 +189,7 @@ public:
         : m_values_count(src.m_values_count)
         , m_root(src.m_root)
         , m_leafs_level(src.m_leafs_level)
+        , m_parameters(src.m_parameters)
         , m_translator(src.m_translator)
         , m_allocators(src.m_allocators)
     {
@@ -202,6 +211,8 @@ public:
         if ( !this->empty() )
             this->destroy(*this);
         
+        m_parameters = src.m_parameters;
+        m_translator = src.m_translator;
         //m_allocators = src.m_allocators;
 
         try
@@ -230,6 +241,8 @@ public:
         if ( !this->empty() )
             this->destroy(*this);
 
+        m_parameters = src.m_parameters;
+        m_translator = src.m_translator;
         //m_allocators = src.m_allocators;
 
         if ( m_allocators.allocator == src.m_allocators.allocator)
@@ -240,7 +253,6 @@ public:
             src.m_root = 0;
             m_leafs_level = src.m_leafs_level;
             src.m_leafs_level = 0;
-            m_translator = src.m_translator;
         }
         else
         {
@@ -277,7 +289,7 @@ public:
                 box_type,
                 allocators_type,
                 typename options_type::insert_tag
-            > insert_v(m_root, m_leafs_level, value, m_translator, m_allocators);
+            > insert_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
 
             detail::rtree::apply_visitor(insert_v, *m_root);
 
@@ -322,7 +334,7 @@ public:
                 translator_type,
                 box_type,
                 allocators_type
-            > remove_v(m_root, m_leafs_level, value, m_translator, m_allocators);
+            > remove_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
 
             detail::rtree::apply_visitor(remove_v, *m_root);
 
@@ -617,15 +629,12 @@ private:
     */
     inline void copy(rtree const& src, rtree & dst) const
     {
-        //dst.m_allocators = src.m_allocators;
-
         detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type> copy_v(dst.m_allocators);
         detail::rtree::apply_visitor(copy_v, *src.m_root);
 
         dst.m_root = copy_v.result;
         dst.m_values_count = src.m_values_count;
         dst.m_leafs_level = src.m_leafs_level;
-        dst.m_translator = src.m_translator;
     }
 
     /*!
@@ -654,7 +663,7 @@ private:
             DistancesPredicates,
             Predicates,
             result_type
-        > nearest_v(m_translator, dpred, pred, result);
+        > nearest_v(m_parameters, m_translator, dpred, pred, result);
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
@@ -687,7 +696,7 @@ private:
             DistancesPredicates,
             Predicates,
             result_type
-        > nearest_v(m_translator, dpred, pred, result);
+        > nearest_v(m_parameters, m_translator, dpred, pred, result);
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
@@ -697,6 +706,8 @@ private:
     size_type m_values_count;
     node *m_root;
     size_type m_leafs_level;
+
+    Parameters m_parameters;
     translator_type m_translator;
     allocators_type m_allocators;
 };

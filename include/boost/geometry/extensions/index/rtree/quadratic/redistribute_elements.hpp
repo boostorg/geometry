@@ -38,13 +38,14 @@ struct pick_seeds
     typedef typename index::default_content_result<box_type>::type content_type;
 
     static inline void apply(Elements const& elements,
+                             Parameters const& parameters,
                              Translator const& tr,
                              size_t & seed1,
                              size_t & seed2)
     {
-        const size_t elements_count = Parameters::max_elements + 1;
+        const size_t elements_count = parameters.get_max_elements() + 1;
 		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "wrong number of elements");
-		BOOST_STATIC_ASSERT(2 <= elements_count);
+		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
 
         content_type greatest_free_content = 0;
         seed1 = 0;
@@ -92,7 +93,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 			  				 Node & second_node,
 							 Box & box1,
 							 Box & box2,
-							 Translator const& tr)
+                             parameters_type const& parameters,
+							 Translator const& translator)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
@@ -101,20 +103,17 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
 		elements_type & elements1 = rtree::elements(n);
 		elements_type & elements2 = rtree::elements(second_node);
-		const size_t elements1_count = parameters_type::max_elements + 1;
-
-		typedef index::pushable_array<element_type, elements1_count> elements_copy_type;
+		const size_t elements1_count = parameters.get_max_elements() + 1;
 
 		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected elements number");
 
         // copy original elements
-        elements_copy_type elements_copy(elements1_count);
-		std::copy(elements1.begin(), elements1.end(), elements_copy.begin());
+        elements_type elements_copy(elements1);
         
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        quadratic::pick_seeds<elements_copy_type, parameters_type, Translator, Box>::apply(elements_copy, tr, seed1, seed2);
+        quadratic::pick_seeds<elements_type, parameters_type, Translator, Box>::apply(elements_copy, parameters, translator, seed1, seed2);
 
         // prepare nodes' elements containers
         elements1.clear();
@@ -125,8 +124,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         elements2.push_back(elements_copy[seed2]);
 
         // calculate boxes
-        geometry::convert(rtree::element_indexable(elements_copy[seed1], tr), box1);
-        geometry::convert(rtree::element_indexable(elements_copy[seed2], tr), box2);
+        geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
+        geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
 
         // remove seeds
         if (seed1 < seed2)
@@ -149,7 +148,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         // redistribute the rest of the elements
         while ( !elements_copy.empty() )
         {
-            typename elements_copy_type::reverse_iterator el_it = elements_copy.rbegin();
+            typename elements_type::reverse_iterator el_it = elements_copy.rbegin();
             bool insert_into_group1 = false;
 
             size_t elements1_count = elements1.size();
@@ -157,11 +156,11 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
             // if there is small number of elements left and the number of elements in node is lesser than min_elems
             // just insert them to this node
-            if ( elements1_count + remaining <= parameters_type::min_elements )
+            if ( elements1_count + remaining <= parameters.get_min_elements() )
             {
                 insert_into_group1 = true;
             }
-            else if ( elements2_count + remaining <= parameters_type::min_elements )
+            else if ( elements2_count + remaining <= parameters.get_min_elements() )
             {
                 insert_into_group1 = false;
             }
@@ -172,7 +171,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                 content_type content_increase1 = 0;
                 content_type content_increase2 = 0;
                 el_it = pick_next(elements_copy.rbegin(), elements_copy.rend(),
-                                  box1, box2, content1, content2, tr,
+                                  box1, box2, content1, content2, translator,
                                   content_increase1, content_increase2);
 
                 if ( content_increase1 < content_increase2 ||
@@ -189,7 +188,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
             // move element to the choosen group
             element_type const& elem = *el_it;
-            indexable_type const& indexable = rtree::element_indexable(elem, tr);
+            indexable_type const& indexable = rtree::element_indexable(elem, translator);
 
             if ( insert_into_group1 )
             {
@@ -205,7 +204,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             }
 
 			BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
-            typename elements_copy_type::iterator el_it_base = el_it.base();
+            typename elements_type::iterator el_it_base = el_it.base();
             elements_copy.erase(--el_it_base);
 
 			BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "expected more remaining elements");
@@ -219,7 +218,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
     static inline It pick_next(It first, It last,
                                Box const& box1, Box const& box2,
                                content_type const& content1, content_type const& content2,
-                               Translator const& tr,
+                               Translator const& translator,
                                content_type & out_content_increase1, content_type & out_content_increase2)
     {
         typedef typename boost::iterator_value<It>::type element_type;
@@ -233,7 +232,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         // find element with greatest difference between increased group's boxes areas
         for ( It el_it = first ; el_it != last ; ++el_it )
         {
-            indexable_type const& indexable = rtree::element_indexable(*el_it, tr);
+            indexable_type const& indexable = rtree::element_indexable(*el_it, translator);
 
             // calculate enlarged boxes and areas
             Box enlarged_box1(box1);

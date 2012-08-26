@@ -200,6 +200,13 @@ elements(Node const& n)
 	return n.elements;
 }
 
+// elements derived type
+template <typename Elements, typename NewValue>
+struct container_from_elements_type
+{
+    typedef std::vector<NewValue> type;
+};
+
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>

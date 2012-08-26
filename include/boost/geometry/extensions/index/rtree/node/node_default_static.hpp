@@ -53,6 +53,13 @@ struct leaf_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
     elements_type elements;
 };
 
+// elements derived type
+template <typename OldValue, size_t N, typename NewValue>
+struct container_from_elements_type<index::pushable_array<OldValue, N>, NewValue>
+{
+    typedef index::pushable_array<NewValue, N> type;
+};
+
 // allocators_poly
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
