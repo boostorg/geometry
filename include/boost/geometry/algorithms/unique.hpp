@@ -84,8 +84,8 @@ namespace dispatch
 
 template
 <
-    typename Tag,
-    typename Geometry
+    typename Geometry,
+    typename Tag = typename tag<Geometry>::type
 >
 struct unique
 {
@@ -96,19 +96,19 @@ struct unique
 
 
 template <typename Ring>
-struct unique<ring_tag, Ring>
+struct unique<Ring, ring_tag>
     : detail::unique::range_unique
 {};
 
 
 template <typename LineString>
-struct unique<linestring_tag, LineString>
+struct unique<LineString, linestring_tag>
     : detail::unique::range_unique
 {};
 
 
 template <typename Polygon>
-struct unique<polygon_tag, Polygon>
+struct unique<Polygon, polygon_tag>
     : detail::unique::polygon_unique
 {};
 
@@ -138,11 +138,7 @@ inline void unique(Geometry& geometry)
         > policy;
 
 
-    dispatch::unique
-        <
-            typename tag<Geometry>::type,
-            Geometry
-        >::apply(geometry, policy());
+    dispatch::unique<Geometry>::apply(geometry, policy());
 }
 
 }} // namespace boost::geometry
