@@ -64,13 +64,13 @@ namespace dispatch
 
 
 template <typename MultiLineString>
-struct unique<multi_linestring_tag, MultiLineString>
+struct unique<MultiLineString, multi_linestring_tag>
     : detail::unique::multi_unique<detail::unique::range_unique>
 {};
 
 
 template <typename MultiPolygon>
-struct unique<multi_polygon_tag, MultiPolygon>
+struct unique<MultiPolygon, multi_polygon_tag>
     : detail::unique::multi_unique<detail::unique::polygon_unique>
 {};
 
