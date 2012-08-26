@@ -263,7 +263,7 @@ struct intersection_insert
         OverlayType,
         Strategy
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, OverlayType>
+        <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, GeometryOut, OverlayType>
 {};
 
 
@@ -288,7 +288,7 @@ struct intersection_insert
         OverlayType,
         Strategy
     > : detail::overlay::overlay
-        <Geometry, Box, Reverse1, Reverse2, ReverseOut, OutputIterator, GeometryOut, OverlayType>
+        <Geometry, Box, Reverse1, Reverse2, ReverseOut, GeometryOut, OverlayType>
 {};
 
 
