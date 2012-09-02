@@ -30,21 +30,20 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-template <typename MultiGeometry, typename Strategy>
-struct area<MultiGeometry, Strategy, multi_polygon_tag>
-    : detail::multi_sum
-        <
-            typename Strategy::return_type,
-            MultiGeometry,
-            Strategy,
-            area
-                <
-                    typename boost::range_value<MultiGeometry>::type,
-                    Strategy,
-                    polygon_tag
-                >
-    >
-{};
+template <typename MultiGeometry>
+struct area<MultiGeometry, multi_polygon_tag> : detail::multi_sum
+{
+    template <typename Strategy>
+    static inline typename Strategy::return_type
+    apply(MultiGeometry const& multi, Strategy const& strategy)
+    {
+        return multi_sum::apply
+               <
+                   typename Strategy::return_type,
+                   area<typename boost::range_value<MultiGeometry>::type>
+               >(multi, strategy);
+    }
+};
 
 
 } // namespace dispatch
