@@ -119,10 +119,8 @@ struct correct_ring
 
     typedef detail::area::ring_area
             <
-                Ring,
                 order_as_direction<geometry::point_order<Ring>::value>::value,
-                geometry::closure<Ring>::value,
-                strategy_type
+                geometry::closure<Ring>::value
             > ring_area_type;
 
 

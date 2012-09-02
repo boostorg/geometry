@@ -108,12 +108,14 @@ namespace dispatch
 
 template <typename Tag, typename Geometry, typename Strategy>
 struct length : detail::calculate_null
-    <
-        typename default_length_result<Geometry>::type,
-        Geometry,
-        Strategy
-    >
-{};
+{
+    typedef typename default_length_result<Geometry>::type return_type;
+
+    static inline return_type apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        return calculate_null::apply<return_type>(geometry, strategy);
+    }
+};
 
 
 template <typename Geometry, typename Strategy>
