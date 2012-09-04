@@ -30,7 +30,7 @@ struct distances_calc<
     typedef typename detail::relation<PointRelation>::value_type point_type;
     typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
 
-    typedef detail::cdist<distance_type, detail::near_tag> result_type;
+    typedef detail::cdist<distance_type, detail::to_nearest_tag> result_type;
 
     static inline result_type apply(PointRelation const& p, Box const& i)
     {
@@ -51,7 +51,7 @@ struct distances_calc<
     typedef typename detail::relation<PointRelation>::value_type point_type;
     typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
 
-    typedef detail::cdist<distance_type, detail::near_tag> result_type;
+    typedef detail::cdist<distance_type, detail::to_nearest_tag> result_type;
 
     static inline result_type apply(detail::unbounded<PointRelation> const& pp, Box const& i)
     {
@@ -73,8 +73,8 @@ struct distances_calc<
     typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
     
     typedef typename detail::cdist_merge<
-        cdist<distance_type, detail::near_tag>,
-        cdist<distance_type, detail::far_tag>
+        cdist<distance_type, detail::to_nearest_tag>,
+        cdist<distance_type, detail::to_furthest_tag>
     >::type result_type;
 
     static inline result_type apply(detail::min_bounded<PointRelation, MinRelation> const& pp, Box const& i)
@@ -96,7 +96,7 @@ struct distances_calc<
     typedef typename detail::relation<PointRelation>::value_type point_type;
     typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
 
-    typedef cdist<distance_type, detail::near_tag> result_type;
+    typedef cdist<distance_type, detail::to_nearest_tag> result_type;
 
     static inline result_type apply(detail::max_bounded<PointRelation, MaxRelation> const& pp, Box const& i)
     {
@@ -118,8 +118,8 @@ struct distances_calc<
     typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
 
     typedef typename detail::cdist_merge<
-        cdist<distance_type, detail::near_tag>,
-        cdist<distance_type, detail::far_tag>
+        cdist<distance_type, detail::to_nearest_tag>,
+        cdist<distance_type, detail::to_furthest_tag>
     >::type result_type;
 
     static inline result_type apply(detail::bounded<PointRelation, MinRelation, MaxRelation> const& pp, Box const& i)
@@ -173,7 +173,7 @@ struct distances_predicates_check<
         Distances const& d)
     {
         return pred.comparable_min
-            <= cdist_value<Distances>::template get<detail::far_tag>(d);
+            <= cdist_value<Distances>::template get<detail::to_furthest_tag>(d);
     }
 };
 
@@ -188,7 +188,7 @@ struct distances_predicates_check<
         detail::max_bounded<PointRelation, MaxRelation> const& pred,
         Distances const& d)
     {
-        return cdist_value<Distances>::template get<detail::near_tag>(d)
+        return cdist_value<Distances>::template get<detail::to_nearest_tag>(d)
             <= pred.comparable_max;
     }
 };
@@ -205,8 +205,8 @@ struct distances_predicates_check<
         Distances const& d)
     {
         return pred.comparable_min
-                <= cdist_value<Distances>::template get<detail::far_tag>(d)
-            && cdist_value<Distances>::template get<detail::near_tag>(d)
+                <= cdist_value<Distances>::template get<detail::to_furthest_tag>(d)
+            && cdist_value<Distances>::template get<detail::to_nearest_tag>(d)
                 <= pred.comparable_max;
     }
 };

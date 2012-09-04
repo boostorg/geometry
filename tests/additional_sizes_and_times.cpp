@@ -20,12 +20,6 @@
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 
-/*#include <boost/pool/pool_alloc.hpp>
-#undef near
-#undef far
-#undef min
-#undef max*/
-
 template <typename V>
 struct test_pred
 {

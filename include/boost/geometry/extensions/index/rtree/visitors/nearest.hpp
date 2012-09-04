@@ -308,9 +308,9 @@ private:
         std::pair<node_distances_type, const node *> const& p2)
     {
         return index::detail::cdist_value<node_distances_type>
-                ::template get<index::detail::near_tag>(p1.first)
+                ::template get<index::detail::to_nearest_tag>(p1.first)
             < index::detail::cdist_value<node_distances_type>
-                ::template get<index::detail::near_tag>(p2.first);
+                ::template get<index::detail::to_nearest_tag>(p2.first);
     }
 
     template <typename Distance>
@@ -318,7 +318,7 @@ private:
     {
         return smallest_dist
             < index::detail::cdist_value<node_distances_type>
-                ::template get<index::detail::near_tag>(d);
+                ::template get<index::detail::to_nearest_tag>(d);
     }
 
     parameters_type const& m_parameters;

@@ -92,15 +92,15 @@ non-point `__indexable__` should be taken into account in the routine calculatin
 
  /* same as default - distance between Indexable's closest point and a query point
  must be greater than 10 */
- index::nearest(rt, index::min_bounded(pt, index::near(10)), k, std::back_inserter(returned_values));
+ index::nearest(rt, index::min_bounded(pt, index::to_nearest(10)), k, std::back_inserter(returned_values));
 
  /* distance between Indexable's furthest point and a query point
  must be greater than 10 */
- index::nearest(rt, index::min_bounded(pt, index::far(10)), k, std::back_inserter(returned_values));
+ index::nearest(rt, index::min_bounded(pt, index::to_furthest(10)), k, std::back_inserter(returned_values));
 
  /* distance between Indexable's centroid and a query point
  must be greater than 10 */
- index::nearest(rt, index::min_bounded(pt, index::centroid(10)), k, std::back_inserter(returned_values));
+ index::nearest(rt, index::min_bounded(pt, index::to_centroid(10)), k, std::back_inserter(returned_values));
 
 [endsect]
 
@@ -114,7 +114,7 @@ It is possible to use spatial predicates described before in nearest neighbours 
  __point__ pt(...);
  __box__ b(...);
 
- size_t n1 = rt.nearest(index::bounded(pt, index::far(1), 10), index::intersects(b), returned_value);
+ size_t n1 = rt.nearest(index::bounded(pt, index::to_furthest(1), 10), index::intersects(b), returned_value);
 
  size_t n2 = index::nearest(rt, pt, k, index::within(b), std::back_inserter(returned_values));
 
