@@ -10,17 +10,8 @@
 
 #include <geometry_test_common.hpp>
 
-
-#include <boost/geometry/core/tag.hpp>
-
-#include <boost/geometry/geometries/geometries.hpp>
-
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
-
-
-#include <vector>
-#include <deque>
+#include <boost/geometry/extensions/nsphere/nsphere.hpp>
+#include <boost/geometry/multi/core/point_type.hpp>
 
 
 template <typename G, typename Expected>
@@ -33,37 +24,11 @@ void test_geometry()
 template <typename P>
 void test_all()
 {
-    test_geometry<P, P>();
-    test_geometry<const P, P>();
-    test_geometry<bg::model::linestring<P> , P>();
-    test_geometry<bg::model::ring<P> , P>();
-    test_geometry<bg::model::polygon<P> , P>();
-    test_geometry<bg::model::box<P> , P>();
-    test_geometry<bg::segment<P> , P>();
-    test_geometry<bg::segment<const P> , P>();
-    test_geometry<bg::nsphere<P, double> , P>();
-
-    test_geometry<std::vector<P>, P>();
-    test_geometry<std::deque<P>, P>();
-
-    test_geometry<boost::array<P, 5>, P>();
+    test_geometry<bg::model::nsphere<P, double> , P>();
 }
 
 int test_main(int, char* [])
 {
-    test_geometry<int[2], int[2]>();
-    test_geometry<float[2], float[2]>();
-    test_geometry<double[2], double[2]>();
-
-    test_geometry<int[3], int[3]>();
-    test_geometry<float[3], float[3]>();
-    test_geometry<double[3], double[3]>();
-
-    test_geometry<boost::tuple<double, double>,
-                boost::tuple<double, double> >();
-    test_geometry<boost::tuple<double, double, double>,
-                boost::tuple<double, double, double> >();
-
     test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
