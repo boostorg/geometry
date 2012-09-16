@@ -30,7 +30,7 @@ namespace core_dispatch
 {
 
 template <typename Nsphere, typename CoordinateType, std::size_t Dimension>
-struct access<nsphere_tag, Nsphere, CoordinateType, Dimension>
+struct access<nsphere_tag, Nsphere, CoordinateType, Dimension, boost::false_type>
 {
     static inline CoordinateType get(Nsphere const& nsphere)
     {

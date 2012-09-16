@@ -17,6 +17,7 @@
 
 #include <boost/geometry/algorithms/envelope.hpp>
 
+#include <boost/geometry/extensions/nsphere/core/radius.hpp>
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 
 
@@ -28,9 +29,9 @@ namespace detail { namespace envelope
 {
 
 /// Calculate envelope of an n-sphere, circle or sphere (currently only for Cartesian 2D points)
-template<typename Box, typename Nsphere, typename Strategy>
 struct envelope_nsphere
 {
+    template <typename Nsphere, typename Box, typename Strategy>
     static inline void apply(Nsphere const& nsphere, Box& mbr, Strategy const&)
     {
         assert_dimension<Nsphere, 2>();
@@ -53,23 +54,9 @@ namespace dispatch
 {
 
 
-template
-<
-    typename Nsphere,
-    typename Box,
-    typename StrategyLess, typename StrategyGreater
->
-struct envelope
-    <
-        nsphere_tag, box_tag,
-        Nsphere, Box,
-        StrategyLess, StrategyGreater
-    >
+template <typename Nsphere>
+struct envelope<Nsphere, nsphere_tag>
     : detail::envelope::envelope_nsphere
-        <
-            Nsphere, Box,
-            StrategyLess
-        >
 {};
 
 
