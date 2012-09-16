@@ -30,7 +30,7 @@ namespace dispatch
 
 
 template <typename Geometry>
-struct num_points<nsphere_tag, false, Geometry>
+struct num_points<nsphere_tag, Geometry>
         : detail::num_points::other_count<Geometry, 1>
 {};
 

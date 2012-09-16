@@ -16,10 +16,9 @@
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_CORE_REPLACE_POINT_TYPE_HPP
 
 
-#include <boost/geometry/core/replace_point_type.hpp>
-
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 #include <boost/geometry/extensions/nsphere/geometries/nsphere.hpp>
+#include <boost/geometry/extensions/util/replace_point_type.hpp>
 
 
 namespace boost { namespace geometry

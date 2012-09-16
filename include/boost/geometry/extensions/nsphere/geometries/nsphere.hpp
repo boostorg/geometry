@@ -57,7 +57,7 @@ public:
     nsphere()
         : m_radius(0)
     {
-        detail::assign::assign_value(m_center, coordinate_type());
+        assign_value(m_center, coordinate_type());
     }
 
     nsphere(P const& center, T const& radius)
