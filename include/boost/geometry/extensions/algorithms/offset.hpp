@@ -15,6 +15,7 @@
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/buffer_inserter.hpp>
+#include <boost/geometry/extensions/strategies/buffer.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
