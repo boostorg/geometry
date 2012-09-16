@@ -14,13 +14,14 @@
 #include <boost/geometry/extensions/nsphere/geometries/concepts/nsphere_concept.hpp>
 #include <boost/geometry/extensions/nsphere/geometries/nsphere.hpp>
 
+#include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/core/cs.hpp>
-
 #include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/adapted/c_array_cartesian.hpp>
-#include <boost/geometry/geometries/adapted/tuple_cartesian.hpp>
+#include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <test_common/test_point.hpp>
 
+
+BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 
 
 namespace bg = boost::geometry;
@@ -124,7 +125,7 @@ void test_construction()
     check_nsphere(c1, 0, 0,0,0);
 
     P center;
-    bg::assign(center, 1, 2, 3);
+    bg::assign_values(center, 1, 2, 3);
     bg::model::nsphere<P, T> c2(center, 4);
     check_nsphere(c2, 4, 1,2,3);
 }
@@ -142,7 +143,7 @@ void test_assignment_3d()
     bg::set_radius<0>(c, 5000);
     check_nsphere(c, 5000, 5,50,500);
 
-    bg::assign(c, 6, 60, 600);
+    bg::assign_values(c, 6, 60, 600);
     check_nsphere(c, 5000, 6,60,600);
 }
 

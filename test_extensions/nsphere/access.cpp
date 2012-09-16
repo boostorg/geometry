@@ -16,8 +16,11 @@
 #include <geometry_test_common.hpp>
 
 
-#include <boost/geometry/extensions/nsphere/core/access.hpp>
-#include <boost/geometry/extensions/nsphere/geometries/nsphere.hpp>
+#include <boost/geometry/extensions/nsphere/nsphere.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+#include <boost/geometry/geometries/adapted/c_array.hpp>
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/tuple/tuple.hpp>
 
 
 
@@ -44,7 +47,7 @@ void test_all()
     typedef typename bg::coordinate_type<P>::type coordinate_type;
 
     // N-SPHERE, setting sphere center
-    test_get_set<bg::nsphere<P, coordinate_type> >();
+    test_get_set<bg::model::nsphere<P, coordinate_type> >();
 
 }
 

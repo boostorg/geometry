@@ -10,6 +10,7 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/ring.hpp>
@@ -18,15 +19,18 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/multi/core/point_type.hpp>
+#include <boost/geometry/multi/geometries/multi_geometries.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/extensions/nsphere/nsphere.hpp>
 
 int test_main( int , char* [] )
 {
     typedef bg::model::d2::point_xy<double> gl_point;
-    typedef bg::circle gl_circle;
+    typedef bg::model::nsphere<gl_point, double> gl_circle;
     typedef bg::model::ring<gl_point> gl_ring;
     typedef bg::model::polygon<gl_point> gl_polygon;
-    typedef bg::multi_polygon<gl_polygon> gl_multi_polygon;
+    typedef bg::model::multi_polygon<gl_polygon> gl_multi_polygon;
 
     gl_circle circle(gl_point(1, 1), 2.5);
 
@@ -43,7 +47,7 @@ int test_main( int , char* [] )
     multi_polygon.push_back(pol);
 
     // Multipolygon in circle
-    BOOST_CHECK_EQUAL(within(multi_polygon, circle), true);
+    BOOST_CHECK_EQUAL(bg::within(multi_polygon, circle), true);
 
     return 0;
 }
