@@ -25,6 +25,8 @@
 #include <test_geometries/all_custom_polygon.hpp>
 //#define GEOMETRY_TEST_DEBUG
 
+#include <boost/variant/variant.hpp>
+
 template <typename Polygon>
 void test_polygon()
 {
@@ -222,6 +224,28 @@ void test_large_integers()
     BOOST_CHECK_CLOSE(int_area, double_area, 0.0001);
 }
 
+void test_variant()
+{
+    typedef bg::model::point<double, 2, bg::cs::cartesian> double_point_type;
+    typedef bg::model::polygon<double_point_type> polygon_type;
+    typedef bg::model::box<double_point_type> box_type;
+
+    polygon_type poly;
+    std::string const polygon_li = "POLYGON((18 5,18 1,15 1,15 5,12 5,12 8,15 8,18 8,18 5))";
+    bg::read_wkt(polygon_li, poly);
+
+    box_type box;
+    std::string const box_li = "BOX(0 0,2 2)";
+    bg::read_wkt(box_li, box);
+
+    boost::variant<polygon_type, box_type> v;
+
+    v = poly;
+    BOOST_CHECK_CLOSE(bg::area(v), bg::area(poly), 0.0001);
+    v = box;
+    BOOST_CHECK_CLOSE(bg::area(v), bg::area(box), 0.0001);
+}
+
 int test_main(int, char* [])
 {
     test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
@@ -241,6 +265,8 @@ int test_main(int, char* [])
 #endif
 
     test_large_integers();
+
+    test_variant();
 
     // test_empty_input<bg::model::d2::point_xy<int> >();
 

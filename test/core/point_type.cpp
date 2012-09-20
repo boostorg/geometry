@@ -64,9 +64,12 @@ int test_main(int, char* [])
     test_geometry<double[3], double[3]>();
 
     test_geometry<boost::tuple<double, double>,
-                boost::tuple<double, double> >();
+                  boost::tuple<double, double> >();
     test_geometry<boost::tuple<double, double, double>,
-                boost::tuple<double, double, double> >();
+                  boost::tuple<double, double, double> >();
+
+    test_geometry<boost::variant<bg::model::box<boost::tuple<double, double> > >,
+                  boost::tuple<double, double> >();
 
     test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
