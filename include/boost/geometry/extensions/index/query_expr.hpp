@@ -15,20 +15,32 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_QUERY_EXPR_HPP
 
 namespace boost { namespace geometry { namespace index {
-    
+
 namespace query_expr {
 
 // predicates tags
 
 struct empty_tag {};
 struct value_tag {};
+
 struct covered_by_tag {};
 struct disjoint_tag {};
 struct intersects_tag {};
 struct overlaps_tag {};
 //struct touches_tag {};
 struct within_tag {};
+
+struct not_covered_by_tag {};
+struct not_disjoint_tag {};
+struct not_intersects_tag {};
+struct not_overlaps_tag {};
+//struct not_touches_tag {};
+struct not_within_tag {};
+
 struct nearest_tag {};
+
+// closer_than_tag ?
+// further_than_tag ?
 
 // predicates data
 
@@ -77,25 +89,38 @@ struct and_expr
     Right const& right;
 };
 
-// predicates_count
+// predicate_tag
+template <typename Predicate>
+struct predicate_tag
+{
+    BOOST_MPL_ASSERT_MSG(
+        (false),
+        NOT_VALID_PREDICATE,
+        (Predicate));
+};
+template <typename Data, typename Tag>
+struct predicate_tag< predicate<Data, Tag> >
+{
+    typedef Tag type;
+};
+
+// predicates_length
 
 template <typename Expr>
-struct predicates_count
+struct predicates_length
 {
-    BOOST_MPL_ASSERT(
+    BOOST_MPL_ASSERT_MSG(
         (false),
         NOT_VALID_QUERY_EXPRESSION,
         (Expr));
 };
-
 template <typename Left, typename Right>
-struct predicates_count< and_expr<Left, Right> >
+struct predicates_length< and_expr<Left, Right> >
 {
-    static const size_t value = predicates_count<Left>::value + predicates_count<Right>::value;
+    static const size_t value = predicates_length<Left>::value + predicates_length<Right>::value;
 };
-
 template <typename Data, typename Tag>
-struct predicates_count< predicate<Data, Tag> >
+struct predicates_length< predicate<Data, Tag> >
 {
     static const size_t value = 1;
 };
@@ -126,8 +151,19 @@ struct if_t<false, T1, T2>
     typedef T2 type;
 };
 
-// if_ret
+// if_ret_t
+template <bool Cond, typename T>
+struct if_ret_t
+{
+    typedef T const& type;
+};
+template <typename T>
+struct if_ret_t<false, T>
+{
+    typedef void type;
+};
 
+// if_ret
 template <bool Cond>
 struct if_ret
 {
@@ -141,12 +177,40 @@ struct if_ret<false>
     void apply(T const&) {}
 };
 
+// if_ret2
+template <bool Cond, typename L, typename R>
+struct if_ret2
+{
+    template <typename Expr>
+    static inline typename L::return_type
+    apply(Expr const& e) { return L::apply(e.left); }
+};
+template <typename L, typename R>
+struct if_ret2<false, L, R>
+{
+    template <typename Expr>
+    static inline typename R::return_type
+    apply(Expr const& e) { return R::apply(e.right); }
+};
+
+// types_equal
+template <typename T1, typename T2>
+struct types_equal
+{
+    static const bool value = false;
+};
+template <typename T>
+struct types_equal<T, T>
+{
+    static const bool value = true;
+};
+
 // predicate_access_impl - used by predicate_type and get_predicate()
 
 template <typename Expr, size_t I, size_t Curr = 0>
 struct predicate_access
 {
-    BOOST_MPL_ASSERT(
+    BOOST_MPL_ASSERT_MSG(
         (false),
         NOT_VALID_QUERY_EXPRESSION,
         (Expr));
@@ -155,30 +219,32 @@ struct predicate_access
 template <typename Left, typename Right, size_t I, size_t Curr>
 struct predicate_access<and_expr<Left, Right>, I, Curr>
 {
+    typedef predicate_access<Left, I, Curr> L;
+    typedef predicate_access<Right, I, predicate_access<Left, I, Curr>::curr + 1> R;
+
     static const size_t curr = if_v<
-        I == predicate_access<Left, I, Curr>::curr,
-        predicate_access<Left, I, Curr>::curr,
-        predicate_access<Right, I, predicate_access<Left, I, Curr>::curr + 1>::curr
+        I == L::curr,
+        L::curr,
+        R::curr
     >::value;
 
     typedef typename if_t<
-        I == predicate_access<Left, I, Curr>::curr,
-        typename predicate_access<Left, I, Curr>::type,
-        typename predicate_access<Right, I, predicate_access<Left, I, Curr>::curr + 1>::type
+        I == L::curr,
+        typename L::type,
+        typename R::type
     >::type type;
 
-    //TODO
+    typedef typename if_t<
+        I == L::curr,
+        typename L::return_type,
+        typename R::return_type
+    >::type return_type;
 
-    /*static inline
-    typename if_t<
-        I == predicate_access<Left, I, Curr>::curr,
-        typename predicate_access<Left, I, Curr>::return_type,
-        typename predicate_access<Right, I, predicate_access<Left, I, Curr>::curr + 1>::return_type
-    >::type
+    static inline return_type
     apply(and_expr<Left, Right> const& e)
     {
-        return if_ret<I == Curr>::apply(p);
-    }*/
+        return if_ret2<I == L::curr, L, R>::apply(e);
+    }
 };
 
 template <typename Data, typename Tag, size_t I, size_t Curr>
@@ -188,7 +254,7 @@ struct predicate_access<predicate<Data, Tag>, I, Curr>
 
     typedef typename if_t<I == Curr, predicate<Data, Tag>, void>::type type;
 
-    typedef typename if_t<I == Curr, type const&, void>::type return_type;
+    typedef typename if_ret_t<I == Curr, type>::type return_type;
 
     static inline return_type apply(predicate<Data, Tag> const& p)
     {
@@ -207,11 +273,75 @@ struct predicate_type
 // get_predicate
 
 template <size_t I, typename Expr>
-typename predicate_type<Expr, I>::type const&
+typename predicate_access<Expr, I>::return_type
 get_predicate(Expr const& expr)
 {
     return predicate_access<Expr, I>::apply(expr);
 };
+
+// predicate_index
+template <typename Expr, typename Tag, size_t I, size_t N>
+struct predicate_index_impl
+{
+    static const size_t value = if_v<
+        types_equal<
+            Tag,
+            typename predicate_tag<
+                typename predicate_type<Expr, I>::type
+            >::type
+        >::value,
+        I,
+        predicate_index_impl<Expr, Tag, I+1, N>::value
+    >::value;
+};
+template <typename Expr, typename Tag, size_t N>
+struct predicate_index_impl<Expr, Tag, N, N>
+{
+    static const size_t value = N;
+};
+
+template <typename Expr, typename Tag, size_t I = 0>
+struct predicate_index
+{
+    static const size_t value =
+        predicate_index_impl<
+            Expr, Tag, I, predicates_length<Expr>::value
+        >::value;
+};
+
+// count_predicate
+template <typename Expr, typename Tag, size_t I, size_t N>
+struct count_predicate_impl
+{
+    static const size_t value =
+        count_predicate_impl<Expr, Tag, I+1, N>::value +
+        if_v<
+            types_equal<
+                Tag,
+                typename predicate_tag<
+                    typename predicate_type<Expr, I>::type
+                >::type
+            >::value,
+            1,
+            0
+        >::value;
+};
+template <typename Expr, typename Tag, size_t N>
+struct count_predicate_impl<Expr, Tag, N, N>
+{
+    static const size_t value = 0;
+};
+
+template <typename Expr, typename Tag, size_t I = 0>
+struct count_predicate
+{
+    static const size_t value =
+        count_predicate_impl<
+            Expr, Tag, I, predicates_length<Expr>::value
+        >::value;
+};
+
+// count_predicate
 
 } // namespace query_expr
 
