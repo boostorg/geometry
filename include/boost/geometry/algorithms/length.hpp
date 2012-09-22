@@ -108,7 +108,7 @@ namespace dispatch
 {
 
 
-template <typename Tag, typename Geometry>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct length : detail::calculate_null
 {
     typedef typename default_length_result<Geometry>::type return_type;
@@ -122,7 +122,7 @@ struct length : detail::calculate_null
 
 
 template <typename Geometry>
-struct length<linestring_tag, Geometry>
+struct length<Geometry, linestring_tag>
     : detail::length::range_length<Geometry, closed>
 {};
 
@@ -131,7 +131,7 @@ struct length<linestring_tag, Geometry>
 
 
 template <typename Geometry>
-struct length<segment_tag, Geometry>
+struct length<Geometry, segment_tag>
     : detail::length::segment_length<Geometry>
 {};
 
@@ -164,11 +164,7 @@ inline typename default_length_result<Geometry>::type length(
             point_tag, typename point_type<Geometry>::type
         >::type strategy_type;
 
-    return dispatch::length
-        <
-            typename tag<Geometry>::type,
-            Geometry
-        >::apply(geometry, strategy_type());
+    return dispatch::length<Geometry>::apply(geometry, strategy_type());
 }
 
 
@@ -194,11 +190,7 @@ inline typename default_length_result<Geometry>::type length(
 
     // detail::throw_on_empty_input(geometry);
     
-    return dispatch::length
-        <
-            typename tag<Geometry>::type,
-            Geometry
-        >::apply(geometry, strategy);
+    return dispatch::length<Geometry>::apply(geometry, strategy);
 }
 
 

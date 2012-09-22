@@ -31,7 +31,7 @@ namespace dispatch
 {
 
 template <typename MultiLinestring>
-struct length<multi_linestring_tag, MultiLinestring> : detail::multi_sum
+struct length<MultiLinestring, multi_linestring_tag> : detail::multi_sum
 {
     template <typename Strategy>
     static inline typename default_length_result<MultiLinestring>::type
