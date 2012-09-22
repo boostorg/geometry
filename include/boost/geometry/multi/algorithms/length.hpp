@@ -30,9 +30,10 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 
-template <typename MultiLinestring, typename Strategy>
-struct length<multi_linestring_tag, MultiLinestring, Strategy> : detail::multi_sum
+template <typename MultiLinestring>
+struct length<multi_linestring_tag, MultiLinestring> : detail::multi_sum
 {
+    template <typename Strategy>
     static inline typename default_length_result<MultiLinestring>::type
     apply(MultiLinestring const& multi, Strategy const& strategy)
     {
@@ -42,7 +43,6 @@ struct length<multi_linestring_tag, MultiLinestring, Strategy> : detail::multi_s
                    detail::length::range_length
                    <
                        typename boost::range_value<MultiLinestring>::type,
-                       Strategy,
                        closed // no need to close it explicitly
                    >
                >(multi, strategy);

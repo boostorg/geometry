@@ -49,7 +49,6 @@ struct perimeter<ring_tag, Geometry, Strategy>
     : detail::length::range_length
         <
             Geometry,
-            Strategy,
             closure<Geometry>::value
         >
 {};
@@ -61,7 +60,6 @@ struct perimeter<polygon_tag, Polygon, Strategy> : detail::calculate_polygon_sum
     typedef detail::length::range_length
                 <
                     typename ring_type<Polygon>::type,
-                    Strategy,
                     closure<Polygon>::value
                 > policy;
 
