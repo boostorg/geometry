@@ -95,24 +95,16 @@ struct centroid_multi
 namespace dispatch
 {
 
-template
-<
-    typename MultiLinestring,
-    typename Point
->
-struct centroid<multi_linestring_tag, MultiLinestring, Point>
+template <typename MultiLinestring>
+struct centroid<multi_linestring_tag, MultiLinestring>
     : detail::centroid::centroid_multi
         <
             detail::centroid::centroid_range_state<closed>
         >
 {};
 
-template
-<
-    typename MultiPolygon,
-    typename Point
->
-struct centroid<multi_polygon_tag, MultiPolygon, Point>
+template <typename MultiPolygon>
+struct centroid<multi_polygon_tag, MultiPolygon>
     : detail::centroid::centroid_multi
         <
             detail::centroid::centroid_polygon_state
@@ -120,12 +112,8 @@ struct centroid<multi_polygon_tag, MultiPolygon, Point>
 {};
 
 
-template
-<
-    typename MultiPoint,
-    typename Point
->
-struct centroid<multi_point_tag, MultiPoint, Point>
+template <typename MultiPoint>
+struct centroid<multi_point_tag, MultiPoint>
     : detail::centroid::centroid_multi
         <
             detail::centroid::centroid_multi_point_state

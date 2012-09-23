@@ -266,41 +266,32 @@ namespace dispatch
 template
 <
     typename Tag,
-    typename Geometry,
-    typename Point
+    typename Geometry
 >
 struct centroid {};
 
-template
-<
-    typename Geometry,
-    typename Point
->
-struct centroid<point_tag, Geometry, Point>
+template <typename Geometry>
+struct centroid<point_tag, Geometry>
     : detail::centroid::centroid_point
 {};
 
-template
-<
-    typename Box,
-    typename Point
->
-struct centroid<box_tag, Box, Point>
+template <typename Box>
+struct centroid<box_tag, Box>
     : detail::centroid::centroid_box
 {};
 
-template <typename Ring, typename Point>
-struct centroid<ring_tag, Ring, Point>
+template <typename Ring>
+struct centroid<ring_tag, Ring>
     : detail::centroid::centroid_range<geometry::closure<Ring>::value>
 {};
 
-template <typename Linestring, typename Point>
-struct centroid<linestring_tag, Linestring, Point>
+template <typename Linestring>
+struct centroid<linestring_tag, Linestring>
     : detail::centroid::centroid_range<closed>
  {};
 
-template <typename Polygon, typename Point>
-struct centroid<polygon_tag, Polygon, Point>
+template <typename Polygon>
+struct centroid<polygon_tag, Polygon>
     : detail::centroid::centroid_polygon
  {};
 
@@ -340,8 +331,7 @@ inline void centroid(Geometry const& geometry, Point& c,
     dispatch::centroid
         <
             typename tag<Geometry>::type,
-            Geometry,
-            Point
+            Geometry
         >::apply(geometry, c, strategy);
 }
 
