@@ -31,7 +31,7 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 template <typename MultiPolygon>
-struct perimeter<multi_polygon_tag, MultiPolygon> : detail::multi_sum
+struct perimeter<MultiPolygon, multi_polygon_tag> : detail::multi_sum
 {
     template <typename Strategy>
     static inline typename default_length_result<MultiPolygon>::type
@@ -40,11 +40,7 @@ struct perimeter<multi_polygon_tag, MultiPolygon> : detail::multi_sum
         return multi_sum::apply
                <
                    typename default_length_result<MultiPolygon>::type,
-                   perimeter
-                   <
-                       polygon_tag,
-                       typename boost::range_value<MultiPolygon>::type
-                   >
+                   perimeter<typename boost::range_value<MultiPolygon>::type>
                >(multi, strategy);
     }
 };

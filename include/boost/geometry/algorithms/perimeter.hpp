@@ -33,7 +33,7 @@ namespace dispatch
 {
 
 // Default perimeter is 0.0, specializations implement calculated values
-template <typename Tag, typename Geometry>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct perimeter : detail::calculate_null
 {
     typedef typename default_length_result<Geometry>::type return_type;
@@ -46,7 +46,7 @@ struct perimeter : detail::calculate_null
 };
 
 template <typename Geometry>
-struct perimeter<ring_tag, Geometry>
+struct perimeter<Geometry, ring_tag>
     : detail::length::range_length
         <
             Geometry,
@@ -55,7 +55,7 @@ struct perimeter<ring_tag, Geometry>
 {};
 
 template <typename Polygon>
-struct perimeter<polygon_tag, Polygon> : detail::calculate_polygon_sum
+struct perimeter<Polygon, polygon_tag> : detail::calculate_polygon_sum
 {
     typedef typename default_length_result<Polygon>::type return_type;
     typedef detail::length::range_length
@@ -103,11 +103,7 @@ inline typename default_length_result<Geometry>::type perimeter(
 
     // detail::throw_on_empty_input(geometry);
         
-    return dispatch::perimeter
-        <
-            typename tag<Geometry>::type,
-            Geometry
-        >::apply(geometry, strategy_type());
+    return dispatch::perimeter<Geometry>::apply(geometry, strategy_type());
 }
 
 /*!
@@ -132,11 +128,7 @@ inline typename default_length_result<Geometry>::type perimeter(
 
     // detail::throw_on_empty_input(geometry);
     
-    return dispatch::perimeter
-        <
-            typename tag<Geometry>::type,
-            Geometry
-        >::apply(geometry, strategy);
+    return dispatch::perimeter<Geometry>::apply(geometry, strategy);
 }
 
 }} // namespace boost::geometry
