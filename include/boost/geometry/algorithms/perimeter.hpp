@@ -33,19 +33,20 @@ namespace dispatch
 {
 
 // Default perimeter is 0.0, specializations implement calculated values
-template <typename Tag, typename Geometry, typename Strategy>
+template <typename Tag, typename Geometry>
 struct perimeter : detail::calculate_null
 {
     typedef typename default_length_result<Geometry>::type return_type;
 
+    template <typename Strategy>
     static inline return_type apply(Geometry const& geometry, Strategy const& strategy)
     {
         return calculate_null::apply<return_type>(geometry, strategy);
     }
 };
 
-template <typename Geometry, typename Strategy>
-struct perimeter<ring_tag, Geometry, Strategy>
+template <typename Geometry>
+struct perimeter<ring_tag, Geometry>
     : detail::length::range_length
         <
             Geometry,
@@ -53,8 +54,8 @@ struct perimeter<ring_tag, Geometry, Strategy>
         >
 {};
 
-template <typename Polygon, typename Strategy>
-struct perimeter<polygon_tag, Polygon, Strategy> : detail::calculate_polygon_sum
+template <typename Polygon>
+struct perimeter<polygon_tag, Polygon> : detail::calculate_polygon_sum
 {
     typedef typename default_length_result<Polygon>::type return_type;
     typedef detail::length::range_length
@@ -63,6 +64,7 @@ struct perimeter<polygon_tag, Polygon, Strategy> : detail::calculate_polygon_sum
                     closure<Polygon>::value
                 > policy;
 
+    template <typename Strategy>
     static inline return_type apply(Polygon const& polygon, Strategy const& strategy)
     {
         return calculate_polygon_sum::apply<return_type, policy>(polygon, strategy);
@@ -104,8 +106,7 @@ inline typename default_length_result<Geometry>::type perimeter(
     return dispatch::perimeter
         <
             typename tag<Geometry>::type,
-            Geometry,
-            strategy_type
+            Geometry
         >::apply(geometry, strategy_type());
 }
 
@@ -134,8 +135,7 @@ inline typename default_length_result<Geometry>::type perimeter(
     return dispatch::perimeter
         <
             typename tag<Geometry>::type,
-            Geometry,
-            Strategy
+            Geometry
         >::apply(geometry, strategy);
 }
 
