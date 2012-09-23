@@ -75,12 +75,18 @@ inline void buffer_box(BoxIn const& box_in, T const& distance, BoxOut& box_out)
 namespace dispatch
 {
 
-template <typename TagIn, typename TagOut, typename Input, typename Output>
+template
+<
+    typename Input,
+    typename Output,
+    typename TagIn = typename tag<Input>::type,
+    typename TagOut = typename tag<Output>::type
+>
 struct buffer {};
 
 
 template <typename BoxIn, typename BoxOut>
-struct buffer<box_tag, box_tag, BoxIn, BoxOut>
+struct buffer<BoxIn, BoxOut, box_tag, box_tag>
 {
     template <typename Distance>
     static inline void apply(BoxIn const& box_in, Distance const& distance,
@@ -123,8 +129,6 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 
     dispatch::buffer
         <
-            typename tag<Input>::type,
-            typename tag<Output>::type,
             Input,
             Output
         >::apply(geometry_in, distance, chord_length, geometry_out);
@@ -152,8 +156,6 @@ Output return_buffer(Input const& geometry, T const& distance, T const& chord_le
 
     dispatch::buffer
         <
-            typename tag<Input>::type,
-            typename tag<Output>::type,
             Input,
             Output
         >::apply(geometry, distance, chord_length, geometry_out);
