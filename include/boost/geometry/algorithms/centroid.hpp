@@ -30,6 +30,7 @@
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
@@ -268,7 +269,8 @@ template
     typename Geometry,
     typename Tag = typename tag<Geometry>::type
 >
-struct centroid {};
+struct centroid: not_implemented<Tag>
+{};
 
 template <typename Geometry>
 struct centroid<Geometry, point_tag>
