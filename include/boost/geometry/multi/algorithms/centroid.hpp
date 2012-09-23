@@ -96,7 +96,7 @@ namespace dispatch
 {
 
 template <typename MultiLinestring>
-struct centroid<multi_linestring_tag, MultiLinestring>
+struct centroid<MultiLinestring, multi_linestring_tag>
     : detail::centroid::centroid_multi
         <
             detail::centroid::centroid_range_state<closed>
@@ -104,7 +104,7 @@ struct centroid<multi_linestring_tag, MultiLinestring>
 {};
 
 template <typename MultiPolygon>
-struct centroid<multi_polygon_tag, MultiPolygon>
+struct centroid<MultiPolygon, multi_polygon_tag>
     : detail::centroid::centroid_multi
         <
             detail::centroid::centroid_polygon_state
@@ -113,7 +113,7 @@ struct centroid<multi_polygon_tag, MultiPolygon>
 
 
 template <typename MultiPoint>
-struct centroid<multi_point_tag, MultiPoint>
+struct centroid<MultiPoint, multi_point_tag>
     : detail::centroid::centroid_multi
         <
             detail::centroid::centroid_multi_point_state
