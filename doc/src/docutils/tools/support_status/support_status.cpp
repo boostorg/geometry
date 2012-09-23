@@ -34,6 +34,7 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
+#include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
@@ -47,6 +48,7 @@
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/equals.hpp>
 #include <boost/geometry/multi/algorithms/length.hpp>
+#include <boost/geometry/multi/algorithms/perimeter.hpp>
 #include <boost/geometry/multi/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/transform.hpp>
 #include <boost/geometry/multi/algorithms/unique.hpp>
@@ -104,6 +106,7 @@ DECLARE_BINARY_ALGORITHM(equals)
 DECLARE_BINARY_ALGORITHM(expand)
 DECLARE_UNARY_ALGORITHM(length)
 DECLARE_BINARY_ALGORITHM(overlaps)
+DECLARE_UNARY_ALGORITHM(perimeter)
 DECLARE_UNARY_ALGORITHM(simplify)
 DECLARE_BINARY_ALGORITHM(transform)
 DECLARE_UNARY_ALGORITHM(unique)
@@ -230,6 +233,7 @@ void support_status()
     test_binary_algorithm<expand, all_types, all_types, OutputFactory>("expand");
     test_unary_algorithm<length, all_types, OutputFactory>("length");
     test_binary_algorithm<overlaps, all_types, all_types, OutputFactory>("overlaps");
+    test_unary_algorithm<perimeter, all_types, OutputFactory>("perimeter");
     test_unary_algorithm<simplify, all_types, OutputFactory>("simplify");
     test_binary_algorithm<transform, all_types, all_types, OutputFactory>("transform");
     test_unary_algorithm<unique, all_types, OutputFactory>("unique");
