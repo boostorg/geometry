@@ -20,6 +20,7 @@
 
 
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -82,7 +83,8 @@ template
     typename TagIn = typename tag<Input>::type,
     typename TagOut = typename tag<Output>::type
 >
-struct buffer {};
+struct buffer: not_implemented<TagIn, TagOut>
+{};
 
 
 template <typename BoxIn, typename BoxOut>
