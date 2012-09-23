@@ -265,33 +265,33 @@ namespace dispatch
 
 template
 <
-    typename Tag,
-    typename Geometry
+    typename Geometry,
+    typename Tag = typename tag<Geometry>::type
 >
 struct centroid {};
 
 template <typename Geometry>
-struct centroid<point_tag, Geometry>
+struct centroid<Geometry, point_tag>
     : detail::centroid::centroid_point
 {};
 
 template <typename Box>
-struct centroid<box_tag, Box>
+struct centroid<Box, box_tag>
     : detail::centroid::centroid_box
 {};
 
 template <typename Ring>
-struct centroid<ring_tag, Ring>
+struct centroid<Ring, ring_tag>
     : detail::centroid::centroid_range<geometry::closure<Ring>::value>
 {};
 
 template <typename Linestring>
-struct centroid<linestring_tag, Linestring>
+struct centroid<Linestring, linestring_tag>
     : detail::centroid::centroid_range<closed>
  {};
 
 template <typename Polygon>
-struct centroid<polygon_tag, Polygon>
+struct centroid<Polygon, polygon_tag>
     : detail::centroid::centroid_polygon
  {};
 
@@ -328,11 +328,7 @@ inline void centroid(Geometry const& geometry, Point& c,
 
     // Call dispatch apply method. That one returns true if centroid
     // should be taken from state.
-    dispatch::centroid
-        <
-            typename tag<Geometry>::type,
-            Geometry
-        >::apply(geometry, c, strategy);
+    dispatch::centroid<Geometry>::apply(geometry, c, strategy);
 }
 
 
