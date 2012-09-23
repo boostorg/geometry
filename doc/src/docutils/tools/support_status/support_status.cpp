@@ -22,6 +22,7 @@
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/convex_hull.hpp>
@@ -93,15 +94,16 @@ typedef boost::mpl::vector<
     {};
 
 DECLARE_BINARY_ALGORITHM(append)
-DECLARE_UNARY_ALGORITHM (area)
-DECLARE_UNARY_ALGORITHM (clear)
+DECLARE_UNARY_ALGORITHM(area)
+DECLARE_BINARY_ALGORITHM(buffer)
+DECLARE_UNARY_ALGORITHM(clear)
 DECLARE_BINARY_ALGORITHM(convert)
-DECLARE_UNARY_ALGORITHM (convex_hull)
-DECLARE_UNARY_ALGORITHM (correct)
+DECLARE_UNARY_ALGORITHM(convex_hull)
+DECLARE_UNARY_ALGORITHM(correct)
 DECLARE_BINARY_ALGORITHM(covered_by)
 DECLARE_BINARY_ALGORITHM(disjoint)
 DECLARE_BINARY_ALGORITHM(distance)
-DECLARE_UNARY_ALGORITHM (envelope)
+DECLARE_UNARY_ALGORITHM(envelope)
 DECLARE_BINARY_ALGORITHM(equals)
 DECLARE_BINARY_ALGORITHM(expand)
 DECLARE_UNARY_ALGORITHM(length)
@@ -221,6 +223,7 @@ void support_status()
 {
     test_binary_algorithm<append, all_types, boost::mpl::vector<point_type, std::vector<point_type> >, OutputFactory>("append");
     test_unary_algorithm<area, all_types, OutputFactory>("area");
+    test_binary_algorithm<buffer, all_types, all_types, OutputFactory>("buffer");
     test_unary_algorithm<clear, all_types, OutputFactory>("clear");
     test_binary_algorithm<convert, all_types, all_types, OutputFactory>("convert");
     test_unary_algorithm<convex_hull, all_types, OutputFactory>("convex_hull");
