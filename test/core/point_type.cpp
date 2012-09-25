@@ -14,11 +14,14 @@
 #include <boost/geometry/core/tag.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/variant.hpp>
 
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 #include <boost/geometry/geometries/register/linestring.hpp>
+
+#include <boost/variant/variant.hpp>
 
 #include <vector>
 #include <deque>
