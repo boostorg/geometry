@@ -11,6 +11,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_STATIC_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_STATIC_HPP
 
+#include <boost/geometry/extensions/index/rtree/node/dynamic_visitor.hpp>
 #include <boost/geometry/extensions/index/pushable_array.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -18,37 +19,37 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree {
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct internal_node_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
-	: public node_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
+struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_default_static_tag>
+	: public dynamic_node<Value, Parameters, Box, Allocators, node_default_static_tag>
 {
     typedef index::pushable_array<
         std::pair<
             Box,
-            node_poly<Value, Parameters, Box, Allocators, node_default_static_tag> *
+            dynamic_node<Value, Parameters, Box, Allocators, node_default_static_tag> *
         >,
 		Parameters::max_elements + 1
     > elements_type;
 
     template <typename Dummy>
-    inline internal_node_poly(Dummy) {}
+    inline dynamic_internal_node(Dummy) {}
 
-    void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, node_default_static_tag, false> & v) { v(*this); }
-    void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, node_default_static_tag, true> & v) const { v(*this); }
+    void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_default_static_tag, false> & v) { v(*this); }
+    void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_default_static_tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct leaf_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
-	: public node_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
+struct dynamic_leaf<Value, Parameters, Box, Allocators, node_default_static_tag>
+	: public dynamic_node<Value, Parameters, Box, Allocators, node_default_static_tag>
 {
     typedef index::pushable_array<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Dummy>
-    inline leaf_poly(Dummy) {}
+    inline dynamic_leaf(Dummy) {}
 
-    void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, node_default_static_tag, false> & v) { v(*this); }
-    void apply_visitor(visitor_poly<Value, Parameters, Box, Allocators, node_default_static_tag, true> & v) const { v(*this); }
+    void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_default_static_tag, false> & v) { v(*this); }
+    void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_default_static_tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
@@ -92,14 +93,14 @@ struct allocators_poly<Allocator, Value, Parameters, Box, node_default_static_ta
 template <typename Allocators, typename Value, typename Parameters, typename Box>
 struct create_node<
     Allocators,
-    internal_node_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
+    dynamic_internal_node<Value, Parameters, Box, Allocators, node_default_static_tag>
 >
 {
     static inline typename node<Value, Parameters, Box, Allocators, node_default_static_tag>::type *
     apply(Allocators & allocators)
     {
         return create_node_poly<
-            internal_node_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
+            dynamic_internal_node<Value, Parameters, Box, Allocators, node_default_static_tag>
         >::template apply<
             typename node<Value, Parameters, Box, Allocators, node_default_static_tag>::type
         >(allocators.internal_node_allocator, allocators.internal_node_allocator);
@@ -109,14 +110,14 @@ struct create_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box>
 struct create_node<
     Allocators,
-    leaf_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
+    dynamic_leaf<Value, Parameters, Box, Allocators, node_default_static_tag>
 >
 {
     static inline typename node<Value, Parameters, Box, Allocators, node_default_static_tag>::type *
     apply(Allocators & allocators)
     {
         return create_node_poly<
-            leaf_poly<Value, Parameters, Box, Allocators, node_default_static_tag>
+            dynamic_leaf<Value, Parameters, Box, Allocators, node_default_static_tag>
         >::template apply<
             typename node<Value, Parameters, Box, Allocators, node_default_static_tag>::type
         >(allocators.leaf_allocator, allocators.leaf_allocator);

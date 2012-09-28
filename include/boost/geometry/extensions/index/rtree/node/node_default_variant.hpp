@@ -174,7 +174,7 @@ struct allocators_variant
     >::other node_allocator_type;
 
     typedef typename allocator_type::template rebind<
-        std::pair<Box, node_poly<Value, Parameters, Box, allocators_variant, node_default_variant_tag> *>
+        std::pair<Box, typename node<Value, Parameters, Box, allocators_variant, node_default_variant_tag>::type *>
     >::other internal_node_elements_allocator_type;
 
     typedef typename allocator_type::template rebind<
