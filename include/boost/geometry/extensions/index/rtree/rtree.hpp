@@ -30,6 +30,8 @@
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
+#include <boost/geometry/extensions/index/rtree/node_proxy.hpp>
+
 #include <boost/geometry/extensions/index/algorithms/is_valid.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/insert.hpp>
@@ -46,8 +48,6 @@
 //#include <boost/geometry/extensions/index/rtree/kmeans/kmeans.hpp>
 
 namespace boost { namespace geometry { namespace index {
-
-
 
 /*!
 The R-tree spatial index. This is self-balancing spatial index capable to store various types
@@ -78,22 +78,16 @@ class rtree
 {
     BOOST_COPYABLE_AND_MOVABLE(rtree)
 
+    typedef node_proxy<Value, Parameters, Translator, Allocator> node_proxy_type;
+
 public:
-    typedef Value value_type;
-    typedef Translator translator_type;
-    typedef typename translator::indexable_type<Translator>::type indexable_type;
-    typedef typename index::default_box_type<indexable_type>::type box_type;
+    typedef typename node_proxy_type::value_type value_type;
+    typedef typename node_proxy_type::translator_type translator_type;
+    typedef typename node_proxy_type::indexable_type indexable_type;
+    typedef typename node_proxy_type::box_type box_type;
 
-    typedef typename detail::rtree::options_type<Parameters>::type options_type;
-    typedef typename options_type::node_tag node_tag;
-
-    typedef Allocator allocator_type;
-    typedef detail::rtree::allocators<allocator_type, value_type, typename options_type::parameters_type, box_type, node_tag> allocators_type;
-    typedef typename allocators_type::size_type size_type;
-
-    typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type node;
-    typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type internal_node;
-    typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
+    typedef typename node_proxy_type::allocator_type allocator_type;
+    typedef typename node_proxy_type::size_type size_type size_type;
 
     /*!
     The constructor.
@@ -102,13 +96,11 @@ public:
     \param translator   The translator object.
     \param allocator    The allocator object.
     */
-    inline explicit rtree(Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = Allocator())
+    inline explicit rtree(Parameters parameters = Parameters(), translator_type const& translator = translator_type(), allocator_type allocator = allocator_type())
         : m_values_count(0)
         , m_root(0)
         , m_leafs_level(0)
-        , m_parameters(parameters)
-        , m_translator(translator)
-        , m_allocators(allocator)
+        , m_node_proxy(parameters, translator, allocator)
     {
         this->create();
     }
@@ -127,9 +119,7 @@ public:
         : m_values_count(0)
         , m_root(0)
         , m_leafs_level(0)
-        , m_parameters(parameters)
-        , m_translator(translator)
-        , m_allocators(allocator)
+        , m_node_proxy(parameters, translator, allocator)
     {
         this->create();
         this->insert(first, last);
@@ -148,9 +138,7 @@ public:
     The copy constructor.
     */
     inline rtree(rtree const& src)
-        : m_parameters(src.m_parameters)
-        , m_translator(src.m_translator)
-        , m_allocators(src.m_allocators)
+        : m_node_proxy(src.m_node_proxy)
     {
         //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
 
@@ -169,9 +157,7 @@ public:
     The copy constructor.
     */
     inline rtree(rtree const& src, Allocator const& allocator)
-        : m_parameters(src.m_parameters)
-        , m_translator(src.m_translator)
-        , m_allocators(allocator)
+        : m_node_proxy(src.m_parameters, src.m_translator, allocator)
     {
         try
         {
@@ -191,9 +177,7 @@ public:
         : m_values_count(src.m_values_count)
         , m_root(src.m_root)
         , m_leafs_level(src.m_leafs_level)
-        , m_parameters(src.m_parameters)
-        , m_translator(src.m_translator)
-        , m_allocators(src.m_allocators)
+        , m_node_proxy(src.m_node_proxy)
     {
         src.m_values_count = 0;
         src.m_root = 0;
@@ -213,9 +197,7 @@ public:
         if ( !this->empty() )
             this->destroy(*this);
         
-        m_parameters = src.m_parameters;
-        m_translator = src.m_translator;
-        //m_allocators = src.m_allocators;
+        m_node_proxy = src.m_node_proxy;
 
         try
         {
@@ -243,9 +225,7 @@ public:
         if ( !this->empty() )
             this->destroy(*this);
 
-        m_parameters = src.m_parameters;
-        m_translator = src.m_translator;
-        //m_allocators = src.m_allocators;
+        m_node_proxy = src.m_node_proxy;
 
         if ( m_allocators.allocator == src.m_allocators.allocator)
         {
@@ -279,21 +259,18 @@ public:
     */
     inline void insert(value_type const& value)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(index::is_valid(m_translator(value)), "Indexable is invalid");
+        BOOST_GEOMETRY_INDEX_ASSERT(index::is_valid(m_node_proxy.translate(value)), "Indexable is invalid");
 
         try
         {
             detail::rtree::visitors::insert<
                 value_type,
                 value_type,
-                options_type,
-                translator_type,
-                box_type,
-                allocators_type,
+                node_proxy_type,
                 typename options_type::insert_tag
-            > insert_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
+            > insert_v(m_root, m_leafs_level, value, m_node_proxy);
 
-            detail::rtree::apply_visitor(insert_v, *m_root);
+            m_node_proxy.apply_visitor(insert_v, *m_root);
 
             ++m_values_count;
         }
@@ -332,13 +309,10 @@ public:
         {
             detail::rtree::visitors::remove<
                 value_type,
-                options_type,
-                translator_type,
-                box_type,
-                allocators_type
-            > remove_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
+                node_proxy_type
+            > remove_v(m_root, m_leafs_level, value, m_node_proxy);
 
-            detail::rtree::apply_visitor(remove_v, *m_root);
+            m_node_proxy.apply_visitor(remove_v, *m_root);
 
             --m_values_count;
         }
@@ -381,10 +355,10 @@ public:
     template <typename Predicates, typename OutIter>
     inline size_type query(Predicates const& pred, OutIter out_it) const
     {
-        detail::rtree::visitors::query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
-            find_v(m_translator, pred, out_it);
+        detail::rtree::visitors::query<value_type, node_proxy_type, Predicates, OutIter>
+            find_v(m_node_proxy, pred, out_it);
 
-        detail::rtree::apply_visitor(find_v, *m_root);
+        m_node_proxy.apply_visitor(find_v, *m_root);
 
         return find_v.found_count;
     }
@@ -541,10 +515,10 @@ public:
             return result;
         }
 
-        detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type, allocators_type>
-            children_box_v(m_translator);
+        detail::rtree::visitors::children_box<value_type, node_proxy>
+            children_box_v(m_node_proxy);
 
-        detail::rtree::apply_visitor(children_box_v, *m_root);
+        m_node_proxy.apply_visitor(children_box_v, *m_root);
 
         return children_box_v.result;
     }
@@ -559,7 +533,7 @@ public:
     template <typename Visitor>
     inline void apply_visitor(Visitor & visitor) const
     {
-        detail::rtree::apply_visitor(visitor, *m_root);
+        m_node_proxy.apply_visitor(visitor, *m_root);
     }
 
     /*!
@@ -570,7 +544,7 @@ public:
     */
     inline translator_type const& translator() const
     {
-        return  m_translator;
+        return m_node_proxy.m_translator;
     }
 
     /*!
@@ -603,7 +577,7 @@ private:
     {
         assert(0 == m_root);
 
-        m_root = detail::rtree::create_node<allocators_type, leaf>::apply(m_allocators);
+        m_root = m_node_proxy.template create_node<leaf>();
         m_values_count = 0;
         m_leafs_level = 0;
     }
@@ -615,8 +589,11 @@ private:
     */
     inline void destroy(rtree & t)
     {
-        detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
-        detail::rtree::apply_visitor(del_v, *t.m_root);
+        detail::rtree::visitors::destroy<
+            value_type,
+            node_proxy_type
+        > del_v(t.m_root, t.m_node_proxy);
+        m_node_proxy.apply_visitor(del_v, *t.m_root);
 
         t.m_root = 0;
         t.m_values_count = 0;
@@ -631,8 +608,11 @@ private:
     */
     inline void copy(rtree const& src, rtree & dst) const
     {
-        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type> copy_v(dst.m_allocators);
-        detail::rtree::apply_visitor(copy_v, *src.m_root);
+        detail::rtree::visitors::copy<
+            value_type,
+            node_proxy_type
+        > copy_v(dst.m_node_proxy);
+        m_node_proxy.apply_visitor(copy_v, *src.m_root);
 
         dst.m_root = copy_v.result;
         dst.m_values_count = src.m_values_count;
@@ -650,7 +630,7 @@ private:
 
         typedef detail::rtree::visitors::nearest_one<
             value_type,
-            translator_type,
+            node_proxy_type,
             point_type
         > result_type;
 
@@ -658,16 +638,13 @@ private:
 
         detail::rtree::visitors::nearest<
             value_type,
-            options_type,
-            translator_type,
-            box_type,
-            allocators_type,
+            node_proxy_type,
             DistancesPredicates,
             Predicates,
             result_type
-        > nearest_v(m_parameters, m_translator, dpred, pred, result);
+        > nearest_v(m_node_proxy, dpred, pred, result);
 
-        detail::rtree::apply_visitor(nearest_v, *m_root);
+        m_node_proxy.apply_visitor(nearest_v, *m_root);
 
         return result.get(v);
     }
@@ -683,7 +660,7 @@ private:
 
         typedef detail::rtree::visitors::nearest_k<
             value_type,
-            translator_type,
+            node_proxy_type,
             point_type
         > result_type;
 
@@ -691,16 +668,13 @@ private:
 
         detail::rtree::visitors::nearest<
             value_type,
-            options_type,
-            translator_type,
-            box_type,
-            allocators_type,
+            node_proxy_type,
             DistancesPredicates,
             Predicates,
             result_type
-        > nearest_v(m_parameters, m_translator, dpred, pred, result);
+        > nearest_v(m_node_proxy, dpred, pred, result);
 
-        detail::rtree::apply_visitor(nearest_v, *m_root);
+        m_node_proxy.apply_visitor(nearest_v, *m_root);
 
         return result.get(out_it);
     }
@@ -709,9 +683,7 @@ private:
     node *m_root;
     size_type m_leafs_level;
 
-    Parameters m_parameters;
-    translator_type m_translator;
-    allocators_type m_allocators;
+    node_proxy_type m_node_proxy;
 };
 
 /*!

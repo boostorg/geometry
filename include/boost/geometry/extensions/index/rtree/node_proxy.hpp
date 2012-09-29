@@ -1,0 +1,96 @@
+// Boost.Geometry Index
+//
+// R-tree node proxy
+//
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+//
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_PROXY_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_PROXY_HPP
+
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
+
+template <
+    typename Value,
+    typename Parameters,
+    typename Translator = translator::def<Value>,
+    typename Allocator = std::allocator<Value>
+>
+class node_proxy
+{
+public:
+    typedef Value value_type;
+    typedef Translator translator_type;
+    typedef typename translator::indexable_type<Translator>::type indexable_type;
+    typedef typename index::default_box_type<indexable_type>::type box_type;
+
+    typedef typename detail::rtree::options_type<Parameters>::type options_type;
+    typedef typename options_type::parameters_type parameters_type;
+    typedef typename options_type::node_tag node_tag;
+
+    typedef Allocator allocator_type;
+
+    typedef detail::rtree::allocators<
+        allocator_type, value_type, parameters_type, box_type, node_tag
+    > allocators_type;
+
+    typedef typename allocators_type::size_type size_type;
+
+    typedef typename detail::rtree::node<
+        value_type, parameters_type, box_type, allocators_type, node_tag
+    >::type node;
+
+    typedef typename detail::rtree::internal_node<
+        value_type, parameters_type, box_type, allocators_type, node_tag
+    >::type internal_node;
+
+    typedef typename detail::rtree::leaf<
+        value_type, parameters_type, box_type, allocators_type, node_tag
+    >::type leaf;
+
+    node_proxy(Parameters parameters, translator_type const& translator, Allocator allocator)
+        : m_parameters(parameters)
+        , m_translator(translator)
+        , m_allocators(allocator)
+    {}
+
+    template <typename Node>
+    node * create_node()
+    {
+        return detail::rtree::create_node<allocators_type, Node>::apply(m_allocators);
+    }
+
+    template <typename Node>
+    void destroy_node(node * n)
+    {
+        return detail::rtree::destroy_node<allocators_type, Node>::apply(m_allocators, n);
+    }
+
+    template <typename Visitor>
+    void apply_visitor(Visitor & visitor, node * n) const
+    {
+        detail::rtree::apply_visitor(visitor, *n);
+    }
+
+    indexable_type const& translate(value_type const& v) const
+    {
+        return m_translator(v);
+    }
+
+    translator_type const& translator() const
+    {
+        return m_translator;
+    }
+
+private:    
+    Parameters m_parameters;
+    translator_type m_translator;
+    allocators_type m_allocators;
+};
+
+}}} // namespace boost::geometry::index::detail::rtree
+
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_PROXY_HPP
