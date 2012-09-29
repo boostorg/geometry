@@ -33,10 +33,10 @@ struct quadratic_tag {};
 struct rstar_tag {};
 
 // NodeTag
-struct node_default_tag {};
-struct node_default_variant_tag {};
-struct node_default_static_tag {};
-struct node_default_static_variant_tag {};
+struct node_d_mem_dynamic_tag {};
+struct node_d_mem_static_tag {};
+struct node_s_mem_dynamic_tag {};
+struct node_s_mem_static_tag {};
 
 // TODO: awulkiew - implement those:
 //if ( m_min_elems_per_node < 1 )
@@ -216,7 +216,7 @@ struct options_type< linear<MaxElements, MinElements> >
         choose_by_content_diff_tag,
         split_default_tag,
         linear_tag,
-        node_default_static_tag
+        node_d_mem_static_tag
     > type;
 };
 
@@ -229,7 +229,7 @@ struct options_type< quadratic<MaxElements, MinElements> >
         choose_by_content_diff_tag,
         split_default_tag,
         quadratic_tag,
-        node_default_static_tag
+        node_d_mem_static_tag
     > type;
 };
 
@@ -242,7 +242,7 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
         choose_by_overlap_diff_tag,
         split_default_tag,
         rstar_tag,
-        node_default_static_tag
+        node_d_mem_static_tag
     > type;
 };
 
@@ -255,7 +255,7 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
 //        choose_by_content_diff_tag, // change it?
 //        split_kmeans_tag,
 //        int, // dummy tag - not used for now
-//        node_default_static_tag
+//        node_d_mem_static_tag
 //    > type;
 //};
 
@@ -268,7 +268,7 @@ struct options_type< runtime::linear >
         choose_by_content_diff_tag,
         split_default_tag,
         linear_tag,
-        node_default_tag
+        node_d_mem_dynamic_tag
     > type;
 };
 
@@ -281,7 +281,7 @@ struct options_type< runtime::quadratic >
         choose_by_content_diff_tag,
         split_default_tag,
         quadratic_tag,
-        node_default_tag
+        node_d_mem_dynamic_tag
     > type;
 };
 
@@ -294,7 +294,7 @@ struct options_type< runtime::rstar >
         choose_by_overlap_diff_tag,
         split_default_tag,
         rstar_tag,
-        node_default_tag
+        node_d_mem_dynamic_tag
     > type;
 };
 

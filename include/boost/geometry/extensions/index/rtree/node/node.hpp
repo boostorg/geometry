@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_HPP
 
+#include <boost/geometry/extensions/index/rtree/node/concept.hpp>
+
 #include <boost/geometry/extensions/index/rtree/node/node_default.hpp>
 #include <boost/geometry/extensions/index/rtree/node/node_default_variant.hpp>
 
