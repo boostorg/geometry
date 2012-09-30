@@ -22,33 +22,28 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree { namespace visitors {
 
 // Default remove algorithm
-template <typename Value, typename NodeProxy>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class remove
-    : public rtree::visitor<
-          Value,
-          typename NodeProxy::parameters_type,
-          typename NodeProxy::box_type,
-          typename NodeProxy::allocators_type,
-          typename NodeProxy::node_tag,
-          false
-      >::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
     , index::nonassignable
 {
-    typedef typename NodeProxy::options_type options_type;
-    typedef typename NodeProxy::parameters_type parameters_type;
-    typedef typename NodeProxy::box_type box_type;
+    typedef typename Options::parameters_type parameters_type;
 
-    typedef typename NodeProxy::node node;
-    typedef typename NodeProxy::internal_node internal_node;
-    typedef typename NodeProxy::leaf leaf;
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
     inline remove(node* & root,
                   size_t & leafs_level,
                   Value const& value,
-                  NodeProxy & node_proxy)
+                  parameters_type const& parameters,
+                  Translator const& translator,
+                  Allocators & allocators)
         : m_value(value)
-        , m_node_proxy(node_proxy)
+        , m_parameters(parameters)
+        , m_translator(translator)
+        , m_allocators(allocators)
         , m_root_node(root)
         , m_leafs_level(leafs_level)
         , m_is_value_removed(false)
@@ -70,7 +65,7 @@ public:
         size_t child_node_index = 0;
         for ( ; child_node_index < children.size() ; ++child_node_index )
         {
-            if ( geometry::covered_by(m_node_proxy.indexable(m_value), children[child_node_index].first) )
+            if ( geometry::covered_by(m_translator(m_value), children[child_node_index].first) )
             {
                 // next traversing step
                 traverse_apply_visitor(n, child_node_index);
@@ -97,7 +92,7 @@ public:
                 elements.erase(underfl_el_it);
 
                 // calc underflow
-                m_is_underflow = elements.size() < m_node_proxy.parameters().get_min_elements();
+                m_is_underflow = elements.size() < m_parameters.get_min_elements();
             }
 
             // n is not root - adjust aabb
@@ -106,10 +101,10 @@ public:
                 // underflow state should be ok here
                 // note that there may be less than min_elems elements in root
                 // so this condition should be checked only here
-                BOOST_GEOMETRY_INDEX_ASSERT((elements.size() < m_node_proxy.parameters().get_min_elements()) == m_is_underflow, "unexpected state");
+                BOOST_GEOMETRY_INDEX_ASSERT((elements.size() < m_parameters.get_min_elements()) == m_is_underflow, "unexpected state");
 
                 rtree::elements(*m_parent)[m_current_child_index].first
-                    = m_node_proxy.elements_box(elements.begin(), elements.end());
+                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
             }
             // n is root node
             else
@@ -122,19 +117,19 @@ public:
                 for ( typename std::vector< std::pair<size_t, node*> >::reverse_iterator it = m_underflowed_nodes.rbegin();
                         it != m_underflowed_nodes.rend() ; ++it )
                 {
-                    is_leaf<Value, NodeProxy> ilv;
+                    is_leaf<Value, Options, Box, Allocators> ilv;
                     rtree::apply_visitor(ilv, *it->second);
                     if ( ilv.result )
                     {
                         reinsert_elements(rtree::get<leaf>(*it->second), it->first);
 
-                        index::detail::rtree::destroy<leaf>(it->second, m_node_proxy);
+                        rtree::destroy_node<Allocators, leaf>::apply(m_allocators, it->second);
                     }
                     else
                     {
                         reinsert_elements(rtree::get<internal_node>(*it->second), it->first);
 
-                        rtree::destroy<internal_node>(it->second, m_node_proxy);
+                        rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, it->second);
                     }
                 }
 
@@ -145,7 +140,7 @@ public:
                     m_root_node = rtree::elements(n)[0].second;
                     --m_leafs_level;
 
-                    rtree::destroy<internal_node>(root_to_destroy, m_node_proxy);
+                    rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, root_to_destroy);
                 }
             }
         }
@@ -159,7 +154,7 @@ public:
         // find value and remove it
         for ( typename elements_type::iterator it = elements.begin() ; it != elements.end() ; ++it )
         {
-            if ( m_node_proxy.equals(*it, m_value) )
+            if ( m_translator.equals(*it, m_value) )
             {
                 elements.erase(it);
                 m_is_value_removed = true;
@@ -171,13 +166,13 @@ public:
         if ( m_is_value_removed )
         {
             // calc underflow
-            m_is_underflow = elements.size() <  m_node_proxy.parameters().get_min_elements();
+            m_is_underflow = elements.size() <  m_parameters.get_min_elements();
 
             // n is not root - adjust aabb
             if ( 0 != m_parent )
             {
                 rtree::elements(*m_parent)[m_current_child_index].first
-                    = m_node_proxy.elements_box(elements.begin(), elements.end());
+                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
             }
         }
     }
@@ -214,13 +209,18 @@ private:
             visitors::insert<
                 typename elements_type::value_type,
                 Value,
-                NodeProxy,
-                typename NodeProxy::options_type::insert_tag
+                Options,
+                Translator,
+                Box,
+                Allocators,
+                typename Options::insert_tag
             > insert_v(
                 m_root_node,
                 m_leafs_level,
                 *it,
-                m_node_proxy,
+                m_parameters,
+                m_translator,
+                m_allocators,
                 node_relative_level - 1);
 
             rtree::apply_visitor(insert_v, *m_root_node);
@@ -228,7 +228,9 @@ private:
     }
 
     Value const& m_value;
-    NodeProxy & m_node_proxy;
+    parameters_type const& m_parameters;
+    Translator const& m_translator;
+    Allocators & m_allocators;
 
     node* & m_root_node;
     size_t & m_leafs_level;

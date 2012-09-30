@@ -17,31 +17,24 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename NodeProxy>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class copy
-    : public rtree::visitor<
-          Value,
-          typename NodeProxy::parameters_type,
-          typename NodeProxy::box_type,
-          typename NodeProxy::allocators_type,
-          typename NodeProxy::node_tag,
-          false
-      >::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
     , boost::noncopyable
 {
 public:
-    typedef typename NodeProxy::node node;
-    typedef typename NodeProxy::internal_node internal_node;
-    typedef typename NodeProxy::leaf leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
-    explicit inline copy(NodeProxy & node_proxy)
+    explicit inline copy(Allocators & allocators)
         : result(0)
-        , m_node_proxy(node_proxy)
+        , m_allocators(allocators)
     {}
 
     inline void operator()(internal_node & n)
     {
-        node * new_node = rtree::create<internal_node>(m_node_proxy);
+        node * new_node = rtree::create_node<Allocators, internal_node>::apply(m_allocators);
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type & elements = rtree::elements(n);
@@ -61,7 +54,7 @@ public:
 
     inline void operator()(leaf & l)
     {
-        node * new_node = rtree::create<leaf>(m_node_proxy);
+        node * new_node = rtree::create_node<Allocators, leaf>::apply(m_allocators);
         
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type & elements = rtree::elements(l);
@@ -80,7 +73,7 @@ public:
     node * result;
 
 private:
-    NodeProxy & m_node_proxy;
+    Allocators & m_allocators;
 };
 
 }}} // namespace detail::rtree::visitors

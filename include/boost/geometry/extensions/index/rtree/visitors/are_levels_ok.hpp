@@ -17,25 +17,17 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename NodeProxy>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class are_levels_ok
-    : public rtree::visitor<
-          Value,
-          typename NodeProxy::parameters_type,
-          typename NodeProxy::box_type,
-          typename NodeProxy::allocators_type,
-          typename NodeProxy::node_tag,
-          true
-      >::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
     , index::nonassignable
 {
-    typedef typename NodeProxy::internal_node internal_node;
-    typedef typename NodeProxy::leaf leaf;
-    typedef typename NodeProxy::box_type box_type;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
-    inline are_levels_ok()
-        : result(true), m_leafs_level((std::numeric_limits<size_t>::max)()), m_current_level(0)
+    inline are_levels_ok(Translator const& tr)
+        : result(true), m_tr(tr), m_leafs_level((std::numeric_limits<size_t>::max)()), m_current_level(0)
     {}
 
     inline void operator()(internal_node const& n)
@@ -89,24 +81,24 @@ public:
     bool result;
 
 private:
+    Translator const& m_tr;
     size_t m_leafs_level;
     size_t m_current_level;
 };
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Parameters, typename Translator, typename Allocator>
-bool are_levels_ok(rtree<Value, Parameters, Translator, Allocator> const& tree)
+template <typename Value, typename Options, typename Translator, typename Allocator>
+bool are_levels_ok(rtree<Value, Options, Translator, Allocator> const& tree)
 {
+    typedef rtree<Value, Options, Translator, Allocator> rt;
     detail::rtree::visitors::are_levels_ok<
-        Value,
-        detail::rtree::node_proxy<
-            Value,
-            Parameters,
-            Translator,
-            Allocator
-        >
-    > v;
+        typename rt::value_type,
+        typename rt::options_type,
+        typename rt::translator_type,
+        typename rt::box_type,
+        typename rt::allocators_type
+    > v(tree.translator());
     
     tree.apply_visitor(v);
 

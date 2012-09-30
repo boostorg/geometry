@@ -17,26 +17,19 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename NodeProxy>
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class destroy
-    : public rtree::visitor<
-          Value,
-          typename NodeProxy::parameters_type,
-          typename NodeProxy::box_type,
-          typename NodeProxy::allocators_type,
-          typename NodeProxy::node_tag,
-          false
-      >::type
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
     , boost::noncopyable
 {
 public:
-    typedef typename NodeProxy::node node;
-    typedef typename NodeProxy::internal_node internal_node;
-    typedef typename NodeProxy::leaf leaf;
+    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
-    inline destroy(node * root_node, NodeProxy & node_proxy)
+    inline destroy(node * root_node, Allocators & allocators)
         : m_current_node(root_node)
-        , m_node_proxy(node_proxy)
+        , m_allocators(allocators)
     {}
 
     inline void operator()(internal_node & n)
@@ -55,19 +48,19 @@ public:
             rtree::apply_visitor(*this, *m_current_node);
         }
 
-        rtree::destroy<internal_node>(node_to_destroy, m_node_proxy);
+        rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, node_to_destroy);
     }
 
     inline void operator()(leaf & l)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(&l == rtree::get<leaf>(m_current_node), "invalid pointers");
 
-        rtree::destroy<leaf>(m_current_node, m_node_proxy);
+        rtree::destroy_node<Allocators, leaf>::apply(m_allocators, m_current_node);
     }
 
 private:
     node * m_current_node;
-    NodeProxy & m_node_proxy;
+    Allocators & m_allocators;
 };
 
 }}} // namespace detail::rtree::visitors

@@ -63,6 +63,30 @@ struct dynamic_visitor<Value, Parameters, Box, Allocators, Tag, false>
     virtual void operator()(leaf &) = 0;
 };
 
+// nodes conversion
+
+template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
+inline Derived & get(dynamic_node<Value, Parameters, Box, Allocators, Tag> & n)
+{
+    assert(dynamic_cast<Derived*>(&n));
+    return static_cast<Derived&>(n);
+}
+
+template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
+inline Derived * get(dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
+{
+    assert(dynamic_cast<Derived*>(n));
+    return static_cast<Derived*>(n);
+}
+
+// apply visitor
+
+template <typename Visitor, typename Visitable>
+inline void apply_visitor(Visitor &v, Visitable & n)
+{
+    n.apply_visitor(v);
+}
+
 }} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index

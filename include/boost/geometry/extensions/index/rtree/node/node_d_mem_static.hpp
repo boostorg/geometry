@@ -122,14 +122,13 @@ struct create_node<
     dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>::type *
+    static inline dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag> *
     apply(Allocators & allocators)
     {
-        return create_node_poly<
+        return create_dynamic_node<
+            dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>,
             dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
-        >::template apply<
-            typename node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>::type
-        >(allocators.internal_node_allocator, allocators.internal_node_allocator);
+        >::template apply(allocators.internal_node_allocator, allocators.internal_node_allocator);
     }
 };
 
@@ -142,11 +141,10 @@ struct create_node<
     static inline typename node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>::type *
     apply(Allocators & allocators)
     {
-        return create_node_poly<
+        return create_dynamic_node<
+            dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>,
             dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
-        >::template apply<
-            typename node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>::type
-        >(allocators.leaf_allocator, allocators.leaf_allocator);
+        >::template apply(allocators.leaf_allocator, allocators.leaf_allocator);
     }
 };
 
