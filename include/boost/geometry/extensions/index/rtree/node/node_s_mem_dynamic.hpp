@@ -56,24 +56,24 @@ struct leaf_variant
 // nodes traits
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct node<Value, Parameters, Box, Allocators, node_default_variant_tag>
+struct node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 {
 	typedef boost::variant<
-		leaf_variant<Value, Parameters, Box, Allocators, node_default_variant_tag>,
-		internal_node_variant<Value, Parameters, Box, Allocators, node_default_variant_tag>
+		leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>,
+		internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 	> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct internal_node<Value, Parameters, Box, Allocators, node_default_variant_tag>
+struct internal_node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 {
-    typedef internal_node_variant<Value, Parameters, Box, Allocators, node_default_variant_tag> type;
+    typedef internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct leaf<Value, Parameters, Box, Allocators, node_default_variant_tag>
+struct leaf<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 {
-    typedef leaf_variant<Value, Parameters, Box, Allocators, node_default_variant_tag> type;
+    typedef leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag> type;
 };
 
 // nodes conversion
@@ -103,7 +103,7 @@ inline V * get(
 // visitor traits
 
 template <typename Value, typename Parameters, typename Box, typename Allocators, bool IsVisitableConst>
-struct visitor<Value, Parameters, Box, Allocators, node_default_variant_tag, IsVisitableConst>
+struct visitor<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag, IsVisitableConst>
 {
     typedef static_visitor<> type;
 };
@@ -163,25 +163,25 @@ element_indexable(std::pair<
 
 // allocators
 
-template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>
-struct allocators_variant
+template <typename Allocator, typename Value, typename Parameters, typename Box>
+struct allocators<Allocator, Value, Parameters, Box, node_s_mem_dynamic_tag>
 {
     typedef Allocator allocator_type;
     typedef typename allocator_type::size_type size_type;
 
     typedef typename allocator_type::template rebind<
-        typename node<Value, Parameters, Box, allocators_variant, node_default_variant_tag>::type
+        typename node<Value, Parameters, Box, allocators, node_s_mem_dynamic_tag>::type
     >::other node_allocator_type;
 
     typedef typename allocator_type::template rebind<
-        std::pair<Box, node_poly<Value, Parameters, Box, allocators_variant, node_default_variant_tag> *>
+        std::pair<Box, typename node<Value, Parameters, Box, allocators, node_s_mem_dynamic_tag>::type *>
     >::other internal_node_elements_allocator_type;
 
     typedef typename allocator_type::template rebind<
         Value
     >::other leaf_elements_allocator_type;
 
-    inline explicit allocators_variant(Allocator alloc)
+    inline explicit allocators(Allocator alloc)
         : allocator(alloc)
         , node_allocator(allocator)
         , internal_node_elements_allocator(allocator)
@@ -192,14 +192,6 @@ struct allocators_variant
     node_allocator_type node_allocator;
     internal_node_elements_allocator_type internal_node_elements_allocator;
     leaf_elements_allocator_type leaf_elements_allocator;
-};
-
-// allocators
-
-template <typename Allocator, typename Value, typename Parameters, typename Box>
-struct allocators<Allocator, Value, Parameters, Box, node_default_variant_tag>
-{
-    typedef allocators_variant<Allocator, Value, Parameters, Box, node_default_variant_tag> type;
 };
 
 // create_node_variant

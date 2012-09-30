@@ -86,7 +86,7 @@ public:
     typedef typename options_type::node_tag node_tag;
 
     typedef Allocator allocator_type;
-    typedef typename detail::rtree::allocators<allocator_type, value_type, typename options_type::parameters_type, box_type, node_tag>::type allocators_type;
+    typedef detail::rtree::allocators<allocator_type, value_type, typename options_type::parameters_type, box_type, node_tag> allocators_type;
     typedef typename allocators_type::size_type size_type;
 
     typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type node;
