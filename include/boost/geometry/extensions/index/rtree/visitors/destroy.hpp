@@ -55,14 +55,14 @@ public:
             rtree::apply_visitor(*this, *m_current_node);
         }
 
-        m_node_proxy.template destroy<internal_node>(node_to_destroy);
+        rtree::destroy<internal_node>(node_to_destroy, m_node_proxy);
     }
 
     inline void operator()(leaf & l)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(&l == rtree::get<leaf>(m_current_node), "invalid pointers");
 
-        m_node_proxy.template destroy<leaf>(m_current_node);
+        rtree::destroy<leaf>(m_current_node, m_node_proxy);
     }
 
 private:

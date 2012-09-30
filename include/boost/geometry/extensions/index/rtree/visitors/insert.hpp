@@ -130,7 +130,7 @@ public:
                              NodeProxy & node_proxy)
     {
         // create additional node
-        node * second_node = node_proxy.template create<Node>();
+        node * second_node = rtree::create<Node>(node_proxy);
         Node & n2 = rtree::get<Node>(*second_node);
 
         // redistribute elements
@@ -287,7 +287,7 @@ protected:
             BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(m_root_node), "node should be the root");
 
             // create new root and add nodes
-            node * new_root = m_node_proxy.template create<internal_node>();
+            node * new_root = rtree::create<internal_node>(m_node_proxy);
 
             rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(n_box, m_root_node));
             rtree::elements(rtree::get<internal_node>(*new_root)).push_back(additional_nodes[0]);

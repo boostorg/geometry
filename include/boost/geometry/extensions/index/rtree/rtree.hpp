@@ -588,7 +588,7 @@ private:
     {
         assert(0 == m_root);
 
-        m_root = m_node_proxy.template create_node<leaf>();
+        m_root = detail::rtree::create<leaf>(m_node_proxy);
         m_values_count = 0;
         m_leafs_level = 0;
     }

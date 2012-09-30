@@ -57,18 +57,6 @@ public:
         , m_allocators(allocator)
     {}
 
-    template <typename Node>
-    node * create()
-    {
-        return detail::rtree::create_node<allocators_type, Node>::apply(m_allocators);
-    }
-
-    template <typename Node>
-    void destroy(node * n)
-    {
-        return detail::rtree::destroy_node<allocators_type, Node>::apply(m_allocators, n);
-    }
-
     // HMMMM - trzeba zwracac uwage na translator::return_type
 //    template <typename Element>
 //    typename element_indexable_type<Element>::type const&
@@ -120,7 +108,12 @@ public:
         return m_translator;
     }
 
-    allocator_type allocator() const
+    allocators_type & allocators()
+    {
+        return m_allocators;
+    }
+
+    allocator_type & allocator()
     {
         return m_allocators.allocator;
     }
@@ -130,6 +123,27 @@ private:
     translator_type m_translator;
     allocators_type m_allocators;
 };
+
+template <typename Node, typename Value, typename Parameters, typename Translator, typename Allocator>
+typename node_proxy<Value, Parameters, Translator, Allocator>::node *
+    create(node_proxy<Value, Parameters, Translator, Allocator> & np)
+{
+    return detail::rtree::create_node<
+        typename node_proxy<Value, Parameters, Translator, Allocator>::allocators_type,
+        Node
+    >::apply(np.allocators());
+}
+
+template <typename Node, typename Value, typename Parameters, typename Translator, typename Allocator>
+void destroy(
+    typename node_proxy<Value, Parameters, Translator, Allocator>::node * n,
+    node_proxy<Value, Parameters, Translator, Allocator> & np)
+{
+    return detail::rtree::destroy_node<
+        typename node_proxy<Value, Parameters, Translator, Allocator>::allocators_type,
+        Node
+    >::apply(np.allocators(), n);
+}
 
 }}}}} // namespace boost::geometry::index::detail::rtree
 

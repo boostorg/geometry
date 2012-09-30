@@ -128,13 +128,13 @@ public:
                     {
                         reinsert_elements(rtree::get<leaf>(*it->second), it->first);
 
-                        m_node_proxy.template destroy<leaf>(it->second);
+                        index::detail::rtree::destroy<leaf>(it->second, m_node_proxy);
                     }
                     else
                     {
                         reinsert_elements(rtree::get<internal_node>(*it->second), it->first);
 
-                        m_node_proxy.template destroy<internal_node>(it->second);
+                        rtree::destroy<internal_node>(it->second, m_node_proxy);
                     }
                 }
 
@@ -145,7 +145,7 @@ public:
                     m_root_node = rtree::elements(n)[0].second;
                     --m_leafs_level;
 
-                    m_node_proxy.template destroy<internal_node>(root_to_destroy);
+                    rtree::destroy<internal_node>(root_to_destroy, m_node_proxy);
                 }
             }
         }

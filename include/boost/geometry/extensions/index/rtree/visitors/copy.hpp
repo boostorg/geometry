@@ -41,7 +41,7 @@ public:
 
     inline void operator()(internal_node & n)
     {
-        node * new_node = m_node_proxy.template create<internal_node>();
+        node * new_node = rtree::create<internal_node>(m_node_proxy);
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type & elements = rtree::elements(n);
@@ -61,7 +61,7 @@ public:
 
     inline void operator()(leaf & l)
     {
-        node * new_node = m_node_proxy.template create<leaf>();
+        node * new_node = rtree::create<leaf>(m_node_proxy);
         
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type & elements = rtree::elements(l);
