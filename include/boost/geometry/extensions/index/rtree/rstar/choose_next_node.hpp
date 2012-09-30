@@ -28,25 +28,24 @@ namespace detail { namespace rtree { namespace visitors {
 
 namespace detail {
 
-template <typename Value, typename Options, typename Box, typename Allocators>
-class choose_next_node<Value, Options, Box, Allocators, choose_by_overlap_diff_tag>
+template <typename Value, typename NodeProxy>
+class choose_next_node<Value, NodeProxy, choose_by_overlap_diff_tag>
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename NodeProxy::node node;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
+    typedef typename NodeProxy::box_type box_type;
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
 	typedef typename children_type::value_type child_type;
 
-	typedef typename Options::parameters_type parameters_type;
-
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::default_content_result<box_type>::type content_type;
 
 public:
     template <typename Indexable>
     static inline size_t apply(internal_node & n,
                                Indexable const& indexable,
-                               parameters_type const& parameters,
+                               NodeProxy const& node_proxy,
                                size_t node_relative_level)
     {
         children_type & children = rtree::elements(n);
@@ -54,9 +53,9 @@ public:
         // children are leafs
         if ( node_relative_level <= 1 )
 		{
-			if ( 0 < parameters.get_overlap_cost_threshold() &&
-				 parameters.get_overlap_cost_threshold() < children.size() )
-				return choose_by_nearly_minimum_overlap_cost(children, indexable, parameters.get_overlap_cost_threshold());
+			if ( 0 < node_proxy.parameters().get_overlap_cost_threshold() &&
+			    node_proxy.parameters().get_overlap_cost_threshold() < children.size() )
+				return choose_by_nearly_minimum_overlap_cost(children, indexable, node_proxy.parameters().get_overlap_cost_threshold());
 			else
 				return choose_by_minimum_overlap_cost(children, indexable);
 		}
@@ -83,7 +82,7 @@ private:
         {
             child_type const& ch_i = children[i];
 
-            Box box_exp(ch_i.first);
+            box_type box_exp(ch_i.first);
             // calculate expanded box of child node ch_i
             geometry::expand(box_exp, indexable);
 
@@ -137,7 +136,7 @@ private:
 			child_type const& ch_i = children[i];
 
 			// expanded child node's box
-			Box box_exp(ch_i.first);
+			box_type box_exp(ch_i.first);
 			geometry::expand(box_exp, indexable);
 
 			// areas difference
@@ -164,7 +163,7 @@ private:
 			typedef typename children_type::value_type child_type;
 			child_type const& ch_i = children[child_index];
 
-			Box box_exp(ch_i.first);
+			box_type box_exp(ch_i.first);
 			// calculate expanded box of child node ch_i
 			geometry::expand(box_exp, indexable);
 
@@ -218,7 +217,7 @@ private:
             child_type const& ch_i = children[i];
 
             // expanded child node's box
-            Box box_exp(ch_i.first);
+            box_type box_exp(ch_i.first);
             geometry::expand(box_exp, indexable);
 
             // areas difference

@@ -51,33 +51,68 @@ public:
         value_type, parameters_type, box_type, allocators_type, node_tag
     >::type leaf;
 
-    node_proxy(Parameters parameters, translator_type const& translator, Allocator allocator)
+    node_proxy(parameters_type const& parameters, translator_type const& translator, Allocator allocator)
         : m_parameters(parameters)
         , m_translator(translator)
         , m_allocators(allocator)
     {}
 
     template <typename Node>
-    node * create_node()
+    node * create()
     {
         return detail::rtree::create_node<allocators_type, Node>::apply(m_allocators);
     }
 
     template <typename Node>
-    void destroy_node(node * n)
+    void destroy(node * n)
     {
         return detail::rtree::destroy_node<allocators_type, Node>::apply(m_allocators, n);
     }
 
-    template <typename Visitor>
-    void apply_visitor(Visitor & visitor, node * n) const
-    {
-        detail::rtree::apply_visitor(visitor, *n);
-    }
+    // HMMMM - trzeba zwracac uwage na translator::return_type
+//    template <typename Element>
+//    typename element_indexable_type<Element>::type const&
+//    rtree::element_indexable(m_element, m_translator));
 
-    indexable_type const& translate(value_type const& v) const
+    typename translator_type::result_type
+    indexable(value_type const& v) const
     {
         return m_translator(v);
+    }
+
+    typename element_indexable_type<
+        typename internal_node::elements_type::value_type,
+        translator_type
+    >::type const&
+    indexable(typename internal_node::elements_type::value_type const& el) const
+    {
+        return element_indexable(el, m_translator);
+    }
+
+    bool equals(value_type const& v1, value_type const& v2) const
+    {
+        return m_translator.equals(v1, v2);
+    }
+
+    template <typename FwdIter>
+    box_type elements_box(FwdIter first, FwdIter last) const
+    {
+        BOOST_GEOMETRY_INDEX_ASSERT(first != last, "Can't calculate element's box");
+
+        box_type result;
+
+        geometry::convert(element_indexable(*first, m_translator), result);
+        ++first;
+
+        for ( ; first != last ; ++first )
+            geometry::expand(result, element_indexable(*first, m_translator));
+
+        return result;
+    }
+
+    parameters_type const& parameters() const
+    {
+        return m_parameters;
     }
 
     translator_type const& translator() const
@@ -85,12 +120,17 @@ public:
         return m_translator;
     }
 
+    allocator_type allocator() const
+    {
+        return m_allocators.allocator;
+    }
+
 private:    
-    Parameters m_parameters;
+    parameters_type m_parameters;
     translator_type m_translator;
     allocators_type m_allocators;
 };
 
-}}} // namespace boost::geometry::index::detail::rtree
+}}}}} // namespace boost::geometry::index::detail::rtree
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_PROXY_HPP

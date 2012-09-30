@@ -17,11 +17,19 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Options, typename Box, typename Allocators>
-struct is_leaf : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+template <typename Value, typename NodeProxy>
+struct is_leaf
+    : public rtree::visitor<
+          Value,
+          typename NodeProxy::parameters_type,
+          typename NodeProxy::box_type,
+          typename NodeProxy::allocators_type,
+          typename NodeProxy::node_tag,
+          true
+      >::type
 {
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
 
     inline void operator()(internal_node const&)
     {

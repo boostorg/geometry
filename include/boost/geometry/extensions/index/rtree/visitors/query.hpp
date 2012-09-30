@@ -17,17 +17,28 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates, typename OutIter>
-struct query
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+template <typename Value, typename NodeProxy, typename Predicates, typename OutIter>
+class query
+    : public rtree::visitor<
+          Value,
+          typename NodeProxy::parameters_type,
+          typename NodeProxy::box_type,
+          typename NodeProxy::allocators_type,
+          typename NodeProxy::node_tag,
+          true
+      >::type
     , index::nonassignable
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename NodeProxy::node node;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
 
-    inline query(Translator const& t, Predicates const& p, OutIter out_it)
-        : tr(t), pred(p), out_iter(out_it), found_count(0)
+public:
+    inline query(NodeProxy const& node_proxy, Predicates const& predicates, OutIter out_it)
+        : out_iter(out_it)
+        , found_count(0)
+        , m_node_proxy(node_proxy)
+        , m_predicates(predicates)
     {}
 
     inline void operator()(internal_node const& n)
@@ -41,7 +52,7 @@ struct query
         {
             // if node meets predicates
             // 0 - dummy value
-            if ( index::predicates_check<rtree::node_tag>(pred, 0, it->first) )
+            if ( index::predicates_check<rtree::node_tag>(m_predicates, 0, m_node_proxy.indexable(*it)) )
                 rtree::apply_visitor(*this, *it->second);
         }
     }
@@ -56,7 +67,7 @@ struct query
             it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::predicates_check<rtree::value_tag>(pred, *it, tr(*it)) )
+            if ( index::predicates_check<rtree::value_tag>(m_predicates, *it, m_node_proxy.indexable(*it)) )
             {
                 out_iter = *it;
                 ++out_iter;
@@ -66,10 +77,12 @@ struct query
         }
     }
 
-    Translator const& tr;
-    Predicates const& pred;
     OutIter out_iter;
     size_t found_count;
+
+private:
+    NodeProxy const& m_node_proxy;
+    Predicates const& m_predicates;
 };
 
 }}} // namespace detail::rtree::visitors

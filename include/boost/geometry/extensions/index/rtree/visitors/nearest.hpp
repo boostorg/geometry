@@ -24,13 +24,13 @@ namespace detail { namespace rtree { namespace visitors {
 // in store() or break store to 2 functions e.g. should_store() and store()
 // - well not with this algorithm of storing k-th neighbor
 
-template <typename Value, typename Translator, typename Point>
+template <typename Value, typename NodeProxy, typename Point>
 struct nearest_one
 {
 public:
     typedef typename geometry::default_distance_result<
         Point,
-        typename translator::indexable_type<Translator>::type
+        typename NodeProxy::indexable_type
     >::type distance_type;
 
     inline nearest_one()
@@ -67,13 +67,13 @@ private:
     distance_type m_comp_dist;
 };
 
-template <typename Value, typename Translator, typename Point>
+template <typename Value, typename NodeProxy, typename Point>
 struct nearest_k
 {
 public:
     typedef typename geometry::default_distance_result<
         Point,
-        typename translator::indexable_type<Translator>::type
+        typename NodeProxy::indexable_type
     >::type distance_type;
 
     inline explicit nearest_k(size_t k)
@@ -112,7 +112,7 @@ public:
 
     inline distance_type comparable_distance() const
     {
-        return m_neighbors.size() < 0
+        return m_neighbors.size() == 0
             ? (std::numeric_limits<distance_type>::max)()
             : m_neighbors.front().first;
     }
@@ -144,43 +144,50 @@ private:
 
 template <
     typename Value,
-    typename Options,
-    typename Translator,
-    typename Box,
-    typename Allocators,
+    typename NodeProxy,
     typename DistancesPredicates,
     typename Predicates,
     typename Result
 >
 class nearest
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+    : public rtree::visitor<
+          Value,
+          typename NodeProxy::parameters_type,
+          typename NodeProxy::box_type,
+          typename NodeProxy::allocators_type,
+          typename NodeProxy::node_tag,
+          true
+      >::type
     , index::nonassignable
 {
 public:
-    typedef typename Options::parameters_type parameters_type;
+    typedef typename NodeProxy::node node;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
+    typedef typename NodeProxy::box_type box_type;
 
-    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
-
-    typedef index::detail::distances_calc<DistancesPredicates, Box, rtree::node_tag> node_distances_calc;
+    typedef index::detail::distances_calc<DistancesPredicates, box_type, node_tag> node_distances_calc;
     typedef typename node_distances_calc::result_type node_distances_type;
-    typedef index::detail::distances_predicates_check<DistancesPredicates, Box, rtree::node_tag> node_distances_predicates_check;
+    typedef index::detail::distances_predicates_check<DistancesPredicates, box_type, rtree::node_tag> node_distances_predicates_check;
 
     typedef index::detail::distances_calc<
         DistancesPredicates,
-        typename translator::indexable_type<Translator>::type,
+        typename translator::indexable_type<
+            typename NodeProxy::translator_type
+        >::type,
         rtree::value_tag
     > value_distances_calc;
     typedef typename value_distances_calc::result_type value_distances_type;
     typedef index::detail::distances_predicates_check<
         DistancesPredicates,
-        typename translator::indexable_type<Translator>::type,
+        typename translator::indexable_type<
+            typename NodeProxy::translator_type
+        >::type,
         rtree::value_tag
     > value_distances_predicates_check;
 
-    inline nearest(parameters_type const& parameters, Translator const& translator, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
-        : m_parameters(parameters), m_translator(translator)
+    inline nearest(NodeProxy const& node_proxy, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
+        : m_node_proxy(node_proxy)
         , m_dist_pred(dist_pred), m_pred(pred)
         , m_result(r)
     {}
@@ -196,7 +203,7 @@ public:
             elements_type,
             std::pair<node_distances_type, const node *>
         >::type active_branch_list;
-        active_branch_list.reserve(m_parameters.get_max_elements());
+        active_branch_list.reserve(m_node_proxy.parameters().get_max_elements());
         
         elements_type const& elements = rtree::elements(n);
 
@@ -261,10 +268,10 @@ public:
             it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::predicates_check<rtree::value_tag>(m_pred, *it, m_translator(*it)) )
+            if ( index::predicates_check<rtree::value_tag>(m_pred, *it, m_node_proxy.indexable(*it)) )
             {
                 // calculate values distance for distance predicate
-                value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_translator(*it));
+                value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_node_proxy.indexable(*it));
 
                 // TODO: awulkiew - consider at first calculating point relation distance only,
                 //                  comparing it with m_result.comparable_distance if it's valid,
@@ -321,8 +328,8 @@ private:
                 ::template get<index::detail::to_nearest_tag>(d);
     }
 
-    parameters_type const& m_parameters;
-    Translator const& m_translator;
+    NodeProxy const& m_node_proxy;
+
     DistancesPredicates const& m_dist_pred;
     Predicates const& m_pred;
 

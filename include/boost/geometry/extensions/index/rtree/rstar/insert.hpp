@@ -21,34 +21,32 @@ namespace detail {
 
 namespace rstar {
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <typename Value, typename NodeProxy>
 class remove_elements_to_reinsert
 {
 public:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
-
-	typedef typename Options::parameters_type parameters_type;
+    typedef typename NodeProxy::node node;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
+    typedef typename NodeProxy::box_type box_type;
 
     template <typename Node>
     static inline void apply(typename rtree::elements_type<Node>::type & result_elements,
 							 Node & n,
 						 	 internal_node *parent,
 							 size_t current_child_index,
-                             parameters_type const& parameters,
-							 Translator const& translator)
+							 NodeProxy const& node_proxy)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
-        typedef typename geometry::point_type<Box>::type point_type;
+        typedef typename geometry::point_type<box_type>::type point_type;
         // TODO: awulkiew - change second point_type to the point type of the Indexable?
         typedef typename geometry::default_distance_result<point_type>::type distance_type;
 
 		elements_type & elements = rtree::elements(n);
 
-		const size_t elements_count = parameters.get_max_elements() + 1;
-		const size_t reinserted_elements_count = parameters.get_reinserted_elements();
+		const size_t elements_count = node_proxy.parameters().get_max_elements() + 1;
+		const size_t reinserted_elements_count = node_proxy.parameters().get_reinserted_elements();
 
 		BOOST_GEOMETRY_INDEX_ASSERT(parent, "node shouldn't be the root node");
 		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected elements number");
@@ -67,8 +65,7 @@ public:
 		for ( size_t i = 0 ; i < elements_count ; ++i )
         {
             point_type element_center;
-            geometry::centroid( rtree::element_indexable(elements[i], translator),
-                element_center);
+            geometry::centroid( node_proxy.indexable(elements[i]), element_center);
             sorted_elements[i].first = geometry::comparable_distance(node_center, element_center);
             sorted_elements[i].second = elements[i];
         }
@@ -109,42 +106,42 @@ private:
     }
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Box, typename Allocators>
+template <size_t InsertIndex, typename Element, typename Value, typename NodeProxy>
 struct level_insert_elements_type
 {
 	typedef typename rtree::elements_type<
-		typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type
+		typename NodeProxy::internal_node
 	>::type type;
 };
 
-template <typename Value, typename Options, typename Box, typename Allocators>
-struct level_insert_elements_type<0, Value, Value, Options, Box, Allocators>
+template <typename Value, typename NodeProxy>
+struct level_insert_elements_type<0, Value, Value, NodeProxy>
 {
 	typedef typename rtree::elements_type<
-		typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type
+	    typename NodeProxy::leaf
 	>::type type;
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <size_t InsertIndex, typename Element, typename Value, typename NodeProxy>
 struct level_insert_base
-	: public detail::insert<Element, Value, Options, Translator, Box, Allocators>
+	: public detail::insert<
+	      Element,
+	      Value,
+	      NodeProxy>
 {
-	typedef detail::insert<Element, Value, Options, Translator, Box, Allocators> base;
+	typedef detail::insert<Element, Value, NodeProxy> base;
 	typedef typename base::node node;
 	typedef typename base::internal_node internal_node;
 	typedef typename base::leaf leaf;
 
-	typedef typename level_insert_elements_type<InsertIndex, Element, Value, Options, Box, Allocators>::type elements_type;
-	typedef typename Options::parameters_type parameters_type;
+	typedef typename level_insert_elements_type<InsertIndex, Element, Value, NodeProxy>::type elements_type;
 
 	inline level_insert_base(node* & root,
 		 					 size_t & leafs_level,
 		 					 Element const& element,
-                             parameters_type const& parameters,
-							 Translator const& translator,
-                             Allocators & allocators,
+		 					 NodeProxy & node_proxy,
 							 size_t relative_level)
-		: base(root, leafs_level, element, parameters, translator, allocators, relative_level)
+		: base(root, leafs_level, element, node_proxy, relative_level)
 		, result_relative_level(0)
 	{}
 
@@ -156,15 +153,15 @@ struct level_insert_base
 		result_relative_level = base::m_leafs_level - base::m_current_level;
 
 		// overflow
-		if ( base::m_parameters.get_max_elements() < rtree::elements(n).size() )
+		if ( base::m_node_proxy.parameters().get_max_elements() < rtree::elements(n).size() )
 		{
 			// node isn't root node
 			if ( base::m_parent )
 			{
-				rstar::remove_elements_to_reinsert<Value, Options, Translator, Box, Allocators>::apply(
+				rstar::remove_elements_to_reinsert<Value, NodeProxy>::apply(
 					result_elements, n,
 					base::m_parent, base::m_current_child_index,
-					base::m_parameters, base::m_translator);
+					base::m_node_proxy);
 			}
 			// node is root node
 			else
@@ -179,20 +176,20 @@ struct level_insert_base
 	inline void handle_possible_split(Node &n) const
 	{
 		// overflow
-		if ( base::m_parameters.get_max_elements() < rtree::elements(n).size() )
+		if ( base::m_node_proxy.parameters().get_max_elements() < rtree::elements(n).size() )
 		{
-			base::split(n);
+		    base::split(n);
 		}
 	}
 
 	template <typename Node>
 	inline void recalculate_aabb_if_necessary(Node &n) const
 	{
-		if ( !result_elements.empty() && base::m_parent )
+		if ( !result_elements.empty() && this->m_parent )
 		{
 			// calulate node's new box
 			rtree::elements(*base::m_parent)[base::m_current_child_index].first =
-				elements_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_translator);
+			    base::m_node_proxy.elements_box(rtree::elements(n).begin(), rtree::elements(n).end());
 		}
 	}
 
@@ -200,25 +197,21 @@ struct level_insert_base
 	elements_type result_elements;
 };
 
-template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <size_t InsertIndex, typename Element, typename Value, typename NodeProxy>
 struct level_insert
-    : public level_insert_base<InsertIndex, Element, Value, Options, Translator, Box, Allocators>
+    : public level_insert_base<InsertIndex, Element, Value, NodeProxy>
 {
-	typedef level_insert_base<InsertIndex, Element, Value, Options, Translator, Box, Allocators> base;
+	typedef level_insert_base<InsertIndex, Element, Value, NodeProxy> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
-    typedef typename Options::parameters_type parameters_type;
-
     inline level_insert(node* & root,
                         size_t & leafs_level,
                         Element const& element,
-                        parameters_type const& parameters,
-                        Translator const& translator,
-                        Allocators & allocators,
+                        NodeProxy & node_proxy,
                         size_t relative_level)
-        : base(root, leafs_level, element, parameters, translator, allocators, relative_level)
+        : base(root, leafs_level, element, node_proxy, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -269,25 +262,21 @@ struct level_insert
     }
 };
 
-template <size_t InsertIndex, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocators>
-    : public level_insert_base<InsertIndex, Value, Value, Options, Translator, Box, Allocators>
+template <size_t InsertIndex, typename Value, typename NodeProxy>
+struct level_insert<InsertIndex, Value, Value, NodeProxy>
+    : public level_insert_base<InsertIndex, Value, Value, NodeProxy>
 {
-    typedef level_insert_base<InsertIndex, Value, Value, Options, Translator, Box, Allocators> base;
+    typedef level_insert_base<InsertIndex, Value, Value, NodeProxy> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
-    typedef typename Options::parameters_type parameters_type;
-
     inline level_insert(node* & root,
                         size_t & leafs_level,
                         Value const& v,
-                        parameters_type const& parameters,
-                        Translator const& translator,
-                        Allocators & allocators,
+                        NodeProxy & node_proxy,
                         size_t relative_level)
-        : base(root, leafs_level, v, parameters, translator, allocators, relative_level)
+        : base(root, leafs_level, v, node_proxy, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -319,25 +308,21 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocat
     }
 };
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
-    : public level_insert_base<0, Value, Value, Options, Translator, Box, Allocators>
+template <typename Value, typename NodeProxy>
+struct level_insert<0, Value, Value, NodeProxy>
+    : public level_insert_base<0, Value, Value, NodeProxy>
 {
-    typedef level_insert_base<0, Value, Value, Options, Translator, Box, Allocators> base;
+    typedef level_insert_base<0, Value, Value, NodeProxy> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
     typedef typename base::leaf leaf;
 
-    typedef typename Options::parameters_type parameters_type;
-
     inline level_insert(node* & root,
                         size_t & leafs_level,
                         Value const& v,
-                        parameters_type const& parameters,
-                        Translator const& translator,
-                        Allocators & allocators,
+                        NodeProxy & node_proxy,
                         size_t relative_level)
-        : base(root, leafs_level, v, parameters, translator, allocators, relative_level)
+        : base(root, leafs_level, v, node_proxy, relative_level)
     {}
 
     inline void operator()(internal_node & n)
@@ -369,36 +354,39 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
 } // namespace detail
 
 // R*-tree insert visitor
-template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-class insert<Element, Value, Options, Translator, Box, Allocators, insert_reinsert_tag>
-	: public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
+template <typename Element, typename Value, typename NodeProxy>
+class insert<Element, Value, NodeProxy, insert_reinsert_tag>
+	: public rtree::visitor<
+	      Value,
+	      typename NodeProxy::parameters_type,
+	      typename NodeProxy::box_type,
+	      typename NodeProxy::allocators_type,
+	      typename NodeProxy::node_tag,
+	      false
+	  >::type
 	, index::nonassignable
 {
-    typedef typename Options::parameters_type parameters_type;
-
-	typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-	typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-	typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename NodeProxy::node node;
+	typedef typename NodeProxy::internal_node internal_node;
+	typedef typename NodeProxy::leaf leaf;
 
 public:
 	inline insert(node* & root,
 				  size_t & leafs_level,
 				  Element const& element,
-                  parameters_type const& parameters,
-				  Translator const& translator,
-                  Allocators & allocators,
+                  NodeProxy & node_proxy,
 				  size_t relative_level = 0)
 		: m_root(root), m_leafs_level(leafs_level), m_element(element)
-		, m_parameters(parameters), m_translator(translator)
-        , m_relative_level(relative_level), m_allocators(allocators)
+		, m_node_proxy(node_proxy)
+        , m_relative_level(relative_level)
 	{}
 
 	inline void operator()(internal_node & BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(n))
 	{
 		BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root), "current node should be the root");
 		
-		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
-			m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+		detail::rstar::level_insert<0, Element, Value, NodeProxy> lins_v(
+			m_root, m_leafs_level, m_element, m_node_proxy, m_relative_level);
 
 		rtree::apply_visitor(lins_v, *m_root);
 
@@ -412,8 +400,8 @@ public:
 	{
 		BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<leaf>(m_root), "current node should be the root");
 
-		detail::rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
-			m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+		detail::rstar::level_insert<0, Element, Value, NodeProxy> lins_v(
+			m_root, m_leafs_level, m_element, m_node_proxy, m_relative_level);
 
 		rtree::apply_visitor(lins_v, *m_root);
 
@@ -431,8 +419,8 @@ private:
 		for ( typename Elements::const_reverse_iterator it = elements.rbegin();
 			it != elements.rend(); ++it)
 		{
-			detail::rstar::level_insert<1, element_type, Value, Options, Translator, Box, Allocators> lins_v(
-				m_root, m_leafs_level, *it, m_parameters, m_translator, m_allocators, relative_level);
+			detail::rstar::level_insert<1, element_type, Value, NodeProxy> lins_v(
+				m_root, m_leafs_level, *it, m_node_proxy, relative_level);
 
 			rtree::apply_visitor(lins_v, *m_root);
 
@@ -450,12 +438,9 @@ private:
 	size_t & m_leafs_level;
 	Element const& m_element;
 
-    parameters_type const& m_parameters;
-	Translator const& m_translator;
+    NodeProxy & m_node_proxy;
 
 	size_t m_relative_level;
-
-    Allocators m_allocators;
 };
 
 }}} // namespace detail::rtree::visitors

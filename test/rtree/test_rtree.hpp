@@ -183,7 +183,7 @@ template <typename Rtree, typename Iter, typename Value>
 Iter test_find(Rtree const& rtree, Iter first, Iter last, Value const& value)
 {
     for ( ; first != last ; ++first )
-        if ( rtree.translator().equals(value, *first) )
+        if ( rtree.node_proxy().equals(value, *first) )
             return first;
     return first;
 }
@@ -215,7 +215,7 @@ void test_exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Ran
         typename Range2::const_iterator it2 = expected_output.begin();
         for ( ; it1 != output.end() && it2 != expected_output.end() ; ++it1, ++it2 )
         {
-            if ( !rtree.translator().equals(*it1, *it2) )
+            if ( !rtree.node_proxy().equals(*it1, *it2) )
             {
                 BOOST_CHECK(false && "rtree.translator().equals(*it1, *it2)");
                 break;
@@ -255,7 +255,7 @@ void test_intersects_and_disjoint(bgi::rtree<Value, Algo> const& tree, std::vect
     std::vector<Value> expected_output;
 
     BOOST_FOREACH(Value const& v, input)
-        if ( bg::intersects(tree.translator()(v), qbox) )
+        if ( bg::intersects(tree.node_proxy().indexable(v), qbox) )
             expected_output.push_back(v);
 
     test_query(tree, qbox, expected_output);
@@ -271,7 +271,7 @@ void test_covered_by(bgi::rtree<Value, Algo> const& tree, std::vector<Value> con
     std::vector<Value> expected_output;
 
     BOOST_FOREACH(Value const& v, input)
-        if ( bg::covered_by(tree.translator()(v), qbox) )
+        if ( bg::covered_by(tree.node_proxy().indexable(v), qbox) )
             expected_output.push_back(v);
 
     test_query(tree, bgi::covered_by(qbox), expected_output);
@@ -286,7 +286,7 @@ struct test_overlap_impl
         std::vector<Value> expected_output;
 
         BOOST_FOREACH(Value const& v, input)
-            if ( bg::overlaps(tree.translator()(v), qbox) )
+            if ( bg::overlaps(tree.node_proxy().indexable(v), qbox) )
                 expected_output.push_back(v);
 
         test_query(tree, bgi::overlaps(qbox), expected_output);
@@ -354,7 +354,7 @@ void test_within(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& 
     std::vector<Value> expected_output;
 
     BOOST_FOREACH(Value const& v, input)
-        if ( bg::within(tree.translator()(v), qbox) )
+        if ( bg::within(tree.node_proxy().indexable(v), qbox) )
             expected_output.push_back(v);
 
     test_query(tree, bgi::within(qbox), expected_output);
@@ -373,7 +373,7 @@ void test_nearest(Rtree const& rtree, std::vector<Value> const& input, Point con
     Value expected_output;
     BOOST_FOREACH(Value const& v, input)
     {
-        D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+        D d = bgi::comparable_distance_near(pt, rtree.node_proxy().indexable(v));
         if ( d < smallest_d )
         {
             smallest_d = d;
@@ -391,10 +391,10 @@ void test_nearest(Rtree const& rtree, std::vector<Value> const& input, Point con
         // TODO - perform explicit check here?
         // should all objects which are closest be checked and should exactly the same be found?
 
-        if ( !rtree.translator().equals(output, expected_output) )
+        if ( !rtree.node_proxy().equals(output, expected_output) )
         {
-            D d1 = bgi::comparable_distance_near(pt, rtree.translator()(output));
-            D d2 = bgi::comparable_distance_near(pt, rtree.translator()(expected_output));
+            D d1 = bgi::comparable_distance_near(pt, rtree.node_proxy().indexable(output));
+            D d2 = bgi::comparable_distance_near(pt, rtree.node_proxy().indexable(expected_output));
             BOOST_CHECK(d1 == d2);
         }
     }
@@ -437,7 +437,7 @@ void test_nearest_k(Rtree const& rtree, std::vector<Value> const& input, Point c
     // calculate test output - k closest values pairs
     BOOST_FOREACH(Value const& v, input)
     {
-        D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+        D d = bgi::comparable_distance_near(pt, rtree.node_proxy().indexable(v));
 
         if ( test_output.size() < k )
             test_output.push_back(std::make_pair(d, v));
@@ -473,7 +473,7 @@ void test_nearest_k(Rtree const& rtree, std::vector<Value> const& input, Point c
 
             if ( test_find(rtree, expected_output.begin(), expected_output.end(), v) == expected_output.end() )
             {
-                D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+                D d = bgi::comparable_distance_near(pt, rtree.node_proxy().indexable(v));
                 BOOST_CHECK(d == biggest_d);
             }
         }

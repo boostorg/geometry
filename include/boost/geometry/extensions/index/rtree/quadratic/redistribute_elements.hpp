@@ -28,22 +28,21 @@ namespace detail {
 
 namespace quadratic {
 
-template <typename Elements, typename Parameters, typename Translator, typename Box>
+template <typename Elements, typename NodeProxy>
 struct pick_seeds
 {
     typedef typename Elements::value_type element_type;
-    typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+    typedef typename rtree::element_indexable_type<element_type, typename NodeProxy::translator_type>::type indexable_type;
     typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
-    typedef Box box_type;
+    typedef typename NodeProxy::box_type box_type;
     typedef typename index::default_content_result<box_type>::type content_type;
 
     static inline void apply(Elements const& elements,
-                             Parameters const& parameters,
-                             Translator const& tr,
+                             NodeProxy const& node_proxy,
                              size_t & seed1,
                              size_t & seed2)
     {
-        const size_t elements_count = parameters.get_max_elements() + 1;
+        const size_t elements_count = node_proxy.parameters().get_max_elements() + 1;
 		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "wrong number of elements");
 		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
 
@@ -55,8 +54,8 @@ struct pick_seeds
         {
             for ( size_t j = i + 1 ; j < elements_count ; ++j )
             {
-                indexable_type const& ind1 = rtree::element_indexable(elements[i], tr);
-                indexable_type const& ind2 = rtree::element_indexable(elements[j], tr);
+                indexable_type const& ind1 = node_proxy.indexable(elements[i]);
+                indexable_type const& ind2 = node_proxy.indexable(elements[j]);
 
                 box_type enlarged_box;
                 geometry::convert(ind1, enlarged_box);
@@ -77,33 +76,31 @@ struct pick_seeds
 
 } // namespace quadratic
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadratic_tag>
+template <typename Value, typename NodeProxy>
+struct redistribute_elements<Value, NodeProxy, quadratic_tag>
 {
-	typedef typename Options::parameters_type parameters_type;
+	typedef typename NodeProxy::node node;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
+    typedef typename NodeProxy::box_type box_type;
 
-    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
-
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::default_content_result<box_type>::type content_type;
 
     template <typename Node>
     static inline void apply(Node & n,
 			  				 Node & second_node,
-							 Box & box1,
-							 Box & box2,
-                             parameters_type const& parameters,
-							 Translator const& translator)
+							 box_type & box1,
+							 box_type & box2,
+                             NodeProxy const& node_proxy)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
-        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+        typedef typename rtree::element_indexable_type<element_type, typename NodeProxy::translator_type>::type indexable_type;
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
 
 		elements_type & elements1 = rtree::elements(n);
 		elements_type & elements2 = rtree::elements(second_node);
-		const size_t elements1_count = parameters.get_max_elements() + 1;
+		const size_t elements1_count = node_proxy.parameters().get_max_elements() + 1;
 
 		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected elements number");
 
@@ -113,7 +110,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        quadratic::pick_seeds<elements_type, parameters_type, Translator, Box>::apply(elements_copy, parameters, translator, seed1, seed2);
+        quadratic::pick_seeds<elements_type, NodeProxy>::apply(elements_copy, node_proxy, seed1, seed2);
 
         // prepare nodes' elements containers
         elements1.clear();
@@ -124,8 +121,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         elements2.push_back(elements_copy[seed2]);
 
         // calculate boxes
-        geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
-        geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
+        geometry::convert(node_proxy.indexable(elements_copy[seed1]), box1);
+        geometry::convert(node_proxy.indexable(elements_copy[seed2]), box2);
 
         // remove seeds
         if (seed1 < seed2)
@@ -156,11 +153,11 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
             // if there is small number of elements left and the number of elements in node is lesser than min_elems
             // just insert them to this node
-            if ( elements1_count + remaining <= parameters.get_min_elements() )
+            if ( elements1_count + remaining <= node_proxy.parameters().get_min_elements() )
             {
                 insert_into_group1 = true;
             }
-            else if ( elements2_count + remaining <= parameters.get_min_elements() )
+            else if ( elements2_count + remaining <= node_proxy.parameters().get_min_elements() )
             {
                 insert_into_group1 = false;
             }
@@ -171,7 +168,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                 content_type content_increase1 = 0;
                 content_type content_increase2 = 0;
                 el_it = pick_next(elements_copy.rbegin(), elements_copy.rend(),
-                                  box1, box2, content1, content2, translator,
+                                  box1, box2, content1, content2, node_proxy,
                                   content_increase1, content_increase2);
 
                 if ( content_increase1 < content_increase2 ||
@@ -188,7 +185,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
             // move element to the choosen group
             element_type const& elem = *el_it;
-            indexable_type const& indexable = rtree::element_indexable(elem, translator);
+            indexable_type const& indexable = node_proxy.indexable(elem);
 
             if ( insert_into_group1 )
             {
@@ -216,13 +213,13 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
     template <typename It>
     static inline It pick_next(It first, It last,
-                               Box const& box1, Box const& box2,
+                               box_type const& box1, box_type const& box2,
                                content_type const& content1, content_type const& content2,
-                               Translator const& translator,
+                               NodeProxy const& node_proxy,
                                content_type & out_content_increase1, content_type & out_content_increase2)
     {
         typedef typename boost::iterator_value<It>::type element_type;
-        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+        typedef typename rtree::element_indexable_type<element_type, typename NodeProxy::translator_type>::type indexable_type;
 
         content_type greatest_content_incrase_diff = 0;
         It out_it = first;
@@ -232,11 +229,11 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         // find element with greatest difference between increased group's boxes areas
         for ( It el_it = first ; el_it != last ; ++el_it )
         {
-            indexable_type const& indexable = rtree::element_indexable(*el_it, translator);
+            indexable_type const& indexable = node_proxy.indexable(*el_it);
 
             // calculate enlarged boxes and areas
-            Box enlarged_box1(box1);
-            Box enlarged_box2(box2);
+            box_type enlarged_box1(box1);
+            box_type enlarged_box2(box2);
             geometry::expand(enlarged_box1, indexable);
             geometry::expand(enlarged_box2, indexable);
             content_type enlarged_content1 = index::content(enlarged_box1);

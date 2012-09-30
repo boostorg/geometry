@@ -18,17 +18,25 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <typename Value, typename NodeProxy>
 class are_boxes_ok
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+    : public rtree::visitor<
+          Value,
+          typename NodeProxy::parameters_type,
+          typename NodeProxy::box_type,
+          typename NodeProxy::allocators_type,
+          typename NodeProxy::node_tag,
+          true
+      >::type
     , index::nonassignable
 {
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
+    typedef typename NodeProxy::box_type box_type;
 
 public:
-    inline are_boxes_ok(Translator const& tr)
-        : result(false), m_tr(tr), m_is_root(true)
+    inline are_boxes_ok(NodeProxy const& node_proxy)
+        : result(false), m_node_proxy(node_proxy), m_is_root(true)
     {}
 
     inline void operator()(internal_node const& n)
@@ -42,7 +50,7 @@ public:
             return;
         }
 
-        Box box_bckup = m_box;
+        box_type box_bckup = m_box;
         bool is_root_bckup = m_is_root;
 
         m_is_root = false;
@@ -61,7 +69,7 @@ public:
         m_box = box_bckup;
         m_is_root = is_root_bckup;
 
-        Box box_exp;
+        box_type box_exp;
         geometry::convert(elements.front().first, box_exp);
         for( typename elements_type::const_iterator it = elements.begin() + 1;
             it != elements.end() ; ++it)
@@ -86,12 +94,12 @@ public:
                 return;
             }
         
-            Box box_exp;
-            geometry::convert(m_tr(elements.front()), box_exp);
+            box_type box_exp;
+            geometry::convert(m_node_proxy.indexable(elements.front()), box_exp);
             for(typename elements_type::const_iterator it = elements.begin() + 1;
                 it != elements.end() ; ++it)
             {
-                geometry::expand(box_exp, m_tr(*it));
+                geometry::expand(box_exp, m_node_proxy.indexable(*it));
             }
 
             result = geometry::equals(box_exp, m_box);
@@ -103,24 +111,25 @@ public:
     bool result;
 
 private:
-    Translator const& m_tr;
-    Box m_box;
+    NodeProxy const& m_node_proxy;
+    box_type m_box;
     bool m_is_root;
 };
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Options, typename Translator, typename Allocator>
-bool are_boxes_ok(rtree<Value, Options, Translator, Allocator> const& tree)
+template <typename Value, typename Parameters, typename Translator, typename Allocator>
+bool are_boxes_ok(rtree<Value, Parameters, Translator, Allocator> const& tree)
 {
-    typedef rtree<Value, Options, Translator, Allocator> rt;
     detail::rtree::visitors::are_boxes_ok<
-        typename rt::value_type,
-        typename rt::options_type,
-        typename rt::translator_type,
-        typename rt::box_type,
-        typename rt::allocators_type
-    > v(tree.translator());
+        Value,
+        detail::rtree::node_proxy<
+            Value,
+            Parameters,
+            Translator,
+            Allocator
+        >
+    > v(tree.node_proxy());
     
     tree.apply_visitor(v);
 

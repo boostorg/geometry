@@ -40,34 +40,33 @@ namespace linear {
 
 // from void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
 
-template <typename Elements, typename Parameters, typename Translator, size_t DimensionIndex>
+template <typename Elements, typename NodeProxy, size_t DimensionIndex>
 struct find_greatest_normalized_separation
 {
     typedef typename Elements::value_type element_type;
-    typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+    typedef typename rtree::element_indexable_type<element_type, typename NodeProxy::translator_type>::type indexable_type;
     typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
 
     static inline void apply(Elements const& elements,
-                             Parameters const& parameters,
-                             Translator const& translator,
+                             NodeProxy const& node_proxy,
                              coordinate_type & separation,
                              size_t & seed1,
                              size_t & seed2)
     {
-		const size_t elements_count = parameters.get_max_elements() + 1;
+		const size_t elements_count = node_proxy.parameters().get_max_elements() + 1;
 		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected number of elements");
 		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
 
         // find the lowest low, highest high
-        coordinate_type lowest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
-        coordinate_type highest_high = index::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
+        coordinate_type lowest_low = index::get<min_corner, DimensionIndex>(node_proxy.indexable(elements[0]));
+        coordinate_type highest_high = index::get<max_corner, DimensionIndex>(node_proxy.indexable(elements[0]));
         // and the lowest high
         coordinate_type lowest_high = highest_high;
         size_t lowest_high_index = 0;
         for ( size_t i = 1 ; i < elements_count ; ++i )
         {
-            coordinate_type min_coord = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
-            coordinate_type max_coord = index::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
+            coordinate_type min_coord = index::get<min_corner, DimensionIndex>(node_proxy.indexable(elements[i]));
+            coordinate_type max_coord = index::get<max_corner, DimensionIndex>(node_proxy.indexable(elements[i]));
 
             if ( max_coord < lowest_high )
             {
@@ -84,10 +83,10 @@ struct find_greatest_normalized_separation
 
         // find the highest low
         size_t highest_low_index = lowest_high_index == 0 ? 1 : 0;
-        coordinate_type highest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[highest_low_index], translator));
+        coordinate_type highest_low = index::get<min_corner, DimensionIndex>(node_proxy.indexable(elements[highest_low_index]));
         for ( size_t i = highest_low_index ; i < elements_count ; ++i )
         {
-            coordinate_type min_coord = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
+            coordinate_type min_coord = index::get<min_corner, DimensionIndex>(node_proxy.indexable(elements[i]));
             if ( highest_low < min_coord &&
                  i != lowest_high_index )
             {
@@ -117,27 +116,26 @@ struct find_greatest_normalized_separation
     }
 };
 
-template <typename Elements, typename Parameters, typename Translator, size_t Dimension>
+template <typename Elements, typename NodeProxy, size_t Dimension>
 struct pick_seeds_impl
 {
     BOOST_STATIC_ASSERT(0 < Dimension);
 
     typedef typename Elements::value_type element_type;
-    typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+    typedef typename rtree::element_indexable_type<element_type, typename NodeProxy::translator_type>::type indexable_type;
     typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
 
     static inline void apply(Elements const& elements,
-                             Parameters const& parameters,
-                             Translator const& tr,
+                             NodeProxy const& node_proxy,
                              coordinate_type & separation,
                              size_t & seed1,
                              size_t & seed2)
     {
-        pick_seeds_impl<Elements, Parameters, Translator, Dimension - 1>::apply(elements, parameters, tr, separation, seed1, seed2);
+        pick_seeds_impl<Elements, NodeProxy, Dimension - 1>::apply(elements, node_proxy, separation, seed1, seed2);
 
         coordinate_type current_separation;
         size_t s1, s2;
-        find_greatest_normalized_separation<Elements, Parameters, Translator, Dimension - 1>::apply(elements, parameters, tr, current_separation, s1, s2);
+        find_greatest_normalized_separation<Elements, NodeProxy, Dimension - 1>::apply(elements, node_proxy, current_separation, s1, s2);
 
         // in the old implementation different operator was used: <= (y axis prefered)
         if ( separation < current_separation )
@@ -149,43 +147,41 @@ struct pick_seeds_impl
     }
 };
 
-template <typename Elements, typename Parameters, typename Translator>
-struct pick_seeds_impl<Elements, Parameters, Translator, 1>
+template <typename Elements, typename NodeProxy>
+struct pick_seeds_impl<Elements, NodeProxy, 1>
 {
     typedef typename Elements::value_type element_type;
-    typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+    typedef typename rtree::element_indexable_type<element_type, typename NodeProxy::translator_type>::type indexable_type;
     typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
 
     static inline void apply(Elements const& elements,
-                             Parameters const& parameters,
-                             Translator const& tr,
+                             NodeProxy const& node_proxy,
                              coordinate_type & separation,
                              size_t & seed1,
                              size_t & seed2)
     {
-        find_greatest_normalized_separation<Elements, Parameters, Translator, 0>::apply(elements, parameters, tr, separation, seed1, seed2);
+        find_greatest_normalized_separation<Elements, NodeProxy, 0>::apply(elements, node_proxy, separation, seed1, seed2);
     }
 };
 
 // from void linear_pick_seeds(node_pointer const& n, unsigned int &seed1, unsigned int &seed2) const
 
-template <typename Elements, typename Parameters, typename Translator>
+template <typename Elements, typename NodeProxy>
 struct pick_seeds
 {
     typedef typename Elements::value_type element_type;
-    typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+    typedef typename rtree::element_indexable_type<element_type, typename NodeProxy::translator_type>::type indexable_type;
     typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
 
     static const size_t dimension = index::traits::dimension<indexable_type>::value;
 
     static inline void apply(Elements const& elements,
-                             Parameters const& parameters,
-							 Translator const& tr,
+                             NodeProxy const& node_proxy,
 							 size_t & seed1,
 							 size_t & seed2)
     {
         coordinate_type separation = 0;
-        pick_seeds_impl<Elements, Parameters, Translator, dimension>::apply(elements, parameters, tr, separation, seed1, seed2);
+        pick_seeds_impl<Elements, NodeProxy, dimension>::apply(elements, node_proxy, separation, seed1, seed2);
     }
 };
 
@@ -193,32 +189,30 @@ struct pick_seeds
 
 // from void split_node(node_pointer const& n, node_pointer& n1, node_pointer& n2) const
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear_tag>
+template <typename Value, typename NodeProxy>
+struct redistribute_elements<Value, NodeProxy, linear_tag>
 {
-    typedef typename Options::parameters_type parameters_type;
-
-    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename NodeProxy::node node;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
+    typedef typename NodeProxy::box_type box_type;
 
     template <typename Node>
     static inline void apply(Node & n,
                              Node & second_node,
-                             Box & box1,
-                             Box & box2,
-                             parameters_type const& parameters,
-                             Translator const& translator)
+                             box_type & box1,
+                             box_type & box2,
+                             NodeProxy const& node_proxy)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
-        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+        typedef typename rtree::element_indexable_type<element_type, typename NodeProxy::translator_type>::type indexable_type;
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
-        typedef typename index::default_content_result<Box>::type content_type;
+        typedef typename index::default_content_result<box_type>::type content_type;
 
 		elements_type & elements1 = rtree::elements(n);
 		elements_type & elements2 = rtree::elements(second_node);
-		const size_t elements1_count = parameters.get_max_elements() + 1;
+		const size_t elements1_count = node_proxy.parameters().get_max_elements() + 1;
 
 		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected number of elements");
 
@@ -228,7 +222,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        linear::pick_seeds<elements_type, parameters_type, Translator>::apply(elements_copy, parameters, translator, seed1, seed2);
+        linear::pick_seeds<elements_type, NodeProxy>::apply(elements_copy, node_proxy, seed1, seed2);
 
         // prepare nodes' elements containers
         elements1.clear();
@@ -239,8 +233,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         elements2.push_back(elements_copy[seed2]);
 
         // calculate boxes
-        geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
-        geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
+        geometry::convert(node_proxy.indexable(elements_copy[seed1]), box1);
+        geometry::convert(node_proxy.indexable(elements_copy[seed2]), box2);
 
         // initialize areas
         content_type content1 = index::content(box1);
@@ -255,17 +249,18 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
             if (i != seed1 && i != seed2)
             {
                 element_type const& elem = elements_copy[i];
-                indexable_type const& indexable = rtree::element_indexable(elem, translator);
+                // TODO - here indexable by value may be returned
+                indexable_type const& indexable = node_proxy.indexable(elem);
 
                 // if there is small number of elements left and the number of elements in node is lesser than min_elems
                 // just insert them to this node
-                if ( elements1.size() + remaining <= parameters.get_min_elements() )
+                if ( elements1.size() + remaining <= node_proxy.parameters().get_min_elements() )
                 {
                     elements1.push_back(elem);
                     geometry::expand(box1, indexable);
                     content1 = index::content(box1);
                 }
-                else if ( elements2.size() + remaining <= parameters.get_min_elements() )
+                else if ( elements2.size() + remaining <= node_proxy.parameters().get_min_elements() )
                 {
                     elements2.push_back(elem);
                     geometry::expand(box2, indexable);
@@ -275,8 +270,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
                 else
                 {
                     // calculate enlarged boxes and areas
-                    Box enlarged_box1(box1);
-                    Box enlarged_box2(box2);
+                    box_type enlarged_box1(box1);
+                    box_type enlarged_box2(box2);
                     geometry::expand(enlarged_box1, indexable);
                     geometry::expand(enlarged_box2, indexable);
                     content_type enlarged_content1 = index::content(enlarged_box1);

@@ -17,17 +17,25 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <typename Value, typename NodeProxy>
 class children_box
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+    : public rtree::visitor<
+          Value,
+          typename NodeProxy::parameters_type,
+          typename NodeProxy::box_type,
+          typename NodeProxy::allocators_type,
+          typename NodeProxy::node_tag,
+          true
+      >::type
     , index::nonassignable
 {
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename NodeProxy::internal_node internal_node;
+    typedef typename NodeProxy::leaf leaf;
+    typedef typename NodeProxy::box_type box_type;
 
 public:
-    inline children_box(Translator const& tr)
-        : m_tr(tr)
+    inline children_box(NodeProxy const& node_proxy)
+        : m_node_proxy(node_proxy)
     {}
 
     inline void operator()(internal_node const& n)
@@ -35,7 +43,7 @@ public:
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        result = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
+        result = m_node_proxy.elements_box(elements.begin(), elements.end());
     }
 
     inline void operator()(leaf const& n)
@@ -43,13 +51,13 @@ public:
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        result = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
+        result = m_node_proxy.elements_box(elements.begin(), elements.end());
     }
 
-    Box result;
+    box_type result;
 
 private:
-    Translator const& m_tr;
+    NodeProxy const& m_node_proxy;
 };
 
 }}} // namespace detail::rtree::visitors
