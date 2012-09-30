@@ -121,10 +121,9 @@ struct create_node<
     apply(Allocators & allocators)
     {
         return create_node_variant<
+            typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type,
             static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
-        >::template apply<
-            typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type
-        >(allocators.node_allocator, allocators.node_allocator);
+        >::template apply(allocators.node_allocator, allocators.node_allocator);
     }
 };
 
@@ -138,10 +137,9 @@ struct create_node<
     apply(Allocators & allocators)
     {
         return create_node_variant<
+            typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type,
             static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
-        >::template apply<
-            typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type
-        >(allocators.node_allocator, allocators.node_allocator);
+        >::template apply(allocators.node_allocator, allocators.node_allocator);
     }
 };
 

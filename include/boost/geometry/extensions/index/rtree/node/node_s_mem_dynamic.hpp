@@ -153,10 +153,10 @@ struct allocators<Allocator, Value, Parameters, Box, node_s_mem_dynamic_tag>
 
 // create_node_variant
 
-template <typename Node>
+template <typename RetNode, typename Node>
 struct create_node_variant
 {
-    template <typename RetNode, typename AllocNode, typename AllocElems>
+    template <typename AllocNode, typename AllocElems>
     static inline RetNode * apply(AllocNode & alloc_node, AllocElems & alloc_elems)
     {
         RetNode * p = alloc_node.allocate(1);
@@ -203,10 +203,9 @@ struct create_node<
     apply(Allocators & allocators)
     {
         return create_node_variant<
+            typename node<Value, Parameters, Box, Allocators, Tag>::type,
             static_internal_node<Value, Parameters, Box, Allocators, Tag>
-        >::template apply<
-            typename node<Value, Parameters, Box, Allocators, Tag>::type
-        >(allocators.node_allocator, allocators.internal_node_elements_allocator);
+        >::template apply(allocators.node_allocator, allocators.internal_node_elements_allocator);
     }
 };
 
@@ -220,10 +219,9 @@ struct create_node<
     apply(Allocators & allocators)
     {
         return create_node_variant<
+            typename node<Value, Parameters, Box, Allocators, Tag>::type,
             static_leaf<Value, Parameters, Box, Allocators, Tag>
-        >::template apply<
-            typename node<Value, Parameters, Box, Allocators, Tag>::type
-        >(allocators.node_allocator, allocators.leaf_elements_allocator);
+        >::template apply(allocators.node_allocator, allocators.leaf_elements_allocator);
     }
 };
 

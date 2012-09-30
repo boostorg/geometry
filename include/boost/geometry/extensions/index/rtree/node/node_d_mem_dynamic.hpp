@@ -190,11 +190,11 @@ struct allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>
 
 // create_node_impl
 
-template <typename Node>
-struct create_node_poly
+template <typename BaseNode, typename Node>
+struct create_dynamic_node
 {
-    template <typename RetNode, typename AllocNode, typename AllocElems>
-    static inline RetNode * apply(AllocNode & alloc_node, AllocElems & alloc_elems)
+    template <typename AllocNode, typename AllocElems>
+    static inline BaseNode * apply(AllocNode & alloc_node, AllocElems & alloc_elems)
     {
         Node * p = alloc_node.allocate(1);
 
@@ -237,14 +237,13 @@ struct create_node<
     dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
+    static inline dynamic_node<Value, Parameters, Box, Allocators, Tag> *
     apply(Allocators & allocators)
     {
-        return create_node_poly<
+        return create_dynamic_node<
+            dynamic_node<Value, Parameters, Box, Allocators, Tag>,
             dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
-        >::template apply<
-            typename node<Value, Parameters, Box, Allocators, Tag>::type
-        >(allocators.internal_node_allocator, allocators.internal_node_elements_allocator);
+        >::apply(allocators.internal_node_allocator, allocators.internal_node_elements_allocator);
     }
 };
 
@@ -254,14 +253,13 @@ struct create_node<
     dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
+    static inline dynamic_node<Value, Parameters, Box, Allocators, Tag> *
     apply(Allocators & allocators)
     {
-        return create_node_poly<
+        return create_dynamic_node<
+            dynamic_node<Value, Parameters, Box, Allocators, Tag>,
             dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
-        >::template apply<
-            typename node<Value, Parameters, Box, Allocators, Tag>::type
-        >(allocators.leaf_allocator, allocators.leaf_elements_allocator);
+        >::template apply(allocators.leaf_allocator, allocators.leaf_elements_allocator);
     }
 };
 
@@ -273,7 +271,7 @@ struct destroy_node<
     dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
+    static inline void apply(Allocators & allocators, dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
     {
         destroy_node_poly<
             dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
@@ -287,7 +285,7 @@ struct destroy_node<
     dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
+    static inline void apply(Allocators & allocators, dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
     {
         destroy_node_poly<
             dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
