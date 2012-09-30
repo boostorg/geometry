@@ -166,7 +166,7 @@ struct allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>
     >::other leaf_allocator_type;
 
     typedef typename allocator_type::template rebind<
-        std::pair<Box, dynamic_node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag> *>
+        std::pair<Box, typename node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type *>
     >::other internal_node_elements_allocator_type;
 
     typedef typename allocator_type::template rebind<

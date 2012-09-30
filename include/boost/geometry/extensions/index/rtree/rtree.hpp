@@ -203,8 +203,6 @@ public:
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
-        //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
-
         if ( this == &src )
             return *this;
 
@@ -213,6 +211,7 @@ public:
         
         m_parameters = src.m_parameters;
         m_translator = src.m_translator;
+        //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
         //m_allocators = src.m_allocators;
 
         try
@@ -233,8 +232,6 @@ public:
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
-        //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
-
         if ( this == &src )
             return *this;
 
@@ -243,9 +240,10 @@ public:
 
         m_parameters = src.m_parameters;
         m_translator = src.m_translator;
+        //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
         //m_allocators = src.m_allocators;
 
-        if ( m_allocators.allocator == src.m_allocators.allocator)
+        if ( m_allocators.allocator == src.m_allocators.allocator )
         {
             m_values_count = src.m_values_count;
             src.m_values_count = 0;
@@ -545,6 +543,16 @@ public:
         detail::rtree::apply_visitor(children_box_v, *m_root);
 
         return children_box_v.result;
+    }
+
+    /*!
+    Returns allocator used by the rtree.
+
+    \return     The allocator.
+    */
+    allocator_type get_allocator() const
+    {
+        return m_allocators.allocator;
     }
 
     /*!
