@@ -153,20 +153,20 @@ struct allocators<Allocator, Value, Parameters, Box, node_s_mem_dynamic_tag>
 
 // create_node_variant
 
-template <typename RetNode, typename Node>
-struct create_node_variant
+template <typename Variant, typename Node>
+struct create_static_node
 {
     template <typename AllocNode, typename AllocElems>
-    static inline RetNode * apply(AllocNode & alloc_node, AllocElems & alloc_elems)
+    static inline Variant * apply(AllocNode & alloc_node, AllocElems & alloc_elems)
     {
-        RetNode * p = alloc_node.allocate(1);
+        Variant * p = alloc_node.allocate(1);
 
         if ( 0 == p )
             throw std::bad_alloc();
 
         try
         {
-            alloc_node.construct(p, Node(alloc_elems));
+            alloc_node.construct(p, Node(alloc_elems)); // implicit cast to Variant
         }
         catch(...)
         {
@@ -181,10 +181,10 @@ struct create_node_variant
 // destroy_node_variant
 
 template <typename Node>
-struct destroy_node_variant
+struct destroy_static_node
 {
-    template <typename AllocNode, typename BaseNode>
-    static inline void apply(AllocNode & alloc_node, BaseNode * n)
+    template <typename AllocNode, typename Variant>
+    static inline void apply(AllocNode & alloc_node, Variant * n)
     {
         alloc_node.destroy(n);
         alloc_node.deallocate(n, 1);
@@ -202,7 +202,7 @@ struct create_node<
     static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
     apply(Allocators & allocators)
     {
-        return create_node_variant<
+        return create_static_node<
             typename node<Value, Parameters, Box, Allocators, Tag>::type,
             static_internal_node<Value, Parameters, Box, Allocators, Tag>
         >::template apply(allocators.node_allocator, allocators.internal_node_elements_allocator);
@@ -218,7 +218,7 @@ struct create_node<
     static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
     apply(Allocators & allocators)
     {
-        return create_node_variant<
+        return create_static_node<
             typename node<Value, Parameters, Box, Allocators, Tag>::type,
             static_leaf<Value, Parameters, Box, Allocators, Tag>
         >::template apply(allocators.node_allocator, allocators.leaf_elements_allocator);
@@ -235,7 +235,7 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
     {
-        destroy_node_variant<
+        destroy_static_node<
             static_internal_node<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.node_allocator, n);
     }
@@ -249,7 +249,7 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
     {
-        destroy_node_variant<
+        destroy_static_node<
             static_leaf<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.node_allocator, n);
     }

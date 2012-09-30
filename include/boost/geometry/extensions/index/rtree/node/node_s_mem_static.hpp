@@ -120,7 +120,7 @@ struct create_node<
     static inline typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type *
     apply(Allocators & allocators)
     {
-        return create_node_variant<
+        return create_static_node<
             typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type,
             static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
         >::template apply(allocators.node_allocator, allocators.node_allocator);
@@ -136,7 +136,7 @@ struct create_node<
     static inline typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type *
     apply(Allocators & allocators)
     {
-        return create_node_variant<
+        return create_static_node<
             typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type,
             static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
         >::template apply(allocators.node_allocator, allocators.node_allocator);

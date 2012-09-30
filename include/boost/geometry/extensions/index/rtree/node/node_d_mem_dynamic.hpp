@@ -218,7 +218,7 @@ struct create_dynamic_node
 // destroy_node_impl
 
 template <typename Node>
-struct destroy_node_poly
+struct destroy_dynamic_node
 {
     template <typename AllocNode, typename BaseNode>
     static inline void apply(AllocNode & alloc_node, BaseNode * n)
@@ -273,7 +273,7 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
     {
-        destroy_node_poly<
+        destroy_dynamic_node<
             dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.internal_node_allocator, n);
     }
@@ -287,7 +287,7 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
     {
-        destroy_node_poly<
+        destroy_dynamic_node<
             dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.leaf_allocator, n);
     }
