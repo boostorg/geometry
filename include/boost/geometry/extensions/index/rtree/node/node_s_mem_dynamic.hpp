@@ -12,7 +12,8 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_VARIANT_HPP
 
 #include <vector>
-#include <boost/variant.hpp>
+
+#include <boost/geometry/extensions/index/rtree/node/static_visitor.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -21,7 +22,7 @@ namespace detail { namespace rtree {
 // nodes default types
 
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
-struct internal_node_variant
+struct static_internal_node
 {
     typedef std::vector<
         std::pair<
@@ -31,7 +32,7 @@ struct internal_node_variant
         typename Allocators::internal_node_elements_allocator_type
     > elements_type;
 
-    inline internal_node_variant(typename Allocators::internal_node_elements_allocator_type & al)
+    inline static_internal_node(typename Allocators::internal_node_elements_allocator_type & al)
         : elements(al)
     {}
 
@@ -39,14 +40,14 @@ struct internal_node_variant
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
-struct leaf_variant
+struct static_leaf
 {
     typedef std::vector<
         Value,
         typename Allocators::leaf_elements_allocator_type
     > elements_type;
 
-    inline leaf_variant(typename Allocators::leaf_elements_allocator_type & al)
+    inline static_leaf(typename Allocators::leaf_elements_allocator_type & al)
         : elements(al)
     {}
 
@@ -59,46 +60,22 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 {
 	typedef boost::variant<
-		leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>,
-		internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
+		static_leaf<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>,
+		static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 	> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct internal_node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 {
-    typedef internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag> type;
+    typedef static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct leaf<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 {
-    typedef leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag> type;
+    typedef static_leaf<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag> type;
 };
-
-// nodes conversion
-
-template <typename V, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
-inline V & get(
-	boost::variant<
-		leaf_variant<Value, Parameters, Box, Allocators, Tag>,
-		internal_node_variant<Value, Parameters, Box, Allocators, Tag>
-	> &v
-)
-{
-    return boost::get<V>(v);
-}
-
-template <typename V, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
-inline V * get(
-	boost::variant<
-		leaf_variant<Value, Parameters, Box, Allocators, Tag>,
-		internal_node_variant<Value, Parameters, Box, Allocators, Tag>
-	> *v
-)
-{
-    return boost::get<V>(v);
-}
 
 // visitor traits
 
@@ -108,26 +85,6 @@ struct visitor<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag, IsVis
     typedef static_visitor<> type;
 };
 
-template <typename Visitor, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
-inline void apply_visitor(Visitor & v,
-						  boost::variant<
-							  leaf_variant<Value, Parameters, Box, Allocators, Tag>,
-							  internal_node_variant<Value, Parameters, Box, Allocators, Tag>
-						  > & n)
-{
-    boost::apply_visitor(v, n);
-}
-
-template <typename Visitor, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
-inline void apply_visitor(Visitor & v,
-						  boost::variant<
-							  leaf_variant<Value, Parameters, Box, Allocators, Tag>,
-							  internal_node_variant<Value, Parameters, Box, Allocators, Tag>
-						  > const& n)
-{
-	boost::apply_visitor(v, n);
-}
-
 // element's indexable type
 
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
@@ -135,8 +92,8 @@ struct element_indexable_type<
     std::pair<
         Box,
         boost::variant<
-            leaf_variant<Value, Parameters, Box, Allocators, Tag>,
-            internal_node_variant<Value, Parameters, Box, Allocators, Tag>
+            static_leaf<Value, Parameters, Box, Allocators, Tag>,
+            static_internal_node<Value, Parameters, Box, Allocators, Tag>
         > *
     >,
     Translator
@@ -152,8 +109,8 @@ inline Box const&
 element_indexable(std::pair<
 					  Box,
 					  boost::variant<
-						  leaf_variant<Value, Parameters, Box, Allocators, Tag>,
-						  internal_node_variant<Value, Parameters, Box, Allocators, Tag>
+						  static_leaf<Value, Parameters, Box, Allocators, Tag>,
+						  static_internal_node<Value, Parameters, Box, Allocators, Tag>
 					  > *
 				  > const& el,
 				  Translator const&)
@@ -239,14 +196,14 @@ struct destroy_node_variant
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct create_node<
     Allocators,
-    internal_node_variant<Value, Parameters, Box, Allocators, Tag>
+    static_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
     static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
     apply(Allocators & allocators)
     {
         return create_node_variant<
-            internal_node_variant<Value, Parameters, Box, Allocators, Tag>
+            static_internal_node<Value, Parameters, Box, Allocators, Tag>
         >::template apply<
             typename node<Value, Parameters, Box, Allocators, Tag>::type
         >(allocators.node_allocator, allocators.internal_node_elements_allocator);
@@ -256,14 +213,14 @@ struct create_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct create_node<
     Allocators,
-    leaf_variant<Value, Parameters, Box, Allocators, Tag>
+    static_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
     static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
     apply(Allocators & allocators)
     {
         return create_node_variant<
-            leaf_variant<Value, Parameters, Box, Allocators, Tag>
+            static_leaf<Value, Parameters, Box, Allocators, Tag>
         >::template apply<
             typename node<Value, Parameters, Box, Allocators, Tag>::type
         >(allocators.node_allocator, allocators.leaf_elements_allocator);
@@ -275,13 +232,13 @@ struct create_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct destroy_node<
     Allocators,
-    internal_node_variant<Value, Parameters, Box, Allocators, Tag>
+    static_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
     {
         destroy_node_variant<
-            internal_node_variant<Value, Parameters, Box, Allocators, Tag>
+            static_internal_node<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.node_allocator, n);
     }
 };
@@ -289,13 +246,13 @@ struct destroy_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct destroy_node<
     Allocators,
-    leaf_variant<Value, Parameters, Box, Allocators, Tag>
+    static_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
     static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
     {
         destroy_node_variant<
-            leaf_variant<Value, Parameters, Box, Allocators, Tag>
+            static_leaf<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.node_allocator, n);
     }
 };

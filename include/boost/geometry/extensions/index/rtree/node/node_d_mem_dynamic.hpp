@@ -77,22 +77,6 @@ struct leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
     typedef dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag> type;
 };
 
-// nodes conversion
-
-template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
-inline Derived & get(dynamic_node<Value, Parameters, Box, Allocators, Tag> & n)
-{
-    assert(dynamic_cast<Derived*>(&n));
-    return static_cast<Derived&>(n);
-}
-
-template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
-inline Derived * get(dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
-{
-    assert(dynamic_cast<Derived*>(n));
-    return static_cast<Derived*>(n);
-}
-
 // visitor traits
 
 template <typename Value, typename Parameters, typename Box, typename Allocators, bool IsVisitableConst>
@@ -100,12 +84,6 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVis
 {
     typedef dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVisitableConst> type;
 };
-
-template <typename Visitor, typename Visitable>
-inline void apply_visitor(Visitor &v, Visitable & n)
-{
-    n.apply_visitor(v);
-}
 
 // element's indexable type
 

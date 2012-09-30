@@ -11,8 +11,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_STATIC_VARIANT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_STATIC_VARIANT_HPP
 
-#include <vector>
-#include <boost/variant.hpp>
+#include <boost/geometry/extensions/index/pushable_array.hpp>
+
+#include <boost/geometry/extensions/index/rtree/node/static_visitor.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -21,7 +22,7 @@ namespace detail { namespace rtree {
 // nodes default types
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
+struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
     typedef index::pushable_array<
         std::pair<
@@ -32,18 +33,18 @@ struct internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_stat
     > elements_type;
 
     template <typename Dummy>
-    inline internal_node_variant(Dummy) {}
+    inline static_internal_node(Dummy) {}
 
     elements_type elements;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
+struct static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
     typedef index::pushable_array<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Dummy>
-    inline leaf_variant(Dummy) {}
+    inline static_leaf(Dummy) {}
 
     elements_type elements;
 };
@@ -54,21 +55,21 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
 	typedef boost::variant<
-		leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag>,
-		internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
+		static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>,
+		static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 	> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-    typedef internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag> type;
+    typedef static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-    typedef leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag> type;
+    typedef static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag> type;
 };
 
 // visitor traits
@@ -113,14 +114,14 @@ struct allocators<Allocator, Value, Parameters, Box, node_s_mem_static_tag>
 template <typename Allocators, typename Value, typename Parameters, typename Box>
 struct create_node<
     Allocators,
-    internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
+    static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 >
 {
     static inline typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type *
     apply(Allocators & allocators)
     {
         return create_node_variant<
-            internal_node_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
+            static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
         >::template apply<
             typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type
         >(allocators.node_allocator, allocators.node_allocator);
@@ -130,14 +131,14 @@ struct create_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box>
 struct create_node<
     Allocators,
-    leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
+    static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 >
 {
     static inline typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type *
     apply(Allocators & allocators)
     {
         return create_node_variant<
-            leaf_variant<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
+            static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
         >::template apply<
             typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type
         >(allocators.node_allocator, allocators.node_allocator);
