@@ -23,11 +23,12 @@ namespace detail {
 
 // Default choose_next_node
 template <typename Value, typename Options, typename Box, typename Allocators, typename ChooseNextNodeTag>
-struct choose_next_node;
+class choose_next_node;
 
 template <typename Value, typename Options, typename Box, typename Allocators>
-struct choose_next_node<Value, Options, Box, Allocators, choose_by_content_diff_tag>
+class choose_next_node<Value, Options, Box, Allocators, choose_by_content_diff_tag>
 {
+public:
     typedef typename Options::parameters_type parameters_type;
 
     typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
@@ -345,13 +346,14 @@ protected:
 
 // Insert visitor forward declaration
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename InsertTag>
-struct insert;
+class insert;
 
 // Default insert visitor used for nodes elements
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag>
+class insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag>
     : public detail::insert<Element, Value, Options, Translator, Box, Allocators>
 {
+public:
     typedef detail::insert<Element, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
@@ -398,9 +400,10 @@ struct insert<Element, Value, Options, Translator, Box, Allocators, insert_defau
 
 // Default insert visitor specialized for Values elements
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct insert<Value, Value, Options, Translator, Box, Allocators, insert_default_tag>
+class insert<Value, Value, Options, Translator, Box, Allocators, insert_default_tag>
     : public detail::insert<Value, Value, Options, Translator, Box, Allocators>
 {
+public:
     typedef detail::insert<Value, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;

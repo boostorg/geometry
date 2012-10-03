@@ -112,7 +112,11 @@ public:
 
     inline distance_type comparable_distance() const
     {
-        return m_neighbors.size() < 0
+        // smallest distance is in the first neighbor only
+        // if there is at least m_count values found
+        // this is just for safety reasons since is_comparable_distance_valid() is checked earlier
+        // TODO - may be replaced by ASSERT
+        return m_neighbors.size() < m_count
             ? (std::numeric_limits<distance_type>::max)()
             : m_neighbors.front().first;
     }
