@@ -1,5 +1,3 @@
-#include <windows.h>
-
 #include <iostream>
 #include <fstream>
 
@@ -23,7 +21,6 @@ int main()
     namespace bgi = bg::index;
 
     size_t values_count = 1000000;
-    size_t tests_count = 10;
     size_t queries_count = 100000;
 
     std::vector< std::pair<float, float> > coords;
@@ -106,6 +103,8 @@ int main()
             std::cout << "time: " << tim.elapsed() << "s\n";
             std::cout << "found: " << temp << "\n";
         }
+
+        result.clear();
 
         // searching test
         {
