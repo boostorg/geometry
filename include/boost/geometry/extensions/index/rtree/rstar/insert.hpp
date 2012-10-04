@@ -153,17 +153,17 @@ struct level_insert_base
 	{
 		BOOST_GEOMETRY_INDEX_ASSERT(result_elements.empty(), "reinsert should be handled only once for level");
 		
-		result_relative_level = base::m_leafs_level - base::m_current_level;
+		result_relative_level = base::m_leafs_level - base::m_traverse_data.current_level;
 
 		// overflow
 		if ( base::m_parameters.get_max_elements() < rtree::elements(n).size() )
 		{
 			// node isn't root node
-			if ( base::m_parent )
+			if ( !base::m_traverse_data.current_is_root() )
 			{
 				rstar::remove_elements_to_reinsert<Value, Options, Translator, Box, Allocators>::apply(
 					result_elements, n,
-					base::m_parent, base::m_current_child_index,
+					base::m_traverse_data.parent, base::m_traverse_data.current_child_index,
 					base::m_parameters, base::m_translator);
 			}
 			// node is root node
@@ -188,10 +188,10 @@ struct level_insert_base
 	template <typename Node>
 	inline void recalculate_aabb_if_necessary(Node &n) const
 	{
-		if ( !result_elements.empty() && base::m_parent )
+		if ( !result_elements.empty() && !base::m_traverse_data.current_is_root() )
 		{
 			// calulate node's new box
-			rtree::elements(*base::m_parent)[base::m_current_child_index].first =
+		    base::m_traverse_data.current_element().first =
 				elements_box<Box>(rtree::elements(n).begin(), rtree::elements(n).end(), base::m_translator);
 		}
 	}
@@ -223,9 +223,9 @@ struct level_insert
 
     inline void operator()(internal_node & n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_leafs_level, "unexpected level");
 
-        if ( base::m_current_level < base::m_level )
+        if ( base::m_traverse_data.current_level < base::m_level )
         {
             // next traversing step
             base::traverse(*this, n);
@@ -235,7 +235,7 @@ struct level_insert
             {
                 BOOST_GEOMETRY_INDEX_ASSERT(0 < base::m_level, "illegal level value, level shouldn't be the root level for 0 < InsertIndex");
 
-                if ( base::m_current_level == base::m_level - 1 )
+                if ( base::m_traverse_data.current_level == base::m_level - 1 )
                 {
                     base::handle_possible_reinsert_or_split_of_root(n);
                 }
@@ -243,7 +243,7 @@ struct level_insert
         }
         else
         {
-			BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level, "unexpected level");
+			BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level, "unexpected level");
 
             // push new child node
             rtree::elements(n).push_back(base::m_element);
@@ -292,15 +292,15 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocat
 
     inline void operator()(internal_node & n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_leafs_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_level, "unexpected level");
 
         // next traversing step
         base::traverse(*this, n);
 
 		BOOST_GEOMETRY_INDEX_ASSERT(0 < base::m_level, "illegal level value, level shouldn't be the root level for 0 < InsertIndex");
         
-        if ( base::m_current_level == base::m_level - 1 )
+        if ( base::m_traverse_data.current_level == base::m_level - 1 )
         {
             base::handle_possible_reinsert_or_split_of_root(n);
         }
@@ -310,8 +310,11 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocat
 
     inline void operator()(leaf & n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level == base::m_leafs_level,
+		                            "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level ||
+		                            base::m_level == (std::numeric_limits<size_t>::max)(),
+		                            "unexpected level");
         
         rtree::elements(n).push_back(base::m_element);
 
@@ -342,8 +345,10 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
 
     inline void operator()(internal_node & n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_level, "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_leafs_level,
+		                            "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_level,
+		                            "unexpected level");
 		
         // next traversing step
         base::traverse(*this, n);
@@ -353,8 +358,11 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
 
     inline void operator()(leaf & n)
     {
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
-		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level == base::m_leafs_level,
+		                            "unexpected level");
+		BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level ||
+		                            base::m_level == (std::numeric_limits<size_t>::max)(),
+		                            "unexpected level");
 
         rtree::elements(n).push_back(base::m_element);
 

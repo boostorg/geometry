@@ -23,11 +23,12 @@ namespace detail {
 
 // Default choose_next_node
 template <typename Value, typename Options, typename Box, typename Allocators, typename ChooseNextNodeTag>
-struct choose_next_node;
+class choose_next_node;
 
 template <typename Value, typename Options, typename Box, typename Allocators>
-struct choose_next_node<Value, Options, Box, Allocators, choose_by_content_diff_tag>
+class choose_next_node<Value, Options, Box, Allocators, choose_by_content_diff_tag>
 {
+public:
     typedef typename Options::parameters_type parameters_type;
 
     typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
@@ -152,6 +153,45 @@ public:
 
 // ----------------------------------------------------------------------- //
 
+template <typename InternalNode>
+struct insert_traverse_data
+{
+    typedef typename rtree::elements_type<InternalNode>::type elements_type;
+    typedef typename elements_type::value_type element_type;
+
+    insert_traverse_data()
+        : parent(0), current_child_index(0), current_level(0)
+    {}
+
+    void move_to_next_level(InternalNode * new_parent, size_t new_child_index)
+    {
+        parent = new_parent;
+        current_child_index = new_child_index;
+        ++current_level;
+    }
+
+    bool current_is_root() const
+    {
+        return 0 == parent;
+    }
+
+    elements_type & parent_elements() const
+    {
+        BOOST_GEOMETRY_INDEX_ASSERT(parent, "null pointer");
+        return rtree::elements(*parent);
+    }
+
+    element_type & current_element() const
+    {
+        BOOST_GEOMETRY_INDEX_ASSERT(parent, "null pointer");
+        return rtree::elements(*parent)[current_child_index];
+    }
+
+    InternalNode * parent;
+    size_t current_child_index;
+    size_t current_level;
+};
+
 // Default insert visitor
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class insert
@@ -180,9 +220,7 @@ protected:
         , m_level(leafs_level - relative_level)
         , m_root_node(root)
         , m_leafs_level(leafs_level)
-        , m_parent(0)
-        , m_current_child_index(0)
-        , m_current_level(0)
+        , m_traverse_data()
         , m_allocators(allocators)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_relative_level <= leafs_level, "unexpected level value");
@@ -197,7 +235,7 @@ protected:
     {
         // choose next node
         size_t choosen_node_index = detail::choose_next_node<Value, Options, Box, Allocators, typename Options::choose_next_node_tag>::
-            apply(n, rtree::element_indexable(m_element, m_translator), m_parameters, m_leafs_level - m_current_level);
+            apply(n, rtree::element_indexable(m_element, m_translator), m_parameters, m_leafs_level - m_traverse_data.current_level);
 
         // expand the node to contain value
         geometry::expand(
@@ -213,7 +251,8 @@ protected:
     template <typename Node>
     inline void post_traverse(Node &n)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(0 == m_parent || &n == rtree::get<Node>(rtree::elements(*m_parent)[m_current_child_index].second),
+        BOOST_GEOMETRY_INDEX_ASSERT(m_traverse_data.current_is_root() ||
+                                    &n == rtree::get<Node>(m_traverse_data.current_element().second),
                                     "if node isn't the root current_child_index should be valid");
 
         // handle overflow
@@ -227,22 +266,16 @@ protected:
     inline void traverse_apply_visitor(Visitor & visitor, internal_node &n, size_t choosen_node_index)
     {
         // save previous traverse inputs and set new ones
-        internal_node * parent_bckup = m_parent;
-        size_t current_child_index_bckup = m_current_child_index;
-        size_t current_level_bckup = m_current_level;
+        insert_traverse_data<internal_node> backup_traverse_data = m_traverse_data;
 
         // calculate new traverse inputs
-        m_parent = &n;
-        m_current_child_index = choosen_node_index;
-        ++m_current_level;
+        m_traverse_data.move_to_next_level(&n, choosen_node_index);
 
         // next traversing step
         rtree::apply_visitor(visitor, *rtree::elements(n)[choosen_node_index].second);
 
         // restore previous traverse inputs
-        m_parent = parent_bckup;
-        m_current_child_index = current_child_index_bckup;
-        m_current_level = current_level_bckup;
+        m_traverse_data = backup_traverse_data;
     }
 
     // TODO: consider - split result returned as OutIter is faster than reference to the container. Why?
@@ -269,12 +302,12 @@ protected:
         // Implement template <node_tag> struct node_element_type or something like that
 
         // node is not the root - just add the new node
-        if ( m_parent != 0 )
+        if ( !m_traverse_data.current_is_root() )
         {
             // update old node's box
-            rtree::elements(*m_parent)[m_current_child_index].first = n_box;
+            m_traverse_data.current_element().first = n_box;
             // add new node to the parent's children
-            rtree::elements(*m_parent).push_back(additional_nodes[0]);
+            m_traverse_data.parent_elements().push_back(additional_nodes[0]);
         }
         // node is the root - add level
         else
@@ -304,9 +337,7 @@ protected:
     size_t & m_leafs_level;
 
     // traversing input parameters
-    internal_node *m_parent;
-    size_t m_current_child_index;
-    size_t m_current_level;
+    insert_traverse_data<internal_node> m_traverse_data;
 
     Allocators & m_allocators;
 };
@@ -315,13 +346,14 @@ protected:
 
 // Insert visitor forward declaration
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename InsertTag>
-struct insert;
+class insert;
 
 // Default insert visitor used for nodes elements
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag>
+class insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag>
     : public detail::insert<Element, Value, Options, Translator, Box, Allocators>
 {
+public:
     typedef detail::insert<Element, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
@@ -342,16 +374,16 @@ struct insert<Element, Value, Options, Translator, Box, Allocators, insert_defau
 
     inline void operator()(internal_node & n)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_leafs_level, "unexpected level");
 
-        if ( base::m_current_level < base::m_level )
+        if ( base::m_traverse_data.current_level < base::m_level )
         {
             // next traversing step
             base::traverse(*this, n);
         }
         else
         {
-            BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level, "unexpected level");
+            BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level, "unexpected level");
 
             // push new child node
             rtree::elements(n).push_back(base::m_element);
@@ -368,9 +400,10 @@ struct insert<Element, Value, Options, Translator, Box, Allocators, insert_defau
 
 // Default insert visitor specialized for Values elements
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct insert<Value, Value, Options, Translator, Box, Allocators, insert_default_tag>
+class insert<Value, Value, Options, Translator, Box, Allocators, insert_default_tag>
     : public detail::insert<Value, Value, Options, Translator, Box, Allocators>
 {
+public:
     typedef detail::insert<Value, Value, Options, Translator, Box, Allocators> base;
     typedef typename base::node node;
     typedef typename base::internal_node internal_node;
@@ -391,8 +424,8 @@ struct insert<Value, Value, Options, Translator, Box, Allocators, insert_default
 
     inline void operator()(internal_node & n)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_leafs_level, "unexpected level");
-        BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level < base::m_level, "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_leafs_level, "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_level, "unexpected level");
 
         // next traversing step
         base::traverse(*this, n);
@@ -402,8 +435,9 @@ struct insert<Value, Value, Options, Translator, Box, Allocators, insert_default
 
     inline void operator()(leaf & n)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(base::m_current_level == base::m_leafs_level, "unexpected level");
-        BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_current_level || base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level == base::m_leafs_level, "unexpected level");
+        BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level ||
+                                    base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
         
         rtree::elements(n).push_back(base::m_element);
 

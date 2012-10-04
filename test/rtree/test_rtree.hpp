@@ -21,6 +21,32 @@
 #include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
 
+// Set point's coordinates
+
+template <typename Point>
+struct generate_outside_point
+{};
+
+template <typename T, typename C>
+struct generate_outside_point< bg::model::point<T, 2, C> >
+{
+    typedef bg::model::point<T, 2, C> P;
+    static P apply()
+    {
+        return P(13, 26);
+    }
+};
+
+template <typename T, typename C>
+struct generate_outside_point< bg::model::point<T, 3, C> >
+{
+    typedef bg::model::point<T, 3, C> P;
+    static P apply()
+    {
+        return P(13, 26, 13);
+    }
+};
+
 // Values, input and rtree generation
 
 template <typename Value>
@@ -480,6 +506,21 @@ void test_nearest_k(Rtree const& rtree, std::vector<Value> const& input, Point c
     }
 }
 
+// rtree nearest not found
+
+template <typename Rtree, typename Point, typename CoordinateType>
+void test_nearest_not_found(Rtree const& rtree, Point const& pt, CoordinateType max_distance_1, CoordinateType max_distance_k)
+{
+    typename Rtree::value_type output;
+    size_t n_res = rtree.nearest(bgi::max_bounded(pt, max_distance_1), output);
+    BOOST_CHECK(0 == n_res);
+
+    std::vector<typename Rtree::value_type> output_v;
+    n_res = rtree.nearest(bgi::max_bounded(pt, max_distance_k), 5, std::back_inserter(output_v));
+    BOOST_CHECK(output_v.size() == n_res);
+    BOOST_CHECK(n_res < 5);
+}
+
 // rtree copying and moving
 
 template <typename Value, typename Algo, typename Box>
@@ -580,6 +621,7 @@ void test_rtree_by_value(Parameters const& parameters)
     
     test_nearest(tree, input, pt);
     test_nearest_k(tree, input, pt, 10);
+    test_nearest_not_found(tree, generate_outside_point<P>::apply(), 1, 3);
 
     test_copy_assignment_move(tree, qbox);
 
