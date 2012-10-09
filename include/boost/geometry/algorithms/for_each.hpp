@@ -18,6 +18,7 @@
 #include <algorithm>
 
 #include <boost/range.hpp>
+#include <boost/type_traits/is_const.hpp>
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -174,7 +175,7 @@ template
     typename Tag,
     typename Geometry,
     typename Functor,
-    bool IsConst
+    bool IsConst = is_const<Geometry>::value
 >
 struct for_each_point {};
 
@@ -208,7 +209,7 @@ template
     typename Tag,
     typename Geometry,
     typename Functor,
-    bool IsConst
+    bool IsConst = is_const<Geometry>::value
 >
 struct for_each_segment {};
 
@@ -245,35 +246,6 @@ struct for_each_segment<polygon_tag, Polygon, Functor, IsConst>
 \details \det_for_each{point}
 \ingroup for_each
 \param geometry \param_geometry
-\param f \par_for_each_f{const point}
-\tparam Geometry \tparam_geometry
-\tparam Functor \tparam_functor
-
-\qbk{distinguish,const version}
-\qbk{[include reference/algorithms/for_each_point.qbk]}
-\qbk{[heading Example]}
-\qbk{[for_each_point_const] [for_each_point_const_output]}
-*/
-template<typename Geometry, typename Functor>
-inline Functor for_each_point(Geometry const& geometry, Functor f)
-{
-    concept::check<Geometry const>();
-
-    return dispatch::for_each_point
-        <
-            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry,
-            Functor,
-            true
-        >::apply(geometry, f);
-}
-
-
-/*!
-\brief \brf_for_each{point}
-\details \det_for_each{point}
-\ingroup for_each
-\param geometry \param_geometry
 \param f \par_for_each_f{point}
 \tparam Geometry \tparam_geometry
 \tparam Functor \tparam_functor
@@ -281,6 +253,7 @@ inline Functor for_each_point(Geometry const& geometry, Functor f)
 \qbk{[include reference/algorithms/for_each_point.qbk]}
 \qbk{[heading Example]}
 \qbk{[for_each_point] [for_each_point_output]}
+\qbk{[for_each_point_const] [for_each_point_const_output]}
 */
 template<typename Geometry, typename Functor>
 inline Functor for_each_point(Geometry& geometry, Functor f)
@@ -291,37 +264,7 @@ inline Functor for_each_point(Geometry& geometry, Functor f)
         <
             typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
             Geometry,
-            Functor,
-            false
-        >::apply(geometry, f);
-}
-
-
-/*!
-\brief \brf_for_each{segment}
-\details \det_for_each{segment}
-\ingroup for_each
-\param geometry \param_geometry
-\param f \par_for_each_f{const segment}
-\tparam Geometry \tparam_geometry
-\tparam Functor \tparam_functor
-
-\qbk{distinguish,const version}
-\qbk{[include reference/algorithms/for_each_segment.qbk]}
-\qbk{[heading Example]}
-\qbk{[for_each_segment_const] [for_each_segment_const_output]}
-*/
-template<typename Geometry, typename Functor>
-inline Functor for_each_segment(Geometry const& geometry, Functor f)
-{
-    concept::check<Geometry const>();
-
-    return dispatch::for_each_segment
-        <
-            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry,
-            Functor,
-            true
+            Functor
         >::apply(geometry, f);
 }
 
@@ -336,6 +279,8 @@ inline Functor for_each_segment(Geometry const& geometry, Functor f)
 \tparam Functor \tparam_functor
 
 \qbk{[include reference/algorithms/for_each_segment.qbk]}
+\qbk{[heading Example]}
+\qbk{[for_each_segment_const] [for_each_segment_const_output]}
 */
 template<typename Geometry, typename Functor>
 inline Functor for_each_segment(Geometry& geometry, Functor f)
@@ -346,8 +291,7 @@ inline Functor for_each_segment(Geometry& geometry, Functor f)
         <
             typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
             Geometry,
-            Functor,
-            false
+            Functor
         >::apply(geometry, f);
 }
 
