@@ -148,63 +148,63 @@ namespace dispatch
 
 template
 <
-    typename Tag,
-    typename Geometry
+    typename Geometry,
+    typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
 >
 struct for_each_point {};
 
 
 template <typename Point>
-struct for_each_point<point_tag, Point>
+struct for_each_point<Point, point_tag>
     : detail::for_each::fe_point_per_point
 {};
 
 
 template <typename Linestring>
-struct for_each_point<linestring_tag, Linestring>
+struct for_each_point<Linestring, linestring_tag>
     : detail::for_each::fe_range_per_point
 {};
 
 
 template <typename Ring>
-struct for_each_point<ring_tag, Ring>
+struct for_each_point<Ring, ring_tag>
     : detail::for_each::fe_range_per_point
 {};
 
 
 template <typename Polygon>
-struct for_each_point<polygon_tag, Polygon>
+struct for_each_point<Polygon, polygon_tag>
     : detail::for_each::fe_polygon_per_point
 {};
 
 
 template
 <
-    typename Tag,
-    typename Geometry
+    typename Geometry,
+    typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
 >
 struct for_each_segment {};
 
 template <typename Point>
-struct for_each_segment<point_tag, Point>
+struct for_each_segment<Point, point_tag>
     : detail::for_each::fe_point_per_segment
 {};
 
 
 template <typename Linestring>
-struct for_each_segment<linestring_tag, Linestring>
+struct for_each_segment<Linestring, linestring_tag>
     : detail::for_each::fe_range_per_segment
 {};
 
 
 template <typename Ring>
-struct for_each_segment<ring_tag, Ring>
+struct for_each_segment<Ring, ring_tag>
     : detail::for_each::fe_range_per_segment
 {};
 
 
 template <typename Polygon>
-struct for_each_segment<polygon_tag, Polygon>
+struct for_each_segment<Polygon, polygon_tag>
     : detail::for_each::fe_polygon_per_segment
 {};
 
@@ -232,11 +232,7 @@ inline Functor for_each_point(Geometry& geometry, Functor f)
 {
     concept::check<Geometry>();
 
-    return dispatch::for_each_point
-        <
-            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry
-        >::apply(geometry, f);
+    return dispatch::for_each_point<Geometry>::apply(geometry, f);
 }
 
 
@@ -258,11 +254,7 @@ inline Functor for_each_segment(Geometry& geometry, Functor f)
 {
     concept::check<Geometry>();
 
-    return dispatch::for_each_segment
-        <
-            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry
-        >::apply(geometry, f);
+    return dispatch::for_each_segment<Geometry>::apply(geometry, f);
 }
 
 
