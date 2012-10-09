@@ -40,11 +40,10 @@ namespace detail { namespace for_each
 {
 
 
-template <typename Point, typename Functor, bool IsConst>
+template <typename Point, typename Functor>
 struct fe_point_per_point
 {
-    static inline Functor apply(
-                typename add_const_if_c<IsConst, Point>::type& point, Functor f)
+    static inline Functor apply(Point& point, Functor f)
     {
         f(point);
         return f;
@@ -52,11 +51,10 @@ struct fe_point_per_point
 };
 
 
-template <typename Point, typename Functor, bool IsConst>
+template <typename Point, typename Functor>
 struct fe_point_per_segment
 {
-    static inline Functor apply(
-                typename add_const_if_c<IsConst, Point>::type& , Functor f)
+    static inline Functor apply(Point& , Functor f)
     {
         // TODO: if non-const, we should extract the points from the segment
         // and call the functor on those two points
@@ -65,28 +63,24 @@ struct fe_point_per_segment
 };
 
 
-template <typename Range, typename Functor, bool IsConst>
+template <typename Range, typename Functor>
 struct fe_range_per_point
 {
-    static inline Functor apply(
-                    typename add_const_if_c<IsConst, Range>::type& range,
-                    Functor f)
+    static inline Functor apply(Range& range, Functor f)
     {
         return (std::for_each(boost::begin(range), boost::end(range), f));
     }
 };
 
 
-template <typename Range, typename Functor, bool IsConst>
+template <typename Range, typename Functor>
 struct fe_range_per_segment
 {
-    static inline Functor apply(
-                typename add_const_if_c<IsConst, Range>::type& range,
-                Functor f)
+    static inline Functor apply(Range& range, Functor f)
     {
         typedef typename add_const_if_c
             <
-                IsConst,
+                is_const<Range>::value,
                 typename point_type<Range>::type
             >::type point_type;
 
@@ -104,23 +98,20 @@ struct fe_range_per_segment
 };
 
 
-template <typename Polygon, typename Functor, bool IsConst>
+template <typename Polygon, typename Functor>
 struct fe_polygon_per_point
 {
-    typedef typename add_const_if_c<IsConst, Polygon>::type poly_type;
-
-    static inline Functor apply(poly_type& poly, Functor f)
+    static inline Functor apply(Polygon& poly, Functor f)
     {
         typedef fe_range_per_point
                 <
                     typename ring_type<Polygon>::type,
-                    Functor,
-                    IsConst
+                    Functor
                 > per_ring;
 
         f = per_ring::apply(exterior_ring(poly), f);
 
-        typename interior_return_type<poly_type>::type rings
+        typename interior_return_type<Polygon>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
@@ -133,23 +124,20 @@ struct fe_polygon_per_point
 };
 
 
-template <typename Polygon, typename Functor, bool IsConst>
+template <typename Polygon, typename Functor>
 struct fe_polygon_per_segment
 {
-    typedef typename add_const_if_c<IsConst, Polygon>::type poly_type;
-
-    static inline Functor apply(poly_type& poly, Functor f)
+    static inline Functor apply(Polygon& poly, Functor f)
     {
         typedef fe_range_per_segment
             <
                 typename ring_type<Polygon>::type,
-                Functor,
-                IsConst
+                Functor
             > per_ring;
 
         f = per_ring::apply(exterior_ring(poly), f);
 
-        typename interior_return_type<poly_type>::type rings
+        typename interior_return_type<Polygon>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
@@ -174,33 +162,32 @@ template
 <
     typename Tag,
     typename Geometry,
-    typename Functor,
-    bool IsConst = is_const<Geometry>::value
+    typename Functor
 >
 struct for_each_point {};
 
 
-template <typename Point, typename Functor, bool IsConst>
-struct for_each_point<point_tag, Point, Functor, IsConst>
-    : detail::for_each::fe_point_per_point<Point, Functor, IsConst>
+template <typename Point, typename Functor>
+struct for_each_point<point_tag, Point, Functor>
+    : detail::for_each::fe_point_per_point<Point, Functor>
 {};
 
 
-template <typename Linestring, typename Functor, bool IsConst>
-struct for_each_point<linestring_tag, Linestring, Functor, IsConst>
-    : detail::for_each::fe_range_per_point<Linestring, Functor, IsConst>
+template <typename Linestring, typename Functor>
+struct for_each_point<linestring_tag, Linestring, Functor>
+    : detail::for_each::fe_range_per_point<Linestring, Functor>
 {};
 
 
-template <typename Ring, typename Functor, bool IsConst>
-struct for_each_point<ring_tag, Ring, Functor, IsConst>
-    : detail::for_each::fe_range_per_point<Ring, Functor, IsConst>
+template <typename Ring, typename Functor>
+struct for_each_point<ring_tag, Ring, Functor>
+    : detail::for_each::fe_range_per_point<Ring, Functor>
 {};
 
 
-template <typename Polygon, typename Functor, bool IsConst>
-struct for_each_point<polygon_tag, Polygon, Functor, IsConst>
-    : detail::for_each::fe_polygon_per_point<Polygon, Functor, IsConst>
+template <typename Polygon, typename Functor>
+struct for_each_point<polygon_tag, Polygon, Functor>
+    : detail::for_each::fe_polygon_per_point<Polygon, Functor>
 {};
 
 
@@ -208,32 +195,31 @@ template
 <
     typename Tag,
     typename Geometry,
-    typename Functor,
-    bool IsConst = is_const<Geometry>::value
+    typename Functor
 >
 struct for_each_segment {};
 
-template <typename Point, typename Functor, bool IsConst>
-struct for_each_segment<point_tag, Point, Functor, IsConst>
-    : detail::for_each::fe_point_per_segment<Point, Functor, IsConst>
+template <typename Point, typename Functor>
+struct for_each_segment<point_tag, Point, Functor>
+    : detail::for_each::fe_point_per_segment<Point, Functor>
 {};
 
 
-template <typename Linestring, typename Functor, bool IsConst>
-struct for_each_segment<linestring_tag, Linestring, Functor, IsConst>
-    : detail::for_each::fe_range_per_segment<Linestring, Functor, IsConst>
+template <typename Linestring, typename Functor>
+struct for_each_segment<linestring_tag, Linestring, Functor>
+    : detail::for_each::fe_range_per_segment<Linestring, Functor>
 {};
 
 
-template <typename Ring, typename Functor, bool IsConst>
-struct for_each_segment<ring_tag, Ring, Functor, IsConst>
-    : detail::for_each::fe_range_per_segment<Ring, Functor, IsConst>
+template <typename Ring, typename Functor>
+struct for_each_segment<ring_tag, Ring, Functor>
+    : detail::for_each::fe_range_per_segment<Ring, Functor>
 {};
 
 
-template <typename Polygon, typename Functor, bool IsConst>
-struct for_each_segment<polygon_tag, Polygon, Functor, IsConst>
-    : detail::for_each::fe_polygon_per_segment<Polygon, Functor, IsConst>
+template <typename Polygon, typename Functor>
+struct for_each_segment<polygon_tag, Polygon, Functor>
+    : detail::for_each::fe_polygon_per_segment<Polygon, Functor>
 {};
 
 
