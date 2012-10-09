@@ -40,9 +40,9 @@ namespace detail { namespace for_each
 {
 
 
-template <typename Point, typename Functor>
 struct fe_point_per_point
 {
+    template <typename Point, typename Functor>
     static inline Functor apply(Point& point, Functor f)
     {
         f(point);
@@ -51,9 +51,9 @@ struct fe_point_per_point
 };
 
 
-template <typename Point, typename Functor>
 struct fe_point_per_segment
 {
+    template <typename Point, typename Functor>
     static inline Functor apply(Point& , Functor f)
     {
         // TODO: if non-const, we should extract the points from the segment
@@ -63,9 +63,9 @@ struct fe_point_per_segment
 };
 
 
-template <typename Range, typename Functor>
 struct fe_range_per_point
 {
+    template <typename Range, typename Functor>
     static inline Functor apply(Range& range, Functor f)
     {
         return (std::for_each(boost::begin(range), boost::end(range), f));
@@ -73,9 +73,9 @@ struct fe_range_per_point
 };
 
 
-template <typename Range, typename Functor>
 struct fe_range_per_segment
 {
+    template <typename Range, typename Functor>
     static inline Functor apply(Range& range, Functor f)
     {
         typedef typename add_const_if_c
@@ -98,24 +98,18 @@ struct fe_range_per_segment
 };
 
 
-template <typename Polygon, typename Functor>
 struct fe_polygon_per_point
 {
+    template <typename Polygon, typename Functor>
     static inline Functor apply(Polygon& poly, Functor f)
     {
-        typedef fe_range_per_point
-                <
-                    typename ring_type<Polygon>::type,
-                    Functor
-                > per_ring;
-
-        f = per_ring::apply(exterior_ring(poly), f);
+        f = fe_range_per_point::apply(exterior_ring(poly), f);
 
         typename interior_return_type<Polygon>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
-            f = per_ring::apply(*it, f);
+            f = fe_range_per_point::apply(*it, f);
         }
 
         return f;
@@ -124,24 +118,18 @@ struct fe_polygon_per_point
 };
 
 
-template <typename Polygon, typename Functor>
 struct fe_polygon_per_segment
 {
+    template <typename Polygon, typename Functor>
     static inline Functor apply(Polygon& poly, Functor f)
     {
-        typedef fe_range_per_segment
-            <
-                typename ring_type<Polygon>::type,
-                Functor
-            > per_ring;
-
-        f = per_ring::apply(exterior_ring(poly), f);
+        f = fe_range_per_segment::apply(exterior_ring(poly), f);
 
         typename interior_return_type<Polygon>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
-            f = per_ring::apply(*it, f);
+            f = fe_range_per_segment::apply(*it, f);
         }
 
         return f;
@@ -161,65 +149,63 @@ namespace dispatch
 template
 <
     typename Tag,
-    typename Geometry,
-    typename Functor
+    typename Geometry
 >
 struct for_each_point {};
 
 
-template <typename Point, typename Functor>
-struct for_each_point<point_tag, Point, Functor>
-    : detail::for_each::fe_point_per_point<Point, Functor>
+template <typename Point>
+struct for_each_point<point_tag, Point>
+    : detail::for_each::fe_point_per_point
 {};
 
 
-template <typename Linestring, typename Functor>
-struct for_each_point<linestring_tag, Linestring, Functor>
-    : detail::for_each::fe_range_per_point<Linestring, Functor>
+template <typename Linestring>
+struct for_each_point<linestring_tag, Linestring>
+    : detail::for_each::fe_range_per_point
 {};
 
 
-template <typename Ring, typename Functor>
-struct for_each_point<ring_tag, Ring, Functor>
-    : detail::for_each::fe_range_per_point<Ring, Functor>
+template <typename Ring>
+struct for_each_point<ring_tag, Ring>
+    : detail::for_each::fe_range_per_point
 {};
 
 
-template <typename Polygon, typename Functor>
-struct for_each_point<polygon_tag, Polygon, Functor>
-    : detail::for_each::fe_polygon_per_point<Polygon, Functor>
+template <typename Polygon>
+struct for_each_point<polygon_tag, Polygon>
+    : detail::for_each::fe_polygon_per_point
 {};
 
 
 template
 <
     typename Tag,
-    typename Geometry,
-    typename Functor
+    typename Geometry
 >
 struct for_each_segment {};
 
-template <typename Point, typename Functor>
-struct for_each_segment<point_tag, Point, Functor>
-    : detail::for_each::fe_point_per_segment<Point, Functor>
+template <typename Point>
+struct for_each_segment<point_tag, Point>
+    : detail::for_each::fe_point_per_segment
 {};
 
 
-template <typename Linestring, typename Functor>
-struct for_each_segment<linestring_tag, Linestring, Functor>
-    : detail::for_each::fe_range_per_segment<Linestring, Functor>
+template <typename Linestring>
+struct for_each_segment<linestring_tag, Linestring>
+    : detail::for_each::fe_range_per_segment
 {};
 
 
-template <typename Ring, typename Functor>
-struct for_each_segment<ring_tag, Ring, Functor>
-    : detail::for_each::fe_range_per_segment<Ring, Functor>
+template <typename Ring>
+struct for_each_segment<ring_tag, Ring>
+    : detail::for_each::fe_range_per_segment
 {};
 
 
-template <typename Polygon, typename Functor>
-struct for_each_segment<polygon_tag, Polygon, Functor>
-    : detail::for_each::fe_polygon_per_segment<Polygon, Functor>
+template <typename Polygon>
+struct for_each_segment<polygon_tag, Polygon>
+    : detail::for_each::fe_polygon_per_segment
 {};
 
 
@@ -249,8 +235,7 @@ inline Functor for_each_point(Geometry& geometry, Functor f)
     return dispatch::for_each_point
         <
             typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry,
-            Functor
+            Geometry
         >::apply(geometry, f);
 }
 
@@ -276,8 +261,7 @@ inline Functor for_each_segment(Geometry& geometry, Functor f)
     return dispatch::for_each_segment
         <
             typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry,
-            Functor
+            Geometry
         >::apply(geometry, f);
 }
 
