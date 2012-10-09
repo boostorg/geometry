@@ -36,14 +36,10 @@ namespace detail { namespace for_each
 
 // Implementation of multi, for both point and segment,
 // just calling the single version.
-template
-<
-    typename MultiGeometry,
-    typename Functor,
-    typename Policy
->
+template <typename Policy>
 struct for_each_multi
 {
+    template <typename MultiGeometry, typename Functor>
     static inline Functor apply(MultiGeometry& multi, Functor f)
     {
         for(BOOST_AUTO_TPL(it, boost::begin(multi)); it != boost::end(multi); ++it)
@@ -63,16 +59,10 @@ struct for_each_multi
 namespace dispatch
 {
 
-template
-<
-    typename MultiGeometry,
-    typename Functor
->
-struct for_each_point<multi_tag, MultiGeometry, Functor>
+template <typename MultiGeometry>
+struct for_each_point<multi_tag, MultiGeometry>
     : detail::for_each::for_each_multi
         <
-            MultiGeometry,
-            Functor,
             // Specify the dispatch of the single-version as policy
             for_each_point
                 <
@@ -84,23 +74,16 @@ struct for_each_point<multi_tag, MultiGeometry, Functor>
                         <
                             is_const<MultiGeometry>::value,
                             typename boost::range_value<MultiGeometry>::type
-                        >::type,
-                    Functor
+                        >::type
                 >
         >
 {};
 
 
-template
-<
-    typename MultiGeometry,
-    typename Functor
->
-struct for_each_segment<multi_tag, MultiGeometry, Functor>
+template <typename MultiGeometry>
+struct for_each_segment<multi_tag, MultiGeometry>
     : detail::for_each::for_each_multi
         <
-            MultiGeometry,
-            Functor,
             // Specify the dispatch of the single-version as policy
             for_each_segment
                 <
@@ -112,8 +95,7 @@ struct for_each_segment<multi_tag, MultiGeometry, Functor>
                         <
                             is_const<MultiGeometry>::value,
                             typename boost::range_value<MultiGeometry>::type
-                        >::type,
-                    Functor
+                        >::type
                 >
         >
 {};
