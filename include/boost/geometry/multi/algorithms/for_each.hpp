@@ -60,16 +60,12 @@ namespace dispatch
 {
 
 template <typename MultiGeometry>
-struct for_each_point<multi_tag, MultiGeometry>
+struct for_each_point<MultiGeometry, multi_tag>
     : detail::for_each::for_each_multi
         <
             // Specify the dispatch of the single-version as policy
             for_each_point
                 <
-                    typename single_tag_of
-                        <
-                            typename tag<MultiGeometry>::type
-                        >::type,
                     typename add_const_if_c
                         <
                             is_const<MultiGeometry>::value,
@@ -81,16 +77,12 @@ struct for_each_point<multi_tag, MultiGeometry>
 
 
 template <typename MultiGeometry>
-struct for_each_segment<multi_tag, MultiGeometry>
+struct for_each_segment<MultiGeometry, multi_tag>
     : detail::for_each::for_each_multi
         <
             // Specify the dispatch of the single-version as policy
             for_each_segment
                 <
-                    typename single_tag_of
-                        <
-                            typename tag<MultiGeometry>::type
-                        >::type,
                     typename add_const_if_c
                         <
                             is_const<MultiGeometry>::value,
