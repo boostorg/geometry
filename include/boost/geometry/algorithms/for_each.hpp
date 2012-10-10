@@ -21,6 +21,7 @@
 #include <boost/type_traits/is_const.hpp>
 #include <boost/typeof/typeof.hpp>
 
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
@@ -151,7 +152,8 @@ template
     typename Geometry,
     typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
 >
-struct for_each_point {};
+struct for_each_point: not_implemented<Tag>
+{};
 
 
 template <typename Point>
@@ -183,7 +185,8 @@ template
     typename Geometry,
     typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
 >
-struct for_each_segment {};
+struct for_each_segment: not_implemented<Tag>
+{};
 
 template <typename Point>
 struct for_each_segment<Point, point_tag>
