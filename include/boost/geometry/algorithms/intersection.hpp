@@ -111,8 +111,7 @@ struct intersection
             detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, false>::value,
             detail::overlay::do_reverse<geometry::point_order<OneOut>::value>::value,
             output_iterator, OneOut,
-            overlay_intersection,
-            Strategy
+            overlay_intersection
         >::apply(geometry1, geometry2, std::back_inserter(geometry_out), strategy);
 
         return true;
