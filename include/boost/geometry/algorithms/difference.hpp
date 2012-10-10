@@ -66,7 +66,7 @@ inline OutputIterator difference_insert(Geometry1 const& geometry1,
             geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
             geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, true>::value,
             geometry::detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
-            OutputIterator, GeometryOut,
+            GeometryOut,
             overlay_difference
         >::apply(geometry1, geometry2, out, strategy);
 }

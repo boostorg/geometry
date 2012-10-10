@@ -22,14 +22,14 @@ namespace boost { namespace geometry
 namespace detail { namespace intersection
 {
 
-template
-<
-    typename Box1, typename Box2,
-    std::size_t Dimension, std::size_t DimensionCount
->
+template <std::size_t Dimension, std::size_t DimensionCount>
 struct intersection_box_box
 {
-    template <typename BoxOut, typename Strategy>
+    template
+    <
+        typename Box1, typename Box2, typename BoxOut,
+        typename Strategy
+    >
     static inline bool apply(Box1 const& box1,
             Box2 const& box2, BoxOut& box_out,
             Strategy const& strategy)
@@ -49,22 +49,19 @@ struct intersection_box_box
         set<min_corner, Dimension>(box_out, min1 < min2 ? min2 : min1);
         set<max_corner, Dimension>(box_out, max1 > max2 ? max2 : max1);
 
-        return intersection_box_box
-            <
-                Box1, Box2,
-                Dimension + 1, DimensionCount
-            >::apply(box1, box2, box_out, strategy);
+        return intersection_box_box<Dimension + 1, DimensionCount>
+               ::apply(box1, box2, box_out, strategy);
     }
 };
 
-template
-<
-    typename Box1, typename Box2,
-    std::size_t DimensionCount
->
-struct intersection_box_box<Box1, Box2, DimensionCount, DimensionCount>
+template <std::size_t DimensionCount>
+struct intersection_box_box<DimensionCount, DimensionCount>
 {
-    template <typename BoxOut, typename Strategy>
+    template
+    <
+        typename Box1, typename Box2, typename BoxOut,
+        typename Strategy
+    >
     static inline bool apply(Box1 const&, Box2 const&, BoxOut&, Strategy const&)
     {
         return true;
@@ -97,7 +94,6 @@ struct intersection
             GeometryOut& geometry_out,
             Strategy const& strategy)
     {
-        typedef std::back_insert_iterator<GeometryOut> output_iterator;
         typedef typename boost::range_value<GeometryOut>::type OneOut;
 
         intersection_insert
@@ -110,7 +106,7 @@ struct intersection
             detail::overlay::do_reverse<geometry::point_order<Geometry1>::value, false>::value,
             detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, false>::value,
             detail::overlay::do_reverse<geometry::point_order<OneOut>::value>::value,
-            output_iterator, OneOut,
+            OneOut,
             overlay_intersection
         >::apply(geometry1, geometry2, std::back_inserter(geometry_out), strategy);
 
@@ -161,7 +157,6 @@ struct intersection
         Reverse
     > : public detail::intersection::intersection_box_box
             <
-                Box1, Box2,
                 0, geometry::dimension<Box1>::value
             >
 {};
