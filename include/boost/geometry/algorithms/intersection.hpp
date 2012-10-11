@@ -98,15 +98,7 @@ struct intersection
 
         intersection_insert
         <
-            Tag1, Tag2, typename geometry::tag<OneOut>::type,
-            geometry::is_areal<Geometry1>::value,
-            geometry::is_areal<Geometry2>::value,
-            geometry::is_areal<OneOut>::value,
-            Geometry1, Geometry2,
-            detail::overlay::do_reverse<geometry::point_order<Geometry1>::value, false>::value,
-            detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, false>::value,
-            detail::overlay::do_reverse<geometry::point_order<OneOut>::value>::value,
-            OneOut,
+            Geometry1, Geometry2, OneOut,
             overlay_intersection
         >::apply(geometry1, geometry2, std::back_inserter(geometry_out), strategy);
 
