@@ -32,7 +32,7 @@ namespace dispatch
 {
 
 template <typename MultiGeometry>
-struct num_geometries<multi_tag, MultiGeometry>
+struct num_geometries<MultiGeometry, multi_tag>
 {
     static inline std::size_t apply(MultiGeometry const& multi_geometry)
     {
