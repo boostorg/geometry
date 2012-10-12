@@ -17,7 +17,7 @@
 
 #include <cstddef>
 
-#include <boost/mpl/assert.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -45,14 +45,8 @@ template
                                 multi_tag
                             >::type
 >
-struct num_geometries
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
+struct num_geometries: not_implemented<Tag>
+{};
 
 
 template <typename Geometry>
