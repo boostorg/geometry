@@ -46,7 +46,7 @@ public:
         m_size = s;
     }
 
-    inline void reserve(size_type s)
+    inline void reserve(size_type /*s*/)
     {
         //BOOST_GEOMETRY_INDEX_ASSERT(s <= Capacity, "size too big");
         // do nothing
