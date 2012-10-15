@@ -10,7 +10,7 @@
 #include <iostream>
 #include <string>
 
-// #define BOOST_GEOMETRY_DEBUG_ASSEMBLE
+    // #define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 //#define BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
 
 //#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
@@ -121,6 +121,13 @@ void test_areal()
     test_one<Polygon, Polygon, MultiPolygon>("ggl_list_20111025_vd_2",
         ggl_list_20111025_vd_2[0], ggl_list_20111025_vd_2[1],
             1, -999, 10.0, 2, -999, 6.0);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
+        ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
+            2, -999, 17.0, 0, -999, 0.0);
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_b",
+        ggl_list_20120915_h2[0], ggl_list_20120915_h2[2],
+            2, -999, 17.0, 0, -999, 0.0);
 
 
     /* TODO: fix

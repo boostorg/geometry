@@ -426,6 +426,13 @@ static std::string ggl_list_20111025_vd_2[2] =
     "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((4 0,4 2,6 2,6 0,4 0)))"
     };
     
+// Mail of h2 indicating that reversed order (in second polygon) has ix/ix problems
+static std::string ggl_list_20120915_h2[3] =
+    {
+        "MULTIPOLYGON(((-2 5, -1 5, 0 5, 2 5, 2 -2, 1 -2, 1 -1, 0 -1,0 0, -1 0, -2 0, -2 5)))", 
+        "MULTIPOLYGON(((0 0, 1 0, 1 -1, 0 -1, 0 0)), ((-1 5, 0 5, 0 0, -1 0, -1 5)))",
+        "MULTIPOLYGON(((-1 5, 0 5, 0 0, -1 0, -1 5)), ((0 0, 1 0, 1 -1, 0 -1, 0 0)))"
+    };
 
 
 #endif // BOOST_GEOMETRY_TEST_MULTI_OVERLAY_CASES_HPP
