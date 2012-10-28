@@ -41,6 +41,7 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
+#include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
@@ -60,6 +61,7 @@
 #include <boost/geometry/multi/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/perimeter.hpp>
+#include <boost/geometry/multi/algorithms/reverse.hpp>
 #include <boost/geometry/multi/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/transform.hpp>
 #include <boost/geometry/multi/algorithms/unique.hpp>
@@ -125,6 +127,7 @@ DECLARE_UNARY_ALGORITHM(num_interior_rings)
 DECLARE_UNARY_ALGORITHM(num_points)
 DECLARE_BINARY_ALGORITHM(overlaps)
 DECLARE_UNARY_ALGORITHM(perimeter)
+DECLARE_UNARY_ALGORITHM(reverse)
 DECLARE_UNARY_ALGORITHM(simplify)
 DECLARE_BINARY_ALGORITHM(transform)
 DECLARE_UNARY_ALGORITHM(unique)
@@ -259,6 +262,7 @@ void support_status()
     test_unary_algorithm<num_interior_rings, all_types, OutputFactory>("num_points");
     test_binary_algorithm<overlaps, all_types, all_types, OutputFactory>("overlaps");
     test_unary_algorithm<perimeter, all_types, OutputFactory>("perimeter");
+    test_unary_algorithm<reverse, all_types, OutputFactory>("reverse");
     test_unary_algorithm<simplify, all_types, OutputFactory>("simplify");
     test_binary_algorithm<transform, all_types, all_types, OutputFactory>("transform");
     test_unary_algorithm<unique, all_types, OutputFactory>("unique");
