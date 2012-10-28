@@ -38,6 +38,7 @@
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
@@ -57,6 +58,7 @@
 #include <boost/geometry/multi/algorithms/length.hpp>
 #include <boost/geometry/multi/algorithms/num_geometries.hpp>
 #include <boost/geometry/multi/algorithms/num_interior_rings.hpp>
+#include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/perimeter.hpp>
 #include <boost/geometry/multi/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/transform.hpp>
@@ -120,6 +122,7 @@ DECLARE_UNARY_ALGORITHM(for_each_segment)
 DECLARE_UNARY_ALGORITHM(length)
 DECLARE_UNARY_ALGORITHM(num_geometries)
 DECLARE_UNARY_ALGORITHM(num_interior_rings)
+DECLARE_UNARY_ALGORITHM(num_points)
 DECLARE_BINARY_ALGORITHM(overlaps)
 DECLARE_UNARY_ALGORITHM(perimeter)
 DECLARE_UNARY_ALGORITHM(simplify)
@@ -253,6 +256,7 @@ void support_status()
     test_unary_algorithm<length, all_types, OutputFactory>("length");
     test_unary_algorithm<num_geometries, all_types, OutputFactory>("num_geometries");
     test_unary_algorithm<num_interior_rings, all_types, OutputFactory>("num_interior_rings");
+    test_unary_algorithm<num_interior_rings, all_types, OutputFactory>("num_points");
     test_binary_algorithm<overlaps, all_types, all_types, OutputFactory>("overlaps");
     test_unary_algorithm<perimeter, all_types, OutputFactory>("perimeter");
     test_unary_algorithm<simplify, all_types, OutputFactory>("simplify");
