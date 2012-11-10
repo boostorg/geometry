@@ -53,6 +53,29 @@ inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
     return result;
 }
 
+// destroys stored subtrees if internal node's elements are passed
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct destroy_elements
+{
+    typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+
+    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+
+    inline static void apply(typename internal_node::elements_type & elements, Allocators & allocators)
+    {
+        for ( size_t i = 0 ; i < elements.size() ; ++i )
+        {
+            node_auto_ptr dummy(elements[i].second, allocators);
+            elements[i].second = 0;
+        }
+    }
+
+    inline static void apply(typename leaf::elements_type &, Allocators &) {}
+};
+
 }} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index

@@ -139,6 +139,12 @@ public:
         // create reference to the newly created node
         Node & n2 = rtree::get<Node>(*second_node);
 
+        // After throwing an exception by redistribute_elements both nodes may be empty.
+        // The tree won't be valid r-tree.
+        // The alternative is to create 2 (or more) additional nodes here and store backup info
+        // in the original node, but then, if exception was thrown, the node would have more than max
+        // elements which also is not allowed in the r-tree.
+
         // redistribute elements
         Box box2;
         redistribute_elements<
@@ -148,7 +154,7 @@ public:
             Box,
             Allocators,
             typename Options::redistribute_tag
-        >::apply(n, n2, n_box, box2, parameters, translator);                                               // MAY THROW
+        >::apply(n, n2, n_box, box2, parameters, translator, allocators);                                   // MAY THROW
 
         // check numbers of elements
         BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n).size() &&

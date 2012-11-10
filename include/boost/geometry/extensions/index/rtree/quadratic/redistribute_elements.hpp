@@ -94,7 +94,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 							 Box & box1,
 							 Box & box2,
                              parameters_type const& parameters,
-							 Translator const& translator)
+							 Translator const& translator,
+                             Allocators & allocators)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
