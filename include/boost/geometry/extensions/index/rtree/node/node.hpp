@@ -13,11 +13,21 @@
 
 #include <boost/geometry/extensions/index/rtree/node/concept.hpp>
 
+// WARNING!
+// The Node elements containing pointers to nodes, i.e. pair<Box, node*> MUST NOT throw an exception
+// in the copy constructor. Otherwise copying may be broken in push_back() of internal vectors.
+// The result may be two copies of the same pointer in the vector. This may cause the attempt to destroy
+// the same object two times.
+// This means for example that Value's CoordinateType copy constructor MUST NOT throw an exception
+// because Value's CoordinateType is used in Box type.
+
 #include <boost/geometry/extensions/index/rtree/node/node_d_mem_dynamic.hpp>
 #include <boost/geometry/extensions/index/rtree/node/node_d_mem_static.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node_s_mem_dynamic.hpp>
 #include <boost/geometry/extensions/index/rtree/node/node_s_mem_static.hpp>
+
+#include <boost/geometry/extensions/index/rtree/node/node_auto_ptr.hpp>
 
 #include <boost/geometry/algorithms/expand.hpp>
 

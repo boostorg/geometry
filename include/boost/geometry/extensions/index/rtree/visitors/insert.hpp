@@ -119,6 +119,8 @@ protected:
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
+    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+
 public:
     typedef index::pushable_array<std::pair<Box, node*>, 1> nodes_container_type;
 
@@ -130,14 +132,23 @@ public:
                              Translator const& translator,
                              Allocators & allocators)
     {
-        // create additional node
-        node * second_node = rtree::create_node<Allocators, Node>::apply(allocators);
+        // TODO - consider creating nodes always with sufficient memory allocated
+
+        // create additional node, use auto ptr for automatic destruction on exception
+        node_auto_ptr second_node(rtree::create_node<Allocators, Node>::apply(allocators), allocators);     // MAY THROW
+        // create reference to the newly created node
         Node & n2 = rtree::get<Node>(*second_node);
 
         // redistribute elements
         Box box2;
-        redistribute_elements<Value, Options, Translator, Box, Allocators, typename Options::redistribute_tag>::
-            apply(n, n2, n_box, box2, parameters, translator);
+        redistribute_elements<
+            Value,
+            Options,
+            Translator,
+            Box,
+            Allocators,
+            typename Options::redistribute_tag
+        >::apply(n, n2, n_box, box2, parameters, translator);                                               // MAY THROW
 
         // check numbers of elements
         BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n).size() &&
@@ -147,7 +158,11 @@ public:
             rtree::elements(n2).size() <= parameters.get_max_elements(),
             "unexpected number of elements");
 
-        additional_nodes.push_back(std::make_pair(box2, second_node));
+        // return the list of newly created nodes (this algorithm returns one)
+        additional_nodes.push_back(std::make_pair(box2, second_node.get()));                                // MAY THROW
+
+        // release the ptr
+        second_node.release();
     }
 };
 
@@ -205,6 +220,8 @@ protected:
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
+    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+
     inline insert(node* & root,
                   size_t & leafs_level,
                   Element const& element,
@@ -258,7 +275,7 @@ protected:
         // handle overflow
         if ( m_parameters.get_max_elements() < rtree::elements(n).size() )
         {
-            split(n);
+            split(n);                                                                                               // MAY THROW
         }
     }
 
@@ -288,7 +305,7 @@ protected:
         typename split_algo::nodes_container_type additional_nodes;
         Box n_box;
 
-        split_algo::apply(additional_nodes, n, n_box, m_parameters, m_translator, m_allocators);
+        split_algo::apply(additional_nodes, n, n_box, m_parameters, m_translator, m_allocators);                    // MAY THROW
 
         BOOST_GEOMETRY_INDEX_ASSERT(additional_nodes.size() == 1, "unexpected number of additional nodes");
 
@@ -298,16 +315,19 @@ protected:
         // and container of additional elements (std::pair<Box, node*>s or Values)
         // and translator + allocators
         // where node_elements_count + additional_elements > node_max_elements_count
-        // What with elements other than std::pair<Box, node*> ???
+        // What with elements other than std::pair<Box, node*> ?
         // Implement template <node_tag> struct node_element_type or something like that
+
+        // for exception safety
+        node_auto_ptr additional_node_ptr(additional_nodes[0].second, m_allocators);
 
         // node is not the root - just add the new node
         if ( !m_traverse_data.current_is_root() )
         {
             // update old node's box
             m_traverse_data.current_element().first = n_box;
-            // add new node to the parent's children
-            m_traverse_data.parent_elements().push_back(additional_nodes[0]);
+            // add new node to parent's children
+            m_traverse_data.parent_elements().push_back(additional_nodes[0]);                                         // MAY THROW
         }
         // node is the root - add level
         else
@@ -315,14 +335,24 @@ protected:
             BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(m_root_node), "node should be the root");
 
             // create new root and add nodes
-            node * new_root = rtree::create_node<Allocators, internal_node>::apply(m_allocators);
+            node_auto_ptr new_root(rtree::create_node<Allocators, internal_node>::apply(m_allocators), m_allocators); // MAY THROW
 
-            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(n_box, m_root_node));
-            rtree::elements(rtree::get<internal_node>(*new_root)).push_back(additional_nodes[0]);
+            try {
+                rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(n_box, m_root_node));  // MAY THROW
+                rtree::elements(rtree::get<internal_node>(*new_root)).push_back(additional_nodes[0]);                 // MAY THROW
+            } catch (...) {
+                // clear new root to not delete in the ~node_auto_ptr() potentially stored old root node
+                rtree::elements(rtree::get<internal_node>(*new_root)).clear();
+                throw;                                                                                                // RETHROW
+            }
 
-            m_root_node = new_root;
+            m_root_node = new_root.get();
             ++m_leafs_level;
+
+            new_root.release();
         }
+
+        additional_node_ptr.release();
     }
 
     // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation
@@ -389,7 +419,7 @@ public:
             rtree::elements(n).push_back(base::m_element);
         }
 
-        base::post_traverse(n);
+        base::post_traverse(n);                                                                                         // MAY THROW
     }
 
     inline void operator()(leaf &)
@@ -430,7 +460,7 @@ public:
         // next traversing step
         base::traverse(*this, n);
 
-        base::post_traverse(n);
+        base::post_traverse(n);                                                                                         // MAY THROW
     }
 
     inline void operator()(leaf & n)
@@ -439,9 +469,9 @@ public:
         BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level ||
                                     base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
         
-        rtree::elements(n).push_back(base::m_element);
+        rtree::elements(n).push_back(base::m_element);                                                                  // MAY THROW
 
-        base::post_traverse(n);
+        base::post_traverse(n);                                                                                         // MAY THROW
     }
 };
 
