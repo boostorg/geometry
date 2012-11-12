@@ -161,7 +161,7 @@ struct allocators<Allocator, Value, Parameters, Box, node_throwing_d_mem_static_
 
 struct internal_node_bad_alloc : public std::exception
 {
-    const char * what() { return "internal node creation failed."; }
+    const char * what() const throw() { return "internal node creation failed."; }
 };
 
 // create_node
@@ -196,7 +196,7 @@ struct create_node<
 
 struct leaf_bad_alloc : public std::exception
 {
-    const char * what() { return "leaf node creation failed."; }
+    const char * what() const throw() { return "leaf node creation failed."; }
 };
 
 template <typename Allocators, typename Value, typename Parameters, typename Box>
@@ -235,7 +235,7 @@ struct create_node<
 
 struct throwing_value_copy_exception : public std::exception
 {
-    const char * what() { return "value copy failed."; }
+    const char * what() const throw() { return "value copy failed."; }
 };
 
 struct throwing_value

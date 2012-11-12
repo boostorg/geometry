@@ -38,10 +38,6 @@ void test_rtree_value_exceptions(Parameters const& parameters = Parameters())
     }
 }
 
-//#define _CRTDBG_MAP_ALLOC
-//#include <stdlib.h>
-//#include <crtdbg.h>
-
 int test_main(int, char* [])
 {
     test_rtree_value_exceptions< bgi::linear<4, 2> >();
@@ -50,10 +46,6 @@ int test_main(int, char* [])
     test_rtree_value_exceptions(bgi::runtime::quadratic(4, 2));
     test_rtree_value_exceptions< bgi::rstar<4, 2> >();
     test_rtree_value_exceptions(bgi::runtime::rstar(4, 2));
-
-    //std::cout << "----------------------------------------\n";
-    //_CrtDumpMemoryLeaks();
-    //std::cin.get();
 
     return 0;
 }
