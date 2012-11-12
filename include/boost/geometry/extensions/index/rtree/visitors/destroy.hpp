@@ -42,10 +42,11 @@ public:
         elements_type & elements = rtree::elements(n);
 
         for (typename elements_type::iterator it = elements.begin();
-            it != elements.end(); ++it)
+             it != elements.end(); ++it)
         {
             m_current_node = it->second;
             rtree::apply_visitor(*this, *m_current_node);
+            it->second = 0;
         }
 
         rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, node_to_destroy);

@@ -109,107 +109,127 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected elements number");
 
         // copy original elements
-        elements_type elements_copy(elements1);
+        elements_type elements_copy(elements1);                                                             // MAY THROW
+        elements_type elements_backup(elements1);                                                           // MAY THROW
         
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        quadratic::pick_seeds<elements_type, parameters_type, Translator, Box>::apply(elements_copy, parameters, translator, seed1, seed2);
+        quadratic::pick_seeds<
+            elements_type,
+            parameters_type,
+            Translator,
+            Box
+        >::apply(elements_copy, parameters, translator, seed1, seed2);
 
         // prepare nodes' elements containers
         elements1.clear();
         BOOST_GEOMETRY_INDEX_ASSERT(elements2.empty(), "second node's elements container should be empty");
 
-        // add seeds
-        elements1.push_back(elements_copy[seed1]);
-        elements2.push_back(elements_copy[seed2]);
-
-        // calculate boxes
-        geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
-        geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
-
-        // remove seeds
-        if (seed1 < seed2)
+        try
         {
-            elements_copy.erase(elements_copy.begin() + seed2);
-            elements_copy.erase(elements_copy.begin() + seed1);
-        }
-        else
-        {
-            elements_copy.erase(elements_copy.begin() + seed1);
-            elements_copy.erase(elements_copy.begin() + seed2);
-        }
+            // add seeds
+            elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW
+            elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW
 
-        // initialize areas
-        content_type content1 = index::content(box1);
-        content_type content2 = index::content(box2);
+            // calculate boxes
+            geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
+            geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
 
-        size_t remaining = elements_copy.size();
-
-        // redistribute the rest of the elements
-        while ( !elements_copy.empty() )
-        {
-            typename elements_type::reverse_iterator el_it = elements_copy.rbegin();
-            bool insert_into_group1 = false;
-
-            size_t elements1_count = elements1.size();
-            size_t elements2_count = elements2.size();
-
-            // if there is small number of elements left and the number of elements in node is lesser than min_elems
-            // just insert them to this node
-            if ( elements1_count + remaining <= parameters.get_min_elements() )
+            // remove seeds
+            if (seed1 < seed2)
             {
-                insert_into_group1 = true;
+                elements_copy.erase(elements_copy.begin() + seed2);                                         // MAY THROW
+                elements_copy.erase(elements_copy.begin() + seed1);                                         // MAY THROW
             }
-            else if ( elements2_count + remaining <= parameters.get_min_elements() )
-            {
-                insert_into_group1 = false;
-            }
-            // insert the best element
             else
             {
-                // find element with minimum groups areas increses differences
-                content_type content_increase1 = 0;
-                content_type content_increase2 = 0;
-                el_it = pick_next(elements_copy.rbegin(), elements_copy.rend(),
-                                  box1, box2, content1, content2, translator,
-                                  content_increase1, content_increase2);
+                elements_copy.erase(elements_copy.begin() + seed1);                                         // MAY THROW
+                elements_copy.erase(elements_copy.begin() + seed2);                                         // MAY THROW
+            }
 
-                if ( content_increase1 < content_increase2 ||
-                     ( content_increase1 == content_increase2 && content1 < content2 ) ||
-                     ( content1 == content2 && elements1_count <= elements2_count ) )
+            // initialize areas
+            content_type content1 = index::content(box1);
+            content_type content2 = index::content(box2);
+
+            size_t remaining = elements_copy.size();
+
+            // redistribute the rest of the elements
+            while ( !elements_copy.empty() )
+            {
+                typename elements_type::reverse_iterator el_it = elements_copy.rbegin();
+                bool insert_into_group1 = false;
+
+                size_t elements1_count = elements1.size();
+                size_t elements2_count = elements2.size();
+
+                // if there is small number of elements left and the number of elements in node is lesser than min_elems
+                // just insert them to this node
+                if ( elements1_count + remaining <= parameters.get_min_elements() )
                 {
                     insert_into_group1 = true;
                 }
-                else
+                else if ( elements2_count + remaining <= parameters.get_min_elements() )
                 {
                     insert_into_group1 = false;
                 }
+                // insert the best element
+                else
+                {
+                    // find element with minimum groups areas increses differences
+                    content_type content_increase1 = 0;
+                    content_type content_increase2 = 0;
+                    el_it = pick_next(elements_copy.rbegin(), elements_copy.rend(),
+                                      box1, box2, content1, content2, translator,
+                                      content_increase1, content_increase2);
+
+                    if ( content_increase1 < content_increase2 ||
+                         ( content_increase1 == content_increase2 && content1 < content2 ) ||
+                         ( content1 == content2 && elements1_count <= elements2_count ) )
+                    {
+                        insert_into_group1 = true;
+                    }
+                    else
+                    {
+                        insert_into_group1 = false;
+                    }
+                }
+
+                // move element to the choosen group
+                element_type const& elem = *el_it;
+                indexable_type const& indexable = rtree::element_indexable(elem, translator);
+
+                if ( insert_into_group1 )
+                {
+                    elements1.push_back(elem);                                                              // MAY THROW
+                    geometry::expand(box1, indexable);
+                    content1 = index::content(box1);
+                }
+                else
+                {
+                    elements2.push_back(elem);                                                              // MAY THROW
+                    geometry::expand(box2, indexable);
+                    content2 = index::content(box2);
+                }
+
+			    BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
+                typename elements_type::iterator el_it_base = el_it.base();
+                elements_copy.erase(--el_it_base);                                                          // MAY THROW
+
+			    BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "expected more remaining elements");
+                --remaining;
             }
+        }
+        catch(...)
+        {
+            //elements_copy.clear();
+            elements1.clear();
+            elements2.clear();
 
-            // move element to the choosen group
-            element_type const& elem = *el_it;
-            indexable_type const& indexable = rtree::element_indexable(elem, translator);
+            rtree::destroy_elements<Value, Options, Translator, Box, Allocators>::apply(elements_backup, allocators);
+            //elements_backup.clear();
 
-            if ( insert_into_group1 )
-            {
-                elements1.push_back(elem);
-                geometry::expand(box1, indexable);
-                content1 = index::content(box1);
-            }
-            else
-            {
-                elements2.push_back(elem);
-                geometry::expand(box2, indexable);
-                content2 = index::content(box2);
-            }
-
-			BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
-            typename elements_type::iterator el_it_base = el_it.base();
-            elements_copy.erase(--el_it_base);
-
-			BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "expected more remaining elements");
-            --remaining;
+            throw;                                                                                          // RETHROW
         }
     }
 

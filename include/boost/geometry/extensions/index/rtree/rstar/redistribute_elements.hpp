@@ -68,11 +68,11 @@ struct choose_split_axis_and_index_for_corner
         BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == parameters.get_max_elements() + 1, "wrong number of elements");
 
         // copy elements
-        Elements elements_copy = elements;
+        Elements elements_copy(elements);                                                                       // MAY THROW
         
         // sort elements
         element_axis_corner_less<element_type, Translator, Corner, AxisIndex> elements_less(translator);
-        std::sort(elements_copy.begin(), elements_copy.end(), elements_less);
+        std::sort(elements_copy.begin(), elements_copy.end(), elements_less);                                   // MAY THROW
 
         // init outputs
         choosen_index = parameters.get_min_elements();
@@ -135,7 +135,7 @@ struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
         choose_split_axis_and_index_for_corner<Parameters, Box, min_corner, AxisIndex>::
             apply(elements, index1,
                   som1, ovl1, con1,
-                  parameters, translator);
+                  parameters, translator);                                                                  // MAY THROW
 
         size_t index2 = 0;
         margin_type som2 = 0;
@@ -145,7 +145,7 @@ struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
         choose_split_axis_and_index_for_corner<Parameters, Box, max_corner, AxisIndex>::
             apply(elements, index2,
                   som2, ovl2, con2,
-                  parameters, translator);
+                  parameters, translator);                                                                  // MAY THROW
 
         sum_of_margins = som1 + som2;
 
@@ -185,7 +185,7 @@ struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, point_ta
         choose_split_axis_and_index_for_corner<Parameters, Box, min_corner, AxisIndex>::
             apply(elements, choosen_index,
                   sum_of_margins, smallest_overlap, smallest_content,
-                  parameters, translator);
+                  parameters, translator);                                                                  // MAY THROW
 
         choosen_corner = min_corner;
     }
@@ -215,7 +215,7 @@ struct choose_split_axis_and_index
         choose_split_axis_and_index<Parameters, Box, Dimension - 1>::
             apply(elements, choosen_axis, choosen_corner, choosen_index,
                   smallest_sum_of_margins, smallest_overlap, smallest_content,
-                  parameters, translator);
+                  parameters, translator);                                                                  // MAY THROW
 
         margin_type sum_of_margins = 0;
 
@@ -230,7 +230,7 @@ struct choose_split_axis_and_index
             Box,
             Dimension - 1,
             typename index::traits::tag<element_indexable_type>::type
-        >::apply(elements, corner, index, sum_of_margins, overlap_val, content_val, parameters, translator);
+        >::apply(elements, corner, index, sum_of_margins, overlap_val, content_val, parameters, translator); // MAY THROW
 
         if ( sum_of_margins < smallest_sum_of_margins )
         {
@@ -270,7 +270,7 @@ struct choose_split_axis_and_index<Parameters, Box, 1>
             Box,
             0,
             typename index::traits::tag<element_indexable_type>::type
-        >::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins, smallest_overlap, smallest_content, parameters, translator);
+        >::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins, smallest_overlap, smallest_content, parameters, translator); // MAY THROW
     }
 };
 
@@ -284,7 +284,7 @@ struct partial_sort
     {
         if ( axis < Dimension - 1 )
         {
-            partial_sort<Corner, Dimension - 1>::apply(elements, axis, index, tr);
+            partial_sort<Corner, Dimension - 1>::apply(elements, axis, index, tr);                          // MAY THROW
         }
         else
         {
@@ -292,7 +292,7 @@ struct partial_sort
 
             typedef typename Elements::value_type element_type;
             element_axis_corner_less<element_type, Translator, Corner, Dimension - 1> less(tr);
-            std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);
+            std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);            // MAY THROW
         }
     }
 };
@@ -307,7 +307,7 @@ struct partial_sort<Corner, 1>
 
         typedef typename Elements::value_type element_type;
         element_axis_corner_less<element_type, Translator, Corner, 0> less(tr);
-        std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);
+        std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);                // MAY THROW
     }
 };
 
@@ -349,11 +349,14 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
         content_type smallest_overlap = (std::numeric_limits<content_type>::max)();
         content_type smallest_content = (std::numeric_limits<content_type>::max)();
 
-        rstar::choose_split_axis_and_index<typename Options::parameters_type, Box, index::traits::dimension<Box>::value>::
-            apply(elements1,
-                  split_axis, split_corner, split_index,
-                  smallest_sum_of_margins, smallest_overlap, smallest_content,
-                  parameters, translator);
+        rstar::choose_split_axis_and_index<
+            typename Options::parameters_type,
+            Box,
+            index::traits::dimension<Box>::value
+        >::apply(elements1,
+                 split_axis, split_corner, split_index,
+                 smallest_sum_of_margins, smallest_overlap, smallest_content,
+                 parameters, translator);                                                               // MAY THROW
 
         // TODO: awulkiew - get rid of following static_casts?
 
@@ -361,20 +364,39 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
         BOOST_GEOMETRY_INDEX_ASSERT(split_corner == static_cast<size_t>(min_corner) || split_corner == static_cast<size_t>(max_corner), "unexpected value");
         BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= split_index && split_index <= parameters.get_max_elements() - parameters.get_min_elements() + 1, "unexpected value");
         
+        // copy original elements
+        elements_type elements_copy(elements1);                                                         // MAY THROW
+
         // TODO: awulkiew - check if std::partial_sort produces the same result as std::sort
         if ( split_corner == static_cast<size_t>(min_corner) )
-            rstar::partial_sort<min_corner, dimension>::apply(elements1, split_axis, split_index, translator);
+            rstar::partial_sort<min_corner, dimension>
+                ::apply(elements_copy, split_axis, split_index, translator);                            // MAY THROW
         else
-            rstar::partial_sort<max_corner, dimension>::apply(elements1, split_axis, split_index, translator);
+            rstar::partial_sort<max_corner, dimension>
+                ::apply(elements_copy, split_axis, split_index, translator);                            // MAY THROW
 
-        // copy elements to node 2 and remove from node 1
-        elements2.resize(parameters.get_max_elements() + 1 - split_index);
-        std::copy(elements1.begin() + split_index, elements1.end(), elements2.begin());
-        elements1.resize(split_index);
+        try
+        {
+            // copy elements to nodes
+            elements1.resize(split_index);                                                              // MIGHT THROW
+            std::copy(elements_copy.begin(), elements_copy.begin() + split_index, elements1.begin());   // MAY THROW
+            elements2.resize(parameters.get_max_elements() + 1 - split_index);                          // MAY THROW
+            std::copy(elements_copy.begin() + split_index, elements_copy.end(), elements2.begin());     // MAY THROW
 
-        // calculate boxes
-        box1 = rtree::elements_box<Box>(elements1.begin(), elements1.end(), translator);
-        box2 = rtree::elements_box<Box>(elements2.begin(), elements2.end(), translator);
+            // calculate boxes
+            box1 = rtree::elements_box<Box>(elements1.begin(), elements1.end(), translator);
+            box2 = rtree::elements_box<Box>(elements2.begin(), elements2.end(), translator);
+        }
+        catch(...)
+        {
+            elements1.clear();
+            elements2.clear();
+
+            rtree::destroy_elements<Value, Options, Translator, Box, Allocators>::apply(elements_copy, allocators);
+            //elements_copy.clear();
+
+            throw;                                                                                      // RETHROW
+        }
     }
 };
 

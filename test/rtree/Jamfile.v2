@@ -37,5 +37,7 @@ test-suite boost-geometry-index-rtree
     [ run rtree3d_rstar_f.cpp ]
     [ run rtree3d_rstar_d.cpp ]
     [ run rtree3d_rstar_tt.cpp ]
+
+    [ run rtree_exceptions.cpp ]
     ;
     

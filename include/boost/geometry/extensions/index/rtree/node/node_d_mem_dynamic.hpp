@@ -203,6 +203,8 @@ struct create_dynamic_node
 
         try
         {
+            // NOTE/TODO
+            // Here the whole node may be copied
             alloc_node.construct(p, Node(alloc_elems));
         }
         catch(...)

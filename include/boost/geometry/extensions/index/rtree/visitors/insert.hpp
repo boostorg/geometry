@@ -139,11 +139,14 @@ public:
         // create reference to the newly created node
         Node & n2 = rtree::get<Node>(*second_node);
 
-        // After throwing an exception by redistribute_elements both nodes may be empty.
-        // The tree won't be valid r-tree.
+        // NOTE: thread-safety
+        // After throwing an exception by redistribute_elements the original node may be not changed or
+        // both nodes may be empty. In both cases the tree won't be valid r-tree.
         // The alternative is to create 2 (or more) additional nodes here and store backup info
-        // in the original node, but then, if exception was thrown, the node would have more than max
-        // elements which also is not allowed in the r-tree.
+        // in the original node, then, if exception was thrown, the node would always have more than max
+        // elements.
+        // The alternative is to use moving semantics in the implementations of redistribute_elements,
+        // it will be possible to throw from boost::move() in the case of e.g. static size nodes.
 
         // redistribute elements
         Box box2;
@@ -266,7 +269,7 @@ protected:
             rtree::element_indexable(m_element, m_translator));
 
         // next traversing step
-        traverse_apply_visitor(visitor, n, choosen_node_index);
+        traverse_apply_visitor(visitor, n, choosen_node_index);                                                     // MAY THROW
     }
 
     // TODO: awulkiew - change post_traverse name to handle_overflow or overflow_treatment?
@@ -295,7 +298,7 @@ protected:
         m_traverse_data.move_to_next_level(&n, choosen_node_index);
 
         // next traversing step
-        rtree::apply_visitor(visitor, *rtree::elements(n)[choosen_node_index].second);
+        rtree::apply_visitor(visitor, *rtree::elements(n)[choosen_node_index].second);                              // MAY THROW
 
         // restore previous traverse inputs
         m_traverse_data = backup_traverse_data;
@@ -415,7 +418,7 @@ public:
         if ( base::m_traverse_data.current_level < base::m_level )
         {
             // next traversing step
-            base::traverse(*this, n);
+            base::traverse(*this, n);                                                                                   // MAY THROW
         }
         else
         {
@@ -464,7 +467,7 @@ public:
         BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_level, "unexpected level");
 
         // next traversing step
-        base::traverse(*this, n);
+        base::traverse(*this, n);                                                                                       // MAY THROW
 
         base::post_traverse(n);                                                                                         // MAY THROW
     }

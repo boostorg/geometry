@@ -53,6 +53,26 @@ inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
     return result;
 }
 
+// destroys subtree if the element is internal node's element
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct destroy_element
+{
+    typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+
+    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+
+    inline static void apply(typename internal_node::elements_type::value_type & element, Allocators & allocators)
+    {
+         node_auto_ptr dummy(element.second, allocators);
+         element.second = 0;
+    }
+
+    inline static void apply(typename leaf::elements_type::value_type &, Allocators &) {}
+};
+
 // destroys stored subtrees if internal node's elements are passed
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct destroy_elements

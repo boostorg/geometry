@@ -277,27 +277,20 @@ public:
     {
         BOOST_GEOMETRY_INDEX_ASSERT(index::is_valid(m_translator(value)), "Indexable is invalid");
 
-        try
-        {
-            detail::rtree::visitors::insert<
-                value_type,
-                value_type,
-                options_type,
-                translator_type,
-                box_type,
-                allocators_type,
-                typename options_type::insert_tag
-            > insert_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
+        detail::rtree::visitors::insert<
+            value_type,
+            value_type,
+            options_type,
+            translator_type,
+            box_type,
+            allocators_type,
+            typename options_type::insert_tag
+        > insert_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
 
-            detail::rtree::apply_visitor(insert_v, *m_root);
+        detail::rtree::apply_visitor(insert_v, *m_root);
 
-            ++m_values_count;
-        }
-        catch(...)
-        {
-            this->destroy(*this);
-            throw;
-        }
+        // If exception is thrown, m_values_count is invalid
+        ++m_values_count;
     }
 
     /*!
