@@ -138,7 +138,7 @@ public:
     */
     inline ~rtree()
     {
-        if ( !this->empty() )
+        if ( m_root )
             this->destroy(*this);
     }
 
