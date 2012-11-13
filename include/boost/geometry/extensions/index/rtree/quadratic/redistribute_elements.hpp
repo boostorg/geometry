@@ -90,11 +90,11 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
     template <typename Node>
     static inline void apply(Node & n,
-			  				 Node & second_node,
-							 Box & box1,
-							 Box & box2,
+                             Node & second_node,
+                             Box & box1,
+                             Box & box2,
                              parameters_type const& parameters,
-							 Translator const& translator,
+                             Translator const& translator,
                              Allocators & allocators)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
@@ -102,11 +102,11 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
 
-		elements_type & elements1 = rtree::elements(n);
-		elements_type & elements2 = rtree::elements(second_node);
-		const size_t elements1_count = parameters.get_max_elements() + 1;
+        elements_type & elements1 = rtree::elements(n);
+        elements_type & elements2 = rtree::elements(second_node);
+        const size_t elements1_count = parameters.get_max_elements() + 1;
 
-		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected elements number");
+        BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected elements number");
 
         // copy original elements
         elements_type elements_copy(elements1);                                                             // MAY THROW

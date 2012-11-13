@@ -33,6 +33,8 @@ class remove
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
+    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+
 public:
     inline remove(node* & root,
                   size_t & leafs_level,
@@ -68,7 +70,7 @@ public:
             if ( geometry::covered_by(m_translator(m_value), children[child_node_index].first) )
             {
                 // next traversing step
-                traverse_apply_visitor(n, child_node_index);
+                traverse_apply_visitor(n, child_node_index);                                                        // MAY THROW
 
                 if ( m_is_value_removed )
                     break;
@@ -88,8 +90,9 @@ public:
                 element_iterator underfl_el_it = elements.begin() + child_node_index;
 
                 // move node to the container - store node's relative level as well
-                m_underflowed_nodes.push_back(std::make_pair(m_leafs_level - m_current_level, underfl_el_it->second));
-                elements.erase(underfl_el_it);
+                m_underflowed_nodes.push_back(std::make_pair(m_leafs_level - m_current_level, underfl_el_it->second));  // MAY THROW (alloc)
+
+                elements.erase(underfl_el_it);                                                                          // SHOULDN'T THROW
 
                 // calc underflow
                 m_is_underflow = elements.size() < m_parameters.get_min_elements();
@@ -112,26 +115,8 @@ public:
                 BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root_node), "node must be the root");
                 BOOST_GEOMETRY_INDEX_ASSERT(m_is_value_removed, "value not found");
 
-                // reinsert elements from removed nodes
-                // begin with levels closer to the root
-                for ( typename std::vector< std::pair<size_t, node*> >::reverse_iterator it = m_underflowed_nodes.rbegin();
-                        it != m_underflowed_nodes.rend() ; ++it )
-                {
-                    is_leaf<Value, Options, Box, Allocators> ilv;
-                    rtree::apply_visitor(ilv, *it->second);
-                    if ( ilv.result )
-                    {
-                        reinsert_elements(rtree::get<leaf>(*it->second), it->first);
-
-                        rtree::destroy_node<Allocators, leaf>::apply(m_allocators, it->second);
-                    }
-                    else
-                    {
-                        reinsert_elements(rtree::get<internal_node>(*it->second), it->first);
-
-                        rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, it->second);
-                    }
-                }
+                // reinsert elements from removed nodes (underflows)
+                reinsert_removed_nodes_elements();                                                                  // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
 
                 // shorten the tree
                 if ( rtree::elements(n).size() == 1 )
@@ -156,7 +141,7 @@ public:
         {
             if ( m_translator.equals(*it, m_value) )
             {
-                elements.erase(it);
+                elements.erase(it);                                                                             // MAY THROW (V: copy)
                 m_is_value_removed = true;
                 break;
             }
@@ -178,6 +163,9 @@ public:
     }
 
 private:
+
+    typedef std::vector< std::pair<size_t, node*> > UnderflowNodes;
+
     inline void traverse_apply_visitor(internal_node &n, size_t choosen_node_index)
     {
         // save previous traverse inputs and set new ones
@@ -190,7 +178,7 @@ private:
         ++m_current_level;
 
         // next traversing step
-        rtree::apply_visitor(*this, *rtree::elements(n)[choosen_node_index].second);
+        rtree::apply_visitor(*this, *rtree::elements(n)[choosen_node_index].second);                    // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
 
         // restore previous traverse inputs
         m_parent = parent_bckup;
@@ -198,32 +186,78 @@ private:
         m_current_level = current_level_bckup;
     }
 
+    void reinsert_removed_nodes_elements()
+    {
+        typename UnderflowNodes::reverse_iterator it = m_underflowed_nodes.rbegin();
+
+        try
+        {
+            // reinsert elements from removed nodes
+            // begin with levels closer to the root
+            for ( ; it != m_underflowed_nodes.rend() ; ++it )
+            {
+                is_leaf<Value, Options, Box, Allocators> ilv;
+                rtree::apply_visitor(ilv, *it->second);
+                if ( ilv.result )
+                {
+                    reinsert_node_elements(rtree::get<leaf>(*it->second), it->first);                        // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+
+                    rtree::destroy_node<Allocators, leaf>::apply(m_allocators, it->second);
+                }
+                else
+                {
+                    reinsert_node_elements(rtree::get<internal_node>(*it->second), it->first);               // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+
+                    rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, it->second);
+                }
+            }
+
+            //m_underflowed_nodes.clear();
+        }
+        catch(...)
+        {
+            // destroy current and remaining nodes
+            for ( ; it != m_underflowed_nodes.rend() ; ++it )
+            {
+                node_auto_ptr dummy(it->second, m_allocators);
+            }
+
+            //m_underflowed_nodes.clear();
+
+            throw;                                                                                           // RETHROW
+        }
+    }
+
     template <typename Node>
-    void reinsert_elements(Node &n, size_t node_relative_level)
+    void reinsert_node_elements(Node &n, size_t node_relative_level)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         elements_type & elements = rtree::elements(n);
-        for ( typename elements_type::iterator it = elements.begin();
-            it != elements.end() ; ++it )
-        {
-            visitors::insert<
-                typename elements_type::value_type,
-                Value,
-                Options,
-                Translator,
-                Box,
-                Allocators,
-                typename Options::insert_tag
-            > insert_v(
-                m_root_node,
-                m_leafs_level,
-                *it,
-                m_parameters,
-                m_translator,
-                m_allocators,
-                node_relative_level - 1);
 
-            rtree::apply_visitor(insert_v, *m_root_node);
+        typename elements_type::iterator it = elements.begin();
+        try
+        {
+            for ( ; it != elements.end() ; ++it )
+            {
+                visitors::insert<
+                    typename elements_type::value_type,
+                    Value, Options, Translator, Box, Allocators,
+                    typename Options::insert_tag
+                > insert_v(
+                    m_root_node, m_leafs_level, *it,
+                    m_parameters, m_translator, m_allocators,
+                    node_relative_level - 1);
+
+                rtree::apply_visitor(insert_v, *m_root_node);                                               // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+            }
+        }
+        catch(...)
+        {
+            ++it;
+            rtree::destroy_elements<Value, Options, Translator, Box, Allocators>
+                ::apply(it, elements.end(), m_allocators);
+            elements.clear();
+            throw;                                                                                          // RETHROW
         }
     }
 
@@ -235,7 +269,7 @@ private:
     node* & m_root_node;
     size_t & m_leafs_level;
     bool m_is_value_removed;
-    std::vector< std::pair<size_t, node*> > m_underflowed_nodes;
+    UnderflowNodes m_underflowed_nodes;
 
     // traversing input parameters
     internal_node *m_parent;

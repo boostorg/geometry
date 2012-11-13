@@ -244,6 +244,11 @@ struct throwing_value
         : value(v)
     {}
 
+    bool operator==(throwing_value const& v) const
+    {
+        return value == v.value;
+    }
+
     throwing_value(throwing_value const& v)
     {
         throw_if_required();

@@ -138,7 +138,13 @@ public:
         BOOST_GEOMETRY_INDEX_ASSERT(0 < m_size, "there are no elements in the container");
         BOOST_GEOMETRY_INDEX_ASSERT(begin() <= it && it < end(), "iterator points on the element outside the container");
         //std::copy(it + 1, end(), it);
-        *it = back();
+        // TODO: leave this code or use copy?
+        // code below may work differently than one might think about erase()
+        if ( it != (begin() + (m_size - 1)) )
+        {
+            // NOTE: without this condition assignment may call memcpy with the same 2 addresses
+            *it = back();
+        }
         --m_size;
     }
     

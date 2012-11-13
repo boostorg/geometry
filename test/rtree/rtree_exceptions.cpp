@@ -27,14 +27,32 @@ void test_rtree_value_exceptions(Parameters const& parameters = Parameters())
     B qbox;
     generate_input<2>::apply(input, qbox);
 
-    for ( size_t i = 10 ; i < 100 ; i += 5 )
+    for ( size_t i = 0 ; i < 100 ; i += 5 )
     {
+        throwing_value::reset_calls_counter();
+        throwing_value::set_max_calls(10000);
+
+        Tree tree(parameters);
+
         throwing_value::reset_calls_counter();
         throwing_value::set_max_calls(i);
 
-        Tree tree(parameters);
-        
         BOOST_CHECK_THROW( tree.insert(input.begin(), input.end()), throwing_value_copy_exception );
+    }
+
+    for ( size_t i = 0 ; i < 20 ; i += 2 )
+    {
+        throwing_value::reset_calls_counter();
+        throwing_value::set_max_calls(10000);
+
+        Tree tree(parameters);
+
+        tree.insert(input.begin(), input.end());
+
+        throwing_value::reset_calls_counter();
+        throwing_value::set_max_calls(i);
+
+        BOOST_CHECK_THROW( tree.remove(input.begin(), input.end()), throwing_value_copy_exception );
     }
 }
 

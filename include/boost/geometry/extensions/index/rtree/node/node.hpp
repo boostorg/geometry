@@ -93,7 +93,24 @@ struct destroy_elements
         }
     }
 
-    inline static void apply(typename leaf::elements_type &, Allocators &) {}
+    inline static void apply(typename leaf::elements_type &, Allocators &)
+    {}
+
+    inline static void apply(typename internal_node::elements_type::iterator first,
+                             typename internal_node::elements_type::iterator last,
+                             Allocators & allocators)
+    {
+        for ( ; first != last ; ++first )
+        {
+            node_auto_ptr dummy(first->second, allocators);
+            first->second = 0;
+        }
+    }
+
+    inline static void apply(typename leaf::elements_type::iterator first,
+                             typename leaf::elements_type::iterator last,
+                             Allocators &)
+    {}
 };
 
 }} // namespace detail::rtree
