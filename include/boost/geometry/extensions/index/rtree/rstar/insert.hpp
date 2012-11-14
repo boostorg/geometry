@@ -63,7 +63,9 @@ public:
         typename index::detail::rtree::container_from_elements_type<
             elements_type,
             std::pair<distance_type, element_type>
-        >::type sorted_elements(elements_count);                                                        // MAY THROW (V: alloc, copy, E: alloc)
+        >::type sorted_elements;
+        // If constructor is used instead of resize() MS implementation leaks here
+        sorted_elements.resize(elements_count);                                                         // MAY THROW (V: alloc, copy, E: alloc)
         
         for ( size_t i = 0 ; i < elements_count ; ++i )
         {
