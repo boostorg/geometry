@@ -96,6 +96,8 @@ public:
     /*!
     The constructor.
 
+    \note Exception-safety: strong
+
     \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
@@ -114,6 +116,8 @@ public:
     /*!
     The constructor.
 
+    \note Exception-safety: strong
+
     \param first        The beginning of the range of Values.
     \param last         The end of the range of Values.
     \param parameters   The parameters object.
@@ -130,60 +134,64 @@ public:
         , m_allocators(allocator)
     {
         this->create();
-        this->insert(first, last);
+
+        try
+        {
+            this->insert(first, last);
+        }
+        catch(...)
+        {
+            this->destroy(*this);
+            throw;
+        }
     }
 
     /*!
     The destructor.
+
+    \note Exception-safety: strong
     */
     inline ~rtree()
     {
+// TODO: after moving assignment, rvalue will have root == 0
         if ( m_root )
             this->destroy(*this);
     }
 
     /*!
     The copy constructor.
+
+    \note Exception-safety: strong
     */
     inline rtree(rtree const& src)
-        : m_parameters(src.m_parameters)
+        : m_root(0)
+        , m_parameters(src.m_parameters)
         , m_translator(src.m_translator)
         , m_allocators(src.m_allocators)
     {
         //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
 
-        try
-        {
-            this->copy(src, *this);
-        }
-        catch(...)
-        {
-            this->destroy(*this);
-            throw;
-        }
+        this->copy(src, *this, m_allocators);
     }
 
     /*!
     The copy constructor.
+
+    \note Exception-safety: strong
     */
     inline rtree(rtree const& src, Allocator const& allocator)
-        : m_parameters(src.m_parameters)
+        : m_root(0)
+        , m_parameters(src.m_parameters)
         , m_translator(src.m_translator)
         , m_allocators(allocator)
     {
-        try
-        {
-            this->copy(src, *this);
-        }
-        catch(...)
-        {
-            this->destroy(*this);
-            throw;
-        }
+        this->copy(src, *this, m_allocators);
     }
 
     /*!
     The moving constructor.
+
+    \note Exception-safety: strong
     */
     inline rtree(BOOST_RV_REF(rtree) src)
         : m_values_count(src.m_values_count)
@@ -196,73 +204,60 @@ public:
         src.m_values_count = 0;
         src.m_root = 0;
         src.m_leafs_level = 0;
+// TODO: after moving, rvalue will have root == 0
+// This would leave the tree unusable
+// Write the test
     }
 
     /*!
     The assignment operator.
+
+    \note Exception-safety: strong
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
         if ( this == &src )
             return *this;
 
-        if ( !this->empty() )
-            this->destroy(*this);
-        
-        m_parameters = src.m_parameters;
-        m_translator = src.m_translator;
         //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
-        //m_allocators = src.m_allocators;
 
-        try
-        {
-            this->copy(src, *this);
-        }
-        catch(...)
-        {
-            this->destroy(*this);
-            throw;
-        }
+        this->copy(src, *this, m_allocators);
 
         return *this;
     }
 
     /*!
     The moving assignment.
+
+    \note Exception-safety: strong
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
         if ( this == &src )
             return *this;
 
-        if ( !this->empty() )
-            this->destroy(*this);
-
-        m_parameters = src.m_parameters;
-        m_translator = src.m_translator;
         //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
-        //m_allocators = src.m_allocators;
 
         if ( m_allocators.allocator == src.m_allocators.allocator )
         {
+            m_parameters = src.m_parameters;
+            m_translator = src.m_translator;
+            //m_allocators = src.m_allocators;
+
             m_values_count = src.m_values_count;
             src.m_values_count = 0;
             m_root = src.m_root;
             src.m_root = 0;
             m_leafs_level = src.m_leafs_level;
             src.m_leafs_level = 0;
+
+// TODO: after moving, rvalue will have root == 0
+// This would leave the tree unusable
+// Write the test
         }
         else
         {
-            try
-            {
-                this->copy(src, *this);
-            }
-            catch(...)
-            {
-                this->destroy(*this);
-                throw;
-            }
+            this->copy(src, *this, m_allocators);
         }
 
         return *this;
@@ -270,6 +265,8 @@ public:
 
     /*!
     Insert a value to the index.
+
+    \note Exception-safety: basic
 
     \param value    The value which will be stored in the container.
     */
@@ -279,22 +276,25 @@ public:
 
         detail::rtree::visitors::insert<
             value_type,
-            value_type,
-            options_type,
-            translator_type,
-            box_type,
-            allocators_type,
+            value_type, options_type, translator_type, box_type, allocators_type,
             typename options_type::insert_tag
         > insert_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
 
         detail::rtree::apply_visitor(insert_v, *m_root);
 
-        // If exception is thrown, m_values_count is invalid
+// TODO
+// Think about this: If exception is thrown, may the root be removed?
+// Or it is just cleared?
+
+// TODO
+// If exception is thrown, m_values_count may be invalid
         ++m_values_count;
     }
 
     /*!
     Insert a range of values to the index.
+
+    \note Exception-safety: basic
 
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
@@ -309,6 +309,8 @@ public:
     /*!
     Remove the value from the container.
 
+    \note Exception-safety: basic
+
     \param value    The value which will be removed from the container.
     */
     inline void remove(value_type const& value)
@@ -317,29 +319,25 @@ public:
 
         BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there are no elements in the rtree");
 
-        try
-        {
-            detail::rtree::visitors::remove<
-                value_type,
-                options_type,
-                translator_type,
-                box_type,
-                allocators_type
-            > remove_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
+        detail::rtree::visitors::remove<
+            value_type, options_type, translator_type, box_type, allocators_type
+        > remove_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
 
-            detail::rtree::apply_visitor(remove_v, *m_root);
+        detail::rtree::apply_visitor(remove_v, *m_root);
 
-            --m_values_count;
-        }
-        catch(...)
-        {
-            this->destroy(*this);
-            throw;
-        }
+// TODO
+// Think about this: If exception is thrown, may the root be removed?
+// Or it is just cleared?
+
+// TODO
+// If exception is thrown, m_values_count may be invalid
+        --m_values_count;
     }
 
     /*!
     Remove the range of values from the container.
+
+    \note Exception-safety: basic
 
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
@@ -353,6 +351,8 @@ public:
 
     /*!
     Find values meeting spatial predicates, e.g. intersecting some box.
+
+    \note Exception-safety: strong
 
     \param pred     The spatial predicates. May be a Geometry (in this case default
                     predicate - intersects is used) or generated by bgi::covered_by(geometry),
@@ -381,6 +381,8 @@ public:
     /*!
     Find one value meeting distances predicates, e.g. nearest to some point.
 
+    \note Exception-safety: strong
+
     \param dpred    The distances predicates. May be a Point. This is default case where Value which
                     nearest point is closest to Point is returned. May be a PointRelation which define
                     how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
@@ -404,6 +406,8 @@ public:
     /*!
     Find one value meeting distances predicates and spatial predicates,
     e.g. nearest to some point and intersecting some box.
+
+    \note Exception-safety: strong
 
     \param dpred    The distances predicates. May be a Point. This is default case where Value which
                     nearest point is closest to Point is returned. May be a PointRelation which define
@@ -434,6 +438,8 @@ public:
     /*!
     Find k values meeting distances predicates, e.g. k nearest values to some point.
 
+    \note Exception-safety: strong
+
     \param dpred    The distances predicates. May be a Point. This is default case where Value which
                     nearest point is closest to Point is returned. May be a PointRelation which define
                     how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
@@ -457,6 +463,8 @@ public:
     /*!
     Find k values meeting distances predicates and spatial predicates,
     e.g. k nearest values to some point and intersecting some box.
+
+    \note Exception-safety: strong
 
     \param dpred    The distances predicates. May be a Point. This is default case where Value which
                     nearest point is closest to Point is returned. May be a PointRelation which define
@@ -488,6 +496,8 @@ public:
     /*!
     Returns the number of stored values.
 
+    \note Exception-safety: nothrow
+
     \return         The number of stored values.
     */
     inline size_type size() const
@@ -498,6 +508,8 @@ public:
     /*!
     Query if the container is empty.
 
+    \note Exception-safety: nothrow
+
     \return         true if the container is empty.
     */
     inline bool empty() const
@@ -507,16 +519,19 @@ public:
 
     /*!
     Removes all values stored in the container.
+
+    \note Exception-safety: nothrow.
     */
     inline void clear()
     {
-        this->destroy(*this);
-        this->create();
+        this->destroy(*this, false);
     }
 
     /*!
     Returns the box containing all values stored in the container.
     If the container is empty the result of geometry::assign_inverse() is returned.
+
+    \note Exception-safety: nothrow.
 
     \return     The box containing all values stored in the container or an invalid box if
                 there are no values in the container.
@@ -541,6 +556,8 @@ public:
     /*!
     Returns allocator used by the rtree.
 
+    \note Exception-safety: nothrow if allocator copy can't throw.
+
     \return     The allocator.
     */
     allocator_type get_allocator() const
@@ -552,6 +569,8 @@ public:
     Apply a visitor to the nodes structure in order to perform some operator.
     This function is not a part of the 'official' interface. However it makes
     possible to e.g. draw the tree structure.
+
+    \note Exception-safety: the same as visitor.
 
     \param visitor  The visitor object.
     */
@@ -565,6 +584,8 @@ public:
     Returns the translator object.
     This function is not a part of the 'official' interface.
 
+    \note Exception-safety: nothrow.
+
     \return     The translator object.
     */
     inline translator_type const& translator() const
@@ -574,7 +595,9 @@ public:
 
     /*!
     Returns the number of stored objects. Same as size()
-    This function is not a part of the 'official' interface. 
+    This function is not a part of the 'official' interface.
+
+    \note Exception-safety: nothrow.
 
     \return     The number of stored objects.
     */
@@ -585,7 +608,9 @@ public:
 
     /*!
     Returns the depth of the R-tree.
-    This function is not a part of the 'official' interface. 
+    This function is not a part of the 'official' interface.
+
+    \note Exception-safety: nothrow.
 
     \return     The depth of the R-tree.
     */
@@ -597,12 +622,14 @@ public:
 private:
     /*!
     Create an empty R-tree i.e. new empty root node and clear other attributes.
+
+    \note Exception-safety: strong.
     */
     inline void create()
     {
-        assert(0 == m_root);
+        BOOST_GEOMETRY_INDEX_ASSERT(0 == m_root, "the tree is already created");
 
-        m_root = detail::rtree::create_node<allocators_type, leaf>::apply(m_allocators);
+        m_root = detail::rtree::create_node<allocators_type, leaf>::apply(m_allocators);                            // MAY THROW (N: alloc)
         m_values_count = 0;
         m_leafs_level = 0;
     }
@@ -610,12 +637,23 @@ private:
     /*!
     Destroy the R-tree i.e. all nodes and clear attributes.
 
+    \note Exception-safety: nothrow.
+
     \param t    The container which is going to be destroyed.
     */
-    inline void destroy(rtree & t)
+    inline void destroy(rtree & t, bool destroy_root = true)
     {
-        detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
-        detail::rtree::apply_visitor(del_v, *t.m_root);
+        BOOST_GEOMETRY_INDEX_ASSERT(t.m_root, "can't destroy empty tree");
+
+        if ( destroy_root )
+        {
+            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
+            detail::rtree::apply_visitor(del_v, *t.m_root);
+        }
+        else
+        {
+            detail::rtree::clear_node<value_type, options_type, translator_type, box_type, allocators_type>::apply(*t.m_root, t.m_allocators);
+        }
 
         t.m_root = 0;
         t.m_values_count = 0;
@@ -625,13 +663,26 @@ private:
     /*!
     Copy the R-tree i.e. whole nodes structure, values and other attributes.
 
+    \note Exception-safety: strong.
+
     \param src    The source R-tree.
     \param dst    The destination R-tree.
     */
-    inline void copy(rtree const& src, rtree & dst) const
+    inline void copy(rtree const& src, rtree & dst, allocators_type & allocators) const
     {
-        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type> copy_v(dst.m_allocators);
-        detail::rtree::apply_visitor(copy_v, *src.m_root);
+        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type> copy_v(allocators);
+        detail::rtree::apply_visitor(copy_v, *src.m_root);                                                          // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+
+        if ( dst.m_root )
+        {
+            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(dst.m_root, dst.m_allocators);
+            detail::rtree::apply_visitor(del_v, *dst.m_root);
+            dst.m_root = 0;
+        }
+
+        dst.m_parameters = src.m_parameters;
+        dst.m_translator = src.m_translator;
+        dst.m_allocators = allocators;
 
         dst.m_root = copy_v.result;
         dst.m_values_count = src.m_values_count;
@@ -640,6 +691,8 @@ private:
 
     /*!
     Find one value meeting distances and spatial predicates.
+
+    \note Exception-safety: strong.
     */
     template <typename DistancesPredicates, typename Predicates>
     inline size_type nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
@@ -673,6 +726,8 @@ private:
 
     /*!
     Find k values meeting distances and spatial predicates.
+
+    \note Exception-safety: strong.
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
     inline size_type nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const

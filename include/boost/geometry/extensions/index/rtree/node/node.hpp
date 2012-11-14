@@ -31,6 +31,8 @@
 
 #include <boost/geometry/algorithms/expand.hpp>
 
+#include <boost/geometry/extensions/index/rtree/visitors/is_leaf.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
@@ -111,6 +113,42 @@ struct destroy_elements
                              typename leaf::elements_type::iterator last,
                              Allocators &)
     {}
+};
+
+// clears node, deletes all subtrees stored in node
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+struct clear_node
+{
+    typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+
+    inline static void apply(node & node, Allocators & allocators)
+    {
+        rtree::visitors::is_leaf<Value, Options, Box, Allocators> ilv;
+        rtree::apply_visitor(ilv, node);
+        if ( ilv.result )
+        {
+            apply(rtree::get<leaf>(node), allocators);
+        }
+        else
+        {
+            apply(rtree::get<internal_node>(node), allocators);
+        }
+    }
+
+    inline static void apply(internal_node & internal_node, Allocators & allocators)
+    {
+        destroy_elements<Value, Options, Translator, Box, Allocators>::apply(rtree::elements(internal_node), allocators);
+        rtree::elements(internal_node).clear();
+    }
+
+    inline static void apply(leaf & leaf, Allocators &)
+    {
+        rtree::elements(leaf).clear();
+    }
 };
 
 }} // namespace detail::rtree
