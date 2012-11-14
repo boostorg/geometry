@@ -34,7 +34,7 @@ public:
     template <typename Node>
     static inline void apply(typename rtree::elements_type<Node>::type & result_elements,
                              Node & n,
-                              internal_node *parent,
+                             internal_node *parent,
                              size_t current_child_index,
                              parameters_type const& parameters,
                              Translator const& translator,

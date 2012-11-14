@@ -25,7 +25,7 @@
 #include <boost/geometry/extensions/index/translator/translator.hpp>
 #include <boost/geometry/extensions/index/rtree/options.hpp>
 
-#include <boost/geometry/extensions/index/rtree/predicates.hpp>
+#include <boost/geometry/extensions/index/predicates.hpp>
 #include <boost/geometry/extensions/index/rtree/filters.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
@@ -44,6 +44,8 @@
 #include <boost/geometry/extensions/index/rtree/quadratic/quadratic.hpp>
 #include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
 //#include <boost/geometry/extensions/index/rtree/kmeans/kmeans.hpp>
+
+// TODO change the name to bounding_tree
 
 namespace boost { namespace geometry { namespace index {
 
@@ -335,7 +337,7 @@ public:
     \return         The number of values found.
     */
     template <typename Predicates, typename OutIter>
-    inline size_type query(Predicates const& pred, OutIter out_it) const
+    inline size_type spatial_query(Predicates const& pred, OutIter out_it) const
     {
         detail::rtree::visitors::query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
             find_v(m_translator, pred, out_it);
@@ -365,7 +367,7 @@ public:
     \return         The number of values found.
     */
     template <typename DistancesPredicates>
-    inline size_type nearest(DistancesPredicates const& dpred, value_type & v) const
+    inline size_type nearest_query(DistancesPredicates const& dpred, value_type & v) const
     {
         return raw_nearest_one(dpred, detail::empty(), v);
     }
@@ -397,7 +399,7 @@ public:
     \return         The number of values found.
     */
     template <typename DistancesPredicates, typename Predicates>
-    inline size_type nearest(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
+    inline size_type nearest_query(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
     {
         return raw_nearest_one(dpred, pred, v);
     }
@@ -422,7 +424,7 @@ public:
     \return         The number of values found.
     */
     template <typename DistancesPredicates, typename OutIter>
-    inline size_type nearest(DistancesPredicates const& dpred, size_t k, OutIter out_it) const
+    inline size_type nearest_query(DistancesPredicates const& dpred, size_t k, OutIter out_it) const
     {
         return raw_nearest_k(dpred, k, detail::empty(), out_it);
     }
@@ -455,7 +457,7 @@ public:
     \return         The number of values found.
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
-    inline size_type nearest(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
+    inline size_type nearest_query(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
         return raw_nearest_k(dpred, k, pred, out_it);
     }
@@ -853,9 +855,9 @@ Find values meeting spatial predicates.
 \return         The number of found values.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator, typename Predicates, typename OutIter>
-inline size_t query(rtree<Value, Options, Translator, Allocator> const& tree, Predicates const& pred, OutIter out_it)
+inline size_t spatial_query(rtree<Value, Options, Translator, Allocator> const& tree, Predicates const& pred, OutIter out_it)
 {
-    return tree.query(pred, out_it);
+    return tree.spatial_query(pred, out_it);
 }
 
 /*!
@@ -868,9 +870,9 @@ Find the value meeting distances predicates.
 \return         The number of found values.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates>
-inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, Value & v)
+inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, Value & v)
 {
-    return tree.nearest(dpred, v);
+    return tree.nearest_query(dpred, v);
 }
 
 /*!
@@ -884,9 +886,9 @@ Find the value meeting distances and spatial predicates.
 \return         The number of found values.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename Predicates>
-inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, Predicates const& pred, Value & v)
+inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, Predicates const& pred, Value & v)
 {
-    return tree.nearest(dpred, pred, v);
+    return tree.nearest_query(dpred, pred, v);
 }
 
 /*!
@@ -900,9 +902,9 @@ Find k values meeting distances predicates.
 \return         The number of found values.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename OutIter>
-inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, OutIter out_it)
+inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, OutIter out_it)
 {
-    return tree.nearest(dpred, k, out_it);
+    return tree.nearest_query(dpred, k, out_it);
 }
 
 /*!
@@ -917,9 +919,9 @@ Find k values meeting distances and spatial predicates.
 \return         The number of found values.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename Predicates, typename OutIter>
-inline size_t nearest(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it)
+inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it)
 {
-    return tree.nearest(dpred, k, pred, out_it);
+    return tree.nearest_query(dpred, k, pred, out_it);
 }
 
 /*!

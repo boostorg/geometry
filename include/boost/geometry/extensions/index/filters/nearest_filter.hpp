@@ -13,19 +13,21 @@
 
 namespace boost { namespace geometry { namespace index {
 
+namespace adaptors {
+
 template <typename Index>
-class nearest_filter
+class nearest_query_range
 {
     BOOST_MPL_ASSERT_MSG(
         (false),
         NOT_IMPLEMENTED_FOR_THIS_INDEX,
-        (nearest_filter));
+        (nearest_query_range));
 
     typedef int* iterator;
     typedef const int* const_iterator;
 
     template <typename DistancesPredicates, typename Predicates>
-    inline nearest_filter(
+    inline nearest_query_range(
         Index const&,
         DistancesPredicates const&,
         size_t,
@@ -44,9 +46,9 @@ namespace detail {
 // TODO: awulkiew - consider removing references from predicates
 
 template<typename DistancesPredicates, typename Predicates>
-struct nearest_filtered
+struct nearest_query
 {
-    inline nearest_filtered(
+    inline nearest_query(
         DistancesPredicates const& dpred,
         size_t k,
         Predicates const& pred
@@ -64,21 +66,34 @@ struct nearest_filtered
 } // namespace detail
 
 template <typename DistancesPredicates, typename Predicates>
-detail::nearest_filtered<DistancesPredicates, Predicates> nearest_filtered(
+detail::nearest_query<DistancesPredicates, Predicates>
+nearest_queried(
     DistancesPredicates const& dpred,
     size_t k,
-    Predicates const& pred = detail::empty())
+    Predicates const& pred)
 {
-    return detail::nearest_filtered<DistancesPredicates, Predicates>(dpred, k, pred);
+    return detail::nearest_query<DistancesPredicates, Predicates>(dpred, k, pred);
 }
 
+template <typename DistancesPredicates>
+detail::nearest_query<DistancesPredicates, index::detail::empty>
+nearest_queried(
+    DistancesPredicates const& dpred,
+    size_t k)
+{
+    return detail::nearest_query<DistancesPredicates, index::detail::empty>(dpred, k, index::detail::empty());
+}
+
+} // namespace adaptors
+
 template<typename Index, typename DistancesPredicates, typename Predicates>
-index::nearest_filter<Index>
+index::adaptors::nearest_query_range<Index>
 operator|(
     Index const& si,
-    detail::nearest_filtered<DistancesPredicates, Predicates> const& f)
+    index::adaptors::detail::nearest_query<DistancesPredicates, Predicates> const& f)
 {
-    return index::nearest_filter<Index>(si, f.distances_predicates, f.count, f.predicates);
+    return index::adaptors::nearest_query_range<Index>(
+        si, f.distances_predicates, f.count, f.predicates);
 }
 
 }}} // namespace boost::geometry::index

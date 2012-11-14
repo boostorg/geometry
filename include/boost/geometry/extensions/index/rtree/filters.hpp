@@ -22,8 +22,10 @@ namespace boost { namespace geometry { namespace index {
 template <typename Value, typename Options, typename Translator, typename Allocator>
 class rtree;
 
+namespace adaptors {
+
 template <typename Value, typename Options, typename Translator, typename Allocator>
-class query_filter< index::rtree<Value, Options, Translator, Allocator> >
+class spatial_query_range< index::rtree<Value, Options, Translator, Allocator> >
 {
 public:
     typedef std::vector<Value> result_type;
@@ -31,12 +33,12 @@ public:
     typedef typename result_type::const_iterator const_iterator;
     
     template <typename Predicates>
-    inline query_filter(
+    inline spatial_query_range(
         index::rtree<Value, Options, Translator, Allocator> const& rtree,
         Predicates const& pred
     )
     {
-        rtree.query(pred, std::back_inserter(m_result));
+        rtree.spatial_query(pred, std::back_inserter(m_result));
     }
 
     inline iterator begin() { return m_result.begin(); }
@@ -49,7 +51,7 @@ private:
 };
 
 template <typename Value, typename Options, typename Translator, typename Allocator>
-class nearest_filter< index::rtree<Value, Options, Translator, Allocator> >
+class nearest_query_range< index::rtree<Value, Options, Translator, Allocator> >
 {
 public:
     typedef std::vector<Value> result_type;
@@ -57,14 +59,14 @@ public:
     typedef typename result_type::const_iterator const_iterator;
 
     template <typename DistancesPredicates, typename Predicates>
-    inline nearest_filter(
+    inline nearest_query_range(
         index::rtree<Value, Options, Translator, Allocator> const& rtree,
         DistancesPredicates const& dpred,
         size_t k,
         Predicates const& pred
     )
     {
-        rtree.nearest(dpred, k, pred, std::back_inserter(m_result));
+        rtree.nearest_query(dpred, k, pred, std::back_inserter(m_result));
     }
 
     inline iterator begin() { return m_result.begin(); }
@@ -75,6 +77,8 @@ public:
 private:
     result_type m_result;
 };
+
+} // namespace adaptors
 
 }}} // namespace boost::geometry::index
 

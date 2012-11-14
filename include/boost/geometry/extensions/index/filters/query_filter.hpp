@@ -13,22 +13,23 @@
 
 namespace boost { namespace geometry { namespace index {
 
+namespace adaptors {
+
 template <typename Index>
-class query_filter
+class spatial_query_range
 {
     BOOST_MPL_ASSERT_MSG(
         (false),
         NOT_IMPLEMENTED_FOR_THIS_INDEX,
-        (query_filter));
+        (spatial_query_range));
 
     typedef int* iterator;
     typedef const int* const_iterator;
 
     template <typename Predicates>
-    inline query_filter(
+    inline spatial_query_range(
         Index const&,
-        Predicates const&
-    )
+        Predicates const&)
     {}
 
     inline iterator begin() { return 0; }
@@ -42,9 +43,9 @@ namespace detail {
 // TODO: awulkiew - consider removing reference from predicates
 
 template<typename Predicates>
-struct query_filtered
+struct spatial_query
 {
-    inline explicit query_filtered(Predicates const& pred)
+    inline explicit spatial_query(Predicates const& pred)
         : predicates(pred)
     {}
 
@@ -54,18 +55,21 @@ struct query_filtered
 } // namespace detail
 
 template <typename Predicates>
-detail::query_filtered<Predicates> query_filtered(Predicates const& pred)
+detail::spatial_query<Predicates>
+spatial_queried(Predicates const& pred)
 {
-    return detail::query_filtered<Predicates>(pred);
+    return detail::spatial_query<Predicates>(pred);
 }
 
+} // namespace adaptors
+
 template<typename Index, typename Predicates>
-index::query_filter<Index>
+index::adaptors::spatial_query_range<Index>
 operator|(
     Index const& si,
-    index::detail::query_filtered<Predicates> const& f)
+    index::adaptors::detail::spatial_query<Predicates> const& f)
 {
-    return index::query_filter<Index>(si, f.predicates);
+    return index::adaptors::spatial_query_range<Index>(si, f.predicates);
 }
 
 }}} // namespace boost::geometry::index
