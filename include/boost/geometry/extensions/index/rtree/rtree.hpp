@@ -116,7 +116,7 @@ public:
     /*!
     The constructor.
 
-    \note Exception-safety: basic
+    \note Exception-safety: strong
 
     \param first        The beginning of the range of Values.
     \param last         The end of the range of Values.
@@ -294,9 +294,6 @@ public:
     */
     inline void remove(value_type const& value)
     {
-        if ( !m_root )
-            return;
-
         this->raw_remove(value);
     }
 
@@ -311,9 +308,6 @@ public:
     template <typename Iterator>
     inline void remove(Iterator first, Iterator last)
     {
-        if ( !m_root )
-            return;
-
         for ( ; first != last ; ++first )
             this->raw_remove(*first);
     }

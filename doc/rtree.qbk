@@ -13,7 +13,8 @@
 [include rtree/introduction.qbk]
 [include rtree/quickstart.qbk]
 [include rtree/creation.qbk]
-[include rtree/query.qbk]
-[include rtree/nearest.qbk]
+[include rtree/spatial_query.qbk]
+[include rtree/nearest_query.qbk]
+[include rtree/exception_safety.qbk]
 
 [endsect]

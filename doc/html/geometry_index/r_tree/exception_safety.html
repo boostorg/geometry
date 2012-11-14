@@ -1,0 +1,297 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Exception safety</title>
+<link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
+<link rel="up" href="../r_tree.html" title="R-tree">
+<link rel="prev" href="nearest_neighbours_queries.html" title="Nearest neighbours queries">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="http://www.boost.org/doc/libs/release/boost.png"></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/index.html">Home</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="nearest_neighbours_queries.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="geometry_index.r_tree.exception_safety"></a><a class="link" href="exception_safety.html" title="Exception safety">Exception safety</a>
+</h3></div></div></div>
+<p>
+        In order to be exception-safe the R-tree requires:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            Nonthrowing copy constructor of the <code class="computeroutput"><span class="identifier">CoordinateType</span></code>
+            used in the <code class="computeroutput">Indexable</code>,
+          </li>
+<li class="listitem">
+            Nonthrowing destructor of the <code class="computeroutput">Value</code>.
+          </li>
+</ul></div>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                <p>
+                  Operation
+                </p>
+              </th>
+<th>
+                <p>
+                  exception-safety
+                </p>
+              </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">rtree</span><span class="special">()</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">first</span><span class="special">,</span>
+                  <span class="identifier">last</span><span class="special">)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="bold"><strong>strong</strong></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="special">~</span><span class="identifier">rtree</span><span class="special">()</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span><span class="special">&amp;)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="bold"><strong>strong</strong></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="keyword">operator</span><span class="special">=(</span><span class="identifier">rtree</span> <span class="keyword">const</span><span class="special">&amp;)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="bold"><strong>strong</strong></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="keyword">operator</span><span class="special">=(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span> or <span class="bold"><strong>strong</strong></span>
+                  <a href="#ftn.geometry_index.r_tree.exception_safety.f0" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f0"></a>[a]</sup></a>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">insert</span><span class="special">(</span>Value<span class="special">)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  basic
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">insert</span><span class="special">(</span><span class="identifier">first</span><span class="special">,</span>
+                  <span class="identifier">last</span><span class="special">)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  basic
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">remove</span><span class="special">(</span>Value<span class="special">)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  basic
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">remove</span><span class="special">(</span><span class="identifier">first</span><span class="special">,</span>
+                  <span class="identifier">last</span><span class="special">)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  basic
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">spatial_query</span><span class="special">(...)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="bold"><strong>strong</strong></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">nearest_query</span><span class="special">(...)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="bold"><strong>strong</strong></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">size</span><span class="special">()</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">empty</span><span class="special">()</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">clear</span><span class="special">()</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">box</span><span class="special">()</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">get_allocator</span><span class="special">()</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
+                </p>
+              </td>
+</tr>
+</tbody>
+<tbody class="footnotes"><tr><td colspan="2"><div id="ftn.geometry_index.r_tree.exception_safety.f0" class="footnote"><p><a href="#geometry_index.r_tree.exception_safety.f0" class="para"><sup class="para">[a] </sup></a>
+                    <span class="emphasis"><em>nothrow</em></span> - if allocators are equal, <span class="bold"><strong>strong</strong></span> - if allocators aren't equal
+                  </p></div></td></tr></tbody>
+</table></div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2011, 2012 Adam Wulkiewicz<br>Copyright &#169; 2008 Federico J. Fernandez<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="nearest_neighbours_queries.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a>
+</div>
+</body>
+</html>
