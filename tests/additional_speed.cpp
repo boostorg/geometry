@@ -97,7 +97,7 @@ int main()
                 float x = coords[i].first;
                 float y = coords[i].second;
                 result.clear();
-                t.query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+                t.spatial_query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
                 temp += result.size();
             }
             std::cout << "time: " << tim.elapsed() << "s\n";
@@ -117,7 +117,7 @@ int main()
                 float x = coords[i].first + 100;
                 float y = coords[i].second + 100;
                 result.clear();
-                temp += t.nearest(P(x, y), 5, std::back_inserter(result));
+                temp += t.nearest_query(P(x, y), 5, std::back_inserter(result));
             }
             std::cout << "time: " << tim.elapsed() << "s\n";
             std::cout << "found: " << temp << "\n";
