@@ -80,21 +80,26 @@ class rtree
 
 public:
     typedef Value value_type;
+    typedef Parameters parameters_type;
     typedef Translator translator_type;
+    typedef Allocator allocator_type;
+    typedef typename allocator_type::size_type size_type;
+
     typedef typename translator::indexable_type<Translator>::type indexable_type;
     typedef typename index::default_box_type<indexable_type>::type box_type;
 
+#if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
+private:
+#endif
     typedef typename detail::rtree::options_type<Parameters>::type options_type;
     typedef typename options_type::node_tag node_tag;
-
-    typedef Allocator allocator_type;
     typedef detail::rtree::allocators<allocator_type, value_type, typename options_type::parameters_type, box_type, node_tag> allocators_type;
-    typedef typename allocators_type::size_type size_type;
 
     typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type node;
     typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type internal_node;
     typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
 
+public:
     /*!
     The constructor.
 
@@ -517,6 +522,30 @@ public:
     }
 
     /*!
+    Returns parameters.
+
+    \note Exception-safety: nothrow.
+
+    \return     The parameters object.
+    */
+    inline parameters_type const& parameters() const
+    {
+        return m_parameters;
+    }
+
+    /*!
+    Returns the translator object.
+
+    \note Exception-safety: nothrow.
+
+    \return     The translator object.
+    */
+    inline translator_type const& translator() const
+    {
+        return m_translator;
+    }
+
+    /*!
     Returns allocator used by the rtree.
 
     \note Exception-safety: nothrow if allocator copy can't throw.
@@ -528,10 +557,13 @@ public:
         return m_allocators.allocator;
     }
 
+#if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
+private:
+#endif
     /*!
     Apply a visitor to the nodes structure in order to perform some operator.
     This function is not a part of the 'official' interface. However it makes
-    possible to e.g. draw the tree structure.
+    possible e.g. to pass a visitor drawing the tree structure.
 
     \note Exception-safety: the same as visitor.
 
@@ -541,19 +573,6 @@ public:
     inline void apply_visitor(Visitor & visitor) const
     {
         detail::rtree::apply_visitor(visitor, *m_root);
-    }
-
-    /*!
-    Returns the translator object.
-    This function is not a part of the 'official' interface.
-
-    \note Exception-safety: nothrow.
-
-    \return     The translator object.
-    */
-    inline translator_type const& translator() const
-    {
-        return m_translator;
     }
 
     /*!
@@ -663,20 +682,20 @@ private:
     */
     inline void raw_destroy(rtree & t, bool destroy_root = true)
     {
-        if ( !t.m_root )
-            return;
-
-        if ( destroy_root )
+        if ( t.m_root )
         {
-            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
-            detail::rtree::apply_visitor(del_v, *t.m_root);
-        }
-        else
-        {
-            detail::rtree::clear_node<value_type, options_type, translator_type, box_type, allocators_type>::apply(*t.m_root, t.m_allocators);
-        }
+            if ( destroy_root )
+            {
+                detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
+                detail::rtree::apply_visitor(del_v, *t.m_root);
+            }
+            else
+            {
+                detail::rtree::clear_node<value_type, options_type, translator_type, box_type, allocators_type>::apply(*t.m_root, t.m_allocators);
+            }
 
-        t.m_root = 0;
+            t.m_root = 0;
+        }
         t.m_values_count = 0;
         t.m_leafs_level = 0;
     }

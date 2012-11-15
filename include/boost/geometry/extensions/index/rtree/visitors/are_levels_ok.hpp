@@ -88,10 +88,11 @@ private:
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Options, typename Translator, typename Allocator>
-bool are_levels_ok(rtree<Value, Options, Translator, Allocator> const& tree)
+template <typename Value, typename Parameters, typename Translator, typename Allocator>
+bool are_levels_ok(rtree<Value, Parameters, Translator, Allocator> const& tree)
 {
-    typedef rtree<Value, Options, Translator, Allocator> rt;
+    typedef rtree<Value, Parameters, Translator, Allocator> rt;
+
     detail::rtree::visitors::are_levels_ok<
         typename rt::value_type,
         typename rt::options_type,
