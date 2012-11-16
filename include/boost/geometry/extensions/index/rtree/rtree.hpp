@@ -103,19 +103,20 @@ public:
     /*!
     The constructor.
 
-    \note Exception-safety: nothrow
+    \note Exception-safety: nothrow (if translator has nonthrowing copy ctor),
+                            strong (if translator has throwing copy ctor)
 
     \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
     */
     inline explicit rtree(Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = Allocator())
-        : m_values_count(0)
-        , m_root(0)
-        , m_leafs_level(0)
+        : m_translator(translator)                                                  // MAY THROW (copy)
         , m_parameters(parameters)
-        , m_translator(translator)
         , m_allocators(allocator)
+        , m_values_count(0)
+        , m_leafs_level(0)
+        , m_root(0)
     {}
 
     /*!
@@ -131,12 +132,12 @@ public:
     */
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last, Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
-        : m_values_count(0)
-        , m_root(0)
-        , m_leafs_level(0)
+        : m_translator(translator)                                                  // MAY THROW (copy)
         , m_parameters(parameters)
-        , m_translator(translator)
         , m_allocators(allocator)
+        , m_values_count(0)
+        , m_leafs_level(0)
+        , m_root(0)
     {
         try
         {
@@ -165,10 +166,12 @@ public:
     \note Exception-safety: strong
     */
     inline rtree(rtree const& src)
-        : m_root(0)
+        : m_translator(src.m_translator)                                            // MAY THROW (copy)
         , m_parameters(src.m_parameters)
-        , m_translator(src.m_translator)
         , m_allocators(src.m_allocators)
+        , m_values_count(0)
+        , m_leafs_level(0)
+        , m_root(0)
     {
         //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
 
@@ -181,10 +184,12 @@ public:
     \note Exception-safety: strong
     */
     inline rtree(rtree const& src, Allocator const& allocator)
-        : m_root(0)
+        : m_translator(src.m_translator)                                            // MAY THROW (copy)
         , m_parameters(src.m_parameters)
-        , m_translator(src.m_translator)
         , m_allocators(allocator)
+        , m_values_count(0)
+        , m_leafs_level(0)
+        , m_root(0)
     {
         this->raw_copy(src, *this, m_allocators);
     }
@@ -192,19 +197,20 @@ public:
     /*!
     The moving constructor.
 
-    \note Exception-safety: nothrow
+    \note Exception-safety: nothrow (if translator has nonthrowing copy ctor),
+                            strong (if translator has throwing copy ctor)
     */
     inline rtree(BOOST_RV_REF(rtree) src)
-        : m_values_count(src.m_values_count)
-        , m_root(src.m_root)
-        , m_leafs_level(src.m_leafs_level)
+        : m_translator(src.m_translator)                                            // MAY THROW (copy)
         , m_parameters(src.m_parameters)
-        , m_translator(src.m_translator)
         , m_allocators(src.m_allocators)
+        , m_values_count(src.m_values_count)
+        , m_leafs_level(src.m_leafs_level)
+        , m_root(src.m_root)
     {
         src.m_values_count = 0;
-        src.m_root = 0;
         src.m_leafs_level = 0;
+        src.m_root = 0;
     }
 
     /*!
@@ -227,7 +233,8 @@ public:
     /*!
     The moving assignment.
 
-    \note Exception-safety: nothrow (if allocators are equal), strong (if allocators aren't equal)
+    \note Exception-safety: nothrow (if allocators are equal and translator has nonthrowing copy ctor),
+                            strong (if allocators aren't equal or translator has throwing copy ctor)
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
@@ -238,16 +245,17 @@ public:
 
         if ( m_allocators.allocator == src.m_allocators.allocator )
         {
+            m_translator = src.m_translator;                                        // MAY THROW (copy)
             m_parameters = src.m_parameters;
-            m_translator = src.m_translator;
             //m_allocators = src.m_allocators;
 
             m_values_count = src.m_values_count;
-            src.m_values_count = 0;
-            m_root = src.m_root;
-            src.m_root = 0;
             m_leafs_level = src.m_leafs_level;
+            m_root = src.m_root;
+
+            src.m_values_count = 0;
             src.m_leafs_level = 0;
+            src.m_root = 0;
         }
         else
         {
@@ -548,7 +556,7 @@ public:
     /*!
     Returns allocator used by the rtree.
 
-    \note Exception-safety: nothrow if allocator copy can't throw.
+    \note Exception-safety: nothrow
 
     \return     The allocator.
     */
@@ -565,7 +573,7 @@ private:
     This function is not a part of the 'official' interface. However it makes
     possible e.g. to pass a visitor drawing the tree structure.
 
-    \note Exception-safety: the same as visitor.
+    \note Exception-safety: the same as Visitor::operator().
 
     \param visitor  The visitor object.
     */
@@ -579,7 +587,7 @@ private:
     Returns the number of stored objects. Same as size()
     This function is not a part of the 'official' interface.
 
-    \note Exception-safety: nothrow.
+    \note Exception-safety: nothrow
 
     \return     The number of stored objects.
     */
@@ -720,8 +728,9 @@ private:
             dst.m_root = 0;
         }
 
-        dst.m_parameters = src.m_parameters;
         dst.m_translator = src.m_translator;
+
+        dst.m_parameters = src.m_parameters;
         dst.m_allocators = allocators;
 
         dst.m_root = copy_v.result;
@@ -799,13 +808,13 @@ private:
         return result.get(out_it);
     }
 
-    size_type m_values_count;
-    node *m_root;
-    size_type m_leafs_level;
-
-    Parameters m_parameters;
     translator_type m_translator;
+    Parameters m_parameters;
     allocators_type m_allocators;
+
+    size_type m_values_count;
+    size_type m_leafs_level;
+    node * m_root;
 };
 
 /*!

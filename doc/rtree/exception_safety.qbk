@@ -17,24 +17,34 @@ In order to be exception-safe the __rtree__ requires:
 
 [table
 [[Operation]                   [exception-safety]]
-[[`rtree()`]                   [ /nothrow/ ]]
+[[`rtree()`]                   [ /nothrow (default)/ or *strong*
+[footnote /nothrow/ - if `Translator` has nonthrowing copy constructor (default), *strong* - if `Translator` has throwing copy constructor]]]
 [[`rtree(first, last)`]        [ *strong*  ]]
 [[`~rtree()`]                  [ /nothrow/ ]]
+[[][]]
 [[`rtree(rtree const&)`]       [ *strong*  ]]
 [[`operator=(rtree const&)`]   [ *strong*  ]]
-[[`rtree(rtree &&)`]           [ /nothrow/ ]]
-[[`operator=(rtree &&)`]       [ /nothrow/ or *strong* [footnote /nothrow/ - if allocators are equal, *strong* - if allocators aren't equal ]]]
+[[][]]
+[[`rtree(rtree &&)`]           [ /nothrow (default)/ or *strong*
+[footnote /nothrow/ - if `Translator` has nonthrowing copy constructor (default), *strong* - if `Translator` has throwing copy constructor]]]
+[[`operator=(rtree &&)`]       [ /nothrow/ or *strong*
+[footnote /nothrow/ - if allocators are equal and `Translator` has nonthrowing copy constructor (default), *strong* - if allocators aren't equal or `Translator` has throwing copy constructor]]]
+[[][]]
 [[`insert(__value__)`]         [ basic     ]]
 [[`insert(first, last)`]       [ basic     ]]
 [[`remove(__value__)`]         [ basic     ]]
 [[`remove(first, last)`]       [ basic     ]]
+[[][]]
 [[`spatial_query(...)`]        [ *strong*  ]]
 [[`nearest_query(...)`]        [ *strong*  ]]
+[[][]]
 [[`size()`]                    [ /nothrow/ ]]
 [[`empty()`]                   [ /nothrow/ ]]
 [[`clear()`]                   [ /nothrow/ ]]
 [[`box()`]                     [ /nothrow/ ]]
 [[`get_allocator()`]           [ /nothrow/ ]]
+[[`parameters()`]              [ /nothrow/ ]]
+[[`translator()`]              [ /nothrow/ ]]
 ]
 
 [endsect] [/Exception safety/]
