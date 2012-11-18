@@ -44,10 +44,9 @@ namespace detail { namespace for_each
 struct fe_point_per_point
 {
     template <typename Point, typename Functor>
-    static inline Functor apply(Point& point, Functor f)
+    static inline void apply(Point& point, Functor& f)
     {
         f(point);
-        return f;
     }
 };
 
@@ -55,11 +54,10 @@ struct fe_point_per_point
 struct fe_point_per_segment
 {
     template <typename Point, typename Functor>
-    static inline Functor apply(Point& , Functor f)
+    static inline void apply(Point& , Functor& f)
     {
         // TODO: if non-const, we should extract the points from the segment
         // and call the functor on those two points
-        return f;
     }
 };
 
@@ -67,9 +65,19 @@ struct fe_point_per_segment
 struct fe_range_per_point
 {
     template <typename Range, typename Functor>
-    static inline Functor apply(Range& range, Functor f)
+    static inline void apply(Range& range, Functor& f)
     {
-        return (std::for_each(boost::begin(range), boost::end(range), f));
+		// The previous implementation called the std library:
+        // return (std::for_each(boost::begin(range), boost::end(range), f));
+		// But that is not accepted for capturing lambda's.
+		// It needs to do it like that to return the state of Functor f (f is passed by value in std::for_each).
+
+		// So we now loop manually.
+
+		for (typename boost::range_iterator<Range>::type it = boost::begin(range); it != boost::end(range); ++it)
+		{
+			f(*it);
+		}
     }
 };
 
@@ -77,7 +85,7 @@ struct fe_range_per_point
 struct fe_range_per_segment
 {
     template <typename Range, typename Functor>
-    static inline Functor apply(Range& range, Functor f)
+    static inline void apply(Range& range, Functor& f)
     {
         typedef typename add_const_if_c
             <
@@ -93,8 +101,6 @@ struct fe_range_per_segment
             f(s);
             previous = it++;
         }
-
-        return f;
     }
 };
 
@@ -102,18 +108,16 @@ struct fe_range_per_segment
 struct fe_polygon_per_point
 {
     template <typename Polygon, typename Functor>
-    static inline Functor apply(Polygon& poly, Functor f)
+    static inline void apply(Polygon& poly, Functor& f)
     {
-        f = fe_range_per_point::apply(exterior_ring(poly), f);
+        fe_range_per_point::apply(exterior_ring(poly), f);
 
         typename interior_return_type<Polygon>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
-            f = fe_range_per_point::apply(*it, f);
+            fe_range_per_point::apply(*it, f);
         }
-
-        return f;
     }
 
 };
@@ -122,18 +126,16 @@ struct fe_polygon_per_point
 struct fe_polygon_per_segment
 {
     template <typename Polygon, typename Functor>
-    static inline Functor apply(Polygon& poly, Functor f)
+    static inline void apply(Polygon& poly, Functor& f)
     {
-        f = fe_range_per_segment::apply(exterior_ring(poly), f);
+        fe_range_per_segment::apply(exterior_ring(poly), f);
 
         typename interior_return_type<Polygon>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
-            f = fe_range_per_segment::apply(*it, f);
+            fe_range_per_segment::apply(*it, f);
         }
-
-        return f;
     }
 
 };
@@ -235,7 +237,8 @@ inline Functor for_each_point(Geometry& geometry, Functor f)
 {
     concept::check<Geometry>();
 
-    return dispatch::for_each_point<Geometry>::apply(geometry, f);
+    dispatch::for_each_point<Geometry>::apply(geometry, f);
+    return f;
 }
 
 
@@ -257,7 +260,8 @@ inline Functor for_each_segment(Geometry& geometry, Functor f)
 {
     concept::check<Geometry>();
 
-    return dispatch::for_each_segment<Geometry>::apply(geometry, f);
+    dispatch::for_each_segment<Geometry>::apply(geometry, f);
+	return f;
 }
 
 

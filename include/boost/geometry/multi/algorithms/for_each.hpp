@@ -40,13 +40,12 @@ template <typename Policy>
 struct for_each_multi
 {
     template <typename MultiGeometry, typename Functor>
-    static inline Functor apply(MultiGeometry& multi, Functor f)
+    static inline void apply(MultiGeometry& multi, Functor& f)
     {
         for(BOOST_AUTO_TPL(it, boost::begin(multi)); it != boost::end(multi); ++it)
         {
-            f = Policy::apply(*it, f);
+            Policy::apply(*it, f);
         }
-        return f;
     }
 };
 
