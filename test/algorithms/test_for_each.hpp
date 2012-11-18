@@ -11,6 +11,7 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/config.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
 
 #include <boost/geometry/algorithms/distance.hpp>
@@ -87,9 +88,29 @@ void test_per_point_const(Geometry const& geometry, int expected)
 {
     typedef typename bg::point_type<Geometry>::type point_type;
 
+	// Class (functor)
     sum_x_functor<point_type> functor;
     functor = bg::for_each_point(geometry, functor);
     BOOST_CHECK_EQUAL(functor.sum, expected);
+
+
+	// Lambda
+#if !defined(BOOST_NO_CXX11_LAMBDAS)
+
+	typename bg::coordinate_type<point_type>::type sum_x = 0;
+
+	bg::for_each_point
+        (
+            geometry, 
+            [&sum_x](point_type const& p) 
+                { 
+                    sum_x += bg::get<0>(p);
+                }
+                    
+        );
+
+    BOOST_CHECK_EQUAL(sum_x, expected);
+#endif
 }
 
 template <typename Geometry>
@@ -97,6 +118,10 @@ void test_per_point_non_const(Geometry& geometry,
     std::string const& expected1,
     std::string const& expected2)
 {
+#if !defined(BOOST_NO_CXX11_LAMBDAS)
+    Geometry copy = geometry;
+#endif
+
     typedef typename bg::point_type<Geometry>::type point_type;
 
     // function
@@ -119,6 +144,41 @@ void test_per_point_non_const(Geometry& geometry,
         "for_each_point: "
         << " expected " << expected2
         << " got " << bg::wkt(geometry));
+
+#if !defined(BOOST_NO_CXX11_LAMBDAS)
+	// Lambda, both functions above together. Without / with capturing
+
+    geometry = copy;
+	bg::for_each_point
+        (
+            geometry, 
+            [](point_type& p) 
+                { 
+                    bg::set<0>(p, bg::get<0>(p) + 100);
+                }
+                    
+        );
+
+	typename bg::coordinate_type<point_type>::type scale = 100;
+	bg::for_each_point
+        (
+            geometry, 
+            [&](point_type& p) 
+                { 
+                    bg::set<1>(p, bg::get<1>(p) * scale);
+                }
+                    
+        );
+
+    std::ostringstream out3;
+    out3 << bg::wkt(geometry);
+
+    BOOST_CHECK_MESSAGE(out3.str() == expected2,
+        "for_each_point (lambda): "
+        << " expected " << expected2
+        << " got " << bg::wkt(geometry));
+#endif
+
 }
 
 
