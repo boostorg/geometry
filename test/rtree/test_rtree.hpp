@@ -171,7 +171,7 @@ template <>
 struct generate_input<3>
 {
     template <typename Value, typename Box>
-    static void apply(std::vector<Value> & input, Box & qbox, unsigned size = 1)
+    static void apply(std::vector<Value> & input, Box & qbox, int size = 1)
     {
         assert(0 < size);
 
