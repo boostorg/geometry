@@ -48,9 +48,9 @@ int main()
     typedef bg::model::box<P> B;
     //typedef bgi::rtree<B, bgi::linear<32, 8> > RT;
     //typedef bgi::rtree<B, bgi::runtime::linear > RT;
-    typedef bgi::rtree<B, bgi::quadratic<32, 8> > RT;
+    //typedef bgi::rtree<B, bgi::quadratic<32, 8> > RT;
    // typedef bgi::rtree<B, bgi::runtime::quadratic > RT;
-    //typedef bgi::rtree<B, bgi::rstar<32, 8> > RT;
+    typedef bgi::rtree<B, bgi::rstar<32, 8> > RT;
     //typedef bgi::rtree<B, bgi::runtime::rstar > RT;
     
     for ( ;; )

@@ -149,11 +149,13 @@ template <>
 struct generate_input<2>
 {
     template <typename Value, typename Box>
-    static void apply(std::vector<Value> & input, Box & qbox)
+    static void apply(std::vector<Value> & input, Box & qbox, int size = 1)
     {
-        for ( int i = 0 ; i < 12 ; i += 3 )
+        assert(0 < size);
+
+        for ( int i = 0 ; i < 12 * size ; i += 3 )
         {
-            for ( int j = 1 ; j < 25 ; j += 4 )
+            for ( int j = 1 ; j < 25 * size ; j += 4 )
             {
                 input.push_back( generate_value<Value>::apply(i, j) );
             }
@@ -169,13 +171,15 @@ template <>
 struct generate_input<3>
 {
     template <typename Value, typename Box>
-    static void apply(std::vector<Value> & input, Box & qbox)
+    static void apply(std::vector<Value> & input, Box & qbox, unsigned size = 1)
     {
-        for ( int i = 0 ; i < 12 ; i += 3 )
+        assert(0 < size);
+
+        for ( int i = 0 ; i < 12 * size ; i += 3 )
         {
-            for ( int j = 1 ; j < 25 ; j += 4 )
+            for ( int j = 1 ; j < 25 * size ; j += 4 )
             {
-                for ( int k = 2 ; k < 12 ; k += 5 )
+                for ( int k = 2 ; k < 12 * size ; k += 5 )
                 {
                     input.push_back( generate_value<Value>::apply(i, j, k) );
                 }

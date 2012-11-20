@@ -65,14 +65,14 @@ public:
             std::pair<distance_type, element_type>
         >::type sorted_elements;
         // If constructor is used instead of resize() MS implementation leaks here
-        sorted_elements.resize(elements_count);                                                         // MAY THROW (V: alloc, copy, E: alloc)
+        sorted_elements.resize(elements_count);                                                         // MAY THROW, STRONG (V, E: alloc, copy)
         
         for ( size_t i = 0 ; i < elements_count ; ++i )
         {
             point_type element_center;
             geometry::centroid( rtree::element_indexable(elements[i], translator), element_center);
             sorted_elements[i].first = geometry::comparable_distance(node_center, element_center);
-            sorted_elements[i].second = elements[i];                                                    // MAY THROW (V: copy)
+            sorted_elements[i].second = elements[i];                                                    // MAY THROW (V, E: copy)
         }
 
         // sort elements by distances from center
@@ -80,12 +80,12 @@ public:
             sorted_elements.begin(),
             sorted_elements.begin() + reinserted_elements_count,
             sorted_elements.end(),
-            distances_dsc<distance_type, element_type>);                                                // MAY THROW (V: copy)
+            distances_dsc<distance_type, element_type>);                                                // MAY THROW, BASIC (V, E: copy)
 
         // copy elements which will be reinserted
-        result_elements.resize(reinserted_elements_count);                                              // MAY THROW (V: alloc, copy?, E: alloc)
+        result_elements.resize(reinserted_elements_count);                                              // MAY THROW, STRONG (V, E: alloc, copy)
         for ( size_t i = 0 ; i < reinserted_elements_count ; ++i )
-            result_elements[i] = sorted_elements[i].second;                                             // MAY THROW (V: copy)
+            result_elements[i] = sorted_elements[i].second;                                             // MAY THROW (V, E: copy)
 
         try
         {
@@ -93,7 +93,7 @@ public:
             size_t elements_new_count = elements_count - reinserted_elements_count;
             elements.resize(elements_new_count);                                                        // SHOULDN'T THROW (new_size <= old size)
             for ( size_t i = 0 ; i < elements_new_count ; ++i )
-                elements[i] = sorted_elements[i + reinserted_elements_count].second;                    // MAY THROW (V: copy)
+                elements[i] = sorted_elements[i + reinserted_elements_count].second;                    // MAY THROW (V, E: copy)
         }
         catch(...)
         {
@@ -177,17 +177,17 @@ struct level_insert_base
             if ( !base::m_traverse_data.current_is_root() )
             {
                 // NOTE: exception-safety
-                // After an exception result_elements may contain garbage
+                // After an exception result_elements may contain garbage, don't use it
                 rstar::remove_elements_to_reinsert<Value, Options, Translator, Box, Allocators>::apply(
                     result_elements, n,
                     base::m_traverse_data.parent, base::m_traverse_data.current_child_index,
-                    base::m_parameters, base::m_translator, base::m_allocators);                            // MAY THROW (V: alloc, copy, E: alloc)
+                    base::m_parameters, base::m_translator, base::m_allocators);                            // MAY THROW, BASIC (V, E: alloc, copy)
             }
             // node is root node
             else
             {
                 BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(base::m_root_node), "node should be the root node");
-                base::split(n);                                                                             // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+                base::split(n);                                                                             // MAY THROW (V, E: alloc, copy, N: alloc)
             }
         }
     }
@@ -198,7 +198,7 @@ struct level_insert_base
         // overflow
         if ( base::m_parameters.get_max_elements() < rtree::elements(n).size() )
         {
-            base::split(n);                                                                                 // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+            base::split(n);                                                                                 // MAY THROW (V, E: alloc, copy, N: alloc)
         }
     }
 
@@ -245,7 +245,7 @@ struct level_insert
         if ( base::m_traverse_data.current_level < base::m_level )
         {
             // next traversing step
-            base::traverse(*this, n);                                                                       // MAY THROW (E: alloc, N: alloc)
+            base::traverse(*this, n);                                                                       // MAY THROW (E: alloc, copy, N: alloc)
 
             // further insert
             if ( 0 < InsertIndex )
@@ -254,7 +254,7 @@ struct level_insert
 
                 if ( base::m_traverse_data.current_level == base::m_level - 1 )
                 {
-                    base::handle_possible_reinsert_or_split_of_root(n);                                     // MAY THROW (E: alloc, N: alloc)
+                    base::handle_possible_reinsert_or_split_of_root(n);                                     // MAY THROW (E: alloc, copy, N: alloc)
                 }
             }
         }
@@ -262,31 +262,30 @@ struct level_insert
         {
             BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level, "unexpected level");
 
+            try
+            {
+                // push new child node
+                rtree::elements(n).push_back(base::m_element);                                              // MAY THROW, STRONG (E: alloc, copy)
+            }
+            catch(...)
+            {
+                // NOTE: exception-safety
+                // if the insert fails above, the element won't be stored in the tree, so delete it
+
+                rtree::visitors::destroy<Value, Options, Translator, Box, Allocators> del_v(base::m_element.second, base::m_allocators);
+                rtree::apply_visitor(del_v, *base::m_element.second);
+
+                throw;                                                                                      // RETHROW
+            }
+
             // first insert
             if ( 0 == InsertIndex )
             {
-                try
-                {
-                    // push new child node
-                    rtree::elements(n).push_back(base::m_element);                                              // MAY THROW (E: alloc)
-                }
-                catch(...)
-                {
-                    // if the first insert fails here, the element won't be stored in the tree
-                    rtree::visitors::destroy<Value, Options, Translator, Box, Allocators> del_v(base::m_element.second, base::m_allocators);
-                    rtree::apply_visitor(del_v, *base::m_element.second);
-
-                    throw;                                                                                      // RETHROW
-                }
-
-                base::handle_possible_reinsert_or_split_of_root(n);                                         // MAY THROW (E: alloc, N: alloc)
+                base::handle_possible_reinsert_or_split_of_root(n);                                         // MAY THROW (E: alloc, copy, N: alloc)
             }
             // not the first insert
             else
             {
-                // push new child node
-                rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW (E: alloc)
-
                 base::handle_possible_split(n);                                                             // MAY THROW (E: alloc, N: alloc)
             }
         }
@@ -327,13 +326,13 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocat
         BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_level, "unexpected level");
 
         // next traversing step
-        base::traverse(*this, n);                                                                       // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+        base::traverse(*this, n);                                                                       // MAY THROW (V, E: alloc, copy, N: alloc)
 
         BOOST_GEOMETRY_INDEX_ASSERT(0 < base::m_level, "illegal level value, level shouldn't be the root level for 0 < InsertIndex");
         
         if ( base::m_traverse_data.current_level == base::m_level - 1 )
         {
-            base::handle_possible_reinsert_or_split_of_root(n);                                         // MAY THROW (E: alloc, N: alloc)
+            base::handle_possible_reinsert_or_split_of_root(n);                                         // MAY THROW (E: alloc, copy, N: alloc)
         }
 
         base::recalculate_aabb_if_necessary(n);
@@ -347,7 +346,7 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocat
                                     base::m_level == (std::numeric_limits<size_t>::max)(),
                                     "unexpected level");
         
-        rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW (V: alloc, copy)
+        rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW, STRONG (V: alloc, copy)
 
         base::handle_possible_split(n);                                                                 // MAY THROW (V: alloc, copy, N: alloc)
     }
@@ -395,7 +394,7 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
                                     base::m_level == (std::numeric_limits<size_t>::max)(),
                                     "unexpected level");
 
-        rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW (V: alloc, copy)
+        rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW, STRONG (V: alloc, copy)
 
         base::handle_possible_reinsert_or_split_of_root(n);                                             // MAY THROW (V: alloc, copy, N: alloc)
         
@@ -442,11 +441,11 @@ public:
         detail::rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
             m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
 
-        rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+        rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
 
         if ( !lins_v.result_elements.empty() )
         {
-            recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);                       // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+            recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);                       // MAY THROW (V, E: alloc, copy, N: alloc)
         }
     }
 
@@ -457,33 +456,43 @@ public:
         detail::rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
             m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
 
-        rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+        rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
 
         // we're in the root, so root should be split and there should be no elements to reinsert
-        assert(lins_v.result_elements.empty());
+        BOOST_GEOMETRY_INDEX_ASSERT(lins_v.result_elements.empty(), "unexpected state");
     }
 
 private:
     template <typename Elements>
-    inline void recursive_reinsert(Elements const& elements, size_t relative_level)
+    inline void recursive_reinsert(Elements & elements, size_t relative_level)
     {
         typedef typename Elements::value_type element_type;
 
         // reinsert children starting from the minimum distance
-        for ( typename Elements::const_reverse_iterator it = elements.rbegin();
-            it != elements.rend(); ++it)
+        typename Elements::reverse_iterator it = elements.rbegin();
+        for ( ; it != elements.rend() ; ++it)
         {
             detail::rstar::level_insert<1, element_type, Value, Options, Translator, Box, Allocators> lins_v(
                 m_root, m_leafs_level, *it, m_parameters, m_translator, m_allocators, relative_level);
 
-            rtree::apply_visitor(lins_v, *m_root);                                                          // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+            try
+            {
+                rtree::apply_visitor(lins_v, *m_root);                                                          // MAY THROW (V, E: alloc, copy, N: alloc)
+            }
+            catch(...)
+            {
+                ++it;
+                for ( ; it != elements.rend() ; ++it)
+                    rtree::destroy_element<Value, Options, Translator, Box, Allocators>::apply(*it, m_allocators);
+                throw;                                                                                          // RETHROW
+            }
 
-            assert(relative_level + 1 == lins_v.result_relative_level);
+            BOOST_GEOMETRY_INDEX_ASSERT(relative_level + 1 == lins_v.result_relative_level, "unexpected level");
 
             // non-root relative level
             if ( lins_v.result_relative_level < m_leafs_level && !lins_v.result_elements.empty())
             {
-                recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);                   // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+                recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);                   // MAY THROW (V, E: alloc, copy, N: alloc)
             }
         }
     }

@@ -70,7 +70,7 @@ public:
             if ( geometry::covered_by(m_translator(m_value), children[child_node_index].first) )
             {
                 // next traversing step
-                traverse_apply_visitor(n, child_node_index);                                                        // MAY THROW
+                traverse_apply_visitor(n, child_node_index);                                                            // MAY THROW
 
                 if ( m_is_value_removed )
                     break;
@@ -88,14 +88,10 @@ public:
             if ( m_is_underflow )
             {
                 element_iterator underfl_el_it = elements.begin() + child_node_index;
+                size_t relative_level = m_leafs_level - m_current_level;
 
-                // move node to the container - store node's relative level as well
-                m_underflowed_nodes.push_back(std::make_pair(m_leafs_level - m_current_level, underfl_el_it->second));  // MAY THROW (alloc)
-
-                elements.erase(underfl_el_it);                                                                          // SHOULDN'T THROW
-
-                // calc underflow
-                m_is_underflow = elements.size() < m_parameters.get_min_elements();
+                // move node to the container - store node's relative level as well and return new underflow state
+                m_is_underflow = store_underflowed_node(elements, underfl_el_it, relative_level);                       // MAY THROW (E: alloc, copy)
             }
 
             // n is not root - adjust aabb
@@ -116,7 +112,7 @@ public:
                 BOOST_GEOMETRY_INDEX_ASSERT(m_is_value_removed, "value not found");
 
                 // reinsert elements from removed nodes (underflows)
-                reinsert_removed_nodes_elements();                                                                  // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+                reinsert_removed_nodes_elements();                                                                  // MAY THROW (V, E: alloc, copy, N: alloc)
 
                 // shorten the tree
                 if ( rtree::elements(n).size() == 1 )
@@ -141,7 +137,8 @@ public:
         {
             if ( m_translator.equals(*it, m_value) )
             {
-                elements.erase(it);                                                                             // MAY THROW (V: copy)
+                rtree::copy_from_back(elements, it);                                                           // MAY THROW (V: copy)
+                elements.pop_back();
                 m_is_value_removed = true;
                 break;
             }
@@ -166,7 +163,7 @@ private:
 
     typedef std::vector< std::pair<size_t, node*> > UnderflowNodes;
 
-    inline void traverse_apply_visitor(internal_node &n, size_t choosen_node_index)
+    void traverse_apply_visitor(internal_node &n, size_t choosen_node_index)
     {
         // save previous traverse inputs and set new ones
         internal_node * parent_bckup = m_parent;
@@ -178,12 +175,35 @@ private:
         ++m_current_level;
 
         // next traversing step
-        rtree::apply_visitor(*this, *rtree::elements(n)[choosen_node_index].second);                    // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+        rtree::apply_visitor(*this, *rtree::elements(n)[choosen_node_index].second);                    // MAY THROW (V, E: alloc, copy, N: alloc)
 
         // restore previous traverse inputs
         m_parent = parent_bckup;
         m_current_child_index = current_child_index_bckup;
         m_current_level = current_level_bckup;
+    }
+
+    bool store_underflowed_node(
+            typename rtree::elements_type<internal_node>::type & elements,
+            typename rtree::elements_type<internal_node>::type::iterator underfl_el_it,
+            size_t relative_level)
+    {
+        // move node to the container - store node's relative level as well
+        m_underflowed_nodes.push_back(std::make_pair(relative_level, underfl_el_it->second));           // MAY THROW (E: alloc, copy)
+
+        try
+        {
+            rtree::copy_from_back(elements, underfl_el_it);                                             // MAY THROW (E: copy)
+            elements.pop_back();
+        }
+        catch(...)
+        {
+            m_underflowed_nodes.pop_back();
+            throw;                                                                                      // RETHROW
+        }
+
+        // calc underflow
+        return elements.size() < m_parameters.get_min_elements();
     }
 
     void reinsert_removed_nodes_elements()
@@ -200,13 +220,13 @@ private:
                 rtree::apply_visitor(ilv, *it->second);
                 if ( ilv.result )
                 {
-                    reinsert_node_elements(rtree::get<leaf>(*it->second), it->first);                        // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+                    reinsert_node_elements(rtree::get<leaf>(*it->second), it->first);                        // MAY THROW (V, E: alloc, copy, N: alloc)
 
                     rtree::destroy_node<Allocators, leaf>::apply(m_allocators, it->second);
                 }
                 else
                 {
-                    reinsert_node_elements(rtree::get<internal_node>(*it->second), it->first);               // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+                    reinsert_node_elements(rtree::get<internal_node>(*it->second), it->first);               // MAY THROW (V, E: alloc, copy, N: alloc)
 
                     rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, it->second);
                 }
@@ -248,7 +268,7 @@ private:
                     m_parameters, m_translator, m_allocators,
                     node_relative_level - 1);
 
-                rtree::apply_visitor(insert_v, *m_root_node);                                               // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+                rtree::apply_visitor(insert_v, *m_root_node);                                               // MAY THROW (V, E: alloc, copy, N: alloc)
             }
         }
         catch(...)

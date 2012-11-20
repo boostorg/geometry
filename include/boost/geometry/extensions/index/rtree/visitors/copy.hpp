@@ -36,7 +36,7 @@ public:
 
     inline void operator()(internal_node & n)
     {
-        node * raw_new_node = rtree::create_node<Allocators, internal_node>::apply(m_allocators);                       // MAY THROW (N: alloc)
+        node * raw_new_node = rtree::create_node<Allocators, internal_node>::apply(m_allocators);      // MAY THROW, STRONG (N: alloc)
         node_auto_ptr new_node(raw_new_node, m_allocators);
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
@@ -47,9 +47,14 @@ public:
         for (typename elements_type::iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            rtree::apply_visitor(*this, *it->second);
+            rtree::apply_visitor(*this, *it->second);                                                   // MAY THROW (V, E: alloc, copy, N: alloc) 
 
-            elements_dst.push_back( std::make_pair(it->first, result) );                                           // MAY THROW (E: alloc)
+            // for exception safety
+            node_auto_ptr auto_result(result, m_allocators);
+
+            elements_dst.push_back( std::make_pair(it->first, result) );                                // MAY THROW, STRONG (E: alloc, copy)
+
+            auto_result.release();
         }
 
         result = new_node.get();
@@ -58,7 +63,7 @@ public:
 
     inline void operator()(leaf & l)
     {
-        node * raw_new_node = rtree::create_node<Allocators, leaf>::apply(m_allocators);                            // MAY THROW (N: alloc)
+        node * raw_new_node = rtree::create_node<Allocators, leaf>::apply(m_allocators);                // MAY THROW, STRONG (N: alloc)
         node_auto_ptr new_node(raw_new_node, m_allocators);
 
         typedef typename rtree::elements_type<leaf>::type elements_type;
@@ -69,7 +74,7 @@ public:
         for (typename elements_type::iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            elements_dst.push_back(*it);                                                                            // MAY THROW (V: alloc, copy)
+            elements_dst.push_back(*it);                                                                // MAY THROW, STRONG (V: alloc, copy)
         }
 
         result = new_node.get();
