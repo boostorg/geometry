@@ -133,6 +133,8 @@ public:
         m_size = 0;
     }
 
+    // IMPORTANT!
+    // The sequence of elements is NOT preserved
     inline void erase(iterator it)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(0 < m_size, "there are no elements in the container");

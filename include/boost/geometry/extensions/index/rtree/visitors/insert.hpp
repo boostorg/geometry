@@ -157,7 +157,7 @@ public:
             Box,
             Allocators,
             typename Options::redistribute_tag
-        >::apply(n, n2, n_box, box2, parameters, translator, allocators);                                   // MAY THROW (V: alloc, copy, E: alloc)
+        >::apply(n, n2, n_box, box2, parameters, translator, allocators);                                   // MAY THROW (V, E: alloc, copy, copy)
 
         // check numbers of elements
         BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n).size() &&
@@ -168,7 +168,7 @@ public:
             "unexpected number of elements");
 
         // return the list of newly created nodes (this algorithm returns one)
-        additional_nodes.push_back(std::make_pair(box2, second_node.get()));                                // MAY THROW
+        additional_nodes.push_back(std::make_pair(box2, second_node.get()));                                // MAY THROW (alloc, copy)
 
         // release the ptr
         second_node.release();
@@ -269,7 +269,7 @@ protected:
             rtree::element_indexable(m_element, m_translator));
 
         // next traversing step
-        traverse_apply_visitor(visitor, n, choosen_node_index);                                                 // MAY THROW (V: alloc, copy, E: alloc, N:alloc)
+        traverse_apply_visitor(visitor, n, choosen_node_index);                                                 // MAY THROW, BASIC (V, E: alloc, copy, N:alloc)
     }
 
     // TODO: awulkiew - change post_traverse name to handle_overflow or overflow_treatment?
@@ -284,7 +284,7 @@ protected:
         // handle overflow
         if ( m_parameters.get_max_elements() < rtree::elements(n).size() )
         {
-            split(n);                                                                                           // MAY THROW (V: alloc, copy, E: alloc, N:alloc)
+            split(n);                                                                                           // MAY THROW, BASIC (V, E: alloc, copy, N:alloc)
         }
     }
 
@@ -298,7 +298,7 @@ protected:
         m_traverse_data.move_to_next_level(&n, choosen_node_index);
 
         // next traversing step
-        rtree::apply_visitor(visitor, *rtree::elements(n)[choosen_node_index].second);                          // MAY THROW (V: alloc, copy, E: alloc, N:alloc)
+        rtree::apply_visitor(visitor, *rtree::elements(n)[choosen_node_index].second);                          // MAY THROW, BASIC (V, E: alloc, copy, N:alloc)
 
         // restore previous traverse inputs
         m_traverse_data = backup_traverse_data;
@@ -314,11 +314,12 @@ protected:
         typename split_algo::nodes_container_type additional_nodes;
         Box n_box;
 
-        split_algo::apply(additional_nodes, n, n_box, m_parameters, m_translator, m_allocators);                // MAY THROW (V: alloc, copy, E: alloc, N:alloc)
+        split_algo::apply(additional_nodes, n, n_box, m_parameters, m_translator, m_allocators);                // MAY THROW, BASIC (V, E: alloc, copy, N:alloc)
 
         BOOST_GEOMETRY_INDEX_ASSERT(additional_nodes.size() == 1, "unexpected number of additional nodes");
 
         // TODO add all additional nodes
+        // For kmeans algorithm:
         // elements number may be greater than node max elements count
         // split and reinsert must take node with some elements count
         // and container of additional elements (std::pair<Box, node*>s or Values)
@@ -336,7 +337,7 @@ protected:
             // update old node's box
             m_traverse_data.current_element().first = n_box;
             // add new node to parent's children
-            m_traverse_data.parent_elements().push_back(additional_nodes[0]);                                     // MAY THROW (V: alloc, copy, E: alloc)
+            m_traverse_data.parent_elements().push_back(additional_nodes[0]);                                     // MAY THROW, STRONG (V, E: alloc, copy)
         }
         // node is the root - add level
         else
@@ -344,15 +345,15 @@ protected:
             BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(m_root_node), "node should be the root");
 
             // create new root and add nodes
-            node_auto_ptr new_root(rtree::create_node<Allocators, internal_node>::apply(m_allocators), m_allocators); // MAY THROW (N:alloc)
+            node_auto_ptr new_root(rtree::create_node<Allocators, internal_node>::apply(m_allocators), m_allocators); // MAY THROW, STRONG (N:alloc)
 
             try {
-                rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(n_box, m_root_node));  // MAY THROW (E:alloc)
-                rtree::elements(rtree::get<internal_node>(*new_root)).push_back(additional_nodes[0]);                 // MAY THROW (E:alloc)
+                rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(n_box, m_root_node));  // MAY THROW, STRONG (E:alloc, copy)
+                rtree::elements(rtree::get<internal_node>(*new_root)).push_back(additional_nodes[0]);                 // MAY THROW, STRONG (E:alloc, copy)
             } catch (...) {
                 // clear new root to not delete in the ~node_auto_ptr() potentially stored old root node
                 rtree::elements(rtree::get<internal_node>(*new_root)).clear();
-                throw;                                                                                                // RETHROW
+                throw;                                                                                                // RETHROW, BASIC
             }
 
             m_root_node = new_root.get();
@@ -421,7 +422,7 @@ public:
         if ( base::m_traverse_data.current_level < base::m_level )
         {
             // next traversing step
-            base::traverse(*this, n);                                                                           // MAY THROW (E: alloc, N: alloc)
+            base::traverse(*this, n);                                                                           // MAY THROW, BASIC (E: alloc, copy, N: alloc)
         }
         else
         {
@@ -430,19 +431,20 @@ public:
             try
             {
                 // push new child node
-                rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW (E: alloc)
+                rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW, STRONG (E: alloc, copy)
             }
             catch(...)
             {
-                // if the insert fails here, the element won't be stored in the tree
+                // if the insert fails above, the element won't be stored in the tree
+
                 rtree::visitors::destroy<Value, Options, Translator, Box, Allocators> del_v(base::m_element.second, base::m_allocators);
                 rtree::apply_visitor(del_v, *base::m_element.second);
 
-                throw;                                                                                          // RETHROW
+                throw;                                                                                          // RETHROW, BASIC
             }
         }
 
-        base::post_traverse(n);                                                                                 // MAY THROW (E: alloc, N: alloc)
+        base::post_traverse(n);                                                                                 // MAY THROW, BASIC (E: alloc, copy, N: alloc)
     }
 
     inline void operator()(leaf &)
@@ -481,9 +483,9 @@ public:
         BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level < base::m_level, "unexpected level");
 
         // next traversing step
-        base::traverse(*this, n);                                                                                   // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+        base::traverse(*this, n);                                                                                   // MAY THROW, BASIC (V, E: alloc, copy, N: alloc)
 
-        base::post_traverse(n);                                                                                     // MAY THROW (E: alloc, N: alloc)
+        base::post_traverse(n);                                                                                     // MAY THROW, BASIC (E: alloc, copy, N: alloc)
     }
 
     inline void operator()(leaf & n)
@@ -492,9 +494,9 @@ public:
         BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level ||
                                     base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
         
-        rtree::elements(n).push_back(base::m_element);                                                              // MAY THROW (V: alloc, copy)
+        rtree::elements(n).push_back(base::m_element);                                                              // MAY THROW, STRONG (V: alloc, copy)
 
-        base::post_traverse(n);                                                                                     // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+        base::post_traverse(n);                                                                                     // MAY THROW, BASIC (V: alloc, copy, N: alloc)
     }
 };
 

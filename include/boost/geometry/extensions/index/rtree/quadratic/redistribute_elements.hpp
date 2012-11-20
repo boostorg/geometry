@@ -109,8 +109,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected elements number");
 
         // copy original elements
-        elements_type elements_copy(elements1);                                                             // MAY THROW
-        elements_type elements_backup(elements1);                                                           // MAY THROW
+        elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
+        elements_type elements_backup(elements1);                                                           // MAY THROW, STRONG (alloc, copy)
         
         // calculate initial seeds
         size_t seed1 = 0;
@@ -129,8 +129,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         try
         {
             // add seeds
-            elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW
-            elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW
+            elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW, STRONG (copy)
+            elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW, STRONG (alloc, copy)
 
             // calculate boxes
             geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
@@ -139,13 +139,13 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             // remove seeds
             if (seed1 < seed2)
             {
-                elements_copy.erase(elements_copy.begin() + seed2);                                         // MAY THROW
-                elements_copy.erase(elements_copy.begin() + seed1);                                         // MAY THROW
+                elements_copy.erase(elements_copy.begin() + seed2);                                         // MAY THROW, BASIC (copy)
+                elements_copy.erase(elements_copy.begin() + seed1);                                         // MAY THROW, BASIC (copy)
             }
             else
             {
-                elements_copy.erase(elements_copy.begin() + seed1);                                         // MAY THROW
-                elements_copy.erase(elements_copy.begin() + seed2);                                         // MAY THROW
+                elements_copy.erase(elements_copy.begin() + seed1);                                         // MAY THROW, BASIC (copy)
+                elements_copy.erase(elements_copy.begin() + seed2);                                         // MAY THROW, BASIC (copy)
             }
 
             // initialize areas
@@ -201,20 +201,20 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
                 if ( insert_into_group1 )
                 {
-                    elements1.push_back(elem);                                                              // MAY THROW
+                    elements1.push_back(elem);                                                              // MAY THROW, STRONG (copy)
                     geometry::expand(box1, indexable);
                     content1 = index::content(box1);
                 }
                 else
                 {
-                    elements2.push_back(elem);                                                              // MAY THROW
+                    elements2.push_back(elem);                                                              // MAY THROW, STRONG (alloc, copy)
                     geometry::expand(box2, indexable);
                     content2 = index::content(box2);
                 }
 
 			    BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
                 typename elements_type::iterator el_it_base = el_it.base();
-                elements_copy.erase(--el_it_base);                                                          // MAY THROW
+                elements_copy.erase(--el_it_base);                                                          // MAY THROW, BASIC (copy)
 
 			    BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "expected more remaining elements");
                 --remaining;
@@ -229,7 +229,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             rtree::destroy_elements<Value, Options, Translator, Box, Allocators>::apply(elements_backup, allocators);
             //elements_backup.clear();
 
-            throw;                                                                                          // RETHROW
+            throw;                                                                                          // RETHROW, BASIC
         }
     }
 

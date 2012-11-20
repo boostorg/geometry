@@ -224,7 +224,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
 		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected number of elements");
 
 		// copy original elements
-		elements_type elements_copy(elements1);                                                             // MAY THROW
+		elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
 
         // calculate initial seeds
         size_t seed1 = 0;
@@ -242,8 +242,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         try
         {
             // add seeds
-            elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW
-            elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW
+            elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW, STRONG (copy)
+            elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW, STRONG (alloc, copy)
 
             // calculate boxes
             geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
@@ -268,13 +268,13 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
                     // just insert them to this node
                     if ( elements1.size() + remaining <= parameters.get_min_elements() )
                     {
-                        elements1.push_back(elem);                                                          // MAY THROW
+                        elements1.push_back(elem);                                                          // MAY THROW, STRONG (copy)
                         geometry::expand(box1, indexable);
                         content1 = index::content(box1);
                     }
                     else if ( elements2.size() + remaining <= parameters.get_min_elements() )
                     {
-                        elements2.push_back(elem);                                                          // MAY THROW
+                        elements2.push_back(elem);                                                          // MAY THROW, STRONG (alloc, copy)
                         geometry::expand(box2, indexable);
                         content2 = index::content(box2);
                     }
@@ -297,13 +297,13 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
                              ( content_increase1 == content_increase2 && content1 < content2 ) ||
                              ( content1 == content2 && elements1.size() <= elements2.size() ) )
                         {
-                            elements1.push_back(elem);                                                      // MAY THROW
+                            elements1.push_back(elem);                                                      // MAY THROW, STRONG (copy)
                             box1 = enlarged_box1;
                             content1 = enlarged_content1;
                         }
                         else
                         {
-                            elements2.push_back(elem);                                                      // MAY THROW
+                            elements2.push_back(elem);                                                      // MAY THROW, STRONG (alloc, copy)
                             box2 = enlarged_box2;
                             content2 = enlarged_content2;
                         }
@@ -322,7 +322,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
             rtree::destroy_elements<Value, Options, Translator, Box, Allocators>::apply(elements_copy, allocators);
             //elements_copy.clear();
 
-            throw;                                                                                          // RETHROW
+            throw;                                                                                          // RETHROW, BASIC
         }
     }
 };
