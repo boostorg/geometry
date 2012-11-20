@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// Nearest neighbour filter implementation
+// Nearest neighbour query range adaptor
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_NEAREST_FILTER_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_NEAREST_FILTER_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ADAPTORS_NEAREST_QUERY_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_ADAPTORS_NEAREST_QUERY_HPP
 
 namespace boost { namespace geometry { namespace index {
 
@@ -98,4 +98,4 @@ operator|(
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_FILTERS_NEAREST_FILTER_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ADAPTORS_NEAREST_QUERY_HPP

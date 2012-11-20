@@ -151,7 +151,8 @@ public:
     inline void push_back(Element const& v)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_size < Capacity, "can't further increase the size of the container");
-        m_array[m_size++] = v;
+        m_array[m_size] = v;
+        ++m_size;
     }
 
     inline void pop_back()

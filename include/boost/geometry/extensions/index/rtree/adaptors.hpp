@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// R-tree queries filters implementation
+// R-tree queries range adaptors
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //
@@ -8,14 +8,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_FILTERS_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_FILTERS_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_ADAPTORS_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_ADAPTORS_HPP
 
 #include <deque>
 #include <boost/static_assert.hpp>
 
-#include <boost/geometry/extensions/index/filters/query_filter.hpp>
-#include <boost/geometry/extensions/index/filters/nearest_filter.hpp>
+#include <boost/geometry/extensions/index/adaptors/spatial_query.hpp>
+#include <boost/geometry/extensions/index/adaptors/nearest_query.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -82,4 +82,4 @@ private:
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_FILTERS_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_ADAPTORS_HPP
