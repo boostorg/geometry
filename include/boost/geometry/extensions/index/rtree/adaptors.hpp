@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// R-tree queries filters implementation
+// R-tree queries range adaptors
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //
@@ -8,22 +8,24 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_FILTERS_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_FILTERS_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_ADAPTORS_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_ADAPTORS_HPP
 
 #include <deque>
 #include <boost/static_assert.hpp>
 
-#include <boost/geometry/extensions/index/filters/query_filter.hpp>
-#include <boost/geometry/extensions/index/filters/nearest_filter.hpp>
+#include <boost/geometry/extensions/index/adaptors/spatial_query.hpp>
+#include <boost/geometry/extensions/index/adaptors/nearest_query.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
 template <typename Value, typename Options, typename Translator, typename Allocator>
 class rtree;
 
+namespace adaptors {
+
 template <typename Value, typename Options, typename Translator, typename Allocator>
-class query_filter< index::rtree<Value, Options, Translator, Allocator> >
+class spatial_query_range< index::rtree<Value, Options, Translator, Allocator> >
 {
 public:
     typedef std::vector<Value> result_type;
@@ -31,12 +33,12 @@ public:
     typedef typename result_type::const_iterator const_iterator;
     
     template <typename Predicates>
-    inline query_filter(
+    inline spatial_query_range(
         index::rtree<Value, Options, Translator, Allocator> const& rtree,
         Predicates const& pred
     )
     {
-        rtree.query(pred, std::back_inserter(m_result));
+        rtree.spatial_query(pred, std::back_inserter(m_result));
     }
 
     inline iterator begin() { return m_result.begin(); }
@@ -49,7 +51,7 @@ private:
 };
 
 template <typename Value, typename Options, typename Translator, typename Allocator>
-class nearest_filter< index::rtree<Value, Options, Translator, Allocator> >
+class nearest_query_range< index::rtree<Value, Options, Translator, Allocator> >
 {
 public:
     typedef std::vector<Value> result_type;
@@ -57,14 +59,14 @@ public:
     typedef typename result_type::const_iterator const_iterator;
 
     template <typename DistancesPredicates, typename Predicates>
-    inline nearest_filter(
+    inline nearest_query_range(
         index::rtree<Value, Options, Translator, Allocator> const& rtree,
         DistancesPredicates const& dpred,
         size_t k,
         Predicates const& pred
     )
     {
-        rtree.nearest(dpred, k, pred, std::back_inserter(m_result));
+        rtree.nearest_query(dpred, k, pred, std::back_inserter(m_result));
     }
 
     inline iterator begin() { return m_result.begin(); }
@@ -76,6 +78,8 @@ private:
     result_type m_result;
 };
 
+} // namespace adaptors
+
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_FILTERS_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_ADAPTORS_HPP

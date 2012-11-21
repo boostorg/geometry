@@ -20,18 +20,18 @@ Method call
 
  std::vector<__value__> returned_values;
  __point__ pt(...);
- rt.nearest(pt, k, std::back_inserter(returned_values));
+ rt.nearest_query(pt, k, std::back_inserter(returned_values));
 
 Function call
 
  std::vector<__value__> returned_values;
  __point__ pt(...);
- index::nearest(rt, pt, k, std::back_inserter(returned_values));
+ index::nearest_query(rt, pt, k, std::back_inserter(returned_values));
 
 Use of `operator |`
 
  __point__ pt(...);
- BOOST_FOREACH(__value__ & v, rt | index::nearest_filtered(pt, k))
+ BOOST_FOREACH(__value__ & v, rt | index::adaptors::nearest_queried(pt, k))
    ; // do something with v
 
 [endsect]
@@ -46,13 +46,13 @@ Method call
 
  __value__ returned_value;
  __point__ pt(...);
- size_t n = rt.nearest(pt, returned_value);
+ size_t n = rt.nearest_query(pt, returned_value);
 
 Function call
 
  __value__ Value returned_value;
  __point__ pt(...);
- size_t n = index::nearest(rt, pt, returned_value);
+ size_t n = index::nearest_query(rt, pt, returned_value);
 
 [endsect]
  
@@ -66,19 +66,19 @@ may be defined as follows.
  __point__ pt(...);
 
  /* default - without bounds */
- index::nearest(rt, pt, k, std::back_inserter(returned_values));
+ index::nearest_query(rt, pt, k, std::back_inserter(returned_values));
 
  /* same as default */
- index::nearest(rt, index::unbounded(pt), k, std::back_inserter(returned_values));
+ index::nearest_query(rt, index::unbounded(pt), k, std::back_inserter(returned_values));
 
  /* distance must be greater than or equal to 10 */
- index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
+ index::nearest_query(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
 
  /* distance must be lesser than or equal to 500 */
- index::nearest(rt, index::max_bounded(pt, 500), k, std::back_inserter(returned_values));
+ index::nearest_query(rt, index::max_bounded(pt, 500), k, std::back_inserter(returned_values));
 
  /* distance must be between 10 and 500 */
- index::nearest(rt, index::bounded(pt, 10, 500), k, std::back_inserter(returned_values));
+ index::nearest_query(rt, index::bounded(pt, 10, 500), k, std::back_inserter(returned_values));
 
 Furthermore, it's possible to define if the closest, furthest or centroidal point of the
 non-point `__indexable__` should be taken into account in the routine calculating distance.
@@ -88,19 +88,19 @@ non-point `__indexable__` should be taken into account in the routine calculatin
 
  /* default - distance between Indexable's closest point and a query point
  must be greater than 10 */
- index::nearest(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
+ index::nearest_query(rt, index::min_bounded(pt, 10), k, std::back_inserter(returned_values));
 
  /* same as default - distance between Indexable's closest point and a query point
  must be greater than 10 */
- index::nearest(rt, index::min_bounded(pt, index::to_nearest(10)), k, std::back_inserter(returned_values));
+ index::nearest_query(rt, index::min_bounded(pt, index::to_nearest(10)), k, std::back_inserter(returned_values));
 
  /* distance between Indexable's furthest point and a query point
  must be greater than 10 */
- index::nearest(rt, index::min_bounded(pt, index::to_furthest(10)), k, std::back_inserter(returned_values));
+ index::nearest_query(rt, index::min_bounded(pt, index::to_furthest(10)), k, std::back_inserter(returned_values));
 
  /* distance between Indexable's centroid and a query point
  must be greater than 10 */
- index::nearest(rt, index::min_bounded(pt, index::to_centroid(10)), k, std::back_inserter(returned_values));
+ index::nearest_query(rt, index::min_bounded(pt, index::to_centroid(10)), k, std::back_inserter(returned_values));
 
 [endsect]
 
@@ -114,11 +114,11 @@ It is possible to use spatial predicates described before in nearest neighbours 
  __point__ pt(...);
  __box__ b(...);
 
- size_t n1 = rt.nearest(index::bounded(pt, index::to_furthest(1), 10), index::intersects(b), returned_value);
+ size_t n1 = rt.nearest_query(index::bounded(pt, index::to_furthest(1), 10), index::intersects(b), returned_value);
 
- size_t n2 = index::nearest(rt, pt, k, index::within(b), std::back_inserter(returned_values));
+ size_t n2 = index::nearest_query(rt, pt, k, index::within(b), std::back_inserter(returned_values));
 
- BOOST_FOREACH(Value & v, rt | index::nearest_filtered(pt, k, index::covered_by(b)))
+ BOOST_FOREACH(Value & v, rt | index::adaptors::nearest_queried(pt, k, index::covered_by(b)))
    ; // do something with v
 
 [endsect]

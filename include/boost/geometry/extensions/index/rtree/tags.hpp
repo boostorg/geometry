@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// Tags used by the R-tree implementation.
+// Tags used by the R-tree predicates implementation.
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //

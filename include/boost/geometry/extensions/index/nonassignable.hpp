@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// Spatial query predicates
+// Nonassignable base class.
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //

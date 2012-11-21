@@ -27,6 +27,8 @@ public:
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
+    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+
     explicit inline copy(Allocators & allocators)
         : result(0)
         , m_allocators(allocators)
@@ -34,7 +36,8 @@ public:
 
     inline void operator()(internal_node & n)
     {
-        node * new_node = rtree::create_node<Allocators, internal_node>::apply(m_allocators);
+        node * raw_new_node = rtree::create_node<Allocators, internal_node>::apply(m_allocators);      // MAY THROW, STRONG (N: alloc)
+        node_auto_ptr new_node(raw_new_node, m_allocators);
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type & elements = rtree::elements(n);
@@ -44,18 +47,25 @@ public:
         for (typename elements_type::iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            rtree::apply_visitor(*this, *it->second);
+            rtree::apply_visitor(*this, *it->second);                                                   // MAY THROW (V, E: alloc, copy, N: alloc) 
 
-            elements_dst.push_back( std::make_pair(it->first, result) );
+            // for exception safety
+            node_auto_ptr auto_result(result, m_allocators);
+
+            elements_dst.push_back( std::make_pair(it->first, result) );                                // MAY THROW, STRONG (E: alloc, copy)
+
+            auto_result.release();
         }
 
-        result = new_node;
+        result = new_node.get();
+        new_node.release();
     }
 
     inline void operator()(leaf & l)
     {
-        node * new_node = rtree::create_node<Allocators, leaf>::apply(m_allocators);
-        
+        node * raw_new_node = rtree::create_node<Allocators, leaf>::apply(m_allocators);                // MAY THROW, STRONG (N: alloc)
+        node_auto_ptr new_node(raw_new_node, m_allocators);
+
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type & elements = rtree::elements(l);
 
@@ -64,10 +74,11 @@ public:
         for (typename elements_type::iterator it = elements.begin();
             it != elements.end(); ++it)
         {
-            elements_dst.push_back(*it);
+            elements_dst.push_back(*it);                                                                // MAY THROW, STRONG (V: alloc, copy)
         }
 
-        result = new_node;
+        result = new_node.get();
+        new_node.release();
     }
 
     node * result;

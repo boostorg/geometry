@@ -31,14 +31,14 @@ Inserting values into the R-tree may be done by calling insert() method.
 
 [rtree_quickstart_insert]
 
-There are various types of queries that may be performed, they can be even combined together
+There are various types of spatial queries that may be performed, they can be even combined together
 in one call. For simplicity, default one is used.
 
-[rtree_quickstart_query]
+[rtree_quickstart_spatial_query]
 
 Default k-nearest neighbors query may be performed as follows.
 
-[rtree_quickstart_nearest]
+[rtree_quickstart_nearest_query]
 
 [h3 More]
 More information about the R-tree implementation, other algorithms and queries may be found in

@@ -46,7 +46,7 @@ public:
         m_size = s;
     }
 
-    inline void reserve(size_type s)
+    inline void reserve(size_type /*s*/)
     {
         //BOOST_GEOMETRY_INDEX_ASSERT(s <= Capacity, "size too big");
         // do nothing
@@ -133,19 +133,11 @@ public:
         m_size = 0;
     }
 
-    inline void erase(iterator it)
-    {
-        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_size, "there are no elements in the container");
-        BOOST_GEOMETRY_INDEX_ASSERT(begin() <= it && it < end(), "iterator points on the element outside the container");
-        //std::copy(it + 1, end(), it);
-        *it = back();
-        --m_size;
-    }
-    
     inline void push_back(Element const& v)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_size < Capacity, "can't further increase the size of the container");
-        m_array[m_size++] = v;
+        m_array[m_size] = v;
+        ++m_size;
     }
 
     inline void pop_back()

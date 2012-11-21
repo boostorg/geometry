@@ -27,11 +27,11 @@ class are_boxes_ok
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
-    inline are_boxes_ok(Translator const& tr)
-        : result(false), m_tr(tr), m_is_root(true)
+    are_boxes_ok(Translator const& tr, bool exact_match)
+        : result(false), m_tr(tr), m_is_root(true), m_exact_match(exact_match)
     {}
 
-    inline void operator()(internal_node const& n)
+    void operator()(internal_node const& n)
     {
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
@@ -69,10 +69,13 @@ public:
             geometry::expand(box_exp, it->first);
         }
         
-        result = m_is_root || geometry::equals(box_exp, m_box);
+        if ( m_exact_match )
+            result = m_is_root || geometry::equals(box_exp, m_box);
+        else
+            result = m_is_root || geometry::covered_by(box_exp, m_box);
     }
 
-    inline void operator()(leaf const& n)
+    void operator()(leaf const& n)
     {
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
@@ -94,7 +97,10 @@ public:
                 geometry::expand(box_exp, m_tr(*it));
             }
 
-            result = geometry::equals(box_exp, m_box);
+            if ( m_exact_match )
+                result = geometry::equals(box_exp, m_box);
+            else
+                result = geometry::covered_by(box_exp, m_box);
         }
         else
             result = true;
@@ -106,21 +112,24 @@ private:
     Translator const& m_tr;
     Box m_box;
     bool m_is_root;
+    bool m_exact_match;
 };
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Options, typename Translator, typename Allocator>
-bool are_boxes_ok(rtree<Value, Options, Translator, Allocator> const& tree)
+template <typename Value, typename Parameters, typename Translator, typename Allocator>
+bool are_boxes_ok(rtree<Value, Parameters, Translator, Allocator> const& tree,
+                  bool exact_match = true)
 {
-    typedef rtree<Value, Options, Translator, Allocator> rt;
+    typedef rtree<Value, Parameters, Translator, Allocator> rt;
+
     detail::rtree::visitors::are_boxes_ok<
         typename rt::value_type,
         typename rt::options_type,
         typename rt::translator_type,
         typename rt::box_type,
         typename rt::allocators_type
-    > v(tree.translator());
+    > v(tree.translator(), exact_match);
     
     tree.apply_visitor(v);
 

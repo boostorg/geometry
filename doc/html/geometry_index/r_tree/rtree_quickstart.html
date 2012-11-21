@@ -7,7 +7,7 @@
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
 <link rel="up" href="../r_tree.html" title="R-tree">
 <link rel="prev" href="introduction.html" title="Introduction">
-<link rel="next" href="r_tree_creation.html" title="R-tree creation">
+<link rel="next" href="creation_and_modification.html" title="Creation and modification">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -20,7 +20,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="introduction.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="r_tree_creation.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="introduction.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="creation_and_modification.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
@@ -86,14 +86,14 @@
 <p>
       </p>
 <p>
-        There are various types of queries that may be performed, they can be even
-        combined together in one call. For simplicity, default one is used.
+        There are various types of spatial queries that may be performed, they can
+        be even combined together in one call. For simplicity, default one is used.
       </p>
 <p>
 </p>
 <pre class="programlisting"><span class="comment">// find values intersecting a box</span>
 <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="identifier">result</span><span class="special">;</span>
-<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">b</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">b</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 </pre>
 <p>
       </p>
@@ -103,7 +103,7 @@
 <p>
 </p>
 <pre class="programlisting"><span class="comment">// find 5 nearest values to a point</span>
-<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="number">5</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="number">5</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 </pre>
 <p>
       </p>
@@ -126,7 +126,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="introduction.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="r_tree_creation.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="introduction.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="creation_and_modification.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a>
 </div>
 </body>
 </html>

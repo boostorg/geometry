@@ -11,6 +11,7 @@
 #define GEOMETRY_TEST_GEOMETRY_INDEX_TEST_COMMON_HPP
 
 #include <boost/geometry.hpp>
+#define BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <geometry_test_common.hpp>

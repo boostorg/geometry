@@ -42,15 +42,15 @@ int main(void)
     rtree.insert(std::make_pair(b, 0));
     //]
     
-    //[rtree_quickstart_query
+    //[rtree_quickstart_spatial_query
     // find values intersecting a box
     std::vector<value> result;
-    rtree.query(b, std::back_inserter(result));
+    rtree.spatial_query(b, std::back_inserter(result));
     //]
 
-    //[rtree_quickstart_nearest
+    //[rtree_quickstart_nearest_query
     // find 5 nearest values to a point
-    rtree.nearest(point(0, 0), 5, std::back_inserter(result));
+    rtree.nearest_query(point(0, 0), 5, std::back_inserter(result));
     //]
 
     return 0;

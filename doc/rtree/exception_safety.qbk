@@ -1,0 +1,51 @@
+[/============================================================================
+  Boost.Geometry Index
+
+  Copyright (c) 2011-2012 Adam Wulkiewicz.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section Exception safety]
+
+In order to be exception-safe the __rtree__ requires:
+
+* Nonthrowing destructor of the `__value__`.
+* Exception-safe copy constructor of the `__value__`.
+* Exception-safe copy constructor of the `CoordinateType`.
+
+[table
+[[Operation]                   [exception-safety]]
+[[`rtree()`]                   [ /nothrow (default)/ or *strong*
+[footnote /nothrow/ - if `Translator` has nonthrowing copy constructor (default), *strong* - if `Translator` has throwing copy constructor]]]
+[[`rtree(first, last)`]        [ *strong*  ]]
+[[`~rtree()`]                  [ /nothrow/ ]]
+[[][]]
+[[`rtree(rtree const&)`]       [ *strong*  ]]
+[[`operator=(rtree const&)`]   [ *strong*  ]]
+[[][]]
+[[`rtree(rtree &&)`]           [ /nothrow (default)/ or *strong*
+[footnote /nothrow/ - if `Translator` has nonthrowing copy constructor (default), *strong* - if `Translator` has throwing copy constructor]]]
+[[`operator=(rtree &&)`]       [ /nothrow/ or *strong*
+[footnote /nothrow/ - if allocators are equal and `Translator` has nonthrowing copy constructor (default), *strong* - if allocators aren't equal or `Translator` has throwing copy constructor]]]
+[[][]]
+[[`insert(__value__)`]         [ basic     ]]
+[[`insert(first, last)`]       [ basic     ]]
+[[`remove(__value__)`]         [ basic     ]]
+[[`remove(first, last)`]       [ basic     ]]
+[[][]]
+[[`spatial_query(...)`]        [ *strong*  ]]
+[[`nearest_query(...)`]        [ *strong*  ]]
+[[][]]
+[[`size()`]                    [ /nothrow/ ]]
+[[`empty()`]                   [ /nothrow/ ]]
+[[`clear()`]                   [ /nothrow/ ]]
+[[`box()`]                     [ /nothrow/ ]]
+[[`get_allocator()`]           [ /nothrow/ ]]
+[[`parameters()`]              [ /nothrow/ ]]
+[[`translator()`]              [ /nothrow/ ]]
+]
+
+[endsect] [/Exception safety/]

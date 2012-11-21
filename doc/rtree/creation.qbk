@@ -8,19 +8,19 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section R-tree creation]
+[section Creation and modification]
 
-[section R-tree template parameters]
+[section Template parameters]
 
 __rtree__ has 4 parameters:
 
  rtree<Value, Parameters, Translator, Allocator>
 
-* `Value` - type of object which will be stored in the container.
+* `__value__` - type of object which will be stored in the container.
 * `Parameters` - compile-time parameters, e.g. inserting/splitting
   algorithm with min and max nodes' elements numbers.
-* `Translator` - type of object translating `Value` objects to
-  `Indexable` objects (`__point__` or `__box__`) which __rtree__ can handle.
+* `__translator__` - type of object translating `Value` objects to
+  `__indexable__` objects (`__point__` or `__box__`) which __rtree__ can handle.
 * `Allocator` - the allocator.
 
 [endsect]
@@ -68,6 +68,38 @@ R*-tree - splitting algorithm minimizing nodes' overlap with forced reinsertions
 
 [endsect]
 
+[section Inserting and splitting algorithms (run-time)]
+
+By default splitting algorithm parameters are passed to the __rtree__ in compile time.
+To use run-time versions of the __rtree__ one may pass parameters defined in index::runtime
+namespace.
+
+ // linear
+ index::rtree<__value__, index::runtime::linear> rt(index::runtime::linear(32, 8));
+ // quadratic
+ index::rtree<__value__, index::runtime::quadratic> rt(index::runtime::quadratic(32, 8));
+ // rstar
+ index::rtree<__value__, index::runtime::rstar> rt(index::runtime::rstar(32, 8));
+
+[endsect]
+
+[section Copying and moving]
+
+The __rtree__ is copyable and movable container. Move semantics is implemented using Boost.Move library
+which also supports compilers not supporting rvalue references.
+
+ index::rtree< __value__, index::quadratic<32, 8> > rt1;
+ // copy constructor
+ index::rtree< __value__, index::quadratic<32, 8> > rt2;
+ // copy assignment
+ rt2 = r1;
+ // move constructor
+ index::rtree< __value__, index::quadratic<32, 8> > rt3(boost::move(rt1));
+ // move assignment
+ rt3 = boost::move(rt2);
+
+[endsect]
+
 [section Inserting and removing Values]
 
 Following code creates an __rtree__ using quadratic algorithm.
@@ -92,4 +124,4 @@ code.
 
 [endsect]
 
-[endsect] [/ R-tree creation /]
+[endsect] [/ Creation and modification /]

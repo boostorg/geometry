@@ -208,7 +208,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
                              Box & box1,
                              Box & box2,
                              parameters_type const& parameters,
-                             Translator const& translator)
+                             Translator const& translator,
+                             Allocators & allocators)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
@@ -223,88 +224,105 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
 		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected number of elements");
 
 		// copy original elements
-		elements_type elements_copy(elements1);
+		elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
 
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
-        linear::pick_seeds<elements_type, parameters_type, Translator>::apply(elements_copy, parameters, translator, seed1, seed2);
+        linear::pick_seeds<
+            elements_type,
+            parameters_type,
+            Translator
+        >::apply(elements_copy, parameters, translator, seed1, seed2);
 
         // prepare nodes' elements containers
         elements1.clear();
         BOOST_GEOMETRY_INDEX_ASSERT(elements2.empty(), "unexpected container state");
 
-        // add seeds
-        elements1.push_back(elements_copy[seed1]);
-        elements2.push_back(elements_copy[seed2]);
-
-        // calculate boxes
-        geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
-        geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
-
-        // initialize areas
-        content_type content1 = index::content(box1);
-        content_type content2 = index::content(box2);
-
-        BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements1_count, "unexpected elements number");
-        size_t remaining = elements1_count - 2;
-
-        // redistribute the rest of the elements
-        for ( size_t i = 0 ; i < elements1_count ; ++i )
+        try
         {
-            if (i != seed1 && i != seed2)
+            // add seeds
+            elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW, STRONG (copy)
+            elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW, STRONG (alloc, copy)
+
+            // calculate boxes
+            geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
+            geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
+
+            // initialize areas
+            content_type content1 = index::content(box1);
+            content_type content2 = index::content(box2);
+
+            BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements1_count, "unexpected elements number");
+            size_t remaining = elements1_count - 2;
+
+            // redistribute the rest of the elements
+            for ( size_t i = 0 ; i < elements1_count ; ++i )
             {
-                element_type const& elem = elements_copy[i];
-                indexable_type const& indexable = rtree::element_indexable(elem, translator);
-
-                // if there is small number of elements left and the number of elements in node is lesser than min_elems
-                // just insert them to this node
-                if ( elements1.size() + remaining <= parameters.get_min_elements() )
+                if (i != seed1 && i != seed2)
                 {
-                    elements1.push_back(elem);
-                    geometry::expand(box1, indexable);
-                    content1 = index::content(box1);
-                }
-                else if ( elements2.size() + remaining <= parameters.get_min_elements() )
-                {
-                    elements2.push_back(elem);
-                    geometry::expand(box2, indexable);
-                    content2 = index::content(box2);
-                }
-                // choose better node and insert element
-                else
-                {
-                    // calculate enlarged boxes and areas
-                    Box enlarged_box1(box1);
-                    Box enlarged_box2(box2);
-                    geometry::expand(enlarged_box1, indexable);
-                    geometry::expand(enlarged_box2, indexable);
-                    content_type enlarged_content1 = index::content(enlarged_box1);
-                    content_type enlarged_content2 = index::content(enlarged_box2);
+                    element_type const& elem = elements_copy[i];
+                    indexable_type const& indexable = rtree::element_indexable(elem, translator);
 
-                    content_type content_increase1 = enlarged_content1 - content1;
-                    content_type content_increase2 = enlarged_content2 - content2;
-
-                    // choose group which box content have to be enlarged least or has smaller content or has fewer elements
-                    if ( content_increase1 < content_increase2 ||
-                         ( content_increase1 == content_increase2 && content1 < content2 ) ||
-                         ( content1 == content2 && elements1.size() <= elements2.size() ) )
+                    // if there is small number of elements left and the number of elements in node is lesser than min_elems
+                    // just insert them to this node
+                    if ( elements1.size() + remaining <= parameters.get_min_elements() )
                     {
-                        elements1.push_back(elem);
-                        box1 = enlarged_box1;
-                        content1 = enlarged_content1;
+                        elements1.push_back(elem);                                                          // MAY THROW, STRONG (copy)
+                        geometry::expand(box1, indexable);
+                        content1 = index::content(box1);
                     }
+                    else if ( elements2.size() + remaining <= parameters.get_min_elements() )
+                    {
+                        elements2.push_back(elem);                                                          // MAY THROW, STRONG (alloc, copy)
+                        geometry::expand(box2, indexable);
+                        content2 = index::content(box2);
+                    }
+                    // choose better node and insert element
                     else
                     {
-                        elements2.push_back(elem);
-                        box2 = enlarged_box2;
-                        content2 = enlarged_content2;
+                        // calculate enlarged boxes and areas
+                        Box enlarged_box1(box1);
+                        Box enlarged_box2(box2);
+                        geometry::expand(enlarged_box1, indexable);
+                        geometry::expand(enlarged_box2, indexable);
+                        content_type enlarged_content1 = index::content(enlarged_box1);
+                        content_type enlarged_content2 = index::content(enlarged_box2);
+
+                        content_type content_increase1 = enlarged_content1 - content1;
+                        content_type content_increase2 = enlarged_content2 - content2;
+
+                        // choose group which box content have to be enlarged least or has smaller content or has fewer elements
+                        if ( content_increase1 < content_increase2 ||
+                             ( content_increase1 == content_increase2 && content1 < content2 ) ||
+                             ( content1 == content2 && elements1.size() <= elements2.size() ) )
+                        {
+                            elements1.push_back(elem);                                                      // MAY THROW, STRONG (copy)
+                            box1 = enlarged_box1;
+                            content1 = enlarged_content1;
+                        }
+                        else
+                        {
+                            elements2.push_back(elem);                                                      // MAY THROW, STRONG (alloc, copy)
+                            box2 = enlarged_box2;
+                            content2 = enlarged_content2;
+                        }
                     }
-                }
                 
-                assert(0 < remaining);
-                --remaining;
+                    assert(0 < remaining);
+                    --remaining;
+                }
             }
+        }
+        catch (...)
+        {
+            elements1.clear();
+            elements2.clear();
+
+            rtree::destroy_elements<Value, Options, Translator, Box, Allocators>::apply(elements_copy, allocators);
+            //elements_copy.clear();
+
+            throw;                                                                                          // RETHROW, BASIC
         }
     }
 };
