@@ -39,12 +39,12 @@ Use of pipe operator generating a range
 It is possible to define other relations between queried `__value__`s and region/regions
 of interest. Names of predicates corresponds to names of __boost_geometry__ algorithms.
 
- rt.query(box, std::back_inserter(result)); // default case - intersects
- rt.query(index::intersects(box), std::back_inserter(result)); // the same as default
- rt.query(index::covered_by(box), std::back_inserter(result));
- rt.query(index::disjont(box), std::back_inserter(result));
- rt.query(index::overlaps(box), std::back_inserter(result));
- rt.query(index::within(box), std::back_inserter(result));
+ rt.spatial_query(box, std::back_inserter(result));                    // default case - intersects
+ rt.spatial_query(index::intersects(box), std::back_inserter(result)); // the same as default
+ rt.spatial_query(index::covered_by(box), std::back_inserter(result));
+ rt.spatial_query(index::disjont(box), std::back_inserter(result));
+ rt.spatial_query(index::overlaps(box), std::back_inserter(result));
+ rt.spatial_query(index::within(box), std::back_inserter(result));
 
 All predicates may be negated, e.g.:
 
