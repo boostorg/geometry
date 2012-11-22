@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// R-tree querying visitor implementation
+// R-tree spatial query visitor implementation
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_QUERY_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_QUERY_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_SPATIAL_QUERY_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_SPATIAL_QUERY_HPP
 
 #include <boost/geometry/extensions/index/rtree/predicates.hpp>
 
@@ -20,7 +20,7 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree { namespace visitors {
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates, typename OutIter>
-struct query
+struct spatial_query
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
     , index::nonassignable
 {
@@ -28,7 +28,7 @@ struct query
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
-    inline query(Translator const& t, Predicates const& p, OutIter out_it)
+    inline spatial_query(Translator const& t, Predicates const& p, OutIter out_it)
         : tr(t), pred(p), out_iter(out_it), found_count(0)
     {}
 
@@ -78,4 +78,4 @@ struct query
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_QUERY_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_SPATIAL_QUERY_HPP

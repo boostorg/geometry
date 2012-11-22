@@ -36,8 +36,8 @@
 #include <boost/geometry/extensions/index/rtree/visitors/remove.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/copy.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/query.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/nearest.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/spatial_query.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/nearest_query.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/children_box.hpp>
 
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
@@ -346,7 +346,7 @@ public:
     template <typename Predicates, typename OutIter>
     inline size_type spatial_query(Predicates const& pred, OutIter out_it) const
     {
-        detail::rtree::visitors::query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
+        detail::rtree::visitors::spatial_query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
             find_v(m_translator, pred, out_it);
 
         detail::rtree::apply_visitor(find_v, *m_root);
@@ -749,7 +749,7 @@ private:
         typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
         typedef typename detail::relation<point_relation>::value_type point_type;
 
-        typedef detail::rtree::visitors::nearest_one<
+        typedef detail::rtree::visitors::nearest_query_result_one<
             value_type,
             translator_type,
             point_type
@@ -757,7 +757,7 @@ private:
 
         result_type result;
 
-        detail::rtree::visitors::nearest<
+        detail::rtree::visitors::nearest_query<
             value_type,
             options_type,
             translator_type,
@@ -784,7 +784,7 @@ private:
         typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
         typedef typename detail::relation<point_relation>::value_type point_type;
 
-        typedef detail::rtree::visitors::nearest_k<
+        typedef detail::rtree::visitors::nearest_query_result_k<
             value_type,
             translator_type,
             point_type
@@ -792,7 +792,7 @@ private:
 
         result_type result(k);
 
-        detail::rtree::visitors::nearest<
+        detail::rtree::visitors::nearest_query<
             value_type,
             options_type,
             translator_type,
