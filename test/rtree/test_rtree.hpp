@@ -327,7 +327,7 @@ template <>
 struct test_overlap_impl<bg::point_tag>
 {
     template <typename Value, typename Algo, typename Box>
-    static void apply(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+    static void apply(bgi::rtree<Value, Algo> const& /*tree*/, std::vector<Value> const& /*input*/, Box const& /*qbox*/)
     {}
 };
 

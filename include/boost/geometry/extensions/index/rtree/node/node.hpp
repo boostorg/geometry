@@ -109,9 +109,9 @@ struct destroy_elements
         }
     }
 
-    inline static void apply(typename leaf::elements_type::iterator first,
-                             typename leaf::elements_type::iterator last,
-                             Allocators &)
+    inline static void apply(typename leaf::elements_type::iterator /*first*/,
+                             typename leaf::elements_type::iterator /*last*/,
+                             Allocators & /*allocators*/)
     {}
 };
 
