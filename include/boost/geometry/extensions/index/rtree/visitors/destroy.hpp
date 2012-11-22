@@ -52,7 +52,7 @@ public:
         rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, node_to_destroy);
     }
 
-    inline void operator()(leaf & l)
+    inline void operator()(leaf & BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(l))
     {
         BOOST_GEOMETRY_INDEX_ASSERT(&l == rtree::get<leaf>(m_current_node), "invalid pointers");
 

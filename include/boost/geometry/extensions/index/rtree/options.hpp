@@ -148,19 +148,30 @@ private:
     size_t min_elements;
 };
 
+namespace detail { 
+
+inline size_t default_rstar_reinserted_elements()
+{
+    return (std::numeric_limits<size_t>::max)();
+};
+
+} // namespace options::detail
+
 class rstar
 {
 public:
-    static const size_t default_reinserted_elements = -1;
-
     rstar(size_t max_elements_,
           size_t min_elements_,
           size_t overlap_cost_threshold_ = 0,
-          size_t reinserted_elements_ = default_reinserted_elements)
+          size_t reinserted_elements_ = detail::default_rstar_reinserted_elements())
         : max_elements(max_elements_)
         , min_elements(min_elements_)
         , overlap_cost_threshold(overlap_cost_threshold_)
-        , reinserted_elements(default_reinserted_elements == reinserted_elements_ ? (max_elements_ * 3) / 10 : reinserted_elements_)
+        , reinserted_elements(
+            detail::default_rstar_reinserted_elements() == reinserted_elements_ ?
+            (max_elements_ * 3) / 10 :
+            reinserted_elements_
+        )
     {}
 
     size_t get_max_elements() const { return max_elements; }

@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// R-tree k nearest neighbour querying visitor implementation
+// R-tree k nearest neighbour query visitor implementation
 //
 // Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
 //
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_QUERY_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_QUERY_HPP
 
 #include <boost/geometry/extensions/index/rtree/distance_predicates.hpp>
 
@@ -25,7 +25,7 @@ namespace detail { namespace rtree { namespace visitors {
 // - well not with this algorithm of storing k-th neighbor
 
 template <typename Value, typename Translator, typename Point>
-struct nearest_one
+struct nearest_query_result_one
 {
 public:
     typedef typename geometry::default_distance_result<
@@ -33,7 +33,7 @@ public:
         typename translator::indexable_type<Translator>::type
     >::type distance_type;
 
-    inline nearest_one()
+    inline nearest_query_result_one()
         : m_comp_dist((std::numeric_limits<distance_type>::max)())
     {}
 
@@ -68,7 +68,7 @@ private:
 };
 
 template <typename Value, typename Translator, typename Point>
-struct nearest_k
+struct nearest_query_result_k
 {
 public:
     typedef typename geometry::default_distance_result<
@@ -76,7 +76,7 @@ public:
         typename translator::indexable_type<Translator>::type
     >::type distance_type;
 
-    inline explicit nearest_k(size_t k)
+    inline explicit nearest_query_result_k(size_t k)
         : m_count(k)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(0 < m_count, "Number of neighbors should be greater than 0");
@@ -156,7 +156,7 @@ template <
     typename Predicates,
     typename Result
 >
-class nearest
+class nearest_query
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
     , index::nonassignable
 {
@@ -183,7 +183,7 @@ public:
         rtree::value_tag
     > value_distances_predicates_check;
 
-    inline nearest(parameters_type const& parameters, Translator const& translator, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
+    inline nearest_query(parameters_type const& parameters, Translator const& translator, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
         : m_parameters(parameters), m_translator(translator)
         , m_dist_pred(dist_pred), m_pred(pred)
         , m_result(r)
@@ -337,4 +337,4 @@ private:
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_NEAREST_QUERY_HPP
