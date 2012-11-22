@@ -260,7 +260,8 @@ template <typename Rtree, typename Value, typename Predicates>
 void test_spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
 {
     BOOST_CHECK( bgi::are_levels_ok(rtree) );
-    BOOST_CHECK( bgi::are_boxes_ok(rtree) );
+    if ( !rtree.empty() )
+        BOOST_CHECK( bgi::are_boxes_ok(rtree) );
 
     std::vector<Value> output;
     size_t n = rtree.spatial_query(pred, std::back_inserter(output));
@@ -481,7 +482,9 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
 
     // caluclate biggest distance
     std::sort(test_output.begin(), test_output.end(), TestNearestKLess<Rtree, Point>());
-    D biggest_d = test_output.back().first;
+    D biggest_d = 0;
+    if ( !test_output.empty() )
+        biggest_d = test_output.back().first;
     
     // transform test output to vector of values
     std::vector<Value> expected_output(test_output.size());
@@ -534,14 +537,13 @@ void test_copy_assignment_move(bgi::rtree<Value, Algo> const& tree, Box const& q
 {
     size_t s = tree.size();
 
-    BOOST_CHECK(s);    
-
     std::vector<Value> expected_output;
     tree.spatial_query(qbox, std::back_inserter(expected_output));
 
     // copy constructor
     bgi::rtree<Value, Algo> t1(tree);
 
+    BOOST_CHECK(tree.empty() == t1.empty());
     BOOST_CHECK(tree.size() == t1.size());
 
     std::vector<Value> output;
@@ -551,6 +553,7 @@ void test_copy_assignment_move(bgi::rtree<Value, Algo> const& tree, Box const& q
     // copying assignment operator
     t1 = tree;
 
+    BOOST_CHECK(tree.empty() == t1.empty());
     BOOST_CHECK(tree.size() == t1.size());
 
     output.clear();
@@ -609,6 +612,8 @@ void test_rtree_by_value(Parameters const& parameters)
     typedef bgi::rtree<Value, Parameters> Tree;
     typedef typename Tree::box_type B;
 
+    // not empty tree test
+
     Tree tree(parameters);
     std::vector<Value> input;
     B qbox;
@@ -632,6 +637,21 @@ void test_rtree_by_value(Parameters const& parameters)
     test_copy_assignment_move(tree, qbox);
 
     test_remove(tree, qbox);
+
+    // empty tree test
+
+    Tree empty_tree(parameters);
+    std::vector<Value> empty_input;
+
+    test_intersects_and_disjoint(empty_tree, empty_input, qbox);
+    test_covered_by(empty_tree, empty_input, qbox);
+    test_overlaps(empty_tree, empty_input, qbox);
+    //test_touches(empty_tree, empty_input, qbox);
+    test_within(empty_tree, empty_input, qbox);
+    test_nearest_query(empty_tree, empty_input, pt);
+    test_nearest_query_k(empty_tree, empty_input, pt, 10);
+    test_nearest_query_not_found(empty_tree, generate_outside_point<P>::apply(), 1, 3);
+    test_copy_assignment_move(empty_tree, qbox);
 }
 
 // run all tests for one Algorithm for some number of rtrees

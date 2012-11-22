@@ -84,6 +84,7 @@ inline Derived * get(dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
 template <typename Visitor, typename Visitable>
 inline void apply_visitor(Visitor &v, Visitable & n)
 {
+    assert(&n);
     n.apply_visitor(v);
 }
 

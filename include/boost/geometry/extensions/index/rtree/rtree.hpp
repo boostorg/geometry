@@ -175,7 +175,7 @@ public:
     {
         //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
 
-        this->raw_copy(src, *this, m_allocators);
+        this->raw_copy(src, *this, false);
     }
 
     /*!
@@ -191,7 +191,7 @@ public:
         , m_leafs_level(0)
         , m_root(0)
     {
-        this->raw_copy(src, *this, m_allocators);
+        this->raw_copy(src, *this, false);
     }
 
     /*!
@@ -225,7 +225,8 @@ public:
 
         //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
 
-        this->raw_copy(src, *this, m_allocators);
+        // It uses m_allocators
+        this->raw_copy(src, *this, true);
 
         return *this;
     }
@@ -259,7 +260,8 @@ public:
         }
         else
         {
-            this->raw_copy(src, *this, m_allocators);
+            // It uses m_allocators
+            this->raw_copy(src, *this, true);
         }
 
         return *this;
@@ -346,6 +348,9 @@ public:
     template <typename Predicates, typename OutIter>
     inline size_type spatial_query(Predicates const& pred, OutIter out_it) const
     {
+        if ( !m_root )
+            return 0;
+
         detail::rtree::visitors::spatial_query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
             find_v(m_translator, pred, out_it);
 
@@ -580,7 +585,8 @@ private:
     template <typename Visitor>
     inline void apply_visitor(Visitor & visitor) const
     {
-        detail::rtree::apply_visitor(visitor, *m_root);
+        if ( m_root )
+            detail::rtree::apply_visitor(visitor, *m_root);
     }
 
     /*!
@@ -710,16 +716,27 @@ private:
 
     /*!
     Copy the R-tree i.e. whole nodes structure, values and other attributes.
+    It uses destination's allocators to create the new structure.
 
     \note Exception-safety: strong.
 
     \param src    The source R-tree.
     \param dst    The destination R-tree.
     */
-    inline void raw_copy(rtree const& src, rtree & dst, allocators_type & allocators) const
+    inline void raw_copy(rtree const& src, rtree & dst, bool copy_all_internals) const
     {
-        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type> copy_v(allocators);
-        detail::rtree::apply_visitor(copy_v, *src.m_root);                                                          // MAY THROW (V: alloc, copy, E: alloc, N: alloc)
+        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type> copy_v(dst.m_allocators);
+
+        if ( src.m_root )
+            detail::rtree::apply_visitor(copy_v, *src.m_root);                              // MAY THROW (V, E: alloc, copy, N: alloc)
+
+        if ( copy_all_internals )
+        {
+            dst.m_translator = src.m_translator;                                            // MAY THROW
+
+            dst.m_parameters = src.m_parameters;
+            //dst.m_allocators = dst.m_allocators;
+        }
 
         if ( dst.m_root )
         {
@@ -727,11 +744,6 @@ private:
             detail::rtree::apply_visitor(del_v, *dst.m_root);
             dst.m_root = 0;
         }
-
-        dst.m_translator = src.m_translator;
-
-        dst.m_parameters = src.m_parameters;
-        dst.m_allocators = allocators;
 
         dst.m_root = copy_v.result;
         dst.m_values_count = src.m_values_count;
@@ -746,6 +758,9 @@ private:
     template <typename DistancesPredicates, typename Predicates>
     inline size_type raw_nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
     {
+        if ( !m_root )
+            return 0;
+
         typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
         typedef typename detail::relation<point_relation>::value_type point_type;
 
@@ -781,6 +796,9 @@ private:
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
     inline size_type raw_nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
     {
+        if ( !m_root )
+            return 0;
+
         typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
         typedef typename detail::relation<point_relation>::value_type point_type;
 
