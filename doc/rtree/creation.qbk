@@ -31,13 +31,15 @@ __rtree__ may store `__value__`s of any type as long the `__translator__`
 is passed as parameter. It knows how to interpret those `__value__`s
 and extract an object understandable by the __rtree__. Those objects are called
 `__indexable__`s. Each type adapted to `__point__` or `__box__` concept is an `__indexable__`.
-Default `__translator__` `index::translator::def<Value>`
-is able to handle `__point__`, `__box__`, `std::pair<...>`, pointer, iterator
-or smart pointer.
+Default `__translator__` `index::translator::def<__value__>`
+is able to handle `__point__`, `__box__` or `std::pair<...>` `__value__`s.
 
 * `__indexable__ = __point__ | __box__`
-* `BasicValue = Indexable | std::pair<__indexable__, T> | std::pair<T, __indexable__>`
-* `__value__ = BasicValue | BasicValue* | Iterator<BasicValue> | SmartPtr<BasicValue>`
+* `__value__ = Indexable | std::pair<__indexable__, T>`
+
+If comparison of two `__value__`s is required, the default translator compares
+both components of the `std::pair<...>`. If the second one is a `Geometry`,
+`geometry::equals()` function is used. For other types it uses `operator==()`.
 
 Examples of `__value__` types:
 

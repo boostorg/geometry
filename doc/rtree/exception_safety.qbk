@@ -28,7 +28,7 @@ In order to be exception-safe the __rtree__ requires:
 [[][]]
 [[`rtree(rtree &&)`]           [ /nothrow/ ]]
 [[`operator=(rtree &&)`]       [ /nothrow/ or *strong*
-[footnote /nothrow/ - if allocators are equal, *strong* - if allocators aren't equal]]]
+[footnote /nothrow/ - if allocators are equal, *strong* - otherwise]]]
 [[`swap(rtree &)`]             [ /nothrow/ ]]
 [[][]]
 [[`insert(__value__)`]         [ basic     ]]
@@ -43,7 +43,7 @@ In order to be exception-safe the __rtree__ requires:
 [[`empty()`]                   [ /nothrow/ ]]
 [[`clear()`]                   [ /nothrow/ ]]
 [[`box()`]                     [ /nothrow/ or *strong*
-[footnote /nothrow/ - if `CoordinateType` has nonthrowing copy ctor, *strong* - if `CoordinateType` has throwing copy ctor]]]
+[footnote /nothrow/ - if `CoordinateType` has nonthrowing copy constructor, *strong* - otherwise]]]
 [[`get_allocator()`]           [ /nothrow/ ]]
 [[`parameters()`]              [ /nothrow/ ]]
 [[`translator()`]              [ /nothrow/ ]]

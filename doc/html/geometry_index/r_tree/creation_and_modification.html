@@ -83,11 +83,10 @@
           <code class="computeroutput">Indexable</code>s. Each type adapted to <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
           or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
           concept is an <code class="computeroutput">Indexable</code>. Default <code class="computeroutput">Translator</code>
-          <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code>
-          is able to handle <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>,
-          <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>,
-          <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;...&gt;</span></code>,
-          pointer, iterator or smart pointer.
+          <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span>Value<span class="special">&gt;</span></code> is able to handle <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>,
+          <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
+          or <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;...&gt;</span></code>
+          <code class="computeroutput">Value</code>s.
         </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
@@ -95,16 +94,16 @@
               <span class="special">|</span> <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
             </li>
 <li class="listitem">
-              <code class="computeroutput"><span class="identifier">BasicValue</span> <span class="special">=</span>
-              <span class="identifier">Indexable</span> <span class="special">|</span>
-              <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span>Indexable<span class="special">,</span> <span class="identifier">T</span><span class="special">&gt;</span> <span class="special">|</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">,</span> Indexable<span class="special">&gt;</span></code>
-            </li>
-<li class="listitem">
-              <code class="computeroutput">Value <span class="special">=</span> <span class="identifier">BasicValue</span>
-              <span class="special">|</span> <span class="identifier">BasicValue</span><span class="special">*</span> <span class="special">|</span> <span class="identifier">Iterator</span><span class="special">&lt;</span><span class="identifier">BasicValue</span><span class="special">&gt;</span>
-              <span class="special">|</span> <span class="identifier">SmartPtr</span><span class="special">&lt;</span><span class="identifier">BasicValue</span><span class="special">&gt;</span></code>
+              <code class="computeroutput">Value <span class="special">=</span> <span class="identifier">Indexable</span>
+              <span class="special">|</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span>Indexable<span class="special">,</span>
+              <span class="identifier">T</span><span class="special">&gt;</span></code>
             </li>
 </ul></div>
+<p>
+          If comparison of two <code class="computeroutput">Value</code>s is required, the default translator
+          compares both components of the <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;...&gt;</span></code>. If the second one is a <code class="computeroutput"><span class="identifier">Geometry</span></code>, <code class="computeroutput"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">equals</span><span class="special">()</span></code> function is used. For other types it
+          uses <code class="computeroutput"><span class="keyword">operator</span><span class="special">==()</span></code>.
+        </p>
 <p>
           Examples of <code class="computeroutput">Value</code> types:
         </p>
