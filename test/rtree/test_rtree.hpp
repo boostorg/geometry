@@ -533,7 +533,7 @@ void test_nearest_query_not_found(Rtree const& rtree, Point const& pt, Coordinat
 // rtree copying and moving
 
 template <typename Value, typename Algo, typename Box>
-void test_copy_assignment_move(bgi::rtree<Value, Algo> const& tree, Box const& qbox)
+void test_copy_assignment_swap_move(bgi::rtree<Value, Algo> const& tree, Box const& qbox)
 {
     size_t s = tree.size();
 
@@ -560,25 +560,43 @@ void test_copy_assignment_move(bgi::rtree<Value, Algo> const& tree, Box const& q
     t1.spatial_query(qbox, std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
 
-    // moving constructor
-    bgi::rtree<Value, Algo> t2(boost::move(t1));
+    bgi::rtree<Value, Algo> t2(tree.parameters());
+    t2.swap(t1);
+    BOOST_CHECK(tree.empty() == t2.empty());
+    BOOST_CHECK(tree.size() == t2.size());
+    BOOST_CHECK(true == t1.empty());
+    BOOST_CHECK(0 == t1.size());
 
-    BOOST_CHECK(t2.size() == s);
-    BOOST_CHECK(t1.size() == 0);
+    output.clear();
+    t1.spatial_query(qbox, std::back_inserter(output));
+    BOOST_CHECK(output.empty());
 
     output.clear();
     t2.spatial_query(qbox, std::back_inserter(output));
     test_exactly_the_same_outputs(t2, output, expected_output);
+    t2.swap(t1);
+
+    // moving constructor
+    bgi::rtree<Value, Algo> t3(boost::move(t1));
+
+    BOOST_CHECK(t3.size() == s);
+    BOOST_CHECK(t1.size() == 0);
+
+    output.clear();
+    t3.spatial_query(qbox, std::back_inserter(output));
+    test_exactly_the_same_outputs(t3, output, expected_output);
 
     // moving assignment operator
-    t1 = boost::move(t2);
+    t1 = boost::move(t3);
 
     BOOST_CHECK(t1.size() == s);
-    BOOST_CHECK(t2.size() == 0);
+    BOOST_CHECK(t3.size() == 0);
 
     output.clear();
     t1.spatial_query(qbox, std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
+
+    //TODO - test SWAP
 }
 
 // rtree removing
@@ -634,7 +652,7 @@ void test_rtree_by_value(Parameters const& parameters)
     test_nearest_query_k(tree, input, pt, 10);
     test_nearest_query_not_found(tree, generate_outside_point<P>::apply(), 1, 3);
 
-    test_copy_assignment_move(tree, qbox);
+    test_copy_assignment_swap_move(tree, qbox);
 
     test_remove(tree, qbox);
 
@@ -651,7 +669,7 @@ void test_rtree_by_value(Parameters const& parameters)
     test_nearest_query(empty_tree, empty_input, pt);
     test_nearest_query_k(empty_tree, empty_input, pt, 10);
     test_nearest_query_not_found(empty_tree, generate_outside_point<P>::apply(), 1, 3);
-    test_copy_assignment_move(empty_tree, qbox);
+    test_copy_assignment_swap_move(empty_tree, qbox);
 }
 
 // run all tests for one Algorithm for some number of rtrees
