@@ -10,6 +10,17 @@
 
 [section Nearest neighbours queries]
 
+Nearest neighbours queries returns `Value`s which are closest to some point in space.
+Additionally it is possible to pass distance predicates in order to define how the distance
+to the `Value` should be calculated or minimal and maximal distances. The examples of some knn
+queries may be found in the table below. All queries returns 5 closest `Values`.
+The query point, region and result Values are orange.
+
+[table
+[[Basic knn query] [knn in a ring (Value's furthest point)] [knn in a ring (Value's closest point)]]
+[[[$../images/knn.png]] [[$../images/knn_inters.png]] [[$../images/knn_cover.png]]]
+]
+
 [section k nearest neighbours]
 
 There are three ways of performing knn queries. Following queries returns

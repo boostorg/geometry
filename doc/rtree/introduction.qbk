@@ -11,7 +11,7 @@
 [section Introduction]
 
 __rtree__ is a tree data structure used for spatial searching. It was proposed by
-Antonin Guttman in 1984 [footnote Guttman, A. (1984). /R-Trees: A Dynamic Index Structure for Spatial Searching/ footnote]
+Antonin Guttman in 1984 [footnote Guttman, A. (1984). /R-Trees: A Dynamic Index Structure for Spatial Searching/]
 as an expansion of B-tree for multi-dimensional data. It may be used to store points or volumetric data in order to
 perform a spatial query later. This query may return objects that are inside some area or are close to some point in space.
 
@@ -26,8 +26,8 @@ the new node is created and elements are split between nodes. If the number of e
 and elements are reinserted into the tree.
 
 The __rtree__ is a self-balanced data structure. The key part of balancing algorithm is node splitting algorithm mentioned before
-[footnote Greene, D. (1989). /An implementation and performance analysis of spatial data access methods/ ]
-[footnote Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). /The R*-tree: an efficient and robust access method for points and rectangles/ ].
+[footnote Greene, D. (1989). /An implementation and performance analysis of spatial data access methods/]
+[footnote Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). /The R*-tree: an efficient and robust access method for points and rectangles/].
 Each algorithm would produce different splits so the internal structure of a tree may be different for each one of them.
 In general more complex algorithms analyses elements better and produces less overlapping nodes. This is a "better" split because
 later, in the searching process less nodes must be traversed in order to find desired obejcts. On the other hand more complex analysis

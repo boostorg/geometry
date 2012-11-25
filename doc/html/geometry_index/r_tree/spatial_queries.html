@@ -32,6 +32,76 @@
 <dt><span class="section"><a href="spatial_queries.html#geometry_index.r_tree.spatial_queries.spatial_predicates">Spatial
         predicates</a></span></dt>
 </dl></div>
+<p>
+        Spatial queries returns <code class="computeroutput"><span class="identifier">Value</span></code>s
+        which meets some predicates. For instance it may be used to retrieve Values
+        intersecting some area or are within some other area. The examples of some
+        basic queries may be found in the table below. The query region and result
+        <code class="computeroutput"><span class="identifier">Value</span></code>s are orange.
+      </p>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                <p>
+                  intersects (default)
+                </p>
+              </th>
+<th>
+                <p>
+                  covered_by
+                </p>
+              </th>
+<th>
+                <p>
+                  disjoint
+                </p>
+              </th>
+<th>
+                <p>
+                  overlaps
+                </p>
+              </th>
+<th>
+                <p>
+                  within
+                </p>
+              </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/intersects.png" alt="intersects"></span>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/within.png" alt="within"></span>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/disjoint.png" alt="disjoint"></span>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/overlaps.png" alt="overlaps"></span>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/within.png" alt="within"></span>
+                </p>
+              </td>
+</tr></tbody>
+</table></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
 <a name="geometry_index.r_tree.spatial_queries.basic_queries"></a><a class="link" href="spatial_queries.html#geometry_index.r_tree.spatial_queries.basic_queries" title="Basic queries">Basic

@@ -37,6 +37,55 @@
 <dt><span class="section"><a href="nearest_neighbours_queries.html#geometry_index.r_tree.nearest_neighbours_queries.using_spatial_predicates">Using
         spatial predicates</a></span></dt>
 </dl></div>
+<p>
+        Nearest neighbours queries returns <code class="computeroutput"><span class="identifier">Value</span></code>s
+        which are closest to some point in space. Additionally it is possible to
+        pass distance predicates in order to define how the distance to the <code class="computeroutput"><span class="identifier">Value</span></code> should be calculated or minimal and
+        maximal distances. The examples of some knn queries may be found in the table
+        below. All queries returns 5 closest <code class="computeroutput"><span class="identifier">Values</span></code>.
+        The query point, region and result Values are orange.
+      </p>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                <p>
+                  Basic knn query
+                </p>
+              </th>
+<th>
+                <p>
+                  knn in a ring (Value's furthest point)
+                </p>
+              </th>
+<th>
+                <p>
+                  knn in a ring (Value's closest point)
+                </p>
+              </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/knn.png" alt="knn"></span>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/knn_inters.png" alt="knn_inters"></span>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/knn_cover.png" alt="knn_cover"></span>
+                </p>
+              </td>
+</tr></tbody>
+</table></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
 <a name="geometry_index.r_tree.nearest_neighbours_queries.k_nearest_neighbours"></a><a class="link" href="nearest_neighbours_queries.html#geometry_index.r_tree.nearest_neighbours_queries.k_nearest_neighbours" title="k nearest neighbours">k
