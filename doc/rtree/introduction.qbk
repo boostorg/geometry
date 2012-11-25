@@ -25,7 +25,7 @@ The number of maximum and mininimum node's elements must be specified by the use
 the new node is created and elements are split between nodes. If the number of elements in node is too small, the node is deleted
 and elements are reinserted into the tree.
 
-The __rtree__ is a self-balanced data structure. The key part of balancing algorithm is node splitting algorithm mentioned before
+The __rtree__ is a self-balanced data structure. The key part of balancing algorithm is node splitting algorithm
 [footnote Greene, D. (1989). /An implementation and performance analysis of spatial data access methods/]
 [footnote Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). /The R*-tree: an efficient and robust access method for points and rectangles/].
 Each algorithm would produce different splits so the internal structure of a tree may be different for each one of them.
