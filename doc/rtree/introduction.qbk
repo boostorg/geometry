@@ -28,11 +28,10 @@ and elements are reinserted into the tree.
 The __rtree__ is a self-balanced data structure. The key part of balancing algorithm is node splitting algorithm
 [footnote Greene, D. (1989). /An implementation and performance analysis of spatial data access methods/]
 [footnote Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). /The R*-tree: an efficient and robust access method for points and rectangles/].
-Each algorithm would produce different splits so the internal structure of a tree may be different for each one of them.
-In general more complex algorithms analyses elements better and produces less overlapping nodes. This is a "better" split because
-later, in the searching process less nodes must be traversed in order to find desired obejcts. On the other hand more complex analysis
-takes more time. In general faster inserting will result in slower searching and vice versa. Example structures of trees created by use
-of three different algorithms and operations time are presented below.
+Each algorithm produces different splits so the internal structure of a tree may be different for each one of them.
+In general more complex algorithms analyses elements better and produces less overlapping nodes. In the searching process less nodes must be traversed
+in order to find desired obejcts. On the other hand more complex analysis takes more time. In general faster inserting will result in slower searching
+and vice versa. Example structures of trees created by use of three different algorithms and operations time are presented below.
 
 [table
 [[]         [linear algorithm] [quadratic algorithm] [R*-tree]]
