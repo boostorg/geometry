@@ -36,7 +36,11 @@
             Exception-safe copy constructor of the <code class="computeroutput">Value</code>.
           </li>
 <li class="listitem">
-            Exception-safe copy constructor of the <code class="computeroutput"><span class="identifier">CoordinateType</span></code>.
+            Exception-safe copy constructor of the <code class="computeroutput"><span class="identifier">CoordinateType</span></code>
+            used in the <code class="computeroutput"><span class="identifier">Indexable</span></code>.
+          </li>
+<li class="listitem">
+            Nonthrowing copy constructor of the <code class="computeroutput"><span class="identifier">Translator</span></code>.
           </li>
 </ul></div>
 <div class="informaltable"><table class="table">
@@ -65,8 +69,7 @@
               </td>
 <td>
                 <p>
-                  <span class="emphasis"><em>nothrow (default)</em></span> or <span class="bold"><strong>strong</strong></span>
-                  <a href="#ftn.geometry_index.r_tree.exception_safety.f0" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f0"></a>[a]</sup></a>
+                  <span class="emphasis"><em>nothrow</em></span>
                 </p>
               </td>
 </tr>
@@ -139,8 +142,7 @@
               </td>
 <td>
                 <p>
-                  <span class="emphasis"><em>nothrow (default)</em></span> or <span class="bold"><strong>strong</strong></span>
-                  <a href="#ftn.geometry_index.r_tree.exception_safety.f1" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f1"></a>[b]</sup></a>
+                  <span class="emphasis"><em>nothrow</em></span>
                 </p>
               </td>
 </tr>
@@ -153,7 +155,19 @@
 <td>
                 <p>
                   <span class="emphasis"><em>nothrow</em></span> or <span class="bold"><strong>strong</strong></span>
-                  <a href="#ftn.geometry_index.r_tree.exception_safety.f2" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f2"></a>[c]</sup></a>
+                  <a href="#ftn.geometry_index.r_tree.exception_safety.f0" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f0"></a>[a]</sup></a>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">swap</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;)</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="emphasis"><em>nothrow</em></span>
                 </p>
               </td>
 </tr>
@@ -293,7 +307,8 @@
               </td>
 <td>
                 <p>
-                  <span class="emphasis"><em>nothrow</em></span>
+                  <span class="emphasis"><em>nothrow</em></span> or <span class="bold"><strong>strong</strong></span>
+                  <a href="#ftn.geometry_index.r_tree.exception_safety.f1" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f1"></a>[b]</sup></a>
                 </p>
               </td>
 </tr>
@@ -336,22 +351,12 @@
 </tbody>
 <tbody class="footnotes"><tr><td colspan="2">
 <div id="ftn.geometry_index.r_tree.exception_safety.f0" class="footnote"><p><a href="#geometry_index.r_tree.exception_safety.f0" class="para"><sup class="para">[a] </sup></a>
-                    <span class="emphasis"><em>nothrow</em></span> - if <code class="computeroutput"><span class="identifier">Translator</span></code>
-                    has nonthrowing copy constructor (default), <span class="bold"><strong>strong</strong></span>
-                    - if <code class="computeroutput"><span class="identifier">Translator</span></code>
-                    has throwing copy constructor
+                    <span class="emphasis"><em>nothrow</em></span> - if allocators are equal, <span class="bold"><strong>strong</strong></span> - otherwise
                   </p></div>
 <div id="ftn.geometry_index.r_tree.exception_safety.f1" class="footnote"><p><a href="#geometry_index.r_tree.exception_safety.f1" class="para"><sup class="para">[b] </sup></a>
-                    <span class="emphasis"><em>nothrow</em></span> - if <code class="computeroutput"><span class="identifier">Translator</span></code>
-                    has nonthrowing copy constructor (default), <span class="bold"><strong>strong</strong></span>
-                    - if <code class="computeroutput"><span class="identifier">Translator</span></code>
-                    has throwing copy constructor
-                  </p></div>
-<div id="ftn.geometry_index.r_tree.exception_safety.f2" class="footnote"><p><a href="#geometry_index.r_tree.exception_safety.f2" class="para"><sup class="para">[c] </sup></a>
-                    <span class="emphasis"><em>nothrow</em></span> - if allocators are equal and <code class="computeroutput"><span class="identifier">Translator</span></code> has nonthrowing
-                    copy constructor (default), <span class="bold"><strong>strong</strong></span>
-                    - if allocators aren't equal or <code class="computeroutput"><span class="identifier">Translator</span></code>
-                    has throwing copy constructor
+                    <span class="emphasis"><em>nothrow</em></span> - if <code class="computeroutput"><span class="identifier">CoordinateType</span></code>
+                    has nonthrowing copy constructor, <span class="bold"><strong>strong</strong></span>
+                    - otherwise
                   </p></div>
 </td></tr></tbody>
 </table></div>

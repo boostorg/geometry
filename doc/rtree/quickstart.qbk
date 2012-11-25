@@ -17,28 +17,40 @@ The code below assumes that following files are included and namespaces used.
 
 [rtree_quickstart_include]
 
-It is possible to store user-defined types in the R-tree. To keep it simple we will
-use predefined __point__ and __box__.
+Typically you'll store e.g. `std::pair<Box, MyGeometryId>` in the __rtree__. `MyGeometryId`
+will be some indentifier of a complex `Geometry` stored in other container, e.g. index type
+of a `Polygon` stored in the vector or an iterator of list of `Ring`s. To keep it simple to
+define `Value` we will use predefined __box__ and unsigned int.
 
 [rtree_quickstart_valuetype]
 
-R-tree may be created using various algorithm and parameters. In this example we will
-use quadratic algorithm. Maximum number of elements in nodes are set to 32, minimum to 8.
+R-tree may be created using various algorithm and parameters. You should choose the algorithm you'll
+find the best for your purpose. In this example we will use quadratic algorithm. Parameters are
+passed as template parameters. Maximum number of elements in nodes are set to 32, minimum to 8. 
 
 [rtree_quickstart_create]
 
-Inserting values into the R-tree may be done by calling insert() method.
+Typically `Value`s will be generated in a loop from e.g. `Polygon`s stored in some other container.
+In this case `Box` objects will probably be created with `geometry::make_envelope()` function.
+But to keep it simple lets just generate some boxes manually and insert them into the R-tree by
+using `insert()` method.
 
 [rtree_quickstart_insert]
 
 There are various types of spatial queries that may be performed, they can be even combined together
-in one call. For simplicity, default one is used.
+in one call. For simplicity, we use the default one. The following query return values intersecting
+a box. The sequence of `Values` in the result is not specified.
 
 [rtree_quickstart_spatial_query]
 
-Default k-nearest neighbors query may be performed as follows.
+Other type of query is k-nearest neighbor search. It returns some number of values nearest to some point
+in space. The default knn query may be performed as follows. The sequence of `Values` in the result is not specified.
 
 [rtree_quickstart_nearest_query]
+
+At the end we'll print results.
+
+[rtree_quickstart_output]
 
 [h3 More]
 More information about the R-tree implementation, other algorithms and queries may be found in

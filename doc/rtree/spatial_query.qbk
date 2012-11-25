@@ -10,6 +10,15 @@
 
 [section Spatial queries]
 
+Spatial queries returns `Value`s which meets some predicates. For instance it may be used to
+retrieve Values intersecting some area or are within some other area. The examples of some
+basic queries may be found in the table below. The query region and result `Value`s are orange.
+
+[table
+[[intersects (default)] [covered_by] [disjoint] [overlaps] [within]]
+[[[$../images/intersects.png]] [[$../images/within.png]] [[$../images/disjoint.png]] [[$../images/overlaps.png]] [[$../images/within.png]]]
+]
+
 [section Basic queries]
 
 There are three ways to perform a spatial query. Following queries returns

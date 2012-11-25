@@ -9,6 +9,8 @@
 
 #include <gl/glut.h>
 
+#define BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE
+
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/gl_draw.hpp>
@@ -31,9 +33,9 @@ std::vector<B> vect;
 
 size_t found_count = 0;
 P search_point;
-float min_distance = 20;
+float min_distance = 10;
 float max_distance = 30;
-size_t count = 10;
+size_t count = 5;
 std::vector<B> nearest_boxes;
 B search_box;
 
@@ -50,11 +52,11 @@ void knn()
 
     search_point = P(x, y);
     nearest_boxes.clear();
-    found_count = t.nearest(
+    found_count = t.nearest_query(
         bgi::bounded(
             search_point,
-            bgi::far(min_distance),
-            bgi::near(max_distance)
+            bgi::to_furthest(min_distance),
+            bgi::to_nearest(max_distance)
         ),
         count,
         std::back_inserter(nearest_boxes)
@@ -87,13 +89,13 @@ void query()
 
         search_box = B(P(x - w, y - h), P(x + w, y + h));
         nearest_boxes.clear();
-        found_count = t.query(Predicate(search_box), std::back_inserter(nearest_boxes) );
+        found_count = t.spatial_query(Predicate(search_box), std::back_inserter(nearest_boxes) );
     }
     else
     {
         search_box = t.box();
         nearest_boxes.clear();
-        found_count = t.query(Predicate(search_box), std::back_inserter(nearest_boxes) );
+        found_count = t.spatial_query(Predicate(search_box), std::back_inserter(nearest_boxes) );
     }
 
     if ( found_count > 0 )
@@ -220,13 +222,23 @@ void resize(int w, int h)
 
     glViewport(0, 0, w, h);
 
-    gluPerspective(45, ratio, 1, 1000);
+    //gluPerspective(45, ratio, 1, 1000);
+    glOrtho(-150, 150, -150, 150, -150, 150);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(
+    /*gluLookAt(
         120.0f, 120.0f, 120.0f, 
         50.0f, 50.0f, -1.0f,
+        0.0f, 1.0f, 0.0f);*/
+    gluLookAt(
+        50.0f, 50.0f, 75.0f, 
+        50.0f, 50.0f, -1.0f,
         0.0f, 1.0f, 0.0f);
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glLineWidth(1.5f);
+
+    srand(1);
 }
 
 void mouse(int button, int state, int x, int y)
@@ -292,6 +304,33 @@ void keyboard(unsigned char key, int x, int y)
         {
             std::cout << "\n" << t << "\n";
         }
+        else if ( current_line == "rand" )
+        {
+            for ( size_t i = 0 ; i < 35 ; ++i )
+            {
+                float x = ( rand() % 100 );
+                float y = ( rand() % 100 );
+                float w = ( rand() % 2 ) + 1;
+                float h = ( rand() % 2 ) + 1;
+
+                B b(P(x - w, y - h),P(x + w, y + h));
+
+                boost::geometry::index::insert(t, b);
+                vect.push_back(b);
+
+                std::cout << "inserted: ";
+                bgi::detail::rtree::visitors::detail::print_indexable(std::cout, b);
+                std::cout << '\n';
+            }
+
+            std::cout << ( bgi::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+            std::cout << ( bgi::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+            std::cout << "\n";
+
+            search_valid = false;
+
+            glutPostRedisplay();
+        }
         else
         {
             if ( current_line == "knn" )
@@ -338,7 +377,7 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_SINGLE | GLUT_RGBA);
     glutInitWindowPosition(100,100);
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(600, 600);
     glutCreateWindow("boost::geometry::index::rtree GLUT test");
 
     glutDisplayFunc(render_scene);

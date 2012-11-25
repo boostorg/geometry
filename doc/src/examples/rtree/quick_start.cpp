@@ -10,13 +10,18 @@
 
 //[rtree_quickstart_include
 
-#include <vector>
-
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
 #include <boost/geometry/extensions/index/rtree/rtree.hpp>
+
+// to store queries results
+#include <vector>
+
+// just for output
+#include <iostream>
+#include <boost/foreach.hpp>
 
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
@@ -31,26 +36,41 @@ int main(void)
     //]
 
     //[rtree_quickstart_create
+    // create the rtree using default constructor
     bgi::rtree< value, bgi::quadratic<32, 8> > rtree;
     //]
 
     //[rtree_quickstart_insert
-    // create some box
-    // this typically will be an envelope of some geometry
-    box b(point(0, 0), point(10, 10));
-    // insert new value
-    rtree.insert(std::make_pair(b, 0));
+    // create some values
+    for ( unsigned i = 0 ; i < 10 ; ++i )
+    {
+        // create a box
+        box b(point(i, i), point(i + 0.5f, i + 0.5f));
+        // insert new value
+        rtree.insert(std::make_pair(b, i));
+    }
     //]
     
     //[rtree_quickstart_spatial_query
-    // find values intersecting a box
-    std::vector<value> result;
-    rtree.spatial_query(b, std::back_inserter(result));
+    // find values intersecting some area defined by a box
+    box query_box(point(0, 0), point(5, 5));
+    std::vector<value> result_s;
+    rtree.spatial_query(query_box, std::back_inserter(result_s));
     //]
 
     //[rtree_quickstart_nearest_query
     // find 5 nearest values to a point
-    rtree.nearest_query(point(0, 0), 5, std::back_inserter(result));
+    std::vector<value> result_n;
+    rtree.nearest_query(point(0, 0), 5, std::back_inserter(result_n));
+    //]
+
+    //[rtree_quickstart_output
+    std::cout << "spatial query result:" << std::endl;
+    BOOST_FOREACH(value const& v, result_s)
+        std::cout << bg::wkt<box>(v.first) << " - " << v.second << std::endl;
+    std::cout << "knn query result:" << std::endl;
+    BOOST_FOREACH(value const& v, result_n)
+        std::cout << bg::wkt<box>(v.first) << " - " << v.second << std::endl;
     //]
 
     return 0;

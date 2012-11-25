@@ -103,15 +103,14 @@ public:
     /*!
     The constructor.
 
-    \note Exception-safety: nothrow (if translator has nonthrowing copy ctor),
-                            strong (if translator has throwing copy ctor)
+    \note Exception-safety: nothrow
 
     \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
     */
     inline explicit rtree(Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = Allocator())
-        : m_translator(translator)                                                  // MAY THROW (copy)
+        : m_translator(translator)                                          // SHOULDN'T THROW
         , m_parameters(parameters)
         , m_allocators(allocator)
         , m_values_count(0)
@@ -132,7 +131,7 @@ public:
     */
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last, Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
-        : m_translator(translator)                                                  // MAY THROW (copy)
+        : m_translator(translator)                                          // SHOULDN'T THROW
         , m_parameters(parameters)
         , m_allocators(allocator)
         , m_values_count(0)
@@ -166,7 +165,7 @@ public:
     \note Exception-safety: strong
     */
     inline rtree(rtree const& src)
-        : m_translator(src.m_translator)                                            // MAY THROW (copy)
+        : m_translator(src.m_translator)                                          // SHOULDN'T THROW
         , m_parameters(src.m_parameters)
         , m_allocators(src.m_allocators)
         , m_values_count(0)
@@ -184,7 +183,7 @@ public:
     \note Exception-safety: strong
     */
     inline rtree(rtree const& src, Allocator const& allocator)
-        : m_translator(src.m_translator)                                            // MAY THROW (copy)
+        : m_translator(src.m_translator)                                          // SHOULDN'T THROW
         , m_parameters(src.m_parameters)
         , m_allocators(allocator)
         , m_values_count(0)
@@ -197,11 +196,10 @@ public:
     /*!
     The moving constructor.
 
-    \note Exception-safety: nothrow (if translator has nonthrowing copy ctor),
-                            strong (if translator has throwing copy ctor)
+    \note Exception-safety: nothrow
     */
     inline rtree(BOOST_RV_REF(rtree) src)
-        : m_translator(src.m_translator)                                            // MAY THROW (copy)
+        : m_translator(src.m_translator)                                          // SHOULDN'T THROW
         , m_parameters(src.m_parameters)
         , m_allocators(src.m_allocators)
         , m_values_count(src.m_values_count)
@@ -234,8 +232,8 @@ public:
     /*!
     The moving assignment.
 
-    \note Exception-safety: nothrow (if allocators are equal and translator has nonthrowing copy ctor),
-                            strong (if allocators aren't equal or translator has throwing copy ctor)
+    \note Exception-safety: nothrow (if allocators are equal),
+                            strong (if allocators aren't equal)
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
@@ -246,7 +244,7 @@ public:
 
         if ( m_allocators.allocator == src.m_allocators.allocator )
         {
-            m_translator = src.m_translator;                                        // MAY THROW (copy)
+            m_translator = src.m_translator;                                          // SHOULDN'T THROW
             m_parameters = src.m_parameters;
             //m_allocators = src.m_allocators;
 
@@ -265,6 +263,24 @@ public:
         }
 
         return *this;
+    }
+
+    /*!
+    Swaps two rtrees.
+
+    \note Exception-safety: nothrow
+
+    \param other    The other rtree.
+    */
+    void swap(rtree & other)
+    {
+        std::swap(m_translator, other.m_translator);                               // SHOULDN'T THROW
+        std::swap(m_parameters, other.m_parameters);
+        std::swap(m_allocators, other.m_allocators);
+
+        std::swap(m_values_count, other.m_values_count);
+        std::swap(m_leafs_level, other.m_leafs_level);
+        std::swap(m_root, other.m_root);
     }
 
     /*!
@@ -732,7 +748,7 @@ private:
 
         if ( copy_all_internals )
         {
-            dst.m_translator = src.m_translator;                                            // MAY THROW
+            dst.m_translator = src.m_translator;                                            // SHOULDN'T THROW
 
             dst.m_parameters = src.m_parameters;
             //dst.m_allocators = dst.m_allocators;

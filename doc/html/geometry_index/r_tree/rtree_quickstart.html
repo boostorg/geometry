@@ -35,13 +35,18 @@
       </p>
 <p>
 </p>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&gt;</span>
-
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">geometries</span><span class="special">/</span><span class="identifier">point_xy</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">geometries</span><span class="special">/</span><span class="identifier">box</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">extensions</span><span class="special">/</span><span class="identifier">index</span><span class="special">/</span><span class="identifier">rtree</span><span class="special">/</span><span class="identifier">rtree</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="comment">// to store queries results</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&gt;</span>
+
+<span class="comment">// just for output</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">iostream</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">foreach</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 
 <span class="keyword">namespace</span> <span class="identifier">bg</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">;</span>
 <span class="keyword">namespace</span> <span class="identifier">bgi</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">;</span>
@@ -49,9 +54,13 @@
 <p>
       </p>
 <p>
-        It is possible to store user-defined types in the R-tree. To keep it simple
-        we will use predefined <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a>
-        and <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a>.
+        Typically you'll store e.g. <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">,</span> <span class="identifier">MyGeometryId</span><span class="special">&gt;</span></code> in the R-tree. <code class="computeroutput"><span class="identifier">MyGeometryId</span></code>
+        will be some indentifier of a complex <code class="computeroutput"><span class="identifier">Geometry</span></code>
+        stored in other container, e.g. index type of a <code class="computeroutput"><span class="identifier">Polygon</span></code>
+        stored in the vector or an iterator of list of <code class="computeroutput"><span class="identifier">Ring</span></code>s.
+        To keep it simple to define <code class="computeroutput"><span class="identifier">Value</span></code>
+        we will use predefined <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a>
+        and unsigned int.
       </p>
 <p>
 </p>
@@ -62,48 +71,80 @@
 <p>
       </p>
 <p>
-        R-tree may be created using various algorithm and parameters. In this example
-        we will use quadratic algorithm. Maximum number of elements in nodes are
-        set to 32, minimum to 8.
+        R-tree may be created using various algorithm and parameters. You should
+        choose the algorithm you'll find the best for your purpose. In this example
+        we will use quadratic algorithm. Parameters are passed as template parameters.
+        Maximum number of elements in nodes are set to 32, minimum to 8.
       </p>
 <p>
 </p>
-<pre class="programlisting"><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> <span class="identifier">value</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rtree</span><span class="special">;</span>
+<pre class="programlisting"><span class="comment">// create the rtree using default constructor</span>
+<span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> <span class="identifier">value</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rtree</span><span class="special">;</span>
 </pre>
 <p>
       </p>
 <p>
-        Inserting values into the R-tree may be done by calling insert() method.
+        Typically <code class="computeroutput"><span class="identifier">Value</span></code>s will be
+        generated in a loop from e.g. <code class="computeroutput"><span class="identifier">Polygon</span></code>s
+        stored in some other container. In this case <code class="computeroutput"><span class="identifier">Box</span></code>
+        objects will probably be created with <code class="computeroutput"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">make_envelope</span><span class="special">()</span></code> function. But to keep it simple lets just
+        generate some boxes manually and insert them into the R-tree by using <code class="computeroutput"><span class="identifier">insert</span><span class="special">()</span></code>
+        method.
       </p>
 <p>
 </p>
-<pre class="programlisting"><span class="comment">// create some box</span>
-<span class="comment">// this typically will be an envelope of some geometry</span>
-<span class="identifier">box</span> <span class="identifier">b</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="identifier">point</span><span class="special">(</span><span class="number">10</span><span class="special">,</span> <span class="number">10</span><span class="special">));</span>
-<span class="comment">// insert new value</span>
-<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><span class="identifier">b</span><span class="special">,</span> <span class="number">0</span><span class="special">));</span>
+<pre class="programlisting"><span class="comment">// create some values</span>
+<span class="keyword">for</span> <span class="special">(</span> <span class="keyword">unsigned</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span> <span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="number">10</span> <span class="special">;</span> <span class="special">++</span><span class="identifier">i</span> <span class="special">)</span>
+<span class="special">{</span>
+    <span class="comment">// create a box</span>
+    <span class="identifier">box</span> <span class="identifier">b</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="identifier">i</span><span class="special">,</span> <span class="identifier">i</span><span class="special">),</span> <span class="identifier">point</span><span class="special">(</span><span class="identifier">i</span> <span class="special">+</span> <span class="number">0.5f</span><span class="special">,</span> <span class="identifier">i</span> <span class="special">+</span> <span class="number">0.5f</span><span class="special">));</span>
+    <span class="comment">// insert new value</span>
+    <span class="identifier">rtree</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><span class="identifier">b</span><span class="special">,</span> <span class="identifier">i</span><span class="special">));</span>
+<span class="special">}</span>
 </pre>
 <p>
       </p>
 <p>
         There are various types of spatial queries that may be performed, they can
-        be even combined together in one call. For simplicity, default one is used.
+        be even combined together in one call. For simplicity, we use the default
+        one. The following query return values intersecting a box. The sequence of
+        <code class="computeroutput"><span class="identifier">Values</span></code> in the result is not
+        specified.
       </p>
 <p>
 </p>
-<pre class="programlisting"><span class="comment">// find values intersecting a box</span>
-<span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="identifier">result</span><span class="special">;</span>
-<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">b</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<pre class="programlisting"><span class="comment">// find values intersecting some area defined by a box</span>
+<span class="identifier">box</span> <span class="identifier">query_box</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="identifier">point</span><span class="special">(</span><span class="number">5</span><span class="special">,</span> <span class="number">5</span><span class="special">));</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="identifier">result_s</span><span class="special">;</span>
+<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">query_box</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result_s</span><span class="special">));</span>
 </pre>
 <p>
       </p>
 <p>
-        Default k-nearest neighbors query may be performed as follows.
+        Other type of query is k-nearest neighbor search. It returns some number
+        of values nearest to some point in space. The default knn query may be performed
+        as follows. The sequence of <code class="computeroutput"><span class="identifier">Values</span></code>
+        in the result is not specified.
       </p>
 <p>
 </p>
 <pre class="programlisting"><span class="comment">// find 5 nearest values to a point</span>
-<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="number">5</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="identifier">result_n</span><span class="special">;</span>
+<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="number">5</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result_n</span><span class="special">));</span>
+</pre>
+<p>
+      </p>
+<p>
+        At the end we'll print results.
+      </p>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"spatial query result:"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="identifier">BOOST_FOREACH</span><span class="special">(</span><span class="identifier">value</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">result_s</span><span class="special">)</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">wkt</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">&gt;(</span><span class="identifier">v</span><span class="special">.</span><span class="identifier">first</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">" - "</span> <span class="special">&lt;&lt;</span> <span class="identifier">v</span><span class="special">.</span><span class="identifier">second</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"knn query result:"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="identifier">BOOST_FOREACH</span><span class="special">(</span><span class="identifier">value</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">result_n</span><span class="special">)</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">wkt</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">&gt;(</span><span class="identifier">v</span><span class="special">.</span><span class="identifier">first</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">" - "</span> <span class="special">&lt;&lt;</span> <span class="identifier">v</span><span class="special">.</span><span class="identifier">second</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
 </pre>
 <p>
       </p>

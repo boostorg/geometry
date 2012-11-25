@@ -21,7 +21,7 @@ int main()
     namespace bgi = bg::index;
 
     size_t values_count = 1000000;
-    size_t queries_count = 100000;
+    size_t queries_count = 1000000;
 
     std::vector< std::pair<float, float> > coords;
 
