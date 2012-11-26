@@ -22,17 +22,13 @@ class insert_iterator :
 public:
     typedef Container container_type;
 
-    inline explicit insert_iterator()
-//        : container(0)
-    {}
-
     inline explicit insert_iterator(Container & c)
-        : container(&c)
+        : container(c)
     {}
     
     insert_iterator & operator=(typename Container::value_type const& value)
     {
-        index::insert(*container, value);
+        container.insert(value);
         return *this;
     }
 
@@ -52,7 +48,7 @@ public:
     }
 
 private:
-    Container * container;
+    Container & container;
 };
 
 template <typename Container>

@@ -677,6 +677,14 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
+        T t(tree.parameters());
+        std::copy(input.begin(), input.end(), bgi::inserter(t));
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        t.spatial_query(qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+    {
         T t(input.begin(), input.end(), tree.parameters());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;

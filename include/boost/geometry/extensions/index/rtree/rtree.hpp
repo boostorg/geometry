@@ -45,6 +45,8 @@
 #include <boost/geometry/extensions/index/rtree/rstar/rstar.hpp>
 //#include <boost/geometry/extensions/index/rtree/kmeans/kmeans.hpp>
 
+#include <boost/geometry/extensions/index/inserter.hpp>
+
 // TODO change the name to bounding_tree
 
 namespace boost { namespace geometry { namespace index {

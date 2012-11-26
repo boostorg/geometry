@@ -35,6 +35,8 @@
         predicates</a></span></dt>
 <dt><span class="section"><a href="spatial_queries.html#geometry_index.r_tree.spatial_queries.value_predicate">Value
         predicate</a></span></dt>
+<dt><span class="section"><a href="spatial_queries.html#geometry_index.r_tree.spatial_queries.inserting_query_results_into_the_other_r_tree">Inserting
+        query results into the other R-tree</a></span></dt>
 </dl></div>
 <p>
         Spatial queries returns <code class="computeroutput"><span class="identifier">Value</span></code>s
@@ -209,6 +211,43 @@
   <span class="identifier">boost</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span>
     <span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">(</span><span class="identifier">fun</span><span class="special">)</span> <span class="special">),</span>
   <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.spatial_queries.inserting_query_results_into_the_other_r_tree"></a><a class="link" href="spatial_queries.html#geometry_index.r_tree.spatial_queries.inserting_query_results_into_the_other_r_tree" title="Inserting query results into the other R-tree">Inserting
+        query results into the other R-tree</a>
+</h4></div></div></div>
+<p>
+          There are several ways of inserting Values returned by a query to the other
+          R-tree container. The most basic way is creating a temporary container
+          for Values and insert them later.
+        </p>
+<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">bgi</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">,</span> <span class="keyword">int</span><span class="special">&gt;</span> Value<span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">linear</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">RTree</span><span class="special">;</span>
+
+<span class="identifier">RTree</span> <span class="identifier">rt1</span><span class="special">;</span>
+<span class="comment">/* some inserting into the tree */</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span> <span class="identifier">result</span><span class="special">;</span>
+<span class="identifier">rt1</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">Box</span><span class="special">(/*...*/),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">RTree</span> <span class="identifier">rt2</span><span class="special">(</span><span class="identifier">result</span><span class="special">.</span><span class="identifier">begin</span><span class="special">(),</span> <span class="identifier">result</span><span class="special">.</span><span class="identifier">end</span><span class="special">());</span>
+</pre>
+<p>
+          However there are better ways. One of these methods is mentioned in the
+          "Creation and modification" section. The insert iterator may
+          be passed directly to the query, which will be the fastest way of inserting
+          query results because temporary container won't be used.
+        </p>
+<pre class="programlisting"><span class="identifier">RTree</span> <span class="identifier">rt3</span><span class="special">;</span>
+<span class="identifier">rt1</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">Box</span><span class="special">(/*...*/),</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">inserter</span><span class="special">(</span><span class="identifier">rt3</span><span class="special">));</span>
+</pre>
+<p>
+          If you like Boost.Range you'll appreciate the third option. You may pass
+          the result Range directly to the constructor.
+        </p>
+<pre class="programlisting"><span class="identifier">RTree</span> <span class="identifier">rt4</span><span class="special">(</span><span class="identifier">rt1</span> <span class="special">|</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">adaptors</span><span class="special">::</span><span class="identifier">spatial_queried</span><span class="special">(</span><span class="identifier">Box</span><span class="special">(/*...*/)));</span>
 </pre>
 </div>
 </div>

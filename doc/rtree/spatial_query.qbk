@@ -104,4 +104,34 @@ which checks if `__value__` should be returned by the query.
 
 [endsect]
 
+[section Inserting query results into the other R-tree]
+
+There are several ways of inserting Values returned by a query to the other R-tree container.
+The most basic way is creating a temporary container for Values and insert them later.
+
+ namespace bgi = boost::geometry::index;
+ typedef std::pair<Box, int> __value__;
+ typedef bgi::rtree< __value__, bgi::linear<32, 8> > RTree;
+
+ RTree rt1;
+ /* some inserting into the tree */
+
+ std::vector<Value> result;
+ rt1.spatial_query(Box(/*...*/), std::back_inserter(result));
+ RTree rt2(result.begin(), result.end());
+
+However there are better ways. One of these methods is mentioned in the "Creation and modification" section.
+The insert iterator may be passed directly to the query, which will be the fastest way of inserting
+query results because temporary container won't be used.
+ 
+ RTree rt3;
+ rt1.spatial_query(Box(/*...*/), bgi::inserter(rt3));
+
+If you like Boost.Range you'll appreciate the third option. You may pass the result Range directly to the
+constructor.
+
+ RTree rt4(rt1 | bgi::adaptors::spatial_queried(Box(/*...*/)));
+
+[endsect]
+
 [endsect] [/ Spatial queries /]
