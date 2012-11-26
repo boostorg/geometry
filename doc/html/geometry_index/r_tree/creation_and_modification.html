@@ -32,14 +32,16 @@
         parameters</a></span></dt>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.values__indexables_and_default_translator">Values,
         Indexables and default Translator</a></span></dt>
-<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms">Inserting
-        and splitting algorithms</a></span></dt>
+<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__compile_time_">Inserting
+        and splitting algorithms (compile-time)</a></span></dt>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__run_time_">Inserting
         and splitting algorithms (run-time)</a></span></dt>
-<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.copying_and_moving">Copying
-        and moving</a></span></dt>
-<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_removing_values">Inserting
-        and removing Values</a></span></dt>
+<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.copying__moving_and_swapping">Copying,
+        moving and swapping</a></span></dt>
+<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_removing_of_values">Inserting
+        and removing of Values</a></span></dt>
+<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.additional_interface">Additional
+        interface</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -49,25 +51,25 @@
 <p>
           R-tree has 4 parameters:
         </p>
-<pre class="programlisting"><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Parameters</span><span class="special">,</span> <span class="identifier">Translator</span><span class="special">,</span> <span class="identifier">Allocator</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Parameters</span><span class="special">,</span> <span class="identifier">Translator</span> <span class="special">=</span> <span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;,</span> <span class="identifier">Allocator</span><span class="special">&gt;</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span> <span class="special">&gt;</span>
 </pre>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
-              <code class="computeroutput">Value</code> - type of object which will be stored in the container.
+              <code class="computeroutput">Value</code> - type of object which will be stored in the container,
             </li>
 <li class="listitem">
-              <code class="computeroutput"><span class="identifier">Parameters</span></code> - compile-time
-              parameters, e.g. inserting/splitting algorithm with min and max nodes'
-              elements numbers.
+              <code class="computeroutput"><span class="identifier">Parameters</span></code> - parameters
+              type, inserting/splitting algorithm,
             </li>
 <li class="listitem">
               <code class="computeroutput">Translator</code> - type of object translating <code class="computeroutput"><span class="identifier">Value</span></code> objects to <code class="computeroutput">Indexable</code>
               objects (<code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
               or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>)
-              which R-tree can handle.
+              which R-tree can handle,
             </li>
 <li class="listitem">
-              <code class="computeroutput"><span class="identifier">Allocator</span></code> - the allocator.
+              <code class="computeroutput"><span class="identifier">Allocator</span></code> - <code class="computeroutput"><span class="identifier">Value</span></code>s allocator, all allocators
+              needed by the container are created from it.
             </li>
 </ul></div>
 </div>
@@ -78,15 +80,13 @@
 </h4></div></div></div>
 <p>
           R-tree may store <code class="computeroutput">Value</code>s of any type as long the <code class="computeroutput">Translator</code>
-          is passed as parameter. It knows how to interpret those <code class="computeroutput">Value</code>s
-          and extract an object understandable by the R-tree. Those objects are called
-          <code class="computeroutput">Indexable</code>s. Each type adapted to <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
+          knows how to interpret those <code class="computeroutput">Value</code>s and extract an object
+          that the R-tree can handle. Those objects are called <code class="computeroutput">Indexable</code>s
+          in this documentation. Each type adapted to <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
           or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
-          concept is an <code class="computeroutput">Indexable</code>. Default <code class="computeroutput">Translator</code>
-          <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span>Value<span class="special">&gt;</span></code> is able to handle <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>,
-          <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
-          or <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;...&gt;</span></code>
-          <code class="computeroutput">Value</code>s.
+          concept is an <code class="computeroutput">Indexable</code>. <code class="computeroutput">Value</code>s types which can
+          be handled by the default <code class="computeroutput">Translator</code> - <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span>Value<span class="special">&gt;</span></code>
+          are defined as follows:
         </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
@@ -96,33 +96,55 @@
 <li class="listitem">
               <code class="computeroutput">Value <span class="special">=</span> <span class="identifier">Indexable</span>
               <span class="special">|</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span>Indexable<span class="special">,</span>
-              <span class="identifier">T</span><span class="special">&gt;</span></code>
+              <span class="identifier">T</span><span class="special">&gt;</span>
+              <span class="special">|</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;</span>Indexable<span class="special">,</span>
+              <span class="special">...&gt;</span></code>
             </li>
 </ul></div>
+<p>
+          Examples of default <code class="computeroutput">Value</code> types:
+        </p>
+<pre class="programlisting"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;...&gt;</span>
+<span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point_xy</span><span class="special">&lt;...&gt;</span>
+<span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;...&gt;</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;...&gt;,</span> <span class="keyword">unsigned</span><span class="special">&gt;</span>
+<span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;...&gt;,</span> <span class="keyword">int</span><span class="special">,</span> <span class="keyword">float</span><span class="special">&gt;</span>
+</pre>
+<p>
+          A <code class="computeroutput">Translator</code> is a type which knows how to handle <code class="computeroutput">Value</code>s.
+          It has two purposes:
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+              it translates <code class="computeroutput">Value</code> to a more suitable <code class="computeroutput">Indexable</code>
+              type which is needed by most of operations,
+            </li>
+<li class="listitem">
+              performs a comparison of <code class="computeroutput">Value</code> which is needed by the
+              removing process.
+            </li>
+</ul></div>
+<p>
+          A <code class="computeroutput">Translator</code> translates the <code class="computeroutput">Value</code> each time the
+          R-tree needs it. For this reason it should rather return const reference
+          to the <code class="computeroutput">Indexable</code> than a copy.
+        </p>
 <p>
           If comparison of two <code class="computeroutput">Value</code>s is required, the default translator
           compares both components of the <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;...&gt;</span></code>. If the second one is a <code class="computeroutput"><span class="identifier">Geometry</span></code>, <code class="computeroutput"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">equals</span><span class="special">()</span></code> function is used. For other types it
           uses <code class="computeroutput"><span class="keyword">operator</span><span class="special">==()</span></code>.
         </p>
-<p>
-          Examples of <code class="computeroutput">Value</code> types:
-        </p>
-<pre class="programlisting"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;...&gt;</span>
-<span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point_xy</span><span class="special">&lt;...&gt;</span>
-<span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;...&gt;</span>
-<span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;...&gt;,</span> <span class="identifier">size_t</span><span class="special">&gt;</span>
-</pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms" title="Inserting and splitting algorithms">Inserting
-        and splitting algorithms</a>
+<a name="geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__compile_time_"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__compile_time_" title="Inserting and splitting algorithms (compile-time)">Inserting
+        and splitting algorithms (compile-time)</a>
 </h4></div></div></div>
 <p>
           <code class="computeroutput">Value</code>s may be inserted to the R-tree in many various ways.
           Final internal structure of the R-tree depends on algorithms used in the
-          insertion process. The most important is nodes' splitting algorithm. Currently,
-          three well-known types of R-trees may be created.
+          insertion process and parameters. The most important is nodes' splitting
+          algorithm. Currently, three well-known types of R-trees may be created.
         </p>
 <p>
           Linear - classic R-tree using splitting algorithm of linear complexity
@@ -146,65 +168,135 @@
         and splitting algorithms (run-time)</a>
 </h4></div></div></div>
 <p>
-          By default splitting algorithm parameters are passed to the R-tree in compile
-          time. To use run-time versions of the R-tree one may pass parameters defined
+          Splitting algorithm parameters may be passed to the R-tree in run time.
+          To use run-time versions of the R-tree one may pass parameters defined
           in index::runtime namespace.
         </p>
 <pre class="programlisting"><span class="comment">// linear</span>
 <span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span>Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">runtime</span><span class="special">::</span><span class="identifier">linear</span><span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">runtime</span><span class="special">::</span><span class="identifier">linear</span><span class="special">(</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">));</span>
+
 <span class="comment">// quadratic</span>
 <span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span>Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">runtime</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">runtime</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">(</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">));</span>
+
 <span class="comment">// rstar</span>
 <span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span>Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">runtime</span><span class="special">::</span><span class="identifier">rstar</span><span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">runtime</span><span class="special">::</span><span class="identifier">rstar</span><span class="special">(</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">));</span>
 </pre>
+<p>
+          The obvious drawback is a slightly slower R-tree.
+        </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.creation_and_modification.copying_and_moving"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.copying_and_moving" title="Copying and moving">Copying
-        and moving</a>
+<a name="geometry_index.r_tree.creation_and_modification.copying__moving_and_swapping"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.copying__moving_and_swapping" title="Copying, moving and swapping">Copying,
+        moving and swapping</a>
 </h4></div></div></div>
 <p>
           The R-tree is copyable and movable container. Move semantics is implemented
           using Boost.Move library which also supports compilers not supporting rvalue
           references.
         </p>
-<pre class="programlisting"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt1</span><span class="special">;</span>
+<pre class="programlisting"><span class="comment">// default constructor</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt1</span><span class="special">;</span>
+
 <span class="comment">// copy constructor</span>
-<span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt2</span><span class="special">;</span>
+<span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt2</span><span class="special">(</span><span class="identifier">r1</span><span class="special">);</span>
+
 <span class="comment">// copy assignment</span>
 <span class="identifier">rt2</span> <span class="special">=</span> <span class="identifier">r1</span><span class="special">;</span>
+
 <span class="comment">// move constructor</span>
 <span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt3</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">rt1</span><span class="special">));</span>
+
 <span class="comment">// move assignment</span>
 <span class="identifier">rt3</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">rt2</span><span class="special">);</span>
+
+<span class="comment">// swap</span>
+<span class="identifier">rt3</span><span class="special">.</span><span class="identifier">swap</span><span class="special">(</span><span class="identifier">rt2</span><span class="special">);</span>
 </pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.creation_and_modification.inserting_and_removing_values"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_removing_values" title="Inserting and removing Values">Inserting
-        and removing Values</a>
+<a name="geometry_index.r_tree.creation_and_modification.inserting_and_removing_of_values"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_removing_of_values" title="Inserting and removing of Values">Inserting
+        and removing of Values</a>
 </h4></div></div></div>
 <p>
-          Following code creates an R-tree using quadratic algorithm.
+          The following code creates an R-tree using quadratic algorithm.
         </p>
 <pre class="programlisting"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">;</span>
 <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">,</span> <span class="keyword">int</span><span class="special">&gt;</span> Value<span class="special">;</span>
 <span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
 </pre>
 <p>
-          To insert or remove Value's by method calls one may use the following code.
-        </p>
-<pre class="programlisting">Value <span class="identifier">v</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a><span class="special">(...),</span> <span class="number">0</span><span class="special">);</span>
-<span class="identifier">rt</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">v</span><span class="special">);</span>
-<span class="identifier">rt</span><span class="special">.</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">v</span><span class="special">);</span>
-</pre>
-<p>
-          To insert or remove Value's by function calls one may use the following
+          To insert or remove a `Value' by method call one may use the following
           code.
         </p>
 <pre class="programlisting">Value <span class="identifier">v</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a><span class="special">(...),</span> <span class="number">0</span><span class="special">);</span>
+
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">v</span><span class="special">);</span>
+
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">v</span><span class="special">);</span>
+</pre>
+<p>
+          To insert or remove a `Value' by function call one may use the following
+          code.
+        </p>
+<pre class="programlisting">Value <span class="identifier">v</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a><span class="special">(...),</span> <span class="number">0</span><span class="special">);</span>
+
 <span class="identifier">index</span><span class="special">::</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">v</span><span class="special">);</span>
+
 <span class="identifier">index</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">rt</span><span class="special">,</span> <span class="identifier">v</span><span class="special">);</span>
+</pre>
+<p>
+          Typically you will perform those operations in a loop in order to e.g.
+          insert some number of <code class="computeroutput">Value</code>s corresponding to geometrical
+          objects (e.g. <code class="computeroutput"><span class="identifier">Polygons</span></code>)
+          stored in another container.
+        </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.creation_and_modification.additional_interface"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.additional_interface" title="Additional interface">Additional
+        interface</a>
+</h4></div></div></div>
+<p>
+          The R-tree allows creation, inserting and removing of Values from a range.
+          The range may be passed as [first, last) Iterators pair or as a Range.
+        </p>
+<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">bgi</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">,</span> <span class="keyword">int</span><span class="special">&gt;</span> Value<span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">linear</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">RTree</span><span class="special">;</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span>Value<span class="special">&gt;</span> <span class="identifier">values</span><span class="special">;</span>
+<span class="comment">/* vector filling code, here */</span>
+
+<span class="comment">// create a RTree with default constructor and insert values with RTree::insert(Value const&amp;)</span>
+<span class="identifier">RTree</span> <span class="identifier">rt1</span><span class="special">;</span>
+<span class="identifier">BOOST_FOREACH</span><span class="special">(</span>Value <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">values</span><span class="special">)</span>
+   <span class="identifier">rt1</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">v</span><span class="special">);</span>
+
+<span class="comment">// create a RTree with default constructor and insert values with RTree::insert(Iter, Iter)</span>
+<span class="identifier">RTree</span> <span class="identifier">rt2</span><span class="special">;</span>
+<span class="identifier">rt2</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">values</span><span class="special">.</span><span class="identifier">begin</span><span class="special">(),</span> <span class="identifier">values</span><span class="special">.</span><span class="identifier">end</span><span class="special">());</span>
+
+<span class="comment">// create a RTree with default constructor and insert values with RTree::insert(Range)</span>
+<span class="identifier">RTree</span> <span class="identifier">rt3</span><span class="special">;</span>
+<span class="identifier">rt3</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">values</span><span class="special">);</span>
+
+<span class="comment">// create a RTree with constructor taking Iterators</span>
+<span class="identifier">RTree</span> <span class="identifier">rt4</span><span class="special">(</span><span class="identifier">values</span><span class="special">.</span><span class="identifier">begin</span><span class="special">(),</span> <span class="identifier">values</span><span class="special">.</span><span class="identifier">end</span><span class="special">());</span>
+
+<span class="comment">// create a RTree with constructor taking Range</span>
+<span class="identifier">RTree</span> <span class="identifier">rt5</span><span class="special">(</span><span class="identifier">values</span><span class="special">);</span>
+
+<span class="comment">// remove values with RTree::remove(Value const&amp;)</span>
+<span class="identifier">BOOST_FOREACH</span><span class="special">(</span>Value <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">values</span><span class="special">)</span>
+   <span class="identifier">rt1</span><span class="special">.</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">v</span><span class="special">);</span>
+
+<span class="comment">// remove values with RTree::remove(Iter, Iter)</span>
+<span class="identifier">rt2</span><span class="special">.</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">values</span><span class="special">.</span><span class="identifier">begin</span><span class="special">(),</span> <span class="identifier">values</span><span class="special">.</span><span class="identifier">end</span><span class="special">());</span>
+
+<span class="comment">// remove values with RTree::remove(Range)</span>
+<span class="identifier">rt3</span><span class="special">.</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">values</span><span class="special">);</span>
 </pre>
 </div>
 </div>

@@ -22,6 +22,10 @@ test-suite boost-geometry-index-rtree
     [ run rtree2d_rstar_f.cpp ]
     [ run rtree2d_rstar_d.cpp ]
     [ run rtree2d_rstar_tt.cpp ]
+    [ run rtree2d_rstar_i_rt.cpp ]
+    [ run rtree2d_rstar_f_rt.cpp ]
+    [ run rtree2d_rstar_d_rt.cpp ]
+    [ run rtree2d_rstar_tt_rt.cpp ]
 
     [ run rtree3d_linear_i.cpp ]
     [ run rtree3d_linear_f.cpp ]
@@ -37,6 +41,10 @@ test-suite boost-geometry-index-rtree
     [ run rtree3d_rstar_f.cpp ]
     [ run rtree3d_rstar_d.cpp ]
     [ run rtree3d_rstar_tt.cpp ]
+    [ run rtree3d_rstar_i_rt.cpp ]
+    [ run rtree3d_rstar_f_rt.cpp ]
+    [ run rtree3d_rstar_d_rt.cpp ]
+    [ run rtree3d_rstar_tt_rt.cpp ]
 
     [ run rtree_exceptions.cpp ]
     ;

@@ -150,6 +150,36 @@ public:
     }
 
     /*!
+    The constructor.
+
+    \note Exception-safety: strong
+
+    \param rng          The range of Values.
+    \param parameters   The parameters object.
+    \param translator   The translator object.
+    \param allocator    The allocator object.
+    */
+    template<typename Range>
+    inline rtree(Range const& rng, Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
+        : m_translator(translator)                                          // SHOULDN'T THROW
+        , m_parameters(parameters)
+        , m_allocators(allocator)
+        , m_values_count(0)
+        , m_leafs_level(0)
+        , m_root(0)
+    {
+        try
+        {
+            this->insert(rng);
+        }
+        catch(...)
+        {
+            this->raw_destroy(*this, true);
+            throw;
+        }
+    }
+
+    /*!
     The destructor.
 
     \note Exception-safety: nothrow
@@ -317,7 +347,25 @@ public:
     }
 
     /*!
-    Remove the value from the container.
+    Insert a range of values to the index.
+
+    \note Exception-safety: basic
+
+    \param rng      The range of values.
+    */
+    template <typename Range>
+    inline void insert(Range const& rng)
+    {
+        if ( !m_root )
+            this->raw_create();
+
+        typedef typename boost::range_const_iterator<Range>::type It;
+        for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
+            this->raw_insert(*it);
+    }
+
+    /*!
+    Remove a value from the container.
 
     \note Exception-safety: basic
 
@@ -329,7 +377,7 @@ public:
     }
 
     /*!
-    Remove the range of values from the container.
+    Remove a range of values from the container.
 
     \note Exception-safety: basic
 
@@ -341,6 +389,21 @@ public:
     {
         for ( ; first != last ; ++first )
             this->raw_remove(*first);
+    }
+
+    /*!
+    Remove a range of values from the container.
+
+    \note Exception-safety: basic
+
+    \param rng      The range of values.
+    */
+    template <typename Range>
+    inline void remove(Range const& rng)
+    {
+        typedef typename boost::range_const_iterator<Range>::type It;
+        for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
+            this->raw_remove(*it);
     }
 
     /*!
@@ -877,6 +940,18 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Iterator
 }
 
 /*!
+Insert a range of values to the index.
+
+\param tree     The spatial index.
+\param rng      The range of values.
+*/
+template<typename Value, typename Options, typename Translator, typename Allocator, typename Range>
+inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
+{
+    tree.insert(rng);
+}
+
+/*!
 Remove a value from the index.
 
 \param tree The spatial index.
@@ -899,6 +974,18 @@ template<typename Value, typename Options, typename Translator, typename Allocat
 inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
 {
     tree.remove(first, last);
+}
+
+/*!
+Remove a range of values from the index.
+
+\param tree     The spatial index.
+\param rng      The range of values.
+*/
+template<typename Value, typename Options, typename Translator, typename Allocator, typename Range>
+inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
+{
+    tree.remove(rng);
 }
 
 /*!

@@ -17,7 +17,7 @@ queries may be found in the table below. All queries returns 5 closest `Values`.
 The query point, region and result Values are orange.
 
 [table
-[[Basic knn query] [knn in a ring (Value's furthest point)] [knn in a ring (Value's closest point)]]
+[[Basic knn query] [knn query - distance to Indexable's furthest point greather than ...] [knn query - distance to Indexable's closest point greather than ...]]
 [[[$../images/knn.png]] [[$../images/knn_inters.png]] [[$../images/knn_cover.png]]]
 ]
 

@@ -12,10 +12,10 @@
 
 In order to be exception-safe the __rtree__ requires:
 
-* Nonthrowing destructor of the `__value__`.
 * Exception-safe copy constructor of the `__value__`.
 * Exception-safe copy constructor of the `CoordinateType` used in the `Indexable`.
 * Nonthrowing copy constructor of the `Translator`.
+* Nonthrowing destructors of the above types.
 
 [table
 [[Operation]                   [exception-safety]]
@@ -33,8 +33,10 @@ In order to be exception-safe the __rtree__ requires:
 [[][]]
 [[`insert(__value__)`]         [ basic     ]]
 [[`insert(first, last)`]       [ basic     ]]
+[[`insert(range)`]             [ basic     ]]
 [[`remove(__value__)`]         [ basic     ]]
 [[`remove(first, last)`]       [ basic     ]]
+[[`remove(range)`]             [ basic     ]]
 [[][]]
 [[`spatial_query(...)`]        [ *strong*  ]]
 [[`nearest_query(...)`]        [ *strong*  ]]

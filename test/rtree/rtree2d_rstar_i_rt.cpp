@@ -17,7 +17,7 @@ int test_main(int, char* [])
 {
     typedef bg::model::point<int, 2, bg::cs::cartesian> P2ic;
     
-    test_rtree<P2ic, bgi::rstar<4, 2> >();
+    test_rtree<P2ic>(bgi::runtime::rstar(4, 2));
     
     return 0;
 }

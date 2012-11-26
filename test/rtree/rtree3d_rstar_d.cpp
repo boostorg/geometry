@@ -18,7 +18,6 @@ int test_main(int, char* [])
     typedef bg::model::point<double, 3, bg::cs::cartesian> P3dc;
 
     test_rtree<P3dc, bgi::rstar<4, 2> >();
-    test_rtree<P3dc>(bgi::runtime::rstar(4, 2));
     
     return 0;
 }

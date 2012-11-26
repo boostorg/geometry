@@ -11,7 +11,8 @@
 [section Spatial queries]
 
 Spatial queries returns `Value`s which meets some predicates. For instance it may be used to
-retrieve Values intersecting some area or are within some other area. The examples of some
+retrieve Values intersecting some area or are within some other area. Names of predicates
+corresponds to names of __boost_geometry__ algorithms. The examples of some
 basic queries may be found in the table below. The query region and result `Value`s are orange.
 
 [table
@@ -45,8 +46,8 @@ Use of pipe operator generating a range
 
 [section Spatial predicates]
 
-It is possible to define other relations between queried `__value__`s and region/regions
-of interest. Names of predicates corresponds to names of __boost_geometry__ algorithms.
+To explicitly define one of the predicates one may pass it to the `spatial_query()` as
+the first argument instead of `Box`.
 
  rt.spatial_query(box, std::back_inserter(result));                    // default case - intersects
  rt.spatial_query(index::intersects(box), std::back_inserter(result)); // the same as default
@@ -61,18 +62,30 @@ All predicates may be negated, e.g.:
  // the same as
  rt.spatial_query(index::disjoint(box), std::back_inserter(result));
 
-It's possible to use some number of predicates by passing `std::pair<Pred1, Pred2>`
+[endsect]
+
+[section Connecting predicates]
+
+It's possible to use some number of predicates in one time by passing `std::pair<Pred1, Pred2>`
+or `boost::tuple<Pred1, Pred2, Pred3, ...>`. These predicates are connected by logical AND.
+Passing all predicates together not only makes possible to construct advanced queries but is also
+faster than separate calls because the tree is traversed only once. Traversing is continued and
+`Value`s are returned only if all predicates are met. Predicates are checked left-to-right so placing
+most restictive predicates first should accelerate the search even more.
 
  rt.spatial_query(
-   std::make_pair(index::intersects(box1), !index::within(box2))
-   , std::back_inserter(result));
-
-or `boost::tuple<Pred1, Pred2, Pred3, ...>`
+   std::make_pair(
+     index::intersects(box1), !index::within(box2) ),
+   std::back_inserter(result));
 
  rt.spatial_query(
    boost::make_tuple(
-     index::intersects(box1), !index::within(box2), index::overlaps(box3))
-   , std::back_inserter(result));
+     index::intersects(box1), !index::within(box2), index::overlaps(box3) ),
+   std::back_inserter(result));
+
+[endsect]
+
+[section Value predicate]
 
 There is also a unique predicate `index::value(...)` taking user-defined function/functor
 which checks if `__value__` should be returned by the query.
@@ -85,8 +98,9 @@ which checks if `__value__` should be returned by the query.
  // ...
 
  rt.spatial_query(
-   boost::make_pair(index::intersects(box), index::value(fun))
- , std::back_inserter(result));
+   boost::make_pair(
+     index::intersects(box), index::value(fun) ),
+   std::back_inserter(result));
 
 [endsect]
 

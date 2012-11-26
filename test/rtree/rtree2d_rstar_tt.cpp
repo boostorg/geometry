@@ -20,7 +20,6 @@ int test_main(int, char* [])
     typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;
 
     test_rtree<P2ttmc, bgi::rstar<4, 2> >();
-    test_rtree<P2ttmc>(bgi::runtime::rstar(4, 2));
 #endif
 
     return 0;

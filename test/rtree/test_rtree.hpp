@@ -98,6 +98,29 @@ struct generate_value< std::pair<bg::model::box< bg::model::point<T, 2, C> >, in
 };
 
 template <typename T, typename C>
+struct generate_value< boost::tuple<bg::model::point<T, 2, C>, int, int> >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef boost::tuple<P, int, int> R;
+    static R apply(int x, int y)
+    {
+        return boost::make_tuple(P(x, y), x + y * 100, 0);
+    }
+};
+
+template <typename T, typename C>
+struct generate_value< boost::tuple<bg::model::box< bg::model::point<T, 2, C> >, int, int> >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef bg::model::box<P> B;
+    typedef boost::tuple<B, int, int> R;
+    static R apply(int x, int y)
+    {
+        return boost::make_tuple(B(P(x, y), P(x + 2, y + 3)), x + y * 100, 0);
+    }
+};
+
+template <typename T, typename C>
 struct generate_value< bg::model::point<T, 3, C> >
 {
     typedef bg::model::point<T, 3, C> P;
@@ -138,6 +161,29 @@ struct generate_value< std::pair<bg::model::box< bg::model::point<T, 3, C> >, in
     static R apply(int x, int y, int z)
     {
         return std::make_pair(B(P(x, y, z), P(x + 2, y + 3, z + 4)), x + y * 100 + z * 10000);
+    }
+};
+
+template <typename T, typename C>
+struct generate_value< boost::tuple<bg::model::point<T, 3, C>, int, int> >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef boost::tuple<P, int, int> R;
+    static R apply(int x, int y, int z)
+    {
+        return boost::make_tuple(P(x, y, z), x + y * 100 + z * 10000, 0);
+    }
+};
+
+template <typename T, typename C>
+struct generate_value< boost::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int> >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef bg::model::box<P> B;
+    typedef boost::tuple<B, int, int> R;
+    static R apply(int x, int y, int z)
+    {
+        return boost::make_tuple(B(P(x, y, z), P(x + 2, y + 3, z + 4)), x + y * 100 + z * 10000, 0);
     }
 };
 
@@ -281,7 +327,7 @@ void test_spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value
 // rtree specific queries tests
 
 template <typename Value, typename Algo, typename Box>
-void test_intersects_and_disjoint(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+void test_intersects(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -291,10 +337,22 @@ void test_intersects_and_disjoint(bgi::rtree<Value, Algo> const& tree, std::vect
 
     test_spatial_query(tree, qbox, expected_output);
     test_spatial_query(tree, bgi::intersects(qbox), expected_output);
-    test_spatial_query(tree, !bgi::not_intersects(qbox), expected_output);
     test_spatial_query(tree, !bgi::disjoint(qbox), expected_output);
-    test_spatial_query(tree, bgi::not_disjoint(qbox), expected_output);
 }
+
+template <typename Value, typename Algo, typename Box>
+void test_disjoint(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+{
+    std::vector<Value> expected_output;
+
+    BOOST_FOREACH(Value const& v, input)
+        if ( bg::disjoint(tree.translator()(v), qbox) )
+            expected_output.push_back(v);
+
+    test_spatial_query(tree, bgi::disjoint(qbox), expected_output);
+    test_spatial_query(tree, !bgi::intersects(qbox), expected_output);
+}
+
 
 template <typename Value, typename Algo, typename Box>
 void test_covered_by(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
@@ -599,26 +657,148 @@ void test_copy_assignment_swap_move(bgi::rtree<Value, Algo> const& tree, Box con
     //TODO - test SWAP
 }
 
+// rtree creation and insertion
+
+template <typename Value, typename Algo, typename Box>
+void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input, Box const& qbox)
+{
+    typedef bgi::rtree<Value, Algo> T;
+
+    std::vector<Value> expected_output;
+    tree.spatial_query(qbox, std::back_inserter(expected_output));
+
+    {
+        T t(tree.parameters());
+        BOOST_FOREACH(Value const& v, input)
+            t.insert(v);
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        t.spatial_query(qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+    {
+        T t(input.begin(), input.end(), tree.parameters());
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        t.spatial_query(qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+    {
+        T t(input, tree.parameters());
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        t.spatial_query(qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree.parameters());
+        t.insert(input.begin(), input.end());
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        t.spatial_query(qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree.parameters());
+        t.insert(input);
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        t.spatial_query(qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+
+    {
+        T t(tree.parameters());
+        BOOST_FOREACH(Value const& v, input)
+            bgi::insert(t, v);
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        bgi::spatial_query(t, qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree.parameters());
+        bgi::insert(t, input.begin(), input.end());
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        bgi::spatial_query(t, qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree.parameters());
+        bgi::insert(t, input);
+        BOOST_CHECK(tree.size() == t.size());
+        std::vector<Value> output;
+        bgi::spatial_query(t, qbox, std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+}
+
 // rtree removing
 
 template <typename Value, typename Algo, typename Box>
 void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
 {
-    size_t prev_size = tree.size();
+    typedef bgi::rtree<Value, Algo> T;
 
-    std::vector<Value> output;
-    tree.spatial_query(qbox, std::back_inserter(output));
+    std::vector<Value> values_to_remove;
+    tree.spatial_query(qbox, std::back_inserter(values_to_remove));
+    BOOST_CHECK(0 < values_to_remove.size());
 
-    BOOST_CHECK(0 < output.size());
+    std::vector<Value> expected_output;
+    tree.spatial_query(bgi::disjoint(qbox), std::back_inserter(expected_output));
 
-    tree.remove(output.begin(), output.end());
+    {
+        T t(tree);
+        BOOST_FOREACH(Value const& v, values_to_remove)
+            t.remove(v);
+        std::vector<Value> output;
+        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        test_compare_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree);
+        t.remove(values_to_remove.begin(), values_to_remove.end());
+        std::vector<Value> output;
+        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        test_compare_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree);
+        t.remove(values_to_remove);
+        std::vector<Value> output;
+        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        test_compare_outputs(t, output, expected_output);
+    }
 
-    BOOST_CHECK(tree.size() == prev_size - output.size());
-
-    output.clear();
-    tree.spatial_query(qbox, std::back_inserter(output));
-
-    BOOST_CHECK(0 == output.size());
+    {
+        T t(tree);
+        BOOST_FOREACH(Value const& v, values_to_remove)
+            bgi::remove(t, v);
+        std::vector<Value> output;
+        bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        test_compare_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree);
+        bgi::remove(t, values_to_remove.begin(), values_to_remove.end());
+        std::vector<Value> output;
+        bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        test_compare_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree);
+        bgi::remove(t, values_to_remove);
+        std::vector<Value> output;
+        bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        test_compare_outputs(t, output, expected_output);
+    }
 }
 
 // run all tests for a single Algorithm and single rtree
@@ -638,7 +818,8 @@ void test_rtree_by_value(Parameters const& parameters)
 
     generate_rtree(tree, input, qbox);
 
-    test_intersects_and_disjoint(tree, input, qbox);
+    test_intersects(tree, input, qbox);
+    test_disjoint(tree, input, qbox);
     test_covered_by(tree, input, qbox);
     test_overlaps(tree, input, qbox);
     //test_touches(tree, input, qbox);
@@ -654,6 +835,7 @@ void test_rtree_by_value(Parameters const& parameters)
 
     test_copy_assignment_swap_move(tree, qbox);
 
+    test_create_insert(tree, input, qbox);
     test_remove(tree, qbox);
 
     // empty tree test
@@ -661,7 +843,8 @@ void test_rtree_by_value(Parameters const& parameters)
     Tree empty_tree(parameters);
     std::vector<Value> empty_input;
 
-    test_intersects_and_disjoint(empty_tree, empty_input, qbox);
+    test_intersects(empty_tree, empty_input, qbox);
+    test_disjoint(empty_tree, empty_input, qbox);
     test_covered_by(empty_tree, empty_input, qbox);
     test_overlaps(empty_tree, empty_input, qbox);
     //test_touches(empty_tree, empty_input, qbox);
@@ -681,11 +864,15 @@ void test_rtree(Parameters const& parameters = Parameters())
     typedef bg::model::box<Point> Box;
     typedef std::pair<Box, int> PairB;
     typedef std::pair<Point, int> PairP;
+    typedef boost::tuple<Point, int, int> TupleP;
+    typedef boost::tuple<Box, int, int> TupleB;
 
     test_rtree_by_value<Point, Parameters>(parameters);
     test_rtree_by_value<Box, Parameters>(parameters);
     test_rtree_by_value<PairB, Parameters>(parameters);
     test_rtree_by_value<PairP, Parameters>(parameters);
+    test_rtree_by_value<TupleP, Parameters>(parameters);
+    test_rtree_by_value<TupleB, Parameters>(parameters);
 }
 
 #endif

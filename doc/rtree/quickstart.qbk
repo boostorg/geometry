@@ -31,7 +31,7 @@ passed as template parameters. Maximum number of elements in nodes are set to 32
 [rtree_quickstart_create]
 
 Typically `Value`s will be generated in a loop from e.g. `Polygon`s stored in some other container.
-In this case `Box` objects will probably be created with `geometry::make_envelope()` function.
+In this case `Box` objects will probably be created with `geometry::envelope()` function.
 But to keep it simple lets just generate some boxes manually and insert them into the R-tree by
 using `insert()` method.
 

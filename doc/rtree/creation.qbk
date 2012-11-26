@@ -14,46 +14,53 @@
 
 __rtree__ has 4 parameters:
 
- rtree<Value, Parameters, Translator, Allocator>
+ rtree<Value, Parameters, Translator = translator::def<Value>, Allocator> = std::allocator<Value> >
 
-* `__value__` - type of object which will be stored in the container.
-* `Parameters` - compile-time parameters, e.g. inserting/splitting
-  algorithm with min and max nodes' elements numbers.
+* `__value__` - type of object which will be stored in the container,
+* `Parameters` - parameters type, inserting/splitting algorithm,
 * `__translator__` - type of object translating `Value` objects to
-  `__indexable__` objects (`__point__` or `__box__`) which __rtree__ can handle.
-* `Allocator` - the allocator.
+  `__indexable__` objects (`__point__` or `__box__`) which __rtree__ can handle,
+* `Allocator` - `Value`s allocator, all allocators needed by the container are created from it.
 
 [endsect]
 
 [section Values, Indexables and default Translator]
 
-__rtree__ may store `__value__`s of any type as long the `__translator__`
-is passed as parameter. It knows how to interpret those `__value__`s
-and extract an object understandable by the __rtree__. Those objects are called
-`__indexable__`s. Each type adapted to `__point__` or `__box__` concept is an `__indexable__`.
-Default `__translator__` `index::translator::def<__value__>`
-is able to handle `__point__`, `__box__` or `std::pair<...>` `__value__`s.
+__rtree__ may store `__value__`s of any type as long the `__translator__` knows how to interpret those `__value__`s
+and extract an object that the __rtree__ can handle. Those objects are called
+`__indexable__`s in this documentation. Each type adapted to `__point__` or `__box__` concept is an `__indexable__`.
+`__value__`s types which can be handled by the default `__translator__` - `index::translator::def<__value__>`
+are defined as follows:
 
 * `__indexable__ = __point__ | __box__`
-* `__value__ = Indexable | std::pair<__indexable__, T>`
+* `__value__ = Indexable | std::pair<__indexable__, T> | boost::tuple<__indexable__, ...>`
+
+Examples of default `__value__` types:
+
+ geometry::model::point<...>
+ geometry::model::point_xy<...>
+ geometry::model::box<...>
+ std::pair<geometry::model::box<...>, unsigned>
+ boost::tuple<geometry::model::point<...>, int, float>
+
+A `__translator__` is a type which knows how to handle `__value__`s. It has two purposes:
+
+* it translates `__value__` to a more suitable `__indexable__` type which is needed by most of operations,
+* performs a comparison of `__value__` which is needed by the removing process.
+
+A `__translator__` translates the `__value__` each time the __rtree__ needs it. For this reason
+it should rather return const reference to the `__indexable__` than a copy.
 
 If comparison of two `__value__`s is required, the default translator compares
 both components of the `std::pair<...>`. If the second one is a `Geometry`,
 `geometry::equals()` function is used. For other types it uses `operator==()`.
 
-Examples of `__value__` types:
-
- geometry::model::point<...>
- geometry::model::point_xy<...>
- geometry::model::box<...>
- std::pair<geometry::model::box<...>, size_t>
-
 [endsect]
 
-[section Inserting and splitting algorithms]
+[section Inserting and splitting algorithms (compile-time)]
 
 `__value__`s may be inserted to the __rtree__ in many various ways. Final internal structure
-of the __rtree__ depends on algorithms used in the insertion process. The most important is
+of the __rtree__ depends on algorithms used in the insertion process and parameters. The most important is
 nodes' splitting algorithm. Currently, three well-known types of R-trees may be created.
 
 Linear - classic __rtree__ using splitting algorithm of linear complexity
@@ -72,57 +79,120 @@ R*-tree - splitting algorithm minimizing nodes' overlap with forced reinsertions
 
 [section Inserting and splitting algorithms (run-time)]
 
-By default splitting algorithm parameters are passed to the __rtree__ in compile time.
+Splitting algorithm parameters may be passed to the __rtree__ in run time.
 To use run-time versions of the __rtree__ one may pass parameters defined in index::runtime
 namespace.
 
  // linear
  index::rtree<__value__, index::runtime::linear> rt(index::runtime::linear(32, 8));
+
  // quadratic
  index::rtree<__value__, index::runtime::quadratic> rt(index::runtime::quadratic(32, 8));
+
  // rstar
  index::rtree<__value__, index::runtime::rstar> rt(index::runtime::rstar(32, 8));
 
+The obvious drawback is a slightly slower __rtree__.
+
 [endsect]
 
-[section Copying and moving]
+[section Copying, moving and swapping]
 
 The __rtree__ is copyable and movable container. Move semantics is implemented using Boost.Move library
 which also supports compilers not supporting rvalue references.
 
+ // default constructor
  index::rtree< __value__, index::quadratic<32, 8> > rt1;
+
  // copy constructor
- index::rtree< __value__, index::quadratic<32, 8> > rt2;
+ index::rtree< __value__, index::quadratic<32, 8> > rt2(r1);
+
  // copy assignment
  rt2 = r1;
+
  // move constructor
  index::rtree< __value__, index::quadratic<32, 8> > rt3(boost::move(rt1));
+
  // move assignment
  rt3 = boost::move(rt2);
 
+ // swap
+ rt3.swap(rt2);
+
 [endsect]
 
-[section Inserting and removing Values]
+[section Inserting and removing of Values]
 
-Following code creates an __rtree__ using quadratic algorithm.
+The following code creates an __rtree__ using quadratic algorithm.
 
  using namespace boost::geometry;
  typedef std::pair<Box, int> __value__;
  index::rtree< __value__, index::quadratic<32, 8> > rt;
 
-To insert or remove __value__'s by method calls one may use the following
+To insert or remove a `__value__' by method call one may use the following
 code.
 
  __value__ v = std::make_pair(__box__(...), 0);
+
  rt.insert(v);
+
  rt.remove(v);
 
-To insert or remove __value__'s by function calls one may use the following
+To insert or remove a `__value__' by function call one may use the following
 code.
 
  __value__ v = std::make_pair(__box__(...), 0);
+
  index::insert(rt, v);
+
  index::remove(rt, v);
+
+Typically you will perform those operations in a loop in order to e.g. insert
+some number of `__value__`s corresponding to geometrical objects (e.g. `Polygons`)
+stored in another container.
+
+[endsect]
+
+[section Additional interface]
+
+The __rtree__ allows creation, inserting and removing of Values from a range. The range may be passed as
+[first, last) Iterators pair or as a Range.
+
+ namespace bgi = boost::geometry::index;
+ typedef std::pair<Box, int> __value__;
+ typedef bgi::rtree< __value__, bgi::linear<32, 8> > RTree;
+
+ std::vector<__value__> values;
+ /* vector filling code, here */
+
+ // create a RTree with default constructor and insert values with RTree::insert(Value const&)
+ RTree rt1;
+ BOOST_FOREACH(__value__ const& v, values)
+    rt1.insert(v);
+
+ // create a RTree with default constructor and insert values with RTree::insert(Iter, Iter)
+ RTree rt2;
+ rt2.insert(values.begin(), values.end());
+
+ // create a RTree with default constructor and insert values with RTree::insert(Range)
+ RTree rt3;
+ rt3.insert(values);
+
+ // create a RTree with constructor taking Iterators
+ RTree rt4(values.begin(), values.end());
+
+ // create a RTree with constructor taking Range
+ RTree rt5(values);
+
+ // remove values with RTree::remove(Value const&)
+ BOOST_FOREACH(__value__ const& v, values)
+    rt1.remove(v);
+
+ // remove values with RTree::remove(Iter, Iter)
+ rt2.remove(values.begin(), values.end());
+
+ // remove values with RTree::remove(Range)
+ rt3.remove(values);
 
 [endsect]
 
