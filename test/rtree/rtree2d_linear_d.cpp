@@ -18,7 +18,6 @@ int test_main(int, char* [])
     typedef bg::model::point<double, 2, bg::cs::cartesian> P2dc;
 
     test_rtree<P2dc, bgi::linear<4, 2> >();
-    test_rtree<P2dc>(bgi::runtime::linear(4, 2));
     
     return 0;
 }

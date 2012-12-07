@@ -15,9 +15,9 @@
 
 int test_main(int, char* [])
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> P2dc;
-
-    test_rtree<P2dc, bgi::quadratic<4, 2> >();
+    typedef bg::model::point<int, 2, bg::cs::cartesian> P2ic;
+    
+    test_rtree<P2ic>(bgi::runtime::quadratic(4, 2));
     
     return 0;
 }

@@ -187,6 +187,62 @@ struct generate_value< boost::tuple<bg::model::box< bg::model::point<T, 3, C> >,
     }
 };
 
+// shared_ptr value
+
+template <typename Indexable>
+struct test_object
+{
+    test_object(Indexable const& indexable_) : indexable(indexable_) {}
+    Indexable indexable;
+};
+
+namespace boost { namespace geometry { namespace index { namespace translator {
+
+template <typename Indexable>
+struct def< boost::shared_ptr< test_object<Indexable> > >
+{
+    typedef boost::shared_ptr< test_object<Indexable> > value_type;
+    typedef Indexable const& result_type;
+
+    result_type operator()(value_type const& value) const
+    {
+        return value->indexable;
+    }
+
+    bool equals(value_type const& v1, value_type const& v2) const
+    {
+        return v1 == v2;
+    }
+};
+
+}}}}
+
+template <typename T, typename C>
+struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 2, C> > > >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef test_object<P> O;
+
+    static boost::shared_ptr<O> apply(int x, int y)
+    {
+        return boost::shared_ptr<O>(new O(P(x, y)));
+    }
+};
+
+template <typename T, typename C>
+struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> > > >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef test_object<P> O;
+
+    static boost::shared_ptr<O> apply(int x, int y, int z)
+    {   
+        return boost::shared_ptr<O>(new O(P(x, y, z)));
+    }
+};
+
+// generate input
+
 template <size_t Dimension>
 struct generate_input
 {};
@@ -745,7 +801,7 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
 // rtree removing
 
 template <typename Value, typename Algo, typename Box>
-void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
+void test_remove_clear(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input, Box const& qbox)
 {
     typedef bgi::rtree<Value, Algo> T;
 
@@ -807,6 +863,21 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
         test_compare_outputs(t, output, expected_output);
     }
+
+    //clear
+    {
+        std::vector<Value> expected_output;
+        tree.spatial_query(bgi::intersects(qbox), std::back_inserter(expected_output));
+        size_t s = tree.size();
+        tree.clear();
+        BOOST_CHECK(tree.empty());
+        BOOST_CHECK(tree.size() == 0);
+        tree.insert(input);
+        BOOST_CHECK(tree.size() == s);
+        std::vector<Value> output;
+        tree.spatial_query(bgi::intersects(qbox), std::back_inserter(output));
+        test_exactly_the_same_outputs(tree, output, expected_output);
+    }
 }
 
 // run all tests for a single Algorithm and single rtree
@@ -844,7 +915,7 @@ void test_rtree_by_value(Parameters const& parameters)
     test_copy_assignment_swap_move(tree, qbox);
 
     test_create_insert(tree, input, qbox);
-    test_remove(tree, qbox);
+    test_remove_clear(tree, input, qbox);
 
     // empty tree test
 
@@ -874,6 +945,7 @@ void test_rtree(Parameters const& parameters = Parameters())
     typedef std::pair<Point, int> PairP;
     typedef boost::tuple<Point, int, int> TupleP;
     typedef boost::tuple<Box, int, int> TupleB;
+    typedef boost::shared_ptr< test_object<Point> > SharedPtrP;
 
     test_rtree_by_value<Point, Parameters>(parameters);
     test_rtree_by_value<Box, Parameters>(parameters);
@@ -881,6 +953,7 @@ void test_rtree(Parameters const& parameters = Parameters())
     test_rtree_by_value<PairP, Parameters>(parameters);
     test_rtree_by_value<TupleP, Parameters>(parameters);
     test_rtree_by_value<TupleB, Parameters>(parameters);
+    test_rtree_by_value<SharedPtrP, Parameters>(parameters);
 }
 
 #endif

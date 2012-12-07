@@ -31,7 +31,7 @@
         by Antonin Guttman in 1984 <a href="#ftn.geometry_index.r_tree.introduction.f0" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.introduction.f0"></a>[1]</sup></a> as an expansion of B-tree for multi-dimensional data. It may
         be used to store points or volumetric data in order to perform a spatial
         query later. This query may return objects that are inside some area or are
-        close to some point in space.
+        close to some point in space <a href="#ftn.geometry_index.r_tree.introduction.f1" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.introduction.f1"></a>[2]</sup></a>.
       </p>
 <p>
         The R-tree structure is presented on the image below. Each R-tree's node
@@ -51,7 +51,7 @@
       </p>
 <p>
         The R-tree is a self-balanced data structure. The key part of balancing algorithm
-        is node splitting algorithm <a href="#ftn.geometry_index.r_tree.introduction.f1" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.introduction.f1"></a>[2]</sup></a> <a href="#ftn.geometry_index.r_tree.introduction.f2" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.introduction.f2"></a>[3]</sup></a>. Each algorithm produces different splits so the internal structure
+        is node splitting algorithm <a href="#ftn.geometry_index.r_tree.introduction.f2" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.introduction.f2"></a>[3]</sup></a> <a href="#ftn.geometry_index.r_tree.introduction.f3" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.introduction.f3"></a>[4]</sup></a>. Each algorithm produces different splits so the internal structure
         of a tree may be different for each one of them. In general more complex
         algorithms analyses elements better and produces less overlapping nodes.
         In the searching process less nodes must be traversed in order to find desired
@@ -192,8 +192,9 @@
             capable to store arbitrary Value type,
           </li>
 <li class="listitem">
-            sophisticated queries - e.g. search for 5 nearest values intersecting
-            some region but not within the other one.
+            advanced queries - e.g. search for 5 nearest values further than some
+            minimal distance and intersecting some region but not within the other
+            one.
           </li>
 </ul></div>
 <div class="footnotes">
@@ -203,10 +204,14 @@
           Searching</em></span>
         </p></div>
 <div id="ftn.geometry_index.r_tree.introduction.f1" class="footnote"><p><a href="#geometry_index.r_tree.introduction.f1" class="para"><sup class="para">[2] </sup></a>
+          Cheung, K.; Fu, A. (1998). <span class="emphasis"><em>Enhanced Nearest Neighbour Search
+          on the R-tree</em></span>
+        </p></div>
+<div id="ftn.geometry_index.r_tree.introduction.f2" class="footnote"><p><a href="#geometry_index.r_tree.introduction.f2" class="para"><sup class="para">[3] </sup></a>
           Greene, D. (1989). <span class="emphasis"><em>An implementation and performance analysis
           of spatial data access methods</em></span>
         </p></div>
-<div id="ftn.geometry_index.r_tree.introduction.f2" class="footnote"><p><a href="#geometry_index.r_tree.introduction.f2" class="para"><sup class="para">[3] </sup></a>
+<div id="ftn.geometry_index.r_tree.introduction.f3" class="footnote"><p><a href="#geometry_index.r_tree.introduction.f3" class="para"><sup class="para">[4] </sup></a>
           Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). <span class="emphasis"><em>The
           R*-tree: an efficient and robust access method for points and rectangles</em></span>
         </p></div>

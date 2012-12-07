@@ -15,9 +15,12 @@
 
 int test_main(int, char* [])
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> P2dc;
-
-    test_rtree<P2dc, bgi::quadratic<4, 2> >();
     
+#ifdef HAVE_TTMATH
+    typedef bg::model::point<ttmath_big, 3, bg::cs::cartesian> P3ttmc;
+
+    test_rtree<P3ttmc>(bgi::runtime::quadratic(4, 2));
+#endif
+
     return 0;
 }

@@ -146,7 +146,7 @@ public:
         }
         catch(...)
         {
-            this->raw_destroy(*this, true);
+            this->raw_destroy(*this);
             throw;
         }
     }
@@ -176,7 +176,7 @@ public:
         }
         catch(...)
         {
-            this->raw_destroy(*this, true);
+            this->raw_destroy(*this);
             throw;
         }
     }
@@ -188,7 +188,7 @@ public:
     */
     inline ~rtree()
     {
-        this->raw_destroy(*this, true);
+        this->raw_destroy(*this);
     }
 
     /*!
@@ -586,7 +586,7 @@ public:
     */
     inline void clear()
     {
-        this->raw_destroy(*this, false);
+        this->raw_destroy(*this);
     }
 
     /*!
@@ -775,19 +775,12 @@ private:
 
     \param t    The container which is going to be destroyed.
     */
-    inline void raw_destroy(rtree & t, bool destroy_root = true)
+    inline void raw_destroy(rtree & t)
     {
         if ( t.m_root )
         {
-            if ( destroy_root )
-            {
-                detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
-                detail::rtree::apply_visitor(del_v, *t.m_root);
-            }
-            else
-            {
-                detail::rtree::clear_node<value_type, options_type, translator_type, box_type, allocators_type>::apply(*t.m_root, t.m_allocators);
-            }
+            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
+            detail::rtree::apply_visitor(del_v, *t.m_root);
 
             t.m_root = 0;
         }
