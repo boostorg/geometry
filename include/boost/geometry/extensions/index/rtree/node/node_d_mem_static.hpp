@@ -20,14 +20,14 @@ namespace detail { namespace rtree {
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
-	: public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
+    : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
     typedef index::pushable_array<
         std::pair<
             Box,
             dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag> *
         >,
-		Parameters::max_elements + 1
+        Parameters::max_elements + 1
     > elements_type;
 
     template <typename Dummy>
@@ -41,7 +41,7 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_stat
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
-	: public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
+    : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
     typedef index::pushable_array<Value, Parameters::max_elements + 1> elements_type;
 

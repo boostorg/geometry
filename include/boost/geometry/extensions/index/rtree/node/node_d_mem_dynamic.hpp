@@ -108,7 +108,7 @@ template <typename Value, typename Translator>
 inline typename Translator::result_type
 element_indexable(Value const& el, Translator const& tr)
 {
-	return tr(el);
+    return tr(el);
 }
 
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
@@ -125,21 +125,21 @@ element_indexable(
 template <typename Node>
 struct elements_type
 {
-	typedef typename Node::elements_type type;
+    typedef typename Node::elements_type type;
 };
 
 template <typename Node>
 inline typename elements_type<Node>::type &
 elements(Node & n)
 {
-	return n.elements;
+    return n.elements;
 }
 
 template <typename Node>
 inline typename elements_type<Node>::type const&
 elements(Node const& n)
 {
-	return n.elements;
+    return n.elements;
 }
 
 // elements derived type

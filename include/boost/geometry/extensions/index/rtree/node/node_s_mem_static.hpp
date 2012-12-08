@@ -54,10 +54,10 @@ struct static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-	typedef boost::variant<
-		static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>,
-		static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
-	> type;
+    typedef boost::variant<
+        static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>,
+        static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
+    > type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>

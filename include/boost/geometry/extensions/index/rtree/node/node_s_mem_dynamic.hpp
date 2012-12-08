@@ -59,10 +59,10 @@ struct static_leaf
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
 {
-	typedef boost::variant<
-		static_leaf<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>,
-		static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
-	> type;
+    typedef boost::variant<
+        static_leaf<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>,
+        static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag>
+    > type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
@@ -107,13 +107,13 @@ struct element_indexable_type<
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
 inline Box const&
 element_indexable(std::pair<
-					  Box,
-					  boost::variant<
-						  static_leaf<Value, Parameters, Box, Allocators, Tag>,
-						  static_internal_node<Value, Parameters, Box, Allocators, Tag>
-					  > *
-				  > const& el,
-				  Translator const&)
+                      Box,
+                      boost::variant<
+                          static_leaf<Value, Parameters, Box, Allocators, Tag>,
+                          static_internal_node<Value, Parameters, Box, Allocators, Tag>
+                      > *
+                  > const& el,
+                  Translator const&)
 {
     return el.first;
 }

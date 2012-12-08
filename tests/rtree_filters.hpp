@@ -1,3 +1,12 @@
+// Boost.Geometry Index
+// Additional tests
+
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
 #ifndef TESTS_RTREE_FILTERS_HPP
 #define TESTS_RTREE_FILTERS_HPP
 
@@ -32,7 +41,7 @@
 BOOST_AUTO_TEST_CASE(tests_rtree_query_filter)
 {
 #ifdef TEST_PRINT_INFO
-	std::cout << "tests/rtree_filters.hpp\n";
+    std::cout << "tests/rtree_filters.hpp\n";
 #endif
 
     typedef boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian> P;

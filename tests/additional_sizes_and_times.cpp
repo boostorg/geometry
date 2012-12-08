@@ -1,8 +1,8 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
-//
-// Boost.Index - example
-//
-// Copyright 2011 Adam Wulkiewicz.
+// Boost.Geometry Index
+// Additional tests
+
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)

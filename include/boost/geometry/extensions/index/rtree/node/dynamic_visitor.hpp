@@ -68,23 +68,23 @@ struct dynamic_visitor<Value, Parameters, Box, Allocators, Tag, false>
 template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
 inline Derived & get(dynamic_node<Value, Parameters, Box, Allocators, Tag> & n)
 {
-    assert(dynamic_cast<Derived*>(&n));
+    BOOST_GEOMETRY_INDEX_ASSERT(dynamic_cast<Derived*>(&n), "can't cast to a Derived type");
     return static_cast<Derived&>(n);
 }
 
 template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
 inline Derived * get(dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
 {
-    assert(dynamic_cast<Derived*>(n));
+    BOOST_GEOMETRY_INDEX_ASSERT(dynamic_cast<Derived*>(n), "can't cast to a Derived type");
     return static_cast<Derived*>(n);
 }
 
 // apply visitor
 
 template <typename Visitor, typename Visitable>
-inline void apply_visitor(Visitor &v, Visitable & n)
+inline void apply_visitor(Visitor & v, Visitable & n)
 {
-    assert(&n);
+    BOOST_GEOMETRY_INDEX_ASSERT(&n, "null ptr");
     n.apply_visitor(v);
 }
 

@@ -44,8 +44,8 @@ struct pick_seeds
                              size_t & seed2)
     {
         const size_t elements_count = parameters.get_max_elements() + 1;
-		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "wrong number of elements");
-		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
+        BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "wrong number of elements");
+        BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
 
         content_type greatest_free_content = 0;
         seed1 = 0;
@@ -80,7 +80,7 @@ struct pick_seeds
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadratic_tag>
 {
-	typedef typename Options::parameters_type parameters_type;
+    typedef typename Options::parameters_type parameters_type;
 
     typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
@@ -216,12 +216,12 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                     content2 = index::content(box2);
                 }
 
-			    BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
+                BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
                 typename elements_type::iterator el_it_base = el_it.base();
                 rtree::copy_from_back(elements_copy, --el_it_base);                                         // MAY THROW, STRONG (copy)
                 elements_copy.pop_back();
 
-			    BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "expected more remaining elements");
+                BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "expected more remaining elements");
                 --remaining;
             }
         }

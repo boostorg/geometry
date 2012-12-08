@@ -449,7 +449,7 @@ public:
 
     inline void operator()(leaf &)
     {
-        assert(false);
+        BOOST_GEOMETRY_INDEX_ASSERT(false, "this visitor can't be used for a leaf");
     }
 };
 

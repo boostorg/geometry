@@ -51,22 +51,22 @@ inline V * get(
 
 template <typename Visitor, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 inline void apply_visitor(Visitor & v,
-						  boost::variant<
-							  static_leaf<Value, Parameters, Box, Allocators, Tag>,
-							  static_internal_node<Value, Parameters, Box, Allocators, Tag>
-						  > & n)
+                          boost::variant<
+                              static_leaf<Value, Parameters, Box, Allocators, Tag>,
+                              static_internal_node<Value, Parameters, Box, Allocators, Tag>
+                          > & n)
 {
     boost::apply_visitor(v, n);
 }
 
 template <typename Visitor, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 inline void apply_visitor(Visitor & v,
-						  boost::variant<
-							  static_leaf<Value, Parameters, Box, Allocators, Tag>,
-							  static_internal_node<Value, Parameters, Box, Allocators, Tag>
-						  > const& n)
+                          boost::variant<
+                              static_leaf<Value, Parameters, Box, Allocators, Tag>,
+                              static_internal_node<Value, Parameters, Box, Allocators, Tag>
+                          > const& n)
 {
-	boost::apply_visitor(v, n);
+    boost::apply_visitor(v, n);
 }
 
 }} // namespace detail::rtree

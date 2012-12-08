@@ -1,3 +1,12 @@
+// Boost.Geometry Index
+// Additional tests
+
+// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
 #ifndef TESTS_TRANSLATORS_HPP
 #define TESTS_TRANSLATORS_HPP
 
@@ -19,17 +28,17 @@ struct tests_translators_val
         : i(ii)
     {}
 
-	Indexable const& get_box() const
-	{
-		return i;
-	}
+    Indexable const& get_box() const
+    {
+        return i;
+    }
 
-	bool operator==(tests_translators_val const& v2)
-	{
-		return boost::geometry::equals(i, v2.i);
-	}
+    bool operator==(tests_translators_val const& v2)
+    {
+        return boost::geometry::equals(i, v2.i);
+    }
 
-	Indexable i;
+    Indexable i;
 };
 
 BOOST_AUTO_TEST_CASE(tests_translators)
@@ -43,7 +52,7 @@ BOOST_AUTO_TEST_CASE(tests_translators)
     namespace bgi = bg::index;
     namespace bgit = bgi::translator;
 
-	typedef bgm::point<float, 2, bg::cs::cartesian> P;
+    typedef bgm::point<float, 2, bg::cs::cartesian> P;
     typedef bgm::box<P> B;
 
     bgit::def< P > p;
@@ -81,8 +90,8 @@ BOOST_AUTO_TEST_CASE(tests_translators)
     BOOST_CHECK( bg::equals(tmp_p, scpip(tmp_scpip)) );
     BOOST_CHECK( bg::equals(tmp_p, scppi(tmp_scppi)) );
     
-    //bgit::def<int> d;					// error
-    //bgit::def< bgm::segment<P> > d;	// error
+    //bgit::def<int> d;                    // error
+    //bgit::def< bgm::segment<P> > d;    // error
 
     B tmp_b(P(2, 3), P(4, 5));
     std::pair<bgm::polygon<P>, B> tmp_ppb =

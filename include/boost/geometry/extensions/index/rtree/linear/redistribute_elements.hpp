@@ -54,9 +54,9 @@ struct find_greatest_normalized_separation
                              size_t & seed1,
                              size_t & seed2)
     {
-		const size_t elements_count = parameters.get_max_elements() + 1;
-		BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected number of elements");
-		BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
+        const size_t elements_count = parameters.get_max_elements() + 1;
+        BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected number of elements");
+        BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
 
         // find the lowest low, highest high
         coordinate_type lowest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
@@ -180,9 +180,9 @@ struct pick_seeds
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
-							 Translator const& tr,
-							 size_t & seed1,
-							 size_t & seed2)
+                             Translator const& tr,
+                             size_t & seed1,
+                             size_t & seed2)
     {
         coordinate_type separation = 0;
         pick_seeds_impl<Elements, Parameters, Translator, dimension>::apply(elements, parameters, tr, separation, seed1, seed2);
@@ -217,14 +217,14 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
         typedef typename index::default_content_result<Box>::type content_type;
 
-		elements_type & elements1 = rtree::elements(n);
-		elements_type & elements2 = rtree::elements(second_node);
-		const size_t elements1_count = parameters.get_max_elements() + 1;
+        elements_type & elements1 = rtree::elements(n);
+        elements_type & elements2 = rtree::elements(second_node);
+        const size_t elements1_count = parameters.get_max_elements() + 1;
 
-		BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected number of elements");
+        BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected number of elements");
 
-		// copy original elements
-		elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
+        // copy original elements
+        elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
 
         // calculate initial seeds
         size_t seed1 = 0;
@@ -309,7 +309,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
                         }
                     }
                 
-                    assert(0 < remaining);
+                    BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "unexpected value");
                     --remaining;
                 }
             }

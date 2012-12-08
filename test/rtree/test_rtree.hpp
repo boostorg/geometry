@@ -253,7 +253,7 @@ struct generate_input<2>
     template <typename Value, typename Box>
     static void apply(std::vector<Value> & input, Box & qbox, int size = 1)
     {
-        assert(0 < size);
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < size, "the value must be greather than 0");
 
         for ( int i = 0 ; i < 12 * size ; i += 3 )
         {
@@ -275,7 +275,7 @@ struct generate_input<3>
     template <typename Value, typename Box>
     static void apply(std::vector<Value> & input, Box & qbox, int size = 1)
     {
-        assert(0 < size);
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < size, "the value must be greather than 0");
 
         for ( int i = 0 ; i < 12 * size ; i += 3 )
         {
