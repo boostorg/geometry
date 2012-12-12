@@ -21,6 +21,9 @@
 #include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
 
+//#include <boost/geometry/geometries/ring.hpp>
+//#include <boost/geometry/geometries/polygon.hpp>
+
 // Set point's coordinates
 
 template <typename Point>
@@ -394,6 +397,16 @@ void test_intersects(bgi::rtree<Value, Algo> const& tree, std::vector<Value> con
     test_spatial_query(tree, qbox, expected_output);
     test_spatial_query(tree, bgi::intersects(qbox), expected_output);
     test_spatial_query(tree, !bgi::disjoint(qbox), expected_output);
+
+    /*typedef bg::traits::point_type<Box>::type P;
+    bg::model::ring<P> qring;
+    bg::convert(qbox, qring);
+    test_spatial_query(tree, bgi::intersects(qring), expected_output);
+    test_spatial_query(tree, !bgi::disjoint(qring), expected_output);
+    bg::model::polygon<P> qpoly;
+    bg::convert(qbox, qpoly);
+    test_spatial_query(tree, bgi::intersects(qpoly), expected_output);
+    test_spatial_query(tree, !bgi::disjoint(qpoly), expected_output);*/
 }
 
 template <typename Value, typename Algo, typename Box>
@@ -407,6 +420,14 @@ void test_disjoint(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const
 
     test_spatial_query(tree, bgi::disjoint(qbox), expected_output);
     test_spatial_query(tree, !bgi::intersects(qbox), expected_output);
+
+    /*typedef bg::traits::point_type<Box>::type P;
+    bg::model::ring<P> qring;
+    bg::convert(qbox, qring);
+    test_spatial_query(tree, bgi::disjoint(qring), expected_output);
+    bg::model::polygon<P> qpoly;
+    bg::convert(qbox, qpoly);
+    test_spatial_query(tree, bgi::disjoint(qpoly), expected_output);*/
 }
 
 
@@ -420,6 +441,14 @@ void test_covered_by(bgi::rtree<Value, Algo> const& tree, std::vector<Value> con
             expected_output.push_back(v);
 
     test_spatial_query(tree, bgi::covered_by(qbox), expected_output);
+
+    /*typedef bg::traits::point_type<Box>::type P;
+    bg::model::ring<P> qring;
+    bg::convert(qbox, qring);
+    test_spatial_query(tree, bgi::covered_by(qring), expected_output);
+    bg::model::polygon<P> qpoly;
+    bg::convert(qbox, qpoly);
+    test_spatial_query(tree, bgi::covered_by(qpoly), expected_output);*/
 }
 
 template <typename Tag>
@@ -435,6 +464,14 @@ struct test_overlap_impl
                 expected_output.push_back(v);
 
         test_spatial_query(tree, bgi::overlaps(qbox), expected_output);
+
+        /*typedef bg::traits::point_type<Box>::type P;
+        bg::model::ring<P> qring;
+        bg::convert(qbox, qring);
+        test_spatial_query(tree, bgi::overlaps(qring), expected_output);
+        bg::model::polygon<P> qpoly;
+        bg::convert(qbox, qpoly);
+        test_spatial_query(tree, bgi::overlaps(qpoly), expected_output);*/
     }
 };
 
@@ -503,6 +540,14 @@ void test_within(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& 
             expected_output.push_back(v);
 
     test_spatial_query(tree, bgi::within(qbox), expected_output);
+
+    /*typedef bg::traits::point_type<Box>::type P;
+    bg::model::ring<P> qring;
+    bg::convert(qbox, qring);
+    test_spatial_query(tree, bgi::within(qring), expected_output);
+    bg::model::polygon<P> qpoly;
+    bg::convert(qbox, qpoly);
+    test_spatial_query(tree, bgi::within(qpoly), expected_output);*/
 }
 
 // rtree nearest queries
