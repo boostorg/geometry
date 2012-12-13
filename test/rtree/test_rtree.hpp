@@ -274,7 +274,6 @@ struct def< counting_value<Indexable> >
     bool equals(value_type const& v1, value_type const& v2) const
     {
         return boost::geometry::equals(v1.indexable, v2.indexable);
-        return false;
     }
 };
 

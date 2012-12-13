@@ -301,7 +301,10 @@ template <size_t Corner>
 struct partial_sort<Corner, 1>
 {
     template <typename Elements, typename Translator>
-    static inline void apply(Elements & elements, const size_t axis, const size_t index, Translator const& tr)
+    static inline void apply(Elements & elements,
+                             const size_t BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(axis),
+                             const size_t index,
+                             Translator const& tr)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(axis == 0, "unexpected axis value");
 

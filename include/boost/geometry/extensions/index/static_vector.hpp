@@ -7,8 +7,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/aligned_storage.hpp>
-#include <boost/assert.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
+
+#include <boost/geometry/extensions/index/assert.hpp>
 
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_STATIC_VECTOR_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_STATIC_VECTOR_HPP
@@ -109,7 +110,7 @@ public:
     }
 
     // nothrow
-    void reserve(size_type s)
+    void reserve(size_type BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(s))
     {
         BOOST_ASSERT_MSG(s <= Capacity, "max capacity reached");
     }
