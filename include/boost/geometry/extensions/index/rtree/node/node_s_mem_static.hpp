@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_STATIC_VARIANT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_STATIC_VARIANT_HPP
 
-#include <boost/geometry/extensions/index/pushable_array.hpp>
+#include <boost/geometry/extensions/index/static_vector.hpp>
 
 #include <boost/geometry/extensions/index/rtree/node/static_visitor.hpp>
 
@@ -24,7 +24,7 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-    typedef index::pushable_array<
+    typedef index::static_vector<
         std::pair<
             Box,
             typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type *
@@ -41,7 +41,7 @@ struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_stati
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-    typedef index::pushable_array<Value, Parameters::max_elements + 1> elements_type;
+    typedef index::static_vector<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Dummy>
     inline static_leaf(Dummy) {}

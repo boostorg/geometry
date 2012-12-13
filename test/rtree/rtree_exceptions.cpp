@@ -27,7 +27,7 @@ void test_rtree_value_exceptions(Parameters const& parameters = Parameters())
     B qbox;
     generate_input<2>::apply(input, qbox);
 
-    for ( size_t i = 0 ; i < 100 ; i += 5 )
+    for ( size_t i = 0 ; i < 50 ; i += 2 )
     {
         throwing_value::reset_calls_counter();
         throwing_value::set_max_calls(10000);

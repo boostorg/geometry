@@ -122,7 +122,7 @@ protected:
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
 
 public:
-    typedef index::pushable_array<std::pair<Box, node*>, 1> nodes_container_type;
+    typedef index::static_vector<std::pair<Box, node*>, 1> nodes_container_type;
 
     template <typename Node>
     static inline void apply(nodes_container_type & additional_nodes,

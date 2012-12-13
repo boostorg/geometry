@@ -12,7 +12,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_NODE_NODE_DEFAULT_STATIC_HPP
 
 #include <boost/geometry/extensions/index/rtree/node/dynamic_visitor.hpp>
-#include <boost/geometry/extensions/index/pushable_array.hpp>
+#include <boost/geometry/extensions/index/static_vector.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -22,7 +22,7 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
-    typedef index::pushable_array<
+    typedef index::static_vector<
         std::pair<
             Box,
             dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag> *
@@ -43,7 +43,7 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
-    typedef index::pushable_array<Value, Parameters::max_elements + 1> elements_type;
+    typedef index::static_vector<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Dummy>
     inline dynamic_leaf(Dummy) {}
@@ -82,9 +82,9 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, IsVisi
 
 // elements derived type
 template <typename OldValue, size_t N, typename NewValue>
-struct container_from_elements_type<index::pushable_array<OldValue, N>, NewValue>
+struct container_from_elements_type<index::static_vector<OldValue, N>, NewValue>
 {
-    typedef index::pushable_array<NewValue, N> type;
+    typedef index::static_vector<NewValue, N> type;
 };
 
 // allocators
