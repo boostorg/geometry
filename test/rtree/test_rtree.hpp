@@ -244,6 +244,72 @@ struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> >
     }
 };
 
+// counting value
+
+template <typename Indexable>
+struct counting_value
+{
+    counting_value() { counter()++; }
+    counting_value(Indexable const& i) : indexable(i) { counter()++; }
+    counting_value(counting_value const& c) : indexable(c.indexable) { counter()++; }
+    ~counting_value() { counter()--; }
+
+    static size_t & counter() { static size_t c = 0; return c; }
+    Indexable indexable;
+};
+
+namespace boost { namespace geometry { namespace index { namespace translator {
+
+template <typename Indexable>
+struct def< counting_value<Indexable> >
+{
+    typedef counting_value<Indexable> value_type;
+    typedef Indexable const& result_type;
+
+    result_type operator()(value_type const& value) const
+    {
+        return value.indexable;
+    }
+
+    bool equals(value_type const& v1, value_type const& v2) const
+    {
+        return boost::geometry::equals(v1.indexable, v2.indexable);
+        return false;
+    }
+};
+
+}}}}
+
+template <typename T, typename C>
+struct generate_value< counting_value<bg::model::point<T, 2, C> > >
+{
+    typedef bg::model::point<T, 2, C> P;
+    static counting_value<P> apply(int x, int y) { return counting_value<P>(P(x, y)); }
+};
+
+template <typename T, typename C>
+struct generate_value< counting_value<bg::model::point<T, 3, C> > >
+{
+    typedef bg::model::point<T, 3, C> P;
+    static counting_value<P> apply(int x, int y, int z) { return counting_value<P>(P(x, y, z)); }
+};
+
+template <typename T, typename C>
+struct generate_value< counting_value<bg::model::box<bg::model::point<T, 2, C> > > >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef bg::model::box<P> B;
+    static counting_value<B> apply(int x, int y) { return counting_value<B>(B(P(x, y), P(x+2, y+3))); }
+};
+
+template <typename T, typename C>
+struct generate_value< counting_value<bg::model::box<bg::model::point<T, 3, C> > > >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef bg::model::box<P> B;
+    static counting_value<B> apply(int x, int y, int z) { return counting_value<B>(B(P(x, y, z), P(x+2, y+3, z+4))); }
+};
+
 // generate input
 
 template <size_t Dimension>
@@ -979,6 +1045,49 @@ void test_rtree_by_value(Parameters const& parameters)
     test_copy_assignment_swap_move(empty_tree, qbox);
 }
 
+// rtree inserting removing by use of counting_value
+
+template <typename Indexable, typename Parameters>
+void test_count_rtree_values(Parameters const& parameters)
+{
+    typedef counting_value<Indexable> Value;
+    typedef bgi::rtree<Value, Parameters> Tree;
+    typedef typename Tree::box_type B;
+
+    Tree t(parameters);
+    std::vector<Value> input;
+    B qbox;
+
+    generate_rtree(t, input, qbox);
+
+    {
+        BOOST_FOREACH(Value const& v, input)
+            t.insert(v);
+    }    
+
+    size_t rest_count = input.size();
+
+    BOOST_CHECK(t.size() + rest_count == Value::counter());
+
+    std::vector<Value> values_to_remove;
+    t.spatial_query(qbox, std::back_inserter(values_to_remove));
+
+    rest_count += values_to_remove.size();
+
+    BOOST_CHECK(t.size() + rest_count == Value::counter());
+
+    size_t values_count = Value::counter();
+
+    BOOST_FOREACH(Value const& v, values_to_remove)
+    {
+        t.remove(v);
+        --values_count;
+
+        BOOST_CHECK(Value::counter() == values_count);
+        BOOST_CHECK(t.size() + rest_count == values_count);
+    }
+}
+
 // run all tests for one Algorithm for some number of rtrees
 // defined by some number of Values constructed from given Point
 
@@ -998,7 +1107,11 @@ void test_rtree(Parameters const& parameters = Parameters())
     test_rtree_by_value<PairP, Parameters>(parameters);
     test_rtree_by_value<TupleP, Parameters>(parameters);
     test_rtree_by_value<TupleB, Parameters>(parameters);
+    
     test_rtree_by_value<SharedPtrP, Parameters>(parameters);
+
+    test_count_rtree_values<Point>(parameters);
+    test_count_rtree_values<Box>(parameters);
 }
 
 #endif
