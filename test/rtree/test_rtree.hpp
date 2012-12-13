@@ -1092,25 +1092,32 @@ void test_count_rtree_values(Parameters const& parameters)
 // defined by some number of Values constructed from given Point
 
 template<typename Point, typename Parameters>
-void test_rtree(Parameters const& parameters = Parameters())
+void test_rtree_for_point(Parameters const& parameters = Parameters())
 {
-    typedef bg::model::box<Point> Box;
-    typedef std::pair<Box, int> PairB;
     typedef std::pair<Point, int> PairP;
     typedef boost::tuple<Point, int, int> TupleP;
-    typedef boost::tuple<Box, int, int> TupleB;
     typedef boost::shared_ptr< test_object<Point> > SharedPtrP;
 
     test_rtree_by_value<Point, Parameters>(parameters);
-    test_rtree_by_value<Box, Parameters>(parameters);
-    test_rtree_by_value<PairB, Parameters>(parameters);
     test_rtree_by_value<PairP, Parameters>(parameters);
     test_rtree_by_value<TupleP, Parameters>(parameters);
-    test_rtree_by_value<TupleB, Parameters>(parameters);
     
     test_rtree_by_value<SharedPtrP, Parameters>(parameters);
 
     test_count_rtree_values<Point>(parameters);
+}
+
+template<typename Point, typename Parameters>
+void test_rtree_for_box(Parameters const& parameters = Parameters())
+{
+    typedef bg::model::box<Point> Box;
+    typedef std::pair<Box, int> PairB;
+    typedef boost::tuple<Box, int, int> TupleB;
+
+    test_rtree_by_value<Box, Parameters>(parameters);
+    test_rtree_by_value<PairB, Parameters>(parameters);
+    test_rtree_by_value<TupleB, Parameters>(parameters);
+
     test_count_rtree_values<Box>(parameters);
 }
 

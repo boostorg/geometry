@@ -21,5 +21,3 @@ project boost-geometry-index-test
 
 build-project algorithms ;
 build-project rtree ;
-#build-project filters ;
-#build-project translator ;
