@@ -528,15 +528,8 @@ void keyboard(unsigned char key, int x, int y)
     }
 }
 
-#include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-
 int main(int argc, char **argv)
 {
-    bg::model::linestring<P> s;
-    B b;
-    bg::intersects(s, b);
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_SINGLE | GLUT_RGBA);
     glutInitWindowPosition(100,100);
