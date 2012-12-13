@@ -21,8 +21,8 @@ basic queries may be found in tables below. The query region and result `Value`s
 ]
 
 [table
-[[intersects(Ring)] [intersects(Polygon)]]
-[[[$../images/intersects_ring.png]] [[$../images/intersects_poly.png]]]
+[[intersects(Ring)] [intersects(Polygon)] [intersects(MultiPolygon)]]
+[[[$../images/intersects_ring.png]] [[$../images/intersects_poly.png]] [[$../images/intersects_mpoly.png]]]
 ]
 
 [section Basic queries]

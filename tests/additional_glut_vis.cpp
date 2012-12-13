@@ -17,6 +17,7 @@
 
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/extensions/index/rtree/visitors/gl_draw.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/print.hpp>
@@ -31,6 +32,7 @@ typedef bg::model::box<P> B;
 //bgi::rtree<B> t(2, 1);
 typedef bg::model::ring<P> R;
 typedef bg::model::polygon<P> Poly;
+typedef bg::model::multi_polygon<Poly> MPoly;
 
 bgi::rtree<
     B,
@@ -47,9 +49,10 @@ std::vector<B> nearest_boxes;
 B search_box;
 R search_ring;
 Poly search_poly;
+MPoly search_multi_poly;
 
 enum query_mode_type {
-    qm_knn, qm_c, qm_d, qm_i, qm_o, qm_w, qm_nc, qm_nd, qm_ni, qm_no, qm_nw, qm_all, qm_ri, qm_pi
+    qm_knn, qm_c, qm_d, qm_i, qm_o, qm_w, qm_nc, qm_nd, qm_ni, qm_no, qm_nw, qm_all, qm_ri, qm_pi, qm_mpi
 } query_mode = qm_knn;
 
 bool search_valid = false;
@@ -227,6 +230,78 @@ void query_poly()
         std::cout << "boxes not found\n";
 }
 
+template <typename Predicate>
+void query_multi_poly()
+{
+    float x = ( rand() % 1000 ) / 10.0f;
+    float y = ( rand() % 1000 ) / 10.0f;
+    float w = 10 + ( rand() % 1000 ) / 100.0f;
+    float h = 10 + ( rand() % 1000 ) / 100.0f;
+
+    search_multi_poly.clear();
+
+    search_multi_poly.push_back(Poly());
+    search_multi_poly[0].outer().push_back(P(x - w, y - h));
+    search_multi_poly[0].outer().push_back(P(x - w/2, y - h));
+    search_multi_poly[0].outer().push_back(P(x, y - 3*h/2));
+    search_multi_poly[0].outer().push_back(P(x + w/2, y - h));
+    search_multi_poly[0].outer().push_back(P(x + w, y - h));
+    search_multi_poly[0].outer().push_back(P(x + w, y - h/2));
+    search_multi_poly[0].outer().push_back(P(x + 3*w/2, y));
+    search_multi_poly[0].outer().push_back(P(x + w, y + h/2));
+    search_multi_poly[0].outer().push_back(P(x + w, y + h));
+    search_multi_poly[0].outer().push_back(P(x + w/2, y + h));
+    search_multi_poly[0].outer().push_back(P(x, y + 3*h/2));
+    search_multi_poly[0].outer().push_back(P(x - w/2, y + h));
+    search_multi_poly[0].outer().push_back(P(x - w, y + h));
+    search_multi_poly[0].outer().push_back(P(x - w, y + h/2));
+    search_multi_poly[0].outer().push_back(P(x - 3*w/2, y));
+    search_multi_poly[0].outer().push_back(P(x - w, y - h/2));
+    search_multi_poly[0].outer().push_back(P(x - w, y - h));
+
+    search_multi_poly[0].inners().push_back(Poly::ring_type());
+    search_multi_poly[0].inners()[0].push_back(P(x - w/2, y - h/2));
+    search_multi_poly[0].inners()[0].push_back(P(x + w/2, y - h/2));
+    search_multi_poly[0].inners()[0].push_back(P(x + w/2, y + h/2));
+    search_multi_poly[0].inners()[0].push_back(P(x - w/2, y + h/2));
+    search_multi_poly[0].inners()[0].push_back(P(x - w/2, y - h/2));
+
+    search_multi_poly.push_back(Poly());
+    search_multi_poly[1].outer().push_back(P(x - 2*w, y - 2*h));
+    search_multi_poly[1].outer().push_back(P(x - 6*w/5, y - 2*h));
+    search_multi_poly[1].outer().push_back(P(x - 6*w/5, y - 6*h/5));
+    search_multi_poly[1].outer().push_back(P(x - 2*w, y - 6*h/5));
+    search_multi_poly[1].outer().push_back(P(x - 2*w, y - 2*h));
+
+    search_multi_poly.push_back(Poly());
+    search_multi_poly[2].outer().push_back(P(x + 6*w/5, y + 6*h/5));
+    search_multi_poly[2].outer().push_back(P(x + 2*w, y + 6*h/5));
+    search_multi_poly[2].outer().push_back(P(x + 2*w, y + 2*h));
+    search_multi_poly[2].outer().push_back(P(x + 6*w/5, y + 2*h));
+    search_multi_poly[2].outer().push_back(P(x + 6*w/5, y + 6*h/5));
+
+    nearest_boxes.clear();
+    found_count = t.spatial_query(Predicate(search_multi_poly), std::back_inserter(nearest_boxes) );
+
+    if ( found_count > 0 )
+    {
+        std::cout << "search multi_poly[0] outer: ";
+        BOOST_FOREACH(P const& p, search_multi_poly[0].outer())
+        {
+            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, p);
+            std::cout << ' ';
+        }
+        std::cout << "\nfound: ";
+        for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
+        {
+            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+            std::cout << '\n';
+        }
+    }
+    else
+        std::cout << "boxes not found\n";
+}
+
 void search()
 {
     if ( query_mode == qm_knn )
@@ -257,6 +332,8 @@ void search()
         query_ring< bgi::detail::intersects<R> >();
     else if ( query_mode == qm_pi )
         query_poly< bgi::detail::intersects<Poly> >();
+    else if ( query_mode == qm_mpi )
+        query_multi_poly< bgi::detail::intersects<MPoly> >();
 
     search_valid = true;
 }
@@ -289,12 +366,13 @@ void draw_knn_area()
     glEnd();
 }
 
-void draw_query_box_area()
+template <typename Box>
+void draw_box(Box const& box)
 {
-    float x1 = boost::geometry::get<bg::min_corner, 0>(search_box);
-    float y1 = boost::geometry::get<bg::min_corner, 1>(search_box);
-    float x2 = boost::geometry::get<bg::max_corner, 0>(search_box);
-    float y2 = boost::geometry::get<bg::max_corner, 1>(search_box);
+    float x1 = boost::geometry::get<bg::min_corner, 0>(box);
+    float y1 = boost::geometry::get<bg::min_corner, 1>(box);
+    float x2 = boost::geometry::get<bg::max_corner, 0>(box);
+    float y2 = boost::geometry::get<bg::max_corner, 1>(box);
     float z = t.depth();
 
     // search box
@@ -307,7 +385,7 @@ void draw_query_box_area()
 }
 
 template <typename Range>
-void draw_ring_area(Range const& range)
+void draw_ring(Range const& range)
 {
     float z = t.depth();
 
@@ -324,16 +402,19 @@ void draw_ring_area(Range const& range)
     glEnd();
 }
 
-void draw_query_ring_area()
+template <typename Polygon>
+void draw_polygon(Polygon const& polygon)
 {
-    draw_ring_area(search_ring);
+    draw_ring(polygon.outer());
+    BOOST_FOREACH(Poly::ring_type const& r, polygon.inners())
+        draw_ring(r);
 }
 
-void draw_query_poly_area()
+template <typename MultiPolygon>
+void draw_multi_polygon(MultiPolygon const& multi_polygon)
 {
-    draw_ring_area(search_poly.outer());
-    BOOST_FOREACH(Poly::ring_type const& r, search_poly.inners())
-        draw_ring_area(r);
+    BOOST_FOREACH(Poly const& p, multi_polygon)
+        draw_polygon(p);
 }
 
 void render_scene(void)
@@ -349,11 +430,13 @@ void render_scene(void)
         if ( query_mode == qm_knn )
             draw_knn_area();
         else if ( query_mode == qm_ri )
-            draw_query_ring_area();
+            draw_ring(search_ring);
         else if ( query_mode == qm_pi )
-            draw_query_poly_area();
+            draw_polygon(search_poly);
+        else if ( query_mode == qm_mpi )
+            draw_multi_polygon(search_multi_poly);
         else
-            draw_query_box_area();
+            draw_box(search_box);
 
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
             boost::geometry::index::detail::rtree::visitors::detail::gl_draw_indexable(nearest_boxes[i], t.depth());
@@ -513,6 +596,8 @@ void keyboard(unsigned char key, int x, int y)
                 query_mode = qm_ri;
             else if ( current_line == "pi" )
                 query_mode = qm_pi;
+            else if ( current_line == "mpi" )
+                query_mode = qm_mpi;
             
             search();
             glutPostRedisplay();
