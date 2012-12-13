@@ -43,8 +43,8 @@
         which meets some predicates. For instance it may be used to retrieve Values
         intersecting some area or are within some other area. Names of predicates
         corresponds to names of <a href="http://www.boost.org/libs/geometry/doc/html/index.html" target="_top">Boost.Geometry</a>
-        algorithms. The examples of some basic queries may be found in the table
-        below. The query region and result <code class="computeroutput"><span class="identifier">Value</span></code>s
+        algorithms. The examples of some basic queries may be found in tables below.
+        The query region and result <code class="computeroutput"><span class="identifier">Value</span></code>s
         are orange.
       </p>
 <div class="informaltable"><table class="table">
@@ -58,27 +58,27 @@
 <thead><tr>
 <th>
                 <p>
-                  intersects (default)
+                  intersects(Box) - default
                 </p>
               </th>
 <th>
                 <p>
-                  covered_by
+                  covered_by(Box)
                 </p>
               </th>
 <th>
                 <p>
-                  disjoint
+                  disjoint(Box)
                 </p>
               </th>
 <th>
                 <p>
-                  overlaps
+                  overlaps(Box)
                 </p>
               </th>
 <th>
                 <p>
-                  within
+                  within(Box)
                 </p>
               </th>
 </tr></thead>
@@ -110,6 +110,36 @@
               </td>
 </tr></tbody>
 </table></div>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                <p>
+                  intersects(Ring)
+                </p>
+              </th>
+<th>
+                <p>
+                  intersects(Polygon)
+                </p>
+              </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/intersects_ring.png" alt="intersects_ring"></span>
+                </p>
+              </td>
+<td>
+                <p>
+                  <span class="inlinemediaobject"><img src="../../../images/intersects_poly.png" alt="intersects_poly"></span>
+                </p>
+              </td>
+</tr></tbody>
+</table></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
 <a name="geometry_index.r_tree.spatial_queries.basic_queries"></a><a class="link" href="spatial_queries.html#geometry_index.r_tree.spatial_queries.basic_queries" title="Basic queries">Basic
@@ -117,7 +147,7 @@
 </h4></div></div></div>
 <p>
           There are three ways to perform a spatial query. Following queries returns
-          <code class="computeroutput">Value</code>s intersecting some box_region.
+          <code class="computeroutput">Value</code>s intersecting some region defined as a box in this example.
         </p>
 <p>
           Method call
@@ -148,7 +178,7 @@
 </h4></div></div></div>
 <p>
           To explicitly define one of the predicates one may pass it to the <code class="computeroutput"><span class="identifier">spatial_query</span><span class="special">()</span></code>
-          as the first argument instead of <code class="computeroutput"><span class="identifier">Box</span></code>.
+          as the first argument.
         </p>
 <pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">box</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>                    <span class="comment">// default case - intersects</span>
 <span class="identifier">rt</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span> <span class="comment">// the same as default</span>
@@ -178,7 +208,7 @@
           to construct advanced queries but is also faster than separate calls because
           the tree is traversed only once. Traversing is continued and <code class="computeroutput"><span class="identifier">Value</span></code>s are returned only if all predicates
           are met. Predicates are checked left-to-right so placing most restictive
-          predicates first should accelerate the search even more.
+          predicates first should accelerate the search.
         </p>
 <pre class="programlisting"><span class="identifier">rt</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span>
   <span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span>

@@ -13,17 +13,22 @@
 Spatial queries returns `Value`s which meets some predicates. For instance it may be used to
 retrieve Values intersecting some area or are within some other area. Names of predicates
 corresponds to names of __boost_geometry__ algorithms. The examples of some
-basic queries may be found in the table below. The query region and result `Value`s are orange.
+basic queries may be found in tables below. The query region and result `Value`s are orange.
 
 [table
-[[intersects (default)] [covered_by] [disjoint] [overlaps] [within]]
+[[intersects(Box) - default] [covered_by(Box)] [disjoint(Box)] [overlaps(Box)] [within(Box)]]
 [[[$../images/intersects.png]] [[$../images/within.png]] [[$../images/disjoint.png]] [[$../images/overlaps.png]] [[$../images/within.png]]]
+]
+
+[table
+[[intersects(Ring)] [intersects(Polygon)]]
+[[[$../images/intersects_ring.png]] [[$../images/intersects_poly.png]]]
 ]
 
 [section Basic queries]
 
 There are three ways to perform a spatial query. Following queries returns
-`__value__`s intersecting some box_region.
+`__value__`s intersecting some region defined as a box in this example.
 
 Method call
 
@@ -47,7 +52,7 @@ Use of pipe operator generating a range
 [section Spatial predicates]
 
 To explicitly define one of the predicates one may pass it to the `spatial_query()` as
-the first argument instead of `Box`.
+the first argument.
 
  rt.spatial_query(box, std::back_inserter(result));                    // default case - intersects
  rt.spatial_query(index::intersects(box), std::back_inserter(result)); // the same as default
@@ -71,7 +76,7 @@ or `boost::tuple<Pred1, Pred2, Pred3, ...>`. These predicates are connected by l
 Passing all predicates together not only makes possible to construct advanced queries but is also
 faster than separate calls because the tree is traversed only once. Traversing is continued and
 `Value`s are returned only if all predicates are met. Predicates are checked left-to-right so placing
-most restictive predicates first should accelerate the search even more.
+most restictive predicates first should accelerate the search.
 
  rt.spatial_query(
    std::make_pair(
