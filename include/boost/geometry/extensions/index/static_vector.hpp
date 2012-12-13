@@ -34,7 +34,7 @@ public:
     {}
 
     // strong
-    static_vector(size_type s)
+    explicit static_vector(size_type s)
         : m_size(0)
     {
         resize(s);                                                      // may throw
