@@ -319,4 +319,58 @@ private:
     size_type m_size;
 };
 
+#include <boost/geometry/extensions/index/static_vector.hpp>
+
+struct throwing_static_vector_exception : public std::exception
+{
+    const char * what() const throw() { return "static vector exception."; }
+};
+
+struct throwing_static_vector_settings
+{
+    static void throw_if_required()
+    {
+        // throw if counter meets max count
+        if ( get_max_calls_ref() <= get_calls_counter_ref() )
+            throw throwing_pushable_array_exception();
+        else
+            ++get_calls_counter_ref();
+    }
+
+    static void reset_calls_counter() { get_calls_counter_ref() = 0; }
+    static void set_max_calls(size_t mc) { get_max_calls_ref() = mc; }
+
+    static size_t & get_calls_counter_ref() { static size_t cc = 0; return cc; }
+    static size_t & get_max_calls_ref() { static size_t mc = (std::numeric_limits<size_t>::max)(); return mc; }
+};
+
+template <typename Element, size_t Capacity>
+class throwing_static_vector
+    : public boost::geometry::index::static_vector<Element, Capacity>
+{
+    typedef boost::geometry::index::static_vector<Element, Capacity> container;
+
+public:
+    typedef typename container::value_type value_type;
+    typedef typename container::size_type size_type;
+    typedef typename container::iterator iterator;
+    typedef typename container::const_iterator const_iterator;
+    typedef typename container::reverse_iterator reverse_iterator;
+    typedef typename container::const_reverse_iterator const_reverse_iterator;
+    typedef typename container::reference reference;
+    typedef typename container::const_reference const_reference;
+
+    inline void resize(size_type s)
+    {
+        throwing_pushable_array_settings::throw_if_required();
+        container::resize(s);
+    }
+
+    void push_back(Element const& v)
+    {
+        throwing_pushable_array_settings::throw_if_required();
+        container::push_back(v);
+    }
+};
+
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_THROWING_HPP
