@@ -73,24 +73,7 @@ public:
     {
         //BOOST_ASSERT_MSG(other.m_size <= Capacity, "capacity too small");
 
-        if ( m_size <= other.m_size )
-        {
-            this->copy(other.ptr(0), other.ptr(m_size), this->ptr(0),
-                       boost::has_trivial_assign<value_type>());                    // may throw
-
-            this->uninitialized_copy(other.ptr(m_size), other.ptr(other.m_size), this->ptr(m_size),
-                                     boost::has_trivial_copy<value_type>());        // may throw
-            m_size = other.m_size;
-        }
-        else
-        {
-            this->copy(other.ptr(0), other.ptr(other.m_size), this->ptr(0),
-                       boost::has_trivial_assign<value_type>());                    // may throw
-
-            this->destroy(this->ptr(other.m_size), this->ptr(m_size),
-                          boost::has_trivial_destructor<value_type>());
-            m_size = other.m_size;
-        }
+        this->assign(other->ptr(0), other->ptr(other.m_size));
 
         return *this;
     }
@@ -113,6 +96,7 @@ public:
         }
         else
         {
+            BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
             this->uninitialized_fill(this->ptr(m_size), this->ptr(s), value);  // may throw
             m_size = s;
         }
@@ -141,6 +125,31 @@ public:
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
         --m_size;
         this->destroy(this->ptr(m_size), boost::has_trivial_destructor<value_type>());
+    }
+
+    // basic
+    void assign(const value_type * first, const value_type * last)
+    {
+        size_type s = std::distance(first, last);
+
+        if ( m_size <= s )
+        {
+            this->copy(first, first + m_size, this->ptr(0),
+                       boost::has_trivial_assign<value_type>());                    // may throw
+
+            this->uninitialized_copy(first + m_size, last, this->ptr(m_size),
+                                     boost::has_trivial_copy<value_type>());        // may throw
+            m_size = s;
+        }
+        else
+        {
+            this->copy(first, last, this->ptr(0),
+                       boost::has_trivial_assign<value_type>());                    // may throw
+
+            this->destroy(this->ptr(s), this->ptr(m_size),
+                          boost::has_trivial_destructor<value_type>());
+            m_size = s;
+        }
     }
 
     // nothrow

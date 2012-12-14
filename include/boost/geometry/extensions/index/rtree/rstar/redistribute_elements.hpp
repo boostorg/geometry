@@ -382,10 +382,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
         try
         {
             // copy elements to nodes
-            elements1.resize(split_index);                                                              // SHOULDN'T THROW
-            std::copy(elements_copy.begin(), elements_copy.begin() + split_index, elements1.begin());   // MAY THROW, BASIC
-            elements2.resize(parameters.get_max_elements() + 1 - split_index);                          // MAY THROW, STRONG
-            std::copy(elements_copy.begin() + split_index, elements_copy.end(), elements2.begin());     // MAY THROW, BASIC
+            elements1.assign(elements_copy.begin(), elements_copy.begin() + split_index);               // MAY THROW, BASIC
+            elements2.assign(elements_copy.begin() + split_index, elements_copy.end());                 // MAY THROW, BASIC
 
             // calculate boxes
             box1 = rtree::elements_box<Box>(elements1.begin(), elements1.end(), translator);

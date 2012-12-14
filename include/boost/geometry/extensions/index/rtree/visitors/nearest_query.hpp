@@ -33,8 +33,9 @@ public:
         typename translator::indexable_type<Translator>::type
     >::type distance_type;
 
-    inline nearest_query_result_one()
-        : m_comp_dist((std::numeric_limits<distance_type>::max)())
+    inline nearest_query_result_one(Value & value)
+        : m_value(value)
+        , m_comp_dist((std::numeric_limits<distance_type>::max)())
     {}
 
     inline void store(Value const& val, distance_type const& curr_comp_dist)
@@ -63,7 +64,7 @@ public:
     }
 
 private:
-    Value m_value;
+    Value & m_value;
     distance_type m_comp_dist;
 };
 

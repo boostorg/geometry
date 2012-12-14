@@ -60,19 +60,22 @@ public:
         geometry::centroid(rtree::elements(*parent)[current_child_index].first, node_center);
 
         // fill the container of centers' distances of children from current node's center
-        typename index::detail::rtree::container_from_elements_type<
+        typedef typename index::detail::rtree::container_from_elements_type<
             elements_type,
             std::pair<distance_type, element_type>
-        >::type sorted_elements;
+        >::type sorted_elements_type;
+        sorted_elements_type sorted_elements;
         // If constructor is used instead of resize() MS implementation leaks here
-        sorted_elements.resize(elements_count);                                                         // MAY THROW, STRONG (V, E: alloc, copy)
+        sorted_elements.reserve(elements_count);                                                         // MAY THROW, STRONG (V, E: alloc, copy)
         
-        for ( size_t i = 0 ; i < elements_count ; ++i )
+        for ( typename elements_type::const_iterator it = elements.begin() ;
+              it != elements.end() ; ++it )
         {
             point_type element_center;
-            geometry::centroid( rtree::element_indexable(elements[i], translator), element_center);
-            sorted_elements[i].first = geometry::comparable_distance(node_center, element_center);
-            sorted_elements[i].second = elements[i];                                                    // MAY THROW (V, E: copy)
+            geometry::centroid( rtree::element_indexable(*it, translator), element_center);
+            sorted_elements.push_back(std::make_pair(
+                geometry::comparable_distance(node_center, element_center),
+                *it));                                                                                  // MAY THROW (V, E: copy)
         }
 
         // sort elements by distances from center
@@ -83,24 +86,34 @@ public:
             distances_dsc<distance_type, element_type>);                                                // MAY THROW, BASIC (V, E: copy)
 
         // copy elements which will be reinserted
-        result_elements.resize(reinserted_elements_count);                                              // MAY THROW, STRONG (V, E: alloc, copy)
-        for ( size_t i = 0 ; i < reinserted_elements_count ; ++i )
-            result_elements[i] = sorted_elements[i].second;                                             // MAY THROW (V, E: copy)
+        result_elements.clear();
+        result_elements.reserve(reinserted_elements_count);                                             // MAY THROW, STRONG (V, E: alloc, copy)
+        for ( typename sorted_elements_type::const_iterator it = sorted_elements.begin() ;
+              it != sorted_elements.begin() + reinserted_elements_count ; ++it )
+        {
+            result_elements.push_back(it->second);                                                      // MAY THROW (V, E: copy)
+        }
 
         try
         {
             // copy remaining elements to the current node
-            size_t elements_new_count = elements_count - reinserted_elements_count;
-            elements.resize(elements_new_count);                                                        // SHOULDN'T THROW (new_size <= old size)
-            for ( size_t i = 0 ; i < elements_new_count ; ++i )
-                elements[i] = sorted_elements[i + reinserted_elements_count].second;                    // MAY THROW (V, E: copy)
+            elements.clear();
+            elements.reserve(elements_count - reinserted_elements_count);                                // SHOULDN'T THROW (new_size <= old size)
+            for ( typename sorted_elements_type::const_iterator it = sorted_elements.begin() + reinserted_elements_count;
+                  it != sorted_elements.end() ; ++it )
+            {
+                elements.push_back(it->second);                                                         // MAY THROW (V, E: copy)
+            }
         }
         catch(...)
         {
             elements.clear();
 
-            for ( size_t i = 0 ; i < elements_count ; ++i )
-                destroy_element<Value, Options, Translator, Box, Allocators>::apply(sorted_elements[i].second, allocators);
+            for ( typename sorted_elements_type::iterator it = sorted_elements.begin() ;
+                  it != sorted_elements.end() ; ++it )
+            {
+                destroy_element<Value, Options, Translator, Box, Allocators>::apply(it->second, allocators);
+            }
 
             throw;                                                                                      // RETHROW
         }

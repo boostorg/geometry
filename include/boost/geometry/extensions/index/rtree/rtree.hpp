@@ -873,7 +873,7 @@ private:
             point_type
         > result_type;
 
-        result_type result;
+        result_type result(v);
 
         detail::rtree::visitors::nearest_query<
             value_type,
@@ -888,7 +888,8 @@ private:
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
-        return result.get(v);
+        //return result.get(v);
+        return result.is_comparable_distance_valid() ? 1 : 0;
     }
 
     /*!

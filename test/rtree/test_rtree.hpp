@@ -50,6 +50,14 @@ struct generate_outside_point< bg::model::point<T, 3, C> >
     }
 };
 
+// Default value generation
+
+template <typename Value>
+struct generate_value_default
+{
+    static Value apply(){ return Value(); }
+};
+
 // Values, input and rtree generation
 
 template <typename Value>
@@ -225,10 +233,11 @@ struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 2, C> >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef test_object<P> O;
+    typedef boost::shared_ptr<O> R;
 
-    static boost::shared_ptr<O> apply(int x, int y)
+    static R apply(int x, int y)
     {
-        return boost::shared_ptr<O>(new O(P(x, y)));
+        return R(new O(P(x, y)));
     }
 };
 
@@ -237,10 +246,11 @@ struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef test_object<P> O;
+    typedef boost::shared_ptr<O> R;
 
-    static boost::shared_ptr<O> apply(int x, int y, int z)
+    static R apply(int x, int y, int z)
     {   
-        return boost::shared_ptr<O>(new O(P(x, y, z)));
+        return R(new O(P(x, y, z)));
     }
 };
 
@@ -283,14 +293,16 @@ template <typename T, typename C>
 struct generate_value< counting_value<bg::model::point<T, 2, C> > >
 {
     typedef bg::model::point<T, 2, C> P;
-    static counting_value<P> apply(int x, int y) { return counting_value<P>(P(x, y)); }
+    typedef counting_value<P> R;
+    static R apply(int x, int y) { return R(P(x, y)); }
 };
 
 template <typename T, typename C>
 struct generate_value< counting_value<bg::model::point<T, 3, C> > >
 {
     typedef bg::model::point<T, 3, C> P;
-    static counting_value<P> apply(int x, int y, int z) { return counting_value<P>(P(x, y, z)); }
+    typedef counting_value<P> R;
+    static R apply(int x, int y, int z) { return R(P(x, y, z)); }
 };
 
 template <typename T, typename C>
@@ -298,7 +310,8 @@ struct generate_value< counting_value<bg::model::box<bg::model::point<T, 2, C> >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef bg::model::box<P> B;
-    static counting_value<B> apply(int x, int y) { return counting_value<B>(B(P(x, y), P(x+2, y+3))); }
+    typedef counting_value<B> R;
+    static R apply(int x, int y) { return R(B(P(x, y), P(x+2, y+3))); }
 };
 
 template <typename T, typename C>
@@ -306,7 +319,78 @@ struct generate_value< counting_value<bg::model::box<bg::model::point<T, 3, C> >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef bg::model::box<P> B;
-    static counting_value<B> apply(int x, int y, int z) { return counting_value<B>(B(P(x, y, z), P(x+2, y+3, z+4))); }
+    typedef counting_value<B> R;
+    static R apply(int x, int y, int z) { return R(B(P(x, y, z), P(x+2, y+3, z+4))); }
+};
+
+// value without default constructor
+
+template <typename Indexable>
+struct value_no_dctor
+{
+    value_no_dctor(Indexable const& i) : indexable(i) {}
+    Indexable indexable;
+};
+
+namespace boost { namespace geometry { namespace index { namespace translator {
+
+    template <typename Indexable>
+    struct def< value_no_dctor<Indexable> >
+    {
+        typedef value_no_dctor<Indexable> value_type;
+        typedef Indexable const& result_type;
+
+        result_type operator()(value_type const& value) const
+        {
+            return value.indexable;
+        }
+
+        bool equals(value_type const& v1, value_type const& v2) const
+        {
+            return boost::geometry::equals(v1.indexable, v2.indexable);
+        }
+    };
+
+}}}}
+
+template <typename Indexable>
+struct generate_value_default< value_no_dctor<Indexable> >
+{
+    static value_no_dctor<Indexable> apply() { return value_no_dctor<Indexable>(Indexable()); }
+};
+
+template <typename T, typename C>
+struct generate_value< value_no_dctor<bg::model::point<T, 2, C> > >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef value_no_dctor<P> R;
+    static R apply(int x, int y) { return R(P(x, y)); }
+};
+
+template <typename T, typename C>
+struct generate_value< value_no_dctor<bg::model::point<T, 3, C> > >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef value_no_dctor<P> R;
+    static R apply(int x, int y, int z) { return R(P(x, y, z)); }
+};
+
+template <typename T, typename C>
+struct generate_value< value_no_dctor<bg::model::box<bg::model::point<T, 2, C> > > >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef bg::model::box<P> B;
+    typedef value_no_dctor<B> R;
+    static R apply(int x, int y) { return R(B(P(x, y), P(x+2, y+3))); }
+};
+
+template <typename T, typename C>
+struct generate_value< value_no_dctor<bg::model::box<bg::model::point<T, 3, C> > > >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef bg::model::box<P> B;
+    typedef value_no_dctor<B> R;
+    static R apply(int x, int y, int z) { return R(B(P(x, y, z), P(x+2, y+3, z+4))); }
 };
 
 // generate input
@@ -625,7 +709,7 @@ void test_nearest_query(Rtree const& rtree, std::vector<Value> const& input, Poi
 
     typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
     D smallest_d = (std::numeric_limits<D>::max)();
-    Value expected_output;
+    Value expected_output(generate_value_default<Value>::apply());
     BOOST_FOREACH(Value const& v, input)
     {
         D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
@@ -637,7 +721,7 @@ void test_nearest_query(Rtree const& rtree, std::vector<Value> const& input, Poi
     }
     size_t n = ( (std::numeric_limits<D>::max)() == smallest_d ) ? 0 : 1;
 
-    Value output;
+    Value output(generate_value_default<Value>::apply());
     size_t n_res = rtree.nearest_query(pt, output);
 
     BOOST_CHECK(n == n_res);
@@ -711,7 +795,7 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
         biggest_d = test_output.back().first;
     
     // transform test output to vector of values
-    std::vector<Value> expected_output(test_output.size());
+    std::vector<Value> expected_output(test_output.size(), generate_value_default<Value>::apply());
     std::transform(test_output.begin(), test_output.end(), expected_output.begin(), TestNearestKTransform<Rtree, Point>());
 
     // calculate output using rtree
@@ -744,11 +828,12 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
 template <typename Rtree, typename Point, typename CoordinateType>
 void test_nearest_query_not_found(Rtree const& rtree, Point const& pt, CoordinateType max_distance_1, CoordinateType max_distance_k)
 {
-    typename Rtree::value_type output;
+    typedef typename Rtree::value_type Value;
+    Value output(generate_value_default<Value>::apply());
     size_t n_res = rtree.nearest_query(bgi::max_bounded(pt, max_distance_1), output);
     BOOST_CHECK(0 == n_res);
 
-    std::vector<typename Rtree::value_type> output_v;
+    std::vector<Value> output_v;
     n_res = rtree.nearest_query(bgi::max_bounded(pt, max_distance_k), 5, std::back_inserter(output_v));
     BOOST_CHECK(output_v.size() == n_res);
     BOOST_CHECK(n_res < 5);
@@ -1159,12 +1244,14 @@ void test_rtree_for_point(Parameters const& parameters = Parameters())
     typedef std::pair<Point, int> PairP;
     typedef boost::tuple<Point, int, int> TupleP;
     typedef boost::shared_ptr< test_object<Point> > SharedPtrP;
+    typedef value_no_dctor<Point> VNoDCtor;
 
     test_rtree_by_value<Point, Parameters>(parameters);
     test_rtree_by_value<PairP, Parameters>(parameters);
     test_rtree_by_value<TupleP, Parameters>(parameters);
     
     test_rtree_by_value<SharedPtrP, Parameters>(parameters);
+    test_rtree_by_value<VNoDCtor, Parameters>(parameters);
 
     test_count_rtree_values<Point>(parameters);
 }
@@ -1175,10 +1262,13 @@ void test_rtree_for_box(Parameters const& parameters = Parameters())
     typedef bg::model::box<Point> Box;
     typedef std::pair<Box, int> PairB;
     typedef boost::tuple<Box, int, int> TupleB;
+    typedef value_no_dctor<Box> VNoDCtor;
 
     test_rtree_by_value<Box, Parameters>(parameters);
     test_rtree_by_value<PairB, Parameters>(parameters);
     test_rtree_by_value<TupleB, Parameters>(parameters);
+
+    test_rtree_by_value<VNoDCtor, Parameters>(parameters);
 
     test_count_rtree_values<Box>(parameters);
 }
