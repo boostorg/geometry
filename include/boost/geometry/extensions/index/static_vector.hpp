@@ -6,6 +6,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <stdexcept>
 #include <boost/aligned_storage.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
 
@@ -31,6 +32,8 @@ public:
     typedef size_t size_type;
     typedef Value& reference;
     typedef Value const& const_reference;
+    typedef Value * pointer;
+    typedef const Value* const_pointer;
     typedef Value* iterator;
     typedef const Value * const_iterator;
     typedef boost::reverse_iterator<iterator> reverse_iterator;
@@ -42,10 +45,10 @@ public:
     {}
 
     // strong
-    explicit static_vector(size_type s)
+    explicit static_vector(size_type s, value_type const& value = value_type())
         : m_size(0)
     {
-        resize(s);                                                      // may throw
+        resize(s, value);                                                      // may throw
     }
 
     // strong
@@ -93,7 +96,7 @@ public:
     }
 
     // strong
-    void resize(size_type s)
+    void resize(size_type s, value_type const& value = value_type())
     {
         if ( s < m_size )
         {
@@ -103,8 +106,7 @@ public:
         }
         else
         {
-            this->construct(this->ptr(m_size), this->ptr(s),
-                            boost::has_trivial_constructor<value_type>());  // may throw
+            this->uninitialized_fill(this->ptr(m_size), this->ptr(s), value);  // may throw
             m_size = s;
         }
     }
@@ -142,15 +144,31 @@ public:
         m_size = 0;
     }
 
+    // strong
+    Value & at(size_type i)
+    {
+        if ( Capacity <= i )
+            throw std::out_of_range("static_vector element index out of bounds");
+        return *(this->ptr(i));
+    }
+
+    // strong
+    Value const& at(size_type i) const
+    {
+        if ( Capacity <= i )
+            throw std::out_of_range("static_vector element index out of bounds");
+        return *(this->ptr(i));
+    }
+
     // nothrow
-    Value & operator[](size_t i)
+    Value & operator[](size_type i)
     {
         BOOST_ASSERT_MSG(i < Capacity, "index out of bounds");
         return *(this->ptr(i));
     }
 
     // nothrow
-    Value const& operator[](size_t i) const
+    Value const& operator[](size_type i) const
     {
         BOOST_ASSERT_MSG(i < Capacity, "index out of bounds");
         return *(this->ptr(i));
@@ -185,6 +203,10 @@ public:
     }
 
     // nothrow
+    Value * data() { return this->ptr(0); }
+    const Value * data() const { return this->ptr(0); }
+
+    // nothrow
     iterator begin() { return this->ptr(0); }
     const_iterator begin() const { return this->ptr(0); }
     iterator end() { return this->ptr(m_size); }
@@ -197,67 +219,75 @@ public:
 
     // nothrow
     size_type capacity() const { return Capacity; }
+    size_type max_size() const { return Capacity; }
     size_type size() const { return m_size; }
     bool empty() const { return 0 == m_size; }
 
 private:
-    void copy(const value_type * first, const value_type * last, value_type * dst, boost::true_type const&)
+    void copy(const value_type * first, const value_type * last, value_type * dst,
+              boost::true_type const& /*has_trivial_assign*/)
     {
         ::memcpy(dst, first, sizeof(value_type) * std::distance(first, last));
     }
 
-    void copy(const value_type * first, const value_type * last, value_type * dst, boost::false_type const&)
+    void copy(const value_type * first, const value_type * last, value_type * dst,
+              boost::false_type const& /*has_trivial_assign*/)
     {
         std::copy(first, last, dst);                                            // may throw
     }
 
-    void uninitialized_copy(const value_type * first, const value_type * last, value_type * dst, boost::true_type const&)
+    void uninitialized_copy(const value_type * first, const value_type * last, value_type * dst,
+                            boost::true_type const& /*has_trivial_copy*/)
     {
         ::memcpy(dst, first, sizeof(value_type) * std::distance(first, last));
     }
 
-    void uninitialized_copy(const value_type * first, const value_type * last, value_type * dst, boost::false_type const&)
+    void uninitialized_copy(const value_type * first, const value_type * last, value_type * dst,
+                            boost::false_type const& /*has_trivial_copy*/)
     {
         std::uninitialized_copy(first, last, dst);                              // may throw
     }
 
-    void uninitialized_copy(value_type * ptr, value_type const& v, boost::true_type const&)
+    void uninitialized_copy(value_type * ptr, value_type const& v,
+                            boost::true_type const& /*has_trivial_copy*/)
     {
         ::memcpy(ptr, &v, sizeof(value_type));
     }
 
-    void uninitialized_copy(value_type * ptr, value_type const& v, boost::false_type const&)
+    void uninitialized_copy(value_type * ptr, value_type const& v,
+                            boost::false_type const& /*has_trivial_copy*/)
     {
         new (ptr) value_type(v);                                                // may throw
     }
 
-    void destroy(const value_type *, const value_type *, boost::true_type const&)
+    void destroy(const value_type *, const value_type *,
+                 boost::true_type const& /*has_trivial_destructor*/)
     {}
 
-    void destroy(const value_type * first, const value_type * last, boost::false_type const&)
+    void destroy(const value_type * first, const value_type * last,
+                 boost::false_type const& /*has_trivial_destructor*/)
     {
         for ( ; first != last ; ++first )
             first->~value_type();
     }
 
-    void destroy(const value_type *, boost::true_type const&)
+    void destroy(const value_type *,
+                 boost::true_type const& /*has_trivial_destructor*/)
     {}
 
-    void destroy(const value_type * ptr, boost::false_type const&)
+    void destroy(const value_type * ptr, boost::false_type const& /*has_trivial_destructor*/)
     {
         ptr->~value_type();
     }
 
-    void construct(value_type *, value_type *, boost::true_type const&)
-    {}
-
-    void construct(value_type * first, value_type * last, boost::false_type const&)
+    void uninitialized_fill(value_type * first, value_type * last, value_type const& value)
     {
+        // std::uninitialized_fill()
         value_type * it = first;
         try
         {
             for ( ; it != last ; ++it )
-                new (it) value_type();                                        // may throw
+                new (it) value_type(value);                                        // may throw
         }
         catch(...)
         {
