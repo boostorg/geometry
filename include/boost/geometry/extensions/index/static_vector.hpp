@@ -7,6 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <stdexcept>
+#include <boost/mpl/assert.hpp>
 #include <boost/aligned_storage.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
 
@@ -27,9 +28,15 @@ namespace boost { namespace geometry { namespace index {
 template <typename Value, size_t Capacity>
 class static_vector
 {
+    BOOST_MPL_ASSERT_MSG(
+        (0 < Capacity),
+        INVALID_CAPACITY,
+        static_vector);
+
 public:
     typedef Value value_type;
     typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
     typedef Value& reference;
     typedef Value const& const_reference;
     typedef Value * pointer;
@@ -209,13 +216,17 @@ public:
     // nothrow
     iterator begin() { return this->ptr(0); }
     const_iterator begin() const { return this->ptr(0); }
+    const_iterator cbegin() const { return this->ptr(0); }
     iterator end() { return this->ptr(m_size); }
     const_iterator end() const { return this->ptr(m_size); }
+    const_iterator cend() const { return this->ptr(m_size); }
     // nothrow
     reverse_iterator rbegin() { return reverse_iterator(this->end()); }
     const_reverse_iterator rbegin() const { return reverse_iterator(this->end()); }
+    const_reverse_iterator crbegin() const { return reverse_iterator(this->end()); }
     reverse_iterator rend() { return reverse_iterator(this->begin()); }
     const_reverse_iterator rend() const { return reverse_iterator(this->begin()); }
+    const_reverse_iterator crend() const { return reverse_iterator(this->begin()); }
 
     // nothrow
     size_type capacity() const { return Capacity; }
