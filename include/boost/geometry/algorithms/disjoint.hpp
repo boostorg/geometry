@@ -234,6 +234,16 @@ struct disjoint<Point, Box, DimensionCount, point_tag, box_tag, Reverse>
     : detail::disjoint::point_box<Point, Box, 0, DimensionCount>
 {};
 
+template <typename Point, typename Ring, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Point, Ring, DimensionCount, point_tag, ring_tag, Reverse>
+    : detail::disjoint::reverse_covered_by<Point, Ring>
+{};
+
+template <typename Point, typename Polygon, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Point, Polygon, DimensionCount, point_tag, polygon_tag, Reverse>
+    : detail::disjoint::reverse_covered_by<Point, Polygon>
+{};
+
 template <typename Linestring1, typename Linestring2, bool Reverse>
 struct disjoint<Linestring1, Linestring2, 2, linestring_tag, linestring_tag, Reverse>
     : detail::disjoint::disjoint_linear<Linestring1, Linestring2>
