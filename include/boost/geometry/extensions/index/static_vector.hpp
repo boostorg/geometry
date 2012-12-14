@@ -52,7 +52,14 @@ public:
     {}
 
     // strong
-    explicit static_vector(size_type s, value_type const& value = value_type())
+    explicit static_vector(size_type s)
+        : m_size(0)
+    {
+        resize(s);                                                              // may throw
+    }
+
+    // strong
+    static_vector(size_type s, value_type const& value)
         : m_size(0)
     {
         resize(s, value);                                                      // may throw
@@ -73,7 +80,7 @@ public:
     {
         //BOOST_ASSERT_MSG(other.m_size <= Capacity, "capacity too small");
 
-        this->assign(other->ptr(0), other->ptr(other.m_size));
+        assign(other->ptr(0), other->ptr(other.m_size));
 
         return *this;
     }
@@ -86,7 +93,7 @@ public:
     }
 
     // strong
-    void resize(size_type s, value_type const& value = value_type())
+    void resize(size_type s)
     {
         if ( s < m_size )
         {
@@ -97,7 +104,25 @@ public:
         else
         {
             BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
-            this->uninitialized_fill(this->ptr(m_size), this->ptr(s), value);  // may throw
+            this->construct(this->ptr(m_size), this->ptr(s)
+                            boost::has_trivial_constructor<value_type>());      // may throw
+            m_size = s;
+        }
+    }
+
+    // strong
+    void resize(size_type s, value_type const& value)
+    {
+        if ( s < m_size )
+        {
+            this->destroy(this->ptr(s), this->ptr(m_size),
+                          boost::has_trivial_destructor<value_type>());
+            m_size = s;
+        }
+        else
+        {
+            BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
+            std::uninitialized_fill(this->ptr(m_size), this->ptr(s), value);    // may throw
             m_size = s;
         }
     }
@@ -111,8 +136,6 @@ public:
     // strong
     void push_back(Value const& value)
     {
-        if ( Capacity <= m_size )
-            std::cout << m_size << '\n';
         BOOST_ASSERT_MSG(m_size < Capacity, "max capacity reached");
         this->uninitialized_copy(this->ptr(m_size), value,
                                  boost::has_trivial_copy<value_type>());        // may throw
@@ -277,7 +300,7 @@ private:
     void uninitialized_copy(value_type * ptr, value_type const& v,
                             boost::false_type const& /*has_trivial_copy*/)
     {
-        new (ptr) value_type(v);                                                // may throw
+        new (ptr) value_type(v);                                                    // may throw
     }
 
     void destroy(const value_type *, const value_type *,
@@ -300,14 +323,14 @@ private:
         ptr->~value_type();
     }
 
-    void uninitialized_fill(value_type * first, value_type * last, value_type const& value)
+    void construct(value_type * first, value_type * last,
+                   boost::true_type const& /*has_trivial_constructor*/)
     {
-        // std::uninitialized_fill()
         value_type * it = first;
         try
         {
             for ( ; it != last ; ++it )
-                new (it) value_type(value);                                        // may throw
+                new (it) value_type();                                              // may throw
         }
         catch(...)
         {
@@ -315,6 +338,10 @@ private:
             throw;
         }
     }
+
+    void construct(value_type * first, value_type * last,
+                   boost::false_type const& /*has_trivial_constructor*/)
+    {}
 
     Value * ptr(size_type i)
     {
