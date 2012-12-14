@@ -48,6 +48,20 @@ private:
     int aa;
 };
 
+class counting_value
+{
+public:
+    counting_value(int a = 0) : aa(a) { ++c(); }
+    counting_value(counting_value const& v) : aa(v.aa) { ++c(); }
+    counting_value & operator=(counting_value const& v) { aa = v.aa; return *this; }
+    ~counting_value() { --c(); }
+    bool operator==(counting_value const& v) const { return aa == v.aa; }
+    static size_t count() { return c(); }
+private:
+    static size_t & c() { static size_t co = 0; return co; }
+    int aa;
+};
+
 template <typename T, size_t N>
 void test_ctor_ndc()
 {
@@ -215,26 +229,47 @@ void test_copy_and_assign_nd()
 
 int test_main(int, char* [])
 {
+    BOOST_CHECK(counting_value::count() == 0);
+
     test_ctor_ndc<int, 10>();
     test_ctor_ndc<value_ndc, 10>();
+    test_ctor_ndc<counting_value, 10>();
+    BOOST_CHECK(counting_value::count() == 0);
+
     test_ctor_nc<int, 10>(5);
     test_ctor_nc<value_nc, 10>(5);
+    test_ctor_nc<counting_value, 10>(5);
+    BOOST_CHECK(counting_value::count() == 0);
+
     test_ctor_nd<int, 10>(5, 1);
     test_ctor_nd<value_nd, 10>(5, 1);
+    test_ctor_nd<counting_value, 10>(5, 1);
+    BOOST_CHECK(counting_value::count() == 0);
 
     test_resize_nc<int, 10>(5);
     test_resize_nc<value_nc, 10>(5);
+    test_resize_nc<counting_value, 10>(5);
+    BOOST_CHECK(counting_value::count() == 0);
+
     test_resize_nd<int, 10>(5, 1);
     test_resize_nd<value_nd, 10>(5, 1);
+    test_resize_nd<counting_value, 10>(5, 1);
+    BOOST_CHECK(counting_value::count() == 0);
 
     test_push_back_nd<int, 10>();
     test_push_back_nd<value_nd, 10>();
+    test_push_back_nd<counting_value, 10>();
+    BOOST_CHECK(counting_value::count() == 0);
 
     test_pop_back_nd<int, 10>();
     test_pop_back_nd<value_nd, 10>();
+    test_pop_back_nd<counting_value, 10>();
+    BOOST_CHECK(counting_value::count() == 0);
 
     test_copy_and_assign_nd<int, 10>();
     test_copy_and_assign_nd<value_nd, 10>();
+    test_copy_and_assign_nd<counting_value, 10>();
+    BOOST_CHECK(counting_value::count() == 0);
 
     return 0;
 }

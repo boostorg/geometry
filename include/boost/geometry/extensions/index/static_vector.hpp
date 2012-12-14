@@ -325,8 +325,12 @@ private:
         ptr->~value_type();
     }
 
-    void construct(value_type * first, value_type * last,
+    void construct(value_type * /*first*/, value_type * /*last*/,
                    boost::true_type const& /*has_trivial_constructor*/)
+    {}
+
+    void construct(value_type * first, value_type * last,
+                   boost::false_type const& /*has_trivial_constructor*/)
     {
         value_type * it = first;
         try
@@ -340,10 +344,6 @@ private:
             throw;
         }
     }
-
-    void construct(value_type * /*first*/, value_type * /*last*/,
-                   boost::false_type const& /*has_trivial_constructor*/)
-    {}
 
     Value * ptr(size_type i)
     {
