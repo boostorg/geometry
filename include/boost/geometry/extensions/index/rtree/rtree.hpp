@@ -409,6 +409,35 @@ public:
     }
 
     /*!
+    Assign new elements to the rtree. This method replaces the content of the rtree.
+
+    \note Exception-safety: strong
+
+    \param first    The beginning of the range of values.
+    \param last     The end of the range of values.
+    */
+    template <typename Iterator>
+    inline void assign(Iterator first, Iterator last)
+    {
+        rtree foo(first, last, this->parameters(), this->translator(), this->get_allocator());
+        this->swap(foo);
+    }
+
+    /*!
+    Assign new elements to the rtree. This method replaces the content of the rtree.
+
+    \note Exception-safety: strong
+
+    \param rng      The range of values.
+    */
+    template <typename Range>
+    inline void assign(Range const& rng)
+    {
+        rtree foo(rng, this->parameters(), this->translator(), this->get_allocator());
+        this->swap(foo);
+    }
+
+    /*!
     Find values meeting spatial predicates, e.g. intersecting some box.
 
     \note Exception-safety: strong

@@ -911,7 +911,7 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
 // rtree removing
 
 template <typename Value, typename Algo, typename Box>
-void test_remove_clear(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input, Box const& qbox)
+void test_remove(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input, Box const& qbox)
 {
     typedef bgi::rtree<Value, Algo> T;
 
@@ -973,20 +973,82 @@ void test_remove_clear(bgi::rtree<Value, Algo> & tree, std::vector<Value> const&
         BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
         test_compare_outputs(t, output, expected_output);
     }
+}
+
+template <typename Value, typename Algo, typename Box>
+void test_clear_assign(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input, Box const& qbox)
+{
+    typedef bgi::rtree<Value, Algo> T;
+
+    std::vector<Value> values_to_remove;
+    tree.spatial_query(qbox, std::back_inserter(values_to_remove));
+    BOOST_CHECK(0 < values_to_remove.size());
 
     //clear
     {
+        T t(tree);
+
         std::vector<Value> expected_output;
-        tree.spatial_query(bgi::intersects(qbox), std::back_inserter(expected_output));
-        size_t s = tree.size();
-        tree.clear();
-        BOOST_CHECK(tree.empty());
-        BOOST_CHECK(tree.size() == 0);
-        tree.insert(input);
-        BOOST_CHECK(tree.size() == s);
+        t.spatial_query(bgi::intersects(qbox), std::back_inserter(expected_output));
+        size_t s = t.size();
+        t.clear();
+        BOOST_CHECK(t.empty());
+        BOOST_CHECK(t.size() == 0);
+        t.insert(input);
+        BOOST_CHECK(t.size() == s);
         std::vector<Value> output;
-        tree.spatial_query(bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(tree, output, expected_output);
+        t.spatial_query(bgi::intersects(qbox), std::back_inserter(output));
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+
+    //assign iterators
+    {
+        T t(tree);
+
+        BOOST_CHECK(t.size() == tree.size());
+
+        std::vector<Value> expected_output;
+        t.spatial_query(t.box(), std::back_inserter(expected_output));
+        
+        std::vector<Value> values_to_remove;
+        t.spatial_query(bgi::intersects(qbox), std::back_inserter(values_to_remove));
+        t.remove(values_to_remove);
+        
+        BOOST_CHECK(t.size() == tree.size() - values_to_remove.size());
+
+        t.assign(input.begin(), input.end());
+
+        BOOST_CHECK(t.size() == tree.size());
+
+        std::vector<Value> output;
+        t.spatial_query(t.box(), std::back_inserter(output));
+
+        test_exactly_the_same_outputs(t, output, expected_output);
+    }
+
+    //assign range
+    {
+        T t(tree);
+
+        BOOST_CHECK(t.size() == tree.size());
+
+        std::vector<Value> expected_output;
+        t.spatial_query(t.box(), std::back_inserter(expected_output));
+
+        std::vector<Value> values_to_remove;
+        t.spatial_query(bgi::intersects(qbox), std::back_inserter(values_to_remove));
+        t.remove(values_to_remove);
+
+        BOOST_CHECK(t.size() == tree.size() - values_to_remove.size());
+
+        t.assign(input);
+
+        BOOST_CHECK(t.size() == tree.size());
+
+        std::vector<Value> output;
+        t.spatial_query(t.box(), std::back_inserter(output));
+
+        test_exactly_the_same_outputs(t, output, expected_output);
     }
 }
 
@@ -1025,7 +1087,8 @@ void test_rtree_by_value(Parameters const& parameters)
     test_copy_assignment_swap_move(tree, qbox);
 
     test_create_insert(tree, input, qbox);
-    test_remove_clear(tree, input, qbox);
+    test_remove(tree, input, qbox);
+    test_clear_assign(tree, input, qbox);
 
     // empty tree test
 

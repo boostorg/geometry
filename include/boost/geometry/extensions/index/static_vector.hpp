@@ -31,7 +31,7 @@ class static_vector
     BOOST_MPL_ASSERT_MSG(
         (0 < Capacity),
         INVALID_CAPACITY,
-        static_vector);
+        (static_vector));
 
 public:
     typedef Value value_type;
