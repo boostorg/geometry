@@ -104,7 +104,7 @@ public:
         else
         {
             BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
-            this->construct(this->ptr(m_size), this->ptr(s)
+            this->construct(this->ptr(m_size), this->ptr(s),
                             boost::has_trivial_constructor<value_type>());      // may throw
             m_size = s;
         }
