@@ -188,7 +188,7 @@ public:
     // strong
     Value & at(size_type i)
     {
-        if ( Capacity <= i )
+        if ( m_size <= i )
             throw std::out_of_range("static_vector element index out of bounds");
         return *(this->ptr(i));
     }
@@ -196,7 +196,7 @@ public:
     // strong
     Value const& at(size_type i) const
     {
-        if ( Capacity <= i )
+        if ( m_size <= i )
             throw std::out_of_range("static_vector element index out of bounds");
         return *(this->ptr(i));
     }
@@ -305,7 +305,7 @@ private:
         new (ptr) value_type(v);                                                    // may throw
     }
 
-    void destroy(const value_type *, const value_type *,
+    void destroy(const value_type * /*first*/, const value_type * /*last*/,
                  boost::true_type const& /*has_trivial_destructor*/)
     {}
 
@@ -316,7 +316,7 @@ private:
             first->~value_type();
     }
 
-    void destroy(const value_type *,
+    void destroy(const value_type * /*ptr*/,
                  boost::true_type const& /*has_trivial_destructor*/)
     {}
 
@@ -341,7 +341,7 @@ private:
         }
     }
 
-    void construct(value_type * first, value_type * last,
+    void construct(value_type * /*first*/, value_type * /*last*/,
                    boost::false_type const& /*has_trivial_constructor*/)
     {}
 

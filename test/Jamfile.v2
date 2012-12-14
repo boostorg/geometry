@@ -19,5 +19,10 @@ project boost-geometry-index-test
         <toolset>msvc:<asynch-exceptions>on
     ;
 
-build-project algorithms ;
-build-project rtree ;
+test-suite boost-geometry-index
+    :
+    [ run static_vector.cpp ]
+    ;
+
+#build-project algorithms ;
+#build-project rtree ;
