@@ -12,10 +12,10 @@
 
 In order to be exception-safe the __rtree__ requires:
 
-* Exception-safe copy constructor of the `__value__`.
-* Exception-safe copy constructor of the `CoordinateType` used in the `Indexable`.
-* Nonthrowing copy constructor of the `Translator`.
-* Nonthrowing destructors of the above types.
+* exception-safe copy constructor and copy assignment of the `__value__`.
+* exception-safe copy constructor and copy assignment of the `CoordinateType` used in the `Indexable`.
+* nonthrowing copy constructor of the `Translator`.
+* nonthrowing destructors of above types.
 
 [table
 [[Operation]                   [exception-safety]]

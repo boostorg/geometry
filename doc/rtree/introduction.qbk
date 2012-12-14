@@ -44,9 +44,10 @@ and vice versa. Example structures of trees created by use of three different al
 
 Key features of this implementation of the __rtree__ are:
 
+* capable to store arbitrary __value__ type,
+* capable to store __value__ type with no default constructor,
 * three different creation algorithms - linear, quadratic or rstar,
 * parameters (including maximal and minimal number of elements) may be passed as compile- or run-time parameters - compile-time version is faster,
-* capable to store arbitrary __value__ type,
 * advanced queries - e.g. search for 5 nearest values further than some minimal distance and intersecting some region but not within the other one.
 
 [endsect]
