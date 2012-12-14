@@ -80,7 +80,7 @@ public:
     {
         //BOOST_ASSERT_MSG(other.m_size <= Capacity, "capacity too small");
 
-        assign(other->ptr(0), other->ptr(other.m_size));
+        assign(other.ptr(0), other.ptr(other.m_size));
 
         return *this;
     }
