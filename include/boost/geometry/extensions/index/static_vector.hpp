@@ -155,6 +155,8 @@ public:
     {
         size_type s = std::distance(first, last);
 
+        BOOST_ASSERT_MSG(s <= Capacity, "max capacity reached");
+
         if ( m_size <= s )
         {
             this->copy(first, first + m_size, this->ptr(0),
