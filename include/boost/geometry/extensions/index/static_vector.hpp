@@ -9,6 +9,13 @@
 #include <boost/aligned_storage.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
 
+#include <boost/type_traits/alignment_of.hpp>
+#include <boost/type_traits/aligned_storage.hpp>
+#include <boost/type_traits/has_trivial_assign.hpp>
+#include <boost/type_traits/has_trivial_copy.hpp>
+#include <boost/type_traits/has_trivial_constructor.hpp>
+#include <boost/type_traits/has_trivial_destructor.hpp>
+
 #include <boost/geometry/extensions/index/assert.hpp>
 
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_STATIC_VECTOR_HPP
@@ -43,20 +50,12 @@ public:
 
     // strong
     static_vector(static_vector const& other)
-        : m_size(0)
     {
         //BOOST_ASSERT_MSG(other.m_size <= Capacity, "capacity too small");
 
-        try
-        {
-            for ( ; m_size < other.m_size ; ++m_size )
-                this->construct(m_size, other[m_size]);                 // may throw
-        }
-        catch(...)
-        {
-            this->destroy(0, m_size);
-            throw;                                                      // rethrow
-        }
+        this->uninitialized_copy(other.ptr(0), other.ptr(other.m_size), this->ptr(0),
+                                 boost::has_trivial_copy_constructor<value_type>());
+        m_size = other.m_size;
     }
 
     // basic
@@ -197,6 +196,32 @@ public:
     bool empty() const { return 0 == m_size; }
 
 private:
+    void uninitialized_copy(const value_type * first, const value_type * last, value_type * dst, boost::true_type const&)
+    {
+        ::memcpy(dst, first, sizeof(value_type) * std::distance(first, last));
+    }
+
+    void uninitialized_copy(const value_type * first, const value_type * last, value_type * dst, boost::false_type const&)
+    {
+        std::uninitialized_copy(first, last, dst);                                // may throw
+    }
+
+    void destroy(const value_type * first, const value_type * last, boost::true_type const&)
+    {}
+
+    void destroy(const value_type * first, const value_type * last, boost::false_type const&)
+    {
+        for ( ; first != last ; ++first )
+            first->~value_type();
+    }
+
+    // old version - remove
+    void destroy(size_type first_i, size_type last_i)
+    {
+        for ( size_type i = first_i ; i < last_i ; ++i )
+            this->destroy(i);
+    }
+
     void construct(size_type i)
     {
         new (this->ptr(i)) value_type();                                          // may throw
@@ -212,12 +237,6 @@ private:
         this->ptr(i)->~value_type();
     }
 
-    void destroy(size_type first_i, size_type last_i)
-    {
-        for ( size_type i = first_i ; i < last_i ; ++i )
-            this->destroy(i);
-    }
-
     Value * ptr(size_type i)
     {
         return (reinterpret_cast<Value*>(m_storage.address()) + i);
@@ -228,7 +247,7 @@ private:
         return (reinterpret_cast<const Value*>(m_storage.address()) + i);
     }
 
-    boost::aligned_storage<sizeof(Value[Capacity])> m_storage;
+    boost::aligned_storage<sizeof(Value[Capacity]), boost::alignment_of<Value[Capacity]>::value> m_storage;
     size_type m_size;
 };
 
