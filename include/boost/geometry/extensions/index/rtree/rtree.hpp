@@ -39,6 +39,7 @@
 #include <boost/geometry/extensions/index/rtree/visitors/spatial_query.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/nearest_query.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/children_box.hpp>
+#include <boost/geometry/extensions/index/rtree/visitors/count.hpp>
 
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
 #include <boost/geometry/extensions/index/rtree/quadratic/quadratic.hpp>
@@ -642,6 +643,30 @@ public:
         detail::rtree::apply_visitor(children_box_v, *m_root);
 
         return children_box_v.result;
+    }
+
+    /*!
+    For indexable_type it returns the number of values which indexables equals the parameter.
+    For value_type it returns the number of values which equals the parameter.
+
+    \note Exception-safety: nothrow.
+
+    \param      The value or indexable which will be counted.
+
+    \return     The number of values found.
+    */
+    template <typename ValueOrIndexable>
+    size_type count(ValueOrIndexable const& vori) const
+    {
+        if ( !m_root )
+            return 0;
+
+        detail::rtree::visitors::count<ValueOrIndexable, value_type, options_type, translator_type, box_type, allocators_type>
+            count_v(vori, m_translator);
+
+        detail::rtree::apply_visitor(count_v, *m_root);
+
+        return count_v.found_count;
     }
 
     /*!

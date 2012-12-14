@@ -1192,7 +1192,7 @@ void test_rtree_by_value(Parameters const& parameters)
     test_copy_assignment_swap_move(empty_tree, qbox);
 }
 
-// rtree inserting removing by use of counting_value
+// rtree inserting and removing of counting_value
 
 template <typename Indexable, typename Parameters>
 void test_count_rtree_values(Parameters const& parameters)
@@ -1206,11 +1206,6 @@ void test_count_rtree_values(Parameters const& parameters)
     B qbox;
 
     generate_rtree(t, input, qbox);
-
-    {
-        BOOST_FOREACH(Value const& v, input)
-            t.insert(v);
-    }    
 
     size_t rest_count = input.size();
 
@@ -1235,6 +1230,35 @@ void test_count_rtree_values(Parameters const& parameters)
     }
 }
 
+// rtree count
+
+template <typename Indexable, typename Parameters>
+void test_rtree_count(Parameters const& parameters)
+{
+    typedef std::pair<Indexable, int> Value;
+    typedef bgi::rtree<Value, Parameters> Tree;
+    typedef typename Tree::box_type B;
+
+    Tree t(parameters);
+    std::vector<Value> input;
+    B qbox;
+
+    generate_rtree(t, input, qbox);
+    
+    BOOST_CHECK(t.count(input[0]) == 1);
+    BOOST_CHECK(t.count(input[0].first) == 1);
+        
+    t.insert(input[0]);
+    
+    BOOST_CHECK(t.count(input[0]) == 2);
+    BOOST_CHECK(t.count(input[0].first) == 2);
+
+    t.insert(std::make_pair(input[0].first, -1));
+
+    BOOST_CHECK(t.count(input[0]) == 2);
+    BOOST_CHECK(t.count(input[0].first) == 3);
+}
+
 // run all tests for one Algorithm for some number of rtrees
 // defined by some number of Values constructed from given Point
 
@@ -1254,6 +1278,8 @@ void test_rtree_for_point(Parameters const& parameters = Parameters())
     test_rtree_by_value<VNoDCtor, Parameters>(parameters);
 
     test_count_rtree_values<Point>(parameters);
+
+    test_rtree_count<Point>(parameters);
 }
 
 template<typename Point, typename Parameters>
@@ -1271,6 +1297,8 @@ void test_rtree_for_box(Parameters const& parameters = Parameters())
     test_rtree_by_value<VNoDCtor, Parameters>(parameters);
 
     test_count_rtree_values<Box>(parameters);
+
+    test_rtree_count<Box>(parameters);
 }
 
 #endif
