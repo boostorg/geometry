@@ -17,13 +17,28 @@
 template <typename P>
 void test_all()
 {
-    // intersect <=> ! disjoint
+    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::ring<P> ring;
+
+    // intersect <=> ! disjoint (in most cases)
     // so most tests are done in disjoint test.
-    // We only test compilation of one case.
+    // We only test compilation of a few cases.
     test_geometry<P, bg::model::box<P> >("POINT(1 1)", "BOX(0 0,2 2)", true);
 
+    test_geometry<polygon, bg::model::box<P> >(
+        "POLYGON((1992 3240,1992 1440,3792 1800,3792 3240,1992 3240))", 
+        "BOX(1941 2066, 2055 2166)", true);
+
+    test_geometry<ring, bg::model::box<P> >(
+        "POLYGON((1992 3240,1992 1440,3792 1800,3792 3240,1992 3240))", 
+        "BOX(1941 2066, 2055 2166)", true);
+
+    test_geometry<polygon, bg::model::box<P> >(
+        "POLYGON((1941 2066,2055 2066,2055 2166,1941 2166))", 
+        "BOX(1941 2066, 2055 2166)", true);
+
+
     // self-intersecting is not tested in disjoint, so that is done here.
-    typedef bg::model::polygon<P> polygon;
 
     // Just a normal polygon
     test_self_intersects<polygon>("POLYGON((0 0,0 4,1.5 2.5,2.5 1.5,4 0,0 0))", false);
@@ -111,6 +126,28 @@ void test_all()
         "POLYGON((0 0,3 3,3 3,4 1,0 0))", false);
     test_self_intersects<bg::model::ring<P, true, false> >(
         "POLYGON((0 0,3 3,3 3,4 1))", false);
+
+    test_geometry<P, bg::model::box<P> >(
+        "POINT(0 0)", 
+        "BOX(0 0,4 4)",
+        true);
+    test_geometry<P, bg::model::ring<P> >(
+        "POINT(0 0)", 
+        "POLYGON((0 0,3 3,3 3,4 1))",
+        true);
+    test_geometry<P, bg::model::polygon<P> >(
+        "POINT(0 0)", 
+        "POLYGON((0 0,3 3,3 3,4 1))",
+        true);
+
+    test_geometry<bg::model::ring<P>, P>(
+        "POLYGON((0 0,3 3,3 3,4 1))",
+        "POINT(0 0)", 
+        true);
+    test_geometry<bg::model::polygon<P>, P>(
+        "POLYGON((0 0,3 3,3 3,4 1))",
+        "POINT(0 0)", 
+        true);
 }
 
 
