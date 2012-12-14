@@ -357,15 +357,15 @@ void HelloWorldCanvas::DrawCountry(wxDC& dc, country_type const& country)
 
     BOOST_FOREACH(bg::model::polygon<point_2d> const& poly, country)
     {
-        // Use only outer, holes are (for the moment) ignored. This would need
+        // Use only exterior ring, holes are (for the moment) ignored. This would need
         // a holey-polygon compatible wx object
 
-        std::size_t n = boost::size(poly.outer());
+        std::size_t n = boost::size(bg::exterior_ring(poly));
 
         boost::scoped_array<wxPoint> points(new wxPoint[n]);
 
         wxPointPointerPair pair = std::make_pair(points.get(), points.get() + n);
-        bg::transform(poly.outer(), pair, *m_map_transformer);
+        bg::transform(bg::exterior_ring(poly), pair, *m_map_transformer);
 
         dc.DrawPolygon(n, points.get());
     }
