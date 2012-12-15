@@ -299,6 +299,50 @@ void test_iterators_nd()
     test_compare_ranges(s.rbegin(), s.rend(), v.begin(), v.end());
 }
 
+template <typename T, size_t N>
+void test_erase_nd()
+{
+    static_vector<T, N> s;
+    
+    for ( size_t i = 0 ; i < N ; ++i )
+        s.push_back(T(i));
+
+    {
+        static_vector<T, N> s1(s);
+
+        for ( size_t i = 1 ; i < N ; ++i )
+        {
+            BOOST_CHECK(s1.front() == T(i-1));
+            s1.erase(s1.begin());
+            BOOST_CHECK(s1.front() == T(i));
+        }
+        BOOST_CHECK(s1.size() == 1);
+    }
+
+    {
+        static_vector<T, N> s1(s);
+
+        for ( size_t i = N ; i > 1 ; --i )
+        {
+            BOOST_CHECK(s1.back() == T(i-1));
+            s1.erase(s1.end() - 1);
+            BOOST_CHECK(s1.back() == T(i-2));
+        }
+        BOOST_CHECK(s1.size() == 1);
+    }
+
+    {
+        static_vector<T, N> s1(s);
+
+        for ( size_t i = 1 ; i < N - 2 ; i += 3 )
+        {
+            BOOST_CHECK(s1.front() == T(i-1));
+            s1.erase(s1.begin(), s1.begin() + 3);
+            BOOST_CHECK(s1.front() == T(i+2));
+        }
+    }
+}
+
 int test_main(int, char* [])
 {
     BOOST_CHECK(counting_value::count() == 0);
@@ -346,6 +390,11 @@ int test_main(int, char* [])
     test_iterators_nd<int, 10>();
     test_iterators_nd<value_nd, 10>();
     test_iterators_nd<counting_value, 10>();
+    BOOST_CHECK(counting_value::count() == 0);
+
+    test_erase_nd<int, 10>();
+    test_erase_nd<value_nd, 10>();
+    test_erase_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
 
     return 0;

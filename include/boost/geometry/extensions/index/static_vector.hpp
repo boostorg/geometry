@@ -159,6 +159,33 @@ public:
         this->destroy(this->ptr(m_size));
     }
 
+    void erase(iterator position)
+    {
+        // TODO change name of this macro
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
+        BOOST_ASSERT_MSG(0 <= dist && dist < m_size, "invalid iterator");
+
+        this->move(position + 1, this->end(), position);                            // may throw
+        this->destroy(this->end() - 1);
+        --m_size;
+    }
+
+    void erase(iterator first, iterator last)
+    {
+        // TODO change name of this macro
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type distf = std::distance(this->begin(), first));
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type distl = std::distance(this->begin(), last));
+        BOOST_ASSERT_MSG(0 <= distf && distf < m_size, "invalid iterator");
+        BOOST_ASSERT_MSG(0 <= distl && distl < m_size, "invalid iterator");
+
+        difference_type n = std::distance(first, last);
+        BOOST_ASSERT_MSG(0 <= n, "invalid iterator");
+
+        this->move(last, this->end(), first);                                       // may throw
+        this->destroy(this->end() - n, this->end());
+        m_size -= n;
+    }
+
     // basic
     template <typename Iterator>
     void assign(Iterator first, Iterator last)
@@ -354,6 +381,25 @@ private:
     template <typename Iterator>
     void copy_dispatch(Iterator first, Iterator last, value_type * dst,
                        boost::mpl::bool_<false> const& /*use_memcpy*/)
+    {
+        std::copy(first, last, dst);                                                // may throw
+    }
+
+    // move
+
+    void move(iterator first, iterator last, iterator dst)
+    {
+        this->move_dispatch(first, last, dst, has_trivial_assign<value_type>());    // may throw
+    }
+
+    void move_dispatch(value_type * first, value_type * last, value_type * dst,
+                       boost::true_type const& /*has_trivial_assign*/)
+    {
+        ::memmove(dst, first, sizeof(value_type) * std::distance(first, last));
+    }
+
+    void move_dispatch(value_type * first, value_type * last, value_type * dst,
+                       boost::false_type const& /*has_trivial_assign*/)
     {
         std::copy(first, last, dst);                                                // may throw
     }
