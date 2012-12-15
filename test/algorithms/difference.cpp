@@ -298,8 +298,11 @@ void test_all()
         1, 0, 2.8570121719168924,
         1, 0, 64.498061986388564); 
 
-
-
+    test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
+        ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
+        1, 11, 3370866.2295081965,
+        1, 5, 384.2295081964694, 0.01); 
+             
 #ifdef _MSC_VER
     // 2011-07-02
     // Interesting FP-precision case.
@@ -464,12 +467,27 @@ void test_difference_parcel_precision()
 }
 *****/
 
+
+template <typename P, bool clockwise, bool closed>
+void test_specific()
+{
+    typedef bg::model::polygon<P, clockwise, closed> polygon;
+
+    test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
+        ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
+        1, 11, 3370866.2295081965,
+        1, 5, 384, 0.01); 
+}
+
+
 int test_main(int, char* [])
 {
     //test_difference_parcel_precision<float>();
     //test_difference_parcel_precision<double>();
 
     test_all<bg::model::d2::point_xy<double> >();
+
+    test_specific<bg::model::d2::point_xy<int>, false, false>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();
