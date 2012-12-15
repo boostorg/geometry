@@ -7,10 +7,16 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <stdexcept>
-#include <boost/mpl/assert.hpp>
+
 #include <boost/aligned_storage.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
 
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/or.hpp>
+
+#include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/type_traits/has_trivial_assign.hpp>
@@ -55,32 +61,38 @@ public:
     explicit static_vector(size_type s)
         : m_size(0)
     {
-        resize(s);                                                              // may throw
+        resize(s);                                                                  // may throw
     }
 
     // strong
     static_vector(size_type s, value_type const& value)
         : m_size(0)
     {
-        resize(s, value);                                                      // may throw
+        resize(s, value);                                                           // may throw
     }
 
     // strong
     static_vector(static_vector const& other)
+        : m_size(other.m_size)
     {
-        //BOOST_ASSERT_MSG(other.m_size <= Capacity, "capacity too small");
+        //BOOST_ASSERT_MSG(other.m_size <= Capacity, "size can't exceed the capacity");
+        //if ( Capacity <= other.m_size ) throw std::bad_alloc();
 
-        this->uninitialized_copy(other.ptr(0), other.ptr(other.m_size), this->ptr(0),
-                                 boost::has_trivial_copy<value_type>());
-        m_size = other.m_size;
+        this->uninitialized_copy(other.begin(), other.end(), this->begin());        // may throw
+    }
+
+    // strong
+    template <typename Iterator>
+    static_vector(Iterator first, Iterator last)
+        : m_size(0)
+    {
+        assign(first, last);                                                        // may throw
     }
 
     // basic
     static_vector & operator=(static_vector const& other)
     {
-        //BOOST_ASSERT_MSG(other.m_size <= Capacity, "capacity too small");
-
-        assign(other.ptr(0), other.ptr(other.m_size));
+        assign(other.begin(), other.end());                                         // may throw
 
         return *this;
     }
@@ -88,8 +100,7 @@ public:
     // nothrow
     ~static_vector()
     {
-        this->destroy(this->ptr(0), this->ptr(m_size),
-                      boost::has_trivial_destructor<value_type>());
+        this->destroy(this->begin(), this->end());
     }
 
     // strong
@@ -97,17 +108,15 @@ public:
     {
         if ( s < m_size )
         {
-            this->destroy(this->ptr(s), this->ptr(m_size),
-                          boost::has_trivial_destructor<value_type>());
-            m_size = s;
+            this->destroy(this->begin() + s, this->end());
         }
         else
         {
             BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
-            this->construct(this->ptr(m_size), this->ptr(s),
-                            boost::has_trivial_constructor<value_type>());      // may throw
-            m_size = s;
+            //if ( Capacity <= s ) throw std::bad_alloc();
+            this->construct(this->ptr(m_size), this->ptr(s));                       // may throw
         }
+        m_size = s; // update end
     }
 
     // strong
@@ -115,74 +124,55 @@ public:
     {
         if ( s < m_size )
         {
-            this->destroy(this->ptr(s), this->ptr(m_size),
-                          boost::has_trivial_destructor<value_type>());
-            m_size = s;
+            this->destroy(this->begin() + s, this->end());
         }
         else
         {
             BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
-            std::uninitialized_fill(this->ptr(m_size), this->ptr(s), value);    // may throw
-            m_size = s;
+            //if ( Capacity <= s ) throw std::bad_alloc();
+            std::uninitialized_fill(this->ptr(m_size), this->ptr(s), value);        // may throw
         }
+        m_size = s; // update end
     }
 
     // nothrow
     void reserve(size_type BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(s))
     {
-        BOOST_ASSERT_MSG(s <= Capacity, "max capacity reached");
+        BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
+        //if ( Capacity <= s ) throw std::bad_alloc();
     }
 
     // strong
+    //template <typename Value>
     void push_back(Value const& value)
     {
-        BOOST_ASSERT_MSG(m_size < Capacity, "max capacity reached");
-        this->uninitialized_copy(this->ptr(m_size), value,
-                                 boost::has_trivial_copy<value_type>());        // may throw
-        ++m_size;
+        BOOST_ASSERT_MSG(m_size < Capacity, "size can't exceed the capacity");
+        //if ( Capacity <= m_size ) throw std::bad_alloc();
+        this->uninitialized_copy(value, this->end());                               // may throw
+        ++m_size; // update end
     }
 
     // nothrow
     void pop_back()
     {
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
-        --m_size;
-        this->destroy(this->ptr(m_size), boost::has_trivial_destructor<value_type>());
+        --m_size; // update end
+        this->destroy(this->ptr(m_size));
     }
 
     // basic
-    void assign(const value_type * first, const value_type * last)
+    template <typename Iterator>
+    void assign(Iterator first, Iterator last)
     {
-        size_type s = std::distance(first, last);
-
-        BOOST_ASSERT_MSG(s <= Capacity, "max capacity reached");
-
-        if ( m_size <= s )
-        {
-            this->copy(first, first + m_size, this->ptr(0),
-                       boost::has_trivial_assign<value_type>());                    // may throw
-
-            this->uninitialized_copy(first + m_size, last, this->ptr(m_size),
-                                     boost::has_trivial_copy<value_type>());        // may throw
-            m_size = s;
-        }
-        else
-        {
-            this->copy(first, last, this->ptr(0),
-                       boost::has_trivial_assign<value_type>());                    // may throw
-
-            this->destroy(this->ptr(s), this->ptr(m_size),
-                          boost::has_trivial_destructor<value_type>());
-            m_size = s;
-        }
+        typedef typename boost::iterator_traversal<Iterator>::type traversal;
+        assign_dispatch(first, last, traversal());                                  // may throw
     }
 
     // nothrow
     void clear()
     {
-        this->destroy(this->ptr(0), this->ptr(m_size),
-                      boost::has_trivial_destructor<value_type>());
-        m_size = 0;
+        this->destroy(this->ptr(0), this->ptr(m_size));
+        m_size = 0; // update end
     }
 
     // strong
@@ -219,28 +209,28 @@ public:
     Value & front()
     {
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
-        return *(this->ptr(0));
+        return *(this->begin());
     }
 
     // nothrow
     Value const& front() const
     {
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
-        return *(this->ptr(0));
+        return *(this->begin());
     }
 
     // nothrow
     Value & back()
     {
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
-        return *(this->ptr(m_size - 1));
+        return *(this->end() - 1);
     }
 
     // nothrow
     Value const& back() const
     {
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
-        return *(this->ptr(m_size - 1));
+        return *(this->end() - 1);
     }
 
     // nothrow
@@ -248,9 +238,9 @@ public:
     const Value * data() const { return this->ptr(0); }
 
     // nothrow
-    iterator begin() { return this->ptr(0); }
-    const_iterator begin() const { return this->ptr(0); }
-    const_iterator cbegin() const { return this->ptr(0); }
+    iterator begin() { return this->ptr(); }
+    const_iterator begin() const { return this->ptr(); }
+    const_iterator cbegin() const { return this->ptr(); }
     iterator end() { return this->ptr(m_size); }
     const_iterator end() const { return this->ptr(m_size); }
     const_iterator cend() const { return this->ptr(m_size); }
@@ -269,78 +259,202 @@ public:
     bool empty() const { return 0 == m_size; }
 
 private:
-    void copy(const value_type * first, const value_type * last, value_type * dst,
-              boost::true_type const& /*has_trivial_assign*/)
+
+    // assign
+
+    template <typename Iterator>
+    void assign_dispatch(Iterator first, Iterator last, boost::random_access_traversal_tag const&)
+    {
+        size_type s = std::distance(first, last);
+
+        BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
+        //if ( Capacity <= m_size ) throw std::bad_alloc();
+
+        if ( m_size <= s )
+        {
+            this->copy(first, first + m_size, this->begin());                        // may throw
+            this->uninitialized_copy(first + m_size, last, this->ptr(m_size));       // may throw
+        }
+        else
+        {
+            this->copy(first, last, this->begin());                                  // may throw
+            this->destroy(this->ptr(s), this->ptr(m_size));
+        }
+        m_size = s; // update end
+    }
+
+    template <typename Iterator, typename Traversal>
+    void assign_dispatch(Iterator first, Iterator last, Traversal const& /*not_random_access*/)
+    {
+        size_t s = 0;
+        iterator it = this->begin();
+
+        for ( ; it != this->end() && first != last ; ++it, ++first, ++s )
+            *it = *first;                                                           // may throw
+
+        this->destroy(it, this->end());
+
+        try
+        {
+            for ( ; first != last ; ++it, ++first, ++s )
+                this->uninitialized_copy(*first, it);                               // may throw
+            m_size = s; // update end
+        }
+        catch(...)
+        {
+            this->destroy(this->begin() + m_size, it);
+            throw;
+        }
+    }
+
+    // copy
+
+    template <typename Iterator>
+    void copy(Iterator first, Iterator last, iterator dst)
+    {
+        typedef typename
+            mpl::and_<
+                has_trivial_assign<value_type>,
+                mpl::or_<
+                    is_same<Iterator, value_type *>,
+                    is_same<Iterator, const value_type *>
+                >
+            >::type
+        use_memcpy;
+        
+        this->copy_dispatch(first, last, dst, use_memcpy());                        // may throw
+    }
+
+    void copy_dispatch(const value_type * first, const value_type * last, value_type * dst,
+                       boost::mpl::bool_<true> const& /*use_memcpy*/)
     {
         ::memcpy(dst, first, sizeof(value_type) * std::distance(first, last));
     }
 
-    void copy(const value_type * first, const value_type * last, value_type * dst,
-              boost::false_type const& /*has_trivial_assign*/)
+    template <typename Iterator>
+    void copy_dispatch(Iterator first, Iterator last, value_type * dst,
+                       boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
-        std::copy(first, last, dst);                                            // may throw
+        std::copy(first, last, dst);                                                // may throw
     }
 
-    void uninitialized_copy(const value_type * first, const value_type * last, value_type * dst,
-                            boost::true_type const& /*has_trivial_copy*/)
+    // uninitialized_copy
+
+    template <typename Iterator>
+    void uninitialized_copy(Iterator first, Iterator last, iterator dst)
+    {
+        typedef typename
+            mpl::and_<
+                has_trivial_copy<value_type>,
+                mpl::or_<
+                    is_same<Iterator, value_type *>,
+                    is_same<Iterator, const value_type *>
+                >
+            >::type
+        use_memcpy;
+
+        this->uninitialized_copy_dispatch(first, last, dst, use_memcpy());          // may throw
+    }
+
+    void uninitialized_copy_dispatch(const value_type * first, const value_type * last, value_type * dst,
+                                     boost::mpl::bool_<true> const& /*use_memcpy*/)
     {
         ::memcpy(dst, first, sizeof(value_type) * std::distance(first, last));
     }
 
-    void uninitialized_copy(const value_type * first, const value_type * last, value_type * dst,
-                            boost::false_type const& /*has_trivial_copy*/)
+    template <typename Iterator>
+    void uninitialized_copy_dispatch(Iterator first, Iterator last, value_type * dst,
+                                     boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
-        std::uninitialized_copy(first, last, dst);                              // may throw
+        std::uninitialized_copy(first, last, dst);                                  // may throw
     }
 
-    void uninitialized_copy(value_type * ptr, value_type const& v,
-                            boost::true_type const& /*has_trivial_copy*/)
+    // uninitialized_copy
+
+    template <typename Value>
+    void uninitialized_copy(Value const& v, iterator dst)
+    {
+        typedef typename
+            mpl::and_<
+                has_trivial_copy<value_type>,
+                is_same<Value, value_type>
+            >::type
+        use_memcpy;
+
+        uninitialized_copy_dispatch(v, dst, use_memcpy());                         // may throw
+    }
+
+    void uninitialized_copy_dispatch(value_type const& v, value_type * ptr,
+                                     boost::mpl::bool_<true> const& /*use_memcpy*/)
     {
         ::memcpy(ptr, &v, sizeof(value_type));
     }
 
-    void uninitialized_copy(value_type * ptr, value_type const& v,
-                            boost::false_type const& /*has_trivial_copy*/)
+    template <typename Value>
+    void uninitialized_copy_dispatch(Value const& v, value_type * ptr,
+                                     boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
         new (ptr) value_type(v);                                                    // may throw
     }
 
-    void destroy(const value_type * /*first*/, const value_type * /*last*/,
-                 boost::true_type const& /*has_trivial_destructor*/)
+    // destroy
+
+    void destroy(iterator first, iterator last)
+    {
+        this->destroy_dispatch(first, last, has_trivial_destructor<value_type>());
+    }
+
+    void destroy_dispatch(value_type * /*first*/, value_type * /*last*/,
+                          boost::true_type const& /*has_trivial_destructor*/)
     {}
 
-    void destroy(const value_type * first, const value_type * last,
-                 boost::false_type const& /*has_trivial_destructor*/)
+    void destroy_dispatch(value_type * first, value_type * last,
+                          boost::false_type const& /*has_trivial_destructor*/)
     {
         for ( ; first != last ; ++first )
             first->~value_type();
     }
 
-    void destroy(const value_type * /*ptr*/,
-                 boost::true_type const& /*has_trivial_destructor*/)
+    // destroy
+
+    void destroy(iterator it)
+    {
+        this->destroy_dispatch(it, has_trivial_destructor<value_type>());
+    }
+
+    void destroy_dispatch(value_type * /*ptr*/,
+                          boost::true_type const& /*has_trivial_destructor*/)
     {}
 
-    void destroy(const value_type * ptr, boost::false_type const& /*has_trivial_destructor*/)
+    void destroy_dispatch(value_type * ptr,
+                          boost::false_type const& /*has_trivial_destructor*/)
     {
         ptr->~value_type();
     }
 
-    void construct(value_type * /*first*/, value_type * /*last*/,
-                   boost::true_type const& /*has_trivial_constructor*/)
+    // construct
+
+    void construct(iterator first, iterator last)
+    {
+        this->construct_dispatch(first, last, has_trivial_constructor<value_type>());   // may throw
+    }
+
+    void construct_dispatch(value_type * /*first*/, value_type * /*last*/,
+                            boost::true_type const& /*has_trivial_constructor*/)
     {}
 
-    void construct(value_type * first, value_type * last,
-                   boost::false_type const& /*has_trivial_constructor*/)
+    void construct_dispatch(value_type * first, value_type * last,
+                            boost::false_type const& /*has_trivial_constructor*/)
     {
         value_type * it = first;
         try
         {
             for ( ; it != last ; ++it )
-                new (it) value_type();                                              // may throw
+                new (it) value_type();                                                  // may throw
         }
         catch(...)
         {
-            this->destroy(first, it, boost::has_trivial_destructor<value_type>());
+            this->destroy(first, it);
             throw;
         }
     }
@@ -353,6 +467,16 @@ private:
     const Value * ptr(size_type i) const
     {
         return (reinterpret_cast<const Value*>(m_storage.address()) + i);
+    }
+
+    Value * ptr()
+    {
+        return (reinterpret_cast<Value*>(m_storage.address()));
+    }
+
+    const Value * ptr() const
+    {
+        return (reinterpret_cast<const Value*>(m_storage.address()));
     }
 
     boost::aligned_storage<sizeof(Value[Capacity]), boost::alignment_of<Value[Capacity]>::value> m_storage;

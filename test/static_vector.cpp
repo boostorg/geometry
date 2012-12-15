@@ -195,35 +195,78 @@ void test_pop_back_nd()
     }
 }
 
+template <typename It1, typename It2>
+void test_compare_ranges(It1 first1, It1 last1, It2 first2, It2 last2)
+{
+    BOOST_CHECK(std::distance(first1, last1) == std::distance(first2, last2));
+    for ( ; first1 != last1 && first2 != last2 ; ++first1, ++first2 )
+        BOOST_CHECK(*first1 == *first2);
+}
+
 template <typename T, size_t N>
 void test_copy_and_assign_nd()
 {
     static_vector<T, N> s;
+    std::vector<T> v;
+    std::list<T> l;
 
     for ( size_t i = 0 ; i < N ; ++i )
-        s.push_back(i);    
-
+    {
+        s.push_back(i);
+        v.push_back(i);
+        l.push_back(i);
+    }
+    // copy ctor
     {
         static_vector<T, N> s1(s);
         BOOST_CHECK(s.size() == s1.size());
-        for ( size_t i = 0 ; i < N ; ++i )
-            BOOST_CHECK(s[i] == s1[i]) ;
+        test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
     }
+    // copy assignment
     {
         static_vector<T, N> s1;
         BOOST_CHECK(0 == s1.size());
         s1 = s;
         BOOST_CHECK(s.size() == s1.size());
-        for ( size_t i = 0 ; i < N ; ++i )
-            BOOST_CHECK(s[i] == s1[i]) ;
+        test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
     }
+    // ctor(Iter, Iter)
+    {
+        static_vector<T, N> s1(s.begin(), s.end());
+        BOOST_CHECK(s.size() == s1.size());
+        test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
+    }
+    {
+        static_vector<T, N> s1(v.begin(), v.end());
+        BOOST_CHECK(v.size() == s1.size());
+        test_compare_ranges(v.begin(), v.end(), s1.begin(), s1.end());
+    }
+    {
+        static_vector<T, N> s1(l.begin(), l.end());
+        BOOST_CHECK(l.size() == s1.size());
+        test_compare_ranges(l.begin(), l.end(), s1.begin(), s1.end());
+    }
+    // assign(Iter, Iter)
     {
         static_vector<T, N> s1;
         BOOST_CHECK(0 == s1.size());
         s1.assign(s.begin(), s.end());
         BOOST_CHECK(s.size() == s1.size());
-        for ( size_t i = 0 ; i < N ; ++i )
-            BOOST_CHECK(s[i] == s1[i]) ;
+        test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
+    }
+    {
+        static_vector<T, N> s1;
+        BOOST_CHECK(0 == s1.size());
+        s1.assign(v.begin(), v.end());
+        BOOST_CHECK(v.size() == s1.size());
+        test_compare_ranges(v.begin(), v.end(), s1.begin(), s1.end());
+    }
+    {
+        static_vector<T, N> s1;
+        BOOST_CHECK(0 == s1.size());
+        s1.assign(l.begin(), l.end());
+        BOOST_CHECK(l.size() == s1.size());
+        test_compare_ranges(l.begin(), l.end(), s1.begin(), s1.end());
     }
 }
 
