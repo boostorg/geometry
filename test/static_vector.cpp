@@ -17,7 +17,7 @@ using namespace boost::geometry::index;
 class value_ndc
 {
 public:
-    value_ndc(int a) : aa(a) {}
+    explicit value_ndc(int a) : aa(a) {}
     ~value_ndc() {}
     bool operator==(value_ndc const& v) const { return aa == v.aa; }
 private:
@@ -29,7 +29,7 @@ private:
 class value_nd
 {
 public:
-    value_nd(int a) : aa(a) {}
+    explicit value_nd(int a) : aa(a) {}
     ~value_nd() {}
     bool operator==(value_nd const& v) const { return aa == v.aa; }
 private:
@@ -39,7 +39,7 @@ private:
 class value_nc
 {
 public:
-    value_nc(int a = 0) : aa(a) {}
+    explicit value_nc(int a = 0) : aa(a) {}
     ~value_nc() {}
     bool operator==(value_nc const& v) const { return aa == v.aa; }
 private:
@@ -51,7 +51,7 @@ private:
 class counting_value
 {
 public:
-    counting_value(int a = 0) : aa(a) { ++c(); }
+    explicit counting_value(int a = 0) : aa(a) { ++c(); }
     counting_value(counting_value const& v) : aa(v.aa) { ++c(); }
     counting_value & operator=(counting_value const& v) { aa = v.aa; return *this; }
     ~counting_value() { --c(); }
@@ -181,7 +181,7 @@ void test_pop_back_nd()
     static_vector<T, N> s;
 
     for ( size_t i = 0 ; i < N ; ++i )
-        s.push_back(i);    
+        s.push_back(T(i));    
 
     for ( size_t i = N ; i > 1 ; --i )
     {
@@ -204,7 +204,7 @@ void test_compare_ranges(It1 first1, It1 last1, It2 first2, It2 last2)
 }
 
 template <typename T, size_t N>
-void test_copy_and_assign_nd()
+void test_copy_and_assign_nd(T const& val)
 {
     static_vector<T, N> s;
     std::vector<T> v;
@@ -212,9 +212,9 @@ void test_copy_and_assign_nd()
 
     for ( size_t i = 0 ; i < N ; ++i )
     {
-        s.push_back(i);
-        v.push_back(i);
-        l.push_back(i);
+        s.push_back(T(i));
+        v.push_back(T(i));
+        l.push_back(T(i));
     }
     // copy ctor
     {
@@ -268,6 +268,35 @@ void test_copy_and_assign_nd()
         BOOST_CHECK(l.size() == s1.size());
         test_compare_ranges(l.begin(), l.end(), s1.begin(), s1.end());
     }
+    // assign(N, V)
+    {
+        static_vector<T, N> s1(s);
+        test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
+        std::vector<T> a(N, val);
+        s1.assign(N, val);
+        test_compare_ranges(a.begin(), a.end(), s1.begin(), s1.end());
+    }
+}
+
+template <typename T, size_t N>
+void test_iterators_nd()
+{
+    static_vector<T, N> s;
+    std::vector<T> v;
+
+    for ( size_t i = 0 ; i < N ; ++i )
+    {
+        s.push_back(T(i));
+        v.push_back(T(i));
+    }
+
+    test_compare_ranges(s.begin(), s.end(), v.begin(), v.end());
+    test_compare_ranges(s.rbegin(), s.rend(), v.rbegin(), v.rend());
+
+    s.assign(v.rbegin(), v.rend());
+
+    test_compare_ranges(s.begin(), s.end(), v.rbegin(), v.rend());
+    test_compare_ranges(s.rbegin(), s.rend(), v.begin(), v.end());
 }
 
 int test_main(int, char* [])
@@ -285,8 +314,8 @@ int test_main(int, char* [])
     BOOST_CHECK(counting_value::count() == 0);
 
     test_ctor_nd<int, 10>(5, 1);
-    test_ctor_nd<value_nd, 10>(5, 1);
-    test_ctor_nd<counting_value, 10>(5, 1);
+    test_ctor_nd<value_nd, 10>(5, value_nd(1));
+    test_ctor_nd<counting_value, 10>(5, counting_value(1));
     BOOST_CHECK(counting_value::count() == 0);
 
     test_resize_nc<int, 10>(5);
@@ -295,8 +324,8 @@ int test_main(int, char* [])
     BOOST_CHECK(counting_value::count() == 0);
 
     test_resize_nd<int, 10>(5, 1);
-    test_resize_nd<value_nd, 10>(5, 1);
-    test_resize_nd<counting_value, 10>(5, 1);
+    test_resize_nd<value_nd, 10>(5, value_nd(1));
+    test_resize_nd<counting_value, 10>(5, counting_value(1));
     BOOST_CHECK(counting_value::count() == 0);
 
     test_push_back_nd<int, 10>();
@@ -309,9 +338,14 @@ int test_main(int, char* [])
     test_pop_back_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
 
-    test_copy_and_assign_nd<int, 10>();
-    test_copy_and_assign_nd<value_nd, 10>();
-    test_copy_and_assign_nd<counting_value, 10>();
+    test_copy_and_assign_nd<int, 10>(1);
+    test_copy_and_assign_nd<value_nd, 10>(value_nd(1));
+    test_copy_and_assign_nd<counting_value, 10>(counting_value(1));
+    BOOST_CHECK(counting_value::count() == 0);
+
+    test_iterators_nd<int, 10>();
+    test_iterators_nd<value_nd, 10>();
+    test_iterators_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
 
     return 0;

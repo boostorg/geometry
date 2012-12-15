@@ -58,18 +58,17 @@ public:
     {}
 
     // strong
-    explicit static_vector(size_type s)
+    explicit static_vector(size_type count)
         : m_size(0)
     {
-        resize(s);                                                                  // may throw
+        resize(count);                                                              // may throw
     }
 
     // strong
-    //template <typename Value>
-    static_vector(size_type s, value_type const& value)
+    static_vector(size_type count, value_type const& value)
         : m_size(0)
     {
-        resize(s, value);                                                           // may throw
+        resize(count, value);                                                       // may throw
     }
 
     // strong
@@ -105,47 +104,45 @@ public:
     }
 
     // strong
-    void resize(size_type s)
+    void resize(size_type count)
     {
-        if ( s < m_size )
+        if ( count < m_size )
         {
-            this->destroy(this->begin() + s, this->end());
+            this->destroy(this->begin() + count, this->end());
         }
         else
         {
-            BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
-            //if ( Capacity <= s ) throw std::bad_alloc();
-            this->construct(this->ptr(m_size), this->ptr(s));                       // may throw
+            BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
+            //if ( Capacity <= count ) throw std::bad_alloc();
+            this->construct(this->ptr(m_size), this->ptr(count));                    // may throw
         }
-        m_size = s; // update end
+        m_size = count; // update end
     }
 
     // strong
-    //template <typename Value>
-    void resize(size_type s, value_type const& value)
+    void resize(size_type count, value_type const& value)
     {
-        if ( s < m_size )
+        if ( count < m_size )
         {
-            this->destroy(this->begin() + s, this->end());
+            this->destroy(this->begin() + count, this->end());
         }
         else
         {
-            BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
-            //if ( Capacity <= s ) throw std::bad_alloc();
-            std::uninitialized_fill(this->ptr(m_size), this->ptr(s), value);        // may throw
+            BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
+            //if ( Capacity <= count ) throw std::bad_alloc();
+            std::uninitialized_fill(this->ptr(m_size), this->ptr(count), value);     // may throw
         }
-        m_size = s; // update end
+        m_size = count; // update end
     }
 
     // nothrow
-    void reserve(size_type BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(s))
+    void reserve(size_type BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(count))
     {
-        BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
-        //if ( Capacity <= s ) throw std::bad_alloc();
+        BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
+        //if ( Capacity <= count ) throw std::bad_alloc();
     }
 
     // strong
-    //template <typename Value>
     void push_back(value_type const& value)
     {
         BOOST_ASSERT_MSG(m_size < Capacity, "size can't exceed the capacity");
@@ -168,6 +165,24 @@ public:
     {
         typedef typename boost::iterator_traversal<Iterator>::type traversal;
         assign_dispatch(first, last, traversal());                                  // may throw
+    }
+
+    // basic
+    void assign(size_type count, value_type const& value)
+    {
+        if ( count < m_size )
+        {
+            std::fill_n(this->begin(), count, value);
+            this->destroy(this->begin() + count, this->end());
+        }
+        else
+        {
+            std::fill_n(this->begin(), m_size, value);
+            BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
+            //if ( Capacity <= count ) throw std::bad_alloc();
+            std::uninitialized_fill(this->ptr(m_size), this->ptr(count), value);     // may throw
+        }
+        m_size = count; // update end
     }
 
     // nothrow
@@ -236,8 +251,8 @@ public:
     }
 
     // nothrow
-    Value * data() { return this->ptr(0); }
-    const Value * data() const { return this->ptr(0); }
+    Value * data() { return this->ptr(); }
+    const Value * data() const { return this->ptr(); }
 
     // nothrow
     iterator begin() { return this->ptr(); }
