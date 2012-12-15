@@ -89,6 +89,9 @@ template <> struct string_from_type<double>
 template <> struct string_from_type<long double>
 { static std::string name() { return "e"; }  };
 
+template <> struct string_from_type<int>
+{ static std::string name() { return "i"; }  };
+
 #if defined(HAVE_TTMATH)
     template <> struct string_from_type<ttmath_big>
     { static std::string name() { return "t"; }  };
