@@ -371,8 +371,8 @@ private:
 
     // uninitialized_copy
 
-    template <typename Value>
-    void uninitialized_copy(Value const& v, iterator dst)
+    template <typename V>
+    void uninitialized_copy(V const& v, iterator dst)
     {
         typedef typename
             mpl::and_<
@@ -390,8 +390,8 @@ private:
         ::memcpy(ptr, &v, sizeof(value_type));
     }
 
-    template <typename Value>
-    void uninitialized_copy_dispatch(Value const& v, value_type * ptr,
+    template <typename V>
+    void uninitialized_copy_dispatch(V const& v, value_type * ptr,
                                      boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
         new (ptr) value_type(v);                                                    // may throw
