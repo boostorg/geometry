@@ -65,6 +65,7 @@ public:
     }
 
     // strong
+    //template <typename Value>
     static_vector(size_type s, value_type const& value)
         : m_size(0)
     {
@@ -120,6 +121,7 @@ public:
     }
 
     // strong
+    //template <typename Value>
     void resize(size_type s, value_type const& value)
     {
         if ( s < m_size )
@@ -144,11 +146,11 @@ public:
 
     // strong
     //template <typename Value>
-    void push_back(Value const& value)
+    void push_back(value_type const& value)
     {
         BOOST_ASSERT_MSG(m_size < Capacity, "size can't exceed the capacity");
         //if ( Capacity <= m_size ) throw std::bad_alloc();
-        this->uninitialized_copy(value, this->end());                               // may throw
+        this->uninitialized_fill(this->end(), value);                               // may throw
         ++m_size; // update end
     }
 
@@ -297,7 +299,7 @@ private:
         try
         {
             for ( ; first != last ; ++it, ++first, ++s )
-                this->uninitialized_copy(*first, it);                               // may throw
+                this->uninitialized_fill(it, *first);                               // may throw
             m_size = s; // update end
         }
         catch(...)
@@ -369,10 +371,10 @@ private:
         std::uninitialized_copy(first, last, dst);                                  // may throw
     }
 
-    // uninitialized_copy
+    // uninitialized_fill
 
     template <typename V>
-    void uninitialized_copy(V const& v, iterator dst)
+    void uninitialized_fill(iterator dst, V const& v)
     {
         typedef typename
             mpl::and_<
@@ -381,17 +383,17 @@ private:
             >::type
         use_memcpy;
 
-        uninitialized_copy_dispatch(v, dst, use_memcpy());                         // may throw
+        uninitialized_fill_dispatch(dst, v, use_memcpy());                         // may throw
     }
 
-    void uninitialized_copy_dispatch(value_type const& v, value_type * ptr,
+    void uninitialized_fill_dispatch(value_type * ptr, value_type const& v,
                                      boost::mpl::bool_<true> const& /*use_memcpy*/)
     {
         ::memcpy(ptr, &v, sizeof(value_type));
     }
 
     template <typename V>
-    void uninitialized_copy_dispatch(V const& v, value_type * ptr,
+    void uninitialized_fill_dispatch(value_type * ptr, V const& v,
                                      boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
         new (ptr) value_type(v);                                                    // may throw
