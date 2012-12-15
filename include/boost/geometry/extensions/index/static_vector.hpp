@@ -166,7 +166,7 @@ public:
     {
         // TODO change name of this macro
         BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
-        BOOST_ASSERT_MSG(0 <= dist && dist < m_size, "invalid iterator");
+        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<m_size):(dist<(difference_type)m_size)), "invalid iterator");
 
         this->move(position + 1, this->end(), position);                            // may throw
         this->destroy(this->end() - 1);
@@ -178,8 +178,8 @@ public:
         // TODO change name of this macro
         BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type distf = std::distance(this->begin(), first));
         BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type distl = std::distance(this->begin(), last));
-        BOOST_ASSERT_MSG(0 <= distf && distf < m_size, "invalid iterator");
-        BOOST_ASSERT_MSG(0 <= distl && distl < m_size, "invalid iterator");
+        BOOST_ASSERT_MSG(0 <= distf && (sizeof(distf)<=sizeof(m_size)?((size_type)distf<m_size):(distf<(difference_type)m_size)), "invalid iterator");
+        BOOST_ASSERT_MSG(0 <= distl && (sizeof(distl)<=sizeof(m_size)?((size_type)distl<m_size):(distl<(difference_type)m_size)), "invalid iterator");
 
         difference_type n = std::distance(first, last);
         BOOST_ASSERT_MSG(0 <= n, "invalid iterator");
