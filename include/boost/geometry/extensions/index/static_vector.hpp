@@ -114,7 +114,7 @@ public:
         {
             BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
             //if ( Capacity <= count ) throw std::bad_alloc();
-            this->construct(this->ptr(m_size), this->ptr(count));                    // may throw
+            this->construct(this->end(), this->begin() + count);                    // may throw
         }
         m_size = count; // update end
     }
@@ -130,7 +130,7 @@ public:
         {
             BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
             //if ( Capacity <= count ) throw std::bad_alloc();
-            std::uninitialized_fill(this->ptr(m_size), this->ptr(count), value);     // may throw
+            std::uninitialized_fill(this->end(), this->begin() + count, value);     // may throw
         }
         m_size = count; // update end
     }
@@ -155,8 +155,11 @@ public:
     void pop_back()
     {
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
+        //--m_size; // update end
+        //this->destroy(this->end());
+        // safer and more intuitive version
+        this->destroy(this->end() - 1);
         --m_size; // update end
-        this->destroy(this->ptr(m_size));
     }
 
     void erase(iterator position)
@@ -207,7 +210,7 @@ public:
             std::fill_n(this->begin(), m_size, value);
             BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
             //if ( Capacity <= count ) throw std::bad_alloc();
-            std::uninitialized_fill(this->ptr(m_size), this->ptr(count), value);     // may throw
+            std::uninitialized_fill(this->end(), this->begin() + count, value);     // may throw
         }
         m_size = count; // update end
     }
@@ -215,7 +218,7 @@ public:
     // nothrow
     void clear()
     {
-        this->destroy(this->ptr(0), this->ptr(m_size));
+        this->destroy(this->begin(), this->end());
         m_size = 0; // update end
     }
 
@@ -224,7 +227,7 @@ public:
     {
         if ( m_size <= i )
             throw std::out_of_range("static_vector element index out of bounds");
-        return *(this->ptr(i));
+        return *(this->begin() + i);
     }
 
     // strong
@@ -232,21 +235,21 @@ public:
     {
         if ( m_size <= i )
             throw std::out_of_range("static_vector element index out of bounds");
-        return *(this->ptr(i));
+        return *(this->begin() + i);
     }
 
     // nothrow
     Value & operator[](size_type i)
     {
-        BOOST_ASSERT_MSG(i < Capacity, "index out of bounds");
-        return *(this->ptr(i));
+        BOOST_ASSERT_MSG(i < m_size, "index out of bounds");
+        return *(this->begin() + i);
     }
 
     // nothrow
     Value const& operator[](size_type i) const
     {
-        BOOST_ASSERT_MSG(i < Capacity, "index out of bounds");
-        return *(this->ptr(i));
+        BOOST_ASSERT_MSG(i < m_size, "index out of bounds");
+        return *(this->begin() + i);
     }
 
     // nothrow
@@ -285,9 +288,9 @@ public:
     iterator begin() { return this->ptr(); }
     const_iterator begin() const { return this->ptr(); }
     const_iterator cbegin() const { return this->ptr(); }
-    iterator end() { return this->ptr(m_size); }
-    const_iterator end() const { return this->ptr(m_size); }
-    const_iterator cend() const { return this->ptr(m_size); }
+    iterator end() { return this->begin() + m_size; }
+    const_iterator end() const { return this->begin() + m_size; }
+    const_iterator cend() const { return this->cbegin() + m_size; }
     // nothrow
     reverse_iterator rbegin() { return reverse_iterator(this->end()); }
     const_reverse_iterator rbegin() const { return reverse_iterator(this->end()); }
@@ -317,12 +320,12 @@ private:
         if ( m_size <= s )
         {
             this->copy(first, first + m_size, this->begin());                        // may throw
-            this->uninitialized_copy(first + m_size, last, this->ptr(m_size));       // may throw
+            this->uninitialized_copy(first + m_size, last, this->end());             // may throw
         }
         else
         {
             this->copy(first, last, this->begin());                                  // may throw
-            this->destroy(this->ptr(s), this->ptr(m_size));
+            this->destroy(this->begin() + s, this->end());
         }
         m_size = s; // update end
     }
@@ -523,16 +526,6 @@ private:
             this->destroy(first, it);
             throw;
         }
-    }
-
-    Value * ptr(size_type i)
-    {
-        return (reinterpret_cast<Value*>(m_storage.address()) + i);
-    }
-
-    const Value * ptr(size_type i) const
-    {
-        return (reinterpret_cast<const Value*>(m_storage.address()) + i);
     }
 
     Value * ptr()
