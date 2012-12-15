@@ -314,7 +314,10 @@ private:
         try
         {
             for ( ; first != last ; ++it, ++first, ++s )
+            {
+                BOOST_ASSERT_MSG(s < Capacity, "size can't exceed the capacity");
                 this->uninitialized_fill(it, *first);                               // may throw
+            }
             m_size = s; // update end
         }
         catch(...)
