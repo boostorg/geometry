@@ -426,7 +426,7 @@ void test_insert_nd(T const& val)
         for ( size_t i = 0 ; i <= h ; ++i )
         {
             static_vector<T, N> s1(s);
-            std::list<T>::iterator it = l.begin();
+            typename std::list<T>::iterator it = l.begin();
             std::advance(it, n);
             s1.insert(s1.begin() + i, l.begin(), it);
             BOOST_CHECK(s1.size() == h+n);

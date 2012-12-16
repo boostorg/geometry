@@ -75,7 +75,15 @@ public:
     static_vector(static_vector const& other)
         : m_size(other.m_size)
     {
-        //BOOST_ASSERT_MSG(other.m_size <= Capacity, "size can't exceed the capacity");
+        this->uninitialized_copy(other.begin(), other.end(), this->begin());        // may throw
+    }
+
+    // strong
+    template <size_t C>
+    static_vector(static_vector<value_type, C> const& other)
+        : m_size(other.m_size)
+    {
+        BOOST_ASSERT_MSG(other.m_size <= Capacity, "size can't exceed the capacity");
         //if ( Capacity <= other.m_size ) throw std::bad_alloc();
 
         this->uninitialized_copy(other.begin(), other.end(), this->begin());        // may throw
@@ -91,6 +99,15 @@ public:
 
     // basic
     static_vector & operator=(static_vector const& other)
+    {
+        assign(other.begin(), other.end());                                         // may throw
+
+        return *this;
+    }
+
+    // basic
+    template <size_t C>
+    static_vector & operator=(static_vector<value_type, C> const& other)
     {
         assign(other.begin(), other.end());                                         // may throw
 
