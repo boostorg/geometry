@@ -257,8 +257,8 @@ public:
     // basic
     void erase(iterator first, iterator last)
     {
-        check_iterator_end_neq(first);
-        check_iterator_end_neq(last);
+        check_iterator_end_eq(first);
+        check_iterator_end_eq(last);
         
         difference_type n = std::distance(first, last);
         BOOST_ASSERT_MSG(0 <= n, "invalid range");
@@ -754,9 +754,11 @@ private:
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
     }
 
-    void check_iterator_end_neq(iterator position)
+    void check_iterator_end_neq(const_iterator position)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(
+        BOOST_ASSERT_MSG(this->begin() <= position && position < this->end(), "iterator out of bounds");
+
+        /*BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(
             difference_type dist = std::distance(this->begin(), position);
         )
         BOOST_ASSERT_MSG(
@@ -765,12 +767,14 @@ private:
                 (static_cast<size_type>(dist) < m_size) :
                 ( dist < static_cast<difference_type>(m_size))
             ), "invalid iterator"
-        );
+        );*/
     }
 
-    void check_iterator_end_eq(iterator position)
+    void check_iterator_end_eq(const_iterator position)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(
+        BOOST_ASSERT_MSG(this->begin() <= position && position <= this->end(), "iterator out of bounds");
+
+        /*BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(
             difference_type dist = std::distance(this->begin(), position);
         )
         BOOST_ASSERT_MSG(
@@ -779,7 +783,7 @@ private:
                 (static_cast<size_type>(dist) <= m_size) :
                 ( dist <= static_cast<difference_type>(m_size))
             ), "invalid iterator"
-        );
+        );*/
     }
 
     Value * ptr()

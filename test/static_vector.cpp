@@ -307,39 +307,33 @@ void test_erase_nd()
     for ( size_t i = 0 ; i < N ; ++i )
         s.push_back(T(i));
 
+    // erase(pos)
     {
-        static_vector<T, N> s1(s);
-
-        for ( size_t i = 1 ; i < N ; ++i )
+        for ( size_t i = 0 ; i < N ; ++i )
         {
-            BOOST_CHECK(s1.front() == T(i-1));
-            s1.erase(s1.begin());
-            BOOST_CHECK(s1.front() == T(i));
-        }
-        BOOST_CHECK(s1.size() == 1);
+            static_vector<T, N> s1(s);
+            s1.erase(s1.begin() + i);
+            BOOST_CHECK(s1.size() == N - 1);
+            for ( size_t j = 0 ; j < i ; ++j )
+                BOOST_CHECK(s1[j] == T(j));
+            for ( size_t j = i+1 ; j < N ; ++j )
+                BOOST_CHECK(s1[j-1] == T(j));
+        }        
     }
-
+    // erase(first, last)
     {
-        static_vector<T, N> s1(s);
-
-        for ( size_t i = N ; i > 1 ; --i )
+        size_t n = N/3;
+        for ( size_t i = 0 ; i <= N ; ++i )
         {
-            BOOST_CHECK(s1.back() == T(i-1));
-            s1.erase(s1.end() - 1);
-            BOOST_CHECK(s1.back() == T(i-2));
-        }
-        BOOST_CHECK(s1.size() == 1);
-    }
-
-    {
-        static_vector<T, N> s1(s);
-
-        for ( size_t i = 1 ; i < N - 2 ; i += 3 )
-        {
-            BOOST_CHECK(s1.front() == T(i-1));
-            s1.erase(s1.begin(), s1.begin() + 3);
-            BOOST_CHECK(s1.front() == T(i+2));
-        }
+            static_vector<T, N> s1(s);
+            size_t removed = i + n < N ? n : N - i;
+            s1.erase(s1.begin() + i, s1.begin() + i + removed);
+            BOOST_CHECK(s1.size() == N - removed);
+            for ( size_t j = 0 ; j < i ; ++j )
+                BOOST_CHECK(s1[j] == T(j));
+            for ( size_t j = i+n ; j < N ; ++j )
+                BOOST_CHECK(s1[j-n] == T(j));
+        }        
     }
 }
 
