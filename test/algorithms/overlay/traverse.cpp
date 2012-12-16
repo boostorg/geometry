@@ -7,9 +7,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+// #define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 // #define BOOST_GEOMETRY_OVERLAY_NO_THROW
 // #define TEST_WITH_SVG
+// #define HAVE_TTMATH
 
 #include <iostream>
 #include <iomanip>
@@ -633,8 +634,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             2, 16, case_53[0], case_53[2]);
     if (test_self_tangencies)
     {
-        // The st_st version might generate one ring with area zero, which is OK
-        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 3, 20, case_54[0], case_54[2]);
+        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 2, 20, case_54[0], case_54[2]);
         test_traverse<polygon, polygon, operation_union>::apply("54_st_iet", 2, 20, case_54[0], case_54[3]);
         test_traverse<polygon, polygon, operation_union>::apply("54_iet_st", 2, 20, case_54[1], case_54[2]);
     }
@@ -786,6 +786,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     // the chance is 50% that the segments are not sorted correctly and the wrong
     // decision is taken.
     // Solved now (by sorting on sides in those cases)
+    if (! is_float_on_non_msvc)
     {
         test_traverse<polygon, polygon, operation_intersection>::apply("dz_1",
                 3, 16.887537949472005, dz_1[0], dz_1[1]);
@@ -884,8 +885,10 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 
 #if defined(_MSC_VER)
         double const expected = if_typed_tt<T>(3.63794e-17, 0.0);
+        int expected_count = if_typed_tt<T>(1, 0);
 #else
         double const expected = if_typed<T, long double>(2.77555756156289135106e-17, 0.0);
+        int expected_count = if_typed<T, long double>(1, 0);
 #endif
 
         // Calculate intersection/union of two triangles. Robustness case.
@@ -893,7 +896,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         // (which is even not accomplished by SQL Server/PostGIS)
         std::string const caseid = "ggl_list_20110820_christophe";
         test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
-            1, expected,
+            expected_count, expected,
             ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
         test_traverse<polygon, polygon, operation_union>::apply(caseid, 
             1, 67.3550722317627, 
@@ -905,7 +908,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         buffer_rt_f[0], buffer_rt_f[1]);
     test_traverse<polygon, polygon, operation_intersection>::apply("buffer_rt_f", 
         1, 0.0002943725152286, 
-        buffer_rt_f[0], buffer_rt_f[1]);
+        buffer_rt_f[0], buffer_rt_f[1], 0.01);
 
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g", 
         1, 16.571, 
