@@ -408,35 +408,64 @@ private:
         }
         else
         {
-            difference_type to_move = std::distance(position, this->end());
-
-            // TODO - should following lines check for exception and revert to the old size?
-
-            if ( count < to_move )
-            {
-                this->uninitialized_copy(this->end() - count, this->end(), this->end());        // may throw
-                m_size += count; // update end
-                this->move_backward(position, position + to_move - count, this->end() - count); // may throw
-                this->copy(first, last, position);                                              // may throw
-            }
-            else
-            {
-                this->uninitialized_copy(first + to_move, last, this->end());                   // may throw
-                m_size += count - to_move; // update end
-                this->uninitialized_copy(position, position + to_move, position + count);       // may throw
-                m_size += to_move; // update end
-                this->copy(first, first + to_move, position) ;                                  // may throw
-            }
+            this->insert_in_the_middle(position, first, last, count);                            // may throw
         }
     }
 
     template <typename Iterator, typename Traversal>
     void insert_dispatch(iterator position, Iterator first, Iterator last, Traversal const& /*not_random_access*/)
     {
-        BOOST_MPL_ASSERT_MSG(
-            (false),
-            THIS_ITERATOR_IS_NOT_YET_SUPPORTED,
-            (static_vector));
+        // TODO change name of this macro
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
+        // TODO dist < distance(begin(), end())
+        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<=m_size):(dist<=(difference_type)m_size)), "invalid iterator");
+
+        if ( position == this->end() )
+        {
+            std::pair<bool, size_type> copy_data =
+                this->uninitialized_copy_checked(first, last, position, std::distance(position, this->begin() + Capacity)); // may throw
+            
+            BOOST_ASSERT_MSG(copy_data.first, "size can't exceed the capacity");
+            // eventually throw bad_alloc
+
+            m_size += copy_data.second;
+        }
+        else
+        {
+            difference_type count = std::distance(first, last);
+            
+            BOOST_ASSERT_MSG(m_size + count <= Capacity, "size can't exceed the capacity");
+            //if ( Capacity < m_size + count ) throw std::bad_alloc();
+
+            this->insert_in_the_middle(position, first, last, count);                             // may throw
+        }
+    }
+
+    template <typename Iterator>
+    void insert_in_the_middle(iterator position, Iterator first, Iterator last, difference_type count)
+    {
+        difference_type to_move = std::distance(position, this->end());
+
+        // TODO - should following lines check for exception and revert to the old size?
+
+        if ( count < to_move )
+        {
+            this->uninitialized_copy(this->end() - count, this->end(), this->end());            // may throw
+            m_size += count; // update end
+            this->move_backward(position, position + to_move - count, this->end() - count);     // may throw
+            this->copy(first, last, position);                                                  // may throw
+        }
+        else
+        {
+            Iterator middle_iter = first;
+            std::advance(middle_iter, to_move);
+
+            this->uninitialized_copy(middle_iter, last, this->end());                           // may throw
+            m_size += count - to_move; // update end
+            this->uninitialized_copy(position, position + to_move, position + count);           // may throw
+            m_size += to_move; // update end
+            this->copy(first, middle_iter, position) ;                                          // may throw
+        }
     }
 
     // assign
@@ -452,6 +481,7 @@ private:
         if ( m_size <= s )
         {
             this->copy(first, first + m_size, this->begin());                        // may throw
+            // TODO - perform uninitialized_copy first?
             this->uninitialized_copy(first + m_size, last, this->end());             // may throw
         }
         else
@@ -465,7 +495,7 @@ private:
     template <typename Iterator, typename Traversal>
     void assign_dispatch(Iterator first, Iterator last, Traversal const& /*not_random_access*/)
     {
-        size_t s = 0;
+        size_type s = 0;
         iterator it = this->begin();
 
         for ( ; it != this->end() && first != last ; ++it, ++first, ++s )
@@ -473,20 +503,39 @@ private:
 
         this->destroy(it, this->end());
 
+        std::pair<bool, size_type> copy_data =
+            this->uninitialized_copy_checked(first, last, it, std::distance(it, this->begin() + Capacity)); // may throw
+        s += copy_data.second;
+
+        BOOST_ASSERT_MSG(copy_data.first, "size can't exceed the capacity");
+        // eventually throw bad_alloc
+
+        m_size = s; // update end
+    }
+
+    // uninitialized_copy_checked
+
+    template <typename Iterator>
+    std::pair<bool, size_type> uninitialized_copy_checked(Iterator first, Iterator last, iterator dest, size_type max_count)
+    {
+        size_type count = 0;
+        iterator it = dest;
         try
         {
-            for ( ; first != last ; ++it, ++first, ++s )
+            for ( ; first != last ; ++it, ++first, ++count )
             {
-                BOOST_ASSERT_MSG(s < Capacity, "size can't exceed the capacity");
-                this->uninitialized_fill(it, *first);                               // may throw
+                if ( max_count <= count )
+                    return std::make_pair(false, count);
+
+                this->uninitialized_fill(it, *first);                              // may throw
             }
-            m_size = s; // update end
         }
         catch(...)
         {
-            this->destroy(this->begin() + m_size, it);
+            this->destroy(dest, it);
             throw;
         }
+        return std::make_pair(true, count);
     }
 
     // copy

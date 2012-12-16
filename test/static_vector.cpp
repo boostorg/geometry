@@ -421,6 +421,23 @@ void test_insert_nd(T const& val)
                 BOOST_CHECK(s1[j+i+n] == T(j+i));
         }        
     }
+    {
+        size_t n = size_t(h/1.5f);
+        for ( size_t i = 0 ; i <= h ; ++i )
+        {
+            static_vector<T, N> s1(s);
+            std::list<T>::iterator it = l.begin();
+            std::advance(it, n);
+            s1.insert(s1.begin() + i, l.begin(), it);
+            BOOST_CHECK(s1.size() == h+n);
+            for ( size_t j = 0 ; j < i ; ++j )
+                BOOST_CHECK(s1[j] == T(j));
+            for ( size_t j = 0 ; j < n ; ++j )
+                BOOST_CHECK(s1[j+i] == T(100 + j));
+            for ( size_t j = 0 ; j < h-i ; ++j )
+                BOOST_CHECK(s1[j+i+n] == T(j+i));
+        }        
+    }
 }
 
 int test_main(int, char* [])
