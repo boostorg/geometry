@@ -380,6 +380,7 @@ void test_insert_nd(T const& v)
         {
             static_vector<T, N> s1(s);
             s1.insert(s1.begin() + i, n, v);
+            BOOST_CHECK(s1.size() == h+n);
             for ( size_t j = 0 ; j < i ; ++j )
                 BOOST_CHECK(s1[j] == T(j));
             for ( size_t j = 0 ; j < n ; ++j )
