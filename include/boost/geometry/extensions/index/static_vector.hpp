@@ -187,6 +187,43 @@ public:
     }
 
     // basic
+    void insert(iterator position, size_type count, value_type const& value)
+    {
+        // TODO change name of this macro
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
+        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<=m_size):(dist<=(difference_type)m_size)), "invalid iterator");
+
+        BOOST_ASSERT_MSG(m_size + count <= Capacity, "size can't exceed the capacity");
+        //if ( Capacity < m_size + count ) throw std::bad_alloc();
+
+        if ( position == this->end() )
+        {
+            std::uninitialized_fill(position, position + count, value);             // may throw
+            m_size += count; // update end
+        }
+        else
+        {
+            difference_type to_move = std::distance(position, this->end());
+            
+            if ( count < static_cast<size_type>(to_move) )
+            {
+                this->uninitialized_copy(this->end() - count, this->end(), this->end()); // may throw
+                m_size += count; // update end
+                this->move_backward(position, position + to_move - count, this->end() - count);  // may throw
+                std::fill_n(position, count, value);                                // may throw
+            }
+            else
+            {
+                std::uninitialized_fill(this->end(), position + count, value);      // may throw
+                m_size += count - to_move; // update end
+                this->uninitialized_copy(position, position + to_move, position + count);  // may throw
+                m_size += to_move; // update end
+                std::fill_n(position, to_move, value);                              // may throw
+            }
+        }
+    }
+
+    // basic
     void erase(iterator position)
     {
         // TODO change name of this macro
