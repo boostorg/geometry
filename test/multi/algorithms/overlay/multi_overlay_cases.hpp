@@ -434,5 +434,13 @@ static std::string ggl_list_20120915_h2[3] =
         "MULTIPOLYGON(((-1 5, 0 5, 0 0, -1 0, -1 5)), ((0 0, 1 0, 1 -1, 0 -1, 0 0)))"
     };
 
+// Mail of volker, about another problem, but this specific example is causing two-point inner rings polygons which should be discarded
+// (condition of num_points in detail/overlay/convert_ring.hpp)
+static std::string ggl_list_20120221_volker[2] =
+    {
+        "MULTIPOLYGON(((1032 2130,1032 1764,2052 2712,1032 2130)),((3234 2580,2558 2690,3234 2532,3234 2580)),((2558 2690,2136 2790,2052 2712,2136 2760,2558 2690)))",
+        "MULTIPOLYGON(((3232 2532.469945355191,2136 2790,1032 1764,1032 1458,1032 1212,2136 2328,3232 2220.196721311475,3232 1056,1031 1056,1031 2856,3232 2856,3232 2532.469945355191),(3232 2412.426229508197,2136 2646,3232 2412.426229508197)))"
+    };
+
 
 #endif // BOOST_GEOMETRY_TEST_MULTI_OVERLAY_CASES_HPP
