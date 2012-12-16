@@ -30,21 +30,25 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 
-template <typename MultiLinestring, typename Strategy>
-struct length<multi_linestring_tag, MultiLinestring, Strategy>
-    : detail::multi_sum
-        <
-            typename default_length_result<MultiLinestring>::type,
-            MultiLinestring,
-            Strategy,
-            detail::length::range_length
-                <
-                    typename boost::range_value<MultiLinestring>::type,
-                    Strategy,
-                    closed // no need to close it explicitly
-                >
-        >
-{};
+template <typename MultiLinestring>
+struct length<MultiLinestring, multi_linestring_tag> : detail::multi_sum
+{
+    template <typename Strategy>
+    static inline typename default_length_result<MultiLinestring>::type
+    apply(MultiLinestring const& multi, Strategy const& strategy)
+    {
+        return multi_sum::apply
+               <
+                   typename default_length_result<MultiLinestring>::type,
+                   detail::length::range_length
+                   <
+                       typename boost::range_value<MultiLinestring>::type,
+                       closed // no need to close it explicitly
+                   >
+               >(multi, strategy);
+
+    }
+};
 
 
 } // namespace dispatch

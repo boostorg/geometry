@@ -16,7 +16,6 @@
 
 #include <cstddef>
 
-#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
@@ -27,6 +26,7 @@
 #include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
@@ -38,9 +38,9 @@ namespace detail { namespace num_points
 {
 
 
-template <typename Range>
 struct range_count
 {
+    template <typename Range>
     static inline std::size_t apply(Range const& range, bool add_for_open)
     {
         std::size_t n = boost::size(range);
@@ -60,30 +60,31 @@ struct range_count
     }
 };
 
-template <typename Geometry, std::size_t D>
+template <std::size_t D>
 struct other_count
 {
+    template <typename Geometry>
     static inline std::size_t apply(Geometry const&, bool)
     {
         return D;
     }
 };
 
-template <typename Polygon>
-struct polygon_count
+struct polygon_count: private range_count
 {
+    template <typename Polygon>
     static inline std::size_t apply(Polygon const& poly, bool add_for_open)
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
 
-        std::size_t n = range_count<ring_type>::apply(
+        std::size_t n = range_count::apply(
                     exterior_ring(poly), add_for_open);
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(poly);
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
-            n += range_count<ring_type>::apply(*it, add_for_open);
+            n += range_count::apply(*it, add_for_open);
         }
 
         return n;
@@ -98,44 +99,42 @@ struct polygon_count
 namespace dispatch
 {
 
-template <typename GeometryTag, typename Geometry>
-struct num_points
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
-
-template <typename Geometry>
-struct num_points<point_tag, Geometry>
-        : detail::num_points::other_count<Geometry, 1>
+template
+<
+    typename Geometry,
+    typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
+>
+struct num_points: not_implemented<Tag>
 {};
 
 template <typename Geometry>
-struct num_points<box_tag, Geometry>
-        : detail::num_points::other_count<Geometry, 4>
+struct num_points<Geometry, point_tag>
+        : detail::num_points::other_count<1>
 {};
 
 template <typename Geometry>
-struct num_points<segment_tag, Geometry>
-        : detail::num_points::other_count<Geometry, 2>
+struct num_points<Geometry, box_tag>
+        : detail::num_points::other_count<4>
 {};
 
 template <typename Geometry>
-struct num_points<linestring_tag, Geometry>
-        : detail::num_points::range_count<Geometry>
+struct num_points<Geometry, segment_tag>
+        : detail::num_points::other_count<2>
 {};
 
 template <typename Geometry>
-struct num_points<ring_tag, Geometry>
-        : detail::num_points::range_count<Geometry>
+struct num_points<Geometry, linestring_tag>
+        : detail::num_points::range_count
 {};
 
 template <typename Geometry>
-struct num_points<polygon_tag, Geometry>
-        : detail::num_points::polygon_count<Geometry>
+struct num_points<Geometry, ring_tag>
+        : detail::num_points::range_count
+{};
+
+template <typename Geometry>
+struct num_points<Geometry, polygon_tag>
+        : detail::num_points::polygon_count
 {};
 
 } // namespace dispatch
@@ -158,11 +157,7 @@ inline std::size_t num_points(Geometry const& geometry, bool add_for_open = fals
 {
     concept::check<Geometry const>();
 
-    return dispatch::num_points
-        <
-            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry
-        >::apply(geometry, add_for_open);
+    return dispatch::num_points<Geometry>::apply(geometry, add_for_open);
 }
 
 }} // namespace boost::geometry

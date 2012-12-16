@@ -134,12 +134,12 @@ template
 <
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2, bool ReverseOut,
-    typename OutputIterator, typename GeometryOut,
-    overlay_type Direction,
-    typename Strategy
+    typename GeometryOut,
+    overlay_type Direction
 >
 struct overlay
 {
+    template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
                 OutputIterator out,

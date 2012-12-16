@@ -34,7 +34,7 @@ namespace dispatch
 
 
 template <typename MultiPolygon>
-struct num_interior_rings<multi_polygon_tag, MultiPolygon>
+struct num_interior_rings<MultiPolygon, multi_polygon_tag>
 {
     static inline std::size_t apply(MultiPolygon const& multi_polygon)
     {

@@ -386,7 +386,7 @@ void test_geometries()
 
     test_traverse_union::apply
         (
-            "case_recursive_boxes_3", 8, 49.5,
+            "case_recursive_boxes_3", 7, 49.5,
             case_recursive_boxes_3[0], case_recursive_boxes_3[1]
         );
 

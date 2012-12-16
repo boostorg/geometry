@@ -9,6 +9,8 @@
 
 // #define TEST_ISOVIST
 
+//#define HAVE_TTMATH
+
 //#define BOOST_GEOMETRY_CHECK_WITH_POSTGIS
 
 //#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
@@ -111,8 +113,8 @@ void test_all()
 
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
-        3, 3, 2.52636706856656,
-        3, 3, 3.52636706856656);
+        3, 12, 2.52636706856656,
+        3, 12, 3.52636706856656);
 
     test_one<polygon, polygon, polygon>("simplex_with_empty",
         simplex_normal[0], polygon_empty,
@@ -126,24 +128,24 @@ void test_all()
 
     test_one<polygon, polygon, polygon>("two_bends",
         two_bends[0], two_bends[1],
-        1, 7, 8.0,
-        1, 7, 8.0);
+        1, 5, 8.0,
+        1, 5, 8.0);
 
     test_one<polygon, polygon, polygon>("star_comb_15",
         star_comb_15[0], star_comb_15[1],
-        30, 150, 227.658275102812,
-        30, 150, 480.485775259312);
+        30, 160, 227.658275102812,
+        30, 198, 480.485775259312);
 
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
-        1, 10, 7.0,
-        1, 10, 14.0);
+        1, 9, 7.0,
+        1, 13, 14.0);
 
 
     test_one<polygon, polygon, polygon>("crossed",
         crossed[0], crossed[1],
-        1, 0, 19.5,
-        1, 0, 2.5);
+        1, 18, 19.5,
+        1, 7, 2.5);
 
     test_one<polygon, polygon, polygon>("disjoint",
         disjoint[0], disjoint[1],
@@ -152,35 +154,35 @@ void test_all()
 
     test_one<polygon, polygon, polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
-        2, 0, 8.7048386,
+        2, -1, 8.7048386,
         if_typed<ct, float>(1, 2), // The too small one is discarded for floating point
-        0, 0.0098387);
+        -1, 0.0098387);
 
 
     test_one<polygon, polygon, polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
-        1, 0, 9.0,
-        1, 0, 9.0);
+        1, 5, 9.0,
+        1, 5, 9.0);
 
     test_one<polygon, polygon, polygon>("only_hole_intersections1",
         only_hole_intersections[0], only_hole_intersections[1],
-        2, 0,  1.9090909,
-        4, 0, 10.9090909);
+        2, 10,  1.9090909,
+        4, 16, 10.9090909);
 
     test_one<polygon, polygon, polygon>("only_hole_intersection2",
         only_hole_intersections[0], only_hole_intersections[2],
-        3, 0, 30.9090909,
-        4, 0, 10.9090909);
+        3, 20, 30.9090909,
+        4, 16, 10.9090909);
 
     test_one<polygon, polygon, polygon>("first_within_second",
         first_within_second[1], first_within_second[0],
-        1, 1, 24,
+        1, 10, 24,
         0, 0, 0);
 
     test_one<polygon, polygon, polygon>("fitting",
         fitting[0], fitting[1],
-        1, 0, 21.0,
-        1, 0, 4.0);
+        1, 9, 21.0,
+        1, 4, 4.0);
 
     test_one<polygon, polygon, polygon>("identical",
         identical[0], identical[1],
@@ -189,63 +191,63 @@ void test_all()
 
     test_one<polygon, polygon, polygon>("intersect_exterior_and_interiors_winded",
         intersect_exterior_and_interiors_winded[0], intersect_exterior_and_interiors_winded[1],
-        4, 0, 11.533333,
-        5, 0, 29.783333);
+        4, 20, 11.533333,
+        5, 26, 29.783333);
 
     test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
         intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
-        2, 0, 15.75,
-        3, 0, 6.75);
+        2, 16, 15.75,
+        3, 17, 6.75);
 
     test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_touch",
         intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
-        3, 0, 16.25,
-        3, 0, 6.25);
+        3, 21, 16.25,
+        3, 17, 6.25);
 
     test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
         intersect_holes_new_ring[0], intersect_holes_new_ring[1],
-        3, 0, 9.8961,
-        4, 0, 121.8961, 0.01);
+        3, 15, 9.8961,
+        4, 25, 121.8961, 0.01);
 
     test_one<polygon, polygon, polygon>("first_within_hole_of_second",
         first_within_hole_of_second[0], first_within_hole_of_second[1],
-        1, -1, 1,
-        1, -1, 16);
+        1, 5, 1,
+        1, 10, 16);
 
     test_one<polygon, polygon, polygon>("intersect_holes_disjoint",
         intersect_holes_disjoint[0], intersect_holes_disjoint[1],
-        2, 15, 16.0,
-        2, 15, 6.0);
+        2, 14, 16.0,
+        2, 10, 6.0);
 
     test_one<polygon, polygon, polygon>("intersect_holes_intersect",
         intersect_holes_intersect[0], intersect_holes_intersect[1],
-        2, 14, 15.75,
-        2, 14, 5.75);
+        2, 16, 15.75,
+        2, 12, 5.75);
 
     test_one<polygon, polygon, polygon>(
             "case4", case_4[0], case_4[1],
-            6, 22, 2.77878787878788,
-            4, 27, 4.77878787878788);
+            6, 28, 2.77878787878788,
+            4, 22, 4.77878787878788);
 
     test_one<polygon, polygon, polygon>(
             "case5", case_5[0], case_5[1],
-            8, 22, 2.43452380952381,
-            7, 27, 3.18452380952381);
+            8, 36, 2.43452380952381,
+            7, 33, 3.18452380952381);
 
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
-        3, 1, 61,
-        1, 0, 13);
+        3, 37, 61,
+        1, 15, 13);
 
     test_one<polygon, polygon, polygon>("within_holes_disjoint",
         within_holes_disjoint[0], within_holes_disjoint[1],
-        2, 1, 25,
-        1, 0, 1);
+        2, 15, 25,
+        1, 5, 1);
 
     test_one<polygon, polygon, polygon>("side_side",
         side_side[0], side_side[1],
-        1, 0, 1,
-        1, 0, 1);
+        1, 5, 1,
+        1, 5, 1);
 
     /*** TODO: self-tangencies for difference
     test_one<polygon, polygon, polygon>("wrapped_a",
@@ -274,32 +276,35 @@ void test_all()
 
     test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
-        1, 0, 71495.3331,
-        2, 0, 8960.49049); 
+        1, -1, 71495.3331,
+        2, -1, 8960.49049); 
 #endif
         
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
-        1, 0, 16815.6,
-        1, 0, 3200.4,
+        1, 13, 16815.6,
+        1, 4, 3200.4,
         0.01);
 
     if (! boost::is_same<ct, float>::value)
     {
         test_one<polygon, polygon, polygon>("ggl_list_20110716_enrico",
             ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-            3, 0, 35723.8506317139,
-            1, 0, 58456.4964294434
+            3, -1, 35723.8506317139,
+            1, -1, 58456.4964294434
             );
     }
 
     test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
-        1, 0, 2.8570121719168924,
-        1, 0, 64.498061986388564); 
+        1, -1, 2.8570121719168924,
+        1, -1, 64.498061986388564); 
 
-
-
+    test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
+        ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
+        1, 11, 3370866.2295081965,
+        1, 5, 384.2295081964694, 0.01); 
+             
 #ifdef _MSC_VER
     // 2011-07-02
     // Interesting FP-precision case.
@@ -310,9 +315,9 @@ void test_all()
     // Because we cannot predict this, we only test for MSVC
     test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-            if_typed_tt<ct>(1, 0), 0, 
+            if_typed_tt<ct>(1, 0), -1, 
             if_typed_tt<ct>(0.0000000000001105367, 0.0), 
-        1, 0, 3577.40960816756,
+        1, -1, 3577.40960816756,
         0.01
         );
 #endif
@@ -325,17 +330,17 @@ void test_all()
 
         test_one<polygon, ring, polygon>(
                 "ring_star_ring", example_ring, example_star,
-                5, 22, 1.6701714, 5, 27, 1.1901714);
+                5, 27, 1.6701714, 5, 22, 1.1901714);
 
         static std::string const clip = "POLYGON((2.5 0.5,5.5 2.5))";
 
         test_one<polygon, box, ring>("star_box",
             clip, example_star,
-            4, 11, 2.833333, 4, 11, 0.833333);
+            4, 20, 2.833333, 4, 16, 0.833333);
 
         test_one<polygon, ring, box>("box_star",
             example_star, clip,
-            4, 11, 0.833333, 4, 11, 2.833333);
+            4, 16, 0.833333, 4, 20, 2.833333);
     }
 
     // Counter clockwise
@@ -464,12 +469,27 @@ void test_difference_parcel_precision()
 }
 *****/
 
+
+template <typename P, bool clockwise, bool closed>
+void test_specific()
+{
+    typedef bg::model::polygon<P, clockwise, closed> polygon;
+
+    test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
+        ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
+        1, 11, 3370866.2295081965,
+        1, 5, 384, 0.01); 
+}
+
+
 int test_main(int, char* [])
 {
     //test_difference_parcel_precision<float>();
     //test_difference_parcel_precision<double>();
 
     test_all<bg::model::d2::point_xy<double> >();
+
+    test_specific<bg::model::d2::point_xy<int>, false, false>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

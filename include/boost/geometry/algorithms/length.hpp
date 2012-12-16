@@ -43,9 +43,10 @@ namespace detail { namespace length
 {
 
 
-template<typename Segment, typename Strategy>
+template<typename Segment>
 struct segment_length
 {
+    template <typename Strategy>
     static inline typename default_length_result<Segment>::type apply(
             Segment const& segment, Strategy const& strategy)
     {
@@ -63,11 +64,12 @@ struct segment_length
 \note for_each could be used here, now that point_type is changed by boost
     range iterator
 */
-template<typename Range, typename Strategy, closure_selector Closure>
+template<typename Range, closure_selector Closure>
 struct range_length
 {
     typedef typename default_length_result<Range>::type return_type;
 
+    template <typename Strategy>
     static inline return_type apply(
             Range const& range, Strategy const& strategy)
     {
@@ -106,28 +108,31 @@ namespace dispatch
 {
 
 
-template <typename Tag, typename Geometry, typename Strategy>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct length : detail::calculate_null
-    <
-        typename default_length_result<Geometry>::type,
-        Geometry,
-        Strategy
-    >
-{};
+{
+    typedef typename default_length_result<Geometry>::type return_type;
+
+    template <typename Strategy>
+    static inline return_type apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        return calculate_null::apply<return_type>(geometry, strategy);
+    }
+};
 
 
-template <typename Geometry, typename Strategy>
-struct length<linestring_tag, Geometry, Strategy>
-    : detail::length::range_length<Geometry, Strategy, closed>
+template <typename Geometry>
+struct length<Geometry, linestring_tag>
+    : detail::length::range_length<Geometry, closed>
 {};
 
 
 // RING: length is currently 0; it might be argued that it is the "perimeter"
 
 
-template <typename Geometry, typename Strategy>
-struct length<segment_tag, Geometry, Strategy>
-    : detail::length::segment_length<Geometry, Strategy>
+template <typename Geometry>
+struct length<Geometry, segment_tag>
+    : detail::length::segment_length<Geometry>
 {};
 
 
@@ -159,12 +164,7 @@ inline typename default_length_result<Geometry>::type length(
             point_tag, typename point_type<Geometry>::type
         >::type strategy_type;
 
-    return dispatch::length
-        <
-            typename tag<Geometry>::type,
-            Geometry,
-            strategy_type
-        >::apply(geometry, strategy_type());
+    return dispatch::length<Geometry>::apply(geometry, strategy_type());
 }
 
 
@@ -190,12 +190,7 @@ inline typename default_length_result<Geometry>::type length(
 
     // detail::throw_on_empty_input(geometry);
     
-    return dispatch::length
-        <
-            typename tag<Geometry>::type,
-            Geometry,
-            Strategy
-        >::apply(geometry, strategy);
+    return dispatch::length<Geometry>::apply(geometry, strategy);
 }
 
 

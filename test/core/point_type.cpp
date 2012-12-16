@@ -14,11 +14,14 @@
 #include <boost/geometry/core/tag.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/variant.hpp>
 
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
 #include <boost/geometry/geometries/register/linestring.hpp>
+
+#include <boost/variant/variant.hpp>
 
 #include <vector>
 #include <deque>
@@ -64,9 +67,12 @@ int test_main(int, char* [])
     test_geometry<double[3], double[3]>();
 
     test_geometry<boost::tuple<double, double>,
-                boost::tuple<double, double> >();
+                  boost::tuple<double, double> >();
     test_geometry<boost::tuple<double, double, double>,
-                boost::tuple<double, double, double> >();
+                  boost::tuple<double, double, double> >();
+
+    test_geometry<boost::variant<bg::model::box<boost::tuple<double, double> > >,
+                  boost::tuple<double, double> >();
 
     test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<float, 2, bg::cs::cartesian> >();

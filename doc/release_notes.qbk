@@ -14,6 +14,28 @@
 
 
 [/=================]
+[heading Boost 1.53]
+[/=================]
+
+[*Bugfixes]
+
+* avoid generating output polygons with interior rings below minimum size (e.g. one or two points)
+* `geometry::disjoint` for degenerate segments (patched by Karsten Ahnert)
+* problem in `geometry::difference` for missing handling tangency, reported by H2
+* fixed `geometry::for_each` for use with Lambda's
+* fixed `geometry::comparable_distance` point-linestring (and -range, -polygon)
+
+[*Additional functionality]
+
+* combinations for `geometry::disjoint`: point/ring, point/polygon, point/multi_polygon
+* combinations for `geometry::intersects`: point/ring, point/polygon, point/multi_polygon
+
+[*Internal changes]
+
+* updates in specializations/not_implemented for various algorithms (as in an earlier version, these changes are still going on; they take care for simplified structs, better error reporting, and automatized documentation)
+* fixes in unit tests
+
+[/=================]
 [heading Boost 1.51]
 [/=================]
 

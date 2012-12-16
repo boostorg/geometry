@@ -22,6 +22,7 @@
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 #include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
+#include <boost/geometry/multi/algorithms/disjoint.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 #include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
@@ -97,6 +98,39 @@ void test_all()
         "MULTIPOLYGON(((2 12,2 18,8 18,8 12,2 12)),((22 2,28 2,28 8,22 8,22 2)))",
         "MULTIPOLYGON(((2 2,2 8,8 8,8 2,2 2)),((20 0,20 10,30 10,30 0,20 0)))",
         false);
+
+
+    test_disjoint<P, mp>("point_mp1", 
+        "POINT(0 0)",
+        "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+        false);
+
+    test_disjoint<P, mp>("point_mp2", 
+        "POINT(5 5)",
+        "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+        false);
+
+    test_disjoint<P, mp>("point_mp1", 
+        "POINT(11 11)",
+        "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+        true);
+
+    std::string polygon_inside_hole("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0), (2 2,8 2,8 8,2 8,2 2)),((4 4,4 6,6 6,6 4,4 4)))");
+    test_disjoint<P, mp>("point_mp_pih1", 
+        "POINT(5 5)",
+        polygon_inside_hole,
+        false);
+
+    test_disjoint<P, mp>("point_mp_pih2", 
+        "POINT(3 3)",
+        polygon_inside_hole,
+        true);
+
+    test_disjoint<mp, P>("point_mp1rev", 
+        "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+        "POINT(0 0)",
+        false);
+
 }
 
 int test_main(int, char* [])
