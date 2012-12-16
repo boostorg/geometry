@@ -29,33 +29,27 @@ namespace dispatch
 {
 
 
-template <typename MultiPolygon1, typename MultiPolygon2>
+template <typename MultiPolygon1, typename MultiPolygon2, bool Reverse>
 struct equals
     <
-        multi_polygon_tag, multi_polygon_tag,
         MultiPolygon1, MultiPolygon2,
-        2
+        multi_polygon_tag, multi_polygon_tag,
+        2,
+        Reverse
     >
-    : detail::equals::equals_by_collection
-        <
-            MultiPolygon1, MultiPolygon2,
-            detail::equals::area_check
-        >
+    : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
-template <typename Polygon, typename MultiPolygon>
+template <typename Polygon, typename MultiPolygon, bool Reverse>
 struct equals
     <
-        polygon_tag, multi_polygon_tag,
         Polygon, MultiPolygon,
-        2
+        polygon_tag, multi_polygon_tag,
+        2,
+        Reverse
     >
-    : detail::equals::equals_by_collection
-        <
-            Polygon, MultiPolygon,
-            detail::equals::area_check
-        >
+    : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
 
