@@ -343,6 +343,28 @@ void test_erase_nd()
     }
 }
 
+template <typename T, size_t N>
+void test_insert_nd(T const& v)
+{
+    size_t h = N/2;
+
+    static_vector<T, N> s;
+
+    for ( size_t i = 0 ; i < h ; ++i )
+        s.push_back(T(i));
+
+    {
+        static_vector<T, N> s1(s);
+        for ( size_t i = 0 ; i < h ; ++i )
+            s1.insert(s1.begin(), v);
+        BOOST_CHECK(s1.size() == 2*h);
+        for ( size_t i = 0 ; i < h ; ++i )
+            BOOST_CHECK(s1[i] == v);
+        for ( size_t i = 0 ; i < h ; ++i )
+            BOOST_CHECK(s1[i+h] == T(i));
+    }
+}
+
 int test_main(int, char* [])
 {
     BOOST_CHECK(counting_value::count() == 0);
@@ -395,6 +417,11 @@ int test_main(int, char* [])
     test_erase_nd<int, 10>();
     test_erase_nd<value_nd, 10>();
     test_erase_nd<counting_value, 10>();
+    BOOST_CHECK(counting_value::count() == 0);
+
+    test_insert_nd<int, 10>(50);
+    test_insert_nd<value_nd, 10>(value_nd(50));
+    test_insert_nd<counting_value, 10>(counting_value(50));
     BOOST_CHECK(counting_value::count() == 0);
 
     return 0;

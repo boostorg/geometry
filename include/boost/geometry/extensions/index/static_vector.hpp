@@ -181,7 +181,7 @@ public:
         {
             this->uninitialized_fill(this->end(), *(this->end() - 1));              // may throw
             ++m_size; // update end
-            this->move_backward(position + 1, this->end() - 2, this->end() - 1);    // may throw
+            this->move_backward(position, this->end() - 2, this->end() - 1);        // may throw
             this->fill(position, value);                                            // may throw
         }
     }
