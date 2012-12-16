@@ -363,6 +363,16 @@ void test_insert_nd(T const& v)
         for ( size_t i = 0 ; i < h ; ++i )
             BOOST_CHECK(s1[i+h] == T(i));
     }
+    {
+        static_vector<T, N> s1(s);
+        for ( size_t i = 0 ; i < h ; ++i )
+            s1.insert(s1.end(), v);
+        BOOST_CHECK(s1.size() == 2*h);
+        for ( size_t i = 0 ; i < h ; ++i )
+            BOOST_CHECK(s1[i] == T(i));
+        for ( size_t i = 0 ; i < h ; ++i )
+            BOOST_CHECK(s1[i+h] == v);
+    }
 }
 
 int test_main(int, char* [])

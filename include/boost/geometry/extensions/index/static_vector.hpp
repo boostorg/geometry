@@ -167,7 +167,7 @@ public:
     {
         // TODO change name of this macro
         BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
-        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<m_size):(dist<(difference_type)m_size)), "invalid iterator");
+        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<=m_size):(dist<=(difference_type)m_size)), "invalid iterator");
         
         BOOST_ASSERT_MSG(m_size < Capacity, "size can't exceed the capacity");
         //if ( Capacity <= m_size ) throw std::bad_alloc();
