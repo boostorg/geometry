@@ -6,6 +6,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_STATIC_VECTOR_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_STATIC_VECTOR_HPP
+
+#include <cstddef>
 #include <stdexcept>
 
 #include <boost/aligned_storage.hpp>
@@ -26,9 +30,6 @@
 
 #include <boost/geometry/extensions/index/assert.hpp>
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_STATIC_VECTOR_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_STATIC_VECTOR_HPP
-
 namespace boost { namespace geometry { namespace index {
 
 template <typename Value, size_t Capacity>
@@ -41,7 +42,7 @@ class static_vector
 
 public:
     typedef Value value_type;
-    typedef size_t size_type;
+    typedef std::size_t size_type;
     typedef Value& reference;
     typedef Value const& const_reference;
     typedef Value * pointer;
