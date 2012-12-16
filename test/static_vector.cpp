@@ -344,47 +344,79 @@ void test_erase_nd()
 }
 
 template <typename T, size_t N>
-void test_insert_nd(T const& v)
+void test_insert_nd(T const& val)
 {
     size_t h = N/2;
 
-    static_vector<T, N> s;
+    static_vector<T, N> s, ss;
+    std::vector<T> v;
+    std::list<T> l;
 
     for ( size_t i = 0 ; i < h ; ++i )
+    {
         s.push_back(T(i));
-
-    {
-        static_vector<T, N> s1(s);
-        for ( size_t i = 0 ; i < h ; ++i )
-            s1.insert(s1.begin(), v);
-        BOOST_CHECK(s1.size() == 2*h);
-        for ( size_t i = 0 ; i < h ; ++i )
-            BOOST_CHECK(s1[i] == v);
-        for ( size_t i = 0 ; i < h ; ++i )
-            BOOST_CHECK(s1[i+h] == T(i));
-    }
-    {
-        static_vector<T, N> s1(s);
-        for ( size_t i = 0 ; i < h ; ++i )
-            s1.insert(s1.end(), v);
-        BOOST_CHECK(s1.size() == 2*h);
-        for ( size_t i = 0 ; i < h ; ++i )
-            BOOST_CHECK(s1[i] == T(i));
-        for ( size_t i = 0 ; i < h ; ++i )
-            BOOST_CHECK(s1[i+h] == v);
+        ss.push_back(T(100 + i));
+        v.push_back(T(100 + i));
+        l.push_back(T(100 + i));
     }
 
+    // insert(pos, val)
+    {
+        for ( size_t i = 0 ; i <= h ; ++i )
+        {
+            static_vector<T, N> s1(s);
+            s1.insert(s1.begin() + i, val);
+            BOOST_CHECK(s1.size() == h+1);
+            for ( size_t j = 0 ; j < i ; ++j )
+                BOOST_CHECK(s1[j] == T(j));
+            BOOST_CHECK(s1[i] == val);
+            for ( size_t j = 0 ; j < h-i ; ++j )
+                BOOST_CHECK(s1[j+i+1] == T(j+i));
+        }        
+    }
+    // insert(pos, n, val)
     {
         size_t n = size_t(h/1.5f);
         for ( size_t i = 0 ; i <= h ; ++i )
         {
             static_vector<T, N> s1(s);
-            s1.insert(s1.begin() + i, n, v);
+            s1.insert(s1.begin() + i, n, val);
             BOOST_CHECK(s1.size() == h+n);
             for ( size_t j = 0 ; j < i ; ++j )
                 BOOST_CHECK(s1[j] == T(j));
             for ( size_t j = 0 ; j < n ; ++j )
-                BOOST_CHECK(s1[j+i] == v);
+                BOOST_CHECK(s1[j+i] == val);
+            for ( size_t j = 0 ; j < h-i ; ++j )
+                BOOST_CHECK(s1[j+i+n] == T(j+i));
+        }        
+    }
+    // insert(pos, first, last)
+    {
+        size_t n = size_t(h/1.5f);
+        for ( size_t i = 0 ; i <= h ; ++i )
+        {
+            static_vector<T, N> s1(s);
+            s1.insert(s1.begin() + i, ss.begin(), ss.begin() + n);
+            BOOST_CHECK(s1.size() == h+n);
+            for ( size_t j = 0 ; j < i ; ++j )
+                BOOST_CHECK(s1[j] == T(j));
+            for ( size_t j = 0 ; j < n ; ++j )
+                BOOST_CHECK(s1[j+i] == T(100 + j));
+            for ( size_t j = 0 ; j < h-i ; ++j )
+                BOOST_CHECK(s1[j+i+n] == T(j+i));
+        }        
+    }
+    {
+        size_t n = size_t(h/1.5f);
+        for ( size_t i = 0 ; i <= h ; ++i )
+        {
+            static_vector<T, N> s1(s);
+            s1.insert(s1.begin() + i, v.begin(), v.begin() + n);
+            BOOST_CHECK(s1.size() == h+n);
+            for ( size_t j = 0 ; j < i ; ++j )
+                BOOST_CHECK(s1[j] == T(j));
+            for ( size_t j = 0 ; j < n ; ++j )
+                BOOST_CHECK(s1[j+i] == T(100 + j));
             for ( size_t j = 0 ; j < h-i ; ++j )
                 BOOST_CHECK(s1[j+i+n] == T(j+i));
         }        

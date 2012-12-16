@@ -179,6 +179,8 @@ public:
         }
         else
         {
+            // TODO - should following lines check for exception and revert to the old size?
+
             this->uninitialized_fill(this->end(), *(this->end() - 1));              // may throw
             ++m_size; // update end
             this->move_backward(position, this->end() - 2, this->end() - 1);        // may throw
@@ -205,6 +207,8 @@ public:
         {
             difference_type to_move = std::distance(position, this->end());
             
+            // TODO - should following lines check for exception and revert to the old size?
+
             if ( count < static_cast<size_type>(to_move) )
             {
                 this->uninitialized_copy(this->end() - count, this->end(), this->end()); // may throw
@@ -221,6 +225,14 @@ public:
                 std::fill_n(position, to_move, value);                              // may throw
             }
         }
+    }
+
+    // basic
+    template <typename Iterator>
+    void insert(iterator position, Iterator first, Iterator last)
+    {
+        typedef typename boost::iterator_traversal<Iterator>::type traversal;
+        this->insert_dispatch(position, first, last, traversal());
     }
 
     // basic
@@ -257,7 +269,7 @@ public:
     void assign(Iterator first, Iterator last)
     {
         typedef typename boost::iterator_traversal<Iterator>::type traversal;
-        assign_dispatch(first, last, traversal());                                  // may throw
+        this->assign_dispatch(first, last, traversal());                            // may throw
     }
 
     // basic
@@ -370,10 +382,63 @@ public:
 
 private:
 
+    // insert
+
+    template <typename Iterator>
+    void insert_dispatch(iterator position, Iterator first, Iterator last, boost::random_access_traversal_tag const&)
+    {
+        // TODO change name of this macro
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
+        // TODO dist < distance(begin(), end())
+        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<=m_size):(dist<=(difference_type)m_size)), "invalid iterator");
+
+        difference_type count = std::distance(first, last);
+
+        BOOST_ASSERT_MSG(m_size + count <= Capacity, "size can't exceed the capacity");
+        //if ( Capacity < m_size + count ) throw std::bad_alloc();
+
+        if ( position == this->end() )
+        {
+            this->uninitialized_copy(first, last, position);                                     // may throw
+            m_size += count; // update end
+        }
+        else
+        {
+            difference_type to_move = std::distance(position, this->end());
+
+            // TODO - should following lines check for exception and revert to the old size?
+
+            if ( count < to_move )
+            {
+                this->uninitialized_copy(this->end() - count, this->end(), this->end());        // may throw
+                m_size += count; // update end
+                this->move_backward(position, position + to_move - count, this->end() - count); // may throw
+                this->copy(first, last, position);                                              // may throw
+            }
+            else
+            {
+                this->uninitialized_copy(first + to_move, last, this->end());                   // may throw
+                m_size += count - to_move; // update end
+                this->uninitialized_copy(position, position + to_move, position + count);       // may throw
+                m_size += to_move; // update end
+                this->copy(first, first + to_move, position) ;                                  // may throw
+            }
+        }
+    }
+
+    template <typename Iterator, typename Traversal>
+    void insert_dispatch(iterator position, Iterator first, Iterator last, Traversal const& /*not_random_access*/)
+    {
+        BOOST_MPL_ASSERT_MSG(
+            (false),
+            THIS_ITERATOR_IS_NOT_YET_SUPPORTED,
+            (static_vector));
+    }
+
     // assign
 
     template <typename Iterator>
-    void assign_dispatch(Iterator first, Iterator last, boost::random_access_traversal_tag const&)
+    void assign_dispatch(Iterator first, Iterator last, boost::random_access_traversal_tag const& /*not_random_access*/)
     {
         size_type s = std::distance(first, last);
 
