@@ -152,7 +152,7 @@ public:
     }
 
     // nothrow
-    void reserve(size_type BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(count))
+    void reserve(size_type count)
     {
         check_capacity(count);
     }
