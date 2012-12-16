@@ -38,7 +38,10 @@
 
 
 #if defined(TEST_WITH_SVG)
+#  define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+#  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #endif
 
 
@@ -79,7 +82,7 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
 
 template <typename OutputType, typename G1, typename G2>
 void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
-        std::size_t expected_count, std::size_t expected_point_count,
+        std::size_t expected_count, int expected_point_count,
         double expected_area,
         double percentage = 0.0001,
         bool sym = false)
@@ -103,7 +106,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
             it != clip.end();
             ++it)
     {
-        if (expected_point_count > 0)
+        if (expected_point_count >= 0)
         {
             n += bg::num_points(*it);
         }
@@ -135,15 +138,15 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-    /*if (expected_point_count > 0)
+    if (expected_point_count >= 0)
     {
-        BOOST_CHECK_MESSAGE(n == expected_point_count,
+        BOOST_CHECK_MESSAGE(n == std::size_t(expected_point_count),
                 "difference: " << caseid
                 << " #points expected: " << expected_point_count
                 << " detected: " << n
                 << " type: " << string_from_type<coordinate_type>::name()
                 );
-    }*/
+    }
 
     if (expected_count > 0)
     {
@@ -171,11 +174,11 @@ template <typename OutputType, typename G1, typename G2>
 void test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
         std::size_t expected_count1,
-        std::size_t expected_point_count1,
+        int expected_point_count1,
         double expected_area1,
 
         std::size_t expected_count2,
-        std::size_t expected_point_count2,
+        int expected_point_count2,
         double expected_area2,
 
         double percentage = 0.0001)
@@ -256,7 +259,7 @@ template <typename OutputType, typename G1, typename G2>
 void test_one_lp(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
         std::size_t expected_count,
-        std::size_t expected_point_count,
+        int expected_point_count,
         double expected_length)
 {
     G1 g1;
@@ -272,25 +275,29 @@ void test_one_lp(std::string const& caseid,
 
     typename bg::default_length_result<G1>::type length = 0;
     std::size_t n = 0;
+    std::size_t piece_count = 0;
     for (typename std::vector<OutputType>::iterator it = pieces.begin();
             it != pieces.end();
             ++it)
     {
-        if (expected_point_count > 0)
+        if (expected_point_count >= 0)
         {
             n += bg::num_points(*it);
         }
-
+        piece_count++;
         length += bg::length(*it);
     }
 
-    BOOST_CHECK_MESSAGE(pieces.size() == expected_count,
+    BOOST_CHECK_MESSAGE(piece_count == expected_count,
             "difference: " << caseid
             << " #outputs expected: " << expected_count
             << " detected: " << pieces.size()
             );
 
-    BOOST_CHECK_EQUAL(n, expected_point_count);
+    if (expected_point_count >= 0)
+    {
+        BOOST_CHECK_EQUAL(n, std::size_t(expected_point_count));
+    }
 
     BOOST_CHECK_CLOSE(length, expected_length, 0.001);
 
