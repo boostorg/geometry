@@ -83,9 +83,8 @@ public:
     static_vector(static_vector<value_type, C> const& other)
         : m_size(other.m_size)
     {
-        BOOST_ASSERT_MSG(other.m_size <= Capacity, "size can't exceed the capacity");
-        //if ( Capacity <= other.m_size ) throw std::bad_alloc();
-
+        check_capacity(other.m_size);
+        
         this->uninitialized_copy(other.begin(), other.end(), this->begin());        // may throw
     }
 
@@ -129,8 +128,7 @@ public:
         }
         else
         {
-            BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
-            //if ( Capacity <= count ) throw std::bad_alloc();
+            check_capacity(count);
 
             this->construct(this->end(), this->begin() + count);                    // may throw
         }
@@ -146,9 +144,8 @@ public:
         }
         else
         {
-            BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
-            //if ( Capacity <= count ) throw std::bad_alloc();
-
+            check_capacity(count);
+            
             std::uninitialized_fill(this->end(), this->begin() + count, value);     // may throw
         }
         m_size = count; // update end
@@ -157,16 +154,14 @@ public:
     // nothrow
     void reserve(size_type BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(count))
     {
-        BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
-        //if ( Capacity <= count ) throw std::bad_alloc();
+        check_capacity(count);
     }
 
     // strong
     void push_back(value_type const& value)
     {
-        BOOST_ASSERT_MSG(m_size < Capacity, "size can't exceed the capacity");
-        //if ( Capacity <= m_size ) throw std::bad_alloc();
-
+        check_capacity(m_size + 1);
+        
         this->uninitialized_fill(this->end(), value);                               // may throw
         ++m_size; // update end
     }
@@ -174,9 +169,11 @@ public:
     // nothrow
     void pop_back()
     {
-        BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
+        check_empty();
+
         //--m_size; // update end
         //this->destroy(this->end());
+
         // safer and more intuitive version
         this->destroy(this->end() - 1);
         --m_size; // update end
@@ -185,12 +182,8 @@ public:
     // basic
     void insert(iterator position, value_type const& value)
     {
-        // TODO change name of this macro
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
-        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<=m_size):(dist<=(difference_type)m_size)), "invalid iterator");
-        
-        BOOST_ASSERT_MSG(m_size < Capacity, "size can't exceed the capacity");
-        //if ( Capacity <= m_size ) throw std::bad_alloc();
+        check_iterator_end_eq(position);
+        check_capacity(m_size + 1);
 
         if ( position == this->end() )
         {
@@ -211,12 +204,8 @@ public:
     // basic
     void insert(iterator position, size_type count, value_type const& value)
     {
-        // TODO change name of this macro
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
-        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<=m_size):(dist<=(difference_type)m_size)), "invalid iterator");
-
-        BOOST_ASSERT_MSG(m_size + count <= Capacity, "size can't exceed the capacity");
-        //if ( Capacity < m_size + count ) throw std::bad_alloc();
+        check_iterator_end_eq(position);
+        check_capacity(m_size + count);
 
         if ( position == this->end() )
         {
@@ -258,9 +247,7 @@ public:
     // basic
     void erase(iterator position)
     {
-        // TODO change name of this macro
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
-        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<m_size):(dist<(difference_type)m_size)), "invalid iterator");
+        check_iterator_end_neq(position);
 
         this->move(position + 1, this->end(), position);                            // may throw
         this->destroy(this->end() - 1);
@@ -270,14 +257,11 @@ public:
     // basic
     void erase(iterator first, iterator last)
     {
-        // TODO change name of this macro
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type distf = std::distance(this->begin(), first));
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type distl = std::distance(this->begin(), last));
-        BOOST_ASSERT_MSG(0 <= distf && (sizeof(distf)<=sizeof(m_size)?((size_type)distf<m_size):(distf<(difference_type)m_size)), "invalid iterator");
-        BOOST_ASSERT_MSG(0 <= distl && (sizeof(distl)<=sizeof(m_size)?((size_type)distl<m_size):(distl<(difference_type)m_size)), "invalid iterator");
-
+        check_iterator_end_neq(first);
+        check_iterator_end_neq(last);
+        
         difference_type n = std::distance(first, last);
-        BOOST_ASSERT_MSG(0 <= n, "invalid iterator");
+        BOOST_ASSERT_MSG(0 <= n, "invalid range");
 
         this->move(last, this->end(), first);                                       // may throw
         this->destroy(this->end() - n, this->end());
@@ -302,8 +286,7 @@ public:
         }
         else
         {
-            BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
-            //if ( Capacity <= count ) throw std::bad_alloc();
+            check_capacity(count);
 
             std::fill_n(this->begin(), m_size, value);
             std::uninitialized_fill(this->end(), this->begin() + count, value);     // may throw
@@ -322,7 +305,7 @@ public:
     Value & at(size_type i)
     {
         if ( m_size <= i )
-            throw std::out_of_range("static_vector element index out of bounds");
+            throw std::out_of_range("index out of bounds");
         return *(this->begin() + i);
     }
 
@@ -330,7 +313,7 @@ public:
     Value const& at(size_type i) const
     {
         if ( m_size <= i )
-            throw std::out_of_range("static_vector element index out of bounds");
+            throw std::out_of_range("index out of bounds");
         return *(this->begin() + i);
     }
 
@@ -351,28 +334,28 @@ public:
     // nothrow
     Value & front()
     {
-        BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
+        check_empty();
         return *(this->begin());
     }
 
     // nothrow
     Value const& front() const
     {
-        BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
+        check_empty();
         return *(this->begin());
     }
 
     // nothrow
     Value & back()
     {
-        BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
+        check_empty();
         return *(this->end() - 1);
     }
 
     // nothrow
     Value const& back() const
     {
-        BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
+        check_empty();
         return *(this->end() - 1);
     }
 
@@ -408,15 +391,11 @@ private:
     template <typename Iterator>
     void insert_dispatch(iterator position, Iterator first, Iterator last, boost::random_access_traversal_tag const&)
     {
-        // TODO change name of this macro
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
-        // TODO dist < distance(begin(), end())
-        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<=m_size):(dist<=(difference_type)m_size)), "invalid iterator");
-
+        check_iterator_end_eq(position);
+        
         difference_type count = std::distance(first, last);
 
-        BOOST_ASSERT_MSG(m_size + count <= Capacity, "size can't exceed the capacity");
-        //if ( Capacity < m_size + count ) throw std::bad_alloc();
+        check_capacity(m_size + count);
 
         if ( position == this->end() )
         {
@@ -432,18 +411,14 @@ private:
     template <typename Iterator, typename Traversal>
     void insert_dispatch(iterator position, Iterator first, Iterator last, Traversal const& /*not_random_access*/)
     {
-        // TODO change name of this macro
-        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
-        // TODO dist < distance(begin(), end())
-        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<=m_size):(dist<=(difference_type)m_size)), "invalid iterator");
+        check_iterator_end_eq(position);
 
         if ( position == this->end() )
         {
             std::pair<bool, size_type> copy_data =
                 this->uninitialized_copy_checked(first, last, position, std::distance(position, this->begin() + Capacity)); // may throw
             
-            BOOST_ASSERT_MSG(copy_data.first, "size can't exceed the capacity");
-            // eventually throw bad_alloc
+            check_capacity(copy_data.first ? m_size + copy_data.second : Capacity + 1);
 
             m_size += copy_data.second;
         }
@@ -451,8 +426,7 @@ private:
         {
             difference_type count = std::distance(first, last);
             
-            BOOST_ASSERT_MSG(m_size + count <= Capacity, "size can't exceed the capacity");
-            //if ( Capacity < m_size + count ) throw std::bad_alloc();
+            check_capacity(m_size + count);
 
             this->insert_in_the_middle(position, first, last, count);                             // may throw
         }
@@ -492,8 +466,7 @@ private:
     {
         size_type s = std::distance(first, last);
 
-        BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
-        //if ( Capacity <= m_size ) throw std::bad_alloc();
+        check_capacity(s);
 
         if ( m_size <= s )
         {
@@ -524,8 +497,7 @@ private:
             this->uninitialized_copy_checked(first, last, it, std::distance(it, this->begin() + Capacity)); // may throw
         s += copy_data.second;
 
-        BOOST_ASSERT_MSG(copy_data.first, "size can't exceed the capacity");
-        // eventually throw bad_alloc
+        check_capacity(copy_data.first ? s : Capacity + 1);
 
         m_size = s; // update end
     }
@@ -769,6 +741,45 @@ private:
             this->destroy(first, it);
             throw;
         }
+    }
+
+    void check_capacity(size_type s)
+    {
+        BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
+        //if ( Capacity < s ) throw std::bad_alloc();
+    }
+
+    void check_empty()
+    {
+        BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
+    }
+
+    void check_iterator_end_neq(iterator position)
+    {
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(
+            difference_type dist = std::distance(this->begin(), position);
+        )
+        BOOST_ASSERT_MSG(
+            0 <= dist &&
+            ( sizeof(dist) <= sizeof(m_size) ?
+                (static_cast<size_type>(dist) < m_size) :
+                ( dist < static_cast<difference_type>(m_size))
+            ), "invalid iterator"
+        );
+    }
+
+    void check_iterator_end_eq(iterator position)
+    {
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(
+            difference_type dist = std::distance(this->begin(), position);
+        )
+        BOOST_ASSERT_MSG(
+        0 <= dist &&
+            ( sizeof(dist) <= sizeof(m_size) ?
+                (static_cast<size_type>(dist) <= m_size) :
+                ( dist <= static_cast<difference_type>(m_size))
+            ), "invalid iterator"
+        );
     }
 
     Value * ptr()
