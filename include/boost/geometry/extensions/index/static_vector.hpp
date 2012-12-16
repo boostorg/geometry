@@ -42,7 +42,6 @@ class static_vector
 public:
     typedef Value value_type;
     typedef size_t size_type;
-    typedef ptrdiff_t difference_type;
     typedef Value& reference;
     typedef Value const& const_reference;
     typedef Value * pointer;
@@ -51,6 +50,7 @@ public:
     typedef const Value * const_iterator;
     typedef boost::reverse_iterator<iterator> reverse_iterator;
     typedef boost::reverse_iterator<const_iterator> const_reverse_iterator;
+    typedef typename boost::iterator_difference<iterator>::type difference_type;    
 
     // nothrow
     static_vector()
@@ -162,6 +162,31 @@ public:
         --m_size; // update end
     }
 
+    // basic
+    void insert(iterator position, value_type const& value)
+    {
+        // TODO change name of this macro
+        BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(difference_type dist = std::distance(this->begin(), position));
+        BOOST_ASSERT_MSG(0 <= dist && (sizeof(dist)<=sizeof(m_size)?((size_type)dist<m_size):(dist<(difference_type)m_size)), "invalid iterator");
+        
+        BOOST_ASSERT_MSG(m_size < Capacity, "size can't exceed the capacity");
+        //if ( Capacity <= m_size ) throw std::bad_alloc();
+
+        if ( position == this->end() )
+        {
+            this->uninitialized_fill(position, value);                              // may throw
+            ++m_size; // update end
+        }
+        else
+        {
+            this->uninitialized_fill(this->end(), *(this->end() - 1));              // may throw
+            ++m_size; // update end
+            this->move_backward(position + 1, this->end() - 2, this->end() - 1);    // may throw
+            this->fill(position, value);                                            // may throw
+        }
+    }
+
+    // basic
     void erase(iterator position)
     {
         // TODO change name of this macro
@@ -173,6 +198,7 @@ public:
         --m_size;
     }
 
+    // basic
     void erase(iterator first, iterator last)
     {
         // TODO change name of this macro
@@ -388,25 +414,6 @@ private:
         std::copy(first, last, dst);                                                // may throw
     }
 
-    // move
-
-    void move(iterator first, iterator last, iterator dst)
-    {
-        this->move_dispatch(first, last, dst, has_trivial_assign<value_type>());    // may throw
-    }
-
-    void move_dispatch(value_type * first, value_type * last, value_type * dst,
-                       boost::true_type const& /*has_trivial_assign*/)
-    {
-        ::memmove(dst, first, sizeof(value_type) * std::distance(first, last));
-    }
-
-    void move_dispatch(value_type * first, value_type * last, value_type * dst,
-                       boost::false_type const& /*has_trivial_assign*/)
-    {
-        std::copy(first, last, dst);                                                // may throw
-    }
-
     // uninitialized_copy
 
     template <typename Iterator>
@@ -456,7 +463,9 @@ private:
     void uninitialized_fill_dispatch(value_type * ptr, value_type const& v,
                                      boost::mpl::bool_<true> const& /*use_memcpy*/)
     {
-        ::memcpy(ptr, &v, sizeof(value_type));
+        // TODO - check if value_type has operator& defined and call this version only if it hasn't
+        const value_type * vptr = &v;
+        ::memcpy(ptr, vptr, sizeof(value_type));
     }
 
     template <typename V>
@@ -464,6 +473,68 @@ private:
                                      boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
         new (ptr) value_type(v);                                                    // may throw
+    }
+
+    // move
+
+    void move(iterator first, iterator last, iterator dst)
+    {
+        this->move_dispatch(first, last, dst, has_trivial_assign<value_type>());    // may throw
+    }
+
+    void move_dispatch(value_type * first, value_type * last, value_type * dst,
+        boost::true_type const& /*has_trivial_assign*/)
+    {
+        ::memmove(dst, first, sizeof(value_type) * std::distance(first, last));
+    }
+
+    void move_dispatch(value_type * first, value_type * last, value_type * dst,
+        boost::false_type const& /*has_trivial_assign*/)
+    {
+        std::copy(first, last, dst);                                                // may throw
+    }
+
+    // move_backward
+
+    void move_backward(iterator first, iterator last, iterator dst)
+    {
+        this->move_backward_dispatch(first, last, dst, has_trivial_assign<value_type>());    // may throw
+    }
+
+    void move_backward_dispatch(value_type * first, value_type * last, value_type * dst,
+                                boost::true_type const& /*has_trivial_assign*/)
+    {
+        difference_type n = std::distance(first, last);
+        ::memmove(dst - n, first, sizeof(value_type) * n);
+    }
+
+    void move_backward_dispatch(value_type * first, value_type * last, value_type * dst,
+                                boost::false_type const& /*has_trivial_assign*/)
+    {
+        std::copy_backward(first, last, dst);                                                // may throw
+    }
+
+    // uninitialized_fill
+
+    template <typename V>
+    void fill(iterator dst, V const& v)
+    {
+        fill_dispatch(dst, v, has_trivial_assign<value_type>());                            // may throw
+    }
+
+    void fill_dispatch(value_type * ptr, value_type const& v,
+                       boost::true_type const& /*has_trivial_assign*/)
+    {
+        // TODO - check if value_type has operator& defined and call this version only if it hasn't
+        const value_type * vptr = &v;
+        ::memcpy(ptr, vptr, sizeof(value_type));
+    }
+
+    template <typename V>
+    void fill_dispatch(value_type * ptr, V const& v,
+                       boost::false_type const& /*has_trivial_assign*/)
+    {
+        *ptr = v;                                                                           // may throw
     }
 
     // destroy
