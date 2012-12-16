@@ -114,6 +114,7 @@ public:
         {
             BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
             //if ( Capacity <= count ) throw std::bad_alloc();
+
             this->construct(this->end(), this->begin() + count);                    // may throw
         }
         m_size = count; // update end
@@ -130,6 +131,7 @@ public:
         {
             BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
             //if ( Capacity <= count ) throw std::bad_alloc();
+
             std::uninitialized_fill(this->end(), this->begin() + count, value);     // may throw
         }
         m_size = count; // update end
@@ -147,6 +149,7 @@ public:
     {
         BOOST_ASSERT_MSG(m_size < Capacity, "size can't exceed the capacity");
         //if ( Capacity <= m_size ) throw std::bad_alloc();
+
         this->uninitialized_fill(this->end(), value);                               // may throw
         ++m_size; // update end
     }
@@ -282,9 +285,10 @@ public:
         }
         else
         {
-            std::fill_n(this->begin(), m_size, value);
             BOOST_ASSERT_MSG(count <= Capacity, "size can't exceed the capacity");
             //if ( Capacity <= count ) throw std::bad_alloc();
+
+            std::fill_n(this->begin(), m_size, value);
             std::uninitialized_fill(this->end(), this->begin() + count, value);     // may throw
         }
         m_size = count; // update end
