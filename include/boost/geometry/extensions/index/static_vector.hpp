@@ -744,18 +744,18 @@ private:
         }
     }
 
-    void check_capacity(size_type s)
+    void check_capacity(size_type s) const
     {
         BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
         //if ( Capacity < s ) throw std::bad_alloc();
     }
 
-    void check_empty()
+    void check_empty() const
     {
         BOOST_ASSERT_MSG(0 < m_size, "the container is empty");
     }
 
-    void check_iterator_end_neq(const_iterator position)
+    void check_iterator_end_neq(const_iterator position) const
     {
         BOOST_ASSERT_MSG(this->begin() <= position && position < this->end(), "iterator out of bounds");
 
@@ -771,7 +771,7 @@ private:
         );*/
     }
 
-    void check_iterator_end_eq(const_iterator position)
+    void check_iterator_end_eq(const_iterator position) const
     {
         BOOST_ASSERT_MSG(this->begin() <= position && position <= this->end(), "iterator out of bounds");
 
