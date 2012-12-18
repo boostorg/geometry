@@ -56,8 +56,8 @@ struct linear
     static const size_t max_elements = MaxElements;
     static const size_t min_elements = MinElements;
 
-    size_t get_max_elements() const { return max_elements; }
-    size_t get_min_elements() const { return min_elements; }
+    static size_t get_max_elements() { return MaxElements; }
+    static size_t get_min_elements() { return MinElements; }
 };
 
 /*!
@@ -72,8 +72,8 @@ struct quadratic
     static const size_t max_elements = MaxElements;
     static const size_t min_elements = MinElements;
 
-    size_t get_max_elements() const { return max_elements; }
-    size_t get_min_elements() const { return min_elements; }
+    static size_t get_max_elements() { return MaxElements; }
+    static size_t get_min_elements() { return MinElements; }
 };
 
 namespace options { namespace detail { 
@@ -108,10 +108,10 @@ struct rstar
     static const size_t overlap_cost_threshold = OverlapCostThreshold;
     static const size_t reinserted_elements = ReinsertedElements;
 
-    size_t get_max_elements() const { return max_elements; }
-    size_t get_min_elements() const { return min_elements; }
-    size_t get_overlap_cost_threshold() const { return overlap_cost_threshold; }
-    size_t get_reinserted_elements() const { return reinserted_elements; }
+    static size_t get_max_elements() { return MaxElements; }
+    static size_t get_min_elements() { return MinElements; }
+    static size_t get_overlap_cost_threshold() { return OverlapCostThreshold; }
+    static size_t get_reinserted_elements() { return ReinsertedElements; }
 };
 
 namespace runtime {
