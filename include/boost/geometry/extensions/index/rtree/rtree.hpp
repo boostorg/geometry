@@ -104,9 +104,9 @@ private:
 
 public:
     /*!
-    The constructor.
+    <b>Description:</b> The constructor.
 
-    \note Exception-safety: nothrow
+    <b>Exception-safety:</b> nothrow
 
     \param parameters   The parameters object.
     \param translator   The translator object.
@@ -122,9 +122,9 @@ public:
     {}
 
     /*!
-    The constructor.
+    <b>Description:</b> The constructor.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param first        The beginning of the range of Values.
     \param last         The end of the range of Values.
@@ -153,9 +153,9 @@ public:
     }
 
     /*!
-    The constructor.
+    <b>Description:</b> The constructor.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param rng          The range of Values.
     \param parameters   The parameters object.
@@ -183,9 +183,9 @@ public:
     }
 
     /*!
-    The destructor.
+    <b>Description:</b> The destructor.
 
-    \note Exception-safety: nothrow
+    <b>Exception-safety:</b> nothrow
     */
     inline ~rtree()
     {
@@ -193,9 +193,9 @@ public:
     }
 
     /*!
-    The copy constructor.
+    <b>Description:</b> The copy constructor.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
     */
     inline rtree(rtree const& src)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -211,9 +211,9 @@ public:
     }
 
     /*!
-    The copy constructor.
+    <b>Description:</b> The copy constructor.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
     */
     inline rtree(rtree const& src, Allocator const& allocator)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -227,9 +227,9 @@ public:
     }
 
     /*!
-    The moving constructor.
+    <b>Description:</b> The moving constructor.
 
-    \note Exception-safety: nothrow
+    <b>Exception-safety:</b> nothrow
     */
     inline rtree(BOOST_RV_REF(rtree) src)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -245,9 +245,9 @@ public:
     }
 
     /*!
-    The assignment operator.
+    <b>Description:</b> The assignment operator.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
@@ -263,9 +263,9 @@ public:
     }
 
     /*!
-    The moving assignment.
+    <b>Description:</b> The moving assignment.
 
-    \note Exception-safety: nothrow (if allocators are equal),
+    <b>Exception-safety:</b> nothrow (if allocators are equal),
                             strong (if allocators aren't equal)
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
@@ -299,9 +299,9 @@ public:
     }
 
     /*!
-    Swaps two rtrees.
+    <b>Description:</b> Swaps two rtrees.
 
-    \note Exception-safety: nothrow
+    <b>Exception-safety:</b> nothrow
 
     \param other    The other rtree.
     */
@@ -317,9 +317,9 @@ public:
     }
 
     /*!
-    Insert a value to the index.
+    <b>Description:</b> Insert a value to the index.
 
-    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    <b>Exception-safety:</b> not safe -  if this operation throws, the R-tree may be left in
           an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param value    The value which will be stored in the container.
@@ -333,9 +333,9 @@ public:
     }
 
     /*!
-    Insert a range of values to the index.
+    <b>Description:</b> Insert a range of values to the index.
 
-    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    <b>Exception-safety:</b> not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param first    The beginning of the range of values.
@@ -352,9 +352,9 @@ public:
     }
 
     /*!
-    Insert a range of values to the index.
+    <b>Description:</b> Insert a range of values to the index.
 
-    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    <b>Exception-safety:</b> not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param rng      The range of values.
@@ -371,10 +371,10 @@ public:
     }
 
     /*!
-    Remove a value from the container. In contrast to the STL set/map erase() method
+    <b>Description:</b> Remove a value from the container. In contrast to the STL set/map erase() method
     this method removes only one value from the container.
 
-    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    <b>Exception-safety:</b> not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param value    The value which will be removed from the container.
@@ -387,12 +387,12 @@ public:
     }
 
     /*!
-    Remove a range of values from the container. In contrast to the STL set/map erase() method
+    <b>Description:</b> Remove a range of values from the container. In contrast to the STL set/map erase() method
     it doesn't take iterators pointing to values stored in this container. It removes values equal
     to these passed as a range. Furthermore this method removes only one value for each one passed
     in the range, not all equal values.
 
-    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    <b>Exception-safety:</b> not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param first    The beginning of the range of values.
@@ -410,11 +410,11 @@ public:
     }
 
     /*!
-    Remove a range of values from the container. In contrast to the STL set/map erase() method
+    <b>Description:</b> Remove a range of values from the container. In contrast to the STL set/map erase() method
     it removes values equal to these passed as a range. Furthermore, this method removes only
     one value for each one passed in the range, not all equal values.
 
-    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    <b>Exception-safety:</b> not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param rng      The range of values.
@@ -431,10 +431,10 @@ public:
         return result;
     }
 
-    /*!
+    /*
     Assign new elements to the rtree. This method replaces the content of the rtree.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
@@ -446,10 +446,10 @@ public:
         this->swap(foo);
     }*/
 
-    /*!
+    /*
     Assign new elements to the rtree. This method replaces the content of the rtree.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param rng      The range of values.
     */
@@ -461,9 +461,9 @@ public:
     }*/
 
     /*!
-    Find values meeting spatial predicates, e.g. intersecting some box.
+    <b>Description:</b> Finds values meeting spatial predicates, e.g. intersecting some box.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param pred     The spatial predicates. May be a Geometry (in this case default
                     predicate - intersects is used) or generated by bgi::covered_by(geometry),
@@ -493,9 +493,9 @@ public:
     }
 
     /*!
-    Find one value meeting distances predicates, e.g. nearest to some point.
+    <b>Description:</b> Finds one value meeting distances predicates, e.g. nearest to some point.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param dpred    The distances predicates. May be a Point. This is default case where Value which
                     nearest point is closest to Point is returned. May be a PointRelation which define
@@ -518,10 +518,10 @@ public:
     }
 
     /*!
-    Find one value meeting distances predicates and spatial predicates,
+    <b>Description:</b> Finds one value meeting distances predicates and spatial predicates,
     e.g. nearest to some point and intersecting some box.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param dpred    The distances predicates. May be a Point. This is default case where Value which
                     nearest point is closest to Point is returned. May be a PointRelation which define
@@ -550,9 +550,9 @@ public:
     }
 
     /*!
-    Find k values meeting distances predicates, e.g. k nearest values to some point.
+    <b>Description:</b> Finds k values meeting distances predicates, e.g. k nearest values to some point.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param dpred    The distances predicates. May be a Point. This is default case where Value which
                     nearest point is closest to Point is returned. May be a PointRelation which define
@@ -575,10 +575,10 @@ public:
     }
 
     /*!
-    Find k values meeting distances predicates and spatial predicates,
+    <b>Description:</b> Finds k values meeting distances predicates and spatial predicates,
     e.g. k nearest values to some point and intersecting some box.
 
-    \note Exception-safety: strong
+    <b>Exception-safety:</b> strong
 
     \param dpred    The distances predicates. May be a Point. This is default case where Value which
                     nearest point is closest to Point is returned. May be a PointRelation which define
@@ -608,9 +608,9 @@ public:
     }
 
     /*!
-    Returns the number of stored values.
+    <b>Description:</b> Returns the number of stored values.
 
-    \note Exception-safety: nothrow
+    <b>Exception-safety:</b> nothrow
 
     \return         The number of stored values.
     */
@@ -620,9 +620,9 @@ public:
     }
 
     /*!
-    Query if the container is empty.
+    <b>Description:</b> Query if the container is empty.
 
-    \note Exception-safety: nothrow
+    <b>Exception-safety:</b> nothrow
 
     \return         true if the container is empty.
     */
@@ -632,9 +632,9 @@ public:
     }
 
     /*!
-    Removes all values stored in the container.
+    <b>Description:</b> Removes all values stored in the container.
 
-    \note Exception-safety: nothrow.
+    <b>Exception-safety:</b> nothrow.
     */
     inline void clear()
     {
@@ -642,10 +642,10 @@ public:
     }
 
     /*!
-    Returns the box containing all values stored in the container.
+    <b>Description:</b> Returns the box containing all values stored in the container.
     If the container is empty the result of geometry::assign_inverse() is returned.
 
-    \note Exception-safety: nothrow (if Indexable's CoordinateType copy assignment doesn't throw),
+    <b>Exception-safety:</b> nothrow (if Indexable's CoordinateType copy assignment doesn't throw),
                             strong (if Indexable's CoordinateType copy assignment throws).
 
     \return     The box containing all values stored in the container or an invalid box if
@@ -669,10 +669,10 @@ public:
     }
 
     /*!
-    For indexable_type it returns the number of values which indexables equals the parameter.
+    <b>Description:</b> For indexable_type it returns the number of values which indexables equals the parameter.
     For value_type it returns the number of values which equals the parameter.
 
-    \note Exception-safety: nothrow.
+    <b>Exception-safety:</b> nothrow.
 
     \param      The value or indexable which will be counted.
 
@@ -693,9 +693,9 @@ public:
     }
 
     /*!
-    Returns parameters.
+    <b>Description:</b> Returns parameters.
 
-    \note Exception-safety: nothrow.
+    <b>Exception-safety:</b> nothrow.
 
     \return     The parameters object.
     */
@@ -705,9 +705,9 @@ public:
     }
 
     /*!
-    Returns the translator object.
+    <b>Description:</b> Returns the translator object.
 
-    \note Exception-safety: nothrow.
+    <b>Exception-safety:</b> nothrow.
 
     \return     The translator object.
     */
@@ -717,9 +717,9 @@ public:
     }
 
     /*!
-    Returns allocator used by the rtree.
+    <b>Description:</b> Returns allocator used by the rtree.
 
-    \note Exception-safety: nothrow
+    <b>Exception-safety:</b> nothrow
 
     \return     The allocator.
     */
@@ -732,11 +732,11 @@ public:
 private:
 #endif
     /*!
-    Apply a visitor to the nodes structure in order to perform some operator.
+    <b>Description:</b> Apply a visitor to the nodes structure in order to perform some operator.
     This function is not a part of the 'official' interface. However it makes
     possible e.g. to pass a visitor drawing the tree structure.
 
-    \note Exception-safety: the same as Visitor::operator().
+    <b>Exception-safety:</b> the same as Visitor::operator().
 
     \param visitor  The visitor object.
     */
@@ -748,10 +748,10 @@ private:
     }
 
     /*!
-    Returns the number of stored objects. Same as size()
+    <b>Description:</b> Returns the number of stored objects. Same as size()
     This function is not a part of the 'official' interface.
 
-    \note Exception-safety: nothrow
+    <b>Exception-safety:</b> nothrow
 
     \return     The number of stored objects.
     */
@@ -761,10 +761,10 @@ private:
     }
 
     /*!
-    Returns the depth of the R-tree.
+    <b>Description:</b> Returns the depth of the R-tree.
     This function is not a part of the 'official' interface.
 
-    \note Exception-safety: nothrow.
+    <b>Exception-safety:</b> nothrow.
 
     \return     The depth of the R-tree.
     */
@@ -775,9 +775,9 @@ private:
 
 private:
     /*!
-    Insert a value to the index. Root node must exist.
+    <b>Description:</b> Insert a value to the index. Root node must exist.
 
-    \note Exception-safety: basic
+    <b>Exception-safety:</b> basic
 
     \param value    The value which will be stored in the container.
     */
@@ -804,9 +804,9 @@ private:
     }
 
     /*!
-    Remove the value from the container.
+    <b>Description:</b> Remove the value from the container.
 
-    \note Exception-safety: basic
+    <b>Exception-safety:</b> basic
 
     \param value    The value which will be removed from the container.
     */
@@ -834,9 +834,9 @@ private:
     }
 
     /*!
-    Create an empty R-tree i.e. new empty root node and clear other attributes.
+    <b>Description:</b> Create an empty R-tree i.e. new empty root node and clear other attributes.
 
-    \note Exception-safety: strong.
+    <b>Exception-safety:</b> strong.
     */
     inline void raw_create()
     {
@@ -848,9 +848,9 @@ private:
     }
 
     /*!
-    Destroy the R-tree i.e. all nodes and clear attributes.
+    <b>Description:</b> Destroy the R-tree i.e. all nodes and clear attributes.
 
-    \note Exception-safety: nothrow.
+    <b>Exception-safety:</b> nothrow.
 
     \param t    The container which is going to be destroyed.
     */
@@ -868,10 +868,10 @@ private:
     }
 
     /*!
-    Copy the R-tree i.e. whole nodes structure, values and other attributes.
+    <b>Description:</b> Copy the R-tree i.e. whole nodes structure, values and other attributes.
     It uses destination's allocators to create the new structure.
 
-    \note Exception-safety: strong.
+    <b>Exception-safety:</b> strong.
 
     \param src    The source R-tree.
     \param dst    The destination R-tree.
@@ -904,9 +904,9 @@ private:
     }
 
     /*!
-    Find one value meeting distances and spatial predicates.
+    <b>Description:</b> Find one value meeting distances and spatial predicates.
 
-    \note Exception-safety: strong.
+    <b>Exception-safety:</b> strong.
     */
     template <typename DistancesPredicates, typename Predicates>
     inline size_type raw_nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
@@ -942,9 +942,9 @@ private:
     }
 
     /*!
-    Find k values meeting distances and spatial predicates.
+    <b>Description:</b> Find k values meeting distances and spatial predicates.
 
-    \note Exception-safety: strong.
+    <b>Exception-safety:</b> strong.
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
     inline size_type raw_nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
@@ -989,7 +989,7 @@ private:
 };
 
 /*!
-Insert a value to the index.
+<b>Description:</b> Insert a value to the index.
 
 \param tree The spatial index.
 \param v    The value which will be stored in the index.
@@ -1001,7 +1001,7 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Value co
 }
 
 /*!
-Insert a range of values to the index.
+<b>Description:</b> Insert a range of values to the index.
 
 \param tree     The spatial index.
 \param first    The beginning of the range of values.
@@ -1014,7 +1014,7 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Iterator
 }
 
 /*!
-Insert a range of values to the index.
+<b>Description:</b> Insert a range of values to the index.
 
 \param tree     The spatial index.
 \param rng      The range of values.
@@ -1026,7 +1026,7 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Range co
 }
 
 /*!
-Remove a value from the container. In contrast to the STL set/map erase() method
+<b>Description:</b> Remove a value from the container. In contrast to the STL set/map erase() method
 this function removes only one value from the container.
 
 \param tree The spatial index.
@@ -1042,7 +1042,7 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 }
 
 /*!
-Remove a range of values from the container. In contrast to the STL set/map erase() method
+<b>Description:</b> Remove a range of values from the container. In contrast to the STL set/map erase() method
 it doesn't take iterators pointing to values stored in this container. It removes values equal
 to these passed as a range. Furthermore this function removes only one value for each one passed
 in the range, not all equal values.
@@ -1061,7 +1061,7 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iter
 }
 
 /*!
-Remove a range of values from the container. In contrast to the STL set/map erase() method
+<b>Description:</b> Remove a range of values from the container. In contrast to the STL set/map erase() method
 it removes values equal to these passed as a range. Furthermore this method removes only
 one value for each one passed in the range, not all equal values.
 
@@ -1078,7 +1078,7 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
 }
 
 /*!
-Find values meeting spatial predicates.
+<b>Description:</b> Find values meeting spatial predicates.
 
 \param tree     The spatial index.
 \param pred     The spatial predicates.
@@ -1093,7 +1093,7 @@ inline size_t spatial_query(rtree<Value, Options, Translator, Allocator> const& 
 }
 
 /*!
-Find the value meeting distances predicates.
+<b>Description:</b> Find the value meeting distances predicates.
 
 \param tree     The spatial index.
 \param dpred    The distances predicates.
@@ -1108,7 +1108,7 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 }
 
 /*!
-Find the value meeting distances and spatial predicates.
+<b>Description:</b> Find the value meeting distances and spatial predicates.
 
 \param tree     The spatial index.
 \param dpred    The distances predicates.
@@ -1124,7 +1124,7 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 }
 
 /*!
-Find k values meeting distances predicates.
+<b>Description:</b> Find k values meeting distances predicates.
 
 \param tree     The spatial index.
 \param dpred    The distances predicates.
@@ -1140,7 +1140,7 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 }
 
 /*!
-Find k values meeting distances and spatial predicates.
+<b>Description:</b> Find k values meeting distances and spatial predicates.
 
 \param tree     The spatial index.
 \param dpred    The distances predicates.
@@ -1157,7 +1157,7 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 }
 
 /*!
-Remove all values from the index.
+<b>Description:</b> Remove all values from the index.
 
 \param tree     The spatial index.
 */
@@ -1168,7 +1168,7 @@ inline void clear(rtree<Value, Options, Translator, Allocator> & tree)
 }
 
 /*!
-Get the number of values stored in the index.
+<b>Description:</b> Get the number of values stored in the index.
 
 \param tree     The spatial index.
 
@@ -1181,7 +1181,7 @@ inline size_t size(rtree<Value, Options, Translator, Allocator> const& tree)
 }
 
 /*!
-Query if there are no values stored in the index.
+<b>Description:</b> Query if there are no values stored in the index.
 
 \param tree     The spatial index.
 
@@ -1194,7 +1194,7 @@ inline bool empty(rtree<Value, Options, Translator, Allocator> const& tree)
 }
 
 /*!
-Get the box containing all stored values or an invalid box if the index has no values.
+<b>Description:</b> Get the box containing all stored values or an invalid box if the index has no values.
 
 \param tree     The spatial index.
 

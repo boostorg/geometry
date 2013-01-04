@@ -8,18 +8,56 @@
 
 project geometry_index/doc ;
 
+import doxygen ;
 import boostbook ;
 import quickbook ;
 
+using auto-index ;
+
+path-constant images_location : html ;
+path-constant here : . ;
+
+doxygen autodoc
+    :
+    [ glob
+        ../boost/geometry/extensions/index/rtree/rtree.hpp
+#        ../boost/geometry/extensions/index/predicates.hpp
+#        ../boost/geometry/extensions/index/distance_predicates.hpp
+#        ../boost/geometry/extensions/index/inserter.hpp
+#        ../boost/geometry/extensions/index/adaptors/nearest_query.hpp
+#        ../boost/geometry/extensions/index/adaptors/spatial_query.hpp
+#        ../boost/geometry/extensions/index/translator/def.hpp
+#        ../boost/geometry/extensions/index/translator/index.hpp
+    ]
+    :
+    <doxygen:param>EXTRACT_ALL=NO
+    <doxygen:param>EXTRACT_PRIVATE=NO
+    <doxygen:param>HIDE_UNDOC_MEMBERS=YES
+    <doxygen:param>HIDE_UNDOC_CLASSES=YES
+    <doxygen:param>ENABLE_PREPROCESSING=YES
+    <doxygen:param>EXPAND_ONLY_PREDEF=YES
+    <doxygen:param>MACRO_EXPANSION=YES
+    <doxygen:param>"PREDEFINED=\"BOOST_RV_REF(T)=T &&\" \\
+                                \"BOOST_RV_REF_BEG=\" \\
+                                \"BOOST_RV_REF_END=&&\" \\
+                                \"BOOST_COPY_ASSIGN_REF(T)=const T &\" \\
+                                \"BOOST_RV_REF_2_TEMPL_ARGS(T,a,b)=T<a, b> &&\" \\
+                                \"BOOST_RV_REF_3_TEMPL_ARGS(T,a,b,c)=T<a,b,c>T<a,b,c> &&\" \\
+                                \"BOOST_FWD_REF(a)=a &&\""
+    <xsl:param>"boost.doxygen.reftitle=Header Reference"
+    ;
+
+xml index : index.qbk
+              :
+                 <include>../../tools/auto_index/include
+              ;
+
 boostbook geometry_index-doc
     :
-	index.qbk
+	index
 	:
     <dependency>Jamfile.v2
-#    <auto-index>off
-#    <auto-index-internal>on
-#    <auto-index-verbose>off
-#    <xsl:param>index.on.type=1
+
     <format>html
 	<format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/doc/html
     <xsl:param>chunk.section.depth=2
@@ -28,6 +66,15 @@ boostbook geometry_index-doc
     <xsl:param>toc.max.depth=2
     <xsl:param>generate.section.toc.level=4
     <xsl:param>boost.root=http://www.boost.org/doc/libs/release
+
+    <dependency>autodoc
+    <auto-index>on
+    <auto-index-verbose>on
+    <format>pdf:<auto-index-internal>off
+    <format>html:<auto-index-internal>on
+    <auto-index-script>$(here)/index.idx
+    <auto-index-prefix>"$(here)/.."
+
     <quickbook-define>enable_index
     <include>$(here)
     ;
