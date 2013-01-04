@@ -109,7 +109,6 @@ public:
             else
             {
                 BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root_node), "node must be the root");
-                BOOST_GEOMETRY_INDEX_ASSERT(m_is_value_removed, "value not found");
 
                 // reinsert elements from removed nodes (underflows)
                 reinsert_removed_nodes_elements();                                                                  // MAY THROW (V, E: alloc, copy, N: alloc)
@@ -157,6 +156,11 @@ public:
                     = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
             }
         }
+    }
+
+    bool is_value_removed() const
+    {
+        return m_is_value_removed;
     }
 
 private:

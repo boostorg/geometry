@@ -446,6 +446,42 @@ struct generate_input<3>
     }
 };
 
+// generate_value_outside
+
+template <typename Value, size_t Dimension>
+struct generate_value_outside_impl
+{};
+
+template <typename Value>
+struct generate_value_outside_impl<Value, 2>
+{
+    static Value apply()
+    {
+        //TODO - for size > 1 in generate_input<> this won't be outside
+        return generate_value<Value>::apply(13, 26);
+    }
+};
+
+template <typename Value>
+struct generate_value_outside_impl<Value, 3>
+{
+    static Value apply()
+    {
+        //TODO - for size > 1 in generate_input<> this won't be outside
+        return generate_value<Value>::apply(13, 26, 13);
+    }
+};
+
+template <typename Rtree>
+inline typename Rtree::value_type
+generate_value_outside()
+{
+    typedef typename Rtree::value_type V;
+    typedef typename Rtree::indexable_type I;
+
+    return generate_value_outside_impl<V, bgi::traits::dimension<I>::value>::apply();
+}
+
 template<typename Value, typename Algo, typename Box>
 void generate_rtree(bgi::rtree<Value, Algo> & tree, std::vector<Value> & input, Box & qbox)
 {
@@ -1006,56 +1042,69 @@ void test_remove(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input
 
     std::vector<Value> expected_output;
     tree.spatial_query(bgi::disjoint(qbox), std::back_inserter(expected_output));
+    size_t expected_removed_count = values_to_remove.size();
+
+    // Add value which is not stored in the Rtree
+    Value outsider = generate_value_outside<T>();
+    values_to_remove.push_back(outsider);
+    
+    {
+        T t(tree);
+        size_t r = 0;
+        BOOST_FOREACH(Value const& v, values_to_remove)
+            r += t.remove(v);
+        BOOST_CHECK( r == expected_removed_count );
+        std::vector<Value> output;
+        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
+        test_compare_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree);
+        size_t r = t.remove(values_to_remove.begin(), values_to_remove.end());
+        BOOST_CHECK( r == expected_removed_count );
+        std::vector<Value> output;
+        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
+        test_compare_outputs(t, output, expected_output);
+    }
+    {
+        T t(tree);
+        size_t r = t.remove(values_to_remove);
+        BOOST_CHECK( r == expected_removed_count );
+        std::vector<Value> output;
+        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
+        test_compare_outputs(t, output, expected_output);
+    }
 
     {
         T t(tree);
+        size_t r = 0;
         BOOST_FOREACH(Value const& v, values_to_remove)
-            t.remove(v);
-        std::vector<Value> output;
-        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
-        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
-        test_compare_outputs(t, output, expected_output);
-    }
-    {
-        T t(tree);
-        t.remove(values_to_remove.begin(), values_to_remove.end());
-        std::vector<Value> output;
-        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
-        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
-        test_compare_outputs(t, output, expected_output);
-    }
-    {
-        T t(tree);
-        t.remove(values_to_remove);
-        std::vector<Value> output;
-        t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
-        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
-        test_compare_outputs(t, output, expected_output);
-    }
-
-    {
-        T t(tree);
-        BOOST_FOREACH(Value const& v, values_to_remove)
-            bgi::remove(t, v);
+            r += bgi::remove(t, v);
+        BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
-        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
     {
         T t(tree);
-        bgi::remove(t, values_to_remove.begin(), values_to_remove.end());
+        size_t r = bgi::remove(t, values_to_remove.begin(), values_to_remove.end());
+        BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
-        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
     {
         T t(tree);
-        bgi::remove(t, values_to_remove);
+        size_t r = bgi::remove(t, values_to_remove);
+        BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
-        BOOST_CHECK( output.size() == tree.size() - values_to_remove.size() );
+        BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
 }
@@ -1222,9 +1271,10 @@ void test_count_rtree_values(Parameters const& parameters)
 
     BOOST_FOREACH(Value const& v, values_to_remove)
     {
-        t.remove(v);
+        size_t r = t.remove(v);
         --values_count;
 
+        BOOST_CHECK(1 == r);
         BOOST_CHECK(Value::counter() == values_count);
         BOOST_CHECK(t.size() + rest_count == values_count);
     }

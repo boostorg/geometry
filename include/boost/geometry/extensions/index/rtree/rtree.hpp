@@ -373,10 +373,12 @@ public:
     \note Exception-safety: basic
 
     \param value    The value which will be removed from the container.
+
+    \return         1 if the value was removed, 0 otherwise.
     */
-    inline void remove(value_type const& value)
+    inline size_type remove(value_type const& value)
     {
-        this->raw_remove(value);
+        return this->raw_remove(value);
     }
 
     /*!
@@ -386,12 +388,16 @@ public:
 
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
+
+    \return         The number of removed values.
     */
     template <typename Iterator>
-    inline void remove(Iterator first, Iterator last)
+    inline size_type remove(Iterator first, Iterator last)
     {
+        size_type result = 0;
         for ( ; first != last ; ++first )
-            this->raw_remove(*first);
+            result += this->raw_remove(*first);
+        return result;
     }
 
     /*!
@@ -400,13 +406,17 @@ public:
     \note Exception-safety: basic
 
     \param rng      The range of values.
+
+    \return         The number of removed values.
     */
     template <typename Range>
-    inline void remove(Range const& rng)
+    inline size_type remove(Range const& rng)
     {
+        size_type result = 0;
         typedef typename boost::range_const_iterator<Range>::type It;
         for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
-            this->raw_remove(*it);
+            result += this->raw_remove(*it);
+        return result;
     }
 
     /*!
@@ -787,7 +797,7 @@ private:
 
     \param value    The value which will be removed from the container.
     */
-    inline void raw_remove(value_type const& value)
+    inline size_type raw_remove(value_type const& value)
     {
         // TODO: awulkiew - assert for correct value (indexable) ?
         BOOST_GEOMETRY_INDEX_ASSERT(m_root, "The root must exist");
@@ -806,6 +816,8 @@ private:
 // TODO
 // If exception is thrown, m_values_count may be invalid
         --m_values_count;
+
+        return remove_v.is_value_removed() ? 1 : 0;
     }
 
     /*!
@@ -1005,11 +1017,14 @@ Remove a value from the index.
 
 \param tree The spatial index.
 \param v    The value which will be removed from the index.
+
+\return     1 if value was removed, 0 otherwise.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator>
-inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
+inline typename rtree<Value, Options, Translator, Allocator>::size_type
+remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 {
-    tree.remove(v);
+    return tree.remove(v);
 }
 
 /*!
@@ -1018,11 +1033,14 @@ Remove a range of values from the index.
 \param tree     The spatial index.
 \param first    The beginning of the range of values.
 \param last     The end of the range of values.
+
+\return         The number of removed values.
 */
 template<typename Value, typename Options, typename Translator, typename Allocator, typename Iterator>
-inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
+inline typename rtree<Value, Options, Translator, Allocator>::size_type
+remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
 {
-    tree.remove(first, last);
+    return tree.remove(first, last);
 }
 
 /*!
@@ -1030,11 +1048,14 @@ Remove a range of values from the index.
 
 \param tree     The spatial index.
 \param rng      The range of values.
+
+\return         The number of removed values.
 */
 template<typename Value, typename Options, typename Translator, typename Allocator, typename Range>
-inline void remove(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
+inline typename rtree<Value, Options, Translator, Allocator>::size_type
+remove(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
 {
-    tree.remove(rng);
+    return tree.remove(rng);
 }
 
 /*!
