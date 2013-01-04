@@ -319,7 +319,8 @@ public:
     /*!
     Insert a value to the index.
 
-    \note Exception-safety: basic
+    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+          an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param value    The value which will be stored in the container.
     */
@@ -334,7 +335,8 @@ public:
     /*!
     Insert a range of values to the index.
 
-    \note Exception-safety: basic
+    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
@@ -352,7 +354,8 @@ public:
     /*!
     Insert a range of values to the index.
 
-    \note Exception-safety: basic
+    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param rng      The range of values.
     */
@@ -371,7 +374,8 @@ public:
     Remove a value from the container. In contrast to the STL set/map erase() method
     this method removes only one value from the container.
 
-    \note Exception-safety: basic
+    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param value    The value which will be removed from the container.
 
@@ -388,7 +392,8 @@ public:
     to these passed as a range. Furthermore this method removes only one value for each one passed
     in the range, not all equal values.
 
-    \note Exception-safety: basic
+    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
@@ -409,7 +414,8 @@ public:
     it removes values equal to these passed as a range. Furthermore, this method removes only
     one value for each one passed in the range, not all equal values.
 
-    \note Exception-safety: basic
+    \note Exception-safety: not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
     \param rng      The range of values.
 
@@ -639,7 +645,8 @@ public:
     Returns the box containing all values stored in the container.
     If the container is empty the result of geometry::assign_inverse() is returned.
 
-    \note Exception-safety: nothrow.
+    \note Exception-safety: nothrow (if Indexable's CoordinateType copy assignment doesn't throw),
+                            strong (if Indexable's CoordinateType copy assignment throws).
 
     \return     The box containing all values stored in the container or an invalid box if
                 there are no values in the container.
