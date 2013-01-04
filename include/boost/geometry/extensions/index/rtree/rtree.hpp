@@ -368,7 +368,8 @@ public:
     }
 
     /*!
-    Remove a value from the container.
+    Remove a value from the container. In contrast to the STL set/map erase() method
+    this method removes only one value from the container.
 
     \note Exception-safety: basic
 
@@ -382,7 +383,10 @@ public:
     }
 
     /*!
-    Remove a range of values from the container.
+    Remove a range of values from the container. In contrast to the STL set/map erase() method
+    it doesn't take iterators pointing to values stored in this container. It removes values equal
+    to these passed as a range. Furthermore this method removes only one value for each one passed
+    in the range, not all equal values.
 
     \note Exception-safety: basic
 
@@ -401,7 +405,9 @@ public:
     }
 
     /*!
-    Remove a range of values from the container.
+    Remove a range of values from the container. In contrast to the STL set/map erase() method
+    it removes values equal to these passed as a range. Furthermore, this method removes only
+    one value for each one passed in the range, not all equal values.
 
     \note Exception-safety: basic
 
@@ -1013,7 +1019,8 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Range co
 }
 
 /*!
-Remove a value from the index.
+Remove a value from the container. In contrast to the STL set/map erase() method
+this function removes only one value from the container.
 
 \param tree The spatial index.
 \param v    The value which will be removed from the index.
@@ -1028,7 +1035,10 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 }
 
 /*!
-Remove a range of values from the index.
+Remove a range of values from the container. In contrast to the STL set/map erase() method
+it doesn't take iterators pointing to values stored in this container. It removes values equal
+to these passed as a range. Furthermore this function removes only one value for each one passed
+in the range, not all equal values.
 
 \param tree     The spatial index.
 \param first    The beginning of the range of values.
@@ -1044,7 +1054,9 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iter
 }
 
 /*!
-Remove a range of values from the index.
+Remove a range of values from the container. In contrast to the STL set/map erase() method
+it removes values equal to these passed as a range. Furthermore this method removes only
+one value for each one passed in the range, not all equal values.
 
 \param tree     The spatial index.
 \param rng      The range of values.
