@@ -143,8 +143,8 @@ struct area : detail::calculate_null
 };
 
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct area<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, void>
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Unused>
+struct area<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Unused>
 {
     template <typename Strategy>
     struct visitor: boost::static_visitor<typename Strategy::return_type>
