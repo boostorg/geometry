@@ -24,10 +24,12 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
-
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/geometries/variant.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 
 namespace boost { namespace geometry
@@ -106,6 +108,30 @@ template
 >
 struct num_points: not_implemented<Tag>
 {};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Unused>
+struct num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Unused>
+{
+    struct visitor: boost::static_visitor<std::size_t>
+    {
+        bool m_add_for_open;
+
+        visitor(bool add_for_open): m_add_for_open(add_for_open) {}
+
+        template <typename Geometry>
+        typename std::size_t operator()(Geometry const& geometry) const
+        {
+            return dispatch::num_points<Geometry>::apply(geometry, m_add_for_open);
+        }
+    };
+
+    template <typename Variant>
+    static inline std::size_t
+    apply(Variant const& variant_geometry, bool add_for_open)
+    {
+        return boost::apply_visitor(visitor(add_for_open), variant_geometry);
+    }
+};
 
 template <typename Geometry>
 struct num_points<Geometry, point_tag>
