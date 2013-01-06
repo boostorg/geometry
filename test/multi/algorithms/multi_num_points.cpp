@@ -19,16 +19,26 @@
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
+#include <boost/variant/variant.hpp>
+
+
 template <typename Geometry>
-void test_geometry(std::string const& wkt, int expected)
+void check_geometry(Geometry const& geometry, std::string const& wkt, int expected)
 {
-    Geometry geometry;
-    bg::read_wkt(wkt, geometry);
     int detected = bg::num_points(geometry);
     BOOST_CHECK_MESSAGE(detected == expected,
         "num_points: " << wkt
         << " -> Expected: " << expected
         << " detected: " << detected);
+}
+
+template <typename Geometry>
+void test_geometry(std::string const& wkt, int expected)
+{
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+    check_geometry(geometry, wkt, expected);
+    check_geometry(boost::variant<Geometry>(geometry), wkt, expected);
 }
 
 
