@@ -857,6 +857,12 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
     }
 
     test_exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::nearest_queried(pt, k));
+
+    std::vector<Value> output2(k, generate_value_default<Value>::apply());
+    size_t found_count = rtree.nearest_query(pt, k, output2.begin());
+    output2.resize(found_count, generate_value_default<Value>::apply());
+
+    test_exactly_the_same_outputs(rtree, output, output2);
 }
 
 // rtree nearest not found

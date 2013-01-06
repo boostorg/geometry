@@ -94,6 +94,7 @@ int main()
 
         std::vector<B> result;
         result.reserve(100);
+        B result_one;
 
         // query test
         {
@@ -117,7 +118,7 @@ int main()
 
         // searching test
         {
-            std::cout << "nearest 5 searching time test... ("
+            std::cout << "nearest 10 searching time test... ("
                 << queries_count / 10 << ")\n";
             tim.restart();    
             size_t temp = 0;
@@ -127,6 +128,21 @@ int main()
                 float y = coords[i].second + 100;
                 result.clear();
                 temp += t.nearest_query(P(x, y), 5, std::back_inserter(result));
+            }
+            std::cout << "time: " << tim.elapsed() << "s\n";
+            std::cout << "found: " << temp << "\n";
+        }
+
+        {
+            std::cout << "nearest 1 searching time test... ("
+                << queries_count / 10 << ")\n";
+            tim.restart();    
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count / 10 ; ++i )
+            {
+                float x = coords[i].first + 100;
+                float y = coords[i].second + 100;
+                temp += t.nearest_query(P(x, y), result_one);
             }
             std::cout << "time: " << tim.elapsed() << "s\n";
             std::cout << "found: " << temp << "\n";

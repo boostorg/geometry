@@ -33,7 +33,7 @@ public:
         typename translator::indexable_type<Translator>::type
     >::type distance_type;
 
-    inline nearest_query_result_one(Value const& value)
+    inline nearest_query_result_one(Value & value)
         : m_value(value)
         , m_comp_dist((std::numeric_limits<distance_type>::max)())
     {}
@@ -57,18 +57,17 @@ public:
         return m_comp_dist;
     }
 
-    inline size_t get(Value & v)
+    inline size_t finish()
     {
-        v = m_value;
         return is_comparable_distance_valid() ? 1 : 0;
     }
 
 private:
-    Value m_value;
+    Value & m_value;
     distance_type m_comp_dist;
 };
 
-template <typename Value, typename Translator, typename Point>
+template <typename Value, typename Translator, typename Point, typename OutIt>
 struct nearest_query_result_k
 {
 public:
@@ -77,8 +76,8 @@ public:
         typename translator::indexable_type<Translator>::type
     >::type distance_type;
 
-    inline explicit nearest_query_result_k(size_t k)
-        : m_count(k)
+    inline explicit nearest_query_result_k(size_t k, OutIt out_it)
+        : m_count(k), m_out_it(out_it)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(0 < m_count, "Number of neighbors should be greater than 0");
 
@@ -122,12 +121,11 @@ public:
             : m_neighbors.front().first;
     }
 
-    template <typename OutIter>
-    inline size_t get(OutIter & out_it)
+    inline size_t finish()
     {
         typedef typename std::vector< std::pair<distance_type, Value> >::const_iterator neighbors_iterator;
-        for ( neighbors_iterator it = m_neighbors.begin() ; it != m_neighbors.end() ; ++it )
-            *out_it = it->second;
+        for ( neighbors_iterator it = m_neighbors.begin() ; it != m_neighbors.end() ; ++it, ++m_out_it )
+            *m_out_it = it->second;
 
         return m_neighbors.size();
     }
@@ -141,6 +139,8 @@ private:
     }
 
     size_t m_count;
+    OutIt m_out_it;
+
     std::vector< std::pair<distance_type, Value> > m_neighbors;
     distance_type m_biggest_comp_dist;
 };

@@ -938,7 +938,7 @@ private:
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
-        return result.get(v);
+        return result.finish();
     }
 
     /*!
@@ -958,10 +958,11 @@ private:
         typedef detail::rtree::visitors::nearest_query_result_k<
             value_type,
             translator_type,
-            point_type
+            point_type,
+            OutIter
         > result_type;
 
-        result_type result(k);
+        result_type result(k, out_it);
 
         detail::rtree::visitors::nearest_query<
             value_type,
@@ -976,7 +977,7 @@ private:
 
         detail::rtree::apply_visitor(nearest_v, *m_root);
 
-        return result.get(out_it);
+        return result.finish();
     }
 
     translator_type m_translator;
