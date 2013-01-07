@@ -14,9 +14,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP
 
-#include <boost/mpl/assert.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -84,14 +84,8 @@ template
     typename Geometry,
     typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
 >
-struct clear
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
+struct clear: not_implemented<Tag>
+{};
 
 // Point/box/segment do not have clear. So specialize to do nothing.
 template <typename Geometry>
