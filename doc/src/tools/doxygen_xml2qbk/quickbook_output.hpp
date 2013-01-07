@@ -743,7 +743,7 @@ void quickbook_output_detail_member(class_or_struct const& cos,
                 {
                     if (!p.skip)
                     {
-                        out << "[[*" << p.fulltype << "*]['" << p.name << "'][" << p.brief_description << "]]"<< std::endl;
+                        out << "[[ *" << p.fulltype << "* ][ /" << p.name << "/ ][" << p.brief_description << "]]"<< std::endl;
                     }
                 }
                 out << "]" << std::endl;
