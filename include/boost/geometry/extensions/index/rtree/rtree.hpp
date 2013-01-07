@@ -53,6 +53,8 @@
 namespace boost { namespace geometry { namespace index {
 
 /*!
+\brief The R-tree spatial index.
+
 The R-tree spatial index. This is self-balancing spatial index capable to store various types
 of Values and balancing algorithms.
 
@@ -112,9 +114,9 @@ public:
     \param translator   The translator object.
     \param allocator    The allocator object.
     */
-    inline explicit rtree(Parameters parameters = Parameters(),
+    inline explicit rtree(parameters_type parameters = parameters_type(),
                           translator_type const& translator = translator_type(),
-                          Allocator allocator = Allocator())
+                          allocator_type allocator = allocator_type())
         : m_translator(translator)                                          // SHOULDN'T THROW
         , m_parameters(parameters)
         , m_allocators(allocator)
@@ -135,7 +137,10 @@ public:
     \param allocator    The allocator object.
     */
     template<typename Iterator>
-    inline rtree(Iterator first, Iterator last, Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
+    inline rtree(Iterator first, Iterator last,
+                 parameters_type parameters = parameters_type(),
+                 translator_type const& translator = translator_type(),
+                 allocator_type allocator = allocator_type())
         : m_translator(translator)                                          // SHOULDN'T THROW
         , m_parameters(parameters)
         , m_allocators(allocator)
@@ -165,7 +170,10 @@ public:
     \param allocator    The allocator object.
     */
     template<typename Range>
-    inline rtree(Range const& rng, Parameters parameters = Parameters(), translator_type const& translator = translator_type(), Allocator allocator = std::allocator<value_type>())
+    inline rtree(Range const& rng,
+                 parameters_type parameters = parameters_type(),
+                 translator_type const& translator = translator_type(),
+                 allocator_type allocator = allocator_type())
         : m_translator(translator)                                          // SHOULDN'T THROW
         , m_parameters(parameters)
         , m_allocators(allocator)
@@ -195,7 +203,9 @@ public:
     }
 
     /*!
-    \brief  The copy constructor. It uses parameters, translator and allocator from the source tree.
+    \brief  The copy constructor.
+
+    The copy constructor. It uses parameters, translator and allocator from the source tree.
 
     \exception strong
 
@@ -222,7 +232,7 @@ public:
     \param src          The rtree which content will be copied.
     \param allocator    The allocator which will be used.
     */
-    inline rtree(rtree const& src, Allocator const& allocator)
+    inline rtree(rtree const& src, allocator_type const& allocator)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
         , m_parameters(src.m_parameters)
         , m_allocators(allocator)
@@ -234,7 +244,9 @@ public:
     }
 
     /*!
-    \brief The moving constructor. It uses parameters, translator and allocator from the source tree.
+    \brief The moving constructor.
+
+    The moving constructor. It uses parameters, translator and allocator from the source tree.
 
     \exception nothrow
 
@@ -255,7 +267,9 @@ public:
     }
 
     /*!
-    \brief The assignment operator. It uses parameters and translator from the source tree.
+    \brief The assignment operator.
+
+    The assignment operator. It uses parameters and translator from the source tree.
 
     \exception strong
 
@@ -275,7 +289,9 @@ public:
     }
 
     /*!
-    \brief The moving assignment. It uses parameters and translator from the source tree.
+    \brief The moving assignment.
+
+    The moving assignment. It uses parameters and translator from the source tree.
 
     \exception nothrow (if allocators are equal), strong (if allocators aren't equal)
 
@@ -313,7 +329,9 @@ public:
     }
 
     /*!
-    \brief Swaps contents of two rtrees. Parameters, translator and allocators are swapped as well.
+    \brief Swaps contents of two rtrees.
+
+    Swaps contents of two rtrees. Parameters, translator and allocators are swapped as well.
 
     \exception nothrow
 
@@ -387,7 +405,9 @@ public:
     }
 
     /*!
-    \brief Remove a value from the container. In contrast to the STL set/map erase() method
+    \brief Remove a value from the container.
+
+    In contrast to the STL set/map erase() method
     this method removes only one value from the container.
 
     \exception not safe -  if this operation throws, the R-tree may be left in
@@ -403,7 +423,9 @@ public:
     }
 
     /*!
-    \brief Remove a range of values from the container. In contrast to the STL set/map erase() method
+    \brief Remove a range of values from the container.
+
+    In contrast to the STL set/map erase() method
     it doesn't take iterators pointing to values stored in this container. It removes values equal
     to these passed as a range. Furthermore this method removes only one value for each one passed
     in the range, not all equal values.
@@ -426,7 +448,9 @@ public:
     }
 
     /*!
-    \brief Remove a range of values from the container. In contrast to the STL set/map erase() method
+    \brief Remove a range of values from the container.
+
+    In contrast to the STL set/map erase() method
     it removes values equal to these passed as a range. Furthermore, this method removes only
     one value for each one passed in the range, not all equal values.
 
@@ -477,18 +501,19 @@ public:
     }*/
 
     /*!
-    \brief Finds values meeting spatial predicates, e.g. intersecting some box.
+    \brief Finds values meeting spatial predicates, e.g. intersecting some Box.
+
+    Spatial predicates may be a Geometry (in this case default
+    predicate - intersects is used) or generated by bgi::covered_by(geometry),
+    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
+    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
+    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
+    or bgi::value(func). Those predicates may be passed together in std::pair
+    or boost::tuple.
 
     \exception strong
 
-    \param pred     The spatial predicates. May be a Geometry (in this case default
-                    predicate - intersects is used) or generated by bgi::covered_by(geometry),
-                    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
-                    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
-                    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
-                    or bgi::value(func). Those predicates may be passed together in std::pair
-                    or boost::tuple.
-                    
+    \param pred     The spatial predicates or a Geometry.
     \param out_it   The output iterator of the result range. E.g. an iterator generated by
                     std::back_inserter(container)
 
@@ -509,19 +534,21 @@ public:
     }
 
     /*!
-    \brief Finds one value meeting distances predicates, e.g. nearest to some point.
+    \brief Finds one value meeting distances predicates, e.g. nearest to some Point.
+
+    The distances predicates may be a Point. This is default case where Value which
+    nearest point is closest to Point is returned. May be a PointRelation which define
+    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
+    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
+    bounds. E.g. that some distance must be between min_distance and max_distance. This may
+    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
+    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
+    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
+    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
 
     \exception strong
 
-    \param dpred    The distances predicates. May be a Point. This is default case where Value which
-                    nearest point is closest to Point is returned. May be a PointRelation which define
-                    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
-                    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
-                    bounds. E.g. that some distance must be between min_distance and max_distance. This may
-                    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
-                    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
-                    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
-                    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+    \param dpred    The distances predicates or a Point.
 
     \param v        The reference to the object which will contain the result.
 
@@ -535,26 +562,30 @@ public:
 
     /*!
     \brief Finds one value meeting distances predicates and spatial predicates,
-    e.g. nearest to some point and intersecting some box.
+    e.g. nearest to some Point and intersecting some Box.
+
+    The distances predicates may be a Point. This is default case where Value which
+    nearest point is closest to Point is returned. May be a PointRelation which define
+    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
+    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
+    bounds. E.g. that some distance must be between min_distance and max_distance. This may
+    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
+    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
+    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
+    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+
+    The spatial predicates. May be a Geometry (in this case default
+    predicate - intersects is used) or generated by bgi::covered_by(geometry),
+    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
+    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
+    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
+    or bgi::value(func). Those predicates may be passed together in std::pair
+    or boost::tuple.
 
     \exception strong
 
-    \param dpred    The distances predicates. May be a Point. This is default case where Value which
-                    nearest point is closest to Point is returned. May be a PointRelation which define
-                    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
-                    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
-                    bounds. E.g. that some distance must be between min_distance and max_distance. This may
-                    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
-                    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
-                    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
-                    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
-    \param pred     The spatial predicates. May be a Geometry (in this case default
-                    predicate - intersects is used) or generated by bgi::covered_by(geometry),
-                    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
-                    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
-                    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
-                    or bgi::value(func). Those predicates may be passed together in std::pair
-                    or boost::tuple.
+    \param dpred    The distances predicates or a Point.
+    \param pred     The spatial predicates or a Geometry
     \param v        The reference to the object which will contain the result.
 
     \return         The number of values found.
@@ -566,19 +597,21 @@ public:
     }
 
     /*!
-    \brief Finds k values meeting distances predicates, e.g. k nearest values to some point.
+    \brief Finds k values meeting distances predicates, e.g. k nearest values to some Point.
+
+    The distances predicates. May be a Point. This is default case where Value which
+    nearest point is closest to Point is returned. May be a PointRelation which define
+    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
+    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
+    bounds. E.g. that some distance must be between min_distance and max_distance. This may
+    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
+    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
+    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
+    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
 
     \exception strong
 
-    \param dpred    The distances predicates. May be a Point. This is default case where Value which
-                    nearest point is closest to Point is returned. May be a PointRelation which define
-                    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
-                    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
-                    bounds. E.g. that some distance must be between min_distance and max_distance. This may
-                    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
-                    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
-                    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
-                    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+    \param dpred    The distances predicates or a Point.
     \param k        The max number of values.
     \param out_it   The output iterator of the result range. E.g. a back_insert_iterator.
 
@@ -592,27 +625,31 @@ public:
 
     /*!
     \brief Finds k values meeting distances predicates and spatial predicates,
-    e.g. k nearest values to some point and intersecting some box.
+    e.g. k nearest values to some Point and intersecting some Box.
+
+    The distances predicates may be a Point. This is default case where Value which
+    nearest point is closest to Point is returned. May be a PointRelation which define
+    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
+    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
+    bounds. E.g. that some distance must be between min_distance and max_distance. This may
+    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
+    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
+    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
+    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+
+    The spatial predicates. May be a Geometry (in this case default
+    predicate - intersects is used) or generated by bgi::covered_by(geometry),
+    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
+    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
+    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
+    or bgi::value(func). Those predicates may be passed together in std::pair
+    or boost::tuple.
 
     \exception strong
 
-    \param dpred    The distances predicates. May be a Point. This is default case where Value which
-                    nearest point is closest to Point is returned. May be a PointRelation which define
-                    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
-                    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
-                    bounds. E.g. that some distance must be between min_distance and max_distance. This may
-                    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
-                    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
-                    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
-                    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+    \param dpred    The distances predicates or a Point
     \param k        The max number of values.
-    \param pred     The spatial predicates. May be a Geometry (in this case default
-                    predicate - intersects is used) or generated by bgi::covered_by(geometry),
-                    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
-                    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
-                    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
-                    or bgi::value(func). Those predicates may be passed together in std::pair
-                    or boost::tuple.
+    \param pred     The spatial predicates or a Geometry.
     \param out_it   The output iterator of the result range. E.g. a back_insert_iterator.
 
     \return         The number of values found.
@@ -749,6 +786,7 @@ private:
 #endif
     /*!
     \brief Apply a visitor to the nodes structure in order to perform some operator.
+
     This function is not a part of the 'official' interface. However it makes
     possible e.g. to pass a visitor drawing the tree structure.
 
@@ -764,7 +802,8 @@ private:
     }
 
     /*!
-    \brief Returns the number of stored objects. Same as size()
+    \brief Returns the number of stored objects. Same as size().
+
     This function is not a part of the 'official' interface.
 
     \exception nothrow
@@ -778,6 +817,7 @@ private:
 
     /*!
     \brief Returns the depth of the R-tree.
+
     This function is not a part of the 'official' interface.
 
     \exception nothrow.
@@ -791,7 +831,9 @@ private:
 
 private:
     /*!
-    \brief Insert a value to the index. Root node must exist.
+    \pre Root node must exist - m_root != 0.
+
+    \brief Insert a value to the index.
 
     \exception basic
 
