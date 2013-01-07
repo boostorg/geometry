@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Reference</title>
 <link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
 <link rel="up" href="../r_tree.html" title="R-tree">
 <link rel="prev" href="exception_safety.html" title="Exception safety">
@@ -31,28 +31,48 @@
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree" title="boost::geometry::index::rtree">boost::geometry::index::rtree</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp9942920"></a><a class="indexterm" name="idp9943232"></a><a class="indexterm" name="idp9943544"></a><a class="indexterm" name="idp9943856"></a>
+          <a class="indexterm" name="id853103"></a><a class="indexterm" name="id853107"></a><a class="indexterm" name="id853112"></a><a class="indexterm" name="id853117"></a>
 The R-tree spatial index.
         </p>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h0"></a>
-          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.description">Description</a>
+          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.description">Description</a>
         </h6>
 <p>
           The R-tree spatial index. This is self-balancing spatial index capable
           to store various types of Values and balancing algorithms.
         </p>
+<p>
+          The user must pass a type defining the Parameters which will be used in
+          rtree creation process. This type is used e.g. to specify balancing algorithm
+          with specific parameters like min and max number of elements in node. Predefined
+          algorithms with compile-time parameters are: bgi::linear&lt;MinElements,
+          MaxElements&gt;, bgi::quadratic&lt;MinElements, MaxElements&gt;, bgi::rstar&lt;MinElements,
+          MaxElements, OverlapCostThreshold = 0, ReinsertedElements = MaxElements
+          * 0.3&gt;. Predefined algorithms with run-time parameters are: bgi::runtime::linear,
+          bgi::runtime::quadratic, bgi::runtime::rstar.
+        </p>
+<p>
+          The Translator translates from Value to Indexable each time r-tree requires
+          it. Which means that this operation is done for each Value access. Therefore
+          the Translator should return the Indexable by const reference instead of
+          a value. Default translator can translate all types adapted to Point or
+          Box concepts (which are Indexables). It also handles std::pair&lt;Indexable,
+          T&gt;, pointers, smart pointers, and iterators. E.g. If std::pair&lt;Box,
+          int&gt; is stored, the default translator translates from std::pair&lt;Box,
+          int&gt; const&amp; to Box const&amp;.
+        </p>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h1"></a>
-          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis">Synopsis</a>
+          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis">Synopsis</a>
         </h6>
 <p>
 </p>
 <pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Value</span><span class="special">,</span>
          <span class="keyword">typename</span> <span class="identifier">Parameters</span><span class="special">,</span>
-         <span class="keyword">typename</span> <span class="identifier">Translator</span><span class="special">,</span>
-         <span class="keyword">typename</span> <span class="identifier">Allocator</span><span class="special">&gt;</span>
-<span class="keyword">class</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span>
+         <span class="keyword">typename</span> <span class="identifier">Translator</span> <span class="special">=</span> <span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;,</span>
+         <span class="keyword">typename</span> <span class="identifier">Allocator</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;&gt;</span>
+<span class="keyword">class</span> <span class="identifier">rtree</span>
 <span class="special">{</span>
   <span class="comment">// ...</span>
 <span class="special">};</span>
@@ -61,12 +81,11 @@ The R-tree spatial index.
         </p>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h2"></a>
-          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_">Template
+          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_">Template
           parameter(s)</a>
         </h6>
 <div class="informaltable"><table class="table">
 <colgroup>
-<col>
 <col>
 <col>
 </colgroup>
@@ -78,11 +97,6 @@ The R-tree spatial index.
                 </th>
 <th>
                   <p>
-                    Default
-                  </p>
-                </th>
-<th>
-                  <p>
                     Description
                   </p>
                 </th>
@@ -91,12 +105,8 @@ The R-tree spatial index.
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">Value</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">Value</span></code>
                   </p>
-                </td>
-<td>
                 </td>
 <td>
                   <p>
@@ -107,72 +117,37 @@ The R-tree spatial index.
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">Parameters</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">Parameters</span></code>
                   </p>
                 </td>
 <td>
-                </td>
-<td>
                   <p>
-                    Compile-time parameters. The user must pass a type defining the
-                    Parameters which will be used in rtree creation process. This
-                    type is used e.g. to specify balancing algorithm with compile-time
-                    parameters like min and max number of elements in node. Predefined
-                    Algorithms/Parameters are: bgi::linear&lt;MinElements, MaxElements&gt;,
-                    bgi::quadratic&lt;MinElements, MaxElements&gt;, bgi::rstar&lt;MinElements,
-                    MaxElements, OverlapCostThreshold = 0, ReinsertedElements = MaxElements
-                    * 0.3&gt;.
+                    Compile-time parameters.
                   </p>
                 </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">Translator</span></pre>
-<p>
-                  </p>
-                </td>
-<td>
-                  <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">Translator</span></code>
                   </p>
                 </td>
 <td>
                   <p>
                     The type of the translator which translates from Value to Indexable.
-                    This translation is done each time the r-tree wants to know Value's
-                    Indexable. Default translator can translate all types adapted
-                    to Point or Box concepts (which are Indexables). It also handles
-                    std::pair&lt;Indexable, T&gt;, pointers, smart pointers, and
-                    iterators. E.g. If std::pair&lt;Box, int&gt; is stored, the default
-                    translator translates from std::pair&lt;Box, int&gt; const&amp;
-                    to Box const&amp;.
                   </p>
                 </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">Allocator</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">Allocator</span></code>
                   </p>
                 </td>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></pre>
-<p>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The allocator.
+                    The allocator used to allocate/deallocate memory, construct/destroy
+                    nodes and Values.
                   </p>
                 </td>
 </tr>
@@ -180,11 +155,119 @@ The R-tree spatial index.
 </table></div>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h3"></a>
-          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s_">Constructor(s)</a>
+          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.typedef_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.typedef_s_">Typedef(s)</a>
         </h6>
 <div class="informaltable"><table class="table">
 <colgroup>
 <col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                  <p>
+                    Type
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Description
+                  </p>
+                </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                  <p>
+                    <code class="computeroutput"><span class="identifier">value_type</span></code>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    The type of Value stored in the container.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <code class="computeroutput"><span class="identifier">parameters_type</span></code>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    R-tree parameters type.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <code class="computeroutput"><span class="identifier">translator_type</span></code>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    Value to Indexable Translator type.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <code class="computeroutput"><span class="identifier">allocator_type</span></code>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    The type of allocator used by the container.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <code class="computeroutput"><span class="identifier">size_type</span></code>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    Unsigned integral type used by the container.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <code class="computeroutput"><span class="identifier">indexable_type</span></code>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    The Indexable type to which Value is translated.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <code class="computeroutput"><span class="identifier">box_type</span></code>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    The Box type used by the R-tree.
+                  </p>
+                </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h4"></a>
+          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s__and_destructor"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s__and_destructor">Constructor(s)
+          and destructor</a>
+        </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
 <col>
 <col>
 </colgroup>
@@ -199,21 +282,12 @@ The R-tree spatial index.
                     Description
                   </p>
                 </th>
-<th>
-                  <p>
-                    Parameters
-                  </p>
-                </th>
 </tr></thead>
 <tbody>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
-      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
-      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">rtree</span><span class="special">()</span></code>
                   </p>
                 </td>
 <td>
@@ -221,32 +295,12 @@ The R-tree spatial index.
                     The constructor.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>parameters_type</strong></span>: <span class="emphasis"><em>parameters</em></span>:
-                    The parameters object.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>translator_type const &amp;</strong></span>:
-                    <span class="emphasis"><em>translator</em></span>: The translator object.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>allocator_type</strong></span>: <span class="emphasis"><em>allocator</em></span>:
-                    The allocator object.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
-<span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span>
-      <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">,</span>
-      <span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
-      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
-      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Iterator</span><span class="special">,</span>
+                    <span class="identifier">Iterator</span><span class="special">)</span></code>
                   </p>
                 </td>
 <td>
@@ -254,39 +308,12 @@ The R-tree spatial index.
                     The constructor.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>Iterator</strong></span>: <span class="emphasis"><em>first</em></span>:
-                    The beginning of the range of Values.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>Iterator</strong></span>: <span class="emphasis"><em>last</em></span>:
-                    The end of the range of Values.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>parameters_type</strong></span>: <span class="emphasis"><em>parameters</em></span>:
-                    The parameters object.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>translator_type const &amp;</strong></span>:
-                    <span class="emphasis"><em>translator</em></span>: The translator object.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>allocator_type</strong></span>: <span class="emphasis"><em>allocator</em></span>:
-                    The allocator object.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Range</span><span class="special">&gt;</span>
-<span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">rng</span><span class="special">,</span>
-      <span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
-      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
-      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -294,31 +321,24 @@ The R-tree spatial index.
                     The constructor.
                   </p>
                 </td>
+</tr>
+<tr>
 <td>
                   <p>
-                    <span class="bold"><strong>Range const &amp;</strong></span>: <span class="emphasis"><em>rng</em></span>:
-                    The range of Values.
+                    <code class="computeroutput"><span class="special">~</span><span class="identifier">rtree</span><span class="special">()</span></code>
                   </p>
+                </td>
+<td>
                   <p>
-                    <span class="bold"><strong>parameters_type</strong></span>: <span class="emphasis"><em>parameters</em></span>:
-                    The parameters object.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>translator_type const &amp;</strong></span>:
-                    <span class="emphasis"><em>translator</em></span>: The translator object.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>allocator_type</strong></span>: <span class="emphasis"><em>allocator</em></span>:
-                    The allocator object.
+                    The destructor.
                   </p>
                 </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -326,19 +346,13 @@ The R-tree spatial index.
                     The copy constructor.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>rtree const &amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
-                    The rtree which content will be copied.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">,</span> <span class="identifier">allocator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">allocator</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span>
+                    <span class="special">&amp;,</span> <span class="identifier">allocator_type</span>
+                    <span class="keyword">const</span> <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -347,23 +361,11 @@ The R-tree spatial index.
                     the source tree.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>rtree const &amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
-                    The rtree which content will be copied.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>allocator_type const &amp;</strong></span>:
-                    <span class="emphasis"><em>allocator</em></span>: The allocator which will be used.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -371,24 +373,15 @@ The R-tree spatial index.
                     The moving constructor.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>rtree &amp;&amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
-                    The rtree which content will be moved.
-                  </p>
-                </td>
 </tr>
 </tbody>
 </table></div>
 <h6>
-<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h4"></a>
-          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.member_function_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.member_function_s_">Member
-          Function(s)</a>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h5"></a>
+          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.member_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.member_s_">Member(s)</a>
         </h6>
 <div class="informaltable"><table class="table">
 <colgroup>
-<col>
-<col>
 <col>
 <col>
 </colgroup>
@@ -403,41 +396,13 @@ The R-tree spatial index.
                     Description
                   </p>
                 </th>
-<th>
-                  <p>
-                    Parameters
-                  </p>
-                </th>
-<th>
-                  <p>
-                    Returns
-                  </p>
-                </th>
 </tr></thead>
 <tbody>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="special">~</span><span class="identifier">rtree</span><span class="special">()</span></pre>
-<p>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The destructor.
-                  </p>
-                </td>
-<td>
-                </td>
-<td class="auto-generated">&#160;</td>
-</tr>
-<tr>
-<td>
-                  <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="keyword">const</span> <span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="keyword">operator</span><span class="special">=(</span><span class="keyword">const</span> <span class="identifier">rtree</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -445,20 +410,11 @@ The R-tree spatial index.
                     The assignment operator.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>const rtree &amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
-                    The rtree which content will be copied.
-                  </p>
-                </td>
-<td class="auto-generated">&#160;</td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="keyword">operator</span><span class="special">=(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -466,20 +422,11 @@ The R-tree spatial index.
                     The moving assignment.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>rtree &amp;&amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
-                    The rtree which content will be moved.
-                  </p>
-                </td>
-<td class="auto-generated">&#160;</td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">void</span> <span class="identifier">swap</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">swap</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -487,20 +434,12 @@ The R-tree spatial index.
                     Swaps contents of two rtrees.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>rtree &amp;</strong></span>: <span class="emphasis"><em>other</em></span>:
-                    The rtree which content will be swapped with this rtree content.
-                  </p>
-                </td>
-<td class="auto-generated">&#160;</td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">void</span> <span class="identifier">insert</span><span class="special">(</span><span class="identifier">value_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">value</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">insert</span><span class="special">(</span><span class="identifier">value_type</span> <span class="keyword">const</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -508,22 +447,12 @@ The R-tree spatial index.
                     Insert a value to the index.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>value_type const &amp;</strong></span>: <span class="emphasis"><em>value</em></span>:
-                    The value which will be stored in the container.
-                  </p>
-                </td>
-<td class="auto-generated">&#160;</td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
-<span class="keyword">void</span>
-<span class="identifier">insert</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">insert</span><span class="special">(</span><span class="identifier">Iterator</span><span class="special">,</span>
+                    <span class="identifier">Iterator</span><span class="special">)</span></code>
                   </p>
                 </td>
 <td>
@@ -531,25 +460,12 @@ The R-tree spatial index.
                     Insert a range of values to the index.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>Iterator</strong></span>: <span class="emphasis"><em>first</em></span>:
-                    The beginning of the range of values.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>Iterator</strong></span>: <span class="emphasis"><em>last</em></span>:
-                    The end of the range of values.
-                  </p>
-                </td>
-<td class="auto-generated">&#160;</td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Range</span><span class="special">&gt;</span>
-<span class="keyword">void</span> <span class="identifier">insert</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">rng</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">insert</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -557,20 +473,12 @@ The R-tree spatial index.
                     Insert a range of values to the index.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>Range const &amp;</strong></span>: <span class="emphasis"><em>rng</em></span>:
-                    The range of values.
-                  </p>
-                </td>
-<td class="auto-generated">&#160;</td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">size_type</span> <span class="identifier">remove</span><span class="special">(</span><span class="identifier">value_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">value</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">remove</span><span class="special">(</span><span class="identifier">value_type</span> <span class="keyword">const</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -578,26 +486,12 @@ The R-tree spatial index.
                     Remove a value from the container.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>value_type const &amp;</strong></span>: <span class="emphasis"><em>value</em></span>:
-                    The value which will be removed from the container.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    1 if the value was removed, 0 otherwise.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span>
-<span class="identifier">remove</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">remove</span><span class="special">(</span><span class="identifier">Iterator</span><span class="special">,</span>
+                    <span class="identifier">Iterator</span><span class="special">)</span></code>
                   </p>
                 </td>
 <td>
@@ -605,29 +499,12 @@ The R-tree spatial index.
                     Remove a range of values from the container.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>Iterator</strong></span>: <span class="emphasis"><em>first</em></span>:
-                    The beginning of the range of values.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>Iterator</strong></span>: <span class="emphasis"><em>last</em></span>:
-                    The end of the range of values.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The number of removed values.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Range</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span> <span class="identifier">remove</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">rng</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">remove</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -635,26 +512,13 @@ The R-tree spatial index.
                     Remove a range of values from the container.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>Range const &amp;</strong></span>: <span class="emphasis"><em>rng</em></span>:
-                    The range of values.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The number of removed values.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span>
-<span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span> <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">Predicates</span>
+                    <span class="keyword">const</span> <span class="special">&amp;,</span>
+                    <span class="identifier">OutIter</span><span class="special">)</span></code>
                   </p>
                 </td>
 <td>
@@ -663,31 +527,13 @@ The R-tree spatial index.
                     Box.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>Predicates const &amp;</strong></span>: <span class="emphasis"><em>pred</em></span>:
-                    The spatial predicates or a Geometry.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>OutIter</strong></span>: <span class="emphasis"><em>out_it</em></span>:
-                    The output iterator of the result range. E.g. an iterator generated
-                    by std::back_inserter(container)
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The number of values found.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span>
-<span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span> <span class="identifier">value_type</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span>
+                    <span class="keyword">const</span> <span class="special">&amp;,</span>
+                    <span class="identifier">value_type</span> <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -696,32 +542,15 @@ The R-tree spatial index.
                     some Point.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>DistancesPredicates const &amp;</strong></span>:
-                    <span class="emphasis"><em>dpred</em></span>: The distances predicates or a Point.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>value_type &amp;</strong></span>: <span class="emphasis"><em>v</em></span>:
-                    The reference to the object which will contain the result.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The number of values found.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span>
-<span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
-              <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span>
-              <span class="identifier">value_type</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span>
+                    <span class="keyword">const</span> <span class="special">&amp;,</span>
+                    <span class="identifier">Predicates</span> <span class="keyword">const</span>
+                    <span class="special">&amp;,</span> <span class="identifier">value_type</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
@@ -730,36 +559,14 @@ The R-tree spatial index.
                     e.g. nearest to some Point and intersecting some Box.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>DistancesPredicates const &amp;</strong></span>:
-                    <span class="emphasis"><em>dpred</em></span>: The distances predicates or a Point.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>Predicates const &amp;</strong></span>: <span class="emphasis"><em>pred</em></span>:
-                    The spatial predicates or a Geometry
-                  </p>
-                  <p>
-                    <span class="bold"><strong>value_type &amp;</strong></span>: <span class="emphasis"><em>v</em></span>:
-                    The reference to the object which will contain the result.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The number of values found.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span>
-<span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
-              <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span>
-              <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span>
+                    <span class="keyword">const</span> <span class="special">&amp;,</span>
+                    <span class="identifier">size_t</span><span class="special">,</span>
+                    <span class="identifier">OutIter</span><span class="special">)</span></code>
                   </p>
                 </td>
 <td>
@@ -768,39 +575,15 @@ The R-tree spatial index.
                     to some Point.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>DistancesPredicates const &amp;</strong></span>:
-                    <span class="emphasis"><em>dpred</em></span>: The distances predicates or a Point.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>size_t</strong></span>: <span class="emphasis"><em>k</em></span>:
-                    The max number of values.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>OutIter</strong></span>: <span class="emphasis"><em>out_it</em></span>:
-                    The output iterator of the result range. E.g. a back_insert_iterator.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The number of values found.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span>
-         <span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">,</span>
-         <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span>
-<span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
-              <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span>
-              <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span>
-              <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span>
+                    <span class="keyword">const</span> <span class="special">&amp;,</span>
+                    <span class="identifier">size_t</span><span class="special">,</span>
+                    <span class="identifier">Predicates</span> <span class="keyword">const</span>
+                    <span class="special">&amp;,</span> <span class="identifier">OutIter</span><span class="special">)</span></code>
                   </p>
                 </td>
 <td>
@@ -809,36 +592,11 @@ The R-tree spatial index.
                     e.g. k nearest values to some Point and intersecting some Box.
                   </p>
                 </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>DistancesPredicates const &amp;</strong></span>:
-                    <span class="emphasis"><em>dpred</em></span>: The distances predicates or a Point
-                  </p>
-                  <p>
-                    <span class="bold"><strong>size_t</strong></span>: <span class="emphasis"><em>k</em></span>:
-                    The max number of values.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>Predicates const &amp;</strong></span>: <span class="emphasis"><em>pred</em></span>:
-                    The spatial predicates or a Geometry.
-                  </p>
-                  <p>
-                    <span class="bold"><strong>OutIter</strong></span>: <span class="emphasis"><em>out_it</em></span>:
-                    The output iterator of the result range. E.g. a back_insert_iterator.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The number of values found.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">size_type</span> <span class="identifier">size</span><span class="special">()</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">size</span><span class="special">()</span></code>
                   </p>
                 </td>
 <td>
@@ -846,20 +604,11 @@ The R-tree spatial index.
                     Returns the number of stored values.
                   </p>
                 </td>
-<td>
-                </td>
-<td>
-                  <p>
-                    The number of stored values.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">bool</span> <span class="identifier">empty</span><span class="special">()</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">empty</span><span class="special">()</span></code>
                   </p>
                 </td>
 <td>
@@ -867,20 +616,11 @@ The R-tree spatial index.
                     Query if the container is empty.
                   </p>
                 </td>
-<td>
-                </td>
-<td>
-                  <p>
-                    true if the container is empty.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">void</span> <span class="identifier">clear</span><span class="special">()</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">clear</span><span class="special">()</span></code>
                   </p>
                 </td>
 <td>
@@ -888,69 +628,36 @@ The R-tree spatial index.
                     Removes all values stored in the container.
                   </p>
                 </td>
-<td>
-                </td>
-<td class="auto-generated">&#160;</td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">box_type</span> <span class="identifier">box</span><span class="special">()</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">box</span><span class="special">()</span></code>
                   </p>
                 </td>
 <td>
                   <p>
                     Returns the box containing all values stored in the container.
-                    If the container is empty the result of geometry::assign_inverse()
-                    is returned.
-                  </p>
-                </td>
-<td>
-                </td>
-<td>
-                  <p>
-                    The box containing all values stored in the container or an invalid
-                    box if there are no values in the container.
                   </p>
                 </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">ValueOrIndexable</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span> <span class="identifier">count</span><span class="special">(</span><span class="identifier">ValueOrIndexable</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">vori</span><span class="special">)</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">count</span><span class="special">(</span><span class="identifier">ValueOrIndexable</span> <span class="keyword">const</span>
+                    <span class="special">&amp;)</span></code>
                   </p>
                 </td>
 <td>
                   <p>
-                    For indexable_type it returns the number of values which indexables
-                    equals the parameter. For value_type it returns the number of
-                    values which equals the parameter.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    <span class="bold"><strong>ValueOrIndexable const &amp;</strong></span>:
-                    <span class="emphasis"><em>vori</em></span>: The value or indexable which will
-                    be counted.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The number of values found.
+                    Count Values or Indexables stored in the container.
                   </p>
                 </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">parameters_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">parameters</span><span class="special">()</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">parameters</span><span class="special">()</span></code>
                   </p>
                 </td>
 <td>
@@ -958,20 +665,11 @@ The R-tree spatial index.
                     Returns parameters.
                   </p>
                 </td>
-<td>
-                </td>
-<td>
-                  <p>
-                    The parameters object.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span><span class="special">()</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">translator</span><span class="special">()</span></code>
                   </p>
                 </td>
 <td>
@@ -979,20 +677,11 @@ The R-tree spatial index.
                     Returns the translator object.
                   </p>
                 </td>
-<td>
-                </td>
-<td>
-                  <p>
-                    The translator object.
-                  </p>
-                </td>
 </tr>
 <tr>
 <td>
                   <p>
-</p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">allocator_type</span> <span class="identifier">get_allocator</span><span class="special">()</span></pre>
-<p>
+                    <code class="computeroutput"><span class="identifier">get_allocator</span><span class="special">()</span></code>
                   </p>
                 </td>
 <td>
@@ -1000,19 +689,12 @@ The R-tree spatial index.
                     Returns allocator used by the rtree.
                   </p>
                 </td>
-<td>
-                </td>
-<td>
-                  <p>
-                    The allocator.
-                  </p>
-                </td>
 </tr>
 </tbody>
 </table></div>
 <h6>
-<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h5"></a>
-          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.header"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.header">Header</a>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h6"></a>
+          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.header"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.header">Header</a>
         </h6>
 <p>
           <code class="computeroutput"><span class="preprocessor">#include</span> <span class="special">&lt;.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code>

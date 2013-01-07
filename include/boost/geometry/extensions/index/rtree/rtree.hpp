@@ -58,20 +58,29 @@ namespace boost { namespace geometry { namespace index {
 The R-tree spatial index. This is self-balancing spatial index capable to store various types
 of Values and balancing algorithms.
 
+The user must pass a type defining the Parameters which will
+be used in rtree creation process. This type is used e.g. to specify balancing algorithm
+with specific parameters like min and max number of elements in node.
+Predefined algorithms with compile-time parameters are:
+bgi::linear<MinElements, MaxElements>,
+bgi::quadratic<MinElements, MaxElements>,
+bgi::rstar<MinElements, MaxElements, OverlapCostThreshold = 0, ReinsertedElements = MaxElements * 0.3>.
+Predefined algorithms with run-time parameters are:
+bgi::runtime::linear,
+bgi::runtime::quadratic,
+bgi::runtime::rstar.
+
+The Translator translates from Value to Indexable each time r-tree requires it. Which means that this
+operation is done for each Value access. Therefore the Translator should return the Indexable by
+const reference instead of a value. Default translator can translate all types adapted to Point
+or Box concepts (which are Indexables). It also handles std::pair<Indexable, T>, pointers, smart pointers,
+and iterators. E.g. If std::pair<Box, int> is stored, the default translator translates from
+std::pair<Box, int> const& to Box const&.
+
 \tparam Value       The type of objects stored in the container.
-\tparam Parameters  Compile-time parameters. The user must pass a type defining the Parameters which will
-                    be used in rtree creation process. This type is used e.g. to specify balancing algorithm
-                    with compile-time parameters like min and max number of elements in node.
-                    Predefined Algorithms/Parameters are:
-                    bgi::linear<MinElements, MaxElements>,
-                    bgi::quadratic<MinElements, MaxElements>,
-                    bgi::rstar<MinElements, MaxElements, OverlapCostThreshold = 0, ReinsertedElements = MaxElements * 0.3>.
-\tparam Translator  The type of the translator which translates from Value to Indexable. This translation is done each time
-                    the r-tree wants to know Value's Indexable. Default translator can translate all types adapted to Point
-                    or Box concepts (which are Indexables). It also handles std::pair<Indexable, T>, pointers, smart pointers,
-                    and iterators. E.g. If std::pair<Box, int> is stored, the default translator translates from
-                    std::pair<Box, int> const& to Box const&.
-\tparam Allocator   The allocator.
+\tparam Parameters  Compile-time parameters.
+\tparam Translator  The type of the translator which translates from Value to Indexable.
+\tparam Allocator   The allocator used to allocate/deallocate memory, construct/destroy nodes and Values.
 */
 template <
     typename Value,
@@ -84,13 +93,20 @@ class rtree
     BOOST_COPYABLE_AND_MOVABLE(rtree)
 
 public:
+    /*! \brief The type of Value stored in the container. */
     typedef Value value_type;
+    /*! \brief R-tree parameters type. */
     typedef Parameters parameters_type;
+    /*! \brief Value to Indexable Translator type. */
     typedef Translator translator_type;
+    /*! \brief The type of allocator used by the container. */
     typedef Allocator allocator_type;
+    /*! \brief Unsigned integral type used by the container. */
     typedef typename allocator_type::size_type size_type;
 
+    /*! \brief The Indexable type to which Value is translated. */
     typedef typename translator::indexable_type<Translator>::type indexable_type;
+    /*! \brief The Box type used by the R-tree. */
     typedef typename index::default_box_type<indexable_type>::type box_type;
 
 #if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
@@ -170,10 +186,10 @@ public:
     \param allocator    The allocator object.
     */
     template<typename Range>
-    inline rtree(Range const& rng,
-                 parameters_type parameters = parameters_type(),
-                 translator_type const& translator = translator_type(),
-                 allocator_type allocator = allocator_type())
+    inline explicit rtree(Range const& rng,
+                          parameters_type parameters = parameters_type(),
+                          translator_type const& translator = translator_type(),
+                          allocator_type allocator = allocator_type())
         : m_translator(translator)                                          // SHOULDN'T THROW
         , m_parameters(parameters)
         , m_allocators(allocator)
@@ -696,6 +712,8 @@ public:
 
     /*!
     \brief Returns the box containing all values stored in the container.
+
+    Returns the box containing all values stored in the container.
     If the container is empty the result of geometry::assign_inverse() is returned.
 
     \exception nothrow (if Indexable's CoordinateType copy assignment doesn't throw),
@@ -722,7 +740,9 @@ public:
     }
 
     /*!
-    \brief For indexable_type it returns the number of values which indexables equals the parameter.
+    \brief Count Values or Indexables stored in the container.
+    
+    For indexable_type it returns the number of values which indexables equals the parameter.
     For value_type it returns the number of values which equals the parameter.
 
     \exception nothrow.
@@ -1085,7 +1105,9 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Range co
 }
 
 /*!
-\brief Remove a value from the container. In contrast to the STL set/map erase() method
+\brief Remove a value from the container.
+
+Remove a value from the container. In contrast to the STL set/map erase() method
 this function removes only one value from the container.
 
 \param tree The spatial index.
@@ -1101,7 +1123,9 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 }
 
 /*!
-\brief Remove a range of values from the container. In contrast to the STL set/map erase() method
+\brief Remove a range of values from the container.
+
+Remove a range of values from the container. In contrast to the STL set/map erase() method
 it doesn't take iterators pointing to values stored in this container. It removes values equal
 to these passed as a range. Furthermore this function removes only one value for each one passed
 in the range, not all equal values.
@@ -1120,7 +1144,9 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iter
 }
 
 /*!
-\brief Remove a range of values from the container. In contrast to the STL set/map erase() method
+\brief Remove a range of values from the container.
+
+Remove a range of values from the container. In contrast to the STL set/map erase() method
 it removes values equal to these passed as a range. Furthermore this method removes only
 one value for each one passed in the range, not all equal values.
 
