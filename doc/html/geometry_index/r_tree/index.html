@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Reference</title>
 <link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
 <link rel="up" href="../r_tree.html" title="R-tree">
 <link rel="prev" href="exception_safety.html" title="Exception safety">
@@ -31,11 +31,11 @@
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree" title="boost::geometry::index::rtree">boost::geometry::index::rtree</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="id834534"></a><a class="indexterm" name="id834539"></a><a class="indexterm" name="id834544"></a><a class="indexterm" name="id834548"></a>
+          <a class="indexterm" name="idp9795352"></a><a class="indexterm" name="idp9795696"></a><a class="indexterm" name="idp9796040"></a><a class="indexterm" name="idp9796384"></a>
         </p>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h0"></a>
-          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.description">Description</a>
+          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.description">Description</a>
         </h6>
 <p>
           The R-tree spatial index. This is self-balancing spatial index capable
@@ -43,7 +43,7 @@
         </p>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h1"></a>
-          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis">Synopsis</a>
+          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis">Synopsis</a>
         </h6>
 <p>
 </p>
@@ -57,7 +57,7 @@
         </p>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h2"></a>
-          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_">Template
+          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_">Template
           parameter(s)</a>
         </h6>
 <div class="informaltable"><table class="table">
@@ -164,7 +164,7 @@
 </table></div>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h3"></a>
-          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s_">Constructor(s)</a>
+          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s_">Constructor(s)</a>
         </h6>
 <div class="informaltable"><table class="table">
 <colgroup>
@@ -298,12 +298,14 @@
                 </td>
 <td>
                   <p>
-                    The copy constructor.
+                    The copy constructor. It uses parameters, translator and allocator
+                    from the source tree.
                   </p>
                 </td>
 <td>
                   <p>
                     <span class="bold"><strong>rtree const &amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
+                    The rtree which content will be copied.
                   </p>
                 </td>
 </tr>
@@ -317,15 +319,18 @@
                 </td>
 <td>
                   <p>
-                    The copy constructor.
+                    The copy constructor. It uses Parameters and translator from
+                    the source tree.
                   </p>
                 </td>
 <td>
                   <p>
                     <span class="bold"><strong>rtree const &amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
+                    The rtree which content will be copied.
                   </p>
                   <p>
                     <span class="bold"><strong>Allocator const &amp;</strong></span>: <span class="emphasis"><em>allocator</em></span>:
+                    The allocator which will be used.
                   </p>
                 </td>
 </tr>
@@ -339,12 +344,14 @@
                 </td>
 <td>
                   <p>
-                    The moving constructor.
+                    The moving constructor. It uses parameters, translator and allocator
+                    from the source tree.
                   </p>
                 </td>
 <td>
                   <p>
                     <span class="bold"><strong>BOOST_RV_REF(rtree)</strong></span>: <span class="emphasis"><em>src</em></span>:
+                    The rtree which content will be moved.
                   </p>
                 </td>
 </tr>
@@ -352,7 +359,7 @@
 </table></div>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h4"></a>
-          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.member_function_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.member_function_s_">Member
+          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.member_function_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.member_function_s_">Member
           Function(s)</a>
         </h6>
 <div class="informaltable"><table class="table">
@@ -412,13 +419,14 @@
                 </td>
 <td>
                   <p>
-                    The assignment operator.
+                    The assignment operator. It uses parameters and translator from
+                    the source tree.
                   </p>
                 </td>
 <td>
                   <p>
                     <span class="bold"><strong>BOOST_COPY_ASSIGN_REF(rtree)</strong></span>:
-                    <span class="emphasis"><em>src</em></span>:
+                    <span class="emphasis"><em>src</em></span>: The rtree which content will be copied.
                   </p>
                 </td>
 <td class="auto-generated">&#160;</td>
@@ -433,12 +441,14 @@
                 </td>
 <td>
                   <p>
-                    The moving assignment.
+                    The moving assignment. It uses parameters and translator from
+                    the source tree.
                   </p>
                 </td>
 <td>
                   <p>
                     <span class="bold"><strong>BOOST_RV_REF(rtree)</strong></span>: <span class="emphasis"><em>src</em></span>:
+                    The rtree which content will be moved.
                   </p>
                 </td>
 <td class="auto-generated">&#160;</td>
@@ -453,13 +463,14 @@
                 </td>
 <td>
                   <p>
-                    Swaps two rtrees.
+                    Swaps contents of two rtrees. Parameters, translator and allocators
+                    are swapped as well.
                   </p>
                 </td>
 <td>
                   <p>
                     <span class="bold"><strong>rtree &amp;</strong></span>: <span class="emphasis"><em>other</em></span>:
-                    The other rtree.
+                    The rtree which content will be swapped with this rtree content.
                   </p>
                 </td>
 <td class="auto-generated">&#160;</td>
@@ -1039,7 +1050,7 @@
 </table></div>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h5"></a>
-          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.header"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.header">Header</a>
+          <span><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.header"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.header">Header</a>
         </h6>
 <p>
           <code class="computeroutput"><span class="preprocessor">#include</span> <span class="special">&lt;.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code>

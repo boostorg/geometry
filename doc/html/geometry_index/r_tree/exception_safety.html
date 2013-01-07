@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Exception safety</title>
 <link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
 <link rel="up" href="../r_tree.html" title="R-tree">
 <link rel="prev" href="nearest_neighbours_queries.html" title="Nearest neighbours queries">
@@ -29,7 +29,7 @@
 <p>
         In order to be exception-safe the R-tree requires:
       </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
             exception-safe copy constructor and copy assignment of the <code class="computeroutput">Value</code>.
           </li>
@@ -155,7 +155,7 @@
 <td>
                 <p>
                   <span class="emphasis"><em>nothrow</em></span> or <span class="bold"><strong>strong</strong></span>
-                  <a href="#ftn.geometry_index.r_tree.exception_safety.f0" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f0"></a>[a]</sup></a>
+                  <sup>[<a name="geometry_index.r_tree.exception_safety.f0" href="#ftn.geometry_index.r_tree.exception_safety.f0" class="footnote">a</a>]</sup>
                 </p>
               </td>
 </tr>
@@ -185,7 +185,7 @@
               </td>
 <td>
                 <p>
-                  not safe <a href="#ftn.geometry_index.r_tree.exception_safety.f1" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f1"></a>[b]</sup></a>
+                  not safe <sup>[<a name="geometry_index.r_tree.exception_safety.f1" href="#ftn.geometry_index.r_tree.exception_safety.f1" class="footnote">b</a>]</sup>
                 </p>
               </td>
 </tr>
@@ -344,7 +344,7 @@
 <td>
                 <p>
                   <span class="emphasis"><em>nothrow</em></span> or <span class="bold"><strong>strong</strong></span>
-                  <a href="#ftn.geometry_index.r_tree.exception_safety.f2" class="footnote"><sup class="footnote"><a name="geometry_index.r_tree.exception_safety.f2"></a>[c]</sup></a>
+                  <sup>[<a name="geometry_index.r_tree.exception_safety.f2" href="#ftn.geometry_index.r_tree.exception_safety.f2" class="footnote">c</a>]</sup>
                 </p>
               </td>
 </tr>
@@ -392,15 +392,15 @@
 </tr>
 </tbody>
 <tbody class="footnotes"><tr><td colspan="2">
-<div id="ftn.geometry_index.r_tree.exception_safety.f0" class="footnote"><p><a href="#geometry_index.r_tree.exception_safety.f0" class="para"><sup class="para">[a] </sup></a>
+<div class="footnote"><p><sup>[<a id="ftn.geometry_index.r_tree.exception_safety.f0" href="#geometry_index.r_tree.exception_safety.f0" class="para">a</a>] </sup>
                     <span class="emphasis"><em>nothrow</em></span> - if allocators are equal, <span class="bold"><strong>strong</strong></span> - otherwise
                   </p></div>
-<div id="ftn.geometry_index.r_tree.exception_safety.f1" class="footnote"><p><a href="#geometry_index.r_tree.exception_safety.f1" class="para"><sup class="para">[b] </sup></a>
+<div class="footnote"><p><sup>[<a id="ftn.geometry_index.r_tree.exception_safety.f1" href="#geometry_index.r_tree.exception_safety.f1" class="para">b</a>] </sup>
                     If this operation throws, the R-tree may be left in an inconsistent
                     state, elements must not be inserted or removed, methods may
                     return invalid data.
                   </p></div>
-<div id="ftn.geometry_index.r_tree.exception_safety.f2" class="footnote"><p><a href="#geometry_index.r_tree.exception_safety.f2" class="para"><sup class="para">[c] </sup></a>
+<div class="footnote"><p><sup>[<a id="ftn.geometry_index.r_tree.exception_safety.f2" href="#geometry_index.r_tree.exception_safety.f2" class="para">c</a>] </sup>
                     <span class="emphasis"><em>nothrow</em></span> - if <code class="computeroutput"><span class="identifier">CoordinateType</span></code>
                     has nonthrowing copy constructor, <span class="bold"><strong>strong</strong></span>
                     - otherwise

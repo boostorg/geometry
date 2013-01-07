@@ -195,9 +195,11 @@ public:
     }
 
     /*!
-    \brief The copy constructor.
+    \brief  The copy constructor. It uses parameters, translator and allocator from the source tree.
 
     \exception strong
+
+    \param src          The rtree which content will be copied.
     */
     inline rtree(rtree const& src)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -213,9 +215,12 @@ public:
     }
 
     /*!
-    \brief The copy constructor.
+    \brief The copy constructor. It uses Parameters and translator from the source tree.
 
     \exception strong
+
+    \param src          The rtree which content will be copied.
+    \param allocator    The allocator which will be used.
     */
     inline rtree(rtree const& src, Allocator const& allocator)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -229,12 +234,15 @@ public:
     }
 
     /*!
-    \brief The moving constructor.
+    \brief The moving constructor. It uses parameters, translator and allocator from the source tree.
 
     \exception nothrow
+
+    \param src          The rtree which content will be moved.
     */
     inline rtree(BOOST_RV_REF(rtree) src)
-        : m_translator(src.m_translator)                                          // SHOULDN'T THROW
+// TODO - use boost::move()
+        : m_translator(src.m_translator)                                    // SHOULDN'T THROW
         , m_parameters(src.m_parameters)
         , m_allocators(src.m_allocators)
         , m_values_count(src.m_values_count)
@@ -247,9 +255,11 @@ public:
     }
 
     /*!
-    \brief The assignment operator.
+    \brief The assignment operator. It uses parameters and translator from the source tree.
 
     \exception strong
+
+    \param src          The rtree which content will be copied.
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
@@ -265,20 +275,22 @@ public:
     }
 
     /*!
-    \brief The moving assignment.
+    \brief The moving assignment. It uses parameters and translator from the source tree.
 
-    \exception nothrow (if allocators are equal),
-                            strong (if allocators aren't equal)
+    \exception nothrow (if allocators are equal), strong (if allocators aren't equal)
+
+    \param src          The rtree which content will be moved.
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
         if ( this == &src )
             return *this;
 
-        //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
+//TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
 
         if ( m_allocators.allocator == src.m_allocators.allocator )
         {
+// TODO - use boost::move()
             m_translator = src.m_translator;                                          // SHOULDN'T THROW
             m_parameters = src.m_parameters;
             //m_allocators = src.m_allocators;
@@ -301,14 +313,16 @@ public:
     }
 
     /*!
-    \brief Swaps two rtrees.
+    \brief Swaps contents of two rtrees. Parameters, translator and allocators are swapped as well.
 
     \exception nothrow
 
-    \param other    The other rtree.
+    \param other    The rtree which content will be swapped with this rtree content.
     */
     void swap(rtree & other)
     {
+// TODO - use boost::move?
+// TODO - allocators may throw in copy/move
         std::swap(m_translator, other.m_translator);                               // SHOULDN'T THROW
         std::swap(m_parameters, other.m_parameters);
         std::swap(m_allocators, other.m_allocators);
