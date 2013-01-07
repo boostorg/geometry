@@ -31,7 +31,7 @@
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree" title="boost::geometry::index::rtree">boost::geometry::index::rtree</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="id853103"></a><a class="indexterm" name="id853107"></a><a class="indexterm" name="id853112"></a><a class="indexterm" name="id853117"></a>
+          <a class="indexterm" name="id838903"></a><a class="indexterm" name="id838908"></a><a class="indexterm" name="id838913"></a><a class="indexterm" name="id838918"></a>
 The R-tree spatial index.
         </p>
 <h6>
@@ -64,6 +64,13 @@ The R-tree spatial index.
         </p>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h1"></a>
+          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.header"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.header">Header</a>
+        </h6>
+<p>
+          <code class="computeroutput"><span class="preprocessor">#include</span> <span class="special">&lt;.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code>
+        </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h2"></a>
           <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.synopsis">Synopsis</a>
         </h6>
 <p>
@@ -80,7 +87,7 @@ The R-tree spatial index.
 <p>
         </p>
 <h6>
-<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h2"></a>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h3"></a>
           <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.template_parameter_s_">Template
           parameter(s)</a>
         </h6>
@@ -154,7 +161,7 @@ The R-tree spatial index.
 </tbody>
 </table></div>
 <h6>
-<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h3"></a>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h4"></a>
           <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.typedef_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.typedef_s_">Typedef(s)</a>
         </h6>
 <div class="informaltable"><table class="table">
@@ -262,7 +269,7 @@ The R-tree spatial index.
 </tbody>
 </table></div>
 <h6>
-<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h4"></a>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h5"></a>
           <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s__and_destructor"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.constructor_s__and_destructor">Constructor(s)
           and destructor</a>
         </h6>
@@ -377,7 +384,7 @@ The R-tree spatial index.
 </tbody>
 </table></div>
 <h6>
-<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h5"></a>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h6"></a>
           <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.member_s_"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.member_s_">Member(s)</a>
         </h6>
 <div class="informaltable"><table class="table">
@@ -692,13 +699,2172 @@ The R-tree spatial index.
 </tr>
 </tbody>
 </table></div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__" title="rtree()">rtree()</a>
+</h5></div></div></div>
 <h6>
-<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h6"></a>
-          <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.header"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.header">Header</a>
-        </h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.synopsis">Synopsis</a>
+          </h6>
 <p>
-          <code class="computeroutput"><span class="preprocessor">#include</span> <span class="special">&lt;.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code>
-        </p>
+</p>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
+      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
+      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.description">Description</a>
+          </h6>
+<p>
+            The constructor.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree__.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>parameters_type</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'parameters'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The parameters object.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>translator_type const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'translator'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The translator object.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>allocator_type</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'allocator'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The allocator object.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_" title="rtree(Iterator, Iterator)">rtree(Iterator,
+          Iterator)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
+<span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span>
+      <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">,</span>
+      <span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
+      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
+      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.description">Description</a>
+          </h6>
+<p>
+            The constructor.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_iterator__iterator_.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Iterator</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'first'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The beginning of the range of Values.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Iterator</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'last'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The end of the range of Values.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>parameters_type</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'parameters'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The parameters object.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>translator_type const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'translator'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The translator object.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>allocator_type</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'allocator'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The allocator object.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___" title="rtree(Range const &amp;)">rtree(Range
+          const &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Range</span><span class="special">&gt;</span>
+<span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">rng</span><span class="special">,</span>
+      <span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
+      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
+      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.description">Description</a>
+          </h6>
+<p>
+            The constructor.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_range_const___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Range const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'rng'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The range of Values.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>parameters_type</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'parameters'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The parameters object.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>translator_type const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'translator'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The translator object.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>allocator_type</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'allocator'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The allocator object.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree._rtree__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree._rtree__" title="~rtree()">~rtree()</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree._rtree__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree._rtree__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree._rtree__.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="special">~</span><span class="identifier">rtree</span><span class="special">()</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree._rtree__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree._rtree__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree._rtree__.description">Description</a>
+          </h6>
+<p>
+            The destructor.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___" title="rtree(rtree const &amp;)">rtree(rtree
+          const &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.description">Description</a>
+          </h6>
+<p>
+            The copy constructor. It uses parameters, translator and allocator from
+            the source tree.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>rtree const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'src'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The rtree which content will be copied.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___" title="rtree(rtree const &amp;, allocator_type const &amp;)">rtree(rtree
+          const &amp;, allocator_type const &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">,</span> <span class="identifier">allocator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">allocator</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.description">Description</a>
+          </h6>
+<p>
+            The copy constructor. It uses Parameters and translator from the source
+            tree.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree_const____allocator_type_const___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>rtree const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'src'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The rtree which content will be copied.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>allocator_type const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'allocator'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The allocator which will be used.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____" title="rtree(rtree &amp;&amp;)">rtree(rtree
+          &amp;&amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.description">Description</a>
+          </h6>
+<p>
+            The moving constructor. It uses parameters, translator and allocator
+            from the source tree.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.rtree_rtree____.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>rtree &amp;&amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'src'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The rtree which content will be moved.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___" title="operator=(const rtree &amp;)">operator=(const
+          rtree &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="keyword">const</span> <span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.description">Description</a>
+          </h6>
+<p>
+            The assignment operator. It uses parameters and translator from the source
+            tree.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.operator__const_rtree___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>const rtree &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'src'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The rtree which content will be copied.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____" title="operator=(rtree &amp;&amp;)">operator=(rtree
+          &amp;&amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.description">Description</a>
+          </h6>
+<p>
+            The moving assignment. It uses parameters and translator from the source
+            tree.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.operator__rtree____.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>rtree &amp;&amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'src'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The rtree which content will be moved.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___" title="swap(rtree &amp;)">swap(rtree
+          &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">swap</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.description">Description</a>
+          </h6>
+<p>
+            Swaps contents of two rtrees. Parameters, translator and allocators are
+            swapped as well.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.swap_rtree___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>rtree &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'other'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The rtree which content will be swapped with this rtree content.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___" title="insert(value_type const &amp;)">insert(value_type
+          const &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">insert</span><span class="special">(</span><span class="identifier">value_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">value</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.description">Description</a>
+          </h6>
+<p>
+            Insert a value to the index.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_value_type_const___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>value_type const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'value'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The value which will be stored in the container.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_" title="insert(Iterator, Iterator)">insert(Iterator,
+          Iterator)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
+<span class="keyword">void</span> <span class="identifier">insert</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.description">Description</a>
+          </h6>
+<p>
+            Insert a range of values to the index.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_iterator__iterator_.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Iterator</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'first'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The beginning of the range of values.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Iterator</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'last'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The end of the range of values.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___" title="insert(Range const &amp;)">insert(Range
+          const &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Range</span><span class="special">&gt;</span>
+<span class="keyword">void</span> <span class="identifier">insert</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">rng</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.description">Description</a>
+          </h6>
+<p>
+            Insert a range of values to the index.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.insert_range_const___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Range const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'rng'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The range of values.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___" title="remove(value_type const &amp;)">remove(value_type
+          const &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">size_type</span> <span class="identifier">remove</span><span class="special">(</span><span class="identifier">value_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">value</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.description">Description</a>
+          </h6>
+<p>
+            In contrast to the STL set/map erase() method this method removes only
+            one value from the container.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>value_type const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'value'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The value which will be removed from the container.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_value_type_const___.returns">Returns</a>
+          </h6>
+<p>
+            1 if the value was removed, 0 otherwise.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_" title="remove(Iterator, Iterator)">remove(Iterator,
+          Iterator)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span> <span class="identifier">remove</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.description">Description</a>
+          </h6>
+<p>
+            In contrast to the STL set/map erase() method it doesn't take iterators
+            pointing to values stored in this container. It removes values equal
+            to these passed as a range. Furthermore this method removes only one
+            value for each one passed in the range, not all equal values.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Iterator</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'first'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The beginning of the range of values.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Iterator</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'last'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The end of the range of values.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_iterator__iterator_.returns">Returns</a>
+          </h6>
+<p>
+            The number of removed values.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___" title="remove(Range const &amp;)">remove(Range
+          const &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Range</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span> <span class="identifier">remove</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">rng</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.description">Description</a>
+          </h6>
+<p>
+            In contrast to the STL set/map erase() method it removes values equal
+            to these passed as a range. Furthermore, this method removes only one
+            value for each one passed in the range, not all equal values.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Range const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'rng'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The range of values.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.remove_range_const___.returns">Returns</a>
+          </h6>
+<p>
+            The number of removed values.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_" title="spatial_query(Predicates const &amp;, OutIter)">spatial_query(Predicates
+          const &amp;, OutIter)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span> <span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span> <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.description">Description</a>
+          </h6>
+<p>
+            Spatial predicates may be a Geometry (in this case default predicate
+            - intersects is used) or generated by bgi::covered_by(geometry), bgi::disjoint(geometry),
+            bgi::intersects(geometry), bgi::overlaps(geometry), bgi::within(geometry),
+            !bgi::covered_by(geometry), !bgi::disjoint(geometry), !bgi::intersects(geometry),
+            !bgi::overlaps(geometry), !bgi::within(geometry) or bgi::value(func).
+            Those predicates may be passed together in std::pair or boost::tuple.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Predicates const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'pred'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The spatial predicates or a Geometry.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>OutIter</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'out_it'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The output iterator of the result range. E.g. an iterator generated
+                      by std::back_inserter(container)
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.spatial_query_predicates_const____outiter_.returns">Returns</a>
+          </h6>
+<p>
+            The number of values found.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___" title="nearest_query(DistancesPredicates const &amp;, value_type &amp;)">nearest_query(DistancesPredicates
+          const &amp;, value_type &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span> <span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span> <span class="identifier">value_type</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.description">Description</a>
+          </h6>
+<p>
+            The distances predicates may be a Point. This is default case where Value
+            which nearest point is closest to Point is returned. May be a PointRelation
+            which define how distance to Value is calculated. This may be generated
+            by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point).
+            DistancesPredicates may also define distances bounds. E.g. that some
+            distance must be between min_distance and max_distance. This may be generated
+            by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation,
+            MinRelation), bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation,
+            MinRelation, MaxRelation). MinRelation and MaxRelation describes bounds
+            and may be generated by bgi::to_nearest(dist_bound), bgi::to_centroid(dist_bound)
+            or bgi::to_furthest(dist_bound).
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>DistancesPredicates const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'dpred'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The distances predicates or a Point.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>value_type &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'v'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The reference to the object which will contain the result.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____value_type___.returns">Returns</a>
+          </h6>
+<p>
+            The number of values found.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___" title="nearest_query(DistancesPredicates const &amp;, Predicates const &amp;, value_type &amp;)">nearest_query(DistancesPredicates
+          const &amp;, Predicates const &amp;, value_type &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span> <span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
+                        <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span>
+                        <span class="identifier">value_type</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.description">Description</a>
+          </h6>
+<p>
+            The distances predicates may be a Point. This is default case where Value
+            which nearest point is closest to Point is returned. May be a PointRelation
+            which define how distance to Value is calculated. This may be generated
+            by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point).
+            DistancesPredicates may also define distances bounds. E.g. that some
+            distance must be between min_distance and max_distance. This may be generated
+            by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation,
+            MinRelation), bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation,
+            MinRelation, MaxRelation). MinRelation and MaxRelation describes bounds
+            and may be generated by bgi::to_nearest(dist_bound), bgi::to_centroid(dist_bound)
+            or bgi::to_furthest(dist_bound).
+          </p>
+<p>
+            The spatial predicates. May be a Geometry (in this case default predicate
+            - intersects is used) or generated by bgi::covered_by(geometry), bgi::disjoint(geometry),
+            bgi::intersects(geometry), bgi::overlaps(geometry), bgi::within(geometry),
+            !bgi::covered_by(geometry), !bgi::disjoint(geometry), !bgi::intersects(geometry),
+            !bgi::overlaps(geometry), !bgi::within(geometry) or bgi::value(func).
+            Those predicates may be passed together in std::pair or boost::tuple.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>DistancesPredicates const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'dpred'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The distances predicates or a Point.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Predicates const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'pred'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The spatial predicates or a Geometry
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>value_type &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'v'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The reference to the object which will contain the result.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____predicates_const____value_type___.returns">Returns</a>
+          </h6>
+<p>
+            The number of values found.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_" title="nearest_query(DistancesPredicates const &amp;, size_t, OutIter)">nearest_query(DistancesPredicates
+          const &amp;, size_t, OutIter)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span> <span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
+                        <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span>
+                        <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.description">Description</a>
+          </h6>
+<p>
+            The distances predicates. May be a Point. This is default case where
+            Value which nearest point is closest to Point is returned. May be a PointRelation
+            which define how distance to Value is calculated. This may be generated
+            by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point).
+            DistancesPredicates may also define distances bounds. E.g. that some
+            distance must be between min_distance and max_distance. This may be generated
+            by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation,
+            MinRelation), bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation,
+            MinRelation, MaxRelation). MinRelation and MaxRelation describes bounds
+            and may be generated by bgi::to_nearest(dist_bound), bgi::to_centroid(dist_bound)
+            or bgi::to_furthest(dist_bound).
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>DistancesPredicates const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'dpred'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The distances predicates or a Point.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>size_t</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'k'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The max number of values.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>OutIter</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'out_it'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The output iterator of the result range. E.g. a back_insert_iterator.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__outiter_.returns">Returns</a>
+          </h6>
+<p>
+            The number of values found.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_" title="nearest_query(DistancesPredicates const &amp;, size_t, Predicates const &amp;, OutIter)">nearest_query(DistancesPredicates
+          const &amp;, size_t, Predicates const &amp;, OutIter)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span>
+         <span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">,</span>
+         <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span> <span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
+                        <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span>
+                        <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span>
+                        <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.description">Description</a>
+          </h6>
+<p>
+            The distances predicates may be a Point. This is default case where Value
+            which nearest point is closest to Point is returned. May be a PointRelation
+            which define how distance to Value is calculated. This may be generated
+            by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point).
+            DistancesPredicates may also define distances bounds. E.g. that some
+            distance must be between min_distance and max_distance. This may be generated
+            by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation,
+            MinRelation), bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation,
+            MinRelation, MaxRelation). MinRelation and MaxRelation describes bounds
+            and may be generated by bgi::to_nearest(dist_bound), bgi::to_centroid(dist_bound)
+            or bgi::to_furthest(dist_bound).
+          </p>
+<p>
+            The spatial predicates. May be a Geometry (in this case default predicate
+            - intersects is used) or generated by bgi::covered_by(geometry), bgi::disjoint(geometry),
+            bgi::intersects(geometry), bgi::overlaps(geometry), bgi::within(geometry),
+            !bgi::covered_by(geometry), !bgi::disjoint(geometry), !bgi::intersects(geometry),
+            !bgi::overlaps(geometry), !bgi::within(geometry) or bgi::value(func).
+            Those predicates may be passed together in std::pair or boost::tuple.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>DistancesPredicates const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'dpred'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The distances predicates or a Point
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>size_t</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'k'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The max number of values.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>Predicates const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'pred'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The spatial predicates or a Geometry.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>OutIter</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'out_it'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The output iterator of the result range. E.g. a back_insert_iterator.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.nearest_query_distancespredicates_const____size_t__predicates_const____outiter_.returns">Returns</a>
+          </h6>
+<p>
+            The number of values found.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.size__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.size__" title="size()">size()</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.size__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.size__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.size__.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">size_type</span> <span class="identifier">size</span><span class="special">()</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.size__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.size__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.size__.description">Description</a>
+          </h6>
+<p>
+            Returns the number of stored values.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.size__.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.size__.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.size__.returns">Returns</a>
+          </h6>
+<p>
+            The number of stored values.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.empty__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.empty__" title="empty()">empty()</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="identifier">empty</span><span class="special">()</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.description">Description</a>
+          </h6>
+<p>
+            Query if the container is empty.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.empty__.returns">Returns</a>
+          </h6>
+<p>
+            true if the container is empty.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.clear__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.clear__" title="clear()">clear()</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.clear__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.clear__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.clear__.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">clear</span><span class="special">()</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.clear__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.clear__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.clear__.description">Description</a>
+          </h6>
+<p>
+            Removes all values stored in the container.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.box__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.box__" title="box()">box()</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.box__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.box__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.box__.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">box_type</span> <span class="identifier">box</span><span class="special">()</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.box__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.box__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.box__.description">Description</a>
+          </h6>
+<p>
+            Returns the box containing all values stored in the container. If the
+            container is empty the result of geometry::assign_inverse() is returned.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.box__.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.box__.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.box__.returns">Returns</a>
+          </h6>
+<p>
+            The box containing all values stored in the container or an invalid box
+            if there are no values in the container.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___" title="count(ValueOrIndexable const &amp;)">count(ValueOrIndexable
+          const &amp;)</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">ValueOrIndexable</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span> <span class="identifier">count</span><span class="special">(</span><span class="identifier">ValueOrIndexable</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">vori</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.description">Description</a>
+          </h6>
+<p>
+            For indexable_type it returns the number of values which indexables equals
+            the parameter. For value_type it returns the number of values which equals
+            the parameter.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.parameters"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <span class="bold"><strong>ValueOrIndexable const &amp;</strong></span>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      'vori'
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The value or indexable which will be counted.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.h3"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.count_valueorindexable_const___.returns">Returns</a>
+          </h6>
+<p>
+            The number of values found.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__" title="parameters()">parameters()</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">parameters_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">parameters</span><span class="special">()</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.description">Description</a>
+          </h6>
+<p>
+            Returns parameters.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.parameters__.returns">Returns</a>
+          </h6>
+<p>
+            The parameters object.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.translator__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.translator__" title="translator()">translator()</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span><span class="special">()</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.description">Description</a>
+          </h6>
+<p>
+            Returns the translator object.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.translator__.returns">Returns</a>
+          </h6>
+<p>
+            The translator object.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__" title="get_allocator()">get_allocator()</a>
+</h5></div></div></div>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.synopsis"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">allocator_type</span> <span class="identifier">get_allocator</span><span class="special">()</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.description"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.description">Description</a>
+          </h6>
+<p>
+            Returns allocator used by the rtree.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.returns"></a></span><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree.get_allocator__.returns">Returns</a>
+          </h6>
+<p>
+            The allocator.
+          </p>
+</div>
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
