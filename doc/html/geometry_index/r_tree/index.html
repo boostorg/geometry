@@ -31,7 +31,7 @@
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree"></a><a class="link" href="index.html#geometry_index.r_tree.index.boost_geometry_index_rtree" title="boost::geometry::index::rtree">boost::geometry::index::rtree</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp9795352"></a><a class="indexterm" name="idp9795696"></a><a class="indexterm" name="idp9796040"></a><a class="indexterm" name="idp9796384"></a>
+          <a class="indexterm" name="idp9969336"></a><a class="indexterm" name="idp9969648"></a><a class="indexterm" name="idp9969960"></a><a class="indexterm" name="idp9970272"></a>
         </p>
 <h6>
 <a name="geometry_index.r_tree.index.boost_geometry_index_rtree.h0"></a>
@@ -47,7 +47,10 @@
         </h6>
 <p>
 </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Value</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Parameters</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Translator</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Allocator</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Value</span><span class="special">,</span>
+         <span class="keyword">typename</span> <span class="identifier">Parameters</span><span class="special">,</span>
+         <span class="keyword">typename</span> <span class="identifier">Translator</span><span class="special">,</span>
+         <span class="keyword">typename</span> <span class="identifier">Allocator</span><span class="special">&gt;</span>
 <span class="keyword">class</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span>
 <span class="special">{</span>
   <span class="comment">// ...</span>
@@ -87,7 +90,9 @@
 <tr>
 <td>
                   <p>
-                    typename Value
+</p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">Value</span></pre>
+<p>
                   </p>
                 </td>
 <td>
@@ -101,7 +106,9 @@
 <tr>
 <td>
                   <p>
-                    typename Parameters
+</p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">Parameters</span></pre>
+<p>
                   </p>
                 </td>
 <td>
@@ -122,12 +129,16 @@
 <tr>
 <td>
                   <p>
-                    typename Translator
+</p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">Translator</span></pre>
+<p>
                   </p>
                 </td>
 <td>
                   <p>
-                    translator::def&lt;Value&gt;
+</p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></pre>
+<p>
                   </p>
                 </td>
 <td>
@@ -146,12 +157,16 @@
 <tr>
 <td>
                   <p>
-                    typename Allocator
+</p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">Allocator</span></pre>
+<p>
                   </p>
                 </td>
 <td>
                   <p>
-                    std::allocator&lt;Value&gt;
+</p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></pre>
+<p>
                   </p>
                 </td>
 <td>
@@ -194,7 +209,9 @@
 <td>
                   <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Parameters</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">Parameters</span><span class="special">(),</span> <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span> <span class="identifier">Allocator</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">Allocator</span><span class="special">())</span></pre>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
+      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
+      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
 <p>
                   </p>
                 </td>
@@ -205,7 +222,7 @@
                 </td>
 <td>
                   <p>
-                    <span class="bold"><strong>Parameters</strong></span>: <span class="emphasis"><em>parameters</em></span>:
+                    <span class="bold"><strong>parameters_type</strong></span>: <span class="emphasis"><em>parameters</em></span>:
                     The parameters object.
                   </p>
                   <p>
@@ -213,7 +230,7 @@
                     <span class="emphasis"><em>translator</em></span>: The translator object.
                   </p>
                   <p>
-                    <span class="bold"><strong>Allocator</strong></span>: <span class="emphasis"><em>allocator</em></span>:
+                    <span class="bold"><strong>allocator_type</strong></span>: <span class="emphasis"><em>allocator</em></span>:
                     The allocator object.
                   </p>
                 </td>
@@ -223,7 +240,11 @@
                   <p>
 </p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
-<span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">,</span> <span class="identifier">Parameters</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">Parameters</span><span class="special">(),</span> <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span> <span class="identifier">Allocator</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span> <span class="identifier">value_type</span> <span class="special">&gt;())</span></pre>
+<span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span>
+      <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">,</span>
+      <span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
+      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
+      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
 <p>
                   </p>
                 </td>
@@ -242,7 +263,7 @@
                     The end of the range of Values.
                   </p>
                   <p>
-                    <span class="bold"><strong>Parameters</strong></span>: <span class="emphasis"><em>parameters</em></span>:
+                    <span class="bold"><strong>parameters_type</strong></span>: <span class="emphasis"><em>parameters</em></span>:
                     The parameters object.
                   </p>
                   <p>
@@ -250,7 +271,7 @@
                     <span class="emphasis"><em>translator</em></span>: The translator object.
                   </p>
                   <p>
-                    <span class="bold"><strong>Allocator</strong></span>: <span class="emphasis"><em>allocator</em></span>:
+                    <span class="bold"><strong>allocator_type</strong></span>: <span class="emphasis"><em>allocator</em></span>:
                     The allocator object.
                   </p>
                 </td>
@@ -260,7 +281,10 @@
                   <p>
 </p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Range</span><span class="special">&gt;</span>
-<span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">rng</span><span class="special">,</span> <span class="identifier">Parameters</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">Parameters</span><span class="special">(),</span> <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span> <span class="identifier">Allocator</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span> <span class="identifier">value_type</span> <span class="special">&gt;())</span></pre>
+<span class="identifier">rtree</span><span class="special">(</span><span class="identifier">Range</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">rng</span><span class="special">,</span>
+      <span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
+      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
+      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
 <p>
                   </p>
                 </td>
@@ -275,7 +299,7 @@
                     The range of Values.
                   </p>
                   <p>
-                    <span class="bold"><strong>Parameters</strong></span>: <span class="emphasis"><em>parameters</em></span>:
+                    <span class="bold"><strong>parameters_type</strong></span>: <span class="emphasis"><em>parameters</em></span>:
                     The parameters object.
                   </p>
                   <p>
@@ -283,7 +307,7 @@
                     <span class="emphasis"><em>translator</em></span>: The translator object.
                   </p>
                   <p>
-                    <span class="bold"><strong>Allocator</strong></span>: <span class="emphasis"><em>allocator</em></span>:
+                    <span class="bold"><strong>allocator_type</strong></span>: <span class="emphasis"><em>allocator</em></span>:
                     The allocator object.
                   </p>
                 </td>
@@ -313,7 +337,7 @@
 <td>
                   <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">,</span> <span class="identifier">Allocator</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">allocator</span><span class="special">)</span></pre>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">,</span> <span class="identifier">allocator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">allocator</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -329,8 +353,8 @@
                     The rtree which content will be copied.
                   </p>
                   <p>
-                    <span class="bold"><strong>Allocator const &amp;</strong></span>: <span class="emphasis"><em>allocator</em></span>:
-                    The allocator which will be used.
+                    <span class="bold"><strong>allocator_type const &amp;</strong></span>:
+                    <span class="emphasis"><em>allocator</em></span>: The allocator which will be used.
                   </p>
                 </td>
 </tr>
@@ -338,7 +362,7 @@
 <td>
                   <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">rtree</span><span class="special">)</span> <span class="identifier">src</span><span class="special">)</span></pre>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -350,7 +374,7 @@
                 </td>
 <td>
                   <p>
-                    <span class="bold"><strong>BOOST_RV_REF(rtree)</strong></span>: <span class="emphasis"><em>src</em></span>:
+                    <span class="bold"><strong>rtree &amp;&amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
                     The rtree which content will be moved.
                   </p>
                 </td>
@@ -413,7 +437,7 @@
 <td>
                   <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="identifier">BOOST_COPY_ASSIGN_REF</span><span class="special">(</span><span class="identifier">rtree</span><span class="special">)</span> <span class="identifier">src</span><span class="special">)</span></pre>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="keyword">const</span> <span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -425,8 +449,8 @@
                 </td>
 <td>
                   <p>
-                    <span class="bold"><strong>BOOST_COPY_ASSIGN_REF(rtree)</strong></span>:
-                    <span class="emphasis"><em>src</em></span>: The rtree which content will be copied.
+                    <span class="bold"><strong>const rtree &amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
+                    The rtree which content will be copied.
                   </p>
                 </td>
 <td class="auto-generated">&#160;</td>
@@ -435,7 +459,7 @@
 <td>
                   <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="identifier">BOOST_RV_REF</span><span class="special">(</span><span class="identifier">rtree</span><span class="special">)</span> <span class="identifier">src</span><span class="special">)</span></pre>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">rtree</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="identifier">rtree</span> <span class="special">&amp;&amp;</span> <span class="identifier">src</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -447,7 +471,7 @@
                 </td>
 <td>
                   <p>
-                    <span class="bold"><strong>BOOST_RV_REF(rtree)</strong></span>: <span class="emphasis"><em>src</em></span>:
+                    <span class="bold"><strong>rtree &amp;&amp;</strong></span>: <span class="emphasis"><em>src</em></span>:
                     The rtree which content will be moved.
                   </p>
                 </td>
@@ -501,7 +525,8 @@
                   <p>
 </p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
-<span class="keyword">void</span> <span class="identifier">insert</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">)</span></pre>
+<span class="keyword">void</span>
+<span class="identifier">insert</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -575,7 +600,8 @@
                   <p>
 </p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span> <span class="identifier">remove</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">)</span></pre>
+<span class="identifier">size_type</span>
+<span class="identifier">remove</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">first</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">last</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -638,7 +664,8 @@
                   <p>
 </p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span> <span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span> <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
+<span class="identifier">size_type</span>
+<span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span> <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -676,7 +703,8 @@
                   <p>
 </p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span> <span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span> <span class="identifier">value_type</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span></pre>
+<span class="identifier">size_type</span>
+<span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span> <span class="identifier">value_type</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -719,7 +747,10 @@
                   <p>
 </p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span> <span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span> <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span> <span class="identifier">value_type</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span></pre>
+<span class="identifier">size_type</span>
+<span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
+              <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span>
+              <span class="identifier">value_type</span> <span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -772,7 +803,10 @@
                   <p>
 </p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span> <span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span> <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
+<span class="identifier">size_type</span>
+<span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
+              <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span>
+              <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -818,8 +852,14 @@
 <td>
                   <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
-<span class="identifier">size_type</span> <span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span> <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span> <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span> <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span>
+         <span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">,</span>
+         <span class="keyword">typename</span> <span class="identifier">OutIter</span><span class="special">&gt;</span>
+<span class="identifier">size_type</span>
+<span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
+              <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span>
+              <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">,</span>
+              <span class="identifier">OutIter</span> <span class="identifier">out_it</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
