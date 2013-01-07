@@ -1,8 +1,0 @@
-!scan "boost/geometry/extensions/index/rtree/rtree.hpp"
-!scan "boost/geometry/extensions/index/predicates.hpp"
-!scan "boost/geometry/extensions/index/distance_predicates.hpp"
-!scan "boost/geometry/extensions/index/inserter.hpp"
-!scan "boost/geometry/extensions/index/adaptors/nearest_query.hpp"
-!scan "boost/geometry/extensions/index/adaptors/spatial_query.hpp"
-!scan "boost/geometry/extensions/index/translator/def.hpp"
-!scan "boost/geometry/extensions/index/translator/index.hpp"

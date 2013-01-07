@@ -17,16 +17,9 @@
 [include rtree/nearest_query.qbk]
 [include rtree/exception_safety.qbk]
 
-[include auto_index_helpers.qbk]
-
 [section:index Reference]
 
-[named_index class_name Class Index]
-[named_index typedef_name Typedef Index]
-[named_index function_name Function Index]
-[/named_index macro_name Macro Index]
-[/index]
-[xinclude autodoc.xml]
+[include generated/rtree.qbk]
 
 [endsect]
 
