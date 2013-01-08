@@ -153,6 +153,9 @@ struct class_or_struct : public element
 
 struct documentation
 {
+    std::string group_id;
+    std::string group_title;
+
     // Only one expected (no grouping)
     class_or_struct cos; 
 

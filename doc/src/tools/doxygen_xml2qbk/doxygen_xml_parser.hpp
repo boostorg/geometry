@@ -482,6 +482,10 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
             if (kind == "group")
             {
                 recurse = true;
+                doc.group_id = get_attribute(node, "id");
+                rapidxml::xml_node<> * n = node->first_node("title");
+                if ( n )
+                    doc.group_title = n->value();
             }
             else if (kind == "struct")
             {

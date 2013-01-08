@@ -53,6 +53,10 @@
 namespace boost { namespace geometry { namespace index {
 
 /*!
+\defgroup rtree_group boost::geometry::index::rtree
+*/
+
+/*!
 \brief The R-tree spatial index.
 
 The R-tree spatial index. This is self-balancing spatial index capable to store various types
@@ -76,6 +80,8 @@ const reference instead of a value. Default translator can translate all types a
 or Box concepts (which are Indexables). It also handles std::pair<Indexable, T>, pointers, smart pointers,
 and iterators. E.g. If std::pair<Box, int> is stored, the default translator translates from
 std::pair<Box, int> const& to Box const&.
+
+\ingroup rtree_group
 
 \tparam Value       The type of objects stored in the container.
 \tparam Parameters  Compile-time parameters.
@@ -1152,11 +1158,9 @@ private:
 };
 
 /*!
-\defgroup rtree_functions Global functions
-*/
-
-/*!
 \brief Insert a value to the index.
+
+\ingroup rtree_group
 
 \param tree The spatial index.
 \param v    The value which will be stored in the index.
@@ -1170,6 +1174,8 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Value co
 /*!
 \brief Insert a range of values to the index.
 
+\ingroup rtree_group
+
 \param tree     The spatial index.
 \param first    The beginning of the range of values.
 \param last     The end of the range of values.
@@ -1182,6 +1188,8 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Iterator
 
 /*!
 \brief Insert a range of values to the index.
+
+\ingroup rtree_group
 
 \param tree     The spatial index.
 \param rng      The range of values.
@@ -1197,6 +1205,8 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Range co
 
 Remove a value from the container. In contrast to the STL set/map erase() method
 this function removes only one value from the container.
+
+\ingroup rtree_group
 
 \param tree The spatial index.
 \param v    The value which will be removed from the index.
@@ -1218,6 +1228,8 @@ it doesn't take iterators pointing to values stored in this container. It remove
 to these passed as a range. Furthermore this function removes only one value for each one passed
 in the range, not all equal values.
 
+\ingroup rtree_group
+
 \param tree     The spatial index.
 \param first    The beginning of the range of values.
 \param last     The end of the range of values.
@@ -1238,6 +1250,8 @@ Remove a range of values from the container. In contrast to the STL set/map eras
 it removes values equal to these passed as a range. Furthermore this method removes only
 one value for each one passed in the range, not all equal values.
 
+\ingroup rtree_group
+
 \param tree     The spatial index.
 \param rng      The range of values.
 
@@ -1252,6 +1266,8 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
 
 /*!
 \brief Find values meeting spatial predicates.
+
+\ingroup rtree_group
 
 \param tree     The spatial index.
 \param pred     The spatial predicates.
@@ -1268,6 +1284,8 @@ inline size_t spatial_query(rtree<Value, Options, Translator, Allocator> const& 
 /*!
 \brief Find the value meeting distances predicates.
 
+\ingroup rtree_group
+
 \param tree     The spatial index.
 \param dpred    The distances predicates.
 \param v        The result.
@@ -1282,6 +1300,8 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 
 /*!
 \brief Find the value meeting distances and spatial predicates.
+
+\ingroup rtree_group
 
 \param tree     The spatial index.
 \param dpred    The distances predicates.
@@ -1299,6 +1319,8 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 /*!
 \brief Find k values meeting distances predicates.
 
+\ingroup rtree_group
+
 \param tree     The spatial index.
 \param dpred    The distances predicates.
 \param k        The max number of values.
@@ -1314,6 +1336,8 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 
 /*!
 \brief Find k values meeting distances and spatial predicates.
+
+\ingroup rtree_group
 
 \param tree     The spatial index.
 \param dpred    The distances predicates.
@@ -1332,6 +1356,8 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 /*!
 \brief Remove all values from the index.
 
+\ingroup rtree_group
+
 \param tree     The spatial index.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator>
@@ -1342,6 +1368,8 @@ inline void clear(rtree<Value, Options, Translator, Allocator> & tree)
 
 /*!
 \brief Get the number of values stored in the index.
+
+\ingroup rtree_group
 
 \param tree     The spatial index.
 
@@ -1356,6 +1384,8 @@ inline size_t size(rtree<Value, Options, Translator, Allocator> const& tree)
 /*!
 \brief Query if there are no values stored in the index.
 
+\ingroup rtree_group
+
 \param tree     The spatial index.
 
 \return         true if there are no values in the index.
@@ -1368,6 +1398,8 @@ inline bool empty(rtree<Value, Options, Translator, Allocator> const& tree)
 
 /*!
 \brief Get the box containing all stored values or an invalid box if the index has no values.
+
+\ingroup rtree_group
 
 \param tree     The spatial index.
 

@@ -15,11 +15,12 @@
 [include rtree/creation.qbk]
 [include rtree/spatial_query.qbk]
 [include rtree/nearest_query.qbk]
-[include rtree/exception_safety.qbk]
+[/include rtree/exception_safety.qbk]
 
-[section:index Reference]
+[section:reference Reference]
 
 [include generated/rtree.qbk]
+[include generated/rtree_group.qbk]
 
 [endsect]
 

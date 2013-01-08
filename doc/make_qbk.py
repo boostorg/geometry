@@ -14,10 +14,11 @@ cmd = "doxygen_xml2qbk"
 cmd = cmd + " --xml xml/%s.xml"
 cmd = cmd + " --start_include ."
 cmd = cmd + " --index_id_path %s"
-cmd = cmd + " --cos_output_style alt"
+cmd = cmd + " --output_style alt"
 cmd = cmd + " > generated/%s.qbk"
 
 os.system("doxygen Doxyfile")
-os.system(cmd % ("classboost_1_1geometry_1_1index_1_1rtree", "geometry_index.r_tree.index", "rtree"))
+os.system(cmd % ("classboost_1_1geometry_1_1index_1_1rtree", "geometry_index.r_tree.reference", "rtree"))
+os.system(cmd % ("group__rtree__group", "geometry_index.r_tree.reference", "rtree_group"))
 
 os.system("b2") 
