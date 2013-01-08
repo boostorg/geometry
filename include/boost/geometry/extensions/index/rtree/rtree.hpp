@@ -124,11 +124,14 @@ public:
     /*!
     \brief The constructor.
 
-    \exception nothrow
-
     \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline explicit rtree(parameters_type parameters = parameters_type(),
                           translator_type const& translator = translator_type(),
@@ -144,13 +147,16 @@ public:
     /*!
     \brief The constructor.
 
-    \exception strong
-
     \param first        The beginning of the range of Values.
     \param last         The end of the range of Values.
     \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last,
@@ -178,12 +184,15 @@ public:
     /*!
     \brief The constructor.
 
-    \exception strong
-
     \param rng          The range of Values.
     \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template<typename Range>
     inline explicit rtree(Range const& rng,
@@ -211,7 +220,10 @@ public:
     /*!
     \brief The destructor.
 
-    \exception nothrow
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline ~rtree()
     {
@@ -223,9 +235,12 @@ public:
 
     The copy constructor. It uses parameters, translator and allocator from the source tree.
 
-    \exception strong
-
     \param src          The rtree which content will be copied.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     inline rtree(rtree const& src)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -241,12 +256,17 @@ public:
     }
 
     /*!
-    \brief The copy constructor. It uses Parameters and translator from the source tree.
+    \brief The copy constructor.
 
-    \exception strong
+    The copy constructor. It uses Parameters and translator from the source tree.
 
     \param src          The rtree which content will be copied.
     \param allocator    The allocator which will be used.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     inline rtree(rtree const& src, allocator_type const& allocator)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -264,9 +284,12 @@ public:
 
     The moving constructor. It uses parameters, translator and allocator from the source tree.
 
-    \exception nothrow
-
     \param src          The rtree which content will be moved.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline rtree(BOOST_RV_REF(rtree) src)
 // TODO - use boost::move()
@@ -287,9 +310,12 @@ public:
 
     The assignment operator. It uses parameters and translator from the source tree.
 
-    \exception strong
-
     \param src          The rtree which content will be copied.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
@@ -309,9 +335,12 @@ public:
 
     The moving assignment. It uses parameters and translator from the source tree.
 
-    \exception nothrow (if allocators are equal), strong (if allocators aren't equal)
-
     \param src          The rtree which content will be moved.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow (if allocators are equal), strong (if allocators aren't equal)
+    }
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
@@ -349,9 +378,12 @@ public:
 
     Swaps contents of two rtrees. Parameters, translator and allocators are swapped as well.
 
-    \exception nothrow
-
     \param other    The rtree which content will be swapped with this rtree content.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     void swap(rtree & other)
     {
@@ -369,10 +401,13 @@ public:
     /*!
     \brief Insert a value to the index.
 
-    \exception not safe -  if this operation throws, the R-tree may be left in
-          an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-
     \param value    The value which will be stored in the container.
+
+    \qbk{
+    [heading Exception-safety]
+    not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    }
     */
     inline void insert(value_type const& value)
     {
@@ -385,11 +420,14 @@ public:
     /*!
     \brief Insert a range of values to the index.
 
-    \exception not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
+
+    \qbk{
+    [heading Exception-safety]
+    not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    }
     */
     template <typename Iterator>
     inline void insert(Iterator first, Iterator last)
@@ -404,10 +442,13 @@ public:
     /*!
     \brief Insert a range of values to the index.
 
-    \exception not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-
     \param rng      The range of values.
+
+    \qbk{
+    [heading Exception-safety]
+    not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    }
     */
     template <typename Range>
     inline void insert(Range const& rng)
@@ -426,12 +467,15 @@ public:
     In contrast to the STL set/map erase() method
     this method removes only one value from the container.
 
-    \exception not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-
     \param value    The value which will be removed from the container.
 
     \return         1 if the value was removed, 0 otherwise.
+
+    \qbk{
+    [heading Exception-safety]
+    not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    }
     */
     inline size_type remove(value_type const& value)
     {
@@ -446,13 +490,16 @@ public:
     to these passed as a range. Furthermore this method removes only one value for each one passed
     in the range, not all equal values.
 
-    \exception not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
 
     \return         The number of removed values.
+
+    \qbk{
+    [heading Exception-safety]
+    not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    }
     */
     template <typename Iterator>
     inline size_type remove(Iterator first, Iterator last)
@@ -470,12 +517,15 @@ public:
     it removes values equal to these passed as a range. Furthermore, this method removes only
     one value for each one passed in the range, not all equal values.
 
-    \exception not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-
     \param rng      The range of values.
 
     \return         The number of removed values.
+
+    \qbk{
+    [heading Exception-safety]
+    not safe -  if this operation throws, the R-tree may be left in
+    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    }
     */
     template <typename Range>
     inline size_type remove(Range const& rng)
@@ -490,10 +540,13 @@ public:
     /*
     Assign new elements to the rtree. This method replaces the content of the rtree.
 
-    \exception strong
-
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     /*template <typename Iterator>
     inline void assign(Iterator first, Iterator last)
@@ -505,9 +558,12 @@ public:
     /*
     Assign new elements to the rtree. This method replaces the content of the rtree.
 
-    \exception strong
-
     \param rng      The range of values.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     /*template <typename Range>
     inline void assign(Range const& rng)
@@ -527,13 +583,16 @@ public:
     or bgi::value(func). Those predicates may be passed together in std::pair
     or boost::tuple.
 
-    \exception strong
-
     \param pred     The spatial predicates or a Geometry.
     \param out_it   The output iterator of the result range. E.g. an iterator generated by
                     std::back_inserter(container)
 
     \return         The number of values found.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template <typename Predicates, typename OutIter>
     inline size_type spatial_query(Predicates const& pred, OutIter out_it) const
@@ -562,13 +621,16 @@ public:
     MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
     bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
 
-    \exception strong
-
     \param dpred    The distances predicates or a Point.
 
     \param v        The reference to the object which will contain the result.
 
     \return         The number of values found.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template <typename DistancesPredicates>
     inline size_type nearest_query(DistancesPredicates const& dpred, value_type & v) const
@@ -598,13 +660,16 @@ public:
     or bgi::value(func). Those predicates may be passed together in std::pair
     or boost::tuple.
 
-    \exception strong
-
     \param dpred    The distances predicates or a Point.
     \param pred     The spatial predicates or a Geometry
     \param v        The reference to the object which will contain the result.
 
     \return         The number of values found.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template <typename DistancesPredicates, typename Predicates>
     inline size_type nearest_query(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
@@ -625,13 +690,16 @@ public:
     MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
     bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
 
-    \exception strong
-
     \param dpred    The distances predicates or a Point.
     \param k        The max number of values.
     \param out_it   The output iterator of the result range. E.g. a back_insert_iterator.
 
     \return         The number of values found.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template <typename DistancesPredicates, typename OutIter>
     inline size_type nearest_query(DistancesPredicates const& dpred, size_t k, OutIter out_it) const
@@ -661,14 +729,17 @@ public:
     or bgi::value(func). Those predicates may be passed together in std::pair
     or boost::tuple.
 
-    \exception strong
-
     \param dpred    The distances predicates or a Point
     \param k        The max number of values.
     \param pred     The spatial predicates or a Geometry.
     \param out_it   The output iterator of the result range. E.g. a back_insert_iterator.
 
     \return         The number of values found.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
     inline size_type nearest_query(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
@@ -679,9 +750,12 @@ public:
     /*!
     \brief Returns the number of stored values.
 
-    \exception nothrow
-
     \return         The number of stored values.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline size_type size() const
     {
@@ -691,9 +765,12 @@ public:
     /*!
     \brief Query if the container is empty.
 
-    \exception nothrow
-
     \return         true if the container is empty.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline bool empty() const
     {
@@ -703,7 +780,10 @@ public:
     /*!
     \brief Removes all values stored in the container.
 
-    \exception nothrow.
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline void clear()
     {
@@ -716,11 +796,14 @@ public:
     Returns the box containing all values stored in the container.
     If the container is empty the result of geometry::assign_inverse() is returned.
 
-    \exception nothrow (if Indexable's CoordinateType copy assignment doesn't throw),
-                            strong (if Indexable's CoordinateType copy assignment throws).
-
     \return     The box containing all values stored in the container or an invalid box if
                 there are no values in the container.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow (if Indexable's CoordinateType copy assignment doesn't throw),
+    strong (if Indexable's CoordinateType copy assignment throws).
+    }
     */
     inline box_type box() const
     {
@@ -745,11 +828,14 @@ public:
     For indexable_type it returns the number of values which indexables equals the parameter.
     For value_type it returns the number of values which equals the parameter.
 
-    \exception nothrow.
-
     \param vori The value or indexable which will be counted.
 
     \return     The number of values found.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     template <typename ValueOrIndexable>
     size_type count(ValueOrIndexable const& vori) const
@@ -768,9 +854,12 @@ public:
     /*!
     \brief Returns parameters.
 
-    \exception nothrow.
-
     \return     The parameters object.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline parameters_type const& parameters() const
     {
@@ -780,9 +869,12 @@ public:
     /*!
     \brief Returns the translator object.
 
-    \exception nothrow.
-
     \return     The translator object.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline translator_type const& translator() const
     {
@@ -792,9 +884,12 @@ public:
     /*!
     \brief Returns allocator used by the rtree.
 
-    \exception nothrow
-
     \return     The allocator.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     allocator_type get_allocator() const
     {
@@ -810,9 +905,12 @@ private:
     This function is not a part of the 'official' interface. However it makes
     possible e.g. to pass a visitor drawing the tree structure.
 
-    \exception the same as Visitor::operator().
-
     \param visitor  The visitor object.
+
+    \qbk{
+    [heading Exception-safety]
+    the same as Visitor::operator().
+    }
     */
     template <typename Visitor>
     inline void apply_visitor(Visitor & visitor) const
@@ -826,9 +924,12 @@ private:
 
     This function is not a part of the 'official' interface.
 
-    \exception nothrow
-
     \return     The number of stored objects.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline size_type values_count() const
     {
@@ -840,9 +941,12 @@ private:
 
     This function is not a part of the 'official' interface.
 
-    \exception nothrow.
-
     \return     The depth of the R-tree.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline size_type depth() const
     {
@@ -855,9 +959,12 @@ private:
 
     \brief Insert a value to the index.
 
-    \exception basic
-
     \param value    The value which will be stored in the container.
+
+    \qbk{
+    [heading Exception-safety]
+    basic
+    }
     */
     inline void raw_insert(value_type const& value)
     {
@@ -884,9 +991,12 @@ private:
     /*!
     \brief Remove the value from the container.
 
-    \exception basic
-
     \param value    The value which will be removed from the container.
+
+    \qbk{
+    [heading Exception-safety]
+    basic
+    }
     */
     inline size_type raw_remove(value_type const& value)
     {
@@ -914,7 +1024,10 @@ private:
     /*!
     \brief Create an empty R-tree i.e. new empty root node and clear other attributes.
 
-    \exception strong.
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     inline void raw_create()
     {
@@ -928,9 +1041,12 @@ private:
     /*!
     \brief Destroy the R-tree i.e. all nodes and clear attributes.
 
-    \exception nothrow.
-
     \param t    The container which is going to be destroyed.
+
+    \qbk{
+    [heading Exception-safety]
+    nothrow
+    }
     */
     inline void raw_destroy(rtree & t)
     {
@@ -949,10 +1065,13 @@ private:
     \brief Copy the R-tree i.e. whole nodes structure, values and other attributes.
     It uses destination's allocators to create the new structure.
 
-    \exception strong.
-
     \param src    The source R-tree.
     \param dst    The destination R-tree.
+
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     inline void raw_copy(rtree const& src, rtree & dst, bool copy_all_internals) const
     {
@@ -984,7 +1103,10 @@ private:
     /*!
     \brief Find one value meeting distances and spatial predicates.
 
-    \exception strong.
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template <typename DistancesPredicates, typename Predicates>
     inline size_type raw_nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
@@ -1022,7 +1144,10 @@ private:
     /*!
     \brief Find k values meeting distances and spatial predicates.
 
-    \exception strong.
+    \qbk{
+    [heading Exception-safety]
+    strong
+    }
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
     inline size_type raw_nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
