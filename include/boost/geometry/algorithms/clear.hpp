@@ -14,7 +14,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP
 
-#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -22,8 +21,11 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/type_traits/remove_const.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 
 namespace boost { namespace geometry
@@ -71,6 +73,7 @@ struct no_action
     {
     }
 };
+
 
 }} // namespace detail::clear
 #endif // DOXYGEN_NO_DETAIL
@@ -121,6 +124,17 @@ struct clear<Polygon, polygon_tag>
 {};
 
 
+struct variant_dispatcher: boost::static_visitor<void>
+{
+    template <typename Geometry>
+    void operator()(Geometry& geometry) const
+    {
+        concept::check<Geometry>();
+        clear<Geometry>::apply(geometry);
+    }
+};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
@@ -144,6 +158,13 @@ inline void clear(Geometry& geometry)
     concept::check<Geometry>();
 
     dispatch::clear<Geometry>::apply(geometry);
+}
+
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+inline void clear(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry)
+{
+    apply_visitor(dispatch::variant_dispatcher(), geometry);
 }
 
 
