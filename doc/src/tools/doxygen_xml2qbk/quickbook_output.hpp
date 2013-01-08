@@ -730,17 +730,18 @@ void quickbook_output_detail_member(class_or_struct const& cos,
             
             out << "[section:member" << i << " " << ss.str() <<  "]" << std::endl;
             
-            if ( !f.detailed_description.empty() || !f.brief_description.empty() )
+            out << f.brief_description;
+
+            if ( !f.detailed_description.empty() )
             {
                 out << "[heading Description]" << std::endl;
-                if ( !f.detailed_description.empty() )
-                    out << f.detailed_description;
-                else
-                    out << f.brief_description;
+                out << f.detailed_description;
             }
 
+            quickbook_markup(f.qbk_markup, markup_before, markup_synopsis, out);
             out << "[heading Synopsis]" << std::endl;
             quickbook_synopsis(f, out, true, true);
+            quickbook_markup(f.qbk_markup, markup_after, markup_synopsis, out);
 
             if ( !f.parameters.empty() )
             {

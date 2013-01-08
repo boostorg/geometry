@@ -241,7 +241,7 @@ public:
     /*!
     \brief  The copy constructor.
 
-    The copy constructor. It uses parameters, translator and allocator from the source tree.
+    It uses parameters, translator and allocator from the source tree.
 
     \param src          The rtree which content will be copied.
 
@@ -268,7 +268,7 @@ public:
     /*!
     \brief The copy constructor.
 
-    The copy constructor. It uses Parameters and translator from the source tree.
+    It uses Parameters and translator from the source tree.
 
     \param src          The rtree which content will be copied.
     \param allocator    The allocator which will be used.
@@ -294,7 +294,7 @@ public:
     /*!
     \brief The moving constructor.
 
-    The moving constructor. It uses parameters, translator and allocator from the source tree.
+    It uses parameters, translator and allocator from the source tree.
 
     \param src          The rtree which content will be moved.
 
@@ -322,7 +322,7 @@ public:
     /*!
     \brief The assignment operator.
 
-    The assignment operator. It uses parameters and translator from the source tree.
+    It uses parameters and translator from the source tree.
 
     \param src          The rtree which content will be copied.
 
@@ -349,7 +349,7 @@ public:
     /*!
     \brief The moving assignment.
 
-    The moving assignment. It uses parameters and translator from the source tree.
+    It uses parameters and translator from the source tree.
 
     \param src          The rtree which content will be moved.
 
@@ -394,7 +394,7 @@ public:
     /*!
     \brief Swaps contents of two rtrees.
 
-    Swaps contents of two rtrees. Parameters, translator and allocators are swapped as well.
+    Parameters, translator and allocators are swapped as well.
 
     \param other    The rtree which content will be swapped with this rtree content.
 

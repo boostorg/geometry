@@ -75,6 +75,9 @@ int main(int argc, char** argv)
                             "Namespace to skip (e.g. boost::mylib::")
                 ("copyright", po::value<std::string>(&copyright_filename), 
                             "Name of QBK file including (commented) copyright and license")
+
+                ("cos_output_style", po::value<std::string>(&config.cos_output_style),
+                            "Class or struct docbook output style. Value:'alt'")
                 ("index_id_path", po::value<std::string>(&config.index_id_path),
                             "The QBK index ID path")
             ;
@@ -168,7 +171,11 @@ int main(int argc, char** argv)
         if (! doc.cos.name.empty())
         {
             std::sort(doc.cos.functions.begin(), doc.cos.functions.end(), sort_on_line<function>());
-            quickbook_output(doc.cos, config, std::cout, quickbook_output_cos_alt());
+
+            if ( config.cos_output_style == "alt" )
+                quickbook_output(doc.cos, config, std::cout, quickbook_output_cos_alt());
+            else
+                quickbook_output(doc.cos, config, std::cout, 0);
         }
 
     }

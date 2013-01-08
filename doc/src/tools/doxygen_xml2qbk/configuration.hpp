@@ -28,6 +28,7 @@ struct configuration
 
     std::string skip_namespace;
 
+    std::string cos_output_style;
     std::string index_id_path;
 };
 

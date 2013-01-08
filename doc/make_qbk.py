@@ -14,6 +14,7 @@ cmd = "doxygen_xml2qbk"
 cmd = cmd + " --xml xml/%s.xml"
 cmd = cmd + " --start_include ."
 cmd = cmd + " --index_id_path %s"
+cmd = cmd + " --cos_output_style alt"
 cmd = cmd + " > generated/%s.qbk"
 
 os.system("doxygen Doxyfile")
