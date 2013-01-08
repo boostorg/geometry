@@ -75,8 +75,8 @@ int main(int argc, char** argv)
                             "Namespace to skip (e.g. boost::mylib::")
                 ("copyright", po::value<std::string>(&copyright_filename), 
                             "Name of QBK file including (commented) copyright and license")
-                ("document_id_path", po::value<std::string>(&config.document_id_path),
-                            "The QBK document ID path")
+                ("index_id_path", po::value<std::string>(&config.index_id_path),
+                            "The QBK index ID path")
             ;
 
             po::variables_map varmap;
@@ -105,9 +105,6 @@ int main(int argc, char** argv)
             {
                 boost::split(config.convenience_headers, convenience_headers, boost::is_any_of(","));
             }
-
-            if ( !config.document_id_path.empty() && config.document_id_path[config.document_id_path.size() - 1] != '.' )
-                config.document_id_path += '.';
         }
 
         // Read files into strings

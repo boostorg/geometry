@@ -699,12 +699,14 @@ void quickbook_output_member(class_or_struct const& cos,
         if (f.type == type)
         {
             out << "[[";
-            if ( !config.document_id_path.empty() )
-                out << "[link " << config.document_id_path << "member" << i << " ";
+            if ( !config.index_id_path.empty() )
+                out << "[link " << config.index_id_path
+                    << "." << to_section_name(namespace_skipped(cos.fullname, config))
+                    << ".member" << i << " ";
             out << "`";
             quickbook_synopsis_short(f, out);
             out << "`";
-            if ( !config.document_id_path.empty() )
+            if ( !config.index_id_path.empty() )
                 out << "]";
             out << "][" << f.brief_description << "]]" << std::endl;
         }

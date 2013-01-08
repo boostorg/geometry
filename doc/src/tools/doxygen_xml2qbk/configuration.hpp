@@ -28,7 +28,7 @@ struct configuration
 
     std::string skip_namespace;
 
-    std::string document_id_path;
+    std::string index_id_path;
 };
 
 
