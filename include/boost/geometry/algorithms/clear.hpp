@@ -124,7 +124,7 @@ struct clear<Polygon, polygon_tag>
 {};
 
 
-struct variant_dispatcher: boost::static_visitor<void>
+struct clear_variant_dispatcher: boost::static_visitor<void>
 {
     template <typename Geometry>
     void operator()(Geometry& geometry) const
@@ -164,7 +164,7 @@ inline void clear(Geometry& geometry)
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 inline void clear(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry)
 {
-    apply_visitor(dispatch::variant_dispatcher(), geometry);
+    apply_visitor(dispatch::clear_variant_dispatcher(), geometry);
 }
 
 
