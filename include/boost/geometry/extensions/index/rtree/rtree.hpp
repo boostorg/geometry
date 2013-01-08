@@ -128,12 +128,9 @@ public:
     \param translator   The translator object.
     \param allocator    The allocator object.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline explicit rtree(parameters_type parameters = parameters_type(),
                           translator_type const& translator = translator_type(),
@@ -155,12 +152,9 @@ public:
     \param translator   The translator object.
     \param allocator    The allocator object.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last,
@@ -193,12 +187,9 @@ public:
     \param translator   The translator object.
     \param allocator    The allocator object.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template<typename Range>
     inline explicit rtree(Range const& rng,
@@ -226,12 +217,9 @@ public:
     /*!
     \brief The destructor.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline ~rtree()
     {
@@ -245,12 +233,9 @@ public:
 
     \param src          The rtree which content will be copied.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     inline rtree(rtree const& src)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -273,12 +258,9 @@ public:
     \param src          The rtree which content will be copied.
     \param allocator    The allocator which will be used.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     inline rtree(rtree const& src, allocator_type const& allocator)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -298,12 +280,9 @@ public:
 
     \param src          The rtree which content will be moved.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline rtree(BOOST_RV_REF(rtree) src)
 // TODO - use boost::move()
@@ -326,12 +305,9 @@ public:
 
     \param src          The rtree which content will be copied.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
@@ -353,12 +329,9 @@ public:
 
     \param src          The rtree which content will be moved.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow (if allocators are equal), strong (if allocators aren't equal)
-    </qbk>
-    \endxmlonly
+    }
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
@@ -398,12 +371,9 @@ public:
 
     \param other    The rtree which content will be swapped with this rtree content.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     void swap(rtree & other)
     {
@@ -423,13 +393,10 @@ public:
 
     \param value    The value which will be stored in the container.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-    </qbk>
-    \endxmlonly
+    }
     */
     inline void insert(value_type const& value)
     {
@@ -445,13 +412,10 @@ public:
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename Iterator>
     inline void insert(Iterator first, Iterator last)
@@ -468,13 +432,10 @@ public:
 
     \param rng      The range of values.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename Range>
     inline void insert(Range const& rng)
@@ -497,13 +458,10 @@ public:
 
     \return         1 if the value was removed, 0 otherwise.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-    </qbk>
-    \endxmlonly
+    }
     */
     inline size_type remove(value_type const& value)
     {
@@ -523,13 +481,10 @@ public:
 
     \return         The number of removed values.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename Iterator>
     inline size_type remove(Iterator first, Iterator last)
@@ -551,13 +506,10 @@ public:
 
     \return         The number of removed values.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     not safe -  if this operation throws, the R-tree may be left in
     an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename Range>
     inline size_type remove(Range const& rng)
@@ -575,12 +527,9 @@ public:
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     /*template <typename Iterator>
     inline void assign(Iterator first, Iterator last)
@@ -594,12 +543,9 @@ public:
 
     \param rng      The range of values.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     /*template <typename Range>
     inline void assign(Range const& rng)
@@ -625,12 +571,9 @@ public:
 
     \return         The number of values found.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename Predicates, typename OutIter>
     inline size_type spatial_query(Predicates const& pred, OutIter out_it) const
@@ -665,12 +608,9 @@ public:
 
     \return         The number of values found.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename DistancesPredicates>
     inline size_type nearest_query(DistancesPredicates const& dpred, value_type & v) const
@@ -706,12 +646,9 @@ public:
 
     \return         The number of values found.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename DistancesPredicates, typename Predicates>
     inline size_type nearest_query(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
@@ -738,12 +675,9 @@ public:
 
     \return         The number of values found.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename DistancesPredicates, typename OutIter>
     inline size_type nearest_query(DistancesPredicates const& dpred, size_t k, OutIter out_it) const
@@ -780,12 +714,9 @@ public:
 
     \return         The number of values found.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
     inline size_type nearest_query(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
@@ -798,12 +729,9 @@ public:
 
     \return         The number of stored values.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline size_type size() const
     {
@@ -815,12 +743,9 @@ public:
 
     \return         true if the container is empty.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline bool empty() const
     {
@@ -830,12 +755,9 @@ public:
     /*!
     \brief Removes all values stored in the container.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline void clear()
     {
@@ -851,13 +773,10 @@ public:
     \return     The box containing all values stored in the container or an invalid box if
                 there are no values in the container.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow (if Indexable's CoordinateType copy assignment doesn't throw),
     strong (if Indexable's CoordinateType copy assignment throws).
-    </qbk>
-    \endxmlonly
+    }
     */
     inline box_type box() const
     {
@@ -886,12 +805,9 @@ public:
 
     \return     The number of values found.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename ValueOrIndexable>
     size_type count(ValueOrIndexable const& vori) const
@@ -912,12 +828,9 @@ public:
 
     \return     The parameters object.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline parameters_type const& parameters() const
     {
@@ -929,12 +842,9 @@ public:
 
     \return     The translator object.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline translator_type const& translator() const
     {
@@ -946,12 +856,9 @@ public:
 
     \return     The allocator.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     allocator_type get_allocator() const
     {
@@ -969,12 +876,9 @@ private:
 
     \param visitor  The visitor object.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     the same as Visitor::operator().
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename Visitor>
     inline void apply_visitor(Visitor & visitor) const
@@ -990,12 +894,9 @@ private:
 
     \return     The number of stored objects.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline size_type values_count() const
     {
@@ -1009,12 +910,9 @@ private:
 
     \return     The depth of the R-tree.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline size_type depth() const
     {
@@ -1029,12 +927,9 @@ private:
 
     \param value    The value which will be stored in the container.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     basic
-    </qbk>
-    \endxmlonly
+    }
     */
     inline void raw_insert(value_type const& value)
     {
@@ -1063,12 +958,9 @@ private:
 
     \param value    The value which will be removed from the container.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     basic
-    </qbk>
-    \endxmlonly
+    }
     */
     inline size_type raw_remove(value_type const& value)
     {
@@ -1096,12 +988,9 @@ private:
     /*!
     \brief Create an empty R-tree i.e. new empty root node and clear other attributes.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     inline void raw_create()
     {
@@ -1117,12 +1006,9 @@ private:
 
     \param t    The container which is going to be destroyed.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     nothrow
-    </qbk>
-    \endxmlonly
+    }
     */
     inline void raw_destroy(rtree & t)
     {
@@ -1144,12 +1030,9 @@ private:
     \param src    The source R-tree.
     \param dst    The destination R-tree.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     inline void raw_copy(rtree const& src, rtree & dst, bool copy_all_internals) const
     {
@@ -1181,12 +1064,9 @@ private:
     /*!
     \brief Find one value meeting distances and spatial predicates.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename DistancesPredicates, typename Predicates>
     inline size_type raw_nearest_one(DistancesPredicates const& dpred, Predicates const& pred, value_type & v) const
@@ -1224,12 +1104,9 @@ private:
     /*!
     \brief Find k values meeting distances and spatial predicates.
 
-    \xmlonly
-    <qbk>
-    [heading Exception-safety]
+    \bgi_exception{
     strong
-    </qbk>
-    \endxmlonly
+    }
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
     inline size_type raw_nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
@@ -1273,6 +1150,10 @@ private:
     size_type m_leafs_level;
     node * m_root;
 };
+
+/*!
+\defgroup rtree_functions Global functions
+*/
 
 /*!
 \brief Insert a value to the index.
