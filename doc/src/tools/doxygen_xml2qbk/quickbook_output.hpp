@@ -698,9 +698,15 @@ void quickbook_output_member(class_or_struct const& cos,
 
         if (f.type == type)
         {
-            out << "[[`";
+            out << "[[";
+            if ( !config.document_id_path.empty() )
+                out << "[link " << config.document_id_path << "member" << i << " ";
+            out << "`";
             quickbook_synopsis_short(f, out);
-            out << "`][" << f.brief_description << "]]" << std::endl;
+            out << "`";
+            if ( !config.document_id_path.empty() )
+                out << "]";
+            out << "][" << f.brief_description << "]]" << std::endl;
         }
     }
     out << "]" << std::endl
@@ -720,7 +726,7 @@ void quickbook_output_detail_member(class_or_struct const& cos,
             std::stringstream ss;
             quickbook_synopsis_short(f, ss);
             
-            out << "[section " << ss.str() <<  "]" << std::endl;
+            out << "[section:member" << i << " " << ss.str() <<  "]" << std::endl;
             
             out << "[heading Synopsis]" << std::endl;
             quickbook_synopsis(f, out, true, true);

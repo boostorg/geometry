@@ -27,6 +27,8 @@ struct configuration
     std::vector<std::string> convenience_headers;
 
     std::string skip_namespace;
+
+    std::string document_id_path;
 };
 
 
