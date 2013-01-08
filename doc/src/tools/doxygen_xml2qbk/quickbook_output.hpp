@@ -621,9 +621,9 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
         counts[f.type]++;
     }
 
-    if (counts[function_constructor] > 0)
+    if (counts[function_constructor_destructor] > 0)
     {
-        quickbook_output_member(cos.functions, function_constructor, "Constructor", config, out);
+        quickbook_output_member(cos.functions, function_constructor_destructor, "Constructor", config, out);
     }
 
     if (counts[function_member] > 0)
@@ -743,7 +743,7 @@ void quickbook_output_detail_member(class_or_struct const& cos,
                 {
                     if (!p.skip)
                     {
-                        out << "[[ *" << p.fulltype << "* ][ /" << p.name << "/ ][" << p.brief_description << "]]"<< std::endl;
+                        out << "[[ `" << p.fulltype << "` ][ `" << p.name << "` ][" << p.brief_description << "]]"<< std::endl;
                     }
                 }
                 out << "]" << std::endl;
