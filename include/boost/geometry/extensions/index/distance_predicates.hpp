@@ -17,6 +17,10 @@
 
 #include <boost/geometry/extensions/index/tuples.hpp>
 
+/*!
+\defgroup distance_predicates Distance predicates (boost::geometry::index::)
+*/
+
 namespace boost { namespace geometry { namespace index {
 
 //TODO: awulkiew - consider storing values instead of const references
@@ -102,12 +106,16 @@ struct relation< to_furthest<T> >
 // relations generators
 
 /*!
+\brief Generate to_nearest() Point-Indexable relationship.
+
 Generate a nearest query Point and Value's Indexable relationship while calculating
 distances. This function may be used to define that knn query should calculate distances
 as smallest as possible between query Point and Indexable's points. In other words it
 should be the distance to the nearest Indexable's point. This function may be also used
 to define distances bounds which indicates that Indexable's nearest point should be
 closer or further than value v. This is default relation.
+
+\ingroup distance_predicates
 
 \tparam T   Type of wrapped object. This may be a Point for PointRelation or some Value for
             MinRelation or MaxRelation
@@ -121,11 +129,15 @@ detail::to_nearest<T> to_nearest(T const& v)
 }
 
 /*!
+\brief Generate to_centroid() Point-Indexable relationship.
+
 Generate a nearest query Point and Value's Indexable relationship while calculating
 distances. This function may be used to define that knn query should calculate distances
 between query Point and Indexable's centroid. This function may be also used
 to define distances bounds which indicates that Indexable's centroid should be
 closer or further than value v.
+
+\ingroup distance_predicates
 
 \tparam T   Type of wrapped object. This may be a Point for PointRelation or some Value for
             MinRelation or MaxRelation
@@ -139,12 +151,16 @@ detail::to_centroid<T> to_centroid(T const& v)
 }
 
 /*!
+\brief Generate to_furthest() Point-Indexable relationship.
+
 Generate a nearest query Point and Value's Indexable relationship while calculating
 distances. This function may be used to define that knn query should calculate distances
 as biggest as possible between query Point and Indexable's points. In other words it
 should be the distance to the furthest Indexable's point. This function may be also used
 to define distances bounds which indicates that Indexable's furthest point should be
 closer or further than value v.
+
+\ingroup distance_predicates
 
 \tparam T   Type of wrapped object. This may be a Point for PointRelation or some Value for
             MinRelation or MaxRelation
@@ -237,10 +253,14 @@ struct bounded
 // distance predicates generators
 
 /*!
+\brief Generate unbounded() distance predicate.
+
 Generate a distance predicate. This defines distances bounds which are used by knn query.
 This function indicates that there is no distance bounds and Values should be returned
 if distances between Point and Indexable are the smallest. Distance calculation is defined
 by PointRelation. This is default nearest predicate.
+
+\ingroup distance_predicates
 
 \tparam PointRelation   PointRelation type.
 
@@ -255,11 +275,15 @@ unbounded(PointRelation const& pr)
 }
 
 /*!
+\brief Generate min_bounded() distance predicate.
+
 Generate a distance predicate. This defines distances bounds which are used by knn query.
 This function indicates that Values should be returned only if distances between Point and
 Indexable are greater or equal to some min_distance passed in MinRelation. Check for closest Value is
 defined by PointRelation. So it is possible e.g. to return Values with centroids closest to some
 Point but only if nearest points are further than some distance.
+
+\ingroup distance_predicates
 
 \tparam PointRelation   PointRelation type.
 \tparam MinRelation     MinRelation type.
@@ -277,11 +301,15 @@ min_bounded(PointRelation const& pr, MinRelation const& minr)
 }
 
 /*!
+\brief Generate max_bounded() distance predicate.
+
 Generate a distance predicate. This defines distances bounds which are used by knn query.
 This function indicates that Values should be returned only if distances between Point and
 Indexable are lesser or equal to some max_distance passed in MaxRelation. Check for closest Value is
 defined by PointRelation. So it is possible e.g. to return Values with centroids closest to some
 Point but only if nearest points are closer than some distance.
+
+\ingroup distance_predicates
 
 \tparam PointRelation   PointRelation type.
 \tparam MaxRelation     MaxRelation type.
@@ -299,12 +327,16 @@ max_bounded(PointRelation const& pr, MaxRelation const& maxr)
 }
 
 /*!
+\brief Generate bounded() distance predicate.
+
 Generate a distance predicate. This defines distances bounds which are used by knn query.
 This function indicates that Values should be returned only if distances between Point and
 Indexable are greater or equal to some min_distance passed in MinRelation and lesser or equal to
 some max_distance passed in MaxRelation. Check for closest Value is defined by PointRelation.
 So it is possible e.g. to return Values with centroids closest to some Point but only if nearest
 points are further than some distance and closer than some other distance.
+
+\ingroup distance_predicates
 
 \tparam PointRelation   PointRelation type.
 \tparam MinRelation     MinRelation type.

@@ -20,7 +20,9 @@
 [section:reference Reference]
 
 [include generated/rtree.qbk]
-[include generated/rtree_group.qbk]
+[include generated/rtree_functions.qbk]
+[include generated/predicates.qbk]
+[include generated/distance_predicates.qbk]
 
 [endsect]
 

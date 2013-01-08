@@ -18,6 +18,10 @@
 // TODO: awulkiew - temporary
 #include <boost/geometry/algorithms/covered_by.hpp>
 
+/*!
+\defgroup predicates Predicates (boost::geometry::index::)
+*/
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail {
@@ -122,7 +126,9 @@ struct not_within
 // generators
 
 /*!
-Generate empty predicate.
+\brief Generate empty predicate.
+
+\ingroup predicates
 */
 inline detail::empty empty()
 {
@@ -130,8 +136,12 @@ inline detail::empty empty()
 }
 
 /*!
-Generate value predicate. A wrapper around user-defined functor
+\brief Generate value predicate.
+
+A wrapper around user-defined functor
 describing if Value should be returned by spatial query.
+
+\ingroup predicates
 
 \tparam ValuePredicate  Functor type.
 
@@ -144,9 +154,13 @@ inline detail::value<ValuePredicate> value(ValuePredicate const& vpred)
 }
 
 /*!
+\brief Generate covered_by() predicate.
+
 Generate a predicate defining Value and Geometry relationship.
 Value will be returned by the query if bg::covered_by(Indexable, Geometry)
 returns true.
+
+\ingroup predicates
 
 \tparam Geometry    The Geometry type.
 
@@ -159,9 +173,13 @@ inline detail::covered_by<Geometry> covered_by(Geometry const& g)
 }
 
 /*!
+\brief Generate disjoint() predicate.
+
 Generate a predicate defining Value and Geometry relationship.
 Value will be returned by the query if bg::disjoint(Indexable, Geometry)
 returns true.
+
+\ingroup predicates
 
 \tparam Geometry    The Geometry type.
 
@@ -174,9 +192,13 @@ inline detail::disjoint<Geometry> disjoint(Geometry const& g)
 }
 
 /*!
+\brief Generate intersects() predicate.
+
 Generate a predicate defining Value and Geometry relationship.
 Value will be returned by the query if bg::intersects(Indexable, Geometry)
 returns true.
+
+\ingroup predicates
 
 \tparam Geometry    The Geometry type.
 
@@ -189,9 +211,13 @@ inline detail::intersects<Geometry> intersects(Geometry const& g)
 }
 
 /*!
+\brief Generate overlaps() predicate.
+
 Generate a predicate defining Value and Geometry relationship.
 Value will be returned by the query if bg::overlaps(Indexable, Geometry)
 returns true.
+
+\ingroup predicates
 
 \tparam Geometry    The Geometry type.
 
@@ -204,9 +230,13 @@ inline detail::overlaps<Geometry> overlaps(Geometry const& g)
 }
 
 //*!
+//\brief Generate touches() predicate.
+//
 //Generate a predicate defining Value and Geometry relationship.
 //Value will be returned by the query if bg::touches(Indexable, Geometry)
 //returns true.
+//
+//\ingroup predicates
 //
 //\tparam Geometry    The Geometry type.
 //
@@ -219,9 +249,13 @@ inline detail::overlaps<Geometry> overlaps(Geometry const& g)
 //}
 
 /*!
+\brief Generate within() predicate.
+
 Generate a predicate defining Value and Geometry relationship.
 Value will be returned by the query if bg::within(Indexable, Geometry)
 returns true.
+
+\ingroup predicates
 
 \tparam Geometry    The Geometry type.
 

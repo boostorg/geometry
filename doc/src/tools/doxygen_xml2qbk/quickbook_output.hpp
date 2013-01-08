@@ -813,7 +813,7 @@ void quickbook_output_alt(documentation const& doc, configuration const& config,
     if ( !doc.group_id.empty() )
     {
         id_prefix = doc.group_id + ".function";
-        std::cout << "[section:" << doc.group_id << " " << doc.group_title << " - global functions]" << std::endl;
+        std::cout << "[section:" << doc.group_id << " " << doc.group_title << "]" << std::endl;
     }
 
     quickbook_output_function(doc.functions, function_constructor_destructor, config, id_prefix, out, true);
