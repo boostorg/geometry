@@ -728,9 +728,6 @@ void quickbook_output_detail_member(class_or_struct const& cos,
             
             out << "[section:member" << i << " " << ss.str() <<  "]" << std::endl;
             
-            out << "[heading Synopsis]" << std::endl;
-            quickbook_synopsis(f, out, true, true);
-
             if ( !f.detailed_description.empty() || !f.brief_description.empty() )
             {
                 out << "[heading Description]" << std::endl;
@@ -738,7 +735,10 @@ void quickbook_output_detail_member(class_or_struct const& cos,
                     out << f.detailed_description;
                 else
                     out << f.brief_description;
-            }          
+            }
+
+            out << "[heading Synopsis]" << std::endl;
+            quickbook_synopsis(f, out, true, true);
 
             if ( !f.parameters.empty() )
             {
@@ -759,9 +759,11 @@ void quickbook_output_detail_member(class_or_struct const& cos,
             {
                 out << "[heading Returns]" << std::endl;
                 out << f.return_description << std::endl;
-            }            
-            
-            out << "[endsect]" << std::endl
+            }
+
+            quickbook_markup(f.qbk_markup, markup_any, markup_default, out);
+
+            out << "[endsect][br]" << std::endl
                 << std::endl;
         }
     }
@@ -890,6 +892,8 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
     quickbook_markup(cos.qbk_markup, markup_any, markup_default, out);
 
     // Details start
+
+    out << "[br]";
 
     if (counts[function_constructor_destructor] > 0)
         quickbook_output_detail_member(cos, cos.functions, function_constructor_destructor, config, out);
