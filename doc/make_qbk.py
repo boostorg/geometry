@@ -22,5 +22,6 @@ os.system(cmd % ("classboost_1_1geometry_1_1index_1_1rtree", "geometry_index.r_t
 os.system(cmd % ("group__rtree__functions", "geometry_index.r_tree.reference", "rtree_functions"))
 os.system(cmd % ("group__predicates", "geometry_index.r_tree.reference", "predicates"))
 os.system(cmd % ("group__distance__predicates", "geometry_index.r_tree.reference", "distance_predicates"))
+os.system(cmd % ("group__adaptors", "geometry_index.r_tree.reference", "adaptors"))
 
 os.system("b2") 

@@ -11,6 +11,10 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ADAPTORS_NEAREST_QUERY_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ADAPTORS_NEAREST_QUERY_HPP
 
+/*!
+\defgroup adaptors Spatial indexes adaptors (boost::geometry::index::adaptors::)
+*/
+
 namespace boost { namespace geometry { namespace index {
 
 namespace adaptors {
@@ -65,6 +69,15 @@ struct nearest_query
 
 } // namespace detail
 
+/*!
+\brief The nearest query index adaptor generator.
+
+\ingroup adaptors
+
+\param dpred   Distance predicates.
+\param k       The number of values to find.
+\param pred    Spatial predicates.
+*/
 template <typename DistancesPredicates, typename Predicates>
 detail::nearest_query<DistancesPredicates, Predicates>
 nearest_queried(
@@ -75,6 +88,14 @@ nearest_queried(
     return detail::nearest_query<DistancesPredicates, Predicates>(dpred, k, pred);
 }
 
+/*!
+\brief The nearest query index adaptor generator.
+
+\ingroup adaptors
+
+\param dpred   Distance predicates.
+\param k       The number of values to find.
+*/
 template <typename DistancesPredicates>
 detail::nearest_query<DistancesPredicates, index::detail::empty>
 nearest_queried(

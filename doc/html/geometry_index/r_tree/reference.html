@@ -33,13 +33,15 @@
         (boost::geometry::index::)</a></span></dt>
 <dt><span class="section"><a href="reference.html#geometry_index.r_tree.reference.group__distance__predicates">Distance
         predicates (boost::geometry::index::)</a></span></dt>
+<dt><span class="section"><a href="reference.html#geometry_index.r_tree.reference.group__adaptors">Spatial
+        indexes adaptors (boost::geometry::index::adaptors::)</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
 <a name="geometry_index.r_tree.reference.boost_geometry_index_rtree"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree" title="boost::geometry::index::rtree">boost::geometry::index::rtree</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="id906048"></a><a class="indexterm" name="id906053"></a><a class="indexterm" name="id906058"></a><a class="indexterm" name="id906063"></a>
+          <a class="indexterm" name="id932263"></a><a class="indexterm" name="id932268"></a><a class="indexterm" name="id932272"></a><a class="indexterm" name="id932277"></a>
 The R-tree spatial index.
         </p>
 <h6>
@@ -6447,6 +6449,332 @@ The R-tree spatial index.
                   </td>
 </tr>
 </tbody>
+</table></div>
+</div>
+<p>
+          <br>
+        </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.reference.group__adaptors"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors" title="Spatial indexes adaptors (boost::geometry::index::adaptors::)">Spatial
+        indexes adaptors (boost::geometry::index::adaptors::)</a>
+</h4></div></div></div>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                  <p>
+                    Function
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Description
+                  </p>
+                </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                  <p>
+                    <a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function0" title="nearest_queried(DistancesPredicates const &amp;, size_t, Predicates const &amp;)"><code class="computeroutput"><span class="identifier">nearest_queried</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span>
+                    <span class="special">&amp;,</span> <span class="identifier">size_t</span><span class="special">,</span> <span class="identifier">Predicates</span>
+                    <span class="keyword">const</span> <span class="special">&amp;)</span></code></a>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    The nearest query index adaptor generator.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function1" title="nearest_queried(DistancesPredicates const &amp;, size_t)"><code class="computeroutput"><span class="identifier">nearest_queried</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span>
+                    <span class="special">&amp;,</span> <span class="identifier">size_t</span><span class="special">)</span></code></a>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    The nearest query index adaptor generator.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function2" title="spatial_queried(Predicates const &amp;)"><code class="computeroutput"><span class="identifier">spatial_queried</span><span class="special">(</span><span class="identifier">Predicates</span> <span class="keyword">const</span>
+                    <span class="special">&amp;)</span></code></a>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    The spatial query index adaptor generator.
+                  </p>
+                </td>
+</tr>
+</tbody>
+</table></div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.reference.group__adaptors.function0"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function0" title="nearest_queried(DistancesPredicates const &amp;, size_t, Predicates const &amp;)">nearest_queried(DistancesPredicates
+          const &amp;, size_t, Predicates const &amp;)</a>
+</h5></div></div></div>
+<p>
+            The nearest query index adaptor generator.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__adaptors.function0.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__adaptors.function0.synopsis"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function0.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">&gt;</span>
+<span class="identifier">detail</span><span class="special">::</span><span class="identifier">nearest_query</span><span class="special">&lt;</span><span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="identifier">Predicates</span><span class="special">&gt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">adaptors</span><span class="special">::</span><span class="identifier">nearest_queried</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span>
+                                                                                                         <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">,</span>
+                                                                                                         <span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__adaptors.function0.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__adaptors.function0.parameters"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function0.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">DistancesPredicates</span>
+                      <span class="keyword">const</span> <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">dpred</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Distance predicates.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">size_t</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">k</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The number of values to find.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">pred</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Spatial predicates.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+          <br>
+        </p>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.reference.group__adaptors.function1"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function1" title="nearest_queried(DistancesPredicates const &amp;, size_t)">nearest_queried(DistancesPredicates
+          const &amp;, size_t)</a>
+</h5></div></div></div>
+<p>
+            The nearest query index adaptor generator.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__adaptors.function1.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__adaptors.function1.synopsis"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function1.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">DistancesPredicates</span><span class="special">&gt;</span>
+<span class="identifier">detail</span><span class="special">::</span><span class="identifier">nearest_query</span><span class="special">&lt;</span><span class="identifier">DistancesPredicates</span><span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">detail</span><span class="special">::</span><span class="identifier">empty</span><span class="special">&gt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">adaptors</span><span class="special">::</span><span class="identifier">nearest_queried</span><span class="special">(</span><span class="identifier">DistancesPredicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">dpred</span><span class="special">,</span> <span class="identifier">size_t</span> <span class="identifier">k</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__adaptors.function1.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__adaptors.function1.parameters"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function1.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">DistancesPredicates</span>
+                      <span class="keyword">const</span> <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">dpred</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Distance predicates.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">size_t</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">k</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The number of values to find.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>
+          <br>
+        </p>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.reference.group__adaptors.function2"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function2" title="spatial_queried(Predicates const &amp;)">spatial_queried(Predicates
+          const &amp;)</a>
+</h5></div></div></div>
+<p>
+            The spatial query index adaptor generator.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__adaptors.function2.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__adaptors.function2.synopsis"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function2.synopsis">Synopsis</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Predicates</span><span class="special">&gt;</span>
+<span class="identifier">detail</span><span class="special">::</span><span class="identifier">spatial_query</span><span class="special">&lt;</span><span class="identifier">Predicates</span><span class="special">&gt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">adaptors</span><span class="special">::</span><span class="identifier">spatial_queried</span><span class="special">(</span><span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">pred</span><span class="special">)</span></pre>
+<p>
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__adaptors.function2.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__adaptors.function2.parameters"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__adaptors.function2.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Predicates</span> <span class="keyword">const</span> <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">pred</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Spatial predicates.
+                    </p>
+                  </td>
+</tr></tbody>
 </table></div>
 </div>
 <p>

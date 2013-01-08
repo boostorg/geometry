@@ -11,6 +11,10 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ADAPTORS_SPATIAL_QUERY_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ADAPTORS_SPATIAL_QUERY_HPP
 
+/*!
+\defgroup adaptors Spatial indexes adaptors (boost::geometry::index::adaptors::)
+*/
+
 namespace boost { namespace geometry { namespace index {
 
 namespace adaptors {
@@ -54,6 +58,13 @@ struct spatial_query
 
 } // namespace detail
 
+/*!
+\brief The spatial query index adaptor generator.
+
+\ingroup adaptors
+
+\param pred   Spatial predicates.
+*/
 template <typename Predicates>
 detail::spatial_query<Predicates>
 spatial_queried(Predicates const& pred)

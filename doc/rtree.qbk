@@ -23,6 +23,7 @@
 [include generated/rtree_functions.qbk]
 [include generated/predicates.qbk]
 [include generated/distance_predicates.qbk]
+[include generated/adaptors.qbk]
 
 [endsect]
 
