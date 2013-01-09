@@ -78,14 +78,10 @@ void test_ctor_nc(size_t n)
     BOOST_CHECK(s.size() == n);
     BOOST_CHECK(s.capacity() == N);
     BOOST_CHECK_THROW( s.at(n), std::out_of_range );
-    if ( 1 < n )
+    if ( !boost::has_trivial_constructor<T>::value )
     {
-        s[0] = T(10);
-        BOOST_CHECK(T(10) == s[0]);
-        BOOST_CHECK(T(10) == s.at(0));
-        s.at(1) = T(20);
-        BOOST_CHECK(T(20) == s[1]);
-        BOOST_CHECK(T(20) == s.at(1));
+        for ( size_t i = 0 ; i < n ; ++i )
+            BOOST_CHECK(T() == s[i]);
     }
 }
 
@@ -120,14 +116,11 @@ void test_resize_nc(size_t n)
     BOOST_CHECK(s.size() == n);
     BOOST_CHECK(s.capacity() == N);
     BOOST_CHECK_THROW( s.at(n), std::out_of_range );
-    if ( 1 < n )
+
+    if ( !boost::has_trivial_constructor<T>::value )
     {
-        s[0] = T(10);
-        BOOST_CHECK(T(10) == s[0]);
-        BOOST_CHECK(T(10) == s.at(0));
-        s.at(1) = T(20);
-        BOOST_CHECK(T(20) == s[1]);
-        BOOST_CHECK(T(20) == s.at(1));
+        for ( size_t i = 0 ; i < n ; ++i )
+            BOOST_CHECK(T() == s[i]);
     }
 }
 
