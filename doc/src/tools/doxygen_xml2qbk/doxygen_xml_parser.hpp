@@ -75,6 +75,23 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& 
                 skip = true;
                 return;
             }
+            else if ( boost::equals(name, "itemizedlist") )
+            {
+                contents += "\n\n";
+                parse_para(node->first_node(), contents, skip);
+                contents += "\n[/]";
+                parse_para(node->next_sibling(), contents, skip);
+                return;
+            }
+            else if ( boost::equals(name, "listitem") )
+            {
+                contents += "* ";
+                rapidxml::xml_node<>* li = node->first_node("para");
+                contents += li ? li->value() : "";
+                contents += "\n";
+                parse_para(node->next_sibling(), contents, skip);                
+                return;
+            }
             else if (! (
                 (boost::equals(name, "para") && first)
                 || boost::equals(name, "ref")
@@ -97,6 +114,7 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& 
         {
             //std::cout << "OTHER: " << node->name() << "=" << node->value() << std::endl;
         }
+
         parse_para(node->first_node(), contents, skip, false);
         parse_para(node->next_sibling(), contents, skip, false);
     }
@@ -339,6 +357,33 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
             else if (kind == "templateparam")
             {
                 parse_parameter_list(node->first_node(), el.template_parameters);
+            }
+        }
+        else if (full == ".detaileddescription.para.simplesect")
+        {
+            std::string kind = get_attribute(node, "kind");
+            if (kind == "par")
+            {
+                rapidxml::xml_node<> * title_node = node->first_node("title");
+                std::string title = title_node ? title_node->value() : "";
+                
+                std::string m;
+                if ( title_node )
+                    m = std::string("[heading ") + title + "]\n";
+                else
+                    m = "\n\n";
+
+                parse_para(node->first_node("para"), m, el.skip);
+                m += "\n";
+                    
+                el.qbk_markup.push_back(markup(m));
+            }
+            else if (kind == "pre")
+            {
+                std::string para;
+                parse_para(node->first_node("para"), para, el.skip);
+                
+                el.qbk_markup.push_back(markup(std::string("[heading Precondition]\n") + para));
             }
         }
         else if (full == ".param")
