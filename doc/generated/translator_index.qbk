@@ -9,7 +9,7 @@ The index translator.
 This translator translates from index of an element in an external Container to the Indexable. The container should have operator[](size\u005ftype) defined. Index translator uses translator::def<...> to translate from Container::value\u005ftype to the Indexable which means that it can handle Indexables, std::pairs and boost::tuples stored in an external Container.
 
 [heading Header]
-`#include <.hpp>`
+`#include <boost/geometry/extensions/index/translator/index.hpp>`
 
 [heading Synopsis]
 ``template<typename Container>

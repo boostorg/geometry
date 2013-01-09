@@ -12,7 +12,7 @@ import os, sys
 
 cmd = "doxygen_xml2qbk"
 cmd = cmd + " --xml xml/%s.xml"
-cmd = cmd + " --start_include ."
+cmd = cmd + " --start_include boost/"
 cmd = cmd + " --index_id_path %s"
 cmd = cmd + " --output_style alt"
 cmd = cmd + " > generated/%s.qbk"

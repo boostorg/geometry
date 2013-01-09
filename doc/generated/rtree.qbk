@@ -8,12 +8,13 @@ The R-tree spatial index.
 [heading Description]
 The R-tree spatial index. This is self-balancing spatial index capable to store various types of Values and balancing algorithms.
 
+[heading Parameters]
 The user must pass a type defining the Parameters which will be used in rtree creation process. This type is used e.g. to specify balancing algorithm with specific parameters like min and max number of elements in node. Predefined algorithms with compile-time parameters are: bgi::linear<MinElements, MaxElements>, bgi::quadratic<MinElements, MaxElements>, bgi::rstar<MinElements, MaxElements, OverlapCostThreshold = 0, ReinsertedElements = MaxElements * 0.3>. Predefined algorithms with run-time parameters are: bgi::runtime::linear, bgi::runtime::quadratic, bgi::runtime::rstar.
-
+[heading Translator]
 The Translator translates from Value to Indexable each time r-tree requires it. Which means that this operation is done for each Value access. Therefore the Translator should return the Indexable by const reference instead of a value. Default translator can translate all types adapted to Point or Box concepts (which are Indexables). It also handles std::pair<Indexable, T>, pointers, smart pointers, and iterators. E.g. If std::pair<Box, int> is stored, the default translator translates from std::pair<Box, int> const& to Box const&.
 
 [heading Header]
-`#include <.hpp>`
+`#include <boost/geometry/extensions/index/rtree/rtree.hpp>`
 
 [heading Synopsis]
 ``template<typename Value,
@@ -98,7 +99,7 @@ The constructor. [heading Synopsis]
 [[ `parameters_type` ][ `parameters` ][The parameters object. ]]
 [[ `translator_type const &` ][ `translator` ][The translator object.]]
 ]
-[heading Throws] 
+[heading Throws]
 If allocator default constructor throws.
 
 [endsect]
@@ -117,7 +118,7 @@ The constructor. [heading Synopsis]
 [[ `translator_type const &` ][ `translator` ][The translator object. ]]
 [[ `allocator_type` ][ `allocator` ][The allocator object.]]
 ]
-[heading Throws] 
+[heading Throws]
 If allocator copy constructor throws.
 
 [endsect]
@@ -141,9 +142,8 @@ rtree(Iterator first,
 [[ `translator_type const &` ][ `translator` ][The translator object. ]]
 [[ `allocator_type` ][ `allocator` ][The allocator object.]]
 ]
-[heading Throws] 
-If allocator copy constructor throws. If Value copy constructor or copy assignment throws.
-When nodes allocation fails.
+[heading Throws]
+If allocator copy constructor throws. If Value copy constructor or copy assignment throws. When nodes allocation fails.
 
 [endsect]
 [br]
@@ -164,9 +164,8 @@ rtree(Range const & rng,
 [[ `translator_type const &` ][ `translator` ][The translator object. ]]
 [[ `allocator_type` ][ `allocator` ][The allocator object.]]
 ]
-[heading Throws] 
-If allocator copy constructor throws. If Value copy constructor or copy assignment throws.
-When nodes allocation fails.
+[heading Throws]
+If allocator copy constructor throws. If Value copy constructor or copy assignment throws. When nodes allocation fails.
 
 [endsect]
 [br]
@@ -175,7 +174,7 @@ When nodes allocation fails.
 The destructor. [heading Synopsis]
 ``~rtree()``
 
-[heading Throws] 
+[heading Throws]
 Nothing.
 
 [endsect]
@@ -191,9 +190,8 @@ It uses parameters, translator and allocator from the source tree.[heading Synop
 [[Type][Name][Description]]
 [[ `rtree const &` ][ `src` ][The rtree which content will be copied.]]
 ]
-[heading Throws] 
-If allocator copy constructor throws. If Value copy constructor throws.
-When nodes allocation fails.
+[heading Throws]
+If allocator copy constructor throws. If Value copy constructor throws. When nodes allocation fails.
 
 [endsect]
 [br]
@@ -209,9 +207,8 @@ It uses Parameters and translator from the source tree.[heading Synopsis]
 [[ `rtree const &` ][ `src` ][The rtree which content will be copied. ]]
 [[ `allocator_type const &` ][ `allocator` ][The allocator which will be used.]]
 ]
-[heading Throws] 
-If allocator copy constructor throws. If Value copy constructor throws.
-When nodes allocation fails.
+[heading Throws]
+If allocator copy constructor throws. If Value copy constructor throws. When nodes allocation fails.
 
 [endsect]
 [br]
@@ -226,7 +223,7 @@ It uses parameters, translator and allocator from the source tree.[heading Synop
 [[Type][Name][Description]]
 [[ `rtree &&` ][ `src` ][The rtree which content will be moved.]]
 ]
-[heading Throws] 
+[heading Throws]
 If allocator move constructor throws.
 
 [endsect]
@@ -242,9 +239,8 @@ It uses parameters and translator from the source tree.[heading Synopsis]
 [[Type][Name][Description]]
 [[ `const rtree &` ][ `src` ][The rtree which content will be copied.]]
 ]
-[heading Throws] 
-If Value copy constructor throws.
-When nodes allocation fails.
+[heading Throws]
+If Value copy constructor throws. When nodes allocation fails.
 
 [endsect]
 [br]
@@ -259,7 +255,7 @@ It uses parameters and translator from the source tree.[heading Synopsis]
 [[Type][Name][Description]]
 [[ `rtree &&` ][ `src` ][The rtree which content will be moved.]]
 ]
-[heading Throws] 
+[heading Throws]
 Only if allocators aren't equal. If Value copy constructor throws. When nodes allocation fails.
 
 [endsect]
@@ -275,7 +271,7 @@ Parameters, translator and allocators are swapped as well.[heading Synopsis]
 [[Type][Name][Description]]
 [[ `rtree &` ][ `other` ][The rtree which content will be swapped with this rtree content.]]
 ]
-[heading Throws] 
+[heading Throws]
 If allocators swap throws.
 
 [endsect]
@@ -290,11 +286,10 @@ Insert a value to the index. [heading Synopsis]
 [[Type][Name][Description]]
 [[ `value_type const &` ][ `value` ][The value which will be stored in the container.]]
 ]
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. When nodes allocation fails.
-[heading Exception-safety] 
-This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-elements must not be inserted or removed, methods may return invalid data.
+[heading Exception-safety]
+This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
 [br]
@@ -310,11 +305,10 @@ void insert(Iterator first, Iterator last)``
 [[ `Iterator` ][ `first` ][The beginning of the range of values. ]]
 [[ `Iterator` ][ `last` ][The end of the range of values.]]
 ]
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. When nodes allocation fails.
-[heading Exception-safety] 
-This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-elements must not be inserted or removed, methods may return invalid data.
+[heading Exception-safety]
+This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
 [br]
@@ -329,11 +323,10 @@ void insert(Range const & rng)``
 [[Type][Name][Description]]
 [[ `Range const &` ][ `rng` ][The range of values.]]
 ]
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. When nodes allocation fails.
-[heading Exception-safety] 
-This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-elements must not be inserted or removed, methods may return invalid data.
+[heading Exception-safety]
+This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
 [br]
@@ -350,11 +343,10 @@ In contrast to the STL set/map erase() method this method removes only one value
 ]
 [heading Returns]
 1 if the value was removed, 0 otherwise.
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. When nodes allocation fails.
-[heading Exception-safety] 
-This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-elements must not be inserted or removed, methods may return invalid data.
+[heading Exception-safety]
+This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
 [br]
@@ -373,11 +365,10 @@ size_type remove(Iterator first, Iterator last)``
 ]
 [heading Returns]
 The number of removed values.
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. When nodes allocation fails.
-[heading Exception-safety] 
-This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-elements must not be inserted or removed, methods may return invalid data.
+[heading Exception-safety]
+This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
 [br]
@@ -395,11 +386,10 @@ size_type remove(Range const & rng)``
 ]
 [heading Returns]
 The number of removed values.
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. When nodes allocation fails.
-[heading Exception-safety] 
-This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-elements must not be inserted or removed, methods may return invalid data.
+[heading Exception-safety]
+This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
 [br]
@@ -418,7 +408,7 @@ size_type spatial_query(Predicates const & pred, OutIter out_it)``
 ]
 [heading Returns]
 The number of values found.
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
 
 [endsect]
@@ -438,7 +428,7 @@ size_type nearest_query(DistancesPredicates const & dpred, value_type & v)``
 ]
 [heading Returns]
 The number of values found.
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws.
 
 [endsect]
@@ -463,7 +453,7 @@ size_type nearest_query(DistancesPredicates const & dpred,
 ]
 [heading Returns]
 The number of values found.
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws.
 
 [endsect]
@@ -486,7 +476,7 @@ size_type nearest_query(DistancesPredicates const & dpred,
 ]
 [heading Returns]
 The number of values found.
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
 
 [endsect]
@@ -515,7 +505,7 @@ size_type nearest_query(DistancesPredicates const & dpred,
 ]
 [heading Returns]
 The number of values found.
-[heading Throws] 
+[heading Throws]
 If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
 
 [endsect]
@@ -527,7 +517,7 @@ Returns the number of stored values. [heading Synopsis]
 
 [heading Returns]
 The number of stored values.
-[heading Throws] 
+[heading Throws]
 Nothing.
 
 [endsect]
@@ -539,7 +529,7 @@ Query if the container is empty. [heading Synopsis]
 
 [heading Returns]
 true if the container is empty.
-[heading Throws] 
+[heading Throws]
 Nothing.
 
 [endsect]
@@ -549,7 +539,7 @@ Nothing.
 Removes all values stored in the container. [heading Synopsis]
 ``void clear()``
 
-[heading Throws] 
+[heading Throws]
 Nothing.
 
 [endsect]
@@ -562,7 +552,7 @@ Returns the box containing all values stored in the container. If the container 
 
 [heading Returns]
 The box containing all values stored in the container or an invalid box if there are no values in the container.
-[heading Throws] 
+[heading Throws]
 Nothing.
 
 [endsect]
@@ -581,7 +571,7 @@ size_type count(ValueOrIndexable const & vori)``
 ]
 [heading Returns]
 The number of values found.
-[heading Throws] 
+[heading Throws]
 Nothing.
 
 [endsect]
@@ -593,7 +583,7 @@ Returns parameters. [heading Synopsis]
 
 [heading Returns]
 The parameters object.
-[heading Throws] 
+[heading Throws]
 Nothing.
 
 [endsect]
@@ -605,7 +595,7 @@ Returns the translator object. [heading Synopsis]
 
 [heading Returns]
 The translator object.
-[heading Throws] 
+[heading Throws]
 Nothing.
 
 [endsect]
@@ -617,7 +607,7 @@ Returns allocator used by the rtree. [heading Synopsis]
 
 [heading Returns]
 The allocator.
-[heading Throws] 
+[heading Throws]
 If allocator copy constructor throws.
 
 [endsect]
