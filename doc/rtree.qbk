@@ -25,6 +25,13 @@
 [include generated/distance_predicates.qbk]
 [include generated/adaptors.qbk]
 
+[section:translators Translators (boost::geometry::index::translators::)]
+
+[include generated/translator_def.qbk]
+[include generated/translator_index.qbk]
+
+[endsect]
+
 [endsect]
 
 [endsect]

@@ -826,6 +826,30 @@ void quickbook_output_alt(documentation const& doc, configuration const& config,
     }    
 }
 
+template <typename Range>
+bool has_brief_description(Range const& rng)
+{
+    typedef typename Range::value_type V;
+    BOOST_FOREACH(V const& bc, rng)
+    {
+        if ( !bc.brief_description.empty() )
+            return true;
+    }
+    return false;
+}
+
+template <typename Range>
+bool has_brief_description(Range const& rng, function_type t)
+{
+    typedef typename Range::value_type V;
+    BOOST_FOREACH(V const& bc, rng)
+    {
+        if ( bc.type == t && !bc.brief_description.empty() )
+            return true;
+    }
+    return false;
+}
+
 void quickbook_output_alt(class_or_struct const& cos, configuration const& config, std::ostream& out)
 {
     // Skip namespace
@@ -890,44 +914,59 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
 
     if (! cos.template_parameters.empty())
     {
-        out << "[heading Template parameter(s)]" << std::endl
-            << "[table" << std::endl
-            << "[[Parameter] [Description]]" << std::endl;
-
-        BOOST_FOREACH(parameter const& p, cos.template_parameters)
+        if ( has_brief_description(cos.template_parameters) )
         {
-            out << "[[`";
-            if ( p.fulltype.find("typename ") == 0 )
-                out << p.fulltype.substr(9);
-            else if ( p.fulltype.find("class ") == 0 )
-                out << p.fulltype.substr(6);
-            else
-                out << p.fulltype;
-            out << "`][" << p.brief_description << "]]" << std::endl;
+            out << "[heading Template parameter(s)]" << std::endl
+                << "[table" << std::endl
+                << "[[Parameter] [Description]]" << std::endl;
+
+            BOOST_FOREACH(parameter const& p, cos.template_parameters)
+            {
+                if ( p.brief_description.empty() )
+                    continue;
+
+                out << "[[`";
+                if ( p.fulltype.find("typename ") == 0 )
+                    out << p.fulltype.substr(9);
+                else if ( p.fulltype.find("class ") == 0 )
+                    out << p.fulltype.substr(6);
+                else
+                    out << p.fulltype;
+                out << "`][" << p.brief_description << "]]" << std::endl;
+            }
+            out << "]" << std::endl
+                << std::endl;
         }
-        out << "]" << std::endl
-            << std::endl;
     }
 
     // Typedefs
 
     if ( !cos.typedefs.empty() )
     {
-        out << "[heading Typedef(s)]" << std::endl
-            << "[table" << std::endl
-            << "[[Type]";
-        out << " [Description]]" << std::endl;
-
-        BOOST_FOREACH(base_element const& e, cos.typedefs)
+        if ( has_brief_description(cos.typedefs) )
         {
-            out << "[[`" << e.name;
-            out << "`][" << e.brief_description << "]]" << std::endl;
+            out << "[heading Typedef(s)]" << std::endl
+                << "[table" << std::endl
+                << "[[Type]";
+            out << " [Description]]" << std::endl;
+
+            BOOST_FOREACH(base_element const& e, cos.typedefs)
+            {
+                if ( e.brief_description.empty() )
+                    continue;
+
+                out << "[[`" << e.name;
+                out << "`][" << e.brief_description << "]]" << std::endl;
+            }
+            out << "]" << std::endl
+                << std::endl;
         }
-        out << "]" << std::endl
-            << std::endl;
     }
 
     // Members
+
+    bool display_ctors = has_brief_description(cos.functions, function_constructor_destructor);
+    bool display_members = has_brief_description(cos.functions, function_member);
 
     std::map<function_type, int> counts;
     BOOST_FOREACH(function const& f, cos.functions)
@@ -935,13 +974,13 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
         counts[f.type]++;
     }
 
-    if (counts[function_constructor_destructor] > 0)
+    if (display_ctors && counts[function_constructor_destructor] > 0)
     {
         out << "[heading Constructor(s) and destructor]" << std::endl;
         quickbook_output_function(cos.functions, function_constructor_destructor, config, section_name + ".member", out);
     }
 
-    if (counts[function_member] > 0)
+    if (display_members && counts[function_member] > 0)
     {
         out << "[heading Member(s)]" << std::endl;
         quickbook_output_function(cos.functions, function_member, config, section_name + ".member", out);
@@ -949,11 +988,12 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
 
     // Details start
 
-    out << "[br]" << std::endl;
+    if ( display_ctors || display_members )
+        out << "[br]" << std::endl;
 
-    if (counts[function_constructor_destructor] > 0)
+    if (display_ctors && counts[function_constructor_destructor] > 0)
         quickbook_output_detail_function(cos.functions, function_constructor_destructor, config, "member", out);
-    if (counts[function_member] > 0)
+    if (display_members && counts[function_member] > 0)
         quickbook_output_detail_function(cos.functions, function_member, config, "member", out);
 
     // Details end

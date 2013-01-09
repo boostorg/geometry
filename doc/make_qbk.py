@@ -23,5 +23,7 @@ os.system(cmd % ("group__rtree__functions", "geometry_index.r_tree.reference", "
 os.system(cmd % ("group__predicates", "geometry_index.r_tree.reference", "predicates"))
 os.system(cmd % ("group__distance__predicates", "geometry_index.r_tree.reference", "distance_predicates"))
 os.system(cmd % ("group__adaptors", "geometry_index.r_tree.reference", "adaptors"))
+os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_1_1def", "geometry_index.r_tree.reference.translators", "translator_def"))
+os.system(cmd % ("classboost_1_1geometry_1_1index_1_1translator_1_1index", "geometry_index.r_tree.reference.translators", "translator_index"))
 
 os.system("b2") 

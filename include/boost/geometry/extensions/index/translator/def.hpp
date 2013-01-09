@@ -15,105 +15,11 @@
 
 namespace boost { namespace geometry { namespace index { namespace translator {
 
-//namespace dispatch {
-//
-//// Distinguish between def<Geometry>, def<Iterator> and def<SmartPtr>
-//
-//// Geometry
-//template <typename Value, bool IsIterator, bool IsSmartPtr>
-//struct def
-//{
-//    typedef typename detail::extract_indexable<Value>::type const& result_type;
-//
-//    result_type operator()(Value const& v) const
-//    {
-//        return detail::extract_indexable<Value>::get(v);
-//    }
-//
-//    bool equals(Value const& v1, Value const& v2) const
-//    {
-//        return detail::equals<Value>::apply(v1, v2);
-//    }
-//};
-//
-//// Iterator
-//template <typename Value, bool IsSmartPtr>
-//struct def<Value, true, IsSmartPtr>
-//{
-//    typedef typename detail::extract_indexable<typename Value::value_type>::type const& result_type;
-//
-//    result_type operator()(Value const& v) const
-//    {
-//        return detail::extract_indexable<typename Value::value_type>::get(*v);
-//    }
-//
-//    bool equals(Value const& v1, Value const& v2) const
-//    {
-//        return v1 == v2;
-//    }
-//};
-//
-//// SmartPtr
-//template <typename Value>
-//struct def<Value, false, true>
-//{
-//    typedef typename detail::extract_indexable<typename Value::element_type>::type const& result_type;
-//
-//    result_type operator()(Value const& v) const
-//    {
-//        return detail::extract_indexable<typename Value::element_type>::get(*v);
-//    }
-//
-//    bool equals(Value const& v1, Value const& v2) const
-//    {
-//        return v1 == v2;
-//    }
-//};
-//
-//} // namespace dispatch
-//
-///*!
-//The default translator. It translates Value object to Indexable object. This is done in
-//operator() which takes const reference to Value and returns const reference to Indexable.
-//
-//\tparam Value       The Value type which the translator translates to Indexable.
-//*/
-//template <typename Value>
-//struct def
-//    : public dispatch::def
-//        <
-//            Value,
-//            detail::is_iterator<Value>::value,
-//            detail::is_smart_ptr<Value>::value
-//        >
-//{
-//};
-//
-///*!
-//The default translator. It translates Value object to Indexable object. Since this is
-//a specialization for pointers to Values operator() takes const ptr to Value and returns
-//const reference to Indexable.
-//
-//\tparam Value       The Value type which the translator translates to Indexable.
-//*/
-//template <typename Value>
-//struct def<Value*>
-//{
-//    typedef typename detail::extract_indexable<Value>::type const& result_type;
-//
-//    result_type operator()(const Value *v) const
-//    {
-//        return detail::extract_indexable<Value>::get(*v);
-//    }
-//
-//    bool equals(const Value* v1, const Value* v2) const
-//    {
-//        return v1 == v2;
-//    }
-//};
-
 /*!
-The default translator. It translates Value object to Indexable object.
+\brief The default translator.
+
+It translates Value object to Indexable object. The default version handles Values which are Indexables.
+This translator is also specialized for std::pair<Indexable, Second> and boost::tuple<Indexable, ...>.
 
 \tparam Value       The Value type which may be translated directly to the Indexable.
 */
@@ -142,7 +48,9 @@ struct def
 };
 
 /*!
-The default translator. This specialization translates from std::pair<Indexable, Second>.
+\brief The default translator.
+
+This specialization translates from std::pair<Indexable, Second>.
 
 \tparam Indexable       The Indexable type.
 \tparam Second          The second type.
@@ -206,10 +114,11 @@ struct compare_tuples<Tuple, I, I>
 } // namespace detail
 
 /*!
-The default translator. This specialization translates from boost::tuple<Indexable, ...>.
+\brief The default translator.
 
-\tparam Indexable       The Indexable type.
-\tparam Second          The second type.
+This specialization translates from boost::tuple<Indexable, ...>.
+
+\tparam Indexable   The Indexable type.
 */
 template <typename Indexable, typename T1, typename T2, typename T3, typename T4,
           typename T5, typename T6, typename T7, typename T8, typename T9>

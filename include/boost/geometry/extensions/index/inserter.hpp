@@ -51,6 +51,14 @@ private:
     Container * container;
 };
 
+/*!
+\brief Returns insert iterator capable to insert values to the container
+(spatial index) which allows inserting values - has member function insert(value_type const&).
+
+\param c    The reference to the container (spatial index) to which values will be inserted.
+
+\return     The insert iterator inserting values to the container.
+*/
 template <typename Container>
 insert_iterator<Container> inserter(Container & c)
 {
