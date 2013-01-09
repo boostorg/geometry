@@ -95,8 +95,8 @@ The constructor. [heading Synopsis]
 [heading Parameters]
 [table 
 [[Type][Name][Description]]
-[[ `parameters_type` ][ `parameters` ][]]
-[[ `translator_type const &` ][ `translator` ][]]
+[[ `parameters_type` ][ `parameters` ][The parameters object. ]]
+[[ `translator_type const &` ][ `translator` ][The translator object.]]
 ]
 [heading Throws] 
 If allocator default constructor throws.
