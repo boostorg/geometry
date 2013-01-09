@@ -41,7 +41,7 @@
 <a name="geometry_index.r_tree.reference.boost_geometry_index_rtree"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree" title="boost::geometry::index::rtree">boost::geometry::index::rtree</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp9895280"></a><a class="indexterm" name="idp9895592"></a><a class="indexterm" name="idp9895904"></a><a class="indexterm" name="idp9896216"></a>
+          <a class="indexterm" name="idp9900728"></a><a class="indexterm" name="idp9901040"></a><a class="indexterm" name="idp9901352"></a><a class="indexterm" name="idp9901664"></a>
 The R-tree spatial index.
         </p>
 <h6>
@@ -309,14 +309,16 @@ The R-tree spatial index.
                 </td>
 <td>
                   <p>
-                    The default constructor.
+                    The constructor.
                   </p>
                 </td>
 </tr>
 <tr>
 <td>
                   <p>
-                    <a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree.member1" title="rtree()"><code class="computeroutput"><span class="identifier">rtree</span><span class="special">()</span></code></a>
+                    <a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree.member1" title="rtree(parameters_type, translator_type const &amp;, allocator_type)"><code class="computeroutput"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">parameters_type</span><span class="special">,</span>
+                    <span class="identifier">translator_type</span> <span class="keyword">const</span>
+                    <span class="special">&amp;,</span> <span class="identifier">allocator_type</span><span class="special">)</span></code></a>
                   </p>
                 </td>
 <td>
@@ -723,7 +725,7 @@ The R-tree spatial index.
 <a name="geometry_index.r_tree.reference.boost_geometry_index_rtree.member0"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree.member0" title="rtree()">rtree()</a>
 </h5></div></div></div>
 <p>
-            The default constructor.
+            The constructor.
           </p>
 <h6>
 <a name="geometry_index.r_tree.reference.boost_geometry_index_rtree.member0.h0"></a>
@@ -731,15 +733,73 @@ The R-tree spatial index.
           </h6>
 <p>
 </p>
-<pre class="programlisting"><span class="identifier">rtree</span><span class="special">()</span></pre>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span> <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">())</span></pre>
 <p>
           </p>
 <h6>
 <a name="geometry_index.r_tree.reference.boost_geometry_index_rtree.member0.h1"></a>
+            <span><a name="geometry_index.r_tree.reference.boost_geometry_index_rtree.member0.parameters"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree.member0.parameters">Parameters</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">parameters_type</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">parameters</span></code>
+                    </p>
+                  </td>
+<td>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">translator</span></code>
+                    </p>
+                  </td>
+<td>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.boost_geometry_index_rtree.member0.h2"></a>
             <span><a name="geometry_index.r_tree.reference.boost_geometry_index_rtree.member0.throws"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree.member0.throws">Throws</a>
           </h6>
 <p>
-            Nothing.
+            If allocator default constructor throws.
           </p>
 </div>
 <p>
@@ -747,7 +807,8 @@ The R-tree spatial index.
         </p>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="geometry_index.r_tree.reference.boost_geometry_index_rtree.member1"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree.member1" title="rtree()">rtree()</a>
+<a name="geometry_index.r_tree.reference.boost_geometry_index_rtree.member1"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree.member1" title="rtree(parameters_type, translator_type const &amp;, allocator_type)">rtree(parameters_type,
+          translator_type const &amp;, allocator_type)</a>
 </h5></div></div></div>
 <p>
             The constructor.
@@ -758,9 +819,9 @@ The R-tree spatial index.
           </h6>
 <p>
 </p>
-<pre class="programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">parameters_type</span> <span class="identifier">parameters</span> <span class="special">=</span> <span class="identifier">parameters_type</span><span class="special">(),</span>
-      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span> <span class="special">=</span> <span class="identifier">translator_type</span><span class="special">(),</span>
-      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span> <span class="special">=</span> <span class="identifier">allocator_type</span><span class="special">())</span></pre>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">(</span><span class="identifier">parameters_type</span> <span class="identifier">parameters</span><span class="special">,</span>
+      <span class="identifier">translator_type</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">translator</span><span class="special">,</span>
+      <span class="identifier">allocator_type</span> <span class="identifier">allocator</span><span class="special">)</span></pre>
 <p>
           </p>
 <h6>

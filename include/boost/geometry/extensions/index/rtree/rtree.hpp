@@ -126,15 +126,16 @@ private:
 
 public:
     /*!
-    \brief The default constructor.
+    \brief The constructor.
 
     \bgi_throws{
-    Nothing.
+    If allocator default constructor throws.
     }
     */
-    inline explicit rtree()
-        : m_translator()                                          // SHOULDN'T THROW
-        , m_parameters()
+    inline explicit rtree(parameters_type parameters = parameters_type(),
+                          translator_type const& translator = translator_type())
+        : m_translator(translator)                                          // SHOULDN'T THROW
+        , m_parameters(parameters)
         , m_allocators()
         , m_values_count(0)
         , m_leafs_level(0)
@@ -152,9 +153,9 @@ public:
     If allocator copy constructor throws.
     }
     */
-    inline explicit rtree(parameters_type parameters = parameters_type(),
-                          translator_type const& translator = translator_type(),
-                          allocator_type allocator = allocator_type())
+    inline rtree(parameters_type parameters,
+                 translator_type const& translator,
+                 allocator_type allocator)
         : m_translator(translator)                                          // SHOULDN'T THROW
         , m_parameters(parameters)
         , m_allocators(allocator)
