@@ -128,6 +128,9 @@ public:
     /*!
     \brief The constructor.
 
+    \param parameters   The parameters object.
+    \param translator   The translator object.
+
     \bgi_throws{
     If allocator default constructor throws.
     }
