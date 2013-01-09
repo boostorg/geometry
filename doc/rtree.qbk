@@ -32,6 +32,8 @@
 
 [endsect]
 
+[include generated/inserters.qbk]
+
 [endsect]
 
 [endsect]

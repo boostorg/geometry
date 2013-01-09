@@ -12,7 +12,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ADAPTORS_NEAREST_QUERY_HPP
 
 /*!
-\defgroup adaptors Spatial indexes adaptors (boost::geometry::index::adaptors::)
+\defgroup adaptors Adaptors (boost::geometry::index::adaptors::)
 */
 
 namespace boost { namespace geometry { namespace index {

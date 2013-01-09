@@ -13,6 +13,10 @@
 
 #include <iterator>
 
+/*!
+\defgroup inserters Inserters (boost::geometry::index::)
+*/
+
 namespace boost { namespace geometry { namespace index {
 
 template <class Container>
@@ -52,8 +56,12 @@ private:
 };
 
 /*!
-\brief Returns insert iterator capable to insert values to the container
-(spatial index) which allows inserting values - has member function insert(value_type const&).
+\brief Insert iterator generator.
+
+Returns insert iterator capable to insert values to the container
+(spatial index) which has member function insert(value_type const&) defined.
+
+\ingroup inserters
 
 \param c    The reference to the container (spatial index) to which values will be inserted.
 

@@ -19,7 +19,7 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 
 /*!
-\defgroup predicates Predicates (boost::geometry::index::)
+\defgroup predicates Spatial predicates (boost::geometry::index::)
 */
 
 namespace boost { namespace geometry { namespace index {
