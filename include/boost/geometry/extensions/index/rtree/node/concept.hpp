@@ -52,7 +52,7 @@ struct visitor
 };
 
 template <typename Allocator, typename Value, typename Parameters, typename Box, typename Tag>
-struct allocators
+class allocators
 {
     BOOST_MPL_ASSERT_MSG(
         (false),

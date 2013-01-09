@@ -90,8 +90,12 @@ struct container_from_elements_type<index::static_vector<OldValue, N>, NewValue>
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
-struct allocators<Allocator, Value, Parameters, Box, node_d_mem_static_tag>
+class allocators<Allocator, Value, Parameters, Box, node_d_mem_static_tag>
+    : nonassignable
 {
+    BOOST_COPYABLE_AND_MOVABLE_ALT(allocators)
+
+public:
     typedef Allocator allocator_type;
     typedef typename allocator_type::size_type size_type;
 
@@ -103,11 +107,36 @@ struct allocators<Allocator, Value, Parameters, Box, node_d_mem_static_tag>
         typename leaf<Value, Parameters, Box, allocators, node_d_mem_static_tag>::type
     >::other leaf_allocator_type;
 
+    inline allocators()
+        : allocator()
+        , internal_node_allocator()
+        , leaf_allocator()
+    {}
+
     inline explicit allocators(Allocator alloc)
         : allocator(alloc)
         , internal_node_allocator(allocator)
         , leaf_allocator(allocator)
     {}
+
+    inline allocators(allocators const& a)
+        : allocator(a.allocator)
+        , internal_node_allocator(a.internal_node_allocator)
+        , leaf_allocator(a.leaf_allocator)
+    {}
+
+    inline allocators(BOOST_RV_REF(allocators) a)
+        : allocator(boost::move(a.allocator))
+        , internal_node_allocator(boost::move(a.internal_node_allocator))
+        , leaf_allocator(boost::move(a.leaf_allocator))
+    {}
+
+    void swap(allocators & a)
+    {
+        boost::swap(allocator, a.allocator);
+        boost::swap(internal_node_allocator, a.internal_node_allocator);
+        boost::swap(leaf_allocator, a.leaf_allocator);
+    }
 
     allocator_type allocator;
     internal_node_allocator_type internal_node_allocator;

@@ -1038,7 +1038,7 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
 // rtree removing
 
 template <typename Value, typename Algo, typename Box>
-void test_remove(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input, Box const& qbox)
+void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
 {
     typedef bgi::rtree<Value, Algo> T;
 
@@ -1140,56 +1140,6 @@ void test_clear(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input,
         t.spatial_query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
-
-    ////assign iterators
-    //{
-    //    T t(tree);
-
-    //    BOOST_CHECK(t.size() == tree.size());
-
-    //    std::vector<Value> expected_output;
-    //    t.spatial_query(t.box(), std::back_inserter(expected_output));
-    //    
-    //    std::vector<Value> values_to_remove;
-    //    t.spatial_query(bgi::intersects(qbox), std::back_inserter(values_to_remove));
-    //    t.remove(values_to_remove);
-    //    
-    //    BOOST_CHECK(t.size() == tree.size() - values_to_remove.size());
-
-    //    t.assign(input.begin(), input.end());
-
-    //    BOOST_CHECK(t.size() == tree.size());
-
-    //    std::vector<Value> output;
-    //    t.spatial_query(t.box(), std::back_inserter(output));
-
-    //    test_exactly_the_same_outputs(t, output, expected_output);
-    //}
-
-    ////assign range
-    //{
-    //    T t(tree);
-
-    //    BOOST_CHECK(t.size() == tree.size());
-
-    //    std::vector<Value> expected_output;
-    //    t.spatial_query(t.box(), std::back_inserter(expected_output));
-
-    //    std::vector<Value> values_to_remove;
-    //    t.spatial_query(bgi::intersects(qbox), std::back_inserter(values_to_remove));
-    //    t.remove(values_to_remove);
-
-    //    BOOST_CHECK(t.size() == tree.size() - values_to_remove.size());
-
-    //    t.assign(input);
-
-    //    BOOST_CHECK(t.size() == tree.size());
-
-    //    std::vector<Value> output;
-    //    t.spatial_query(t.box(), std::back_inserter(output));
-
-    //    test_exactly_the_same_outputs(t, output, expected_output);
-    //}
 }
 
 // run all tests for a single Algorithm and single rtree
@@ -1227,7 +1177,7 @@ void test_rtree_by_value(Parameters const& parameters)
     test_copy_assignment_swap_move(tree, qbox);
 
     test_create_insert(tree, input, qbox);
-    test_remove(tree, input, qbox);
+    test_remove(tree, qbox);
     test_clear(tree, input, qbox);
 
     // empty tree test

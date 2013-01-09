@@ -84,7 +84,11 @@ struct visitor<Value, Parameters, Box, Allocators, node_s_mem_static_tag, IsVisi
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
 struct allocators<Allocator, Value, Parameters, Box, node_s_mem_static_tag>
+    : nonassignable
 {
+    BOOST_COPYABLE_AND_MOVABLE_ALT(allocators)
+
+public:
     typedef Allocator allocator_type;
     typedef typename allocator_type::size_type size_type;
 
@@ -100,10 +104,31 @@ struct allocators<Allocator, Value, Parameters, Box, node_s_mem_static_tag>
         Value
     >::other leaf_elements_allocator_type;
 
+    inline allocators()
+        : allocator()
+        , node_allocator()
+    {}
+
     inline explicit allocators(Allocator alloc)
         : allocator(alloc)
         , node_allocator(allocator)
     {}
+
+    inline allocators(allocators const& a)
+        : allocator(a.allocator)
+        , node_allocator(a.node_allocator)
+    {}
+
+    inline allocators(BOOST_RV_REF(allocators) a)
+        : allocator(boost::move(a.allocator))
+        , node_allocator(boost::move(a.node_allocator))
+    {}
+
+    void swap(allocators & a)
+    {
+        boost::swap(allocator, a.allocator);
+        boost::swap(node_allocator, a.node_allocator);
+    }
 
     allocator_type allocator;
     node_allocator_type node_allocator;

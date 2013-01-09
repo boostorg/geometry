@@ -126,14 +126,30 @@ private:
 
 public:
     /*!
+    \brief The default constructor.
+
+    \bgi_throws{
+    Nothing.
+    }
+    */
+    inline explicit rtree()
+        : m_translator()                                          // SHOULDN'T THROW
+        , m_parameters()
+        , m_allocators()
+        , m_values_count(0)
+        , m_leafs_level(0)
+        , m_root(0)
+    {}
+
+    /*!
     \brief The constructor.
 
     \param parameters   The parameters object.
     \param translator   The translator object.
     \param allocator    The allocator object.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    If allocator copy constructor throws.
     }
     */
     inline explicit rtree(parameters_type parameters = parameters_type(),
@@ -156,8 +172,9 @@ public:
     \param translator   The translator object.
     \param allocator    The allocator object.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If allocator copy constructor throws. If Value copy constructor or copy assignment throws.
+    When nodes allocation fails.
     }
     */
     template<typename Iterator>
@@ -191,8 +208,9 @@ public:
     \param translator   The translator object.
     \param allocator    The allocator object.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If allocator copy constructor throws. If Value copy constructor or copy assignment throws.
+    When nodes allocation fails.
     }
     */
     template<typename Range>
@@ -221,8 +239,8 @@ public:
     /*!
     \brief The destructor.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    Nothing.
     }
     */
     inline ~rtree()
@@ -237,8 +255,9 @@ public:
 
     \param src          The rtree which content will be copied.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If allocator copy constructor throws. If Value copy constructor throws.
+    When nodes allocation fails.
     }
     */
     inline rtree(rtree const& src)
@@ -262,8 +281,9 @@ public:
     \param src          The rtree which content will be copied.
     \param allocator    The allocator which will be used.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If allocator copy constructor throws. If Value copy constructor throws.
+    When nodes allocation fails.
     }
     */
     inline rtree(rtree const& src, allocator_type const& allocator)
@@ -284,8 +304,8 @@ public:
 
     \param src          The rtree which content will be moved.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    If allocator move constructor throws.
     }
     */
     inline rtree(BOOST_RV_REF(rtree) src)
@@ -309,8 +329,9 @@ public:
 
     \param src          The rtree which content will be copied.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If Value copy constructor throws.
+    When nodes allocation fails.
     }
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
@@ -333,8 +354,8 @@ public:
 
     \param src          The rtree which content will be moved.
 
-    \bgi_exception{
-    nothrow (if allocators are equal), strong (if allocators aren't equal)
+    \bgi_throws{
+    Only if allocators aren't equal. If Value copy constructor throws. When nodes allocation fails.
     }
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
@@ -375,21 +396,19 @@ public:
 
     \param other    The rtree which content will be swapped with this rtree content.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    If allocators swap throws.
     }
     */
     void swap(rtree & other)
     {
-// TODO - use boost::move?
-// TODO - allocators may throw in copy/move
-        std::swap(m_translator, other.m_translator);                               // SHOULDN'T THROW
-        std::swap(m_parameters, other.m_parameters);
-        std::swap(m_allocators, other.m_allocators);
+        boost::swap(m_translator, other.m_translator);                               // SHOULDN'T THROW
+        boost::swap(m_parameters, other.m_parameters);
+        m_allocators.swap(other.m_allocators);
 
-        std::swap(m_values_count, other.m_values_count);
-        std::swap(m_leafs_level, other.m_leafs_level);
-        std::swap(m_root, other.m_root);
+        boost::swap(m_values_count, other.m_values_count);
+        boost::swap(m_leafs_level, other.m_leafs_level);
+        boost::swap(m_root, other.m_root);
     }
 
     /*!
@@ -397,9 +416,12 @@ public:
 
     \param value    The value which will be stored in the container.
 
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    }
     \bgi_exception{
-    not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed, methods may return invalid data.
     }
     */
     inline void insert(value_type const& value)
@@ -416,9 +438,12 @@ public:
     \param first    The beginning of the range of values.
     \param last     The end of the range of values.
 
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    }
     \bgi_exception{
-    not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed, methods may return invalid data.
     }
     */
     template <typename Iterator>
@@ -436,9 +461,12 @@ public:
 
     \param rng      The range of values.
 
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    }
     \bgi_exception{
-    not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed, methods may return invalid data.
     }
     */
     template <typename Range>
@@ -462,9 +490,12 @@ public:
 
     \return         1 if the value was removed, 0 otherwise.
 
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    }
     \bgi_exception{
-    not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed, methods may return invalid data.
     }
     */
     inline size_type remove(value_type const& value)
@@ -485,9 +516,12 @@ public:
 
     \return         The number of removed values.
 
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    }
     \bgi_exception{
-    not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed, methods may return invalid data.
     }
     */
     template <typename Iterator>
@@ -510,9 +544,12 @@ public:
 
     \return         The number of removed values.
 
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    }
     \bgi_exception{
-    not safe -  if this operation throws, the R-tree may be left in
-    an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
+    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed, methods may return invalid data.
     }
     */
     template <typename Range>
@@ -524,39 +561,6 @@ public:
             result += this->raw_remove(*it);
         return result;
     }
-
-    /*
-    Assign new elements to the rtree. This method replaces the content of the rtree.
-
-    \param first    The beginning of the range of values.
-    \param last     The end of the range of values.
-
-    \bgi_exception{
-    strong
-    }
-    */
-    /*template <typename Iterator>
-    inline void assign(Iterator first, Iterator last)
-    {
-        rtree foo(first, last, this->parameters(), this->translator(), this->get_allocator());
-        this->swap(foo);
-    }*/
-
-    /*
-    Assign new elements to the rtree. This method replaces the content of the rtree.
-
-    \param rng      The range of values.
-
-    \bgi_exception{
-    strong
-    }
-    */
-    /*template <typename Range>
-    inline void assign(Range const& rng)
-    {
-        rtree foo(rng, this->parameters(), this->translator(), this->get_allocator());
-        this->swap(foo);
-    }*/
 
     /*!
     \brief Finds values meeting spatial predicates, e.g. intersecting some Box.
@@ -575,8 +579,8 @@ public:
 
     \return         The number of values found.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
     }
     */
     template <typename Predicates, typename OutIter>
@@ -612,8 +616,8 @@ public:
 
     \return         The number of values found.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws.
     }
     */
     template <typename DistancesPredicates>
@@ -650,8 +654,8 @@ public:
 
     \return         The number of values found.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws.
     }
     */
     template <typename DistancesPredicates, typename Predicates>
@@ -679,8 +683,8 @@ public:
 
     \return         The number of values found.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
     }
     */
     template <typename DistancesPredicates, typename OutIter>
@@ -718,8 +722,8 @@ public:
 
     \return         The number of values found.
 
-    \bgi_exception{
-    strong
+    \bgi_throws{
+    If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
     }
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
@@ -733,8 +737,8 @@ public:
 
     \return         The number of stored values.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    Nothing.
     }
     */
     inline size_type size() const
@@ -747,8 +751,8 @@ public:
 
     \return         true if the container is empty.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    Nothing.
     }
     */
     inline bool empty() const
@@ -759,8 +763,8 @@ public:
     /*!
     \brief Removes all values stored in the container.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    Nothing.
     }
     */
     inline void clear()
@@ -777,9 +781,8 @@ public:
     \return     The box containing all values stored in the container or an invalid box if
                 there are no values in the container.
 
-    \bgi_exception{
-    nothrow (if Indexable's CoordinateType copy assignment doesn't throw),
-    strong (if Indexable's CoordinateType copy assignment throws).
+    \bgi_throws{
+    Nothing.
     }
     */
     inline box_type box() const
@@ -809,8 +812,8 @@ public:
 
     \return     The number of values found.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    Nothing.
     }
     */
     template <typename ValueOrIndexable>
@@ -832,8 +835,8 @@ public:
 
     \return     The parameters object.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    Nothing.
     }
     */
     inline parameters_type const& parameters() const
@@ -846,8 +849,8 @@ public:
 
     \return     The translator object.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    Nothing.
     }
     */
     inline translator_type const& translator() const
@@ -860,8 +863,8 @@ public:
 
     \return     The allocator.
 
-    \bgi_exception{
-    nothrow
+    \bgi_throws{
+    If allocator copy constructor throws.
     }
     */
     allocator_type get_allocator() const
