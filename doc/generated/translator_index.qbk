@@ -31,9 +31,10 @@ class index
 [[[link geometry_index.r_tree.reference.translators.boost_geometry_index_translator_index.member0 `index(Container const &)`]][The constructor. ]]
 ]
 
-[br]
 [section:member0 index(Container const &)]
-The constructor. [heading Synopsis]
+The constructor. 
+
+[heading Synopsis]
 ``index(Container const & c)``
 
 [heading Parameters]
@@ -42,7 +43,6 @@ The constructor. [heading Synopsis]
 [[ `Container const &` ][ `c` ][The container which stores indexed values. ]]
 ]
 [endsect]
-[br]
 
 [endsect]
 

@@ -9,7 +9,9 @@
 ]
 
 [section:function0 nearest_queried(DistancesPredicates const &, size_t, Predicates const &)]
-The nearest query index adaptor generator. [heading Synopsis]
+The nearest query index adaptor generator. 
+
+[heading Synopsis]
 ``template<typename DistancesPredicates, typename Predicates>
 detail::nearest_query<DistancesPredicates, Predicates> boost::geometry::index::adaptors::nearest_queried(DistancesPredicates const & dpred,
                                                                                                          size_t k,
@@ -23,10 +25,11 @@ detail::nearest_query<DistancesPredicates, Predicates> boost::geometry::index::a
 [[ `Predicates const &` ][ `pred` ][Spatial predicates. ]]
 ]
 [endsect]
-[br]
 
 [section:function1 nearest_queried(DistancesPredicates const &, size_t)]
-The nearest query index adaptor generator. [heading Synopsis]
+The nearest query index adaptor generator. 
+
+[heading Synopsis]
 ``template<typename DistancesPredicates>
 detail::nearest_query<DistancesPredicates, index::detail::empty> boost::geometry::index::adaptors::nearest_queried(DistancesPredicates const & dpred, size_t k)``
 
@@ -37,10 +40,11 @@ detail::nearest_query<DistancesPredicates, index::detail::empty> boost::geometry
 [[ `size_t` ][ `k` ][The number of values to find. ]]
 ]
 [endsect]
-[br]
 
 [section:function2 spatial_queried(Predicates const &)]
-The spatial query index adaptor generator. [heading Synopsis]
+The spatial query index adaptor generator. 
+
+[heading Synopsis]
 ``template<typename Predicates>
 detail::spatial_query<Predicates> boost::geometry::index::adaptors::spatial_queried(Predicates const & pred)``
 
@@ -50,7 +54,6 @@ detail::spatial_query<Predicates> boost::geometry::index::adaptors::spatial_quer
 [[ `Predicates const &` ][ `pred` ][Spatial predicates. ]]
 ]
 [endsect]
-[br]
 
 [endsect]
 

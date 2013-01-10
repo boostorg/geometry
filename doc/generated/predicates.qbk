@@ -13,14 +13,17 @@
 ]
 
 [section:function0 empty()]
-Generate empty predicate. [heading Synopsis]
+Generate empty predicate. 
+
+[heading Synopsis]
 ``detail::empty boost::geometry::index::empty()``
 
 [endsect]
-[br]
 
 [section:function1 value(ValuePredicate const &)]
-Generate value predicate. [heading Description]
+Generate value predicate. 
+
+[heading Description]
 A wrapper around user-defined functor describing if Value should be returned by spatial query.[heading Synopsis]
 ``template<typename ValuePredicate>
 detail::value<ValuePredicate> boost::geometry::index::value(ValuePredicate const & vpred)``
@@ -31,10 +34,11 @@ detail::value<ValuePredicate> boost::geometry::index::value(ValuePredicate const
 [[ `ValuePredicate const &` ][ `vpred` ][The functor. ]]
 ]
 [endsect]
-[br]
 
 [section:function2 covered_by(Geometry const &)]
-Generate covered_by() predicate. [heading Description]
+Generate covered_by() predicate. 
+
+[heading Description]
 Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if bg::covered_by(Indexable, Geometry) returns true.[heading Synopsis]
 ``template<typename Geometry>
 detail::covered_by<Geometry> boost::geometry::index::covered_by(Geometry const & g)``
@@ -45,10 +49,11 @@ detail::covered_by<Geometry> boost::geometry::index::covered_by(Geometry const &
 [[ `Geometry const &` ][ `g` ][The Geometry object. ]]
 ]
 [endsect]
-[br]
 
 [section:function3 disjoint(Geometry const &)]
-Generate disjoint() predicate. [heading Description]
+Generate disjoint() predicate. 
+
+[heading Description]
 Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if bg::disjoint(Indexable, Geometry) returns true.[heading Synopsis]
 ``template<typename Geometry>
 detail::disjoint<Geometry> boost::geometry::index::disjoint(Geometry const & g)``
@@ -59,10 +64,11 @@ detail::disjoint<Geometry> boost::geometry::index::disjoint(Geometry const & g)`
 [[ `Geometry const &` ][ `g` ][The Geometry object. ]]
 ]
 [endsect]
-[br]
 
 [section:function4 intersects(Geometry const &)]
-Generate intersects() predicate. [heading Description]
+Generate intersects() predicate. 
+
+[heading Description]
 Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if bg::intersects(Indexable, Geometry) returns true.[heading Synopsis]
 ``template<typename Geometry>
 detail::intersects<Geometry> boost::geometry::index::intersects(Geometry const & g)``
@@ -73,10 +79,11 @@ detail::intersects<Geometry> boost::geometry::index::intersects(Geometry const &
 [[ `Geometry const &` ][ `g` ][The Geometry object. ]]
 ]
 [endsect]
-[br]
 
 [section:function5 overlaps(Geometry const &)]
-Generate overlaps() predicate. [heading Description]
+Generate overlaps() predicate. 
+
+[heading Description]
 Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if bg::overlaps(Indexable, Geometry) returns true.[heading Synopsis]
 ``template<typename Geometry>
 detail::overlaps<Geometry> boost::geometry::index::overlaps(Geometry const & g)``
@@ -87,10 +94,11 @@ detail::overlaps<Geometry> boost::geometry::index::overlaps(Geometry const & g)`
 [[ `Geometry const &` ][ `g` ][The Geometry object. ]]
 ]
 [endsect]
-[br]
 
 [section:function6 within(Geometry const &)]
-Generate within() predicate. [heading Description]
+Generate within() predicate. 
+
+[heading Description]
 Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if bg::within(Indexable, Geometry) returns true.[heading Synopsis]
 ``template<typename Geometry>
 detail::within<Geometry> boost::geometry::index::within(Geometry const & g)``
@@ -101,7 +109,6 @@ detail::within<Geometry> boost::geometry::index::within(Geometry const & g)``
 [[ `Geometry const &` ][ `g` ][The Geometry object. ]]
 ]
 [endsect]
-[br]
 
 [endsect]
 

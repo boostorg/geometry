@@ -88,9 +88,10 @@ class rtree
 [[[link geometry_index.r_tree.reference.boost_geometry_index_rtree.member29 `get_allocator()`]][Returns allocator used by the rtree. ]]
 ]
 
-[br]
 [section:member0 rtree()]
-The constructor. [heading Synopsis]
+The constructor. 
+
+[heading Synopsis]
 ``rtree(parameters_type parameters = parameters_type(), translator_type const & translator = translator_type())``
 
 [heading Parameters]
@@ -103,10 +104,11 @@ The constructor. [heading Synopsis]
 If allocator default constructor throws.
 
 [endsect]
-[br]
 
 [section:member1 rtree(parameters_type, translator_type const &, allocator_type)]
-The constructor. [heading Synopsis]
+The constructor. 
+
+[heading Synopsis]
 ``rtree(parameters_type parameters,
       translator_type const & translator,
       allocator_type allocator)``
@@ -122,10 +124,11 @@ The constructor. [heading Synopsis]
 If allocator copy constructor throws.
 
 [endsect]
-[br]
 
 [section:member2 rtree(Iterator, Iterator)]
-The constructor. [heading Synopsis]
+The constructor. 
+
+[heading Synopsis]
 ``template<typename Iterator>
 rtree(Iterator first,
       Iterator last,
@@ -146,10 +149,11 @@ rtree(Iterator first,
 If allocator copy constructor throws. If Value copy constructor or copy assignment throws. When nodes allocation fails.
 
 [endsect]
-[br]
 
 [section:member3 rtree(Range const &)]
-The constructor. [heading Synopsis]
+The constructor. 
+
+[heading Synopsis]
 ``template<typename Range>
 rtree(Range const & rng,
       parameters_type parameters = parameters_type(),
@@ -168,20 +172,22 @@ rtree(Range const & rng,
 If allocator copy constructor throws. If Value copy constructor or copy assignment throws. When nodes allocation fails.
 
 [endsect]
-[br]
 
 [section:member4 ~rtree()]
-The destructor. [heading Synopsis]
+The destructor. 
+
+[heading Synopsis]
 ``~rtree()``
 
 [heading Throws]
 Nothing.
 
 [endsect]
-[br]
 
 [section:member5 rtree(rtree const &)]
-The copy constructor. [heading Description]
+The copy constructor. 
+
+[heading Description]
 It uses parameters, translator and allocator from the source tree.[heading Synopsis]
 ``rtree(rtree const & src)``
 
@@ -194,10 +200,11 @@ It uses parameters, translator and allocator from the source tree.[heading Synop
 If allocator copy constructor throws. If Value copy constructor throws. When nodes allocation fails.
 
 [endsect]
-[br]
 
 [section:member6 rtree(rtree const &, allocator_type const &)]
-The copy constructor. [heading Description]
+The copy constructor. 
+
+[heading Description]
 It uses Parameters and translator from the source tree.[heading Synopsis]
 ``rtree(rtree const & src, allocator_type const & allocator)``
 
@@ -211,10 +218,11 @@ It uses Parameters and translator from the source tree.[heading Synopsis]
 If allocator copy constructor throws. If Value copy constructor throws. When nodes allocation fails.
 
 [endsect]
-[br]
 
 [section:member7 rtree(rtree &&)]
-The moving constructor. [heading Description]
+The moving constructor. 
+
+[heading Description]
 It uses parameters, translator and allocator from the source tree.[heading Synopsis]
 ``rtree(rtree && src)``
 
@@ -227,10 +235,11 @@ It uses parameters, translator and allocator from the source tree.[heading Synop
 If allocator move constructor throws.
 
 [endsect]
-[br]
 
 [section:member8 operator=(const rtree &)]
-The assignment operator. [heading Description]
+The assignment operator. 
+
+[heading Description]
 It uses parameters and translator from the source tree.[heading Synopsis]
 ``rtree & operator=(const rtree & src)``
 
@@ -243,10 +252,11 @@ It uses parameters and translator from the source tree.[heading Synopsis]
 If Value copy constructor throws. When nodes allocation fails.
 
 [endsect]
-[br]
 
 [section:member9 operator=(rtree &&)]
-The moving assignment. [heading Description]
+The moving assignment. 
+
+[heading Description]
 It uses parameters and translator from the source tree.[heading Synopsis]
 ``rtree & operator=(rtree && src)``
 
@@ -259,10 +269,11 @@ It uses parameters and translator from the source tree.[heading Synopsis]
 Only if allocators aren't equal. If Value copy constructor throws. When nodes allocation fails.
 
 [endsect]
-[br]
 
 [section:member10 swap(rtree &)]
-Swaps contents of two rtrees. [heading Description]
+Swaps contents of two rtrees. 
+
+[heading Description]
 Parameters, translator and allocators are swapped as well.[heading Synopsis]
 ``void swap(rtree & other)``
 
@@ -275,10 +286,11 @@ Parameters, translator and allocators are swapped as well.[heading Synopsis]
 If allocators swap throws.
 
 [endsect]
-[br]
 
 [section:member11 insert(value_type const &)]
-Insert a value to the index. [heading Synopsis]
+Insert a value to the index. 
+
+[heading Synopsis]
 ``void insert(value_type const & value)``
 
 [heading Parameters]
@@ -292,10 +304,11 @@ If Value copy constructor or copy assignment throws. When nodes allocation fails
 This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
-[br]
 
 [section:member12 insert(Iterator, Iterator)]
-Insert a range of values to the index. [heading Synopsis]
+Insert a range of values to the index. 
+
+[heading Synopsis]
 ``template<typename Iterator>
 void insert(Iterator first, Iterator last)``
 
@@ -311,10 +324,11 @@ If Value copy constructor or copy assignment throws. When nodes allocation fails
 This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
-[br]
 
 [section:member13 insert(Range const &)]
-Insert a range of values to the index. [heading Synopsis]
+Insert a range of values to the index. 
+
+[heading Synopsis]
 ``template<typename Range>
 void insert(Range const & rng)``
 
@@ -329,10 +343,11 @@ If Value copy constructor or copy assignment throws. When nodes allocation fails
 This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
-[br]
 
 [section:member14 remove(value_type const &)]
-Remove a value from the container. [heading Description]
+Remove a value from the container. 
+
+[heading Description]
 In contrast to the STL set/map erase() method this method removes only one value from the container.[heading Synopsis]
 ``size_type remove(value_type const & value)``
 
@@ -349,10 +364,11 @@ If Value copy constructor or copy assignment throws. When nodes allocation fails
 This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
-[br]
 
 [section:member15 remove(Iterator, Iterator)]
-Remove a range of values from the container. [heading Description]
+Remove a range of values from the container. 
+
+[heading Description]
 In contrast to the STL set/map erase() method it doesn't take iterators pointing to values stored in this container. It removes values equal to these passed as a range. Furthermore this method removes only one value for each one passed in the range, not all equal values.[heading Synopsis]
 ``template<typename Iterator>
 size_type remove(Iterator first, Iterator last)``
@@ -371,10 +387,11 @@ If Value copy constructor or copy assignment throws. When nodes allocation fails
 This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
-[br]
 
 [section:member16 remove(Range const &)]
-Remove a range of values from the container. [heading Description]
+Remove a range of values from the container. 
+
+[heading Description]
 In contrast to the STL set/map erase() method it removes values equal to these passed as a range. Furthermore, this method removes only one value for each one passed in the range, not all equal values.[heading Synopsis]
 ``template<typename Range>
 size_type remove(Range const & rng)``
@@ -392,10 +409,11 @@ If Value copy constructor or copy assignment throws. When nodes allocation fails
 This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state, elements must not be inserted or removed, methods may return invalid data.
 
 [endsect]
-[br]
 
 [section:member17 spatial_query(Predicates const &, OutIter)]
-Finds values meeting spatial predicates, e.g. intersecting some Box. [heading Description]
+Finds values meeting spatial predicates, e.g. intersecting some Box. 
+
+[heading Description]
 Spatial predicates may be a Geometry (in this case default predicate - intersects is used) or generated by bgi::covered_by(geometry), bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry), bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry), !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry) or bgi::value(func). Those predicates may be passed together in std::pair or boost::tuple.[heading Synopsis]
 ``template<typename Predicates, typename OutIter>
 size_type spatial_query(Predicates const & pred, OutIter out_it)``
@@ -412,10 +430,11 @@ The number of values found.
 If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
 
 [endsect]
-[br]
 
 [section:member18 nearest_query(DistancesPredicates const &, value_type &)]
-Finds one value meeting distances predicates, e.g. nearest to some Point. [heading Description]
+Finds one value meeting distances predicates, e.g. nearest to some Point. 
+
+[heading Description]
 The distances predicates may be a Point. This is default case where Value which nearest point is closest to Point is returned. May be a PointRelation which define how distance to Value is calculated. This may be generated by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances bounds. E.g. that some distance must be between min_distance and max_distance. This may be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation), bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation). MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound), bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).[heading Synopsis]
 ``template<typename DistancesPredicates>
 size_type nearest_query(DistancesPredicates const & dpred, value_type & v)``
@@ -432,10 +451,11 @@ The number of values found.
 If Value copy constructor or copy assignment throws.
 
 [endsect]
-[br]
 
 [section:member19 nearest_query(DistancesPredicates const &, Predicates const &, value_type &)]
-Finds one value meeting distances predicates and spatial predicates, e.g. nearest to some Point and intersecting some Box. [heading Description]
+Finds one value meeting distances predicates and spatial predicates, e.g. nearest to some Point and intersecting some Box. 
+
+[heading Description]
 The distances predicates may be a Point. This is default case where Value which nearest point is closest to Point is returned. May be a PointRelation which define how distance to Value is calculated. This may be generated by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances bounds. E.g. that some distance must be between min_distance and max_distance. This may be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation), bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation). MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound), bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
 
 The spatial predicates. May be a Geometry (in this case default predicate - intersects is used) or generated by bgi::covered_by(geometry), bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry), bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry), !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry) or bgi::value(func). Those predicates may be passed together in std::pair or boost::tuple.[heading Synopsis]
@@ -457,10 +477,11 @@ The number of values found.
 If Value copy constructor or copy assignment throws.
 
 [endsect]
-[br]
 
 [section:member20 nearest_query(DistancesPredicates const &, size_t, OutIter)]
-Finds k values meeting distances predicates, e.g. k nearest values to some Point. [heading Description]
+Finds k values meeting distances predicates, e.g. k nearest values to some Point. 
+
+[heading Description]
 The distances predicates. May be a Point. This is default case where Value which nearest point is closest to Point is returned. May be a PointRelation which define how distance to Value is calculated. This may be generated by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances bounds. E.g. that some distance must be between min_distance and max_distance. This may be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation), bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation). MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound), bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).[heading Synopsis]
 ``template<typename DistancesPredicates, typename OutIter>
 size_type nearest_query(DistancesPredicates const & dpred,
@@ -480,10 +501,11 @@ The number of values found.
 If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
 
 [endsect]
-[br]
 
 [section:member21 nearest_query(DistancesPredicates const &, size_t, Predicates const &, OutIter)]
-Finds k values meeting distances predicates and spatial predicates, e.g. k nearest values to some Point and intersecting some Box. [heading Description]
+Finds k values meeting distances predicates and spatial predicates, e.g. k nearest values to some Point and intersecting some Box. 
+
+[heading Description]
 The distances predicates may be a Point. This is default case where Value which nearest point is closest to Point is returned. May be a PointRelation which define how distance to Value is calculated. This may be generated by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances bounds. E.g. that some distance must be between min_distance and max_distance. This may be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation), bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation). MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound), bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
 
 The spatial predicates. May be a Geometry (in this case default predicate - intersects is used) or generated by bgi::covered_by(geometry), bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry), bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry), !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry) or bgi::value(func). Those predicates may be passed together in std::pair or boost::tuple.[heading Synopsis]
@@ -509,10 +531,11 @@ The number of values found.
 If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
 
 [endsect]
-[br]
 
 [section:member22 size()]
-Returns the number of stored values. [heading Synopsis]
+Returns the number of stored values. 
+
+[heading Synopsis]
 ``size_type size()``
 
 [heading Returns]
@@ -521,10 +544,11 @@ The number of stored values.
 Nothing.
 
 [endsect]
-[br]
 
 [section:member23 empty()]
-Query if the container is empty. [heading Synopsis]
+Query if the container is empty. 
+
+[heading Synopsis]
 ``bool empty()``
 
 [heading Returns]
@@ -533,20 +557,22 @@ true if the container is empty.
 Nothing.
 
 [endsect]
-[br]
 
 [section:member24 clear()]
-Removes all values stored in the container. [heading Synopsis]
+Removes all values stored in the container. 
+
+[heading Synopsis]
 ``void clear()``
 
 [heading Throws]
 Nothing.
 
 [endsect]
-[br]
 
 [section:member25 box()]
-Returns the box containing all values stored in the container. [heading Description]
+Returns the box containing all values stored in the container. 
+
+[heading Description]
 Returns the box containing all values stored in the container. If the container is empty the result of geometry::assign_inverse() is returned.[heading Synopsis]
 ``box_type box()``
 
@@ -556,10 +582,11 @@ The box containing all values stored in the container or an invalid box if there
 Nothing.
 
 [endsect]
-[br]
 
 [section:member26 count(ValueOrIndexable const &)]
-Count Values or Indexables stored in the container. [heading Description]
+Count Values or Indexables stored in the container. 
+
+[heading Description]
 For indexable_type it returns the number of values which indexables equals the parameter. For value_type it returns the number of values which equals the parameter.[heading Synopsis]
 ``template<typename ValueOrIndexable>
 size_type count(ValueOrIndexable const & vori)``
@@ -575,10 +602,11 @@ The number of values found.
 Nothing.
 
 [endsect]
-[br]
 
 [section:member27 parameters()]
-Returns parameters. [heading Synopsis]
+Returns parameters. 
+
+[heading Synopsis]
 ``parameters_type const & parameters()``
 
 [heading Returns]
@@ -587,10 +615,11 @@ The parameters object.
 Nothing.
 
 [endsect]
-[br]
 
 [section:member28 translator()]
-Returns the translator object. [heading Synopsis]
+Returns the translator object. 
+
+[heading Synopsis]
 ``translator_type const & translator()``
 
 [heading Returns]
@@ -599,10 +628,11 @@ The translator object.
 Nothing.
 
 [endsect]
-[br]
 
 [section:member29 get_allocator()]
-Returns allocator used by the rtree. [heading Synopsis]
+Returns allocator used by the rtree. 
+
+[heading Synopsis]
 ``allocator_type get_allocator()``
 
 [heading Returns]
@@ -611,7 +641,6 @@ The allocator.
 If allocator copy constructor throws.
 
 [endsect]
-[br]
 
 [endsect]
 
