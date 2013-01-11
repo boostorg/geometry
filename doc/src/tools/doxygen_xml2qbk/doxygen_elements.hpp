@@ -85,6 +85,12 @@ struct markup
     }
 };
 
+struct paragraph
+{
+    std::string title;
+    std::string text;
+};
+
 // Base of a class/struct, function, define
 struct element : public base_element
 {
@@ -103,6 +109,8 @@ struct element : public base_element
     std::vector<parameter> template_parameters;
     std::vector<parameter> parameters;
 
+    std::vector<paragraph> paragraphs;
+
     element()
         : line(0)
     {}
@@ -114,6 +122,7 @@ struct function : public element
     function_type type;
     std::string definition, argsstring;
     std::string return_type, return_description;
+    std::string precondition;
 
     bool unique;
 

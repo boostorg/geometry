@@ -741,7 +741,7 @@ void quickbook_output_function(std::vector<function> const& functions,
             out << "`";
             if ( !config.index_id_path.empty() )
                 out << "]";
-            out << "][" << replace_brackets(f.brief_description) << "]]" << std::endl;
+            out << "][" << f.brief_description << "]]" << std::endl;
         }
     }
     out << "]" << std::endl
@@ -763,7 +763,7 @@ void quickbook_output_detail_function(std::vector<function> const& functions,
             // Section
             std::stringstream ss;
             quickbook_synopsis_short(f, ss);
-            out << "[section:" << qbk_id_prefix << i << " " << replace_brackets(ss.str()) <<  "]" << std::endl;
+            out << "[section:" << qbk_id_prefix << i << " " << replace_brackets(ss.str()) << "]" << std::endl;
             
             // Brief description
             out << f.brief_description << std::endl;
@@ -785,24 +785,46 @@ void quickbook_output_detail_function(std::vector<function> const& functions,
             // Parameters
             if ( !f.parameters.empty() )
             {
-                out << "[heading Parameters]" << std::endl;
+                out << "[heading Parameter(s)]" << std::endl;
                 out << "[table " << std::endl;
                 out << "[[Type][Name][Description]]" << std::endl;
                 BOOST_FOREACH(parameter const& p, f.parameters)
                 {
                     if (!p.skip)
                     {
-                        out << "[[ `" << p.fulltype << "` ][ `" << p.name << "` ][" << replace_brackets(p.brief_description) << "]]"<< std::endl;
+                        out << "[[ `" << p.fulltype << "` ][ `" << p.name << "` ][" << p.brief_description << "]]"<< std::endl;
                     }
                 }
                 out << "]" << std::endl;
-            }            
+            }
+
+            // Precondition
+            if ( !f.precondition.empty() )
+            {
+                out << "[heading Precondition(s)]" << std::endl;
+                out << f.precondition << std::endl;
+                out << std::endl;
+            }
 
             // Return
             if ( !f.return_description.empty() )
             {
                 out << "[heading Returns]" << std::endl;
                 out << f.return_description << std::endl;
+            }
+            
+            // Additional paragraphs
+            if ( !f.paragraphs.empty() )
+            {
+                BOOST_FOREACH(paragraph const& p, f.paragraphs)
+                {
+                    if ( !p.title.empty() )
+                        out << "[heading " << p.title << "]" << std::endl;
+                    else
+                        out << "\n\n" << std::endl;
+                    out << p.text << std::endl;
+                    out << std::endl;
+                }
             }
 
             // QBK markup
@@ -942,7 +964,7 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
                     out << p.fulltype.substr(6);
                 else
                     out << p.fulltype;
-                out << "`][" << replace_brackets(p.brief_description) << "]]" << std::endl;
+                out << "`][" << p.brief_description << "]]" << std::endl;
             }
             out << "]" << std::endl
                 << std::endl;
@@ -966,7 +988,7 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
                     continue;
 
                 out << "[[`" << e.name;
-                out << "`][" << replace_brackets(e.brief_description) << "]]" << std::endl;
+                out << "`][" << e.brief_description << "]]" << std::endl;
             }
             out << "]" << std::endl
                 << std::endl;

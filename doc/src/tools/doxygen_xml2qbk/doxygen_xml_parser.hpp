@@ -77,28 +77,56 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& 
             }
             else if ( boost::equals(name, "itemizedlist") )
             {
-                contents += "\n\n";
+                contents += "\n";
                 parse_para(node->first_node(), contents, skip);
-                contents += "\n[/]";
+                contents += "\n";
                 parse_para(node->next_sibling(), contents, skip);
                 return;
             }
             else if ( boost::equals(name, "listitem") )
             {
                 contents += "* ";
-                rapidxml::xml_node<>* li = node->first_node("para");
-                contents += li ? li->value() : "";
+                parse_para(node->first_node(), contents, skip);
                 contents += "\n";
-                parse_para(node->next_sibling(), contents, skip);                
+                parse_para(node->next_sibling(), contents, skip);
+                return;
+            }
+            else if ( boost::equals(name, "verbatim") )
+            {
+                contents += "\n``\n";
+                parse_para(node->first_node(), contents, skip, false);
+                contents += "``\n";
+                parse_para(node->next_sibling(), contents, skip, false);
+                return;
+            }
+            else if ( boost::equals(name, "bold") )
+            {
+                contents += "[*";
+                parse_para(node->first_node(), contents, skip, false);
+                contents += "]";
+                parse_para(node->next_sibling(), contents, skip, false);
+                return;
+            }
+            else if ( boost::equals(name, "emphasis") )
+            {
+                contents += "['";
+                parse_para(node->first_node(), contents, skip, false);
+                contents += "]";
+                parse_para(node->next_sibling(), contents, skip, false);
+                return;
+            }
+            else if ( boost::equals(name, "computeroutput") )
+            {
+                contents += "[^";
+                parse_para(node->first_node(), contents, skip, false);
+                contents += "]";
+                parse_para(node->next_sibling(), contents, skip, false);
                 return;
             }
             else if (! (
                 (boost::equals(name, "para") && first)
                 || boost::equals(name, "ref")
                 || boost::equals(name, "defval")
-                || boost::equals(name, "verbatim")
-                || boost::equals(name, "bold")
-                || boost::equals(name, "emphasis")
                 || boost::equals(name, "linebreak")
                 ))
             {
@@ -364,26 +392,15 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
             std::string kind = get_attribute(node, "kind");
             if (kind == "par")
             {
-                rapidxml::xml_node<> * title_node = node->first_node("title");
-                std::string title = title_node ? title_node->value() : "";
-                
-                std::string m;
-                if ( title_node )
-                    m = std::string("[heading ") + title + "]\n";
-                else
-                    m = "\n\n";
+                paragraph p;
 
-                parse_para(node->first_node("para"), m, el.skip);
-                m += "\n";
-                    
-                el.qbk_markup.push_back(markup(m));
-            }
-            else if (kind == "pre")
-            {
-                std::string para;
-                parse_para(node->first_node("para"), para, el.skip);
+                rapidxml::xml_node<> * title_node = node->first_node("title");
+                if ( title_node )
+                    p.title = title_node->value();
+
+                parse_para(node->first_node("para"), p.text, el.skip);
                 
-                el.qbk_markup.push_back(markup(std::string("[heading Precondition]\n") + para));
+                el.paragraphs.push_back(p);
             }
         }
         else if (full == ".param")
@@ -432,12 +449,16 @@ static void parse_function(rapidxml::xml_node<>* node, configuration const& conf
             std::string kind = get_attribute(node, "kind");
             if (kind == "return")
             {
-                get_contents(node->first_node(), f.return_description);
+                parse_para(node->first_node(), f.return_description, f.skip);
             }
             /*else if (kind == "param")
             {
                 get_contents(node->first_node(), f.paragraphs);
             }*/
+            else if (kind == "pre")
+            {
+                parse_para(node->first_node(), f.precondition, f.skip);
+            }
         }
         else if (full == ".detaileddescription.para.image")
         {
