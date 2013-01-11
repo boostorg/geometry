@@ -30,7 +30,7 @@ Insert a value to the index.
          typename Allocator>
 void boost::geometry::index::insert(rtree< Value, Options, Translator, Allocator > & tree, Value const & v)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > &` ][ `tree` ][The spatial index. ]]
@@ -51,7 +51,7 @@ void boost::geometry::index::insert(rtree< Value, Options, Translator, Allocator
                                     Iterator first,
                                     Iterator last)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > &` ][ `tree` ][The spatial index. ]]
@@ -71,7 +71,7 @@ Insert a range of values to the index.
          typename Range>
 void boost::geometry::index::insert(rtree< Value, Options, Translator, Allocator > & tree, Range const & rng)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > &` ][ `tree` ][The spatial index. ]]
@@ -83,14 +83,14 @@ void boost::geometry::index::insert(rtree< Value, Options, Translator, Allocator
 Remove a value from the container. 
 
 [heading Description]
-Remove a value from the container. In contrast to the STL set/map erase() method this function removes only one value from the container.[heading Synopsis]
+Remove a value from the container. In contrast to the [^std::set] or [^std::map][^erase()] method this function removes only one value from the container.[heading Synopsis]
 ``template<typename Value,
          typename Options,
          typename Translator,
          typename Allocator>
 rtree<Value, Options, Translator, Allocator>::size_type boost::geometry::index::remove(rtree< Value, Options, Translator, Allocator > & tree, Value const & v)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > &` ][ `tree` ][The spatial index. ]]
@@ -104,7 +104,7 @@ rtree<Value, Options, Translator, Allocator>::size_type boost::geometry::index::
 Remove a range of values from the container. 
 
 [heading Description]
-Remove a range of values from the container. In contrast to the STL set/map erase() method it doesn't take iterators pointing to values stored in this container. It removes values equal to these passed as a range. Furthermore this function removes only one value for each one passed in the range, not all equal values.[heading Synopsis]
+Remove a range of values from the container. In contrast to the [^std::set] or [^std::map][^erase()] method it doesn't take iterators pointing to values stored in this container. It removes values equal to these passed as a range. Furthermore this function removes only one value for each one passed in the range, not all equal values.[heading Synopsis]
 ``template<typename Value,
          typename Options,
          typename Translator,
@@ -114,7 +114,7 @@ rtree<Value, Options, Translator, Allocator>::size_type boost::geometry::index::
                                                                                        Iterator first,
                                                                                        Iterator last)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > &` ][ `tree` ][The spatial index. ]]
@@ -129,7 +129,7 @@ The number of removed values.
 Remove a range of values from the container. 
 
 [heading Description]
-Remove a range of values from the container. In contrast to the STL set/map erase() method it removes values equal to these passed as a range. Furthermore this method removes only one value for each one passed in the range, not all equal values.[heading Synopsis]
+Remove a range of values from the container. In contrast to the [^std::set] or [^std::map][^erase()] method it removes values equal to these passed as a range. Furthermore this method removes only one value for each one passed in the range, not all equal values.[heading Synopsis]
 ``template<typename Value,
          typename Options,
          typename Translator,
@@ -137,7 +137,7 @@ Remove a range of values from the container. In contrast to the STL set/map eras
          typename Range>
 rtree<Value, Options, Translator, Allocator>::size_type boost::geometry::index::remove(rtree< Value, Options, Translator, Allocator > & tree, Range const & rng)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > &` ][ `tree` ][The spatial index. ]]
@@ -161,7 +161,7 @@ size_t boost::geometry::index::spatial_query(rtree< Value, Options, Translator, 
                                              Predicates const & pred,
                                              OutIter out_it)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > const &` ][ `tree` ][The spatial index. ]]
@@ -185,7 +185,7 @@ size_t boost::geometry::index::nearest_query(rtree< Value, Options, Translator, 
                                              DistancesPredicates const & dpred,
                                              Value & v)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > const &` ][ `tree` ][The spatial index. ]]
@@ -211,7 +211,7 @@ size_t boost::geometry::index::nearest_query(rtree< Value, Options, Translator, 
                                              Predicates const & pred,
                                              Value & v)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > const &` ][ `tree` ][The spatial index. ]]
@@ -238,7 +238,7 @@ size_t boost::geometry::index::nearest_query(rtree< Value, Options, Translator, 
                                              size_t k,
                                              OutIter out_it)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > const &` ][ `tree` ][The spatial index. ]]
@@ -267,7 +267,7 @@ size_t boost::geometry::index::nearest_query(rtree< Value, Options, Translator, 
                                              Predicates const & pred,
                                              OutIter out_it)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > const &` ][ `tree` ][The spatial index. ]]
@@ -290,7 +290,7 @@ Remove all values from the index.
          typename Allocator>
 void boost::geometry::index::clear(rtree< Value, Options, Translator, Allocator > & tree)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > &` ][ `tree` ][The spatial index. ]]
@@ -307,7 +307,7 @@ Get the number of values stored in the index.
          typename Allocator>
 size_t boost::geometry::index::size(rtree< Value, Options, Translator, Allocator > const & tree)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > const &` ][ `tree` ][The spatial index.]]
@@ -326,7 +326,7 @@ Query if there are no values stored in the index.
          typename Allocator>
 bool boost::geometry::index::empty(rtree< Value, Options, Translator, Allocator > const & tree)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > const &` ][ `tree` ][The spatial index.]]
@@ -345,7 +345,7 @@ Get the box containing all stored values or an invalid box if the index has no v
          typename Allocator>
 rtree<Value, Options, Translator, Allocator>::box_type boost::geometry::index::box(rtree< Value, Options, Translator, Allocator > const & tree)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `rtree< Value, Options, Translator, Allocator > const &` ][ `tree` ][The spatial index.]]

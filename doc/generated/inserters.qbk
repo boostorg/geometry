@@ -14,7 +14,7 @@ Returns insert iterator capable to insert values to the container (spatial index
 ``template<typename Container>
 insert_iterator<Container> boost::geometry::index::inserter(Container & c)``
 
-[heading Parameters]
+[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[ `Container &` ][ `c` ][The reference to the container (spatial index) to which values will be inserted.]]

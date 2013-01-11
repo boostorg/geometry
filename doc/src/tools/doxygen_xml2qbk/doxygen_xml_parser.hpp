@@ -77,7 +77,7 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& 
             }
             else if ( boost::equals(name, "itemizedlist") )
             {
-                contents += "\n";
+                contents += "\n\n";
                 parse_para(node->first_node(), contents, skip);
                 contents += "\n";
                 parse_para(node->next_sibling(), contents, skip);
@@ -401,6 +401,14 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
                 parse_para(node->first_node("para"), p.text, el.skip);
                 
                 el.paragraphs.push_back(p);
+            }
+            else if (kind == "warning")
+            {
+                parse_para(node->first_node("para"), el.warning, el.skip);
+            }
+            else if (kind == "note")
+            {
+                parse_para(node->first_node("para"), el.note, el.skip);
             }
         }
         else if (full == ".param")

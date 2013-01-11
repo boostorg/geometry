@@ -748,6 +748,37 @@ void quickbook_output_function(std::vector<function> const& functions,
         << std::endl;
 }
 
+void output_paragraphs_note_warning(element const& el, std::ostream & out)
+{
+    // Additional paragraphs
+    if ( !el.paragraphs.empty() )
+    {
+        BOOST_FOREACH(paragraph const& p, el.paragraphs)
+        {
+            if ( !p.title.empty() )
+                out << "[heading " << p.title << "]" << std::endl;
+            else
+                out << "\n\n" << std::endl;
+            out << p.text << std::endl;
+            out << std::endl;
+        }
+    }
+
+    // Note
+    if ( !el.note.empty() )
+    {
+        out << "[note " << el.note << "]" << std::endl;
+        out << std::endl;
+    }
+
+    // Warning
+    if ( !el.warning.empty() )
+    {
+        out << "[warning " << el.warning << "]" << std::endl;
+        out << std::endl;
+    }
+}
+
 void quickbook_output_detail_function(std::vector<function> const& functions, 
                                     function_type type, 
                                     configuration const& config,
@@ -813,19 +844,8 @@ void quickbook_output_detail_function(std::vector<function> const& functions,
                 out << f.return_description << std::endl;
             }
             
-            // Additional paragraphs
-            if ( !f.paragraphs.empty() )
-            {
-                BOOST_FOREACH(paragraph const& p, f.paragraphs)
-                {
-                    if ( !p.title.empty() )
-                        out << "[heading " << p.title << "]" << std::endl;
-                    else
-                        out << "\n\n" << std::endl;
-                    out << p.text << std::endl;
-                    out << std::endl;
-                }
-            }
+            // Additional paragraphs, note, warning
+            output_paragraphs_note_warning(f, out);
 
             // QBK markup
             quickbook_markup(f.qbk_markup, markup_any, markup_default, out);
@@ -903,6 +923,10 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
 
     quickbook_string_with_heading_if_present("Description", cos.detailed_description, out);
 
+    // Additional paragraphs, note, warning
+    output_paragraphs_note_warning(cos, out);
+
+    // Markup
     quickbook_markup(cos.qbk_markup, markup_any, markup_default, out);
 
     // Header

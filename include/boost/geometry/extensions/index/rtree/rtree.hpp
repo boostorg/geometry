@@ -66,22 +66,26 @@ of Values and balancing algorithms.
 The user must pass a type defining the Parameters which will
 be used in rtree creation process. This type is used e.g. to specify balancing algorithm
 with specific parameters like min and max number of elements in node.
+
+\par
 Predefined algorithms with compile-time parameters are:
-bgi::linear<MinElements, MaxElements>,
-bgi::quadratic<MinElements, MaxElements>,
-bgi::rstar<MinElements, MaxElements, OverlapCostThreshold = 0, ReinsertedElements = MaxElements * 0.3>.
+ \li <tt>bgi::linear<MinElements, MaxElements></tt>,
+ \li <tt>bgi::quadratic<MinElements, MaxElements></tt>,
+ \li <tt>bgi::rstar<MinElements, MaxElements, OverlapCostThreshold = 0, ReinsertedElements = MaxElements * 0.3></tt>.
+
+\par
 Predefined algorithms with run-time parameters are:
-bgi::runtime::linear,
-bgi::runtime::quadratic,
-bgi::runtime::rstar.
+ \li \c bgi::runtime::linear,
+ \li \c bgi::runtime::quadratic,
+ \li \c bgi::runtime::rstar.
 
 \par Translator
 The Translator translates from Value to Indexable each time r-tree requires it. Which means that this
 operation is done for each Value access. Therefore the Translator should return the Indexable by
 const reference instead of a value. Default translator can translate all types adapted to Point
-or Box concepts (which are Indexables). It also handles std::pair<Indexable, T>, pointers, smart pointers,
-and iterators. E.g. If std::pair<Box, int> is stored, the default translator translates from
-std::pair<Box, int> const& to Box const&.
+or Box concepts (called Indexables). It also handles <tt>std::pair<Indexable, T></tt> and
+<tt>boost::tuple<Indexable, ...></tt>. For example, if <tt>std::pair<Box, int></tt> is stored in the
+container, the default translator translates from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
 
 \tparam Value       The type of objects stored in the container.
 \tparam Parameters  Compile-time parameters.
@@ -177,8 +181,10 @@ public:
     \param allocator    The allocator object.
 
     \par Throws
-    If allocator copy constructor throws. If Value copy constructor or copy assignment throws.
-    When nodes allocation fails.
+    \li If allocator copy constructor throws.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws.
+    \li When memory allocation for Node fails.
     */
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last,
@@ -212,8 +218,10 @@ public:
     \param allocator    The allocator object.
 
     \par Throws
-    If allocator copy constructor throws. If Value copy constructor or copy assignment throws.
-    When nodes allocation fails.
+    \li If allocator copy constructor throws.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws.
+    \li When memory allocation for Node fails.
     */
     template<typename Range>
     inline explicit rtree(Range const& rng,
@@ -257,8 +265,10 @@ public:
     \param src          The rtree which content will be copied.
 
     \par Throws
-    If allocator copy constructor throws. If Value copy constructor throws.
-    When nodes allocation fails.
+    \li If allocator copy constructor throws.
+    \li If Value copy constructor throws.
+    \li If allocation throws.
+    \li When memory allocation for Node fails.
     */
     inline rtree(rtree const& src)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -282,8 +292,10 @@ public:
     \param allocator    The allocator which will be used.
 
     \par Throws
-    If allocator copy constructor throws. If Value copy constructor throws.
-    When nodes allocation fails.
+    \li If allocator copy constructor throws.
+    \li If Value copy constructor throws.
+    \li If allocation throws.
+    \li When memory allocation for Node fails.
     */
     inline rtree(rtree const& src, allocator_type const& allocator)
         : m_translator(src.m_translator)                                          // SHOULDN'T THROW
@@ -328,8 +340,9 @@ public:
     \param src          The rtree which content will be copied.
 
     \par Throws
-    If Value copy constructor throws.
-    When nodes allocation fails.
+    \li If Value copy constructor throws.
+    \li If allocation throws.
+    \li When nodes allocation fails.
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
@@ -352,7 +365,10 @@ public:
     \param src          The rtree which content will be moved.
 
     \par Throws
-    Only if allocators aren't equal. If Value copy constructor throws. When nodes allocation fails.
+    Only if allocators aren't equal.
+    \li If Value copy constructor throws.
+    \li If allocation throws.
+    \li When nodes allocation fails.
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
@@ -412,9 +428,11 @@ public:
     \param value    The value which will be stored in the container.
 
     \par Throws
-    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws.
+    \li When nodes allocation fails.
 
-    \par Exception-safety
+    \warning
     This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
     elements must not be inserted or removed, methods may return invalid data.
     */
@@ -433,9 +451,11 @@ public:
     \param last     The end of the range of values.
 
     \par Throws
-    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws.
+    \li When nodes allocation fails.
 
-    \par Exception-safety
+    \warning
     This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
     elements must not be inserted or removed, methods may return invalid data.
     */
@@ -455,9 +475,11 @@ public:
     \param rng      The range of values.
 
     \par Throws
-    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws.
+    \li When nodes allocation fails.
 
-    \par Exception-safety
+    \warning
     This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
     elements must not be inserted or removed, methods may return invalid data.
     */
@@ -475,7 +497,7 @@ public:
     /*!
     \brief Remove a value from the container.
 
-    In contrast to the STL set/map erase() method
+    In contrast to the \c std::set or \c std::map \c erase() method
     this method removes only one value from the container.
 
     \param value    The value which will be removed from the container.
@@ -483,9 +505,11 @@ public:
     \return         1 if the value was removed, 0 otherwise.
 
     \par Throws
-    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws.
+    \li When nodes allocation fails.
 
-    \par Exception-safety
+    \warning
     This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
     elements must not be inserted or removed, methods may return invalid data.
     */
@@ -497,7 +521,7 @@ public:
     /*!
     \brief Remove a range of values from the container.
 
-    In contrast to the STL set/map erase() method
+    In contrast to the \c std::set or \c std::map \c erase() method
     it doesn't take iterators pointing to values stored in this container. It removes values equal
     to these passed as a range. Furthermore this method removes only one value for each one passed
     in the range, not all equal values.
@@ -508,9 +532,11 @@ public:
     \return         The number of removed values.
 
     \par Throws
-    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws.
+    \li When nodes allocation fails.
 
-    \par Exception-safety
+    \warning
     This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
     elements must not be inserted or removed, methods may return invalid data.
     */
@@ -526,7 +552,7 @@ public:
     /*!
     \brief Remove a range of values from the container.
 
-    In contrast to the STL set/map erase() method
+    In contrast to the \c std::set or \c std::map \c erase() method
     it removes values equal to these passed as a range. Furthermore, this method removes only
     one value for each one passed in the range, not all equal values.
 
@@ -535,9 +561,11 @@ public:
     \return         The number of removed values.
 
     \par Throws
-    If Value copy constructor or copy assignment throws. When nodes allocation fails.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws.
+    \li When nodes allocation fails.
 
-    \par Exception-safety
+    \warning
     This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
     elements must not be inserted or removed, methods may return invalid data.
     */
@@ -554,13 +582,23 @@ public:
     /*!
     \brief Finds values meeting spatial predicates, e.g. intersecting some Box.
 
-    Spatial predicates may be a Geometry (in this case default
-    predicate - intersects is used) or generated by bgi::covered_by(geometry),
-    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
-    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
-    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
-    or bgi::value(func). Those predicates may be passed together in std::pair
-    or boost::tuple.
+    <b>Spatial predicates</b> may be a \c Geometry. In this case Values intersecting the \c Geometry are returned.
+
+    It may be generated by one of the functions listed below:
+    \li \c bgi::covered_by(geometry),
+    \li \c bgi::disjoint(geometry),
+    \li \c bgi::intersects(geometry) - default,
+    \li \c bgi::overlaps(geometry),
+    \li \c bgi::within(geometry),
+    \li \c !bgi::covered_by(geometry),
+    \li \c !bgi::disjoint(geometry),
+    \li \c !bgi::intersects(geometry),
+    \li \c !bgi::overlaps(geometry),
+    \li \c !bgi::within(geometry)
+    \li \c bgi::value(func).
+
+    Those predicates may be passed together in
+    \c std::pair<...> or \c boost::tuple<...>.
 
     \param pred     The spatial predicates or a Geometry.
     \param out_it   The output iterator of the result range. E.g. an iterator generated by
@@ -569,7 +607,8 @@ public:
     \return         The number of values found.
 
     \par Throws
-    If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
+    \li If Value copy constructor or copy assignment throws.
+    \li If OutIter dereference or increment throws.
     */
     template <typename Predicates, typename OutIter>
     inline size_type spatial_query(Predicates const& pred, OutIter out_it) const
@@ -588,15 +627,26 @@ public:
     /*!
     \brief Finds one value meeting distances predicates, e.g. nearest to some Point.
 
-    The distances predicates may be a Point. This is default case where Value which
-    nearest point is closest to Point is returned. May be a PointRelation which define
-    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
-    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
-    bounds. E.g. that some distance must be between min_distance and max_distance. This may
-    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
-    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
-    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
-    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+    <b>Distances predicates</b> may be a \c Point. In this the case the Value closest to \c Point is returned.
+
+    It is possible to define how distance to Value is calculated. This is done by passing PointRelation.
+    It can be generated by following functions:
+    \li bgi::to_nearest(Point) - default,
+    \li bgi::to_centroid(Point),
+    \li bgi::to_furthest(Point).
+
+    It is possible to define define distances bounds, for example that some distance must be between
+    min_distance and max_distance. This is done by passing DistancesPredicates which can be generated
+    by following functions:
+    \li bgi::unbounded(PointRelation) - default,
+    \li bgi::min_bounded(PointRelation, MinRelation),
+    \li bgi::max_bounded(PointRelation, MaxRelation),
+    \li bgi::bounded(PointRelation, MinRelation, MaxRelation).
+
+    MinRelation and MaxRelation describes bounds and can be generated by following functions:
+    \li bgi::to_nearest(some_distance),
+    \li bgi::to_centroid(some_distance),
+    \li bgi::to_furthest(some_distance).
 
     \param dpred    The distances predicates or a Point.
 
@@ -617,23 +667,44 @@ public:
     \brief Finds one value meeting distances predicates and spatial predicates,
     e.g. nearest to some Point and intersecting some Box.
 
-    The distances predicates may be a Point. This is default case where Value which
-    nearest point is closest to Point is returned. May be a PointRelation which define
-    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
-    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
-    bounds. E.g. that some distance must be between min_distance and max_distance. This may
-    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
-    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
-    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
-    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+    <b>Distances predicates</b> may be a \c Point. In this the case the Value closest to \c Point is returned.
 
-    The spatial predicates. May be a Geometry (in this case default
-    predicate - intersects is used) or generated by bgi::covered_by(geometry),
-    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
-    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
-    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
-    or bgi::value(func). Those predicates may be passed together in std::pair
-    or boost::tuple.
+    It is possible to define how distance to Value is calculated. This is done by passing PointRelation.
+    It can be generated by following functions:
+    \li bgi::to_nearest(Point) - default,
+    \li bgi::to_centroid(Point),
+    \li bgi::to_furthest(Point).
+
+    It is possible to define define distances bounds, for example that some distance must be between
+    min_distance and max_distance. This is done by passing DistancesPredicates which can be generated
+    by following functions:
+    \li bgi::unbounded(PointRelation) - default,
+    \li bgi::min_bounded(PointRelation, MinRelation),
+    \li bgi::max_bounded(PointRelation, MaxRelation),
+    \li bgi::bounded(PointRelation, MinRelation, MaxRelation).
+
+    MinRelation and MaxRelation describes bounds and can be generated by following functions:
+    \li bgi::to_nearest(some_distance),
+    \li bgi::to_centroid(some_distance),
+    \li bgi::to_furthest(some_distance).
+
+    <b>Spatial predicates</b> may be a \c Geometry. In this case Values intersecting the \c Geometry are returned.
+
+    It may be generated by one of the functions listed below:
+    \li \c bgi::covered_by(geometry),
+    \li \c bgi::disjoint(geometry),
+    \li \c bgi::intersects(geometry) - default,
+    \li \c bgi::overlaps(geometry),
+    \li \c bgi::within(geometry),
+    \li \c !bgi::covered_by(geometry),
+    \li \c !bgi::disjoint(geometry),
+    \li \c !bgi::intersects(geometry),
+    \li \c !bgi::overlaps(geometry),
+    \li \c !bgi::within(geometry)
+    \li \c bgi::value(func).
+
+    Those predicates may be passed together in
+    \c std::pair<...> or \c boost::tuple<...>.
 
     \param dpred    The distances predicates or a Point.
     \param pred     The spatial predicates or a Geometry
@@ -653,15 +724,26 @@ public:
     /*!
     \brief Finds k values meeting distances predicates, e.g. k nearest values to some Point.
 
-    The distances predicates. May be a Point. This is default case where Value which
-    nearest point is closest to Point is returned. May be a PointRelation which define
-    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
-    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
-    bounds. E.g. that some distance must be between min_distance and max_distance. This may
-    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
-    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
-    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
-    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+    <b>Distances predicates</b> may be a \c Point. In this the case the Value closest to \c Point is returned.
+
+    It is possible to define how distance to Value is calculated. This is done by passing PointRelation.
+    It can be generated by following functions:
+    \li bgi::to_nearest(Point) - default,
+    \li bgi::to_centroid(Point),
+    \li bgi::to_furthest(Point).
+
+    It is possible to define define distances bounds, for example that some distance must be between
+    min_distance and max_distance. This is done by passing DistancesPredicates which can be generated
+    by following functions:
+    \li bgi::unbounded(PointRelation) - default,
+    \li bgi::min_bounded(PointRelation, MinRelation),
+    \li bgi::max_bounded(PointRelation, MaxRelation),
+    \li bgi::bounded(PointRelation, MinRelation, MaxRelation).
+
+    MinRelation and MaxRelation describes bounds and can be generated by following functions:
+    \li bgi::to_nearest(some_distance),
+    \li bgi::to_centroid(some_distance),
+    \li bgi::to_furthest(some_distance).
 
     \param dpred    The distances predicates or a Point.
     \param k        The max number of values.
@@ -682,23 +764,44 @@ public:
     \brief Finds k values meeting distances predicates and spatial predicates,
     e.g. k nearest values to some Point and intersecting some Box.
 
-    The distances predicates may be a Point. This is default case where Value which
-    nearest point is closest to Point is returned. May be a PointRelation which define
-    how distance to Value is calculated. This may be generated by bgi::to_nearest(Point),
-    bgi::to_centroid(Point) or bgi::to_furthest(Point). DistancesPredicates may also define distances
-    bounds. E.g. that some distance must be between min_distance and max_distance. This may
-    be generated by bgi::unbounded(PointRelation) - default case, bgi::min_bounded(PointRelation, MinRelation),
-    bgi::max_bounded(PointRelation, MaxRelation), bgi::bounded(PointRelation, MinRelation, MaxRelation).
-    MinRelation and MaxRelation describes bounds and may be generated by bgi::to_nearest(dist_bound),
-    bgi::to_centroid(dist_bound) or bgi::to_furthest(dist_bound).
+    <b>Distances predicates</b> may be a \c Point. In this the case the Value closest to \c Point is returned.
 
-    The spatial predicates. May be a Geometry (in this case default
-    predicate - intersects is used) or generated by bgi::covered_by(geometry),
-    bgi::disjoint(geometry), bgi::intersects(geometry), bgi::overlaps(geometry),
-    bgi::within(geometry), !bgi::covered_by(geometry), !bgi::disjoint(geometry),
-    !bgi::intersects(geometry), !bgi::overlaps(geometry), !bgi::within(geometry)
-    or bgi::value(func). Those predicates may be passed together in std::pair
-    or boost::tuple.
+    It is possible to define how distance to Value is calculated. This is done by passing PointRelation.
+    It can be generated by following functions:
+    \li bgi::to_nearest(Point) - default,
+    \li bgi::to_centroid(Point),
+    \li bgi::to_furthest(Point).
+
+    It is possible to define define distances bounds, for example that some distance must be between
+    min_distance and max_distance. This is done by passing DistancesPredicates which can be generated
+    by following functions:
+    \li bgi::unbounded(PointRelation) - default,
+    \li bgi::min_bounded(PointRelation, MinRelation),
+    \li bgi::max_bounded(PointRelation, MaxRelation),
+    \li bgi::bounded(PointRelation, MinRelation, MaxRelation).
+
+    MinRelation and MaxRelation describes bounds and can be generated by following functions:
+    \li bgi::to_nearest(some_distance),
+    \li bgi::to_centroid(some_distance),
+    \li bgi::to_furthest(some_distance).
+
+    <b>Spatial predicates</b> may be a \c Geometry. In this case Values intersecting the \c Geometry are returned.
+
+    It may be generated by one of the functions listed below:
+    \li \c bgi::covered_by(geometry),
+    \li \c bgi::disjoint(geometry),
+    \li \c bgi::intersects(geometry) - default,
+    \li \c bgi::overlaps(geometry),
+    \li \c bgi::within(geometry),
+    \li \c !bgi::covered_by(geometry),
+    \li \c !bgi::disjoint(geometry),
+    \li \c !bgi::intersects(geometry),
+    \li \c !bgi::overlaps(geometry),
+    \li \c !bgi::within(geometry)
+    \li \c bgi::value(func).
+
+    Those predicates may be passed together in
+    \c std::pair<...> or \c boost::tuple<...>.
 
     \param dpred    The distances predicates or a Point
     \param k        The max number of values.
@@ -757,7 +860,7 @@ public:
     \brief Returns the box containing all values stored in the container.
 
     Returns the box containing all values stored in the container.
-    If the container is empty the result of geometry::assign_inverse() is returned.
+    If the container is empty the result of \c geometry::assign_inverse() is returned.
 
     \return     The box containing all values stored in the container or an invalid box if
                 there are no values in the container.
@@ -1170,7 +1273,7 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Range co
 /*!
 \brief Remove a value from the container.
 
-Remove a value from the container. In contrast to the STL set/map erase() method
+Remove a value from the container. In contrast to the \c std::set or \c std::map \c erase() method
 this function removes only one value from the container.
 
 \ingroup rtree_functions
@@ -1190,7 +1293,7 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 /*!
 \brief Remove a range of values from the container.
 
-Remove a range of values from the container. In contrast to the STL set/map erase() method
+Remove a range of values from the container. In contrast to the \c std::set or \c std::map \c erase() method
 it doesn't take iterators pointing to values stored in this container. It removes values equal
 to these passed as a range. Furthermore this function removes only one value for each one passed
 in the range, not all equal values.
@@ -1213,7 +1316,7 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iter
 /*!
 \brief Remove a range of values from the container.
 
-Remove a range of values from the container. In contrast to the STL set/map erase() method
+Remove a range of values from the container. In contrast to the \c std::set or \c std::map \c erase() method
 it removes values equal to these passed as a range. Furthermore this method removes only
 one value for each one passed in the range, not all equal values.
 

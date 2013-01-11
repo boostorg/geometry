@@ -110,6 +110,8 @@ struct element : public base_element
     std::vector<parameter> parameters;
 
     std::vector<paragraph> paragraphs;
+    std::string warning;
+    std::string note;
 
     element()
         : line(0)
