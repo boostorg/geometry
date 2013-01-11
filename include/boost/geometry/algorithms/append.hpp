@@ -194,30 +194,66 @@ struct append<Geometry, RangeOrPoint, point_tag>
     : splitted_dispatch::append_point<typename tag<Geometry>::type, Geometry, RangeOrPoint>
 {};
 
-
-template <typename RangeOrPoint>
-struct append_variant_dispatcher: boost::static_visitor<void>
+template <typename Geometry>
+struct variant_dispatch
 {
-    RangeOrPoint const& m_range_or_point;
-    int m_ring_index;
-    int m_multi_index;
-
-    append_variant_dispatcher(RangeOrPoint const& range_or_point,
-                              int ring_index,
-                              int multi_index):
-        m_range_or_point(range_or_point),
-        m_ring_index(ring_index),
-        m_multi_index(multi_index)
-    {}
-
-    template <typename Geometry>
-    void operator()(Geometry& geometry) const
+    template <typename RangeOrPoint>
+    static inline void apply(Geometry& geometry,
+                             RangeOrPoint const& range_or_point,
+                             int ring_index,
+                             int multi_index)
     {
-        return dispatch::append<Geometry, RangeOrPoint>::apply(
-            geometry,
-            m_range_or_point,
-            m_ring_index,
-            m_multi_index
+        concept::check<Geometry>();
+        append<Geometry, RangeOrPoint>::apply(geometry,
+                                              range_or_point,
+                                              ring_index,
+                                              multi_index);
+    }
+};
+
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct variant_dispatch<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename RangeOrPoint>
+    struct visitor: boost::static_visitor<void>
+    {
+        RangeOrPoint const& m_range_or_point;
+        int m_ring_index;
+        int m_multi_index;
+    
+        visitor(RangeOrPoint const& range_or_point,
+                int ring_index,
+                int multi_index):
+            m_range_or_point(range_or_point),
+            m_ring_index(ring_index),
+            m_multi_index(multi_index)
+        {}
+    
+        template <typename Geometry>
+        void operator()(Geometry& geometry) const
+        {
+            concept::check<Geometry>();
+            append<Geometry, RangeOrPoint>::apply(geometry,
+                                                  m_range_or_point,
+                                                  m_ring_index,
+                                                  m_multi_index);
+        }
+    };
+
+    template <typename RangeOrPoint>
+    static inline void apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& variant_geometry,
+                             RangeOrPoint const& range_or_point,
+                             int ring_index,
+                             int multi_index)
+    {
+        apply_visitor(
+            visitor<RangeOrPoint>(
+                range_or_point,
+                ring_index,
+                multi_index
+            ),
+            variant_geometry
         );
     }
 };
@@ -245,29 +281,8 @@ template <typename Geometry, typename RangeOrPoint>
 inline void append(Geometry& geometry, RangeOrPoint const& range_or_point,
                    int ring_index = -1, int multi_index = 0)
 {
-    concept::check<Geometry>();
-
-    dispatch::append
-        <
-            Geometry,
-            RangeOrPoint
-        >::apply(geometry, range_or_point, ring_index, multi_index);
-}
-
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename RangeOrPoint>
-inline void append(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry,
-                   RangeOrPoint const& range_or_point,
-                   int ring_index = -1, int multi_index = 0)
-{
-    apply_visitor(
-        dispatch::append_variant_dispatcher<RangeOrPoint>(
-            range_or_point,
-            ring_index,
-            multi_index
-        ),
-        geometry
-    );
+    dispatch::variant_dispatch<Geometry>
+            ::apply(geometry, range_or_point, ring_index, multi_index);
 }
 
 
