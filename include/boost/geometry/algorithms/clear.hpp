@@ -90,6 +90,24 @@ template
 struct clear: not_implemented<Tag>
 {};
 
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct clear<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, void>
+{
+    struct visitor: static_visitor<void>
+    {
+        template <typename Geometry>
+        inline void operator()(Geometry& geometry) const
+        {
+            clear<Geometry>::apply(geometry);
+        }
+    };
+
+    static inline void apply(variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry)
+    {
+        apply_visitor(visitor(), geometry);
+    }
+};
+
 // Point/box/segment do not have clear. So specialize to do nothing.
 template <typename Geometry>
 struct clear<Geometry, point_tag>
@@ -117,24 +135,6 @@ struct clear<Geometry, ring_tag>
 {};
 
 
-// Polygon can (indirectly) use std for clear
-template <typename Polygon>
-struct clear<Polygon, polygon_tag>
-    : detail::clear::polygon_clear<Polygon>
-{};
-
-
-struct clear_variant_dispatcher: boost::static_visitor<void>
-{
-    template <typename Geometry>
-    void operator()(Geometry& geometry) const
-    {
-        concept::check<Geometry>();
-        clear<Geometry>::apply(geometry);
-    }
-};
-
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
@@ -158,13 +158,6 @@ inline void clear(Geometry& geometry)
     concept::check<Geometry>();
 
     dispatch::clear<Geometry>::apply(geometry);
-}
-
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-inline void clear(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry)
-{
-    apply_visitor(dispatch::clear_variant_dispatcher(), geometry);
 }
 
 
