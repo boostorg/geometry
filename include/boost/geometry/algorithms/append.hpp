@@ -195,7 +195,7 @@ struct append<Geometry, RangeOrPoint, point_tag>
 {};
 
 template <typename Geometry>
-struct variant_dispatch
+struct devarianted_append
 {
     template <typename RangeOrPoint>
     static inline void apply(Geometry& geometry,
@@ -213,7 +213,7 @@ struct variant_dispatch
 
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct variant_dispatch<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct devarianted_append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     template <typename RangeOrPoint>
     struct visitor: boost::static_visitor<void>
@@ -281,7 +281,7 @@ template <typename Geometry, typename RangeOrPoint>
 inline void append(Geometry& geometry, RangeOrPoint const& range_or_point,
                    int ring_index = -1, int multi_index = 0)
 {
-    dispatch::variant_dispatch<Geometry>
+    dispatch::devarianted_append<Geometry>
             ::apply(geometry, range_or_point, ring_index, multi_index);
 }
 
