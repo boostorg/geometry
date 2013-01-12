@@ -21,6 +21,7 @@
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 
+#include <boost/variant/variant.hpp>
 
 #include <geometry_test_common.hpp>
 
@@ -31,20 +32,24 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 
 
-template <typename Geometry1, typename Geometry2>
-void test_mixed(std::string const& wkt, std::string const& expected)
+template <typename Geometry2, typename Geometry1>
+void check_mixed(Geometry1 const& geometry1, std::string const& expected)
 {
-    Geometry1 geometry1;
-    bg::read_wkt(wkt, geometry1);
-
     Geometry2 geometry2;
     bg::convert(geometry1, geometry2);
 
     std::ostringstream out;
     out << bg::wkt(geometry2);
     BOOST_CHECK_EQUAL(out.str(), expected);
+}
 
-    // std::cout << bg::area(geometry1) << " " << bg::area(geometry2) << std::endl;
+template <typename Geometry1, typename Geometry2>
+void test_mixed(std::string const& wkt, std::string const& expected)
+{
+    Geometry1 geometry1;
+    bg::read_wkt(wkt, geometry1);
+    check_mixed<Geometry2>(geometry1, expected);
+    check_mixed<Geometry2>(boost::variant<Geometry1>(geometry1), expected);
 }
 
 template <typename Geometry1, typename Geometry2>
