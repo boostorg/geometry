@@ -245,7 +245,8 @@ struct equals<Polygon, Box, polygon_tag, box_tag, 2, Reverse>
 template <typename Geometry1, typename Geometry2>
 struct devarianted_equals
 {
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2)
     {
         concept::check_concepts_and_equal_dimensions
         <
@@ -270,12 +271,16 @@ struct devarianted_equals<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry
         template <typename Geometry1>
         inline bool operator()(Geometry1 const& geometry1) const
         {
-            return devarianted_equals<Geometry1, Geometry2>::apply(geometry1, m_geometry2);
+            return devarianted_equals<Geometry1, Geometry2>
+                       ::apply(geometry1, m_geometry2);
         }
 
     };
 
-    static inline bool apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1, Geometry2 const& geometry2)
+    static inline bool apply(
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+        Geometry2 const& geometry2
+    )
     {
         return apply_visitor(visitor(geometry2), geometry1);
     }
@@ -295,31 +300,46 @@ struct devarianted_equals<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)
         template <typename Geometry2>
         inline bool operator()(Geometry2 const& geometry2) const
         {
-            return devarianted_equals<Geometry1, Geometry2>::apply(m_geometry1, geometry2);
+            return devarianted_equals<Geometry1, Geometry2>
+                       ::apply(m_geometry1, geometry2);
         }
 
     };
 
-    static inline bool apply(Geometry1 const& geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2)
+    static inline bool apply(
+        Geometry1 const& geometry1,
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2
+    )
     {
         return apply_visitor(visitor(geometry1), geometry2);
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T1), BOOST_VARIANT_ENUM_PARAMS(typename T2)>
-struct devarianted_equals<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> >
+template <
+    BOOST_VARIANT_ENUM_PARAMS(typename T1),
+    BOOST_VARIANT_ENUM_PARAMS(typename T2)
+>
+struct devarianted_equals<
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
+>
 {
     struct visitor: static_visitor<bool>
     {
         template <typename Geometry1, typename Geometry2>
-        inline bool operator()(Geometry1 const& geometry1, Geometry2 const& geometry2) const
+        inline bool operator()(Geometry1 const& geometry1,
+                               Geometry2 const& geometry2) const
         {
-            return devarianted_equals<Geometry1, Geometry2>::apply(geometry1, geometry2);
+            return devarianted_equals<Geometry1, Geometry2>
+                ::apply(geometry1, geometry2);
         }
 
     };
 
-    static inline bool apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const&  geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2)
+    static inline bool apply(
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2
+    )
     {
         return apply_visitor(visitor(), geometry1, geometry2);
     }
@@ -350,7 +370,8 @@ struct devarianted_equals<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, boost::
 template <typename Geometry1, typename Geometry2>
 inline bool equals(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    return dispatch::devarianted_equals<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    return dispatch::devarianted_equals<Geometry1, Geometry2>
+               ::apply(geometry1, geometry2);
 }
 
 
