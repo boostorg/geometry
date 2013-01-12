@@ -135,6 +135,13 @@ struct clear<Geometry, ring_tag>
 {};
 
 
+// Polygon can (indirectly) use std for clear
+template <typename Polygon>
+struct clear<Polygon, polygon_tag>
+    : detail::clear::polygon_clear<Polygon>
+{};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
