@@ -27,9 +27,9 @@
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/geometries/variant.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 
 namespace boost { namespace geometry
@@ -109,30 +109,6 @@ template
 struct num_points: not_implemented<Tag>
 {};
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Unused>
-struct num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Unused>
-{
-    struct visitor: boost::static_visitor<std::size_t>
-    {
-        bool m_add_for_open;
-
-        visitor(bool add_for_open): m_add_for_open(add_for_open) {}
-
-        template <typename Geometry>
-        typename std::size_t operator()(Geometry const& geometry) const
-        {
-            return dispatch::num_points<Geometry>::apply(geometry, m_add_for_open);
-        }
-    };
-
-    template <typename Variant>
-    static inline std::size_t
-    apply(Variant const& variant_geometry, bool add_for_open)
-    {
-        return boost::apply_visitor(visitor(add_for_open), variant_geometry);
-    }
-};
-
 template <typename Geometry>
 struct num_points<Geometry, point_tag>
         : detail::num_points::other_count<1>
@@ -163,6 +139,41 @@ struct num_points<Geometry, polygon_tag>
         : detail::num_points::polygon_count
 {};
 
+template <typename Geometry>
+struct devarianted_num_points
+{
+    static inline std::size_t apply(Geometry const& geometry,
+                                    bool add_for_open)
+    {
+        return num_points<Geometry>::apply(geometry, add_for_open);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct devarianted_num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<std::size_t>
+    {
+        bool m_add_for_open;
+
+        visitor(bool add_for_open): m_add_for_open(add_for_open) {}
+
+        template <typename Geometry>
+        typename std::size_t operator()(Geometry const& geometry) const
+        {
+            return dispatch::num_points<Geometry>::apply(geometry, m_add_for_open);
+        }
+    };
+
+    static inline std::size_t
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          bool add_for_open)
+    {
+        return boost::apply_visitor(visitor(add_for_open), geometry);
+    }
+};
+
+
 } // namespace dispatch
 #endif
 
@@ -183,7 +194,7 @@ inline std::size_t num_points(Geometry const& geometry, bool add_for_open = fals
 {
     concept::check<Geometry const>();
 
-    return dispatch::num_points<Geometry>::apply(geometry, add_for_open);
+    return dispatch::devarianted_num_points<Geometry>::apply(geometry, add_for_open);
 }
 
 }} // namespace boost::geometry
