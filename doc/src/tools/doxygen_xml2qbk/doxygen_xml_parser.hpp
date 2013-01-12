@@ -62,7 +62,7 @@ This is used for different purposes within Doxygen.
 So we have to list explicitly either where to recurse, or where not to...
 
 */
-static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& skip, bool first = true)
+static void parse_para(rapidxml::xml_node<>* node, configuration const& config, std::string& contents, bool& skip, bool first = true)
 {
     if (node != NULL)
     {
@@ -78,54 +78,69 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& 
             else if ( boost::equals(name, "itemizedlist") )
             {
                 contents += "\n\n";
-                parse_para(node->first_node(), contents, skip);
+                parse_para(node->first_node(), config, contents, skip);
                 contents += "\n";
-                parse_para(node->next_sibling(), contents, skip);
+                parse_para(node->next_sibling(), config, contents, skip);
                 return;
             }
             else if ( boost::equals(name, "listitem") )
             {
                 contents += "* ";
-                parse_para(node->first_node(), contents, skip);
+                parse_para(node->first_node(), config, contents, skip);
                 contents += "\n";
-                parse_para(node->next_sibling(), contents, skip);
+                parse_para(node->next_sibling(), config, contents, skip);
                 return;
             }
             else if ( boost::equals(name, "verbatim") )
             {
                 contents += "\n``\n";
-                parse_para(node->first_node(), contents, skip, false);
+                parse_para(node->first_node(), config, contents, skip, false);
                 contents += "``\n";
-                parse_para(node->next_sibling(), contents, skip, false);
+                parse_para(node->next_sibling(), config, contents, skip, false);
                 return;
             }
             else if ( boost::equals(name, "bold") )
             {
                 contents += "[*";
-                parse_para(node->first_node(), contents, skip, false);
+                parse_para(node->first_node(), config, contents, skip, false);
                 contents += "]";
-                parse_para(node->next_sibling(), contents, skip, false);
+                parse_para(node->next_sibling(), config, contents, skip, false);
                 return;
             }
             else if ( boost::equals(name, "emphasis") )
             {
                 contents += "['";
-                parse_para(node->first_node(), contents, skip, false);
+                parse_para(node->first_node(), config, contents, skip, false);
                 contents += "]";
-                parse_para(node->next_sibling(), contents, skip, false);
+                parse_para(node->next_sibling(), config, contents, skip, false);
                 return;
             }
             else if ( boost::equals(name, "computeroutput") )
             {
                 contents += "[^";
-                parse_para(node->first_node(), contents, skip, false);
+                parse_para(node->first_node(), config, contents, skip, false);
                 contents += "]";
-                parse_para(node->next_sibling(), contents, skip, false);
+                parse_para(node->next_sibling(), config, contents, skip, false);
                 return;
+            }
+            else if ( boost::equals(name, "ref") )
+            {
+                // If alternative output is used - insert links
+                if ( config.output_style == "alt" )
+                {
+                    std::string refid = node->first_attribute("refid")->value();
+                    if ( !refid.empty() )
+                    {
+                        contents += std::string("[link ") + refid + " ";
+                        parse_para(node->first_node(), config, contents, skip, false);
+                        contents += "]";
+                        parse_para(node->next_sibling(), config, contents, skip, false);
+                        return;
+                    }
+                }                                
             }
             else if (! (
                 (boost::equals(name, "para") && first)
-                || boost::equals(name, "ref")
                 || boost::equals(name, "defval")
                 || boost::equals(name, "linebreak")
                 ))
@@ -143,13 +158,13 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& 
             //std::cout << "OTHER: " << node->name() << "=" << node->value() << std::endl;
         }
 
-        parse_para(node->first_node(), contents, skip, false);
-        parse_para(node->next_sibling(), contents, skip, false);
+        parse_para(node->first_node(), config, contents, skip, false);
+        parse_para(node->next_sibling(), config, contents, skip, false);
     }
 }
 
 
-static void parse_parameter(rapidxml::xml_node<>* node, parameter& p)
+static void parse_parameter(rapidxml::xml_node<>* node, configuration const& config, parameter& p)
 {
     // #define: <param><defname>Point</defname></param>
     // template: <param><type>typename</type><declname>CoordinateType</declname><defname>CoordinateType</defname></param>
@@ -167,25 +182,31 @@ static void parse_parameter(rapidxml::xml_node<>* node, parameter& p)
             boost::replace_all(p.type, "&", "");
             boost::replace_all(p.type, "*", "");
             boost::trim(p.type);
+
+            if ( config.output_style == "alt" )
+            {
+                p.fulltype.clear();
+                parse_para(node->first_node(), config, p.fulltype, p.skip);
+            }
         }
         else if (name == "declname") p.name = node->value();
         else if (name == "parametername") p.name = node->value();
         else if (name == "defname") p.name = node->value(); 
         else if (name == "defval") 
         {
-             parse_para(node, p.default_value, p.skip);
+            parse_para(node, config, p.default_value, p.skip);
         }
         else if (name == "para")
         {
-             parse_para(node, p.brief_description, p.skip);
+            parse_para(node, config, p.brief_description, p.skip);
         }
 
-        parse_parameter(node->first_node(), p);
-        parse_parameter(node->next_sibling(), p);
+        parse_parameter(node->first_node(), config, p);
+        parse_parameter(node->next_sibling(), config, p);
     }
 }
 
-static void parse_enumeration_value(rapidxml::xml_node<>* node, enumeration_value& value)
+static void parse_enumeration_value(rapidxml::xml_node<>* node, configuration const& config, enumeration_value& value)
 {
     // <enumvalue><name>green</name><initializer> 2</initializer>
     //    <briefdescription><para>...</para></briefdescription>
@@ -199,21 +220,21 @@ static void parse_enumeration_value(rapidxml::xml_node<>* node, enumeration_valu
         else if (node_name == "para")
         {
             // Parses both brief AND detailed into this description
-            parse_para(node, value.brief_description, value.skip);
+            parse_para(node, config, value.brief_description, value.skip);
         }
         else if (node_name == "initializer")
         {
             value.initializer = node->value();
         }
 
-        parse_enumeration_value(node->first_node(), value);
-        parse_enumeration_value(node->next_sibling(), value);
+        parse_enumeration_value(node->first_node(), config, value);
+        parse_enumeration_value(node->next_sibling(), config, value);
     }
 }
 
 // Definition is a function or a class/struct
 template <typename Parameters>
-static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& parameters)
+static void parse_parameter_list(rapidxml::xml_node<>* node, configuration const& config, Parameters& parameters)
 {
     if (node != NULL)
     {
@@ -222,7 +243,7 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
         if (name == "parameteritem")
         {
             parameter p;
-            parse_parameter(node->first_node(), p);
+            parse_parameter(node->first_node(), config, p);
             if (! p.name.empty())
             {
                 // Copy its description
@@ -242,7 +263,7 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
         {
             // Element of 'templateparamlist.param (.type,.declname,.defname)'
             parameter p;
-            parse_parameter(node->first_node(), p);
+            parse_parameter(node->first_node(), config, p);
 
             // Doxygen handles templateparamlist param's differently:
             //
@@ -269,8 +290,8 @@ static void parse_parameter_list(rapidxml::xml_node<>* node, Parameters& paramet
             add_or_set(parameters, p);
         }
 
-        parse_parameter_list(node->first_node(), parameters);
-        parse_parameter_list(node->next_sibling(), parameters);
+        parse_parameter_list(node->first_node(), config, parameters);
+        parse_parameter_list(node->next_sibling(), config, parameters);
     }
 }
 
@@ -325,12 +346,12 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
 
         if (full == ".briefdescription.para")
         {
-            parse_para(node, el.brief_description, el.skip);
+            parse_para(node, config, el.brief_description, el.skip);
         }
         else if (full == ".detaileddescription.para")
         {
             std::string para;
-            parse_para(node, para, el.skip);
+            parse_para(node, config, para, el.skip);
             if (!para.empty() && !el.detailed_description.empty())
             {
                 el.detailed_description += "\n\n";
@@ -369,7 +390,7 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
         }
         else if (full == ".templateparamlist")
         {
-            parse_parameter_list(node->first_node(), el.template_parameters);
+            parse_parameter_list(node->first_node(), config, el.template_parameters);
         }
         else if (full == ".detaileddescription.para.parameterlist")
         {
@@ -379,12 +400,12 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
                 // Parse parameters and their descriptions.
                 // NOTE: they are listed here, but the order might not be the order in the function call
                 std::vector<parameter> parameters;
-                parse_parameter_list(node->first_node(), parameters);
+                parse_parameter_list(node->first_node(), config, parameters);
                 copy_parameters_properties(parameters, el.parameters);
             }
             else if (kind == "templateparam")
             {
-                parse_parameter_list(node->first_node(), el.template_parameters);
+                parse_parameter_list(node->first_node(), config, el.template_parameters);
             }
         }
         else if (full == ".detaileddescription.para.simplesect")
@@ -398,24 +419,24 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
                 if ( title_node )
                     p.title = title_node->value();
 
-                parse_para(node->first_node("para"), p.text, el.skip);
+                parse_para(node->first_node("para"), config, p.text, el.skip);
                 
                 el.paragraphs.push_back(p);
             }
             else if (kind == "warning")
             {
-                parse_para(node->first_node("para"), el.warning, el.skip);
+                parse_para(node->first_node("para"), config, el.warning, el.skip);
             }
             else if (kind == "note")
             {
-                parse_para(node->first_node("para"), el.note, el.skip);
+                parse_para(node->first_node("para"), config, el.note, el.skip);
             }
         }
         else if (full == ".param")
         {
             // Parse one parameter, and add it to el.parameters
             parameter p;
-            parse_parameter(node->first_node(), p);
+            parse_parameter(node->first_node(), config, p);
             el.parameters.push_back(p);
         }
 
@@ -445,19 +466,25 @@ static void parse_function(rapidxml::xml_node<>* node, configuration const& conf
         else if (full == ".param")
         {
             parameter p;
-            parse_parameter(node->first_node(), p);
+            parse_parameter(node->first_node(), config, p);
             add_or_set(f.parameters, p);
         }
         else if (full == ".type")
         {
-            get_contents(node->first_node(), f.return_type);
+            if ( config.output_style == "alt" )
+            {
+                bool dummy_skip;
+                parse_para(node->first_node(), config, f.return_type, dummy_skip);
+            }
+            else
+                get_contents(node->first_node(), f.return_type);
         }
         else if (full == ".detaileddescription.para.simplesect")
         {
             std::string kind = get_attribute(node, "kind");
             if (kind == "return")
             {
-                parse_para(node->first_node(), f.return_description, f.skip);
+                parse_para(node->first_node(), config, f.return_description, f.skip);
             }
             /*else if (kind == "param")
             {
@@ -465,7 +492,7 @@ static void parse_function(rapidxml::xml_node<>* node, configuration const& conf
             }*/
             else if (kind == "pre")
             {
-                parse_para(node->first_node(), f.precondition, f.skip);
+                parse_para(node->first_node(), config, f.precondition, f.skip);
             }
         }
         else if (full == ".detaileddescription.para.image")
@@ -488,7 +515,7 @@ static void parse_enumeration(rapidxml::xml_node<>* node, configuration const& c
         else if (full == ".enumvalue")
         {
             enumeration_value value;
-            parse_enumeration_value(node->first_node(), value);
+            parse_enumeration_value(node->first_node(), config, value);
             e.enumeration_values.push_back(value);
         }
 
@@ -553,10 +580,11 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
         else if (nodename == "compounddef")
         {
             std::string kind = get_attribute(node, "kind");
+            std::string id = get_attribute(node, "id");
             if (kind == "group")
             {
                 recurse = true;
-                doc.group_id = get_attribute(node, "id");
+                doc.group_id = id;
                 rapidxml::xml_node<> * n = node->first_node("title");
                 if ( n )
                     doc.group_title = n->value();
@@ -565,21 +593,25 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
             {
                 recurse = true;
                 doc.cos.is_class = false;
+                doc.cos.id = id;
                 parse_element(node->first_node(), config, "", doc.cos);
             }
             else if (kind == "class")
             {
                 recurse = true;
                 doc.cos.is_class = true;
+                doc.cos.id = id;
                 parse_element(node->first_node(), config, "", doc.cos);
             }
         }
         else if (nodename == "memberdef")
         {
             std::string kind = get_attribute(node, "kind");
+            std::string id = get_attribute(node, "id");
             if (kind == "function")
             {
                 function f;
+                f.id = id;
                 parse_element(node->first_node(), config, "", f);
                 parse_function(node->first_node(), config, "", f);
                 if (member)
@@ -601,6 +633,7 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
             else if (kind == "define")
             {
                 function f;
+                f.id = id;
                 f.type = function_define;
                 parse_element(node->first_node(), config, "", f);
                 parse_function(node->first_node(), config, "", f);
@@ -609,6 +642,7 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
             else if (kind == "enum")
             {
                 enumeration e;
+                e.id = id;
                 parse_element(node->first_node(), config, "", e);
                 parse_enumeration(node->first_node(), config, "", e);
                 doc.enumerations.push_back(e);
@@ -619,6 +653,8 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
                 {
                     std::string name = parse_named_node(node->first_node(), "name");
                     doc.cos.typedefs.push_back(base_element(name));
+                    doc.cos.typedefs.back().id = id;
+
                     element dummy;
                     parse_element(node->first_node(), config, "", dummy);
                     doc.cos.typedefs.back().brief_description = dummy.brief_description;
@@ -632,6 +668,7 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
                 {
                     std::string name = parse_named_node(node->first_node(), "name");
                     doc.cos.variables.push_back(base_element(name));
+                    doc.cos.variables.back().id = id;
                 }
             }
 

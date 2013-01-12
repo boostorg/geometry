@@ -31,8 +31,10 @@ struct base_element
 {
     std::string name;
     std::string brief_description;
-
+    
     bool skip;
+
+    std::string id;
 
     base_element(std::string const& n = "")
         : name(n)
