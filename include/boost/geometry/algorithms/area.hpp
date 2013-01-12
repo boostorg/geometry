@@ -179,7 +179,8 @@ template <typename Geometry>
 struct devarianted_area
 {
     template <typename Strategy>
-    static inline typename Strategy::return_type apply(Geometry const& geometry, Strategy const& strategy)
+    static inline typename Strategy::return_type apply(Geometry const& geometry,
+                                                       Strategy const& strategy)
     {
         return area<Geometry>::apply(geometry, strategy);
     }
@@ -202,9 +203,10 @@ struct devarianted_area<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         }
     };
 
-    template <typename Geometry, typename Strategy>
+    template <typename Strategy>
     static inline typename Strategy::return_type
-    apply(Geometry const& geometry, Strategy const& strategy)
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          Strategy const& strategy)
     {
         return boost::apply_visitor(visitor<Strategy>(strategy), geometry);
     }
@@ -251,7 +253,7 @@ inline typename default_area_result<Geometry>::type area(Geometry const& geometr
 
     // detail::throw_on_empty_input(geometry);
         
-    return dispatch::area<Geometry>::apply(geometry, strategy_type());
+    return dispatch::devarianted_area<Geometry>::apply(geometry, strategy_type());
 }
 
 /*!
