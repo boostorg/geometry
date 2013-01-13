@@ -18,12 +18,12 @@
 #include <string>
 
 #include <boost/array.hpp>
-#include <boost/concept/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
@@ -240,18 +240,12 @@ struct wkt_segment
 namespace dispatch
 {
 
-template <typename Tag, typename Geometry>
-struct wkt
-{
-   BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+struct wkt: not_implemented<Tag>
+{};
 
 template <typename Point>
-struct wkt<point_tag, Point>
+struct wkt<Point, point_tag>
     : detail::wkt::wkt_point
         <
             Point,
@@ -260,7 +254,7 @@ struct wkt<point_tag, Point>
 {};
 
 template <typename Linestring>
-struct wkt<linestring_tag, Linestring>
+struct wkt<Linestring, linestring_tag>
     : detail::wkt::wkt_range
         <
             Linestring,
@@ -275,12 +269,12 @@ struct wkt<linestring_tag, Linestring>
 It is therefore streamed as a polygon
 */
 template <typename Box>
-struct wkt<box_tag, Box>
+struct wkt<Box, box_tag>
     : detail::wkt::wkt_box<Box>
 {};
 
 template <typename Segment>
-struct wkt<segment_tag, Segment>
+struct wkt<Segment, segment_tag>
     : detail::wkt::wkt_segment<Segment>
 {};
 
@@ -291,7 +285,7 @@ A ring is equivalent to a polygon without inner rings
 It is therefore streamed as a polygon
 */
 template <typename Ring>
-struct wkt<ring_tag, Ring>
+struct wkt<Ring, ring_tag>
     : detail::wkt::wkt_range
         <
             Ring,
@@ -304,13 +298,14 @@ struct wkt<ring_tag, Ring>
 \brief Specialization to stream polygon as WKT
 */
 template <typename Polygon>
-struct wkt<polygon_tag, Polygon>
+struct wkt<Polygon, polygon_tag>
     : detail::wkt::wkt_poly
         <
             Polygon,
             detail::wkt::prefix_polygon
         >
 {};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
@@ -340,11 +335,7 @@ public:
             std::basic_ostream<Char, Traits>& os,
             wkt_manipulator const& m)
     {
-        dispatch::wkt
-            <
-                typename tag<Geometry>::type,
-                Geometry
-            >::apply(os, m.m_geometry);
+        dispatch::wkt<Geometry>::apply(os, m.m_geometry);
         os.flush();
         return os;
     }
