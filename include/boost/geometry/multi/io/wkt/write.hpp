@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_MULTI_IO_WKT_WRITE_HPP
 
 #include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/multi/geometries/concepts/check.hpp>
 #include <boost/geometry/multi/io/wkt/detail/prefix.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
