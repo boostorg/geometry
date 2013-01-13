@@ -33,6 +33,10 @@
 
 #include <boost/geometry/io/wkt/detail/prefix.hpp>
 
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -307,6 +311,46 @@ struct wkt<Polygon, polygon_tag>
 {};
 
 
+template <typename Geometry>
+struct devarianted_wkt
+{
+    template <typename OutputStream>
+    static inline void apply(OutputStream& os, Geometry const& geometry)
+    {
+        wkt<Geometry>::apply(os, geometry);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct devarianted_wkt<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename OutputStream>
+    struct visitor: static_visitor<void>
+    {
+        OutputStream& m_os;
+
+        visitor(OutputStream& os)
+            : m_os(os)
+        {}
+
+        template <typename Geometry>
+        inline void operator()(Geometry const& geometry) const
+        {
+            devarianted_wkt<Geometry>::apply(m_os, geometry);
+        }
+    };
+
+    template <typename OutputStream>
+    static inline void apply(
+        OutputStream& os,
+        variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry
+    )
+    {
+        apply_visitor(visitor<OutputStream>(os), geometry);
+    }
+};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
@@ -335,7 +379,7 @@ public:
             std::basic_ostream<Char, Traits>& os,
             wkt_manipulator const& m)
     {
-        dispatch::wkt<Geometry>::apply(os, m.m_geometry);
+        dispatch::devarianted_wkt<Geometry>::apply(os, m.m_geometry);
         os.flush();
         return os;
     }
