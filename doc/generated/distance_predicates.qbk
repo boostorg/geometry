@@ -3,125 +3,146 @@
 [section:group__distance__predicates Distance predicates (boost::geometry::index::)]
 [table
 [[Function][Description]]
-[[[link geometry_index.r_tree.reference.group__distance__predicates.function0 `to_nearest(T const &)`]][Generate to_nearest() Point-Indexable relationship. ]]
-[[[link geometry_index.r_tree.reference.group__distance__predicates.function1 `to_centroid(T const &)`]][Generate to_centroid() Point-Indexable relationship. ]]
-[[[link geometry_index.r_tree.reference.group__distance__predicates.function2 `to_furthest(T const &)`]][Generate to_furthest() Point-Indexable relationship. ]]
-[[[link geometry_index.r_tree.reference.group__distance__predicates.function3 `unbounded(PointRelation const &)`]][Generate unbounded() distance predicate. ]]
-[[[link geometry_index.r_tree.reference.group__distance__predicates.function4 `min_bounded(PointRelation const &, MinRelation const &)`]][Generate min_bounded() distance predicate. ]]
-[[[link geometry_index.r_tree.reference.group__distance__predicates.function5 `max_bounded(PointRelation const &, MaxRelation const &)`]][Generate max_bounded() distance predicate. ]]
-[[[link geometry_index.r_tree.reference.group__distance__predicates.function6 `bounded(PointRelation const &, MinRelation const &, MaxRelation const &)`]][Generate bounded() distance predicate. ]]
+[[[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 `to_nearest(T const &)`]][Generate [link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 to_nearest()] Point-Indexable relationship. ]]
+[[[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 `to_centroid(T const &)`]][Generate [link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 to_centroid()] Point-Indexable relationship. ]]
+[[[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 `to_furthest(T const &)`]][Generate [link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 to_furthest()] Point-Indexable relationship. ]]
+[[[link group__distance__predicates_1ga1b0f969b575a94ca710b9345861f64db `unbounded(PointRelation const &)`]][Generate [link group__distance__predicates_1ga1b0f969b575a94ca710b9345861f64db unbounded()] distance predicate. ]]
+[[[link group__distance__predicates_1ga39c7c94776ab840e164848e53d376098 `min_bounded(PointRelation const &, MinRelation const &)`]][Generate [link group__distance__predicates_1ga39c7c94776ab840e164848e53d376098 min_bounded()] distance predicate. ]]
+[[[link group__distance__predicates_1ga843735643378288b0e14e19cc9b4e079 `max_bounded(PointRelation const &, MaxRelation const &)`]][Generate [link group__distance__predicates_1ga843735643378288b0e14e19cc9b4e079 max_bounded()] distance predicate. ]]
+[[[link group__distance__predicates_1ga20621ca608b1420c38182346b965f347 `bounded(PointRelation const &, MinRelation const &, MaxRelation const &)`]][Generate [link group__distance__predicates_1ga20621ca608b1420c38182346b965f347 bounded()] distance predicate. ]]
 ]
 
-[section:function0 to_nearest(T const &)]
-Generate to_nearest() Point-Indexable relationship. 
+[#group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636]
+[section to_nearest(T const &)]
+Generate [link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 to_nearest()] Point-Indexable relationship. 
 
 [heading Description]
 Generate a nearest query Point and Value's Indexable relationship while calculating distances. This function may be used to define that knn query should calculate distances as smallest as possible between query Point and Indexable's points. In other words it should be the distance to the nearest Indexable's point. This function may be also used to define distances bounds which indicates that Indexable's nearest point should be closer or further than value v. This is default relation.[heading Synopsis]
-``template<typename T>
-detail::to_nearest<T> boost::geometry::index::to_nearest(T const & v)``
+[pre
+`template<``typename T``>`
+`detail::to_nearest<T> boost::geometry::index::to_nearest``(``T const &` `v``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `T const &` ][ `v` ][Point or bound value. ]]
+[[`T const &`][ `v` ][Point or bound value. ]]
 ]
 [endsect]
 
-[section:function1 to_centroid(T const &)]
-Generate to_centroid() Point-Indexable relationship. 
+[#group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0]
+[section to_centroid(T const &)]
+Generate [link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 to_centroid()] Point-Indexable relationship. 
 
 [heading Description]
 Generate a nearest query Point and Value's Indexable relationship while calculating distances. This function may be used to define that knn query should calculate distances between query Point and Indexable's centroid. This function may be also used to define distances bounds which indicates that Indexable's centroid should be closer or further than value v.[heading Synopsis]
-``template<typename T>
-detail::to_centroid<T> boost::geometry::index::to_centroid(T const & v)``
+[pre
+`template<``typename T``>`
+`detail::to_centroid<T> boost::geometry::index::to_centroid``(``T const &` `v``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `T const &` ][ `v` ][Point or bound value. ]]
+[[`T const &`][ `v` ][Point or bound value. ]]
 ]
 [endsect]
 
-[section:function2 to_furthest(T const &)]
-Generate to_furthest() Point-Indexable relationship. 
+[#group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02]
+[section to_furthest(T const &)]
+Generate [link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 to_furthest()] Point-Indexable relationship. 
 
 [heading Description]
 Generate a nearest query Point and Value's Indexable relationship while calculating distances. This function may be used to define that knn query should calculate distances as biggest as possible between query Point and Indexable's points. In other words it should be the distance to the furthest Indexable's point. This function may be also used to define distances bounds which indicates that Indexable's furthest point should be closer or further than value v.[heading Synopsis]
-``template<typename T>
-detail::to_furthest<T> boost::geometry::index::to_furthest(T const & v)``
+[pre
+`template<``typename T``>`
+`detail::to_furthest<T> boost::geometry::index::to_furthest``(``T const &` `v``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `T const &` ][ `v` ][Point or bound value. ]]
+[[`T const &`][ `v` ][Point or bound value. ]]
 ]
 [endsect]
 
-[section:function3 unbounded(PointRelation const &)]
-Generate unbounded() distance predicate. 
+[#group__distance__predicates_1ga1b0f969b575a94ca710b9345861f64db]
+[section unbounded(PointRelation const &)]
+Generate [link group__distance__predicates_1ga1b0f969b575a94ca710b9345861f64db unbounded()] distance predicate. 
 
 [heading Description]
 Generate a distance predicate. This defines distances bounds which are used by knn query. This function indicates that there is no distance bounds and Values should be returned if distances between Point and Indexable are the smallest. Distance calculation is defined by PointRelation. This is default nearest predicate.[heading Synopsis]
-``template<typename PointRelation>
-detail::unbounded<PointRelation> boost::geometry::index::unbounded(PointRelation const & pr)``
+[pre
+`template<``typename PointRelation``>`
+`detail::unbounded<PointRelation> boost::geometry::index::unbounded``(``PointRelation const &` `pr``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `PointRelation const &` ][ `pr` ][The point relation. This may be generated by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point). ]]
+[[`PointRelation const &`][ `pr` ][The point relation. This may be generated by bgi::to_nearest(Point), bgi::to_centroid(Point) or bgi::to_furthest(Point). ]]
 ]
 [endsect]
 
-[section:function4 min_bounded(PointRelation const &, MinRelation const &)]
-Generate min_bounded() distance predicate. 
+[#group__distance__predicates_1ga39c7c94776ab840e164848e53d376098]
+[section min_bounded(PointRelation const &, MinRelation const &)]
+Generate [link group__distance__predicates_1ga39c7c94776ab840e164848e53d376098 min_bounded()] distance predicate. 
 
 [heading Description]
 Generate a distance predicate. This defines distances bounds which are used by knn query. This function indicates that Values should be returned only if distances between Point and Indexable are greater or equal to some min_distance passed in MinRelation. Check for closest Value is defined by PointRelation. So it is possible e.g. to return Values with centroids closest to some Point but only if nearest points are further than some distance.[heading Synopsis]
-``template<typename PointRelation, typename MinRelation>
-detail::min_bounded<PointRelation, MinRelation> boost::geometry::index::min_bounded(PointRelation const & pr, MinRelation const & minr)``
+[pre
+`template<``typename PointRelation``,` `typename MinRelation``>`
+`detail::min_bounded<PointRelation, MinRelation> boost::geometry::index::min_bounded``(``PointRelation const &` `pr``,` `MinRelation const &` `minr``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `PointRelation const &` ][ `pr` ][The point relation. This may be generated by [^bgi::to_nearest(Point)], [^bgi::to_centroid(Point)] or [^bgi::to_furthest(Point)]. ]]
-[[ `MinRelation const &` ][ `minr` ][The minimum bound relation. This may be generated by [^bgi::to_nearest(min_distance)], [^bgi::to_centroid(min_distance)] or [^bgi::to_furthest(min_distance)]. ]]
+[[`PointRelation const &`][ `pr` ][The point relation. This may be generated by [^bgi::to_nearest(Point)], [^bgi::to_centroid(Point)] or [^bgi::to_furthest(Point)]. ]]
+[[`MinRelation const &`][ `minr` ][The minimum bound relation. This may be generated by [^bgi::to_nearest(min_distance)], [^bgi::to_centroid(min_distance)] or [^bgi::to_furthest(min_distance)]. ]]
 ]
 [endsect]
 
-[section:function5 max_bounded(PointRelation const &, MaxRelation const &)]
-Generate max_bounded() distance predicate. 
+[#group__distance__predicates_1ga843735643378288b0e14e19cc9b4e079]
+[section max_bounded(PointRelation const &, MaxRelation const &)]
+Generate [link group__distance__predicates_1ga843735643378288b0e14e19cc9b4e079 max_bounded()] distance predicate. 
 
 [heading Description]
 Generate a distance predicate. This defines distances bounds which are used by knn query. This function indicates that Values should be returned only if distances between Point and Indexable are lesser or equal to some max_distance passed in MaxRelation. Check for closest Value is defined by PointRelation. So it is possible e.g. to return Values with centroids closest to some Point but only if nearest points are closer than some distance.[heading Synopsis]
-``template<typename PointRelation, typename MaxRelation>
-detail::max_bounded<PointRelation, MaxRelation> boost::geometry::index::max_bounded(PointRelation const & pr, MaxRelation const & maxr)``
+[pre
+`template<``typename PointRelation``,` `typename MaxRelation``>`
+`detail::max_bounded<PointRelation, MaxRelation> boost::geometry::index::max_bounded``(``PointRelation const &` `pr``,` `MaxRelation const &` `maxr``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `PointRelation const &` ][ `pr` ][The point relation. This may be generated by [^bgi::to_nearest(Point)], [^bgi::to_centroid(Point)] or [^bgi::to_furthest(Point)]. ]]
-[[ `MaxRelation const &` ][ `maxr` ][The maximum bound relation. This may be generated by [^bgi::to_nearest(max_distance)], [^bgi::to_centroid(max_distance)] or [^bgi::to_furthest(max_distance)]. ]]
+[[`PointRelation const &`][ `pr` ][The point relation. This may be generated by [^bgi::to_nearest(Point)], [^bgi::to_centroid(Point)] or [^bgi::to_furthest(Point)]. ]]
+[[`MaxRelation const &`][ `maxr` ][The maximum bound relation. This may be generated by [^bgi::to_nearest(max_distance)], [^bgi::to_centroid(max_distance)] or [^bgi::to_furthest(max_distance)]. ]]
 ]
 [endsect]
 
-[section:function6 bounded(PointRelation const &, MinRelation const &, MaxRelation const &)]
-Generate bounded() distance predicate. 
+[#group__distance__predicates_1ga20621ca608b1420c38182346b965f347]
+[section bounded(PointRelation const &, MinRelation const &, MaxRelation const &)]
+Generate [link group__distance__predicates_1ga20621ca608b1420c38182346b965f347 bounded()] distance predicate. 
 
 [heading Description]
 Generate a distance predicate. This defines distances bounds which are used by knn query. This function indicates that Values should be returned only if distances between Point and Indexable are greater or equal to some min_distance passed in MinRelation and lesser or equal to some max_distance passed in MaxRelation. Check for closest Value is defined by PointRelation. So it is possible e.g. to return Values with centroids closest to some Point but only if nearest points are further than some distance and closer than some other distance.[heading Synopsis]
-``template<typename PointRelation,
-         typename MinRelation,
-         typename MaxRelation>
-detail::bounded<PointRelation, MinRelation, MaxRelation> boost::geometry::index::bounded(PointRelation const & pr,
-                                                                                         MinRelation const & minr,
-                                                                                         MaxRelation const & maxr)``
+[pre
+`template<``typename PointRelation``,`
+         `typename MinRelation``,`
+         `typename MaxRelation``>`
+`detail::bounded<PointRelation, MinRelation, MaxRelation> boost::geometry::index::bounded``(``PointRelation const &` `pr``,`
+                                                                                         `MinRelation const &` `minr``,`
+                                                                                         `MaxRelation const &` `maxr``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `PointRelation const &` ][ `pr` ][The point relation. This may be generated by [^bgi::to_nearest(Point)], [^bgi::to_centroid(Point)] or [^bgi::to_furthest(Point)]. ]]
-[[ `MinRelation const &` ][ `minr` ][The minimum bound relation. This may be generated by [^bgi::to_nearest(min_distance)], [^bgi::to_centroid(min_distance)] or [^bgi::to_furthest(min_distance)]. ]]
-[[ `MaxRelation const &` ][ `maxr` ][The maximum bound relation. This may be generated by [^bgi::to_nearest(max_distance)], [^bgi::to_centroid(max_distance)] or [^bgi::to_furthest(max_distance)]. ]]
+[[`PointRelation const &`][ `pr` ][The point relation. This may be generated by [^bgi::to_nearest(Point)], [^bgi::to_centroid(Point)] or [^bgi::to_furthest(Point)]. ]]
+[[`MinRelation const &`][ `minr` ][The minimum bound relation. This may be generated by [^bgi::to_nearest(min_distance)], [^bgi::to_centroid(min_distance)] or [^bgi::to_furthest(min_distance)]. ]]
+[[`MaxRelation const &`][ `maxr` ][The maximum bound relation. This may be generated by [^bgi::to_nearest(max_distance)], [^bgi::to_centroid(max_distance)] or [^bgi::to_furthest(max_distance)]. ]]
 ]
 [endsect]
 

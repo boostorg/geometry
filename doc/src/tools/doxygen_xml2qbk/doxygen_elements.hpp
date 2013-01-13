@@ -49,6 +49,7 @@ struct parameter : public base_element
     std::string type;
     std::string default_value; // for template parameters
     std::string fulltype; // post-processed
+    std::string fulltype_without_links;
 };
 
 struct enumeration_value : public base_element
@@ -127,6 +128,8 @@ struct function : public element
     std::string definition, argsstring;
     std::string return_type, return_description;
     std::string precondition;
+
+    std::string return_type_without_links;
 
     bool unique;
 

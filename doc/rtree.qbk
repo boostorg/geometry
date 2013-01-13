@@ -21,6 +21,18 @@
 
 [include generated/rtree.qbk]
 [include generated/rtree_functions.qbk]
+
+[section:parameters R-tree parameters]
+
+[include generated/rtree_linear.qbk]
+[include generated/rtree_quadratic.qbk]
+[include generated/rtree_rstar.qbk]
+[include generated/rtree_runtime_linear.qbk]
+[include generated/rtree_runtime_quadratic.qbk]
+[include generated/rtree_runtime_rstar.qbk]
+
+[endsect]
+
 [include generated/predicates.qbk]
 [include generated/distance_predicates.qbk]
 [include generated/adaptors.qbk]

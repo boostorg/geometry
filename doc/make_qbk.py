@@ -13,18 +13,25 @@ import os, sys
 cmd = "doxygen_xml2qbk"
 cmd = cmd + " --xml xml/%s.xml"
 cmd = cmd + " --start_include boost/"
-cmd = cmd + " --index_id_path %s"
 cmd = cmd + " --output_style alt"
 cmd = cmd + " > generated/%s.qbk"
 
 os.system("doxygen Doxyfile")
-os.system(cmd % ("classboost_1_1geometry_1_1index_1_1rtree", "geometry_index.r_tree.reference", "rtree"))
-os.system(cmd % ("group__rtree__functions", "geometry_index.r_tree.reference", "rtree_functions"))
-os.system(cmd % ("group__predicates", "geometry_index.r_tree.reference", "predicates"))
-os.system(cmd % ("group__distance__predicates", "geometry_index.r_tree.reference", "distance_predicates"))
-os.system(cmd % ("group__adaptors", "geometry_index.r_tree.reference", "adaptors"))
-os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_1_1def", "geometry_index.r_tree.reference.translators", "translator_def"))
-os.system(cmd % ("classboost_1_1geometry_1_1index_1_1translator_1_1index", "geometry_index.r_tree.reference.translators", "translator_index"))
-os.system(cmd % ("group__inserters", "geometry_index.r_tree.reference", "inserters"))
+os.system(cmd % ("classboost_1_1geometry_1_1index_1_1rtree", "rtree"))
+os.system(cmd % ("group__rtree__functions", "rtree_functions"))
+
+os.system(cmd % ("structboost_1_1geometry_1_1index_1_1linear", "rtree_linear"))
+os.system(cmd % ("structboost_1_1geometry_1_1index_1_1quadratic", "rtree_quadratic"))
+os.system(cmd % ("structboost_1_1geometry_1_1index_1_1rstar", "rtree_rstar"))
+os.system(cmd % ("classboost_1_1geometry_1_1index_1_1runtime_1_1linear", "rtree_runtime_linear"))
+os.system(cmd % ("classboost_1_1geometry_1_1index_1_1runtime_1_1quadratic", "rtree_runtime_quadratic"))
+os.system(cmd % ("classboost_1_1geometry_1_1index_1_1runtime_1_1rstar", "rtree_runtime_rstar"))
+
+os.system(cmd % ("group__predicates", "predicates"))
+os.system(cmd % ("group__distance__predicates", "distance_predicates"))
+os.system(cmd % ("group__adaptors", "adaptors"))
+os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_1_1def", "translator_def"))
+os.system(cmd % ("classboost_1_1geometry_1_1index_1_1translator_1_1index", "translator_index"))
+os.system(cmd % ("group__inserters", "inserters"))
 
 os.system("b2") 

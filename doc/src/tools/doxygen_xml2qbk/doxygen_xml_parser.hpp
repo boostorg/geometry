@@ -131,9 +131,12 @@ static void parse_para(rapidxml::xml_node<>* node, configuration const& config, 
                     std::string refid = node->first_attribute("refid")->value();
                     if ( !refid.empty() )
                     {
-                        contents += std::string("[link ") + refid + " ";
-                        parse_para(node->first_node(), config, contents, skip, false);
-                        contents += "]";
+                        std::string str;
+                        parse_para(node->first_node(), config, str, skip, false);
+                        boost::replace_all(str, "\\", "\\\\");
+                        boost::replace_all(str, "[", "\\[");
+                        boost::replace_all(str, "]", "\\]");
+                        contents += std::string("[link ") + refid + " " + str + "]";                        
                         parse_para(node->next_sibling(), config, contents, skip, false);
                         return;
                     }
@@ -185,6 +188,7 @@ static void parse_parameter(rapidxml::xml_node<>* node, configuration const& con
 
             if ( config.output_style == "alt" )
             {
+                p.fulltype_without_links = p.fulltype;
                 p.fulltype.clear();
                 parse_para(node->first_node(), config, p.fulltype, p.skip);
             }
@@ -471,13 +475,15 @@ static void parse_function(rapidxml::xml_node<>* node, configuration const& conf
         }
         else if (full == ".type")
         {
+            get_contents(node->first_node(), f.return_type);
+
             if ( config.output_style == "alt" )
             {
+                f.return_type_without_links = f.return_type;
                 bool dummy_skip;
+                f.return_type.clear();
                 parse_para(node->first_node(), config, f.return_type, dummy_skip);
             }
-            else
-                get_contents(node->first_node(), f.return_type);
         }
         else if (full == ".detaileddescription.para.simplesect")
         {

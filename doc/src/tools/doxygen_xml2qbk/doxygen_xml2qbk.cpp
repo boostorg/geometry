@@ -78,8 +78,6 @@ int main(int argc, char** argv)
 
                 ("output_style", po::value<std::string>(&config.output_style),
                             "Docbook output style. Value:'alt'")
-                ("index_id_path", po::value<std::string>(&config.index_id_path),
-                            "The QBK index ID path")
             ;
 
             po::variables_map varmap;

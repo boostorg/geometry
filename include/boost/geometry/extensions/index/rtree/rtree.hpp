@@ -497,7 +497,7 @@ public:
     /*!
     \brief Remove a value from the container.
 
-    In contrast to the \c std::set or \c std::map \c erase() method
+    In contrast to the \c std::set or <tt>std::map erase()</tt> method
     this method removes only one value from the container.
 
     \param value    The value which will be removed from the container.
@@ -521,7 +521,7 @@ public:
     /*!
     \brief Remove a range of values from the container.
 
-    In contrast to the \c std::set or \c std::map \c erase() method
+    In contrast to the \c std::set or <tt>std::map erase()</tt> method
     it doesn't take iterators pointing to values stored in this container. It removes values equal
     to these passed as a range. Furthermore this method removes only one value for each one passed
     in the range, not all equal values.
@@ -552,7 +552,7 @@ public:
     /*!
     \brief Remove a range of values from the container.
 
-    In contrast to the \c std::set or \c std::map \c erase() method
+    In contrast to the \c std::set or <tt>std::map erase()</tt> method
     it removes values equal to these passed as a range. Furthermore, this method removes only
     one value for each one passed in the range, not all equal values.
 
@@ -755,7 +755,7 @@ public:
     If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
     */
     template <typename DistancesPredicates, typename OutIter>
-    inline size_type nearest_query(DistancesPredicates const& dpred, size_t k, OutIter out_it) const
+    inline size_type nearest_query(DistancesPredicates const& dpred, size_type k, OutIter out_it) const
     {
         return raw_nearest_k(dpred, k, detail::empty(), out_it);
     }
@@ -814,7 +814,7 @@ public:
     If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws.
     */
     template <typename DistancesPredicates, typename Predicates, typename OutIter>
-    inline size_type nearest_query(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
+    inline size_type nearest_query(DistancesPredicates const& dpred, size_type k, Predicates const& pred, OutIter out_it) const
     {
         return raw_nearest_k(dpred, k, pred, out_it);
     }
@@ -933,7 +933,7 @@ public:
     \par Throws
     Nothing.
     */
-    inline translator_type const& translator() const
+    inline const translator_type & translator() const
     {
         return m_translator;
     }
@@ -1273,7 +1273,7 @@ inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Range co
 /*!
 \brief Remove a value from the container.
 
-Remove a value from the container. In contrast to the \c std::set or \c std::map \c erase() method
+Remove a value from the container. In contrast to the \c std::set or <tt>std::map erase()</tt> method
 this function removes only one value from the container.
 
 \ingroup rtree_functions
@@ -1293,7 +1293,7 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
 /*!
 \brief Remove a range of values from the container.
 
-Remove a range of values from the container. In contrast to the \c std::set or \c std::map \c erase() method
+Remove a range of values from the container. In contrast to the \c std::set or <tt>std::map erase()</tt> method
 it doesn't take iterators pointing to values stored in this container. It removes values equal
 to these passed as a range. Furthermore this function removes only one value for each one passed
 in the range, not all equal values.
@@ -1316,7 +1316,7 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iter
 /*!
 \brief Remove a range of values from the container.
 
-Remove a range of values from the container. In contrast to the \c std::set or \c std::map \c erase() method
+Remove a range of values from the container. In contrast to the \c std::set or <tt>std::map erase()</tt> method
 it removes values equal to these passed as a range. Furthermore this method removes only
 one value for each one passed in the range, not all equal values.
 
@@ -1399,7 +1399,7 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 \return         The number of found values.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename OutIter>
-inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, OutIter out_it)
+inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, typename rtree<Value, Options, Translator, Allocator>::size_type k, OutIter out_it)
 {
     return tree.nearest_query(dpred, k, out_it);
 }
@@ -1418,7 +1418,7 @@ inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& 
 \return         The number of found values.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator, typename DistancesPredicates, typename Predicates, typename OutIter>
-inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it)
+inline size_t nearest_query(rtree<Value, Options, Translator, Allocator> const& tree, DistancesPredicates const& dpred, typename rtree<Value, Options, Translator, Allocator>::size_type k, Predicates const& pred, OutIter out_it)
 {
     return tree.nearest_query(dpred, k, pred, out_it);
 }

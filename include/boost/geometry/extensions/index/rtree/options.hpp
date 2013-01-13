@@ -45,7 +45,7 @@ struct node_s_mem_static_tag {};
 //    m_max_elems_per_node = 2;
 
 /*!
-Linear r-tree creation algorithm parameters.
+\brief Linear r-tree creation algorithm parameters.
 
 \tparam MaxElements     Maximum number of elements in nodes.
 \tparam MinElements     Minimum number of elements in nodes.
@@ -61,7 +61,7 @@ struct linear
 };
 
 /*!
-Quadratic r-tree creation algorithm parameters.
+\brief Quadratic r-tree creation algorithm parameters.
 
 \tparam MaxElements     Maximum number of elements in nodes.
 \tparam MinElements     Minimum number of elements in nodes.
@@ -87,7 +87,7 @@ struct default_rstar_reinserted_elements
 }} // namespace options::detail
 
 /*!
-Quadratic r-tree creation algorithm parameters.
+\brief R*-tree creation algorithm parameters.
 
 \tparam MaxElements             Maximum number of elements in nodes.
 \tparam MinElements             Minimum number of elements in nodes.
@@ -116,36 +116,54 @@ struct rstar
 
 namespace runtime {
 
+/*!
+\brief Linear r-tree creation algorithm parameters.
+*/
 class linear
 {
 public:
-    linear(size_t max_elements_, size_t min_elements_)
-        : max_elements(max_elements_)
-        , min_elements(min_elements_)
+    /*!
+    \brief The constructor.
+
+    \param max_elements     Maximum number of elements in nodes.
+    \param min_elements     Minimum number of elements in nodes.
+    */
+    linear(size_t max_elements, size_t min_elements)
+        : m_max_elements(max_elements)
+        , m_min_elements(min_elements)
     {}
 
-    size_t get_max_elements() const { return max_elements; }
-    size_t get_min_elements() const { return min_elements; }
+    size_t get_max_elements() const { return m_max_elements; }
+    size_t get_min_elements() const { return m_min_elements; }
 
 private:
-    size_t max_elements;
-    size_t min_elements;
+    size_t m_max_elements;
+    size_t m_min_elements;
 };
 
+/*!
+\brief Quadratic r-tree creation algorithm parameters.
+*/
 class quadratic
 {
 public:
-    quadratic(size_t max_elements_, size_t min_elements_)
-        : max_elements(max_elements_)
-        , min_elements(min_elements_)
+    /*!
+    \brief The constructor.
+
+    \param max_elements     Maximum number of elements in nodes.
+    \param min_elements     Minimum number of elements in nodes.
+    */
+    quadratic(size_t max_elements, size_t min_elements)
+        : m_max_elements(max_elements)
+        , m_min_elements(min_elements)
     {}
 
-    size_t get_max_elements() const { return max_elements; }
-    size_t get_min_elements() const { return min_elements; }
+    size_t get_max_elements() const { return m_max_elements; }
+    size_t get_min_elements() const { return m_min_elements; }
 
 private:
-    size_t max_elements;
-    size_t min_elements;
+    size_t m_max_elements;
+    size_t m_min_elements;
 };
 
 namespace detail { 
@@ -157,33 +175,46 @@ inline size_t default_rstar_reinserted_elements()
 
 } // namespace options::detail
 
+/*!
+\brief R*-tree creation algorithm parameters.
+*/
 class rstar
 {
 public:
-    rstar(size_t max_elements_,
-          size_t min_elements_,
-          size_t overlap_cost_threshold_ = 0,
-          size_t reinserted_elements_ = detail::default_rstar_reinserted_elements())
-        : max_elements(max_elements_)
-        , min_elements(min_elements_)
-        , overlap_cost_threshold(overlap_cost_threshold_)
-        , reinserted_elements(
-            detail::default_rstar_reinserted_elements() == reinserted_elements_ ?
-            (max_elements_ * 3) / 10 :
-            reinserted_elements_
+    /*!
+    \brief The constructor.
+
+    \param max_elements             Maximum number of elements in nodes.
+    \param min_elements             Minimum number of elements in nodes.
+    \param overlap_cost_threshold   The number of leaf node children elements above which
+                                    nearly minimum overlap cost is calculated instead of minimum
+                                    overlap cost. If 0 minimum overlap cost is always calculated.
+    \param reinserted_elements      Number of elements reinserted by forced reinsertions algorithm.
+    */
+    rstar(size_t max_elements,
+          size_t min_elements,
+          size_t overlap_cost_threshold = 0,
+          size_t reinserted_elements = detail::default_rstar_reinserted_elements())
+        : m_max_elements(max_elements)
+        , m_min_elements(min_elements)
+        , m_overlap_cost_threshold(overlap_cost_threshold)
+        , m_reinserted_elements(
+            detail::default_rstar_reinserted_elements() == reinserted_elements ?
+            (max_elements * 3) / 10 :
+            reinserted_elements
         )
     {}
 
-    size_t get_max_elements() const { return max_elements; }
-    size_t get_min_elements() const { return min_elements; }
-    size_t get_overlap_cost_threshold() const { return overlap_cost_threshold; }
-    size_t get_reinserted_elements() const { return reinserted_elements; }
+    size_t get_max_elements() const { return m_max_elements; }
+    size_t get_min_elements() const { return m_min_elements; }
+    size_t get_overlap_cost_threshold() const { return m_overlap_cost_threshold; }
+    size_t get_reinserted_elements() const { return m_reinserted_elements; }
 
 private:
-    size_t max_elements;
-    size_t min_elements;
-    size_t overlap_cost_threshold;
-    size_t reinserted_elements;
+    size_t m_max_elements;
+    size_t m_min_elements;
+    size_t m_overlap_cost_threshold;
+    size_t m_reinserted_elements;
 };
 
 }

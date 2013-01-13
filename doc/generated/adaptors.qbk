@@ -3,55 +3,64 @@
 [section:group__adaptors Adaptors (boost::geometry::index::adaptors::)]
 [table
 [[Function][Description]]
-[[[link geometry_index.r_tree.reference.group__adaptors.function0 `nearest_queried(DistancesPredicates const &, size_t, Predicates const &)`]][The nearest query index adaptor generator. ]]
-[[[link geometry_index.r_tree.reference.group__adaptors.function1 `nearest_queried(DistancesPredicates const &, size_t)`]][The nearest query index adaptor generator. ]]
-[[[link geometry_index.r_tree.reference.group__adaptors.function2 `spatial_queried(Predicates const &)`]][The spatial query index adaptor generator. ]]
+[[[link group__adaptors_1ga8e094e1f312fc00336a3536f51a69468 `nearest_queried(DistancesPredicates const &, size_t, Predicates const &)`]][The nearest query index adaptor generator. ]]
+[[[link group__adaptors_1ga3478395ded5855dc0b6c2f36a89de9f6 `nearest_queried(DistancesPredicates const &, size_t)`]][The nearest query index adaptor generator. ]]
+[[[link group__adaptors_1ga3068771f0f9cca706269ec35a809db2a `spatial_queried(Predicates const &)`]][The spatial query index adaptor generator. ]]
 ]
 
-[section:function0 nearest_queried(DistancesPredicates const &, size_t, Predicates const &)]
+[#group__adaptors_1ga8e094e1f312fc00336a3536f51a69468]
+[section nearest_queried(DistancesPredicates const &, size_t, Predicates const &)]
 The nearest query index adaptor generator. 
 
 [heading Synopsis]
-``template<typename DistancesPredicates, typename Predicates>
-detail::nearest_query<DistancesPredicates, Predicates> boost::geometry::index::adaptors::nearest_queried(DistancesPredicates const & dpred,
-                                                                                                         size_t k,
-                                                                                                         Predicates const & pred)``
+[pre
+`template<``typename DistancesPredicates``,` `typename Predicates``>`
+`detail::nearest_query<DistancesPredicates, Predicates> boost::geometry::index::adaptors::nearest_queried``(``DistancesPredicates const &` `dpred``,`
+                                                                                                         `size_t` `k``,`
+                                                                                                         `Predicates const &` `pred``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `DistancesPredicates const &` ][ `dpred` ][Distance predicates. ]]
-[[ `size_t` ][ `k` ][The number of values to find. ]]
-[[ `Predicates const &` ][ `pred` ][Spatial predicates. ]]
+[[`DistancesPredicates const &`][ `dpred` ][Distance predicates. ]]
+[[`size_t`][ `k` ][The number of values to find. ]]
+[[`Predicates const &`][ `pred` ][Spatial predicates. ]]
 ]
 [endsect]
 
-[section:function1 nearest_queried(DistancesPredicates const &, size_t)]
+[#group__adaptors_1ga3478395ded5855dc0b6c2f36a89de9f6]
+[section nearest_queried(DistancesPredicates const &, size_t)]
 The nearest query index adaptor generator. 
 
 [heading Synopsis]
-``template<typename DistancesPredicates>
-detail::nearest_query<DistancesPredicates, index::detail::empty> boost::geometry::index::adaptors::nearest_queried(DistancesPredicates const & dpred, size_t k)``
+[pre
+`template<``typename DistancesPredicates``>`
+`detail::nearest_query<DistancesPredicates, index::detail::empty> boost::geometry::index::adaptors::nearest_queried``(``DistancesPredicates const &` `dpred``,` `size_t` `k``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `DistancesPredicates const &` ][ `dpred` ][Distance predicates. ]]
-[[ `size_t` ][ `k` ][The number of values to find. ]]
+[[`DistancesPredicates const &`][ `dpred` ][Distance predicates. ]]
+[[`size_t`][ `k` ][The number of values to find. ]]
 ]
 [endsect]
 
-[section:function2 spatial_queried(Predicates const &)]
+[#group__adaptors_1ga3068771f0f9cca706269ec35a809db2a]
+[section spatial_queried(Predicates const &)]
 The spatial query index adaptor generator. 
 
 [heading Synopsis]
-``template<typename Predicates>
-detail::spatial_query<Predicates> boost::geometry::index::adaptors::spatial_queried(Predicates const & pred)``
+[pre
+`template<``typename Predicates``>`
+`detail::spatial_query<Predicates> boost::geometry::index::adaptors::spatial_queried``(``Predicates const &` `pred``)`
+]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[ `Predicates const &` ][ `pred` ][Spatial predicates. ]]
+[[`Predicates const &`][ `pred` ][Spatial predicates. ]]
 ]
 [endsect]
 
