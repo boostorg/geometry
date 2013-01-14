@@ -96,7 +96,7 @@ It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1abb624abd9268b41e815d
 Remove a value from the container. 
 
 [heading Description]
-Remove a value from the container. In contrast to the [^std::set] or [^std::map erase()] method this function removes only one value from the container.
+Remove a value from the container. In contrast to the [^`std::set`] or [^`std::map erase()`] method this function removes only one value from the container.
 
 It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1af6ca6909354a997f89411ef40ea5688a rtree::remove(value_type const&)]].[heading Synopsis]
 [pre
@@ -122,7 +122,7 @@ It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1af6ca6909354a997f8941
 Remove a range of values from the container. 
 
 [heading Description]
-Remove a range of values from the container. In contrast to the [^std::set] or [^std::map erase()] method it doesn't take iterators pointing to values stored in this container. It removes values equal to these passed as a range. Furthermore this function removes only one value for each one passed in the range, not all equal values.
+Remove a range of values from the container. In contrast to the [^`std::set`] or [^`std::map erase()`] method it doesn't take iterators pointing to values stored in this container. It removes values equal to these passed as a range. Furthermore this function removes only one value for each one passed in the range, not all equal values.
 
 It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a6e9123114697d65b16ebc49cd5371fbd rtree::remove(Iterator, Iterator)]].[heading Synopsis]
 [pre
@@ -152,7 +152,7 @@ The number of removed values.
 Remove a range of values from the container. 
 
 [heading Description]
-Remove a range of values from the container. In contrast to the [^std::set] or [^std::map erase()] method it removes values equal to these passed as a range. Furthermore this method removes only one value for each one passed in the range, not all equal values.
+Remove a range of values from the container. In contrast to the [^`std::set`] or [^`std::map erase()`] method it removes values equal to these passed as a range. Furthermore this method removes only one value for each one passed in the range, not all equal values.
 
 It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a5a57bb93b0b2d7ea1c659e925f918e9c rtree::remove(Range const&)]].[heading Synopsis]
 [pre
@@ -179,7 +179,7 @@ The number of removed values.
 Find values meeting spatial predicates. 
 
 [heading Description]
-It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a930bf17d595a91d8ae924383a0387920 rtree::spatial_query]] with parameters [^(Predicates const&, OutIter)].[heading Synopsis]
+It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a930bf17d595a91d8ae924383a0387920 rtree::spatial_query]] with parameters [^`(Predicates const&, OutIter)`].[heading Synopsis]
 [pre
 `template<``typename Value``,`
          `typename Options``,`
@@ -208,7 +208,7 @@ The number of found values.
 Find the value meeting distances predicates. 
 
 [heading Description]
-It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 rtree::nearest_query]] with parameters [^(DistancesPredicates const& dpred, value_type & v)].[heading Synopsis]
+It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 rtree::nearest_query]] with parameters [^`(DistancesPredicates const& dpred, value_type & v)`].[heading Synopsis]
 [pre
 `template<``typename Value``,`
          `typename Options``,`
@@ -236,7 +236,7 @@ The number of found values.
 Find the value meeting distances and spatial predicates. 
 
 [heading Description]
-It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 rtree::nearest_query]] with parameters [^(DistancesPredicates const& dpred, Predicates const& pred, value_type & v)].[heading Synopsis]
+It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 rtree::nearest_query]] with parameters [^`(DistancesPredicates const& dpred, Predicates const& pred, value_type & v)`].[heading Synopsis]
 [pre
 `template<``typename Value``,`
          `typename Options``,`
@@ -267,7 +267,7 @@ The number of found values.
 Find k values meeting distances predicates. 
 
 [heading Description]
-It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 rtree::nearest_query]] with parameters [^(DistancesPredicates const & dpred, size_type k, OutIter out_it)].[heading Synopsis]
+It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 rtree::nearest_query]] with parameters [^`(DistancesPredicates const & dpred, size_type k, OutIter out_it)`].[heading Synopsis]
 [pre
 `template<``typename Value``,`
          `typename Options``,`
@@ -298,7 +298,7 @@ The number of found values.
 Find k values meeting distances and spatial predicates. 
 
 [heading Description]
-It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 rtree::nearest_query]] with parameters [^(DistancesPredicates const & dpred, size_type k, Predicates const & pred, OutIter out_it)].[heading Synopsis]
+It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 rtree::nearest_query]] with parameters [^`(DistancesPredicates const & dpred, size_type k, Predicates const & pred, OutIter out_it)`].[heading Synopsis]
 [pre
 `template<``typename Value``,`
          `typename Options``,`

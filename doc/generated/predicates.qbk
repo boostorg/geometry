@@ -47,7 +47,7 @@ A wrapper around user-defined functor describing if Value should be returned by 
 Generate [^[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 covered_by()]] predicate. 
 
 [heading Description]
-Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^bg::covered_by(Indexable, Geometry)] returns true.[heading Synopsis]
+Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^`bg::covered_by(Indexable, Geometry)`] returns true.[heading Synopsis]
 [pre
 `template<``typename Geometry``>`
 `detail::covered_by<Geometry> boost::geometry::index::covered_by``(``Geometry const &` `g``)`
@@ -65,7 +65,7 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 Generate [^[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d disjoint()]] predicate. 
 
 [heading Description]
-Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^bg::disjoint(Indexable, Geometry)] returns true.[heading Synopsis]
+Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^`bg::disjoint(Indexable, Geometry)`] returns true.[heading Synopsis]
 [pre
 `template<``typename Geometry``>`
 `detail::disjoint<Geometry> boost::geometry::index::disjoint``(``Geometry const &` `g``)`
@@ -83,7 +83,7 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 Generate [^[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 intersects()]] predicate. 
 
 [heading Description]
-Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^bg::intersects(Indexable, Geometry)] returns true.[heading Synopsis]
+Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^`bg::intersects(Indexable, Geometry)`] returns true.[heading Synopsis]
 [pre
 `template<``typename Geometry``>`
 `detail::intersects<Geometry> boost::geometry::index::intersects``(``Geometry const &` `g``)`
@@ -101,7 +101,7 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 Generate [^[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 overlaps()]] predicate. 
 
 [heading Description]
-Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^bg::overlaps(Indexable, Geometry)] returns true.[heading Synopsis]
+Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^`bg::overlaps(Indexable, Geometry)`] returns true.[heading Synopsis]
 [pre
 `template<``typename Geometry``>`
 `detail::overlaps<Geometry> boost::geometry::index::overlaps``(``Geometry const &` `g``)`
@@ -119,7 +119,7 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 Generate [^[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d within()]] predicate. 
 
 [heading Description]
-Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^bg::within(Indexable, Geometry)] returns true.[heading Synopsis]
+Generate a predicate defining Value and Geometry relationship. Value will be returned by the query if [^`bg::within(Indexable, Geometry)`] returns true.[heading Synopsis]
 [pre
 `template<``typename Geometry``>`
 `detail::within<Geometry> boost::geometry::index::within``(``Geometry const &` `g``)`
