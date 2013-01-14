@@ -62,7 +62,7 @@ This is used for different purposes within Doxygen.
 So we have to list explicitly either where to recurse, or where not to...
 
 */
-static void parse_para(rapidxml::xml_node<>* node, configuration const& config, std::string& contents, bool& skip, bool first = true)
+static void parse_para(rapidxml::xml_node<>* node, configuration const& config, std::string& contents, bool& skip, bool first = true, bool in_block = false)
 {
     if (node != NULL)
     {
@@ -78,49 +78,49 @@ static void parse_para(rapidxml::xml_node<>* node, configuration const& config, 
             else if ( boost::equals(name, "itemizedlist") )
             {
                 contents += "\n\n";
-                parse_para(node->first_node(), config, contents, skip);
+                parse_para(node->first_node(), config, contents, skip, true, in_block);
                 contents += "\n";
-                parse_para(node->next_sibling(), config, contents, skip);
+                parse_para(node->next_sibling(), config, contents, skip, true, in_block);
                 return;
             }
             else if ( boost::equals(name, "listitem") )
             {
                 contents += "* ";
-                parse_para(node->first_node(), config, contents, skip);
+                parse_para(node->first_node(), config, contents, skip, true, in_block);
                 contents += "\n";
-                parse_para(node->next_sibling(), config, contents, skip);
+                parse_para(node->next_sibling(), config, contents, skip, true, in_block);
                 return;
             }
             else if ( boost::equals(name, "verbatim") )
             {
                 contents += "\n``\n";
-                parse_para(node->first_node(), config, contents, skip, false);
+                parse_para(node->first_node(), config, contents, skip, false, in_block);
                 contents += "``\n";
-                parse_para(node->next_sibling(), config, contents, skip, false);
+                parse_para(node->next_sibling(), config, contents, skip, false, in_block);
                 return;
             }
             else if ( boost::equals(name, "bold") )
             {
                 contents += "[*";
-                parse_para(node->first_node(), config, contents, skip, false);
+                parse_para(node->first_node(), config, contents, skip, false, true);
                 contents += "]";
-                parse_para(node->next_sibling(), config, contents, skip, false);
+                parse_para(node->next_sibling(), config, contents, skip, false, in_block);
                 return;
             }
             else if ( boost::equals(name, "emphasis") )
             {
                 contents += "['";
-                parse_para(node->first_node(), config, contents, skip, false);
+                parse_para(node->first_node(), config, contents, skip, false, true);
                 contents += "]";
-                parse_para(node->next_sibling(), config, contents, skip, false);
+                parse_para(node->next_sibling(), config, contents, skip, false, in_block);
                 return;
             }
             else if ( boost::equals(name, "computeroutput") )
             {
                 contents += "[^";
-                parse_para(node->first_node(), config, contents, skip, false);
+                parse_para(node->first_node(), config, contents, skip, false, true);
                 contents += "]";
-                parse_para(node->next_sibling(), config, contents, skip, false);
+                parse_para(node->next_sibling(), config, contents, skip, false, in_block);
                 return;
             }
             else if ( boost::equals(name, "ref") )
@@ -131,13 +131,10 @@ static void parse_para(rapidxml::xml_node<>* node, configuration const& config, 
                     std::string refid = node->first_attribute("refid")->value();
                     if ( !refid.empty() )
                     {
-                        std::string str;
-                        parse_para(node->first_node(), config, str, skip, false);
-                        boost::replace_all(str, "\\", "\\\\");
-                        boost::replace_all(str, "[", "\\[");
-                        boost::replace_all(str, "]", "\\]");
-                        contents += std::string("[link ") + refid + " " + str + "]";                        
-                        parse_para(node->next_sibling(), config, contents, skip, false);
+                        contents += std::string("[link ") + refid + " ";
+                        parse_para(node->first_node(), config, contents, skip, false, true);
+                        contents += "]";                        
+                        parse_para(node->next_sibling(), config, contents, skip, false, in_block);
                         return;
                     }
                 }                                
@@ -153,7 +150,20 @@ static void parse_para(rapidxml::xml_node<>* node, configuration const& config, 
         }
         else if (node->type() == rapidxml::node_data)
         {
-            contents += node->value();
+            std::string str = node->value();
+
+            if ( str.find("aaa") != std::string::npos )
+            {
+                int a = 10;
+            }
+
+            if ( in_block )
+            {
+                boost::replace_all(str, "\\", "\\\\");
+                boost::replace_all(str, "[", "\\[");
+                boost::replace_all(str, "]", "\\]");
+            }
+            contents += str;
             //std::cout << "DATA: " << node->name() << "=" << node->value() << std::endl;
         }
         else
@@ -161,8 +171,8 @@ static void parse_para(rapidxml::xml_node<>* node, configuration const& config, 
             //std::cout << "OTHER: " << node->name() << "=" << node->value() << std::endl;
         }
 
-        parse_para(node->first_node(), config, contents, skip, false);
-        parse_para(node->next_sibling(), config, contents, skip, false);
+        parse_para(node->first_node(), config, contents, skip, false, in_block);
+        parse_para(node->next_sibling(), config, contents, skip, false, in_block);
     }
 }
 
