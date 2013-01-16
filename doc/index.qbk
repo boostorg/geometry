@@ -11,7 +11,7 @@
 [library Geometry Index
     [quickbook 1.5]
     [authors [Wulkiewicz, Adam]]
-    [copyright 2011-2012 Adam Wulkiewicz, 2008 Federico J. Fernandez]
+    [copyright 2011-2013 Adam Wulkiewicz]
     [purpose Documentation of Boost.Geometry Index library]
     [license
         Distributed under the Boost Software License, Version 1.0.
