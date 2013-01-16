@@ -315,7 +315,7 @@ public:
     \param src          The rtree which content will be moved.
 
     \par Throws
-    If allocator move constructor throws.
+    Nothing.
     */
     inline rtree(BOOST_RV_REF(rtree) src)
 // TODO - use boost::move()
@@ -329,6 +329,41 @@ public:
         src.m_values_count = 0;
         src.m_leafs_level = 0;
         src.m_root = 0;
+    }
+
+    /*!
+    \brief The moving constructor.
+
+    It uses parameters and translator from the source tree.
+
+    \param src          The rtree which content will be moved.
+    \param allocator    The allocator.
+
+    \par Throws
+    \li If allocator copy constructor throws.
+    \li If Value copy constructor throws (only if allocators aren't equal).
+    \li If allocation throws (only if allocators aren't equal).
+    \li When memory allocation for Node fails (only if allocators aren't equal).
+    */
+    inline rtree(BOOST_RV_REF(rtree) src, allocator_type const& allocator)
+// TODO - use boost::move()
+        : m_translator(src.m_translator)                                    // SHOULDN'T THROW
+        , m_parameters(src.m_parameters)
+        , m_allocators(allocator)
+        , m_values_count(0)
+        , m_leafs_level(0)
+        , m_root(0)
+    {
+        if ( src.m_allocators.allocator == allocator )
+        {
+            boost::swap(m_values_count, src.m_values_count);
+            boost::swap(m_leafs_level, src.m_leafs_level);
+            boost::swap(m_root, src.m_root);
+        }
+        else
+        {
+            this->raw_copy(src, *this, false);
+        }
     }
 
     /*!

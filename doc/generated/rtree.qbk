@@ -84,6 +84,7 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a006904b4e7dcef1fd1efcb70a010964f `rtree(rtree const &)`]][The copy constructor. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1ac59521aa9a9b69104fa25c0f7b705354 `rtree(rtree const &, allocator_type const &)`]][The copy constructor. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a050fca8af38fe25548d4c22830b55bf2 `rtree(rtree &&)`]][The moving constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1ae0b4e031554daa6e6e8d3a0f95630260 `rtree(rtree &&, allocator_type const &)`]][The moving constructor. ]]
 ]
 
 [heading Member(s)]
@@ -315,7 +316,36 @@ It uses parameters, translator and allocator from the source tree.[heading Synop
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` &&`][ `src` ][The rtree which content will be moved.]]
 ]
 [heading Throws]
-If allocator move constructor throws. 
+Nothing. 
+
+[endsect]
+
+[#classboost_1_1geometry_1_1index_1_1rtree_1ae0b4e031554daa6e6e8d3a0f95630260]
+[section rtree(rtree &&, allocator_type const &)]
+The moving constructor. 
+
+[heading Description]
+It uses parameters and translator from the source tree.[heading Synopsis]
+[pre
+
+`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` &&` `src``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]` const &` `allocator``)`
+]
+
+[heading Parameter(s)]
+[table 
+[[Type][Name][Description]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` &&`][ `src` ][The rtree which content will be moved. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]` const &`][ `allocator` ][The allocator.]]
+]
+[heading Throws]
+
+
+* If allocator copy constructor throws. 
+* If Value copy constructor throws (only if allocators aren't equal). 
+* If allocation throws (only if allocators aren't equal). 
+* When memory allocation for Node fails (only if allocators aren't equal). 
+
+
 
 [endsect]
 

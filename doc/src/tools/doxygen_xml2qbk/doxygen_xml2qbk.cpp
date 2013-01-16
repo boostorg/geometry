@@ -182,7 +182,7 @@ int main(int argc, char** argv)
                 quickbook_output_alt(doc.cos, config, std::cout);
             }
 
-            if ( !doc.functions.empty() )
+            if ( !doc.group_id.empty() )
                 quickbook_output_alt(doc, config, std::cout);
         }
     }

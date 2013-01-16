@@ -659,7 +659,7 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
                 f.type = function_define;
                 parse_element(node->first_node(), config, "", f);
                 parse_function(node->first_node(), config, "", f);
-                doc.functions.push_back(f);
+                doc.defines.push_back(f);
             }
             else if (kind == "enum")
             {
