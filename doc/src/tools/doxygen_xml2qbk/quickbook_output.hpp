@@ -979,6 +979,30 @@ void quickbook_synopsis_alt(enumeration const& e, std::ostream& out)
         << std::endl;
 }
 
+template <typename Range>
+bool has_brief_description(Range const& rng)
+{
+    typedef typename Range::value_type V;
+    BOOST_FOREACH(V const& bc, rng)
+    {
+        if ( !bc.brief_description.empty() )
+            return true;
+    }
+    return false;
+}
+
+template <typename Range>
+bool has_brief_description(Range const& rng, function_type t)
+{
+    typedef typename Range::value_type V;
+    BOOST_FOREACH(V const& bc, rng)
+    {
+        if ( bc.type == t && !bc.brief_description.empty() )
+            return true;
+    }
+    return false;
+}
+
 void quickbook_output_functions_details(std::vector<function> const& functions,
                                         function_type type,
                                         configuration const& config,
@@ -1013,8 +1037,33 @@ void quickbook_output_functions_details(std::vector<function> const& functions,
             quickbook_synopsis_alt(f, out);
             quickbook_markup(f.qbk_markup, markup_after, markup_synopsis, out);
 
+            // Template parameters
+            if ( !f.template_parameters.empty() && has_brief_description(f.template_parameters) )
+            {
+                out << "[heading Template parameter(s)]" << std::endl
+                    << "[table" << std::endl
+                    << "[[Parameter] [Description]]" << std::endl;
+
+                BOOST_FOREACH(parameter const& p, f.template_parameters)
+                {
+                    if ( p.brief_description.empty() )
+                        continue;
+
+                    out << "[[`";
+                    if ( p.fulltype.find("typename ") == 0 )
+                        out << p.fulltype.substr(9);
+                    else if ( p.fulltype.find("class ") == 0 )
+                        out << p.fulltype.substr(6);
+                    else
+                        out << p.fulltype;
+                    out << "`][" << p.brief_description << "]]" << std::endl;
+                }
+                out << "]" << std::endl
+                    << std::endl;
+            }
+
             // Parameters
-            if ( !f.parameters.empty() )
+            if ( !f.parameters.empty() && has_brief_description(f.parameters) )
             {
                 out << "[heading Parameter(s)]" << std::endl;
                 out << "[table " << std::endl;
@@ -1152,30 +1201,6 @@ void quickbook_output_alt(documentation const& doc, configuration const& config,
     }    
 }
 
-template <typename Range>
-bool has_brief_description(Range const& rng)
-{
-    typedef typename Range::value_type V;
-    BOOST_FOREACH(V const& bc, rng)
-    {
-        if ( !bc.brief_description.empty() )
-            return true;
-    }
-    return false;
-}
-
-template <typename Range>
-bool has_brief_description(Range const& rng, function_type t)
-{
-    typedef typename Range::value_type V;
-    BOOST_FOREACH(V const& bc, rng)
-    {
-        if ( bc.type == t && !bc.brief_description.empty() )
-            return true;
-    }
-    return false;
-}
-
 void quickbook_output_alt(class_or_struct const& cos, configuration const& config, std::ostream& out)
 {
     // Skip namespace
@@ -1300,6 +1325,7 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
 
     if (display_ctors && counts[function_constructor_destructor] > 0)
         quickbook_output_functions_details(cos.functions, function_constructor_destructor, config, out);
+
     if (display_members && counts[function_member] > 0)
         quickbook_output_functions_details(cos.functions, function_member, config, out);
 

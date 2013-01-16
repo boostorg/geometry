@@ -36,6 +36,12 @@ A wrapper around user-defined functor describing if Value should be returned by 
 `detail::value<ValuePredicate> boost::geometry::index::value``(``ValuePredicate const &` `vpred``)`
 ]
 
+[heading Template parameter(s)]
+[table
+[[Parameter] [Description]]
+[[`ValuePredicate`][Functor type.]]
+]
+
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
@@ -52,6 +58,12 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 [pre
 `template<``typename Geometry``>`
 `detail::covered_by<Geometry> boost::geometry::index::covered_by``(``Geometry const &` `g``)`
+]
+
+[heading Template parameter(s)]
+[table
+[[Parameter] [Description]]
+[[`Geometry`][The Geometry type.]]
 ]
 
 [heading Parameter(s)]
@@ -72,6 +84,12 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 `detail::disjoint<Geometry> boost::geometry::index::disjoint``(``Geometry const &` `g``)`
 ]
 
+[heading Template parameter(s)]
+[table
+[[Parameter] [Description]]
+[[`Geometry`][The Geometry type.]]
+]
+
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
@@ -88,6 +106,12 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 [pre
 `template<``typename Geometry``>`
 `detail::intersects<Geometry> boost::geometry::index::intersects``(``Geometry const &` `g``)`
+]
+
+[heading Template parameter(s)]
+[table
+[[Parameter] [Description]]
+[[`Geometry`][The Geometry type.]]
 ]
 
 [heading Parameter(s)]
@@ -108,6 +132,12 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 `detail::overlaps<Geometry> boost::geometry::index::overlaps``(``Geometry const &` `g``)`
 ]
 
+[heading Template parameter(s)]
+[table
+[[Parameter] [Description]]
+[[`Geometry`][The Geometry type.]]
+]
+
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
@@ -124,6 +154,12 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 [pre
 `template<``typename Geometry``>`
 `detail::within<Geometry> boost::geometry::index::within``(``Geometry const &` `g``)`
+]
+
+[heading Template parameter(s)]
+[table
+[[Parameter] [Description]]
+[[`Geometry`][The Geometry type.]]
 ]
 
 [heading Parameter(s)]

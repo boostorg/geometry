@@ -10,7 +10,7 @@
 
 [library Geometry Index
     [quickbook 1.5]
-    [authors [Wulkiewicz, Adam],[Fernandez, Federico J.]]
+    [authors [Wulkiewicz, Adam]]
     [copyright 2011-2012 Adam Wulkiewicz, 2008 Federico J. Fernandez]
     [purpose Documentation of Boost.Geometry Index library]
     [license

@@ -28,7 +28,7 @@
 <div class="toc"><dl>
 <dt><span class="section"><a href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree">boost::geometry::index::rtree</a></span></dt>
 <dt><span class="section"><a href="reference.html#geometry_index.r_tree.reference.group__rtree__functions">Functions
-        related to the rtree (boost::geometry::index::)</a></span></dt>
+        related to the rtree</a></span></dt>
 <dt><span class="section"><a href="reference.html#geometry_index.r_tree.reference.parameters">R-tree
         parameters</a></span></dt>
 <dt><span class="section"><a href="reference.html#geometry_index.r_tree.reference.group__predicates">Spatial
@@ -47,7 +47,7 @@
 <a name="geometry_index.r_tree.reference.boost_geometry_index_rtree"></a><a name="classboost_1_1geometry_1_1index_1_1rtree"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree" title="boost::geometry::index::rtree">boost::geometry::index::rtree</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp9871960"></a><a class="indexterm" name="idp9872272"></a><a class="indexterm" name="idp9872584"></a><a class="indexterm" name="idp9872896"></a>
+          <a class="indexterm" name="idp9821064"></a><a class="indexterm" name="idp9821376"></a><a class="indexterm" name="idp9821688"></a><a class="indexterm" name="idp9822000"></a>
 The R-tree spatial index.
         </p>
 <h6>
@@ -3740,8 +3740,8 @@ The R-tree spatial index.
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.reference.group__rtree__functions"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions" title="Functions related to the rtree (boost::geometry::index::)">Functions
-        related to the rtree (boost::geometry::index::)</a>
+<a name="geometry_index.r_tree.reference.group__rtree__functions"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions" title="Functions related to the rtree">Functions
+        related to the rtree</a>
 </h4></div></div></div>
 <h6>
 <a name="geometry_index.r_tree.reference.group__rtree__functions.h0"></a>
@@ -3969,6 +3969,35 @@ The R-tree spatial index.
 <td>
                   <p>
                     <a class="link" href="reference.html#group__rtree__functions_1ga46aead88abd7f18f0e1eedb991bbb39d"><code class="computeroutput"><span class="identifier">box</span><span class="special">(</span><span class="identifier">rtree</span><span class="special">&lt;...&gt;</span>
+                    <span class="keyword">const</span> <span class="special">&amp;)</span></code></a>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    Get the box containing all stored values or an invalid box if
+                    the index has no values.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <a class="link" href="reference.html#group__rtree__functions_1gab3425094aa846b167789ac76114696f6"><code class="computeroutput"><span class="identifier">envelope</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;...&gt;</span>
+                    <span class="keyword">const</span> <span class="special">&amp;,</span>
+                    <span class="identifier">Box</span> <span class="special">&amp;)</span></code></a>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    Get the box containing all stored values or an invalid box if
+                    the index has no values.
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    <a class="link" href="reference.html#group__rtree__functions_1gaab92d20f98edefccee1e76c1349a5127"><code class="computeroutput"><span class="identifier">return_envelope</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;...&gt;</span>
                     <span class="keyword">const</span> <span class="special">&amp;)</span></code></a>
                   </p>
                 </td>
@@ -5679,6 +5708,224 @@ The R-tree spatial index.
             The box containing all stored values or an invalid box.
           </p>
 </div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___"></a><a name="group__rtree__functions_1gab3425094aa846b167789ac76114696f6"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___" title="envelope(index::rtree&lt;...&gt; const &amp;, Box &amp;)">envelope(index::rtree&lt;...&gt;
+          const &amp;, Box &amp;)</a>
+</h5></div></div></div>
+<p>
+            Get the box containing all stored values or an invalid box if the index
+            has no values.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.h0"></a>
+            <span><a name="geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.description"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.description">Description</a>
+          </h6>
+<p>
+            It calls <code class="literal"><a class="link" href="reference.html#group__rtree__functions_1ga46aead88abd7f18f0e1eedb991bbb39d">rtree::box()</a></code>.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.h1"></a>
+            <span><a name="geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.synopsis"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.synopsis">Synopsis</a>
+          </h6>
+<pre class="programlisting"><code class="computeroutput"><span class="keyword">template</span><span class="special">&lt;</span></code><code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Value</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Options</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Translator</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Allocator</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Box</span></code><code class="computeroutput"><span class="special">&gt;</span></code>
+<code class="computeroutput"><span class="keyword">void</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">envelope</span></code><code class="computeroutput"><span class="special">(</span></code><code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> <span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Options</span><span class="special">,</span> <span class="identifier">Translator</span><span class="special">,</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span> <span class="keyword">const</span> <span class="special">&amp;</span></code> <code class="computeroutput"><span class="identifier">tree</span></code><code class="computeroutput"><span class="special">,</span></code> <code class="computeroutput"><span class="identifier">Box</span> <span class="special">&amp;</span></code> <code class="computeroutput"><span class="identifier">box</span></code><code class="computeroutput"><span class="special">)</span></code>
+</pre>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.envelope_index__rtree______const____box___.parameter_s_">Parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span>
+                      <span class="identifier">Value</span><span class="special">,</span>
+                      <span class="identifier">Options</span><span class="special">,</span>
+                      <span class="identifier">Translator</span><span class="special">,</span>
+                      <span class="identifier">Allocator</span> <span class="special">&gt;</span>
+                      <span class="keyword">const</span> <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">tree</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The spatial index.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Box</span> <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">box</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The object to which box containing all stored values or an
+                      invalid box will be assigned.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___"></a><a name="group__rtree__functions_1gaab92d20f98edefccee1e76c1349a5127"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___" title="return_envelope(index::rtree&lt;...&gt; const &amp;)">return_envelope(index::rtree&lt;...&gt;
+          const &amp;)</a>
+</h5></div></div></div>
+<p>
+            Get the box containing all stored values or an invalid box if the index
+            has no values.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.h0"></a>
+            <span><a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.description"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.description">Description</a>
+          </h6>
+<p>
+            It calls <code class="literal"><a class="link" href="reference.html#group__rtree__functions_1ga46aead88abd7f18f0e1eedb991bbb39d">rtree::box()</a></code>.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.h1"></a>
+            <span><a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.synopsis"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.synopsis">Synopsis</a>
+          </h6>
+<pre class="programlisting"><code class="computeroutput"><span class="keyword">template</span><span class="special">&lt;</span></code><code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Box</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Value</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Options</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Translator</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Allocator</span></code><code class="computeroutput"><span class="special">&gt;</span></code>
+<code class="computeroutput"><span class="identifier">Box</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">return_envelope</span></code><code class="computeroutput"><span class="special">(</span></code><code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> <span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Options</span><span class="special">,</span> <span class="identifier">Translator</span><span class="special">,</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span> <span class="keyword">const</span> <span class="special">&amp;</span></code> <code class="computeroutput"><span class="identifier">tree</span></code><code class="computeroutput"><span class="special">)</span></code>
+</pre>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Box</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The type of returned Box.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.h3"></a>
+            <span><a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.parameter_s_">Parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span>
+                      <span class="identifier">Value</span><span class="special">,</span>
+                      <span class="identifier">Options</span><span class="special">,</span>
+                      <span class="identifier">Translator</span><span class="special">,</span>
+                      <span class="identifier">Allocator</span> <span class="special">&gt;</span>
+                      <span class="keyword">const</span> <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">tree</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The spatial index.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.h4"></a>
+            <span><a name="geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.returns"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.return_envelope_index__rtree______const___.returns">Returns</a>
+          </h6>
+<p>
+            The box containing all stored values or an invalid box.
+          </p>
+</div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -5690,7 +5937,7 @@ The R-tree spatial index.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_linear"></a><a name="structboost_1_1geometry_1_1index_1_1linear"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_linear" title="boost::geometry::index::linear">boost::geometry::index::linear</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="idp11678856"></a><a class="indexterm" name="idp11679184"></a><a class="indexterm" name="idp11679528"></a><a class="indexterm" name="idp11679872"></a>
+            <a class="indexterm" name="idp11719952"></a><a class="indexterm" name="idp11720280"></a><a class="indexterm" name="idp11720624"></a><a class="indexterm" name="idp11720968"></a>
 Linear r-tree creation algorithm parameters.
           </p>
 <h6>
@@ -5765,7 +6012,7 @@ Linear r-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_quadratic"></a><a name="structboost_1_1geometry_1_1index_1_1quadratic"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_quadratic" title="boost::geometry::index::quadratic">boost::geometry::index::quadratic</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="idp11704920"></a><a class="indexterm" name="idp11705248"></a><a class="indexterm" name="idp11705592"></a><a class="indexterm" name="idp11705936"></a>
+            <a class="indexterm" name="idp11746048"></a><a class="indexterm" name="idp11746376"></a><a class="indexterm" name="idp11746720"></a><a class="indexterm" name="idp11747064"></a>
 Quadratic r-tree creation algorithm parameters.
           </p>
 <h6>
@@ -5840,7 +6087,7 @@ Quadratic r-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_rstar"></a><a name="structboost_1_1geometry_1_1index_1_1rstar"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_rstar" title="boost::geometry::index::rstar">boost::geometry::index::rstar</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="idp11731008"></a><a class="indexterm" name="idp11731336"></a><a class="indexterm" name="idp11731680"></a><a class="indexterm" name="idp11732024"></a>
+            <a class="indexterm" name="idp11772064"></a><a class="indexterm" name="idp11772392"></a><a class="indexterm" name="idp11772736"></a><a class="indexterm" name="idp11773080"></a>
 R*-tree creation algorithm parameters.
           </p>
 <h6>
@@ -5944,7 +6191,7 @@ R*-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_linear"></a><a name="classboost_1_1geometry_1_1index_1_1runtime_1_1linear"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_linear" title="boost::geometry::index::runtime::linear">boost::geometry::index::runtime::linear</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="idp11766776"></a><a class="indexterm" name="idp11767104"></a><a class="indexterm" name="idp11767448"></a><a class="indexterm" name="idp11767792"></a><a class="indexterm" name="idp11768136"></a>
+            <a class="indexterm" name="idp11807784"></a><a class="indexterm" name="idp11808112"></a><a class="indexterm" name="idp11808456"></a><a class="indexterm" name="idp11808800"></a><a class="indexterm" name="idp11809144"></a>
 Linear r-tree creation algorithm parameters.
           </p>
 <h6>
@@ -6080,7 +6327,7 @@ Linear r-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_quadratic"></a><a name="classboost_1_1geometry_1_1index_1_1runtime_1_1quadratic"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_quadratic" title="boost::geometry::index::runtime::quadratic">boost::geometry::index::runtime::quadratic</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="idp11807672"></a><a class="indexterm" name="idp11808000"></a><a class="indexterm" name="idp11808344"></a><a class="indexterm" name="idp11808688"></a><a class="indexterm" name="idp11809032"></a>
+            <a class="indexterm" name="idp11848672"></a><a class="indexterm" name="idp11849000"></a><a class="indexterm" name="idp11849344"></a><a class="indexterm" name="idp11849688"></a><a class="indexterm" name="idp11850032"></a>
 Quadratic r-tree creation algorithm parameters.
           </p>
 <h6>
@@ -6216,7 +6463,7 @@ Quadratic r-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_rstar"></a><a name="classboost_1_1geometry_1_1index_1_1runtime_1_1rstar"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_rstar" title="boost::geometry::index::runtime::rstar">boost::geometry::index::runtime::rstar</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="idp11848784"></a><a class="indexterm" name="idp11849112"></a><a class="indexterm" name="idp11849456"></a><a class="indexterm" name="idp11849800"></a><a class="indexterm" name="idp11850144"></a>
+            <a class="indexterm" name="idp11889800"></a><a class="indexterm" name="idp11890128"></a><a class="indexterm" name="idp11890472"></a><a class="indexterm" name="idp11890816"></a><a class="indexterm" name="idp11891160"></a>
 R*-tree creation algorithm parameters.
           </p>
 <h6>
@@ -6550,6 +6797,41 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__predicates.value_valuepredicate_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.value_valuepredicate_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.value_valuepredicate_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">ValuePredicate</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Functor type.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.value_valuepredicate_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__predicates.value_valuepredicate_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.value_valuepredicate_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -6620,6 +6902,41 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Geometry</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The Geometry type.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -6691,6 +7008,41 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Geometry</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The Geometry type.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -6762,6 +7114,41 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Geometry</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The Geometry type.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -6833,6 +7220,41 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Geometry</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The Geometry type.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -6904,6 +7326,41 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__predicates.within_geometry_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.within_geometry_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.within_geometry_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">Geometry</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The Geometry type.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.within_geometry_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__predicates.within_geometry_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.within_geometry_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -7113,6 +7570,42 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__distance__predicates.to_nearest_t_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__distance__predicates.to_nearest_t_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.to_nearest_t_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">T</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Type of wrapped object. This may be a Point for PointRelation
+                      or some Value for MinRelation or MaxRelation
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__distance__predicates.to_nearest_t_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__distance__predicates.to_nearest_t_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.to_nearest_t_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -7187,6 +7680,42 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__distance__predicates.to_centroid_t_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__distance__predicates.to_centroid_t_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.to_centroid_t_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">T</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Type of wrapped object. This may be a Point for PointRelation
+                      or some Value for MinRelation or MaxRelation
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__distance__predicates.to_centroid_t_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__distance__predicates.to_centroid_t_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.to_centroid_t_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -7263,6 +7792,42 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__distance__predicates.to_furthest_t_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__distance__predicates.to_furthest_t_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.to_furthest_t_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">T</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Type of wrapped object. This may be a Point for PointRelation
+                      or some Value for MinRelation or MaxRelation
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__distance__predicates.to_furthest_t_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__distance__predicates.to_furthest_t_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.to_furthest_t_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -7337,6 +7902,41 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__distance__predicates.unbounded_pointrelation_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__distance__predicates.unbounded_pointrelation_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.unbounded_pointrelation_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">PointRelation</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      PointRelation type.
+                    </p>
+                  </td>
+</tr></tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__distance__predicates.unbounded_pointrelation_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__distance__predicates.unbounded_pointrelation_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.unbounded_pointrelation_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -7416,6 +8016,55 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__distance__predicates.min_bounded_pointrelation_const____minrelation_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__distance__predicates.min_bounded_pointrelation_const____minrelation_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.min_bounded_pointrelation_const____minrelation_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">PointRelation</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      PointRelation type.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">MinRelation</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      MinRelation type.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__distance__predicates.min_bounded_pointrelation_const____minrelation_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__distance__predicates.min_bounded_pointrelation_const____minrelation_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.min_bounded_pointrelation_const____minrelation_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -7517,6 +8166,55 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__distance__predicates.max_bounded_pointrelation_const____maxrelation_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__distance__predicates.max_bounded_pointrelation_const____maxrelation_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.max_bounded_pointrelation_const____maxrelation_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">PointRelation</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      PointRelation type.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">MaxRelation</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      MaxRelation type.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__distance__predicates.max_bounded_pointrelation_const____maxrelation_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__distance__predicates.max_bounded_pointrelation_const____maxrelation_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.max_bounded_pointrelation_const____maxrelation_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -7623,6 +8321,67 @@ R*-tree creation algorithm parameters.
 </pre>
 <h6>
 <a name="geometry_index.r_tree.reference.group__distance__predicates.bounded_pointrelation_const____minrelation_const____maxrelation_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__distance__predicates.bounded_pointrelation_const____minrelation_const____maxrelation_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.bounded_pointrelation_const____minrelation_const____maxrelation_const___.template_parameter_s_">Template
+            parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Parameter
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">PointRelation</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      PointRelation type.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">MinRelation</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      MinRelation type.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">MaxRelation</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      MaxRelation type.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__distance__predicates.bounded_pointrelation_const____minrelation_const____maxrelation_const___.h3"></a>
             <span><a name="geometry_index.r_tree.reference.group__distance__predicates.bounded_pointrelation_const____minrelation_const____maxrelation_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__distance__predicates.bounded_pointrelation_const____minrelation_const____maxrelation_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -8036,7 +8795,7 @@ R*-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.translators.boost_geometry_index_translator_def"></a><a name="structboost_1_1geometry_1_1index_1_1translator_1_1def"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.translators.boost_geometry_index_translator_def" title="boost::geometry::index::translator::def">boost::geometry::index::translator::def</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="idp12447560"></a><a class="indexterm" name="idp12447888"></a><a class="indexterm" name="idp12448232"></a><a class="indexterm" name="idp12448576"></a><a class="indexterm" name="idp12448920"></a>
+            <a class="indexterm" name="idp12570712"></a><a class="indexterm" name="idp12571040"></a><a class="indexterm" name="idp12571384"></a><a class="indexterm" name="idp12571728"></a><a class="indexterm" name="idp12572072"></a>
 The default translator.
           </p>
 <h6>
@@ -8106,7 +8865,7 @@ The default translator.
 <a name="geometry_index.r_tree.reference.translators.boost_geometry_index_translator_index"></a><a name="classboost_1_1geometry_1_1index_1_1translator_1_1index"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.translators.boost_geometry_index_translator_index" title="boost::geometry::index::translator::index">boost::geometry::index::translator::index</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="idp12472840"></a><a class="indexterm" name="idp12473168"></a><a class="indexterm" name="idp12473512"></a><a class="indexterm" name="idp12473856"></a><a class="indexterm" name="idp12474200"></a>
+            <a class="indexterm" name="idp12595984"></a><a class="indexterm" name="idp12596312"></a><a class="indexterm" name="idp12596656"></a><a class="indexterm" name="idp12597000"></a><a class="indexterm" name="idp12597344"></a>
 The index translator.
           </p>
 <h6>

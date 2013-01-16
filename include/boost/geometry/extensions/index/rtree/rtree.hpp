@@ -51,7 +51,7 @@
 // TODO change the name to bounding_tree
 
 /*!
-\defgroup rtree_functions Functions related to the rtree (boost::geometry::index::)
+\defgroup rtree_functions Functions related to the rtree
 */
 
 namespace boost { namespace geometry { namespace index {
@@ -1547,5 +1547,46 @@ box(rtree<Value, Options, Translator, Allocator> const& tree)
 }
 
 }}} // namespace boost::geometry::index
+
+#include <boost/geometry/algorithms/envelope.hpp>
+
+namespace boost { namespace geometry {
+
+/*!
+\brief Get the box containing all stored values or an invalid box if the index has no values.
+
+It calls \c rtree::box().
+
+\ingroup rtree_functions
+
+\param tree     The spatial index.
+\param box      The object to which box containing all stored values or an invalid box will be assigned.
+*/
+template <typename Value, typename Options, typename Translator, typename Allocator, typename Box>
+void envelope(index::rtree<Value, Options, Translator, Allocator> const& tree, Box & box)
+{
+    envelope(tree.box(), box);
+}
+
+/*!
+\brief Get the box containing all stored values or an invalid box if the index has no values.
+
+It calls \c rtree::box().
+
+\ingroup rtree_functions
+
+\tparam Box     The type of returned Box.
+
+\param tree     The spatial index.
+
+\return         The box containing all stored values or an invalid box.
+*/
+template <typename Box, typename Value, typename Options, typename Translator, typename Allocator>
+Box return_envelope(index::rtree<Value, Options, Translator, Allocator> const& tree)
+{
+    return return_envelope(tree.box());
+}
+
+}} //namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RTREE_HPP
