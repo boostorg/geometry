@@ -21,10 +21,10 @@ R*-tree creation algorithm parameters.
 [heading Constructor(s) and destructor]
 [table
 [[Function][Description]]
-[[[link classboost_1_1geometry_1_1index_1_1runtime_1_1rstar_1add502ea66da6579bb3556d20b46b428e `rstar(size_t, size_t)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1runtime_1_1rstar_1a44d70eb723daa4fca13a1cfa20bf346f `rstar(size_t, size_t)`]][The constructor. ]]
 ]
 
-[#classboost_1_1geometry_1_1index_1_1runtime_1_1rstar_1add502ea66da6579bb3556d20b46b428e]
+[#classboost_1_1geometry_1_1index_1_1runtime_1_1rstar_1a44d70eb723daa4fca13a1cfa20bf346f]
 [section rstar(size_t, size_t)]
 The constructor. 
 
@@ -34,7 +34,7 @@ The constructor.
 `rstar``(``size_t` `max_elements``,`
       `size_t` `min_elements``,`
       `size_t` `overlap_cost_threshold` = `0``,`
-      `size_t` `reinserted_elements` = `detail::default_rstar_reinserted_elements()``)`
+      `size_t` `reinserted_elements` = `detail::default_rstar_reinserted_elements_d()``)`
 ]
 
 [heading Parameter(s)]

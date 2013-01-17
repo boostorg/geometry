@@ -30,7 +30,7 @@ struct linear_throwing : public linear<MaxElements, MinElements> {};
 template <size_t MaxElements, size_t MinElements>
 struct quadratic_throwing : public quadratic<MaxElements, MinElements> {};
 
-template <size_t MaxElements, size_t MinElements, size_t OverlapCostThreshold = 0, size_t ReinsertedElements = options::detail::default_rstar_reinserted_elements<MaxElements>::value>
+template <size_t MaxElements, size_t MinElements, size_t OverlapCostThreshold = 0, size_t ReinsertedElements = detail::default_rstar_reinserted_elements_s<MaxElements>::value>
 struct rstar_throwing : public rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements> {};
 
 namespace detail { namespace rtree {
@@ -38,7 +38,7 @@ namespace detail { namespace rtree {
 template <size_t MaxElements, size_t MinElements>
 struct options_type< linear_throwing<MaxElements, MinElements> >
 {
-    typedef options::rtree<
+    typedef options<
         linear_throwing<MaxElements, MinElements>,
         insert_default_tag, choose_by_content_diff_tag, split_default_tag, linear_tag,
         node_throwing_d_mem_static_tag
@@ -48,7 +48,7 @@ struct options_type< linear_throwing<MaxElements, MinElements> >
 template <size_t MaxElements, size_t MinElements>
 struct options_type< quadratic_throwing<MaxElements, MinElements> >
 {
-    typedef options::rtree<
+    typedef options<
         quadratic_throwing<MaxElements, MinElements>,
         insert_default_tag, choose_by_content_diff_tag, split_default_tag, quadratic_tag,
         node_throwing_d_mem_static_tag
@@ -58,7 +58,7 @@ struct options_type< quadratic_throwing<MaxElements, MinElements> >
 template <size_t MaxElements, size_t MinElements, size_t OverlapCostThreshold, size_t ReinsertedElements>
 struct options_type< rstar_throwing<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements> >
 {
-    typedef options::rtree<
+    typedef options<
         rstar_throwing<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements>,
         insert_reinsert_tag, choose_by_overlap_diff_tag, split_default_tag, rstar_tag,
         node_throwing_d_mem_static_tag

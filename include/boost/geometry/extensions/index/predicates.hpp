@@ -455,7 +455,7 @@ struct predicates_check_tuple<TuplePredicates, Tag, 1>
 };
 
 template <typename Predicate, typename Tag>
-struct predicates_check
+struct predicates_check_impl
 {
     template <typename Value, typename Indexable>
     static inline bool apply(Predicate const& p, Value const& v, Indexable const& i)
@@ -465,7 +465,7 @@ struct predicates_check
 };
 
 template <typename Predicate1, typename Predicate2, typename Tag>
-struct predicates_check<std::pair<Predicate1, Predicate2>, Tag>
+struct predicates_check_impl<std::pair<Predicate1, Predicate2>, Tag>
 {
     template <typename Value, typename Indexable>
     static inline bool apply(std::pair<Predicate1, Predicate2> const& p, Value const& v, Indexable const& i)
@@ -480,7 +480,7 @@ template <
     typename T5, typename T6, typename T7, typename T8, typename T9,
     typename Tag
 >
-struct predicates_check<
+struct predicates_check_impl<
     boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
     Tag
 >
@@ -498,14 +498,14 @@ struct predicates_check<
     }
 };
 
-} // namespace detail
-
 template <typename Tag, typename Predicates, typename Value, typename Indexable>
 inline bool predicates_check(Predicates const& p, Value const& v, Indexable const& i)
 {
-    return detail::predicates_check<Predicates, Tag>
+    return detail::predicates_check_impl<Predicates, Tag>
         ::apply(p, v, i);
 }
+
+} // namespace detail
 
 }}} // namespace boost::geometry::index
 

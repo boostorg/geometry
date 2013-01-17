@@ -15,29 +15,6 @@
 
 namespace boost { namespace geometry { namespace index {
 
-// InsertTag
-struct insert_default_tag {};
-struct insert_reinsert_tag {};
-
-// ChooseNextNodeTag
-struct choose_by_content_diff_tag {};
-struct choose_by_overlap_diff_tag {};
-
-// SplitTag
-struct split_default_tag {};
-//struct split_kmeans_tag {};
-
-// RedistributeTag
-struct linear_tag {};
-struct quadratic_tag {};
-struct rstar_tag {};
-
-// NodeTag
-struct node_d_mem_dynamic_tag {};
-struct node_d_mem_static_tag {};
-struct node_s_mem_dynamic_tag {};
-struct node_s_mem_static_tag {};
-
 // TODO: awulkiew - implement those:
 //if ( m_min_elems_per_node < 1 )
 //    m_min_elems_per_node = 1;
@@ -76,15 +53,15 @@ struct quadratic
     static size_t get_min_elements() { return MinElements; }
 };
 
-namespace options { namespace detail { 
+namespace detail { 
 
 template <size_t MaxElements>
-struct default_rstar_reinserted_elements
+struct default_rstar_reinserted_elements_s
 {
     static const size_t value = (MaxElements * 3) / 10;
 };
 
-}} // namespace options::detail
+} // namespace detail
 
 /*!
 \brief R*-tree creation algorithm parameters.
@@ -99,7 +76,7 @@ struct default_rstar_reinserted_elements
 template <size_t MaxElements,
           size_t MinElements,
           size_t OverlapCostThreshold = 0,
-          size_t ReinsertedElements = options::detail::default_rstar_reinserted_elements<MaxElements>::value
+          size_t ReinsertedElements = detail::default_rstar_reinserted_elements_s<MaxElements>::value
           >
 struct rstar
 {
@@ -113,6 +90,13 @@ struct rstar
     static size_t get_overlap_cost_threshold() { return OverlapCostThreshold; }
     static size_t get_reinserted_elements() { return ReinsertedElements; }
 };
+
+//template <size_t MaxElements, size_t MinElements>
+//struct kmeans
+//{
+//    static const size_t max_elements = MaxElements;
+//    static const size_t min_elements = MinElements;
+//};
 
 namespace runtime {
 
@@ -168,12 +152,12 @@ private:
 
 namespace detail { 
 
-inline size_t default_rstar_reinserted_elements()
+inline size_t default_rstar_reinserted_elements_d()
 {
     return (std::numeric_limits<size_t>::max)();
 };
 
-} // namespace options::detail
+} // namespace detail
 
 /*!
 \brief R*-tree creation algorithm parameters.
@@ -194,12 +178,12 @@ public:
     rstar(size_t max_elements,
           size_t min_elements,
           size_t overlap_cost_threshold = 0,
-          size_t reinserted_elements = detail::default_rstar_reinserted_elements())
+          size_t reinserted_elements = detail::default_rstar_reinserted_elements_d())
         : m_max_elements(max_elements)
         , m_min_elements(min_elements)
         , m_overlap_cost_threshold(overlap_cost_threshold)
         , m_reinserted_elements(
-            detail::default_rstar_reinserted_elements() == reinserted_elements ?
+            detail::default_rstar_reinserted_elements_d() == reinserted_elements ?
             (max_elements * 3) / 10 :
             reinserted_elements
         )
@@ -219,10 +203,33 @@ private:
 
 }
 
-namespace options {
+namespace detail { namespace rtree {
+
+// InsertTag
+struct insert_default_tag {};
+struct insert_reinsert_tag {};
+
+// ChooseNextNodeTag
+struct choose_by_content_diff_tag {};
+struct choose_by_overlap_diff_tag {};
+
+// SplitTag
+struct split_default_tag {};
+//struct split_kmeans_tag {};
+
+// RedistributeTag
+struct linear_tag {};
+struct quadratic_tag {};
+struct rstar_tag {};
+
+// NodeTag
+struct node_d_mem_dynamic_tag {};
+struct node_d_mem_static_tag {};
+struct node_s_mem_dynamic_tag {};
+struct node_s_mem_static_tag {};
 
 template <typename Parameters, typename InsertTag, typename ChooseNextNodeTag, typename SplitTag, typename RedistributeTag, typename NodeTag>
-struct rtree
+struct options
 {
     typedef Parameters parameters_type;
     typedef InsertTag insert_tag;
@@ -231,17 +238,6 @@ struct rtree
     typedef RedistributeTag redistribute_tag;
     typedef NodeTag node_tag;
 };
-
-} // namespace options
-
-//template <size_t MaxElements, size_t MinElements>
-//struct kmeans
-//{
-//    static const size_t max_elements = MaxElements;
-//    static const size_t min_elements = MinElements;
-//};
-
-namespace detail { namespace rtree {
 
 template <typename Parameters>
 struct options_type
@@ -252,7 +248,7 @@ struct options_type
 template <size_t MaxElements, size_t MinElements>
 struct options_type< linear<MaxElements, MinElements> >
 {
-    typedef options::rtree<
+    typedef options<
         linear<MaxElements, MinElements>,
         insert_default_tag,
         choose_by_content_diff_tag,
@@ -265,7 +261,7 @@ struct options_type< linear<MaxElements, MinElements> >
 template <size_t MaxElements, size_t MinElements>
 struct options_type< quadratic<MaxElements, MinElements> >
 {
-    typedef options::rtree<
+    typedef options<
         quadratic<MaxElements, MinElements>,
         insert_default_tag,
         choose_by_content_diff_tag,
@@ -278,7 +274,7 @@ struct options_type< quadratic<MaxElements, MinElements> >
 template <size_t MaxElements, size_t MinElements, size_t OverlapCostThreshold, size_t ReinsertedElements>
 struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements> >
 {
-    typedef options::rtree<
+    typedef options<
         rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements>,
         insert_reinsert_tag,
         choose_by_overlap_diff_tag,
@@ -291,7 +287,7 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
 //template <size_t MaxElements, size_t MinElements>
 //struct options_type< kmeans<MaxElements, MinElements> >
 //{
-//    typedef options::rtree<
+//    typedef options<
 //        kmeans<MaxElements, MinElements>,
 //        insert_default_tag,
 //        choose_by_content_diff_tag, // change it?
@@ -304,7 +300,7 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
 template <>
 struct options_type< runtime::linear >
 {
-    typedef options::rtree<
+    typedef options<
         runtime::linear,
         insert_default_tag,
         choose_by_content_diff_tag,
@@ -317,7 +313,7 @@ struct options_type< runtime::linear >
 template <>
 struct options_type< runtime::quadratic >
 {
-    typedef options::rtree<
+    typedef options<
         runtime::quadratic,
         insert_default_tag,
         choose_by_content_diff_tag,
@@ -330,7 +326,7 @@ struct options_type< runtime::quadratic >
 template <>
 struct options_type< runtime::rstar >
 {
-    typedef options::rtree<
+    typedef options<
         runtime::rstar,
         insert_reinsert_tag,
         choose_by_overlap_diff_tag,

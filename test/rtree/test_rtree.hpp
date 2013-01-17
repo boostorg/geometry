@@ -549,9 +549,9 @@ void test_exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Ran
 template <typename Rtree, typename Value, typename Predicates>
 void test_spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
 {
-    BOOST_CHECK( bgi::are_levels_ok(rtree) );
+    BOOST_CHECK( bgi::detail::are_levels_ok(rtree) );
     if ( !rtree.empty() )
-        BOOST_CHECK( bgi::are_boxes_ok(rtree) );
+        BOOST_CHECK( bgi::detail::are_boxes_ok(rtree) );
 
     std::vector<Value> output;
     size_t n = rtree.spatial_query(pred, std::back_inserter(output));

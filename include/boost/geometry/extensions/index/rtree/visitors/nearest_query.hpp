@@ -211,7 +211,7 @@ public:
         {
             // if current node meets predicates
             // 0 - dummy value
-            if ( index::predicates_check<rtree::node_tag>(m_pred, 0, it->first) )
+            if ( index::detail::predicates_check<rtree::node_tag>(m_pred, 0, it->first) )
             {
                 // calculate node's distance(s) for distance predicate
                 node_distances_type node_dist_data = node_distances_calc::apply(m_dist_pred, it->first);
@@ -266,7 +266,7 @@ public:
             it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::predicates_check<rtree::value_tag>(m_pred, *it, m_translator(*it)) )
+            if ( index::detail::predicates_check<rtree::value_tag>(m_pred, *it, m_translator(*it)) )
             {
                 // calculate values distance for distance predicate
                 value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_translator(*it));

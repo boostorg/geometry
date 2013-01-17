@@ -43,7 +43,7 @@ struct spatial_query
         {
             // if node meets predicates
             // 0 - dummy value
-            if ( index::predicates_check<rtree::node_tag>(pred, 0, it->first) )
+            if ( index::detail::predicates_check<rtree::node_tag>(pred, 0, it->first) )
                 rtree::apply_visitor(*this, *it->second);
         }
     }
@@ -58,7 +58,7 @@ struct spatial_query
             it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::predicates_check<rtree::value_tag>(pred, *it, tr(*it)) )
+            if ( index::detail::predicates_check<rtree::value_tag>(pred, *it, tr(*it)) )
             {
                 out_iter = *it;
                 ++out_iter;

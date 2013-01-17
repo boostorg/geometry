@@ -14,9 +14,9 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/extensions/index/rtree/node/node.hpp>
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
-namespace detail { namespace rtree { namespace visitors {
+namespace rtree { namespace visitors {
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class are_boxes_ok
@@ -115,13 +115,13 @@ private:
     bool m_exact_match;
 };
 
-}}} // namespace detail::rtree::visitors
+}} // namespace rtree::visitors
 
 template <typename Value, typename Parameters, typename Translator, typename Allocator>
-bool are_boxes_ok(rtree<Value, Parameters, Translator, Allocator> const& tree,
+bool are_boxes_ok(index::rtree<Value, Parameters, Translator, Allocator> const& tree,
                   bool exact_match = true)
 {
-    typedef rtree<Value, Parameters, Translator, Allocator> rt;
+    typedef index::rtree<Value, Parameters, Translator, Allocator> rt;
 
     detail::rtree::visitors::are_boxes_ok<
         typename rt::value_type,
@@ -136,6 +136,6 @@ bool are_boxes_ok(rtree<Value, Parameters, Translator, Allocator> const& tree,
     return v.result;
 }
 
-}}} // namespace boost::geometry::index
+}}}} // namespace boost::geometry::index::detail
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_ARE_BOXES_OK_HPP
