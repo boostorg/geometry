@@ -26,8 +26,8 @@ class children_box
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
-    inline children_box(Translator const& tr)
-        : m_tr(tr)
+    inline children_box(Box & result, Translator const& tr)
+        : m_result(result), m_tr(tr)
     {}
 
     inline void operator()(internal_node const& n)
@@ -35,7 +35,7 @@ public:
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        result = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
+        m_result = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
     }
 
     inline void operator()(leaf const& n)
@@ -43,12 +43,11 @@ public:
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        result = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
+        m_result = rtree::elements_box<Box>(elements.begin(), elements.end(), m_tr);
     }
 
-    Box result;
-
 private:
+    Box & m_result;
     Translator const& m_tr;
 };
 

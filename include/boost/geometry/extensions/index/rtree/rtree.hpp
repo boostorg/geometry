@@ -147,7 +147,9 @@ public:
         , m_values_count(0)
         , m_leafs_level(0)
         , m_root(0)
-    {}
+    {
+        geometry::assign_inverse(m_box);
+    }
 
     /*!
     \brief The constructor.
@@ -168,7 +170,9 @@ public:
         , m_values_count(0)
         , m_leafs_level(0)
         , m_root(0)
-    {}
+    {
+        geometry::assign_inverse(m_box);
+    }
 
     /*!
     \brief The constructor.
@@ -197,6 +201,8 @@ public:
         , m_leafs_level(0)
         , m_root(0)
     {
+        geometry::assign_inverse(m_box);
+
         try
         {
             this->insert(first, last);
@@ -234,6 +240,8 @@ public:
         , m_leafs_level(0)
         , m_root(0)
     {
+        geometry::assign_inverse(m_box);
+
         try
         {
             this->insert(rng);
@@ -276,9 +284,9 @@ public:
         , m_values_count(0)
         , m_leafs_level(0)
         , m_root(0)
+        , m_box(src.m_box)
     {
         //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
-
         this->raw_copy(src, *this, false);
     }
 
@@ -303,6 +311,7 @@ public:
         , m_values_count(0)
         , m_leafs_level(0)
         , m_root(0)
+        , m_box(src.m_box)
     {
         this->raw_copy(src, *this, false);
     }
@@ -325,6 +334,7 @@ public:
         , m_values_count(src.m_values_count)
         , m_leafs_level(src.m_leafs_level)
         , m_root(src.m_root)
+        , m_box(src.m_box)
     {
         src.m_values_count = 0;
         src.m_leafs_level = 0;
@@ -353,6 +363,7 @@ public:
         , m_values_count(0)
         , m_leafs_level(0)
         , m_root(0)
+        , m_box(src.m_box)
     {
         if ( src.m_allocators.allocator == allocator )
         {
@@ -387,6 +398,8 @@ public:
 
         // It uses m_allocators
         this->raw_copy(src, *this, true);
+
+        m_box = src.m_box;
 
         return *this;
     }
@@ -432,6 +445,8 @@ public:
             this->raw_copy(src, *this, true);
         }
 
+        m_box = src.m_box;
+
         return *this;
     }
 
@@ -454,6 +469,7 @@ public:
         boost::swap(m_values_count, other.m_values_count);
         boost::swap(m_leafs_level, other.m_leafs_level);
         boost::swap(m_root, other.m_root);
+        boost::swap(m_box, other.m_box);
     }
 
     /*!
@@ -888,6 +904,7 @@ public:
     inline void clear()
     {
         this->raw_destroy(*this);
+        geometry::assign_inverse(m_box);
     }
 
     /*!
@@ -902,21 +919,9 @@ public:
     \par Throws
     Nothing.
     */
-    inline box_type box() const
+    inline box_type const& box() const
     {
-        if ( this->empty() )
-        {
-            box_type result;
-            geometry::assign_inverse(result);
-            return result;
-        }
-
-        detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type, allocators_type>
-            children_box_v(m_translator);
-
-        detail::rtree::apply_visitor(children_box_v, *m_root);
-
-        return children_box_v.result;
+        return m_box;
     }
 
     /*!
@@ -967,7 +972,7 @@ public:
     \par Throws
     Nothing.
     */
-    inline const translator_type & translator() const
+    inline translator_type const& translator() const
     {
         return m_translator;
     }
@@ -1067,6 +1072,8 @@ private:
 // TODO
 // If exception is thrown, m_values_count may be invalid
         ++m_values_count;
+
+        geometry::expand(m_box, m_translator(value));
     }
 
     /*!
@@ -1081,7 +1088,6 @@ private:
     {
         // TODO: awulkiew - assert for correct value (indexable) ?
         BOOST_GEOMETRY_INDEX_ASSERT(m_root, "The root must exist");
-        BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "can't remove, there are no elements in the rtree");
 
         detail::rtree::visitors::remove<
             value_type, options_type, translator_type, box_type, allocators_type
@@ -1089,15 +1095,31 @@ private:
 
         detail::rtree::apply_visitor(remove_v, *m_root);
 
-// TODO
-// Think about this: If exception is thrown, may the root be removed?
-// Or it is just cleared?
+        // If exception is thrown, m_values_count may be invalid
 
-// TODO
-// If exception is thrown, m_values_count may be invalid
-        --m_values_count;
+        if ( remove_v.is_value_removed() )
+        {
+            BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "unexpected state");
 
-        return remove_v.is_value_removed() ? 1 : 0;
+            --m_values_count;
+
+            // Calculate new box
+            if ( m_values_count == 0 )
+            {
+                geometry::assign_inverse(m_box);
+            }
+            else
+            {
+                detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type, allocators_type>
+                    children_box_v(m_box, m_translator);
+
+                detail::rtree::apply_visitor(children_box_v, *m_root);
+            }
+
+            return 1;
+        }
+
+        return 0;
     }
 
     /*!
@@ -1259,6 +1281,8 @@ private:
     size_type m_values_count;
     size_type m_leafs_level;
     node * m_root;
+
+    box_type m_box;
 };
 
 /*!
@@ -1540,7 +1564,7 @@ It calls \c rtree::box().
 \return         The box containing all stored values or an invalid box.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator>
-inline typename rtree<Value, Options, Translator, Allocator>::box_type
+inline typename rtree<Value, Options, Translator, Allocator>::box_type const&
 box(rtree<Value, Options, Translator, Allocator> const& tree)
 {
     return tree.box();
@@ -1548,44 +1572,73 @@ box(rtree<Value, Options, Translator, Allocator> const& tree)
 
 }}} // namespace boost::geometry::index
 
-#include <boost/geometry/algorithms/envelope.hpp>
+// Rtree adaptation to Box concept
 
 namespace boost { namespace geometry {
 
-/*!
-\brief Get the box containing all stored values or an invalid box if the index has no values.
-
-It calls \c rtree::box().
-
-\ingroup rtree_functions
-
-\param tree     The spatial index.
-\param box      The object to which box containing all stored values or an invalid box will be assigned.
-*/
-template <typename Value, typename Options, typename Translator, typename Allocator, typename Box>
-void envelope(index::rtree<Value, Options, Translator, Allocator> const& tree, Box & box)
+// Traits specializations for box above
+#ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
+namespace traits
 {
-    envelope(tree.box(), box);
-}
 
-/*!
-\brief Get the box containing all stored values or an invalid box if the index has no values.
-
-It calls \c rtree::box().
-
-\ingroup rtree_functions
-
-\tparam Box     The type of returned Box.
-
-\param tree     The spatial index.
-
-\return         The box containing all stored values or an invalid box.
-*/
-template <typename Box, typename Value, typename Options, typename Translator, typename Allocator>
-Box return_envelope(index::rtree<Value, Options, Translator, Allocator> const& tree)
+template <typename Value, typename Parameters, typename Translator, typename Allocator>
+struct tag< index::rtree<Value, Parameters, Translator, Allocator> >
 {
-    return return_envelope(tree.box());
-}
+    typedef box_tag type;
+};
+
+template <typename Value, typename Parameters, typename Translator, typename Allocator>
+struct point_type< index::rtree<Value, Parameters, Translator, Allocator> >
+{
+    typedef typename geometry::point_type<
+        typename index::rtree<Value, Parameters, Translator, Allocator>::box_type
+    >::type type;
+};
+
+template <typename Value, typename Parameters, typename Translator, typename Allocator, std::size_t Dimension>
+struct indexed_access<index::rtree<Value, Parameters, Translator, Allocator>, min_corner, Dimension>
+{
+    typedef typename geometry::coordinate_type<
+        typename geometry::point_type<
+            index::rtree<Value, Parameters, Translator, Allocator>
+        >::type
+    >::type coordinate_type;
+
+    static inline coordinate_type get(index::rtree<Value, Parameters, Translator, Allocator> const& tree)
+    {
+        return geometry::get<min_corner, Dimension>(tree.box());
+    }
+
+    static inline void set(index::rtree<Value, Parameters, Translator, Allocator> & tree,
+                           coordinate_type const& value)
+    {
+        return geometry::set<min_corner, Dimension>(tree.box(), value);
+    }
+};
+
+template <typename Value, typename Parameters, typename Translator, typename Allocator, std::size_t Dimension>
+struct indexed_access<index::rtree<Value, Parameters, Translator, Allocator>, max_corner, Dimension>
+{
+    typedef typename geometry::coordinate_type<
+        typename geometry::point_type<
+            index::rtree<Value, Parameters, Translator, Allocator>
+        >::type
+    >::type coordinate_type;
+
+    static inline coordinate_type get(index::rtree<Value, Parameters, Translator, Allocator> const& tree)
+    {
+        return geometry::get<max_corner, Dimension>(tree.box());
+    }
+
+    static inline void set(index::rtree<Value, Parameters, Translator, Allocator> & tree,
+                           coordinate_type const& value)
+    {
+        return geometry::set<max_corner, Dimension>(tree.box(), value);
+    }
+};
+
+} // namespace traits
+#endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
 }} //namespace boost::geometry
 

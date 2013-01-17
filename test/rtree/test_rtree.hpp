@@ -1049,6 +1049,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
     std::vector<Value> expected_output;
     tree.spatial_query(bgi::disjoint(qbox), std::back_inserter(expected_output));
     size_t expected_removed_count = values_to_remove.size();
+    size_t expected_size_after_remove = tree.size() - values_to_remove.size();
 
     // Add value which is not stored in the Rtree
     Value outsider = generate_value_outside<T>();
@@ -1062,6 +1063,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
@@ -1071,6 +1073,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
@@ -1080,6 +1083,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         t.spatial_query(bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
@@ -1092,6 +1096,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
@@ -1101,6 +1106,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
@@ -1110,6 +1116,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
         bgi::spatial_query(t, bgi::disjoint(qbox), std::back_inserter(output));
+        BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
         test_compare_outputs(t, output, expected_output);
     }
@@ -1265,6 +1272,64 @@ void test_rtree_count(Parameters const& parameters)
     BOOST_CHECK(t.count(input[0].first) == 3);
 }
 
+// test rtree box
+
+template <typename Value, typename Parameters>
+void test_rtree_box(Parameters const& parameters)
+{
+    typedef bgi::rtree<Value, Parameters> Tree;
+    typedef typename Tree::box_type B;
+    typedef typename bg::traits::point_type<B>::type P;
+
+    B b;
+    bg::assign_inverse(b);
+
+    Tree t(parameters);
+    std::vector<Value> input;
+    B qbox;
+
+    BOOST_CHECK(bg::equals(t.box(), b));
+
+    generate_rtree(t, input, qbox);
+
+    BOOST_FOREACH(Value const& v, input)
+        bg::expand(b, t.translator()(v));
+
+    BOOST_CHECK(bg::equals(t.box(), b));
+
+    //BOOST_CHECK(bg::equals(bg::return_envelope<B>(t), b));
+    //BOOST_CHECK(bg::area(t) == bg::area(b));
+    //BOOST_CHECK(bg::perimeter(t) == bg::perimeter(b));
+    //BOOST_CHECK(bg::equals(bg::return_centroid<P>(t), bg::return_centroid<P>(b)));
+
+    size_t s = input.size();
+    while ( s/2 < input.size() && !input.empty() )
+    {
+        t.remove(input.back());
+        input.pop_back();
+    }
+
+    bg::assign_inverse(b);
+    BOOST_FOREACH(Value const& v, input)
+        bg::expand(b, t.translator()(v));
+
+    BOOST_CHECK(bg::equals(t.box(), b));
+
+    Tree t2(t);
+    BOOST_CHECK(bg::equals(t2.box(), b));
+    t2.clear();
+    t2 = t;
+    BOOST_CHECK(bg::equals(t2.box(), b));
+    t2.clear();
+    t2 = boost::move(t);
+    BOOST_CHECK(bg::equals(t2.box(), b));
+
+    t.clear();
+
+    bg::assign_inverse(b);
+    BOOST_CHECK(bg::equals(t.box(), b));
+}
+
 // run all tests for one Algorithm for some number of rtrees
 // defined by some number of Values constructed from given Point
 
@@ -1286,6 +1351,7 @@ void test_rtree_for_point(Parameters const& parameters = Parameters())
     test_count_rtree_values<Point>(parameters);
 
     test_rtree_count<Point>(parameters);
+    test_rtree_box<Point>(parameters);
 }
 
 template<typename Point, typename Parameters>
@@ -1305,6 +1371,7 @@ void test_rtree_for_box(Parameters const& parameters = Parameters())
     test_count_rtree_values<Box>(parameters);
 
     test_rtree_count<Box>(parameters);
+    test_rtree_box<Box>(parameters);
 }
 
 #endif
