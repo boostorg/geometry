@@ -107,10 +107,10 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a89561a834563f2ed6fc782bad16143fd `size()`]][Returns the number of stored values. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1ae889567443b0ba0dbdb975564c55804c `empty()`]][Query if the container is empty. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1ae6027e42d28a4bf93e74b055c79e6b09 `clear()`]][Removes all values stored in the container. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1adf62005332a5fa9119ff03185e0c5143 `box()`]][Returns the box containing all values stored in the container. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1ad534a6ed759677548f50b86dfeba07c6 `box()`]][Returns the box containing all values stored in the container. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a17fce1fac81f6460d2c3a5744f4963ee `count(ValueOrIndexable const &)`]][Count Values or Indexables stored in the container. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a18910715f67608ff010556ac41f51606 `parameters()`]][Returns parameters. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1abcbe5bb1a70a7fec518fe4dd8baa750c `translator()`]][Returns the translator object. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1afc7e9a4bd53a58552c17c1e7cb997258 `translator()`]][Returns the translator object. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a1eeb303253f4cabe3a89a82ed41247ff `get_allocator()`]][Returns allocator used by the rtree. ]]
 ]
 
@@ -933,7 +933,7 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1adf62005332a5fa9119ff03185e0c5143]
+[#classboost_1_1geometry_1_1index_1_1rtree_1ad534a6ed759677548f50b86dfeba07c6]
 [section box()]
 Returns the box containing all values stored in the container. 
 
@@ -941,7 +941,7 @@ Returns the box containing all values stored in the container.
 Returns the box containing all values stored in the container. If the container is empty the result of [^`geometry::assign_inverse()`] is returned.[heading Synopsis]
 [pre
 
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a42d0c9efffbc6f3935b5b9c3dd31e50d box_type]] `box``()`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a42d0c9efffbc6f3935b5b9c3dd31e50d box_type]]` const &` `box``()`
 ]
 
 [heading Returns]
@@ -991,14 +991,14 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1abcbe5bb1a70a7fec518fe4dd8baa750c]
+[#classboost_1_1geometry_1_1index_1_1rtree_1afc7e9a4bd53a58552c17c1e7cb997258]
 [section translator()]
 Returns the translator object. 
 
 [heading Synopsis]
 [pre
 
-`const `[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` &` `translator``()`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator``()`
 ]
 
 [heading Returns]

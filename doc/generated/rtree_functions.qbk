@@ -18,9 +18,7 @@
 [[[link group__rtree__functions_1ga0c65d7b29b1edf72f1d236ccf211f63c `clear(rtree<...> &)`]][Remove all values from the index. ]]
 [[[link group__rtree__functions_1gaec0b88a9d8b408753e3069134f1598c7 `size(rtree<...> const &)`]][Get the number of values stored in the index. ]]
 [[[link group__rtree__functions_1ga459e3d404fec7cbd66794714cbdd129e `empty(rtree<...> const &)`]][Query if there are no values stored in the index. ]]
-[[[link group__rtree__functions_1ga46aead88abd7f18f0e1eedb991bbb39d `box(rtree<...> const &)`]][Get the box containing all stored values or an invalid box if the index has no values. ]]
-[[[link group__rtree__functions_1gab3425094aa846b167789ac76114696f6 `envelope(index::rtree<...> const &, Box &)`]][Get the box containing all stored values or an invalid box if the index has no values. ]]
-[[[link group__rtree__functions_1gaab92d20f98edefccee1e76c1349a5127 `return_envelope(index::rtree<...> const &)`]][Get the box containing all stored values or an invalid box if the index has no values. ]]
+[[[link group__rtree__functions_1gad039bb35d79bded11a1454601f6eed3a `box(rtree<...> const &)`]][Get the box containing all stored values or an invalid box if the index has no values. ]]
 ]
 
 [#group__rtree__functions_1gac0ac9ed0e01f7494a5a3059e75d3c5cc]
@@ -397,77 +395,24 @@ It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1ae889567443b0ba0dbdb9
 true if there are no values in the index. 
 [endsect]
 
-[#group__rtree__functions_1ga46aead88abd7f18f0e1eedb991bbb39d]
+[#group__rtree__functions_1gad039bb35d79bded11a1454601f6eed3a]
 [section box(rtree<...> const &)]
 Get the box containing all stored values or an invalid box if the index has no values. 
 
 [heading Description]
-It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1adf62005332a5fa9119ff03185e0c5143 rtree::box()]].[heading Synopsis]
+It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad534a6ed759677548f50b86dfeba07c6 rtree::box()]].[heading Synopsis]
 [pre
 `template<``typename Value``,`
          `typename Options``,`
          `typename Translator``,`
          `typename Allocator``>`
-`rtree<Value, Options, Translator, Allocator>::box_type boost::geometry::index::box``(``rtree< Value, Options, Translator, Allocator > const &` `tree``)`
+`rtree<Value, Options, Translator, Allocator>::box_type const& boost::geometry::index::box``(``rtree< Value, Options, Translator, Allocator > const &` `tree``)`
 ]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[`rtree< Value, Options, Translator, Allocator > const &`][ `tree` ][The spatial index.]]
-]
-[heading Returns]
-The box containing all stored values or an invalid box. 
-[endsect]
-
-[#group__rtree__functions_1gab3425094aa846b167789ac76114696f6]
-[section envelope(index::rtree<...> const &, Box &)]
-Get the box containing all stored values or an invalid box if the index has no values. 
-
-[heading Description]
-It calls [^[link group__rtree__functions_1ga46aead88abd7f18f0e1eedb991bbb39d rtree::box()]].[heading Synopsis]
-[pre
-`template<``typename Value``,`
-         `typename Options``,`
-         `typename Translator``,`
-         `typename Allocator``,`
-         `typename Box``>`
-`void boost::geometry::envelope``(``index::rtree< Value, Options, Translator, Allocator > const &` `tree``,` `Box &` `box``)`
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`index::rtree< Value, Options, Translator, Allocator > const &`][ `tree` ][The spatial index. ]]
-[[`Box &`][ `box` ][The object to which box containing all stored values or an invalid box will be assigned. ]]
-]
-[endsect]
-
-[#group__rtree__functions_1gaab92d20f98edefccee1e76c1349a5127]
-[section return_envelope(index::rtree<...> const &)]
-Get the box containing all stored values or an invalid box if the index has no values. 
-
-[heading Description]
-It calls [^[link group__rtree__functions_1ga46aead88abd7f18f0e1eedb991bbb39d rtree::box()]].[heading Synopsis]
-[pre
-`template<``typename Box``,`
-         `typename Value``,`
-         `typename Options``,`
-         `typename Translator``,`
-         `typename Allocator``>`
-`Box boost::geometry::return_envelope``(``index::rtree< Value, Options, Translator, Allocator > const &` `tree``)`
-]
-
-[heading Template parameter(s)]
-[table
-[[Parameter] [Description]]
-[[`Box`][The type of returned Box.]]
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`index::rtree< Value, Options, Translator, Allocator > const &`][ `tree` ][The spatial index.]]
 ]
 [heading Returns]
 The box containing all stored values or an invalid box. 
