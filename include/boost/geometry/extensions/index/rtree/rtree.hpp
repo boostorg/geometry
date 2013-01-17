@@ -38,7 +38,6 @@
 #include <boost/geometry/extensions/index/rtree/visitors/destroy.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/spatial_query.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/nearest_query.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/children_box.hpp>
 #include <boost/geometry/extensions/index/rtree/visitors/count.hpp>
 
 #include <boost/geometry/extensions/index/rtree/linear/linear.hpp>
@@ -1057,6 +1056,8 @@ private:
         BOOST_GEOMETRY_INDEX_ASSERT(m_root, "The root must exist");
         BOOST_GEOMETRY_INDEX_ASSERT(index::is_valid(m_translator(value)), "Indexable is invalid");
 
+        geometry::expand(m_box, m_translator(value));
+
         detail::rtree::visitors::insert<
             value_type,
             value_type, options_type, translator_type, box_type, allocators_type,
@@ -1072,8 +1073,6 @@ private:
 // TODO
 // If exception is thrown, m_values_count may be invalid
         ++m_values_count;
-
-        geometry::expand(m_box, m_translator(value));
     }
 
     /*!
@@ -1091,7 +1090,7 @@ private:
 
         detail::rtree::visitors::remove<
             value_type, options_type, translator_type, box_type, allocators_type
-        > remove_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
+        > remove_v(m_root, m_leafs_level, m_box, value, m_parameters, m_translator, m_allocators);
 
         detail::rtree::apply_visitor(remove_v, *m_root);
 
@@ -1102,19 +1101,6 @@ private:
             BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "unexpected state");
 
             --m_values_count;
-
-            // Calculate new box
-            if ( m_values_count == 0 )
-            {
-                geometry::assign_inverse(m_box);
-            }
-            else
-            {
-                detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type, allocators_type>
-                    children_box_v(m_box, m_translator);
-
-                detail::rtree::apply_visitor(children_box_v, *m_root);
-            }
 
             return 1;
         }

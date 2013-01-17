@@ -71,8 +71,6 @@ int main()
 
         // inserting test
         {
-            std::cout << "rtree inserting time test... ("
-                << values_count << ")\n";
             tim.restart();
             for (size_t i = 0 ; i < values_count ; ++i )
             {
@@ -82,14 +80,8 @@ int main()
 
                 t.insert(b);
             }
-            std::cout << "time: " << tim.elapsed() << "s\n";
-        }
-
-        {
-            float x = coords[0].first;
-            float y = coords[0].second;
-            B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
-            t.remove(b);
+            double time = tim.elapsed();
+            std::cout << time << "s - insert " << values_count << '\n';
         }
 
         std::vector<B> result;
@@ -98,8 +90,6 @@ int main()
 
         // query test
         {
-            std::cout << "query(B) searching time test... ("
-                << queries_count << ")\n";
             tim.restart();    
             size_t temp = 0;
             for (size_t i = 0 ; i < queries_count ; ++i )
@@ -110,16 +100,14 @@ int main()
                 t.spatial_query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
                 temp += result.size();
             }
-            std::cout << "time: " << tim.elapsed() << "s\n";
-            std::cout << "found: " << temp << "\n";
+            double time = tim.elapsed();
+            std::cout << time << "s - spatial_query(B) " << queries_count << " found " << temp << '\n';
         }
 
         result.clear();
 
         // searching test
         {
-            std::cout << "nearest 10 searching time test... ("
-                << queries_count / 10 << ")\n";
             tim.restart();    
             size_t temp = 0;
             for (size_t i = 0 ; i < queries_count / 10 ; ++i )
@@ -129,13 +117,11 @@ int main()
                 result.clear();
                 temp += t.nearest_query(P(x, y), 5, std::back_inserter(result));
             }
-            std::cout << "time: " << tim.elapsed() << "s\n";
-            std::cout << "found: " << temp << "\n";
+            double time = tim.elapsed();
+            std::cout << time << "s - nearest_query(P, 5) " << (queries_count / 10) << " found " << temp << '\n';
         }
 
         {
-            std::cout << "nearest 1 searching time test... ("
-                << queries_count / 10 << ")\n";
             tim.restart();    
             size_t temp = 0;
             for (size_t i = 0 ; i < queries_count / 10 ; ++i )
@@ -144,8 +130,23 @@ int main()
                 float y = coords[i].second + 100;
                 temp += t.nearest_query(P(x, y), result_one);
             }
-            std::cout << "time: " << tim.elapsed() << "s\n";
-            std::cout << "found: " << temp << "\n";
+            double time = tim.elapsed();
+            std::cout << time << "s - nearest_query(P) " << (queries_count / 10) << " found " << temp << '\n';
+        }
+
+        // inserting test
+        {
+            tim.restart();
+            for (size_t i = 0 ; i < values_count / 10 ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
+
+                t.remove(b);
+            }
+            double time = tim.elapsed();
+            std::cout << time << "s - remove " << values_count / 10 << '\n';
         }
     }
 
