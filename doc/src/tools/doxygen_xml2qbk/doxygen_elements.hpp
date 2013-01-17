@@ -130,12 +130,14 @@ struct function : public element
     std::string precondition;
 
     std::string return_type_without_links;
+    bool is_static, is_const, is_explicit, is_virtual;
 
     bool unique;
 
     function()
         : type(function_unknown)
         , unique(true)
+        , is_static(false), is_const(false), is_explicit(false), is_virtual(false)
     {}
 
 };

@@ -630,12 +630,19 @@ static void parse(rapidxml::xml_node<>* node, configuration const& config, docum
         {
             std::string kind = get_attribute(node, "kind");
             std::string id = get_attribute(node, "id");
+
             if (kind == "function")
             {
                 function f;
                 f.id = id;
+                f.is_static = get_attribute(node, "static") == "yes" ? true : false;
+                f.is_const = get_attribute(node, "const") == "yes" ? true : false;
+                f.is_explicit = get_attribute(node, "explicit") == "yes" ? true : false;
+                f.is_virtual = get_attribute(node, "virt") == "virtual" ? true : false;
+
                 parse_element(node->first_node(), config, "", f);
                 parse_function(node->first_node(), config, "", f);
+
                 if (member)
                 {
                     bool c_or_d = boost::equals(f.name, doc.cos.name) ||

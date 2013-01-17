@@ -43,7 +43,8 @@ The constructor.
 `index``(``Container const &` `c``)`
 ]
 
-[heading Parameter(s)]
+[heading Modifier(s)]
+``explicit ``[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[`Container const &`][ `c` ][The container which stores indexed values. ]]

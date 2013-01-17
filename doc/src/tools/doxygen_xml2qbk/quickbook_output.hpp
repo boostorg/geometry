@@ -701,14 +701,26 @@ void quickbook_synopsis_short(function const& f, std::ostream& out)
 }
 
 void quickbook_output_functions(std::vector<function> const& functions,
-                             function_type type,
-                             configuration const& config,
-                             std::ostream& out,
-                             bool display_all = false,
-                             std::string const& ColTitle = "Function")
+                                function_type type,
+                                configuration const& config,
+                                std::ostream& out,
+                                bool display_all = false,
+                                std::string const& ColTitle = "Function")
 {
-    out << "[table" << std::endl
-        << "[[" << ColTitle << "][Description]]" << std::endl;
+    bool show_modifiers = false;
+    BOOST_FOREACH(function const& f, functions)
+    {
+        if ( (display_all || f.type == type) && (f.is_const || f.is_static) )
+            show_modifiers = true;        
+    }
+
+    out << "[table\n"
+        << "[";
+    if ( show_modifiers )
+        out << "[Modifier]";
+    out << "[" << ColTitle << "]";
+    out << "[Description]";
+    out << "]" << std::endl;
 
     for ( size_t i = 0 ; i < functions.size() ; ++i )
     {
@@ -716,9 +728,19 @@ void quickbook_output_functions(std::vector<function> const& functions,
 
         if (display_all || f.type == type)
         {
-            out << "[[[link " << f.id << " `";
+            out << "[";
+            if ( show_modifiers )
+            {
+                out << "[";
+                out << (f.is_static ? "`static`" : "");
+                out << (f.is_const ? " `const`" : "");
+                out << "]";
+            }
+            out << "[[link " << f.id << " `";
             quickbook_synopsis_short(f, out);
-            out << "`]][" << f.brief_description << "]]" << std::endl;
+            out << "`]]";
+            out << "[" << f.brief_description << "]";
+            out << "]" << std::endl;
         }
     }
     out << "]" << std::endl
@@ -900,14 +922,11 @@ void quickbook_synopsis_alt(function const& f, std::ostream& out)
                 first = false;
             }
         }
+
         if (! first)
-        {
             out << "`)`\n";
-        }
         else if (f.type != function_define)
-        {
             out << "`()`\n";
-        }
     }
 
     out << "]"
@@ -1036,6 +1055,17 @@ void quickbook_output_functions_details(std::vector<function> const& functions,
             out << "[heading Synopsis]" << std::endl;
             quickbook_synopsis_alt(f, out);
             quickbook_markup(f.qbk_markup, markup_after, markup_synopsis, out);
+
+            if ( f.is_static || f.is_virtual || f.is_explicit || f.is_const )
+            {
+                out << "[heading Modifier(s)]" << std::endl;
+                out << "``"
+                    << (f.is_static ? "static " : "")
+                    << (f.is_virtual ? "virtual " : "")
+                    << (f.is_explicit ? "explicit " : "")
+                    << (f.is_const ? "const " : "")
+                    << "``";
+            }
 
             // Template parameters
             if ( !f.template_parameters.empty() && has_brief_description(f.template_parameters) )
