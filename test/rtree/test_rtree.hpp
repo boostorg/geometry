@@ -16,10 +16,8 @@
 #include <vector>
 #include <algorithm>
 
-#include <boost/geometry/extensions/index/rtree/rtree.hpp>
-
-#include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
+#include <boost/geometry/extensions/index/detail/rtree/visitors/are_levels_ok.hpp>
+#include <boost/geometry/extensions/index/detail/rtree/visitors/are_boxes_ok.hpp>
 
 //#include <boost/geometry/geometries/ring.hpp>
 //#include <boost/geometry/geometries/polygon.hpp>
@@ -549,9 +547,9 @@ void test_exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Ran
 template <typename Rtree, typename Value, typename Predicates>
 void test_spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
 {
-    BOOST_CHECK( bgi::detail::are_levels_ok(rtree) );
+    BOOST_CHECK( bgi::detail::rtree::are_levels_ok(rtree) );
     if ( !rtree.empty() )
-        BOOST_CHECK( bgi::detail::are_boxes_ok(rtree) );
+        BOOST_CHECK( bgi::detail::rtree::are_boxes_ok(rtree) );
 
     std::vector<Value> output;
     size_t n = rtree.spatial_query(pred, std::back_inserter(output));

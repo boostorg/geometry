@@ -14,15 +14,11 @@
 
 #include <rtree/test_rtree.hpp>
 
-#include <boost/geometry/extensions/index/rtree/node/dynamic_visitor.hpp>
+#include <boost/geometry/extensions/index/detail/rtree/node/dynamic_visitor.hpp>
 
 #include <rtree/test_throwing.hpp>
 
 namespace boost { namespace geometry { namespace index {
-
-// options implementation (from options.hpp)
-
-struct node_throwing_d_mem_static_tag {};
 
 template <size_t MaxElements, size_t MinElements>
 struct linear_throwing : public linear<MaxElements, MinElements> {};
@@ -34,6 +30,10 @@ template <size_t MaxElements, size_t MinElements, size_t OverlapCostThreshold = 
 struct rstar_throwing : public rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements> {};
 
 namespace detail { namespace rtree {
+
+// options implementation (from options.hpp)
+
+struct node_throwing_d_mem_static_tag {};
 
 template <size_t MaxElements, size_t MinElements>
 struct options_type< linear_throwing<MaxElements, MinElements> >
@@ -109,7 +109,7 @@ struct dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_stat
 
 // elements derived type
 template <typename OldValue, size_t N, typename NewValue>
-struct container_from_elements_type<throwing_pushable_array<OldValue, N>, NewValue>
+struct container_from_elements_type<throwing_static_vector<OldValue, N>, NewValue>
 {
     typedef throwing_static_vector<NewValue, N> type;
 };

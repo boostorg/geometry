@@ -7,7 +7,7 @@
 Linear r-tree creation algorithm parameters. 
 
 [heading Header]
-`#include <boost/geometry/extensions/index/rtree/options.hpp>`
+`#include <boost/geometry/extensions/index/parameters.hpp>`
 
 [heading Synopsis]
 [pre

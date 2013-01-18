@@ -12,7 +12,7 @@
 
 #include <boost/geometry.hpp>
 #define BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE
-#include <boost/geometry/extensions/index/rtree/rtree.hpp>
+#include <boost/geometry/extensions/index/rtree.hpp>
 
 #include <geometry_test_common.hpp>
 
