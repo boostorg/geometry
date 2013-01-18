@@ -1272,6 +1272,24 @@ void test_rtree_count(Parameters const& parameters)
 
 // test rtree box
 
+template <size_t Dimention>
+struct test_geometry_algorithms
+{
+    template <typename Rtree, typename Box>
+    static void apply(Rtree const& , Box const& ) {}
+};
+
+template <>
+struct test_geometry_algorithms<2>
+{
+    template <typename Rtree, typename Box>
+    static void apply(Rtree const& t, Box const& b)
+    {
+        BOOST_CHECK(bg::area(t) == bg::area(b));
+        BOOST_CHECK(bg::perimeter(t) == bg::perimeter(b));
+    }
+};
+
 template <typename Value, typename Parameters>
 void test_rtree_box(Parameters const& parameters)
 {
@@ -1296,9 +1314,8 @@ void test_rtree_box(Parameters const& parameters)
     BOOST_CHECK(bg::equals(t.box(), b));
 
     BOOST_CHECK(bg::equals(bg::return_envelope<B>(t), b));
-    BOOST_CHECK(bg::area(t) == bg::area(b));
-    BOOST_CHECK(bg::perimeter(t) == bg::perimeter(b));
     BOOST_CHECK(bg::equals(bg::return_centroid<P>(t), bg::return_centroid<P>(b)));
+    test_geometry_algorithms<bg::traits::dimension<P>::value>::apply(t, b);
 
     size_t s = input.size();
     while ( s/2 < input.size() && !input.empty() )
