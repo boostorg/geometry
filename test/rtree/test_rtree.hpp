@@ -1295,10 +1295,10 @@ void test_rtree_box(Parameters const& parameters)
 
     BOOST_CHECK(bg::equals(t.box(), b));
 
-    //BOOST_CHECK(bg::equals(bg::return_envelope<B>(t), b));
-    //BOOST_CHECK(bg::area(t) == bg::area(b));
-    //BOOST_CHECK(bg::perimeter(t) == bg::perimeter(b));
-    //BOOST_CHECK(bg::equals(bg::return_centroid<P>(t), bg::return_centroid<P>(b)));
+    BOOST_CHECK(bg::equals(bg::return_envelope<B>(t), b));
+    BOOST_CHECK(bg::area(t) == bg::area(b));
+    BOOST_CHECK(bg::perimeter(t) == bg::perimeter(b));
+    BOOST_CHECK(bg::equals(bg::return_centroid<P>(t), bg::return_centroid<P>(b)));
 
     size_t s = input.size();
     while ( s/2 < input.size() && !input.empty() )
