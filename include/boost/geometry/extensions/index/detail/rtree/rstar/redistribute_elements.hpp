@@ -40,8 +40,8 @@ public:
 
     bool operator()(Element const& e1, Element const& e2) const
     {
-        return index::get<Corner, AxisIndex>(rtree::element_indexable(e1, m_tr))
-            < index::get<Corner, AxisIndex>(rtree::element_indexable(e2, m_tr));
+        return index::detail::get<Corner, AxisIndex>(rtree::element_indexable(e1, m_tr))
+            < index::detail::get<Corner, AxisIndex>(rtree::element_indexable(e2, m_tr));
     }
 
 private:
@@ -229,7 +229,7 @@ struct choose_split_axis_and_index
             Parameters,
             Box,
             Dimension - 1,
-            typename index::traits::tag<element_indexable_type>::type
+            typename index::detail::traits::tag<element_indexable_type>::type
         >::apply(elements, corner, index, sum_of_margins, overlap_val, content_val, parameters, translator); // MAY THROW, STRONG
 
         if ( sum_of_margins < smallest_sum_of_margins )
@@ -269,7 +269,7 @@ struct choose_split_axis_and_index<Parameters, Box, 1>
             Parameters,
             Box,
             0,
-            typename index::traits::tag<element_indexable_type>::type
+            typename index::detail::traits::tag<element_indexable_type>::type
         >::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins, smallest_overlap, smallest_content, parameters, translator); // MAY THROW
     }
 };
@@ -325,7 +325,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
 
     typedef typename Options::parameters_type parameters_type;
 
-    static const size_t dimension = index::traits::dimension<Box>::value;
+    static const size_t dimension = index::detail::traits::dimension<Box>::value;
 
     typedef typename index::default_margin_result<Box>::type margin_type;
     typedef typename index::default_content_result<Box>::type content_type;
@@ -355,7 +355,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
         rstar::choose_split_axis_and_index<
             typename Options::parameters_type,
             Box,
-            index::traits::dimension<Box>::value
+            index::detail::traits::dimension<Box>::value
         >::apply(elements1,
                  split_axis, split_corner, split_index,
                  smallest_sum_of_margins, smallest_overlap, smallest_content,
@@ -363,7 +363,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
 
         // TODO: awulkiew - get rid of following static_casts?
 
-        BOOST_GEOMETRY_INDEX_ASSERT(split_axis < index::traits::dimension<Box>::value, "unexpected value");
+        BOOST_GEOMETRY_INDEX_ASSERT(split_axis < index::detail::traits::dimension<Box>::value, "unexpected value");
         BOOST_GEOMETRY_INDEX_ASSERT(split_corner == static_cast<size_t>(min_corner) || split_corner == static_cast<size_t>(max_corner), "unexpected value");
         BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= split_index && split_index <= parameters.get_max_elements() - parameters.get_min_elements() + 1, "unexpected value");
         

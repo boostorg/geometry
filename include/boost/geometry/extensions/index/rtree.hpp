@@ -116,7 +116,7 @@ public:
     /*! \brief The Indexable type to which Value is translated. */
     typedef typename translator::indexable_type<Translator>::type indexable_type;
     /*! \brief The Box type used by the R-tree. */
-    typedef typename index::default_box_type<indexable_type>::type box_type;
+    typedef typename index::detail::default_box_type<indexable_type>::type box_type;
 
 #if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
 private:

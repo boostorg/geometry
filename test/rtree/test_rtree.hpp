@@ -477,7 +477,7 @@ generate_value_outside()
     typedef typename Rtree::value_type V;
     typedef typename Rtree::indexable_type I;
 
-    return generate_value_outside_impl<V, bgi::traits::dimension<I>::value>::apply();
+    return generate_value_outside_impl<V, bgi::detail::traits::dimension<I>::value>::apply();
 }
 
 template<typename Value, typename Algo, typename Box>
@@ -489,7 +489,7 @@ void generate_rtree(bgi::rtree<Value, Algo> & tree, std::vector<Value> & input, 
     typedef typename T::indexable_type I;
 
     generate_input<
-        bgi::traits::dimension<I>::value
+        bgi::detail::traits::dimension<I>::value
     >::apply(input, qbox);
 
     tree.insert(input.begin(), input.end());
@@ -670,7 +670,7 @@ template <typename Value, typename Algo, typename Box>
 void test_overlaps(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     test_overlap_impl<
-        typename bgi::traits::tag<
+        typename bgi::detail::traits::tag<
             typename bgi::rtree<Value, Algo>::indexable_type
         >::type
     >::apply(tree, input, qbox);
@@ -1171,7 +1171,7 @@ void test_rtree_by_value(Parameters const& parameters)
     //test_touches(tree, input, qbox);
     test_within(tree, input, qbox);
 
-    typedef typename bgi::traits::point_type<B>::type P;
+    typedef typename bgi::detail::traits::point_type<B>::type P;
     P pt;
     bg::centroid(qbox, pt);
     

@@ -21,7 +21,7 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 
-#include <boost/geometry/extensions/index/indexable.hpp>
+#include <boost/geometry/extensions/index/detail/indexable.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace translator {
 
@@ -88,8 +88,8 @@ struct extract_indexable< std::pair<First, Second> >
 {
     typedef typename dispatch::choose_pair_element<
         std::pair<First, Second>,
-        typename traits::indexable_type<First>::type,
-        typename traits::indexable_type<Second>::type
+        typename index::detail::traits::indexable_type<First>::type,
+        typename index::detail::traits::indexable_type<Second>::type
     > cp;
 
     typedef typename cp::type type;

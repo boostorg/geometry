@@ -17,7 +17,7 @@ template <typename Indexable>
 struct default_content_result
 {
     typedef typename select_most_precise<
-        typename traits::coordinate_type<Indexable>::type,
+        typename detail::traits::coordinate_type<Indexable>::type,
         long double
     >::type type;
 };
@@ -33,7 +33,7 @@ struct content_for_each_dimension
     static inline typename default_content_result<Box>::type apply(Box const& b)
     {
         return content_for_each_dimension<Box, CurrentDimension - 1>::apply(b) *
-            ( index::get<max_corner, CurrentDimension - 1>(b) - index::get<min_corner, CurrentDimension - 1>(b) );
+            ( detail::get<max_corner, CurrentDimension - 1>(b) - detail::get<min_corner, CurrentDimension - 1>(b) );
     }
 };
 
@@ -42,7 +42,7 @@ struct content_for_each_dimension<Box, 1>
 {
     static inline typename default_area_result<Box>::type apply(Box const& b)
     {
-        return index::get<max_corner, 0>(b) - index::get<min_corner, 0>(b);
+        return detail::get<max_corner, 0>(b) - detail::get<min_corner, 0>(b);
     }
 };
 
@@ -70,7 +70,7 @@ struct content<Indexable, box_tag>
 {
     static typename default_content_result<Indexable>::type apply(Indexable const& b)
     {
-        return detail::content_for_each_dimension<Indexable, traits::dimension<Indexable>::value>::apply(b);
+        return detail::content_for_each_dimension<Indexable, detail::traits::dimension<Indexable>::value>::apply(b);
     }
 };
 
@@ -79,7 +79,7 @@ struct content<Indexable, box_tag>
 template <typename Indexable>
 typename default_content_result<Indexable>::type content(Indexable const& b)
 {
-    return dispatch::content<Indexable, typename index::traits::tag<Indexable>::type>::apply(b);
+    return dispatch::content<Indexable, typename detail::traits::tag<Indexable>::type>::apply(b);
 }
 
 }}} // namespace boost::geometry::index

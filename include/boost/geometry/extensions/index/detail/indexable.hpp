@@ -8,10 +8,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_INDEXABLE_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_INDEXABLE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_INDEXABLE_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_INDEXABLE_HPP
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
 namespace dispatch {
 
@@ -172,6 +172,6 @@ struct default_box_type
     > type;
 };
 
-}}} // namespace boost::geometry::index
+}}}} // namespace boost::geometry::index::detail
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_INDEXABLE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_INDEXABLE_HPP

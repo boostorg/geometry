@@ -28,7 +28,7 @@ struct def
 {
     BOOST_MPL_ASSERT_MSG(
         (!detail::indexable_not_found_error<
-            typename traits::indexable_type<Value>::type
+            typename index::detail::traits::indexable_type<Value>::type
          >::value),
         NOT_VALID_INDEXABLE_TYPE,
         (Value)
@@ -60,7 +60,7 @@ struct def< std::pair<Indexable, Second> >
 {
     BOOST_MPL_ASSERT_MSG(
         (!detail::indexable_not_found_error<
-            typename traits::indexable_type<Indexable>::type
+            typename index::detail::traits::indexable_type<Indexable>::type
          >::value),
         NOT_VALID_INDEXABLE_TYPE,
         (Indexable)
@@ -128,7 +128,7 @@ struct def< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 
     BOOST_MPL_ASSERT_MSG(
         (!detail::indexable_not_found_error<
-            typename traits::indexable_type<Indexable>::type
+            typename index::detail::traits::indexable_type<Indexable>::type
         >::value),
         NOT_VALID_INDEXABLE_TYPE,
         (Indexable)

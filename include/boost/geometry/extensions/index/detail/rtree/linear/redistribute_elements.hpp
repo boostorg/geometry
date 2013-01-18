@@ -45,7 +45,7 @@ struct find_greatest_normalized_separation
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
@@ -59,15 +59,15 @@ struct find_greatest_normalized_separation
         BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
 
         // find the lowest low, highest high
-        coordinate_type lowest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
-        coordinate_type highest_high = index::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
+        coordinate_type lowest_low = index::detail::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
+        coordinate_type highest_high = index::detail::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
         // and the lowest high
         coordinate_type lowest_high = highest_high;
         size_t lowest_high_index = 0;
         for ( size_t i = 1 ; i < elements_count ; ++i )
         {
-            coordinate_type min_coord = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
-            coordinate_type max_coord = index::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
+            coordinate_type min_coord = index::detail::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
+            coordinate_type max_coord = index::detail::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
 
             if ( max_coord < lowest_high )
             {
@@ -84,10 +84,10 @@ struct find_greatest_normalized_separation
 
         // find the highest low
         size_t highest_low_index = lowest_high_index == 0 ? 1 : 0;
-        coordinate_type highest_low = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[highest_low_index], translator));
+        coordinate_type highest_low = index::detail::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[highest_low_index], translator));
         for ( size_t i = highest_low_index ; i < elements_count ; ++i )
         {
-            coordinate_type min_coord = index::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
+            coordinate_type min_coord = index::detail::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
             if ( highest_low < min_coord &&
                  i != lowest_high_index )
             {
@@ -124,7 +124,7 @@ struct pick_seeds_impl
 
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
@@ -154,7 +154,7 @@ struct pick_seeds_impl<Elements, Parameters, Translator, 1>
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
@@ -174,9 +174,9 @@ struct pick_seeds
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
 
-    static const size_t dimension = index::traits::dimension<indexable_type>::value;
+    static const size_t dimension = index::detail::traits::dimension<indexable_type>::value;
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
@@ -214,7 +214,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-        typedef typename index::traits::coordinate_type<indexable_type>::type coordinate_type;
+        typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
         typedef typename index::default_content_result<Box>::type content_type;
 
         elements_type & elements1 = rtree::elements(n);
