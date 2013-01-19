@@ -8,19 +8,17 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MINMAXDIST_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MINMAXDIST_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_MINMAXDIST_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_MINMAXDIST_HPP
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/detail/diff_abs.hpp>
-#include <boost/geometry/extensions/index/algorithms/detail/sum_for_indexable.hpp>
-#include <boost/geometry/extensions/index/algorithms/detail/smallest_for_indexable.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/diff_abs.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/sum_for_indexable.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/smallest_for_indexable.hpp>
 
-namespace boost { namespace geometry { namespace index {
-
-namespace detail {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
 struct minmaxdist_tag {};
 
@@ -102,8 +100,6 @@ struct minmaxdist_impl<Point, Indexable, box_tag>
     }
 };
 
-} // namespace detail
-
 /**
  * This is comparable distace.
  */
@@ -118,6 +114,6 @@ minmaxdist(Point const& pt, Indexable const& i)
     >::apply(pt, i);
 }
 
-}}} // namespace boost::geometry::index
+}}}} // namespace boost::geometry::index::detail
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MINMAXDIST_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_MINMAXDIST_HPP

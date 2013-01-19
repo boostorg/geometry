@@ -8,15 +8,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_FAR_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_FAR_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_COMPARABLE_DISTANCE_FAR_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_COMPARABLE_DISTANCE_FAR_HPP
 
-#include <boost/geometry/extensions/index/algorithms/detail/diff_abs.hpp>
-#include <boost/geometry/extensions/index/algorithms/detail/sum_for_indexable.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/diff_abs.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/sum_for_indexable.hpp>
 
-namespace boost { namespace geometry { namespace index {
-
-namespace detail {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
 // minmaxdist component
 
@@ -50,8 +48,6 @@ struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, comparable_dist
     }
 };
 
-} // namespace detail
-
 template <typename Point, typename Indexable>
 typename geometry::default_distance_result<Point, Indexable>::type
 comparable_distance_far(Point const& pt, Indexable const& i)
@@ -65,6 +61,6 @@ comparable_distance_far(Point const& pt, Indexable const& i)
     >::apply(pt, i);
 }
 
-}}} // namespace boost::geometry::index
+}}}} // namespace boost::geometry::index::detail
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_COMPARABLE_DISTANCE_FAR_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_COMPARABLE_DISTANCE_FAR_HPP

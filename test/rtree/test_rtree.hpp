@@ -746,7 +746,7 @@ void test_nearest_query(Rtree const& rtree, std::vector<Value> const& input, Poi
     Value expected_output(generate_value_default<Value>::apply());
     BOOST_FOREACH(Value const& v, input)
     {
-        D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+        D d = bgi::detail::comparable_distance_near(pt, rtree.translator()(v));
         if ( d < smallest_d )
         {
             smallest_d = d;
@@ -766,8 +766,8 @@ void test_nearest_query(Rtree const& rtree, std::vector<Value> const& input, Poi
 
         if ( !rtree.translator().equals(output, expected_output) )
         {
-            D d1 = bgi::comparable_distance_near(pt, rtree.translator()(output));
-            D d2 = bgi::comparable_distance_near(pt, rtree.translator()(expected_output));
+            D d1 = bgi::detail::comparable_distance_near(pt, rtree.translator()(output));
+            D d2 = bgi::detail::comparable_distance_near(pt, rtree.translator()(expected_output));
             BOOST_CHECK(d1 == d2);
         }
     }
@@ -810,7 +810,7 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
     // calculate test output - k closest values pairs
     BOOST_FOREACH(Value const& v, input)
     {
-        D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+        D d = bgi::detail::comparable_distance_near(pt, rtree.translator()(v));
 
         if ( test_output.size() < k )
             test_output.push_back(std::make_pair(d, v));
@@ -848,7 +848,7 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
 
             if ( test_find(rtree, expected_output.begin(), expected_output.end(), v) == expected_output.end() )
             {
-                D d = bgi::comparable_distance_near(pt, rtree.translator()(v));
+                D d = bgi::detail::comparable_distance_near(pt, rtree.translator()(v));
                 BOOST_CHECK(d == biggest_d);
             }
         }

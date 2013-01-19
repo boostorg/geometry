@@ -15,18 +15,16 @@
 
 #include <boost/geometry/algorithms/expand.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/content.hpp>
-#include <boost/geometry/extensions/index/algorithms/intersection_content.hpp>
-#include <boost/geometry/extensions/index/algorithms/union_content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/intersection_content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/union_content.hpp>
 
 #include <boost/geometry/extensions/index/detail/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/detail/rtree/visitors/is_leaf.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
-namespace detail { namespace rtree { namespace visitors {
-
-namespace detail {
+namespace detail { namespace rtree {
 
 template <typename Value, typename Options, typename Box, typename Allocators>
 class choose_next_node<Value, Options, Box, Allocators, choose_by_overlap_diff_tag>
@@ -40,7 +38,7 @@ class choose_next_node<Value, Options, Box, Allocators, choose_by_overlap_diff_t
 
     typedef typename Options::parameters_type parameters_type;
 
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
 public:
     template <typename Indexable>
@@ -88,8 +86,8 @@ private:
             geometry::expand(box_exp, indexable);
 
             // calculate content and content diff
-            content_type content = index::content(ch_i.first);
-            content_type content_diff = index::content(box_exp) - content;
+            content_type content = index::detail::content(ch_i.first);
+            content_type content_diff = index::detail::content(box_exp) - content;
 
             content_type overlap = 0;
             content_type overlap_exp = 0;
@@ -101,8 +99,8 @@ private:
                 {
                     child_type const& ch_j = children[j];
 
-                    overlap += index::intersection_content(ch_i.first, ch_j.first);
-                    overlap_exp += index::intersection_content(box_exp, ch_j.first);
+                    overlap += index::detail::intersection_content(ch_i.first, ch_j.first);
+                    overlap_exp += index::detail::intersection_content(box_exp, ch_j.first);
                 }
             }
 
@@ -141,8 +139,8 @@ private:
             geometry::expand(box_exp, indexable);
 
             // areas difference
-            content_type content = index::content(box_exp);
-            content_type content_diff = content - index::content(ch_i.first);
+            content_type content = index::detail::content(box_exp);
+            content_type content_diff = content - index::detail::content(ch_i.first);
 
             sorted_children[i] = boost::make_tuple(i, content_diff, content);
         }
@@ -178,8 +176,8 @@ private:
                 {
                     child_type const& ch_j = children[j];
 
-                    overlap += index::intersection_content(ch_i.first, ch_j.first);
-                    overlap_exp += index::intersection_content(box_exp, ch_j.first);
+                    overlap += index::detail::intersection_content(ch_i.first, ch_j.first);
+                    overlap_exp += index::detail::intersection_content(box_exp, ch_j.first);
                 }
             }
 
@@ -222,8 +220,8 @@ private:
             geometry::expand(box_exp, indexable);
 
             // areas difference
-            content_type content = index::content(box_exp);
-            content_type content_diff = content - index::content(ch_i.first);
+            content_type content = index::detail::content(box_exp);
+            content_type content_diff = content - index::detail::content(ch_i.first);
 
             // update the result
             if ( content_diff < smallest_content_diff ||
@@ -239,9 +237,7 @@ private:
     }
 };
 
-} // namespace detail
-
-}}} // namespace detail::rtree::visitors
+}} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index
 

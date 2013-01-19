@@ -11,15 +11,13 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_INSERT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_VISITORS_INSERT_HPP
 
-#include <boost/geometry/extensions/index/algorithms/content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/content.hpp>
 
 #include <boost/geometry/extensions/index/detail/rtree/node/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
-namespace detail { namespace rtree { namespace visitors {
-
-namespace detail {
+namespace detail { namespace rtree {
 
 // Default choose_next_node
 template <typename Value, typename Options, typename Box, typename Allocators, typename ChooseNextNodeTag>
@@ -37,7 +35,7 @@ public:
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
 
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
     template <typename Indexable>
     static inline size_t apply(internal_node & n,
@@ -67,8 +65,8 @@ public:
             geometry::expand(box_exp, indexable);
 
             // areas difference
-            content_type content = index::content(box_exp);
-            content_type content_diff = content - index::content(ch_i.first);
+            content_type content = index::detail::content(box_exp);
+            content_type content_diff = content - index::detail::content(ch_i.first);
 
             // update the result
             if ( content_diff < smallest_content_diff ||
@@ -177,6 +175,8 @@ public:
 
 // ----------------------------------------------------------------------- //
 
+namespace visitors { namespace detail {
+
 template <typename InternalNode>
 struct insert_traverse_data
 {
@@ -260,7 +260,7 @@ protected:
     inline void traverse(Visitor & visitor, internal_node & n)
     {
         // choose next node
-        size_t choosen_node_index = detail::choose_next_node<Value, Options, Box, Allocators, typename Options::choose_next_node_tag>::
+        size_t choosen_node_index = rtree::choose_next_node<Value, Options, Box, Allocators, typename Options::choose_next_node_tag>::
             apply(n, rtree::element_indexable(m_element, m_translator), m_parameters, m_leafs_level - m_traverse_data.current_level);
 
         // expand the node to contain value
@@ -309,7 +309,7 @@ protected:
     template <typename Node>
     inline void split(Node & n) const
     {
-        typedef detail::split<Value, Options, Translator, Box, Allocators, typename Options::split_tag> split_algo;
+        typedef rtree::split<Value, Options, Translator, Box, Allocators, typename Options::split_tag> split_algo;
 
         typename split_algo::nodes_container_type additional_nodes;
         Box n_box;

@@ -11,9 +11,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_DETAIL_SUM_FOR_INDEXABLE_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_DETAIL_SUM_FOR_INDEXABLE_HPP
 
-namespace boost { namespace geometry { namespace index {
-
-namespace detail {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <
     typename Geometry,
@@ -73,8 +71,6 @@ struct sum_for_indexable<Geometry, Indexable, IndexableTag, AlgoTag, 1>
     }
 };
 
-} // namespace detail
-
-}}} // namespace boost::geometry::index
+}}}} // namespace boost::geometry::index::detail
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_DETAIL_SUM_FOR_INDEXABLE_HPP

@@ -11,9 +11,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_DETAIL_DIFF_ABS_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_DETAIL_DIFF_ABS_HPP
 
-namespace boost { namespace geometry { namespace index {
-
-namespace detail {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <typename T>
 inline T diff_abs(T const& v1, T const& v2)
@@ -21,8 +19,6 @@ inline T diff_abs(T const& v1, T const& v2)
     return v1 < v2 ? v2 - v1 : v1 - v2;
 }
 
-} // namespace detail
-
-}}} // namespace boost::geometry::index
+}}}} // namespace boost::geometry::index::detail
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_DETAIL_DIFF_ABS_HPP

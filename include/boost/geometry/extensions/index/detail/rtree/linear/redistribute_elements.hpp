@@ -14,8 +14,7 @@
 
 #include <boost/type_traits/is_unsigned.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/content.hpp>
-#include <boost/geometry/extensions/index/algorithms/union_content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/content.hpp>
 
 #include <boost/geometry/extensions/index/detail/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/detail/rtree/visitors/insert.hpp>
@@ -23,9 +22,7 @@
 
 namespace boost { namespace geometry { namespace index {
 
-namespace detail { namespace rtree { namespace visitors {
-
-namespace detail {
+namespace detail { namespace rtree {
 
 namespace linear {
 
@@ -215,7 +212,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         typedef typename elements_type::value_type element_type;
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
         typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
-        typedef typename index::default_content_result<Box>::type content_type;
+        typedef typename index::detail::default_content_result<Box>::type content_type;
 
         elements_type & elements1 = rtree::elements(n);
         elements_type & elements2 = rtree::elements(second_node);
@@ -250,8 +247,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
             geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
 
             // initialize areas
-            content_type content1 = index::content(box1);
-            content_type content2 = index::content(box2);
+            content_type content1 = index::detail::content(box1);
+            content_type content2 = index::detail::content(box2);
 
             BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements1_count, "unexpected elements number");
             size_t remaining = elements1_count - 2;
@@ -270,13 +267,13 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
                     {
                         elements1.push_back(elem);                                                          // MAY THROW, STRONG (copy)
                         geometry::expand(box1, indexable);
-                        content1 = index::content(box1);
+                        content1 = index::detail::content(box1);
                     }
                     else if ( elements2.size() + remaining <= parameters.get_min_elements() )
                     {
                         elements2.push_back(elem);                                                          // MAY THROW, STRONG (alloc, copy)
                         geometry::expand(box2, indexable);
-                        content2 = index::content(box2);
+                        content2 = index::detail::content(box2);
                     }
                     // choose better node and insert element
                     else
@@ -286,8 +283,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
                         Box enlarged_box2(box2);
                         geometry::expand(enlarged_box1, indexable);
                         geometry::expand(enlarged_box2, indexable);
-                        content_type enlarged_content1 = index::content(enlarged_box1);
-                        content_type enlarged_content2 = index::content(enlarged_box2);
+                        content_type enlarged_content1 = index::detail::content(enlarged_box1);
+                        content_type enlarged_content2 = index::detail::content(enlarged_box2);
 
                         content_type content_increase1 = enlarged_content1 - content1;
                         content_type content_increase2 = enlarged_content2 - content2;
@@ -327,9 +324,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
     }
 };
 
-} // namespace detail
-
-}}} // namespace detail::rtree::visitors
+}} // namespace detail::rtree::visitors
 
 }}} // namespace boost::geometry::index
 

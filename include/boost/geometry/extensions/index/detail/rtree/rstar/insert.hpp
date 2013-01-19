@@ -11,13 +11,11 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RSTAR_INSERT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_RTREE_RSTAR_INSERT_HPP
 
-#include <boost/geometry/extensions/index/algorithms/content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/content.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
-
-namespace detail {
 
 namespace rstar {
 
@@ -417,8 +415,6 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
 
 } // namespace rstar
 
-} // namespace detail
-
 // R*-tree insert visitor
 // After passing the Element to insert visitor the Element is managed by the tree
 // I.e. one should not delete the node passed to the insert visitor after exception is thrown
@@ -451,7 +447,7 @@ public:
     {
         BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root), "current node should be the root");
 
-        detail::rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
+        rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
             m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
 
         rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
@@ -466,7 +462,7 @@ public:
     {
         BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<leaf>(m_root), "current node should be the root");
 
-        detail::rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
+        rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
             m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
 
         rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
@@ -485,7 +481,7 @@ private:
         typename Elements::reverse_iterator it = elements.rbegin();
         for ( ; it != elements.rend() ; ++it)
         {
-            detail::rstar::level_insert<1, element_type, Value, Options, Translator, Box, Allocators> lins_v(
+            rstar::level_insert<1, element_type, Value, Options, Translator, Box, Allocators> lins_v(
                 m_root, m_leafs_level, *it, m_parameters, m_translator, m_allocators, relative_level);
 
             try

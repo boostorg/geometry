@@ -12,9 +12,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_DISTANCE_PREDICATES_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_DISTANCE_PREDICATES_HPP
 
-#include <boost/geometry/extensions/index/algorithms/comparable_distance_near.hpp>
-#include <boost/geometry/extensions/index/algorithms/comparable_distance_far.hpp>
-#include <boost/geometry/extensions/index/algorithms/comparable_distance_centroid.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/comparable_distance_near.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/comparable_distance_far.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/comparable_distance_centroid.hpp>
 
 #include <boost/geometry/extensions/index/detail/tuples.hpp>
 
@@ -332,7 +332,7 @@ struct distances_calc_impl_rel<
     typename geometry::default_distance_result<Point, Indexable>::type
     static inline apply(Point const& p, Indexable const& i)
     {
-        return index::comparable_distance_near(p, i);
+        return index::detail::comparable_distance_near(p, i);
     }
 };
 
@@ -345,7 +345,7 @@ struct distances_calc_impl_rel<
     typename geometry::default_distance_result<Point, Indexable>::type
     static inline apply(Point const& p, Indexable const& i)
     {
-        return index::comparable_distance_centroid(p, i);
+        return index::detail::comparable_distance_centroid(p, i);
     }
 };
 
@@ -358,7 +358,7 @@ struct distances_calc_impl_rel<
     typename geometry::default_distance_result<Point, Indexable>::type
     static inline apply(Point const& p, Indexable const& i)
     {
-        return index::comparable_distance_far(p, i);
+        return index::detail::comparable_distance_far(p, i);
     }
 };
 

@@ -8,10 +8,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MARGIN_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MARGIN_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_MARGIN_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_MARGIN_HPP
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <typename Box>
 struct default_margin_result
@@ -21,8 +21,6 @@ struct default_margin_result
         long double
     >::type type;
 };
-
-namespace detail {
 
 template <typename Box, size_t CurrentDimension, size_t EdgeDimension>
 struct margin_for_each_edge
@@ -90,14 +88,12 @@ struct margin_for_each_dimension<Box, 1>
     }
 };
 
-} // namespace detail
-
 template <typename Box>
 typename default_margin_result<Box>::type margin(Box const& b)
 {
     return 2 * detail::margin_for_each_dimension<Box, detail::traits::dimension<Box>::value>::apply(b);
 }
 
-}}} // namespace boost::geometry::index
+}}}} // namespace boost::geometry::index::detail
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_MARGIN_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_DETAIL_ALGORITHMS_MARGIN_HPP

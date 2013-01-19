@@ -13,9 +13,9 @@
 
 #include <boost/geometry/extensions/index/detail/nonassignable.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/intersection_content.hpp>
-#include <boost/geometry/extensions/index/algorithms/union_content.hpp>
-#include <boost/geometry/extensions/index/algorithms/margin.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/intersection_content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/union_content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/margin.hpp>
 
 #include <boost/geometry/extensions/index/detail/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/detail/rtree/visitors/insert.hpp>
@@ -23,9 +23,7 @@
 
 namespace boost { namespace geometry { namespace index {
 
-namespace detail { namespace rtree { namespace visitors {
-
-namespace detail {
+namespace detail { namespace rtree {
 
 namespace rstar {
 
@@ -51,8 +49,8 @@ private:
 template <typename Parameters, typename Box, size_t Corner, size_t AxisIndex>
 struct choose_split_axis_and_index_for_corner
 {
-    typedef typename index::default_margin_result<Box>::type margin_type;
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_margin_result<Box>::type margin_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
     template <typename Elements, typename Translator>
     static inline void apply(Elements const& elements,
@@ -90,10 +88,10 @@ struct choose_split_axis_and_index_for_corner
             Box box1 = rtree::elements_box<Box>(elements_copy.begin(), elements_copy.begin() + i, translator);
             Box box2 = rtree::elements_box<Box>(elements_copy.begin() + i, elements_copy.end(), translator);
             
-            sum_of_margins += index::margin(box1) + index::margin(box2);
+            sum_of_margins += index::detail::margin(box1) + index::detail::margin(box2);
 
-            content_type ovl = index::intersection_content(box1, box2);
-            content_type con = index::content(box1) + index::content(box2);
+            content_type ovl = index::detail::intersection_content(box1, box2);
+            content_type con = index::detail::content(box1) + index::detail::content(box2);
 
             if ( ovl < smallest_overlap || (ovl == smallest_overlap && con <= smallest_content) )
             {
@@ -114,8 +112,8 @@ struct choose_split_axis_and_index_for_axis
 template <typename Parameters, typename Box, size_t AxisIndex>
 struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
 {
-    typedef typename index::default_margin_result<Box>::type margin_type;
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_margin_result<Box>::type margin_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
     template <typename Elements, typename Translator>
     static inline void apply(Elements const& elements,
@@ -169,8 +167,8 @@ struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
 template <typename Parameters, typename Box, size_t AxisIndex>
 struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, point_tag>
 {
-    typedef typename index::default_margin_result<Box>::type margin_type;
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_margin_result<Box>::type margin_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
     template <typename Elements, typename Translator>
     static inline void apply(Elements const& elements,
@@ -196,8 +194,8 @@ struct choose_split_axis_and_index
 {
     BOOST_STATIC_ASSERT(0 < Dimension);
 
-    typedef typename index::default_margin_result<Box>::type margin_type;
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_margin_result<Box>::type margin_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
     template <typename Elements, typename Translator>
     static inline void apply(Elements const& elements,
@@ -247,8 +245,8 @@ struct choose_split_axis_and_index
 template <typename Parameters, typename Box>
 struct choose_split_axis_and_index<Parameters, Box, 1>
 {
-    typedef typename index::default_margin_result<Box>::type margin_type;
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_margin_result<Box>::type margin_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
     template <typename Elements, typename Translator>
     static inline void apply(Elements const& elements,
@@ -327,8 +325,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
 
     static const size_t dimension = index::detail::traits::dimension<Box>::value;
 
-    typedef typename index::default_margin_result<Box>::type margin_type;
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_margin_result<Box>::type margin_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
     template <typename Node>
     static inline void apply(
@@ -403,9 +401,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
     }
 };
 
-} // namespace detail
-
-}}} // namespace detail::rtree::visitors
+}} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index
 

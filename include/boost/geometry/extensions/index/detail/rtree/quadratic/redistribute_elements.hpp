@@ -13,8 +13,8 @@
 
 #include <algorithm>
 
-#include <boost/geometry/extensions/index/algorithms/content.hpp>
-#include <boost/geometry/extensions/index/algorithms/union_content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/content.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/union_content.hpp>
 
 #include <boost/geometry/extensions/index/detail/rtree/node/node.hpp>
 #include <boost/geometry/extensions/index/detail/rtree/visitors/insert.hpp>
@@ -22,9 +22,7 @@
 
 namespace boost { namespace geometry { namespace index {
 
-namespace detail { namespace rtree { namespace visitors {
-
-namespace detail {
+namespace detail { namespace rtree {
 
 namespace quadratic {
 
@@ -35,7 +33,7 @@ struct pick_seeds
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
     typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
     typedef Box box_type;
-    typedef typename index::default_content_result<box_type>::type content_type;
+    typedef typename index::detail::default_content_result<box_type>::type content_type;
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
@@ -62,7 +60,7 @@ struct pick_seeds
                 geometry::convert(ind1, enlarged_box);
                 geometry::expand(enlarged_box, ind2);
 
-                content_type free_content = (index::content(enlarged_box) - index::content(ind1)) - index::content(ind2);
+                content_type free_content = (index::detail::content(enlarged_box) - index::detail::content(ind1)) - index::detail::content(ind2);
                 
                 if ( greatest_free_content < free_content )
                 {
@@ -86,7 +84,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
-    typedef typename index::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_content_result<Box>::type content_type;
 
     template <typename Node>
     static inline void apply(Node & n,
@@ -153,8 +151,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             }
 
             // initialize areas
-            content_type content1 = index::content(box1);
-            content_type content2 = index::content(box2);
+            content_type content1 = index::detail::content(box1);
+            content_type content2 = index::detail::content(box2);
 
             size_t remaining = elements_copy.size();
 
@@ -207,13 +205,13 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                 {
                     elements1.push_back(elem);                                                              // MAY THROW, STRONG (copy)
                     geometry::expand(box1, indexable);
-                    content1 = index::content(box1);
+                    content1 = index::detail::content(box1);
                 }
                 else
                 {
                     elements2.push_back(elem);                                                              // MAY THROW, STRONG (alloc, copy)
                     geometry::expand(box2, indexable);
-                    content2 = index::content(box2);
+                    content2 = index::detail::content(box2);
                 }
 
                 BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
@@ -265,8 +263,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             Box enlarged_box2(box2);
             geometry::expand(enlarged_box1, indexable);
             geometry::expand(enlarged_box2, indexable);
-            content_type enlarged_content1 = index::content(enlarged_box1);
-            content_type enlarged_content2 = index::content(enlarged_box2);
+            content_type enlarged_content1 = index::detail::content(enlarged_box1);
+            content_type enlarged_content2 = index::detail::content(enlarged_box2);
 
             content_type content_incrase1 = (enlarged_content1 - content1);
             content_type content_incrase2 = (enlarged_content2 - content2);
@@ -287,9 +285,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
     }
 };
 
-} // namespace detail
-
-}}} // namespace detail::rtree::visitors
+}} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index
 

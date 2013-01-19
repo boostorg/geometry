@@ -58,10 +58,10 @@ struct options_type
 };
 
 template <size_t MaxElements, size_t MinElements>
-struct options_type< linear<MaxElements, MinElements> >
+struct options_type< index::linear<MaxElements, MinElements> >
 {
     typedef options<
-        linear<MaxElements, MinElements>,
+        index::linear<MaxElements, MinElements>,
         insert_default_tag,
         choose_by_content_diff_tag,
         split_default_tag,
@@ -71,10 +71,10 @@ struct options_type< linear<MaxElements, MinElements> >
 };
 
 template <size_t MaxElements, size_t MinElements>
-struct options_type< quadratic<MaxElements, MinElements> >
+struct options_type< index::quadratic<MaxElements, MinElements> >
 {
     typedef options<
-        quadratic<MaxElements, MinElements>,
+        index::quadratic<MaxElements, MinElements>,
         insert_default_tag,
         choose_by_content_diff_tag,
         split_default_tag,
@@ -84,10 +84,10 @@ struct options_type< quadratic<MaxElements, MinElements> >
 };
 
 template <size_t MaxElements, size_t MinElements, size_t OverlapCostThreshold, size_t ReinsertedElements>
-struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements> >
+struct options_type< index::rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements> >
 {
     typedef options<
-        rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements>,
+        index::rstar<MaxElements, MinElements, OverlapCostThreshold, ReinsertedElements>,
         insert_reinsert_tag,
         choose_by_overlap_diff_tag,
         split_default_tag,
@@ -110,10 +110,10 @@ struct options_type< rstar<MaxElements, MinElements, OverlapCostThreshold, Reins
 //};
 
 template <>
-struct options_type< runtime::linear >
+struct options_type< index::runtime::linear >
 {
     typedef options<
-        runtime::linear,
+        index::runtime::linear,
         insert_default_tag,
         choose_by_content_diff_tag,
         split_default_tag,
@@ -123,10 +123,10 @@ struct options_type< runtime::linear >
 };
 
 template <>
-struct options_type< runtime::quadratic >
+struct options_type< index::runtime::quadratic >
 {
     typedef options<
-        runtime::quadratic,
+        index::runtime::quadratic,
         insert_default_tag,
         choose_by_content_diff_tag,
         split_default_tag,
@@ -136,10 +136,10 @@ struct options_type< runtime::quadratic >
 };
 
 template <>
-struct options_type< runtime::rstar >
+struct options_type< index::runtime::rstar >
 {
     typedef options<
-        runtime::rstar,
+        index::runtime::rstar,
         insert_reinsert_tag,
         choose_by_overlap_diff_tag,
         split_default_tag,
