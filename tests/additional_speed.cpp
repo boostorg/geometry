@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Additional tests
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,11 +10,8 @@
 #include <iostream>
 #include <fstream>
 
-#include <boost/geometry/extensions/index/rtree/rtree.hpp>
-#include <boost/geometry/extensions/index/inserter.hpp>
-
-#include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
+#include <boost/geometry/index/rtree.hpp>
+#include <boost/geometry/index/inserter.hpp>
 
 #include <boost/timer.hpp>
 #include <boost/foreach.hpp>

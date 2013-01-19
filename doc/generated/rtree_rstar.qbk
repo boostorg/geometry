@@ -7,7 +7,7 @@
 R*-tree creation algorithm parameters. 
 
 [heading Header]
-`#include <boost/geometry/extensions/index/parameters.hpp>`
+`#include <boost/geometry/index/parameters.hpp>`
 
 [heading Synopsis]
 [pre

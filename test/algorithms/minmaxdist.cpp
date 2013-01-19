@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Unit Test
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,7 +11,7 @@
 
 #include <geometry_index_test_common.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/minmaxdist.hpp>
+#include <boost/geometry/index/detail/algorithms/minmaxdist.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/point.hpp>
@@ -23,7 +23,7 @@ template <typename Point, typename Indexable>
 void test(Point const& pt, Indexable const& indexable,
     typename bg::default_distance_result<Point, Indexable>::type expected_value)
 {
-    typename bg::default_distance_result<Point, Indexable>::type value = bgi::minmaxdist(pt, indexable);
+    typename bg::default_distance_result<Point, Indexable>::type value = bgi::detail::minmaxdist(pt, indexable);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
@@ -65,7 +65,7 @@ void test_large_integers()
     bg::read_wkt(box_li, int_box);
     bg::read_wkt(box_li, double_box);
     
-    BOOST_CHECK(bgi::minmaxdist(int_pt, int_box) == bgi::minmaxdist(double_pt, double_box));
+    BOOST_CHECK(bgi::detail::minmaxdist(int_pt, int_box) == bgi::detail::minmaxdist(double_pt, double_box));
 }
 
 int test_main(int, char* [])

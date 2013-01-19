@@ -2,14 +2,14 @@
 //
 // Throwing objects implementation
 //
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_THROWING_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_THROWING_HPP
+#ifndef BOOST_GEOMETRY_INDEX_TEST_THROWING_HPP
+#define BOOST_GEOMETRY_INDEX_TEST_THROWING_HPP
 
 // value
 
@@ -141,7 +141,7 @@ struct generate_value< std::pair<bg::model::point<T, 2, C>, throwing_value> >
 //
 //}}} // namespace boost::geometry::index
 
-#include <boost/geometry/extensions/index/detail/static_vector.hpp>
+#include <boost/geometry/index/detail/static_vector.hpp>
 
 struct throwing_static_vector_exception : public std::exception
 {
@@ -195,4 +195,4 @@ public:
     }
 };
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_THROWING_HPP
+#endif // BOOST_GEOMETRY_INDEX_TEST_THROWING_HPP

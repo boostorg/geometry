@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Additional tests
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,11 +10,12 @@
 #include <iostream>
 #include <fstream>
 
-#include <boost/geometry/extensions/index/rtree/rtree.hpp>
-#include <boost/geometry/extensions/index/inserter.hpp>
+#define BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE
+#include <boost/geometry/index/rtree.hpp>
+#include <boost/geometry/index/inserter.hpp>
 
-#include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/are_boxes_ok.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/are_levels_ok.hpp>
 
 #include <boost/timer.hpp>
 #include <boost/foreach.hpp>
@@ -181,11 +182,11 @@ int main()
     }
 
     // check
-    if ( bgi::are_boxes_ok(t) )
+    if ( bgi::detail::rtree::are_boxes_ok(t) )
         std::cout << "BOXES OK\n";
     else
         std::cout << "WRONG BOXES\n";
-    if ( bgi::are_levels_ok(t) )
+    if ( bgi::detail::rtree::are_levels_ok(t) )
         std::cout << "LEVELS OK\n";
     else
         std::cout << "WRONG LEVELS\n";
@@ -201,7 +202,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            t.spatial_query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -228,7 +229,7 @@ int main()
                 float x = coords[i].first;
                 float y = coords[i].second;
                 std::deque< std::pair<B, size_t> > result;
-                t_copy.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+                t_copy.spatial_query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
                 temp += result.size();
             }
             std::cout << "time: " << tim.elapsed() << "s\n";
@@ -247,7 +248,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.query(!bgi::disjoint(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            t.spatial_query(!bgi::disjoint(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -265,7 +266,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+            t.spatial_query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -283,7 +284,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.query(
+            t.spatial_query(
                 std::make_pair(
                     B(P(x - 10, y - 10), P(x + 10, y + 10)),
                     bgi::value(test_pred< std::pair<B, size_t> >())
@@ -305,7 +306,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.query(
+            t.spatial_query(
                 boost::make_tuple(
                     B(P(x - 10, y - 10), P(x + 10, y + 10)),
                     bgi::value(test_pred< std::pair<B, size_t> >())
@@ -355,7 +356,7 @@ int main()
             float x = coords[i].first + 100;
             float y = coords[i].second + 100;
             std::pair<B, size_t> result;
-            temp += t.nearest(bgi::unbounded(P(x, y)), result);
+            temp += t.nearest_query(bgi::unbounded(P(x, y)), result);
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
         std::cout << "found: " << temp << "\n";
@@ -372,7 +373,7 @@ int main()
             float x = coords[i].first + 100;
             float y = coords[i].second + 100;
             std::vector< std::pair<B, size_t> > result;
-            temp += t.nearest(P(x, y), 5, std::back_inserter(result));
+            temp += t.nearest_query(P(x, y), 5, std::back_inserter(result));
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
         std::cout << "found: " << temp << "\n";
@@ -397,7 +398,7 @@ int main()
                 it != v.end();
                 ++it )
             {
-                distance_type cd = bgi::comparable_distance_near(P(x, y), it->first);
+                distance_type cd = bgi::detail::comparable_distance_near(P(x, y), it->first);
 
                 if ( cd < dist )
                 {
@@ -428,11 +429,11 @@ int main()
     }
 
     // check
-    if ( bgi::are_boxes_ok(t) )
+    if ( bgi::detail::rtree::are_boxes_ok(t) )
         std::cout << "BOXES OK\n";
     else
         std::cout << "WRONG BOXES\n";
-    if ( bgi::are_levels_ok(t) )
+    if ( bgi::detail::rtree::are_levels_ok(t) )
         std::cout << "LEVELS OK\n";
     else
         std::cout << "WRONG LEVELS\n";
@@ -448,7 +449,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            t.spatial_query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -472,11 +473,11 @@ int main()
     }
 
     // check
-    if ( bgi::are_boxes_ok(t) )
+    if ( bgi::detail::rtree::are_boxes_ok(t) )
         std::cout << "BOXES OK\n";
     else
         std::cout << "WRONG BOXES\n";
-    if ( bgi::are_levels_ok(t) )
+    if ( bgi::detail::rtree::are_levels_ok(t) )
         std::cout << "LEVELS OK\n";
     else
         std::cout << "WRONG LEVELS\n";
@@ -492,7 +493,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            t.spatial_query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";

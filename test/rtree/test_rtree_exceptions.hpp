@@ -3,18 +3,18 @@
 // R-tree nodes based on runtime-polymorphism, storing static-size containers
 // test version throwing exceptions on creation
 //
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_RTREE_EXCEPTIONS_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_RTREE_EXCEPTIONS_HPP
+#ifndef BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP
+#define BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP
 
 #include <rtree/test_rtree.hpp>
 
-#include <boost/geometry/extensions/index/detail/rtree/node/dynamic_visitor.hpp>
+#include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
 
 #include <rtree/test_throwing.hpp>
 
@@ -262,4 +262,4 @@ struct create_node<
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_RTREE_EXCEPTIONS_HPP
+#endif // BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP

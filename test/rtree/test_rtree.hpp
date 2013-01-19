@@ -1,14 +1,14 @@
 // Boost.Geometry Index
 // Unit Test
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_RTREE_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_INDEX_TEST_RTREE_HPP
+#ifndef BOOST_GEOMETRY_INDEX_TEST_RTREE_HPP
+#define BOOST_GEOMETRY_INDEX_TEST_RTREE_HPP
 
 #include <geometry_index_test_common.hpp>
 
@@ -16,8 +16,8 @@
 #include <vector>
 #include <algorithm>
 
-#include <boost/geometry/extensions/index/detail/rtree/visitors/are_levels_ok.hpp>
-#include <boost/geometry/extensions/index/detail/rtree/visitors/are_boxes_ok.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/are_levels_ok.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/are_boxes_ok.hpp>
 
 //#include <boost/geometry/geometries/ring.hpp>
 //#include <boost/geometry/geometries/polygon.hpp>
@@ -1291,7 +1291,7 @@ struct test_geometry_algorithms<2>
 };
 
 template <typename Value, typename Parameters>
-void test_rtree_box(Parameters const& parameters)
+void test_rtree_envelope(Parameters const& parameters)
 {
     typedef bgi::rtree<Value, Parameters> Tree;
     typedef typename Tree::box_type B;
@@ -1304,15 +1304,21 @@ void test_rtree_box(Parameters const& parameters)
     std::vector<Value> input;
     B qbox;
 
-    BOOST_CHECK(bg::equals(t.box(), b));
+    BOOST_CHECK(bg::equals(t.envelope(), b));
 
     generate_rtree(t, input, qbox);
 
     BOOST_FOREACH(Value const& v, input)
         bg::expand(b, t.translator()(v));
 
-    BOOST_CHECK(bg::equals(t.box(), b));
+    BOOST_CHECK(bg::equals(t.envelope(), b));
 
+    {
+        using namespace bg;
+        B temp_b;
+        envelope(t, temp_b);
+        BOOST_CHECK(equals(temp_b, b));
+    }
     BOOST_CHECK(bg::equals(bg::return_envelope<B>(t), b));
     BOOST_CHECK(bg::equals(bg::return_centroid<P>(t), bg::return_centroid<P>(b)));
     test_geometry_algorithms<bg::traits::dimension<P>::value>::apply(t, b);
@@ -1328,21 +1334,21 @@ void test_rtree_box(Parameters const& parameters)
     BOOST_FOREACH(Value const& v, input)
         bg::expand(b, t.translator()(v));
 
-    BOOST_CHECK(bg::equals(t.box(), b));
+    BOOST_CHECK(bg::equals(t.envelope(), b));
 
     Tree t2(t);
-    BOOST_CHECK(bg::equals(t2.box(), b));
+    BOOST_CHECK(bg::equals(t2.envelope(), b));
     t2.clear();
     t2 = t;
-    BOOST_CHECK(bg::equals(t2.box(), b));
+    BOOST_CHECK(bg::equals(t2.envelope(), b));
     t2.clear();
     t2 = boost::move(t);
-    BOOST_CHECK(bg::equals(t2.box(), b));
+    BOOST_CHECK(bg::equals(t2.envelope(), b));
 
     t.clear();
 
     bg::assign_inverse(b);
-    BOOST_CHECK(bg::equals(t.box(), b));
+    BOOST_CHECK(bg::equals(t.envelope(), b));
 }
 
 // run all tests for one Algorithm for some number of rtrees
@@ -1366,7 +1372,7 @@ void test_rtree_for_point(Parameters const& parameters = Parameters())
     test_count_rtree_values<Point>(parameters);
 
     test_rtree_count<Point>(parameters);
-    test_rtree_box<Point>(parameters);
+    test_rtree_envelope<Point>(parameters);
 }
 
 template<typename Point, typename Parameters>
@@ -1386,7 +1392,7 @@ void test_rtree_for_box(Parameters const& parameters = Parameters())
     test_count_rtree_values<Box>(parameters);
 
     test_rtree_count<Box>(parameters);
-    test_rtree_box<Box>(parameters);
+    test_rtree_envelope<Box>(parameters);
 }
 
 #endif

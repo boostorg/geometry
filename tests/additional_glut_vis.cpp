@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Additional tests
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,16 +13,16 @@
 
 #include <boost/foreach.hpp>
 
-#include <boost/geometry/extensions/index/rtree/rtree.hpp>
+#include <boost/geometry/index/rtree.hpp>
 
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/extensions/index/rtree/visitors/gl_draw.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/print.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/are_boxes_ok.hpp>
-#include <boost/geometry/extensions/index/rtree/visitors/are_levels_ok.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/gl_draw.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/print.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/are_boxes_ok.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/are_levels_ok.hpp>
 
 namespace bg = boost::geometry;
 namespace bgi = bg::index;
@@ -494,8 +494,8 @@ void mouse(int button, int state, int x, int y)
         bgi::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
 
-        std::cout << ( bgi::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-        std::cout << ( bgi::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << ( bgi::detail::rtree::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( bgi::detail::rtree::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
         std::cout << "\n";
 
         search_valid = false;
@@ -515,8 +515,8 @@ void mouse(int button, int state, int x, int y)
         bgi::detail::rtree::visitors::detail::print_indexable(std::cout, b);
         std::cout << '\n';
 
-        std::cout << ( bgi::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-        std::cout << ( bgi::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << ( bgi::detail::rtree::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( bgi::detail::rtree::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
         std::cout << "\n";
 
         search_valid = false;
@@ -558,8 +558,8 @@ void keyboard(unsigned char key, int x, int y)
                 std::cout << '\n';
             }
 
-            std::cout << ( bgi::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-            std::cout << ( bgi::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+            std::cout << ( bgi::detail::rtree::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+            std::cout << ( bgi::detail::rtree::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
             std::cout << "\n";
 
             search_valid = false;

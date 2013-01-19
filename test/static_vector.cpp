@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Unit Test
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,9 +10,9 @@
 #include <boost/test/included/test_exec_monitor.hpp>
 #include <boost/test/impl/execution_monitor.ipp>
 
-#include <boost/geometry/extensions/index/static_vector.hpp>
+#include <boost/geometry/index/detail/static_vector.hpp>
 
-using namespace boost::geometry::index;
+using namespace boost::geometry::index::detail;
 
 class value_ndc
 {

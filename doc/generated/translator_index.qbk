@@ -10,7 +10,7 @@ The index translator.
 This translator translates from index of an element in an external Container to the Indexable. The container should have operator[](size\u005ftype) defined. Index translator uses [link structboost_1_1geometry_1_1index_1_1translator_1_1def translator::def]<...> to translate from Container::value\u005ftype to the Indexable which means that it can handle Indexables, std::pairs and boost::tuples stored in an external Container.
 
 [heading Header]
-`#include <boost/geometry/extensions/index/translator/index.hpp>`
+`#include <boost/geometry/index/translator/index.hpp>`
 
 [heading Synopsis]
 [pre
@@ -43,7 +43,8 @@ The constructor.
 `index``(``Container const &` `c``)`
 ]
 
-[heading Parameter(s)]
+[heading Modifier(s)]
+``explicit ``[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[`Container const &`][ `c` ][The container which stores indexed values. ]]

@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Unit Test
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -30,8 +30,8 @@ void test_large_integers()
     bg::read_wkt(box_li2, int_box2);
     bg::read_wkt(box_li2, double_box2);
 
-    double int_value = bgi::intersection_content(int_box1, int_box2);
-    double double_value = bgi::intersection_content(double_box1, double_box2);
+    double int_value = bgi::detail::intersection_content(int_box1, int_box2);
+    double double_value = bgi::detail::intersection_content(double_box1, double_box2);
 
     BOOST_CHECK_CLOSE(int_value, double_value, 0.0001);
 }

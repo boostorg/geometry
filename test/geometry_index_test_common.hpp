@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Test
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -12,7 +12,7 @@
 
 #include <boost/geometry.hpp>
 #define BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE
-#include <boost/geometry/extensions/index/rtree.hpp>
+#include <boost/geometry/index/rtree.hpp>
 
 #include <geometry_test_common.hpp>
 

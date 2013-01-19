@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Unit Test
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,7 +11,7 @@
 
 #include <geometry_index_test_common.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/is_valid.hpp>
+#include <boost/geometry/index/detail/algorithms/is_valid.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/point.hpp>
@@ -22,7 +22,7 @@
 template <typename Geometry>
 void test(Geometry const& geometry, bool expected_value)
 {
-    bool value = bgi::is_valid(geometry);
+    bool value = bgi::detail::is_valid(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
@@ -63,13 +63,13 @@ void test_large_integers()
     bg::read_wkt(box_li, int_box);
     bg::read_wkt(box_li, double_box);
 
-    BOOST_CHECK(bgi::is_valid(int_box) == bgi::is_valid(double_box));
+    BOOST_CHECK(bgi::detail::is_valid(int_box) == bgi::detail::is_valid(double_box));
 
     std::string const box_li2 = "POLYGON((1872000 528000, 1536119 192000))";
     bg::read_wkt(box_li2, int_box);
     bg::read_wkt(box_li2, double_box);
 
-    BOOST_CHECK(bgi::is_valid(int_box) == bgi::is_valid(double_box));
+    BOOST_CHECK(bgi::detail::is_valid(int_box) == bgi::detail::is_valid(double_box));
 }
 
 int test_main(int, char* [])

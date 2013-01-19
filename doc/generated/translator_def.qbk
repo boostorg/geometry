@@ -10,7 +10,7 @@ The default translator.
 It translates Value object to Indexable object. The default version handles Values which are Indexables. This translator is also specialized for std::pair<Indexable, Second> and boost::tuple<Indexable, ...>.
 
 [heading Header]
-`#include <boost/geometry/extensions/index/translator/def.hpp>`
+`#include <boost/geometry/index/translator/def.hpp>`
 
 [heading Synopsis]
 [pre

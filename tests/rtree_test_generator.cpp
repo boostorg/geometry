@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Rtree tests generator
 
-// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -61,7 +61,7 @@ int main()
                         "// Boost.Geometry Index\n" <<
                         "// Unit Test\n" <<
                         "\n" <<
-                        "// Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.\n" <<
+                        "// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.\n" <<
                         "\n" <<
                         "// Use, modification and distribution is subject to the Boost Software License,\n" <<
                         "// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at\n" <<
@@ -99,7 +99,7 @@ int main()
     f <<
         "# Boost.Geometry Index\n" <<
         "#\n" <<
-        "# Copyright (c) 2011-2012 Adam Wulkiewicz, Lodz, Poland.\n" <<
+        "# Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.\n" <<
         "#\n" <<
         "# Use, modification and distribution is subject to the Boost Software License,\n" <<
         "# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at\n" <<
