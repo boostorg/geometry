@@ -11,9 +11,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_IS_VALID_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_IS_VALID_HPP
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
-namespace detail {
+namespace dispatch {
 
 template <typename Box, size_t Dimension>
 struct is_valid_box
@@ -39,10 +39,6 @@ struct is_valid_box<Box, 1>
     }
 };
 
-} // namespace detail
-
-namespace dispatch {
-
 template <typename Indexable, typename Tag>
 struct is_valid
 {
@@ -66,7 +62,7 @@ struct is_valid<Indexable, box_tag>
 {
     static inline bool apply(Indexable const& b)
     {
-        return detail::is_valid_box<Indexable, detail::traits::dimension<Indexable>::value>::apply(b);
+        return dispatch::is_valid_box<Indexable, detail::traits::dimension<Indexable>::value>::apply(b);
     }
 };
 
@@ -78,6 +74,6 @@ inline bool is_valid(Indexable const& b)
     return dispatch::is_valid<Indexable, typename detail::traits::tag<Indexable>::type>::apply(b);
 }
 
-}}} // namespace boost::geometry::index
+}}}} // namespace boost::geometry::index::detail
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_INDEX_ALGORITHMS_IS_VALID_HPP

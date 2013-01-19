@@ -293,7 +293,7 @@ struct cdist_value<
     static inline type & get(cdist<T, Tag> & cd)
     {
         BOOST_MPL_ASSERT_MSG(
-            (tuples::equal< cdist<T, Tag2>, cdist<T, Tag> >::value),
+            (boost::is_same< cdist<T, Tag2>, cdist<T, Tag> >::value),
             TAGS_DO_NOT_MATCH,
             (cdist_value));
 
@@ -304,7 +304,7 @@ struct cdist_value<
     static inline type const& get(cdist<T, Tag> const& cd)
     {
         BOOST_MPL_ASSERT_MSG(
-            (tuples::equal< cdist<T, Tag2>, cdist<T, Tag> >::value),
+            (boost::is_same< cdist<T, Tag2>, cdist<T, Tag> >::value),
             TAGS_DO_NOT_MATCH,
             (cdist_value));
 

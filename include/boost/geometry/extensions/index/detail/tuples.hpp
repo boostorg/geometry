@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_INDEX_TUPLES_HPP
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 // TODO move this to index/tuples and separate algorithms
 
@@ -76,20 +77,6 @@ struct find_index
         >::value;
 };
 
-// types_equal
-
-template <typename T1, typename T2>
-struct equal
-{
-    static const bool value = false;
-};
-
-template <typename T>
-struct equal<T, T>
-{
-    static const bool value = true;
-};
-
 // has
 
 namespace detail {
@@ -98,7 +85,7 @@ template <typename Tuple, typename El, size_t N>
 struct has
 {
     static const bool value
-        = equal<
+        = boost::is_same<
             typename boost::tuples::element<N - 1, Tuple>::type,
             El
         >::value
@@ -109,7 +96,7 @@ template <typename Tuple, typename El>
 struct has<Tuple, El, 1>
 {
     static const bool value
-        = equal<
+        = boost::is_same<
             typename boost::tuples::element<0, Tuple>::type,
             El
         >::value;

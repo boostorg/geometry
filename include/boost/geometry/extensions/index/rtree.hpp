@@ -31,7 +31,7 @@
 
 #include <boost/geometry/extensions/index/detail/rtree/node/node.hpp>
 
-#include <boost/geometry/extensions/index/algorithms/is_valid.hpp>
+#include <boost/geometry/extensions/index/detail/algorithms/is_valid.hpp>
 
 #include <boost/geometry/extensions/index/detail/rtree/visitors/insert.hpp>
 #include <boost/geometry/extensions/index/detail/rtree/visitors/remove.hpp>
@@ -1055,7 +1055,7 @@ private:
     inline void raw_insert(value_type const& value)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_root, "The root must exist");
-        BOOST_GEOMETRY_INDEX_ASSERT(index::is_valid(m_translator(value)), "Indexable is invalid");
+        BOOST_GEOMETRY_INDEX_ASSERT(detail::is_valid(m_translator(value)), "Indexable is invalid");
 
         geometry::expand(m_box, m_translator(value));
 
