@@ -22,11 +22,11 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 
 struct empty {};
 
-template <typename ValuePredicate>
+template <typename Fun>
 struct value
 {
-    value(ValuePredicate const& vpred) : value_predicate(vpred) {}
-    ValuePredicate value_predicate;
+    value(Fun const& f) : fun(f) {}
+    Fun fun;
 };
 
 template <typename Geometry>
@@ -150,13 +150,13 @@ struct predicate_check<empty, value_tag>
     }
 };
 
-template <typename ValuePredicate>
-struct predicate_check<value<ValuePredicate>, value_tag>
+template <typename Fun>
+struct predicate_check<value<Fun>, value_tag>
 {
     template <typename Value, typename Indexable>
-    static inline bool apply(value<ValuePredicate> const& p, Value const& v, Indexable const&)
+    static inline bool apply(value<Fun> const& p, Value const& v, Indexable const&)
     {
-        return p.value_predicate(v);
+        return p.fun(v);
     }
 };
 
@@ -304,11 +304,11 @@ struct predicate_check<empty, envelope_tag>
     }
 };
 
-template <typename ValuePredicate>
-struct predicate_check<value<ValuePredicate>, envelope_tag>
+template <typename Fun>
+struct predicate_check<value<Fun>, envelope_tag>
 {
     template <typename Value, typename Box>
-    static bool apply(value<ValuePredicate> const&, Value const&, Box const&)
+    static bool apply(value<Fun> const&, Value const&, Box const&)
     {
         return true;
     }

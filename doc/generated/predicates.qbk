@@ -4,50 +4,13 @@
 [heading Functions]
 [table
 [[Function][Description]]
-[[[link group__predicates_1ga150fd87dc53e5472f8905bb5827428e2 `empty()`]][Generate empty predicate. ]]
-[[[link group__predicates_1ga5c93efac97377136564623cbaf35d880 `value(ValuePredicate const &)`]][Generate value predicate. ]]
 [[[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 `covered_by(Geometry const &)`]][Generate [^[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 covered_by()]] predicate. ]]
 [[[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d `disjoint(Geometry const &)`]][Generate [^[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d disjoint()]] predicate. ]]
 [[[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 `intersects(Geometry const &)`]][Generate [^[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 intersects()]] predicate. ]]
 [[[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 `overlaps(Geometry const &)`]][Generate [^[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 overlaps()]] predicate. ]]
 [[[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d `within(Geometry const &)`]][Generate [^[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d within()]] predicate. ]]
+[[[link group__predicates_1ga8acb81106fce01da72f310184ab4d9ce `value(Fun const &)`]][Generate value predicate. ]]
 ]
-
-[#group__predicates_1ga150fd87dc53e5472f8905bb5827428e2]
-[section empty()]
-Generate empty predicate. 
-
-[heading Synopsis]
-[pre
-
-`detail::empty boost::geometry::index::empty``()`
-]
-
-[endsect]
-
-[#group__predicates_1ga5c93efac97377136564623cbaf35d880]
-[section value(ValuePredicate const &)]
-Generate value predicate. 
-
-[heading Description]
-A wrapper around user-defined functor describing if Value should be returned by spatial query.[heading Synopsis]
-[pre
-`template<``typename ValuePredicate``>`
-`detail::value<ValuePredicate> boost::geometry::index::value``(``ValuePredicate const &` `vpred``)`
-]
-
-[heading Template parameter(s)]
-[table
-[[Parameter] [Description]]
-[[`ValuePredicate`][Functor type.]]
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`ValuePredicate const &`][ `vpred` ][The functor. ]]
-]
-[endsect]
 
 [#group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61]
 [section covered_by(Geometry const &)]
@@ -166,6 +129,30 @@ Generate a predicate defining Value and Geometry relationship. Value will be ret
 [table 
 [[Type][Name][Description]]
 [[`Geometry const &`][ `g` ][The Geometry object. ]]
+]
+[endsect]
+
+[#group__predicates_1ga8acb81106fce01da72f310184ab4d9ce]
+[section value(Fun const &)]
+Generate value predicate. 
+
+[heading Description]
+A wrapper around user-defined functor describing if Value should be returned by spatial query.[heading Synopsis]
+[pre
+`template<``typename Fun``>`
+`detail::value<Fun> boost::geometry::index::value``(``Fun const &` `fun``)`
+]
+
+[heading Template parameter(s)]
+[table
+[[Parameter] [Description]]
+[[`Fun`][Functor type.]]
+]
+
+[heading Parameter(s)]
+[table 
+[[Type][Name][Description]]
+[[`Fun const &`][ `fun` ][The functor. ]]
 ]
 [endsect]
 
