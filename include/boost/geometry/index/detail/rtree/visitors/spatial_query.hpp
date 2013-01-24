@@ -28,6 +28,8 @@ struct spatial_query
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
+    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+
     inline spatial_query(Translator const& t, Predicates const& p, OutIter out_it)
         : tr(t), pred(p), out_iter(out_it), found_count(0)
     {}
@@ -43,7 +45,7 @@ struct spatial_query
         {
             // if node meets predicates
             // 0 - dummy value
-            if ( index::detail::predicates_check<index::detail::envelope_tag>(pred, 0, it->first) )
+            if ( index::detail::predicates_check<index::detail::envelope_tag, 0, predicates_len>(pred, 0, it->first) )
                 rtree::apply_visitor(*this, *it->second);
         }
     }
@@ -58,7 +60,7 @@ struct spatial_query
             it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::detail::predicates_check<index::detail::value_tag>(pred, *it, tr(*it)) )
+            if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(pred, *it, tr(*it)) )
             {
                 out_iter = *it;
                 ++out_iter;

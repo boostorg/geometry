@@ -19,6 +19,22 @@
 
 namespace boost { namespace geometry { namespace index {
 
+// nearest predicate generators
+
+template <typename DistancePredicates> inline
+detail::nearest<DistancePredicates>
+nearest(DistancePredicates const& dpred, unsigned k)
+{
+    return detail::nearest<DistancePredicates>(dpred, k);
+}
+
+template <typename DistancePredicates> inline
+detail::nearest_one<DistancePredicates>
+nearest(DistancePredicates const& dpred)
+{
+    return detail::nearest_one<DistancePredicates>(dpred);
+}
+
 // relations generators
 
 /*!

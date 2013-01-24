@@ -164,6 +164,36 @@ struct add_unique
     >::type type;
 };
 
+template <typename Tuple, typename T, size_t I, size_t N>
+struct push_back_impl
+{
+    typedef
+    boost::tuples::cons<
+        typename boost::tuples::element<I, Tuple>::type,
+        typename push_back_impl<Tuple, T, I+1, N>::type
+    > type;
+
+    static type apply(Tuple const& tup, T const& t)
+    {
+        return
+        type(
+            boost::get<I>(tup),
+            push_back_impl<Tuple, T, I+1, N>::apply(tup, t)
+        );
+    }
+};
+
+template <typename Tuple, typename T, size_t N>
+struct push_back_impl<Tuple, T, N, N>
+{
+    typedef boost::tuples::cons<T, boost::tuples::null_type> type;
+
+    static type apply(Tuple const&, T const& t)
+    {
+        return type(t, boost::tuples::null_type());
+    }
+};
+
 } // namespace tuples
 
 }}}} // namespace boost::geometry::index::detail

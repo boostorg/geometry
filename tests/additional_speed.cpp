@@ -58,8 +58,8 @@ int main()
    // typedef bgi::rtree<B, bgi::runtime::quadratic > RT;
     //typedef bgi::rtree<B, bgi::rstar<32, 8> > RT;
     //typedef bgi::rtree<B, bgi::runtime::rstar > RT;
-    
-    for ( ;; )
+
+    for (unsigned i = 0 ; i < 10 ; ++i)
     {
         RT t;
         //RT t(bgi::runtime::linear(32, 8));
@@ -126,6 +126,60 @@ int main()
             std::cout << time << "s - spatial_query(i, !w, !o) " << queries_count << " found " << temp << '\n';
         }
 
+        {
+            tim.restart();    
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count / 2 ; ++i )
+            {
+                float x1 = coords[i].first;
+                float y1 = coords[i].second;
+                float x2 = coords[i+1].first;
+                float y2 = coords[i+1].second;
+                float x3 = coords[i+2].first;
+                float y3 = coords[i+2].second;
+                result.clear();
+                t.spatial_query(
+                    bgi::intersects(B(P(x1 - 10, y1 - 10), P(x1 + 10, y1 + 10)))
+                    &&
+                    !bgi::within(B(P(x2 - 10, y2 - 10), P(x2 + 10, y2 + 10)))
+                    &&
+                    !bgi::overlaps(B(P(x3 - 10, y3 - 10), P(x3 + 10, y3 + 10)))
+                    ,
+                    std::back_inserter(result)
+                    );
+                temp += result.size();
+            }
+            double time = tim.elapsed();
+            std::cout << time << "s - spatial_query(i && !w && !o) " << queries_count << " found " << temp << '\n';
+        }
+
+        {
+            tim.restart();    
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count / 2 ; ++i )
+            {
+                float x1 = coords[i].first;
+                float y1 = coords[i].second;
+                float x2 = coords[i+1].first;
+                float y2 = coords[i+1].second;
+                float x3 = coords[i+2].first;
+                float y3 = coords[i+2].second;
+                result.clear();
+                t.query(
+                    bgi::intersects(B(P(x1 - 10, y1 - 10), P(x1 + 10, y1 + 10)))
+                    &&
+                    !bgi::within(B(P(x2 - 10, y2 - 10), P(x2 + 10, y2 + 10)))
+                    &&
+                    !bgi::overlaps(B(P(x3 - 10, y3 - 10), P(x3 + 10, y3 + 10)))
+                    ,
+                    std::back_inserter(result)
+                    );
+                temp += result.size();
+            }
+            double time = tim.elapsed();
+            std::cout << time << "s - query(i && !w && !o) " << queries_count << " found " << temp << '\n';
+        }
+
         result.clear();
 
         {
@@ -175,6 +229,55 @@ int main()
             }
             double time = tim.elapsed();
             std::cout << time << "s - nearest_query(bounded(n, c, f), 5) " << (queries_count / 10) << " found " << temp << '\n';
+        }
+
+        {
+            tim.restart();    
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count / 10 ; ++i )
+            {
+                float x = coords[i].first + 100;
+                float y = coords[i].second + 100;
+                temp += t.query(bgi::nearest(P(x, y)), result_one);
+            }
+            double time = tim.elapsed();
+            std::cout << time << "s - query(nearest(P)) " << (queries_count / 10) << " found " << temp << '\n';
+        }
+
+        {
+            tim.restart();    
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count / 10 ; ++i )
+            {
+                float x = coords[i].first + 100;
+                float y = coords[i].second + 100;
+                result.clear();
+                temp += t.query(bgi::nearest(P(x, y), 5), std::back_inserter(result));
+            }
+            double time = tim.elapsed();
+            std::cout << time << "s - query(nearest(P, 5)) " << (queries_count / 10) << " found " << temp << '\n';
+        }
+
+        {
+            tim.restart();    
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count / 10 ; ++i )
+            {
+                float x = coords[i].first + 100;
+                float y = coords[i].second + 100;
+                result.clear();
+                temp += t.query(bgi::nearest(
+                                    bgi::bounded(
+                                    bgi::to_nearest(P(x, y)),
+                                    bgi::to_centroid(0),
+                                    bgi::to_furthest(100000)
+                                ),
+                            5),
+                            std::back_inserter(result)
+                        );
+            }
+            double time = tim.elapsed();
+            std::cout << time << "s - query(nearest(bounded(n, c, f), 5)) " << (queries_count / 10) << " found " << temp << '\n';
         }
 
         {

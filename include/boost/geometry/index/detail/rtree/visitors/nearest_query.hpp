@@ -184,6 +184,8 @@ public:
         index::detail::value_tag
     > value_distances_predicates_check;
 
+    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+
     inline nearest_query(parameters_type const& parameters, Translator const& translator, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
         : m_parameters(parameters), m_translator(translator)
         , m_dist_pred(dist_pred), m_pred(pred)
@@ -211,7 +213,7 @@ public:
         {
             // if current node meets predicates
             // 0 - dummy value
-            if ( index::detail::predicates_check<index::detail::envelope_tag>(m_pred, 0, it->first) )
+            if ( index::detail::predicates_check<index::detail::envelope_tag, 0, predicates_len>(m_pred, 0, it->first) )
             {
                 // calculate node's distance(s) for distance predicate
                 node_distances_type node_dist_data = node_distances_calc::apply(m_dist_pred, it->first);
@@ -266,7 +268,7 @@ public:
             it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::detail::predicates_check<index::detail::value_tag>(m_pred, *it, m_translator(*it)) )
+            if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(m_pred, *it, m_translator(*it)) )
             {
                 // calculate values distance for distance predicate
                 value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_translator(*it));

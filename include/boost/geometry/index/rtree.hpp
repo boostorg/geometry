@@ -630,6 +630,75 @@ public:
         return result;
     }
 
+    template <typename Predicates, typename OutIter>
+    size_type query(Predicates const& predicates, OutIter out_it) const
+    {
+        static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
+        static const bool is_nearest = 0 < nearest_count;
+        BOOST_MPL_ASSERT_MSG((nearest_count <= 1), PASS_ONLY_ONE_NEAREST_PREDICATE, (Predicates));
+
+        return query_dispatch(predicates, out_it, boost::mpl::bool_<is_nearest>());
+    }
+
+    template <typename Predicates>
+    size_type query(Predicates const& predicates, value_type & v) const
+    {
+        static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
+        BOOST_MPL_ASSERT_MSG((nearest_count == 1), PASS_NEAREST_PREDICATE_TO_GET_VALUE_AS_RESULT, (Predicates));
+
+        return query_dispatch(predicates, v, boost::mpl::bool_<true>());
+    }
+
+private:
+
+    template <typename Predicates, typename OutIter>
+    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_nearest*/) const
+    {
+        return spatial_query(predicates, out_it);
+    }
+
+    template <typename Predicates, typename OutIter>
+    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<true> const& /*is_nearest*/) const
+    {
+        static const unsigned nearest_index = detail::predicates_find_nearest<Predicates>::value;
+        static const bool is_one = detail::predicates_element<nearest_index, Predicates>::type::is_one;
+
+        return query_dispatch_nearest(predicates, out_it, boost::mpl::bool_<is_one>());
+    }
+
+    template <typename Predicates>
+    size_type query_dispatch(Predicates const& predicates, value_type & v, boost::mpl::bool_<true> const& /*is_nearest*/) const
+    {
+        static const unsigned nearest_index = detail::predicates_find_nearest<Predicates>::value;
+        static const bool is_one = detail::predicates_element<nearest_index, Predicates>::type::is_one;
+        BOOST_MPL_ASSERT_MSG((is_one == 1), PASS_ONE_VALUE_NEAREST_PREDICATE_TO_GET_VALUE_AS_RESULT, (Predicates));
+
+        typedef detail::predicates_element<nearest_index, Predicates> element_access;
+        typename element_access::type const& nearest_pred = element_access::get(predicates);
+
+        return this->raw_nearest_one(nearest_pred.distance_predicates, predicates, v);
+    }
+
+    template <typename Predicates, typename OutIter>
+    size_type query_dispatch_nearest(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_one*/) const
+    {
+        static const unsigned nearest_index = detail::predicates_find_nearest<Predicates>::value;
+        typedef detail::predicates_element<nearest_index, Predicates> element_access;
+        typename element_access::type const& nearest_pred = element_access::get(predicates);
+        return this->raw_nearest_k(nearest_pred.distance_predicates, nearest_pred.count, predicates, out_it);
+    }
+
+    template <typename Predicates, typename OutIter>
+    size_type query_dispatch_nearest(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<true> const& /*is_one*/) const
+    {
+        static const unsigned nearest_index = detail::predicates_find_nearest<Predicates>::value;
+        typedef detail::predicates_element<nearest_index, Predicates> element_access;
+        typename element_access::type const& nearest_pred = element_access::get(predicates);
+        return this->raw_nearest_k(nearest_pred.distance_predicates, 1, predicates, out_it);
+    }
+
+public:
+
     /*!
     \brief Finds values meeting spatial predicates, e.g. intersecting some Box.
 
@@ -661,8 +730,8 @@ public:
     \li If Value copy constructor or copy assignment throws.
     \li If OutIter dereference or increment throws.
     */
-    template <typename Predicates, typename OutIter>
-    inline size_type spatial_query(Predicates const& pred, OutIter out_it) const
+    template <typename Predicates, typename OutIter> inline
+    size_type spatial_query(Predicates const& pred, OutIter out_it) const
     {
         if ( !m_root )
             return 0;

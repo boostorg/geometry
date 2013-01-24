@@ -19,6 +19,7 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/index/detail/predicates.hpp>
+#include <boost/geometry/index/detail/tuples.hpp>
 
 /*!
 \defgroup predicates Spatial predicates (boost::geometry::index::)
@@ -244,6 +245,43 @@ within<Geometry>
 operator!(not_within<Geometry> const& p)
 {
     return within<Geometry>(p.geometry);
+}
+
+// operator&& generators
+
+template <typename Pred1, typename Pred2> inline
+boost::tuples::cons<
+    Pred1,
+    boost::tuples::cons<Pred2, boost::tuples::null_type>
+>
+operator&&(Pred1 const& p1, Pred2 const& p2)
+{
+    return
+    boost::tuples::cons<
+        Pred1,
+        boost::tuples::cons<Pred2, boost::tuples::null_type>
+    >(
+        p1,
+        boost::tuples::cons<Pred2, boost::tuples::null_type>(p2, boost::tuples::null_type())
+    );
+}
+
+template <typename Head, typename Tail, typename Pred> inline
+typename tuples::push_back_impl<
+    boost::tuples::cons<Head, Tail>,
+    Pred,
+    0,
+    boost::tuples::length<boost::tuples::cons<Head, Tail> >::value
+>::type
+operator&&(boost::tuples::cons<Head, Tail> const& t, Pred const& p)
+{
+    return
+    tuples::push_back_impl<
+        boost::tuples::cons<Head, Tail>,
+        Pred,
+        0,
+        boost::tuples::length<boost::tuples::cons<Head, Tail> >::value
+    >::apply(t, p);
 }
     
 } // namespace detail

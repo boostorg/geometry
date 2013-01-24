@@ -559,9 +559,15 @@ void test_spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value
 
     std::vector<Value> output2;
     size_t n2 = spatial_query(rtree, pred, std::back_inserter(output2));
-
+    
     BOOST_CHECK( n == n2 );
     test_exactly_the_same_outputs(rtree, output, output2);
+
+    std::vector<Value> output3;
+    size_t n3 = rtree.query(pred, std::back_inserter(output3));
+
+    BOOST_CHECK( n == n3 );
+    test_exactly_the_same_outputs(rtree, output, output3);
 
     test_exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::spatial_queried(pred));
 }
@@ -771,6 +777,15 @@ void test_nearest_query(Rtree const& rtree, std::vector<Value> const& input, Poi
             BOOST_CHECK(d1 == d2);
         }
     }
+
+    Value output2(generate_value_default<Value>::apply());
+    size_t n_res2 = rtree.query(bgi::nearest(pt), output2);
+
+    BOOST_CHECK(n == n_res2);
+    if ( 0 < n_res2 )
+    {
+        BOOST_CHECK(rtree.translator().equals(output, output2));
+    }
 }
 
 template <typename Rtree, typename Point>
@@ -861,6 +876,12 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
     output2.resize(found_count, generate_value_default<Value>::apply());
 
     test_exactly_the_same_outputs(rtree, output, output2);
+
+    std::vector<Value> output3(k, generate_value_default<Value>::apply());
+    found_count = rtree.query(bgi::nearest(pt, k), output3.begin());
+    output3.resize(found_count, generate_value_default<Value>::apply());
+
+    test_exactly_the_same_outputs(rtree, output, output3);
 }
 
 // rtree nearest not found

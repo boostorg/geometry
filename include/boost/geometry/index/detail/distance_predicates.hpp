@@ -29,6 +29,194 @@
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 // ------------------------------------------------------------------ //
+// predicate
+// ------------------------------------------------------------------ //
+
+template <typename DistancePredicates>
+struct nearest
+{
+    static const bool is_one = false;
+
+    nearest(DistancePredicates const& dpred, unsigned k)
+        : distance_predicates(dpred)
+        , count(k)
+    {}
+    DistancePredicates const& distance_predicates;
+    unsigned count;
+};
+
+template <typename DistancePredicates>
+struct predicate_check<nearest<DistancePredicates>, value_tag>
+{
+    template <typename Value, typename Box>
+    static inline bool apply(nearest<DistancePredicates> const&, Value const&, Box const&)
+    {
+        return true;
+    }
+};
+
+template <typename DistancePredicates>
+struct predicate_check<nearest<DistancePredicates>, envelope_tag>
+{
+    template <typename Value, typename Box>
+    static inline bool apply(nearest<DistancePredicates> const&, Value const&, Box const&)
+    {
+        return true;
+    }
+};
+
+template <typename DistancePredicates>
+struct nearest_one
+{
+    static const bool is_one = true;
+
+    nearest_one(DistancePredicates const& dpred)
+        : distance_predicates(dpred)
+    {}
+    DistancePredicates const& distance_predicates;
+};
+
+template <typename DistancePredicates>
+struct predicate_check<nearest_one<DistancePredicates>, value_tag>
+{
+    template <typename Value, typename Box>
+    static inline bool apply(nearest_one<DistancePredicates> const&, Value const&, Box const&)
+    {
+        return true;
+    }
+};
+
+template <typename DistancePredicates>
+struct predicate_check<nearest_one<DistancePredicates>, envelope_tag>
+{
+    template <typename Value, typename Box>
+    static inline bool apply(nearest_one<DistancePredicates> const&, Value const&, Box const&)
+    {
+        return true;
+    }
+};
+
+// predicates_is_nearest
+
+template <typename P>
+struct predicates_is_nearest
+{
+    static const unsigned value = 0;
+};
+
+template <typename DistancePredicates>
+struct predicates_is_nearest< nearest<DistancePredicates> >
+{
+    static const unsigned value = 1;
+};
+
+template <typename DistancePredicates>
+struct predicates_is_nearest< nearest_one<DistancePredicates> >
+{
+    static const unsigned value = 1;
+};
+
+// predicates_count_nearest
+
+template <typename T>
+struct predicates_count_nearest
+{
+    static const unsigned value = predicates_is_nearest<T>::value;
+};
+
+template <typename F, typename S>
+struct predicates_count_nearest< std::pair<F, S> >
+{
+    static const unsigned value = predicates_is_nearest<F>::value
+                                + predicates_is_nearest<S>::value;
+};
+
+template <typename Tuple, unsigned N>
+struct predicates_count_nearest_tuple
+{
+    static const unsigned value =
+        predicates_is_nearest<typename boost::tuples::element<N-1, Tuple>::type>::value
+        + predicates_count_nearest_tuple<Tuple, N-1>::value;
+};
+
+template <typename Tuple>
+struct predicates_count_nearest_tuple<Tuple, 1>
+{
+    static const unsigned value =
+        predicates_is_nearest<typename boost::tuples::element<0, Tuple>::type>::value;
+};
+
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+struct predicates_count_nearest< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+{
+    static const unsigned value = predicates_count_nearest_tuple<
+        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
+        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
+    >::value;
+};
+
+template <typename Head, typename Tail>
+struct predicates_count_nearest< boost::tuples::cons<Head, Tail> >
+{
+    static const unsigned value = predicates_count_nearest_tuple<
+        boost::tuples::cons<Head, Tail>,
+        boost::tuples::length< boost::tuples::cons<Head, Tail> >::value
+    >::value;
+};
+
+// predicates_find_nearest
+
+template <typename T>
+struct predicates_find_nearest
+{
+    static const unsigned value = predicates_is_nearest<T>::value ? 0 : 1;
+};
+
+template <typename F, typename S>
+struct predicates_find_nearest< std::pair<F, S> >
+{
+    static const unsigned value = predicates_is_nearest<F>::value ? 0 :
+                                    (predicates_is_nearest<S>::value ? 1 : 2);
+};
+
+template <typename Tuple, unsigned N>
+struct predicates_find_nearest_tuple
+{
+    static const bool is_found = predicates_find_nearest_tuple<Tuple, N-1>::is_found
+                                || predicates_is_nearest<typename boost::tuples::element<N-1, Tuple>::type>::value;
+
+    static const unsigned value = predicates_find_nearest_tuple<Tuple, N-1>::is_found ?
+        predicates_find_nearest_tuple<Tuple, N-1>::value :
+        (predicates_is_nearest<typename boost::tuples::element<N-1, Tuple>::type>::value ?
+            N-1 : boost::tuples::length<Tuple>::value);
+};
+
+template <typename Tuple>
+struct predicates_find_nearest_tuple<Tuple, 1>
+{
+    static const bool is_found = predicates_is_nearest<typename boost::tuples::element<0, Tuple>::type>::value;
+    static const unsigned value = is_found ? 0 : boost::tuples::length<Tuple>::value;
+};
+
+template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+struct predicates_find_nearest< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+{
+    static const unsigned value = predicates_find_nearest_tuple<
+        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
+        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
+    >::value;
+};
+
+template <typename Head, typename Tail>
+struct predicates_find_nearest< boost::tuples::cons<Head, Tail> >
+{
+    static const unsigned value = predicates_find_nearest_tuple<
+        boost::tuples::cons<Head, Tail>,
+        boost::tuples::length< boost::tuples::cons<Head, Tail> >::value
+    >::value;
+};
+
+// ------------------------------------------------------------------ //
 // relations
 // ------------------------------------------------------------------ //
 
@@ -364,7 +552,7 @@ struct distances_calc_impl_rel<
 
 // distances_calc_impl_tuple
 
-template <typename Distances, typename Point, typename Indexable, size_t N>
+template <typename Distances, typename Point, typename Indexable, unsigned N>
 struct distances_calc_impl_tuple
 {
     // TODO MPL ASSERT 0 < N
