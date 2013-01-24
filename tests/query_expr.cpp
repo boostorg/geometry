@@ -136,13 +136,25 @@ double test(T const& t)
     return boost::get<0>(t).v + boost::get<1>(t).v + boost::get<2>(t).v;
 }
 
+template <typename T> inline
+void test2(T const& t)
+{
+    using namespace boost::geometry::index::qe;
+    std::cout << detail::find_nearest_impl<T, 0, 3>::value << '\n';
+}
+
 int main()
 {
     using namespace boost::geometry::index::qe;
 
+    //TEST
+
+    test2(intersects(0) && nearest(0, 0) && intersects(0));
+
     boost::timer tim;
 
     size_t count = 200000000;
+    //size_t count = 2000000;
     int dummy = 0;
     std::ifstream f("blablabla");
     f >> dummy;
