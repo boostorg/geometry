@@ -1461,6 +1461,24 @@ remove(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
     return tree.remove(rng);
 }
 
+template <typename Value, typename Options, typename Translator, typename Allocator, typename Predicates, typename OutIter> inline
+typename rtree<Value, Options, Translator, Allocator>::size_type
+query(rtree<Value, Options, Translator, Allocator> const& tree,
+      Predicates const& pred,
+      OutIter out_it)
+{
+    return tree.query(pred, out_it);
+}
+
+template <typename Value, typename Options, typename Translator, typename Allocator, typename Predicates> inline
+typename rtree<Value, Options, Translator, Allocator>::size_type
+query(rtree<Value, Options, Translator, Allocator> const& tree,
+      Predicates const& pred,
+      typename rtree<Value, Options, Translator, Allocator>::value_type & v)
+{
+    return tree.query(pred, v);
+}
+
 /*!
 \brief Find values meeting spatial predicates.
 

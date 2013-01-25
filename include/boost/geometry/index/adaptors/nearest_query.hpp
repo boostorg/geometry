@@ -19,6 +19,8 @@ namespace boost { namespace geometry { namespace index {
 
 namespace adaptors {
 
+namespace detail {
+
 template <typename Index>
 class nearest_query_range
 {
@@ -44,8 +46,6 @@ class nearest_query_range
     inline const_iterator begin() const { return 0; }
     inline const_iterator end() const { return 0; }
 };
-
-namespace detail {
 
 // TODO: awulkiew - consider removing references from predicates
 
@@ -108,12 +108,12 @@ nearest_queried(
 } // namespace adaptors
 
 template<typename Index, typename DistancesPredicates, typename Predicates>
-index::adaptors::nearest_query_range<Index>
+index::adaptors::detail::nearest_query_range<Index>
 operator|(
     Index const& si,
     index::adaptors::detail::nearest_query<DistancesPredicates, Predicates> const& f)
 {
-    return index::adaptors::nearest_query_range<Index>(
+    return index::adaptors::detail::nearest_query_range<Index>(
         si, f.distances_predicates, f.count, f.predicates);
 }
 
