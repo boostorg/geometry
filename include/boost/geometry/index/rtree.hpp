@@ -644,7 +644,7 @@ public:
     size_type query(Predicates const& predicates, value_type & v) const
     {
         static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
-        BOOST_MPL_ASSERT_MSG((nearest_count == 1), PASS_NEAREST_PREDICATE_TO_GET_VALUE_AS_RESULT, (Predicates));
+        BOOST_MPL_ASSERT_MSG((nearest_count == 1), PASS_ONE_VALUE_NEAREST_PREDICATE_TO_GET_VALUE_AS_RESULT, (Predicates));
 
         return query_dispatch(predicates, v, boost::mpl::bool_<true>());
     }
