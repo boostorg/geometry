@@ -1,0 +1,273 @@
+[/============================================================================
+  Boost.Geometry Index
+
+  Copyright (c) 2011-2012 Adam Wulkiewicz.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section Queries]
+
+Queries returns `Value`s which meets some predicates. Currently supported are three types of predicates:
+
+* spatial predicates - defining relationship between stored Values and some Geometry,
+* nearest predicates - defining relationship between stored Values and some Point, 
+* value predicate - passing user-defined functor to the query.
+
+For example queries may be used to retrieve Values:
+
+* intersecting some area but not within other area,
+* are nearest to some point,
+* overlapping a box and has user-defined property.
+
+[section Performing a query]
+
+There are three ways to perform a query. In the following example `__box__` is used as
+the predicate, this is a default spatial predicate described in the following section.
+Following queries returns `__value__`s intersecting some region defined as a `__box__`.
+These three methods are:
+
+Method call
+
+ std::vector<__value__> returned_values;
+ __box__ box_region(...);
+ rt.query(box_region, std::back_inserter(returned_values));
+
+Function call
+
+ std::vector<__value__> returned_values;
+ __box__ box_region(...);
+ index::query(rt, box_region, std::back_inserter(returned_values));
+
+Use of pipe operator generating a range
+
+ __box__ box_region(...);
+ BOOST_FOREACH(__value__ & v, rt | index::adaptors::queried(box_region))
+   ; // do something with v
+
+[endsect]
+
+[section Spatial queries]
+
+Spatial query returns Values which are related somehow to a geometry or some number of geometries.
+Names of spatial predicates corresponds to names of __boost_geometry__ algorithms. Examples of some
+basic queries may be found in tables below. The query region and result `Value`s are orange.
+
+[table
+[[intersects(Box) - default] [covered_by(Box)] [disjoint(Box)] [overlaps(Box)] [within(Box)]]
+[[[$../images/intersects.png]] [[$../images/within.png]] [[$../images/disjoint.png]] [[$../images/overlaps.png]] [[$../images/within.png]]]
+]
+
+[table
+[[intersects(Ring)] [intersects(Polygon)] [intersects(MultiPolygon)]]
+[[[$../images/intersects_ring.png]] [[$../images/intersects_poly.png]] [[$../images/intersects_mpoly.png]]]
+]
+
+To use a spatial predicate one may pass a geometry (which is a default case) or use one of the functions defined in
+`boost::geometry::index` namespace to define it explicitly.
+
+ rt.query(box, std::back_inserter(result));                    // default case - intersects
+ rt.query(index::intersects(box), std::back_inserter(result)); // the same as default
+ rt.query(index::covered_by(box), std::back_inserter(result));
+ rt.query(index::disjont(box), std::back_inserter(result));
+ rt.query(index::overlaps(box), std::back_inserter(result));
+ rt.query(index::within(box), std::back_inserter(result));
+
+All predicates may be negated, e.g.:
+
+ rt.query(!index::intersects(box), std::back_inserter(result));
+ // the same as
+ rt.query(index::disjoint(box), std::back_inserter(result));
+
+[endsect]
+
+[section Nearest neighbours queries]
+
+Nearest neighbours queries returns `Value`s which are closest to some point in space.
+Additionally it is possible to pass distance predicates in order to define how the distance
+to the `Value` should be calculated or minimal and maximal distances. The examples of some knn
+queries may be found in the table below. All queries returns 5 closest `Values`.
+The query point, region and result Values are orange.
+
+[table
+[[Basic knn query] [knn query - distance to Indexable's furthest point greather than ...] [knn query - distance to Indexable's closest point greather than ...]]
+[[[$../images/knn.png]] [[$../images/knn_inters.png]] [[$../images/knn_cover.png]]]
+]
+
+[section k nearest neighbours]
+
+There are three ways of performing knn queries. Following queries returns
+k `__value__`s closest to some point in space. For `__box__`es
+`__indexable__`s the distance to the nearest point is calculated by default.
+
+Method call
+
+ std::vector<__value__> returned_values;
+ __point__ pt(...);
+ rt.query(index::nearest(pt, k), std::back_inserter(returned_values));
+
+Function call
+
+ std::vector<__value__> returned_values;
+ __point__ pt(...);
+ index::query(rt, index::nearest(pt, k), std::back_inserter(returned_values));
+
+Use of `operator |`
+
+ __point__ pt(...);
+ BOOST_FOREACH(__value__ & v, rt | index::adaptors::queried(index::nearest(pt, k)))
+   ; // do something with v
+
+[endsect]
+
+[section One nearest neighbour]
+
+Another type of nearest neighbour query is searching for the one closest `__value__`.
+If it is found, 1 is returned by the method or function. This kind of query
+has only two forms.
+
+Method call
+
+ __value__ returned_value;
+ __point__ pt(...);
+ size_t n = rt.query(index::nearest(pt), returned_value);
+
+Function call
+
+ __value__ Value returned_value;
+ __point__ pt(...);
+ size_t n = index::query(rt, index::nearest(pt), returned_value);
+
+[endsect]
+ 
+[section Distances predicates]
+
+It is possible to define if calculated distance between query point and `__value__` should be
+greater, lesser or between some other distances. Those are called `DistancesPredicate`s and
+may be defined as follows.
+
+ std::vector<__Value__> returned_values;
+ __point__ pt(...);
+
+ /* default - without bounds */
+ index::query(rt, index::nearest(pt, k), std::back_inserter(returned_values));
+
+ /* same as default */
+ index::query(rt, index::nearest(index::unbounded(pt), k), std::back_inserter(returned_values));
+
+ /* distance must be greater than or equal to 10 */
+ index::query(rt, index::nearest(index::min_bounded(pt, 10), k), std::back_inserter(returned_values));
+
+ /* distance must be lesser than or equal to 500 */
+ index::query(rt, index::nearest(index::max_bounded(pt, 500), k), std::back_inserter(returned_values));
+
+ /* distance must be between 10 and 500 */
+ index::query(rt, index::nearest(index::bounded(pt, 10, 500), k), std::back_inserter(returned_values));
+
+Furthermore, it's possible to define if the closest, furthest or centroidal point of the
+non-point `__indexable__` should be taken into account in the routine calculating distance.
+
+ std::vector<__value__> returned_values;
+ __point__ pt(...);
+
+ /* default - distance between Indexable's closest point and a query point
+ must be greater than 10 */
+ index::query(rt, index::nearest(index::min_bounded(pt, 10), k), std::back_inserter(returned_values));
+
+ /* same as default - distance between Indexable's closest point and a query point
+ must be greater than 10 */
+ index::query(rt, index::nearest(index::min_bounded(pt, index::to_nearest(10)), k), std::back_inserter(returned_values));
+
+ /* distance between Indexable's furthest point and a query point
+ must be greater than 10 */
+ index::query(rt, index::nearest(index::min_bounded(pt, index::to_furthest(10)), k), std::back_inserter(returned_values));
+
+ /* distance between Indexable's centroid and a query point
+ must be greater than 10 */
+ index::query(rt, index::nearest(index::min_bounded(pt, index::to_centroid(10)), k), std::back_inserter(returned_values));
+
+[endsect]
+
+[endsect]
+
+[section Value predicate]
+
+There is a unique predicate `index::value(...)` taking user-defined function/functor
+which checks if `__value__` should be returned by the query. It may be used to check
+some specific conditions for user-defined Values.
+
+ bool fun(__value__ const& v)
+ {
+   return v.is_red();
+ }
+
+ // ...
+
+ rt.query(index::intersects(box) && index::value(fun),
+          std::back_inserter(result));
+
+[endsect]
+
+[section Passing a set of predicates]
+
+It's possible to use some number of predicates in one query by passing:
+
+* `std::pair<Pred1, Pred2>`,
+* `boost::tuple<Pred1, Pred2, Pred3, ...>`
+* predicates connected by `operator&&` e.g. `Pred1 && Pred2 && Pred3 && ...`.
+
+These predicates are connected by logical AND. Passing all predicates together not only makes possible
+to construct advanced queries but is also faster than separate calls because the tree is traversed only once.
+Traversing is continued and `Value`s are returned only if all predicates are met. Predicates are checked
+left-to-right so placing most restictive predicates first should accelerate the search.
+
+ rt.query(index::intersects(box1) && !index::within(box2),
+          std::back_inserter(result));
+
+ rt.query(index::intersects(box1) && !index::within(box2) && index::overlaps(box3),
+          std::back_inserter(result));
+
+Of course it's possible to connect different types of predicates together.
+
+ rt.query(index::nearest(index::bounded(pt, index::to_furthest(1), 10)) && index::intersects(b), returned_value);
+
+ index::query(rt, index::nearest(pt, k) && index::within(b), std::back_inserter(returned_values));
+
+ BOOST_FOREACH(Value & v, rt | index::adaptors::queried(index::nearest(pt, k) && index::covered_by(b)))
+   ; // do something with v
+
+[endsect]
+
+[section Inserting query results into the other R-tree]
+
+There are several ways of inserting Values returned by a query to the other R-tree container.
+The most basic way is creating a temporary container for Values and insert them later.
+
+ namespace bgi = boost::geometry::index;
+ typedef std::pair<Box, int> __value__;
+ typedef bgi::rtree< __value__, bgi::linear<32, 8> > RTree;
+
+ RTree rt1;
+ /* some inserting into the tree */
+
+ std::vector<Value> result;
+ rt1.query(Box(/*...*/), std::back_inserter(result));
+ RTree rt2(result.begin(), result.end());
+
+However there are better ways. One of these methods is mentioned in the "Creation and modification" section.
+The insert iterator may be passed directly to the query, which will be the fastest way of inserting
+query results because temporary container won't be used.
+ 
+ RTree rt3;
+ rt1.query(Box(/*...*/), bgi::inserter(rt3));
+
+If you like Boost.Range you'll appreciate the third option. You may pass the result Range directly to the
+constructor. However in this case the temporary container is created.
+
+ RTree rt4(rt1 | bgi::adaptors::queried(Box(/*...*/)));
+
+[endsect]
+
+[endsect] [/ Queries /]

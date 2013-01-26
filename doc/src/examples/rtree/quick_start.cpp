@@ -55,13 +55,13 @@ int main(void)
     // find values intersecting some area defined by a box
     box query_box(point(0, 0), point(5, 5));
     std::vector<value> result_s;
-    rtree.spatial_query(query_box, std::back_inserter(result_s));
+    rtree.query(query_box, std::back_inserter(result_s));
     //]
 
     //[rtree_quickstart_nearest_query
     // find 5 nearest values to a point
     std::vector<value> result_n;
-    rtree.nearest_query(point(0, 0), 5, std::back_inserter(result_n));
+    rtree.query(bgi::nearest(point(0, 0), 5), std::back_inserter(result_n));
     //]
 
     //[rtree_quickstart_output

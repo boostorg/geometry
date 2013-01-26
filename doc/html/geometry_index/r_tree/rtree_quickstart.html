@@ -116,7 +116,7 @@
 <pre class="programlisting"><span class="comment">// find values intersecting some area defined by a box</span>
 <span class="identifier">box</span> <span class="identifier">query_box</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="identifier">point</span><span class="special">(</span><span class="number">5</span><span class="special">,</span> <span class="number">5</span><span class="special">));</span>
 <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="identifier">result_s</span><span class="special">;</span>
-<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">spatial_query</span><span class="special">(</span><span class="identifier">query_box</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result_s</span><span class="special">));</span>
+<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">query_box</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result_s</span><span class="special">));</span>
 </pre>
 <p>
       </p>
@@ -130,7 +130,7 @@
 </p>
 <pre class="programlisting"><span class="comment">// find 5 nearest values to a point</span>
 <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="identifier">result_n</span><span class="special">;</span>
-<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">nearest_query</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="number">5</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result_n</span><span class="special">));</span>
+<span class="identifier">rtree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="number">5</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result_n</span><span class="special">));</span>
 </pre>
 <p>
       </p>
