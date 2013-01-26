@@ -6,6 +6,7 @@
 [[Function][Description]]
 [[[link group__adaptors_1ga8e094e1f312fc00336a3536f51a69468 `nearest_queried(DistancesPredicates const &, size_t, Predicates const &)`]][The nearest query index adaptor generator. ]]
 [[[link group__adaptors_1ga3478395ded5855dc0b6c2f36a89de9f6 `nearest_queried(DistancesPredicates const &, size_t)`]][The nearest query index adaptor generator. ]]
+[[[link group__adaptors_1ga4716cd5423bfed3ff3e69e9ec274ac81 `queried(Predicates const &)`]][The query index adaptor generator. ]]
 [[[link group__adaptors_1ga3068771f0f9cca706269ec35a809db2a `spatial_queried(Predicates const &)`]][The spatial query index adaptor generator. ]]
 ]
 
@@ -45,6 +46,23 @@ The nearest query index adaptor generator.
 [[Type][Name][Description]]
 [[`DistancesPredicates const &`][ `dpred` ][Distance predicates. ]]
 [[`size_t`][ `k` ][The number of values to find. ]]
+]
+[endsect]
+
+[#group__adaptors_1ga4716cd5423bfed3ff3e69e9ec274ac81]
+[section queried(Predicates const &)]
+The query index adaptor generator. 
+
+[heading Synopsis]
+[pre
+`template<``typename Predicates``>`
+`detail::query<Predicates> boost::geometry::index::adaptors::queried``(``Predicates const &` `pred``)`
+]
+
+[heading Parameter(s)]
+[table 
+[[Type][Name][Description]]
+[[`Predicates const &`][ `pred` ][Predicates. ]]
 ]
 [endsect]
 

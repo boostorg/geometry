@@ -19,26 +19,10 @@
 
 namespace boost { namespace geometry { namespace index {
 
-// nearest predicate generators
-
-template <typename DistancePredicates> inline
-detail::nearest<DistancePredicates>
-nearest(DistancePredicates const& dpred, unsigned k)
-{
-    return detail::nearest<DistancePredicates>(dpred, k);
-}
-
-template <typename DistancePredicates> inline
-detail::nearest_one<DistancePredicates>
-nearest(DistancePredicates const& dpred)
-{
-    return detail::nearest_one<DistancePredicates>(dpred);
-}
-
 // relations generators
 
 /*!
-\brief Generate to_nearest() Point-Indexable relationship.
+\brief Generate to_nearest() relationship.
 
 Generate a nearest query Point and Value's Indexable relationship while calculating
 distances. This function may be used to define that knn query should calculate distances
@@ -49,10 +33,10 @@ closer or further than value v. This is default relation.
 
 \ingroup distance_predicates
 
-\tparam T   Type of wrapped object. This may be a Point for PointRelation or some Value for
+\tparam T   Type of wrapped object. This may be a Point for PointRelation or CoordinateType for
             MinRelation or MaxRelation
 
-\param v    Point or bound value.
+\param v    Point or distance value.
 */
 template <typename T>
 detail::to_nearest<T> to_nearest(T const& v)
@@ -61,7 +45,7 @@ detail::to_nearest<T> to_nearest(T const& v)
 }
 
 /*!
-\brief Generate to_centroid() Point-Indexable relationship.
+\brief Generate to_centroid() relationship.
 
 Generate a nearest query Point and Value's Indexable relationship while calculating
 distances. This function may be used to define that knn query should calculate distances
@@ -71,10 +55,10 @@ closer or further than value v.
 
 \ingroup distance_predicates
 
-\tparam T   Type of wrapped object. This may be a Point for PointRelation or some Value for
+\tparam T   Type of wrapped object. This may be a Point for PointRelation or some CoordinateType for
             MinRelation or MaxRelation
 
-\param v    Point or bound value.
+\param v    Point or distance value.
 */
 template <typename T>
 detail::to_centroid<T> to_centroid(T const& v)
@@ -83,7 +67,7 @@ detail::to_centroid<T> to_centroid(T const& v)
 }
 
 /*!
-\brief Generate to_furthest() Point-Indexable relationship.
+\brief Generate to_furthest() relationship.
 
 Generate a nearest query Point and Value's Indexable relationship while calculating
 distances. This function may be used to define that knn query should calculate distances
@@ -94,10 +78,10 @@ closer or further than value v.
 
 \ingroup distance_predicates
 
-\tparam T   Type of wrapped object. This may be a Point for PointRelation or some Value for
+\tparam T   Type of wrapped object. This may be a Point for PointRelation or some CoordinateType for
             MinRelation or MaxRelation
 
-\param v    Point or bound value.
+\param v    Point or distance value.
 */
 template <typename T>
 detail::to_furthest<T> to_furthest(T const& v)
