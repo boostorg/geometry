@@ -116,12 +116,12 @@ public:
     /*! \brief The Indexable type to which Value is translated. */
     typedef typename translator::indexable_type<Translator>::type indexable_type;
     /*! \brief The Box type used by the R-tree. */
-    typedef typename index::detail::default_box_type<indexable_type>::type envelope_type;
+    typedef typename index::detail::default_box_type<indexable_type>::type bounds_type;
 
 #if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
 private:
 #endif
-    typedef envelope_type box_type;
+    typedef bounds_type box_type;
     typedef typename detail::rtree::options_type<Parameters>::type options_type;
     typedef typename options_type::node_tag node_tag;
     typedef detail::rtree::allocators<allocator_type, value_type, typename options_type::parameters_type, box_type, node_tag> allocators_type;
@@ -1113,7 +1113,7 @@ public:
     \par Throws
     Nothing.
     */
-    inline envelope_type const& envelope() const
+    inline bounds_type const& bounds() const
     {
         return m_box;
     }
@@ -1878,7 +1878,7 @@ It calls \c rtree::empty().
 template <typename Value, typename Options, typename Translator, typename Allocator>
 inline bool empty(rtree<Value, Options, Translator, Allocator> const& tree)
 {
-    return tree.empty();
+    return tree.bounds();
 }
 
 /*!
@@ -1893,82 +1893,12 @@ It calls \c rtree::envelope().
 \return         The box containing all stored values or an invalid box.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator>
-inline typename rtree<Value, Options, Translator, Allocator>::box_type const&
-envelope(rtree<Value, Options, Translator, Allocator> const& tree)
+inline typename rtree<Value, Options, Translator, Allocator>::bounds_type const&
+bounds(rtree<Value, Options, Translator, Allocator> const& tree)
 {
-    return tree.envelope();
+    return tree.bounds();
 }
 
 }}} // namespace boost::geometry::index
-
-// Rtree adaptation to Box concept
-
-namespace boost { namespace geometry {
-
-// Traits specializations for box above
-#ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
-namespace traits
-{
-
-template <typename Value, typename Parameters, typename Translator, typename Allocator>
-struct tag< index::rtree<Value, Parameters, Translator, Allocator> >
-{
-    typedef box_tag type;
-};
-
-template <typename Value, typename Parameters, typename Translator, typename Allocator>
-struct point_type< index::rtree<Value, Parameters, Translator, Allocator> >
-{
-    typedef typename geometry::point_type<
-        typename index::rtree<Value, Parameters, Translator, Allocator>::box_type
-    >::type type;
-};
-
-template <typename Value, typename Parameters, typename Translator, typename Allocator, std::size_t Dimension>
-struct indexed_access<index::rtree<Value, Parameters, Translator, Allocator>, min_corner, Dimension>
-{
-    typedef typename geometry::coordinate_type<
-        typename geometry::point_type<
-            index::rtree<Value, Parameters, Translator, Allocator>
-        >::type
-    >::type coordinate_type;
-
-    static inline coordinate_type get(index::rtree<Value, Parameters, Translator, Allocator> const& tree)
-    {
-        return geometry::get<min_corner, Dimension>(tree.envelope());
-    }
-
-    static inline void set(index::rtree<Value, Parameters, Translator, Allocator> & tree,
-                           coordinate_type const& value)
-    {
-        return geometry::set<min_corner, Dimension>(tree.envelope(), value);
-    }
-};
-
-template <typename Value, typename Parameters, typename Translator, typename Allocator, std::size_t Dimension>
-struct indexed_access<index::rtree<Value, Parameters, Translator, Allocator>, max_corner, Dimension>
-{
-    typedef typename geometry::coordinate_type<
-        typename geometry::point_type<
-            index::rtree<Value, Parameters, Translator, Allocator>
-        >::type
-    >::type coordinate_type;
-
-    static inline coordinate_type get(index::rtree<Value, Parameters, Translator, Allocator> const& tree)
-    {
-        return geometry::get<max_corner, Dimension>(tree.envelope());
-    }
-
-    static inline void set(index::rtree<Value, Parameters, Translator, Allocator> & tree,
-                           coordinate_type const& value)
-    {
-        return geometry::set<max_corner, Dimension>(tree.envelope(), value);
-    }
-};
-
-} // namespace traits
-#endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
-
-}} //namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_INDEX_RTREE_HPP

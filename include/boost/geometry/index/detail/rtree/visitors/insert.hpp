@@ -120,7 +120,7 @@ protected:
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
 
 public:
-    typedef index::detail::static_vector<std::pair<Box, node*>, 1> nodes_container_type;
+    typedef index::detail::varray<std::pair<Box, node*>, 1> nodes_container_type;
 
     template <typename Node>
     static inline void apply(nodes_container_type & additional_nodes,

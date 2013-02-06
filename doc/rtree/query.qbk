@@ -10,10 +10,10 @@
 
 [section Queries]
 
-Queries returns `Value`s which meets some predicates. Currently supported are three types of predicates:
+Queries returns `__value__`s which meets some predicates. Currently supported are three types of predicates:
 
 * spatial predicates - defining relationship between stored Values and some Geometry,
-* nearest predicates - defining relationship between stored Values and some Point, 
+* nearest predicates - defining relationship between stored Values and some Point,
 * value predicate - passing user-defined functor to the query.
 
 For example queries may be used to retrieve Values:
@@ -27,7 +27,7 @@ For example queries may be used to retrieve Values:
 There are three ways to perform a query. In the following example `__box__` is used as
 the predicate, this is a default spatial predicate described in the following section.
 Following queries returns `__value__`s intersecting some region defined as a `__box__`.
-These three methods are:
+These three ways are:
 
 Method call
 
@@ -51,7 +51,7 @@ Use of pipe operator generating a range
 
 [section Spatial queries]
 
-Spatial query returns Values which are related somehow to a geometry or some number of geometries.
+Spatial query returns `__value__`s which are related somehow to a geometry or some number of geometries.
 Names of spatial predicates corresponds to names of __boost_geometry__ algorithms. Examples of some
 basic queries may be found in tables below. The query region and result `Value`s are orange.
 
@@ -85,9 +85,9 @@ All predicates may be negated, e.g.:
 
 [section Nearest neighbours queries]
 
-Nearest neighbours queries returns `Value`s which are closest to some point in space.
-Additionally it is possible to pass distance predicates in order to define how the distance
-to the `Value` should be calculated or minimal and maximal distances. The examples of some knn
+Nearest neighbours queries returns `__value__`s which are closest to some point in space.
+Additionally it is possible to pass define how the distance to the `Value` should be calculated
+or distance predicates defining minimal and maximal distances. The examples of some knn
 queries may be found in the table below. All queries returns 5 closest `Values`.
 The query point, region and result Values are orange.
 
@@ -99,7 +99,7 @@ The query point, region and result Values are orange.
 [section k nearest neighbours]
 
 There are three ways of performing knn queries. Following queries returns
-k `__value__`s closest to some point in space. For `__box__`es
+`k` `__value__`s closest to some point in space. For `__box__`es
 `__indexable__`s the distance to the nearest point is calculated by default.
 
 Method call

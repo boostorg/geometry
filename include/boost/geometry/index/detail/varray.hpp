@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_STATIC_VECTOR_HPP
-#define BOOST_GEOMETRY_INDEX_DETAIL_STATIC_VECTOR_HPP
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP
+#define BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP
 
 #include <cstddef>
 #include <stdexcept>
@@ -32,56 +32,65 @@
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
-template <typename Value, size_t Capacity>
-class static_vector
+template <typename V>
+struct varray_default_alloc
+{
+    typedef std::size_t size_type;
+    typedef std::ptrdiff_t difference_type;
+    typedef V * pointer;
+    typedef const V * const_pointer;
+};
+
+template <typename Value, size_t Capacity, typename Al = varray_default_alloc<Value> >
+class varray
 {
     BOOST_MPL_ASSERT_MSG(
         (0 < Capacity),
         INVALID_CAPACITY,
-        (static_vector));
+        (varray));
 
 public:
     typedef Value value_type;
-    typedef std::size_t size_type;
     typedef Value& reference;
     typedef Value const& const_reference;
-    typedef Value * pointer;
-    typedef const Value* const_pointer;
-    typedef Value* iterator;
-    typedef const Value * const_iterator;
+    typedef typename Al::size_type size_type;
+    typedef typename Al::difference_type difference_type;
+    typedef typename Al::pointer pointer;
+    typedef typename Al::const_pointer const_pointer;
+    typedef pointer iterator;
+    typedef const_pointer const_iterator;
     typedef boost::reverse_iterator<iterator> reverse_iterator;
     typedef boost::reverse_iterator<const_iterator> const_reverse_iterator;
-    typedef typename boost::iterator_difference<iterator>::type difference_type;    
 
     // nothrow
-    static_vector()
+    varray()
         : m_size(0)
     {}
 
     // strong
-    explicit static_vector(size_type count)
+    explicit varray(size_type count)
         : m_size(0)
     {
         resize(count);                                                              // may throw
     }
 
     // strong
-    static_vector(size_type count, value_type const& value)
+    varray(size_type count, value_type const& value)
         : m_size(0)
     {
         resize(count, value);                                                       // may throw
     }
 
     // strong
-    static_vector(static_vector const& other)
+    varray(varray const& other)
         : m_size(other.m_size)
     {
         this->uninitialized_copy(other.begin(), other.end(), this->begin());        // may throw
     }
 
     // strong
-    template <size_t C>
-    static_vector(static_vector<value_type, C> const& other)
+    template <size_t C, typename A>
+    varray(varray<value_type, C, A> const& other)
         : m_size(other.m_size)
     {
         check_capacity(other.m_size);
@@ -91,14 +100,14 @@ public:
 
     // strong
     template <typename Iterator>
-    static_vector(Iterator first, Iterator last)
+    varray(Iterator first, Iterator last)
         : m_size(0)
     {
         assign(first, last);                                                        // may throw
     }
 
     // basic
-    static_vector & operator=(static_vector const& other)
+    varray & operator=(varray const& other)
     {
         assign(other.begin(), other.end());                                         // may throw
 
@@ -106,8 +115,8 @@ public:
     }
 
     // basic
-    template <size_t C>
-    static_vector & operator=(static_vector<value_type, C> const& other)
+    template <size_t C, typename A>
+    varray & operator=(varray<value_type, C, A> const& other)
     {
         assign(other.begin(), other.end());                                         // may throw
 
@@ -115,7 +124,7 @@ public:
     }
 
     // nothrow
-    ~static_vector()
+    ~varray()
     {
         this->destroy(this->begin(), this->end());
     }
@@ -380,8 +389,8 @@ public:
     const_reverse_iterator crend() const { return reverse_iterator(this->begin()); }
 
     // nothrow
-    size_type capacity() const { return Capacity; }
-    size_type max_size() const { return Capacity; }
+    static size_type capacity() { return Capacity; }
+    static size_type max_size() { return Capacity; }
     size_type size() const { return m_size; }
     bool empty() const { return 0 == m_size; }
 
@@ -787,14 +796,14 @@ private:
         );*/
     }
 
-    Value * ptr()
+    pointer ptr()
     {
-        return (reinterpret_cast<Value*>(m_storage.address()));
+        return pointer(m_storage.address());
     }
 
-    const Value * ptr() const
+    const_pointer ptr() const
     {
-        return (reinterpret_cast<const Value*>(m_storage.address()));
+        return const_pointer(m_storage.address());
     }
 
     boost::aligned_storage<sizeof(Value[Capacity]), boost::alignment_of<Value[Capacity]>::value> m_storage;
@@ -803,4 +812,4 @@ private:
 
 }}}} // namespace boost::geometry::index::detail
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_STATIC_VECTOR_HPP
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP

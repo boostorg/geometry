@@ -1293,26 +1293,8 @@ void test_rtree_count(Parameters const& parameters)
 
 // test rtree box
 
-template <size_t Dimention>
-struct test_geometry_algorithms
-{
-    template <typename Rtree, typename Box>
-    static void apply(Rtree const& , Box const& ) {}
-};
-
-template <>
-struct test_geometry_algorithms<2>
-{
-    template <typename Rtree, typename Box>
-    static void apply(Rtree const& t, Box const& b)
-    {
-        BOOST_CHECK(bg::area(t) == bg::area(b));
-        BOOST_CHECK(bg::perimeter(t) == bg::perimeter(b));
-    }
-};
-
 template <typename Value, typename Parameters>
-void test_rtree_envelope(Parameters const& parameters)
+void test_rtree_bounds(Parameters const& parameters)
 {
     typedef bgi::rtree<Value, Parameters> Tree;
     typedef typename Tree::box_type B;
@@ -1325,24 +1307,15 @@ void test_rtree_envelope(Parameters const& parameters)
     std::vector<Value> input;
     B qbox;
 
-    BOOST_CHECK(bg::equals(t.envelope(), b));
+    BOOST_CHECK(bg::equals(t.bounds(), b));
 
     generate_rtree(t, input, qbox);
 
     BOOST_FOREACH(Value const& v, input)
         bg::expand(b, t.translator()(v));
 
-    BOOST_CHECK(bg::equals(t.envelope(), b));
-
-    {
-        using namespace bg;
-        B temp_b;
-        envelope(t, temp_b);
-        BOOST_CHECK(equals(temp_b, b));
-    }
-    BOOST_CHECK(bg::equals(bg::return_envelope<B>(t), b));
-    BOOST_CHECK(bg::equals(bg::return_centroid<P>(t), bg::return_centroid<P>(b)));
-    test_geometry_algorithms<bg::traits::dimension<P>::value>::apply(t, b);
+    BOOST_CHECK(bg::equals(t.bounds(), b));
+    BOOST_CHECK(bg::equals(t.bounds(), bgi::bounds(t)));
 
     size_t s = input.size();
     while ( s/2 < input.size() && !input.empty() )
@@ -1355,21 +1328,21 @@ void test_rtree_envelope(Parameters const& parameters)
     BOOST_FOREACH(Value const& v, input)
         bg::expand(b, t.translator()(v));
 
-    BOOST_CHECK(bg::equals(t.envelope(), b));
+    BOOST_CHECK(bg::equals(t.bounds(), b));
 
     Tree t2(t);
-    BOOST_CHECK(bg::equals(t2.envelope(), b));
+    BOOST_CHECK(bg::equals(t2.bounds(), b));
     t2.clear();
     t2 = t;
-    BOOST_CHECK(bg::equals(t2.envelope(), b));
+    BOOST_CHECK(bg::equals(t2.bounds(), b));
     t2.clear();
     t2 = boost::move(t);
-    BOOST_CHECK(bg::equals(t2.envelope(), b));
+    BOOST_CHECK(bg::equals(t2.bounds(), b));
 
     t.clear();
 
     bg::assign_inverse(b);
-    BOOST_CHECK(bg::equals(t.envelope(), b));
+    BOOST_CHECK(bg::equals(t.bounds(), b));
 }
 
 // run all tests for one Algorithm for some number of rtrees
@@ -1393,7 +1366,7 @@ void test_rtree_for_point(Parameters const& parameters = Parameters())
     test_count_rtree_values<Point>(parameters);
 
     test_rtree_count<Point>(parameters);
-    test_rtree_envelope<Point>(parameters);
+    test_rtree_bounds<Point>(parameters);
 }
 
 template<typename Point, typename Parameters>
@@ -1413,7 +1386,7 @@ void test_rtree_for_box(Parameters const& parameters = Parameters())
     test_count_rtree_values<Box>(parameters);
 
     test_rtree_count<Box>(parameters);
-    test_rtree_envelope<Box>(parameters);
+    test_rtree_bounds<Box>(parameters);
 }
 
 #endif

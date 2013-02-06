@@ -61,29 +61,29 @@ If comparison of two `__value__`s is required, the default translator:
 
 [endsect]
 
-[section Inserting and splitting algorithms (compile-time)]
+[section Balancing algorithms (compile-time)]
 
 `__value__`s may be inserted to the __rtree__ in many various ways. Final internal structure
 of the __rtree__ depends on algorithms used in the insertion process and parameters. The most important is
-nodes' splitting algorithm. Currently, three well-known types of R-trees may be created.
+nodes' balancing algorithm. Currently, three well-known types of R-trees may be created.
 
-Linear - classic __rtree__ using splitting algorithm of linear complexity
+Linear - classic __rtree__ using balancing algorithm of linear complexity
 
  index::rtree< __value__, index::linear<32, 8> > rt;
 
-Quadratic - classic __rtree__ using splitting algorithm of quadratic complexity
+Quadratic - classic __rtree__ using balancing algorithm of quadratic complexity
 
  index::rtree< __value__, index::quadratic<32, 8> > rt;
 
-R*-tree - splitting algorithm minimizing nodes' overlap with forced reinsertions
+R*-tree - balancing algorithm minimizing nodes' overlap with forced reinsertions
  
  index::rtree< __value__, index::rstar<32, 8> > rt;
 
 [endsect]
 
-[section Inserting and splitting algorithms (run-time)]
+[section Balancing algorithms (run-time)]
 
-Splitting algorithm parameters may be passed to the __rtree__ in run time.
+Balancing algorithm parameters may be passed to the __rtree__ in run time.
 To use run-time versions of the __rtree__ one may pass parameters defined in index::runtime
 namespace.
 
@@ -125,9 +125,9 @@ which also supports compilers not supporting rvalue references.
 
 [endsect]
 
-[section Inserting and removing of Values]
+[section Inserting and removing Values]
 
-The following code creates an __rtree__ using quadratic algorithm.
+The following code creates an __rtree__ using quadratic balancing algorithm.
 
  using namespace boost::geometry;
  typedef std::pair<Box, int> __value__;

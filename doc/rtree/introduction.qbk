@@ -52,6 +52,10 @@ Key features of this implementation of the __rtree__ are:
 * parameters (including maximal and minimal number of elements) may be passed as compile- or run-time parameters - compile-time version is faster,
 * advanced queries - e.g. search for 5 nearest values further than some minimal distance and intersecting some region but not within the other one.
 
+[heading Dependencies]
+
+R-tree depends on *Boost.Move*, *Boost.Container*, *Boost.Tuple*.
+
 [heading Contributors]
 
 The spatial index was originally started by Federico J. Fernandez during the Google-Of-Summer project 2008, mentored by Hartmut Kaiser.

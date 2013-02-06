@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Creation and modification</title>
 <link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
 <link rel="up" href="../r_tree.html" title="R-tree">
 <link rel="prev" href="rtree_quickstart.html" title="Quick Start">
@@ -32,14 +32,14 @@
         parameters</a></span></dt>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.values__indexables_and_default_translator">Values,
         Indexables and default Translator</a></span></dt>
-<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__compile_time_">Inserting
-        and splitting algorithms (compile-time)</a></span></dt>
-<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__run_time_">Inserting
-        and splitting algorithms (run-time)</a></span></dt>
+<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.balancing_algorithms__compile_time_">Balancing
+        algorithms (compile-time)</a></span></dt>
+<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.balancing_algorithms__run_time_">Balancing
+        algorithms (run-time)</a></span></dt>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.copying__moving_and_swapping">Copying,
         moving and swapping</a></span></dt>
-<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_removing_of_values">Inserting
-        and removing of Values</a></span></dt>
+<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_removing_values">Inserting
+        and removing Values</a></span></dt>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.additional_interface">Additional
         interface</a></span></dt>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.insert_iterator">Insert
@@ -55,7 +55,7 @@
         </p>
 <pre class="programlisting"><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Parameters</span><span class="special">,</span> <span class="identifier">Translator</span> <span class="special">=</span> <span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;,</span> <span class="identifier">Allocator</span><span class="special">&gt;</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span> <span class="special">&gt;</span>
 </pre>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
               <code class="computeroutput">Value</code> - type of object which will be stored in the container,
             </li>
@@ -90,7 +90,7 @@
           be handled by the default <code class="computeroutput">Translator</code> - <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span>Value<span class="special">&gt;</span></code>
           are defined as follows:
         </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
               <code class="computeroutput">Indexable <span class="special">=</span> <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a>
               <span class="special">|</span> <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
@@ -116,7 +116,7 @@
           A <code class="computeroutput">Translator</code> is a type which knows how to handle <code class="computeroutput">Value</code>s.
           It has two purposes:
         </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
               it translates <code class="computeroutput">Value</code> to a more suitable <code class="computeroutput">Indexable</code>
               type which is needed by most of operations,
@@ -134,7 +134,7 @@
 <p>
           If comparison of two <code class="computeroutput">Value</code>s is required, the default translator:
         </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
               for <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
               and <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
@@ -156,38 +156,38 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__compile_time_"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__compile_time_" title="Inserting and splitting algorithms (compile-time)">Inserting
-        and splitting algorithms (compile-time)</a>
+<a name="geometry_index.r_tree.creation_and_modification.balancing_algorithms__compile_time_"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.balancing_algorithms__compile_time_" title="Balancing algorithms (compile-time)">Balancing
+        algorithms (compile-time)</a>
 </h4></div></div></div>
 <p>
           <code class="computeroutput">Value</code>s may be inserted to the R-tree in many various ways.
           Final internal structure of the R-tree depends on algorithms used in the
-          insertion process and parameters. The most important is nodes' splitting
+          insertion process and parameters. The most important is nodes' balancing
           algorithm. Currently, three well-known types of R-trees may be created.
         </p>
 <p>
-          Linear - classic R-tree using splitting algorithm of linear complexity
+          Linear - classic R-tree using balancing algorithm of linear complexity
         </p>
 <pre class="programlisting"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">linear</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
 </pre>
 <p>
-          Quadratic - classic R-tree using splitting algorithm of quadratic complexity
+          Quadratic - classic R-tree using balancing algorithm of quadratic complexity
         </p>
 <pre class="programlisting"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
 </pre>
 <p>
-          R*-tree - splitting algorithm minimizing nodes' overlap with forced reinsertions
+          R*-tree - balancing algorithm minimizing nodes' overlap with forced reinsertions
         </p>
 <pre class="programlisting"><span class="identifier">index</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> Value<span class="special">,</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">rstar</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rt</span><span class="special">;</span>
 </pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__run_time_"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_splitting_algorithms__run_time_" title="Inserting and splitting algorithms (run-time)">Inserting
-        and splitting algorithms (run-time)</a>
+<a name="geometry_index.r_tree.creation_and_modification.balancing_algorithms__run_time_"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.balancing_algorithms__run_time_" title="Balancing algorithms (run-time)">Balancing
+        algorithms (run-time)</a>
 </h4></div></div></div>
 <p>
-          Splitting algorithm parameters may be passed to the R-tree in run time.
+          Balancing algorithm parameters may be passed to the R-tree in run time.
           To use run-time versions of the R-tree one may pass parameters defined
           in index::runtime namespace.
         </p>
@@ -235,11 +235,11 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.creation_and_modification.inserting_and_removing_of_values"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_removing_of_values" title="Inserting and removing of Values">Inserting
-        and removing of Values</a>
+<a name="geometry_index.r_tree.creation_and_modification.inserting_and_removing_values"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.inserting_and_removing_values" title="Inserting and removing Values">Inserting
+        and removing Values</a>
 </h4></div></div></div>
 <p>
-          The following code creates an R-tree using quadratic algorithm.
+          The following code creates an R-tree using quadratic balancing algorithm.
         </p>
 <pre class="programlisting"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">;</span>
 <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">,</span> <span class="keyword">int</span><span class="special">&gt;</span> Value<span class="special">;</span>

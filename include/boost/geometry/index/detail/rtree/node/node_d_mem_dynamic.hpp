@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_HPP
 
-#include <vector>
+#include <boost/container/vector.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
 
@@ -23,7 +23,7 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
 {
-    typedef std::vector<
+    typedef boost::container::vector<
         std::pair<Box, dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag> *>,
         typename Allocators::internal_node_elements_allocator_type
     > elements_type;
@@ -42,7 +42,7 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
 {
-    typedef std::vector<
+    typedef boost::container::vector<
         Value,
         typename Allocators::leaf_elements_allocator_type
     > elements_type;
@@ -146,7 +146,7 @@ elements(Node const& n)
 template <typename Elements, typename NewValue>
 struct container_from_elements_type
 {
-    typedef std::vector<NewValue> type;
+    typedef boost::container::vector<NewValue> type;
 };
 
 // allocators

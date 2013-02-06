@@ -104,61 +104,61 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
 
     for ( size_t i = 0 ; i < 100 ; i += 2 )
     {
-        throwing_static_vector_settings::reset_calls_counter();
-        throwing_static_vector_settings::set_max_calls(10000);
+        throwing_varray_settings::reset_calls_counter();
+        throwing_varray_settings::set_max_calls(10000);
         
         Tree tree(parameters);
 
-        throwing_static_vector_settings::reset_calls_counter();
-        throwing_static_vector_settings::set_max_calls(i);
+        throwing_varray_settings::reset_calls_counter();
+        throwing_varray_settings::set_max_calls(i);
 
-        BOOST_CHECK_THROW( tree.insert(input.begin(), input.end()), throwing_static_vector_exception );
+        BOOST_CHECK_THROW( tree.insert(input.begin(), input.end()), throwing_varray_exception );
     }
     
     for ( size_t i = 0 ; i < 50 ; i += 2 )
     {
-        throwing_static_vector_settings::reset_calls_counter();
-        throwing_static_vector_settings::set_max_calls(10000);
+        throwing_varray_settings::reset_calls_counter();
+        throwing_varray_settings::set_max_calls(10000);
 
         Tree tree(parameters);
 
         tree.insert(input.begin(), input.end());
 
-        throwing_static_vector_settings::reset_calls_counter();
-        throwing_static_vector_settings::set_max_calls(i);
+        throwing_varray_settings::reset_calls_counter();
+        throwing_varray_settings::set_max_calls(i);
 
-        BOOST_CHECK_THROW( tree.remove(input.begin(), input.end()), throwing_static_vector_exception );
+        BOOST_CHECK_THROW( tree.remove(input.begin(), input.end()), throwing_varray_exception );
     }
     
     for ( size_t i = 0 ; i < 50 ; i += 2 )
     {
-        throwing_static_vector_settings::reset_calls_counter();
-        throwing_static_vector_settings::set_max_calls(10000);
+        throwing_varray_settings::reset_calls_counter();
+        throwing_varray_settings::set_max_calls(10000);
 
         Tree tree(parameters);
 
         tree.insert(input.begin(), input.end());
 
-        throwing_static_vector_settings::reset_calls_counter();
-        throwing_static_vector_settings::set_max_calls(i);
+        throwing_varray_settings::reset_calls_counter();
+        throwing_varray_settings::set_max_calls(i);
 
-        BOOST_CHECK_THROW( Tree tree2(tree), throwing_static_vector_exception );
+        BOOST_CHECK_THROW( Tree tree2(tree), throwing_varray_exception );
     }
 
     for ( size_t i = 0 ; i < 50 ; i += 2 )
     {
-        throwing_static_vector_settings::reset_calls_counter();
-        throwing_static_vector_settings::set_max_calls(10000);
+        throwing_varray_settings::reset_calls_counter();
+        throwing_varray_settings::set_max_calls(10000);
 
         Tree tree(parameters);
         Tree tree2(parameters);
 
         tree.insert(input.begin(), input.end());
 
-        throwing_static_vector_settings::reset_calls_counter();
-        throwing_static_vector_settings::set_max_calls(i);
+        throwing_varray_settings::reset_calls_counter();
+        throwing_varray_settings::set_max_calls(i);
 
-        BOOST_CHECK_THROW(tree2 = tree, throwing_static_vector_exception );
+        BOOST_CHECK_THROW(tree2 = tree, throwing_varray_exception );
     }
 }
 

@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Queries</title>
 <link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
 <link rel="up" href="../r_tree.html" title="R-tree">
 <link rel="prev" href="creation_and_modification.html" title="Creation and modification">
@@ -41,10 +41,10 @@
         query results into the other R-tree</a></span></dt>
 </dl></div>
 <p>
-        Queries returns <code class="computeroutput"><span class="identifier">Value</span></code>s which
-        meets some predicates. Currently supported are three types of predicates:
+        Queries returns <code class="computeroutput">Value</code>s which meets some predicates. Currently
+        supported are three types of predicates:
       </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
             spatial predicates - defining relationship between stored Values and
             some Geometry,
@@ -60,7 +60,7 @@
 <p>
         For example queries may be used to retrieve Values:
       </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
             intersecting some area but not within other area,
           </li>
@@ -81,7 +81,7 @@
           is used as the predicate, this is a default spatial predicate described
           in the following section. Following queries returns <code class="computeroutput">Value</code>s
           intersecting some region defined as a <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>.
-          These three methods are:
+          These three ways are:
         </p>
 <p>
           Method call
@@ -111,9 +111,9 @@
         queries</a>
 </h4></div></div></div>
 <p>
-          Spatial query returns Values which are related somehow to a geometry or
-          some number of geometries. Names of spatial predicates corresponds to names
-          of <a href="http://www.boost.org/libs/geometry/doc/html/index.html" target="_top">Boost.Geometry</a>
+          Spatial query returns <code class="computeroutput">Value</code>s which are related somehow to
+          a geometry or some number of geometries. Names of spatial predicates corresponds
+          to names of <a href="http://www.boost.org/libs/geometry/doc/html/index.html" target="_top">Boost.Geometry</a>
           algorithms. Examples of some basic queries may be found in tables below.
           The query region and result <code class="computeroutput"><span class="identifier">Value</span></code>s
           are orange.
@@ -248,11 +248,12 @@
         neighbours queries</a>
 </h4></div></div></div>
 <p>
-          Nearest neighbours queries returns <code class="computeroutput"><span class="identifier">Value</span></code>s
-          which are closest to some point in space. Additionally it is possible to
-          pass distance predicates in order to define how the distance to the <code class="computeroutput"><span class="identifier">Value</span></code> should be calculated or minimal
-          and maximal distances. The examples of some knn queries may be found in
-          the table below. All queries returns 5 closest <code class="computeroutput"><span class="identifier">Values</span></code>.
+          Nearest neighbours queries returns <code class="computeroutput">Value</code>s which are closest
+          to some point in space. Additionally it is possible to pass define how
+          the distance to the <code class="computeroutput"><span class="identifier">Value</span></code>
+          should be calculated or distance predicates defining minimal and maximal
+          distances. The examples of some knn queries may be found in the table below.
+          All queries returns 5 closest <code class="computeroutput"><span class="identifier">Values</span></code>.
           The query point, region and result Values are orange.
         </p>
 <div class="informaltable"><table class="table">
@@ -305,7 +306,8 @@
 </h5></div></div></div>
 <p>
             There are three ways of performing knn queries. Following queries returns
-            k <code class="computeroutput">Value</code>s closest to some point in space. For <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>es
+            <code class="computeroutput"><span class="identifier">k</span></code> <code class="computeroutput">Value</code>s
+            closest to some point in space. For <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>es
             <code class="computeroutput">Indexable</code>s the distance to the nearest point is calculated
             by default.
           </p>
@@ -440,7 +442,7 @@ must be greater than 10 */</span>
 <p>
           It's possible to use some number of predicates in one query by passing:
         </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
               <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">Pred1</span><span class="special">,</span>
               <span class="identifier">Pred2</span><span class="special">&gt;</span></code>,

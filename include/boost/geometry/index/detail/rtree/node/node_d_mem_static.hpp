@@ -12,7 +12,7 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_STATIC_HPP
 
 #include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
-#include <boost/geometry/index/detail/static_vector.hpp>
+#include <boost/geometry/index/detail/varray.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -22,12 +22,13 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
-    typedef detail::static_vector<
+    typedef detail::varray<
         std::pair<
             Box,
             dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag> *
         >,
-        Parameters::max_elements + 1
+        Parameters::max_elements + 1,
+        typename Allocators::internal_node_elements_allocator_type
     > elements_type;
 
     template <typename Dummy>
@@ -43,7 +44,11 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
-    typedef detail::static_vector<Value, Parameters::max_elements + 1> elements_type;
+    typedef detail::varray<
+        Value,
+        Parameters::max_elements + 1,
+        typename Allocators::leaf_elements_allocator_type
+    > elements_type;
 
     template <typename Dummy>
     inline dynamic_leaf(Dummy) {}
@@ -81,10 +86,10 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, IsVisi
 };
 
 // elements derived type
-template <typename OldValue, size_t N, typename NewValue>
-struct container_from_elements_type<detail::static_vector<OldValue, N>, NewValue>
+template <typename OldValue, size_t N, typename A, typename NewValue>
+struct container_from_elements_type<detail::varray<OldValue, N, A>, NewValue>
 {
-    typedef detail::static_vector<NewValue, N> type;
+    typedef detail::varray<NewValue, N> type;
 };
 
 // allocators
@@ -106,6 +111,14 @@ public:
     typedef typename allocator_type::template rebind<
         typename leaf<Value, Parameters, Box, allocators, node_d_mem_static_tag>::type
     >::other leaf_allocator_type;
+
+    typedef typename allocator_type::template rebind<
+        std::pair<Box, typename node<Value, Parameters, Box, allocators, node_d_mem_static_tag>::type *>
+    >::other internal_node_elements_allocator_type;
+
+    typedef typename allocator_type::template rebind<
+        Value
+    >::other leaf_elements_allocator_type;
 
     inline allocators()
         : allocator()

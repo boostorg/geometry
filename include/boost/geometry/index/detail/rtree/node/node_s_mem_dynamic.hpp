@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_VARIANT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_VARIANT_HPP
 
-#include <vector>
+#include <boost/container/vector.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/static_visitor.hpp>
 
@@ -24,7 +24,7 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct static_internal_node
 {
-    typedef std::vector<
+    typedef boost::container::vector<
         std::pair<
             Box,
             typename node<Value, Parameters, Box, Allocators, Tag>::type *
@@ -42,7 +42,7 @@ struct static_internal_node
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct static_leaf
 {
-    typedef std::vector<
+    typedef boost::container::vector<
         Value,
         typename Allocators::leaf_elements_allocator_type
     > elements_type;

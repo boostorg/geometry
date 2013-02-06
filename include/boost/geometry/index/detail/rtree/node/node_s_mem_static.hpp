@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_STATIC_VARIANT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_STATIC_VARIANT_HPP
 
-#include <boost/geometry/index/detail/static_vector.hpp>
+#include <boost/geometry/index/detail/varray.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/static_visitor.hpp>
 
@@ -24,12 +24,13 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-    typedef detail::static_vector<
+    typedef detail::varray<
         std::pair<
             Box,
             typename node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>::type *
         >,
-        Parameters::max_elements + 1
+        Parameters::max_elements + 1,
+        typename Allocators::internal_node_elements_allocator_type
     > elements_type;
 
     template <typename Dummy>
@@ -41,7 +42,11 @@ struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_stati
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-    typedef detail::static_vector<Value, Parameters::max_elements + 1> elements_type;
+    typedef detail::varray<
+        Value,
+        Parameters::max_elements + 1,
+        typename Allocators::leaf_elements_allocator_type
+    > elements_type;
 
     template <typename Dummy>
     inline static_leaf(Dummy) {}

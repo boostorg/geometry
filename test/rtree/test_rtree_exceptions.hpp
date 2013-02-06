@@ -75,7 +75,7 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
 {
-    typedef throwing_static_vector<
+    typedef throwing_varray<
         std::pair<
             Box,
             dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag> *
@@ -96,7 +96,7 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
 {
-    typedef throwing_static_vector<Value, Parameters::max_elements + 1> elements_type;
+    typedef throwing_varray<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Dummy>
     inline dynamic_leaf(Dummy) {}
@@ -109,9 +109,9 @@ struct dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_stat
 
 // elements derived type
 template <typename OldValue, size_t N, typename NewValue>
-struct container_from_elements_type<throwing_static_vector<OldValue, N>, NewValue>
+struct container_from_elements_type<throwing_varray<OldValue, N>, NewValue>
 {
-    typedef throwing_static_vector<NewValue, N> type;
+    typedef throwing_varray<NewValue, N> type;
 };
 
 // nodes traits
