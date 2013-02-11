@@ -202,7 +202,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.spatial_query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -229,7 +229,7 @@ int main()
                 float x = coords[i].first;
                 float y = coords[i].second;
                 std::deque< std::pair<B, size_t> > result;
-                t_copy.spatial_query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+                t_copy.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
                 temp += result.size();
             }
             std::cout << "time: " << tim.elapsed() << "s\n";
@@ -248,7 +248,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.spatial_query(!bgi::disjoint(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            t.query(!bgi::disjoint(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -266,7 +266,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.spatial_query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+            t.query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -284,11 +284,9 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.spatial_query(
-                std::make_pair(
-                    B(P(x - 10, y - 10), P(x + 10, y + 10)),
-                    bgi::value(test_pred< std::pair<B, size_t> >())
-                ), std::back_inserter(result));
+            t.query(
+                B(P(x - 10, y - 10), P(x + 10, y + 10)) && bgi::value(test_pred< std::pair<B, size_t> >())
+                , std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -306,11 +304,9 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.spatial_query(
-                boost::make_tuple(
-                    B(P(x - 10, y - 10), P(x + 10, y + 10)),
-                    bgi::value(test_pred< std::pair<B, size_t> >())
-                ), std::back_inserter(result));
+            t.query(
+                B(P(x - 10, y - 10), P(x + 10, y + 10)) && bgi::value(test_pred< std::pair<B, size_t> >())
+                , std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -347,23 +343,6 @@ int main()
 
     // searching test
     {
-        std::cout << "nearest searching time test... ("
-            << queries_count / 10 << ")\n";
-        tim.restart();    
-        size_t temp = 0;
-        for (size_t i = 0 ; i < queries_count / 10 ; ++i )
-        {
-            float x = coords[i].first + 100;
-            float y = coords[i].second + 100;
-            std::pair<B, size_t> result;
-            temp += t.nearest_query(bgi::unbounded(P(x, y)), result);
-        }
-        std::cout << "time: " << tim.elapsed() << "s\n";
-        std::cout << "found: " << temp << "\n";
-    }
-
-    // searching test
-    {
         std::cout << "nearest 5 searching time test... ("
             << queries_count / 10 << ")\n";
         tim.restart();    
@@ -373,7 +352,7 @@ int main()
             float x = coords[i].first + 100;
             float y = coords[i].second + 100;
             std::vector< std::pair<B, size_t> > result;
-            temp += t.nearest_query(P(x, y), 5, std::back_inserter(result));
+            temp += t.query(bgi::nearest(P(x, y), 5), std::back_inserter(result));
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
         std::cout << "found: " << temp << "\n";
@@ -449,7 +428,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.spatial_query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";
@@ -493,7 +472,7 @@ int main()
             float x = coords[i].first;
             float y = coords[i].second;
             std::deque< std::pair<B, size_t> > result;
-            t.spatial_query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
+            t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
             temp += result.size();
         }
         std::cout << "time: " << tim.elapsed() << "s\n";

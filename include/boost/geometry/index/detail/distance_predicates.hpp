@@ -103,74 +103,74 @@ struct relation< to_furthest<T> >
 // distance predicates
 // ------------------------------------------------------------------ //
 
-template <typename PointRelation>
-struct unbounded
-    : nonassignable
-{
-    inline explicit unbounded(PointRelation const& pr)
-        : point_relation(pr)
-    {}
-
-    PointRelation point_relation;
-};
-
-template <typename PointRelation, typename MinRelation>
-struct min_bounded
-    : nonassignable
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
-
-    inline min_bounded(PointRelation const& pr, MinRelation const& min_rel)
-        : point_relation(pr)
-        , comparable_min(
-            relation<MinRelation>::value(min_rel) *
-            relation<MinRelation>::value(min_rel) )
-    {}
-
-    PointRelation point_relation;
-    distance_type comparable_min;
-};
-
-template <typename PointRelation, typename MaxRelation>
-struct max_bounded
-    : nonassignable
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
-
-    inline max_bounded(PointRelation const& pr, MaxRelation const& max_rel)
-        : point_relation(pr)
-        , comparable_max(
-            relation<MaxRelation>::value(max_rel) *
-            relation<MaxRelation>::value(max_rel) )
-    {}
-
-    PointRelation point_relation;
-    distance_type comparable_max;
-};
-
-template <typename PointRelation, typename MinRelation, typename MaxRelation>
-struct bounded
-    : nonassignable
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
-
-    inline bounded(PointRelation const& pr, MinRelation const& min_rel, MaxRelation const& max_rel)
-        : point_relation(pr)
-        , comparable_min(
-            relation<MinRelation>::value(min_rel) *
-            relation<MinRelation>::value(min_rel) )
-        , comparable_max(
-            relation<MaxRelation>::value(max_rel) *
-            relation<MaxRelation>::value(max_rel) )
-    {}
-
-    PointRelation point_relation;
-    distance_type comparable_min;
-    distance_type comparable_max;
-};
+//template <typename PointRelation>
+//struct unbounded
+//    : nonassignable
+//{
+//    inline explicit unbounded(PointRelation const& pr)
+//        : point_relation(pr)
+//    {}
+//
+//    PointRelation point_relation;
+//};
+//
+//template <typename PointRelation, typename MinRelation>
+//struct min_bounded
+//    : nonassignable
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
+//
+//    inline min_bounded(PointRelation const& pr, MinRelation const& min_rel)
+//        : point_relation(pr)
+//        , comparable_min(
+//            relation<MinRelation>::value(min_rel) *
+//            relation<MinRelation>::value(min_rel) )
+//    {}
+//
+//    PointRelation point_relation;
+//    distance_type comparable_min;
+//};
+//
+//template <typename PointRelation, typename MaxRelation>
+//struct max_bounded
+//    : nonassignable
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
+//
+//    inline max_bounded(PointRelation const& pr, MaxRelation const& max_rel)
+//        : point_relation(pr)
+//        , comparable_max(
+//            relation<MaxRelation>::value(max_rel) *
+//            relation<MaxRelation>::value(max_rel) )
+//    {}
+//
+//    PointRelation point_relation;
+//    distance_type comparable_max;
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename MaxRelation>
+//struct bounded
+//    : nonassignable
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename geometry::default_distance_result<point_type, point_type>::type distance_type;
+//
+//    inline bounded(PointRelation const& pr, MinRelation const& min_rel, MaxRelation const& max_rel)
+//        : point_relation(pr)
+//        , comparable_min(
+//            relation<MinRelation>::value(min_rel) *
+//            relation<MinRelation>::value(min_rel) )
+//        , comparable_max(
+//            relation<MaxRelation>::value(max_rel) *
+//            relation<MaxRelation>::value(max_rel) )
+//    {}
+//
+//    PointRelation point_relation;
+//    distance_type comparable_min;
+//    distance_type comparable_max;
+//};
 
 // ------------------------------------------------------------------ //
 // point_relation trait
@@ -182,29 +182,29 @@ struct point_relation
     typedef PointRelation type;
 };
 
-template <typename PointRelation>
-struct point_relation< detail::unbounded<PointRelation> >
-{
-   typedef PointRelation type;
-};
-
-template <typename PointRelation, typename MinRelation>
-struct point_relation< detail::min_bounded<PointRelation, MinRelation> >
-{
-    typedef PointRelation type;
-};
-
-template <typename PointRelation, typename MaxRelation>
-struct point_relation< detail::max_bounded<PointRelation, MaxRelation> >
-{
-    typedef PointRelation type;
-};
-
-template <typename PointRelation, typename MinRelation, typename MaxRelation>
-struct point_relation< detail::bounded<PointRelation, MinRelation, MaxRelation> >
-{
-    typedef PointRelation type;
-};
+//template <typename PointRelation>
+//struct point_relation< detail::unbounded<PointRelation> >
+//{
+//   typedef PointRelation type;
+//};
+//
+//template <typename PointRelation, typename MinRelation>
+//struct point_relation< detail::min_bounded<PointRelation, MinRelation> >
+//{
+//    typedef PointRelation type;
+//};
+//
+//template <typename PointRelation, typename MaxRelation>
+//struct point_relation< detail::max_bounded<PointRelation, MaxRelation> >
+//{
+//    typedef PointRelation type;
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename MaxRelation>
+//struct point_relation< detail::bounded<PointRelation, MinRelation, MaxRelation> >
+//{
+//    typedef PointRelation type;
+//};
 
 // ------------------------------------------------------------------ //
 // helpers
@@ -471,111 +471,111 @@ struct distances_calc<PointRelation, Indexable, value_tag>
     }
 };
 
-template <typename PointRelation, typename Indexable>
-struct distances_calc<
-    detail::unbounded<PointRelation>,
-    Indexable,
-    value_tag
->
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
-    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
-
-    typedef detail::cdist<distance_type, point_relation_tag> result_type;
-
-    static inline result_type apply(detail::unbounded<PointRelation> const& pp, Indexable const& i)
-    {
-        result_type res;
-        distances_calc_impl<result_type, point_type, Indexable>
-            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
-        return res;
-    }
-};
-
-template <typename PointRelation, typename MinRelation, typename Indexable>
-struct distances_calc<
-    detail::min_bounded<PointRelation, MinRelation>,
-    Indexable,
-    value_tag
->
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
-    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
-    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
-
-    typedef typename detail::cdist_merge<
-        cdist<distance_type, point_relation_tag>,
-        cdist<distance_type, min_relation_tag>
-    >::type result_type;
-
-    static inline result_type apply(detail::min_bounded<PointRelation, MinRelation> const& pp, Indexable const& i)
-    {
-        result_type res;
-        distances_calc_impl<result_type, point_type, Indexable>
-            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
-        return res;
-    }
-};
-
-template <typename PointRelation, typename MaxRelation, typename Indexable>
-struct distances_calc<
-    detail::max_bounded<PointRelation, MaxRelation>,
-    Indexable,
-    value_tag
->
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
-    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
-    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
-
-    typedef typename detail::cdist_merge<
-        cdist<distance_type, point_relation_tag>,
-        cdist<distance_type, max_relation_tag>
-    >::type result_type;
-
-    static inline result_type apply(detail::max_bounded<PointRelation, MaxRelation> const& pp, Indexable const& i)
-    {
-        result_type res;
-        distances_calc_impl<result_type, point_type, Indexable>
-            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
-        return res;
-    }
-};
-
-template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Indexable>
-struct distances_calc<
-    detail::bounded<PointRelation, MinRelation, MaxRelation>,
-    Indexable,
-    value_tag
->
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
-    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
-    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
-    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
-
-    typedef typename detail::cdist_merge<
-        typename detail::cdist_merge<
-            cdist<distance_type, point_relation_tag>,
-            cdist<distance_type, min_relation_tag>
-        >::type,
-        cdist<distance_type, max_relation_tag>
-    >::type result_type;
-
-    static inline result_type apply(
-        detail::bounded<PointRelation, MinRelation, MaxRelation> const& pp,
-        Indexable const& i)
-    {
-        result_type res;
-        distances_calc_impl<result_type, point_type, Indexable>
-            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
-        return res;
-    }
-};
+//template <typename PointRelation, typename Indexable>
+//struct distances_calc<
+//    detail::unbounded<PointRelation>,
+//    Indexable,
+//    value_tag
+//>
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+//    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+//
+//    typedef detail::cdist<distance_type, point_relation_tag> result_type;
+//
+//    static inline result_type apply(detail::unbounded<PointRelation> const& pp, Indexable const& i)
+//    {
+//        result_type res;
+//        distances_calc_impl<result_type, point_type, Indexable>
+//            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+//        return res;
+//    }
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename Indexable>
+//struct distances_calc<
+//    detail::min_bounded<PointRelation, MinRelation>,
+//    Indexable,
+//    value_tag
+//>
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+//    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+//    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
+//
+//    typedef typename detail::cdist_merge<
+//        cdist<distance_type, point_relation_tag>,
+//        cdist<distance_type, min_relation_tag>
+//    >::type result_type;
+//
+//    static inline result_type apply(detail::min_bounded<PointRelation, MinRelation> const& pp, Indexable const& i)
+//    {
+//        result_type res;
+//        distances_calc_impl<result_type, point_type, Indexable>
+//            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+//        return res;
+//    }
+//};
+//
+//template <typename PointRelation, typename MaxRelation, typename Indexable>
+//struct distances_calc<
+//    detail::max_bounded<PointRelation, MaxRelation>,
+//    Indexable,
+//    value_tag
+//>
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+//    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+//    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
+//
+//    typedef typename detail::cdist_merge<
+//        cdist<distance_type, point_relation_tag>,
+//        cdist<distance_type, max_relation_tag>
+//    >::type result_type;
+//
+//    static inline result_type apply(detail::max_bounded<PointRelation, MaxRelation> const& pp, Indexable const& i)
+//    {
+//        result_type res;
+//        distances_calc_impl<result_type, point_type, Indexable>
+//            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+//        return res;
+//    }
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Indexable>
+//struct distances_calc<
+//    detail::bounded<PointRelation, MinRelation, MaxRelation>,
+//    Indexable,
+//    value_tag
+//>
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename detail::relation<PointRelation>::tag point_relation_tag;
+//    typedef typename geometry::default_distance_result<point_type, Indexable>::type distance_type;
+//    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
+//    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
+//
+//    typedef typename detail::cdist_merge<
+//        typename detail::cdist_merge<
+//            cdist<distance_type, point_relation_tag>,
+//            cdist<distance_type, min_relation_tag>
+//        >::type,
+//        cdist<distance_type, max_relation_tag>
+//    >::type result_type;
+//
+//    static inline result_type apply(
+//        detail::bounded<PointRelation, MinRelation, MaxRelation> const& pp,
+//        Indexable const& i)
+//    {
+//        result_type res;
+//        distances_calc_impl<result_type, point_type, Indexable>
+//            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+//        return res;
+//    }
+//};
 
 // ------------------------------------------------------------------ //
 // distance_predicates_check for value_tag
@@ -591,79 +591,79 @@ struct distances_predicates_check<PointRelation, Indexable, value_tag>
     }
 };
 
-template <typename PointRelation, typename Indexable>
-struct distances_predicates_check<
-    detail::unbounded<PointRelation>,
-    Indexable,
-    value_tag
->
-{
-    template <typename Distances>
-    static inline bool apply(detail::unbounded<PointRelation> const&, Distances const&)
-    {
-        return true;
-    }
-};
-
-template <typename PointRelation, typename MinRelation, typename Indexable>
-struct distances_predicates_check<
-    detail::min_bounded<PointRelation, MinRelation>,
-    Indexable,
-    value_tag
->
-{
-    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
-
-    template <typename Distances>
-    static inline bool apply(
-        detail::min_bounded<PointRelation, MinRelation> const& pred,
-        Distances const& d)
-    {
-        return pred.comparable_min <=
-            detail::cdist_value<Distances>::template get<min_relation_tag>(d);
-    }
-};
-
-template <typename PointRelation, typename MaxRelation, typename Indexable>
-struct distances_predicates_check<
-    detail::max_bounded<PointRelation, MaxRelation>,
-    Indexable,
-    value_tag
->
-{
-    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
-
-    template <typename Distances>
-    static inline bool apply(
-        detail::max_bounded<PointRelation, MaxRelation> const& pred,
-        Distances const& d)
-    {
-        return pred.comparable_max <=
-            detail::cdist_value<Distances>::template get<max_relation_tag>(d);
-    }
-};
-
-template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Indexable>
-struct distances_predicates_check<
-    detail::bounded<PointRelation, MinRelation, MaxRelation>,
-    Indexable,
-    value_tag
->
-{
-    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
-    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
-
-    template <typename Distances>
-    static inline bool apply(
-        detail::bounded<PointRelation, MinRelation, MaxRelation> const& pred,
-        Distances const& d)
-    {
-        return pred.comparable_min
-                <= detail::cdist_value<Distances>::template get<min_relation_tag>(d)
-            && detail::cdist_value<Distances>::template get<max_relation_tag>(d)
-                <= pred.comparable_max;
-    }
-};
+//template <typename PointRelation, typename Indexable>
+//struct distances_predicates_check<
+//    detail::unbounded<PointRelation>,
+//    Indexable,
+//    value_tag
+//>
+//{
+//    template <typename Distances>
+//    static inline bool apply(detail::unbounded<PointRelation> const&, Distances const&)
+//    {
+//        return true;
+//    }
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename Indexable>
+//struct distances_predicates_check<
+//    detail::min_bounded<PointRelation, MinRelation>,
+//    Indexable,
+//    value_tag
+//>
+//{
+//    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
+//
+//    template <typename Distances>
+//    static inline bool apply(
+//        detail::min_bounded<PointRelation, MinRelation> const& pred,
+//        Distances const& d)
+//    {
+//        return pred.comparable_min <=
+//            detail::cdist_value<Distances>::template get<min_relation_tag>(d);
+//    }
+//};
+//
+//template <typename PointRelation, typename MaxRelation, typename Indexable>
+//struct distances_predicates_check<
+//    detail::max_bounded<PointRelation, MaxRelation>,
+//    Indexable,
+//    value_tag
+//>
+//{
+//    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
+//
+//    template <typename Distances>
+//    static inline bool apply(
+//        detail::max_bounded<PointRelation, MaxRelation> const& pred,
+//        Distances const& d)
+//    {
+//        return pred.comparable_max <=
+//            detail::cdist_value<Distances>::template get<max_relation_tag>(d);
+//    }
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Indexable>
+//struct distances_predicates_check<
+//    detail::bounded<PointRelation, MinRelation, MaxRelation>,
+//    Indexable,
+//    value_tag
+//>
+//{
+//    typedef typename detail::relation<MinRelation>::tag min_relation_tag;
+//    typedef typename detail::relation<MaxRelation>::tag max_relation_tag;
+//
+//    template <typename Distances>
+//    static inline bool apply(
+//        detail::bounded<PointRelation, MinRelation, MaxRelation> const& pred,
+//        Distances const& d)
+//    {
+//        return pred.comparable_min
+//                <= detail::cdist_value<Distances>::template get<min_relation_tag>(d)
+//            && detail::cdist_value<Distances>::template get<max_relation_tag>(d)
+//                <= pred.comparable_max;
+//    }
+//};
 
 // ------------------------------------------------------------------ //
 // distance_calc for envelope_tag
@@ -689,95 +689,95 @@ struct distances_calc<
     }
 };
 
-template <typename PointRelation, typename Box>
-struct distances_calc<
-    detail::unbounded<PointRelation>,
-    Box,
-    envelope_tag
->
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
-
-    typedef detail::cdist<distance_type, detail::to_nearest_tag> result_type;
-
-    static inline result_type apply(detail::unbounded<PointRelation> const& pp, Box const& i)
-    {
-        result_type res;
-        distances_calc_impl<result_type, point_type, Box>
-            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
-        return res;
-    }
-};
-
-template <typename PointRelation, typename MinRelation, typename Box>
-struct distances_calc<
-    detail::min_bounded<PointRelation, MinRelation>,
-    Box,
-    envelope_tag
->
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
-    
-    typedef typename detail::cdist_merge<
-        cdist<distance_type, detail::to_nearest_tag>,
-        cdist<distance_type, detail::to_furthest_tag>
-    >::type result_type;
-
-    static inline result_type apply(detail::min_bounded<PointRelation, MinRelation> const& pp, Box const& i)
-    {
-        result_type res;
-        distances_calc_impl<result_type, point_type, Box>
-            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
-        return res;
-    }
-};
-
-template <typename PointRelation, typename MaxRelation, typename Box>
-struct distances_calc<
-    detail::max_bounded<PointRelation, MaxRelation>,
-    Box,
-    envelope_tag
->
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
-
-    typedef cdist<distance_type, detail::to_nearest_tag> result_type;
-
-    static inline result_type apply(detail::max_bounded<PointRelation, MaxRelation> const& pp, Box const& i)
-    {
-        result_type res;
-        distances_calc_impl<result_type, point_type, Box>
-            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
-        return res;
-    }
-};
-
-template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Box>
-struct distances_calc<
-    detail::bounded<PointRelation, MinRelation, MaxRelation>,
-    Box,
-    envelope_tag
->
-{
-    typedef typename detail::relation<PointRelation>::value_type point_type;
-    typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
-
-    typedef typename detail::cdist_merge<
-        cdist<distance_type, detail::to_nearest_tag>,
-        cdist<distance_type, detail::to_furthest_tag>
-    >::type result_type;
-
-    static inline result_type apply(detail::bounded<PointRelation, MinRelation, MaxRelation> const& pp, Box const& i)
-    {
-        result_type res;
-        distances_calc_impl<result_type, point_type, Box>
-            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
-        return res;
-    }
-};
+//template <typename PointRelation, typename Box>
+//struct distances_calc<
+//    detail::unbounded<PointRelation>,
+//    Box,
+//    envelope_tag
+//>
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
+//
+//    typedef detail::cdist<distance_type, detail::to_nearest_tag> result_type;
+//
+//    static inline result_type apply(detail::unbounded<PointRelation> const& pp, Box const& i)
+//    {
+//        result_type res;
+//        distances_calc_impl<result_type, point_type, Box>
+//            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+//        return res;
+//    }
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename Box>
+//struct distances_calc<
+//    detail::min_bounded<PointRelation, MinRelation>,
+//    Box,
+//    envelope_tag
+//>
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
+//    
+//    typedef typename detail::cdist_merge<
+//        cdist<distance_type, detail::to_nearest_tag>,
+//        cdist<distance_type, detail::to_furthest_tag>
+//    >::type result_type;
+//
+//    static inline result_type apply(detail::min_bounded<PointRelation, MinRelation> const& pp, Box const& i)
+//    {
+//        result_type res;
+//        distances_calc_impl<result_type, point_type, Box>
+//            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+//        return res;
+//    }
+//};
+//
+//template <typename PointRelation, typename MaxRelation, typename Box>
+//struct distances_calc<
+//    detail::max_bounded<PointRelation, MaxRelation>,
+//    Box,
+//    envelope_tag
+//>
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
+//
+//    typedef cdist<distance_type, detail::to_nearest_tag> result_type;
+//
+//    static inline result_type apply(detail::max_bounded<PointRelation, MaxRelation> const& pp, Box const& i)
+//    {
+//        result_type res;
+//        distances_calc_impl<result_type, point_type, Box>
+//            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+//        return res;
+//    }
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Box>
+//struct distances_calc<
+//    detail::bounded<PointRelation, MinRelation, MaxRelation>,
+//    Box,
+//    envelope_tag
+//>
+//{
+//    typedef typename detail::relation<PointRelation>::value_type point_type;
+//    typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
+//
+//    typedef typename detail::cdist_merge<
+//        cdist<distance_type, detail::to_nearest_tag>,
+//        cdist<distance_type, detail::to_furthest_tag>
+//    >::type result_type;
+//
+//    static inline result_type apply(detail::bounded<PointRelation, MinRelation, MaxRelation> const& pp, Box const& i)
+//    {
+//        result_type res;
+//        distances_calc_impl<result_type, point_type, Box>
+//            ::apply(res, relation<PointRelation>::value(pp.point_relation), i);
+//        return res;
+//    }
+//};
 
 // ------------------------------------------------------------------ //
 // distance_predicates_check for envelope_tag
@@ -796,70 +796,70 @@ struct distances_predicates_check<
     }
 };
 
-template <typename PointRelation, typename Box>
-struct distances_predicates_check<
-    detail::unbounded<PointRelation>,
-    Box,
-    envelope_tag>
-{
-    template <typename Distances>
-    static inline bool apply(
-        detail::unbounded<PointRelation> const&,
-        Distances const&)
-    {
-        return true;
-    }
-};
-
-template <typename PointRelation, typename MinRelation, typename Box>
-struct distances_predicates_check<
-    detail::min_bounded<PointRelation, MinRelation>,
-    Box,
-    envelope_tag>
-{
-    template <typename Distances>
-    static inline bool apply(
-        detail::min_bounded<PointRelation, MinRelation> const& pred,
-        Distances const& d)
-    {
-        return pred.comparable_min
-            <= cdist_value<Distances>::template get<detail::to_furthest_tag>(d);
-    }
-};
-
-template <typename PointRelation, typename MaxRelation, typename Box>
-struct distances_predicates_check<
-    detail::max_bounded<PointRelation, MaxRelation>,
-    Box,
-    envelope_tag>
-{
-    template <typename Distances>
-    static inline bool apply(
-        detail::max_bounded<PointRelation, MaxRelation> const& pred,
-        Distances const& d)
-    {
-        return cdist_value<Distances>::template get<detail::to_nearest_tag>(d)
-            <= pred.comparable_max;
-    }
-};
-
-template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Box>
-struct distances_predicates_check<
-    detail::bounded<PointRelation, MinRelation, MaxRelation>,
-    Box,
-    envelope_tag>
-{
-    template <typename Distances>
-    static inline bool apply(
-        detail::bounded<PointRelation, MinRelation, MaxRelation> const& pred,
-        Distances const& d)
-    {
-        return pred.comparable_min
-                <= cdist_value<Distances>::template get<detail::to_furthest_tag>(d)
-            && cdist_value<Distances>::template get<detail::to_nearest_tag>(d)
-                <= pred.comparable_max;
-    }
-};
+//template <typename PointRelation, typename Box>
+//struct distances_predicates_check<
+//    detail::unbounded<PointRelation>,
+//    Box,
+//    envelope_tag>
+//{
+//    template <typename Distances>
+//    static inline bool apply(
+//        detail::unbounded<PointRelation> const&,
+//        Distances const&)
+//    {
+//        return true;
+//    }
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename Box>
+//struct distances_predicates_check<
+//    detail::min_bounded<PointRelation, MinRelation>,
+//    Box,
+//    envelope_tag>
+//{
+//    template <typename Distances>
+//    static inline bool apply(
+//        detail::min_bounded<PointRelation, MinRelation> const& pred,
+//        Distances const& d)
+//    {
+//        return pred.comparable_min
+//            <= cdist_value<Distances>::template get<detail::to_furthest_tag>(d);
+//    }
+//};
+//
+//template <typename PointRelation, typename MaxRelation, typename Box>
+//struct distances_predicates_check<
+//    detail::max_bounded<PointRelation, MaxRelation>,
+//    Box,
+//    envelope_tag>
+//{
+//    template <typename Distances>
+//    static inline bool apply(
+//        detail::max_bounded<PointRelation, MaxRelation> const& pred,
+//        Distances const& d)
+//    {
+//        return cdist_value<Distances>::template get<detail::to_nearest_tag>(d)
+//            <= pred.comparable_max;
+//    }
+//};
+//
+//template <typename PointRelation, typename MinRelation, typename MaxRelation, typename Box>
+//struct distances_predicates_check<
+//    detail::bounded<PointRelation, MinRelation, MaxRelation>,
+//    Box,
+//    envelope_tag>
+//{
+//    template <typename Distances>
+//    static inline bool apply(
+//        detail::bounded<PointRelation, MinRelation, MaxRelation> const& pred,
+//        Distances const& d)
+//    {
+//        return pred.comparable_min
+//                <= cdist_value<Distances>::template get<detail::to_furthest_tag>(d)
+//            && cdist_value<Distances>::template get<detail::to_nearest_tag>(d)
+//                <= pred.comparable_max;
+//    }
+//};
 
 }}}} // namespace boost::geometry::index::detail
 

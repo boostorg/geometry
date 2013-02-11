@@ -14,8 +14,6 @@
 #include <deque>
 #include <boost/static_assert.hpp>
 
-#include <boost/geometry/index/adaptors/spatial_query.hpp>
-#include <boost/geometry/index/adaptors/nearest_query.hpp>
 #include <boost/geometry/index/adaptors/query.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -24,60 +22,6 @@ template <typename Value, typename Options, typename Translator, typename Alloca
 class rtree;
 
 namespace adaptors { namespace detail {
-
-template <typename Value, typename Options, typename Translator, typename Allocator>
-class spatial_query_range< index::rtree<Value, Options, Translator, Allocator> >
-{
-public:
-    typedef std::vector<Value> result_type;
-    typedef typename result_type::iterator iterator;
-    typedef typename result_type::const_iterator const_iterator;
-    
-    template <typename Predicates>
-    inline spatial_query_range(
-        index::rtree<Value, Options, Translator, Allocator> const& rtree,
-        Predicates const& pred
-    )
-    {
-        rtree.spatial_query(pred, std::back_inserter(m_result));
-    }
-
-    inline iterator begin() { return m_result.begin(); }
-    inline iterator end() { return m_result.end(); }
-    inline const_iterator begin() const { return m_result.begin(); }
-    inline const_iterator end() const { return m_result.end(); }
-
-private:
-    result_type m_result;
-};
-
-template <typename Value, typename Options, typename Translator, typename Allocator>
-class nearest_query_range< index::rtree<Value, Options, Translator, Allocator> >
-{
-public:
-    typedef std::vector<Value> result_type;
-    typedef typename result_type::iterator iterator;
-    typedef typename result_type::const_iterator const_iterator;
-
-    template <typename DistancesPredicates, typename Predicates>
-    inline nearest_query_range(
-        index::rtree<Value, Options, Translator, Allocator> const& rtree,
-        DistancesPredicates const& dpred,
-        size_t k,
-        Predicates const& pred
-    )
-    {
-        rtree.nearest_query(dpred, k, pred, std::back_inserter(m_result));
-    }
-
-    inline iterator begin() { return m_result.begin(); }
-    inline iterator end() { return m_result.end(); }
-    inline const_iterator begin() const { return m_result.begin(); }
-    inline const_iterator end() const { return m_result.end(); }
-
-private:
-    result_type m_result;
-};
 
 template <typename Value, typename Options, typename Translator, typename Allocator>
 class query_range< index::rtree<Value, Options, Translator, Allocator> >

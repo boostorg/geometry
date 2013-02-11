@@ -28,7 +28,7 @@ os.system(cmd % ("classboost_1_1geometry_1_1index_1_1runtime_1_1quadratic", "rtr
 os.system(cmd % ("classboost_1_1geometry_1_1index_1_1runtime_1_1rstar", "rtree_runtime_rstar"))
 
 os.system(cmd % ("group__predicates", "predicates"))
-os.system(cmd % ("group__distance__predicates", "distance_predicates"))
+os.system(cmd % ("group__nearest__relations", "nearest_relations"))
 os.system(cmd % ("group__adaptors", "adaptors"))
 os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_1_1def", "translator_def"))
 os.system(cmd % ("classboost_1_1geometry_1_1index_1_1translator_1_1index", "translator_index"))

@@ -26,7 +26,7 @@ template <typename Fun>
 struct value
 {
     value(Fun const& f) : fun(f) {}
-    Fun fun;
+    Fun const& fun;
 };
 
 template <typename Geometry>
@@ -116,25 +116,12 @@ struct not_within
 template <typename DistancePredicates>
 struct nearest
 {
-    static const bool is_one = false;
-
     nearest(DistancePredicates const& dpred, unsigned k)
         : distance_predicates(dpred)
         , count(k)
     {}
     DistancePredicates const& distance_predicates;
     unsigned count;
-};
-
-template <typename DistancePredicates>
-struct nearest_one
-{
-    static const bool is_one = true;
-
-    nearest_one(DistancePredicates const& dpred)
-        : distance_predicates(dpred)
-    {}
-    DistancePredicates const& distance_predicates;
 };
 
 // ------------------------------------------------------------------ //
@@ -314,16 +301,6 @@ struct predicate_check<nearest<DistancePredicates>, value_tag>
     }
 };
 
-template <typename DistancePredicates>
-struct predicate_check<nearest_one<DistancePredicates>, value_tag>
-{
-    template <typename Value, typename Box>
-    static inline bool apply(nearest_one<DistancePredicates> const&, Value const&, Box const&)
-    {
-        return true;
-    }
-};
-
 // ------------------------------------------------------------------ //
 // predicates_chec for envelope
 // ------------------------------------------------------------------ //
@@ -456,7 +433,7 @@ template <typename Geometry>
 struct predicate_check<not_overlaps<Geometry>, envelope_tag>
 {
     template <typename Value, typename Box>
-    static bool apply(not_overlaps<Geometry> const& p, Value const&, Box const& i)
+    static bool apply(not_overlaps<Geometry> const& , Value const&, Box const& )
     {
         return true;
     }
@@ -487,16 +464,6 @@ struct predicate_check<nearest<DistancePredicates>, envelope_tag>
 {
     template <typename Value, typename Box>
     static inline bool apply(nearest<DistancePredicates> const&, Value const&, Box const&)
-    {
-        return true;
-    }
-};
-
-template <typename DistancePredicates>
-struct predicate_check<nearest_one<DistancePredicates>, envelope_tag>
-{
-    template <typename Value, typename Box>
-    static inline bool apply(nearest_one<DistancePredicates> const&, Value const&, Box const&)
     {
         return true;
     }
@@ -643,7 +610,7 @@ template <typename TuplePredicates, typename Tag, unsigned First>
 struct predicates_check_tuple<TuplePredicates, Tag, First, First>
 {
     template <typename Value, typename Indexable>
-    static inline bool apply(TuplePredicates const& p, Value const& v, Indexable const& i)
+    static inline bool apply(TuplePredicates const& , Value const& , Indexable const& )
     {
         return true;
     }
@@ -741,12 +708,6 @@ struct predicates_is_nearest
 
 template <typename DistancePredicates>
 struct predicates_is_nearest< nearest<DistancePredicates> >
-{
-    static const unsigned value = 1;
-};
-
-template <typename DistancePredicates>
-struct predicates_is_nearest< nearest_one<DistancePredicates> >
 {
     static const unsigned value = 1;
 };

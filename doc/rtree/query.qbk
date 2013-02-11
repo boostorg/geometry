@@ -86,15 +86,11 @@ All predicates may be negated, e.g.:
 [section Nearest neighbours queries]
 
 Nearest neighbours queries returns `__value__`s which are closest to some point in space.
-Additionally it is possible to pass define how the distance to the `Value` should be calculated
-or distance predicates defining minimal and maximal distances. The examples of some knn
-queries may be found in the table below. All queries returns 5 closest `Values`.
-The query point, region and result Values are orange.
+Additionally it is possible to pass define how the distance to the `Value` should be calculated.
+The examples of some knn queries may be found in the table below. All queries returns 5 closest `Values`.
+The query point and Values are orange.
 
-[table
-[[Basic knn query] [knn query - distance to Indexable's furthest point greather than ...] [knn query - distance to Indexable's closest point greather than ...]]
-[[[$../images/knn.png]] [[$../images/knn_inters.png]] [[$../images/knn_cover.png]]]
-]
+[$../images/knn.png]
 
 [section k nearest neighbours]
 
@@ -122,71 +118,17 @@ Use of `operator |`
 
 [endsect]
 
-[section One nearest neighbour]
+[section Distance calculation]
 
-Another type of nearest neighbour query is searching for the one closest `__value__`.
-If it is found, 1 is returned by the method or function. This kind of query
-has only two forms.
+It is possible to define how distance to the non-point `__value__` should be calculated. To do this one may pass
+a relation object generated as follows:
 
-Method call
-
- __value__ returned_value;
- __point__ pt(...);
- size_t n = rt.query(index::nearest(pt), returned_value);
-
-Function call
-
- __value__ Value returned_value;
- __point__ pt(...);
- size_t n = index::query(rt, index::nearest(pt), returned_value);
-
-[endsect]
- 
-[section Distances predicates]
-
-It is possible to define if calculated distance between query point and `__value__` should be
-greater, lesser or between some other distances. Those are called `DistancesPredicate`s and
-may be defined as follows.
-
- std::vector<__Value__> returned_values;
- __point__ pt(...);
-
- /* default - without bounds */
- index::query(rt, index::nearest(pt, k), std::back_inserter(returned_values));
-
- /* same as default */
- index::query(rt, index::nearest(index::unbounded(pt), k), std::back_inserter(returned_values));
-
- /* distance must be greater than or equal to 10 */
- index::query(rt, index::nearest(index::min_bounded(pt, 10), k), std::back_inserter(returned_values));
-
- /* distance must be lesser than or equal to 500 */
- index::query(rt, index::nearest(index::max_bounded(pt, 500), k), std::back_inserter(returned_values));
-
- /* distance must be between 10 and 500 */
- index::query(rt, index::nearest(index::bounded(pt, 10, 500), k), std::back_inserter(returned_values));
-
-Furthermore, it's possible to define if the closest, furthest or centroidal point of the
-non-point `__indexable__` should be taken into account in the routine calculating distance.
-
- std::vector<__value__> returned_values;
- __point__ pt(...);
-
- /* default - distance between Indexable's closest point and a query point
- must be greater than 10 */
- index::query(rt, index::nearest(index::min_bounded(pt, 10), k), std::back_inserter(returned_values));
-
- /* same as default - distance between Indexable's closest point and a query point
- must be greater than 10 */
- index::query(rt, index::nearest(index::min_bounded(pt, index::to_nearest(10)), k), std::back_inserter(returned_values));
-
- /* distance between Indexable's furthest point and a query point
- must be greater than 10 */
- index::query(rt, index::nearest(index::min_bounded(pt, index::to_furthest(10)), k), std::back_inserter(returned_values));
-
- /* distance between Indexable's centroid and a query point
- must be greater than 10 */
- index::query(rt, index::nearest(index::min_bounded(pt, index::to_centroid(10)), k), std::back_inserter(returned_values));
+ /* caluclate distance to the Indexables' nearest points */
+ tree::query(index::nearest(index::to_nearest(pt), k), std::back_inserter(returned_values)); // default
+ /* caluclate distance to the Indexables' centroid */
+ tree::query(index::nearest(index::to_centroid(pt), k), std::back_inserter(returned_values));
+ /* caluclate distance to the Indexables' furthest points */
+ tree::query(index::nearest(index::to_furthest(pt), k), std::back_inserter(returned_values));
 
 [endsect]
 
@@ -212,11 +154,7 @@ some specific conditions for user-defined Values.
 
 [section Passing a set of predicates]
 
-It's possible to use some number of predicates in one query by passing:
-
-* `std::pair<Pred1, Pred2>`,
-* `boost::tuple<Pred1, Pred2, Pred3, ...>`
-* predicates connected by `operator&&` e.g. `Pred1 && Pred2 && Pred3 && ...`.
+It's possible to use some number of predicates in one query by connecting them with `operator&&` e.g. `Pred1 && Pred2 && Pred3 && ...`.
 
 These predicates are connected by logical AND. Passing all predicates together not only makes possible
 to construct advanced queries but is also faster than separate calls because the tree is traversed only once.
@@ -230,8 +168,6 @@ left-to-right so placing most restictive predicates first should accelerate the 
           std::back_inserter(result));
 
 Of course it's possible to connect different types of predicates together.
-
- rt.query(index::nearest(index::bounded(pt, index::to_furthest(1), 10)) && index::intersects(b), returned_value);
 
  index::query(rt, index::nearest(pt, k) && index::within(b), std::back_inserter(returned_values));
 

@@ -10,7 +10,7 @@
 #include <boost/test/included/test_exec_monitor.hpp>
 #include <boost/test/impl/execution_monitor.ipp>
 
-#include <boost/geometry/index/detail/static_vector.hpp>
+#include <boost/geometry/index/detail/varray.hpp>
 
 using namespace boost::geometry::index::detail;
 
@@ -65,7 +65,7 @@ private:
 template <typename T, size_t N>
 void test_ctor_ndc()
 {
-    static_vector<T, N> s;
+    varray<T, N> s;
     BOOST_CHECK(s.size() == 0);
     BOOST_CHECK(s.capacity() == N);
     BOOST_CHECK_THROW( s.at(0), std::out_of_range );
@@ -74,7 +74,7 @@ void test_ctor_ndc()
 template <typename T, size_t N>
 void test_ctor_nc(size_t n)
 {
-    static_vector<T, N> s(n);
+    varray<T, N> s(n);
     BOOST_CHECK(s.size() == n);
     BOOST_CHECK(s.capacity() == N);
     BOOST_CHECK_THROW( s.at(n), std::out_of_range );
@@ -88,7 +88,7 @@ void test_ctor_nc(size_t n)
 template <typename T, size_t N>
 void test_ctor_nd(size_t n, T const& v)
 {
-    static_vector<T, N> s(n, v);
+    varray<T, N> s(n, v);
     BOOST_CHECK(s.size() == n);
     BOOST_CHECK(s.capacity() == N);
     BOOST_CHECK_THROW( s.at(n), std::out_of_range );
@@ -110,7 +110,7 @@ void test_ctor_nd(size_t n, T const& v)
 template <typename T, size_t N>
 void test_resize_nc(size_t n)
 {
-    static_vector<T, N> s;
+    varray<T, N> s;
 
     s.resize(n);
     BOOST_CHECK(s.size() == n);
@@ -127,7 +127,7 @@ void test_resize_nc(size_t n)
 template <typename T, size_t N>
 void test_resize_nd(size_t n, T const& v)
 {
-    static_vector<T, N> s;
+    varray<T, N> s;
 
     s.resize(n, v);
     BOOST_CHECK(s.size() == n);
@@ -151,7 +151,7 @@ void test_resize_nd(size_t n, T const& v)
 template <typename T, size_t N>
 void test_push_back_nd()
 {
-    static_vector<T, N> s;
+    varray<T, N> s;
 
     BOOST_CHECK(s.size() == 0);
     BOOST_CHECK_THROW( s.at(0), std::out_of_range );
@@ -171,7 +171,7 @@ void test_push_back_nd()
 template <typename T, size_t N>
 void test_pop_back_nd()
 {
-    static_vector<T, N> s;
+    varray<T, N> s;
 
     for ( size_t i = 0 ; i < N ; ++i )
         s.push_back(T(i));    
@@ -199,7 +199,7 @@ void test_compare_ranges(It1 first1, It1 last1, It2 first2, It2 last2)
 template <typename T, size_t N>
 void test_copy_and_assign_nd(T const& val)
 {
-    static_vector<T, N> s;
+    varray<T, N> s;
     std::vector<T> v;
     std::list<T> l;
 
@@ -211,13 +211,13 @@ void test_copy_and_assign_nd(T const& val)
     }
     // copy ctor
     {
-        static_vector<T, N> s1(s);
+        varray<T, N> s1(s);
         BOOST_CHECK(s.size() == s1.size());
         test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
     }
     // copy assignment
     {
-        static_vector<T, N> s1;
+        varray<T, N> s1;
         BOOST_CHECK(0 == s1.size());
         s1 = s;
         BOOST_CHECK(s.size() == s1.size());
@@ -225,37 +225,37 @@ void test_copy_and_assign_nd(T const& val)
     }
     // ctor(Iter, Iter)
     {
-        static_vector<T, N> s1(s.begin(), s.end());
+        varray<T, N> s1(s.begin(), s.end());
         BOOST_CHECK(s.size() == s1.size());
         test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
     }
     {
-        static_vector<T, N> s1(v.begin(), v.end());
+        varray<T, N> s1(v.begin(), v.end());
         BOOST_CHECK(v.size() == s1.size());
         test_compare_ranges(v.begin(), v.end(), s1.begin(), s1.end());
     }
     {
-        static_vector<T, N> s1(l.begin(), l.end());
+        varray<T, N> s1(l.begin(), l.end());
         BOOST_CHECK(l.size() == s1.size());
         test_compare_ranges(l.begin(), l.end(), s1.begin(), s1.end());
     }
     // assign(Iter, Iter)
     {
-        static_vector<T, N> s1;
+        varray<T, N> s1;
         BOOST_CHECK(0 == s1.size());
         s1.assign(s.begin(), s.end());
         BOOST_CHECK(s.size() == s1.size());
         test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
     }
     {
-        static_vector<T, N> s1;
+        varray<T, N> s1;
         BOOST_CHECK(0 == s1.size());
         s1.assign(v.begin(), v.end());
         BOOST_CHECK(v.size() == s1.size());
         test_compare_ranges(v.begin(), v.end(), s1.begin(), s1.end());
     }
     {
-        static_vector<T, N> s1;
+        varray<T, N> s1;
         BOOST_CHECK(0 == s1.size());
         s1.assign(l.begin(), l.end());
         BOOST_CHECK(l.size() == s1.size());
@@ -263,7 +263,7 @@ void test_copy_and_assign_nd(T const& val)
     }
     // assign(N, V)
     {
-        static_vector<T, N> s1(s);
+        varray<T, N> s1(s);
         test_compare_ranges(s.begin(), s.end(), s1.begin(), s1.end());
         std::vector<T> a(N, val);
         s1.assign(N, val);
@@ -274,7 +274,7 @@ void test_copy_and_assign_nd(T const& val)
 template <typename T, size_t N>
 void test_iterators_nd()
 {
-    static_vector<T, N> s;
+    varray<T, N> s;
     std::vector<T> v;
 
     for ( size_t i = 0 ; i < N ; ++i )
@@ -295,7 +295,7 @@ void test_iterators_nd()
 template <typename T, size_t N>
 void test_erase_nd()
 {
-    static_vector<T, N> s;
+    varray<T, N> s;
     
     for ( size_t i = 0 ; i < N ; ++i )
         s.push_back(T(i));
@@ -304,7 +304,7 @@ void test_erase_nd()
     {
         for ( size_t i = 0 ; i < N ; ++i )
         {
-            static_vector<T, N> s1(s);
+            varray<T, N> s1(s);
             s1.erase(s1.begin() + i);
             BOOST_CHECK(s1.size() == N - 1);
             for ( size_t j = 0 ; j < i ; ++j )
@@ -318,7 +318,7 @@ void test_erase_nd()
         size_t n = N/3;
         for ( size_t i = 0 ; i <= N ; ++i )
         {
-            static_vector<T, N> s1(s);
+            varray<T, N> s1(s);
             size_t removed = i + n < N ? n : N - i;
             s1.erase(s1.begin() + i, s1.begin() + i + removed);
             BOOST_CHECK(s1.size() == N - removed);
@@ -335,7 +335,7 @@ void test_insert_nd(T const& val)
 {
     size_t h = N/2;
 
-    static_vector<T, N> s, ss;
+    varray<T, N> s, ss;
     std::vector<T> v;
     std::list<T> l;
 
@@ -351,7 +351,7 @@ void test_insert_nd(T const& val)
     {
         for ( size_t i = 0 ; i <= h ; ++i )
         {
-            static_vector<T, N> s1(s);
+            varray<T, N> s1(s);
             s1.insert(s1.begin() + i, val);
             BOOST_CHECK(s1.size() == h+1);
             for ( size_t j = 0 ; j < i ; ++j )
@@ -366,7 +366,7 @@ void test_insert_nd(T const& val)
         size_t n = size_t(h/1.5f);
         for ( size_t i = 0 ; i <= h ; ++i )
         {
-            static_vector<T, N> s1(s);
+            varray<T, N> s1(s);
             s1.insert(s1.begin() + i, n, val);
             BOOST_CHECK(s1.size() == h+n);
             for ( size_t j = 0 ; j < i ; ++j )
@@ -382,7 +382,7 @@ void test_insert_nd(T const& val)
         size_t n = size_t(h/1.5f);
         for ( size_t i = 0 ; i <= h ; ++i )
         {
-            static_vector<T, N> s1(s);
+            varray<T, N> s1(s);
             s1.insert(s1.begin() + i, ss.begin(), ss.begin() + n);
             BOOST_CHECK(s1.size() == h+n);
             for ( size_t j = 0 ; j < i ; ++j )
@@ -397,7 +397,7 @@ void test_insert_nd(T const& val)
         size_t n = size_t(h/1.5f);
         for ( size_t i = 0 ; i <= h ; ++i )
         {
-            static_vector<T, N> s1(s);
+            varray<T, N> s1(s);
             s1.insert(s1.begin() + i, v.begin(), v.begin() + n);
             BOOST_CHECK(s1.size() == h+n);
             for ( size_t j = 0 ; j < i ; ++j )
@@ -412,7 +412,7 @@ void test_insert_nd(T const& val)
         size_t n = size_t(h/1.5f);
         for ( size_t i = 0 ; i <= h ; ++i )
         {
-            static_vector<T, N> s1(s);
+            varray<T, N> s1(s);
             typename std::list<T>::iterator it = l.begin();
             std::advance(it, n);
             s1.insert(s1.begin() + i, l.begin(), it);

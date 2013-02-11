@@ -207,7 +207,7 @@ void gl_draw(rtree<Value, Options, Translator, Allocator> const& tree,
     if ( !tree.empty() )
     {
         glColor3f(0.75f, 0.75f, 0.75f);
-        detail::rtree::visitors::detail::gl_draw_indexable(tree.box(), 0);
+        detail::rtree::visitors::detail::gl_draw_indexable(tree.bounds(), 0);
     }
 
     detail::rtree::visitors::gl_draw<value_type, options_type, translator_type, box_type, allocators_type>

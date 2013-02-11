@@ -136,46 +136,11 @@ int main()
             {
                 float x = coords[i].first + 100;
                 float y = coords[i].second + 100;
-                temp += t.query(bgi::nearest(P(x, y)), result_one);
-            }
-            double time = tim.elapsed();
-            std::cout << time << "s - query(nearest(P)) " << (queries_count / 10) << " found " << temp << '\n';
-        }
-
-        {
-            tim.restart();    
-            size_t temp = 0;
-            for (size_t i = 0 ; i < queries_count / 10 ; ++i )
-            {
-                float x = coords[i].first + 100;
-                float y = coords[i].second + 100;
                 result.clear();
                 temp += t.query(bgi::nearest(P(x, y), 5), std::back_inserter(result));
             }
             double time = tim.elapsed();
             std::cout << time << "s - query(nearest(P, 5)) " << (queries_count / 10) << " found " << temp << '\n';
-        }
-
-        {
-            tim.restart();    
-            size_t temp = 0;
-            for (size_t i = 0 ; i < queries_count / 10 ; ++i )
-            {
-                float x = coords[i].first + 100;
-                float y = coords[i].second + 100;
-                result.clear();
-                temp += t.query(bgi::nearest(
-                    bgi::bounded(
-                        bgi::to_nearest(P(x, y)),
-                        bgi::to_centroid(0),
-                        bgi::to_furthest(100000)
-                    ),
-                    5),
-                    std::back_inserter(result)
-                );
-            }
-            double time = tim.elapsed();
-            std::cout << time << "s - query(nearest(bounded(n, c, f), 5)) " << (queries_count / 10) << " found " << temp << '\n';
         }
 
         {

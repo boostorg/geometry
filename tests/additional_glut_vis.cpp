@@ -42,8 +42,6 @@ std::vector<B> vect;
 
 size_t found_count = 0;
 P search_point;
-float min_distance = 10;
-float max_distance = 30;
 size_t count = 5;
 std::vector<B> nearest_boxes;
 B search_box;
@@ -64,13 +62,8 @@ void knn()
 
     search_point = P(x, y);
     nearest_boxes.clear();
-    found_count = t.nearest_query(
-        bgi::bounded(
-            search_point,
-            bgi::to_furthest(min_distance),
-            bgi::to_nearest(max_distance)
-        ),
-        count,
+    found_count = t.query(
+        bgi::nearest(search_point, count),
         std::back_inserter(nearest_boxes)
         );
 
@@ -101,13 +94,13 @@ void query()
 
         search_box = B(P(x - w, y - h), P(x + w, y + h));
         nearest_boxes.clear();
-        found_count = t.spatial_query(Predicate(search_box), std::back_inserter(nearest_boxes) );
+        found_count = t.query(Predicate(search_box), std::back_inserter(nearest_boxes) );
     }
     else
     {
-        search_box = t.box();
+        search_box = t.bounds();
         nearest_boxes.clear();
-        found_count = t.spatial_query(Predicate(search_box), std::back_inserter(nearest_boxes) );
+        found_count = t.query(Predicate(search_box), std::back_inserter(nearest_boxes) );
     }
 
     if ( found_count > 0 )
@@ -153,7 +146,7 @@ void query_ring()
     search_ring.push_back(P(x - w, y - h));
         
     nearest_boxes.clear();
-    found_count = t.spatial_query(Predicate(search_ring), std::back_inserter(nearest_boxes) );
+    found_count = t.query(Predicate(search_ring), std::back_inserter(nearest_boxes) );
     
     if ( found_count > 0 )
     {
@@ -209,7 +202,7 @@ void query_poly()
     search_poly.inners()[0].push_back(P(x - w/2, y - h/2));
 
     nearest_boxes.clear();
-    found_count = t.spatial_query(Predicate(search_poly), std::back_inserter(nearest_boxes) );
+    found_count = t.query(Predicate(search_poly), std::back_inserter(nearest_boxes) );
 
     if ( found_count > 0 )
     {
@@ -281,7 +274,7 @@ void query_multi_poly()
     search_multi_poly[2].outer().push_back(P(x + 6*w/5, y + 6*h/5));
 
     nearest_boxes.clear();
-    found_count = t.spatial_query(Predicate(search_multi_poly), std::back_inserter(nearest_boxes) );
+    found_count = t.query(Predicate(search_multi_poly), std::back_inserter(nearest_boxes) );
 
     if ( found_count > 0 )
     {
@@ -338,7 +331,7 @@ void search()
     search_valid = true;
 }
 
-void draw_knn_area()
+void draw_knn_area(float min_distance, float max_distance)
 {
     float x = boost::geometry::get<0>(search_point);
     float y = boost::geometry::get<1>(search_point);
@@ -428,7 +421,7 @@ void render_scene(void)
         glColor3f(1.0f, 0.5f, 0.0f);
 
         if ( query_mode == qm_knn )
-            draw_knn_area();
+            draw_knn_area(0, 0);
         else if ( query_mode == qm_ri )
             draw_ring(search_ring);
         else if ( query_mode == qm_pi )

@@ -89,31 +89,25 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 
 [heading Member(s)]
 [table
-[[Function][Description]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1ab823a214501cb0f9fd00ba12a1ade179 `operator=(const rtree &)`]][The assignment operator. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a44bd4edee49db92c18b6bbbba77b42be `operator=(rtree &&)`]][The moving assignment. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1aad0285d25f96341a8dd6cc22feb3bd73 `swap(rtree &)`]][Swaps contents of two rtrees. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1af6d5bd81e46cb4ff89277c753133664c `insert(value_type const &)`]][Insert a value to the index. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a5263a3faac7b4f0090d4ad1d44cc540d `insert(Iterator, Iterator)`]][Insert a range of values to the index. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1abb624abd9268b41e815d40342b2634c2 `insert(Range const &)`]][Insert a range of values to the index. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1af6ca6909354a997f89411ef40ea5688a `remove(value_type const &)`]][Remove a value from the container. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a6e9123114697d65b16ebc49cd5371fbd `remove(Iterator, Iterator)`]][Remove a range of values from the container. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a5a57bb93b0b2d7ea1c659e925f918e9c `remove(Range const &)`]][Remove a range of values from the container. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a25ce2ead0e8a2d270105f4958237e949 `query(Predicates const &, OutIter)`]][Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1abd965047110c9f8ef6ff097e97487312 `query(Predicates const &, value_type &)`]][Finds value meeting passed predicates e.g. nearest to some Point and intersecting some Box. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a930bf17d595a91d8ae924383a0387920 `spatial_query(Predicates const &, OutIter)`]][Finds values meeting spatial predicates, e.g. intersecting some Box. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909 `nearest_query(DistancesPredicates const &, value_type &)`]][Finds one value meeting distances predicates, e.g. nearest to some Point. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a6552331dca4d67647ef2a03bd0fbedcc `nearest_query(DistancesPredicates const &, Predicates const &, value_type &)`]][Finds one value meeting distances predicates and spatial predicates, e.g. nearest to some Point and intersecting some Box. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a3101652211c9f2d6ed8626dae6ff5f9d `nearest_query(DistancesPredicates const &, size_type, OutIter)`]][Finds k values meeting distances predicates, e.g. k nearest values to some Point. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a31c23b87b01f12282ef0df6404ab7301 `nearest_query(DistancesPredicates const &, size_type, Predicates const &, OutIter)`]][Finds k values meeting distances predicates and spatial predicates, e.g. k nearest values to some Point and intersecting some Box. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a89561a834563f2ed6fc782bad16143fd `size()`]][Returns the number of stored values. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1ae889567443b0ba0dbdb975564c55804c `empty()`]][Query if the container is empty. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1ae6027e42d28a4bf93e74b055c79e6b09 `clear()`]][Removes all values stored in the container. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1ace84997927e26d7cdb5aa67f14cdf6cc `bounds()`]][Returns the box able to contain all values stored in the container. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a17fce1fac81f6460d2c3a5744f4963ee `count(ValueOrIndexable const &)`]][Count Values or Indexables stored in the container. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a18910715f67608ff010556ac41f51606 `parameters()`]][Returns parameters. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1afc7e9a4bd53a58552c17c1e7cb997258 `translator()`]][Returns the translator object. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a1eeb303253f4cabe3a89a82ed41247ff `get_allocator()`]][Returns allocator used by the rtree. ]]
+[[Modifier][Function][Description]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1ab823a214501cb0f9fd00ba12a1ade179 `operator=(const rtree &)`]][The assignment operator. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a44bd4edee49db92c18b6bbbba77b42be `operator=(rtree &&)`]][The moving assignment. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1aad0285d25f96341a8dd6cc22feb3bd73 `swap(rtree &)`]][Swaps contents of two rtrees. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1af6d5bd81e46cb4ff89277c753133664c `insert(value_type const &)`]][Insert a value to the index. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a5263a3faac7b4f0090d4ad1d44cc540d `insert(Iterator, Iterator)`]][Insert a range of values to the index. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1abb624abd9268b41e815d40342b2634c2 `insert(Range const &)`]][Insert a range of values to the index. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1af6ca6909354a997f89411ef40ea5688a `remove(value_type const &)`]][Remove a value from the container. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a6e9123114697d65b16ebc49cd5371fbd `remove(Iterator, Iterator)`]][Remove a range of values from the container. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a5a57bb93b0b2d7ea1c659e925f918e9c `remove(Range const &)`]][Remove a range of values from the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a25ce2ead0e8a2d270105f4958237e949 `query(Predicates const &, OutIter)`]][Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a89561a834563f2ed6fc782bad16143fd `size()`]][Returns the number of stored values. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1ae889567443b0ba0dbdb975564c55804c `empty()`]][Query if the container is empty. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1ae6027e42d28a4bf93e74b055c79e6b09 `clear()`]][Removes all values stored in the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1ace84997927e26d7cdb5aa67f14cdf6cc `bounds()`]][Returns the box able to contain all values stored in the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a17fce1fac81f6460d2c3a5744f4963ee `count(ValueOrIndexable const &)`]][Count Values or Indexables stored in the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a18910715f67608ff010556ac41f51606 `parameters()`]][Returns parameters. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1afc7e9a4bd53a58552c17c1e7cb997258 `translator()`]][Returns the translator object. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a1eeb303253f4cabe3a89a82ed41247ff `get_allocator()`]][Returns allocator used by the rtree. ]]
 ]
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1afa64d1b825b06d196b1164aec27c2d7b]
@@ -126,7 +120,8 @@ The constructor.
 `rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]] `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]`()``)`
 ]
 
-[heading Parameter(s)]
+[heading Modifier(s)]
+``explicit ``[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]][ `parameters` ][The parameters object. ]]
@@ -209,7 +204,8 @@ The constructor.
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]`()``)`
 ]
 
-[heading Parameter(s)]
+[heading Modifier(s)]
+``explicit ``[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[`Range const &`][ `rng` ][The range of Values. ]]
@@ -639,403 +635,47 @@ This is a special kind of predicate which allows to pass a user-defined functor 
 
 [*Nearest predicate]
 
-If the nearest predicate is passed a k-nearest neighbor search will be performed. It has two variants. Passing the first one will result in returning k number of values, the second one will result in returning only one, closest value. In both cases values will be returned to the output iterator. Only one nearest predicate may be passed to the query. It may be generated by: 
+If the nearest predicate is passed a k-nearest neighbor search will be performed. This query will result in returning k values to the output iterator. Only one nearest predicate may be passed to the query. It may be generated by: 
 
-* [^[link group__predicates_1ga162233fd11b980853f8b8335cb70d57b boost::geometry::index::nearest()]].
+* [^[link group__predicates_1gae80a2c204673a8b11c4fc137cfff6556 boost::geometry::index::nearest()]].
 
 [*Connecting predicates]
 
-A set of predicates may be generated by: 
-
-* [^`std::make_pair()`]
-* [^`boost::make_tuple()`]
-* [^`operator&&()`]
-
-[heading Synopsis]
+Predicates may be passed together connected with [^`operator&&()`].[heading Synopsis]
 [pre
 `template<``typename Predicates``,` `typename OutIter``>`
 [^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `query``(``Predicates const &` `predicates``,` `OutIter` `out_it``)`
 ]
 
-[heading Parameter(s)]
+[heading Modifier(s)]
+``const ``[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[`Predicates const &`][ `predicates` ][Predicates. ]]
 [[`OutIter`][ `out_it` ][The output iterator, e.g. generated by std::back_inserter().]]
 ]
 [heading Returns]
-The number of values found.
+The number of values found. 
 [heading Example]
 
 ``
-tree.query(box1, std::back_inserter(result));
-tree.query(std::make_pair(bgi::intersects(poly), !bgi::within(box)), std::back_inserter(result));
+// return elements intersecting box
+tree.query(box, std::back_inserter(result));
+// return elements intersecting poly but not within box
 tree.query(bgi::intersects(poly) && !bgi::within(box), std::back_inserter(result));
+// return elements overlapping box and meeting my_fun value predicate
 tree.query(bgi::overlaps(box) && bgi::value(my_fun), std::back_inserter(result));
+// return 5 elements nearest to pt and elements are intersecting box
 tree.query(bgi::nearest(pt, 5) && bgi::intersects(box), std::back_inserter(result));
+// return 5 elements which centroids are nearest to pt and elements aren't within box
+tree.query(bgi::nearest(bgi::to_centroid(pt), 5) && !bgi::within(box), std::back_inserter(result));
 ``
 
 
 [heading Throws]
-If Value copy constructor or copy assignment throws. 
+If Value copy constructor or copy assignment throws.
 
-[warning Only one [^[link group__predicates_1ga162233fd11b980853f8b8335cb70d57b nearest()]] perdicate may be passed to the query.]
-
-[endsect]
-
-[#classboost_1_1geometry_1_1index_1_1rtree_1abd965047110c9f8ef6ff097e97487312]
-[section query(Predicates const &, value_type &)]
-Finds value meeting passed predicates e.g. nearest to some Point and intersecting some Box. 
-
-[heading Description]
-This query function performs k-nearest neighbor searches. It allows to pass a set of predicates. The value will be returned only if all predicates are met. This query requires that one of the predicates must be one-value [^[link group__predicates_1ga162233fd11b980853f8b8335cb70d57b nearest()]] predicate.
-
-[*Spatial predicates]
-
-The simplest form of spatial predicate is a [^`Geometry`]. In this case Values intersecting the [^`Geometry`] are returned. More spatial predicates may be generated by one of the functions listed below: 
-
-* [^[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 boost::geometry::index::covered_by()]], 
-* [^[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d boost::geometry::index::disjoint()]], 
-* [^[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 boost::geometry::index::intersects()]] - default, 
-* [^[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 boost::geometry::index::overlaps()]], 
-* [^[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d boost::geometry::index::within()]],
-
-
-It is possible to negate spatial predicates: 
-
-* [^`! `[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 boost::geometry::index::covered_by()]], 
-* [^`! `[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d boost::geometry::index::disjoint()]], 
-* [^`! `[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 boost::geometry::index::intersects()]], 
-* [^`! `[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 boost::geometry::index::overlaps()]], 
-* [^`! `[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d boost::geometry::index::within()]]
-
-[*Value predicate]
-
-This is a special kind of predicate which allows to pass a user-defined functor which checks if Value should be returned by the query. It's generated by: 
-
-* [^[link group__predicates_1ga8acb81106fce01da72f310184ab4d9ce boost::geometry::index::value()]].
-
-[*Nearest predicate]
-
-This query requires that one of the predicates must be one-value [^[link group__predicates_1ga162233fd11b980853f8b8335cb70d57b nearest()]] predicate. It may be generated by [^[link group__predicates_1ga162233fd11b980853f8b8335cb70d57b nearest()]] taking only one parameter - distance predicates. 
-
-* [^[link group__predicates_1ga162233fd11b980853f8b8335cb70d57b boost::geometry::index::nearest()]].
-
-[*Connecting predicates]
-
-A set of predicates may be generated by: 
-
-* [^`std::make_pair()`]
-* [^`boost::make_tuple()`]
-* [^`operator&&()`]
-
-[heading Synopsis]
-[pre
-`template<``typename Predicates``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `query``(``Predicates const &` `predicates``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` &` `value``)`
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`Predicates const &`][ `predicates` ][Predicates. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` &`][ `value` ][The reference to value which will hold the result of the query.]]
-]
-[heading Returns]
-The number of values found (1 if value was found, 0 otherwise).
-[heading Example]
-
-``
-tree.query(std::make_pair(bgi::nearest(pt), bgi::within(box)), value);
-tree.query(bgi::nearest(pt) && bgi::intersects(poly), value);
-``
-
-
-[heading Throws]
-If Value copy constructor or copy assignment throws. 
-
-[warning This query requires that one of the predicates must be one-value [^[link group__predicates_1ga162233fd11b980853f8b8335cb70d57b nearest()]] predicate.]
-
-[endsect]
-
-[#classboost_1_1geometry_1_1index_1_1rtree_1a930bf17d595a91d8ae924383a0387920]
-[section spatial_query(Predicates const &, OutIter)]
-Finds values meeting spatial predicates, e.g. intersecting some Box. 
-
-[heading Description]
-[*Spatial predicates] may be a [^`Geometry`]. In this case Values intersecting the [^`Geometry`] are returned.
-
-It may be generated by one of the functions listed below: 
-
-* [^[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 boost::geometry::index::covered_by()]], 
-* [^[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d boost::geometry::index::disjoint()]], 
-* [^[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 boost::geometry::index::intersects()]] - default, 
-* [^[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 boost::geometry::index::overlaps()]], 
-* [^[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d boost::geometry::index::within()]], 
-* [^`! `[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 boost::geometry::index::covered_by()]], 
-* [^`! `[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d boost::geometry::index::disjoint()]], 
-* [^`! `[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 boost::geometry::index::intersects()]], 
-* [^`! `[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 boost::geometry::index::overlaps()]], 
-* [^`! `[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d boost::geometry::index::within()]]
-* [^[link group__predicates_1ga8acb81106fce01da72f310184ab4d9ce boost::geometry::index::value()]].
-
-
-Those predicates may be passed together in [^`std::pair`] or [^`boost::tuple`].[heading Synopsis]
-[pre
-`template<``typename Predicates``,` `typename OutIter``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `spatial_query``(``Predicates const &` `pred``,` `OutIter` `out_it``)`
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`Predicates const &`][ `pred` ][The spatial predicates or a Geometry. ]]
-[[`OutIter`][ `out_it` ][The output iterator of the result range. E.g. an iterator generated by std::back_inserter(container)]]
-]
-[heading Returns]
-The number of values found.
-[heading Throws]
-
-
-* If Value copy constructor or copy assignment throws. 
-* If OutIter dereference or increment throws. 
-
-
-
-[endsect]
-
-[#classboost_1_1geometry_1_1index_1_1rtree_1a788295b315bd0ddeb93b1cc050fdf909]
-[section nearest_query(DistancesPredicates const &, value_type &)]
-Finds one value meeting distances predicates, e.g. nearest to some Point. 
-
-[heading Description]
-[*Distances predicates] may be a [^`Point`]. In this the case the Value closest to [^`Point`] is returned.
-
-It is possible to define how distance to Value is calculated. This is done by passing PointRelation. It can be generated by following functions: 
-
-* [^[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 boost::geometry::index::to_nearest()]] - default, 
-* [^[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 boost::geometry::index::to_centroid()]], 
-* [^[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 boost::geometry::index::to_furthest()]].
-
-
-It is possible to define define distances bounds, for example that some distance must be between min_distance and max_distance. This is done by passing DistancesPredicates which can be generated by following functions: 
-
-* [^[link group__distance__predicates_1ga1b0f969b575a94ca710b9345861f64db boost::geometry::index::unbounded()]] - default, 
-* [^[link group__distance__predicates_1ga39c7c94776ab840e164848e53d376098 boost::geometry::index::min_bounded()]], 
-* [^[link group__distance__predicates_1ga843735643378288b0e14e19cc9b4e079 boost::geometry::index::max_bounded()]], 
-* [^[link group__distance__predicates_1ga20621ca608b1420c38182346b965f347 boost::geometry::index::bounded()]].
-
-
-MinRelation and MaxRelation describes bounds and can be generated by following functions: 
-
-* [^[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 boost::geometry::index::to_nearest()]], 
-* [^[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 boost::geometry::index::to_centroid()]], 
-* [^[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 boost::geometry::index::to_furthest()]].
-
-[heading Synopsis]
-[pre
-`template<``typename DistancesPredicates``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `nearest_query``(``DistancesPredicates const &` `dpred``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` &` `v``)`
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`DistancesPredicates const &`][ `dpred` ][The distances predicates or a Point.]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` &`][ `v` ][The reference to the object which will contain the result.]]
-]
-[heading Returns]
-The number of values found.
-[heading Throws]
-If Value copy constructor or copy assignment throws. 
-
-[endsect]
-
-[#classboost_1_1geometry_1_1index_1_1rtree_1a6552331dca4d67647ef2a03bd0fbedcc]
-[section nearest_query(DistancesPredicates const &, Predicates const &, value_type &)]
-Finds one value meeting distances predicates and spatial predicates, e.g. nearest to some Point and intersecting some Box. 
-
-[heading Description]
-[*Distances predicates] may be a [^`Point`]. In this the case the Value closest to [^`Point`] is returned.
-
-It is possible to define how distance to Value is calculated. This is done by passing PointRelation. It can be generated by following functions: 
-
-* [^[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 boost::geometry::index::to_nearest()]] - default, 
-* [^[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 boost::geometry::index::to_centroid()]], 
-* [^[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 boost::geometry::index::to_furthest()]].
-
-
-It is possible to define define distances bounds, for example that some distance must be between min_distance and max_distance. This is done by passing DistancesPredicates which can be generated by following functions: 
-
-* [^[link group__distance__predicates_1ga1b0f969b575a94ca710b9345861f64db boost::geometry::index::unbounded()]] - default, 
-* [^[link group__distance__predicates_1ga39c7c94776ab840e164848e53d376098 boost::geometry::index::min_bounded()]], 
-* [^[link group__distance__predicates_1ga843735643378288b0e14e19cc9b4e079 boost::geometry::index::max_bounded()]], 
-* [^[link group__distance__predicates_1ga20621ca608b1420c38182346b965f347 boost::geometry::index::bounded()]].
-
-
-MinRelation and MaxRelation describes bounds and can be generated by following functions: 
-
-* [^[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 boost::geometry::index::to_nearest()]], 
-* [^[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 boost::geometry::index::to_centroid()]], 
-* [^[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 boost::geometry::index::to_furthest()]].
-
-[*Spatial predicates] may be a [^`Geometry`]. In this case Values intersecting the [^`Geometry`] are returned.
-
-It may be generated by one of the functions listed below: 
-
-* [^[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 boost::geometry::index::covered_by()]], 
-* [^[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d boost::geometry::index::disjoint()]], 
-* [^[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 boost::geometry::index::intersects()]] - default, 
-* [^[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 boost::geometry::index::overlaps()]], 
-* [^[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d boost::geometry::index::within()]], 
-* [^`! `[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 boost::geometry::index::covered_by()]], 
-* [^`! `[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d boost::geometry::index::disjoint()]], 
-* [^`! `[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 boost::geometry::index::intersects()]], 
-* [^`! `[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 boost::geometry::index::overlaps()]], 
-* [^`! `[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d boost::geometry::index::within()]]
-* [^[link group__predicates_1ga8acb81106fce01da72f310184ab4d9ce boost::geometry::index::value()]].
-
-
-Those predicates may be passed together in [^`std::pair`] or [^`boost::tuple`].[heading Synopsis]
-[pre
-`template<``typename DistancesPredicates``,` `typename Predicates``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `nearest_query``(``DistancesPredicates const &` `dpred``,`
-                        `Predicates const &` `pred``,`
-                        [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` &` `v``)`
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`DistancesPredicates const &`][ `dpred` ][The distances predicates or a Point. ]]
-[[`Predicates const &`][ `pred` ][The spatial predicates or a Geometry ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` &`][ `v` ][The reference to the object which will contain the result.]]
-]
-[heading Returns]
-The number of values found.
-[heading Throws]
-If Value copy constructor or copy assignment throws. 
-
-[endsect]
-
-[#classboost_1_1geometry_1_1index_1_1rtree_1a3101652211c9f2d6ed8626dae6ff5f9d]
-[section nearest_query(DistancesPredicates const &, size_type, OutIter)]
-Finds k values meeting distances predicates, e.g. k nearest values to some Point. 
-
-[heading Description]
-[*Distances predicates] may be a [^`Point`]. In this the case the Value closest to [^`Point`] is returned.
-
-It is possible to define how distance to Value is calculated. This is done by passing PointRelation. It can be generated by following functions: 
-
-* [^[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 boost::geometry::index::to_nearest()]] - default, 
-* [^[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 boost::geometry::index::to_centroid()]], 
-* [^[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 boost::geometry::index::to_furthest()]].
-
-
-It is possible to define define distances bounds, for example that some distance must be between min_distance and max_distance. This is done by passing DistancesPredicates which can be generated by following functions: 
-
-* [^[link group__distance__predicates_1ga1b0f969b575a94ca710b9345861f64db boost::geometry::index::unbounded()]] - default, 
-* [^[link group__distance__predicates_1ga39c7c94776ab840e164848e53d376098 boost::geometry::index::min_bounded()]], 
-* [^[link group__distance__predicates_1ga843735643378288b0e14e19cc9b4e079 boost::geometry::index::max_bounded()]], 
-* [^[link group__distance__predicates_1ga20621ca608b1420c38182346b965f347 boost::geometry::index::bounded()]].
-
-
-MinRelation and MaxRelation describes bounds and can be generated by following functions: 
-
-* [^[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 boost::geometry::index::to_nearest()]], 
-* [^[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 boost::geometry::index::to_centroid()]], 
-* [^[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 boost::geometry::index::to_furthest()]].
-
-[heading Synopsis]
-[pre
-`template<``typename DistancesPredicates``,` `typename OutIter``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `nearest_query``(``DistancesPredicates const &` `dpred``,`
-                        [^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `k``,`
-                        `OutIter` `out_it``)`
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`DistancesPredicates const &`][ `dpred` ][The distances predicates or a Point. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]]][ `k` ][The max number of values. ]]
-[[`OutIter`][ `out_it` ][The output iterator of the result range. E.g. a back_insert_iterator.]]
-]
-[heading Returns]
-The number of values found.
-[heading Throws]
-If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws. 
-
-[endsect]
-
-[#classboost_1_1geometry_1_1index_1_1rtree_1a31c23b87b01f12282ef0df6404ab7301]
-[section nearest_query(DistancesPredicates const &, size_type, Predicates const &, OutIter)]
-Finds k values meeting distances predicates and spatial predicates, e.g. k nearest values to some Point and intersecting some Box. 
-
-[heading Description]
-[*Distances predicates] may be a [^`Point`]. In this the case the Value closest to [^`Point`] is returned.
-
-It is possible to define how distance to Value is calculated. This is done by passing PointRelation. It can be generated by following functions: 
-
-* [^[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 boost::geometry::index::to_nearest()]] - default, 
-* [^[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 boost::geometry::index::to_centroid()]], 
-* [^[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 boost::geometry::index::to_furthest()]].
-
-
-It is possible to define define distances bounds, for example that some distance must be between min_distance and max_distance. This is done by passing DistancesPredicates which can be generated by following functions: 
-
-* [^[link group__distance__predicates_1ga1b0f969b575a94ca710b9345861f64db boost::geometry::index::unbounded()]] - default, 
-* [^[link group__distance__predicates_1ga39c7c94776ab840e164848e53d376098 boost::geometry::index::min_bounded()]], 
-* [^[link group__distance__predicates_1ga843735643378288b0e14e19cc9b4e079 boost::geometry::index::max_bounded()]], 
-* [^[link group__distance__predicates_1ga20621ca608b1420c38182346b965f347 boost::geometry::index::bounded()]].
-
-
-MinRelation and MaxRelation describes bounds and can be generated by following functions: 
-
-* [^[link group__distance__predicates_1gace3c7dbc60840c2a61da36e975d56636 boost::geometry::index::to_nearest()]], 
-* [^[link group__distance__predicates_1gaccbba95d864d8dcf8a694796c840fbe0 boost::geometry::index::to_centroid()]], 
-* [^[link group__distance__predicates_1ga67dddd8a7fcaae150970e1db0401de02 boost::geometry::index::to_furthest()]].
-
-[*Spatial predicates] may be a [^`Geometry`]. In this case Values intersecting the [^`Geometry`] are returned.
-
-It may be generated by one of the functions listed below: 
-
-* [^[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 boost::geometry::index::covered_by()]], 
-* [^[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d boost::geometry::index::disjoint()]], 
-* [^[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 boost::geometry::index::intersects()]] - default, 
-* [^[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 boost::geometry::index::overlaps()]], 
-* [^[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d boost::geometry::index::within()]], 
-* [^`! `[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 boost::geometry::index::covered_by()]], 
-* [^`! `[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d boost::geometry::index::disjoint()]], 
-* [^`! `[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 boost::geometry::index::intersects()]], 
-* [^`! `[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 boost::geometry::index::overlaps()]], 
-* [^`! `[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d boost::geometry::index::within()]]
-* [^[link group__predicates_1ga8acb81106fce01da72f310184ab4d9ce boost::geometry::index::value()]].
-
-
-Those predicates may be passed together in [^`std::pair`] or [^`boost::tuple`].[heading Synopsis]
-[pre
-`template<``typename DistancesPredicates``,`
-         `typename Predicates``,`
-         `typename OutIter``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `nearest_query``(``DistancesPredicates const &` `dpred``,`
-                        [^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `k``,`
-                        `Predicates const &` `pred``,`
-                        `OutIter` `out_it``)`
-]
-
-[heading Parameter(s)]
-[table 
-[[Type][Name][Description]]
-[[`DistancesPredicates const &`][ `dpred` ][The distances predicates or a Point ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]]][ `k` ][The max number of values. ]]
-[[`Predicates const &`][ `pred` ][The spatial predicates or a Geometry. ]]
-[[`OutIter`][ `out_it` ][The output iterator of the result range. E.g. a back_insert_iterator.]]
-]
-[heading Returns]
-The number of values found.
-[heading Throws]
-If Value copy constructor or copy assignment throws. If OutIter dereference or increment throws. 
+[warning Only one [^[link group__predicates_1gae80a2c204673a8b11c4fc137cfff6556 nearest()]] perdicate may be passed to the query.]
 
 [endsect]
 
@@ -1049,7 +689,8 @@ Returns the number of stored values.
 [^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `size``()`
 ]
 
-[heading Returns]
+[heading Modifier(s)]
+``const ``[heading Returns]
 The number of stored values.
 [heading Throws]
 Nothing. 
@@ -1066,7 +707,8 @@ Query if the container is empty.
 `bool` `empty``()`
 ]
 
-[heading Returns]
+[heading Modifier(s)]
+``const ``[heading Returns]
 true if the container is empty.
 [heading Throws]
 Nothing. 
@@ -1099,7 +741,8 @@ Returns the box able to contain all values stored in the container. If the conta
 [^[link classboost_1_1geometry_1_1index_1_1rtree_1a653555282525601512c3b1bed1e9590f bounds_type]]` const &` `bounds``()`
 ]
 
-[heading Returns]
+[heading Modifier(s)]
+``const ``[heading Returns]
 The box able to contain all values stored in the container or an invalid box if there are no values in the container.
 [heading Throws]
 Nothing. 
@@ -1117,7 +760,8 @@ For indexable_type it returns the number of values which indexables equals the p
 [^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `count``(``ValueOrIndexable const &` `vori``)`
 ]
 
-[heading Parameter(s)]
+[heading Modifier(s)]
+``const ``[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[`ValueOrIndexable const &`][ `vori` ][The value or indexable which will be counted.]]
@@ -1139,7 +783,8 @@ Returns parameters.
 [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters``()`
 ]
 
-[heading Returns]
+[heading Modifier(s)]
+``const ``[heading Returns]
 The parameters object.
 [heading Throws]
 Nothing. 
@@ -1156,7 +801,8 @@ Returns the translator object.
 [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator``()`
 ]
 
-[heading Returns]
+[heading Modifier(s)]
+``const ``[heading Returns]
 The translator object.
 [heading Throws]
 Nothing. 
@@ -1173,7 +819,8 @@ Returns allocator used by the rtree.
 [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `get_allocator``()`
 ]
 
-[heading Returns]
+[heading Modifier(s)]
+``const ``[heading Returns]
 The allocator.
 [heading Throws]
 If allocator copy constructor throws. 
