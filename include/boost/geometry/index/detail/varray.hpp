@@ -798,12 +798,12 @@ private:
 
     pointer ptr()
     {
-        return pointer(m_storage.address());
+        return pointer(static_cast<value_type *>(m_storage.address()));
     }
 
     const_pointer ptr() const
     {
-        return const_pointer(m_storage.address());
+        return const_pointer(static_cast<const value_type *>(m_storage.address()));
     }
 
     boost::aligned_storage<sizeof(Value[Capacity]), boost::alignment_of<Value[Capacity]>::value> m_storage;

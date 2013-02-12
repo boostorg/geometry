@@ -480,13 +480,10 @@ generate_value_outside()
     return generate_value_outside_impl<V, bgi::detail::traits::dimension<I>::value>::apply();
 }
 
-template<typename Value, typename Algo, typename Box>
-void generate_rtree(bgi::rtree<Value, Algo> & tree, std::vector<Value> & input, Box & qbox)
+template<typename Rtree, typename Elements, typename Box>
+void generate_rtree(Rtree & tree, Elements & input, Box & qbox)
 {
-    typedef bgi::rtree<Value, Algo> T;
-    typedef typename T::box_type B;
-    typedef typename T::value_type V;
-    typedef typename T::indexable_type I;
+    typedef typename Rtree::indexable_type I;
 
     generate_input<
         bgi::detail::traits::dimension<I>::value
@@ -568,8 +565,8 @@ void test_spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value
 
 // rtree specific queries tests
 
-template <typename Value, typename Algo, typename Box>
-void test_intersects(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+template <typename Value, typename Algo, typename T, typename A, typename Box>
+void test_intersects(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -592,8 +589,8 @@ void test_intersects(bgi::rtree<Value, Algo> const& tree, std::vector<Value> con
     test_spatial_query(tree, !bgi::disjoint(qpoly), expected_output);*/
 }
 
-template <typename Value, typename Algo, typename Box>
-void test_disjoint(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+template <typename Value, typename Algo, typename T, typename A, typename Box>
+void test_disjoint(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -614,8 +611,8 @@ void test_disjoint(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const
 }
 
 
-template <typename Value, typename Algo, typename Box>
-void test_covered_by(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+template <typename Value, typename Algo, typename T, typename A, typename Box>
+void test_covered_by(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -637,8 +634,8 @@ void test_covered_by(bgi::rtree<Value, Algo> const& tree, std::vector<Value> con
 template <typename Tag>
 struct test_overlap_impl
 {
-    template <typename Value, typename Algo, typename Box>
-    static void apply(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+    template <typename Value, typename Algo, typename T, typename A, typename Box>
+    static void apply(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
     {
         std::vector<Value> expected_output;
 
@@ -661,13 +658,13 @@ struct test_overlap_impl
 template <>
 struct test_overlap_impl<bg::point_tag>
 {
-    template <typename Value, typename Algo, typename Box>
-    static void apply(bgi::rtree<Value, Algo> const& /*tree*/, std::vector<Value> const& /*input*/, Box const& /*qbox*/)
+    template <typename Value, typename Algo, typename T, typename A, typename Box>
+    static void apply(bgi::rtree<Value, Algo, T, A> const& /*tree*/, std::vector<Value> const& /*input*/, Box const& /*qbox*/)
     {}
 };
 
-template <typename Value, typename Algo, typename Box>
-void test_overlaps(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+template <typename Value, typename Algo, typename T, typename A, typename Box>
+void test_overlaps(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     test_overlap_impl<
         typename bgi::detail::traits::tag<
@@ -679,16 +676,16 @@ void test_overlaps(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const
 //template <typename Tag, size_t Dimension>
 //struct test_touches_impl
 //{
-//    template <typename Value, typename Algo, typename Box>
-//    static void apply(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+//    template <typename Value, typename Algo, typename T, typename A, typename Box>
+//    static void apply(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
 //    {}
 //};
 //
 //template <>
 //struct test_touches_impl<bg::box_tag, 2>
 //{
-//    template <typename Value, typename Algo, typename Box>
-//    static void apply(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+//    template <typename Value, typename Algo, typename T, typename A, typename Box>
+//    static void apply(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
 //    {
 //        std::vector<Value> expected_output;
 //
@@ -700,21 +697,21 @@ void test_overlaps(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const
 //    }
 //};
 //
-//template <typename Value, typename Algo, typename Box>
-//void test_touches(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+//template <typename Value, typename Algo, typename T, typename A, typename Box>
+//void test_touches(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
 //{
 //    test_touches_impl<
 //        bgi::traits::tag<
-//            typename bgi::rtree<Value, Algo>::indexable_type
+//            typename bgi::rtree<Value, Algo, T, A>::indexable_type
 //        >::type,
 //        bgi::traits::dimension<
-//            typename bgi::rtree<Value, Algo>::indexable_type
+//            typename bgi::rtree<Value, Algo, T, A>::indexable_type
 //        >::value
 //    >::apply(tree, input, qbox);
 //}
 
-template <typename Value, typename Algo, typename Box>
-void test_within(bgi::rtree<Value, Algo> const& tree, std::vector<Value> const& input, Box const& qbox)
+template <typename Value, typename Algo, typename T, typename A, typename Box>
+void test_within(bgi::rtree<Value, Algo, T, A> const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -830,7 +827,7 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
 struct AlwaysFalse
 {
     template <typename Value>
-    bool operator()(Value const& v) const { return false; }
+    bool operator()(Value const& ) const { return false; }
 };
 
 template <typename Rtree, typename Point>
