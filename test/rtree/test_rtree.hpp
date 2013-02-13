@@ -839,16 +839,18 @@ void test_nearest_query_not_found(Rtree const& rtree, Point const& pt)
 
 // rtree copying and moving
 
-template <typename Value, typename Algo, typename Box>
-void test_copy_assignment_swap_move(bgi::rtree<Value, Algo> const& tree, Box const& qbox)
+template <typename Rtree, typename Box>
+void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 {
+    typedef typename Rtree::value_type Value;
+
     size_t s = tree.size();
 
     std::vector<Value> expected_output;
     tree.query(qbox, std::back_inserter(expected_output));
 
     // copy constructor
-    bgi::rtree<Value, Algo> t1(tree);
+    Rtree t1(tree, tree.get_allocator());
 
     BOOST_CHECK(tree.empty() == t1.empty());
     BOOST_CHECK(tree.size() == t1.size());
@@ -867,7 +869,7 @@ void test_copy_assignment_swap_move(bgi::rtree<Value, Algo> const& tree, Box con
     t1.query(qbox, std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
 
-    bgi::rtree<Value, Algo> t2(tree.parameters());
+    Rtree t2(tree.parameters(), tree.translator(), tree.get_allocator());
     t2.swap(t1);
     BOOST_CHECK(tree.empty() == t2.empty());
     BOOST_CHECK(tree.size() == t2.size());
@@ -884,7 +886,7 @@ void test_copy_assignment_swap_move(bgi::rtree<Value, Algo> const& tree, Box con
     t2.swap(t1);
 
     // moving constructor
-    bgi::rtree<Value, Algo> t3(boost::move(t1));
+    Rtree t3(boost::move(t1), tree.get_allocator());
 
     BOOST_CHECK(t3.size() == s);
     BOOST_CHECK(t1.size() == 0);
@@ -908,16 +910,14 @@ void test_copy_assignment_swap_move(bgi::rtree<Value, Algo> const& tree, Box con
 
 // rtree creation and insertion
 
-template <typename Value, typename Algo, typename Box>
-void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input, Box const& qbox)
+template <typename Rtree, typename Value, typename Box>
+void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
 {
-    typedef bgi::rtree<Value, Algo> T;
-
     std::vector<Value> expected_output;
     tree.query(qbox, std::back_inserter(expected_output));
 
     {
-        T t(tree.parameters());
+        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
         BOOST_FOREACH(Value const& v, input)
             t.insert(v);
         BOOST_CHECK(tree.size() == t.size());
@@ -926,7 +926,7 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        T t(tree.parameters());
+        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
         std::copy(input.begin(), input.end(), bgi::inserter(t));
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -934,21 +934,21 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        T t(input.begin(), input.end(), tree.parameters());
+        Rtree t(input.begin(), input.end(), tree.parameters(), tree.translator(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(qbox, std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        T t(input, tree.parameters());
+        Rtree t(input, tree.parameters(), tree.translator(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(qbox, std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        T t(tree.parameters());
+        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
         t.insert(input.begin(), input.end());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -956,7 +956,7 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        T t(tree.parameters());
+        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
         t.insert(input);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -965,7 +965,7 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
     }
 
     {
-        T t(tree.parameters());
+        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
         BOOST_FOREACH(Value const& v, input)
             bgi::insert(t, v);
         BOOST_CHECK(tree.size() == t.size());
@@ -974,7 +974,7 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        T t(tree.parameters());
+        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
         bgi::insert(t, input.begin(), input.end());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -982,7 +982,7 @@ void test_create_insert(bgi::rtree<Value, Algo> & tree, std::vector<Value> const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        T t(tree.parameters());
+        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
         bgi::insert(t, input);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
