@@ -120,7 +120,10 @@ protected:
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
 
 public:
-    typedef index::detail::varray<std::pair<Box, node*>, 1> nodes_container_type;
+    typedef index::detail::varray<
+        typename rtree::elements_type<internal_node>::type::value_type,
+        1
+    > nodes_container_type;
 
     template <typename Node>
     static inline void apply(nodes_container_type & additional_nodes,
@@ -230,8 +233,9 @@ protected:
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+    typedef typename Allocators::node_pointer node_pointer;
 
-    inline insert(node* & root,
+    inline insert(node_pointer & root,
                   size_t & leafs_level,
                   Element const& element,
                   parameters_type const& parameters,
@@ -278,7 +282,7 @@ protected:
     inline void post_traverse(Node &n)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_traverse_data.current_is_root() ||
-                                    &n == rtree::get<Node>(m_traverse_data.current_element().second),
+                                    &n == &rtree::get<Node>(*m_traverse_data.current_element().second),
                                     "if node isn't the root current_child_index should be valid");
 
         // handle overflow
@@ -342,7 +346,7 @@ protected:
         // node is the root - add level
         else
         {
-            BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(m_root_node), "node should be the root");
+            BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<Node>(*m_root_node), "node should be the root");
 
             // create new root and add nodes
             node_auto_ptr new_root(rtree::create_node<Allocators, internal_node>::apply(m_allocators), m_allocators); // MAY THROW, STRONG (N:alloc)
@@ -373,7 +377,7 @@ protected:
     const size_t m_relative_level;
     const size_t m_level;
 
-    node* & m_root_node;
+    node_pointer & m_root_node;
     size_t & m_leafs_level;
 
     // traversing input parameters
@@ -403,8 +407,9 @@ public:
     typedef typename base::leaf leaf;
 
     typedef typename Options::parameters_type parameters_type;
+    typedef typename base::node_pointer node_pointer;
 
-    inline insert(node* & root,
+    inline insert(node_pointer & root,
                   size_t & leafs_level,
                   Element & element,
                   parameters_type const& parameters,
@@ -465,8 +470,9 @@ public:
     typedef typename base::leaf leaf;
 
     typedef typename Options::parameters_type parameters_type;
+    typedef typename base::node_pointer node_pointer;
 
-    inline insert(node* & root,
+    inline insert(node_pointer & root,
                   size_t & leafs_level,
                   Value const& value,
                   parameters_type const& parameters,

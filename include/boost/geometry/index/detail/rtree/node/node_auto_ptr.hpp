@@ -24,9 +24,10 @@ class node_auto_ptr
     : boost::noncopyable
 {
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename Allocators::node_pointer pointer;
 
 public:
-    node_auto_ptr(node * ptr, Allocators & allocators)
+    node_auto_ptr(pointer ptr, Allocators & allocators)
         : m_ptr(ptr)
         , m_allocators(allocators)
     {}
@@ -36,7 +37,7 @@ public:
         reset();
     }
 
-    void reset(node * ptr = 0)
+    void reset(pointer ptr = 0)
     {
         if ( m_ptr )
         {
@@ -51,7 +52,7 @@ public:
         m_ptr = 0;
     }
 
-    node * get() const
+    pointer get() const
     {
         return m_ptr;
     }
@@ -61,13 +62,13 @@ public:
         return *m_ptr;
     }
 
-    node * operator->() const
+    pointer operator->() const
     {
         return m_ptr;
     }
 
 private:
-    node * m_ptr;
+    pointer m_ptr;
     Allocators & m_allocators;
 };
 

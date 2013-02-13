@@ -24,7 +24,7 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_dyna
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
 {
     typedef boost::container::vector<
-        std::pair<Box, dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag> *>,
+        std::pair<Box, typename Allocators::node_pointer>,
         typename Allocators::internal_node_elements_allocator_type
     > elements_type;
 
@@ -85,39 +85,61 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVis
     typedef dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVisitableConst> type;
 };
 
-// element's indexable type
-
-template <typename Value, typename Translator>
-struct element_indexable_type
+template <typename Element, typename Value, typename Translator>
+struct translator_wrapper_helper
 {
-    typedef typename translator::indexable_type<Translator>::type type;
+    typedef typename Element::first_type element_indexable_type;
+    typedef typename Element::first_type const& element_indexable_result;
 };
 
-template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
-struct element_indexable_type<
-    std::pair<Box, dynamic_node<Value, Parameters, Box, Allocators, Tag> *>,
-    Translator
->
+template <typename Value, typename Translator>
+struct translator_wrapper_helper<Value, Value, Translator>
 {
-    typedef Box type;
+    typedef typename translator::indexable_type<Translator>::type element_indexable_type;
+    typedef typename Translator::result_type element_indexable_result;
+};
+
+template <typename Value, typename Translator, typename Tag>
+struct translator_wrapper
+    : public Translator
+{
+    translator_wrapper(Translator const& t = Translator()) : Translator(t) {}
+
+    template <typename Element>
+    struct element_indexable_type
+    {
+        typedef typename translator_wrapper_helper<Element, Value, Translator>::element_indexable_type type;
+    };
+
+    template <typename Element>
+    struct element_indexable_result
+    {
+        typedef typename translator_wrapper_helper<Element, Value, Translator>::element_indexable_result type;
+    };
+
+    typename element_indexable_result<Value>::type
+    element_indexable(Value const& v) const { return Translator::operator()(v); }
+
+    template <typename Element>
+    typename element_indexable_result<Element>::type
+    element_indexable(Element const& el) const { return el.first; }
+};
+
+// element's indexable type
+
+template <typename Element, typename Translator>
+struct element_indexable_type
+{
+    typedef typename Translator::template element_indexable_type<Element>::type type;
 };
 
 // element's indexable getter
 
-template <typename Value, typename Translator>
-inline typename Translator::result_type
-element_indexable(Value const& el, Translator const& tr)
+template <typename Element, typename Translator>
+typename Translator::template element_indexable_result<Element>::type
+element_indexable(Element const& el, Translator const& tr)
 {
-    return tr(el);
-}
-
-template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
-inline Box const&
-element_indexable(
-    std::pair< Box, dynamic_node<Value, Parameters, Box, Allocators, Tag> *> const& el,
-    Translator const&)
-{
-    return el.first;
+    return tr.element_indexable(el);
 }
 
 // nodes elements
@@ -162,6 +184,10 @@ public:
     typedef typename allocator_type::size_type size_type;
 
     typedef typename allocator_type::template rebind<
+        typename node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
+    >::other::pointer node_pointer;
+
+    typedef typename allocator_type::template rebind<
         typename internal_node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
     >::other internal_node_allocator_type;
 
@@ -170,7 +196,7 @@ public:
     >::other leaf_allocator_type;
 
     typedef typename allocator_type::template rebind<
-        std::pair<Box, typename node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type *>
+        std::pair<Box, node_pointer>
     >::other internal_node_elements_allocator_type;
 
     typedef typename allocator_type::template rebind<
@@ -227,22 +253,25 @@ public:
 
 // create_node_impl
 
-template <typename BaseNode, typename Node>
+template <typename BaseNodePtr>
 struct create_dynamic_node
 {
     template <typename AllocNode, typename AllocElems>
-    static inline BaseNode * apply(AllocNode & alloc_node, AllocElems & alloc_elems)
+    static inline BaseNodePtr apply(AllocNode & alloc_node, AllocElems & alloc_elems)
     {
-        Node * p = alloc_node.allocate(1);
+        typedef typename AllocNode::pointer P;
+        typedef typename AllocNode::value_type V;
+
+        P p = alloc_node.allocate(1);
 
         if ( 0 == p )
-            throw std::bad_alloc();
+            throw std::bad_alloc(); // TODO throw different exception
 
         try
         {
             // NOTE/TODO
             // Here the whole node may be copied
-            alloc_node.construct(p, Node(alloc_elems));
+            alloc_node.construct(p, V(alloc_elems));
         }
         catch(...)
         {
@@ -256,13 +285,15 @@ struct create_dynamic_node
 
 // destroy_node_impl
 
-template <typename Node>
 struct destroy_dynamic_node
 {
-    template <typename AllocNode, typename BaseNode>
-    static inline void apply(AllocNode & alloc_node, BaseNode * n)
+    template <typename AllocNode, typename BaseNodePtr>
+    static inline void apply(AllocNode & alloc_node, BaseNodePtr n)
     {
-        Node * p = rtree::get<Node>(n);
+        typedef typename AllocNode::value_type V;
+        typedef typename AllocNode::pointer P;
+
+        P p(&static_cast<V&>(rtree::get<V>(*n)));
         alloc_node.destroy(p);
         alloc_node.deallocate(p, 1);
     }
@@ -276,12 +307,11 @@ struct create_node<
     dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline dynamic_node<Value, Parameters, Box, Allocators, Tag> *
+    static inline typename Allocators::node_pointer
     apply(Allocators & allocators)
     {
         return create_dynamic_node<
-            dynamic_node<Value, Parameters, Box, Allocators, Tag>,
-            dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
+            typename Allocators::node_pointer
         >::apply(allocators.internal_node_allocator, allocators.internal_node_elements_allocator);
     }
 };
@@ -292,13 +322,12 @@ struct create_node<
     dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline dynamic_node<Value, Parameters, Box, Allocators, Tag> *
+    static inline typename Allocators::node_pointer
     apply(Allocators & allocators)
     {
         return create_dynamic_node<
-            dynamic_node<Value, Parameters, Box, Allocators, Tag>,
-            dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
-        >::template apply(allocators.leaf_allocator, allocators.leaf_elements_allocator);
+            typename Allocators::node_pointer
+        >::apply(allocators.leaf_allocator, allocators.leaf_elements_allocator);
     }
 };
 
@@ -310,11 +339,9 @@ struct destroy_node<
     dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline void apply(Allocators & allocators, dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
+    static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
     {
-        destroy_dynamic_node<
-            dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
-        >::apply(allocators.internal_node_allocator, n);
+        destroy_dynamic_node::apply(allocators.internal_node_allocator, n);
     }
 };
 
@@ -324,11 +351,9 @@ struct destroy_node<
     dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline void apply(Allocators & allocators, dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
+    static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
     {
-        destroy_dynamic_node<
-            dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
-        >::apply(allocators.leaf_allocator, n);
+        destroy_dynamic_node::apply(allocators.leaf_allocator, n);
     }
 };
 

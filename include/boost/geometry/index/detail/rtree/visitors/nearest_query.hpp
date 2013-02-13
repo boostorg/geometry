@@ -201,7 +201,7 @@ public:
         // array of active nodes
         typename index::detail::rtree::container_from_elements_type<
             elements_type,
-            std::pair<node_distances_type, const node *>
+            std::pair<node_distances_type, typename Allocators::node_pointer>
         >::type active_branch_list;
         active_branch_list.reserve(m_parameters.get_max_elements());
         
@@ -311,8 +311,8 @@ private:
     }
 
     static inline bool abl_less(
-        std::pair<node_distances_type, const node *> const& p1,
-        std::pair<node_distances_type, const node *> const& p2)
+        std::pair<node_distances_type, typename Allocators::node_pointer> const& p1,
+        std::pair<node_distances_type, typename Allocators::node_pointer> const& p2)
     {
         return index::detail::cdist_value<node_distances_type>
                 ::template get<index::detail::to_nearest_tag>(p1.first)

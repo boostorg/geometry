@@ -62,9 +62,9 @@ int test_main(int, char* [])
     typedef bg::model::box<P2d> B2d;
     typedef std::pair<B2d, int> PB2d;
 
-    test_rtree_interprocess<P2d>(bgi::linear<32, 8>());
-    /*test_rtree_interprocess<P2d>(bgi::runtime::linear(32, 8));
-    test_rtree_interprocess<B2d>(bgi::quadratic<32, 8>());
+    //test_rtree_interprocess<P2d>(bgi::linear<32, 8>());
+    test_rtree_interprocess<P2d>(bgi::runtime::linear(32, 8));
+    /*test_rtree_interprocess<B2d>(bgi::quadratic<32, 8>());
     test_rtree_interprocess<B2d>(bgi::runtime::quadratic(32, 8));
     test_rtree_interprocess<PB2d>(bgi::rstar<32, 8>());
     test_rtree_interprocess<PB2d>(bgi::runtime::rstar(32, 8));

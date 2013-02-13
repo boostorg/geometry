@@ -27,16 +27,18 @@ public:
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
-    inline destroy(node * root_node, Allocators & allocators)
+    typedef typename Allocators::node_pointer node_pointer;
+
+    inline destroy(node_pointer root_node, Allocators & allocators)
         : m_current_node(root_node)
         , m_allocators(allocators)
     {}
 
     inline void operator()(internal_node & n)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_current_node), "invalid pointers");
+        BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<internal_node>(*m_current_node), "invalid pointers");
 
-        node * node_to_destroy = m_current_node;
+        node_pointer node_to_destroy = m_current_node;
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type & elements = rtree::elements(n);
@@ -54,13 +56,13 @@ public:
 
     inline void operator()(leaf & BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(l))
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(&l == rtree::get<leaf>(m_current_node), "invalid pointers");
+        BOOST_GEOMETRY_INDEX_ASSERT(&l == &rtree::get<leaf>(*m_current_node), "invalid pointers");
 
         rtree::destroy_node<Allocators, leaf>::apply(m_allocators, m_current_node);
     }
 
 private:
-    node * m_current_node;
+    node_pointer m_current_node;
     Allocators & m_allocators;
 };
 
