@@ -197,7 +197,7 @@ struct level_insert_base
             // node is root node
             else
             {
-                BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<Node>(base::m_root_node), "node should be the root node");
+                BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<Node>(*base::m_root_node), "node should be the root node");
                 base::split(n);                                                                             // MAY THROW (V, E: alloc, copy, N: alloc)
             }
         }
@@ -445,7 +445,7 @@ public:
 
     inline void operator()(internal_node & BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(n))
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root), "current node should be the root");
+        BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<internal_node>(*m_root), "current node should be the root");
 
         rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
             m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
@@ -460,7 +460,7 @@ public:
 
     inline void operator()(leaf & BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(n))
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<leaf>(m_root), "current node should be the root");
+        BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<leaf>(*m_root), "current node should be the root");
 
         rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
             m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);

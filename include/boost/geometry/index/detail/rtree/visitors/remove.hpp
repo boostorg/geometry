@@ -110,7 +110,7 @@ public:
             // n is root node
             else
             {
-                BOOST_GEOMETRY_INDEX_ASSERT(&n == rtree::get<internal_node>(m_root_node), "node must be the root");
+                BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<internal_node>(*m_root_node), "node must be the root");
 
                 // assign new root's box
                 assign_root_box(elements);

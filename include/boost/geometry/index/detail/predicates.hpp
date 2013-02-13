@@ -554,7 +554,7 @@ template <typename PairPredicates, typename Tag, unsigned I>
 struct predicates_check_pair<PairPredicates, Tag, I, I>
 {
     template <typename Value, typename Indexable>
-    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
+    static inline bool apply(PairPredicates const& , Value const& , Indexable const& )
     {
         return true;
     }
