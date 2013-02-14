@@ -34,9 +34,11 @@ class remove
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+    typedef typename Allocators::node_pointer node_pointer;
+    typedef typename Allocators::internal_node_pointer internal_node_pointer;
 
 public:
-    inline remove(node* & root,
+    inline remove(node_pointer & root,
                   size_t & leafs_level,
                   Box & root_box,
                   Value const& value,
@@ -121,7 +123,7 @@ public:
                 // shorten the tree
                 if ( rtree::elements(n).size() == 1 )
                 {
-                    node * root_to_destroy = m_root_node;
+                    node_pointer root_to_destroy = m_root_node;
                     m_root_node = rtree::elements(n)[0].second;
                     --m_leafs_level;
 
@@ -174,12 +176,12 @@ public:
 
 private:
 
-    typedef std::vector< std::pair<size_t, node*> > UnderflowNodes;
+    typedef std::vector< std::pair<size_t, node_pointer> > UnderflowNodes;
 
     void traverse_apply_visitor(internal_node &n, size_t choosen_node_index)
     {
         // save previous traverse inputs and set new ones
-        internal_node * parent_bckup = m_parent;
+        internal_node_pointer parent_bckup = m_parent;
         size_t current_child_index_bckup = m_current_child_index;
         size_t current_level_bckup = m_current_level;
 
@@ -308,7 +310,7 @@ private:
     Translator const& m_translator;
     Allocators & m_allocators;
 
-    node* & m_root_node;
+    node_pointer & m_root_node;
     Box & m_root_box;
     size_t & m_leafs_level;
 
@@ -316,7 +318,7 @@ private:
     UnderflowNodes m_underflowed_nodes;
 
     // traversing input parameters
-    internal_node *m_parent;
+    internal_node_pointer m_parent;
     size_t m_current_child_index;
     size_t m_current_level;
 

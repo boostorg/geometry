@@ -850,7 +850,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     tree.query(qbox, std::back_inserter(expected_output));
 
     // copy constructor
-    Rtree t1(tree, tree.get_allocator());
+    Rtree t1(tree);
 
     BOOST_CHECK(tree.empty() == t1.empty());
     BOOST_CHECK(tree.size() == t1.size());
@@ -993,10 +993,10 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
 
 // rtree removing
 
-template <typename Value, typename Algo, typename Box>
-void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
+template <typename Rtree, typename Box>
+void test_remove(Rtree & tree, Box const& qbox)
 {
-    typedef bgi::rtree<Value, Algo> T;
+    typedef typename Rtree::value_type Value;
 
     std::vector<Value> values_to_remove;
     tree.query(qbox, std::back_inserter(values_to_remove));
@@ -1008,11 +1008,11 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
     size_t expected_size_after_remove = tree.size() - values_to_remove.size();
 
     // Add value which is not stored in the Rtree
-    Value outsider = generate_value_outside<T>();
+    Value outsider = generate_value_outside<Rtree>();
     values_to_remove.push_back(outsider);
     
     {
-        T t(tree);
+        Rtree t(tree);
         size_t r = 0;
         BOOST_FOREACH(Value const& v, values_to_remove)
             r += t.remove(v);
@@ -1024,7 +1024,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         test_compare_outputs(t, output, expected_output);
     }
     {
-        T t(tree);
+        Rtree t(tree);
         size_t r = t.remove(values_to_remove.begin(), values_to_remove.end());
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
@@ -1034,7 +1034,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         test_compare_outputs(t, output, expected_output);
     }
     {
-        T t(tree);
+        Rtree t(tree);
         size_t r = t.remove(values_to_remove);
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
@@ -1045,7 +1045,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
     }
 
     {
-        T t(tree);
+        Rtree t(tree);
         size_t r = 0;
         BOOST_FOREACH(Value const& v, values_to_remove)
             r += bgi::remove(t, v);
@@ -1057,7 +1057,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         test_compare_outputs(t, output, expected_output);
     }
     {
-        T t(tree);
+        Rtree t(tree);
         size_t r = bgi::remove(t, values_to_remove.begin(), values_to_remove.end());
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
@@ -1067,7 +1067,7 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
         test_compare_outputs(t, output, expected_output);
     }
     {
-        T t(tree);
+        Rtree t(tree);
         size_t r = bgi::remove(t, values_to_remove);
         BOOST_CHECK( r == expected_removed_count );
         std::vector<Value> output;
@@ -1078,18 +1078,16 @@ void test_remove(bgi::rtree<Value, Algo> & tree, Box const& qbox)
     }
 }
 
-template <typename Value, typename Algo, typename Box>
-void test_clear(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input, Box const& qbox)
+template <typename Rtree, typename Value, typename Box>
+void test_clear(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
 {
-    typedef bgi::rtree<Value, Algo> T;
-
     std::vector<Value> values_to_remove;
     tree.query(qbox, std::back_inserter(values_to_remove));
     BOOST_CHECK(0 < values_to_remove.size());
 
     //clear
     {
-        T t(tree);
+        Rtree t(tree);
 
         std::vector<Value> expected_output;
         t.query(bgi::intersects(qbox), std::back_inserter(expected_output));
@@ -1108,15 +1106,17 @@ void test_clear(bgi::rtree<Value, Algo> & tree, std::vector<Value> const& input,
 // run all tests for a single Algorithm and single rtree
 // defined by Value
 
-template <typename Value, typename Parameters>
-void test_rtree_by_value(Parameters const& parameters)
+template <typename Value, typename Parameters, typename Allocator>
+void test_rtree_by_value(Parameters const& parameters, Allocator const& allocator)
 {
-    typedef bgi::rtree<Value, Parameters> Tree;
+    typedef bgi::translator::def<Value> T;
+    typedef typename Allocator::template rebind<Value>::other A;
+    typedef bgi::rtree<Value, Parameters, T, A> Tree;
     typedef typename Tree::box_type B;
 
     // not empty tree test
 
-    Tree tree(parameters);
+    Tree tree(parameters, T(), allocator);
     std::vector<Value> input;
     B qbox;
 
@@ -1144,7 +1144,7 @@ void test_rtree_by_value(Parameters const& parameters)
 
     // empty tree test
 
-    Tree empty_tree(parameters);
+    Tree empty_tree(parameters, T(), allocator);
     std::vector<Value> empty_input;
 
     test_intersects(empty_tree, empty_input, qbox);
@@ -1160,14 +1160,17 @@ void test_rtree_by_value(Parameters const& parameters)
 
 // rtree inserting and removing of counting_value
 
-template <typename Indexable, typename Parameters>
-void test_count_rtree_values(Parameters const& parameters)
+template <typename Indexable, typename Parameters, typename Allocator>
+void test_count_rtree_values(Parameters const& parameters, Allocator const& allocator)
 {
     typedef counting_value<Indexable> Value;
-    typedef bgi::rtree<Value, Parameters> Tree;
+
+    typedef bgi::translator::def<Value> T;
+    typedef typename Allocator::template rebind<Value>::other A;
+    typedef bgi::rtree<Value, Parameters, T, A> Tree;
     typedef typename Tree::box_type B;
 
-    Tree t(parameters);
+    Tree t(parameters, T(), allocator);
     std::vector<Value> input;
     B qbox;
 
@@ -1199,14 +1202,17 @@ void test_count_rtree_values(Parameters const& parameters)
 
 // rtree count
 
-template <typename Indexable, typename Parameters>
-void test_rtree_count(Parameters const& parameters)
+template <typename Indexable, typename Parameters, typename Allocator>
+void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
 {
     typedef std::pair<Indexable, int> Value;
-    typedef bgi::rtree<Value, Parameters> Tree;
+
+    typedef bgi::translator::def<Value> T;
+    typedef typename Allocator::template rebind<Value>::other A;
+    typedef bgi::rtree<Value, Parameters, T, A> Tree;
     typedef typename Tree::box_type B;
 
-    Tree t(parameters);
+    Tree t(parameters, T(), allocator);
     std::vector<Value> input;
     B qbox;
 
@@ -1228,17 +1234,19 @@ void test_rtree_count(Parameters const& parameters)
 
 // test rtree box
 
-template <typename Value, typename Parameters>
-void test_rtree_bounds(Parameters const& parameters)
+template <typename Value, typename Parameters, typename Allocator>
+void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 {
-    typedef bgi::rtree<Value, Parameters> Tree;
+    typedef bgi::translator::def<Value> T;
+    typedef typename Allocator::template rebind<Value>::other A;
+    typedef bgi::rtree<Value, Parameters, T, A> Tree;
     typedef typename Tree::box_type B;
     typedef typename bg::traits::point_type<B>::type P;
 
     B b;
     bg::assign_inverse(b);
 
-    Tree t(parameters);
+    Tree t(parameters, T(), allocator);
     std::vector<Value> input;
     B qbox;
 
@@ -1283,45 +1291,57 @@ void test_rtree_bounds(Parameters const& parameters)
 // run all tests for one Algorithm for some number of rtrees
 // defined by some number of Values constructed from given Point
 
-template<typename Point, typename Parameters>
-void test_rtree_for_point(Parameters const& parameters = Parameters())
+template<typename Point, typename Parameters, typename Allocator>
+void test_rtree_for_point(Parameters const& parameters, Allocator const& allocator)
 {
     typedef std::pair<Point, int> PairP;
     typedef boost::tuple<Point, int, int> TupleP;
     typedef boost::shared_ptr< test_object<Point> > SharedPtrP;
     typedef value_no_dctor<Point> VNoDCtor;
 
-    test_rtree_by_value<Point, Parameters>(parameters);
-    test_rtree_by_value<PairP, Parameters>(parameters);
-    test_rtree_by_value<TupleP, Parameters>(parameters);
-    
-    test_rtree_by_value<SharedPtrP, Parameters>(parameters);
-    test_rtree_by_value<VNoDCtor, Parameters>(parameters);
+    test_rtree_by_value<Point, Parameters>(parameters, allocator);
+    test_rtree_by_value<PairP, Parameters>(parameters, allocator);
+    test_rtree_by_value<TupleP, Parameters>(parameters, allocator);
 
-    test_count_rtree_values<Point>(parameters);
+    test_rtree_by_value<SharedPtrP, Parameters>(parameters, allocator);
+    test_rtree_by_value<VNoDCtor, Parameters>(parameters, allocator);
 
-    test_rtree_count<Point>(parameters);
-    test_rtree_bounds<Point>(parameters);
+    test_count_rtree_values<Point>(parameters, allocator);
+
+    test_rtree_count<Point>(parameters, allocator);
+    test_rtree_bounds<Point>(parameters, allocator);
 }
 
-template<typename Point, typename Parameters>
-void test_rtree_for_box(Parameters const& parameters = Parameters())
+template<typename Point, typename Parameters, typename Allocator>
+void test_rtree_for_box(Parameters const& parameters, Allocator const& allocator)
 {
     typedef bg::model::box<Point> Box;
     typedef std::pair<Box, int> PairB;
     typedef boost::tuple<Box, int, int> TupleB;
     typedef value_no_dctor<Box> VNoDCtor;
 
-    test_rtree_by_value<Box, Parameters>(parameters);
-    test_rtree_by_value<PairB, Parameters>(parameters);
-    test_rtree_by_value<TupleB, Parameters>(parameters);
+    test_rtree_by_value<Box, Parameters>(parameters, allocator);
+    test_rtree_by_value<PairB, Parameters>(parameters, allocator);
+    test_rtree_by_value<TupleB, Parameters>(parameters, allocator);
 
-    test_rtree_by_value<VNoDCtor, Parameters>(parameters);
+    test_rtree_by_value<VNoDCtor, Parameters>(parameters, allocator);
 
-    test_count_rtree_values<Box>(parameters);
+    test_count_rtree_values<Box>(parameters, allocator);
 
-    test_rtree_count<Box>(parameters);
-    test_rtree_bounds<Box>(parameters);
+    test_rtree_count<Box>(parameters, allocator);
+    test_rtree_bounds<Box>(parameters, allocator);
+}
+
+template<typename Point, typename Parameters>
+void test_rtree_for_point(Parameters const& parameters)
+{
+    test_rtree_for_point<Point>(parameters, std::allocator<int>());
+}
+
+template<typename Point, typename Parameters>
+void test_rtree_for_box(Parameters const& parameters)
+{
+    test_rtree_for_box<Point>(parameters, std::allocator<int>());
 }
 
 #endif

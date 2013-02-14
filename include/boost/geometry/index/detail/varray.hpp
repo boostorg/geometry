@@ -552,7 +552,7 @@ private:
             >::type
         use_memcpy;
         
-        this->copy_dispatch(first, last, dst, use_memcpy());                        // may throw
+        this->copy_dispatch(&(*first), &(*last), &(*dst), use_memcpy());                        // may throw
     }
 
     void copy_dispatch(const value_type * first, const value_type * last, value_type * dst,
@@ -583,7 +583,7 @@ private:
             >::type
         use_memcpy;
 
-        this->uninitialized_copy_dispatch(first, last, dst, use_memcpy());          // may throw
+        this->uninitialized_copy_dispatch(&(*first), &(*last), &(*dst), use_memcpy());          // may throw
     }
 
     void uninitialized_copy_dispatch(const value_type * first, const value_type * last, value_type * dst,
@@ -607,11 +607,11 @@ private:
         typedef typename
             mpl::and_<
                 has_trivial_copy<value_type>,
-                is_same<Value, value_type>
+                is_same<V, value_type>
             >::type
         use_memcpy;
 
-        uninitialized_fill_dispatch(dst, v, use_memcpy());                         // may throw
+        uninitialized_fill_dispatch(&(*dst), v, use_memcpy());                         // may throw
     }
 
     void uninitialized_fill_dispatch(value_type * ptr, value_type const& v,
@@ -633,7 +633,7 @@ private:
 
     void move(iterator first, iterator last, iterator dst)
     {
-        this->move_dispatch(first, last, dst, has_trivial_assign<value_type>());    // may throw
+        this->move_dispatch(&(*first), &(*last), &(*dst), has_trivial_assign<value_type>());    // may throw
     }
 
     void move_dispatch(value_type * first, value_type * last, value_type * dst,
@@ -652,7 +652,7 @@ private:
 
     void move_backward(iterator first, iterator last, iterator dst)
     {
-        this->move_backward_dispatch(first, last, dst, has_trivial_assign<value_type>());    // may throw
+        this->move_backward_dispatch(&(*first), &(*last), &(*dst), has_trivial_assign<value_type>());    // may throw
     }
 
     void move_backward_dispatch(value_type * first, value_type * last, value_type * dst,
@@ -673,7 +673,7 @@ private:
     template <typename V>
     void fill(iterator dst, V const& v)
     {
-        fill_dispatch(dst, v, has_trivial_assign<value_type>());                            // may throw
+        fill_dispatch(&(*dst), v, has_trivial_assign<value_type>());                            // may throw
     }
 
     void fill_dispatch(value_type * ptr, value_type const& v,
@@ -695,7 +695,7 @@ private:
 
     void destroy(iterator first, iterator last)
     {
-        this->destroy_dispatch(first, last, has_trivial_destructor<value_type>());
+        this->destroy_dispatch(&(*first), &(*last), has_trivial_destructor<value_type>());
     }
 
     void destroy_dispatch(value_type * /*first*/, value_type * /*last*/,
@@ -713,7 +713,7 @@ private:
 
     void destroy(iterator it)
     {
-        this->destroy_dispatch(it, has_trivial_destructor<value_type>());
+        this->destroy_dispatch(&(*it), has_trivial_destructor<value_type>());
     }
 
     void destroy_dispatch(value_type * /*ptr*/,
@@ -730,7 +730,7 @@ private:
 
     void construct(iterator first, iterator last)
     {
-        this->construct_dispatch(first, last, has_trivial_constructor<value_type>());   // may throw
+        this->construct_dispatch(&(*first), &(*last), has_trivial_constructor<value_type>());   // may throw
     }
 
     void construct_dispatch(value_type * /*first*/, value_type * /*last*/,

@@ -28,6 +28,7 @@ public:
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+    typedef typename Allocators::node_pointer node_pointer;
 
     explicit inline copy(Allocators & allocators)
         : result(0)
@@ -36,7 +37,7 @@ public:
 
     inline void operator()(internal_node & n)
     {
-        node * raw_new_node = rtree::create_node<Allocators, internal_node>::apply(m_allocators);      // MAY THROW, STRONG (N: alloc)
+        node_pointer raw_new_node = rtree::create_node<Allocators, internal_node>::apply(m_allocators);      // MAY THROW, STRONG (N: alloc)
         node_auto_ptr new_node(raw_new_node, m_allocators);
 
         typedef typename rtree::elements_type<internal_node>::type elements_type;
@@ -63,7 +64,7 @@ public:
 
     inline void operator()(leaf & l)
     {
-        node * raw_new_node = rtree::create_node<Allocators, leaf>::apply(m_allocators);                // MAY THROW, STRONG (N: alloc)
+        node_pointer raw_new_node = rtree::create_node<Allocators, leaf>::apply(m_allocators);                // MAY THROW, STRONG (N: alloc)
         node_auto_ptr new_node(raw_new_node, m_allocators);
 
         typedef typename rtree::elements_type<leaf>::type elements_type;
@@ -81,7 +82,7 @@ public:
         new_node.release();
     }
 
-    node * result;
+    node_pointer result;
 
 private:
     Allocators & m_allocators;

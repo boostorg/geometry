@@ -189,6 +189,10 @@ public:
 
     typedef typename allocator_type::template rebind<
         typename internal_node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
+    >::other::pointer internal_node_pointer;
+
+    typedef typename allocator_type::template rebind<
+        typename internal_node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
     >::other internal_node_allocator_type;
 
     typedef typename allocator_type::template rebind<

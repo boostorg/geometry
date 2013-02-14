@@ -78,7 +78,7 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d
     typedef throwing_varray<
         std::pair<
             Box,
-            dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag> *
+            typename Allocators::node_pointer
         >,
         Parameters::max_elements + 1
     > elements_type;
@@ -150,6 +150,14 @@ class allocators<Allocator, Value, Parameters, Box, node_throwing_d_mem_static_t
 public:
     typedef Allocator allocator_type;
     typedef typename allocator_type::size_type size_type;
+
+    typedef typename allocator_type::template rebind<
+        typename node<Value, Parameters, Box, allocators, node_throwing_d_mem_static_tag>::type
+    >::other::pointer node_pointer;
+
+    typedef typename allocator_type::template rebind<
+        typename internal_node<Value, Parameters, Box, allocators, node_throwing_d_mem_static_tag>::type
+    >::other::pointer internal_node_pointer;
 
     typedef typename allocator_type::template rebind<
         typename internal_node<Value, Parameters, Box, allocators, node_throwing_d_mem_static_tag>::type
@@ -226,15 +234,14 @@ struct create_node<
     dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
 >
 {
-    static inline dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag> *
+    static inline typename Allocators::node_pointer
     apply(Allocators & allocators)
     {
         // throw if counter meets max count
         throwing_node_settings::throw_if_required();
 
         return create_dynamic_node<
-            dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>,
-            dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
+            typename Allocators::node_pointer
         >::template apply(allocators.internal_node_allocator, allocators.internal_node_allocator);
     }
 };
@@ -245,15 +252,14 @@ struct create_node<
     dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>::type *
+    static inline typename Allocators::node_pointer
     apply(Allocators & allocators)
     {
         // throw if counter meets max count
         throwing_node_settings::throw_if_required();
 
         return create_dynamic_node<
-            dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>,
-            dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
+            typename Allocators::node_pointer
         >::template apply(allocators.leaf_allocator, allocators.leaf_allocator);
     }
 };
