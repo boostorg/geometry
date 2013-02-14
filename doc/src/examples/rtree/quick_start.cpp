@@ -8,6 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+//[rtree_quickstart
+
 //[rtree_quickstart_include
 
 #include <boost/geometry.hpp>
@@ -75,3 +77,5 @@ int main(void)
 
     return 0;
 }
+
+//]

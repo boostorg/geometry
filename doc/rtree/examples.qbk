@@ -1,12 +1,21 @@
 [/============================================================================
   Boost.Geometry Index
 
-  Copyright (c) 2011-2012 Adam Wulkiewicz.
+  Copyright (c) 2011-2013 Adam Wulkiewicz.
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[import src/examples/rtree/quick_start.cpp]
-[import src/examples/rtree/interprocess.cpp]
+[section:rtree_examples Examples]
+
+[section Quick start]
+[rtree_quickstart]
+[endsect]
+
+[section Interprocess]
+[rtree_interprocess]
+[endsect]
+
+[endsect]

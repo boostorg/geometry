@@ -6,6 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+//[rtree_interprocess
+
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
@@ -103,3 +105,5 @@ int main(int argc, char *argv[])
 
    return 0;
 };
+
+//]

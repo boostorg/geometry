@@ -1,0 +1,218 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Examples</title>
+<link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
+<link rel="up" href="../r_tree.html" title="R-tree">
+<link rel="prev" href="queries.html" title="Queries">
+<link rel="next" href="reference.html" title="Reference">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="http://www.boost.org/doc/libs/release/boost.png"></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/index.html">Home</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="http://www.boost.org/doc/libs/release/more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="queries.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="reference.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="geometry_index.r_tree.rtree_examples"></a><a class="link" href="rtree_examples.html" title="Examples">Examples</a>
+</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="rtree_examples.html#geometry_index.r_tree.rtree_examples.quick_start">Quick
+        start</a></span></dt>
+<dt><span class="section"><a href="rtree_examples.html#geometry_index.r_tree.rtree_examples.interprocess">Interprocess</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.rtree_examples.quick_start"></a><a class="link" href="rtree_examples.html#geometry_index.r_tree.rtree_examples.quick_start" title="Quick start">Quick
+        start</a>
+</h4></div></div></div>
+<p>
+</p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">geometries</span><span class="special">/</span><span class="identifier">point_xy</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">geometries</span><span class="special">/</span><span class="identifier">box</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">index</span><span class="special">/</span><span class="identifier">rtree</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="comment">// to store queries results</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&gt;</span>
+
+<span class="comment">// just for output</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">iostream</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">foreach</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="keyword">namespace</span> <span class="identifier">bg</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">;</span>
+<span class="keyword">namespace</span> <span class="identifier">bgi</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">;</span>
+
+<span class="keyword">int</span> <span class="identifier">main</span><span class="special">(</span><span class="keyword">void</span><span class="special">)</span>
+<span class="special">{</span>
+    <span class="keyword">typedef</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;</span><span class="keyword">float</span><span class="special">,</span> <span class="number">2</span><span class="special">,</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">cs</span><span class="special">::</span><span class="identifier">cartesian</span><span class="special">&gt;</span> <span class="identifier">point</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;</span><span class="identifier">point</span><span class="special">&gt;</span> <span class="identifier">box</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">,</span> <span class="keyword">unsigned</span><span class="special">&gt;</span> <span class="identifier">value</span><span class="special">;</span>
+
+    <span class="comment">// create the rtree using default constructor</span>
+    <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span> <span class="identifier">value</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">quadratic</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">rtree</span><span class="special">;</span>
+
+    <span class="comment">// create some values</span>
+    <span class="keyword">for</span> <span class="special">(</span> <span class="keyword">unsigned</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span> <span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="number">10</span> <span class="special">;</span> <span class="special">++</span><span class="identifier">i</span> <span class="special">)</span>
+    <span class="special">{</span>
+        <span class="comment">// create a box</span>
+        <span class="identifier">box</span> <span class="identifier">b</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="identifier">i</span><span class="special">,</span> <span class="identifier">i</span><span class="special">),</span> <span class="identifier">point</span><span class="special">(</span><span class="identifier">i</span> <span class="special">+</span> <span class="number">0.5f</span><span class="special">,</span> <span class="identifier">i</span> <span class="special">+</span> <span class="number">0.5f</span><span class="special">));</span>
+        <span class="comment">// insert new value</span>
+        <span class="identifier">rtree</span><span class="special">.</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">make_pair</span><span class="special">(</span><span class="identifier">b</span><span class="special">,</span> <span class="identifier">i</span><span class="special">));</span>
+    <span class="special">}</span>
+
+    <span class="comment">// find values intersecting some area defined by a box</span>
+    <span class="identifier">box</span> <span class="identifier">query_box</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="identifier">point</span><span class="special">(</span><span class="number">5</span><span class="special">,</span> <span class="number">5</span><span class="special">));</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="identifier">result_s</span><span class="special">;</span>
+    <span class="identifier">rtree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">query_box</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result_s</span><span class="special">));</span>
+
+    <span class="comment">// find 5 nearest values to a point</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="identifier">result_n</span><span class="special">;</span>
+    <span class="identifier">rtree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">point</span><span class="special">(</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">),</span> <span class="number">5</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result_n</span><span class="special">));</span>
+
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"spatial query result:"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+    <span class="identifier">BOOST_FOREACH</span><span class="special">(</span><span class="identifier">value</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">result_s</span><span class="special">)</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">wkt</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">&gt;(</span><span class="identifier">v</span><span class="special">.</span><span class="identifier">first</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">" - "</span> <span class="special">&lt;&lt;</span> <span class="identifier">v</span><span class="special">.</span><span class="identifier">second</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"knn query result:"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+    <span class="identifier">BOOST_FOREACH</span><span class="special">(</span><span class="identifier">value</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">,</span> <span class="identifier">result_n</span><span class="special">)</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">wkt</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">&gt;(</span><span class="identifier">v</span><span class="special">.</span><span class="identifier">first</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">" - "</span> <span class="special">&lt;&lt;</span> <span class="identifier">v</span><span class="special">.</span><span class="identifier">second</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<p>
+        </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="geometry_index.r_tree.rtree_examples.interprocess"></a><a class="link" href="rtree_examples.html#geometry_index.r_tree.rtree_examples.interprocess" title="Interprocess">Interprocess</a>
+</h4></div></div></div>
+<p>
+</p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">geometries</span><span class="special">/</span><span class="identifier">point</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">geometries</span><span class="special">/</span><span class="identifier">box</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">index</span><span class="special">/</span><span class="identifier">rtree</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">foreach</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">allocators</span><span class="special">/</span><span class="identifier">allocator</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">string</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cstdlib</span><span class="special">&gt;</span> <span class="comment">//std::system</span>
+
+<span class="comment">//For parent process argc == 1, for child process argc &gt; 1</span>
+<span class="keyword">int</span> <span class="identifier">main</span><span class="special">(</span><span class="keyword">int</span> <span class="identifier">argc</span><span class="special">,</span> <span class="keyword">char</span> <span class="special">*</span><span class="identifier">argv</span><span class="special">[])</span>
+<span class="special">{</span>
+    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">;</span>
+    <span class="keyword">namespace</span> <span class="identifier">bg</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">;</span>
+    <span class="keyword">namespace</span> <span class="identifier">bgm</span> <span class="special">=</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">model</span><span class="special">;</span>
+    <span class="keyword">namespace</span> <span class="identifier">bgi</span> <span class="special">=</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">index</span><span class="special">;</span>
+
+    <span class="keyword">typedef</span> <span class="identifier">bgm</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;</span><span class="keyword">float</span><span class="special">,</span> <span class="number">2</span><span class="special">,</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">cs</span><span class="special">::</span><span class="identifier">cartesian</span><span class="special">&gt;</span> <span class="identifier">P</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">bgm</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;</span><span class="identifier">P</span><span class="special">&gt;</span> <span class="identifier">B</span><span class="special">;</span>
+
+    <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">linear</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="identifier">Par</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">&gt;</span> <span class="identifier">Tr</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">,</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">segment_manager</span><span class="special">&gt;</span> <span class="identifier">Alloc</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">,</span> <span class="identifier">Par</span><span class="special">,</span> <span class="identifier">Tr</span><span class="special">,</span> <span class="identifier">Alloc</span><span class="special">&gt;</span> <span class="identifier">Rtree</span><span class="special">;</span>
+
+    <span class="comment">//Parent process</span>
+    <span class="keyword">if</span> <span class="special">(</span> <span class="identifier">argc</span> <span class="special">==</span> <span class="number">1</span> <span class="special">)</span>
+    <span class="special">{</span>
+        <span class="keyword">struct</span> <span class="identifier">shm_remove</span>
+        <span class="special">{</span>
+            <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
+            <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
+        <span class="special">}</span> <span class="identifier">remover</span><span class="special">;</span>
+
+        <span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> <span class="string">"MySharedMemory"</span><span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
+
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Parent: Constructing container\n"</span><span class="special">;</span>
+
+        <span class="identifier">Rtree</span> <span class="special">*</span> <span class="identifier">tree</span> <span class="special">=</span> <span class="identifier">segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">Rtree</span><span class="special">&gt;(</span><span class="string">"Rtree"</span><span class="special">)(</span><span class="identifier">Par</span><span class="special">(),</span> <span class="identifier">Tr</span><span class="special">(),</span> <span class="identifier">Alloc</span><span class="special">(</span><span class="identifier">segment</span><span class="special">.</span><span class="identifier">get_segment_manager</span><span class="special">()));</span>
+
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Parent: Filling container with 100 boxes\n"</span><span class="special">;</span>
+
+        <span class="keyword">for</span> <span class="special">(</span> <span class="keyword">float</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span> <span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="number">100</span> <span class="special">;</span> <span class="identifier">i</span> <span class="special">+=</span> <span class="number">1</span> <span class="special">)</span>
+            <span class="identifier">tree</span><span class="special">-&gt;</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">B</span><span class="special">(</span><span class="identifier">P</span><span class="special">(</span><span class="identifier">i</span><span class="special">,</span> <span class="identifier">i</span><span class="special">),</span> <span class="identifier">P</span><span class="special">(</span><span class="identifier">i</span><span class="special">+</span><span class="number">0.5f</span><span class="special">,</span> <span class="identifier">i</span><span class="special">+</span><span class="number">0.5f</span><span class="special">)));</span>
+
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Parent: Tree content\n"</span><span class="special">;</span>
+        <span class="identifier">Rtree</span><span class="special">::</span><span class="identifier">bounds_type</span> <span class="identifier">bb</span> <span class="special">=</span> <span class="identifier">tree</span><span class="special">-&gt;</span><span class="identifier">bounds</span><span class="special">();</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"[("</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">get</span><span class="special">&lt;</span><span class="number">0</span><span class="special">&gt;(</span><span class="identifier">bb</span><span class="special">.</span><span class="identifier">min_corner</span><span class="special">())</span> <span class="special">&lt;&lt;</span> <span class="string">", "</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">get</span><span class="special">&lt;</span><span class="number">1</span><span class="special">&gt;(</span><span class="identifier">bb</span><span class="special">.</span><span class="identifier">min_corner</span><span class="special">())</span>
+                  <span class="special">&lt;&lt;</span> <span class="string">")("</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">get</span><span class="special">&lt;</span><span class="number">0</span><span class="special">&gt;(</span><span class="identifier">bb</span><span class="special">.</span><span class="identifier">max_corner</span><span class="special">())</span> <span class="special">&lt;&lt;</span> <span class="string">", "</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">get</span><span class="special">&lt;</span><span class="number">1</span><span class="special">&gt;(</span><span class="identifier">bb</span><span class="special">.</span><span class="identifier">max_corner</span><span class="special">())</span> <span class="special">&lt;&lt;</span> <span class="string">")]\n"</span><span class="special">;</span>
+
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Parent: Running child process\n"</span><span class="special">;</span>
+
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="identifier">s</span><span class="special">(</span><span class="identifier">argv</span><span class="special">[</span><span class="number">0</span><span class="special">]);</span> <span class="identifier">s</span> <span class="special">+=</span> <span class="string">" child "</span><span class="special">;</span>
+        <span class="keyword">if</span> <span class="special">(</span> <span class="number">0</span> <span class="special">!=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">system</span><span class="special">(</span><span class="identifier">s</span><span class="special">.</span><span class="identifier">c_str</span><span class="special">())</span> <span class="special">)</span>
+            <span class="keyword">return</span> <span class="number">1</span><span class="special">;</span>
+
+        <span class="keyword">if</span> <span class="special">(</span> <span class="identifier">segment</span><span class="special">.</span><span class="identifier">find</span><span class="special">&lt;</span><span class="identifier">Rtree</span><span class="special">&gt;(</span><span class="string">"Rtree"</span><span class="special">).</span><span class="identifier">first</span> <span class="special">)</span>
+            <span class="keyword">return</span> <span class="number">1</span><span class="special">;</span>
+
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Parent: Container was properly destroyed by the child process\n"</span><span class="special">;</span>
+   <span class="special">}</span>
+   <span class="comment">//Child process</span>
+   <span class="keyword">else</span>
+   <span class="special">{</span>
+      <span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> <span class="string">"MySharedMemory"</span><span class="special">);</span>
+
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Child: Searching of the container in shared memory\n"</span><span class="special">;</span>
+
+      <span class="identifier">Rtree</span> <span class="special">*</span> <span class="identifier">tree</span> <span class="special">=</span> <span class="identifier">segment</span><span class="special">.</span><span class="identifier">find</span><span class="special">&lt;</span><span class="identifier">Rtree</span><span class="special">&gt;(</span><span class="string">"Rtree"</span><span class="special">).</span><span class="identifier">first</span><span class="special">;</span>
+
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Child: Querying for objects intersecting box = [(45, 45)(55, 55)]\n"</span><span class="special">;</span>
+
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">&gt;</span> <span class="identifier">result</span><span class="special">;</span>
+      <span class="keyword">unsigned</span> <span class="identifier">k</span> <span class="special">=</span> <span class="identifier">tree</span><span class="special">-&gt;</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">B</span><span class="special">(</span><span class="identifier">P</span><span class="special">(</span><span class="number">45</span><span class="special">,</span> <span class="number">45</span><span class="special">),</span> <span class="identifier">P</span><span class="special">(</span><span class="number">55</span><span class="special">,</span> <span class="number">55</span><span class="special">)),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Child: Found objects:\n"</span><span class="special">;</span>
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">k</span> <span class="special">&lt;&lt;</span> <span class="string">"\n"</span><span class="special">;</span>
+      <span class="identifier">BOOST_FOREACH</span><span class="special">(</span><span class="identifier">B</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">b</span><span class="special">,</span> <span class="identifier">result</span><span class="special">)</span>
+      <span class="special">{</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"[("</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">get</span><span class="special">&lt;</span><span class="number">0</span><span class="special">&gt;(</span><span class="identifier">b</span><span class="special">.</span><span class="identifier">min_corner</span><span class="special">())</span> <span class="special">&lt;&lt;</span> <span class="string">", "</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">get</span><span class="special">&lt;</span><span class="number">1</span><span class="special">&gt;(</span><span class="identifier">b</span><span class="special">.</span><span class="identifier">min_corner</span><span class="special">())</span>
+                  <span class="special">&lt;&lt;</span> <span class="string">")("</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">get</span><span class="special">&lt;</span><span class="number">0</span><span class="special">&gt;(</span><span class="identifier">b</span><span class="special">.</span><span class="identifier">max_corner</span><span class="special">())</span> <span class="special">&lt;&lt;</span> <span class="string">", "</span> <span class="special">&lt;&lt;</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">get</span><span class="special">&lt;</span><span class="number">1</span><span class="special">&gt;(</span><span class="identifier">b</span><span class="special">.</span><span class="identifier">max_corner</span><span class="special">())</span> <span class="special">&lt;&lt;</span> <span class="string">")]\n"</span><span class="special">;</span>
+      <span class="special">}</span>
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"\n"</span><span class="special">;</span>
+
+      <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Child: Destroying container\n"</span><span class="special">;</span>
+
+      <span class="identifier">segment</span><span class="special">.</span><span class="identifier">destroy</span><span class="special">&lt;</span><span class="identifier">Rtree</span><span class="special">&gt;(</span><span class="string">"Rtree"</span><span class="special">);</span>
+   <span class="special">}</span>
+
+   <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">};</span>
+</pre>
+<p>
+        </p>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2011-2013 Adam Wulkiewicz<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="queries.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../r_tree.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="reference.html"><img src="http://www.boost.org/doc/libs/release/doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>
