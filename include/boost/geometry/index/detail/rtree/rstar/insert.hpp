@@ -28,11 +28,12 @@ public:
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Options::parameters_type parameters_type;
+    typedef typename Allocators::internal_node_pointer internal_node_pointer;
 
-    template <typename Node>
-    static inline void apply(typename rtree::elements_type<Node>::type & result_elements,
+    template <typename ResultElements, typename Node>
+    static inline void apply(ResultElements & result_elements,
                              Node & n,
-                             internal_node *parent,
+                             internal_node_pointer parent,
                              size_t current_child_index,
                              parameters_type const& parameters,
                              Translator const& translator,
@@ -161,11 +162,18 @@ struct level_insert_base
     typedef typename base::leaf leaf;
 
     typedef typename level_insert_elements_type<InsertIndex, Element, Value, Options, Box, Allocators>::type elements_type;
+    typedef typename index::detail::rtree::container_from_elements_type<
+        elements_type,
+        typename elements_type::value_type
+    >::type result_elements_type;
+
     typedef typename Options::parameters_type parameters_type;
 
-    inline level_insert_base(node* & root,
-                              size_t & leafs_level,
-                              Element const& element,
+    typedef typename Allocators::node_pointer node_pointer;
+
+    inline level_insert_base(node_pointer & root,
+                             size_t & leafs_level,
+                             Element const& element,
                              parameters_type const& parameters,
                              Translator const& translator,
                              Allocators & allocators,
@@ -225,7 +233,7 @@ struct level_insert_base
     }
 
     size_t result_relative_level;
-    elements_type result_elements;
+    result_elements_type result_elements;
 };
 
 template <size_t InsertIndex, typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
@@ -239,7 +247,9 @@ struct level_insert
 
     typedef typename Options::parameters_type parameters_type;
 
-    inline level_insert(node* & root,
+    typedef typename Allocators::node_pointer node_pointer;
+
+    inline level_insert(node_pointer & root,
                         size_t & leafs_level,
                         Element const& element,
                         parameters_type const& parameters,
@@ -321,7 +331,9 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocat
 
     typedef typename Options::parameters_type parameters_type;
 
-    inline level_insert(node* & root,
+    typedef typename Allocators::node_pointer node_pointer;
+
+    inline level_insert(node_pointer & root,
                         size_t & leafs_level,
                         Value const& v,
                         parameters_type const& parameters,
@@ -374,7 +386,9 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
 
     typedef typename Options::parameters_type parameters_type;
 
-    inline level_insert(node* & root,
+    typedef typename Allocators::node_pointer node_pointer;
+
+    inline level_insert(node_pointer & root,
                         size_t & leafs_level,
                         Value const& v,
                         parameters_type const& parameters,
@@ -430,8 +444,10 @@ class insert<Element, Value, Options, Translator, Box, Allocators, insert_reinse
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
+    typedef typename Allocators::node_pointer node_pointer;
+
 public:
-    inline insert(node* & root,
+    inline insert(node_pointer & root,
                   size_t & leafs_level,
                   Element const& element,
                   parameters_type const& parameters,
@@ -506,7 +522,7 @@ private:
         }
     }
 
-    node* & m_root;
+    node_pointer & m_root;
     size_t & m_leafs_level;
     Element const& m_element;
 

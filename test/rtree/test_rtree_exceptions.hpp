@@ -241,8 +241,9 @@ struct create_node<
         throwing_node_settings::throw_if_required();
 
         return create_dynamic_node<
-            typename Allocators::node_pointer
-        >::template apply(allocators.internal_node_allocator, allocators.internal_node_allocator);
+            typename Allocators::node_pointer,
+            dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
+        >::apply(allocators.internal_node_allocator, allocators.internal_node_allocator);
     }
 };
 
@@ -259,8 +260,9 @@ struct create_node<
         throwing_node_settings::throw_if_required();
 
         return create_dynamic_node<
-            typename Allocators::node_pointer
-        >::template apply(allocators.leaf_allocator, allocators.leaf_allocator);
+            typename Allocators::node_pointer,
+            dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
+        >::apply(allocators.leaf_allocator, allocators.leaf_allocator);
     }
 };
 

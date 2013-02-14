@@ -548,21 +548,25 @@ private:
                 mpl::or_<
                     is_same<Iterator, value_type *>,
                     is_same<Iterator, const value_type *>
+                >,
+                mpl::or_<
+                    is_same<iterator, value_type *>,
+                    is_same<iterator, const value_type *>
                 >
             >::type
         use_memcpy;
         
-        this->copy_dispatch(&(*first), &(*last), &(*dst), use_memcpy());                        // may throw
+        this->copy_dispatch(first, last, dst, use_memcpy());                        // may throw
     }
 
     void copy_dispatch(const value_type * first, const value_type * last, value_type * dst,
                        boost::mpl::bool_<true> const& /*use_memcpy*/)
     {
-        ::memcpy(dst, first, sizeof(value_type) * std::distance(first, last));
+        ::memmove(dst, first, sizeof(value_type) * std::distance(first, last));
     }
 
     template <typename Iterator>
-    void copy_dispatch(Iterator first, Iterator last, value_type * dst,
+    void copy_dispatch(Iterator first, Iterator last, iterator dst,
                        boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
         std::copy(first, last, dst);                                                // may throw
@@ -579,11 +583,15 @@ private:
                 mpl::or_<
                     is_same<Iterator, value_type *>,
                     is_same<Iterator, const value_type *>
+                >,
+                mpl::or_<
+                    is_same<iterator, value_type *>,
+                    is_same<iterator, const value_type *>
                 >
             >::type
         use_memcpy;
 
-        this->uninitialized_copy_dispatch(&(*first), &(*last), &(*dst), use_memcpy());          // may throw
+        this->uninitialized_copy_dispatch(first, last, dst, use_memcpy());          // may throw
     }
 
     void uninitialized_copy_dispatch(const value_type * first, const value_type * last, value_type * dst,
@@ -593,7 +601,7 @@ private:
     }
 
     template <typename Iterator>
-    void uninitialized_copy_dispatch(Iterator first, Iterator last, value_type * dst,
+    void uninitialized_copy_dispatch(Iterator first, Iterator last, iterator dst,
                                      boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
         std::uninitialized_copy(first, last, dst);                                  // may throw
@@ -611,39 +619,55 @@ private:
             >::type
         use_memcpy;
 
-        uninitialized_fill_dispatch(&(*dst), v, use_memcpy());                         // may throw
+        uninitialized_fill_dispatch(dst, v, use_memcpy());                         // may throw
     }
 
-    void uninitialized_fill_dispatch(value_type * ptr, value_type const& v,
+    void uninitialized_fill_dispatch(iterator ptr, value_type const& v,
                                      boost::mpl::bool_<true> const& /*use_memcpy*/)
     {
         // TODO - check if value_type has operator& defined and call this version only if it hasn't
         const value_type * vptr = &v;
-        ::memcpy(ptr, vptr, sizeof(value_type));
+        ::memcpy(&(*ptr), vptr, sizeof(value_type));
     }
 
     template <typename V>
-    void uninitialized_fill_dispatch(value_type * ptr, V const& v,
+    void uninitialized_fill_dispatch(iterator ptr, V const& v,
                                      boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
-        new (ptr) value_type(v);                                                    // may throw
+        new (&(*ptr)) value_type(v);                                                    // may throw
     }
 
     // move
 
-    void move(iterator first, iterator last, iterator dst)
+    template <typename Iterator>
+    void move(Iterator first, Iterator last, iterator dst)
     {
-        this->move_dispatch(&(*first), &(*last), &(*dst), has_trivial_assign<value_type>());    // may throw
+        typedef typename
+            mpl::and_<
+                has_trivial_assign<value_type>,
+                mpl::or_<
+                    is_same<Iterator, value_type *>,
+                    is_same<Iterator, const value_type *>
+                >,
+                mpl::or_<
+                    is_same<iterator, value_type *>,
+                    is_same<iterator, const value_type *>
+                >
+            >::type
+        use_memcpy;
+
+        this->move_dispatch(first, last, dst, use_memcpy());    // may throw
     }
 
-    void move_dispatch(value_type * first, value_type * last, value_type * dst,
-        boost::true_type const& /*has_trivial_assign*/)
+    void move_dispatch(const value_type * first, const value_type * last, value_type * dst,
+                       boost::mpl::bool_<true> const& /*use_mem*/)
     {
         ::memmove(dst, first, sizeof(value_type) * std::distance(first, last));
     }
 
-    void move_dispatch(value_type * first, value_type * last, value_type * dst,
-        boost::false_type const& /*has_trivial_assign*/)
+    template <typename Iterator>
+    void move_dispatch(Iterator first, Iterator last, iterator dst,
+                       boost::mpl::bool_<false> const& /*use_mem*/)
     {
         std::copy(first, last, dst);                                                // may throw
     }
@@ -652,18 +676,28 @@ private:
 
     void move_backward(iterator first, iterator last, iterator dst)
     {
-        this->move_backward_dispatch(&(*first), &(*last), &(*dst), has_trivial_assign<value_type>());    // may throw
+        typedef typename
+            mpl::and_<
+                has_trivial_assign<value_type>,
+                mpl::or_<
+                    is_same<iterator, value_type *>,
+                    is_same<iterator, const value_type *>
+                >
+            >::type
+        use_memcpy;
+
+        this->move_backward_dispatch(first, last, dst, use_memcpy());    // may throw
     }
 
     void move_backward_dispatch(value_type * first, value_type * last, value_type * dst,
-                                boost::true_type const& /*has_trivial_assign*/)
+                                boost::mpl::bool_<true> const& /*has_trivial_assign*/)
     {
         difference_type n = std::distance(first, last);
         ::memmove(dst - n, first, sizeof(value_type) * n);
     }
 
-    void move_backward_dispatch(value_type * first, value_type * last, value_type * dst,
-                                boost::false_type const& /*has_trivial_assign*/)
+    void move_backward_dispatch(iterator first, iterator last, iterator dst,
+                                boost::mpl::bool_<false> const& /*has_trivial_assign*/)
     {
         std::copy_backward(first, last, dst);                                                // may throw
     }
@@ -673,19 +707,19 @@ private:
     template <typename V>
     void fill(iterator dst, V const& v)
     {
-        fill_dispatch(&(*dst), v, has_trivial_assign<value_type>());                            // may throw
+        fill_dispatch(dst, v, has_trivial_assign<value_type>());                            // may throw
     }
 
-    void fill_dispatch(value_type * ptr, value_type const& v,
+    void fill_dispatch(iterator ptr, value_type const& v,
                        boost::true_type const& /*has_trivial_assign*/)
     {
         // TODO - check if value_type has operator& defined and call this version only if it hasn't
         const value_type * vptr = &v;
-        ::memcpy(ptr, vptr, sizeof(value_type));
+        ::memcpy(&(*ptr), vptr, sizeof(value_type));
     }
 
     template <typename V>
-    void fill_dispatch(value_type * ptr, V const& v,
+    void fill_dispatch(iterator ptr, V const& v,
                        boost::false_type const& /*has_trivial_assign*/)
     {
         *ptr = v;                                                                           // may throw
@@ -695,14 +729,14 @@ private:
 
     void destroy(iterator first, iterator last)
     {
-        this->destroy_dispatch(&(*first), &(*last), has_trivial_destructor<value_type>());
+        this->destroy_dispatch(first, last, has_trivial_destructor<value_type>());
     }
 
-    void destroy_dispatch(value_type * /*first*/, value_type * /*last*/,
+    void destroy_dispatch(iterator /*first*/, iterator /*last*/,
                           boost::true_type const& /*has_trivial_destructor*/)
     {}
 
-    void destroy_dispatch(value_type * first, value_type * last,
+    void destroy_dispatch(iterator first, iterator last,
                           boost::false_type const& /*has_trivial_destructor*/)
     {
         for ( ; first != last ; ++first )
@@ -713,14 +747,14 @@ private:
 
     void destroy(iterator it)
     {
-        this->destroy_dispatch(&(*it), has_trivial_destructor<value_type>());
+        this->destroy_dispatch(it, has_trivial_destructor<value_type>());
     }
 
-    void destroy_dispatch(value_type * /*ptr*/,
+    void destroy_dispatch(iterator /*ptr*/,
                           boost::true_type const& /*has_trivial_destructor*/)
     {}
 
-    void destroy_dispatch(value_type * ptr,
+    void destroy_dispatch(iterator ptr,
                           boost::false_type const& /*has_trivial_destructor*/)
     {
         ptr->~value_type();
@@ -730,21 +764,21 @@ private:
 
     void construct(iterator first, iterator last)
     {
-        this->construct_dispatch(&(*first), &(*last), has_trivial_constructor<value_type>());   // may throw
+        this->construct_dispatch(first, last, has_trivial_constructor<value_type>());   // may throw
     }
 
-    void construct_dispatch(value_type * /*first*/, value_type * /*last*/,
+    void construct_dispatch(iterator /*first*/, iterator /*last*/,
                             boost::true_type const& /*has_trivial_constructor*/)
     {}
 
-    void construct_dispatch(value_type * first, value_type * last,
+    void construct_dispatch(iterator first, iterator last,
                             boost::false_type const& /*has_trivial_constructor*/)
     {
-        value_type * it = first;
+        iterator it = first;
         try
         {
             for ( ; it != last ; ++it )
-                new (it) value_type();                                                  // may throw
+                new (&(*it)) value_type();                                                  // may throw
         }
         catch(...)
         {

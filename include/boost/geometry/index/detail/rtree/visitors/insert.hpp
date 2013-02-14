@@ -180,7 +180,7 @@ public:
 
 namespace visitors { namespace detail {
 
-template <typename InternalNode>
+template <typename InternalNode, typename InternalNodePtr>
 struct insert_traverse_data
 {
     typedef typename rtree::elements_type<InternalNode>::type elements_type;
@@ -190,7 +190,7 @@ struct insert_traverse_data
         : parent(0), current_child_index(0), current_level(0)
     {}
 
-    void move_to_next_level(InternalNode * new_parent, size_t new_child_index)
+    void move_to_next_level(InternalNodePtr new_parent, size_t new_child_index)
     {
         parent = new_parent;
         current_child_index = new_child_index;
@@ -214,7 +214,7 @@ struct insert_traverse_data
         return rtree::elements(*parent)[current_child_index];
     }
 
-    InternalNode * parent;
+    InternalNodePtr parent;
     size_t current_child_index;
     size_t current_level;
 };
@@ -234,6 +234,7 @@ protected:
 
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
     typedef typename Allocators::node_pointer node_pointer;
+    typedef typename Allocators::internal_node_pointer internal_node_pointer;
 
     inline insert(node_pointer & root,
                   size_t & leafs_level,
@@ -296,7 +297,7 @@ protected:
     inline void traverse_apply_visitor(Visitor & visitor, internal_node &n, size_t choosen_node_index)
     {
         // save previous traverse inputs and set new ones
-        insert_traverse_data<internal_node> backup_traverse_data = m_traverse_data;
+        insert_traverse_data<internal_node, internal_node_pointer> backup_traverse_data = m_traverse_data;
 
         // calculate new traverse inputs
         m_traverse_data.move_to_next_level(&n, choosen_node_index);
@@ -381,7 +382,7 @@ protected:
     size_t & m_leafs_level;
 
     // traversing input parameters
-    insert_traverse_data<internal_node> m_traverse_data;
+    insert_traverse_data<internal_node, internal_node_pointer> m_traverse_data;
 
     Allocators & m_allocators;
 };

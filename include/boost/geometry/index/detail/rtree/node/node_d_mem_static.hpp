@@ -176,7 +176,8 @@ struct create_node<
     apply(Allocators & allocators)
     {
         return create_dynamic_node<
-            typename Allocators::node_pointer
+            typename Allocators::node_pointer,
+            dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
         >::apply(allocators.internal_node_allocator, allocators.internal_node_allocator);
     }
 };
@@ -191,7 +192,8 @@ struct create_node<
     apply(Allocators & allocators)
     {
         return create_dynamic_node<
-            typename Allocators::node_pointer
+            typename Allocators::node_pointer,
+            dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
         >::apply(allocators.leaf_allocator, allocators.leaf_allocator);
     }
 };

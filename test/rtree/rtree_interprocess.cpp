@@ -64,6 +64,10 @@ int test_main(int, char* [])
 
     test_rtree_interprocess<P2f>(bgi::linear<32, 8>());
     test_rtree_interprocess<P2f>(bgi::runtime::linear(32, 8));
+    test_rtree_interprocess<P2f>(bgi::quadratic<32, 8>());
+    test_rtree_interprocess<P2f>(bgi::runtime::quadratic(32, 8));
+    test_rtree_interprocess<P2f>(bgi::rstar<32, 8>());
+    test_rtree_interprocess<P2f>(bgi::runtime::rstar(32, 8));
     
     return 0;
 }

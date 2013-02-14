@@ -27,7 +27,7 @@ struct static_internal_node
     typedef boost::container::vector<
         std::pair<
             Box,
-            typename node<Value, Parameters, Box, Allocators, Tag>::type *
+            typename Allocators::node_pointer
         >,
         typename Allocators::internal_node_elements_allocator_type
     > elements_type;
@@ -85,39 +85,6 @@ struct visitor<Value, Parameters, Box, Allocators, node_s_mem_dynamic_tag, IsVis
     typedef static_visitor<> type;
 };
 
-// element's indexable type
-
-template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
-struct element_indexable_type<
-    std::pair<
-        Box,
-        boost::variant<
-            static_leaf<Value, Parameters, Box, Allocators, Tag>,
-            static_internal_node<Value, Parameters, Box, Allocators, Tag>
-        > *
-    >,
-    Translator
->
-{
-    typedef Box type;
-};
-
-// element's indexable getter
-
-template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag, typename Translator>
-inline Box const&
-element_indexable(std::pair<
-                      Box,
-                      boost::variant<
-                          static_leaf<Value, Parameters, Box, Allocators, Tag>,
-                          static_internal_node<Value, Parameters, Box, Allocators, Tag>
-                      > *
-                  > const& el,
-                  Translator const&)
-{
-    return el.first;
-}
-
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
@@ -132,10 +99,18 @@ public:
 
     typedef typename allocator_type::template rebind<
         typename node<Value, Parameters, Box, allocators, node_s_mem_dynamic_tag>::type
+    >::other::pointer node_pointer;
+
+    typedef typename allocator_type::template rebind<
+        typename internal_node<Value, Parameters, Box, allocators, node_s_mem_dynamic_tag>::type
+    >::other::pointer internal_node_pointer;
+
+    typedef typename allocator_type::template rebind<
+        typename node<Value, Parameters, Box, allocators, node_s_mem_dynamic_tag>::type
     >::other node_allocator_type;
 
     typedef typename allocator_type::template rebind<
-        std::pair<Box, typename node<Value, Parameters, Box, allocators, node_s_mem_dynamic_tag>::type *>
+        std::pair<Box, node_pointer>
     >::other internal_node_elements_allocator_type;
 
     typedef typename allocator_type::template rebind<
@@ -186,13 +161,13 @@ public:
 
 // create_node_variant
 
-template <typename Variant, typename Node>
+template <typename VariantPtr, typename Node>
 struct create_static_node
 {
     template <typename AllocNode, typename AllocElems>
-    static inline Variant * apply(AllocNode & alloc_node, AllocElems & alloc_elems)
+    static inline VariantPtr apply(AllocNode & alloc_node, AllocElems & alloc_elems)
     {
-        Variant * p = alloc_node.allocate(1);
+        VariantPtr p = alloc_node.allocate(1);
 
         if ( 0 == p )
             throw std::bad_alloc();
@@ -218,8 +193,8 @@ struct create_static_node
 template <typename Node>
 struct destroy_static_node
 {
-    template <typename AllocNode, typename Variant>
-    static inline void apply(AllocNode & alloc_node, Variant * n)
+    template <typename AllocNode, typename VariantPtr>
+    static inline void apply(AllocNode & alloc_node, VariantPtr n)
     {
         alloc_node.destroy(n);
         alloc_node.deallocate(n, 1);
@@ -234,13 +209,13 @@ struct create_node<
     static_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
+    static inline typename Allocators::node_pointer
     apply(Allocators & allocators)
     {
         return create_static_node<
-            typename node<Value, Parameters, Box, Allocators, Tag>::type,
+            typename Allocators::node_pointer,
             static_internal_node<Value, Parameters, Box, Allocators, Tag>
-        >::template apply(allocators.node_allocator, allocators.internal_node_elements_allocator);
+        >::apply(allocators.node_allocator, allocators.internal_node_elements_allocator);
     }
 };
 
@@ -250,13 +225,13 @@ struct create_node<
     static_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline typename node<Value, Parameters, Box, Allocators, Tag>::type *
+    static inline typename Allocators::node_pointer
     apply(Allocators & allocators)
     {
         return create_static_node<
-            typename node<Value, Parameters, Box, Allocators, Tag>::type,
+            typename Allocators::node_pointer,
             static_leaf<Value, Parameters, Box, Allocators, Tag>
-        >::template apply(allocators.node_allocator, allocators.leaf_elements_allocator);
+        >::apply(allocators.node_allocator, allocators.leaf_elements_allocator);
     }
 };
 
@@ -268,7 +243,7 @@ struct destroy_node<
     static_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
+    static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
     {
         destroy_static_node<
             static_internal_node<Value, Parameters, Box, Allocators, Tag>
@@ -282,7 +257,7 @@ struct destroy_node<
     static_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
-    static inline void apply(Allocators & allocators, typename node<Value, Parameters, Box, Allocators, Tag>::type * n)
+    static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
     {
         destroy_static_node<
             static_leaf<Value, Parameters, Box, Allocators, Tag>

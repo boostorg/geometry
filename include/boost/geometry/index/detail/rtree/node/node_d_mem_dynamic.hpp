@@ -257,14 +257,13 @@ public:
 
 // create_node_impl
 
-template <typename BaseNodePtr>
+template <typename BaseNodePtr, typename Node>
 struct create_dynamic_node
 {
     template <typename AllocNode, typename AllocElems>
     static inline BaseNodePtr apply(AllocNode & alloc_node, AllocElems & alloc_elems)
     {
         typedef typename AllocNode::pointer P;
-        typedef typename AllocNode::value_type V;
 
         P p = alloc_node.allocate(1);
 
@@ -275,7 +274,7 @@ struct create_dynamic_node
         {
             // NOTE/TODO
             // Here the whole node may be copied
-            alloc_node.construct(p, V(alloc_elems));
+            alloc_node.construct(p, Node(alloc_elems));
         }
         catch(...)
         {
@@ -289,15 +288,15 @@ struct create_dynamic_node
 
 // destroy_node_impl
 
+template <typename Node>
 struct destroy_dynamic_node
 {
     template <typename AllocNode, typename BaseNodePtr>
     static inline void apply(AllocNode & alloc_node, BaseNodePtr n)
     {
-        typedef typename AllocNode::value_type V;
         typedef typename AllocNode::pointer P;
 
-        P p(&static_cast<V&>(rtree::get<V>(*n)));
+        P p(&static_cast<Node&>(rtree::get<Node>(*n)));
         alloc_node.destroy(p);
         alloc_node.deallocate(p, 1);
     }
@@ -315,7 +314,8 @@ struct create_node<
     apply(Allocators & allocators)
     {
         return create_dynamic_node<
-            typename Allocators::node_pointer
+            typename Allocators::node_pointer,
+            dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.internal_node_allocator, allocators.internal_node_elements_allocator);
     }
 };
@@ -330,7 +330,8 @@ struct create_node<
     apply(Allocators & allocators)
     {
         return create_dynamic_node<
-            typename Allocators::node_pointer
+            typename Allocators::node_pointer,
+            dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.leaf_allocator, allocators.leaf_elements_allocator);
     }
 };
@@ -345,7 +346,9 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
     {
-        destroy_dynamic_node::apply(allocators.internal_node_allocator, n);
+        destroy_dynamic_node<
+            dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
+        >::apply(allocators.internal_node_allocator, n);
     }
 };
 
@@ -357,7 +360,9 @@ struct destroy_node<
 {
     static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
     {
-        destroy_dynamic_node::apply(allocators.leaf_allocator, n);
+        destroy_dynamic_node<
+            dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
+        >::apply(allocators.leaf_allocator, n);
     }
 };
 
