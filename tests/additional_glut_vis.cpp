@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <gl/glut.h>
+#include <GL/glut.h>
 
 #define BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE
 
