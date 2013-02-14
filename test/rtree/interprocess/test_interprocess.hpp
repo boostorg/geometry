@@ -57,17 +57,3 @@ void test_rtree_interprocess(Parameters const& parameters = Parameters())
 
     //segment.destroy_ptr(tree);
 }
-
-int test_main(int, char* [])
-{
-    typedef bg::model::point<float, 2, bg::cs::cartesian> P2f;
-
-    test_rtree_interprocess<P2f>(bgi::linear<32, 8>());
-    test_rtree_interprocess<P2f>(bgi::runtime::linear(32, 8));
-    test_rtree_interprocess<P2f>(bgi::quadratic<32, 8>());
-    test_rtree_interprocess<P2f>(bgi::runtime::quadratic(32, 8));
-    test_rtree_interprocess<P2f>(bgi::rstar<32, 8>());
-    test_rtree_interprocess<P2f>(bgi::runtime::rstar(32, 8));
-    
-    return 0;
-}

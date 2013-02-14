@@ -16,7 +16,7 @@
 
 #include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
 
-#include <rtree/test_throwing.hpp>
+#include <rtree/exceptions/test_throwing.hpp>
 
 namespace boost { namespace geometry { namespace index {
 

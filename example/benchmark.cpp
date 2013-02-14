@@ -8,16 +8,12 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <iostream>
-#include <fstream>
 
 #include <boost/geometry/index/rtree.hpp>
-#include <boost/geometry/index/inserter.hpp>
 
 #include <boost/timer.hpp>
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
-
-#include <boost/pool/pool_alloc.hpp>
 
 int main()
 {
