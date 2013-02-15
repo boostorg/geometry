@@ -32,14 +32,16 @@ The __rtree__ is a self-balanced data structure. The key part of balancing algor
 Each algorithm produces different splits so the internal structure of a tree may be different for each one of them.
 In general more complex algorithms analyses elements better and produces less overlapping nodes. In the searching process less nodes must be traversed
 in order to find desired obejcts. On the other hand more complex analysis takes more time. In general faster inserting will result in slower searching
-and vice versa. Example structures of trees created by use of three different algorithms and operations time are presented below.
+and vice versa. The performance of the R-tree depends on balancing algorithm, parameters and data inserted into the container.
+Example structures of trees created by use of three different algorithms and operations time are presented below. Data used in benchmark was random,
+non-overlapping boxes.
 
 [table
-[[]         [linear algorithm] [quadratic algorithm] [R*-tree]]
-[[*Structure*][[$../images/linear.png]] [[$../images/quadratic.png]] [[$../images/rstar.png]]]
-[[*1M Values inserts*] [1.85s] [3.10s] [24.52s]]
-[[*1M spatial queries*][8.60s] [2.74s] [1.31s]]
-[[*100k knn queries*]  [3.49s] [1.59s] [0.84s]]
+[[]                         [linear algorithm] [quadratic algorithm] [R*-tree]]
+[[*Example structure*]      [[$../images/linear.png]] [[$../images/quadratic.png]] [[$../images/rstar.png]]]
+[[*1M Values inserts*]      [2.11s] [2.98s] [5.49s]]
+[[*100k spatial queries*]   [1.52s] [0.45s] [0.17s]]
+[[*100k knn queries*]       [4.51s] [2.22s] [0.6s]]
 ]
 
 [heading Implementation details]
