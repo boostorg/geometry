@@ -24,17 +24,18 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
+    typedef typename Allocators::node_allocator_type::template rebind<
+        std::pair<Box, typename Allocators::node_pointer>
+    >::other elements_allocator_type;
+
     typedef detail::varray<
-        std::pair<
-            Box,
-            typename Allocators::node_pointer
-        >,
+        std::pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1,
-        typename Allocators::internal_node_elements_allocator_type
+        elements_allocator_type
     > elements_type;
 
-    template <typename Dummy>
-    inline static_internal_node(Dummy) {}
+    template <typename Alloc>
+    inline static_internal_node(Alloc const&) {}
 
     elements_type elements;
 };
@@ -42,14 +43,18 @@ struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_stati
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
+    typedef typename Allocators::node_allocator_type::template rebind<
+        Value
+    >::other elements_allocator_type;
+
     typedef detail::varray<
         Value,
         Parameters::max_elements + 1,
-        typename Allocators::leaf_elements_allocator_type
+        elements_allocator_type
     > elements_type;
 
-    template <typename Dummy>
-    inline static_leaf(Dummy) {}
+    template <typename Alloc>
+    inline static_leaf(Alloc const&) {}
 
     elements_type elements;
 };
@@ -89,62 +94,50 @@ struct visitor<Value, Parameters, Box, Allocators, node_s_mem_static_tag, IsVisi
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
 struct allocators<Allocator, Value, Parameters, Box, node_s_mem_static_tag>
-    : nonassignable
+    : public Allocator::template rebind<
+        typename node<Value, Parameters, Box, allocators<Allocator, Value, Parameters, Box, node_s_mem_static_tag>, node_s_mem_static_tag>::type
+    >::other
 {
-    BOOST_COPYABLE_AND_MOVABLE_ALT(allocators)
-
 public:
-    typedef Allocator allocator_type;
-    typedef typename allocator_type::size_type size_type;
+    typedef typename Allocator::size_type size_type;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         typename node<Value, Parameters, Box, allocators, node_s_mem_static_tag>::type
     >::other::pointer node_pointer;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         typename internal_node<Value, Parameters, Box, allocators, node_s_mem_static_tag>::type
     >::other::pointer internal_node_pointer;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         typename node<Value, Parameters, Box, allocators, node_s_mem_static_tag>::type
     >::other node_allocator_type;
 
-    typedef typename allocator_type::template rebind<
-        std::pair<Box, node_pointer>
-    >::other internal_node_elements_allocator_type;
-
-    typedef typename allocator_type::template rebind<
-        Value
-    >::other leaf_elements_allocator_type;
-
     inline allocators()
-        : allocator()
-        , node_allocator()
+        : node_allocator_type()
     {}
 
-    inline explicit allocators(Allocator alloc)
-        : allocator(alloc)
-        , node_allocator(allocator)
+    inline explicit allocators(Allocator const& alloc)
+        : node_allocator_type(alloc)
     {}
 
-    inline allocators(allocators const& a)
-        : allocator(a.allocator)
-        , node_allocator(a.node_allocator)
-    {}
-
-    inline allocators(BOOST_RV_REF(allocators) a)
-        : allocator(boost::move(a.allocator))
-        , node_allocator(boost::move(a.node_allocator))
+    inline allocators(BOOST_FWD_REF(allocators) a)
+        : node_allocator_type(boost::move(a.node_allocator()))
     {}
 
     void swap(allocators & a)
     {
-        boost::swap(allocator, a.allocator);
-        boost::swap(node_allocator, a.node_allocator);
+        boost::swap(node_allocator(), a.node_allocator());
     }
 
-    allocator_type allocator;
-    node_allocator_type node_allocator;
+    bool operator==(allocators const& a) const { return node_allocator() == a.node_allocator(); }
+    template <typename Alloc>
+    bool operator==(Alloc const& a) const { return node_allocator() == node_allocator_type(a); }
+
+    Allocator allocator() const { return Allocator(node_allocator()); }
+
+    node_allocator_type & node_allocator() { return *this; }
+    node_allocator_type const& node_allocator() const { return *this; }
 };
 
 // create_node
@@ -161,7 +154,7 @@ struct create_node<
         return create_static_node<
             typename Allocators::node_pointer,
             static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
-        >::template apply(allocators.node_allocator, allocators.node_allocator);
+        >::template apply(allocators.node_allocator());
     }
 };
 
@@ -177,7 +170,7 @@ struct create_node<
         return create_static_node<
             typename Allocators::node_pointer,
             static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
-        >::template apply(allocators.node_allocator, allocators.node_allocator);
+        >::template apply(allocators.node_allocator());
     }
 };
 

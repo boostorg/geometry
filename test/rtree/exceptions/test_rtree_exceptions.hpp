@@ -76,15 +76,12 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d
     : public dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
 {
     typedef throwing_varray<
-        std::pair<
-            Box,
-            typename Allocators::node_pointer
-        >,
+        std::pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1
     > elements_type;
 
     template <typename Dummy>
-    inline dynamic_internal_node(Dummy) {}
+    inline dynamic_internal_node(Dummy const&) {}
 
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag, false> & v) { v(*this); }
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag, true> & v) const { v(*this); }
@@ -99,7 +96,7 @@ struct dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_stat
     typedef throwing_varray<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Dummy>
-    inline dynamic_leaf(Dummy) {}
+    inline dynamic_leaf(Dummy const&) {}
 
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag, false> & v) { v(*this); }
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag, true> & v) const { v(*this); }
@@ -251,7 +248,7 @@ struct create_node<
         return create_dynamic_node<
             typename Allocators::node_pointer,
             dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
-        >::apply(allocators.internal_node_allocator(), allocators.internal_node_allocator());
+        >::apply(allocators.internal_node_allocator());
     }
 };
 
@@ -270,7 +267,7 @@ struct create_node<
         return create_dynamic_node<
             typename Allocators::node_pointer,
             dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
-        >::apply(allocators.leaf_allocator(), allocators.leaf_allocator());
+        >::apply(allocators.leaf_allocator());
     }
 };
 

@@ -22,17 +22,18 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
+    typedef typename Allocators::leaf_allocator_type::template rebind<
+        std::pair<Box, typename Allocators::node_pointer>
+    >::other elements_allocator_type;
+
     typedef detail::varray<
-        std::pair<
-            Box,
-            typename Allocators::node_pointer
-        >,
+        std::pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1,
-        typename Allocators::internal_node_elements_allocator_type
+        elements_allocator_type
     > elements_type;
 
-    template <typename Dummy>
-    inline dynamic_internal_node(Dummy) {}
+    template <typename Alloc>
+    inline dynamic_internal_node(Alloc const&) {}
 
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, false> & v) { v(*this); }
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, true> & v) const { v(*this); }
@@ -44,14 +45,18 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
+    typedef typename Allocators::leaf_allocator_type::template rebind<
+        Value
+    >::other elements_allocator_type;
+
     typedef detail::varray<
         Value,
         Parameters::max_elements + 1,
-        typename Allocators::leaf_elements_allocator_type
+        elements_allocator_type
     > elements_type;
 
-    template <typename Dummy>
-    inline dynamic_leaf(Dummy) {}
+    template <typename Alloc>
+    inline dynamic_leaf(Alloc const&) {}
 
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, false> & v) { v(*this); }
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, true> & v) const { v(*this); }
@@ -110,7 +115,6 @@ class allocators<Allocator, Value, Parameters, Box, node_d_mem_static_tag>
             node_d_mem_static_tag
         >::type
     >::other
-    , detail::nonassignable
 {
 public:
     typedef typename Allocator::size_type size_type;
@@ -130,14 +134,6 @@ public:
     typedef typename Allocator::template rebind<
         typename leaf<Value, Parameters, Box, allocators, node_d_mem_static_tag>::type
     >::other leaf_allocator_type;
-
-    typedef typename Allocator::template rebind<
-        std::pair<Box, node_pointer>
-    >::other internal_node_elements_allocator_type;
-
-    typedef typename Allocator::template rebind<
-        Value
-    >::other leaf_elements_allocator_type;
 
     inline allocators()
         : internal_node_allocator_type()
@@ -186,7 +182,7 @@ struct create_node<
         return create_dynamic_node<
             typename Allocators::node_pointer,
             dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
-        >::apply(allocators.internal_node_allocator(), allocators.internal_node_allocator());
+        >::apply(allocators.internal_node_allocator());
     }
 };
 
@@ -202,7 +198,7 @@ struct create_node<
         return create_dynamic_node<
             typename Allocators::node_pointer,
             dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
-        >::apply(allocators.leaf_allocator(), allocators.leaf_allocator());
+        >::apply(allocators.leaf_allocator());
     }
 };
 
