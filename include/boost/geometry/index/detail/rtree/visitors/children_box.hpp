@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_CHILDREN_BOX_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_CHILDREN_BOX_HPP
 
-#include <boost/geometry/index/rtree/node/node.hpp>
+#include <boost/geometry/index/detail/rtree/node/node.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -20,7 +20,7 @@ namespace detail { namespace rtree { namespace visitors {
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class children_box
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
-    , index::nonassignable
+    , index::detail::nonassignable
 {
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;

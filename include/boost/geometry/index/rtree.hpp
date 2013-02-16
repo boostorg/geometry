@@ -40,6 +40,7 @@
 #include <boost/geometry/index/detail/rtree/visitors/spatial_query.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/nearest_query.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/count.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/children_box.hpp>
 
 #include <boost/geometry/index/detail/rtree/linear/linear.hpp>
 #include <boost/geometry/index/detail/rtree/quadratic/quadratic.hpp>
@@ -146,15 +147,8 @@ public:
     */
     inline explicit rtree(parameters_type parameters = parameters_type(),
                           translator_type const& translator = translator_type())
-        : m_translator(translator)                                          // SHOULDN'T THROW
-        , m_parameters(parameters)
-        , m_allocators()
-        , m_values_count(0)
-        , m_leafs_level(0)
-        , m_root(0)
-    {
-        geometry::assign_inverse(m_box);
-    }
+        : m_members(translator, parameters)
+    {}
 
     /*!
     \brief The constructor.
@@ -169,15 +163,8 @@ public:
     inline rtree(parameters_type parameters,
                  translator_type const& translator,
                  allocator_type allocator)
-        : m_translator(translator)                                          // SHOULDN'T THROW
-        , m_parameters(parameters)
-        , m_allocators(allocator)
-        , m_values_count(0)
-        , m_leafs_level(0)
-        , m_root(0)
-    {
-        geometry::assign_inverse(m_box);
-    }
+        : m_members(translator, parameters, allocator)
+    {}
 
     /*!
     \brief The constructor.
@@ -199,15 +186,8 @@ public:
                  parameters_type parameters = parameters_type(),
                  translator_type const& translator = translator_type(),
                  allocator_type allocator = allocator_type())
-        : m_translator(translator)                                          // SHOULDN'T THROW
-        , m_parameters(parameters)
-        , m_allocators(allocator)
-        , m_values_count(0)
-        , m_leafs_level(0)
-        , m_root(0)
+        : m_members(translator, parameters, allocator)
     {
-        geometry::assign_inverse(m_box);
-
         try
         {
             this->insert(first, last);
@@ -238,15 +218,8 @@ public:
                           parameters_type parameters = parameters_type(),
                           translator_type const& translator = translator_type(),
                           allocator_type allocator = allocator_type())
-        : m_translator(translator)                                          // SHOULDN'T THROW
-        , m_parameters(parameters)
-        , m_allocators(allocator)
-        , m_values_count(0)
-        , m_leafs_level(0)
-        , m_root(0)
+        : m_members(translator, parameters, allocator)
     {
-        geometry::assign_inverse(m_box);
-
         try
         {
             this->insert(rng);
@@ -283,13 +256,7 @@ public:
     \li When memory allocation for Node fails.
     */
     inline rtree(rtree const& src)
-        : m_translator(src.m_translator)                                          // SHOULDN'T THROW
-        , m_parameters(src.m_parameters)
-        , m_allocators(src.m_allocators)
-        , m_values_count(0)
-        , m_leafs_level(0)
-        , m_root(0)
-        , m_box(src.m_box)
+        : m_members(src.m_members.translator(), src.m_members.parameters(), src.m_members.allocators())
     {
         //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
         this->raw_copy(src, *this, false);
@@ -310,13 +277,7 @@ public:
     \li When memory allocation for Node fails.
     */
     inline rtree(rtree const& src, allocator_type const& allocator)
-        : m_translator(src.m_translator)                                          // SHOULDN'T THROW
-        , m_parameters(src.m_parameters)
-        , m_allocators(allocator)
-        , m_values_count(0)
-        , m_leafs_level(0)
-        , m_root(0)
-        , m_box(src.m_box)
+        : m_members(src.m_members.translator(), src.m_members.parameters(), allocator)
     {
         this->raw_copy(src, *this, false);
     }
@@ -332,18 +293,13 @@ public:
     Nothing.
     */
     inline rtree(BOOST_RV_REF(rtree) src)
-// TODO - use boost::move()
-        : m_translator(src.m_translator)                                    // SHOULDN'T THROW
-        , m_parameters(src.m_parameters)
-        , m_allocators(src.m_allocators)
-        , m_values_count(src.m_values_count)
-        , m_leafs_level(src.m_leafs_level)
-        , m_root(src.m_root)
-        , m_box(src.m_box)
+        : m_members(src.m_members.translator(),
+                    src.m_members.parameters(),
+                    boost::move(src.m_members.allocators()))
     {
-        src.m_values_count = 0;
-        src.m_leafs_level = 0;
-        src.m_root = 0;
+        boost::swap(m_members.values_count, src.m_members.values_count);
+        boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+        boost::swap(m_members.root, src.m_members.root);
     }
 
     /*!
@@ -361,20 +317,15 @@ public:
     \li When memory allocation for Node fails (only if allocators aren't equal).
     */
     inline rtree(BOOST_RV_REF(rtree) src, allocator_type const& allocator)
-// TODO - use boost::move()
-        : m_translator(src.m_translator)                                    // SHOULDN'T THROW
-        , m_parameters(src.m_parameters)
-        , m_allocators(allocator)
-        , m_values_count(0)
-        , m_leafs_level(0)
-        , m_root(0)
-        , m_box(src.m_box)
+        : m_members(src.m_members.translator(),
+                    src.m_members.parameters(),
+                    boost::move(allocator))
     {
-        if ( src.m_allocators.allocator == allocator )
+        if ( src.m_members.allocators().allocator == allocator )
         {
-            boost::swap(m_values_count, src.m_values_count);
-            boost::swap(m_leafs_level, src.m_leafs_level);
-            boost::swap(m_root, src.m_root);
+            boost::swap(m_members.values_count, src.m_members.values_count);
+            boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+            boost::swap(m_members.root, src.m_members.root);
         }
         else
         {
@@ -404,8 +355,6 @@ public:
         // It uses m_allocators
         this->raw_copy(src, *this, true);
 
-        m_box = src.m_box;
-
         return *this;
     }
 
@@ -429,28 +378,22 @@ public:
 
 //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
 
-        if ( m_allocators.allocator == src.m_allocators.allocator )
+        if ( m_members.allocators().allocator == src.m_members.allocators().allocator )
         {
-// TODO - use boost::move()
-            m_translator = src.m_translator;                                          // SHOULDN'T THROW
-            m_parameters = src.m_parameters;
-            //m_allocators = src.m_allocators;
+            m_members.translator() = src.m_members.translator();
+            m_members.parameters() = src.m_members.parameters();
 
-            m_values_count = src.m_values_count;
-            m_leafs_level = src.m_leafs_level;
-            m_root = src.m_root;
+            this->raw_destroy(*this);
 
-            src.m_values_count = 0;
-            src.m_leafs_level = 0;
-            src.m_root = 0;
+            boost::swap(m_members.values_count, src.m_members.values_count);
+            boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+            boost::swap(m_members.root, src.m_members.root);
         }
         else
         {
             // It uses m_allocators
             this->raw_copy(src, *this, true);
         }
-
-        m_box = src.m_box;
 
         return *this;
     }
@@ -467,14 +410,13 @@ public:
     */
     void swap(rtree & other)
     {
-        boost::swap(m_translator, other.m_translator);                               // SHOULDN'T THROW
-        boost::swap(m_parameters, other.m_parameters);
-        m_allocators.swap(other.m_allocators);
+        boost::swap(m_members.translator(), other.m_members.translator());
+        boost::swap(m_members.parameters(), other.m_members.parameters());
+        m_members.allocators().swap(other.m_members.allocators());
 
-        boost::swap(m_values_count, other.m_values_count);
-        boost::swap(m_leafs_level, other.m_leafs_level);
-        boost::swap(m_root, other.m_root);
-        boost::swap(m_box, other.m_box);
+        boost::swap(m_members.values_count, other.m_members.values_count);
+        boost::swap(m_members.leafs_level, other.m_members.leafs_level);
+        boost::swap(m_members.root, other.m_members.root);
     }
 
     /*!
@@ -493,7 +435,7 @@ public:
     */
     inline void insert(value_type const& value)
     {
-        if ( !m_root )
+        if ( !m_members.root )
             this->raw_create();
 
         this->raw_insert(value);
@@ -517,7 +459,7 @@ public:
     template <typename Iterator>
     inline void insert(Iterator first, Iterator last)
     {
-        if ( !m_root )
+        if ( !m_members.root )
             this->raw_create();
 
         for ( ; first != last ; ++first )
@@ -541,7 +483,7 @@ public:
     template <typename Range>
     inline void insert(Range const& rng)
     {
-        if ( !m_root )
+        if ( !m_members.root )
             this->raw_create();
 
         typedef typename boost::range_const_iterator<Range>::type It;
@@ -702,7 +644,7 @@ public:
     template <typename Predicates, typename OutIter>
     size_type query(Predicates const& predicates, OutIter out_it) const
     {
-        if ( !m_root )
+        if ( !m_members.root )
             return 0;
 
         static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
@@ -722,7 +664,7 @@ public:
     */
     inline size_type size() const
     {
-        return m_values_count;
+        return m_members.values_count;
     }
 
     /*!
@@ -735,7 +677,7 @@ public:
     */
     inline bool empty() const
     {
-        return 0 == m_values_count;
+        return 0 == m_members.values_count;
     }
 
     /*!
@@ -747,7 +689,6 @@ public:
     inline void clear()
     {
         this->raw_destroy(*this);
-        geometry::assign_inverse(m_box);
     }
 
     /*!
@@ -762,9 +703,20 @@ public:
     \par Throws
     Nothing.
     */
-    inline bounds_type const& bounds() const
+    inline bounds_type bounds() const
     {
-        return m_box;
+        bounds_type result;
+        if ( !m_members.root )
+        {
+            geometry::assign_inverse(result);
+            return result;
+        }
+
+        detail::rtree::visitors::children_box<value_type, options_type, translator_wrapper, box_type, allocators_type>
+            box_v(result, m_members.translator());
+        detail::rtree::apply_visitor(box_v, *m_members.root);
+
+        return result;
     }
 
     /*!
@@ -783,13 +735,13 @@ public:
     template <typename ValueOrIndexable>
     size_type count(ValueOrIndexable const& vori) const
     {
-        if ( !m_root )
+        if ( !m_members.root )
             return 0;
 
         detail::rtree::visitors::count<ValueOrIndexable, value_type, options_type, translator_wrapper, box_type, allocators_type>
-            count_v(vori, m_translator);
+            count_v(vori, m_members.translator());
 
-        detail::rtree::apply_visitor(count_v, *m_root);
+        detail::rtree::apply_visitor(count_v, *m_members.root);
 
         return count_v.found_count;
     }
@@ -804,7 +756,7 @@ public:
     */
     inline parameters_type const& parameters() const
     {
-        return m_parameters;
+        return m_members.parameters();
     }
 
     /*!
@@ -817,7 +769,7 @@ public:
     */
     inline translator_type const& translator() const
     {
-        return m_translator;
+        return m_members.translator();
     }
 
     /*!
@@ -830,7 +782,7 @@ public:
     */
     allocator_type get_allocator() const
     {
-        return m_allocators.allocator;
+        return m_members.allocators().allocator;
     }
 
 #if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
@@ -850,8 +802,8 @@ private:
     template <typename Visitor>
     inline void apply_visitor(Visitor & visitor) const
     {
-        if ( m_root )
-            detail::rtree::apply_visitor(visitor, *m_root);
+        if ( m_members.root )
+            detail::rtree::apply_visitor(visitor, *m_members.root);
     }
 
     /*!
@@ -866,7 +818,7 @@ private:
     */
     inline size_type values_count() const
     {
-        return m_values_count;
+        return m_members.values_count;
     }
 
     /*!
@@ -881,7 +833,7 @@ private:
     */
     inline size_type depth() const
     {
-        return m_leafs_level;
+        return m_members.leafs_level;
     }
 
 private:
@@ -897,18 +849,17 @@ private:
     */
     inline void raw_insert(value_type const& value)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(m_root, "The root must exist");
-        BOOST_GEOMETRY_INDEX_ASSERT(detail::is_valid(m_translator(value)), "Indexable is invalid");
-
-        geometry::expand(m_box, m_translator(value));
+        BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
+        BOOST_GEOMETRY_INDEX_ASSERT(detail::is_valid(m_members.translator()(value)), "Indexable is invalid");
 
         detail::rtree::visitors::insert<
             value_type,
             value_type, options_type, translator_wrapper, box_type, allocators_type,
             typename options_type::insert_tag
-        > insert_v(m_root, m_leafs_level, value, m_parameters, m_translator, m_allocators);
+        > insert_v(m_members.root, m_members.leafs_level, value,
+                   m_members.parameters(), m_members.translator(), m_members.allocators());
 
-        detail::rtree::apply_visitor(insert_v, *m_root);
+        detail::rtree::apply_visitor(insert_v, *m_members.root);
 
 // TODO
 // Think about this: If exception is thrown, may the root be removed?
@@ -916,7 +867,7 @@ private:
 
 // TODO
 // If exception is thrown, m_values_count may be invalid
-        ++m_values_count;
+        ++m_members.values_count;
     }
 
     /*!
@@ -930,21 +881,22 @@ private:
     inline size_type raw_remove(value_type const& value)
     {
         // TODO: awulkiew - assert for correct value (indexable) ?
-        BOOST_GEOMETRY_INDEX_ASSERT(m_root, "The root must exist");
+        BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
 
         detail::rtree::visitors::remove<
             value_type, options_type, translator_wrapper, box_type, allocators_type
-        > remove_v(m_root, m_leafs_level, m_box, value, m_parameters, m_translator, m_allocators);
+        > remove_v(m_members.root, m_members.leafs_level, value,
+                   m_members.parameters(), m_members.translator(), m_members.allocators());
 
-        detail::rtree::apply_visitor(remove_v, *m_root);
+        detail::rtree::apply_visitor(remove_v, *m_members.root);
 
         // If exception is thrown, m_values_count may be invalid
 
         if ( remove_v.is_value_removed() )
         {
-            BOOST_GEOMETRY_INDEX_ASSERT(0 < m_values_count, "unexpected state");
+            BOOST_GEOMETRY_INDEX_ASSERT(0 < m_members.values_count, "unexpected state");
 
-            --m_values_count;
+            --m_members.values_count;
 
             return 1;
         }
@@ -960,11 +912,11 @@ private:
     */
     inline void raw_create()
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(0 == m_root, "the tree is already created");
+        BOOST_GEOMETRY_INDEX_ASSERT(0 == m_members.root, "the tree is already created");
 
-        m_root = detail::rtree::create_node<allocators_type, leaf>::apply(m_allocators);                            // MAY THROW (N: alloc)
-        m_values_count = 0;
-        m_leafs_level = 0;
+        m_members.root = detail::rtree::create_node<allocators_type, leaf>::apply(m_members.allocators()); // MAY THROW (N: alloc)
+        m_members.values_count = 0;
+        m_members.leafs_level = 0;
     }
 
     /*!
@@ -977,15 +929,16 @@ private:
     */
     inline void raw_destroy(rtree & t)
     {
-        if ( t.m_root )
+        if ( t.m_members.root )
         {
-            detail::rtree::visitors::destroy<value_type, options_type, translator_wrapper, box_type, allocators_type> del_v(t.m_root, t.m_allocators);
-            detail::rtree::apply_visitor(del_v, *t.m_root);
+            detail::rtree::visitors::destroy<value_type, options_type, translator_wrapper, box_type, allocators_type>
+                del_v(t.m_members.root, t.m_members.allocators());
+            detail::rtree::apply_visitor(del_v, *t.m_members.root);
 
-            t.m_root = 0;
+            t.m_members.root = 0;
         }
-        t.m_values_count = 0;
-        t.m_leafs_level = 0;
+        t.m_members.values_count = 0;
+        t.m_members.leafs_level = 0;
     }
 
     /*!
@@ -1000,29 +953,29 @@ private:
     */
     inline void raw_copy(rtree const& src, rtree & dst, bool copy_all_internals) const
     {
-        detail::rtree::visitors::copy<value_type, options_type, translator_wrapper, box_type, allocators_type> copy_v(dst.m_allocators);
+        detail::rtree::visitors::copy<value_type, options_type, translator_wrapper, box_type, allocators_type>
+            copy_v(dst.m_members.allocators());
 
-        if ( src.m_root )
-            detail::rtree::apply_visitor(copy_v, *src.m_root);                              // MAY THROW (V, E: alloc, copy, N: alloc)
+        if ( src.m_members.root )
+            detail::rtree::apply_visitor(copy_v, *src.m_members.root);                      // MAY THROW (V, E: alloc, copy, N: alloc)
 
         if ( copy_all_internals )
         {
-            dst.m_translator = src.m_translator;                                            // SHOULDN'T THROW
-
-            dst.m_parameters = src.m_parameters;
-            //dst.m_allocators = dst.m_allocators;
+            dst.m_members.translator() = src.m_members.translator();                        // SHOULDN'T THROW
+            dst.m_members.parameters() = src.m_members.parameters();
         }
 
-        if ( dst.m_root )
+        if ( dst.m_members.root )
         {
-            detail::rtree::visitors::destroy<value_type, options_type, translator_wrapper, box_type, allocators_type> del_v(dst.m_root, dst.m_allocators);
-            detail::rtree::apply_visitor(del_v, *dst.m_root);
-            dst.m_root = 0;
+            detail::rtree::visitors::destroy<value_type, options_type, translator_wrapper, box_type, allocators_type>
+                del_v(dst.m_members.root, dst.m_members.allocators());
+            detail::rtree::apply_visitor(del_v, *dst.m_members.root);
+            dst.m_members.root = 0;
         }
 
-        dst.m_root = copy_v.result;
-        dst.m_values_count = src.m_values_count;
-        dst.m_leafs_level = src.m_leafs_level;
+        dst.m_members.root = copy_v.result;
+        dst.m_members.values_count = src.m_members.values_count;
+        dst.m_members.leafs_level = src.m_members.leafs_level;
     }
 
     /*!
@@ -1035,9 +988,9 @@ private:
     size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_nearest*/) const
     {
         detail::rtree::visitors::spatial_query<value_type, options_type, translator_wrapper, box_type, allocators_type, Predicates, OutIter>
-            find_v(m_translator, predicates, out_it);
+            find_v(m_members.translator(), predicates, out_it);
 
-        detail::rtree::apply_visitor(find_v, *m_root);
+        detail::rtree::apply_visitor(find_v, *m_members.root);
 
         return find_v.found_count;
     }
@@ -1088,22 +1041,58 @@ private:
             DistancesPredicates,
             Predicates,
             result_type
-        > nearest_v(m_parameters, m_translator, dpred, pred, result);
+        > nearest_v(m_members.parameters(), m_members.translator(), dpred, pred, result);
 
-        detail::rtree::apply_visitor(nearest_v, *m_root);
+        detail::rtree::apply_visitor(nearest_v, *m_members.root);
 
         return result.finish();
     }
 
-    translator_wrapper m_translator;
-    Parameters m_parameters;
-    allocators_type m_allocators;
+    struct members_holder
+        : public translator_wrapper
+        , public Parameters
+        , public allocators_type
+    {
+    private:
+        members_holder(members_holder const&);
 
-    size_type m_values_count;
-    size_type m_leafs_level;
-    node_pointer m_root;
+    public:
+        template <typename Transl, typename Alloc>
+        members_holder(Transl const& transl,
+                       Parameters const& parameters,
+                       BOOST_FWD_REF(Alloc) alloc)
+            : translator_wrapper(transl)
+            , Parameters(parameters)
+            , allocators_type(boost::forward<Alloc>(alloc))
+            , values_count(0)
+            , leafs_level(0)
+            , root(0)
+        {}
 
-    box_type m_box;
+        template <typename Transl>
+        members_holder(Transl const& transl = Translator(),
+                       Parameters const& parameters = Parameters())
+            : translator_wrapper(transl)
+            , Parameters(parameters)
+            , allocators_type()
+            , values_count(0)
+            , leafs_level(0)
+            , root(0)
+        {}
+
+        translator_wrapper const& translator() const { return *this; }
+        translator_wrapper & translator() { return *this; }
+        Parameters const& parameters() const { return *this; }
+        Parameters & parameters() { return *this; }
+        allocators_type const& allocators() const { return *this; }
+        allocators_type & allocators() { return *this; }
+
+        size_type values_count;
+        size_type leafs_level;
+        node_pointer root;
+    };
+
+    members_holder m_members;
 };
 
 /*!
@@ -1363,7 +1352,7 @@ It calls \c rtree::envelope().
 \return         The box containing all stored values or an invalid box.
 */
 template <typename Value, typename Options, typename Translator, typename Allocator>
-inline typename rtree<Value, Options, Translator, Allocator>::bounds_type const&
+inline typename rtree<Value, Options, Translator, Allocator>::bounds_type
 bounds(rtree<Value, Options, Translator, Allocator> const& tree)
 {
     return tree.bounds();

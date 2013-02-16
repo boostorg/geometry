@@ -40,7 +40,6 @@ class remove
 public:
     inline remove(node_pointer & root,
                   size_t & leafs_level,
-                  Box & root_box,
                   Value const& value,
                   parameters_type const& parameters,
                   Translator const& translator,
@@ -50,7 +49,6 @@ public:
         , m_translator(translator)
         , m_allocators(allocators)
         , m_root_node(root)
-        , m_root_box(root_box)
         , m_leafs_level(leafs_level)
         , m_is_value_removed(false)
         , m_parent(0)
@@ -114,9 +112,6 @@ public:
             {
                 BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<internal_node>(*m_root_node), "node must be the root");
 
-                // assign new root's box
-                assign_root_box(elements);
-
                 // reinsert elements from removed nodes (underflows)
                 reinsert_removed_nodes_elements();                                                                  // MAY THROW (V, E: alloc, copy, N: alloc)
 
@@ -161,10 +156,6 @@ public:
             {
                 rtree::elements(*m_parent)[m_current_child_index].first
                     = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
-            }
-            else
-            {
-               assign_root_box(elements);
             }
         }
     }
@@ -296,22 +287,12 @@ private:
         }
     }
 
-    template <typename Elements>
-    void assign_root_box(Elements const& elements)
-    {
-        if ( elements.empty() )
-            geometry::assign_inverse(m_root_box);
-        else
-            m_root_box = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
-    }    
-
     Value const& m_value;
     parameters_type const& m_parameters;
     Translator const& m_translator;
     Allocators & m_allocators;
 
     node_pointer & m_root_node;
-    Box & m_root_box;
     size_t & m_leafs_level;
 
     bool m_is_value_removed;

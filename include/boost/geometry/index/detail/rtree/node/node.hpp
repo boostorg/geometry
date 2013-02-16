@@ -34,9 +34,13 @@ namespace detail { namespace rtree {
 template <typename Box, typename FwdIter, typename Translator>
 inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
 {
-    BOOST_GEOMETRY_INDEX_ASSERT(first != last, "Can't calculate element's box");
-
     Box result;
+
+    if ( first == last )
+    {
+        geometry::assign_inverse(result);
+        return result;
+    }
 
     geometry::convert(element_indexable(*first, tr), result);
     ++first;
