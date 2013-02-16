@@ -55,6 +55,8 @@ int main()
     //typedef bgi::rtree<B, bgi::rstar<32, 8> > RT;
     //typedef bgi::rtree<B, bgi::runtime::rstar > RT;
 
+    std::cout << "sizeof rtree: " << sizeof(RT) << std::endl;
+
     for (;;)
     {
         RT t;

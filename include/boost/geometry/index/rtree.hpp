@@ -321,7 +321,7 @@ public:
                     src.m_members.parameters(),
                     boost::move(allocator))
     {
-        if ( src.m_members.allocators().allocator == allocator )
+        if ( src.m_members.allocators() == allocator )
         {
             boost::swap(m_members.values_count, src.m_members.values_count);
             boost::swap(m_members.leafs_level, src.m_members.leafs_level);
@@ -378,7 +378,7 @@ public:
 
 //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
 
-        if ( m_members.allocators().allocator == src.m_members.allocators().allocator )
+        if ( m_members.allocators() == src.m_members.allocators() )
         {
             m_members.translator() = src.m_members.translator();
             m_members.parameters() = src.m_members.parameters();
@@ -782,7 +782,7 @@ public:
     */
     allocator_type get_allocator() const
     {
-        return m_members.allocators().allocator;
+        return m_members.allocators().allocator();
     }
 
 #if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)

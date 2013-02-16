@@ -175,84 +175,96 @@ struct container_from_elements_type
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
 class allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>
-    : nonassignable
+    : public Allocator::template rebind<
+        typename internal_node<Value, Parameters, Box, allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>, node_d_mem_dynamic_tag>::type
+    >::other
+    , public Allocator::template rebind<
+        typename leaf<Value, Parameters, Box, allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>, node_d_mem_dynamic_tag>::type
+    >::other
+    , public Allocator::template rebind<
+        std::pair<
+            Box,
+            typename Allocator::template rebind<
+                typename node<Value, Parameters, Box, allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>, node_d_mem_dynamic_tag>::type
+            >::other::pointer
+        >
+    >::other
+    , public Allocator::template rebind<
+        Value
+    >::other
+    , nonassignable
 {
-    BOOST_COPYABLE_AND_MOVABLE_ALT(allocators)
-
 public:
-    typedef Allocator allocator_type;
-    typedef typename allocator_type::size_type size_type;
+    typedef typename Allocator::size_type size_type;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         typename node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
     >::other::pointer node_pointer;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         typename internal_node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
     >::other::pointer internal_node_pointer;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         typename internal_node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
     >::other internal_node_allocator_type;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         typename leaf<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
     >::other leaf_allocator_type;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         std::pair<Box, node_pointer>
     >::other internal_node_elements_allocator_type;
 
-    typedef typename allocator_type::template rebind<
+    typedef typename Allocator::template rebind<
         Value
     >::other leaf_elements_allocator_type;
 
     inline allocators()
-        : allocator()
-        , internal_node_allocator()
-        , leaf_allocator()
-        , internal_node_elements_allocator()
-        , leaf_elements_allocator()
+        : internal_node_allocator_type()
+        , leaf_allocator_type()
+        , internal_node_elements_allocator_type()
+        , leaf_elements_allocator_type()
     {}
 
-    inline explicit allocators(Allocator alloc)
-        : allocator(alloc)
-        , internal_node_allocator(allocator)
-        , leaf_allocator(allocator)
-        , internal_node_elements_allocator(allocator)
-        , leaf_elements_allocator(allocator)
+    inline explicit allocators(Allocator const& alloc)
+        : internal_node_allocator_type(alloc)
+        , leaf_allocator_type(alloc)
+        , internal_node_elements_allocator_type(alloc)
+        , leaf_elements_allocator_type(alloc)
     {}
 
-    inline allocators(allocators const& a)
-        : allocator(a.allocator)
-        , internal_node_allocator(a.internal_node_allocator)
-        , leaf_allocator(a.leaf_allocator)
-        , internal_node_elements_allocator(a.internal_node_elements_allocator)
-        , leaf_elements_allocator(a.leaf_elements_allocator)
-    {}
-
-    inline allocators(BOOST_RV_REF(allocators) a)
-        : allocator(boost::move(a.allocator))
-        , internal_node_allocator(boost::move(a.internal_node_allocator))
-        , leaf_allocator(boost::move(a.leaf_allocator))
-        , internal_node_elements_allocator(boost::move(a.internal_node_elements_allocator))
-        , leaf_elements_allocator(boost::move(a.leaf_elements_allocator))
+    inline allocators(BOOST_FWD_REF(allocators) a)
+        : internal_node_allocator_type(boost::move(a.internal_node_allocator()))
+        , leaf_allocator_type(boost::move(a.leaf_allocator()))
+        , internal_node_elements_allocator_type(boost::move(a.internal_node_elements_allocator()))
+        , leaf_elements_allocator_type(boost::move(a.leaf_elements_allocator()))
     {}
 
     void swap(allocators & a)
     {
-        boost::swap(allocator, a.allocator);
-        boost::swap(internal_node_allocator, a.internal_node_allocator);
-        boost::swap(leaf_allocator, a.leaf_allocator);
-        boost::swap(internal_node_elements_allocator, a.internal_node_elements_allocator);
-        boost::swap(leaf_elements_allocator, a.leaf_elements_allocator);
+        boost::swap(internal_node_allocator(), a.internal_node_allocator());
+        boost::swap(leaf_allocator(), a.leaf_allocator());
+        boost::swap(internal_node_elements_allocator(), a.internal_node_elements_allocator());
+        boost::swap(leaf_elements_allocator(), a.leaf_elements_allocator());
     }
 
-    allocator_type allocator;
-    internal_node_allocator_type internal_node_allocator;
-    leaf_allocator_type leaf_allocator;
-    internal_node_elements_allocator_type internal_node_elements_allocator;
-    leaf_elements_allocator_type leaf_elements_allocator;
+    bool operator==(allocators const& a) const { return leaf_elements_allocator() == a.leaf_elements_allocator(); }
+    bool operator==(leaf_elements_allocator_type const& a) const { return leaf_elements_allocator() == a; }
+    template <typename Alloc>
+    bool operator==(Alloc const& a) const { return leaf_elements_allocator() == leaf_elements_allocator_type(a); }
+
+    Allocator allocator() const { return Allocator(leaf_elements_allocator()); }
+
+    internal_node_allocator_type & internal_node_allocator() { return *this; }
+    internal_node_allocator_type const& internal_node_allocator() const { return *this; }
+    leaf_allocator_type & leaf_allocator() { return *this; }
+    leaf_allocator_type const& leaf_allocator() const { return *this; }
+    internal_node_elements_allocator_type & internal_node_elements_allocator() { return *this; }
+    internal_node_elements_allocator_type const& internal_node_elements_allocator() const { return *this; }
+    leaf_elements_allocator_type & leaf_elements_allocator() { return *this; }
+    leaf_elements_allocator_type const& leaf_elements_allocator() const { return *this; }
 };
 
 // create_node_impl
@@ -316,7 +328,7 @@ struct create_node<
         return create_dynamic_node<
             typename Allocators::node_pointer,
             dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
-        >::apply(allocators.internal_node_allocator, allocators.internal_node_elements_allocator);
+        >::apply(allocators.internal_node_allocator(), allocators.internal_node_elements_allocator());
     }
 };
 
@@ -332,7 +344,7 @@ struct create_node<
         return create_dynamic_node<
             typename Allocators::node_pointer,
             dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
-        >::apply(allocators.leaf_allocator, allocators.leaf_elements_allocator);
+        >::apply(allocators.leaf_allocator(), allocators.leaf_elements_allocator());
     }
 };
 
@@ -348,7 +360,7 @@ struct destroy_node<
     {
         destroy_dynamic_node<
             dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
-        >::apply(allocators.internal_node_allocator, n);
+        >::apply(allocators.internal_node_allocator(), n);
     }
 };
 
@@ -362,7 +374,7 @@ struct destroy_node<
     {
         destroy_dynamic_node<
             dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
-        >::apply(allocators.leaf_allocator, n);
+        >::apply(allocators.leaf_allocator(), n);
     }
 };
 
