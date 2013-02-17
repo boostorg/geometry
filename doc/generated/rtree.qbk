@@ -103,7 +103,7 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a89561a834563f2ed6fc782bad16143fd `size()`]][Returns the number of stored values. ]]
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1ae889567443b0ba0dbdb975564c55804c `empty()`]][Query if the container is empty. ]]
 [[][[link classboost_1_1geometry_1_1index_1_1rtree_1ae6027e42d28a4bf93e74b055c79e6b09 `clear()`]][Removes all values stored in the container. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1ace84997927e26d7cdb5aa67f14cdf6cc `bounds()`]][Returns the box able to contain all values stored in the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1aeba4f1afee40262204dd074a93536ebf `bounds()`]][Returns the box able to contain all values stored in the container. ]]
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a17fce1fac81f6460d2c3a5744f4963ee `count(ValueOrIndexable const &)`]][Count Values or Indexables stored in the container. ]]
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a18910715f67608ff010556ac41f51606 `parameters()`]][Returns parameters. ]]
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1afc7e9a4bd53a58552c17c1e7cb997258 `translator()`]][Returns the translator object. ]]
@@ -730,7 +730,7 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1ace84997927e26d7cdb5aa67f14cdf6cc]
+[#classboost_1_1geometry_1_1index_1_1rtree_1aeba4f1afee40262204dd074a93536ebf]
 [section bounds()]
 Returns the box able to contain all values stored in the container. 
 
@@ -738,7 +738,7 @@ Returns the box able to contain all values stored in the container.
 Returns the box able to contain all values stored in the container. If the container is empty the result of [^`geometry::assign_inverse()`] is returned.[heading Synopsis]
 [pre
 
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a653555282525601512c3b1bed1e9590f bounds_type]]` const &` `bounds``()`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a653555282525601512c3b1bed1e9590f bounds_type]] `bounds``()`
 ]
 
 [heading Modifier(s)]
