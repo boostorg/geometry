@@ -49,6 +49,8 @@ class varray
         INVALID_CAPACITY,
         (varray));
 
+    BOOST_COPYABLE_AND_MOVABLE(varray)
+
 public:
     typedef Value value_type;
     typedef Value& reference;
@@ -82,20 +84,17 @@ public:
     }
 
     // strong
-    varray(varray const& other)
+    varray(BOOST_COPY_ASSIGN_REF(varray) other)
         : m_size(other.m_size)
     {
         this->uninitialized_copy(other.begin(), other.end(), this->begin());        // may throw
     }
 
     // strong
-    template <size_t C, typename A>
-    varray(varray<value_type, C, A> const& other)
+    varray(BOOST_RV_REF(varray) other)
         : m_size(other.m_size)
     {
-        check_capacity(other.m_size);
-        
-        this->uninitialized_copy(other.begin(), other.end(), this->begin());        // may throw
+        this->uninitialized_move(other.begin(), other.end(), this->begin());        // may throw
     }
 
     // strong
@@ -107,7 +106,7 @@ public:
     }
 
     // basic
-    varray & operator=(varray const& other)
+    varray & operator=(BOOST_COPY_ASSIGN_REF(varray) other)
     {
         assign(other.begin(), other.end());                                         // may throw
 
@@ -115,8 +114,7 @@ public:
     }
 
     // basic
-    template <size_t C, typename A>
-    varray & operator=(varray<value_type, C, A> const& other)
+    varray & operator=(BOOST_RV_REF(varray) other)
     {
         assign(other.begin(), other.end());                                         // may throw
 
@@ -173,6 +171,14 @@ public:
         check_capacity(m_size + 1);
         
         this->uninitialized_fill(this->end(), value);                               // may throw
+        ++m_size; // update end
+    }
+
+    void push_back(BOOST_RV_REF(value_type) value)
+    {
+        check_capacity(m_size + 1);
+
+        this->uninitialized_fill(this->end(), value);   // may throw
         ++m_size; // update end
     }
 
@@ -622,19 +628,26 @@ private:
         uninitialized_fill_dispatch(dst, v, use_memcpy());                         // may throw
     }
 
-    void uninitialized_fill_dispatch(iterator ptr, value_type const& v,
+    void uninitialized_fill_dispatch(iterator dst, value_type const& v,
                                      boost::mpl::bool_<true> const& /*use_memcpy*/)
     {
         // TODO - check if value_type has operator& defined and call this version only if it hasn't
         const value_type * vptr = &v;
-        ::memcpy(&(*ptr), vptr, sizeof(value_type));
+        ::memcpy(&(*dst), vptr, sizeof(value_type));
     }
 
     template <typename V>
-    void uninitialized_fill_dispatch(iterator ptr, V const& v,
+    void uninitialized_fill_dispatch(iterator dst, V const& v,
                                      boost::mpl::bool_<false> const& /*use_memcpy*/)
     {
-        new (&(*ptr)) value_type(v);                                                    // may throw
+        new (&(*dst)) value_type(v);                                                    // may throw
+    }
+
+    template <typename V>
+    void uninitialized_fill(iterator dst, BOOST_RV_REF(V) v)
+    {
+        // TODO optimized version if has_trivial_move
+        new (&(*dst)) value_type(v);                                                    // may throw
     }
 
     // move
@@ -758,6 +771,24 @@ private:
                           boost::false_type const& /*has_trivial_destructor*/)
     {
         ptr->~value_type();
+    }
+
+    // uninitialized_move
+
+    template <typename Iterator>
+    void uninitialized_move(Iterator first, Iterator last, iterator dst)
+    {
+        iterator o = dst;
+        try
+        {
+            for (; first != last; ++first, ++o )
+                new (boost::addressof(*o)) value_type(boost::move(*first));
+        }
+        catch(...)
+        {
+            destroy(dst, o);
+            throw;
+        }
     }
 
     // construct
