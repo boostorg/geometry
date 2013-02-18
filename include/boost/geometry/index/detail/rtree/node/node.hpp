@@ -148,14 +148,14 @@ struct clear_node
 };
 
 template <typename Container, typename Iterator>
-void copy_from_back(Container & container, Iterator it)
+void move_from_back(Container & container, Iterator it)
 {
     BOOST_GEOMETRY_INDEX_ASSERT(!container.empty(), "cannot copy from empty container");
     Iterator back_it = container.end();
     --back_it;
     if ( it != back_it )
     {
-        *it = *back_it;                                                                     // MAY THROW (copy)
+        *it = boost::move(*back_it);                                                             // MAY THROW (copy)
     }
 }
 

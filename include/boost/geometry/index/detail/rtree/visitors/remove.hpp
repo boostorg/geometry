@@ -25,7 +25,6 @@ namespace detail { namespace rtree { namespace visitors {
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class remove
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
-    , index::detail::nonassignable
 {
     typedef typename Options::parameters_type parameters_type;
 
@@ -138,7 +137,7 @@ public:
         {
             if ( m_translator.equals(*it, m_value) )
             {
-                rtree::copy_from_back(elements, it);                                                           // MAY THROW (V: copy)
+                rtree::move_from_back(elements, it);                                                           // MAY THROW (V: copy)
                 elements.pop_back();
                 m_is_value_removed = true;
                 break;
@@ -199,7 +198,7 @@ private:
 
         try
         {
-            rtree::copy_from_back(elements, underfl_el_it);                                             // MAY THROW (E: copy)
+            rtree::move_from_back(elements, underfl_el_it);                                             // MAY THROW (E: copy)
             elements.pop_back();
         }
         catch(...)

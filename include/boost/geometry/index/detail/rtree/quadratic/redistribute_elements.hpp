@@ -137,16 +137,16 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             // remove seeds
             if (seed1 < seed2)
             {
-                rtree::copy_from_back(elements_copy, elements_copy.begin() + seed2);                        // MAY THROW, STRONG (copy)
+                rtree::move_from_back(elements_copy, elements_copy.begin() + seed2);                        // MAY THROW, STRONG (copy)
                 elements_copy.pop_back();
-                rtree::copy_from_back(elements_copy, elements_copy.begin() + seed1);                        // MAY THROW, STRONG (copy)
+                rtree::move_from_back(elements_copy, elements_copy.begin() + seed1);                        // MAY THROW, STRONG (copy)
                 elements_copy.pop_back();
             }
             else
             {
-                rtree::copy_from_back(elements_copy, elements_copy.begin() + seed1);                        // MAY THROW, STRONG (copy)
+                rtree::move_from_back(elements_copy, elements_copy.begin() + seed1);                        // MAY THROW, STRONG (copy)
                 elements_copy.pop_back();
-                rtree::copy_from_back(elements_copy, elements_copy.begin() + seed2);                        // MAY THROW, STRONG (copy)
+                rtree::move_from_back(elements_copy, elements_copy.begin() + seed2);                        // MAY THROW, STRONG (copy)
                 elements_copy.pop_back();
             }
 
@@ -216,7 +216,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
                 BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
                 typename elements_type::iterator el_it_base = el_it.base();
-                rtree::copy_from_back(elements_copy, --el_it_base);                                         // MAY THROW, STRONG (copy)
+                rtree::move_from_back(elements_copy, --el_it_base);                                         // MAY THROW, STRONG (copy)
                 elements_copy.pop_back();
 
                 BOOST_GEOMETRY_INDEX_ASSERT(0 < remaining, "expected more remaining elements");

@@ -20,7 +20,6 @@
 #include <boost/geometry/geometry.hpp>
 
 #include <boost/geometry/index/detail/assert.hpp>
-#include <boost/geometry/index/detail/nonassignable.hpp>
 
 #include <boost/geometry/index/translator/translator.hpp>
 #include <boost/geometry/index/detail/rtree/options.hpp>

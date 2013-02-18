@@ -72,13 +72,6 @@ inline Derived & get(dynamic_node<Value, Parameters, Box, Allocators, Tag> & n)
     return static_cast<Derived&>(n);
 }
 
-//template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
-//inline Derived * get(dynamic_node<Value, Parameters, Box, Allocators, Tag> * n)
-//{
-//    BOOST_GEOMETRY_INDEX_ASSERT(dynamic_cast<Derived*>(n), "can't cast to a Derived type");
-//    return static_cast<Derived*>(n);
-//}
-
 // apply visitor
 
 template <typename Visitor, typename Visitable>

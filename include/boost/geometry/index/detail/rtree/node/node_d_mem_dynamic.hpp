@@ -14,6 +14,7 @@
 #include <boost/container/vector.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
+#include <boost/geometry/index/detail/rtree/node/auto_deallocator.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -252,25 +253,19 @@ struct create_dynamic_node
     template <typename AllocNode>
     static inline BaseNodePtr apply(AllocNode & alloc_node)
     {
-        typedef typename AllocNode::pointer P;
+        typedef boost::container::allocator_traits<AllocNode> Al;
+        typedef typename Al::pointer P;
 
-        P p = alloc_node.allocate(1);
+        P p = Al::allocate(alloc_node, 1);
 
         if ( 0 == p )
             throw std::bad_alloc(); // TODO throw different exception
 
-        try
-        {
-            // NOTE/TODO
-            // Here the whole node may be copied
-            alloc_node.construct(p, Node(alloc_node));
-        }
-        catch(...)
-        {
-            alloc_node.deallocate(p, 1);
-            throw;
-        }
+        auto_deallocator<AllocNode> deallocator(alloc_node, p);
 
+        Al::construct(alloc_node, p, alloc_node);
+
+        deallocator.release();
         return p;
     }
 };
@@ -283,11 +278,12 @@ struct destroy_dynamic_node
     template <typename AllocNode, typename BaseNodePtr>
     static inline void apply(AllocNode & alloc_node, BaseNodePtr n)
     {
-        typedef typename AllocNode::pointer P;
+        typedef boost::container::allocator_traits<AllocNode> Al;
+        typedef typename Al::pointer P;
 
         P p(&static_cast<Node&>(rtree::get<Node>(*n)));
-        alloc_node.destroy(p);
-        alloc_node.deallocate(p, 1);
+        Al::destroy(alloc_node, p);
+        Al::deallocate(alloc_node, p, 1);
     }
 };
 

@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_REDISTRIBUTE_ELEMENTS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_REDISTRIBUTE_ELEMENTS_HPP
 
-#include <boost/geometry/index/detail/nonassignable.hpp>
-
 #include <boost/geometry/index/detail/algorithms/intersection_content.hpp>
 #include <boost/geometry/index/detail/algorithms/union_content.hpp>
 #include <boost/geometry/index/detail/algorithms/margin.hpp>
@@ -29,7 +27,6 @@ namespace rstar {
 
 template <typename Element, typename Translator, size_t Corner, size_t AxisIndex>
 class element_axis_corner_less
-    : index::detail::nonassignable
 {
 public:
     element_axis_corner_less(Translator const& tr)

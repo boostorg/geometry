@@ -223,7 +223,6 @@ struct insert_traverse_data
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class insert
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
-    , index::detail::nonassignable
 {
 protected:
     typedef typename Options::parameters_type parameters_type;

@@ -436,7 +436,6 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
 template <typename Element, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class insert<Element, Value, Options, Translator, Box, Allocators, insert_reinsert_tag>
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
-    , index::detail::nonassignable
 {
     typedef typename Options::parameters_type parameters_type;
 

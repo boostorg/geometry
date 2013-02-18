@@ -150,23 +150,19 @@ struct create_static_node
     template <typename AllocNode>
     static inline VariantPtr apply(AllocNode & alloc_node)
     {
-        VariantPtr p = alloc_node.allocate(1);
+        typedef boost::container::allocator_traits<AllocNode> Al;
+        typedef typename Al::pointer P;
+
+        P p = Al::allocate(alloc_node, 1);
 
         if ( 0 == p )
             throw std::bad_alloc();
 
-        try
-        {
-            // NOTE/TODO
-            // Here the whole node may be copied
-            alloc_node.construct(p, Node(alloc_node)); // implicit cast to Variant
-        }
-        catch(...)
-        {
-            alloc_node.deallocate(p, 1);
-            throw;
-        }
+        auto_deallocator<AllocNode> deallocator(alloc_node, p);
 
+        Al::construct(alloc_node, p, Node(alloc_node)); // implicit cast to Variant
+
+        deallocator.release();
         return p;
     }
 };
@@ -179,8 +175,11 @@ struct destroy_static_node
     template <typename AllocNode, typename VariantPtr>
     static inline void apply(AllocNode & alloc_node, VariantPtr n)
     {
-        alloc_node.destroy(n);
-        alloc_node.deallocate(n, 1);
+        typedef boost::container::allocator_traits<AllocNode> Al;
+        typedef typename Al::pointer P;
+
+        Al::destroy(alloc_node, n);
+        Al::deallocate(alloc_node, n, 1);
     }
 };
 

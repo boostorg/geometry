@@ -159,7 +159,6 @@ template <
 >
 class nearest_query
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
-    , index::detail::nonassignable
 {
 public:
     typedef typename Options::parameters_type parameters_type;

@@ -20,7 +20,6 @@ namespace detail { namespace rtree { namespace visitors {
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class children_box
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
-    , index::detail::nonassignable
 {
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;

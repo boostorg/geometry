@@ -20,7 +20,6 @@ namespace detail { namespace rtree { namespace visitors {
 template <typename Indexable, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct count
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
-    , index::detail::nonassignable
 {
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
@@ -69,7 +68,6 @@ struct count
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct count<Value, Value, Options, Translator, Box, Allocators>
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
-    , index::detail::nonassignable
 {
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;

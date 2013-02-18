@@ -168,40 +168,6 @@ public:
     leaf_allocator_type const& leaf_allocator() const{ return *this; }
 };
 
-// create_node
-
-template <typename Allocators, typename Value, typename Parameters, typename Box>
-struct create_node<
-    Allocators,
-    dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
->
-{
-    static inline typename Allocators::node_pointer
-    apply(Allocators & allocators)
-    {
-        return create_dynamic_node<
-            typename Allocators::node_pointer,
-            dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
-        >::apply(allocators.internal_node_allocator());
-    }
-};
-
-template <typename Allocators, typename Value, typename Parameters, typename Box>
-struct create_node<
-    Allocators,
-    dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
->
-{
-    static inline typename Allocators::node_pointer
-    apply(Allocators & allocators)
-    {
-        return create_dynamic_node<
-            typename Allocators::node_pointer,
-            dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
-        >::apply(allocators.leaf_allocator());
-    }
-};
-
 }} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index
