@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <stdexcept>
 
+#include <boost/move/move.hpp>
 #include <boost/aligned_storage.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
 
