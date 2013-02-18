@@ -263,9 +263,7 @@ struct create_dynamic_node
 
         auto_deallocator<AllocNode> deallocator(alloc_node, p);
 
-        alloc_node.construct(p, Node(alloc_node));
-        // TEMPORARILY COMMENTED OUT
-        //Al::construct(alloc_node, p, alloc_node);
+        Al::construct(alloc_node, boost::addressof(*p), alloc_node);
 
         deallocator.release();
         return p;
@@ -284,9 +282,7 @@ struct destroy_dynamic_node
         typedef typename Al::pointer P;
 
         P p(&static_cast<Node&>(rtree::get<Node>(*n)));
-        alloc_node.destroy(p);
-        // TEMPORARILY COMMENTED OUT
-        //Al::destroy(alloc_node, p);
+        Al::destroy(alloc_node, boost::addressof(*p));
         Al::deallocate(alloc_node, p, 1);
     }
 };
