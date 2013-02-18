@@ -84,7 +84,7 @@ public:
     }
 
     // strong
-    varray(BOOST_COPY_ASSIGN_REF(varray) other)
+    varray(varray const& other)
         : m_size(other.m_size)
     {
         this->uninitialized_copy(other.begin(), other.end(), this->begin());        // may throw
