@@ -160,7 +160,9 @@ struct create_static_node
 
         auto_deallocator<AllocNode> deallocator(alloc_node, p);
 
-        Al::construct(alloc_node, p, Node(alloc_node)); // implicit cast to Variant
+        alloc_node.construct(p, Node(alloc_node));
+        // TEMPORARILY COMMENTED OUT
+        //Al::construct(alloc_node, p, Node(alloc_node)); // implicit cast to Variant
 
         deallocator.release();
         return p;
@@ -178,7 +180,9 @@ struct destroy_static_node
         typedef boost::container::allocator_traits<AllocNode> Al;
         typedef typename Al::pointer P;
 
-        Al::destroy(alloc_node, n);
+        alloc_node.destroy(n);
+        // TEMPORARILY COMMENTED OUT
+        //Al::destroy(alloc_node, n);
         Al::deallocate(alloc_node, n, 1);
     }
 };

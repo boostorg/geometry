@@ -20,7 +20,6 @@ namespace detail { namespace rtree { namespace visitors {
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class copy
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, false>::type
-    , boost::noncopyable
 {
 public:
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
