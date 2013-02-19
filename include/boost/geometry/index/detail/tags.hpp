@@ -16,7 +16,7 @@ namespace boost { namespace geometry { namespace index {
 namespace detail {
 
 struct value_tag {};
-struct envelope_tag {};
+struct bounds_tag {};
 
 } // namespace detail
 

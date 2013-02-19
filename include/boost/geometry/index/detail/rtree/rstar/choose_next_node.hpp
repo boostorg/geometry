@@ -61,6 +61,8 @@ public:
         // children are internal nodes
         else
             return choose_by_minimum_content_cost(children, indexable);
+
+        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
 
 private:

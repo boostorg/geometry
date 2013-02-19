@@ -819,7 +819,7 @@ private:
         }
     }
 
-    void check_capacity(size_type s) const
+    void check_capacity(size_type BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(s)) const
     {
         BOOST_ASSERT_MSG(s <= Capacity, "size can't exceed the capacity");
         //if ( Capacity < s ) throw std::bad_alloc();

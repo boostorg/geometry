@@ -116,6 +116,8 @@ public:
 
             throw;                                                                                      // RETHROW
         }
+
+        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
 
 private:

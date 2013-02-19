@@ -33,28 +33,28 @@ template <typename Geometry>
 struct covered_by
 {
     covered_by(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 template <typename Geometry>
 struct disjoint
 {
     disjoint(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 template <typename Geometry>
 struct intersects
 {
     intersects(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 template <typename Geometry>
 struct overlaps
 {
     overlaps(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 //template <typename Geometry>
@@ -68,35 +68,35 @@ template <typename Geometry>
 struct within
 {
     within(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 template <typename Geometry>
 struct not_covered_by
 {
     not_covered_by(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 template <typename Geometry>
 struct not_disjoint
 {
     not_disjoint(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 template <typename Geometry>
 struct not_intersects
 {
     not_intersects(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 template <typename Geometry>
 struct not_overlaps
 {
     not_overlaps(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 //template <typename Geometry>
@@ -110,7 +110,7 @@ template <typename Geometry>
 struct not_within
 {
     not_within(Geometry const& g) : geometry(g) {}
-    Geometry geometry;
+    Geometry const& geometry;
 };
 
 template <typename DistancePredicates>
@@ -306,7 +306,7 @@ struct predicate_check<nearest<DistancePredicates>, value_tag>
 // ------------------------------------------------------------------ //
 
 template <typename Geometry>
-struct predicate_check<Geometry, envelope_tag>
+struct predicate_check<Geometry, bounds_tag>
 {
     template <typename Value, typename Indexable>
     static inline bool apply(Geometry const& g, Value const&, Indexable const& i)
@@ -316,7 +316,7 @@ struct predicate_check<Geometry, envelope_tag>
 };
 
 template <>
-struct predicate_check<empty, envelope_tag>
+struct predicate_check<empty, bounds_tag>
 {
     template <typename Geometry, typename Value, typename Indexable>
     static inline bool apply(Geometry const&, Value const&, Indexable const&)
@@ -326,7 +326,7 @@ struct predicate_check<empty, envelope_tag>
 };
 
 template <typename Fun>
-struct predicate_check<value<Fun>, envelope_tag>
+struct predicate_check<value<Fun>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(value<Fun> const&, Value const&, Box const&)
@@ -336,7 +336,7 @@ struct predicate_check<value<Fun>, envelope_tag>
 };
 
 template <typename Geometry>
-struct predicate_check<covered_by<Geometry>, envelope_tag>
+struct predicate_check<covered_by<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(covered_by<Geometry> const& p, Value const&, Box const& i)
@@ -346,7 +346,7 @@ struct predicate_check<covered_by<Geometry>, envelope_tag>
 };
 
 template <typename Geometry>
-struct predicate_check<disjoint<Geometry>, envelope_tag>
+struct predicate_check<disjoint<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(disjoint<Geometry> const& p, Value const&, Box const& i)
@@ -356,7 +356,7 @@ struct predicate_check<disjoint<Geometry>, envelope_tag>
 };
 
 template <typename Geometry>
-struct predicate_check<intersects<Geometry>, envelope_tag>
+struct predicate_check<intersects<Geometry>, bounds_tag>
 {
     template <typename Value, typename Indexable>
     static inline bool apply(intersects<Geometry> const& p, Value const&, Indexable const& i)
@@ -366,7 +366,7 @@ struct predicate_check<intersects<Geometry>, envelope_tag>
 };
 
 template <typename Geometry>
-struct predicate_check<overlaps<Geometry>, envelope_tag>
+struct predicate_check<overlaps<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static inline bool apply(overlaps<Geometry> const& p, Value const&, Box const& i)
@@ -378,7 +378,7 @@ struct predicate_check<overlaps<Geometry>, envelope_tag>
 };
 
 //template <typename Geometry>
-//struct predicate_check<touches<Geometry>, envelope_tag>
+//struct predicate_check<touches<Geometry>, bounds_tag>
 //{
 //    template <typename Value, typename Box>
 //    static bool apply(touches<Geometry> const& p, Value const&, Box const& i)
@@ -388,7 +388,7 @@ struct predicate_check<overlaps<Geometry>, envelope_tag>
 //};
 
 template <typename Geometry>
-struct predicate_check<within<Geometry>, envelope_tag>
+struct predicate_check<within<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(within<Geometry> const& p, Value const&, Box const& i)
@@ -400,7 +400,7 @@ struct predicate_check<within<Geometry>, envelope_tag>
 };
 
 template <typename Geometry>
-struct predicate_check<not_covered_by<Geometry>, envelope_tag>
+struct predicate_check<not_covered_by<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(not_covered_by<Geometry> const& p, Value const&, Box const& i)
@@ -410,7 +410,7 @@ struct predicate_check<not_covered_by<Geometry>, envelope_tag>
 };
 
 template <typename Geometry>
-struct predicate_check<not_disjoint<Geometry>, envelope_tag>
+struct predicate_check<not_disjoint<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(not_disjoint<Geometry> const& p, Value const&, Box const& i)
@@ -420,7 +420,7 @@ struct predicate_check<not_disjoint<Geometry>, envelope_tag>
 };
 
 template <typename Geometry>
-struct predicate_check<not_intersects<Geometry>, envelope_tag>
+struct predicate_check<not_intersects<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(not_intersects<Geometry> const& p, Value const&, Box const& i)
@@ -430,7 +430,7 @@ struct predicate_check<not_intersects<Geometry>, envelope_tag>
 };
 
 template <typename Geometry>
-struct predicate_check<not_overlaps<Geometry>, envelope_tag>
+struct predicate_check<not_overlaps<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(not_overlaps<Geometry> const& , Value const&, Box const& )
@@ -440,7 +440,7 @@ struct predicate_check<not_overlaps<Geometry>, envelope_tag>
 };
 
 //template <typename Geometry>
-//struct predicate_check<not_touches<Geometry>, envelope_tag>
+//struct predicate_check<not_touches<Geometry>, bounds_tag>
 //{
 //    template <typename Value, typename Box>
 //    static bool apply(not_touches<Geometry> const& p, Value const&, Box const& i)
@@ -450,7 +450,7 @@ struct predicate_check<not_overlaps<Geometry>, envelope_tag>
 //};
 
 template <typename Geometry>
-struct predicate_check<not_within<Geometry>, envelope_tag>
+struct predicate_check<not_within<Geometry>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(not_within<Geometry> const& p, Value const&, Box const& i)
@@ -460,7 +460,7 @@ struct predicate_check<not_within<Geometry>, envelope_tag>
 };
 
 template <typename DistancePredicates>
-struct predicate_check<nearest<DistancePredicates>, envelope_tag>
+struct predicate_check<nearest<DistancePredicates>, bounds_tag>
 {
     template <typename Value, typename Box>
     static inline bool apply(nearest<DistancePredicates> const&, Value const&, Box const&)

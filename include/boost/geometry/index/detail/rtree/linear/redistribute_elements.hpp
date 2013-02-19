@@ -111,6 +111,8 @@ struct find_greatest_normalized_separation
 
         seed1 = highest_low_index;
         seed2 = lowest_high_index;
+
+        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
 };
 

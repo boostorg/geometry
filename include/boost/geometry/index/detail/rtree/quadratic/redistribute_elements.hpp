@@ -70,6 +70,8 @@ struct pick_seeds
                 }
             }
         }
+
+        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
 };
 
@@ -102,9 +104,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
         elements_type & elements1 = rtree::elements(n);
         elements_type & elements2 = rtree::elements(second_node);
-        const size_t elements1_count = parameters.get_max_elements() + 1;
-
-        BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected elements number");
+        
+        BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == parameters.get_max_elements() + 1, "unexpected elements number");
 
         // copy original elements
         elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)

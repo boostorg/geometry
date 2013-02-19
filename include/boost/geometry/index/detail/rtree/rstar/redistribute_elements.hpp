@@ -97,6 +97,8 @@ struct choose_split_axis_and_index_for_corner
                 smallest_content = con;
             }
         }
+
+        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
 };
 

@@ -19,6 +19,8 @@
 
 #include <boost/geometry/geometry.hpp>
 
+#include <boost/geometry/index/detail/config_begin.hpp>
+
 #include <boost/geometry/index/detail/assert.hpp>
 
 #include <boost/geometry/index/translator/translator.hpp>
@@ -1359,5 +1361,7 @@ bounds(rtree<Value, Options, Translator, Allocator> const& tree)
 }
 
 }}} // namespace boost::geometry::index
+
+#include <boost/geometry/index/detail/config_end.hpp>
 
 #endif // BOOST_GEOMETRY_INDEX_RTREE_HPP

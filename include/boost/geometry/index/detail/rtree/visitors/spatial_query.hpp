@@ -44,7 +44,7 @@ struct spatial_query
         {
             // if node meets predicates
             // 0 - dummy value
-            if ( index::detail::predicates_check<index::detail::envelope_tag, 0, predicates_len>(pred, 0, it->first) )
+            if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(pred, 0, it->first) )
                 rtree::apply_visitor(*this, *it->second);
         }
     }

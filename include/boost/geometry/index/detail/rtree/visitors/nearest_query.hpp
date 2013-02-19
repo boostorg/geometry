@@ -167,9 +167,9 @@ public:
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
-    typedef index::detail::distances_calc<DistancesPredicates, Box, index::detail::envelope_tag> node_distances_calc;
+    typedef index::detail::distances_calc<DistancesPredicates, Box, index::detail::bounds_tag> node_distances_calc;
     typedef typename node_distances_calc::result_type node_distances_type;
-    typedef index::detail::distances_predicates_check<DistancesPredicates, Box, index::detail::envelope_tag> node_distances_predicates_check;
+    typedef index::detail::distances_predicates_check<DistancesPredicates, Box, index::detail::bounds_tag> node_distances_predicates_check;
 
     typedef index::detail::distances_calc<
         DistancesPredicates,
@@ -212,7 +212,7 @@ public:
         {
             // if current node meets predicates
             // 0 - dummy value
-            if ( index::detail::predicates_check<index::detail::envelope_tag, 0, predicates_len>(m_pred, 0, it->first) )
+            if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(m_pred, 0, it->first) )
             {
                 // calculate node's distance(s) for distance predicate
                 node_distances_type node_dist_data = node_distances_calc::apply(m_dist_pred, it->first);

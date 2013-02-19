@@ -666,14 +666,14 @@ struct distances_predicates_check<PointRelation, Indexable, value_tag>
 //};
 
 // ------------------------------------------------------------------ //
-// distance_calc for envelope_tag
+// distance_calc for bounds_tag
 // ------------------------------------------------------------------ //
 
 template <typename PointRelation, typename Box>
 struct distances_calc<
     PointRelation,
     Box,
-    envelope_tag>
+    bounds_tag>
 {
     typedef typename detail::relation<PointRelation>::value_type point_type;
     typedef typename geometry::default_distance_result<point_type, Box>::type distance_type;
@@ -693,7 +693,7 @@ struct distances_calc<
 //struct distances_calc<
 //    detail::unbounded<PointRelation>,
 //    Box,
-//    envelope_tag
+//    bounds_tag
 //>
 //{
 //    typedef typename detail::relation<PointRelation>::value_type point_type;
@@ -714,7 +714,7 @@ struct distances_calc<
 //struct distances_calc<
 //    detail::min_bounded<PointRelation, MinRelation>,
 //    Box,
-//    envelope_tag
+//    bounds_tag
 //>
 //{
 //    typedef typename detail::relation<PointRelation>::value_type point_type;
@@ -738,7 +738,7 @@ struct distances_calc<
 //struct distances_calc<
 //    detail::max_bounded<PointRelation, MaxRelation>,
 //    Box,
-//    envelope_tag
+//    bounds_tag
 //>
 //{
 //    typedef typename detail::relation<PointRelation>::value_type point_type;
@@ -759,7 +759,7 @@ struct distances_calc<
 //struct distances_calc<
 //    detail::bounded<PointRelation, MinRelation, MaxRelation>,
 //    Box,
-//    envelope_tag
+//    bounds_tag
 //>
 //{
 //    typedef typename detail::relation<PointRelation>::value_type point_type;
@@ -780,14 +780,14 @@ struct distances_calc<
 //};
 
 // ------------------------------------------------------------------ //
-// distance_predicates_check for envelope_tag
+// distance_predicates_check for bounds_tag
 // ------------------------------------------------------------------ //
 
 template <typename PointRelation, typename Box>
 struct distances_predicates_check<
     PointRelation,
     Box,
-    envelope_tag>
+    bounds_tag>
 {
     template <typename Distances>
     static inline bool apply(PointRelation const&, Distances const&)
@@ -800,7 +800,7 @@ struct distances_predicates_check<
 //struct distances_predicates_check<
 //    detail::unbounded<PointRelation>,
 //    Box,
-//    envelope_tag>
+//    bounds_tag>
 //{
 //    template <typename Distances>
 //    static inline bool apply(
@@ -815,7 +815,7 @@ struct distances_predicates_check<
 //struct distances_predicates_check<
 //    detail::min_bounded<PointRelation, MinRelation>,
 //    Box,
-//    envelope_tag>
+//    bounds_tag>
 //{
 //    template <typename Distances>
 //    static inline bool apply(
@@ -831,7 +831,7 @@ struct distances_predicates_check<
 //struct distances_predicates_check<
 //    detail::max_bounded<PointRelation, MaxRelation>,
 //    Box,
-//    envelope_tag>
+//    bounds_tag>
 //{
 //    template <typename Distances>
 //    static inline bool apply(
@@ -847,7 +847,7 @@ struct distances_predicates_check<
 //struct distances_predicates_check<
 //    detail::bounded<PointRelation, MinRelation, MaxRelation>,
 //    Box,
-//    envelope_tag>
+//    bounds_tag>
 //{
 //    template <typename Distances>
 //    static inline bool apply(
