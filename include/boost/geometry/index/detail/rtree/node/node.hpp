@@ -11,11 +11,18 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_HPP
 
-#include <boost/geometry/index/detail/rtree/node/concept.hpp>
+#include <boost/container/vector.hpp>
+#include <boost/geometry/index/detail/varray.hpp>
 
+#include <boost/geometry/index/detail/rtree/node/concept.hpp>
+#include <boost/geometry/index/detail/rtree/node/pairs.hpp>
+#include <boost/geometry/index/detail/rtree/node/auto_deallocator.hpp>
+
+#include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_d_mem_dynamic.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_d_mem_static.hpp>
 
+#include <boost/geometry/index/detail/rtree/node/static_visitor.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_s_mem_dynamic.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_s_mem_static.hpp>
 

@@ -76,7 +76,7 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d
     : public dynamic_node<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag>
 {
     typedef throwing_varray<
-        std::pair<Box, typename Allocators::node_pointer>,
+        rtree::ptr_pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1
     > elements_type;
 

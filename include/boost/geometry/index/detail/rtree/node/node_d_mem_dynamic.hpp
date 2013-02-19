@@ -11,11 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_HPP
 
-#include <boost/container/vector.hpp>
-
-#include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
-#include <boost/geometry/index/detail/rtree/node/auto_deallocator.hpp>
-
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
@@ -25,11 +20,11 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_dyna
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
 {
     typedef typename Allocators::leaf_allocator_type::template rebind<
-        std::pair<Box, typename Allocators::node_pointer>
+        rtree::ptr_pair<Box, typename Allocators::node_pointer>
     >::other elements_allocator_type;
 
     typedef boost::container::vector<
-        std::pair<Box, typename Allocators::node_pointer>,
+        rtree::ptr_pair<Box, typename Allocators::node_pointer>,
         elements_allocator_type
     > elements_type;
 
@@ -96,61 +91,37 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVis
     typedef dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVisitableConst> type;
 };
 
-template <typename Element, typename Value, typename Translator>
-struct translator_wrapper_helper
-{
-    typedef typename Element::first_type element_indexable_type;
-    typedef typename Element::first_type const& element_indexable_result;
-};
-
-template <typename Value, typename Translator>
-struct translator_wrapper_helper<Value, Value, Translator>
-{
-    typedef typename translator::indexable_type<Translator>::type element_indexable_type;
-    typedef typename Translator::result_type element_indexable_result;
-};
-
-template <typename Value, typename Translator, typename Tag>
-struct translator_wrapper
-    : public Translator
-{
-    translator_wrapper(Translator const& t = Translator()) : Translator(t) {}
-
-    template <typename Element>
-    struct element_indexable_type
-    {
-        typedef typename translator_wrapper_helper<Element, Value, Translator>::element_indexable_type type;
-    };
-
-    template <typename Element>
-    struct element_indexable_result
-    {
-        typedef typename translator_wrapper_helper<Element, Value, Translator>::element_indexable_result type;
-    };
-
-    typename element_indexable_result<Value>::type
-    element_indexable(Value const& v) const { return Translator::operator()(v); }
-
-    template <typename Element>
-    typename element_indexable_result<Element>::type
-    element_indexable(Element const& el) const { return el.first; }
-};
-
 // element's indexable type
 
 template <typename Element, typename Translator>
 struct element_indexable_type
 {
-    typedef typename Translator::template element_indexable_type<Element>::type type;
+    typedef typename translator::indexable_type<Translator>::type type;
+};
+
+template <typename First, typename Pointer, typename Translator>
+struct element_indexable_type<
+    rtree::ptr_pair<First, Pointer>,
+    Translator
+>
+{
+    typedef First type;
 };
 
 // element's indexable getter
 
 template <typename Element, typename Translator>
-typename Translator::template element_indexable_result<Element>::type
+typename Translator::result_type
 element_indexable(Element const& el, Translator const& tr)
 {
-    return tr.element_indexable(el);
+    return tr(el);
+}
+
+template <typename First, typename Pointer, typename Translator>
+First const&
+element_indexable(rtree::ptr_pair<First, Pointer> const& el, Translator const& /*tr*/)
+{
+    return el.first;
 }
 
 // nodes elements

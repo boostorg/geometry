@@ -11,10 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_STATIC_VARIANT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_STATIC_VARIANT_HPP
 
-#include <boost/geometry/index/detail/varray.hpp>
-
-#include <boost/geometry/index/detail/rtree/node/static_visitor.hpp>
-
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
@@ -25,11 +21,11 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
     typedef typename Allocators::node_allocator_type::template rebind<
-        std::pair<Box, typename Allocators::node_pointer>
+        rtree::ptr_pair<Box, typename Allocators::node_pointer>
     >::other elements_allocator_type;
 
     typedef detail::varray<
-        std::pair<Box, typename Allocators::node_pointer>,
+        rtree::ptr_pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1,
         elements_allocator_type
     > elements_type;

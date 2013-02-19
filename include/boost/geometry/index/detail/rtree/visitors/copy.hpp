@@ -52,7 +52,7 @@ public:
             // for exception safety
             node_auto_ptr auto_result(result, m_allocators);
 
-            elements_dst.push_back( std::make_pair(it->first, result) );                                // MAY THROW, STRONG (E: alloc, copy)
+            elements_dst.push_back( rtree::make_ptr_pair(it->first, result) );                          // MAY THROW, STRONG (E: alloc, copy)
 
             auto_result.release();
         }

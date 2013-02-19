@@ -132,7 +132,6 @@ private:
     typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type internal_node;
     typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
 
-    typedef detail::rtree::translator_wrapper<Value, Translator, node_tag> translator_wrapper;
     typedef typename allocators_type::node_pointer node_pointer;
 
 public:
@@ -713,7 +712,7 @@ public:
             return result;
         }
 
-        detail::rtree::visitors::children_box<value_type, options_type, translator_wrapper, box_type, allocators_type>
+        detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type, allocators_type>
             box_v(result, m_members.translator());
         detail::rtree::apply_visitor(box_v, *m_members.root);
 
@@ -739,7 +738,7 @@ public:
         if ( !m_members.root )
             return 0;
 
-        detail::rtree::visitors::count<ValueOrIndexable, value_type, options_type, translator_wrapper, box_type, allocators_type>
+        detail::rtree::visitors::count<ValueOrIndexable, value_type, options_type, translator_type, box_type, allocators_type>
             count_v(vori, m_members.translator());
 
         detail::rtree::apply_visitor(count_v, *m_members.root);
@@ -855,7 +854,7 @@ private:
 
         detail::rtree::visitors::insert<
             value_type,
-            value_type, options_type, translator_wrapper, box_type, allocators_type,
+            value_type, options_type, translator_type, box_type, allocators_type,
             typename options_type::insert_tag
         > insert_v(m_members.root, m_members.leafs_level, value,
                    m_members.parameters(), m_members.translator(), m_members.allocators());
@@ -885,7 +884,7 @@ private:
         BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
 
         detail::rtree::visitors::remove<
-            value_type, options_type, translator_wrapper, box_type, allocators_type
+            value_type, options_type, translator_type, box_type, allocators_type
         > remove_v(m_members.root, m_members.leafs_level, value,
                    m_members.parameters(), m_members.translator(), m_members.allocators());
 
@@ -932,7 +931,7 @@ private:
     {
         if ( t.m_members.root )
         {
-            detail::rtree::visitors::destroy<value_type, options_type, translator_wrapper, box_type, allocators_type>
+            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
                 del_v(t.m_members.root, t.m_members.allocators());
             detail::rtree::apply_visitor(del_v, *t.m_members.root);
 
@@ -955,7 +954,7 @@ private:
     */
     inline void raw_copy(rtree const& src, rtree & dst, bool copy_all_internals) const
     {
-        detail::rtree::visitors::copy<value_type, options_type, translator_wrapper, box_type, allocators_type>
+        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type>
             copy_v(dst.m_members.allocators());
 
         if ( src.m_members.root )
@@ -969,7 +968,7 @@ private:
 
         if ( dst.m_members.root )
         {
-            detail::rtree::visitors::destroy<value_type, options_type, translator_wrapper, box_type, allocators_type>
+            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
                 del_v(dst.m_members.root, dst.m_members.allocators());
             detail::rtree::apply_visitor(del_v, *dst.m_members.root);
             dst.m_members.root = 0;
@@ -989,7 +988,7 @@ private:
     template <typename Predicates, typename OutIter>
     size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_nearest*/) const
     {
-        detail::rtree::visitors::spatial_query<value_type, options_type, translator_wrapper, box_type, allocators_type, Predicates, OutIter>
+        detail::rtree::visitors::spatial_query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
             find_v(m_members.translator(), predicates, out_it);
 
         detail::rtree::apply_visitor(find_v, *m_members.root);
@@ -1027,7 +1026,7 @@ private:
 
         typedef detail::rtree::visitors::nearest_query_result_k<
             value_type,
-            translator_wrapper,
+            translator_type,
             point_type,
             OutIter
         > result_type;
@@ -1037,7 +1036,7 @@ private:
         detail::rtree::visitors::nearest_query<
             value_type,
             options_type,
-            translator_wrapper,
+            translator_type,
             box_type,
             allocators_type,
             DistancesPredicates,
@@ -1051,7 +1050,7 @@ private:
     }
 
     struct members_holder
-        : public translator_wrapper
+        : public translator_type
         , public Parameters
         , public allocators_type
     {
@@ -1063,7 +1062,7 @@ private:
         members_holder(Transl const& transl,
                        Parameters const& parameters,
                        BOOST_FWD_REF(Alloc) alloc)
-            : translator_wrapper(transl)
+            : translator_type(transl)
             , Parameters(parameters)
             , allocators_type(boost::forward<Alloc>(alloc))
             , values_count(0)
@@ -1074,7 +1073,7 @@ private:
         template <typename Transl>
         members_holder(Transl const& transl = Translator(),
                        Parameters const& parameters = Parameters())
-            : translator_wrapper(transl)
+            : translator_type(transl)
             , Parameters(parameters)
             , allocators_type()
             , values_count(0)
@@ -1082,8 +1081,8 @@ private:
             , root(0)
         {}
 
-        translator_wrapper const& translator() const { return *this; }
-        translator_wrapper & translator() { return *this; }
+        translator_type const& translator() const { return *this; }
+        translator_type & translator() { return *this; }
         Parameters const& parameters() const { return *this; }
         Parameters & parameters() { return *this; }
         allocators_type const& allocators() const { return *this; }

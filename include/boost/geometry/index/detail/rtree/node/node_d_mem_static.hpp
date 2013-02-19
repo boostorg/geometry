@@ -11,9 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_STATIC_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_STATIC_HPP
 
-#include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
-#include <boost/geometry/index/detail/varray.hpp>
-
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
@@ -23,11 +20,11 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_stat
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
     typedef typename Allocators::leaf_allocator_type::template rebind<
-        std::pair<Box, typename Allocators::node_pointer>
+        rtree::ptr_pair<Box, typename Allocators::node_pointer>
     >::other elements_allocator_type;
 
     typedef detail::varray<
-        std::pair<Box, typename Allocators::node_pointer>,
+        rtree::ptr_pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1,
         elements_allocator_type
     > elements_type;

@@ -169,7 +169,7 @@ public:
             "unexpected number of elements");
 
         // return the list of newly created nodes (this algorithm returns one)
-        additional_nodes.push_back(std::make_pair(box2, second_node.get()));                                // MAY THROW, STRONG (alloc, copy)
+        additional_nodes.push_back(rtree::make_ptr_pair(box2, second_node.get()));                           // MAY THROW, STRONG (alloc, copy)
 
         // release the ptr
         second_node.release();
@@ -352,7 +352,7 @@ protected:
             node_auto_ptr new_root(rtree::create_node<Allocators, internal_node>::apply(m_allocators), m_allocators); // MAY THROW, STRONG (N:alloc)
 
             try {
-                rtree::elements(rtree::get<internal_node>(*new_root)).push_back(std::make_pair(n_box, m_root_node));  // MAY THROW, STRONG (E:alloc, copy)
+                rtree::elements(rtree::get<internal_node>(*new_root)).push_back(rtree::make_ptr_pair(n_box, m_root_node));  // MAY THROW, STRONG (E:alloc, copy)
                 rtree::elements(rtree::get<internal_node>(*new_root)).push_back(additional_nodes[0]);                 // MAY THROW, STRONG (E:alloc, copy)
             } catch (...) {
                 // clear new root to not delete in the ~node_auto_ptr() potentially stored old root node
