@@ -133,6 +133,7 @@ private:
     typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
 
     typedef typename allocators_type::node_pointer node_pointer;
+    typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
 
 public:
 
@@ -256,9 +257,10 @@ public:
     \li When memory allocation for Node fails.
     */
     inline rtree(rtree const& src)
-        : m_members(src.m_members.translator(), src.m_members.parameters(), src.m_members.allocators())
+        : m_members(src.m_members.translator(),
+                    src.m_members.parameters(),
+                    allocator_traits_type::select_on_container_copy_construction(src.get_allocator()))
     {
-        //TODO use Boost.Container allocator_traits_type::select_on_container_copy_construction()
         this->raw_copy(src, *this, false);
     }
 
@@ -350,7 +352,12 @@ public:
         if ( this == &src )
             return *this;
 
-        //TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
+        typedef boost::mpl::bool_<
+            allocator_traits_type::propagate_on_container_copy_assignment::value
+        > propagate;
+        if ( propagate::value && !(m_members.allocators() == src.m_members.allocators()) )
+            this->raw_destroy(*this);
+        assign_cond(m_members.allocators(), src.m_members.allocators(), propagate());
 
         // It uses m_allocators
         this->raw_copy(src, *this, true);
@@ -376,21 +383,25 @@ public:
         if ( this == &src )
             return *this;
 
-//TODO use Boost.Container allocator_traits_type::propagate_on_container_move_assignment
-
         if ( m_members.allocators() == src.m_members.allocators() )
         {
-            m_members.translator() = src.m_members.translator();
-            m_members.parameters() = src.m_members.parameters();
-
             this->raw_destroy(*this);
 
+            m_members.translator() = src.m_members.translator();
+            m_members.parameters() = src.m_members.parameters();
             boost::swap(m_members.values_count, src.m_members.values_count);
             boost::swap(m_members.leafs_level, src.m_members.leafs_level);
             boost::swap(m_members.root, src.m_members.root);
+
+            typedef boost::mpl::bool_<
+                allocator_traits_type::propagate_on_container_move_assignment::value
+            > propagate;
+            rtree::move_cond(m_members.allocators(), src.m_members.allocators(), propagate());
         }
         else
         {
+// TODO - shouldn't here propagate_on_container_copy_assignment be checked like in operator=(const&)?
+
             // It uses m_allocators
             this->raw_copy(src, *this, true);
         }
@@ -947,12 +958,12 @@ private:
 
     \param src                  The source R-tree.
     \param dst                  The destination R-tree.
-    \param copy_all_internals   If true, translator and parameters will also be copied.
+    \param copy_tr_and_params   If true, translator and parameters will also be copied.
 
     \par Exception-safety
     strong
     */
-    inline void raw_copy(rtree const& src, rtree & dst, bool copy_all_internals) const
+    inline void raw_copy(rtree const& src, rtree & dst, bool copy_tr_and_params) const
     {
         detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type>
             copy_v(dst.m_members.allocators());
@@ -960,7 +971,7 @@ private:
         if ( src.m_members.root )
             detail::rtree::apply_visitor(copy_v, *src.m_members.root);                      // MAY THROW (V, E: alloc, copy, N: alloc)
 
-        if ( copy_all_internals )
+        if ( copy_tr_and_params )
         {
             dst.m_members.translator() = src.m_members.translator();                        // SHOULDN'T THROW
             dst.m_members.parameters() = src.m_members.parameters();
@@ -1048,6 +1059,18 @@ private:
 
         return result.finish();
     }
+
+    template<class T>
+    static inline void assign_cond(T &, T const&, boost::mpl::bool_<false> const&) {}
+
+    template<class T>
+    static inline void assign_cond(T & l, T const& r, boost::mpl::bool_<true> const&) { l = r; }
+
+    template<class T>
+    inline void move_cond(T &, T &, boost::mpl::bool_<false> const&) {}
+
+    template<class T>
+    inline void move_cond(T & l, T & r, boost::mpl::bool_<true> const&) { l = ::boost::move(r); }
 
     struct members_holder
         : public translator_type
@@ -1357,6 +1380,22 @@ inline typename rtree<Value, Options, Translator, Allocator>::bounds_type
 bounds(rtree<Value, Options, Translator, Allocator> const& tree)
 {
     return tree.bounds();
+}
+
+/*!
+\brief Exchanges the contents of the container with those of other.
+
+It calls \c rtree::swap().
+
+\ingroup rtree_functions
+
+\param l     The first rtree.
+\param r     The second rtree.
+*/
+template <typename Value, typename Options, typename Translator, typename Allocator>
+inline void swap(rtree<Value, Options, Translator, Allocator> & l, rtree<Value, Options, Translator, Allocator> & r)
+{
+    return l.swap(r);
 }
 
 }}} // namespace boost::geometry::index

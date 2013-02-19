@@ -47,7 +47,7 @@
 <a name="geometry_index.r_tree.reference.boost_geometry_index_rtree"></a><a name="classboost_1_1geometry_1_1index_1_1rtree"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.boost_geometry_index_rtree" title="boost::geometry::index::rtree">boost::geometry::index::rtree</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="id931478"></a><a class="indexterm" name="id931483"></a><a class="indexterm" name="id931488"></a><a class="indexterm" name="id931493"></a>
+          <a class="indexterm" name="id889982"></a><a class="indexterm" name="id889986"></a><a class="indexterm" name="id889991"></a><a class="indexterm" name="id889996"></a>
 The R-tree spatial index.
         </p>
 <h6>
@@ -3268,6 +3268,19 @@ The R-tree spatial index.
                   </p>
                 </td>
 </tr>
+<tr>
+<td>
+                  <p>
+                    <a class="link" href="reference.html#group__rtree__functions_1ga043d21dc24c57fcabc5ee85093eb8b15"><code class="computeroutput"><span class="identifier">swap</span><span class="special">(</span><span class="identifier">rtree</span><span class="special">&lt;...&gt;</span>
+                    <span class="special">&amp;,</span> <span class="identifier">rtree</span><span class="special">&lt;...&gt;</span> <span class="special">&amp;)</span></code></a>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    Exchanges the contents of the container with those of other.
+                  </p>
+                </td>
+</tr>
 </tbody>
 </table></div>
 <div class="section">
@@ -4492,6 +4505,106 @@ The R-tree spatial index.
             The box containing all stored values or an invalid box.
           </p>
 </div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________"></a><a name="group__rtree__functions_1ga043d21dc24c57fcabc5ee85093eb8b15"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________" title="swap(rtree&lt;...&gt; &amp;, rtree&lt;...&gt; &amp;)">swap(rtree&lt;...&gt;
+          &amp;, rtree&lt;...&gt; &amp;)</a>
+</h5></div></div></div>
+<p>
+            Exchanges the contents of the container with those of other.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.h0"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.description"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.description">Description</a>
+          </h6>
+<p>
+            It calls <code class="literal"><a class="link" href="reference.html#classboost_1_1geometry_1_1index_1_1rtree_1aad0285d25f96341a8dd6cc22feb3bd73">rtree::swap()</a></code>.
+          </p>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.h1"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.synopsis"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.synopsis">Synopsis</a>
+          </h6>
+<pre class="programlisting"><code class="computeroutput"><span class="keyword">template</span><span class="special">&lt;</span></code><code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Value</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Options</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Translator</span></code><code class="computeroutput"><span class="special">,</span></code>
+         <code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Allocator</span></code><code class="computeroutput"><span class="special">&gt;</span></code>
+<code class="computeroutput"><span class="keyword">void</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">swap</span></code><code class="computeroutput"><span class="special">(</span></code><code class="computeroutput"><span class="identifier">rtree</span><span class="special">&lt;</span> <span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Options</span><span class="special">,</span> <span class="identifier">Translator</span><span class="special">,</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span> <span class="special">&amp;</span></code> <code class="computeroutput"><span class="identifier">l</span></code><code class="computeroutput"><span class="special">,</span></code> <code class="computeroutput"><span class="identifier">rtree</span><span class="special">&lt;</span> <span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Options</span><span class="special">,</span> <span class="identifier">Translator</span><span class="special">,</span> <span class="identifier">Allocator</span> <span class="special">&gt;</span> <span class="special">&amp;</span></code> <code class="computeroutput"><span class="identifier">r</span></code><code class="computeroutput"><span class="special">)</span></code>
+</pre>
+<h6>
+<a name="geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.h2"></a>
+            <span class="phrase"><a name="geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__rtree__functions.swap_rtree_________rtree________.parameter_s_">Parameter(s)</a>
+          </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                    <p>
+                      Type
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Name
+                    </p>
+                  </th>
+<th>
+                    <p>
+                      Description
+                    </p>
+                  </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">rtree</span><span class="special">&lt;</span>
+                      <span class="identifier">Value</span><span class="special">,</span>
+                      <span class="identifier">Options</span><span class="special">,</span>
+                      <span class="identifier">Translator</span><span class="special">,</span>
+                      <span class="identifier">Allocator</span> <span class="special">&gt;</span>
+                      <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">l</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The first rtree.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">rtree</span><span class="special">&lt;</span>
+                      <span class="identifier">Value</span><span class="special">,</span>
+                      <span class="identifier">Options</span><span class="special">,</span>
+                      <span class="identifier">Translator</span><span class="special">,</span>
+                      <span class="identifier">Allocator</span> <span class="special">&gt;</span>
+                      <span class="special">&amp;</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      <code class="computeroutput"><span class="identifier">r</span></code>
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The second rtree.
+                    </p>
+                  </td>
+</tr>
+</tbody>
+</table></div>
+</div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -4503,7 +4616,7 @@ The R-tree spatial index.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_linear"></a><a name="structboost_1_1geometry_1_1index_1_1linear"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_linear" title="boost::geometry::index::linear">boost::geometry::index::linear</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="id960605"></a><a class="indexterm" name="id960610"></a><a class="indexterm" name="id960615"></a><a class="indexterm" name="id960620"></a>
+            <a class="indexterm" name="id919561"></a><a class="indexterm" name="id919566"></a><a class="indexterm" name="id919571"></a><a class="indexterm" name="id919576"></a>
 Linear r-tree creation algorithm parameters.
           </p>
 <h6>
@@ -4578,7 +4691,7 @@ Linear r-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_quadratic"></a><a name="structboost_1_1geometry_1_1index_1_1quadratic"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_quadratic" title="boost::geometry::index::quadratic">boost::geometry::index::quadratic</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="id960914"></a><a class="indexterm" name="id960918"></a><a class="indexterm" name="id960923"></a><a class="indexterm" name="id960928"></a>
+            <a class="indexterm" name="id919870"></a><a class="indexterm" name="id919874"></a><a class="indexterm" name="id919879"></a><a class="indexterm" name="id919884"></a>
 Quadratic r-tree creation algorithm parameters.
           </p>
 <h6>
@@ -4653,7 +4766,7 @@ Quadratic r-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_rstar"></a><a name="structboost_1_1geometry_1_1index_1_1rstar"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_rstar" title="boost::geometry::index::rstar">boost::geometry::index::rstar</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="id961222"></a><a class="indexterm" name="id961227"></a><a class="indexterm" name="id961232"></a><a class="indexterm" name="id961236"></a>
+            <a class="indexterm" name="id920178"></a><a class="indexterm" name="id920183"></a><a class="indexterm" name="id920188"></a><a class="indexterm" name="id920192"></a>
 R*-tree creation algorithm parameters.
           </p>
 <h6>
@@ -4757,7 +4870,7 @@ R*-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_linear"></a><a name="classboost_1_1geometry_1_1index_1_1runtime_1_1linear"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_linear" title="boost::geometry::index::runtime::linear">boost::geometry::index::runtime::linear</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="id961656"></a><a class="indexterm" name="id961661"></a><a class="indexterm" name="id961666"></a><a class="indexterm" name="id961671"></a><a class="indexterm" name="id961676"></a>
+            <a class="indexterm" name="id920612"></a><a class="indexterm" name="id920617"></a><a class="indexterm" name="id920622"></a><a class="indexterm" name="id920627"></a><a class="indexterm" name="id920632"></a>
 Linear r-tree creation algorithm parameters.
           </p>
 <h6>
@@ -4893,7 +5006,7 @@ Linear r-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_quadratic"></a><a name="classboost_1_1geometry_1_1index_1_1runtime_1_1quadratic"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_quadratic" title="boost::geometry::index::runtime::quadratic">boost::geometry::index::runtime::quadratic</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="id962134"></a><a class="indexterm" name="id962139"></a><a class="indexterm" name="id962144"></a><a class="indexterm" name="id962148"></a><a class="indexterm" name="id962153"></a>
+            <a class="indexterm" name="id921090"></a><a class="indexterm" name="id921305"></a><a class="indexterm" name="id921310"></a><a class="indexterm" name="id921314"></a><a class="indexterm" name="id921319"></a>
 Quadratic r-tree creation algorithm parameters.
           </p>
 <h6>
@@ -5029,7 +5142,7 @@ Quadratic r-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_rstar"></a><a name="classboost_1_1geometry_1_1index_1_1runtime_1_1rstar"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.parameters.boost_geometry_index_runtime_rstar" title="boost::geometry::index::runtime::rstar">boost::geometry::index::runtime::rstar</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="id962612"></a><a class="indexterm" name="id962616"></a><a class="indexterm" name="id962621"></a><a class="indexterm" name="id962626"></a><a class="indexterm" name="id962631"></a>
+            <a class="indexterm" name="id921778"></a><a class="indexterm" name="id921782"></a><a class="indexterm" name="id921787"></a><a class="indexterm" name="id921792"></a><a class="indexterm" name="id921797"></a>
 R*-tree creation algorithm parameters.
           </p>
 <h6>
@@ -6609,7 +6722,7 @@ R*-tree creation algorithm parameters.
 <a name="geometry_index.r_tree.reference.translators.boost_geometry_index_translator_def"></a><a name="structboost_1_1geometry_1_1index_1_1translator_1_1def"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.translators.boost_geometry_index_translator_def" title="boost::geometry::index::translator::def">boost::geometry::index::translator::def</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="id971279"></a><a class="indexterm" name="id971284"></a><a class="indexterm" name="id971288"></a><a class="indexterm" name="id971293"></a><a class="indexterm" name="id971298"></a>
+            <a class="indexterm" name="id930098"></a><a class="indexterm" name="id930103"></a><a class="indexterm" name="id930108"></a><a class="indexterm" name="id930113"></a><a class="indexterm" name="id930118"></a>
 The default translator.
           </p>
 <h6>
@@ -6679,7 +6792,7 @@ The default translator.
 <a name="geometry_index.r_tree.reference.translators.boost_geometry_index_translator_index"></a><a name="classboost_1_1geometry_1_1index_1_1translator_1_1index"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.translators.boost_geometry_index_translator_index" title="boost::geometry::index::translator::index">boost::geometry::index::translator::index</a>
 </h5></div></div></div>
 <p>
-            <a class="indexterm" name="id971562"></a><a class="indexterm" name="id971567"></a><a class="indexterm" name="id971572"></a><a class="indexterm" name="id971576"></a><a class="indexterm" name="id971581"></a>
+            <a class="indexterm" name="id930382"></a><a class="indexterm" name="id930386"></a><a class="indexterm" name="id930391"></a><a class="indexterm" name="id930396"></a><a class="indexterm" name="id930401"></a>
 The index translator.
           </p>
 <h6>

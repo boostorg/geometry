@@ -57,7 +57,7 @@ Key features of this implementation of the __rtree__ are:
 
 [heading Dependencies]
 
-R-tree depends on *Boost.Move*, *Boost.Container*, *Boost.Tuple*.
+R-tree depends on *Boost.Move*, *Boost.Container*, *Boost.Tuple*, *Boost.Utility*, *Boost.MPL*.
 
 [heading Contributors]
 

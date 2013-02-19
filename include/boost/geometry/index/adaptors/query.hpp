@@ -56,6 +56,15 @@ struct query
     Predicates const& predicates;
 };
 
+template<typename Index, typename Predicates>
+index::adaptors::detail::query_range<Index>
+operator|(
+    Index const& si,
+    index::adaptors::detail::query<Predicates> const& f)
+{
+    return index::adaptors::detail::query_range<Index>(si, f.predicates);
+}
+
 } // namespace detail
 
 /*!
@@ -73,15 +82,6 @@ queried(Predicates const& pred)
 }
 
 } // namespace adaptors
-
-template<typename Index, typename Predicates>
-index::adaptors::detail::query_range<Index>
-operator|(
-    Index const& si,
-    index::adaptors::detail::query<Predicates> const& f)
-{
-    return index::adaptors::detail::query_range<Index>(si, f.predicates);
-}
 
 }}} // namespace boost::geometry::index
 
