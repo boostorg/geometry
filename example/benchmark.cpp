@@ -11,16 +11,16 @@
 
 #include <boost/geometry/index/rtree.hpp>
 
-#include <boost/timer.hpp>
+#include <boost/chrono.hpp>
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 
 int main()
 {
-    boost::timer tim;
-
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
+    typedef boost::chrono::thread_clock clock_t;
+    typedef boost::chrono::duration<float> dur_t;
 
     size_t values_count = 1000000;
     size_t queries_count = 100000;
@@ -66,7 +66,7 @@ int main()
 
         // inserting test
         {
-            tim.restart();
+            clock_t::time_point start = clock_t::now();
             for (size_t i = 0 ; i < values_count ; ++i )
             {
                 float x = coords[i].first;
@@ -75,8 +75,8 @@ int main()
 
                 t.insert(b);
             }
-            double time = tim.elapsed();
-            std::cout << time << "s - insert " << values_count << '\n';
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - insert " << values_count << '\n';
         }
 
         std::vector<B> result;
@@ -84,7 +84,7 @@ int main()
         B result_one;
 
         {
-            tim.restart();    
+            clock_t::time_point start = clock_t::now();
             size_t temp = 0;
             for (size_t i = 0 ; i < queries_count ; ++i )
             {
@@ -94,12 +94,12 @@ int main()
                 t.query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
                 temp += result.size();
             }
-            double time = tim.elapsed();
-            std::cout << time << "s - query(B) " << queries_count << " found " << temp << '\n';
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - query(B) " << queries_count << " found " << temp << '\n';
         }
 
         {
-            tim.restart();    
+            clock_t::time_point start = clock_t::now();
             size_t temp = 0;
             for (size_t i = 0 ; i < queries_count / 2 ; ++i )
             {
@@ -121,14 +121,14 @@ int main()
                     );
                 temp += result.size();
             }
-            double time = tim.elapsed();
-            std::cout << time << "s - query(i && !w && !o) " << queries_count << " found " << temp << '\n';
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - query(i && !w && !o) " << queries_count << " found " << temp << '\n';
         }
 
         result.clear();
 
         {
-            tim.restart();    
+            clock_t::time_point start = clock_t::now();
             size_t temp = 0;
             for (size_t i = 0 ; i < queries_count / 10 ; ++i )
             {
@@ -137,12 +137,12 @@ int main()
                 result.clear();
                 temp += t.query(bgi::nearest(P(x, y), 5), std::back_inserter(result));
             }
-            double time = tim.elapsed();
-            std::cout << time << "s - query(nearest(P, 5)) " << (queries_count / 10) << " found " << temp << '\n';
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - query(nearest(P, 5)) " << (queries_count / 10) << " found " << temp << '\n';
         }
 
         {
-            tim.restart();
+            clock_t::time_point start = clock_t::now();
             for (size_t i = 0 ; i < values_count / 10 ; ++i )
             {
                 float x = coords[i].first;
@@ -151,8 +151,8 @@ int main()
 
                 t.remove(b);
             }
-            double time = tim.elapsed();
-            std::cout << time << "s - remove " << values_count / 10 << '\n';
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - remove " << values_count / 10 << '\n';
         }
 
         std::cout << "------------------------------------------------\n";
