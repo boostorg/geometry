@@ -1010,7 +1010,7 @@ private:
 
     /*!
     \brief Perform nearest neighbour search.
-    .
+
     \par Exception-safety
     strong
     */

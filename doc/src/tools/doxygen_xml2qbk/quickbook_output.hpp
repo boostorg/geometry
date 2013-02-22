@@ -619,7 +619,6 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
 // ALT
 // ----------------------------------------------------------------------------------------------- //
 
-
 std::string remove_template_parameters(std::string const& name)
 {
     std::string res;
@@ -944,8 +943,17 @@ void quickbook_synopsis_alt(class_or_struct const& cos, configuration const& con
     out << "\n";
 
     out << (cos.is_class ? "`class " : "`struct ");
-    out << short_name.substr(short_name.find_last_of("::") + 1) << "`" << std::endl;
-
+    {
+        std::string::size_type last_scope = std::string::npos;
+        std::string::size_type i = short_name.find("<");
+        for(std::string::size_type j = short_name.find("::") ; j < i ; j = short_name.find("::", j+1))
+            last_scope = j;
+        if ( last_scope == std::string::npos )
+            out << short_name << "`" << std::endl;
+        else
+            out << short_name.substr(last_scope + 2) << "`" << std::endl;
+    }
+    
     if (! cos.base_classes.empty())
     {
         out << "`      : ";
@@ -1235,13 +1243,13 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
 {
     // Skip namespace
     std::string short_name = namespace_skipped(cos.fullname, config);
-    std::string section_name = to_section_name(short_name);
 
     if ( config.output_style == "alt" && !cos.id.empty() )
         out << "[#" << cos.id << "]" << std::endl;
-    out << "[section:" << section_name << " " << short_name << "]" << std::endl << std::endl;
+    out << "[section " << short_name << "]" << std::endl << std::endl;
 
-    quickbook_output_indexterm(short_name, out);
+    // Can't be used in the case of specializations and probably isn't needed in alt output
+    //quickbook_output_indexterm(short_name, out);
 
     // Brief
 

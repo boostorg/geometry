@@ -24,13 +24,13 @@
 
 [endsect]
 
-[section:translator Translator (boost::geometry::index::translator)]
+[/section:translator Translator (boost::geometry::index::translator)/]
 
 [include ../generated/translator.qbk]
 [/include ../generated/translator_pair.qbk/]
 [/include ../generated/translator_tuple.qbk/]
 
-[endsect]
+[/endsect/]
 
 [include ../generated/predicates.qbk]
 [include ../generated/nearest_relations.qbk]
