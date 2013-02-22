@@ -44,7 +44,7 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [pre
 `template<``typename Value``,`
          `typename Parameters``,`
-         `typename Translator` = [^[link structboost_1_1geometry_1_1index_1_1translator_1_1def translator::def]]`<Value>``,`
+         `typename Translator` = [^[link structboost_1_1geometry_1_1index_1_1translator index::translator]]`<Value>``,`
          `typename Allocator` = `std::allocator<Value>``>`
 `class rtree`
 `{`
@@ -69,7 +69,7 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91] `translator_type`][Value to Indexable Translator type. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d] `allocator_type`][The type of allocator used by the container. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6] `size_type`][Unsigned integral type used by the container. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1ac011da09678f034a7fab487a9b973bfc] `indexable_type`][The Indexable type to which Value is translated. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1a6533b05d4a2eea9d4a0033e192add466] `indexable_type`][The Indexable type to which Value is translated. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a653555282525601512c3b1bed1e9590f] `bounds_type`][The Box type used by the R-tree. ]]
 ]
 

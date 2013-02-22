@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     typedef bgm::box<P> B;
 
     typedef bgi::linear<32, 8> Par;
-    typedef bgi::translator::def<B> Tr;
+    typedef bgi::translator<B> Tr;
     typedef allocator<B, managed_shared_memory::segment_manager> Alloc;
     typedef bgi::rtree<B, Par, Tr, Alloc> Rtree;
 

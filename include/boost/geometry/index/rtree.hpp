@@ -23,8 +23,9 @@
 
 #include <boost/geometry/index/detail/assert.hpp>
 
-#include <boost/geometry/index/translator/translator.hpp>
 #include <boost/geometry/index/detail/rtree/options.hpp>
+
+#include <boost/geometry/index/translator.hpp>
 
 #include <boost/geometry/index/predicates.hpp>
 #include <boost/geometry/index/distance_predicates.hpp>
@@ -96,7 +97,7 @@ container, the default translator translates from <tt>std::pair<Box, int> const&
 template <
     typename Value,
     typename Parameters,
-    typename Translator = translator::def<Value>,
+    typename Translator = index::translator<Value>,
     typename Allocator = std::allocator<Value>
 >
 class rtree
@@ -116,7 +117,7 @@ public:
     typedef typename allocator_type::size_type size_type;
 
     /*! \brief The Indexable type to which Value is translated. */
-    typedef typename translator::indexable_type<Translator>::type indexable_type;
+    typedef typename index::detail::translator::indexable_type<Translator>::type indexable_type;
     /*! \brief The Box type used by the R-tree. */
     typedef typename index::detail::default_box_type<indexable_type>::type bounds_type;
 

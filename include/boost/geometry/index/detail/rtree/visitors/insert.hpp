@@ -13,8 +13,6 @@
 
 #include <boost/geometry/index/detail/algorithms/content.hpp>
 
-#include <boost/geometry/index/detail/rtree/node/node.hpp>
-
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {

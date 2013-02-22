@@ -27,11 +27,13 @@ os.system(cmd % ("classboost_1_1geometry_1_1index_1_1runtime_1_1linear", "rtree_
 os.system(cmd % ("classboost_1_1geometry_1_1index_1_1runtime_1_1quadratic", "rtree_runtime_quadratic"))
 os.system(cmd % ("classboost_1_1geometry_1_1index_1_1runtime_1_1rstar", "rtree_runtime_rstar"))
 
+os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator", "translator"))
+#os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_3_01std_1_1pair_3_01_indexable_00_01_second_01_4_01_4", "translator_pair"))
+#os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_3_01boost_1_1tuple_3_01_indexable_00_01_t1_00_01_1c55aa63046ee2c1171cfc2033fb0edd", "translator_tuple"))
+
 os.system(cmd % ("group__predicates", "predicates"))
 os.system(cmd % ("group__nearest__relations", "nearest_relations"))
 os.system(cmd % ("group__adaptors", "adaptors"))
-os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_1_1def", "translator_def"))
-os.system(cmd % ("classboost_1_1geometry_1_1index_1_1translator_1_1index", "translator_index"))
 os.system(cmd % ("group__inserters", "inserters"))
 
 os.system("b2") 

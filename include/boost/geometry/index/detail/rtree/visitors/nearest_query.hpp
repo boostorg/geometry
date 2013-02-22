@@ -11,11 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_NEAREST_QUERY_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_NEAREST_QUERY_HPP
 
-#include <boost/geometry/index/detail/distance_predicates.hpp>
-
-#include <boost/geometry/index/detail/rtree/node/node.hpp>
-#include <boost/geometry/index/translator/translator.hpp>
-
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {

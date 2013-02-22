@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_REMOVE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_REMOVE_HPP
 
-#include <boost/geometry/index/detail/rtree/node/node.hpp>
-
 #include <boost/geometry/index/detail/rtree/visitors/is_leaf.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>

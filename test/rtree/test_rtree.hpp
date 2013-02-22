@@ -205,10 +205,10 @@ struct test_object
     Indexable indexable;
 };
 
-namespace boost { namespace geometry { namespace index { namespace translator {
+namespace boost { namespace geometry { namespace index {
 
 template <typename Indexable>
-struct def< boost::shared_ptr< test_object<Indexable> > >
+struct translator< boost::shared_ptr< test_object<Indexable> > >
 {
     typedef boost::shared_ptr< test_object<Indexable> > value_type;
     typedef Indexable const& result_type;
@@ -224,7 +224,7 @@ struct def< boost::shared_ptr< test_object<Indexable> > >
     }
 };
 
-}}}}
+}}}
 
 template <typename T, typename C>
 struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 2, C> > > >
@@ -266,10 +266,10 @@ struct counting_value
     Indexable indexable;
 };
 
-namespace boost { namespace geometry { namespace index { namespace translator {
+namespace boost { namespace geometry { namespace index {
 
 template <typename Indexable>
-struct def< counting_value<Indexable> >
+struct translator< counting_value<Indexable> >
 {
     typedef counting_value<Indexable> value_type;
     typedef Indexable const& result_type;
@@ -285,7 +285,7 @@ struct def< counting_value<Indexable> >
     }
 };
 
-}}}}
+}}}
 
 template <typename T, typename C>
 struct generate_value< counting_value<bg::model::point<T, 2, C> > >
@@ -330,26 +330,26 @@ struct value_no_dctor
     Indexable indexable;
 };
 
-namespace boost { namespace geometry { namespace index { namespace translator {
+namespace boost { namespace geometry { namespace index {
 
-    template <typename Indexable>
-    struct def< value_no_dctor<Indexable> >
+template <typename Indexable>
+struct translator< value_no_dctor<Indexable> >
+{
+    typedef value_no_dctor<Indexable> value_type;
+    typedef Indexable const& result_type;
+
+    result_type operator()(value_type const& value) const
     {
-        typedef value_no_dctor<Indexable> value_type;
-        typedef Indexable const& result_type;
+        return value.indexable;
+    }
 
-        result_type operator()(value_type const& value) const
-        {
-            return value.indexable;
-        }
+    bool equals(value_type const& v1, value_type const& v2) const
+    {
+        return boost::geometry::equals(v1.indexable, v2.indexable);
+    }
+};
 
-        bool equals(value_type const& v1, value_type const& v2) const
-        {
-            return boost::geometry::equals(v1.indexable, v2.indexable);
-        }
-    };
-
-}}}}
+}}}
 
 template <typename Indexable>
 struct generate_value_default< value_no_dctor<Indexable> >
@@ -1109,7 +1109,7 @@ void test_clear(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
 template <typename Value, typename Parameters, typename Allocator>
 void test_rtree_by_value(Parameters const& parameters, Allocator const& allocator)
 {
-    typedef bgi::translator::def<Value> T;
+    typedef bgi::translator<Value> T;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, T, A> Tree;
     typedef typename Tree::box_type B;
@@ -1165,7 +1165,7 @@ void test_count_rtree_values(Parameters const& parameters, Allocator const& allo
 {
     typedef counting_value<Indexable> Value;
 
-    typedef bgi::translator::def<Value> T;
+    typedef bgi::translator<Value> T;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, T, A> Tree;
     typedef typename Tree::box_type B;
@@ -1207,7 +1207,7 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
 {
     typedef std::pair<Indexable, int> Value;
 
-    typedef bgi::translator::def<Value> T;
+    typedef bgi::translator<Value> T;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, T, A> Tree;
     typedef typename Tree::box_type B;
@@ -1237,7 +1237,7 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
 template <typename Value, typename Parameters, typename Allocator>
 void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 {
-    typedef bgi::translator::def<Value> T;
+    typedef bgi::translator<Value> T;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, T, A> Tree;
     typedef typename Tree::box_type B;
