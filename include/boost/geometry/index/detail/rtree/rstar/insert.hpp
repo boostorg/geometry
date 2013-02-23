@@ -532,7 +532,7 @@ private:
 
     size_t m_relative_level;
 
-    Allocators m_allocators;
+    Allocators & m_allocators;
 };
 
 }}} // namespace detail::rtree::visitors

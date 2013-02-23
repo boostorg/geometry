@@ -9,4 +9,6 @@
 =============================================================================/]
 
 [import src/examples/rtree/quick_start.cpp]
+[import src/examples/rtree/polygons_vector.cpp]
+[import src/examples/rtree/polygons_shared_ptr.cpp]
 [import src/examples/rtree/interprocess.cpp]
