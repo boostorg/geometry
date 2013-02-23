@@ -14,7 +14,7 @@
 
 __rtree__ has 4 parameters:
 
- rtree<Value, Parameters, Translator = translator::def<Value>, Allocator> = std::allocator<Value> >
+ rtree<Value, Parameters, Translator = index::translator<Value>, Allocator> = std::allocator<Value> >
 
 * `__value__` - type of object which will be stored in the container,
 * `Parameters` - parameters type, inserting/splitting algorithm,
@@ -29,7 +29,7 @@ __rtree__ has 4 parameters:
 __rtree__ may store `__value__`s of any type as long the `__translator__` knows how to interpret those `__value__`s
 and extract an object that the __rtree__ can handle. Those objects are called
 `__indexable__`s in this documentation. Each type adapted to `__point__` or `__box__` concept is an `__indexable__`.
-`__value__`s types which can be handled by the default `__translator__` - `index::translator::def<__value__>`
+`__value__`s types which can be handled by the default `__translator__` - `index::translator<__value__>`
 are defined as follows:
 
 * `__indexable__ = __point__ | __box__`

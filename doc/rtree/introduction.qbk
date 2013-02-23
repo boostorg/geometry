@@ -1,4 +1,4 @@
-[/============================================================================
+﻿[/============================================================================
   Boost.Geometry Index
 
   Copyright (c) 2011-2012 Adam Wulkiewicz.
@@ -61,11 +61,11 @@ R-tree depends on *Boost.Move*, *Boost.Container*, *Boost.Tuple*, *Boost.Utility
 
 [heading Contributors]
 
-The spatial index was originally started by Federico J. Fernandez during the Google-Of-Summer project 2008, mentored by Hartmut Kaiser.
+The spatial index was originally started by Federico J. Fernandez during the Google Summer of Code 2008 program, mentored by Hartmut Kaiser.
 
 [heading Spatial thanks]
 
-I'd like to thank Barend Gehrels, Bruno Lalande, Lucanus J. Simonson for their support and ideas, as well as the members of the Boost.Geometry mailing list for their help.
+I'd like to thank Barend Gehrels, Bruno Lalande, Mateusz Łoskot, Lucanus J. Simonson for their support and ideas.
 
 [endsect]
 

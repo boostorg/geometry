@@ -53,7 +53,7 @@
 <p>
           R-tree has 4 parameters:
         </p>
-<pre class="programlisting"><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Parameters</span><span class="special">,</span> <span class="identifier">Translator</span> <span class="special">=</span> <span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;,</span> <span class="identifier">Allocator</span><span class="special">&gt;</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span> <span class="special">&gt;</span>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Parameters</span><span class="special">,</span> <span class="identifier">Translator</span> <span class="special">=</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;,</span> <span class="identifier">Allocator</span><span class="special">&gt;</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span> <span class="special">&gt;</span>
 </pre>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
@@ -87,7 +87,7 @@
           in this documentation. Each type adapted to <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
           or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
           concept is an <code class="computeroutput">Indexable</code>. <code class="computeroutput">Value</code>s types which can
-          be handled by the default <code class="computeroutput">Translator</code> - <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">::</span><span class="identifier">def</span><span class="special">&lt;</span>Value<span class="special">&gt;</span></code>
+          be handled by the default <code class="computeroutput">Translator</code> - <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">&lt;</span>Value<span class="special">&gt;</span></code>
           are defined as follows:
         </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
