@@ -192,11 +192,17 @@ struct translator< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 namespace detail { namespace translator {
 
 template <typename Translator>
+struct result_type
+{
+    typedef typename Translator::result_type type;
+};
+
+template <typename Translator>
 struct indexable_type
 {
     typedef typename boost::remove_const<
         typename boost::remove_reference<
-            typename Translator::result_type
+            typename result_type<Translator>::type
         >::type
     >::type type;
 };

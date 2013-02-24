@@ -147,7 +147,7 @@ public:
     \par Throws
     If allocator default constructor throws.
     */
-    inline explicit rtree(parameters_type parameters = parameters_type(),
+    inline explicit rtree(parameters_type const& parameters = parameters_type(),
                           translator_type const& translator = translator_type())
         : m_members(translator, parameters)
     {}
@@ -162,7 +162,7 @@ public:
     \par Throws
     If allocator copy constructor throws.
     */
-    inline rtree(parameters_type parameters,
+    inline rtree(parameters_type const& parameters,
                  translator_type const& translator,
                  allocator_type allocator)
         : m_members(translator, parameters, allocator)
@@ -185,7 +185,7 @@ public:
     */
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last,
-                 parameters_type parameters = parameters_type(),
+                 parameters_type const& parameters = parameters_type(),
                  translator_type const& translator = translator_type(),
                  allocator_type allocator = allocator_type())
         : m_members(translator, parameters, allocator)
@@ -217,7 +217,7 @@ public:
     */
     template<typename Range>
     inline explicit rtree(Range const& rng,
-                          parameters_type parameters = parameters_type(),
+                          parameters_type const& parameters = parameters_type(),
                           translator_type const& translator = translator_type(),
                           allocator_type allocator = allocator_type())
         : m_members(translator, parameters, allocator)

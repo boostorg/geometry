@@ -111,7 +111,7 @@ struct element_indexable_type<
 // element's indexable getter
 
 template <typename Element, typename Translator>
-typename Translator::result_type
+typename translator::result_type<Translator>::type
 element_indexable(Element const& el, Translator const& tr)
 {
     return tr(el);

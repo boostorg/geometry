@@ -26,6 +26,14 @@
 [rtree_variants_map]
 [endsect]
 
+[section Specializing Translator - storing shared pointers in the rtree]
+[rtree_translator_shared_ptr]
+[endsect]
+
+[section Using Translator object - storing indexes of external container's elements]
+[rtree_translator_index]
+[endsect]
+
 [section Index stored in shared memory using Boost.Interprocess]
 [rtree_interprocess]
 [endsect]
