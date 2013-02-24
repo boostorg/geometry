@@ -22,7 +22,11 @@
 [rtree_polygons_shared_ptr]
 [endsect]
 
-[section Interprocess]
+[section Index of iterators of a map storing variant geometries]
+[rtree_variants_map]
+[endsect]
+
+[section Index stored in shared memory using Boost.Interprocess]
 [rtree_interprocess]
 [endsect]
 

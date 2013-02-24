@@ -12,6 +12,8 @@ exe polygons_vector : polygons_vector.cpp
     ;
 exe polygons_shared_ptr : polygons_shared_ptr.cpp
     ;
+exe variants_map : variants_map.cpp
+    ;
 
 exe interprocess : interprocess.cpp /boost/thread//boost_thread
         :
