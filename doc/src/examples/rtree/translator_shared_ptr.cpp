@@ -51,7 +51,7 @@ int main(void)
 
     std::cout << "filling index with boxes shared pointers:" << std::endl;
 
-    // create some polygons and fill the spatial index
+    // fill the spatial index
     for ( unsigned i = 0 ; i < 10 ; ++i )
     {
         // create a box
