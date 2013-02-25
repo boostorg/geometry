@@ -837,6 +837,31 @@ void test_nearest_query_not_found(Rtree const& rtree, Point const& pt)
     BOOST_CHECK(n_res < 5);
 }
 
+template <typename Value>
+bool test_value_fun(Value const& v) { return true; }
+
+struct test_value_obj
+{
+    template <typename Value>
+    bool operator()(Value const& v) const { return true; }
+};
+
+template <typename Rtree, typename Value>
+void test_value_predicate(Rtree const& rtree, std::vector<Value> const& input)
+{
+    std::vector<Value> result;
+    rtree.query(bgi::value(test_value_obj()), std::back_inserter(result));
+    BOOST_CHECK(result.size() == input.size());
+    result.clear();
+    rtree.query(bgi::value(test_value_fun<Value>), std::back_inserter(result));
+    BOOST_CHECK(result.size() == input.size());
+#ifndef BOOST_NO_CXX11_LAMBDAS
+    result.clear();
+    rtree.query(bgi::value([](Value const& v){ return true; }), std::back_inserter(result));
+    BOOST_CHECK(result.size() == input.size());
+#endif
+}
+
 // rtree copying and moving
 
 template <typename Rtree, typename Box>
@@ -1135,6 +1160,8 @@ void test_rtree_by_value(Parameters const& parameters, Allocator const& allocato
     
     test_nearest_query_k(tree, input, pt, 10);
     test_nearest_query_not_found(tree, generate_outside_point<P>::apply());
+
+    test_value_predicate(tree, input);
 
     test_copy_assignment_swap_move(tree, qbox);
 
