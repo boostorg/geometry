@@ -50,7 +50,7 @@ struct offset_range
                 DistanceStrategy const& distance,
                 JoinStrategy const& join)
     {
-        collection.add_input();
+        collection.start_new_ring();
         iterate(collection, boost::begin(range), boost::end(range), 
             buffer_side_left,
             distance, join);
@@ -123,8 +123,6 @@ inline void offset(Geometry const& geometry, GeometryOut& out,
 
     detail::buffer::buffered_piece_collection
         <
-            //typename geometry::ring_type<GeometryOut>::type
-            // TODO the piece collection will not require a polygonal argument
             model::ring<typename point_type<Geometry>::type> 
         > collection;
 
@@ -135,6 +133,10 @@ inline void offset(Geometry const& geometry, GeometryOut& out,
         Geometry,
         GeometryOut
     >::apply(collection, geometry, distance_strategy, join);
+
+
+    collection.assign_offsetted_rings(out);
+
 }
 
 

@@ -383,7 +383,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     //collection.map_traverse(mapper);
 #endif
 
-    collection.assign<GeometryOutput>(out);
+    collection.template assign<GeometryOutput>(out);
 }
 
 

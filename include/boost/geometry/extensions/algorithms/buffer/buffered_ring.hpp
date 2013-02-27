@@ -68,6 +68,19 @@ struct buffered_ring_collection : public std::vector<Ring>
 };
 
 }} // namespace detail::buffer
+
+
+// Turn of concept checking (for now)
+namespace dispatch
+{
+template <typename Geometry, bool IsConst>
+struct check<Geometry, detail::buffer::buffered_ring_collection_tag, IsConst>
+{
+};
+
+}
+
+
 #endif // DOXYGEN_NO_DETAIL
 
 
@@ -112,6 +125,10 @@ struct tag<detail::buffer::buffered_ring_collection<Ring> >
 
 
 } // namespace traits
+
+
+
+
 
 namespace core_dispatch
 {
