@@ -30,12 +30,12 @@ int main()
 
     typedef boost::tuple<std::string, std::string> P;
     std::vector<P> parameters;
-    parameters.push_back(boost::make_tuple("bgi::linear<4, 2>()", "linear"));
-    parameters.push_back(boost::make_tuple("bgi::quadratic<4, 2>()", "quadratic"));
-    parameters.push_back(boost::make_tuple("bgi::rstar<4, 2>()", "rstar"));
-    parameters.push_back(boost::make_tuple("bgi::runtime::linear(4, 2)", "linear_rt"));
-    parameters.push_back(boost::make_tuple("bgi::runtime::quadratic(4, 2)", "quadratic_rt"));
-    parameters.push_back(boost::make_tuple("bgi::runtime::rstar(4, 2)","rstar_rt"));
+    parameters.push_back(boost::make_tuple("bgi::linear<8, 3>()", "linear"));
+    parameters.push_back(boost::make_tuple("bgi::quadratic<8, 3>()", "quadratic"));
+    parameters.push_back(boost::make_tuple("bgi::rstar<8, 3>()", "rstar"));
+    parameters.push_back(boost::make_tuple("bgi::dynamic_linear(8, 3)", "linear_dyn"));
+    parameters.push_back(boost::make_tuple("bgi::dynamic_quadratic(8, 3)", "quadratic_dyn"));
+    parameters.push_back(boost::make_tuple("bgi::dynamic_rstar(8, 3)","rstar_dyn"));
     
     std::vector<std::string> indexables;
     indexables.push_back("p");

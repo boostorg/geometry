@@ -110,10 +110,10 @@ struct options_type< index::rstar<MaxElements, MinElements, OverlapCostThreshold
 //};
 
 template <>
-struct options_type< index::runtime::linear >
+struct options_type< index::dynamic_linear >
 {
     typedef options<
-        index::runtime::linear,
+        index::dynamic_linear,
         insert_default_tag,
         choose_by_content_diff_tag,
         split_default_tag,
@@ -123,10 +123,10 @@ struct options_type< index::runtime::linear >
 };
 
 template <>
-struct options_type< index::runtime::quadratic >
+struct options_type< index::dynamic_quadratic >
 {
     typedef options<
-        index::runtime::quadratic,
+        index::dynamic_quadratic,
         insert_default_tag,
         choose_by_content_diff_tag,
         split_default_tag,
@@ -136,10 +136,10 @@ struct options_type< index::runtime::quadratic >
 };
 
 template <>
-struct options_type< index::runtime::rstar >
+struct options_type< index::dynamic_rstar >
 {
     typedef options<
-        index::runtime::rstar,
+        index::dynamic_rstar,
         insert_reinsert_tag,
         choose_by_overlap_diff_tag,
         split_default_tag,

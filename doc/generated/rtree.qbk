@@ -27,9 +27,9 @@ Predefined algorithms with compile-time parameters are:
 
 Predefined algorithms with run-time parameters are: 
 
-* [^[link classboost_1_1geometry_1_1index_1_1runtime_1_1linear boost::geometry::index::runtime::linear]], 
-* [^[link classboost_1_1geometry_1_1index_1_1runtime_1_1quadratic boost::geometry::index::runtime::quadratic]], 
-* [^[link classboost_1_1geometry_1_1index_1_1runtime_1_1rstar boost::geometry::index::runtime::rstar]].
+* [^[link classboost_1_1geometry_1_1index_1_1dynamic__linear boost::geometry::index::dynamic_linear]], 
+* [^[link classboost_1_1geometry_1_1index_1_1dynamic__quadratic boost::geometry::index::dynamic_quadratic]], 
+* [^[link classboost_1_1geometry_1_1index_1_1dynamic__rstar boost::geometry::index::dynamic_rstar]].
 
 
 
@@ -75,10 +75,10 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [heading Constructor(s) and destructor]
 [table
 [[Function][Description]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1afa64d1b825b06d196b1164aec27c2d7b `rtree()`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a2cadbaa3a7157f7503eef3f2f6b889aa `rtree(parameters_type, translator_type const &, allocator_type)`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a64c67e0dec7ccce2dc52d918436c62e5 `rtree(Iterator, Iterator)`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a0d15842e8bb86a87f073ffabb7cabd21 `rtree(Range const &)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a393bb202f84b6fe5613df02d1ba2a092 `rtree()`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a434839ea5dd2e57f9491d18520621c4b `rtree(parameters_type const &, translator_type const &, allocator_type)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1ace0b58f496b7eb00c518b4fc2794f4bc `rtree(Iterator, Iterator)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a513f271626372c6dad5488f64db6d1d4 `rtree(Range const &)`]][The constructor. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1ae8b10914ec434d1ee6877f5e1000b674 `~rtree()`]][The destructor. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a006904b4e7dcef1fd1efcb70a010964f `rtree(rtree const &)`]][The copy constructor. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1ac59521aa9a9b69104fa25c0f7b705354 `rtree(rtree const &, allocator_type const &)`]][The copy constructor. ]]
@@ -109,21 +109,21 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a1eeb303253f4cabe3a89a82ed41247ff `get_allocator()`]][Returns allocator used by the rtree. ]]
 ]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1afa64d1b825b06d196b1164aec27c2d7b]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a393bb202f84b6fe5613df02d1ba2a092]
 [section rtree()]
 The constructor. 
 
 [heading Synopsis]
 [pre
 
-`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]] `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]`()``)`
+`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]`()``)`
 ]
 
 [heading Modifier(s)]
 ``explicit ``[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]][ `parameters` ][The parameters object. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &`][ `translator` ][The translator object.]]
 ]
 [heading Throws]
@@ -131,14 +131,14 @@ If allocator default constructor throws.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a2cadbaa3a7157f7503eef3f2f6b889aa]
-[section rtree(parameters_type, translator_type const &, allocator_type)]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a434839ea5dd2e57f9491d18520621c4b]
+[section rtree(parameters_type const &, translator_type const &, allocator_type)]
 The constructor. 
 
 [heading Synopsis]
 [pre
 
-`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]] `parameters``,`
+`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters``,`
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator``,`
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `allocator``)`
 ]
@@ -146,7 +146,7 @@ The constructor.
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]][ `parameters` ][The parameters object. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &`][ `translator` ][The translator object. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]][ `allocator` ][The allocator object.]]
 ]
@@ -155,7 +155,7 @@ If allocator copy constructor throws.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a64c67e0dec7ccce2dc52d918436c62e5]
+[#classboost_1_1geometry_1_1index_1_1rtree_1ace0b58f496b7eb00c518b4fc2794f4bc]
 [section rtree(Iterator, Iterator)]
 The constructor. 
 
@@ -164,7 +164,7 @@ The constructor.
 `template<``typename Iterator``>`
 `rtree``(``Iterator` `first``,`
       `Iterator` `last``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]] `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,`
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]`()``,`
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]`()``)`
 ]
@@ -174,7 +174,7 @@ The constructor.
 [[Type][Name][Description]]
 [[`Iterator`][ `first` ][The beginning of the range of Values. ]]
 [[`Iterator`][ `last` ][The end of the range of Values. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]][ `parameters` ][The parameters object. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &`][ `translator` ][The translator object. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]][ `allocator` ][The allocator object.]]
 ]
@@ -190,7 +190,7 @@ The constructor.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a0d15842e8bb86a87f073ffabb7cabd21]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a513f271626372c6dad5488f64db6d1d4]
 [section rtree(Range const &)]
 The constructor. 
 
@@ -198,7 +198,7 @@ The constructor.
 [pre
 `template<``typename Range``>`
 `rtree``(``Range const &` `rng``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]] `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,`
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]`()``,`
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]`()``)`
 ]
@@ -208,7 +208,7 @@ The constructor.
 [table 
 [[Type][Name][Description]]
 [[`Range const &`][ `rng` ][The range of Values. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]][ `parameters` ][The parameters object. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &`][ `translator` ][The translator object. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]][ `allocator` ][The allocator object.]]
 ]

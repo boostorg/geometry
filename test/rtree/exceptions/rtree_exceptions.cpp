@@ -165,11 +165,11 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
 int test_main(int, char* [])
 {
     test_rtree_value_exceptions< bgi::linear<4, 2> >();
-    test_rtree_value_exceptions(bgi::runtime::linear(4, 2));
+    test_rtree_value_exceptions(bgi::dynamic_linear(4, 2));
     test_rtree_value_exceptions< bgi::quadratic<4, 2> >();
-    test_rtree_value_exceptions(bgi::runtime::quadratic(4, 2));
+    test_rtree_value_exceptions(bgi::dynamic_quadratic(4, 2));
     test_rtree_value_exceptions< bgi::rstar<4, 2, 0, 2> >();
-    test_rtree_value_exceptions(bgi::runtime::rstar(4, 2, 0, 2));
+    test_rtree_value_exceptions(bgi::dynamic_rstar(4, 2, 0, 2));
 
     test_rtree_elements_exceptions< bgi::linear_throwing<4, 2> >();
     test_rtree_elements_exceptions< bgi::quadratic_throwing<4, 2> >();

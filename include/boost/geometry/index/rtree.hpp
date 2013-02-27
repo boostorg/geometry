@@ -77,9 +77,9 @@ Predefined algorithms with compile-time parameters are:
 
 \par
 Predefined algorithms with run-time parameters are:
- \li \c boost::geometry::index::runtime::linear,
- \li \c boost::geometry::index::runtime::quadratic,
- \li \c boost::geometry::index::runtime::rstar.
+ \li \c boost::geometry::index::dynamic_linear,
+ \li \c boost::geometry::index::dynamic_quadratic,
+ \li \c boost::geometry::index::dynamic_rstar.
 
 \par Translator
 The Translator translates from Value to Indexable each time r-tree requires it. Which means that this

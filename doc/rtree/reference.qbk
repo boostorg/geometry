@@ -18,9 +18,9 @@
 [include ../generated/rtree_linear.qbk]
 [include ../generated/rtree_quadratic.qbk]
 [include ../generated/rtree_rstar.qbk]
-[include ../generated/rtree_runtime_linear.qbk]
-[include ../generated/rtree_runtime_quadratic.qbk]
-[include ../generated/rtree_runtime_rstar.qbk]
+[include ../generated/rtree_dynamic_linear.qbk]
+[include ../generated/rtree_dynamic_quadratic.qbk]
+[include ../generated/rtree_dynamic_rstar.qbk]
 
 [endsect]
 

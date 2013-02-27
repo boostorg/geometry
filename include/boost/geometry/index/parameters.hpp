@@ -98,12 +98,10 @@ struct rstar
 //    static const size_t min_elements = MinElements;
 //};
 
-namespace runtime {
-
 /*!
-\brief Linear r-tree creation algorithm parameters.
+\brief Linear r-tree creation algorithm parameters - run-time version.
 */
-class linear
+class dynamic_linear
 {
 public:
     /*!
@@ -112,7 +110,7 @@ public:
     \param max_elements     Maximum number of elements in nodes.
     \param min_elements     Minimum number of elements in nodes.
     */
-    linear(size_t max_elements, size_t min_elements)
+    dynamic_linear(size_t max_elements, size_t min_elements)
         : m_max_elements(max_elements)
         , m_min_elements(min_elements)
     {}
@@ -126,9 +124,9 @@ private:
 };
 
 /*!
-\brief Quadratic r-tree creation algorithm parameters.
+\brief Quadratic r-tree creation algorithm parameters - run-time version.
 */
-class quadratic
+class dynamic_quadratic
 {
 public:
     /*!
@@ -137,7 +135,7 @@ public:
     \param max_elements     Maximum number of elements in nodes.
     \param min_elements     Minimum number of elements in nodes.
     */
-    quadratic(size_t max_elements, size_t min_elements)
+    dynamic_quadratic(size_t max_elements, size_t min_elements)
         : m_max_elements(max_elements)
         , m_min_elements(min_elements)
     {}
@@ -160,9 +158,9 @@ inline size_t default_rstar_reinserted_elements_d()
 } // namespace detail
 
 /*!
-\brief R*-tree creation algorithm parameters.
+\brief R*-tree creation algorithm parameters - run-time version.
 */
-class rstar
+class dynamic_rstar
 {
 public:
     /*!
@@ -175,10 +173,10 @@ public:
                                     overlap cost. If 0 minimum overlap cost is always calculated.
     \param reinserted_elements      Number of elements reinserted by forced reinsertions algorithm.
     */
-    rstar(size_t max_elements,
-          size_t min_elements,
-          size_t overlap_cost_threshold = 0,
-          size_t reinserted_elements = detail::default_rstar_reinserted_elements_d())
+    dynamic_rstar(size_t max_elements,
+                  size_t min_elements,
+                  size_t overlap_cost_threshold = 0,
+                  size_t reinserted_elements = detail::default_rstar_reinserted_elements_d())
         : m_max_elements(max_elements)
         , m_min_elements(min_elements)
         , m_overlap_cost_threshold(overlap_cost_threshold)
@@ -200,8 +198,6 @@ private:
     size_t m_overlap_cost_threshold;
     size_t m_reinserted_elements;
 };
-
-} // namespace runtime
 
 }}} // namespace boost::geometry::index
 
