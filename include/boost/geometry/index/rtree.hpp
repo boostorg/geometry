@@ -634,8 +634,8 @@ public:
     tree.query(box, std::back_inserter(result));
     // return elements intersecting poly but not within box
     tree.query(bgi::intersects(poly) && !bgi::within(box), std::back_inserter(result));
-    // return elements overlapping box and meeting my_fun value predicate
-    tree.query(bgi::overlaps(box) && bgi::value(my_fun), std::back_inserter(result));
+    // return elements overlapping box and meeting my_fun unary predicate
+    tree.query(bgi::overlaps(box) && bgi::satisfies(my_fun), std::back_inserter(result));
     // return 5 elements nearest to pt and elements are intersecting box
     tree.query(bgi::nearest(pt, 5) && bgi::intersects(box), std::back_inserter(result));
     // return 5 elements which centroids are nearest to pt and elements aren't within box
@@ -1286,7 +1286,7 @@ bgi::query(tree, box, std::back_inserter(result));
 // return elements intersecting poly but not within box
 bgi::query(tree, bgi::intersects(poly) && !bgi::within(box), std::back_inserter(result));
 // return elements overlapping box and meeting my_fun value predicate
-bgi::query(tree, bgi::overlaps(box) && bgi::value(my_fun), std::back_inserter(result));
+bgi::query(tree, bgi::overlaps(box) && bgi::satisfies(my_fun), std::back_inserter(result));
 // return 5 elements nearest to pt and elements are intersecting box
 bgi::query(tree, bgi::nearest(pt, 5) && bgi::intersects(box), std::back_inserter(result));
 // return 5 elements which centroids are nearest to pt and elements aren't within box

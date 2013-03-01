@@ -2602,7 +2602,7 @@
             by:
           </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
-                <code class="literal"><a class="link" href="reference.html#group__predicates_1ga8acb81106fce01da72f310184ab4d9ce">boost::geometry::index::value()</a></code>.
+                <code class="literal"><code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">()</span></code></code>.
               </li></ul></div>
 <p>
             <span class="bold"><strong>Nearest predicate</strong></span>
@@ -2719,8 +2719,8 @@
 <span class="identifier">tree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">box</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 <span class="comment">// return elements intersecting poly but not within box</span>
 <span class="identifier">tree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">poly</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="special">!</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
-<span class="comment">// return elements overlapping box and meeting my_fun value predicate</span>
-<span class="identifier">tree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">value</span><span class="special">(</span><span class="identifier">my_fun</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="comment">// return elements overlapping box and meeting my_fun unary predicate</span>
+<span class="identifier">tree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">satisfies</span><span class="special">(</span><span class="identifier">my_fun</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 <span class="comment">// return 5 elements nearest to pt and elements are intersecting box</span>
 <span class="identifier">tree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">5</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 <span class="comment">// return 5 elements which centroids are nearest to pt and elements aren't within box</span>
@@ -4018,7 +4018,7 @@
             by:
           </p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
-                <code class="literal"><a class="link" href="reference.html#group__predicates_1ga8acb81106fce01da72f310184ab4d9ce">boost::geometry::index::value()</a></code>.
+                <code class="literal"><code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">()</span></code></code>.
               </li></ul></div>
 <p>
             <span class="bold"><strong>Nearest predicate</strong></span>
@@ -4156,7 +4156,7 @@
 <span class="comment">// return elements intersecting poly but not within box</span>
 <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">tree</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">poly</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="special">!</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 <span class="comment">// return elements overlapping box and meeting my_fun value predicate</span>
-<span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">tree</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">value</span><span class="special">(</span><span class="identifier">my_fun</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">tree</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">satisfies</span><span class="special">(</span><span class="identifier">my_fun</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 <span class="comment">// return 5 elements nearest to pt and elements are intersecting box</span>
 <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">tree</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">5</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 <span class="comment">// return 5 elements which centroids are nearest to pt and elements aren't within box</span>
@@ -5479,13 +5479,14 @@
 <tr>
 <td>
                   <p>
-                    <a class="link" href="reference.html#group__predicates_1ga8acb81106fce01da72f310184ab4d9ce"><code class="computeroutput"><span class="identifier">value</span><span class="special">(</span><span class="identifier">Fun</span> <span class="keyword">const</span>
+                    <a class="link" href="reference.html#group__predicates_1gae7e9291c5b99041fb155d29de0860bab"><code class="computeroutput"><span class="identifier">satisfies</span><span class="special">(</span><span class="identifier">UnaryPredicate</span> <span class="keyword">const</span>
                     <span class="special">&amp;)</span></code></a>
                   </p>
                 </td>
 <td>
                   <p>
-                    Generate value predicate.
+                    Generate <a class="link" href="reference.html#group__predicates_1gae7e9291c5b99041fb155d29de0860bab">satisfies()</a>
+                    predicate.
                   </p>
                 </td>
 </tr>
@@ -5498,7 +5499,8 @@
                 </td>
 <td>
                   <p>
-                    Generate nearest predicate.
+                    Generate <a class="link" href="reference.html#group__predicates_1gae80a2c204673a8b11c4fc137cfff6556">nearest()</a>
+                    predicate.
                   </p>
                 </td>
 </tr>
@@ -5609,6 +5611,16 @@
                   </td>
 </tr></tbody>
 </table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.h4"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.example"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.covered_by_geometry_const___.example">Example</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">covered_by</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
@@ -5715,6 +5727,16 @@
                   </td>
 </tr></tbody>
 </table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.h4"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.example"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.disjoint_geometry_const___.example">Example</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">disjoint</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
@@ -5821,6 +5843,18 @@
                   </td>
 </tr></tbody>
 </table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.h4"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.example"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.intersects_geometry_const___.example">Example</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">ring</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">polygon</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
@@ -5927,6 +5961,16 @@
                   </td>
 </tr></tbody>
 </table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.h4"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.example"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.overlaps_geometry_const___.example">Example</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">overlaps</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
@@ -6033,33 +6077,44 @@
                   </td>
 </tr></tbody>
 </table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.within_geometry_const___.h4"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.within_geometry_const___.example"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.within_geometry_const___.example">Example</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___"></a><a name="group__predicates_1ga8acb81106fce01da72f310184ab4d9ce"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.value_fun_const___" title="value(Fun const &amp;)">value(Fun
+<a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___"></a><a name="group__predicates_1gae7e9291c5b99041fb155d29de0860bab"></a><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___" title="satisfies(UnaryPredicate const &amp;)">satisfies(UnaryPredicate
           const &amp;)</a>
 </h5></div></div></div>
 <p>
-            Generate value predicate.
+            Generate <a class="link" href="reference.html#group__predicates_1gae7e9291c5b99041fb155d29de0860bab">satisfies()</a>
+            predicate.
           </p>
 <h6>
-<a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___.h0"></a>
-            <span><a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___.description"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.value_fun_const___.description">Description</a>
+<a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.h0"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.description"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.description">Description</a>
           </h6>
 <p>
-            A wrapper around user-defined functor describing if Value should be returned
-            by spatial query.
+            A wrapper around user-defined UnaryPredicate checking if Value should
+            be returned by spatial query.
           </p>
 <h6>
-<a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___.h1"></a>
-            <span><a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___.synopsis"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.value_fun_const___.synopsis">Synopsis</a>
+<a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.h1"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.synopsis"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.synopsis">Synopsis</a>
           </h6>
-<pre class="programlisting"><code class="computeroutput"><span class="keyword">template</span><span class="special">&lt;</span></code><code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">Fun</span></code><code class="computeroutput"><span class="special">&gt;</span></code>
-<code class="computeroutput"><span class="identifier">detail</span><span class="special">::</span><span class="identifier">value</span><span class="special">&lt;</span><span class="identifier">Fun</span><span class="special">&gt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span></code><code class="computeroutput"><span class="special">(</span></code><code class="computeroutput"><span class="identifier">Fun</span> <span class="keyword">const</span> <span class="special">&amp;</span></code> <code class="computeroutput"><span class="identifier">fun</span></code><code class="computeroutput"><span class="special">)</span></code>
+<pre class="programlisting"><code class="computeroutput"><span class="keyword">template</span><span class="special">&lt;</span></code><code class="computeroutput"><span class="keyword">typename</span> <span class="identifier">UnaryPredicate</span></code><code class="computeroutput"><span class="special">&gt;</span></code>
+<code class="computeroutput"><span class="identifier">detail</span><span class="special">::</span><span class="identifier">satisfies</span><span class="special">&lt;</span><span class="identifier">UnaryPredicate</span><span class="special">&gt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">satisfies</span></code><code class="computeroutput"><span class="special">(</span></code><code class="computeroutput"><span class="identifier">UnaryPredicate</span> <span class="keyword">const</span> <span class="special">&amp;</span></code> <code class="computeroutput"><span class="identifier">pred</span></code><code class="computeroutput"><span class="special">)</span></code>
 </pre>
 <h6>
-<a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___.h2"></a>
-            <span><a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.value_fun_const___.template_parameter_s_">Template
+<a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.h2"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.template_parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.template_parameter_s_">Template
             parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
@@ -6082,19 +6137,19 @@
 <tbody><tr>
 <td>
                     <p>
-                      <code class="computeroutput"><span class="identifier">Fun</span></code>
+                      <code class="computeroutput"><span class="identifier">UnaryPredicate</span></code>
                     </p>
                   </td>
 <td>
                     <p>
-                      Functor type.
+                      A type of unary predicate function or function object.
                     </p>
                   </td>
 </tr></tbody>
 </table></div>
 <h6>
-<a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___.h3"></a>
-            <span><a name="geometry_index.r_tree.reference.group__predicates.value_fun_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.value_fun_const___.parameter_s_">Parameter(s)</a>
+<a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.h3"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.parameter_s_"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.parameter_s_">Parameter(s)</a>
           </h6>
 <div class="informaltable"><table class="table">
 <colgroup>
@@ -6122,22 +6177,33 @@
 <tbody><tr>
 <td>
                     <p>
-                      <code class="computeroutput"><span class="identifier">Fun</span> <span class="keyword">const</span>
-                      <span class="special">&amp;</span></code>
+                      <code class="computeroutput"><span class="identifier">UnaryPredicate</span> <span class="keyword">const</span> <span class="special">&amp;</span></code>
                     </p>
                   </td>
 <td>
                     <p>
-                      <code class="computeroutput"><span class="identifier">fun</span></code>
+                      <code class="computeroutput"><span class="identifier">pred</span></code>
                     </p>
                   </td>
 <td>
                     <p>
-                      The functor.
+                      The unary predicate function or function object.
                     </p>
                   </td>
 </tr></tbody>
 </table></div>
+<h6>
+<a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.h4"></a>
+            <span><a name="geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.example"></a></span><a class="link" href="reference.html#geometry_index.r_tree.reference.group__predicates.satisfies_unarypredicate_const___.example">Example</a>
+          </h6>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="identifier">is_red</span><span class="special">(</span><span class="identifier">Value</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span> <span class="special">{</span> <span class="special">...</span> <span class="special">}</span>
+<span class="special">...</span>
+<span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">satisfies</span><span class="special">(</span><span class="identifier">is_red</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+</pre>
+<p>
+          </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
@@ -6145,7 +6211,8 @@
           const &amp;, unsigned)</a>
 </h5></div></div></div>
 <p>
-            Generate nearest predicate.
+            Generate <a class="link" href="reference.html#group__predicates_1gae80a2c204673a8b11c4fc137cfff6556">nearest()</a>
+            predicate.
           </p>
 <h6>
 <a name="geometry_index.r_tree.reference.group__predicates.nearest_pointorrelation_const____unsigned_.h0"></a>
@@ -6252,9 +6319,9 @@
           </h6>
 <p>
 </p>
-<pre class="programlisting"><span class="identifier">tree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">5</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
-<span class="identifier">tree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">5</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
-<span class="identifier">tree</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">to_centroid</span><span class="special">(</span><span class="identifier">pt</span><span class="special">),</span> <span class="number">5</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<pre class="programlisting"><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">5</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">pt</span><span class="special">,</span> <span class="number">5</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
+<span class="identifier">bgi</span><span class="special">::</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">spatial_index</span><span class="special">,</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">nearest</span><span class="special">(</span><span class="identifier">bgi</span><span class="special">::</span><span class="identifier">to_centroid</span><span class="special">(</span><span class="identifier">pt</span><span class="special">),</span> <span class="number">5</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">within</span><span class="special">(</span><span class="identifier">box</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 </pre>
 <p>
           </p>

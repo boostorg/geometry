@@ -832,32 +832,32 @@ void test_nearest_query_not_found(Rtree const& rtree, Point const& pt)
     typedef typename Rtree::value_type Value;
 
     std::vector<Value> output_v;
-    size_t n_res = rtree.query(bgi::nearest(pt, 5) && bgi::value(AlwaysFalse()), std::back_inserter(output_v));
+    size_t n_res = rtree.query(bgi::nearest(pt, 5) && bgi::satisfies(AlwaysFalse()), std::back_inserter(output_v));
     BOOST_CHECK(output_v.size() == n_res);
     BOOST_CHECK(n_res < 5);
 }
 
 template <typename Value>
-bool test_value_fun(Value const& v) { return true; }
+bool test_satisfies_fun(Value const& ) { return true; }
 
-struct test_value_obj
+struct test_satisfies_obj
 {
     template <typename Value>
-    bool operator()(Value const& v) const { return true; }
+    bool operator()(Value const& ) const { return true; }
 };
 
 template <typename Rtree, typename Value>
 void test_value_predicate(Rtree const& rtree, std::vector<Value> const& input)
 {
     std::vector<Value> result;
-    rtree.query(bgi::value(test_value_obj()), std::back_inserter(result));
+    rtree.query(bgi::satisfies(test_satisfies_obj()), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
     result.clear();
-    rtree.query(bgi::value(test_value_fun<Value>), std::back_inserter(result));
+    rtree.query(bgi::satisfies(test_satisfies_fun<Value>), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
 #ifndef BOOST_NO_CXX11_LAMBDAS
     result.clear();
-    rtree.query(bgi::value([](Value const& v){ return true; }), std::back_inserter(result));
+    rtree.query(bgi::satisfies([](Value const& v){ return true; }), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
 #endif
 }

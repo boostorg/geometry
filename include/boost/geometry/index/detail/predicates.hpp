@@ -20,12 +20,13 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 // predicates
 // ------------------------------------------------------------------ //
 
+// not needed?
 struct empty {};
 
 template <typename Fun>
-struct value
+struct satisfies
 {
-    value(Fun const& f) : fun(f) {}
+    satisfies(Fun const& f) : fun(f) {}
     Fun const& fun;
 };
 
@@ -151,6 +152,7 @@ struct predicate_check<Geometry, value_tag>
     }
 };
 
+// not needed?
 template <>
 struct predicate_check<empty, value_tag>
 {
@@ -162,10 +164,10 @@ struct predicate_check<empty, value_tag>
 };
 
 template <typename Fun>
-struct predicate_check<value<Fun>, value_tag>
+struct predicate_check<satisfies<Fun>, value_tag>
 {
     template <typename Value, typename Indexable>
-    static inline bool apply(value<Fun> const& p, Value const& v, Indexable const&)
+    static inline bool apply(satisfies<Fun> const& p, Value const& v, Indexable const&)
     {
         return p.fun(v);
     }
@@ -326,10 +328,10 @@ struct predicate_check<empty, bounds_tag>
 };
 
 template <typename Fun>
-struct predicate_check<value<Fun>, bounds_tag>
+struct predicate_check<satisfies<Fun>, bounds_tag>
 {
     template <typename Value, typename Box>
-    static bool apply(value<Fun> const&, Value const&, Box const&)
+    static bool apply(satisfies<Fun> const&, Value const&, Box const&)
     {
         return true;
     }

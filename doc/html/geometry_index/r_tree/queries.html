@@ -33,7 +33,7 @@
         queries</a></span></dt>
 <dt><span class="section"><a href="queries.html#geometry_index.r_tree.queries.nearest_neighbours_queries">Nearest
         neighbours queries</a></span></dt>
-<dt><span class="section"><a href="queries.html#geometry_index.r_tree.queries.value_predicate">Value
+<dt><span class="section"><a href="queries.html#geometry_index.r_tree.queries.satisfies_predicate">Satisfies
         predicate</a></span></dt>
 <dt><span class="section"><a href="queries.html#geometry_index.r_tree.queries.passing_a_set_of_predicates">Passing
         a set of predicates</a></span></dt>
@@ -54,7 +54,8 @@
             some Point,
           </li>
 <li class="listitem">
-            value predicate - passing user-defined functor to the query.
+            satisfies predicate - allows to pass user-defined UnaryPredicate (function
+            or function object) to the query.
           </li>
 </ul></div>
 <p>
@@ -313,13 +314,13 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.queries.value_predicate"></a><a class="link" href="queries.html#geometry_index.r_tree.queries.value_predicate" title="Value predicate">Value
+<a name="geometry_index.r_tree.queries.satisfies_predicate"></a><a class="link" href="queries.html#geometry_index.r_tree.queries.satisfies_predicate" title="Satisfies predicate">Satisfies
         predicate</a>
 </h4></div></div></div>
 <p>
-          There is a unique predicate <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">(...)</span></code> taking user-defined function/functor
-          which checks if <code class="computeroutput">Value</code> should be returned by the query. It
-          may be used to check some specific conditions for user-defined Values.
+          There is a unique predicate <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">satisfies</span><span class="special">(...)</span></code> taking user-defined function or function
+          object which checks if <code class="computeroutput">Value</code> should be returned by the query.
+          It may be used to check some specific conditions for user-defined Values.
         </p>
 <pre class="programlisting"><span class="keyword">bool</span> <span class="identifier">fun</span><span class="special">(</span>Value <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span>
 <span class="special">{</span>
@@ -328,7 +329,7 @@
 
 <span class="comment">// ...</span>
 
-<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">value</span><span class="special">(</span><span class="identifier">fun</span><span class="special">),</span>
+<span class="identifier">rt</span><span class="special">.</span><span class="identifier">query</span><span class="special">(</span><span class="identifier">index</span><span class="special">::</span><span class="identifier">intersects</span><span class="special">(</span><span class="identifier">box</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">satisfies</span><span class="special">(</span><span class="identifier">fun</span><span class="special">),</span>
          <span class="identifier">std</span><span class="special">::</span><span class="identifier">back_inserter</span><span class="special">(</span><span class="identifier">result</span><span class="special">));</span>
 </pre>
 </div>
