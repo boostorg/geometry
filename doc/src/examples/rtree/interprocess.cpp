@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
       std::cout << "Child: Querying for objects intersecting box = [(45, 45)(55, 55)]\n";
 
       std::vector<B> result;
-      unsigned k = tree->query(B(P(45, 45), P(55, 55)), std::back_inserter(result));
+      unsigned k = tree->query(bgi::intersects(B(P(45, 45), P(55, 55))), std::back_inserter(result));
 
       std::cout << "Child: Found objects:\n";
       std::cout << k << "\n";

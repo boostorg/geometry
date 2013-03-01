@@ -66,7 +66,9 @@ struct spatial_query
     }
 
     Translator const& tr;
-    Predicates const& pred;
+
+    Predicates pred;
+
     OutIter out_iter;
     size_t found_count;
 };

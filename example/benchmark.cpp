@@ -91,7 +91,7 @@ int main()
                 float x = coords[i].first;
                 float y = coords[i].second;
                 result.clear();
-                t.query(B(P(x - 10, y - 10), P(x + 10, y + 10)), std::back_inserter(result));
+                t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;

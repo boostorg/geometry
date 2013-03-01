@@ -175,9 +175,24 @@ A wrapper around user-defined UnaryPredicate checking if Value should be returne
 
 \par Example
 \verbatim
-bool is_red(Value const& v) { ... }
-...
-bgi::query(spatial_index, bgi::intersects(box) && bgi::satisfies(is_red), std::back_inserter(result));
+bool is_red(__value__ const& v) { return v.is_red(); }
+
+struct is_red_o {
+template <typename Value> bool operator()(__value__ const& v) { return v.is_red(); }
+}
+
+// ...
+
+rt.query(index::intersects(box) && index::satisfies(is_red),
+std::back_inserter(result));
+
+rt.query(index::intersects(box) && index::satisfies(is_red_o()),
+std::back_inserter(result));
+
+#ifndef BOOST_NO_CXX11_LAMBDAS
+rt.query(index::intersects(box) && index::satisfies([](__value__ const& v) { return v.is_red(); }),
+std::back_inserter(result));
+#endif
 \endverbatim
 
 \ingroup predicates
@@ -324,14 +339,13 @@ boost::tuples::cons<
 >
 operator&&(Pred1 const& p1, Pred2 const& p2)
 {
+    /*typedef typename boost::mpl::if_c<is_predicate<Pred1>::value, Pred1, Pred1 const&>::type stored1;
+    typedef typename boost::mpl::if_c<is_predicate<Pred2>::value, Pred2, Pred2 const&>::type stored2;*/
+    namespace bt = boost::tuples;
+
     return
-    boost::tuples::cons<
-        Pred1,
-        boost::tuples::cons<Pred2, boost::tuples::null_type>
-    >(
-        p1,
-        boost::tuples::cons<Pred2, boost::tuples::null_type>(p2, boost::tuples::null_type())
-    );
+    bt::cons< Pred1, bt::cons<Pred2, bt::null_type> >
+        ( p1, bt::cons<Pred2, bt::null_type>(p2, bt::null_type()) );
 }
 
 template <typename Head, typename Tail, typename Pred> inline
@@ -343,12 +357,12 @@ typename tuples::push_back_impl<
 >::type
 operator&&(boost::tuples::cons<Head, Tail> const& t, Pred const& p)
 {
+    //typedef typename boost::mpl::if_c<is_predicate<Pred>::value, Pred, Pred const&>::type stored;
+    namespace bt = boost::tuples;
+
     return
     tuples::push_back_impl<
-        boost::tuples::cons<Head, Tail>,
-        Pred,
-        0,
-        boost::tuples::length<boost::tuples::cons<Head, Tail> >::value
+        bt::cons<Head, Tail>, Pred, 0, bt::length< bt::cons<Head, Tail> >::value
     >::apply(t, p);
 }
     

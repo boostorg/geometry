@@ -19,48 +19,48 @@ namespace detail { namespace rtree { namespace visitors {
 // in store() or break store to 2 functions e.g. should_store() and store()
 // - well not with this algorithm of storing k-th neighbor
 
-template <typename Value, typename Translator, typename Point>
-struct nearest_query_result_one
-{
-public:
-    typedef typename geometry::default_distance_result<
-        Point,
-        typename translator::indexable_type<Translator>::type
-    >::type distance_type;
-
-    inline nearest_query_result_one(Value & value)
-        : m_value(value)
-        , m_comp_dist((std::numeric_limits<distance_type>::max)())
-    {}
-
-    inline void store(Value const& val, distance_type const& curr_comp_dist)
-    {
-        if ( curr_comp_dist < m_comp_dist )
-        {
-            m_comp_dist = curr_comp_dist;
-            m_value = val;
-        }
-    }
-
-    inline bool is_comparable_distance_valid() const
-    {
-        return m_comp_dist < (std::numeric_limits<distance_type>::max)();
-    }
-
-    inline distance_type comparable_distance() const
-    {
-        return m_comp_dist;
-    }
-
-    inline size_t finish()
-    {
-        return is_comparable_distance_valid() ? 1 : 0;
-    }
-
-private:
-    Value & m_value;
-    distance_type m_comp_dist;
-};
+//template <typename Value, typename Translator, typename Point>
+//struct nearest_query_result_one
+//{
+//public:
+//    typedef typename geometry::default_distance_result<
+//        Point,
+//        typename translator::indexable_type<Translator>::type
+//    >::type distance_type;
+//
+//    inline nearest_query_result_one(Value & value)
+//        : m_value(value)
+//        , m_comp_dist((std::numeric_limits<distance_type>::max)())
+//    {}
+//
+//    inline void store(Value const& val, distance_type const& curr_comp_dist)
+//    {
+//        if ( curr_comp_dist < m_comp_dist )
+//        {
+//            m_comp_dist = curr_comp_dist;
+//            m_value = val;
+//        }
+//    }
+//
+//    inline bool is_comparable_distance_valid() const
+//    {
+//        return m_comp_dist < (std::numeric_limits<distance_type>::max)();
+//    }
+//
+//    inline distance_type comparable_distance() const
+//    {
+//        return m_comp_dist;
+//    }
+//
+//    inline size_t finish()
+//    {
+//        return is_comparable_distance_valid() ? 1 : 0;
+//    }
+//
+//private:
+//    Value & m_value;
+//    distance_type m_comp_dist;
+//};
 
 template <typename Value, typename Translator, typename Point, typename OutIt>
 struct nearest_query_result_k
@@ -324,8 +324,9 @@ private:
 
     parameters_type const& m_parameters;
     Translator const& m_translator;
-    DistancesPredicates const& m_dist_pred;
-    Predicates const& m_pred;
+
+    DistancesPredicates m_dist_pred;
+    Predicates m_pred;
 
     Result & m_result;
 };

@@ -195,9 +195,24 @@ A wrapper around user-defined UnaryPredicate checking if Value should be returne
 [heading Example]
 
 ``
-bool is_red(Value const& v) { ... }
-...
-bgi::query(spatial_index, bgi::intersects(box) && bgi::satisfies(is_red), std::back_inserter(result));
+bool is_red(__value__ const& v) { return v.is_red(); }
+
+struct is_red_o {
+template <typename Value> bool operator()(__value__ const& v) { return v.is_red(); }
+}
+
+// ...
+
+rt.query(index::intersects(box) && index::satisfies(is_red),
+std::back_inserter(result));
+
+rt.query(index::intersects(box) && index::satisfies(is_red_o()),
+std::back_inserter(result));
+
+#ifndef BOOST_NO_CXX11_LAMBDAS
+rt.query(index::intersects(box) && index::satisfies([](__value__ const& v) { return v.is_red(); }),
+std::back_inserter(result));
+#endif
 ``
 
 

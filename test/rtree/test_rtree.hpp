@@ -574,7 +574,7 @@ void test_intersects(Rtree const& tree, std::vector<Value> const& input, Box con
         if ( bg::intersects(tree.translator()(v), qbox) )
             expected_output.push_back(v);
 
-    test_spatial_query(tree, qbox, expected_output);
+    //test_spatial_query(tree, qbox, expected_output);
     test_spatial_query(tree, bgi::intersects(qbox), expected_output);
     test_spatial_query(tree, !bgi::disjoint(qbox), expected_output);
 
@@ -857,7 +857,7 @@ void test_value_predicate(Rtree const& rtree, std::vector<Value> const& input)
     BOOST_CHECK(result.size() == input.size());
 #ifndef BOOST_NO_CXX11_LAMBDAS
     result.clear();
-    rtree.query(bgi::satisfies([](Value const& v){ return true; }), std::back_inserter(result));
+    rtree.query(bgi::satisfies([](Value const&){ return true; }), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
 #endif
 }
@@ -872,7 +872,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     size_t s = tree.size();
 
     std::vector<Value> expected_output;
-    tree.query(qbox, std::back_inserter(expected_output));
+    tree.query(bgi::intersects(qbox), std::back_inserter(expected_output));
 
     // copy constructor
     Rtree t1(tree);
@@ -881,7 +881,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     BOOST_CHECK(tree.size() == t1.size());
 
     std::vector<Value> output;
-    t1.query(qbox, std::back_inserter(output));
+    t1.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
 
     // copying assignment operator
@@ -891,7 +891,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     BOOST_CHECK(tree.size() == t1.size());
 
     output.clear();
-    t1.query(qbox, std::back_inserter(output));
+    t1.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
 
     Rtree t2(tree.parameters(), tree.translator(), tree.get_allocator());
@@ -902,11 +902,11 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     BOOST_CHECK(0 == t1.size());
 
     output.clear();
-    t1.query(qbox, std::back_inserter(output));
+    t1.query(bgi::intersects(qbox), std::back_inserter(output));
     BOOST_CHECK(output.empty());
 
     output.clear();
-    t2.query(qbox, std::back_inserter(output));
+    t2.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t2, output, expected_output);
     t2.swap(t1);
 
@@ -917,7 +917,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     BOOST_CHECK(t1.size() == 0);
 
     output.clear();
-    t3.query(qbox, std::back_inserter(output));
+    t3.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t3, output, expected_output);
 
     // moving assignment operator
@@ -927,7 +927,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     BOOST_CHECK(t3.size() == 0);
 
     output.clear();
-    t1.query(qbox, std::back_inserter(output));
+    t1.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
 
     //TODO - test SWAP
@@ -939,7 +939,7 @@ template <typename Rtree, typename Value, typename Box>
 void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
-    tree.query(qbox, std::back_inserter(expected_output));
+    tree.query(bgi::intersects(qbox), std::back_inserter(expected_output));
 
     {
         Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
@@ -947,7 +947,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
             t.insert(v);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        t.query(qbox, std::back_inserter(output));
+        t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
@@ -955,21 +955,21 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         std::copy(input.begin(), input.end(), bgi::inserter(t));
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        t.query(qbox, std::back_inserter(output));
+        t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(input.begin(), input.end(), tree.parameters(), tree.translator(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        t.query(qbox, std::back_inserter(output));
+        t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(input, tree.parameters(), tree.translator(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        t.query(qbox, std::back_inserter(output));
+        t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
@@ -977,7 +977,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         t.insert(input.begin(), input.end());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        t.query(qbox, std::back_inserter(output));
+        t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
@@ -985,7 +985,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         t.insert(input);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        t.query(qbox, std::back_inserter(output));
+        t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
 
@@ -995,7 +995,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
             bgi::insert(t, v);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        bgi::query(t, qbox, std::back_inserter(output));
+        bgi::query(t, bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
@@ -1003,7 +1003,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         bgi::insert(t, input.begin(), input.end());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        bgi::query(t, qbox, std::back_inserter(output));
+        bgi::query(t, bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
@@ -1011,7 +1011,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         bgi::insert(t, input);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
-        bgi::query(t, qbox, std::back_inserter(output));
+        bgi::query(t, bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
 }
@@ -1024,7 +1024,7 @@ void test_remove(Rtree & tree, Box const& qbox)
     typedef typename Rtree::value_type Value;
 
     std::vector<Value> values_to_remove;
-    tree.query(qbox, std::back_inserter(values_to_remove));
+    tree.query(bgi::intersects(qbox), std::back_inserter(values_to_remove));
     BOOST_CHECK(0 < values_to_remove.size());
 
     std::vector<Value> expected_output;
@@ -1107,7 +1107,7 @@ template <typename Rtree, typename Value, typename Box>
 void test_clear(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> values_to_remove;
-    tree.query(qbox, std::back_inserter(values_to_remove));
+    tree.query(bgi::intersects(qbox), std::back_inserter(values_to_remove));
     BOOST_CHECK(0 < values_to_remove.size());
 
     //clear
@@ -1208,7 +1208,7 @@ void test_count_rtree_values(Parameters const& parameters, Allocator const& allo
     BOOST_CHECK(t.size() + rest_count == Value::counter());
 
     std::vector<Value> values_to_remove;
-    t.query(qbox, std::back_inserter(values_to_remove));
+    t.query(bgi::intersects(qbox), std::back_inserter(values_to_remove));
 
     rest_count += values_to_remove.size();
 

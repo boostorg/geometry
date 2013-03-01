@@ -20,8 +20,7 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 // predicates
 // ------------------------------------------------------------------ //
 
-// not needed?
-struct empty {};
+//struct empty {};
 
 template <typename Fun>
 struct satisfies
@@ -126,42 +125,101 @@ struct nearest
 };
 
 // ------------------------------------------------------------------ //
+// is_predicate
+// ------------------------------------------------------------------ //
+
+//template <typename P> struct is_predicate { static const bool value = false; };
+////template <> struct is_predicate< empty > { static const bool value = true; };
+//template <typename UP> struct is_predicate< satisfies<UP> > { static const bool value = true; };
+//template <typename G> struct is_predicate< covered_by<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< disjoint<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< intersects<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< overlaps<G> > { static const bool value = true; };
+////template <typename G> struct is_predicate< touches<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< within<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< not_covered_by<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< not_disjoint<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< not_intersects<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< not_overlaps<G> > { static const bool value = true; };
+////template <typename G> struct is_predicate< not_touches<G> > { static const bool value = true; };
+//template <typename G> struct is_predicate< not_within<G> > { static const bool value = true; };
+//template <typename P> struct is_predicate< nearest<P> > { static const bool value = true; };
+
+// ------------------------------------------------------------------ //
+// predicate_check_default
+// ------------------------------------------------------------------ //
+
+//template <typename GeometryOrUnary, typename GeometryTag, typename Tag>
+//struct predicate_check_default
+//{
+//    BOOST_MPL_ASSERT_MSG(
+//        (false),
+//        NOT_IMPLEMENTED_FOR_THESE_TAGS,
+//        (predicate_check_default));
+//};
+
+// ------------------------------------------------------------------ //
 // predicate_check
 // ------------------------------------------------------------------ //
 
-template <typename Geometry, typename Tag>
+template <typename Predicate, typename Tag>
 struct predicate_check
 {
     BOOST_MPL_ASSERT_MSG(
         (false),
-        NOT_IMPLEMENTED_FOR_THIS_TAG,
+        NOT_IMPLEMENTED_FOR_THIS_PREDICATE_OR_TAG,
         (predicate_check));
 };
+
+// ------------------------------------------------------------------ //
+// predicate_check_default for value
+// ------------------------------------------------------------------ //
+
+//template <typename Geometry, typename GeometryTag>
+//struct predicate_check_default<Geometry, GeometryTag, value_tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(Geometry const& g, Value const&, Indexable const& i)
+//    {
+//        return geometry::intersects(i, g);
+//    }
+//};
+//
+//template <typename Unary>
+//struct predicate_check_default<Unary, void, value_tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(Unary const& u, Value const& v, Indexable const&)
+//    {
+//        return u(v);
+//    }
+//};
 
 // ------------------------------------------------------------------ //
 // predicate_check for value
 // ------------------------------------------------------------------ //
 
-template <typename Geometry>
-struct predicate_check<Geometry, value_tag>
-{
-    template <typename Value, typename Indexable>
-    static inline bool apply(Geometry const& g, Value const&, Indexable const& i)
-    {
-        return geometry::intersects(i, g);
-    }
-};
+//template <typename GeometryOrUnary>
+//struct predicate_check<GeometryOrUnary, value_tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(GeometryOrUnary const& g, Value const& v, Indexable const& i)
+//    {
+//        return predicate_check_default<
+//            GeometryOrUnary, typename geometry::traits::tag<GeometryOrUnary>::type, bounds_tag
+//        >::apply(g, v, i);
+//    }
+//};
 
-// not needed?
-template <>
-struct predicate_check<empty, value_tag>
-{
-    template <typename Value, typename Indexable>
-    static inline bool apply(empty const&, Value const&, Indexable const&)
-    {
-        return true;
-    }
-};
+//template <>
+//struct predicate_check<empty, value_tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(empty const&, Value const&, Indexable const&)
+//    {
+//        return true;
+//    }
+//};
 
 template <typename Fun>
 struct predicate_check<satisfies<Fun>, value_tag>
@@ -304,28 +362,54 @@ struct predicate_check<nearest<DistancePredicates>, value_tag>
 };
 
 // ------------------------------------------------------------------ //
-// predicates_chec for envelope
+// predicate_check_default for bounds
 // ------------------------------------------------------------------ //
 
-template <typename Geometry>
-struct predicate_check<Geometry, bounds_tag>
-{
-    template <typename Value, typename Indexable>
-    static inline bool apply(Geometry const& g, Value const&, Indexable const& i)
-    {
-        return geometry::intersects(i, g);
-    }
-};
+//template <typename Geometry, typename GeometryTag>
+//struct predicate_check_default<Geometry, GeometryTag, bounds_tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(Geometry const& g, Value const&, Indexable const& i)
+//    {
+//        return geometry::intersects(i, g);
+//    }
+//};
+//
+//template <typename Unary>
+//struct predicate_check_default<Unary, void, bounds_tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(Unary const&, Value const&, Indexable const&)
+//    {
+//        return true;
+//    }
+//};
 
-template <>
-struct predicate_check<empty, bounds_tag>
-{
-    template <typename Geometry, typename Value, typename Indexable>
-    static inline bool apply(Geometry const&, Value const&, Indexable const&)
-    {
-        return true;
-    }
-};
+// ------------------------------------------------------------------ //
+// predicates_chec for bounds
+// ------------------------------------------------------------------ //
+
+//template <typename GeometryOrUnary>
+//struct predicate_check<GeometryOrUnary, bounds_tag>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(GeometryOrUnary const& g, Value const& v, Indexable const& i)
+//    {
+//        return predicate_check_default<
+//            GeometryOrUnary, typename geometry::traits::tag<GeometryOrUnary>::type, bounds_tag
+//        >::apply(g, v, i);
+//    }
+//};
+
+//template <>
+//struct predicate_check<empty, bounds_tag>
+//{
+//    template <typename Geometry, typename Value, typename Indexable>
+//    static inline bool apply(Geometry const&, Value const&, Indexable const&)
+//    {
+//        return true;
+//    }
+//};
 
 template <typename Fun>
 struct predicate_check<satisfies<Fun>, bounds_tag>
@@ -481,17 +565,17 @@ struct predicates_length
     static const unsigned value = 1;
 };
 
-template <typename F, typename S>
-struct predicates_length< std::pair<F, S> >
-{
-    static const unsigned value = 2;
-};
+//template <typename F, typename S>
+//struct predicates_length< std::pair<F, S> >
+//{
+//    static const unsigned value = 2;
+//};
 
-template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-struct predicates_length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-{
-    static const unsigned value = boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value;
-};
+//template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+//struct predicates_length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+//{
+//    static const unsigned value = boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value;
+//};
 
 template <typename Head, typename Tail>
 struct predicates_length< boost::tuples::cons<Head, Tail> >
@@ -511,30 +595,30 @@ struct predicates_element
     static type const& get(T const& p) { return p; }
 };
 
-template <unsigned I, typename F, typename S>
-struct predicates_element< I, std::pair<F, S> >
-{
-    BOOST_MPL_ASSERT_MSG((I < 2), INVALID_INDEX, (predicates_element));
-
-    typedef F type;
-    static type const& get(std::pair<F, S> const& p) { return p.first; }
-};
-
-template <typename F, typename S>
-struct predicates_element< 1, std::pair<F, S> >
-{
-    typedef S type;
-    static type const& get(std::pair<F, S> const& p) { return p.second; }
-};
-
-template <unsigned I, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-struct predicates_element< I, boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-{
-    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> predicate_type;
-
-    typedef typename boost::tuples::element<I, predicate_type>::type type;
-    static type const& get(predicate_type const& p) { return boost::get<I>(p); }
-};
+//template <unsigned I, typename F, typename S>
+//struct predicates_element< I, std::pair<F, S> >
+//{
+//    BOOST_MPL_ASSERT_MSG((I < 2), INVALID_INDEX, (predicates_element));
+//
+//    typedef F type;
+//    static type const& get(std::pair<F, S> const& p) { return p.first; }
+//};
+//
+//template <typename F, typename S>
+//struct predicates_element< 1, std::pair<F, S> >
+//{
+//    typedef S type;
+//    static type const& get(std::pair<F, S> const& p) { return p.second; }
+//};
+//
+//template <unsigned I, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+//struct predicates_element< I, boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+//{
+//    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> predicate_type;
+//
+//    typedef typename boost::tuples::element<I, predicate_type>::type type;
+//    static type const& get(predicate_type const& p) { return boost::get<I>(p); }
+//};
 
 template <unsigned I, typename Head, typename Tail>
 struct predicates_element< I, boost::tuples::cons<Head, Tail> >
@@ -549,49 +633,49 @@ struct predicates_element< I, boost::tuples::cons<Head, Tail> >
 // predicates_check
 // ------------------------------------------------------------------ //
 
-template <typename PairPredicates, typename Tag, unsigned First, unsigned Last>
-struct predicates_check_pair {};
-
-template <typename PairPredicates, typename Tag, unsigned I>
-struct predicates_check_pair<PairPredicates, Tag, I, I>
-{
-    template <typename Value, typename Indexable>
-    static inline bool apply(PairPredicates const& , Value const& , Indexable const& )
-    {
-        return true;
-    }
-};
-
-template <typename PairPredicates, typename Tag>
-struct predicates_check_pair<PairPredicates, Tag, 0, 1>
-{
-    template <typename Value, typename Indexable>
-    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
-    {
-        return predicate_check<typename PairPredicates::first_type, Tag>::apply(p.first, v, i);
-    }
-};
-
-template <typename PairPredicates, typename Tag>
-struct predicates_check_pair<PairPredicates, Tag, 1, 2>
-{
-    template <typename Value, typename Indexable>
-    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
-    {
-        return predicate_check<typename PairPredicates::second_type, Tag>::apply(p.second, v, i);
-    }
-};
-
-template <typename PairPredicates, typename Tag>
-struct predicates_check_pair<PairPredicates, Tag, 0, 2>
-{
-    template <typename Value, typename Indexable>
-    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
-    {
-        return predicate_check<typename PairPredicates::first_type, Tag>::apply(p.first, v, i)
-            && predicate_check<typename PairPredicates::second_type, Tag>::apply(p.second, v, i);
-    }
-};
+//template <typename PairPredicates, typename Tag, unsigned First, unsigned Last>
+//struct predicates_check_pair {};
+//
+//template <typename PairPredicates, typename Tag, unsigned I>
+//struct predicates_check_pair<PairPredicates, Tag, I, I>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(PairPredicates const& , Value const& , Indexable const& )
+//    {
+//        return true;
+//    }
+//};
+//
+//template <typename PairPredicates, typename Tag>
+//struct predicates_check_pair<PairPredicates, Tag, 0, 1>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
+//    {
+//        return predicate_check<typename PairPredicates::first_type, Tag>::apply(p.first, v, i);
+//    }
+//};
+//
+//template <typename PairPredicates, typename Tag>
+//struct predicates_check_pair<PairPredicates, Tag, 1, 2>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
+//    {
+//        return predicate_check<typename PairPredicates::second_type, Tag>::apply(p.second, v, i);
+//    }
+//};
+//
+//template <typename PairPredicates, typename Tag>
+//struct predicates_check_pair<PairPredicates, Tag, 0, 2>
+//{
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(PairPredicates const& p, Value const& v, Indexable const& i)
+//    {
+//        return predicate_check<typename PairPredicates::first_type, Tag>::apply(p.first, v, i)
+//            && predicate_check<typename PairPredicates::second_type, Tag>::apply(p.second, v, i);
+//    }
+//};
 
 template <typename TuplePredicates, typename Tag, unsigned First, unsigned Last>
 struct predicates_check_tuple
@@ -630,43 +714,43 @@ struct predicates_check_impl
     }
 };
 
-template <typename Predicate1, typename Predicate2, typename Tag, size_t First, size_t Last>
-struct predicates_check_impl<std::pair<Predicate1, Predicate2>, Tag, First, Last>
-{
-    BOOST_MPL_ASSERT_MSG((First < 2 && Last <= 2 && First <= Last), INVALID_INDEXES, (predicates_check_impl));
-
-    template <typename Value, typename Indexable>
-    static inline bool apply(std::pair<Predicate1, Predicate2> const& p, Value const& v, Indexable const& i)
-    {
-        return predicate_check<Predicate1, Tag>::apply(p.first, v, i)
-            && predicate_check<Predicate2, Tag>::apply(p.second, v, i);
-    }
-};
-
-template <
-    typename T0, typename T1, typename T2, typename T3, typename T4,
-    typename T5, typename T6, typename T7, typename T8, typename T9,
-    typename Tag, unsigned First, unsigned Last
->
-struct predicates_check_impl<
-    boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
-    Tag, First, Last
->
-{
-    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> predicates_type;
-
-    static const unsigned pred_len = boost::tuples::length<predicates_type>::value;
-    BOOST_MPL_ASSERT_MSG((First < pred_len && Last <= pred_len && First <= Last), INVALID_INDEXES, (predicates_check_impl));
-
-    template <typename Value, typename Indexable>
-    static inline bool apply(predicates_type const& p, Value const& v, Indexable const& i)
-    {
-        return predicates_check_tuple<
-            predicates_type,
-            Tag, First, Last
-        >::apply(p, v, i);
-    }
-};
+//template <typename Predicate1, typename Predicate2, typename Tag, size_t First, size_t Last>
+//struct predicates_check_impl<std::pair<Predicate1, Predicate2>, Tag, First, Last>
+//{
+//    BOOST_MPL_ASSERT_MSG((First < 2 && Last <= 2 && First <= Last), INVALID_INDEXES, (predicates_check_impl));
+//
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(std::pair<Predicate1, Predicate2> const& p, Value const& v, Indexable const& i)
+//    {
+//        return predicate_check<Predicate1, Tag>::apply(p.first, v, i)
+//            && predicate_check<Predicate2, Tag>::apply(p.second, v, i);
+//    }
+//};
+//
+//template <
+//    typename T0, typename T1, typename T2, typename T3, typename T4,
+//    typename T5, typename T6, typename T7, typename T8, typename T9,
+//    typename Tag, unsigned First, unsigned Last
+//>
+//struct predicates_check_impl<
+//    boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
+//    Tag, First, Last
+//>
+//{
+//    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> predicates_type;
+//
+//    static const unsigned pred_len = boost::tuples::length<predicates_type>::value;
+//    BOOST_MPL_ASSERT_MSG((First < pred_len && Last <= pred_len && First <= Last), INVALID_INDEXES, (predicates_check_impl));
+//
+//    template <typename Value, typename Indexable>
+//    static inline bool apply(predicates_type const& p, Value const& v, Indexable const& i)
+//    {
+//        return predicates_check_tuple<
+//            predicates_type,
+//            Tag, First, Last
+//        >::apply(p, v, i);
+//    }
+//};
 
 template <typename Head, typename Tail, typename Tag, unsigned First, unsigned Last>
 struct predicates_check_impl<
@@ -722,12 +806,12 @@ struct predicates_count_nearest
     static const unsigned value = predicates_is_nearest<T>::value;
 };
 
-template <typename F, typename S>
-struct predicates_count_nearest< std::pair<F, S> >
-{
-    static const unsigned value = predicates_is_nearest<F>::value
-                                + predicates_is_nearest<S>::value;
-};
+//template <typename F, typename S>
+//struct predicates_count_nearest< std::pair<F, S> >
+//{
+//    static const unsigned value = predicates_is_nearest<F>::value
+//                                + predicates_is_nearest<S>::value;
+//};
 
 template <typename Tuple, unsigned N>
 struct predicates_count_nearest_tuple
@@ -744,14 +828,14 @@ struct predicates_count_nearest_tuple<Tuple, 1>
         predicates_is_nearest<typename boost::tuples::element<0, Tuple>::type>::value;
 };
 
-template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-struct predicates_count_nearest< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-{
-    static const unsigned value = predicates_count_nearest_tuple<
-        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
-        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
-    >::value;
-};
+//template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+//struct predicates_count_nearest< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+//{
+//    static const unsigned value = predicates_count_nearest_tuple<
+//        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
+//        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
+//    >::value;
+//};
 
 template <typename Head, typename Tail>
 struct predicates_count_nearest< boost::tuples::cons<Head, Tail> >
@@ -770,12 +854,12 @@ struct predicates_find_nearest
     static const unsigned value = predicates_is_nearest<T>::value ? 0 : 1;
 };
 
-template <typename F, typename S>
-struct predicates_find_nearest< std::pair<F, S> >
-{
-    static const unsigned value = predicates_is_nearest<F>::value ? 0 :
-                                    (predicates_is_nearest<S>::value ? 1 : 2);
-};
+//template <typename F, typename S>
+//struct predicates_find_nearest< std::pair<F, S> >
+//{
+//    static const unsigned value = predicates_is_nearest<F>::value ? 0 :
+//                                    (predicates_is_nearest<S>::value ? 1 : 2);
+//};
 
 template <typename Tuple, unsigned N>
 struct predicates_find_nearest_tuple
@@ -796,14 +880,14 @@ struct predicates_find_nearest_tuple<Tuple, 1>
     static const unsigned value = is_found ? 0 : boost::tuples::length<Tuple>::value;
 };
 
-template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-struct predicates_find_nearest< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-{
-    static const unsigned value = predicates_find_nearest_tuple<
-        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
-        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
-    >::value;
-};
+//template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+//struct predicates_find_nearest< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+//{
+//    static const unsigned value = predicates_find_nearest_tuple<
+//        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
+//        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
+//    >::value;
+//};
 
 template <typename Head, typename Tail>
 struct predicates_find_nearest< boost::tuples::cons<Head, Tail> >

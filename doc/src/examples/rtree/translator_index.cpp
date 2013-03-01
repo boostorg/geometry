@@ -73,7 +73,7 @@ int main(void)
     // find values intersecting some area defined by a box
     box query_box(point(0, 0), point(5, 5));
     std::vector<value> result_s;
-    rtree.query(query_box, std::back_inserter(result_s));
+    rtree.query(bgi::intersects(query_box), std::back_inserter(result_s));
 
     // find 5 nearest values to a point
     std::vector<value> result_n;
