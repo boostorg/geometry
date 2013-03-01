@@ -209,6 +209,105 @@ struct indexable_type
 
 }} // namespace detail::translator
 
+// indexable
+
+template <typename Value>
+struct indexable
+{
+    BOOST_MPL_ASSERT_MSG(
+        (!detail::translator::indexable_not_found_error<
+            typename detail::traits::indexable_type<Value>::type
+         >::value),
+        NOT_VALID_INDEXABLE_TYPE,
+        (Value)
+    );
+
+    typedef Value const& result_type;
+    result_type operator()(Value const& v)
+    {
+        return v;
+    }
+};
+
+template <typename Indexable, typename T2>
+struct indexable< std::pair<Indexable, T2> >
+{
+    BOOST_MPL_ASSERT_MSG(
+        (!detail::translator::indexable_not_found_error<
+            typename detail::traits::indexable_type<Indexable>::type
+         >::value),
+        NOT_VALID_INDEXABLE_TYPE,
+        (Indexable)
+    );
+
+    typedef Indexable const& result_type;
+    result_type operator()(std::pair<Indexable, T2> const& v)
+    {
+        return v.first;
+    }
+};
+
+template <typename Indexable, typename T1, typename T2, typename T3, typename T4,
+          typename T5, typename T6, typename T7, typename T8, typename T9>
+struct indexable< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+{
+    typedef boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> value_type;
+
+    BOOST_MPL_ASSERT_MSG(
+        (!detail::translator::indexable_not_found_error<
+            typename detail::traits::indexable_type<Indexable>::type
+        >::value),
+        NOT_VALID_INDEXABLE_TYPE,
+        (Indexable)
+        );
+
+    typedef Indexable const& result_type;
+    result_type operator()(value_type const& v) const
+    {
+        return boost::get<0>(v);
+    }
+};
+
+// equal_to
+
+template <typename Value>
+struct equal_to
+{
+    typedef bool result_type;
+    bool operator()(Value const& l, Value const& r)
+    {
+        return detail::translator::equals<Value, typename geometry::traits::tag<Value>::type>::apply(l ,r);
+    }
+};
+
+template <typename T1, typename T2>
+struct equal_to< std::pair<T1, T2> >
+{
+    typedef bool result_type;
+    bool operator()(std::pair<T1, T2> const& l, std::pair<T1, T2> const& r) const
+    {
+        typedef detail::translator::equals<T1, typename geometry::traits::tag<T1>::type> equals1;
+        typedef detail::translator::equals<T2, typename geometry::traits::tag<T2>::type> equals2;
+
+        return equals1::apply(l.first, r.first) && equals2::apply(l.second, r.second);
+    }
+};
+
+template <typename T0, typename T1, typename T2, typename T3, typename T4,
+          typename T5, typename T6, typename T7, typename T8, typename T9>
+struct equal_to< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+{
+    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> value_type;
+
+    typedef bool result_type;
+    bool operator()(value_type const& l, value_type const& r) const
+    {
+        return detail::translator::compare_tuples<
+            value_type, 0, boost::tuples::length<value_type>::value
+        >::apply(l ,r);
+    }
+};
+
 }}} // namespace boost::geometry::index
 
 #endif // BOOST_GEOMETRY_INDEX_TRANSLATOR_TRANSLATOR_HPP
