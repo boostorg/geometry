@@ -152,8 +152,13 @@ template
 >
 struct join_round
 {
+#ifdef BOOST_GEOMETRY_BUFFER_USE_MIDPOINTS
     inline join_round(int max_level = 4)
         : m_max_level(max_level)
+#else
+    inline join_round(int steps_per_circle = 100)
+		: m_steps_per_circle(steps_per_circle)
+#endif
     {}
 
     typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
@@ -169,9 +174,11 @@ struct join_round
             double
         >::type promoted_type;
 
-    int m_max_level;
 
 #ifdef BOOST_GEOMETRY_BUFFER_USE_MIDPOINTS
+
+    int m_max_level;
+
     template <typename RangeOut>
     inline void mid_points(PointIn const& vertex,
                 PointIn const& p1, PointIn const& p2,
@@ -209,7 +216,10 @@ struct join_round
             mid_points(vertex, mid_point, p2, buffer_distance, range_out, level + 1);
         }
     }
-#endif
+
+#else
+
+    int m_steps_per_circle;
 
     template <typename RangeOut>
     inline void generate_points(PointIn const& vertex,
@@ -229,14 +239,14 @@ struct join_round
 
         promoted_type angle_diff = acos(dx1 * dx2 + dy1 * dy2);
 
-        // Default might be 100 steps for a full circle (2 pi)
-        promoted_type const steps_per_circle = 100.0;
 		promoted_type two = 2.0;
-        int n = boost::numeric_cast<int>(steps_per_circle * angle_diff 
+		promoted_type steps = m_steps_per_circle;
+        int n = boost::numeric_cast<int>(steps * angle_diff 
                     / (two * geometry::math::pi<promoted_type>()));
 
 		if (n > 1000)
 		{
+			// TODO change this / verify this
 			std::cout << dx1 << ", " << dy1 << " .. " << dx2 << ", " << dy2 << std::endl;
 			std::cout << angle_diff << " -> " << n << std::endl;
 			n = 1000;
@@ -258,6 +268,7 @@ struct join_round
             range_out.push_back(p);
         }
     }
+#endif
 
     template <typename RangeOut>
     inline void apply(PointIn const& ip, PointIn const& vertex,

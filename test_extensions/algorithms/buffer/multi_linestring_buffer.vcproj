@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="multi_polygon_buffer"
-	ProjectGUID="{1E74F110-996E-44DD-A2EC-5D3B55425903}"
-	RootNamespace="multi_polygon_buffer"
+	Name="multi_linestring_buffer"
+	ProjectGUID="{90A3DD9E-376E-4F7B-AA71-03D5598F4285}"
+	RootNamespace="multi_linestring_buffer"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\multi_polygon_buffer"
+			IntermediateDirectory="$(ConfigurationName)\multi_linestring_buffer"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\boost.vsprops"
 			CharacterSet="1"
@@ -91,7 +91,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\multi_polygon_buffer"
+			IntermediateDirectory="$(ConfigurationName)\multi_linestring_buffer"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\boost.vsprops"
 			CharacterSet="1"
@@ -165,7 +165,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\multi_polygon_buffer.cpp"
+			RelativePath=".\multi_linestring_buffer.cpp"
 			>
 		</File>
 	</Files>

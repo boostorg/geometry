@@ -6,6 +6,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "linestring_buffer", "linest
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_polygon_buffer", "multi_polygon_buffer.vcproj", "{1E74F110-996E-44DD-A2EC-5D3B55425903}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multi_linestring_buffer", "multi_linestring_buffer.vcproj", "{90A3DD9E-376E-4F7B-AA71-03D5598F4285}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -24,6 +26,10 @@ Global
 		{1E74F110-996E-44DD-A2EC-5D3B55425903}.Debug|Win32.Build.0 = Debug|Win32
 		{1E74F110-996E-44DD-A2EC-5D3B55425903}.Release|Win32.ActiveCfg = Release|Win32
 		{1E74F110-996E-44DD-A2EC-5D3B55425903}.Release|Win32.Build.0 = Release|Win32
+		{90A3DD9E-376E-4F7B-AA71-03D5598F4285}.Debug|Win32.ActiveCfg = Debug|Win32
+		{90A3DD9E-376E-4F7B-AA71-03D5598F4285}.Debug|Win32.Build.0 = Debug|Win32
+		{90A3DD9E-376E-4F7B-AA71-03D5598F4285}.Release|Win32.ActiveCfg = Release|Win32
+		{90A3DD9E-376E-4F7B-AA71-03D5598F4285}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

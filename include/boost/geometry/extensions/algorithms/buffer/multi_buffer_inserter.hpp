@@ -34,14 +34,15 @@ struct check_original<multi_polygon_tag>
     }
 };
 
-}} // namespace detail::buffer
-#endif // DOXYGEN_NO_DETAIL
-
-
-
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
+template <>
+struct check_original<multi_linestring_tag>
 {
+    template <typename Point, typename Geometry>
+    static inline int apply(Point const& point, Geometry const& geometry)
+    {
+        return 0;
+    }
+};
 
 
 template
@@ -49,7 +50,7 @@ template
     typename Multi,
     typename PolygonOutput
 >
-struct buffer_inserter<multi_polygon_tag, Multi, PolygonOutput>
+struct multi_buffer_inserter
 {
     template
     <
@@ -60,8 +61,8 @@ struct buffer_inserter<multi_polygon_tag, Multi, PolygonOutput>
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy)
     {
-        typedef typename ring_type<PolygonOutput>::type output_ring_type;
-        typedef buffer_inserter
+        typedef typename geometry::ring_type<PolygonOutput>::type output_ring_type;
+        typedef dispatch::buffer_inserter
             <
                 typename single_tag_of
                             <
@@ -80,6 +81,34 @@ struct buffer_inserter<multi_polygon_tag, Multi, PolygonOutput>
         }
     }
 };
+
+}} // namespace detail::buffer
+#endif // DOXYGEN_NO_DETAIL
+
+
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
+{
+
+
+template
+<
+    typename Multi,
+    typename PolygonOutput
+>
+struct buffer_inserter<multi_polygon_tag, Multi, PolygonOutput>
+	: public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
+{};
+
+template
+<
+    typename Multi,
+    typename PolygonOutput
+>
+struct buffer_inserter<multi_linestring_tag, Multi, PolygonOutput>
+	: public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
+{};
 
 
 } // namespace dispatch
