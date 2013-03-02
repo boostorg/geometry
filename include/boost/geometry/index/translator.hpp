@@ -249,6 +249,9 @@ struct translator
     {
         return EqualTo::operator()(v1, v2);
     }
+
+    IndexableGetter const& indexable_get() const { return *this; }
+    EqualTo const& value_eq() const { return *this; }
 };
 
 template <typename Translator>

@@ -87,8 +87,8 @@ private:
 
 } // namespace visitors
 
-#ifndef BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE
-#error "To use are_levels_ok() BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE should be defined before including the rtree"
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
+#error "To use are_levels_ok() BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE should be defined before including the rtree"
 #endif
 
 template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>

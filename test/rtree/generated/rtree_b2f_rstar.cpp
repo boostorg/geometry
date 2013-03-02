@@ -12,6 +12,10 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
+#include <set>
+
+bool cmp(int a, int b) { return a < b; }
+
 int test_main(int, char* [])
 {
     typedef bg::model::point<float, 2, bg::cs::cartesian> Point;

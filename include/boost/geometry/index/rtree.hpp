@@ -116,17 +116,21 @@ public:
     /*! \brief Unsigned integral type used by the container. */
     typedef typename allocator_type::size_type size_type;
 
-    // temporarily public - don't use it
-    typedef detail::translator::translator<IndexableGetter, EqualTo> translator_type;
+    typedef IndexableGetter indexable_getter;
+    typedef EqualTo value_equal;
 
     /*! \brief The Indexable type to which Value is translated. */
-    typedef typename index::detail::translator::indexable_type<translator_type>::type indexable_type;
+    typedef typename index::detail::translator::indexable_type<
+        detail::translator::translator<IndexableGetter, EqualTo>
+    >::type indexable_type;
     /*! \brief The Box type used by the R-tree. */
     typedef typename index::detail::default_box_type<indexable_type>::type bounds_type;
 
-#if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
+#if !defined(BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE)
 private:
 #endif
+    typedef detail::translator::translator<IndexableGetter, EqualTo> translator_type;
+
     typedef bounds_type box_type;
     typedef typename detail::rtree::options_type<Parameters>::type options_type;
     typedef typename options_type::node_tag node_tag;
@@ -776,9 +780,35 @@ public:
     \par Throws
     Nothing.
     */
-    inline parameters_type const& parameters() const
+    inline parameters_type parameters() const
     {
         return m_members.parameters();
+    }
+
+    /*!
+    \brief Returns function retrieving Indexable from Value.
+
+    \return     The indexable_getter object.
+
+    \par Throws
+    Nothing.
+    */
+    indexable_getter indexable_get() const
+    {
+        return m_members.translator().indexable_get();
+    }
+
+    /*!
+    \brief Returns function comparing Values
+
+    \return     The value_equal function.
+
+    \par Throws
+    Nothing.
+    */
+    value_equal value_eq() const
+    {
+        return m_members.translator().value_eq();
     }
 
     /*!
@@ -794,7 +824,7 @@ public:
         return m_members.allocators().allocator();
     }
 
-#if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
+#if !defined(BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE)
 private:
 #endif
     /*!
@@ -805,7 +835,7 @@ private:
     \par Throws
     Nothing.
     */
-    inline translator_type const& translator() const
+    inline translator_type translator() const
     {
         return m_members.translator();
     }
