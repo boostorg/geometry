@@ -104,7 +104,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         << string_from_type<coordinate_type>::name()
         << "_" << join;
 
-    std::cout << complete.str() << std::endl;
+    //std::cout << complete.str() << std::endl;
 
     std::ostringstream filename;
     filename << "buffer_" << complete.str() << ".svg";
