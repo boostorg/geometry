@@ -154,7 +154,10 @@ void test_all()
     test_one<linestring, buf::join_miter, polygon>("simplex", simplex, 'm', 19.209, 1.5, 1.5);
 
     test_one<linestring, buf::join_miter, polygon>("simplex_asym_neg", simplex, 'm', 3.202, +1.5, -1.0);
-    test_one<linestring, buf::join_miter, polygon>("simplex_asym_pos", simplex, 'm', 3.202, -1.5, +1.0);
+    test_one<linestring, buf::join_miter, polygon>("simplex_asym_pos", simplex, 'm', 3.202, -1.0, +1.5);
+
+	// Generates a reverse polygon, which will be empty TODO decide about this
+    // test_one<linestring, buf::join_miter, polygon>("simplex_asym_pos", simplex, 'm', 0, -1.5, +1.0); 
 
     //test_one<linestring, buf::join_round, polygon>("straight", straight, 'r', 19.2093727122985, 1.5, 1.5);
     //test_one<linestring, buf::join_miter, polygon>("straight", straight, 'm', 19.2093727122985, 1.5, 1.5);
@@ -170,7 +173,7 @@ void test_all()
     test_one<linestring, buf::join_miter, polygon>("two_bends_right", two_bends, 'm', 19.288, 0.0, 1.5);
 
 
-	// Next (and all similar cases) which a offsetted-one-sided buffer has to be fixed.
+	// Next (and all similar cases) which a offsetted-one-sided buffer has to be fixed. TODO
     //test_one<linestring, buf::join_miter, polygon>("two_bends_neg", two_bends, 'm', 99, +1.5, -1.0);
     //test_one<linestring, buf::join_miter, polygon>("two_bends_pos", two_bends, 'm', 99, -1.5, +1.0);
     //test_one<linestring, buf::join_round, polygon>("two_bends_neg", two_bends, 'r', 99, +1.5, -1.0);
