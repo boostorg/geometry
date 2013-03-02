@@ -37,9 +37,10 @@ int main(int argc, char *argv[])
     typedef bgm::box<P> B;
 
     typedef bgi::linear<32, 8> Par;
-    typedef bgi::translator<B> Tr;
+    typedef bgi::indexable<B> I;
+    typedef bgi::equal_to<B> E;
     typedef allocator<B, managed_shared_memory::segment_manager> Alloc;
-    typedef bgi::rtree<B, Par, Tr, Alloc> Rtree;
+    typedef bgi::rtree<B, Par, I, E, Alloc> Rtree;
 
     //Parent process
     if ( argc == 1 )
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
 
         std::cout << "Parent: Constructing container\n";
 
-        Rtree * tree = segment.construct<Rtree>("Rtree")(Par(), Tr(), Alloc(segment.get_segment_manager()));
+        Rtree * tree = segment.construct<Rtree>("Rtree")(Par(), I(), E(), Alloc(segment.get_segment_manager()));
 
         std::cout << "Parent: Filling container with 100 boxes\n";
 

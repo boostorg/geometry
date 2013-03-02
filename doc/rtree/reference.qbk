@@ -24,11 +24,10 @@
 
 [endsect]
 
-[/section:translator Translator (boost::geometry::index::translator)/]
+[/section:function_objects Function objects (boost::geometry::index::)/]
 
-[include ../generated/translator.qbk]
-[/include ../generated/translator_pair.qbk/]
-[/include ../generated/translator_tuple.qbk/]
+[include ../generated/indexable.qbk]
+[include ../generated/equal_to.qbk]
 
 [/endsect/]
 

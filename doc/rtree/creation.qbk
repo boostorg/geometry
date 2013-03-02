@@ -14,22 +14,26 @@
 
 __rtree__ has 4 parameters:
 
- rtree<Value, Parameters, Translator = index::translator<Value>, Allocator> = std::allocator<Value> >
+ rtree<Value,
+       Parameters,
+       IndexableGetter = index::indexable<Value>,
+       EqualTo = index::equal_to<Value>,
+       Allocator = std::allocator<Value> >
 
 * `__value__` - type of object which will be stored in the container,
 * `Parameters` - parameters type, inserting/splitting algorithm,
-* `__translator__` - type of object translating `Value` objects to
-  `__indexable__` objects (`__point__` or `__box__`) which __rtree__ can handle,
+* `IndexableGetter` - function object translating `__value__` to `__indexable__` (`__point__` or `__box__`) which __rtree__ can handle,
+* `EqualTo` - function object comparing `__value__`s,
 * `Allocator` - `Value`s allocator, all allocators needed by the container are created from it.
 
 [endsect]
 
-[section Values, Indexables and default Translator]
+[section Values and Indexables]
 
-__rtree__ may store `__value__`s of any type as long the `__translator__` knows how to interpret those `__value__`s
-and extract an object that the __rtree__ can handle. Those objects are called
-`__indexable__`s in this documentation. Each type adapted to `__point__` or `__box__` concept is an `__indexable__`.
-`__value__`s types which can be handled by the default `__translator__` - `index::translator<__value__>`
+__rtree__ may store `__value__`s of any type as passed function objects knows how to interpret those `__value__`s, that is
+extract an `__indexable__` that the __rtree__ can handle and compare `__values__`.
+Each type adapted to `__point__` or `__box__` concept is an `__indexable__`.
+`__value__`s types which can be handled by the predefined function objects `index::indexable<Value>` and `index::equal_to<Value>`
 are defined as follows:
 
 * `__indexable__ = __point__ | __box__`
@@ -43,19 +47,14 @@ Examples of default `__value__` types:
  std::pair<geometry::model::box<...>, unsigned>
  boost::tuple<geometry::model::point<...>, int, float>
 
-A `__translator__` is a type which knows how to handle `__value__`s. It has two purposes:
-
-* it translates `__value__` to a more suitable `__indexable__` type which is needed by most of operations,
-* performs a comparison of `__value__` which is needed by the removing process.
-
-A `__translator__` translates the `__value__` each time the __rtree__ needs it. For this reason
+`index::indexable<Value>` translates the `__value__` each time the __rtree__ needs it. For this reason
 it should rather return const reference to the `__indexable__` than a copy.
 
-If comparison of two `__value__`s is required, the default translator:
+If comparison of two `__value__`s is required, the predefined `index::equal_to<Value>`:
 
 * for `__point__` and `__box__` - compares `__value__`s with geometry::equals().
-* for `std::pair<...>` - compares both components of the `__value__`. The first one is compared with `geometry::equals()`.
-  If the second one is a `Geometry`, `geometry::equals()` function is used. For other types it uses `operator==()`.
+* for `std::pair<...>` - compares both components of the `__value__`. The first value stored in the pair is compared before the second one.
+  If the value stored in the pair is a Geometry, `geometry::equals()` is used. For other types it uses `operator==()`.
 * for `boost::tuple<...>` - compares all components of the `__value__`. If the component is a `Geometry`, `geometry::equals()`
   function is used. For other types it uses `operator==()`.
 

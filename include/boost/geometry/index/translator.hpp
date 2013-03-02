@@ -55,79 +55,6 @@ struct equals<T, void>
     }
 };
 
-}} // namespace detail::translator
-
-/*!
-\brief The default translator.
-
-It translates Value object to Indexable object. The default version handles Values which are Indexables.
-This translator is also specialized for std::pair<Indexable, Second> and boost::tuple<Indexable, ...>.
-
-\tparam Value       The Value type which may be translated directly to the Indexable.
-*/
-template <typename Value>
-struct translator
-{
-    BOOST_MPL_ASSERT_MSG(
-        (!detail::translator::indexable_not_found_error<
-            typename detail::traits::indexable_type<Value>::type
-         >::value),
-        NOT_VALID_INDEXABLE_TYPE,
-        (Value)
-    );
-
-    typedef Value const& result_type;
-
-    result_type operator()(Value const& value) const
-    {
-        return value;
-    }
-
-    bool equals(Value const& v1, Value const& v2) const
-    {
-        return geometry::equals(v1, v2);
-    }
-};
-
-/*!
-\brief The default translator.
-
-This specialization translates from std::pair<Indexable, Second>.
-
-\tparam Indexable       The Indexable type.
-\tparam Second          The second type.
-*/
-template <typename Indexable, typename Second>
-struct translator< std::pair<Indexable, Second> >
-{
-    BOOST_MPL_ASSERT_MSG(
-        (!detail::translator::indexable_not_found_error<
-            typename detail::traits::indexable_type<Indexable>::type
-         >::value),
-        NOT_VALID_INDEXABLE_TYPE,
-        (Indexable)
-    );
-
-    typedef Indexable const& result_type;
-
-    result_type operator()(std::pair<Indexable, Second> const& value) const
-    {
-        return value.first;
-    }
-
-    bool equals(std::pair<Indexable, Second> const& v1, std::pair<Indexable, Second> const& v2) const
-    {
-        return geometry::equals(v1.first, v2.first)
-            &&
-            detail::translator::equals<
-                Second,
-                typename geometry::traits::tag<Second>::type
-            >::apply(v1.second, v2.second);
-    }
-};
-
-namespace detail { namespace translator {
-    
 template <typename Tuple, size_t I, size_t N>
 struct compare_tuples
 {
@@ -155,62 +82,13 @@ struct compare_tuples<Tuple, I, I>
 }} // namespace detail::translator
 
 /*!
-\brief The default translator.
+\brief The function object extracting Indexable from Value.
 
-This specialization translates from boost::tuple<Indexable, ...>.
+It translates Value object to Indexable object. The default version handles Values which are Indexables.
+This template is also specialized for std::pair<Indexable, T2> and boost::tuple<Indexable, ...>.
 
-\tparam Indexable   The Indexable type.
+\tparam Value       The Value type which may be translated directly to the Indexable.
 */
-template <typename Indexable, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9>
-struct translator< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-{
-    typedef boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> value_type;
-
-    BOOST_MPL_ASSERT_MSG(
-        (!detail::translator::indexable_not_found_error<
-            typename detail::traits::indexable_type<Indexable>::type
-        >::value),
-        NOT_VALID_INDEXABLE_TYPE,
-        (Indexable)
-        );
-
-    typedef Indexable const& result_type;
-
-    result_type operator()(value_type const& value) const
-    {
-        return boost::get<0>(value);
-    }
-
-    bool equals(value_type const& v1, value_type const& v2) const
-    {
-        return detail::translator::compare_tuples<value_type, 0, boost::tuples::length<value_type>::value>
-            ::apply(v1, v2);
-    }
-};
-
-namespace detail { namespace translator {
-
-template <typename Translator>
-struct result_type
-{
-    typedef typename Translator::result_type type;
-};
-
-template <typename Translator>
-struct indexable_type
-{
-    typedef typename boost::remove_const<
-        typename boost::remove_reference<
-            typename result_type<Translator>::type
-        >::type
-    >::type type;
-};
-
-}} // namespace detail::translator
-
-// indexable
-
 template <typename Value>
 struct indexable
 {
@@ -223,12 +101,20 @@ struct indexable
     );
 
     typedef Value const& result_type;
-    result_type operator()(Value const& v)
+    result_type operator()(Value const& v) const
     {
         return v;
     }
 };
 
+/*!
+\brief The function object extracting Indexable from Value.
+
+This specialization translates from std::pair<Indexable, T2>.
+
+\tparam Indexable       The Indexable type.
+\tparam T2              The second type.
+*/
 template <typename Indexable, typename T2>
 struct indexable< std::pair<Indexable, T2> >
 {
@@ -241,12 +127,19 @@ struct indexable< std::pair<Indexable, T2> >
     );
 
     typedef Indexable const& result_type;
-    result_type operator()(std::pair<Indexable, T2> const& v)
+    result_type operator()(std::pair<Indexable, T2> const& v) const
     {
         return v.first;
     }
 };
 
+/*!
+\brief The function object extracting Indexable from Value.
+
+This specialization translates from boost::tuple<Indexable, ...>.
+
+\tparam Indexable   The Indexable type.
+*/
 template <typename Indexable, typename T1, typename T2, typename T3, typename T4,
           typename T5, typename T6, typename T7, typename T8, typename T9>
 struct indexable< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
@@ -270,16 +163,34 @@ struct indexable< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 
 // equal_to
 
+/*!
+\brief The function object comparing Values.
+
+It compares Geometries using geometry::equals() function. Other types are compared using operator==.
+The default version handles Values which are Indexables.
+This template is also specialized for std::pair<T1, T2> and boost::tuple<...>.
+
+\tparam Value       The type of objects which are compared by this function object.
+*/
 template <typename Value>
 struct equal_to
 {
     typedef bool result_type;
-    bool operator()(Value const& l, Value const& r)
+    bool operator()(Value const& l, Value const& r) const
     {
         return detail::translator::equals<Value, typename geometry::traits::tag<Value>::type>::apply(l ,r);
     }
 };
 
+/*!
+\brief The function object comparing Values.
+
+This specialization compares values of type std::pair<T1, T2>.
+It compares pairs' first values, then second values.
+
+\tparam T1       The first type.
+\tparam T2       The second type.
+*/
 template <typename T1, typename T2>
 struct equal_to< std::pair<T1, T2> >
 {
@@ -293,6 +204,12 @@ struct equal_to< std::pair<T1, T2> >
     }
 };
 
+/*!
+\brief The function object comparing Values.
+
+This specialization compares values of type boost::tuple<...>.
+It compares values stored in tuple in range [0, length<tuple<...>>::value).
+*/
 template <typename T0, typename T1, typename T2, typename T3, typename T4,
           typename T5, typename T6, typename T7, typename T8, typename T9>
 struct equal_to< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
@@ -307,6 +224,50 @@ struct equal_to< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
         >::apply(l ,r);
     }
 };
+
+namespace detail { namespace translator {
+
+template <typename IndexableGetter, typename EqualTo>
+struct translator
+    : public IndexableGetter
+    , public EqualTo
+{
+    typedef typename IndexableGetter::result_type result_type;
+
+    translator(IndexableGetter const& i, EqualTo const& e)
+        : IndexableGetter(i), EqualTo(e)
+    {}
+
+    template <typename Value>
+    result_type operator()(Value const& value) const
+    {
+        return IndexableGetter::operator()(value);
+    }
+
+    template <typename Value>
+    bool equals(Value const& v1, Value const& v2) const
+    {
+        return EqualTo::operator()(v1, v2);
+    }
+};
+
+template <typename Translator>
+struct result_type
+{
+    typedef typename Translator::result_type type;
+};
+
+template <typename Translator>
+struct indexable_type
+{
+    typedef typename boost::remove_const<
+        typename boost::remove_reference<
+            typename result_type<Translator>::type
+        >::type
+    >::type type;
+};
+
+}} // namespace detail::translator
 
 }}} // namespace boost::geometry::index
 

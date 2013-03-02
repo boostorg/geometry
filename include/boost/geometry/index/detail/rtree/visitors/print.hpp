@@ -178,10 +178,10 @@ struct print : public rtree::visitor<Value, typename Options::parameters_type, B
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Options, typename Translator, typename Allocator>
-std::ostream & operator<<(std::ostream & os, rtree<Value, Options, Translator, Allocator> const& tree)
+template <typename Value, typename Options, typename IndexableGetter, typename EqualTo, typename Allocator>
+std::ostream & operator<<(std::ostream & os, rtree<Value, Options, IndexableGetter, EqualTo, Allocator> const& tree)
 {
-    typedef rtree<Value, Options, Translator, Allocator> rtree_type;
+    typedef rtree<Value, Options, IndexableGetter, EqualTo, Allocator> rtree_type;
     typedef typename rtree_type::value_type value_type;
     typedef typename rtree_type::options_type options_type;
     typedef typename rtree_type::translator_type translator_type;

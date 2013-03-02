@@ -89,15 +89,17 @@ or Box concepts (called Indexables). It also handles <tt>std::pair<Indexable, T>
 <tt>boost::tuple<Indexable, ...></tt>. For example, if <tt>std::pair<Box, int></tt> is stored in the
 container, the default translator translates from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
 
-\tparam Value       The type of objects stored in the container.
-\tparam Parameters  Compile-time parameters.
-\tparam Translator  The type of the translator which translates from Value to Indexable.
-\tparam Allocator   The allocator used to allocate/deallocate memory, construct/destroy nodes and Values.
+\tparam Value           The type of objects stored in the container.
+\tparam Parameters      Compile-time parameters.
+\tparam IndexableGetter The function object extracting Indexable from Value.
+\tparam EqualTo         The function object comparing objects of type Value.
+\tparam Allocator       The allocator used to allocate/deallocate memory, construct/destroy nodes and Values.
 */
 template <
     typename Value,
     typename Parameters,
-    typename Translator = index::translator<Value>,
+    typename IndexableGetter = index::indexable<Value>,
+    typename EqualTo = index::equal_to<Value>,
     typename Allocator = std::allocator<Value>
 >
 class rtree
@@ -109,15 +111,16 @@ public:
     typedef Value value_type;
     /*! \brief R-tree parameters type. */
     typedef Parameters parameters_type;
-    /*! \brief Value to Indexable Translator type. */
-    typedef Translator translator_type;
     /*! \brief The type of allocator used by the container. */
     typedef Allocator allocator_type;
     /*! \brief Unsigned integral type used by the container. */
     typedef typename allocator_type::size_type size_type;
 
+    // temporarily public - don't use it
+    typedef detail::translator::translator<IndexableGetter, EqualTo> translator_type;
+
     /*! \brief The Indexable type to which Value is translated. */
-    typedef typename index::detail::translator::indexable_type<Translator>::type indexable_type;
+    typedef typename index::detail::translator::indexable_type<translator_type>::type indexable_type;
     /*! \brief The Box type used by the R-tree. */
     typedef typename index::detail::default_box_type<indexable_type>::type bounds_type;
 
@@ -141,41 +144,46 @@ public:
     /*!
     \brief The constructor.
 
-    \param parameters   The parameters object.
-    \param translator   The translator object.
+    \param parameters       The parameters object.
+    \param indexable_getter The function object extracting Indexable from Value.
+    \param equal_to         The function object comparing Values.
 
     \par Throws
     If allocator default constructor throws.
     */
     inline explicit rtree(parameters_type const& parameters = parameters_type(),
-                          translator_type const& translator = translator_type())
-        : m_members(translator, parameters)
+                          IndexableGetter const& indexable_getter = IndexableGetter(),
+                          EqualTo const& equal_to = EqualTo())
+        : m_members(translator_type(indexable_getter, equal_to), parameters)
     {}
 
     /*!
     \brief The constructor.
 
-    \param parameters   The parameters object.
-    \param translator   The translator object.
-    \param allocator    The allocator object.
+    \param parameters       The parameters object.
+    \param indexable_getter The function object extracting Indexable from Value.
+    \param equal_to         The function object comparing Values.
+    \param allocator        The allocator object.
 
     \par Throws
     If allocator copy constructor throws.
     */
     inline rtree(parameters_type const& parameters,
-                 translator_type const& translator,
+                 IndexableGetter const& indexable_getter,
+                 EqualTo const& equal_to,
                  allocator_type allocator)
-        : m_members(translator, parameters, allocator)
+        : m_members(translator_type(indexable_getter, equal_to), parameters, allocator)
     {}
 
     /*!
     \brief The constructor.
 
-    \param first        The beginning of the range of Values.
-    \param last         The end of the range of Values.
-    \param parameters   The parameters object.
-    \param translator   The translator object.
-    \param allocator    The allocator object.
+    \param first            The beginning of the range of Values.
+    \param last             The end of the range of Values.
+    \param parameters       The parameters object.
+    \param indexable_getter The function object extracting Indexable from Value.
+    \param equal_to         The function object comparing Values.
+    \param allocator        The allocator object.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -186,9 +194,10 @@ public:
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last,
                  parameters_type const& parameters = parameters_type(),
-                 translator_type const& translator = translator_type(),
+                 IndexableGetter const& indexable_getter = IndexableGetter(),
+                 EqualTo const& equal_to = EqualTo(),
                  allocator_type allocator = allocator_type())
-        : m_members(translator, parameters, allocator)
+        : m_members(translator_type(indexable_getter, equal_to), parameters, allocator)
     {
         try
         {
@@ -204,10 +213,11 @@ public:
     /*!
     \brief The constructor.
 
-    \param rng          The range of Values.
-    \param parameters   The parameters object.
-    \param translator   The translator object.
-    \param allocator    The allocator object.
+    \param rng              The range of Values.
+    \param parameters       The parameters object.
+    \param indexable_getter The function object extracting Indexable from Value.
+    \param equal_to         The function object comparing Values.
+    \param allocator        The allocator object.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -218,9 +228,10 @@ public:
     template<typename Range>
     inline explicit rtree(Range const& rng,
                           parameters_type const& parameters = parameters_type(),
-                          translator_type const& translator = translator_type(),
+                          IndexableGetter const& indexable_getter = IndexableGetter(),
+                          EqualTo const& equal_to = EqualTo(),
                           allocator_type allocator = allocator_type())
-        : m_members(translator, parameters, allocator)
+        : m_members(translator_type(indexable_getter, equal_to), parameters, allocator)
     {
         try
         {
@@ -771,19 +782,6 @@ public:
     }
 
     /*!
-    \brief Returns the translator object.
-
-    \return     The translator object.
-
-    \par Throws
-    Nothing.
-    */
-    inline translator_type const& translator() const
-    {
-        return m_members.translator();
-    }
-
-    /*!
     \brief Returns allocator used by the rtree.
 
     \return     The allocator.
@@ -799,6 +797,19 @@ public:
 #if !defined(BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE)
 private:
 #endif
+    /*!
+    \brief Returns the translator object.
+
+    \return     The translator object.
+
+    \par Throws
+    Nothing.
+    */
+    inline translator_type const& translator() const
+    {
+        return m_members.translator();
+    }
+
     /*!
     \brief Apply a visitor to the nodes structure in order to perform some operator.
 
@@ -1094,8 +1105,8 @@ private:
         {}
 
         template <typename Transl>
-        members_holder(Transl const& transl = Translator(),
-                       Parameters const& parameters = Parameters())
+        members_holder(Transl const& transl,
+                       Parameters const& parameters)
             : translator_type(transl)
             , Parameters(parameters)
             , allocators_type()
@@ -1129,8 +1140,8 @@ It calls <tt>rtree::insert(value_type const&)</tt>.
 \param tree The spatial index.
 \param v    The value which will be stored in the index.
 */
-template <typename Value, typename Options, typename Translator, typename Allocator>
-inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Value const& v)
 {
     tree.insert(v);
 }
@@ -1146,8 +1157,8 @@ It calls <tt>rtree::insert(Iterator, Iterator)</tt>.
 \param first    The beginning of the range of values.
 \param last     The end of the range of values.
 */
-template<typename Value, typename Options, typename Translator, typename Allocator, typename Iterator>
-inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
+template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator, typename Iterator>
+inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Iterator first, Iterator last)
 {
     tree.insert(first, last);
 }
@@ -1162,8 +1173,8 @@ It calls <tt>rtree::insert(Range const&)</tt>.
 \param tree     The spatial index.
 \param rng      The range of values.
 */
-template<typename Value, typename Options, typename Translator, typename Allocator, typename Range>
-inline void insert(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
+template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator, typename Range>
+inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Range const& rng)
 {
     tree.insert(rng);
 }
@@ -1183,9 +1194,9 @@ It calls <tt>rtree::remove(value_type const&)</tt>.
 
 \return     1 if value was removed, 0 otherwise.
 */
-template <typename Value, typename Options, typename Translator, typename Allocator>
-inline typename rtree<Value, Options, Translator, Allocator>::size_type
-remove(rtree<Value, Options, Translator, Allocator> & tree, Value const& v)
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
+remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Value const& v)
 {
     return tree.remove(v);
 }
@@ -1208,9 +1219,9 @@ It calls <tt>rtree::remove(Iterator, Iterator)</tt>.
 
 \return         The number of removed values.
 */
-template<typename Value, typename Options, typename Translator, typename Allocator, typename Iterator>
-inline typename rtree<Value, Options, Translator, Allocator>::size_type
-remove(rtree<Value, Options, Translator, Allocator> & tree, Iterator first, Iterator last)
+template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator, typename Iterator>
+inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
+remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Iterator first, Iterator last)
 {
     return tree.remove(first, last);
 }
@@ -1231,9 +1242,9 @@ It calls <tt>rtree::remove(Range const&)</tt>.
 
 \return         The number of removed values.
 */
-template<typename Value, typename Options, typename Translator, typename Allocator, typename Range>
-inline typename rtree<Value, Options, Translator, Allocator>::size_type
-remove(rtree<Value, Options, Translator, Allocator> & tree, Range const& rng)
+template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator, typename Range>
+inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
+remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Range const& rng)
 {
     return tree.remove(rng);
 }
@@ -1305,9 +1316,10 @@ Only one \c nearest() perdicate may be passed to the query.
 
 \return             The number of values found.
 */
-template <typename Value, typename Options, typename Translator, typename Allocator, typename Predicates, typename OutIter> inline
-typename rtree<Value, Options, Translator, Allocator>::size_type
-query(rtree<Value, Options, Translator, Allocator> const& tree,
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+          typename Predicates, typename OutIter> inline
+typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
+query(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree,
       Predicates const& predicates,
       OutIter out_it)
 {
@@ -1323,8 +1335,8 @@ It calls \c rtree::clear().
 
 \param tree     The spatial index.
 */
-template <typename Value, typename Options, typename Translator, typename Allocator>
-inline void clear(rtree<Value, Options, Translator, Allocator> & tree)
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+inline void clear(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree)
 {
     return tree.clear();
 }
@@ -1340,8 +1352,8 @@ It calls \c rtree::size().
 
 \return         The number of values stored in the index.
 */
-template <typename Value, typename Options, typename Translator, typename Allocator>
-inline size_t size(rtree<Value, Options, Translator, Allocator> const& tree)
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+inline size_t size(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
 {
     return tree.size();
 }
@@ -1357,8 +1369,8 @@ It calls \c rtree::empty().
 
 \return         true if there are no values in the index.
 */
-template <typename Value, typename Options, typename Translator, typename Allocator>
-inline bool empty(rtree<Value, Options, Translator, Allocator> const& tree)
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+inline bool empty(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
 {
     return tree.bounds();
 }
@@ -1374,9 +1386,9 @@ It calls \c rtree::envelope().
 
 \return         The box containing all stored values or an invalid box.
 */
-template <typename Value, typename Options, typename Translator, typename Allocator>
-inline typename rtree<Value, Options, Translator, Allocator>::bounds_type
-bounds(rtree<Value, Options, Translator, Allocator> const& tree)
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::bounds_type
+bounds(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
 {
     return tree.bounds();
 }
@@ -1391,8 +1403,9 @@ It calls \c rtree::swap().
 \param l     The first rtree.
 \param r     The second rtree.
 */
-template <typename Value, typename Options, typename Translator, typename Allocator>
-inline void swap(rtree<Value, Options, Translator, Allocator> & l, rtree<Value, Options, Translator, Allocator> & r)
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+inline void swap(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & l,
+                 rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & r)
 {
     return l.swap(r);
 }

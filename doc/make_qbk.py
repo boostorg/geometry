@@ -27,9 +27,8 @@ os.system(cmd % ("classboost_1_1geometry_1_1index_1_1dynamic__linear", "rtree_dy
 os.system(cmd % ("classboost_1_1geometry_1_1index_1_1dynamic__quadratic", "rtree_dynamic_quadratic"))
 os.system(cmd % ("classboost_1_1geometry_1_1index_1_1dynamic__rstar", "rtree_dynamic_rstar"))
 
-os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator", "translator"))
-#os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_3_01std_1_1pair_3_01_indexable_00_01_second_01_4_01_4", "translator_pair"))
-#os.system(cmd % ("structboost_1_1geometry_1_1index_1_1translator_3_01boost_1_1tuple_3_01_indexable_00_01_t1_00_01_1c55aa63046ee2c1171cfc2033fb0edd", "translator_tuple"))
+os.system(cmd % ("structboost_1_1geometry_1_1index_1_1indexable", "indexable"))
+os.system(cmd % ("structboost_1_1geometry_1_1index_1_1equal__to", "equal_to"))
 
 os.system(cmd % ("group__predicates", "predicates"))
 os.system(cmd % ("group__nearest__relations", "nearest_relations"))

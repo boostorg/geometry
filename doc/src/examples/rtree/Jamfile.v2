@@ -10,8 +10,8 @@ exe quick_start : quick_start.cpp ;
 exe polygons_vector : polygons_vector.cpp ;
 exe polygons_shared_ptr : polygons_shared_ptr.cpp ;
 exe variants_map : variants_map.cpp ;
-exe translator_shared_ptr : translator_shared_ptr.cpp ;
-exe translator_index : translator_index.cpp ;
+exe value_shared_ptr : value_shared_ptr.cpp ;
+exe value_index : value_index.cpp ;
 
 exe interprocess : interprocess.cpp /boost/thread//boost_thread
         :

@@ -208,7 +208,7 @@ struct test_object
 namespace boost { namespace geometry { namespace index {
 
 template <typename Indexable>
-struct translator< boost::shared_ptr< test_object<Indexable> > >
+struct indexable< boost::shared_ptr< test_object<Indexable> > >
 {
     typedef boost::shared_ptr< test_object<Indexable> > value_type;
     typedef Indexable const& result_type;
@@ -216,11 +216,6 @@ struct translator< boost::shared_ptr< test_object<Indexable> > >
     result_type operator()(value_type const& value) const
     {
         return value->indexable;
-    }
-
-    bool equals(value_type const& v1, value_type const& v2) const
-    {
-        return v1 == v2;
     }
 };
 
@@ -269,17 +264,22 @@ struct counting_value
 namespace boost { namespace geometry { namespace index {
 
 template <typename Indexable>
-struct translator< counting_value<Indexable> >
+struct indexable< counting_value<Indexable> >
 {
     typedef counting_value<Indexable> value_type;
     typedef Indexable const& result_type;
-
     result_type operator()(value_type const& value) const
     {
         return value.indexable;
     }
+};
 
-    bool equals(value_type const& v1, value_type const& v2) const
+template <typename Indexable>
+struct equal_to< counting_value<Indexable> >
+{
+    typedef counting_value<Indexable> value_type;
+    typedef bool result_type;
+    bool operator()(value_type const& v1, value_type const& v2) const
     {
         return boost::geometry::equals(v1.indexable, v2.indexable);
     }
@@ -333,17 +333,22 @@ struct value_no_dctor
 namespace boost { namespace geometry { namespace index {
 
 template <typename Indexable>
-struct translator< value_no_dctor<Indexable> >
+struct indexable< value_no_dctor<Indexable> >
 {
     typedef value_no_dctor<Indexable> value_type;
     typedef Indexable const& result_type;
-
     result_type operator()(value_type const& value) const
     {
         return value.indexable;
     }
+};
 
-    bool equals(value_type const& v1, value_type const& v2) const
+template <typename Indexable>
+struct equal_to< value_no_dctor<Indexable> >
+{
+    typedef value_no_dctor<Indexable> value_type;
+    typedef bool result_type;
+    bool operator()(value_type const& v1, value_type const& v2) const
     {
         return boost::geometry::equals(v1.indexable, v2.indexable);
     }
@@ -894,7 +899,8 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
 
-    Rtree t2(tree.parameters(), tree.translator(), tree.get_allocator());
+    // TEMPORARILY USED translator()
+    Rtree t2(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
     t2.swap(t1);
     BOOST_CHECK(tree.empty() == t2.empty());
     BOOST_CHECK(tree.size() == t2.size());
@@ -942,7 +948,8 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
     tree.query(bgi::intersects(qbox), std::back_inserter(expected_output));
 
     {
-        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         BOOST_FOREACH(Value const& v, input)
             t.insert(v);
         BOOST_CHECK(tree.size() == t.size());
@@ -951,7 +958,8 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         std::copy(input.begin(), input.end(), bgi::inserter(t));
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -959,21 +967,24 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        Rtree t(input.begin(), input.end(), tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(input.begin(), input.end(), tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        Rtree t(input, tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(input, tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         t.insert(input.begin(), input.end());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -981,7 +992,8 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         t.insert(input);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -990,7 +1002,8 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
     }
 
     {
-        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         BOOST_FOREACH(Value const& v, input)
             bgi::insert(t, v);
         BOOST_CHECK(tree.size() == t.size());
@@ -999,7 +1012,8 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         bgi::insert(t, input.begin(), input.end());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -1007,7 +1021,8 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        Rtree t(tree.parameters(), tree.translator(), tree.get_allocator());
+        // TEMPORARILY USED translator()
+        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
         bgi::insert(t, input);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -1134,14 +1149,15 @@ void test_clear(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
 template <typename Value, typename Parameters, typename Allocator>
 void test_rtree_by_value(Parameters const& parameters, Allocator const& allocator)
 {
-    typedef bgi::translator<Value> T;
+    typedef bgi::indexable<Value> I;
+    typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
-    typedef bgi::rtree<Value, Parameters, T, A> Tree;
+    typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::box_type B;
 
     // not empty tree test
 
-    Tree tree(parameters, T(), allocator);
+    Tree tree(parameters, I(), E(), allocator);
     std::vector<Value> input;
     B qbox;
 
@@ -1171,7 +1187,7 @@ void test_rtree_by_value(Parameters const& parameters, Allocator const& allocato
 
     // empty tree test
 
-    Tree empty_tree(parameters, T(), allocator);
+    Tree empty_tree(parameters, I(), E(), allocator);
     std::vector<Value> empty_input;
 
     test_intersects(empty_tree, empty_input, qbox);
@@ -1192,12 +1208,13 @@ void test_count_rtree_values(Parameters const& parameters, Allocator const& allo
 {
     typedef counting_value<Indexable> Value;
 
-    typedef bgi::translator<Value> T;
+    typedef bgi::indexable<Value> I;
+    typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
-    typedef bgi::rtree<Value, Parameters, T, A> Tree;
+    typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::box_type B;
 
-    Tree t(parameters, T(), allocator);
+    Tree t(parameters, I(), E(), allocator);
     std::vector<Value> input;
     B qbox;
 
@@ -1234,12 +1251,13 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
 {
     typedef std::pair<Indexable, int> Value;
 
-    typedef bgi::translator<Value> T;
+    typedef bgi::indexable<Value> I;
+    typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
-    typedef bgi::rtree<Value, Parameters, T, A> Tree;
+    typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::box_type B;
 
-    Tree t(parameters, T(), allocator);
+    Tree t(parameters, I(), E(), allocator);
     std::vector<Value> input;
     B qbox;
 
@@ -1264,16 +1282,17 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
 template <typename Value, typename Parameters, typename Allocator>
 void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 {
-    typedef bgi::translator<Value> T;
+    typedef bgi::indexable<Value> I;
+    typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
-    typedef bgi::rtree<Value, Parameters, T, A> Tree;
+    typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::box_type B;
     typedef typename bg::traits::point_type<B>::type P;
 
     B b;
     bg::assign_inverse(b);
 
-    Tree t(parameters, T(), allocator);
+    Tree t(parameters, I(), E(), allocator);
     std::vector<Value> input;
     B qbox;
 

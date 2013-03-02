@@ -33,7 +33,6 @@
 
 [def __value__ Value]
 [def __parameters__ Parameters]
-[def __translator__ Translator]
 [def __allocator__ Allocator]
 [def __indexable__ Indexable]
 

@@ -43,7 +43,8 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [pre
 `template<``typename Value``,`
          `typename Parameters``,`
-         `typename Translator` = [^[link structboost_1_1geometry_1_1index_1_1translator index::translator]]`<Value>``,`
+         `typename IndexableGetter` = [^[link structboost_1_1geometry_1_1index_1_1indexable index::indexable]]`<Value>``,`
+         `typename EqualTo` = [^[link structboost_1_1geometry_1_1index_1_1equal__to index::equal_to]]`<Value>``,`
          `typename Allocator` = `std::allocator<Value>``>`
 `class rtree`
 `{`
@@ -56,106 +57,110 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[Parameter] [Description]]
 [[`Value`][The type of objects stored in the container. ]]
 [[`Parameters`][Compile-time parameters. ]]
-[[`Translator`][The type of the translator which translates from Value to Indexable. ]]
+[[`IndexableGetter`][The function object extracting Indexable from Value. ]]
+[[`EqualTo`][The function object comparing objects of type Value. ]]
 [[`Allocator`][The allocator used to allocate/deallocate memory, construct/destroy nodes and Values. ]]
 ]
 
 [heading Typedef(s)]
 [table
 [[Type] [Description]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb] `value_type`][The type of Value stored in the container. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a] `parameters_type`][R-tree parameters type. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91] `translator_type`][Value to Indexable Translator type. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d] `allocator_type`][The type of allocator used by the container. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6] `size_type`][Unsigned integral type used by the container. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1a6533b05d4a2eea9d4a0033e192add466] `indexable_type`][The Indexable type to which Value is translated. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1a653555282525601512c3b1bed1e9590f] `bounds_type`][The Box type used by the R-tree. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1a5761a41d87b93d4fd548ecb6600ae757] `value_type`][The type of Value stored in the container. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17] `parameters_type`][R-tree parameters type. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e] `allocator_type`][The type of allocator used by the container. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4] `size_type`][Unsigned integral type used by the container. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1ac6b09c3c32ec7ed2dee19459fdee92a2] `indexable_type`][The Indexable type to which Value is translated. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1a89a6fd9a7c24f9d30422ef81ce2b959f] `bounds_type`][The Box type used by the R-tree. ]]
 ]
 
 [heading Constructor(s) and destructor]
 [table
 [[Function][Description]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a393bb202f84b6fe5613df02d1ba2a092 `rtree()`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a434839ea5dd2e57f9491d18520621c4b `rtree(parameters_type const &, translator_type const &, allocator_type)`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1ace0b58f496b7eb00c518b4fc2794f4bc `rtree(Iterator, Iterator)`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a513f271626372c6dad5488f64db6d1d4 `rtree(Range const &)`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1ae8b10914ec434d1ee6877f5e1000b674 `~rtree()`]][The destructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a006904b4e7dcef1fd1efcb70a010964f `rtree(rtree const &)`]][The copy constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1ac59521aa9a9b69104fa25c0f7b705354 `rtree(rtree const &, allocator_type const &)`]][The copy constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a050fca8af38fe25548d4c22830b55bf2 `rtree(rtree &&)`]][The moving constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1ae0b4e031554daa6e6e8d3a0f95630260 `rtree(rtree &&, allocator_type const &)`]][The moving constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a55da92f65c8718efd65ef520ad058b28 `rtree()`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1afb26a28fd2309fd70e5f84ea20dc899d `rtree(parameters_type const &, IndexableGetter const &, EqualTo const &, allocator_type)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a07c03c285279cc976cc045f80265ee39 `rtree(Iterator, Iterator)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1adc4c1b5fce889a3755eb916fdd021bf1 `rtree(Range const &)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1af8db72811d2be53c409240204e63fb5a `~rtree()`]][The destructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a826fc3236e181ad718d5283e95d7866f `rtree(rtree const &)`]][The copy constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a72b6b75e083eea2ed26f54d4a2265375 `rtree(rtree const &, allocator_type const &)`]][The copy constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1aa8b27db8cb783282ab5274e6769da26a `rtree(rtree &&)`]][The moving constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a8508c4236d17ff39a1caef058aac8486 `rtree(rtree &&, allocator_type const &)`]][The moving constructor. ]]
 ]
 
 [heading Member(s)]
 [table
 [[Modifier][Function][Description]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1ab823a214501cb0f9fd00ba12a1ade179 `operator=(const rtree &)`]][The assignment operator. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a44bd4edee49db92c18b6bbbba77b42be `operator=(rtree &&)`]][The moving assignment. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1aad0285d25f96341a8dd6cc22feb3bd73 `swap(rtree &)`]][Swaps contents of two rtrees. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1af6d5bd81e46cb4ff89277c753133664c `insert(value_type const &)`]][Insert a value to the index. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a5263a3faac7b4f0090d4ad1d44cc540d `insert(Iterator, Iterator)`]][Insert a range of values to the index. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1abb624abd9268b41e815d40342b2634c2 `insert(Range const &)`]][Insert a range of values to the index. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1af6ca6909354a997f89411ef40ea5688a `remove(value_type const &)`]][Remove a value from the container. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a6e9123114697d65b16ebc49cd5371fbd `remove(Iterator, Iterator)`]][Remove a range of values from the container. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a5a57bb93b0b2d7ea1c659e925f918e9c `remove(Range const &)`]][Remove a range of values from the container. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a25ce2ead0e8a2d270105f4958237e949 `query(Predicates const &, OutIter)`]][Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a89561a834563f2ed6fc782bad16143fd `size()`]][Returns the number of stored values. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1ae889567443b0ba0dbdb975564c55804c `empty()`]][Query if the container is empty. ]]
-[[][[link classboost_1_1geometry_1_1index_1_1rtree_1ae6027e42d28a4bf93e74b055c79e6b09 `clear()`]][Removes all values stored in the container. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1aeba4f1afee40262204dd074a93536ebf `bounds()`]][Returns the box able to contain all values stored in the container. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a17fce1fac81f6460d2c3a5744f4963ee `count(ValueOrIndexable const &)`]][Count Values or Indexables stored in the container. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a18910715f67608ff010556ac41f51606 `parameters()`]][Returns parameters. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1afc7e9a4bd53a58552c17c1e7cb997258 `translator()`]][Returns the translator object. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a1eeb303253f4cabe3a89a82ed41247ff `get_allocator()`]][Returns allocator used by the rtree. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a278cfc791ab6c5ebc2f70aeb5b3428a1 `operator=(const rtree &)`]][The assignment operator. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1af0bf9622ed3e901580b73ed39b746fb7 `operator=(rtree &&)`]][The moving assignment. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1aedb719dfece91d298e9ee56878524c9b `swap(rtree &)`]][Swaps contents of two rtrees. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1ad47980467e66b8644df18a480dbf9d86 `insert(value_type const &)`]][Insert a value to the index. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a60d4c8790fd8810ff8b57f049e6bed8d `insert(Iterator, Iterator)`]][Insert a range of values to the index. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a39be117f85cc9ebc508d8ecf77578329 `insert(Range const &)`]][Insert a range of values to the index. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a1ce933b0b833faec5349bfc27bde15d4 `remove(value_type const &)`]][Remove a value from the container. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1aa97084231d17564a94f0142d095cecaa `remove(Iterator, Iterator)`]][Remove a range of values from the container. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a8a6460c186f595e91be69b1062ecae8b `remove(Range const &)`]][Remove a range of values from the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a7baa88eb4e7a5c640ab847513de45b3e `query(Predicates const &, OutIter)`]][Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1ac9f152c8c96525e3735b81635d8171b1 `size()`]][Returns the number of stored values. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1aa5302ce1c26105d722aac20793e83f0e `empty()`]][Query if the container is empty. ]]
+[[][[link classboost_1_1geometry_1_1index_1_1rtree_1a1bec40977c175983f585c4488cf8fe3c `clear()`]][Removes all values stored in the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a0dad06d0f117f45ed54b5c123cb41d6e `bounds()`]][Returns the box able to contain all values stored in the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1aaa834c241c191ac9de67f134564f36fa `count(ValueOrIndexable const &)`]][Count Values or Indexables stored in the container. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1afef125f04ba51b50370fadc9c1b1e8bf `parameters()`]][Returns parameters. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a17d9cef211feb7f674a5b4602f4cc81e `get_allocator()`]][Returns allocator used by the rtree. ]]
 ]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a393bb202f84b6fe5613df02d1ba2a092]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a55da92f65c8718efd65ef520ad058b28]
 [section rtree()]
 The constructor. 
 
 [heading Synopsis]
 [pre
 
-`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]`()``)`
+`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]`()``,`
+      `IndexableGetter const &` `indexable_getter` = `IndexableGetter()``,`
+      `EqualTo const &` `equal_to` = `EqualTo()``)`
 ]
 
 [heading Modifier(s)]
 ``explicit ``[heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &`][ `translator` ][The translator object.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
+[[`IndexableGetter const &`][ `indexable_getter` ][The function object extracting Indexable from Value. ]]
+[[`EqualTo const &`][ `equal_to` ][]]
 ]
 [heading Throws]
 If allocator default constructor throws. 
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a434839ea5dd2e57f9491d18520621c4b]
-[section rtree(parameters_type const &, translator_type const &, allocator_type)]
+[#classboost_1_1geometry_1_1index_1_1rtree_1afb26a28fd2309fd70e5f84ea20dc899d]
+[section rtree(parameters_type const &, IndexableGetter const &, EqualTo const &, allocator_type)]
 The constructor. 
 
 [heading Synopsis]
 [pre
 
-`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `allocator``)`
+`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters``,`
+      `IndexableGetter const &` `indexable_getter``,`
+      `EqualTo const &` `equal_to``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]] `allocator``)`
 ]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &`][ `translator` ][The translator object. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]][ `allocator` ][The allocator object.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
+[[`IndexableGetter const &`][ `indexable_getter` ][The function object extracting Indexable from Value. ]]
+[[`EqualTo const &`][ `equal_to` ][]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]][ `allocator` ][The allocator object.]]
 ]
 [heading Throws]
 If allocator copy constructor throws. 
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1ace0b58f496b7eb00c518b4fc2794f4bc]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a07c03c285279cc976cc045f80265ee39]
 [section rtree(Iterator, Iterator)]
 The constructor. 
 
@@ -164,9 +169,10 @@ The constructor.
 `template<``typename Iterator``>`
 `rtree``(``Iterator` `first``,`
       `Iterator` `last``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]`()``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]`()``)`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]`()``,`
+      `IndexableGetter const &` `indexable_getter` = `IndexableGetter()``,`
+      `EqualTo const &` `equal_to` = `EqualTo()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]`()``)`
 ]
 
 [heading Parameter(s)]
@@ -174,9 +180,10 @@ The constructor.
 [[Type][Name][Description]]
 [[`Iterator`][ `first` ][The beginning of the range of Values. ]]
 [[`Iterator`][ `last` ][The end of the range of Values. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &`][ `translator` ][The translator object. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]][ `allocator` ][The allocator object.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
+[[`IndexableGetter const &`][ `indexable_getter` ][The function object extracting Indexable from Value. ]]
+[[`EqualTo const &`][ `equal_to` ][]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]][ `allocator` ][The allocator object.]]
 ]
 [heading Throws]
 
@@ -190,7 +197,7 @@ The constructor.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a513f271626372c6dad5488f64db6d1d4]
+[#classboost_1_1geometry_1_1index_1_1rtree_1adc4c1b5fce889a3755eb916fdd021bf1]
 [section rtree(Range const &)]
 The constructor. 
 
@@ -198,9 +205,10 @@ The constructor.
 [pre
 `template<``typename Range``>`
 `rtree``(``Range const &` `rng``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]`()``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]`()``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]`()``)`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]`()``,`
+      `IndexableGetter const &` `indexable_getter` = `IndexableGetter()``,`
+      `EqualTo const &` `equal_to` = `EqualTo()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]`()``)`
 ]
 
 [heading Modifier(s)]
@@ -208,9 +216,10 @@ The constructor.
 [table 
 [[Type][Name][Description]]
 [[`Range const &`][ `rng` ][The range of Values. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &`][ `translator` ][The translator object. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]][ `allocator` ][The allocator object.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
+[[`IndexableGetter const &`][ `indexable_getter` ][The function object extracting Indexable from Value. ]]
+[[`EqualTo const &`][ `equal_to` ][]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]][ `allocator` ][The allocator object.]]
 ]
 [heading Throws]
 
@@ -224,7 +233,7 @@ The constructor.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1ae8b10914ec434d1ee6877f5e1000b674]
+[#classboost_1_1geometry_1_1index_1_1rtree_1af8db72811d2be53c409240204e63fb5a]
 [section ~rtree()]
 The destructor. 
 
@@ -239,7 +248,7 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a006904b4e7dcef1fd1efcb70a010964f]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a826fc3236e181ad718d5283e95d7866f]
 [section rtree(rtree const &)]
 The copy constructor. 
 
@@ -267,7 +276,7 @@ It uses parameters, translator and allocator from the source tree.[heading Synop
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1ac59521aa9a9b69104fa25c0f7b705354]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a72b6b75e083eea2ed26f54d4a2265375]
 [section rtree(rtree const &, allocator_type const &)]
 The copy constructor. 
 
@@ -275,14 +284,14 @@ The copy constructor.
 It uses Parameters and translator from the source tree.[heading Synopsis]
 [pre
 
-`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` const &` `src``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]` const &` `allocator``)`
+`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` const &` `src``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &` `allocator``)`
 ]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` const &`][ `src` ][The rtree which content will be copied. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]` const &`][ `allocator` ][The allocator which will be used.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &`][ `allocator` ][The allocator which will be used.]]
 ]
 [heading Throws]
 
@@ -296,7 +305,7 @@ It uses Parameters and translator from the source tree.[heading Synopsis]
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a050fca8af38fe25548d4c22830b55bf2]
+[#classboost_1_1geometry_1_1index_1_1rtree_1aa8b27db8cb783282ab5274e6769da26a]
 [section rtree(rtree &&)]
 The moving constructor. 
 
@@ -317,7 +326,7 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1ae0b4e031554daa6e6e8d3a0f95630260]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a8508c4236d17ff39a1caef058aac8486]
 [section rtree(rtree &&, allocator_type const &)]
 The moving constructor. 
 
@@ -325,14 +334,14 @@ The moving constructor.
 It uses parameters and translator from the source tree.[heading Synopsis]
 [pre
 
-`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` &&` `src``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]` const &` `allocator``)`
+`rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` &&` `src``,` [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &` `allocator``)`
 ]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree rtree]]` &&`][ `src` ][The rtree which content will be moved. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]]` const &`][ `allocator` ][The allocator.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &`][ `allocator` ][The allocator.]]
 ]
 [heading Throws]
 
@@ -346,7 +355,7 @@ It uses parameters and translator from the source tree.[heading Synopsis]
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1ab823a214501cb0f9fd00ba12a1ade179]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a278cfc791ab6c5ebc2f70aeb5b3428a1]
 [section operator=(const rtree &)]
 The assignment operator. 
 
@@ -373,7 +382,7 @@ It uses parameters and translator from the source tree.[heading Synopsis]
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a44bd4edee49db92c18b6bbbba77b42be]
+[#classboost_1_1geometry_1_1index_1_1rtree_1af0bf9622ed3e901580b73ed39b746fb7]
 [section operator=(rtree &&)]
 The moving assignment. 
 
@@ -400,7 +409,7 @@ Only if allocators aren't equal.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1aad0285d25f96341a8dd6cc22feb3bd73]
+[#classboost_1_1geometry_1_1index_1_1rtree_1aedb719dfece91d298e9ee56878524c9b]
 [section swap(rtree &)]
 Swaps contents of two rtrees. 
 
@@ -421,20 +430,20 @@ If allocators swap throws.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1af6d5bd81e46cb4ff89277c753133664c]
+[#classboost_1_1geometry_1_1index_1_1rtree_1ad47980467e66b8644df18a480dbf9d86]
 [section insert(value_type const &)]
 Insert a value to the index. 
 
 [heading Synopsis]
 [pre
 
-`void` `insert``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` const &` `value``)`
+`void` `insert``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5761a41d87b93d4fd548ecb6600ae757 value_type]]` const &` `value``)`
 ]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` const &`][ `value` ][The value which will be stored in the container.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5761a41d87b93d4fd548ecb6600ae757 value_type]]` const &`][ `value` ][The value which will be stored in the container.]]
 ]
 [heading Throws]
 
@@ -449,7 +458,7 @@ Insert a value to the index.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a5263a3faac7b4f0090d4ad1d44cc540d]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a60d4c8790fd8810ff8b57f049e6bed8d]
 [section insert(Iterator, Iterator)]
 Insert a range of values to the index. 
 
@@ -478,7 +487,7 @@ Insert a range of values to the index.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1abb624abd9268b41e815d40342b2634c2]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a39be117f85cc9ebc508d8ecf77578329]
 [section insert(Range const &)]
 Insert a range of values to the index. 
 
@@ -506,7 +515,7 @@ Insert a range of values to the index.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1af6ca6909354a997f89411ef40ea5688a]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a1ce933b0b833faec5349bfc27bde15d4]
 [section remove(value_type const &)]
 Remove a value from the container. 
 
@@ -514,13 +523,13 @@ Remove a value from the container.
 In contrast to the [^`std::set`] or [^`std::map erase()`] method this method removes only one value from the container.[heading Synopsis]
 [pre
 
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `remove``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` const &` `value``)`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4 size_type]] `remove``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5761a41d87b93d4fd548ecb6600ae757 value_type]]` const &` `value``)`
 ]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9979db9ef37591985256cb8ad31862bb value_type]]` const &`][ `value` ][The value which will be removed from the container.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5761a41d87b93d4fd548ecb6600ae757 value_type]]` const &`][ `value` ][The value which will be removed from the container.]]
 ]
 [heading Returns]
 1 if the value was removed, 0 otherwise.
@@ -537,7 +546,7 @@ In contrast to the [^`std::set`] or [^`std::map erase()`] method this method rem
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a6e9123114697d65b16ebc49cd5371fbd]
+[#classboost_1_1geometry_1_1index_1_1rtree_1aa97084231d17564a94f0142d095cecaa]
 [section remove(Iterator, Iterator)]
 Remove a range of values from the container. 
 
@@ -545,7 +554,7 @@ Remove a range of values from the container.
 In contrast to the [^`std::set`] or [^`std::map erase()`] method it doesn't take iterators pointing to values stored in this container. It removes values equal to these passed as a range. Furthermore this method removes only one value for each one passed in the range, not all equal values.[heading Synopsis]
 [pre
 `template<``typename Iterator``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `remove``(``Iterator` `first``,` `Iterator` `last``)`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4 size_type]] `remove``(``Iterator` `first``,` `Iterator` `last``)`
 ]
 
 [heading Parameter(s)]
@@ -569,7 +578,7 @@ The number of removed values.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a5a57bb93b0b2d7ea1c659e925f918e9c]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a8a6460c186f595e91be69b1062ecae8b]
 [section remove(Range const &)]
 Remove a range of values from the container. 
 
@@ -577,7 +586,7 @@ Remove a range of values from the container.
 In contrast to the [^`std::set`] or [^`std::map erase()`] method it removes values equal to these passed as a range. Furthermore, this method removes only one value for each one passed in the range, not all equal values.[heading Synopsis]
 [pre
 `template<``typename Range``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `remove``(``Range const &` `rng``)`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4 size_type]] `remove``(``Range const &` `rng``)`
 ]
 
 [heading Parameter(s)]
@@ -600,7 +609,7 @@ The number of removed values.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a25ce2ead0e8a2d270105f4958237e949]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a7baa88eb4e7a5c640ab847513de45b3e]
 [section query(Predicates const &, OutIter)]
 Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box. 
 
@@ -643,7 +652,7 @@ If the nearest predicate is passed a k-nearest neighbor search will be performed
 Predicates may be passed together connected with [^`operator&&()`].[heading Synopsis]
 [pre
 `template<``typename Predicates``,` `typename OutIter``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `query``(``Predicates const &` `predicates``,` `OutIter` `out_it``)`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4 size_type]] `query``(``Predicates const &` `predicates``,` `OutIter` `out_it``)`
 ]
 
 [heading Modifier(s)]
@@ -678,14 +687,14 @@ If Value copy constructor or copy assignment throws.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a89561a834563f2ed6fc782bad16143fd]
+[#classboost_1_1geometry_1_1index_1_1rtree_1ac9f152c8c96525e3735b81635d8171b1]
 [section size()]
 Returns the number of stored values. 
 
 [heading Synopsis]
 [pre
 
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `size``()`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4 size_type]] `size``()`
 ]
 
 [heading Modifier(s)]
@@ -696,7 +705,7 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1ae889567443b0ba0dbdb975564c55804c]
+[#classboost_1_1geometry_1_1index_1_1rtree_1aa5302ce1c26105d722aac20793e83f0e]
 [section empty()]
 Query if the container is empty. 
 
@@ -714,7 +723,7 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1ae6027e42d28a4bf93e74b055c79e6b09]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a1bec40977c175983f585c4488cf8fe3c]
 [section clear()]
 Removes all values stored in the container. 
 
@@ -729,7 +738,7 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1aeba4f1afee40262204dd074a93536ebf]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a0dad06d0f117f45ed54b5c123cb41d6e]
 [section bounds()]
 Returns the box able to contain all values stored in the container. 
 
@@ -737,7 +746,7 @@ Returns the box able to contain all values stored in the container.
 Returns the box able to contain all values stored in the container. If the container is empty the result of [^`geometry::assign_inverse()`] is returned.[heading Synopsis]
 [pre
 
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a653555282525601512c3b1bed1e9590f bounds_type]] `bounds``()`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a89a6fd9a7c24f9d30422ef81ce2b959f bounds_type]] `bounds``()`
 ]
 
 [heading Modifier(s)]
@@ -748,7 +757,7 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a17fce1fac81f6460d2c3a5744f4963ee]
+[#classboost_1_1geometry_1_1index_1_1rtree_1aaa834c241c191ac9de67f134564f36fa]
 [section count(ValueOrIndexable const &)]
 Count Values or Indexables stored in the container. 
 
@@ -756,7 +765,7 @@ Count Values or Indexables stored in the container.
 For indexable_type it returns the number of values which indexables equals the parameter. For value_type it returns the number of values which equals the parameter.[heading Synopsis]
 [pre
 `template<``typename ValueOrIndexable``>`
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a5c1a657074c527ed65f858c1ab6b36e6 size_type]] `count``(``ValueOrIndexable const &` `vori``)`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4 size_type]] `count``(``ValueOrIndexable const &` `vori``)`
 ]
 
 [heading Modifier(s)]
@@ -772,14 +781,14 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a18910715f67608ff010556ac41f51606]
+[#classboost_1_1geometry_1_1index_1_1rtree_1afef125f04ba51b50370fadc9c1b1e8bf]
 [section parameters()]
 Returns parameters. 
 
 [heading Synopsis]
 [pre
 
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1af85d4e399a807b3e4e46d38a0b4ffc5a parameters_type]]` const &` `parameters``()`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters``()`
 ]
 
 [heading Modifier(s)]
@@ -790,32 +799,14 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1afc7e9a4bd53a58552c17c1e7cb997258]
-[section translator()]
-Returns the translator object. 
-
-[heading Synopsis]
-[pre
-
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1adbc30a1fa986e2e856e0662111ac2d91 translator_type]]` const &` `translator``()`
-]
-
-[heading Modifier(s)]
-``const ``[heading Returns]
-The translator object.
-[heading Throws]
-Nothing. 
-
-[endsect]
-
-[#classboost_1_1geometry_1_1index_1_1rtree_1a1eeb303253f4cabe3a89a82ed41247ff]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a17d9cef211feb7f674a5b4602f4cc81e]
 [section get_allocator()]
 Returns allocator used by the rtree. 
 
 [heading Synopsis]
 [pre
 
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a9d35bc38fa697c6f600548fb5b38807d allocator_type]] `get_allocator``()`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]] `get_allocator``()`
 ]
 
 [heading Modifier(s)]

@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Creation and modification</title>
 <link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
 <link rel="up" href="../r_tree.html" title="R-tree">
 <link rel="prev" href="rtree_quickstart.html" title="Quick Start">
@@ -30,8 +30,8 @@
 <div class="toc"><dl>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.template_parameters">Template
         parameters</a></span></dt>
-<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.values__indexables_and_default_translator">Values,
-        Indexables and default Translator</a></span></dt>
+<dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.values_and_indexables">Values
+        and Indexables</a></span></dt>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.balancing_algorithms__compile_time_">Balancing
         algorithms (compile-time)</a></span></dt>
 <dt><span class="section"><a href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.balancing_algorithms__run_time_">Balancing
@@ -53,9 +53,13 @@
 <p>
           R-tree has 4 parameters:
         </p>
-<pre class="programlisting"><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">,</span> <span class="identifier">Parameters</span><span class="special">,</span> <span class="identifier">Translator</span> <span class="special">=</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;,</span> <span class="identifier">Allocator</span><span class="special">&gt;</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span> <span class="special">&gt;</span>
+<pre class="programlisting"><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">,</span>
+      <span class="identifier">Parameters</span><span class="special">,</span>
+      <span class="identifier">IndexableGetter</span> <span class="special">=</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">indexable</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;,</span>
+      <span class="identifier">EqualTo</span> <span class="special">=</span> <span class="identifier">index</span><span class="special">::</span><span class="identifier">equal_to</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;,</span>
+      <span class="identifier">Allocator</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span> <span class="special">&gt;</span>
 </pre>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
               <code class="computeroutput">Value</code> - type of object which will be stored in the container,
             </li>
@@ -64,10 +68,14 @@
               type, inserting/splitting algorithm,
             </li>
 <li class="listitem">
-              <code class="computeroutput">Translator</code> - type of object translating <code class="computeroutput"><span class="identifier">Value</span></code> objects to <code class="computeroutput">Indexable</code>
-              objects (<code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
+              <code class="computeroutput"><span class="identifier">IndexableGetter</span></code> - function
+              object translating <code class="computeroutput">Value</code> to <code class="computeroutput">Indexable</code> (<code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
               or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>)
               which R-tree can handle,
+            </li>
+<li class="listitem">
+              <code class="computeroutput"><span class="identifier">EqualTo</span></code> - function
+              object comparing <code class="computeroutput">Value</code>s,
             </li>
 <li class="listitem">
               <code class="computeroutput"><span class="identifier">Allocator</span></code> - <code class="computeroutput"><span class="identifier">Value</span></code>s allocator, all allocators
@@ -77,20 +85,19 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.creation_and_modification.values__indexables_and_default_translator"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.values__indexables_and_default_translator" title="Values, Indexables and default Translator">Values,
-        Indexables and default Translator</a>
+<a name="geometry_index.r_tree.creation_and_modification.values_and_indexables"></a><a class="link" href="creation_and_modification.html#geometry_index.r_tree.creation_and_modification.values_and_indexables" title="Values and Indexables">Values
+        and Indexables</a>
 </h4></div></div></div>
 <p>
-          R-tree may store <code class="computeroutput">Value</code>s of any type as long the <code class="computeroutput">Translator</code>
-          knows how to interpret those <code class="computeroutput">Value</code>s and extract an object
-          that the R-tree can handle. Those objects are called <code class="computeroutput">Indexable</code>s
-          in this documentation. Each type adapted to <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
+          R-tree may store <code class="computeroutput">Value</code>s of any type as passed function objects
+          knows how to interpret those <code class="computeroutput">Value</code>s, that is extract an <code class="computeroutput">Indexable</code>
+          that the R-tree can handle and compare <code class="computeroutput"><span class="identifier">__values__</span></code>.
+          Each type adapted to <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
           or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
           concept is an <code class="computeroutput">Indexable</code>. <code class="computeroutput">Value</code>s types which can
-          be handled by the default <code class="computeroutput">Translator</code> - <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">translator</span><span class="special">&lt;</span>Value<span class="special">&gt;</span></code>
-          are defined as follows:
+          be handled by the predefined function objects <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">indexable</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code> and <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">equal_to</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code> are defined as follows:
         </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
               <code class="computeroutput">Indexable <span class="special">=</span> <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a>
               <span class="special">|</span> <a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
@@ -113,28 +120,15 @@
 <span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;...&gt;,</span> <span class="keyword">int</span><span class="special">,</span> <span class="keyword">float</span><span class="special">&gt;</span>
 </pre>
 <p>
-          A <code class="computeroutput">Translator</code> is a type which knows how to handle <code class="computeroutput">Value</code>s.
-          It has two purposes:
-        </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-              it translates <code class="computeroutput">Value</code> to a more suitable <code class="computeroutput">Indexable</code>
-              type which is needed by most of operations,
-            </li>
-<li class="listitem">
-              performs a comparison of <code class="computeroutput">Value</code> which is needed by the
-              removing process.
-            </li>
-</ul></div>
-<p>
-          A <code class="computeroutput">Translator</code> translates the <code class="computeroutput">Value</code> each time the
-          R-tree needs it. For this reason it should rather return const reference
-          to the <code class="computeroutput">Indexable</code> than a copy.
+          <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">indexable</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code>
+          translates the <code class="computeroutput">Value</code> each time the R-tree needs it. For this
+          reason it should rather return const reference to the <code class="computeroutput">Indexable</code>
+          than a copy.
         </p>
 <p>
-          If comparison of two <code class="computeroutput">Value</code>s is required, the default translator:
+          If comparison of two <code class="computeroutput">Value</code>s is required, the predefined <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">equal_to</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code>:
         </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
               for <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
               and <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
@@ -142,9 +136,10 @@
             </li>
 <li class="listitem">
               for <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;...&gt;</span></code>
-              - compares both components of the <code class="computeroutput">Value</code>. The first one
-              is compared with <code class="computeroutput"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">equals</span><span class="special">()</span></code>. If the second one is a <code class="computeroutput"><span class="identifier">Geometry</span></code>, <code class="computeroutput"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">equals</span><span class="special">()</span></code> function is used. For other types
-              it uses <code class="computeroutput"><span class="keyword">operator</span><span class="special">==()</span></code>.
+              - compares both components of the <code class="computeroutput">Value</code>. The first value
+              stored in the pair is compared before the second one. If the value
+              stored in the pair is a Geometry, <code class="computeroutput"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">equals</span><span class="special">()</span></code> is used. For other types it uses
+              <code class="computeroutput"><span class="keyword">operator</span><span class="special">==()</span></code>.
             </li>
 <li class="listitem">
               for <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;...&gt;</span></code>

@@ -187,16 +187,16 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
 
 }}} // namespace detail::rtree::visitors
 
-template <typename Value, typename Options, typename Translator, typename Allocator>
-void gl_draw(rtree<Value, Options, Translator, Allocator> const& tree,
+template <typename Value, typename Options, typename IndexableGetter, typename EqualTo, typename Allocator>
+void gl_draw(rtree<Value, Options, IndexableGetter, EqualTo, Allocator> const& tree,
              size_t level_first = 0,
              size_t level_last = (std::numeric_limits<size_t>::max)(),
              typename index::detail::traits::coordinate_type<
-                    typename rtree<Value, Options, Translator, Allocator>::box_type
+                    typename rtree<Value, Options, IndexableGetter, EqualTo, Allocator>::box_type
                 >::type z_coord_level_multiplier = 1
              )
 {
-    typedef rtree<Value, Options, Translator, Allocator> rtree_type;
+    typedef rtree<Value, Options, IndexableGetter, EqualTo, Allocator> rtree_type;
 
     typedef typename rtree_type::value_type value_type;
     typedef typename rtree_type::options_type options_type;

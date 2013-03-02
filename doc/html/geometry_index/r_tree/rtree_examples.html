@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Examples</title>
 <link rel="stylesheet" href="http://www.boost.org/doc/libs/release/doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Geometry Index">
 <link rel="up" href="../r_tree.html" title="R-tree">
 <link rel="prev" href="queries.html" title="Queries">
@@ -35,10 +35,11 @@
         of shared pointers to polygons</a></span></dt>
 <dt><span class="section"><a href="rtree_examples.html#geometry_index.r_tree.rtree_examples.index_of_iterators_of_a_map_storing_variant_geometries">Index
         of iterators of a map storing variant geometries</a></span></dt>
-<dt><span class="section"><a href="rtree_examples.html#geometry_index.r_tree.rtree_examples.specializing_translator___storing_shared_pointers_in_the_rtree">Specializing
-        Translator - storing shared pointers in the rtree</a></span></dt>
-<dt><span class="section"><a href="rtree_examples.html#geometry_index.r_tree.rtree_examples.using_translator_object___storing_indexes_of_external_container_s_elements">Using
-        Translator object - storing indexes of external container's elements</a></span></dt>
+<dt><span class="section"><a href="rtree_examples.html#geometry_index.r_tree.rtree_examples.specializing_index__indexable_function_object___storing_shared_pointers_in_the_rtree">Specializing
+        index::indexable function object - storing shared pointers in the rtree</a></span></dt>
+<dt><span class="section"><a href="rtree_examples.html#geometry_index.r_tree.rtree_examples.using_indexablegetter_function_object___storing_indexes_of_external_container_s_elements">Using
+        IndexableGetter function object - storing indexes of external container's
+        elements</a></span></dt>
 <dt><span class="section"><a href="rtree_examples.html#geometry_index.r_tree.rtree_examples.index_stored_in_shared_memory_using_boost_interprocess">Index
         stored in shared memory using Boost.Interprocess</a></span></dt>
 </dl></div>
@@ -431,8 +432,8 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.rtree_examples.specializing_translator___storing_shared_pointers_in_the_rtree"></a><a class="link" href="rtree_examples.html#geometry_index.r_tree.rtree_examples.specializing_translator___storing_shared_pointers_in_the_rtree" title="Specializing Translator - storing shared pointers in the rtree">Specializing
-        Translator - storing shared pointers in the rtree</a>
+<a name="geometry_index.r_tree.rtree_examples.specializing_index__indexable_function_object___storing_shared_pointers_in_the_rtree"></a><a class="link" href="rtree_examples.html#geometry_index.r_tree.rtree_examples.specializing_index__indexable_function_object___storing_shared_pointers_in_the_rtree" title="Specializing index::indexable function object - storing shared pointers in the rtree">Specializing
+        index::indexable function object - storing shared pointers in the rtree</a>
 </h4></div></div></div>
 <p>
 </p>
@@ -454,13 +455,12 @@
 <span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span> <span class="keyword">namespace</span> <span class="identifier">geometry</span> <span class="special">{</span> <span class="keyword">namespace</span> <span class="identifier">index</span> <span class="special">{</span>
 
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Box</span><span class="special">&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">translator</span><span class="special">&lt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">shared_ptr</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">&gt;</span> <span class="special">&gt;</span>
+<span class="keyword">struct</span> <span class="identifier">indexable</span><span class="special">&lt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">shared_ptr</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">&gt;</span> <span class="special">&gt;</span>
 <span class="special">{</span>
     <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">shared_ptr</span><span class="special">&lt;</span><span class="identifier">Box</span><span class="special">&gt;</span> <span class="identifier">V</span><span class="special">;</span>
 
     <span class="keyword">typedef</span> <span class="identifier">Box</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">result_type</span><span class="special">;</span>
     <span class="identifier">result_type</span> <span class="keyword">operator</span><span class="special">()(</span><span class="identifier">V</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v</span><span class="special">)</span> <span class="keyword">const</span> <span class="special">{</span> <span class="keyword">return</span> <span class="special">*</span><span class="identifier">v</span><span class="special">;</span> <span class="special">}</span>
-    <span class="keyword">bool</span> <span class="identifier">equals</span><span class="special">(</span><span class="identifier">V</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v1</span><span class="special">,</span> <span class="identifier">V</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">v2</span><span class="special">)</span> <span class="keyword">const</span> <span class="special">{</span> <span class="keyword">return</span> <span class="identifier">v1</span> <span class="special">==</span> <span class="identifier">v2</span><span class="special">;</span> <span class="special">}</span>
 <span class="special">};</span>
 
 <span class="special">}}}</span> <span class="comment">// namespace boost::geometry::index</span>
@@ -520,8 +520,9 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="geometry_index.r_tree.rtree_examples.using_translator_object___storing_indexes_of_external_container_s_elements"></a><a class="link" href="rtree_examples.html#geometry_index.r_tree.rtree_examples.using_translator_object___storing_indexes_of_external_container_s_elements" title="Using Translator object - storing indexes of external container's elements">Using
-        Translator object - storing indexes of external container's elements</a>
+<a name="geometry_index.r_tree.rtree_examples.using_indexablegetter_function_object___storing_indexes_of_external_container_s_elements"></a><a class="link" href="rtree_examples.html#geometry_index.r_tree.rtree_examples.using_indexablegetter_function_object___storing_indexes_of_external_container_s_elements" title="Using IndexableGetter function object - storing indexes of external container's elements">Using
+        IndexableGetter function object - storing indexes of external container's
+        elements</a>
 </h4></div></div></div>
 <p>
 </p>
@@ -540,7 +541,7 @@
 <span class="keyword">namespace</span> <span class="identifier">bgi</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">index</span><span class="special">;</span>
 
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Container</span><span class="special">&gt;</span>
-<span class="keyword">class</span> <span class="identifier">index_translator</span>
+<span class="keyword">class</span> <span class="identifier">my_indexable</span>
 <span class="special">{</span>
     <span class="keyword">typedef</span> <span class="keyword">typename</span> <span class="identifier">Container</span><span class="special">::</span><span class="identifier">size_type</span> <span class="identifier">size_t</span><span class="special">;</span>
     <span class="keyword">typedef</span> <span class="keyword">typename</span> <span class="identifier">Container</span><span class="special">::</span><span class="identifier">const_reference</span> <span class="identifier">cref</span><span class="special">;</span>
@@ -548,9 +549,8 @@
 
 <span class="keyword">public</span><span class="special">:</span>
     <span class="keyword">typedef</span> <span class="identifier">cref</span> <span class="identifier">result_type</span><span class="special">;</span>
-    <span class="keyword">explicit</span> <span class="identifier">index_translator</span><span class="special">(</span><span class="identifier">Container</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">c</span><span class="special">)</span> <span class="special">:</span> <span class="identifier">container</span><span class="special">(</span><span class="identifier">c</span><span class="special">)</span> <span class="special">{}</span>
+    <span class="keyword">explicit</span> <span class="identifier">my_indexable</span><span class="special">(</span><span class="identifier">Container</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">c</span><span class="special">)</span> <span class="special">:</span> <span class="identifier">container</span><span class="special">(</span><span class="identifier">c</span><span class="special">)</span> <span class="special">{}</span>
     <span class="identifier">result_type</span> <span class="keyword">operator</span><span class="special">()(</span><span class="identifier">size_t</span> <span class="identifier">i</span><span class="special">)</span> <span class="keyword">const</span> <span class="special">{</span> <span class="keyword">return</span> <span class="identifier">container</span><span class="special">[</span><span class="identifier">i</span><span class="special">];</span> <span class="special">}</span>
-    <span class="keyword">bool</span> <span class="identifier">equals</span><span class="special">(</span><span class="identifier">size_t</span> <span class="identifier">i1</span><span class="special">,</span> <span class="identifier">size_t</span> <span class="identifier">i2</span><span class="special">)</span> <span class="keyword">const</span> <span class="special">{</span> <span class="keyword">return</span> <span class="identifier">i1</span> <span class="special">==</span> <span class="identifier">i2</span><span class="special">;</span> <span class="special">}</span>
 <span class="special">};</span>
 
 <span class="keyword">int</span> <span class="identifier">main</span><span class="special">(</span><span class="keyword">void</span><span class="special">)</span>
@@ -559,7 +559,7 @@
     <span class="keyword">typedef</span> <span class="identifier">bg</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;</span><span class="identifier">point</span><span class="special">&gt;</span> <span class="identifier">box</span><span class="special">;</span>
     <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">&gt;::</span><span class="identifier">size_type</span> <span class="identifier">value</span><span class="special">;</span>
     <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rstar</span><span class="special">&lt;</span><span class="number">16</span><span class="special">,</span> <span class="number">4</span><span class="special">&gt;</span> <span class="identifier">parameters</span><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">index_translator</span><span class="special">&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">translator</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">my_indexable</span><span class="special">&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">indexable_getter</span><span class="special">;</span>
 
     <span class="comment">// boxes</span>
     <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">box</span><span class="special">&gt;</span> <span class="identifier">boxes</span><span class="special">;</span>
@@ -578,8 +578,8 @@
 
     <span class="comment">// create the rtree</span>
     <span class="identifier">parameters</span> <span class="identifier">params</span><span class="special">;</span>
-    <span class="identifier">translator</span> <span class="identifier">tr</span><span class="special">(</span><span class="identifier">boxes</span><span class="special">);</span>
-    <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">,</span> <span class="identifier">parameters</span><span class="special">,</span> <span class="identifier">translator</span><span class="special">&gt;</span> <span class="identifier">rtree</span><span class="special">(</span><span class="identifier">params</span><span class="special">,</span> <span class="identifier">tr</span><span class="special">);</span>
+    <span class="identifier">indexable_getter</span> <span class="identifier">ind</span><span class="special">(</span><span class="identifier">boxes</span><span class="special">);</span>
+    <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">value</span><span class="special">,</span> <span class="identifier">parameters</span><span class="special">,</span> <span class="identifier">indexable_getter</span><span class="special">&gt;</span> <span class="identifier">rtree</span><span class="special">(</span><span class="identifier">params</span><span class="special">,</span> <span class="identifier">ind</span><span class="special">);</span>
 
     <span class="comment">// fill the spatial index</span>
     <span class="keyword">for</span> <span class="special">(</span> <span class="identifier">size_t</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span> <span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="identifier">boxes</span><span class="special">.</span><span class="identifier">size</span><span class="special">()</span> <span class="special">;</span> <span class="special">++</span><span class="identifier">i</span> <span class="special">)</span>
@@ -647,9 +647,10 @@
     <span class="keyword">typedef</span> <span class="identifier">bgm</span><span class="special">::</span><span class="identifier">box</span><span class="special">&lt;</span><span class="identifier">P</span><span class="special">&gt;</span> <span class="identifier">B</span><span class="special">;</span>
 
     <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">linear</span><span class="special">&lt;</span><span class="number">32</span><span class="special">,</span> <span class="number">8</span><span class="special">&gt;</span> <span class="identifier">Par</span><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">translator</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">&gt;</span> <span class="identifier">Tr</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">indexable</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">&gt;</span> <span class="identifier">I</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">equal_to</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">&gt;</span> <span class="identifier">E</span><span class="special">;</span>
     <span class="keyword">typedef</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">,</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">segment_manager</span><span class="special">&gt;</span> <span class="identifier">Alloc</span><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">,</span> <span class="identifier">Par</span><span class="special">,</span> <span class="identifier">Tr</span><span class="special">,</span> <span class="identifier">Alloc</span><span class="special">&gt;</span> <span class="identifier">Rtree</span><span class="special">;</span>
+    <span class="keyword">typedef</span> <span class="identifier">bgi</span><span class="special">::</span><span class="identifier">rtree</span><span class="special">&lt;</span><span class="identifier">B</span><span class="special">,</span> <span class="identifier">Par</span><span class="special">,</span> <span class="identifier">I</span><span class="special">,</span> <span class="identifier">E</span><span class="special">,</span> <span class="identifier">Alloc</span><span class="special">&gt;</span> <span class="identifier">Rtree</span><span class="special">;</span>
 
     <span class="comment">//Parent process</span>
     <span class="keyword">if</span> <span class="special">(</span> <span class="identifier">argc</span> <span class="special">==</span> <span class="number">1</span> <span class="special">)</span>
@@ -664,7 +665,7 @@
 
         <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Parent: Constructing container\n"</span><span class="special">;</span>
 
-        <span class="identifier">Rtree</span> <span class="special">*</span> <span class="identifier">tree</span> <span class="special">=</span> <span class="identifier">segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">Rtree</span><span class="special">&gt;(</span><span class="string">"Rtree"</span><span class="special">)(</span><span class="identifier">Par</span><span class="special">(),</span> <span class="identifier">Tr</span><span class="special">(),</span> <span class="identifier">Alloc</span><span class="special">(</span><span class="identifier">segment</span><span class="special">.</span><span class="identifier">get_segment_manager</span><span class="special">()));</span>
+        <span class="identifier">Rtree</span> <span class="special">*</span> <span class="identifier">tree</span> <span class="special">=</span> <span class="identifier">segment</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">Rtree</span><span class="special">&gt;(</span><span class="string">"Rtree"</span><span class="special">)(</span><span class="identifier">Par</span><span class="special">(),</span> <span class="identifier">I</span><span class="special">(),</span> <span class="identifier">E</span><span class="special">(),</span> <span class="identifier">Alloc</span><span class="special">(</span><span class="identifier">segment</span><span class="special">.</span><span class="identifier">get_segment_manager</span><span class="special">()));</span>
 
         <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Parent: Filling container with 100 boxes\n"</span><span class="special">;</span>
 

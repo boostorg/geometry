@@ -8,7 +8,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[rtree_translator_shared_ptr
+//[rtree_value_index
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point.hpp>
@@ -20,49 +20,54 @@
 #include <vector>
 #include <iostream>
 #include <boost/foreach.hpp>
-#include <boost/shared_ptr.hpp>
 
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
 
-namespace boost { namespace geometry { namespace index {
-
-template <typename Box>
-struct translator< boost::shared_ptr<Box> >
+template <typename Container>
+class my_indexable
 {
-    typedef boost::shared_ptr<Box> V;
+    typedef typename Container::size_type size_t;
+    typedef typename Container::const_reference cref;
+    Container const& container;
 
-    typedef Box const& result_type;
-    result_type operator()(V const& v) const { return *v; }
-    bool equals(V const& v1, V const& v2) const { return v1 == v2; }
+public:
+    typedef cref result_type;
+    explicit my_indexable(Container const& c) : container(c) {}
+    result_type operator()(size_t i) const { return container[i]; }
 };
-
-}}} // namespace boost::geometry::index
 
 int main(void)
 {
     typedef bg::model::point<float, 2, bg::cs::cartesian> point;
     typedef bg::model::box<point> box;
-    typedef boost::shared_ptr<box> shp;
-    typedef shp value;
+    typedef std::vector<box>::size_type value;
+    typedef bgi::rstar<16, 4> parameters;
+    typedef my_indexable< std::vector<box> > indexable_getter;
 
-    // create the rtree using default constructor
-    bgi::rtree< value, bgi::linear<16, 4> > rtree;
+    // boxes
+    std::vector<box> boxes;
 
-    std::cout << "filling index with boxes shared pointers:" << std::endl;
-
-    // fill the spatial index
+    // create some boxes
     for ( unsigned i = 0 ; i < 10 ; ++i )
     {
-        // create a box
-        shp b(new box(point(i, i), point(i+0.5f, i+0.5f)));
-
-        // display new box
-        std::cout << bg::wkt<box>(*b) << std::endl;
-
-        // insert new value
-        rtree.insert(b);
+        // add a box
+        boxes.push_back(box(point(i, i), point(i+0.5f, i+0.5f)));
     }
+
+    // display boxes
+    std::cout << "generated boxes:" << std::endl;
+    BOOST_FOREACH(box const& b, boxes)
+        std::cout << bg::wkt<box>(b) << std::endl;
+
+    // create the rtree
+    parameters params;
+    indexable_getter ind(boxes);
+    bgi::rtree<value, parameters, indexable_getter> rtree(params, ind);
+
+    // fill the spatial index
+    for ( size_t i = 0 ; i < boxes.size() ; ++i )
+        rtree.insert(i);
 
     // find values intersecting some area defined by a box
     box query_box(point(0, 0), point(5, 5));
@@ -77,14 +82,14 @@ int main(void)
     std::cout << "spatial query box:" << std::endl;
     std::cout << bg::wkt<box>(query_box) << std::endl;
     std::cout << "spatial query result:" << std::endl;
-    BOOST_FOREACH(value const& v, result_s)
-        std::cout << bg::wkt<box>(*v) << std::endl;
+    BOOST_FOREACH(value i, result_s)
+        std::cout << bg::wkt<box>(boxes[i]) << std::endl;
 
     std::cout << "knn query point:" << std::endl;
     std::cout << bg::wkt<point>(point(0, 0)) << std::endl;
     std::cout << "knn query result:" << std::endl;
-    BOOST_FOREACH(value const& v, result_n)
-        std::cout << bg::wkt<box>(*v) << std::endl;
+    BOOST_FOREACH(value i, result_n)
+        std::cout << bg::wkt<box>(boxes[i]) << std::endl;
 
     return 0;
 }

@@ -120,11 +120,11 @@ private:
 #error "To use are_boxes_ok BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE should be defined before including the rtree"
 #endif
 
-template <typename Value, typename Parameters, typename Translator, typename Allocator>
-bool are_boxes_ok(index::rtree<Value, Parameters, Translator, Allocator> const& tree,
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+bool are_boxes_ok(index::rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree,
                   bool exact_match = true)
 {
-    typedef index::rtree<Value, Parameters, Translator, Allocator> rt;
+    typedef index::rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> rt;
 
     detail::rtree::visitors::are_boxes_ok<
         typename rt::value_type,
