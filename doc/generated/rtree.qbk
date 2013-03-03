@@ -69,7 +69,9 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17] `parameters_type`][R-tree parameters type. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e] `allocator_type`][The type of allocator used by the container. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4] `size_type`][Unsigned integral type used by the container. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1ac6b09c3c32ec7ed2dee19459fdee92a2] `indexable_type`][The Indexable type to which Value is translated. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5] `indexable_getter`][The function object extracting Indexable from Value. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b] `value_equal`][The function object comparing objects of type Value. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1a4175e946d14b08f20f7126e2434e5646] `indexable_type`][The Indexable type to which Value is translated. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a89a6fd9a7c24f9d30422ef81ce2b959f] `bounds_type`][The Box type used by the R-tree. ]]
 ]
 
@@ -105,7 +107,9 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[][[link classboost_1_1geometry_1_1index_1_1rtree_1a1bec40977c175983f585c4488cf8fe3c `clear()`]][Removes all values stored in the container. ]]
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a0dad06d0f117f45ed54b5c123cb41d6e `bounds()`]][Returns the box able to contain all values stored in the container. ]]
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1aaa834c241c191ac9de67f134564f36fa `count(ValueOrIndexable const &)`]][Count Values or Indexables stored in the container. ]]
-[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1afef125f04ba51b50370fadc9c1b1e8bf `parameters()`]][Returns parameters. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a9076baef90a3a9c6018871fa25115a73 `parameters()`]][Returns parameters. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1af391fd642a218c5fb10fc68d643a62b5 `indexable_get()`]][Returns function retrieving Indexable from Value. ]]
+[[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a16424563d0973960ac01f7a1969eeebe `value_eq()`]][Returns function comparing Values. ]]
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a17d9cef211feb7f674a5b4602f4cc81e `get_allocator()`]][Returns allocator used by the rtree. ]]
 ]
 
@@ -781,19 +785,55 @@ Nothing.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1afef125f04ba51b50370fadc9c1b1e8bf]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a9076baef90a3a9c6018871fa25115a73]
 [section parameters()]
 Returns parameters. 
 
 [heading Synopsis]
 [pre
 
-[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters``()`
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]] `parameters``()`
 ]
 
 [heading Modifier(s)]
 ``const ``[heading Returns]
 The parameters object.
+[heading Throws]
+Nothing. 
+
+[endsect]
+
+[#classboost_1_1geometry_1_1index_1_1rtree_1af391fd642a218c5fb10fc68d643a62b5]
+[section indexable_get()]
+Returns function retrieving Indexable from Value. 
+
+[heading Synopsis]
+[pre
+
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]] `indexable_get``()`
+]
+
+[heading Modifier(s)]
+``const ``[heading Returns]
+The indexable_getter object.
+[heading Throws]
+Nothing. 
+
+[endsect]
+
+[#classboost_1_1geometry_1_1index_1_1rtree_1a16424563d0973960ac01f7a1969eeebe]
+[section value_eq()]
+Returns function comparing Values. 
+
+[heading Synopsis]
+[pre
+
+[^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]] `value_eq``()`
+]
+
+[heading Modifier(s)]
+``const ``[heading Returns]
+The value_equal function.
 [heading Throws]
 Nothing. 
 

@@ -115,14 +115,17 @@ public:
     typedef Allocator allocator_type;
     /*! \brief Unsigned integral type used by the container. */
     typedef typename allocator_type::size_type size_type;
-
+    /*! \brief The function object extracting Indexable from Value. */
     typedef IndexableGetter indexable_getter;
+    /*! \brief The function object comparing objects of type Value. */
     typedef EqualTo value_equal;
 
+    // TODO: SHOULD THIS TYPE BE REMOVED?
     /*! \brief The Indexable type to which Value is translated. */
     typedef typename index::detail::translator::indexable_type<
         detail::translator::translator<IndexableGetter, EqualTo>
     >::type indexable_type;
+
     /*! \brief The Box type used by the R-tree. */
     typedef typename index::detail::default_box_type<indexable_type>::type bounds_type;
 
