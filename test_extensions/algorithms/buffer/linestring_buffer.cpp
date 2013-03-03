@@ -164,8 +164,10 @@ void test_all()
 
     test_one<linestring, buf::join_round, polygon>("one_bend", one_bend, 'r', 28.488, 1.5, 1.5);
     test_one<linestring, buf::join_miter, polygon>("one_bend", one_bend, 'm', 28.696, 1.5, 1.5);
+    test_one<linestring, buf::join_round_by_divide, polygon>("one_bend", one_bend, 'd', 28.488, 1.5, 1.5);
 
-    test_one<linestring, buf::join_round, polygon>("two_bends", two_bends, 'r', 39.222, 1.5, 1.5);
+    test_one<linestring, buf::join_round, polygon>("two_bends", two_bends, 'r', 39.235, 1.5, 1.5);
+    test_one<linestring, buf::join_round_by_divide, polygon>("two_bends", two_bends, 'd', 39.235, 1.5, 1.5);
     test_one<linestring, buf::join_miter, polygon>("two_bends", two_bends, 'm', 39.513, 1.5, 1.5);
     test_one<linestring, buf::join_round, polygon>("two_bends_left", two_bends, 'r', 20.028, 1.5, 0.0);
     test_one<linestring, buf::join_miter, polygon>("two_bends_left", two_bends, 'm', 20.225, 1.5, 0.0);
