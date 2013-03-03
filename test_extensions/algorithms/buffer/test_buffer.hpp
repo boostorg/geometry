@@ -85,15 +85,18 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
-    typedef bg::strategy::buffer::distance_assymetric<coordinate_type> distance;
+    typedef bg::strategy::buffer::distance_asymmetric<coordinate_type> distance;
 
     typedef typename bg::ring_type<GeometryOut>::type ring_type;
 
 	typedef typename bg::tag<Geometry>::type tag;
+	// TODO use something different here:
 	std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
 		: boost::is_same<tag, bg::linestring_tag>::value ? "line"
+		: boost::is_same<tag, bg::point_tag>::value ? "point"
 		: boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
 		: boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
+		: boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
 		: ""
 		;
 
@@ -138,7 +141,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     join_strategy_type join_strategy;
 
-    typedef bg::strategy::buffer::distance_assymetric<coordinate_type> distance_strategy_type;
+    typedef bg::strategy::buffer::distance_asymmetric<coordinate_type> distance_strategy_type;
     distance_strategy_type distance_strategy(distance_left, distance_right);
 
     std::vector<GeometryOut> buffered;

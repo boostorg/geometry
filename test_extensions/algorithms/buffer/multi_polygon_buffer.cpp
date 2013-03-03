@@ -253,7 +253,8 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("multi_simplex_20", simplex, 'm', 77.7060, 2.0);
     test_one<multi_polygon_type, buf::join_round, polygon_type>("multi_simplex_50", simplex, 'r', 174.46, 5.0);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("multi_simplex_50", simplex, 'm', 298.797, 5.0);
-
+    test_one<multi_polygon_type, buf::join_round_by_divide, polygon_type>("multi_simplex_50", simplex, 'd', 174.46, 5.0);
+    
     test_one<multi_polygon_type, buf::join_round, polygon_type>("zonethru_05", zonethru, 'r', 67.4627, 0.5);
     test_one<multi_polygon_type, buf::join_miter, polygon_type>("zonethru_05", zonethru, 'm', 68.0000, 0.5);
     test_one<multi_polygon_type, buf::join_round, polygon_type>("zonethru_10", zonethru, 'r', 93.8508, 1.0, -999, 1);

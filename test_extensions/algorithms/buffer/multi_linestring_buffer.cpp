@@ -34,6 +34,7 @@ void test_all()
 
     test_one<multi_linestring_type, buf::join_round, polygon>("simplex", simplex, 'r', 38.2623, 1.5, 1.5);
     test_one<multi_linestring_type, buf::join_round, polygon>("two_bends", two_bends, 'r',  64.6217, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_round_by_divide, polygon>("two_bends", two_bends, 'd',  64.6217, 1.5, 1.5);
     test_one<multi_linestring_type, buf::join_miter, polygon>("two_bends", two_bends, 'm',  65.1834, 1.5, 1.5);
     test_one<multi_linestring_type, buf::join_round, polygon>("two_bends_asym", two_bends, 'm',  52.3793, 1.5, 0.75);
 }
