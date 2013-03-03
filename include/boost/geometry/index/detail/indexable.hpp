@@ -15,44 +15,6 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 
 namespace dispatch {
 
-// Distinguish between indexables and other geometries
-
-template <typename Geometry, typename GeometryTag>
-struct indexable_type
-{
-    typedef void type;
-};
-
-template <typename Point>
-struct indexable_type<Point, geometry::point_tag>
-{
-    typedef Point type;
-};
-
-template <typename Box>
-struct indexable_type<Box, geometry::box_tag>
-{
-    typedef Box type;
-};
-
-} // namespace dispatch
-
-namespace traits
-{
-
-template <typename Indexable>
-struct indexable_type
-{
-    typedef typename dispatch::indexable_type<
-        Indexable,
-        typename geometry::traits::tag<Indexable>::type
-    >::type type;
-};
-
-} // namespace traits
-
-namespace dispatch {
-
 template <typename Indexable, typename IndexableTag>
 struct point_type
 {

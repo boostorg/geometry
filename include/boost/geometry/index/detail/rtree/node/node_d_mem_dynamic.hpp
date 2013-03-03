@@ -96,7 +96,7 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVis
 template <typename Element, typename Translator>
 struct element_indexable_type
 {
-    typedef typename translator::indexable_type<Translator>::type type;
+    typedef typename indexable_type<Translator>::type type;
 };
 
 template <typename First, typename Pointer, typename Translator>
@@ -111,7 +111,7 @@ struct element_indexable_type<
 // element's indexable getter
 
 template <typename Element, typename Translator>
-typename translator::result_type<Translator>::type
+typename result_type<Translator>::type
 element_indexable(Element const& el, Translator const& tr)
 {
     return tr(el);

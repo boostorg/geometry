@@ -25,7 +25,11 @@
 
 #include <boost/geometry/index/detail/rtree/options.hpp>
 
-#include <boost/geometry/index/translator.hpp>
+#include <boost/geometry/index/indexable.hpp>
+#include <boost/geometry/index/equal_to.hpp>
+
+#include <boost/geometry/index/detail/indexable.hpp>
+#include <boost/geometry/index/detail/translator.hpp>
 
 #include <boost/geometry/index/predicates.hpp>
 #include <boost/geometry/index/distance_predicates.hpp>
@@ -122,8 +126,8 @@ public:
 
     // TODO: SHOULD THIS TYPE BE REMOVED?
     /*! \brief The Indexable type to which Value is translated. */
-    typedef typename index::detail::translator::indexable_type<
-        detail::translator::translator<IndexableGetter, EqualTo>
+    typedef typename index::detail::indexable_type<
+        detail::translator<IndexableGetter, EqualTo>
     >::type indexable_type;
 
     /*! \brief The Box type used by the R-tree. */
@@ -132,7 +136,7 @@ public:
 #if !defined(BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE)
 private:
 #endif
-    typedef detail::translator::translator<IndexableGetter, EqualTo> translator_type;
+    typedef detail::translator<IndexableGetter, EqualTo> translator_type;
 
     typedef bounds_type box_type;
     typedef typename detail::rtree::options_type<Parameters>::type options_type;

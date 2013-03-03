@@ -68,7 +68,7 @@ struct nearest_query_result_k
 public:
     typedef typename geometry::default_distance_result<
         Point,
-        typename translator::indexable_type<Translator>::type
+        typename indexable_type<Translator>::type
     >::type distance_type;
 
     inline explicit nearest_query_result_k(size_t k, OutIt out_it)
@@ -168,13 +168,13 @@ public:
 
     typedef index::detail::distances_calc<
         DistancesPredicates,
-        typename translator::indexable_type<Translator>::type,
+        typename indexable_type<Translator>::type,
         index::detail::value_tag
     > value_distances_calc;
     typedef typename value_distances_calc::result_type value_distances_type;
     typedef index::detail::distances_predicates_check<
         DistancesPredicates,
-        typename translator::indexable_type<Translator>::type,
+        typename indexable_type<Translator>::type,
         index::detail::value_tag
     > value_distances_predicates_check;
 
