@@ -158,7 +158,7 @@ public:
     inline explicit rtree(parameters_type const& parameters = parameters_type(),
                           IndexableGetter const& indexable_getter = IndexableGetter(),
                           EqualTo const& equal_to = EqualTo())
-        : m_members(translator_type(indexable_getter, equal_to), parameters)
+        : m_members(indexable_getter, equal_to, parameters)
     {}
 
     /*!
@@ -176,7 +176,7 @@ public:
                  IndexableGetter const& indexable_getter,
                  EqualTo const& equal_to,
                  allocator_type allocator)
-        : m_members(translator_type(indexable_getter, equal_to), parameters, allocator)
+        : m_members(indexable_getter, equal_to, parameters, allocator)
     {}
 
     /*!
@@ -201,7 +201,7 @@ public:
                  IndexableGetter const& indexable_getter = IndexableGetter(),
                  EqualTo const& equal_to = EqualTo(),
                  allocator_type allocator = allocator_type())
-        : m_members(translator_type(indexable_getter, equal_to), parameters, allocator)
+        : m_members(indexable_getter, equal_to, parameters, allocator)
     {
         try
         {
@@ -235,7 +235,7 @@ public:
                           IndexableGetter const& indexable_getter = IndexableGetter(),
                           EqualTo const& equal_to = EqualTo(),
                           allocator_type allocator = allocator_type())
-        : m_members(translator_type(indexable_getter, equal_to), parameters, allocator)
+        : m_members(indexable_getter, equal_to, parameters, allocator)
     {
         try
         {
@@ -273,7 +273,8 @@ public:
     \li When memory allocation for Node fails.
     */
     inline rtree(rtree const& src)
-        : m_members(src.m_members.translator(),
+        : m_members(src.m_members.indexable_getter(),
+                    src.m_members.equal_to(),
                     src.m_members.parameters(),
                     allocator_traits_type::select_on_container_copy_construction(src.get_allocator()))
     {
@@ -295,7 +296,9 @@ public:
     \li When memory allocation for Node fails.
     */
     inline rtree(rtree const& src, allocator_type const& allocator)
-        : m_members(src.m_members.translator(), src.m_members.parameters(), allocator)
+        : m_members(src.m_members.indexable_getter(),
+                    src.m_members.equal_to(),
+                    src.m_members.parameters(), allocator)
     {
         this->raw_copy(src, *this, false);
     }
@@ -311,7 +314,8 @@ public:
     Nothing.
     */
     inline rtree(BOOST_RV_REF(rtree) src)
-        : m_members(src.m_members.translator(),
+        : m_members(src.m_members.indexable_getter(),
+                    src.m_members.equal_to(),
                     src.m_members.parameters(),
                     boost::move(src.m_members.allocators()))
     {
@@ -335,7 +339,8 @@ public:
     \li When memory allocation for Node fails (only if allocators aren't equal).
     */
     inline rtree(BOOST_RV_REF(rtree) src, allocator_type const& allocator)
-        : m_members(src.m_members.translator(),
+        : m_members(src.m_members.indexable_getter(),
+                    src.m_members.equal_to(),
                     src.m_members.parameters(),
                     boost::move(allocator))
     {
@@ -403,8 +408,10 @@ public:
         {
             this->raw_destroy(*this);
 
-            m_members.translator() = src.m_members.translator();
+            m_members.indexable_getter() = src.m_members.indexable_getter();
+            m_members.equal_to() = src.m_members.equal_to();
             m_members.parameters() = src.m_members.parameters();
+
             boost::swap(m_members.values_count, src.m_members.values_count);
             boost::swap(m_members.leafs_level, src.m_members.leafs_level);
             boost::swap(m_members.root, src.m_members.root);
@@ -437,7 +444,8 @@ public:
     */
     void swap(rtree & other)
     {
-        boost::swap(m_members.translator(), other.m_members.translator());
+        boost::swap(m_members.indexable_getter(), other.m_members.indexable_getter());
+        boost::swap(m_members.equal_to(), other.m_members.equal_to());
         boost::swap(m_members.parameters(), other.m_members.parameters());
         m_members.allocators().swap(other.m_members.allocators());
 
@@ -1014,7 +1022,8 @@ private:
 
         if ( copy_tr_and_params )
         {
-            dst.m_members.translator() = src.m_members.translator();                        // SHOULDN'T THROW
+            dst.m_members.indexable_getter() = src.m_members.indexable_getter();
+            dst.m_members.equal_to() = src.m_members.equal_to();
             dst.m_members.parameters() = src.m_members.parameters();
         }
 
@@ -1122,11 +1131,12 @@ private:
         members_holder(members_holder const&);
 
     public:
-        template <typename Transl, typename Alloc>
-        members_holder(Transl const& transl,
+        template <typename IndGet, typename ValEq, typename Alloc>
+        members_holder(IndGet const& ind_get,
+                       ValEq const& val_eq,
                        Parameters const& parameters,
                        BOOST_FWD_REF(Alloc) alloc)
-            : translator_type(transl)
+            : translator_type(ind_get, val_eq)
             , Parameters(parameters)
             , allocators_type(boost::forward<Alloc>(alloc))
             , values_count(0)
@@ -1134,10 +1144,11 @@ private:
             , root(0)
         {}
 
-        template <typename Transl>
-        members_holder(Transl const& transl,
+        template <typename IndGet, typename ValEq>
+        members_holder(IndGet const& ind_get,
+                       ValEq const& val_eq,
                        Parameters const& parameters)
-            : translator_type(transl)
+            : translator_type(ind_get, val_eq)
             , Parameters(parameters)
             , allocators_type()
             , values_count(0)
@@ -1146,7 +1157,11 @@ private:
         {}
 
         translator_type const& translator() const { return *this; }
-        translator_type & translator() { return *this; }
+
+        IndexableGetter const& indexable_getter() const { return *this; }
+        IndexableGetter & indexable_getter() { return *this; }
+        EqualTo const& equal_to() const { return *this; }
+        EqualTo & equal_to() { return *this; }
         Parameters const& parameters() const { return *this; }
         Parameters & parameters() { return *this; }
         allocators_type const& allocators() const { return *this; }

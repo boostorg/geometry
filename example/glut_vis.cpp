@@ -9,7 +9,7 @@
 
 #include <GL/glut.h>
 
-#define BOOST_GEOMETRY_INDEX_ENABLE_DEBUG_INTERFACE
+#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 
 #include <boost/foreach.hpp>
 
