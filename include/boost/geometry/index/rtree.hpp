@@ -810,7 +810,7 @@ public:
     */
     indexable_getter indexable_get() const
     {
-        return m_members.translator().indexable_get();
+        return m_members.indexable_getter();
     }
 
     /*!
@@ -823,7 +823,7 @@ public:
     */
     value_equal value_eq() const
     {
-        return m_members.translator().value_eq();
+        return m_members.equal_to();
     }
 
     /*!

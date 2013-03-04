@@ -503,7 +503,7 @@ template <typename Rtree, typename Iter, typename Value>
 Iter test_find(Rtree const& rtree, Iter first, Iter last, Value const& value)
 {
     for ( ; first != last ; ++first )
-        if ( rtree.translator().equals(value, *first) )
+        if ( rtree.value_eq()(value, *first) )
             return first;
     return first;
 }
@@ -535,7 +535,7 @@ void test_exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Ran
         typename Range2::const_iterator it2 = expected_output.begin();
         for ( ; it1 != output.end() && it2 != expected_output.end() ; ++it1, ++it2 )
         {
-            if ( !rtree.translator().equals(*it1, *it2) )
+            if ( !rtree.value_eq()(*it1, *it2) )
             {
                 BOOST_CHECK(false && "rtree.translator().equals(*it1, *it2)");
                 break;
@@ -576,7 +576,7 @@ void test_intersects(Rtree const& tree, std::vector<Value> const& input, Box con
     std::vector<Value> expected_output;
 
     BOOST_FOREACH(Value const& v, input)
-        if ( bg::intersects(tree.translator()(v), qbox) )
+        if ( bg::intersects(tree.indexable_get()(v), qbox) )
             expected_output.push_back(v);
 
     //test_spatial_query(tree, qbox, expected_output);
@@ -600,7 +600,7 @@ void test_disjoint(Rtree const& tree, std::vector<Value> const& input, Box const
     std::vector<Value> expected_output;
 
     BOOST_FOREACH(Value const& v, input)
-        if ( bg::disjoint(tree.translator()(v), qbox) )
+        if ( bg::disjoint(tree.indexable_get()(v), qbox) )
             expected_output.push_back(v);
 
     test_spatial_query(tree, bgi::disjoint(qbox), expected_output);
@@ -622,7 +622,7 @@ void test_covered_by(Rtree const& tree, std::vector<Value> const& input, Box con
     std::vector<Value> expected_output;
 
     BOOST_FOREACH(Value const& v, input)
-        if ( bg::covered_by(tree.translator()(v), qbox) )
+        if ( bg::covered_by(tree.indexable_get()(v), qbox) )
             expected_output.push_back(v);
 
     test_spatial_query(tree, bgi::covered_by(qbox), expected_output);
@@ -645,7 +645,7 @@ struct test_overlap_impl
         std::vector<Value> expected_output;
 
         BOOST_FOREACH(Value const& v, input)
-            if ( bg::overlaps(tree.translator()(v), qbox) )
+            if ( bg::overlaps(tree.indexable_get()(v), qbox) )
                 expected_output.push_back(v);
 
         test_spatial_query(tree, bgi::overlaps(qbox), expected_output);
@@ -717,7 +717,7 @@ void test_within(Rtree const& tree, std::vector<Value> const& input, Box const& 
     std::vector<Value> expected_output;
 
     BOOST_FOREACH(Value const& v, input)
-        if ( bg::within(tree.translator()(v), qbox) )
+        if ( bg::within(tree.indexable_get()(v), qbox) )
             expected_output.push_back(v);
 
     test_spatial_query(tree, bgi::within(qbox), expected_output);
@@ -770,7 +770,7 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
     // calculate test output - k closest values pairs
     BOOST_FOREACH(Value const& v, input)
     {
-        D d = bgi::detail::comparable_distance_near(pt, rtree.translator()(v));
+        D d = bgi::detail::comparable_distance_near(pt, rtree.indexable_get()(v));
 
         if ( test_output.size() < k )
             test_output.push_back(std::make_pair(d, v));
@@ -808,7 +808,7 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
 
             if ( test_find(rtree, expected_output.begin(), expected_output.end(), v) == expected_output.end() )
             {
-                D d = bgi::detail::comparable_distance_near(pt, rtree.translator()(v));
+                D d = bgi::detail::comparable_distance_near(pt, rtree.indexable_get()(v));
                 BOOST_CHECK(d == biggest_d);
             }
         }
@@ -899,8 +899,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
 
-    // TEMPORARILY USED translator()
-    Rtree t2(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+    Rtree t2(tree, tree.get_allocator());
     t2.swap(t1);
     BOOST_CHECK(tree.empty() == t2.empty());
     BOOST_CHECK(tree.size() == t2.size());
@@ -948,8 +947,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
     tree.query(bgi::intersects(qbox), std::back_inserter(expected_output));
 
     {
-        // TEMPORARILY USED translator()
-        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(tree, tree.get_allocator());
         BOOST_FOREACH(Value const& v, input)
             t.insert(v);
         BOOST_CHECK(tree.size() == t.size());
@@ -958,8 +956,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        // TEMPORARILY USED translator()
-        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(tree, tree.get_allocator());
         std::copy(input.begin(), input.end(), bgi::inserter(t));
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -967,24 +964,21 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        // TEMPORARILY USED translator()
-        Rtree t(input.begin(), input.end(), tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(input.begin(), input.end(), tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        // TEMPORARILY USED translator()
-        Rtree t(input, tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(input, tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        // TEMPORARILY USED translator()
-        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(tree, tree.get_allocator());
         t.insert(input.begin(), input.end());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -992,8 +986,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        // TEMPORARILY USED translator()
-        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(tree, tree.get_allocator());
         t.insert(input);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -1002,8 +995,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
     }
 
     {
-        // TEMPORARILY USED translator()
-        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(tree, tree.get_allocator());
         BOOST_FOREACH(Value const& v, input)
             bgi::insert(t, v);
         BOOST_CHECK(tree.size() == t.size());
@@ -1012,8 +1004,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        // TEMPORARILY USED translator()
-        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(tree, tree.get_allocator());
         bgi::insert(t, input.begin(), input.end());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -1021,8 +1012,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         test_exactly_the_same_outputs(t, output, expected_output);
     }
     {
-        // TEMPORARILY USED translator()
-        Rtree t(tree.parameters(), tree.translator(), tree.translator(), tree.get_allocator());
+        Rtree t(tree, tree.get_allocator());
         bgi::insert(t, input);
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
@@ -1301,7 +1291,7 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
     generate_rtree(t, input, qbox);
 
     BOOST_FOREACH(Value const& v, input)
-        bg::expand(b, t.translator()(v));
+        bg::expand(b, t.indexable_get()(v));
 
     BOOST_CHECK(bg::equals(t.bounds(), b));
     BOOST_CHECK(bg::equals(t.bounds(), bgi::bounds(t)));
@@ -1315,7 +1305,7 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 
     bg::assign_inverse(b);
     BOOST_FOREACH(Value const& v, input)
-        bg::expand(b, t.translator()(v));
+        bg::expand(b, t.indexable_get()(v));
 
     BOOST_CHECK(bg::equals(t.bounds(), b));
 
