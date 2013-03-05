@@ -71,17 +71,17 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a4b7187ed28a9035d68b2f7125ffae5b4] `size_type`][Unsigned integral type used by the container. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5] `indexable_getter`][The function object extracting Indexable from Value. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b] `value_equal`][The function object comparing objects of type Value. ]]
-[[[#classboost_1_1geometry_1_1index_1_1rtree_1a4175e946d14b08f20f7126e2434e5646] `indexable_type`][The Indexable type to which Value is translated. ]]
+[[[#classboost_1_1geometry_1_1index_1_1rtree_1a28e88e55d260a454688fe1bd5e5af96b] `indexable_type`][The Indexable type to which Value is translated. ]]
 [[[#classboost_1_1geometry_1_1index_1_1rtree_1a89a6fd9a7c24f9d30422ef81ce2b959f] `bounds_type`][The Box type used by the R-tree. ]]
 ]
 
 [heading Constructor(s) and destructor]
 [table
 [[Function][Description]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a55da92f65c8718efd65ef520ad058b28 `rtree()`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1afb26a28fd2309fd70e5f84ea20dc899d `rtree(parameters_type const &, IndexableGetter const &, EqualTo const &, allocator_type)`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1a07c03c285279cc976cc045f80265ee39 `rtree(Iterator, Iterator)`]][The constructor. ]]
-[[[link classboost_1_1geometry_1_1index_1_1rtree_1adc4c1b5fce889a3755eb916fdd021bf1 `rtree(Range const &)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a55d5fd5d205df08db5267253689ccf0c `rtree()`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a1a6b696d4855cbf1866196fe058c3a87 `rtree(parameters_type const &, indexable_getter const &, value_equal const &, allocator_type const &)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a037f17d8a1dfa4a818ff471dec61c912 `rtree(Iterator, Iterator)`]][The constructor. ]]
+[[[link classboost_1_1geometry_1_1index_1_1rtree_1a7b96b715c52ddc13d7a81db344825848 `rtree(Range const &)`]][The constructor. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1af8db72811d2be53c409240204e63fb5a `~rtree()`]][The destructor. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a826fc3236e181ad718d5283e95d7866f `rtree(rtree const &)`]][The copy constructor. ]]
 [[[link classboost_1_1geometry_1_1index_1_1rtree_1a72b6b75e083eea2ed26f54d4a2265375 `rtree(rtree const &, allocator_type const &)`]][The copy constructor. ]]
@@ -113,7 +113,7 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 [[ `const`][[link classboost_1_1geometry_1_1index_1_1rtree_1a17d9cef211feb7f674a5b4602f4cc81e `get_allocator()`]][Returns allocator used by the rtree. ]]
 ]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a55da92f65c8718efd65ef520ad058b28]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a55d5fd5d205df08db5267253689ccf0c]
 [section rtree()]
 The constructor. 
 
@@ -121,8 +121,8 @@ The constructor.
 [pre
 
 `rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]`()``,`
-      `IndexableGetter const &` `indexable_getter` = `IndexableGetter()``,`
-      `EqualTo const &` `equal_to` = `EqualTo()``)`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &` `getter` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]`()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &` `equal` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]`()``)`
 ]
 
 [heading Modifier(s)]
@@ -130,41 +130,41 @@ The constructor.
 [table 
 [[Type][Name][Description]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
-[[`IndexableGetter const &`][ `indexable_getter` ][The function object extracting Indexable from Value. ]]
-[[`EqualTo const &`][ `equal_to` ][]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &`][ `getter` ][The function object extracting Indexable from Value. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &`][ `equal` ][The function object comparing Values.]]
 ]
 [heading Throws]
 If allocator default constructor throws. 
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1afb26a28fd2309fd70e5f84ea20dc899d]
-[section rtree(parameters_type const &, IndexableGetter const &, EqualTo const &, allocator_type)]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a1a6b696d4855cbf1866196fe058c3a87]
+[section rtree(parameters_type const &, indexable_getter const &, value_equal const &, allocator_type const &)]
 The constructor. 
 
 [heading Synopsis]
 [pre
 
 `rtree``(`[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters``,`
-      `IndexableGetter const &` `indexable_getter``,`
-      `EqualTo const &` `equal_to``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]] `allocator``)`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &` `getter``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &` `equal``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &` `allocator``)`
 ]
 
 [heading Parameter(s)]
 [table 
 [[Type][Name][Description]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
-[[`IndexableGetter const &`][ `indexable_getter` ][The function object extracting Indexable from Value. ]]
-[[`EqualTo const &`][ `equal_to` ][]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]][ `allocator` ][The allocator object.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &`][ `getter` ][The function object extracting Indexable from Value. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &`][ `equal` ][The function object comparing Values. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &`][ `allocator` ][The allocator object.]]
 ]
 [heading Throws]
 If allocator copy constructor throws. 
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1a07c03c285279cc976cc045f80265ee39]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a037f17d8a1dfa4a818ff471dec61c912]
 [section rtree(Iterator, Iterator)]
 The constructor. 
 
@@ -174,9 +174,9 @@ The constructor.
 `rtree``(``Iterator` `first``,`
       `Iterator` `last``,`
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]`()``,`
-      `IndexableGetter const &` `indexable_getter` = `IndexableGetter()``,`
-      `EqualTo const &` `equal_to` = `EqualTo()``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]`()``)`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &` `getter` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]`()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &` `equal` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]`()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &` `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]`()``)`
 ]
 
 [heading Parameter(s)]
@@ -185,9 +185,9 @@ The constructor.
 [[`Iterator`][ `first` ][The beginning of the range of Values. ]]
 [[`Iterator`][ `last` ][The end of the range of Values. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
-[[`IndexableGetter const &`][ `indexable_getter` ][The function object extracting Indexable from Value. ]]
-[[`EqualTo const &`][ `equal_to` ][]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]][ `allocator` ][The allocator object.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &`][ `getter` ][The function object extracting Indexable from Value. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &`][ `equal` ][]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &`][ `allocator` ][The allocator object.]]
 ]
 [heading Throws]
 
@@ -201,7 +201,7 @@ The constructor.
 
 [endsect]
 
-[#classboost_1_1geometry_1_1index_1_1rtree_1adc4c1b5fce889a3755eb916fdd021bf1]
+[#classboost_1_1geometry_1_1index_1_1rtree_1a7b96b715c52ddc13d7a81db344825848]
 [section rtree(Range const &)]
 The constructor. 
 
@@ -210,9 +210,9 @@ The constructor.
 `template<``typename Range``>`
 `rtree``(``Range const &` `rng``,`
       [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &` `parameters` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]`()``,`
-      `IndexableGetter const &` `indexable_getter` = `IndexableGetter()``,`
-      `EqualTo const &` `equal_to` = `EqualTo()``,`
-      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]] `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]`()``)`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &` `getter` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]`()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &` `equal` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]`()``,`
+      [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &` `allocator` = [^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]`()``)`
 ]
 
 [heading Modifier(s)]
@@ -221,9 +221,9 @@ The constructor.
 [[Type][Name][Description]]
 [[`Range const &`][ `rng` ][The range of Values. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
-[[`IndexableGetter const &`][ `indexable_getter` ][The function object extracting Indexable from Value. ]]
-[[`EqualTo const &`][ `equal_to` ][]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]][ `allocator` ][The allocator object.]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &`][ `getter` ][The function object extracting Indexable from Value. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &`][ `equal` ][The function object comparing Values. ]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &`][ `allocator` ][The allocator object.]]
 ]
 [heading Throws]
 

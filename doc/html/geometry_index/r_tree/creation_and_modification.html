@@ -89,13 +89,16 @@
         and Indexables</a>
 </h4></div></div></div>
 <p>
-          R-tree may store <code class="computeroutput">Value</code>s of any type as passed function objects
-          knows how to interpret those <code class="computeroutput">Value</code>s, that is extract an <code class="computeroutput">Indexable</code>
-          that the R-tree can handle and compare <code class="computeroutput"><span class="identifier">__values__</span></code>.
-          Each type adapted to <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html" target="_top">Point</a></code>
-          or <code class="computeroutput"><a href="http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html" target="_top">Box</a></code>
-          concept is an <code class="computeroutput">Indexable</code>. <code class="computeroutput">Value</code>s types which can
-          be handled by the predefined function objects <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">indexable</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code> and <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">equal_to</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code> are defined as follows:
+          R-tree may store <code class="computeroutput">Value</code>s of any type as long as passed function
+          objects know how to interpret those <code class="computeroutput">Value</code>s, that is extract
+          an <code class="computeroutput">Indexable</code> that the R-tree can handle and compare <code class="computeroutput"><span class="identifier">__values__</span></code>.
+        </p>
+<p>
+          By default function objects <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">indexable</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code> and <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">equal_to</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code> are defined for some typically used
+          <code class="computeroutput">Value</code> types which may be stored without defining any additional
+          classes. By default the rtree may store pure <code class="computeroutput">Indexable</code>s, pairs
+          and tuples. In the case of those two collection types, the <code class="computeroutput">Indexable</code>
+          must be the first stored type.
         </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">

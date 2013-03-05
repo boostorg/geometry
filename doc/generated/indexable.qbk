@@ -9,7 +9,7 @@ The function object extracting Indexable from Value.
 It translates Value object to Indexable object. The default version handles Values which are Indexables. This template is also specialized for std::pair<Indexable, T2> and boost::tuple<Indexable, ...>.
 
 [heading Header]
-`#include <boost/geometry/index/translator.hpp>`
+`#include <boost/geometry/index/indexable.hpp>`
 
 [heading Synopsis]
 [pre

@@ -30,11 +30,12 @@ __rtree__ has 4 parameters:
 
 [section Values and Indexables]
 
-__rtree__ may store `__value__`s of any type as passed function objects knows how to interpret those `__value__`s, that is
+__rtree__ may store `__value__`s of any type as long as passed function objects know how to interpret those `__value__`s, that is
 extract an `__indexable__` that the __rtree__ can handle and compare `__values__`.
-Each type adapted to `__point__` or `__box__` concept is an `__indexable__`.
-`__value__`s types which can be handled by the predefined function objects `index::indexable<Value>` and `index::equal_to<Value>`
-are defined as follows:
+
+By default function objects `index::indexable<Value>` and `index::equal_to<Value>` are defined for some typically used `__value__`
+types which may be stored without defining any additional classes. By default the rtree may store pure `__indexable__`s, pairs
+and tuples. In the case of those two collection types, the `__indexable__` must be the first stored type.
 
 * `__indexable__ = __point__ | __box__`
 * `__value__ = Indexable | std::pair<__indexable__, T> | boost::tuple<__indexable__, ...>`

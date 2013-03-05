@@ -9,7 +9,7 @@ The function object comparing Values.
 It compares Geometries using geometry::equals() function. Other types are compared using operator==. The default version handles Values which are Indexables. This template is also specialized for std::pair<T1, T2> and boost::tuple<...>.
 
 [heading Header]
-`#include <boost/geometry/index/translator.hpp>`
+`#include <boost/geometry/index/equal_to.hpp>`
 
 [heading Synopsis]
 [pre

@@ -155,46 +155,46 @@ public:
     /*!
     \brief The constructor.
 
-    \param parameters       The parameters object.
-    \param indexable_getter The function object extracting Indexable from Value.
-    \param equal_to         The function object comparing Values.
+    \param parameters   The parameters object.
+    \param getter       The function object extracting Indexable from Value.
+    \param equal        The function object comparing Values.
 
     \par Throws
     If allocator default constructor throws.
     */
     inline explicit rtree(parameters_type const& parameters = parameters_type(),
-                          IndexableGetter const& indexable_getter = IndexableGetter(),
-                          EqualTo const& equal_to = EqualTo())
-        : m_members(indexable_getter, equal_to, parameters)
+                          indexable_getter const& getter = indexable_getter(),
+                          value_equal const& equal = value_equal())
+        : m_members(getter, equal, parameters)
     {}
 
     /*!
     \brief The constructor.
 
-    \param parameters       The parameters object.
-    \param indexable_getter The function object extracting Indexable from Value.
-    \param equal_to         The function object comparing Values.
-    \param allocator        The allocator object.
+    \param parameters   The parameters object.
+    \param getter       The function object extracting Indexable from Value.
+    \param equal        The function object comparing Values.
+    \param allocator    The allocator object.
 
     \par Throws
     If allocator copy constructor throws.
     */
     inline rtree(parameters_type const& parameters,
-                 IndexableGetter const& indexable_getter,
-                 EqualTo const& equal_to,
-                 allocator_type allocator)
-        : m_members(indexable_getter, equal_to, parameters, allocator)
+                 indexable_getter const& getter,
+                 value_equal const& equal,
+                 allocator_type const& allocator)
+        : m_members(getter, equal, parameters, allocator)
     {}
 
     /*!
     \brief The constructor.
 
-    \param first            The beginning of the range of Values.
-    \param last             The end of the range of Values.
-    \param parameters       The parameters object.
-    \param indexable_getter The function object extracting Indexable from Value.
-    \param equal_to         The function object comparing Values.
-    \param allocator        The allocator object.
+    \param first        The beginning of the range of Values.
+    \param last         The end of the range of Values.
+    \param parameters   The parameters object.
+    \param getter       The function object extracting Indexable from Value.
+    \param equal_to     The function object comparing Values.
+    \param allocator    The allocator object.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -205,10 +205,10 @@ public:
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last,
                  parameters_type const& parameters = parameters_type(),
-                 IndexableGetter const& indexable_getter = IndexableGetter(),
-                 EqualTo const& equal_to = EqualTo(),
-                 allocator_type allocator = allocator_type())
-        : m_members(indexable_getter, equal_to, parameters, allocator)
+                 indexable_getter const& getter = indexable_getter(),
+                 value_equal const& equal = value_equal(),
+                 allocator_type const& allocator = allocator_type())
+        : m_members(getter, equal, parameters, allocator)
     {
         try
         {
@@ -224,11 +224,11 @@ public:
     /*!
     \brief The constructor.
 
-    \param rng              The range of Values.
-    \param parameters       The parameters object.
-    \param indexable_getter The function object extracting Indexable from Value.
-    \param equal_to         The function object comparing Values.
-    \param allocator        The allocator object.
+    \param rng          The range of Values.
+    \param parameters   The parameters object.
+    \param getter       The function object extracting Indexable from Value.
+    \param equal        The function object comparing Values.
+    \param allocator    The allocator object.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -239,10 +239,10 @@ public:
     template<typename Range>
     inline explicit rtree(Range const& rng,
                           parameters_type const& parameters = parameters_type(),
-                          IndexableGetter const& indexable_getter = IndexableGetter(),
-                          EqualTo const& equal_to = EqualTo(),
-                          allocator_type allocator = allocator_type())
-        : m_members(indexable_getter, equal_to, parameters, allocator)
+                          indexable_getter const& getter = indexable_getter(),
+                          value_equal const& equal = value_equal(),
+                          allocator_type const& allocator = allocator_type())
+        : m_members(getter, equal, parameters, allocator)
     {
         try
         {
