@@ -123,4 +123,56 @@ struct equal_to< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 
 }}} // namespace boost::geometry::index
 
+//#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+//
+//#include <tuple>
+//
+//namespace boost { namespace geometry { namespace index {
+//
+//namespace detail {
+//
+//template <typename Tuple, size_t I, size_t N>
+//struct std_tuple_equals
+//{
+//    inline static bool apply(Tuple const& t1, Tuple const& t2)
+//    {
+//        typedef typename std::tuple_element<I, Tuple>::type T;
+//        return
+//            equals<
+//                T, typename geometry::traits::tag<T>::type
+//            >::apply(std::get<I>(t1), std::get<I>(t2))
+//            &&
+//            std_tuple_equals<Tuple, I+1, N>::apply(t1, t2);
+//    }
+//};
+//
+//template <typename Tuple, size_t I>
+//struct std_tuple_equals<Tuple, I, I>
+//{
+//    inline static bool apply(Tuple const&, Tuple const&)
+//    {
+//        return true;
+//    }
+//};
+//
+//} // namespace detail
+//
+//template <typename ...Args>
+//struct equal_to< std::tuple<Args...> >
+//{
+//    typedef std::tuple<Args...> value_type;
+//
+//    typedef bool result_type;
+//    bool operator()(value_type const& l, value_type const& r) const
+//    {
+//        return detail::std_tuple_equals<
+//            value_type, 0, std::tuple_size<value_type>::value
+//        >::apply(l ,r);
+//    }
+//};
+//
+//}}} // namespace boost::geometry::index
+//
+//#endif // !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+
 #endif // BOOST_GEOMETRY_INDEX_EQUAL_TO_HPP

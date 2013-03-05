@@ -196,6 +196,56 @@ struct generate_value< boost::tuple<bg::model::box< bg::model::point<T, 3, C> >,
     }
 };
 
+//#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+//
+//template <typename T, typename C>
+//struct generate_value< std::tuple<bg::model::point<T, 2, C>, int, int> >
+//{
+//    typedef bg::model::point<T, 2, C> P;
+//    typedef std::tuple<P, int, int> R;
+//    static R apply(int x, int y)
+//    {
+//        return std::make_tuple(P(x, y), x + y * 100, 0);
+//    }
+//};
+//
+//template <typename T, typename C>
+//struct generate_value< std::tuple<bg::model::box< bg::model::point<T, 2, C> >, int, int> >
+//{
+//    typedef bg::model::point<T, 2, C> P;
+//    typedef bg::model::box<P> B;
+//    typedef std::tuple<B, int, int> R;
+//    static R apply(int x, int y)
+//    {
+//        return std::make_tuple(B(P(x, y), P(x + 2, y + 3)), x + y * 100, 0);
+//    }
+//};
+//
+//template <typename T, typename C>
+//struct generate_value< std::tuple<bg::model::point<T, 3, C>, int, int> >
+//{
+//    typedef bg::model::point<T, 3, C> P;
+//    typedef std::tuple<P, int, int> R;
+//    static R apply(int x, int y, int z)
+//    {
+//        return std::make_tuple(P(x, y, z), x + y * 100 + z * 10000, 0);
+//    }
+//};
+//
+//template <typename T, typename C>
+//struct generate_value< std::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int> >
+//{
+//    typedef bg::model::point<T, 3, C> P;
+//    typedef bg::model::box<P> B;
+//    typedef std::tuple<B, int, int> R;
+//    static R apply(int x, int y, int z)
+//    {
+//        return std::make_tuple(B(P(x, y, z), P(x + 2, y + 3, z + 4)), x + y * 100 + z * 10000, 0);
+//    }
+//};
+//
+//#endif // #if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+
 // shared_ptr value
 
 template <typename Indexable>
@@ -1346,6 +1396,11 @@ void test_rtree_for_point(Parameters const& parameters, Allocator const& allocat
 
     test_rtree_count<Point>(parameters, allocator);
     test_rtree_bounds<Point>(parameters, allocator);
+
+//#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+//    typedef std::tuple<Point, int, int> StdTupleP;
+//    test_rtree_by_value<StdTupleP, Parameters>(parameters, allocator);
+//#endif
 }
 
 template<typename Point, typename Parameters, typename Allocator>
@@ -1366,6 +1421,11 @@ void test_rtree_for_box(Parameters const& parameters, Allocator const& allocator
 
     test_rtree_count<Box>(parameters, allocator);
     test_rtree_bounds<Box>(parameters, allocator);
+
+//#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+//    typedef std::tuple<Box, int, int> StdTupleB;
+//    test_rtree_by_value<StdTupleB, Parameters>(parameters, allocator);
+//#endif
 }
 
 template<typename Point, typename Parameters>

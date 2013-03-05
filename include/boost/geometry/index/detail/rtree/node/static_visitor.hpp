@@ -37,16 +37,6 @@ inline V & get(
     return boost::get<V>(v);
 }
 
-template <typename V, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
-inline V * get(
-    boost::variant<
-        static_leaf<Value, Parameters, Box, Allocators, Tag>,
-        static_internal_node<Value, Parameters, Box, Allocators, Tag>
-    > *v)
-{
-    return boost::get<V>(v);
-}
-
 // apply visitor
 
 template <typename Visitor, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
