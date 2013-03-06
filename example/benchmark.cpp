@@ -45,24 +45,17 @@ int main()
         std::cout << "randomized\n";
     }
 
-    //typedef bg::model::d2::point_xy<double> P;
     typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
     typedef bgi::rtree<B, bgi::linear<32, 8> > RT;
-    //typedef bgi::rtree<B, bgi::runtime::linear > RT;
     //typedef bgi::rtree<B, bgi::quadratic<32, 8> > RT;
-    //typedef bgi::rtree<B, bgi::runtime::quadratic > RT;
     //typedef bgi::rtree<B, bgi::rstar<32, 8> > RT;
-    //typedef bgi::rtree<B, bgi::runtime::rstar > RT;
 
     std::cout << "sizeof rtree: " << sizeof(RT) << std::endl;
 
     for (;;)
     {
         RT t;
-        //RT t(bgi::runtime::linear(32, 8));
-        //RT t(bgi::runtime::quadratic(32, 8));
-        //RT t(bgi::runtime::rstar(32, 8));
 
         // inserting test
         {
