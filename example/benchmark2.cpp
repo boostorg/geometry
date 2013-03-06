@@ -29,9 +29,7 @@ int main()
     size_t count_step = 10;
     size_t insrem_count = 3000000;
 
-    std::vector< std::pair<float, float> > coords;
-
-    typedef bg::model::point<double, 1, bg::cs::cartesian> P;
+    typedef bg::model::point<float, 1, bg::cs::cartesian> P;
     //typedef bgi::rtree<P, bgi::linear<8, 3> > RT;
     typedef bgi::rtree<P, bgi::quadratic<8, 3> > RT;
     //typedef bgi::rtree<P, bgi::rstar<8, 3> > RT;
