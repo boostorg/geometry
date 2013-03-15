@@ -109,10 +109,16 @@
               <code class="computeroutput">Value <span class="special">=</span> <span class="identifier">Indexable</span>
               <span class="special">|</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span><span class="special">&lt;</span>Indexable<span class="special">,</span>
               <span class="identifier">T</span><span class="special">&gt;</span>
-              <span class="special">|</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;</span>Indexable<span class="special">,</span>
+              <span class="special">|</span> <span class="identifier">tuple</span><span class="special">&lt;</span>Indexable<span class="special">,</span>
               <span class="special">...&gt;</span></code>
             </li>
 </ul></div>
+<p>
+          By default <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;...&gt;</span></code>
+          is supported on all compilers. If the compiler supports C++11 tuples and
+          variadic templates then <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;...&gt;</span></code> may be used "out of the
+          box" as well.
+        </p>
 <p>
           Examples of default <code class="computeroutput">Value</code> types:
         </p>
@@ -123,13 +129,21 @@
 <span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;...&gt;,</span> <span class="keyword">int</span><span class="special">,</span> <span class="keyword">float</span><span class="special">&gt;</span>
 </pre>
 <p>
-          <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">indexable</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code>
-          translates the <code class="computeroutput">Value</code> each time the R-tree needs it. For this
-          reason it should rather return const reference to the <code class="computeroutput">Indexable</code>
-          than a copy.
+          The predefined <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">indexable</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code>
+          returns const reference to the <code class="computeroutput">Indexable</code> stored in the <code class="computeroutput">Value</code>.
         </p>
+<div class="important"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="http://www.boost.org/doc/libs/release/doc/src/images/important.png"></td>
+<th align="left">Important</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+            The translation is done quite frequently inside the continer - each time
+            the rtree needs it.
+          </p></td></tr>
+</table></div>
 <p>
-          If comparison of two <code class="computeroutput">Value</code>s is required, the predefined <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">equal_to</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code>:
+          The predefined <code class="computeroutput"><span class="identifier">index</span><span class="special">::</span><span class="identifier">equal_to</span><span class="special">&lt;</span><span class="identifier">Value</span><span class="special">&gt;</span></code>:
         </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
@@ -145,7 +159,7 @@
               <code class="computeroutput"><span class="keyword">operator</span><span class="special">==()</span></code>.
             </li>
 <li class="listitem">
-              for <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;...&gt;</span></code>
+              for <code class="computeroutput"><span class="identifier">tuple</span><span class="special">&lt;...&gt;</span></code>
               - compares all components of the <code class="computeroutput">Value</code>. If the component
               is a <code class="computeroutput"><span class="identifier">Geometry</span></code>, <code class="computeroutput"><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">equals</span><span class="special">()</span></code>
               function is used. For other types it uses <code class="computeroutput"><span class="keyword">operator</span><span class="special">==()</span></code>.

@@ -193,7 +193,7 @@ public:
     \param last         The end of the range of Values.
     \param parameters   The parameters object.
     \param getter       The function object extracting Indexable from Value.
-    \param equal_to     The function object comparing Values.
+    \param equal        The function object comparing Values.
     \param allocator    The allocator object.
 
     \par Throws

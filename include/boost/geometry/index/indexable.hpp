@@ -109,32 +109,32 @@ struct indexable< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 
 }}} // namespace boost::geometry::index
 
-//#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-//
-//#include <tuple>
-//
-//namespace boost { namespace geometry { namespace index {
-//
-//template <typename Indexable, typename ...Args>
-//struct indexable< std::tuple<Indexable, Args...> >
-//{
-//    typedef std::tuple<Indexable, Args...> value_type;
-//
-//    BOOST_MPL_ASSERT_MSG(
-//        (detail::is_indexable<Indexable>::value),
-//        NOT_VALID_INDEXABLE_TYPE,
-//        (Indexable)
-//        );
-//
-//    typedef Indexable const& result_type;
-//    result_type operator()(value_type const& v) const
-//    {
-//        return std::get<0>(v);
-//    }
-//};
-//
-//}}} // namespace boost::geometry::index
-//
-//#endif // !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+
+#include <tuple>
+
+namespace boost { namespace geometry { namespace index {
+
+template <typename Indexable, typename ...Args>
+struct indexable< std::tuple<Indexable, Args...> >
+{
+    typedef std::tuple<Indexable, Args...> value_type;
+
+    BOOST_MPL_ASSERT_MSG(
+        (detail::is_indexable<Indexable>::value),
+        NOT_VALID_INDEXABLE_TYPE,
+        (Indexable)
+        );
+
+    typedef Indexable const& result_type;
+    result_type operator()(value_type const& v) const
+    {
+        return std::get<0>(v);
+    }
+};
+
+}}} // namespace boost::geometry::index
+
+#endif // !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
 
 #endif // BOOST_GEOMETRY_INDEX_INDEXABLE_HPP

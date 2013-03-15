@@ -186,7 +186,7 @@ The constructor.
 [[`Iterator`][ `last` ][The end of the range of Values. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a80db5532eb59f7a809bd44ded265eb17 parameters_type]]` const &`][ `parameters` ][The parameters object. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1a43a7adb311cafc08e23010ccb4e97fb5 indexable_getter]]` const &`][ `getter` ][The function object extracting Indexable from Value. ]]
-[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &`][ `equal` ][]]
+[[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ad8fe544de514014a1bd87ea1b881ff9b value_equal]]` const &`][ `equal` ][The function object comparing Values. ]]
 [[[^[link classboost_1_1geometry_1_1index_1_1rtree_1ab6618b5c7e88ed70533233fbac0f5b2e allocator_type]]` const &`][ `allocator` ][The allocator object.]]
 ]
 [heading Throws]
