@@ -85,7 +85,7 @@ struct choose_split_axis_and_index_for_corner
             Box box1 = rtree::elements_box<Box>(elements_copy.begin(), elements_copy.begin() + i, translator);
             Box box2 = rtree::elements_box<Box>(elements_copy.begin() + i, elements_copy.end(), translator);
             
-            sum_of_margins += index::detail::margin(box1) + index::detail::margin(box2);
+            sum_of_margins += index::detail::comparable_margin(box1) + index::detail::comparable_margin(box2);
 
             content_type ovl = index::detail::intersection_content(box1, box2);
             content_type con = index::detail::content(box1) + index::detail::content(box2);

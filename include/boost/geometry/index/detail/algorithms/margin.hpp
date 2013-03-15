@@ -22,35 +22,88 @@ struct default_margin_result
     >::type type;
 };
 
-template <typename Box, size_t CurrentDimension, size_t EdgeDimension>
-struct margin_for_each_edge
+//template <typename Box, size_t CurrentDimension, size_t EdgeDimension>
+//struct margin_for_each_edge
+//{
+//    BOOST_STATIC_ASSERT(0 < CurrentDimension);
+//    BOOST_STATIC_ASSERT(0 < EdgeDimension);
+//
+//    static inline typename default_margin_result<Box>::type apply(Box const& b)
+//    {
+//        return margin_for_each_edge<Box, CurrentDimension, EdgeDimension - 1>::apply(b) *
+//            ( geometry::get<max_corner, EdgeDimension - 1>(b) - geometry::get<min_corner, EdgeDimension - 1>(b) );
+//    }
+//};
+//
+//template <typename Box, size_t CurrentDimension>
+//struct margin_for_each_edge<Box, CurrentDimension, CurrentDimension>
+//{
+//    BOOST_STATIC_ASSERT(0 < CurrentDimension);
+//
+//    static inline typename default_margin_result<Box>::type apply(Box const& b)
+//    {
+//        return margin_for_each_edge<Box, CurrentDimension, CurrentDimension - 1>::apply(b);
+//    }
+//};
+//
+//template <typename Box, size_t CurrentDimension>
+//struct margin_for_each_edge<Box, CurrentDimension, 1>
+//{
+//    BOOST_STATIC_ASSERT(0 < CurrentDimension);
+//
+//    static inline typename default_margin_result<Box>::type apply(Box const& b)
+//    {
+//        return geometry::get<max_corner, 0>(b) - geometry::get<min_corner, 0>(b);
+//    }
+//};
+//
+//template <typename Box>
+//struct margin_for_each_edge<Box, 1, 1>
+//{
+//    static inline typename default_margin_result<Box>::type apply(Box const& /*b*/)
+//    {
+//        return 1;
+//    }
+//};
+//
+//template <typename Box, size_t CurrentDimension>
+//struct margin_for_each_dimension
+//{
+//    BOOST_STATIC_ASSERT(0 < CurrentDimension);
+//    BOOST_STATIC_ASSERT(CurrentDimension <= detail::traits::dimension<Box>::value);
+//
+//    static inline typename default_margin_result<Box>::type apply(Box const& b)
+//    {
+//        return margin_for_each_dimension<Box, CurrentDimension - 1>::apply(b) +
+//            margin_for_each_edge<Box, CurrentDimension, detail::traits::dimension<Box>::value>::apply(b);
+//    }
+//};
+//
+//template <typename Box>
+//struct margin_for_each_dimension<Box, 1>
+//{
+//    static inline typename default_margin_result<Box>::type apply(Box const& b)
+//    {
+//        return margin_for_each_edge<Box, 1, detail::traits::dimension<Box>::value>::apply(b);
+//    }
+//};
+
+template <typename Box, size_t CurrentDimension>
+struct simple_margin_for_each_dimension
 {
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
-    BOOST_STATIC_ASSERT(0 < EdgeDimension);
+    BOOST_STATIC_ASSERT(CurrentDimension <= detail::traits::dimension<Box>::value);
 
     static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
-        return margin_for_each_edge<Box, CurrentDimension, EdgeDimension - 1>::apply(b) *
-            ( geometry::get<max_corner, EdgeDimension - 1>(b) - geometry::get<min_corner, EdgeDimension - 1>(b) );
+        return simple_margin_for_each_dimension<Box, CurrentDimension - 1>::apply(b) +
+            geometry::get<max_corner, CurrentDimension - 1>(b) - geometry::get<min_corner, CurrentDimension - 1>(b);
     }
 };
 
-template <typename Box, size_t CurrentDimension>
-struct margin_for_each_edge<Box, CurrentDimension, CurrentDimension>
+template <typename Box>
+struct simple_margin_for_each_dimension<Box, 1>
 {
-    BOOST_STATIC_ASSERT(0 < CurrentDimension);
-
-    static inline typename default_margin_result<Box>::type apply(Box const& b)
-    {
-        return margin_for_each_edge<Box, CurrentDimension, CurrentDimension - 1>::apply(b);
-    }
-};
-
-template <typename Box, size_t CurrentDimension>
-struct margin_for_each_edge<Box, CurrentDimension, 1>
-{
-    BOOST_STATIC_ASSERT(0 < CurrentDimension);
-
     static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
         return geometry::get<max_corner, 0>(b) - geometry::get<min_corner, 0>(b);
@@ -58,41 +111,17 @@ struct margin_for_each_edge<Box, CurrentDimension, 1>
 };
 
 template <typename Box>
-struct margin_for_each_edge<Box, 1, 1>
+typename default_margin_result<Box>::type comparable_margin(Box const& b)
 {
-    static inline typename default_margin_result<Box>::type apply(Box const& /*b*/)
-    {
-        return 1;
-    }
-};
-
-template <typename Box, size_t CurrentDimension>
-struct margin_for_each_dimension
-{
-    BOOST_STATIC_ASSERT(0 < CurrentDimension);
-    BOOST_STATIC_ASSERT(CurrentDimension <= detail::traits::dimension<Box>::value);
-
-    static inline typename default_margin_result<Box>::type apply(Box const& b)
-    {
-        return margin_for_each_dimension<Box, CurrentDimension - 1>::apply(b) +
-            margin_for_each_edge<Box, CurrentDimension, detail::traits::dimension<Box>::value>::apply(b);
-    }
-};
-
-template <typename Box>
-struct margin_for_each_dimension<Box, 1>
-{
-    static inline typename default_margin_result<Box>::type apply(Box const& b)
-    {
-        return margin_for_each_edge<Box, 1, detail::traits::dimension<Box>::value>::apply(b);
-    }
-};
-
-template <typename Box>
-typename default_margin_result<Box>::type margin(Box const& b)
-{
-    return 2 * detail::margin_for_each_dimension<Box, detail::traits::dimension<Box>::value>::apply(b);
+    //return detail::margin_for_each_dimension<Box, detail::traits::dimension<Box>::value>::apply(b);
+    return detail::simple_margin_for_each_dimension<Box, detail::traits::dimension<Box>::value>::apply(b);
 }
+
+//template <typename Box>
+//typename default_margin_result<Box>::type margin(Box const& b)
+//{
+//    return 2 * detail::margin_for_each_dimension<Box, detail::traits::dimension<Box>::value>::apply(b);
+//}
 
 }}}} // namespace boost::geometry::index::detail
 
