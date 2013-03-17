@@ -7,10 +7,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// #define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
-// #define BOOST_GEOMETRY_OVERLAY_NO_THROW
-// #define TEST_WITH_SVG
-// #define HAVE_TTMATH
+//#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+//#define BOOST_GEOMETRY_OVERLAY_NO_THROW
+//#define TEST_WITH_SVG
+//#define HAVE_TTMATH
 
 #include <iostream>
 #include <iomanip>
@@ -271,7 +271,7 @@ struct test_traverse
                         out << "vx: " << turn.operations[0].enriched.travels_to_vertex_index
                          << " -> ip: "  << turn.operations[0].enriched.travels_to_ip_index;
                     }
-                    out << " ";
+                    out << " / ";
                     if (turn.operations[1].enriched.next_ip_index != -1)
                     {
                         out << "ip: " << turn.operations[1].enriched.next_ip_index;
@@ -281,7 +281,7 @@ struct test_traverse
                         out << "vx: " << turn.operations[1].enriched.travels_to_vertex_index
                          << " -> ip: " << turn.operations[1].enriched.travels_to_ip_index;
                     }
-
+                    
                     out << std::endl;
 
                     /*out
@@ -927,6 +927,20 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes43", 
         1, 30, 
         buffer_rt_g_boxes[4], buffer_rt_g_boxes[3]);
+
+
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_mp2", 
+            2, 36.7535642, buffer_mp2[0], buffer_mp2[1], 0.01);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_rr",
+            1, 6.41, collinear_opposite_right[0], collinear_opposite_right[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_ll",
+            1, 11.75, collinear_opposite_left[0], collinear_opposite_left[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_ss",
+            1, 6, collinear_opposite_straight[0], collinear_opposite_straight[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_lr",
+            1, 8.66, collinear_opposite_left[0], collinear_opposite_right[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_rl",
+            1, 9, collinear_opposite_right[0], collinear_opposite_left[1]);
 
 #ifdef BOOST_GEOMETRY_OVERLAY_NO_THROW
     {
