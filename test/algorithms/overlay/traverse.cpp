@@ -929,8 +929,11 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         buffer_rt_g_boxes[4], buffer_rt_g_boxes[3]);
 
 
-    test_traverse<polygon, polygon, operation_union>::apply("buffer_mp2", 
-            2, 36.7535642, buffer_mp2[0], buffer_mp2[1], 0.01);
+    if (boost::is_same<T, double>::value)
+    {
+        test_traverse<polygon, polygon, operation_union>::apply("buffer_mp2", 
+                2, 36.7535642, buffer_mp2[0], buffer_mp2[1], 0.01);
+    }
     test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_rr",
             1, 6.41, collinear_opposite_right[0], collinear_opposite_right[1]);
     test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_ll",
