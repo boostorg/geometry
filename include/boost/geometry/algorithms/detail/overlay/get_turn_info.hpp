@@ -678,9 +678,26 @@ private :
         typename IntersectionInfo
     >
     static inline bool set_tp(Point const& ri, Point const& rj, Point const& rk,
+                bool const handle_robustness, Point const& si, Point const& sj,
                 TurnInfo& tp, IntersectionInfo const& intersection_info)
     {
-        int const side_rk_r = SideStrategy::apply(ri, rj, rk);
+        int side_rk_r = SideStrategy::apply(ri, rj, rk);
+
+        if (handle_robustness)
+        {
+            int const side_rk_s = SideStrategy::apply(si, sj, rk);
+
+            // For Robustness: also calculate rk w.r.t. the other line. Because they are collinear opposite, that direction should be the reverse of the first direction.
+            // If this is not the case, we make it all-collinear, so zero
+            if (side_rk_r != 0 && side_rk_r != -side_rk_s)
+            {
+#ifdef BOOST_GEOMETRY_DEBUG_ROBUSTNESS
+                std::cout << "Robustness correction: " << side_rk_r << " / " << side_rk_s << std::endl;
+#endif
+                side_rk_r = 0;
+            }
+        }
+
 		operation_type blocked = operation_blocked;
         switch(side_rk_r)
         {
@@ -747,7 +764,7 @@ public:
 
         // If P arrives within Q, there is a turn dependent on P
         if (dir_info.arrival[0] == 1
-            && set_tp<0>(pi, pj, pk, tp, intersection_info))
+            && set_tp<0>(pi, pj, pk, true, qi, qj, tp, intersection_info))
         {
             AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
             *out++ = tp;
@@ -755,7 +772,7 @@ public:
 
         // If Q arrives within P, there is a turn dependent on Q
         if (dir_info.arrival[1] == 1
-            && set_tp<1>(qi, qj, qk, tp, intersection_info))
+            && set_tp<1>(qi, qj, qk, false, pi, pj, tp, intersection_info))
         {
             AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
             *out++ = tp;
