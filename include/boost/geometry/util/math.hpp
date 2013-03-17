@@ -102,6 +102,15 @@ struct define_pi
     }
 };
 
+template <typename T>
+struct relaxed_epsilon
+{
+    static inline T apply(const T& factor)
+    {
+        return factor * std::numeric_limits<T>::epsilon();
+    }
+};
+
 
 } // namespace detail
 #endif
@@ -109,6 +118,12 @@ struct define_pi
 
 template <typename T>
 inline T pi() { return detail::define_pi<T>::apply(); }
+
+template <typename T>
+inline T relaxed_epsilon(T const& factor)
+{
+    return detail::relaxed_epsilon<T>::apply(factor);
+}
 
 
 // Maybe replace this by boost equals or boost ublas numeric equals or so
