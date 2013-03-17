@@ -1,9 +1,9 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2012 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2012 Mateusz Loskot (mateusz@loskot.net)
-  Copyright (c) 2009-2012 Mateusz Lalande, Paris, France.
+  Copyright (c) 2009-2013 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2013 Mateusz Loskot (mateusz@loskot.net)
+  Copyright (c) 2009-2013 Mateusz Lalande, Paris, France.
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,6 +11,18 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.54]
+[/=================]
+
+[*Bugfixes]
+* collinear opposite segments did sometimes (in circles) have a robustness issue, fixed
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/8254 8254] faulty intersection, fixed
+* [@https://svn.boost.org/trac/boost/ticket/7462 7462] degenerate union result for float, fixed
 
 
 [/=================]
