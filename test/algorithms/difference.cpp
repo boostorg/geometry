@@ -249,6 +249,19 @@ void test_all()
         1, 5, 1,
         1, 5, 1);
 
+    test_one<polygon, polygon, polygon>("buffer_mp1", 
+        buffer_mp1[0], buffer_mp1[1],
+        1, 61, 10.2717,
+        1, 61, 10.2717);
+
+    if (boost::is_same<ct, double>::value)
+    {
+        test_one<polygon, polygon, polygon>("buffer_mp2", 
+            buffer_mp2[0], buffer_mp2[1],
+            1, 92, 12.09857,
+            1, 157, 24.19787);
+    }
+
     /*** TODO: self-tangencies for difference
     test_one<polygon, polygon, polygon>("wrapped_a",
         wrapped[0], wrapped[1],
