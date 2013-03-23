@@ -945,7 +945,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_rl",
             1, 9, collinear_opposite_right[0], collinear_opposite_left[1]);
 
-    test_traverse<polygon, polygon, operation_intersection>::apply("ticket_7462", 1, 5.4736, ticket_7462[0], ticket_7462[1]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("ticket_7462", 1, 0.220582, ticket_7462[0], ticket_7462[1]);
 
 #ifdef BOOST_GEOMETRY_OVERLAY_NO_THROW
     {
