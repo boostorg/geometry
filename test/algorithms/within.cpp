@@ -151,6 +151,10 @@ void test_3d()
     BOOST_CHECK_EQUAL(bg::within(point_type(2, 4, 2), box), false);
     BOOST_CHECK_EQUAL(bg::within(point_type(2, 2, 4), box), false);
     BOOST_CHECK_EQUAL(bg::within(point_type(2, 2, 5), box), false);
+
+    box_type box2(point_type(2, 2, 2), point_type(3, 3, 3));
+    BOOST_CHECK_EQUAL(bg::within(box2, box), false);
+
 }
 
 template <typename P1, typename P2>
