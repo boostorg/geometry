@@ -23,6 +23,8 @@ struct spatial_query
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
+    typedef typename Allocators::size_type size_type;
+
     static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
 
     inline spatial_query(Translator const& t, Predicates const& p, OutIter out_it)
@@ -70,7 +72,7 @@ struct spatial_query
     Predicates pred;
 
     OutIter out_iter;
-    size_t found_count;
+    size_type found_count;
 };
 
 }}} // namespace detail::rtree::visitors
