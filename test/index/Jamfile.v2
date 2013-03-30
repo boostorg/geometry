@@ -13,8 +13,6 @@ project boost-geometry-index-test
     requirements
         <include>.
         <include>..
-        <include>../..
-        <include>../../..
         #<include>../../../boost/geometry/extensions/contrib/ttmath
         <toolset>msvc:<asynch-exceptions>on
     ;

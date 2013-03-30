@@ -27,8 +27,8 @@ void test_large_integers()
     bg::read_wkt(box_li, int_box);
     bg::read_wkt(box_li, double_box);
 
-    double int_value = bgi::detail::margin(int_box);
-    double double_value = bgi::detail::margin(double_box);
+    double int_value = bgi::detail::comparable_margin(int_box);
+    double double_value = bgi::detail::comparable_margin(double_box);
 
     BOOST_CHECK_CLOSE(int_value, double_value, 0.0001);
 }
@@ -43,12 +43,12 @@ int test_main(int, char* [])
     typedef bg::model::point<float, 3, bg::cs::cartesian> P3fc;
     typedef bg::model::point<double, 3, bg::cs::cartesian> P3dc;
     
-    test_geometry<bg::model::box<P2ic> >("POLYGON((0 1,2 4))", 10.0);
-    test_geometry<bg::model::box<P2fc> >("POLYGON((0 1,2 4))", 10.0);
-    test_geometry<bg::model::box<P2dc> >("POLYGON((0 1,2 4))", 10.0);
-    test_geometry<bg::model::box<P3ic> >("POLYGON((0 1 2,2 4 6))", 52);
-    test_geometry<bg::model::box<P3fc> >("POLYGON((0 1 2,2 4 6))", 52.0);
-    test_geometry<bg::model::box<P3dc> >("POLYGON((0 1 2,2 4 6))", 52.0);
+    test_geometry<bg::model::box<P2ic> >("POLYGON((0 1,2 4))", 5);
+    test_geometry<bg::model::box<P2fc> >("POLYGON((0 1,2 4))", 5.0);
+    test_geometry<bg::model::box<P2dc> >("POLYGON((0 1,2 4))", 5.0);
+    test_geometry<bg::model::box<P3ic> >("POLYGON((0 1 2,2 4 6))", 9);
+    test_geometry<bg::model::box<P3fc> >("POLYGON((0 1 2,2 4 6))", 9.0);
+    test_geometry<bg::model::box<P3dc> >("POLYGON((0 1 2,2 4 6))", 9.0);
     
 #ifdef HAVE_TTMATH
     typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;

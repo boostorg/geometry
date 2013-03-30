@@ -20,7 +20,7 @@ template <typename Geometry>
 void test_margin(Geometry const& geometry,
             typename bgi::detail::default_margin_result<Geometry>::type expected_value)
 {
-    typename bgi::detail::default_margin_result<Geometry>::type value = bgi::detail::margin(geometry);
+    typename bgi::detail::default_margin_result<Geometry>::type value = bgi::detail::comparable_margin(geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
