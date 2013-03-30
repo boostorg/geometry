@@ -1,0 +1,21 @@
+[/============================================================================
+  Boost.Geometry Index
+
+  Copyright (c) 2011-2012 Adam Wulkiewicz.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[section Introduction]
+
+The __boost_geometry_index__ is intetended to gather containers
+(spatial indexes) used for speeding spatial queries up. It is a part of the
+__boost_geometry__ library.
+In general, spatial indexes stores geometric objects' representations and
+allows searching for objects occupying some space or close to some point in space.
+
+Currently, only one spatial index is implemented - __rtree__.
+
+[endsect]
