@@ -147,6 +147,12 @@ public:
         , leaf_allocator_type(boost::move(a.leaf_allocator()))
     {}
 
+    inline allocators & operator=(BOOST_FWD_REF(allocators) a)
+    {
+        internal_node_allocator() = ::boost::move(a.internal_node_allocator());
+        leaf_allocator() = ::boost::move(a.leaf_allocator());
+    }
+
     void swap(allocators & a)
     {
         boost::swap(internal_node_allocator(), a.internal_node_allocator());

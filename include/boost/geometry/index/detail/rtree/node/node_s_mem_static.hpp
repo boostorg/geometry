@@ -121,6 +121,11 @@ public:
         : node_allocator_type(boost::move(a.node_allocator()))
     {}
 
+    inline allocators & operator=(BOOST_FWD_REF(allocators) a)
+    {
+        node_allocator() = boost::move(a.node_allocator());
+    }
+
     void swap(allocators & a)
     {
         boost::swap(node_allocator(), a.node_allocator());
