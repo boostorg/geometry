@@ -377,18 +377,21 @@ public:
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
-        if ( this == &src )
-            return *this;
+        if ( &src != this )
+        {
+            allocators_type & this_allocs = m_members.allocators();
+            allocators_type const& src_allocs = src.m_members.allocators();
 
-        typedef boost::mpl::bool_<
-            allocator_traits_type::propagate_on_container_copy_assignment::value
-        > propagate;
-        if ( propagate::value && !(m_members.allocators() == src.m_members.allocators()) )
-            this->raw_destroy(*this);
-        assign_cond(m_members.allocators(), src.m_members.allocators(), propagate());
+            typedef boost::mpl::bool_<
+                allocator_traits_type::propagate_on_container_copy_assignment::value
+            > propagate;
+            if ( propagate::value && !(this_allocs == src_allocs) )
+                this->raw_destroy(*this);
+            assign_cond(this_allocs, src_allocs, propagate());
 
-        // It uses m_allocators
-        this->raw_copy(src, *this, true);
+            // It uses m_allocators
+            this->raw_copy(src, *this, true);
+        }
 
         return *this;
     }
@@ -408,32 +411,35 @@ public:
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
-        if ( this == &src )
-            return *this;
-
-        if ( m_members.allocators() == src.m_members.allocators() )
+        if ( &src != this )
         {
-            this->raw_destroy(*this);
+            allocators_type & this_allocs = m_members.allocators();
+            allocators_type & src_allocs = src.m_members.allocators();
+            
+            if ( this_allocs == this_allocs )
+            {
+                this->raw_destroy(*this);
 
-            m_members.indexable_getter() = src.m_members.indexable_getter();
-            m_members.equal_to() = src.m_members.equal_to();
-            m_members.parameters() = src.m_members.parameters();
+                m_members.indexable_getter() = src.m_members.indexable_getter();
+                m_members.equal_to() = src.m_members.equal_to();
+                m_members.parameters() = src.m_members.parameters();
 
-            boost::swap(m_members.values_count, src.m_members.values_count);
-            boost::swap(m_members.leafs_level, src.m_members.leafs_level);
-            boost::swap(m_members.root, src.m_members.root);
+                boost::swap(m_members.values_count, src.m_members.values_count);
+                boost::swap(m_members.leafs_level, src.m_members.leafs_level);
+                boost::swap(m_members.root, src.m_members.root);
 
-            typedef boost::mpl::bool_<
-                allocator_traits_type::propagate_on_container_move_assignment::value
-            > propagate;
-            rtree::move_cond(m_members.allocators(), src.m_members.allocators(), propagate());
-        }
-        else
-        {
+                typedef boost::mpl::bool_<
+                    allocator_traits_type::propagate_on_container_move_assignment::value
+                > propagate;
+                rtree::move_cond(this_allocs, src_allocs, propagate());
+            }
+            else
+            {
 // TODO - shouldn't here propagate_on_container_copy_assignment be checked like in operator=(const&)?
 
-            // It uses m_allocators
-            this->raw_copy(src, *this, true);
+                // It uses m_allocators
+                this->raw_copy(src, *this, true);
+            }
         }
 
         return *this;
@@ -1124,10 +1130,10 @@ private:
     static inline void assign_cond(T & l, T const& r, boost::mpl::bool_<true> const&) { l = r; }
 
     template<class T>
-    inline void move_cond(T &, T &, boost::mpl::bool_<false> const&) {}
+    static inline void move_cond(T &, T &, boost::mpl::bool_<false> const&) {}
 
     template<class T>
-    inline void move_cond(T & l, T & r, boost::mpl::bool_<true> const&) { l = ::boost::move(r); }
+    static inline void move_cond(T & l, T & r, boost::mpl::bool_<true> const&) { l = ::boost::move(r); }
 
     struct members_holder
         : public translator_type
