@@ -31,6 +31,11 @@
 
 #include <boost/geometry/index/detail/assert.hpp>
 
+#ifdef BOOST_MSVC
+#pragma warning (push)
+#pragma warning (disable : 4996) // deprecated functions
+#endif
+
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <typename V>
@@ -877,5 +882,9 @@ private:
 };
 
 }}}} // namespace boost::geometry::index::detail
+
+#ifdef BOOST_MSVC
+#pragma warning (pop)
+#endif
 
 #endif // BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP
