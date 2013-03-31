@@ -988,6 +988,13 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     //TODO - test SWAP
 }
 
+template <typename I, typename O>
+inline void my_copy(I first, I last, O out)
+{
+    for ( ; first != last ; ++first, ++out )
+        *out = *first;
+}
+
 // rtree creation and insertion
 
 template <typename Rtree, typename Value, typename Box>
@@ -1007,7 +1014,8 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
     }
     {
         Rtree t(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
-        std::copy(input.begin(), input.end(), bgi::inserter(t));
+        //std::copy(input.begin(), input.end(), bgi::inserter(t));
+        my_copy(input.begin(), input.end(), bgi::inserter(t)); // to suppress MSVC warnings
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
@@ -1440,4 +1448,4 @@ void test_rtree_for_box(Parameters const& parameters)
     test_rtree_for_box<Point>(parameters, std::allocator<int>());
 }
 
-#endif
+#endif // BOOST_GEOMETRY_INDEX_TEST_RTREE_HPP
