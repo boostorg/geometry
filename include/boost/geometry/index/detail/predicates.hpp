@@ -702,10 +702,11 @@ struct predicates_check_tuple<TuplePredicates, Tag, First, First>
     }
 };
 
-template <typename Predicate, typename Tag, size_t First, size_t Last>
+template <typename Predicate, typename Tag, unsigned First, unsigned Last>
 struct predicates_check_impl
 {
-    BOOST_MPL_ASSERT_MSG((First < 1 && Last <= 1 && First <= Last), INVALID_INDEXES, (predicates_check_impl));
+    static const bool check = First < 1 && Last <= 1 && First <= Last;
+    BOOST_MPL_ASSERT_MSG((check), INVALID_INDEXES, (predicates_check_impl));
 
     template <typename Value, typename Indexable>
     static inline bool apply(Predicate const& p, Value const& v, Indexable const& i)
@@ -761,7 +762,8 @@ struct predicates_check_impl<
     typedef boost::tuples::cons<Head, Tail> predicates_type;
 
     static const unsigned pred_len = boost::tuples::length<predicates_type>::value;
-    BOOST_MPL_ASSERT_MSG((First < pred_len && Last <= pred_len && First <= Last), INVALID_INDEXES, (predicates_check_impl));
+    static const bool check = First < pred_len && Last <= pred_len && First <= Last;
+    BOOST_MPL_ASSERT_MSG((check), INVALID_INDEXES, (predicates_check_impl));
 
     template <typename Value, typename Indexable>
     static inline bool apply(predicates_type const& p, Value const& v, Indexable const& i)
