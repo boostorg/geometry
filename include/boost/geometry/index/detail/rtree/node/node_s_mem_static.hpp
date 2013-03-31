@@ -124,6 +124,7 @@ public:
     inline allocators & operator=(BOOST_FWD_REF(allocators) a)
     {
         node_allocator() = boost::move(a.node_allocator());
+        return *this;
     }
 
     void swap(allocators & a)

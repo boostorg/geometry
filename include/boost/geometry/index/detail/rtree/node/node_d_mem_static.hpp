@@ -151,6 +151,7 @@ public:
     {
         internal_node_allocator() = ::boost::move(a.internal_node_allocator());
         leaf_allocator() = ::boost::move(a.leaf_allocator());
+        return *this;
     }
 
     void swap(allocators & a)
