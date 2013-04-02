@@ -35,6 +35,7 @@
 #include <boost/geometry/index/distance_predicates.hpp>
 #include <boost/geometry/index/detail/rtree/adaptors.hpp>
 
+#include <boost/geometry/index/detail/utilities.hpp>
 #include <boost/geometry/index/detail/rtree/node/node.hpp>
 
 #include <boost/geometry/index/detail/algorithms/is_valid.hpp>
@@ -387,7 +388,7 @@ public:
             > propagate;
             if ( propagate::value && !(this_allocs == src_allocs) )
                 this->raw_destroy(*this);
-            assign_cond(this_allocs, src_allocs, propagate());
+            detail::assign_cond(this_allocs, src_allocs, propagate());
 
             // It uses m_allocators
             this->raw_copy(src, *this, true);
@@ -431,7 +432,7 @@ public:
                 typedef boost::mpl::bool_<
                     allocator_traits_type::propagate_on_container_move_assignment::value
                 > propagate;
-                rtree::move_cond(this_allocs, src_allocs, propagate());
+                detail::move_cond(this_allocs, src_allocs, propagate());
             }
             else
             {
@@ -460,7 +461,11 @@ public:
         boost::swap(m_members.indexable_getter(), other.m_members.indexable_getter());
         boost::swap(m_members.equal_to(), other.m_members.equal_to());
         boost::swap(m_members.parameters(), other.m_members.parameters());
-        m_members.allocators().swap(other.m_members.allocators());
+
+        typedef boost::mpl::bool_<
+            allocator_traits_type::propagate_on_container_swap::value
+        > propagate;
+        detail::swap_cond(m_members.allocators(), other.m_members.allocators(), propagate());
 
         boost::swap(m_members.values_count, other.m_members.values_count);
         boost::swap(m_members.leafs_level, other.m_members.leafs_level);
@@ -1122,18 +1127,6 @@ private:
 
         return result.finish();
     }
-
-    template<class T>
-    static inline void assign_cond(T &, T const&, boost::mpl::bool_<false> const&) {}
-
-    template<class T>
-    static inline void assign_cond(T & l, T const& r, boost::mpl::bool_<true> const&) { l = r; }
-
-    template<class T>
-    static inline void move_cond(T &, T &, boost::mpl::bool_<false> const&) {}
-
-    template<class T>
-    static inline void move_cond(T & l, T & r, boost::mpl::bool_<true> const&) { l = ::boost::move(r); }
 
     struct members_holder
         : public translator_type
