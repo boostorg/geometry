@@ -10,6 +10,14 @@
 #ifndef GEOMETRY_TEST_GEOMETRY_INDEX_TEST_COMMON_HPP
 #define GEOMETRY_TEST_GEOMETRY_INDEX_TEST_COMMON_HPP
 
+#if defined(_MSC_VER)
+
+//#pragma warning (disable : 4996) // deprecated functions
+//#pragma warning (disable : 4100) // unreferenced formal parameter
+//#pragma warning (disable : 4127) // conditional expression is constant
+
+#endif // _MSC_VER
+
 #include <boost/geometry.hpp>
 #define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 #include <boost/geometry/index/rtree.hpp>
