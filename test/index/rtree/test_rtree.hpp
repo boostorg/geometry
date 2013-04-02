@@ -923,8 +923,10 @@ template <typename Rtree, typename Box>
 void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 {
     typedef typename Rtree::value_type Value;
+    typedef typename Rtree::parameters_type Params;
 
     size_t s = tree.size();
+    Params params = tree.parameters();
 
     std::vector<Value> expected_output;
     tree.query(bgi::intersects(qbox), std::back_inserter(expected_output));
@@ -934,6 +936,8 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     BOOST_CHECK(tree.empty() == t1.empty());
     BOOST_CHECK(tree.size() == t1.size());
+    BOOST_CHECK(t1.parameters().get_max_elements() == params.get_max_elements());
+    BOOST_CHECK(t1.parameters().get_min_elements() == params.get_min_elements());
 
     std::vector<Value> output;
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
@@ -944,17 +948,24 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     BOOST_CHECK(tree.empty() == t1.empty());
     BOOST_CHECK(tree.size() == t1.size());
+    BOOST_CHECK(t1.parameters().get_max_elements() == params.get_max_elements());
+    BOOST_CHECK(t1.parameters().get_min_elements() == params.get_min_elements());
 
     output.clear();
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t1, output, expected_output);
-
+    
     Rtree t2(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
     t2.swap(t1);
     BOOST_CHECK(tree.empty() == t2.empty());
     BOOST_CHECK(tree.size() == t2.size());
     BOOST_CHECK(true == t1.empty());
     BOOST_CHECK(0 == t1.size());
+    // those fails e.g. on darwin 4.2.1 because it can't copy base obejcts properly
+    BOOST_CHECK(t1.parameters().get_max_elements() == params.get_max_elements());
+    BOOST_CHECK(t1.parameters().get_min_elements() == params.get_min_elements());
+    BOOST_CHECK(t2.parameters().get_max_elements() == params.get_max_elements());
+    BOOST_CHECK(t2.parameters().get_min_elements() == params.get_min_elements());
 
     output.clear();
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
@@ -964,12 +975,19 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
     t2.query(bgi::intersects(qbox), std::back_inserter(output));
     test_exactly_the_same_outputs(t2, output, expected_output);
     t2.swap(t1);
+    // those fails e.g. on darwin 4.2.1 because it can't copy base obejcts properly
+    BOOST_CHECK(t1.parameters().get_max_elements() == params.get_max_elements());
+    BOOST_CHECK(t1.parameters().get_min_elements() == params.get_min_elements());
+    BOOST_CHECK(t2.parameters().get_max_elements() == params.get_max_elements());
+    BOOST_CHECK(t2.parameters().get_min_elements() == params.get_min_elements());
 
     // moving constructor
     Rtree t3(boost::move(t1), tree.get_allocator());
 
     BOOST_CHECK(t3.size() == s);
     BOOST_CHECK(t1.size() == 0);
+    BOOST_CHECK(t3.parameters().get_max_elements() == params.get_max_elements());
+    BOOST_CHECK(t3.parameters().get_min_elements() == params.get_min_elements());
 
     output.clear();
     t3.query(bgi::intersects(qbox), std::back_inserter(output));
@@ -980,6 +998,8 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     BOOST_CHECK(t1.size() == s);
     BOOST_CHECK(t3.size() == 0);
+    BOOST_CHECK(t1.parameters().get_max_elements() == params.get_max_elements());
+    BOOST_CHECK(t1.parameters().get_min_elements() == params.get_min_elements());
 
     output.clear();
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
