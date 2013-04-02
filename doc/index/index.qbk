@@ -8,7 +8,7 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[library Geometry Index
+[/library Geometry Index
     [quickbook 1.5]
     [authors [Wulkiewicz, Adam]]
     [copyright 2011-2013 Adam Wulkiewicz]
@@ -20,14 +20,9 @@
     ]
     [id geometry]
     [category geometry]
-]
+/]
 
-[def __box__ [@http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_box.html Box]]
-[def __point__ [@http://www.boost.org/libs/geometry/doc/html/geometry/reference/concepts/concept_point.html Point]]
-
-[def __boost__ [@http://www.boost.org/libs/libraries.htm Boost]]
-[def __boost_geometry__ [@http://www.boost.org/libs/geometry/doc/html/index.html Boost.Geometry]]
-[def __boost_geometry_index__ Boost.Geometry Index]
+[def __boost_geometry_index__ Boost.Geometry.Index]
 
 [def __rtree__ R-tree]
 
@@ -36,11 +31,8 @@
 [def __allocator__ Allocator]
 [def __indexable__ Indexable]
 
-[def __cgeometry__ [@http://www.boost.org/libs/geometry/doc/html/index.html geometry]]
-[def __cboost__ [@http://www.boost.org/libs/libraries.htm boost]]
-
 [include imports.qbk]
 
-[include introduction.qbk]
+[/include introduction.qbk/]
 
 [include rtree.qbk]

@@ -14,6 +14,7 @@
 #include <vector>
 
 
+
 struct configuration
 {
     // To transfer e.g. c:/_svn/boost/trunk/boost/geometry/algorithms/area.hpp
@@ -27,6 +28,10 @@ struct configuration
     std::vector<std::string> convenience_headers;
 
     std::string skip_namespace;
+
+    enum output_style_type {def, alt};
+    output_style_type output_style;
+    configuration() : output_style(def) {}
 };
 
 

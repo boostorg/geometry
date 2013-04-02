@@ -10,10 +10,8 @@
 
 [section Introduction]
 
-The __boost_geometry_index__ is intetended to gather containers
-(spatial indexes) used for speeding spatial queries up. It is a part of the
-__boost_geometry__ library.
-In general, spatial indexes stores geometric objects' representations and
+The __boost_geometry_index__ is intetended to gather containers (spatial indexes) which may be used to accelerate spatial searching.
+It is a part of the __boost_geometry__ library. In general, spatial indexes stores geometric objects' representations and
 allows searching for objects occupying some space or close to some point in space.
 
 Currently, only one spatial index is implemented - __rtree__.

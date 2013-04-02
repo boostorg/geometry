@@ -20,7 +20,7 @@ The __rtree__ structure is presented on the image below. Each __rtree__'s node s
 its children nodes. At the bottom of the structure, there are leaf-nodes which contains values
 (geometric objects representations).
 
-[$../images/rstar.png]
+[$img/index/rtree/rstar.png]
 
 The number of maximum and mininimum node's elements must be specified by the user. If the number of elements reaches it's maximum
 the new node is created and elements are split between nodes. If the number of elements in node is too small, the node is deleted
@@ -38,7 +38,7 @@ non-overlapping boxes.
 
 [table
 [[]                         [linear algorithm] [quadratic algorithm] [R*-tree]]
-[[*Example structure*]      [[$../images/linear.png]] [[$../images/quadratic.png]] [[$../images/rstar.png]]]
+[[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]]]
 [[*1M Values inserts*]      [2.11s] [2.98s] [5.49s]]
 [[*100k spatial queries*]   [1.52s] [0.45s] [0.17s]]
 [[*100k knn queries*]       [4.51s] [2.22s] [0.6s]]
