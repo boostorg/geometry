@@ -113,7 +113,8 @@ public:
         : node_allocator_type()
     {}
 
-    inline explicit allocators(Allocator const& alloc)
+    template <typename Alloc>
+    inline explicit allocators(Alloc const& alloc)
         : node_allocator_type(alloc)
     {}
 
@@ -126,6 +127,14 @@ public:
         node_allocator() = boost::move(a.node_allocator());
         return *this;
     }
+
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+    inline allocators & operator=(allocators const& a)
+    {
+        node_allocator() = a.node_allocator();
+        return *this;
+    }
+#endif
 
     void swap(allocators & a)
     {

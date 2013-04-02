@@ -137,7 +137,8 @@ public:
         , leaf_allocator_type()
     {}
 
-    inline explicit allocators(Allocator const& alloc)
+    template <typename Alloc>
+    inline explicit allocators(Alloc const& alloc)
         : internal_node_allocator_type(alloc)
         , leaf_allocator_type(alloc)
     {}
@@ -153,6 +154,15 @@ public:
         leaf_allocator() = ::boost::move(a.leaf_allocator());
         return *this;
     }
+
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+    inline allocators & operator=(allocators const& a)
+    {
+        internal_node_allocator() = a.internal_node_allocator();
+        leaf_allocator() = a.leaf_allocator();
+        return *this;
+    }
+#endif
 
     void swap(allocators & a)
     {

@@ -349,7 +349,7 @@ public:
         : m_members(src.m_members.indexable_getter(),
                     src.m_members.equal_to(),
                     src.m_members.parameters(),
-                    boost::move(allocator))
+                    allocator)
     {
         if ( src.m_members.allocators() == allocator )
         {
@@ -1142,6 +1142,7 @@ private:
     {
     private:
         members_holder(members_holder const&);
+        members_holder & operator=(members_holder const&);
 
     public:
         template <typename IndGet, typename ValEq, typename Alloc>
