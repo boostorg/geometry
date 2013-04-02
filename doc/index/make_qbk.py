@@ -35,4 +35,4 @@ os.system(cmd % ("group__nearest__relations", "nearest_relations"))
 os.system(cmd % ("group__adaptors", "adaptors"))
 os.system(cmd % ("group__inserters", "inserters"))
 
-os.system("b2") 
+#os.system("b2")

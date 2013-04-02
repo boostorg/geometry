@@ -55,12 +55,12 @@ basic queries may be found in tables below. The query region and result `Value`s
 
 [table
 [[intersects(Box) - default] [covered_by(Box)] [disjoint(Box)] [overlaps(Box)] [within(Box)]]
-[[[$../images/intersects.png]] [[$../images/within.png]] [[$../images/disjoint.png]] [[$../images/overlaps.png]] [[$../images/within.png]]]
+[[[$img/index/rtree/intersects.png]] [[$img/index/rtree/within.png]] [[$img/index/rtree/disjoint.png]] [[$img/index/rtree/overlaps.png]] [[$img/index/rtree/within.png]]]
 ]
 
 [table
 [[intersects(Ring)] [intersects(Polygon)] [intersects(MultiPolygon)]]
-[[[$../images/intersects_ring.png]] [[$../images/intersects_poly.png]] [[$../images/intersects_mpoly.png]]]
+[[[$img/index/rtree/intersects_ring.png]] [[$img/index/rtree/intersects_poly.png]] [[$img/index/rtree/intersects_mpoly.png]]]
 ]
 
 To use a spatial predicate one may use one of the functions defined in `boost::geometry::index` namespace.
@@ -86,7 +86,7 @@ Additionally it is possible to define how the distance to the `Value` should be 
 The examples of some knn queries may be found in the table below. All queries return 5 closest `Values`.
 The query point and Values are orange.
 
-[$../images/knn.png]
+[$img/index/rtree/knn.png]
 
 [section k nearest neighbours]
 
@@ -130,7 +130,7 @@ a relation object generated as follows:
 
 [endsect]
 
-[section user-defined unary predicate]
+[section User-defined unary predicate]
 
 The user may pass a `UnaryPredicate` - function, function object or lambda expression taking const reference to Value and returning bool.
 This object may be passed to the query in order to check if `__value__` should be returned by the query. To do it one

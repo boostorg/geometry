@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Chapter&#160;1.&#160;Geometry</title>
 <link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
 <link rel="home" href="index.html" title="Chapter&#160;1.&#160;Geometry">
 <link rel="next" href="geometry/introduction.html" title="Introduction">
 </head>
@@ -31,10 +31,12 @@
 <div><div class="author"><h3 class="author">
 <span class="firstname">Mateusz</span> <span class="surname">Loskot</span>
 </h3></div></div>
-<div><p class="copyright">Copyright &#169; 2009-2012 Barend
-      Gehrels, Bruno Lalande, Mateusz Loskot</p></div>
+<div><div class="author"><h3 class="author">
+<span class="firstname">Adam</span> <span class="surname">Wulkiewicz</span>
+</h3></div></div>
+<div><p class="copyright">Copyright &#169; 2009-2013 Barend Gehrels, Bruno Lalande, Mateusz Loskot, Adam Wulkiewicz</p></div>
 <div><div class="legalnotice">
-<a name="id678091"></a><p>
+<a name="geometry.legal"></a><p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
@@ -47,6 +49,8 @@
 <dt><span class="section"><a href="geometry/quickstart.html">Quick Start</a></span></dt>
 <dt><span class="section"><a href="geometry/design.html">Design Rationale</a></span></dt>
 <dt><span class="section"><a href="geometry/compilation.html">Compilation</a></span></dt>
+<dt><span class="section"><a href="geometry/spatial_indexes.html">Spatial indexes</a></span></dt>
+<dd><dl><dt><span class="section"><a href="geometry/spatial_indexes/r_tree.html">R-tree</a></span></dt></dl></dd>
 <dt><span class="section"><a href="geometry/indexes.html">Indexes</a></span></dt>
 <dd><dl>
 <dt><span class="section"><a href="geometry/indexes/matrix.html">Reference matrix</a></span></dt>
@@ -66,6 +70,7 @@
 <dt><span class="section"><a href="geometry/reference/exceptions.html">Exceptions</a></span></dt>
 <dt><span class="section"><a href="geometry/reference/iterators.html">Iterators</a></span></dt>
 <dt><span class="section"><a href="geometry/reference/models.html">Models</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/spatial_indexes.html">Spatial indexes</a></span></dt>
 <dt><span class="section"><a href="geometry/reference/strategies.html">Strategies</a></span></dt>
 <dt><span class="section"><a href="geometry/reference/views.html">Views</a></span></dt>
 </dl></dd>
@@ -74,14 +79,14 @@
 <dt><span class="section"><a href="geometry/acknowledgments.html">Acknowledgments</a></span></dt>
 </dl>
 </div>
-<a name="geometry.contributions"></a><h3>
-<a name="geometry.contributions-heading"></a>
-    <a class="link" href="index.html#geometry.contributions">Contributions</a>
+<h3>
+<a name="geometry.h0"></a>
+    <span class="phrase"><a name="geometry.contributions"></a></span><a class="link" href="index.html#geometry.contributions">Contributions</a>
   </h3>
 <p>
     Boost.Geometry contains contributions by:
   </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
         Akira Takahashi (adaption of Boost.Fusion)
       </li>
@@ -89,24 +94,15 @@
         Alfredo Correa (adaption of Boost.Array)
       </li>
 <li class="listitem">
-        Adam Wulkiewicz (spatial indexes) <sup>[<a name="id709095" href="#ftn.id709095" class="footnote">1</a>]</sup>
+        Federico Fern&#225;ndez (preliminary version of R-tree spatial index)
       </li>
 <li class="listitem">
-        Federico Fern&#225;ndez (spatial indexes) <sup>[<a name="id709108" href="#ftn.id709108" class="footnote">2</a>]</sup>
+        Karsten Ahnert (patch for cross-track distance)
       </li>
 </ul></div>
-<div class="footnotes">
-<br><hr width="100" align="left">
-<div class="footnote"><p><sup>[<a name="ftn.id709095" href="#id709095" class="para">1</a>] </sup>
-          Currently an extension
-        </p></div>
-<div class="footnote"><p><sup>[<a name="ftn.id709108" href="#id709108" class="para">2</a>] </sup>
-          Currently an extension
-        </p></div>
-</div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"><p><small>Last revised: May 28, 2012 at 10:03:31 GMT</small></p></td>
+<td align="left"><p><small>Last revised: April 02, 2013 at 22:44:07 GMT</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>

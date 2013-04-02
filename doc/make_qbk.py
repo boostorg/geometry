@@ -148,5 +148,9 @@ group_to_quickbook("arithmetic")
 group_to_quickbook("register")
 group_to_quickbook("enum")
 
+os.chdir("index")
+os.system("make_qbk.py")
+os.chdir("..")
+
 # Use either bjam or b2 or ../../../b2 (the last should be done on Release branch)
 os.system("bjam") 

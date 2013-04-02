@@ -58,7 +58,7 @@ std::string qbk_escaped(std::string const& s)
 
 
 
-void quickbook_template_parameter_list(std::vector<parameter> const& parameters, std::ostream& out, bool name = false)
+void quickbook_template_parameter_list(std::vector<parameter> const& parameters, std::ostream& out)
 {
     if (!parameters.empty())
     {
@@ -67,6 +67,10 @@ void quickbook_template_parameter_list(std::vector<parameter> const& parameters,
         BOOST_FOREACH(parameter const& p, parameters)
         {
             out << (first ? "" : ", ") << p.fulltype;
+
+            if ( !p.default_value.empty() )
+                out << " = " << p.default_value;
+
             first = false;
         }
         out << ">" << std::endl;
@@ -78,9 +82,10 @@ void quickbook_synopsis(function const& f, std::ostream& out)
 {
     out << "``";
     quickbook_template_parameter_list(f.template_parameters, out);
+
     switch(f.type)
     {
-        case function_constructor :
+        case function_constructor_destructor :
             out << f.name;
             break;
         case function_member :
@@ -96,7 +101,7 @@ void quickbook_synopsis(function const& f, std::ostream& out)
             // do nothing
             break;
     }
-
+    
     // Output the parameters
     // Because we want to be able to skip, we cannot use the argstring
     {
@@ -418,7 +423,6 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
     out << std::endl;
 }
 
-
 void quickbook_output(enumeration const& e, configuration const& config, std::ostream& out)
 {
     out << "[section:" << to_section_name(e.name);
@@ -469,12 +473,12 @@ void quickbook_output(enumeration const& e, configuration const& config, std::os
     out << std::endl;
 }
 
-void quickbook_output_member(std::vector<function> const& functions, 
-        function_type type, 
-        std::string const& title,
-        configuration const& config, std::ostream& out)
+void quickbook_output_function(std::vector<function> const& functions, 
+                                function_type type,
+                                std::string const& title,
+                                configuration const& config, std::ostream& out)
 {
-    std::string returns = type == function_constructor ? "" : " [Returns]";
+    std::string returns = type == function_constructor_destructor ? "" : " [Returns]";
     out << "[heading " << title << "(s)]" << std::endl
         << "[table" << std::endl
         << "[[Function] [Description] [Parameters] " << returns << "]" << std::endl;
@@ -493,7 +497,6 @@ void quickbook_output_member(std::vector<function> const& functions,
     out << "]" << std::endl
         << std::endl;
 }
-
 
 void quickbook_output(class_or_struct const& cos, configuration const& config, std::ostream& out)
 {
@@ -566,12 +569,22 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
 
         BOOST_FOREACH(parameter const& p, cos.template_parameters)
         {
-            out << "[[" << p.fulltype;
-            if (has_default)
-            {
-                out << "] [" << p.default_value;
-            }
-            out << "] [" << p.brief_description << "]]" << std::endl;
+            out << "[[``";
+            if ( p.fulltype.find("typename") == 0 )
+                out << p.fulltype.substr(8);
+            else if ( p.fulltype.find("class") == 0 )
+                out << p.fulltype.substr(5);
+            else
+                out << p.fulltype;
+
+            out << "``]";
+
+            if (has_default && !p.default_value.empty())
+                out << "[``" << p.default_value << "``]";
+            else
+                out << "[]";
+
+            out << " [" << p.brief_description << "]]" << std::endl;
         }
         out << "]" << std::endl
             << std::endl;
@@ -584,14 +597,14 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
         counts[f.type]++;
     }
 
-    if (counts[function_constructor] > 0)
+    if (counts[function_constructor_destructor] > 0)
     {
-        quickbook_output_member(cos.functions, function_constructor, "Constructor", config, out);
+        quickbook_output_function(cos.functions, function_constructor_destructor, "Constructor", config, out);
     }
 
     if (counts[function_member] > 0)
     {
-        quickbook_output_member(cos.functions, function_member, "Member Function", config, out);
+        quickbook_output_function(cos.functions, function_member, "Member Function", config, out);
     }
 
     quickbook_header(cos.location, config, out);
@@ -601,5 +614,765 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
         << std::endl;
 }
 
+
+// ----------------------------------------------------------------------------------------------- //
+// ALT
+// ----------------------------------------------------------------------------------------------- //
+
+std::string remove_template_parameters(std::string const& name)
+{
+    std::string res;
+    std::string::size_type prev_i = 0, i = 0;
+    int blocks_counter = 0;
+    for ( ;; )
+    {
+        std::string::size_type next_begin = name.find('<', i);
+        std::string::size_type next_end = name.find('>', i);
+
+        if ( next_begin == next_end )
+        {
+            res += name.substr(prev_i, next_begin - prev_i);
+            break;
+        }
+        else if ( next_begin < next_end )
+        {
+            i = next_begin + 1;
+            if ( blocks_counter == 0 )
+                res += name.substr(prev_i, next_begin - prev_i) + "<...>";
+            blocks_counter++;
+        }
+        else
+        {
+            i = next_end + 1;
+            blocks_counter--;
+            if ( blocks_counter == 0 )
+                prev_i = i;
+        }
+    }
+
+    return res;
+}
+
+std::string replace_brackets(std::string const& str)
+{
+    return boost::replace_all_copy(boost::replace_all_copy(str, "[", "\\["), "]", "\\]");
+}
+
+void quickbook_output_enumerations(std::vector<enumeration> const& enumerations,
+                                  configuration const& config,
+                                  std::ostream& out)
+{
+    out << "[table" << std::endl
+        << "[[Enumeration][Description]]" << std::endl;
+
+    for ( size_t i = 0 ; i < enumerations.size() ; ++i )
+    {
+        enumeration const& e = enumerations[i];
+
+        out << "[[[link " << e.id << " `";
+        out << e.name;
+        out << "`]][" << e.brief_description << "]]" << std::endl;
+    }
+    out << "]" << std::endl
+        << std::endl;
+}
+
+void quickbook_synopsis_short(function const& f, std::ostream& out)
+{
+    if ( f.type != function_unknown )
+        out << f.name;
+
+    bool first = true;
+    BOOST_FOREACH(parameter const& p, f.parameters)
+    {
+        if ( !p.skip && p.default_value.empty() )
+        {
+            out << (first ? "(" : ", ") << remove_template_parameters(p.fulltype_without_links);
+            first = false;
+        }
+    }
+
+
+    if (! first)
+        out << ")";
+    else if (f.type != function_define)
+        out << "()";
+}
+
+void quickbook_output_functions(std::vector<function> const& functions,
+                                function_type type,
+                                configuration const& config,
+                                std::ostream& out,
+                                bool display_all = false,
+                                std::string const& ColTitle = "Function")
+{
+    bool show_modifiers = false;
+    BOOST_FOREACH(function const& f, functions)
+    {
+        if ( (display_all || f.type == type) && (f.is_const || f.is_static) )
+            show_modifiers = true;        
+    }
+
+    out << "[table\n"
+        << "[";
+    if ( show_modifiers )
+        out << "[Modifier]";
+    out << "[" << ColTitle << "]";
+    out << "[Description]";
+    out << "]" << std::endl;
+
+    for ( size_t i = 0 ; i < functions.size() ; ++i )
+    {
+        function const& f = functions[i];
+
+        if (display_all || f.type == type)
+        {
+            out << "[";
+            if ( show_modifiers )
+            {
+                out << "[";
+                out << (f.is_static ? "`static`" : "");
+                out << (f.is_const ? " `const`" : "");
+                out << "]";
+            }
+            out << "[[link " << f.id << " `";
+            quickbook_synopsis_short(f, out);
+            out << "`]]";
+            out << "[" << f.brief_description << "]";
+            out << "]" << std::endl;
+        }
+    }
+    out << "]" << std::endl
+        << std::endl;
+}
+
+void output_paragraphs_note_warning(element const& el, std::ostream & out)
+{
+    // Additional paragraphs
+    if ( !el.paragraphs.empty() )
+    {
+        BOOST_FOREACH(paragraph const& p, el.paragraphs)
+        {
+            if ( !p.title.empty() )
+                out << "[heading " << p.title << "]" << std::endl;
+            else
+                out << "\n\n" << std::endl;
+            out << p.text << std::endl;
+            out << std::endl;
+        }
+    }
+
+    // Note
+    if ( !el.note.empty() )
+    {
+        out << "[note " << el.note << "]" << std::endl;
+        out << std::endl;
+    }
+
+    // Warning
+    if ( !el.warning.empty() )
+    {
+        out << "[warning " << el.warning << "]" << std::endl;
+        out << std::endl;
+    }
+}
+
+void inline_str_with_links(std::string const& str, std::ostream & out)
+{
+    typedef std::string::size_type ST;
+
+    bool link_started = false;
+    bool first = true;
+    for ( ST i = 0 ; i < str.size() ; ++i )
+    {
+        if ( !link_started )
+        {
+            if ( str[i] == '[' && str.substr(i, 6) == "[link " )
+            {
+                if ( !first )
+                {
+                    out << "`";
+                    first = true;
+                }
+                link_started = true;
+                out << "[^[link ";
+                i += 5; // (+ 6 - 1)
+            }
+            else
+            {
+                if ( first )
+                {
+                    out << "`";
+                    first = false;
+                }
+                out << str[i];
+            }            
+        }
+        else
+        {
+            if ( str[i] == '\\' )
+            {
+                out << str[i];
+                ++i;
+                if ( i < str.size() )
+                    out << str[i];
+            }
+            else if ( str[i] == ']' )
+            {
+                out << "]]";
+                link_started = false;
+            }
+            else
+                out << str[i];
+        }
+    }
+
+    if ( !first )
+        out << "`";
+    if ( link_started )
+        out << "]]";
+}
+
+void quickbook_template_parameter_list_alt(std::vector<parameter> const& parameters, std::ostream& out)
+{
+    std::string next_param;
+    
+    if ( 2 < parameters.size() )
+        next_param = std::string("`,`\n") + "         ";
+    else
+        next_param = "`,` ";
+
+    if (!parameters.empty())
+    {
+        out << "`template<`" ;
+        bool first = true;
+        BOOST_FOREACH(parameter const& p, parameters)
+        {
+            out << (first ? "" : next_param.c_str());
+            inline_str_with_links(p.fulltype, out);
+
+            if ( !p.default_value.empty() )
+            {
+                out << " = ";
+                inline_str_with_links(p.default_value, out);
+            }
+
+            first = false;
+        }
+        out << "`>`";
+    }
+}
+
+void quickbook_synopsis_alt(function const& f, std::ostream& out)
+{
+    out << "[pre\n";
+    quickbook_template_parameter_list_alt(f.template_parameters, out);
+    out << "\n";
+
+    unsigned offset = 1; // '('
+    switch(f.type)
+    {
+        case function_constructor_destructor :
+            out << "`" << f.name << "`";
+            offset += f.name.size();
+            break;
+        case function_member :
+            inline_str_with_links(f.return_type, out);
+            out << " `" << f.name << "`";
+            offset += f.return_type_without_links.size() + 1 + f.name.size();
+            break;
+        case function_free :
+            inline_str_with_links(f.definition, out);
+            offset += f.definition.size();
+            break;
+        case function_define :
+            out << "`#define " << f.name << "`";
+            offset += 8 + f.name.size();
+            break;
+        case function_unknown :
+            // do nothing
+            break;
+    }
+
+    std::string par_end("`,` ");
+    if ( 2 < f.parameters.size() )
+        par_end = std::string("`,`\n") + std::string(offset, ' ');
+
+    // Output the parameters
+    // Because we want to be able to skip, we cannot use the argstring
+    {
+        bool first = true;
+        BOOST_FOREACH(parameter const& p, f.parameters)
+        {
+            if (! p.skip)
+            {
+                out << (first ? "`(`" : par_end);
+                if ( !p.fulltype.empty() )
+                {
+                    inline_str_with_links(p.fulltype, out);
+                    out << " ";
+                }
+                out << "`" << p.name << "`";
+                if ( !p.default_value.empty() )
+                {
+                    out << " = ";
+                    inline_str_with_links(p.default_value, out);
+                }
+                first = false;
+            }
+        }
+
+        if (! first)
+            out << "`)`\n";
+        else if (f.type != function_define)
+            out << "`()`\n";
+    }
+
+    out << "]"
+        << std::endl
+        << std::endl;
+}
+
+void quickbook_synopsis_alt(class_or_struct const& cos, configuration const& config, std::ostream & out)
+{
+    std::string short_name = namespace_skipped(cos.fullname, config);
+
+    out << "[pre\n";
+
+    quickbook_template_parameter_list_alt(cos.template_parameters, out);
+    out << "\n";
+
+    out << (cos.is_class ? "`class " : "`struct ");
+    {
+        std::string::size_type last_scope = std::string::npos;
+        std::string::size_type i = short_name.find("<");
+        for(std::string::size_type j = short_name.find("::") ; j < i ; j = short_name.find("::", j+1))
+            last_scope = j;
+        if ( last_scope == std::string::npos )
+            out << short_name << "`" << std::endl;
+        else
+            out << short_name.substr(last_scope + 2) << "`" << std::endl;
+    }
+    
+    if (! cos.base_classes.empty())
+    {
+        out << "`      : ";
+        bool first = true;
+        BOOST_FOREACH(base_class const& bc, cos.base_classes)
+        {
+            if (! first)
+            {
+                out << std::endl << "      , ";
+            }
+            out << output_if_different(bc.derivation, "private")
+                << output_if_different(bc.virtuality, "non-virtual")
+                << namespace_skipped(bc.name, config);
+            first = false;
+        }
+        out << "`" << std::endl;
+    }
+
+    out << "`{`" << std::endl
+        << "`  // ...`" << std::endl
+        << "`};`" << std::endl
+        << "]" << std::endl << std::endl;
+}
+
+void quickbook_synopsis_alt(enumeration const& e, std::ostream& out)
+{
+    std::string values_separator =
+        e.enumeration_values.size() <= 2 ?
+            std::string(", ") :
+            ( std::string(",\n") + std::string(e.name.size() + 7, ' ') );
+
+    out << "``enum " << e.name << " ";
+    bool first = true;
+    BOOST_FOREACH(enumeration_value const& value, e.enumeration_values)
+    {
+        out << (first ? "{" : values_separator.c_str());
+        out << value.name;
+        if ( !value.initializer.empty() )
+        {
+            out << " = " << boost::trim_copy(value.initializer);
+        }
+        first = false;
+    }
+    if (! first)
+    {
+        out << "};";
+    }
+    out << "``"
+        << std::endl
+        << std::endl;
+}
+
+template <typename Range>
+bool has_brief_description(Range const& rng)
+{
+    typedef typename Range::value_type V;
+    BOOST_FOREACH(V const& bc, rng)
+    {
+        if ( !bc.brief_description.empty() )
+            return true;
+    }
+    return false;
+}
+
+template <typename Range>
+bool has_brief_description(Range const& rng, function_type t)
+{
+    typedef typename Range::value_type V;
+    BOOST_FOREACH(V const& bc, rng)
+    {
+        if ( bc.type == t && !bc.brief_description.empty() )
+            return true;
+    }
+    return false;
+}
+
+void quickbook_output_functions_details(std::vector<function> const& functions,
+                                        function_type type,
+                                        configuration const& config,
+                                        std::ostream& out,
+                                        bool display_all = false)
+{
+    for ( size_t i = 0 ; i < functions.size() ; ++i )
+    {
+        function const& f = functions[i];
+        if ( display_all || f.type == type )
+        {
+            // Section
+            std::stringstream ss;
+            quickbook_synopsis_short(f, ss);
+            out << "[#" << f.id << "]" << std::endl;
+            out << "[section " << replace_brackets(ss.str()) << "]" << std::endl;
+            
+            // Brief description
+            out << f.brief_description << std::endl;
+            out << std::endl;
+
+            // Detail description
+            if ( !f.detailed_description.empty() )
+            {
+                out << "[heading Description]" << std::endl;
+                out << f.detailed_description;
+            }
+
+            // Synopsis
+            quickbook_markup(f.qbk_markup, markup_before, markup_synopsis, out);
+            out << "[heading Synopsis]" << std::endl;
+            quickbook_synopsis_alt(f, out);
+            quickbook_markup(f.qbk_markup, markup_after, markup_synopsis, out);
+
+            if ( f.is_static || f.is_virtual || f.is_explicit || f.is_const )
+            {
+                out << "[heading Modifier(s)]" << std::endl;
+                out << "``"
+                    << (f.is_static ? "static " : "")
+                    << (f.is_virtual ? "virtual " : "")
+                    << (f.is_explicit ? "explicit " : "")
+                    << (f.is_const ? "const " : "")
+                    << "``";
+            }
+
+            // Template parameters
+            if ( !f.template_parameters.empty() && has_brief_description(f.template_parameters) )
+            {
+                out << "[heading Template parameter(s)]" << std::endl
+                    << "[table" << std::endl
+                    << "[[Parameter] [Description]]" << std::endl;
+
+                BOOST_FOREACH(parameter const& p, f.template_parameters)
+                {
+                    if ( p.brief_description.empty() )
+                        continue;
+
+                    out << "[[`";
+                    if ( p.fulltype.find("typename ") == 0 )
+                        out << p.fulltype.substr(9);
+                    else if ( p.fulltype.find("class ") == 0 )
+                        out << p.fulltype.substr(6);
+                    else
+                        out << p.fulltype;
+                    out << "`][" << p.brief_description << "]]" << std::endl;
+                }
+                out << "]" << std::endl
+                    << std::endl;
+            }
+
+            // Parameters
+            if ( !f.parameters.empty() && has_brief_description(f.parameters) )
+            {
+                out << "[heading Parameter(s)]" << std::endl;
+                out << "[table " << std::endl;
+                out << "[";
+                if ( f.type != function_define )
+                    out << "[Type]";
+                out << "[Name][Description]]" << std::endl;
+                BOOST_FOREACH(parameter const& p, f.parameters)
+                {
+                    if (!p.skip)
+                    {
+                        out << "[";
+                        if ( f.type != function_define )
+                        {
+                            out << "[";
+                            inline_str_with_links(p.fulltype, out);
+                            out << "]";
+                        }
+                        out << "[ `" << p.name << "` ][" << p.brief_description << "]]"<< std::endl;
+                    }
+                }
+                out << "]" << std::endl;
+            }
+
+            // Precondition
+            if ( !f.precondition.empty() )
+            {
+                out << "[heading Precondition(s)]" << std::endl;
+                out << f.precondition << std::endl;
+                out << std::endl;
+            }
+
+            // Return
+            if ( !f.return_description.empty() )
+            {
+                out << "[heading Returns]" << std::endl;
+                out << f.return_description << std::endl;
+            }
+            
+            // Additional paragraphs, note, warning
+            output_paragraphs_note_warning(f, out);
+
+            // QBK markup
+            quickbook_markup(f.qbk_markup, markup_any, markup_default, out);
+
+            // Section end
+            out << "[endsect]" << std::endl
+                //<< "[br]" << std::endl
+                << std::endl;
+        }
+    }
+}
+
+void quickbook_output_enumeration_details(enumeration const& e, configuration const& config, std::ostream& out)
+{
+    out << "[#" << e.id << "]\n";
+    out << "[section " << e.name << "]" << std::endl
+        << std::endl;
+
+    out << e.brief_description << std::endl;
+    out << std::endl;
+
+    if ( !e.detailed_description.empty() )
+    {
+        out << "[heading Description]\n\n";
+        out << e.detailed_description << "\n\n";
+    }
+
+    // Additional paragraphs, note, warning
+    output_paragraphs_note_warning(e, out);
+
+    quickbook_markup(e.qbk_markup, markup_any, markup_default, out);
+
+    // Synopsis
+    quickbook_markup(e.qbk_markup, markup_before, markup_synopsis, out);
+    out << "[heading Synopsis]" << std::endl;
+    quickbook_synopsis_alt(e, out);
+    quickbook_markup(e.qbk_markup, markup_after, markup_synopsis, out);
+
+
+    out << "[heading Values]" << std::endl
+        << std::endl;
+
+    out << "[table" << std::endl << "[";
+    out << "[Value] [Description] ]" << std::endl;
+
+    BOOST_FOREACH(enumeration_value const& value, e.enumeration_values)
+    {
+        out << "[[" << value.name << "] [" << value.brief_description << "]]\n";
+    }
+    out << "]\n\n\n";
+
+    out << std::endl;
+    out << "[endsect]" << std::endl;
+    out << std::endl;
+}
+
+void quickbook_output_alt(documentation const& doc, configuration const& config, std::ostream& out)
+{
+    if ( !doc.group_id.empty() )
+    {
+        std::cout << "[section:" << doc.group_id << " " << doc.group_title << "]" << std::endl;
+    }
+
+    if ( !doc.enumerations.empty() )
+    {
+        std::cout << "[heading Enumerations]\n";
+        quickbook_output_enumerations(doc.enumerations, config, out);
+    }
+
+    if ( !doc.defines.empty() )
+    {
+        std::cout << "[heading Defines]\n";
+        quickbook_output_functions(doc.defines, function_unknown, config, out, true, "Define");
+    }
+
+    if ( !doc.functions.empty() )
+    {
+        std::cout << "[heading Functions]\n";
+        quickbook_output_functions(doc.functions, function_unknown, config, out, true, "Function");
+    }
+
+    BOOST_FOREACH(enumeration const& e, doc.enumerations)
+    {
+        quickbook_output_enumeration_details(e, config, out);
+    }
+
+    quickbook_output_functions_details(doc.defines, function_unknown, config, out, true);
+    quickbook_output_functions_details(doc.functions, function_unknown, config, out, true);
+
+    if ( !doc.group_id.empty() )
+    {
+        out << "[endsect]" << std::endl
+            << std::endl;
+    }    
+}
+
+void quickbook_output_alt(class_or_struct const& cos, configuration const& config, std::ostream& out)
+{
+    // Skip namespace
+    std::string short_name = namespace_skipped(cos.fullname, config);
+
+    BOOST_ASSERT(configuration::alt == config.output_style);
+
+    if ( !cos.id.empty() )
+        out << "[#" << cos.id << "]" << std::endl;
+    out << "[section " << short_name << "]" << std::endl << std::endl;
+
+    // Can't be used in the case of specializations and probably isn't needed in alt output
+    //quickbook_output_indexterm(short_name, out);
+
+    // Brief
+
+    out << cos.brief_description << std::endl;
+    out << std::endl;
+
+    // Description
+
+    quickbook_string_with_heading_if_present("Description", cos.detailed_description, out);
+
+    // Additional paragraphs, note, warning
+    output_paragraphs_note_warning(cos, out);
+
+    // Markup
+    quickbook_markup(cos.qbk_markup, markup_any, markup_default, out);
+
+    // Header
+
+    quickbook_header(cos.location, config, out);
+
+    // Class synposis
+
+    quickbook_markup(cos.qbk_markup, markup_before, markup_synopsis, out);
+    out << "[heading Synopsis]" << std::endl;
+    quickbook_synopsis_alt(cos, config, out);
+    quickbook_markup(cos.qbk_markup, markup_after, markup_synopsis, out);
+
+    // Template parameters
+
+    if (! cos.template_parameters.empty())
+    {
+        if ( has_brief_description(cos.template_parameters) )
+        {
+            out << "[heading Template parameter(s)]" << std::endl
+                << "[table" << std::endl
+                << "[[Parameter] [Description]]" << std::endl;
+
+            BOOST_FOREACH(parameter const& p, cos.template_parameters)
+            {
+                if ( p.brief_description.empty() )
+                    continue;
+
+                out << "[[`";
+                if ( p.fulltype.find("typename ") == 0 )
+                    out << p.fulltype.substr(9);
+                else if ( p.fulltype.find("class ") == 0 )
+                    out << p.fulltype.substr(6);
+                else
+                    out << p.fulltype;
+                out << "`][" << p.brief_description << "]]" << std::endl;
+            }
+            out << "]" << std::endl
+                << std::endl;
+        }
+    }
+
+    // Typedefs
+
+    if ( !cos.typedefs.empty() )
+    {
+        if ( has_brief_description(cos.typedefs) )
+        {
+            out << "[heading Typedef(s)]" << std::endl
+                << "[table" << std::endl
+                << "[[Type]";
+            out << " [Description]]" << std::endl;
+
+            BOOST_FOREACH(base_element const& e, cos.typedefs)
+            {
+                if ( e.brief_description.empty() )
+                    continue;
+
+                out << "[[";
+                if ( !e.id.empty() )
+                    out << "[#" << e.id << "]" << " ";
+                out << "`" << e.name << "`";
+                out << "][" << e.brief_description << "]]" << std::endl;
+            }
+            out << "]" << std::endl
+                << std::endl;
+        }
+    }
+
+    // Members
+
+    bool display_ctors = has_brief_description(cos.functions, function_constructor_destructor);
+    bool display_members = has_brief_description(cos.functions, function_member);
+
+    std::map<function_type, int> counts;
+    BOOST_FOREACH(function const& f, cos.functions)
+    {
+        counts[f.type]++;
+    }
+
+    if (display_ctors && counts[function_constructor_destructor] > 0)
+    {
+        out << "[heading Constructor(s) and destructor]" << std::endl;
+        quickbook_output_functions(cos.functions, function_constructor_destructor, config, out);
+    }
+
+    if (display_members && counts[function_member] > 0)
+    {
+        out << "[heading Member(s)]" << std::endl;
+        quickbook_output_functions(cos.functions, function_member, config, out);
+    }
+
+    // Details start
+
+    //if ( display_ctors || display_members )
+    //    out << "[br]" << std::endl;
+
+    if (display_ctors && counts[function_constructor_destructor] > 0)
+        quickbook_output_functions_details(cos.functions, function_constructor_destructor, config, out);
+
+    if (display_members && counts[function_member] > 0)
+        quickbook_output_functions_details(cos.functions, function_member, config, out);
+
+    // Details end
+
+    out << "[endsect]" << std::endl
+        << std::endl;
+}
 
 #endif // QUICKBOOK_OUTPUT_HPP
