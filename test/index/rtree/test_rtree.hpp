@@ -1007,7 +1007,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     //TODO - test SWAP
 
-    BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(param)
+    BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(params)
 }
 
 template <typename I, typename O>
