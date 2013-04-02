@@ -72,6 +72,9 @@ static void parse_para(rapidxml::xml_node<>* node, std::string& contents, bool& 
             std::string name = node->name();
             if (boost::equals(name, "qbk.skip"))
             {
+                // TODO: this qbk.skip condition can be removed. It is not used anymore.
+                // Then the skip parameter is also redundant.
+                // Can be done after merging with the doxygen_xml2qbk version for Spatial.Index
                 skip = true;
                 return;
             }

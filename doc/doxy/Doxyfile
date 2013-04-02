@@ -39,7 +39,6 @@ TAB_SIZE               = 8
 # \return* for various return cases
 ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
-			qbk_skip="\xmlonly <qbk.skip/> \endxmlonly" \
 			brief_calc{1}="Calculates the \1 of a geometry" \
 			brief_calc2{1}="Calculate the \1 of two geometries" \
 			brief_calc2{2}="Calculate the \1 \2 two geometries" \
@@ -159,7 +158,6 @@ GENERATE_DEPRECATEDLIST= YES
 ENABLED_SECTIONS       = 
 MAX_INITIALIZER_LINES  = 30
 SHOW_USED_FILES        = NO
-SHOW_DIRECTORIES       = NO
 FILE_VERSION_FILTER    = 
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
@@ -254,7 +252,6 @@ HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = doxygen_input/ggl_doxygen_header.html
 HTML_FOOTER            = doxygen_input/ggl_doxygen_footer.html
 HTML_STYLESHEET        = 
-HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO
 GENERATE_DOCSET        = NO
 DOCSET_FEEDNAME        = "Generated documentation, by Doxygen"
