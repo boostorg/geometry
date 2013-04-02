@@ -808,7 +808,7 @@ struct TestNearestKTransform
 };
 
 template <typename Rtree, typename Value, typename Point>
-void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point const& pt, size_t k)
+void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point const& pt, unsigned int k)
 {
     // TODO: Nearest object may not be the same as found by the rtree if distances are equal
     // All objects with the same closest distance should be picked
@@ -867,7 +867,7 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
     test_exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::queried(bgi::nearest(pt, k)));
 
     std::vector<Value> output2(k, generate_value_default<Value>::apply());
-    size_t found_count = rtree.query(bgi::nearest(pt, k), output2.begin());
+    typename Rtree::size_type found_count = rtree.query(bgi::nearest(pt, k), output2.begin());
     output2.resize(found_count, generate_value_default<Value>::apply());
 
     test_exactly_the_same_outputs(rtree, output, output2);
