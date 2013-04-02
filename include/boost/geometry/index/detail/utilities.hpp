@@ -39,7 +39,7 @@ void swap_cond(T & l, T & r, boost::mpl::bool_<true> const&)
 }
 
 template <typename T> inline
-void swap_cond(T & l, T & r, boost::mpl::bool_<false> const&) {}
+void swap_cond(T &, T &, boost::mpl::bool_<false> const&) {}
 
 }}}} // namespace boost::geometry::index::detail
 
