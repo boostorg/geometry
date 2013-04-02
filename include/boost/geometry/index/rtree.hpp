@@ -383,9 +383,14 @@ public:
             allocators_type & this_allocs = m_members.allocators();
             allocators_type const& src_allocs = src.m_members.allocators();
 
+            // NOTE: if propagate is true for std allocators on darwin 4.2.1, glibc++
+            // (allocators stored as base classes of members_holder)
+            // copying them changes values_count, in this case it doesn't cause errors since data must be copied
+            
             typedef boost::mpl::bool_<
                 allocator_traits_type::propagate_on_container_copy_assignment::value
             > propagate;
+            
             if ( propagate::value && !(this_allocs == src_allocs) )
                 this->raw_destroy(*this);
             detail::assign_cond(this_allocs, src_allocs, propagate());
@@ -417,7 +422,7 @@ public:
             allocators_type & this_allocs = m_members.allocators();
             allocators_type & src_allocs = src.m_members.allocators();
             
-            if ( this_allocs == this_allocs )
+            if ( this_allocs == src_allocs )
             {
                 this->raw_destroy(*this);
 
@@ -429,6 +434,10 @@ public:
                 boost::swap(m_members.leafs_level, src.m_members.leafs_level);
                 boost::swap(m_members.root, src.m_members.root);
 
+                // NOTE: if propagate is true for std allocators on darwin 4.2.1, glibc++
+                // (allocators stored as base classes of members_holder)
+                // moving them changes values_count
+                
                 typedef boost::mpl::bool_<
                     allocator_traits_type::propagate_on_container_move_assignment::value
                 > propagate;
@@ -461,7 +470,11 @@ public:
         boost::swap(m_members.indexable_getter(), other.m_members.indexable_getter());
         boost::swap(m_members.equal_to(), other.m_members.equal_to());
         boost::swap(m_members.parameters(), other.m_members.parameters());
-
+        
+        // NOTE: if propagate is true for std allocators on darwin 4.2.1, glibc++
+        // (allocators stored as base classes of members_holder)
+        // swapping them changes values_count
+        
         typedef boost::mpl::bool_<
             allocator_traits_type::propagate_on_container_swap::value
         > propagate;
