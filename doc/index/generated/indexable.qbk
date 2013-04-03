@@ -26,5 +26,37 @@ It translates Value object to Indexable object. The default version handles Valu
 [[`Value`][The Value type which may be translated directly to the Indexable. ]]
 ]
 
+[heading Typedef(s)]
+[table
+[[Type] [Description]]
+[[[#structboost_1_1geometry_1_1index_1_1indexable_1a1b2b7a94fb62e59fd1f0587fa0aef5ef] `result_type`][The type of result returned by function object. ]]
+]
+
+[heading Member(s)]
+[table
+[[Modifier][Function][Description]]
+[[ `const`][[link structboost_1_1geometry_1_1index_1_1indexable_1afa5f2cdc3390a6f1f394890e479df794 `operator()(Value const &)`]][Return indexable extracted from the value. ]]
+]
+
+[#structboost_1_1geometry_1_1index_1_1indexable_1afa5f2cdc3390a6f1f394890e479df794]
+[section operator()(Value const &)]
+Return indexable extracted from the value. 
+
+[heading Synopsis]
+[pre
+
+[^[link structboost_1_1geometry_1_1index_1_1indexable_1a1b2b7a94fb62e59fd1f0587fa0aef5ef result_type]] `operator()``(``Value const &` `v``)`
+]
+
+[heading Modifier(s)]
+``const ``[heading Parameter(s)]
+[table 
+[[Type][Name][Description]]
+[[`Value const &`][ `v` ][The value. ]]
+]
+[heading Returns]
+The indexable. 
+[endsect]
+
 [endsect]
 

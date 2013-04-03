@@ -709,7 +709,7 @@ void quickbook_output_functions(std::vector<function> const& functions,
     bool show_modifiers = false;
     BOOST_FOREACH(function const& f, functions)
     {
-        if ( (display_all || f.type == type) && (f.is_const || f.is_static) )
+        if ( (display_all || f.type == type) && (f.is_const || f.is_static) && !f.brief_description.empty() )
             show_modifiers = true;        
     }
 
@@ -724,6 +724,9 @@ void quickbook_output_functions(std::vector<function> const& functions,
     for ( size_t i = 0 ; i < functions.size() ; ++i )
     {
         function const& f = functions[i];
+
+        if ( f.brief_description.empty() )
+            continue;
 
         if (display_all || f.type == type)
         {
@@ -912,7 +915,8 @@ void quickbook_synopsis_alt(function const& f, std::ostream& out)
                     inline_str_with_links(p.fulltype, out);
                     out << " ";
                 }
-                out << "`" << p.name << "`";
+                if ( !p.name.empty() )
+                    out << "`" << p.name << "`";
                 if ( !p.default_value.empty() )
                 {
                     out << " = ";
@@ -1039,6 +1043,10 @@ void quickbook_output_functions_details(std::vector<function> const& functions,
     for ( size_t i = 0 ; i < functions.size() ; ++i )
     {
         function const& f = functions[i];
+
+        if ( f.brief_description.empty() )
+            continue;
+
         if ( display_all || f.type == type )
         {
             // Section
