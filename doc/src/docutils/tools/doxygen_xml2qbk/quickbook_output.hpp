@@ -140,7 +140,9 @@ void quickbook_synopsis(enumeration const& e, std::ostream& out)
         out << (first ? " {" : ", ") << value.name;
         if (! value.initializer.empty())
         {
-            out << " = " << boost::trim_copy(value.initializer);
+            // Doxygen 1.6 does not include "=" in the <initializer> tag, Doxygen 1.8 does.
+            // We just remove the "=" to have consisten output
+            out << " = " << boost::trim_copy(boost::replace_all_copy(value.initializer, "=", ""));
         }
         first = false;
     }
@@ -858,7 +860,7 @@ void quickbook_synopsis_alt(function const& f, std::ostream& out)
     quickbook_template_parameter_list_alt(f.template_parameters, out);
     out << "\n";
 
-    unsigned offset = 1; // '('
+    std::size_t offset = 1; // '('
     switch(f.type)
     {
         case function_constructor_destructor :
@@ -983,7 +985,7 @@ void quickbook_synopsis_alt(enumeration const& e, std::ostream& out)
         out << value.name;
         if ( !value.initializer.empty() )
         {
-            out << " = " << boost::trim_copy(value.initializer);
+            out << " = " << boost::trim_copy(boost::replace_all_copy(value.initializer, "=", ""));
         }
         first = false;
     }

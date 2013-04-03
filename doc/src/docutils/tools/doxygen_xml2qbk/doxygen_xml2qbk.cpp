@@ -43,6 +43,15 @@
 #include <quickbook_output.hpp>
 #include <rapidxml_util.hpp>
 
+static const std::string version = "1.1.0";
+
+inline std::string program_description()
+{
+    std::string result("=== doxygen_xml2qbk ");
+    result += version;
+    result += " ===";
+    return result;
+}
 
 
 int main(int argc, char** argv)
@@ -57,12 +66,13 @@ int main(int argc, char** argv)
         // Read/get configuration
         {
             namespace po = boost::program_options;
-            po::options_description description("=== doxml2qbk ===\nAllowed options");
+            po::options_description description;
 
             std::string convenience_headers;
 
             description.add_options()
                 ("help", "Help message")
+                ("version", "Version description")
                 ("xml", po::value<std::string>(&filename), 
                             "Name of XML file written by Doxygen")
                 ("start_include", po::value<std::string>(&config.start_include), 
@@ -95,9 +105,24 @@ int main(int argc, char** argv)
 
             po::notify(varmap);
 
-            if (varmap.count("help") || filename.empty())
+            if (varmap.count("version"))
             {
-                std::cout << description << std::endl;
+                std::cout << version << std::endl;
+                return 0;
+            }
+            else if (varmap.count("help"))
+            {
+                std::cout 
+                    << program_description() << std::endl 
+                    << description << std::endl;
+                return 0;
+            }
+            else if (filename.empty())
+            {
+                std::cout 
+                    << program_description() << std::endl 
+                    << "Allowed options:" << std::endl
+                    << description << std::endl;
                 return 1;
             }
 
