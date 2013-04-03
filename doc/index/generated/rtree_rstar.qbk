@@ -3,6 +3,7 @@
 [#structboost_1_1geometry_1_1index_1_1rstar]
 [section boost::geometry::index::rstar]
 
+'''<indexterm><primary>boost</primary></indexterm><indexterm><primary>geometry</primary></indexterm><indexterm><primary>index</primary></indexterm><indexterm><primary>rstar</primary></indexterm>'''
 R*-tree creation algorithm parameters. 
 
 [heading Header]

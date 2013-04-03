@@ -3,6 +3,7 @@
 [#structboost_1_1geometry_1_1index_1_1equal__to]
 [section boost::geometry::index::equal_to]
 
+'''<indexterm><primary>boost</primary></indexterm><indexterm><primary>geometry</primary></indexterm><indexterm><primary>index</primary></indexterm><indexterm><primary>equal_to</primary></indexterm>'''
 The function object comparing Values. 
 
 [heading Description]
@@ -40,6 +41,7 @@ It compares Geometries using geometry::equals() function. Other types are compar
 
 [#structboost_1_1geometry_1_1index_1_1equal__to_1adb497915885d69df9aff938d16922ff3]
 [section operator()(Value const &, Value const &)]
+'''<indexterm><primary>operator()</primary></indexterm>'''
 Compare values. If Value is a Geometry geometry::equals() function is used. 
 
 [heading Synopsis]

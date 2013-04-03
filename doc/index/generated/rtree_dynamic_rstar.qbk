@@ -3,6 +3,7 @@
 [#classboost_1_1geometry_1_1index_1_1dynamic__rstar]
 [section boost::geometry::index::dynamic_rstar]
 
+'''<indexterm><primary>boost</primary></indexterm><indexterm><primary>geometry</primary></indexterm><indexterm><primary>index</primary></indexterm><indexterm><primary>dynamic_rstar</primary></indexterm>'''
 R*-tree creation algorithm parameters - run-time version. 
 
 [heading Header]
@@ -25,6 +26,7 @@ R*-tree creation algorithm parameters - run-time version.
 
 [#classboost_1_1geometry_1_1index_1_1dynamic__rstar_1af825a8e4652b3ca3f2487fe7fdd403be]
 [section dynamic_rstar(size_t, size_t)]
+'''<indexterm><primary>dynamic_rstar</primary></indexterm>'''
 The constructor. 
 
 [heading Synopsis]

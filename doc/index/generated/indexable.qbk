@@ -3,6 +3,7 @@
 [#structboost_1_1geometry_1_1index_1_1indexable]
 [section boost::geometry::index::indexable]
 
+'''<indexterm><primary>boost</primary></indexterm><indexterm><primary>geometry</primary></indexterm><indexterm><primary>index</primary></indexterm><indexterm><primary>indexable</primary></indexterm>'''
 The function object extracting Indexable from Value. 
 
 [heading Description]
@@ -40,6 +41,7 @@ It translates Value object to Indexable object. The default version handles Valu
 
 [#structboost_1_1geometry_1_1index_1_1indexable_1afa5f2cdc3390a6f1f394890e479df794]
 [section operator()(Value const &)]
+'''<indexterm><primary>operator()</primary></indexterm>'''
 Return indexable extracted from the value. 
 
 [heading Synopsis]

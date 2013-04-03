@@ -15,6 +15,7 @@
 
 [#group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61]
 [section covered_by(Geometry const &)]
+'''<indexterm><primary>covered_by</primary></indexterm>'''
 Generate [^[link group__predicates_1ga0a613a7f1d18ac33955bfdc2c5777c61 covered_by()]] predicate. 
 
 [heading Description]
@@ -46,6 +47,7 @@ bgi::query(spatial_index, bgi::covered_by(box), std::back_inserter(result));
 
 [#group__predicates_1ga351bb3b82e019ff45adf789385b8007d]
 [section disjoint(Geometry const &)]
+'''<indexterm><primary>disjoint</primary></indexterm>'''
 Generate [^[link group__predicates_1ga351bb3b82e019ff45adf789385b8007d disjoint()]] predicate. 
 
 [heading Description]
@@ -77,6 +79,7 @@ bgi::query(spatial_index, bgi::disjoint(box), std::back_inserter(result));
 
 [#group__predicates_1ga7301c50e0272976b9f1434536383e6d0]
 [section intersects(Geometry const &)]
+'''<indexterm><primary>intersects</primary></indexterm>'''
 Generate [^[link group__predicates_1ga7301c50e0272976b9f1434536383e6d0 intersects()]] predicate. 
 
 [heading Description]
@@ -110,6 +113,7 @@ bgi::query(spatial_index, bgi::intersects(polygon), std::back_inserter(result));
 
 [#group__predicates_1ga5511236f56be1defcccbf11e742ccd88]
 [section overlaps(Geometry const &)]
+'''<indexterm><primary>overlaps</primary></indexterm>'''
 Generate [^[link group__predicates_1ga5511236f56be1defcccbf11e742ccd88 overlaps()]] predicate. 
 
 [heading Description]
@@ -141,6 +145,7 @@ bgi::query(spatial_index, bgi::overlaps(box), std::back_inserter(result));
 
 [#group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d]
 [section within(Geometry const &)]
+'''<indexterm><primary>within</primary></indexterm>'''
 Generate [^[link group__predicates_1gabf9c4e76dd8a09a4c476f2f8fa8a0e4d within()]] predicate. 
 
 [heading Description]
@@ -172,6 +177,7 @@ bgi::query(spatial_index, bgi::within(box), std::back_inserter(result));
 
 [#group__predicates_1gae7e9291c5b99041fb155d29de0860bab]
 [section satisfies(UnaryPredicate const &)]
+'''<indexterm><primary>satisfies</primary></indexterm>'''
 Generate [link group__predicates_1gae7e9291c5b99041fb155d29de0860bab satisfies()] predicate. 
 
 [heading Description]
@@ -220,6 +226,7 @@ std::back_inserter(result));
 
 [#group__predicates_1gae80a2c204673a8b11c4fc137cfff6556]
 [section nearest(PointOrRelation const &, unsigned)]
+'''<indexterm><primary>nearest</primary></indexterm>'''
 Generate [link group__predicates_1gae80a2c204673a8b11c4fc137cfff6556 nearest()] predicate. 
 
 [heading Description]

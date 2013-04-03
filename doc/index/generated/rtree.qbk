@@ -3,6 +3,7 @@
 [#classboost_1_1geometry_1_1index_1_1rtree]
 [section boost::geometry::index::rtree]
 
+'''<indexterm><primary>boost</primary></indexterm><indexterm><primary>geometry</primary></indexterm><indexterm><primary>index</primary></indexterm><indexterm><primary>rtree</primary></indexterm>'''
 The R-tree spatial index. 
 
 [heading Description]
@@ -115,6 +116,7 @@ The Translator translates from Value to Indexable each time r-tree requires it. 
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a55d5fd5d205df08db5267253689ccf0c]
 [section rtree()]
+'''<indexterm><primary>rtree</primary></indexterm>'''
 The constructor. 
 
 [heading Synopsis]
@@ -140,6 +142,7 @@ If allocator default constructor throws.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a1a6b696d4855cbf1866196fe058c3a87]
 [section rtree(parameters_type const &, indexable_getter const &, value_equal const &, allocator_type const &)]
+'''<indexterm><primary>rtree</primary></indexterm>'''
 The constructor. 
 
 [heading Synopsis]
@@ -166,6 +169,7 @@ If allocator copy constructor throws.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a037f17d8a1dfa4a818ff471dec61c912]
 [section rtree(Iterator, Iterator)]
+'''<indexterm><primary>rtree</primary></indexterm>'''
 The constructor. 
 
 [heading Synopsis]
@@ -203,6 +207,7 @@ The constructor.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a7b96b715c52ddc13d7a81db344825848]
 [section rtree(Range const &)]
+'''<indexterm><primary>rtree</primary></indexterm>'''
 The constructor. 
 
 [heading Synopsis]
@@ -239,6 +244,7 @@ The constructor.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1af8db72811d2be53c409240204e63fb5a]
 [section ~rtree()]
+'''<indexterm><primary>~rtree</primary></indexterm>'''
 The destructor. 
 
 [heading Synopsis]
@@ -254,6 +260,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a826fc3236e181ad718d5283e95d7866f]
 [section rtree(rtree const &)]
+'''<indexterm><primary>rtree</primary></indexterm>'''
 The copy constructor. 
 
 [heading Description]
@@ -282,6 +289,7 @@ It uses parameters, translator and allocator from the source tree.[heading Synop
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a72b6b75e083eea2ed26f54d4a2265375]
 [section rtree(rtree const &, allocator_type const &)]
+'''<indexterm><primary>rtree</primary></indexterm>'''
 The copy constructor. 
 
 [heading Description]
@@ -311,6 +319,7 @@ It uses Parameters and translator from the source tree.[heading Synopsis]
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1aa8b27db8cb783282ab5274e6769da26a]
 [section rtree(rtree &&)]
+'''<indexterm><primary>rtree</primary></indexterm>'''
 The moving constructor. 
 
 [heading Description]
@@ -332,6 +341,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a8508c4236d17ff39a1caef058aac8486]
 [section rtree(rtree &&, allocator_type const &)]
+'''<indexterm><primary>rtree</primary></indexterm>'''
 The moving constructor. 
 
 [heading Description]
@@ -361,6 +371,7 @@ It uses parameters and translator from the source tree.[heading Synopsis]
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a278cfc791ab6c5ebc2f70aeb5b3428a1]
 [section operator=(const rtree &)]
+'''<indexterm><primary>operator=</primary></indexterm>'''
 The assignment operator. 
 
 [heading Description]
@@ -388,6 +399,7 @@ It uses parameters and translator from the source tree.[heading Synopsis]
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1af0bf9622ed3e901580b73ed39b746fb7]
 [section operator=(rtree &&)]
+'''<indexterm><primary>operator=</primary></indexterm>'''
 The moving assignment. 
 
 [heading Description]
@@ -415,6 +427,7 @@ Only if allocators aren't equal.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1aedb719dfece91d298e9ee56878524c9b]
 [section swap(rtree &)]
+'''<indexterm><primary>swap</primary></indexterm>'''
 Swaps contents of two rtrees. 
 
 [heading Description]
@@ -436,6 +449,7 @@ If allocators swap throws.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1ad47980467e66b8644df18a480dbf9d86]
 [section insert(value_type const &)]
+'''<indexterm><primary>insert</primary></indexterm>'''
 Insert a value to the index. 
 
 [heading Synopsis]
@@ -464,6 +478,7 @@ Insert a value to the index.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a60d4c8790fd8810ff8b57f049e6bed8d]
 [section insert(Iterator, Iterator)]
+'''<indexterm><primary>insert</primary></indexterm>'''
 Insert a range of values to the index. 
 
 [heading Synopsis]
@@ -493,6 +508,7 @@ Insert a range of values to the index.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a39be117f85cc9ebc508d8ecf77578329]
 [section insert(Range const &)]
+'''<indexterm><primary>insert</primary></indexterm>'''
 Insert a range of values to the index. 
 
 [heading Synopsis]
@@ -521,6 +537,7 @@ Insert a range of values to the index.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a1ce933b0b833faec5349bfc27bde15d4]
 [section remove(value_type const &)]
+'''<indexterm><primary>remove</primary></indexterm>'''
 Remove a value from the container. 
 
 [heading Description]
@@ -552,6 +569,7 @@ In contrast to the [^`std::set`] or [^`std::map erase()`] method this method rem
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1aa97084231d17564a94f0142d095cecaa]
 [section remove(Iterator, Iterator)]
+'''<indexterm><primary>remove</primary></indexterm>'''
 Remove a range of values from the container. 
 
 [heading Description]
@@ -584,6 +602,7 @@ The number of removed values.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a8a6460c186f595e91be69b1062ecae8b]
 [section remove(Range const &)]
+'''<indexterm><primary>remove</primary></indexterm>'''
 Remove a range of values from the container. 
 
 [heading Description]
@@ -615,6 +634,7 @@ The number of removed values.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a7baa88eb4e7a5c640ab847513de45b3e]
 [section query(Predicates const &, OutIter)]
+'''<indexterm><primary>query</primary></indexterm>'''
 Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box. 
 
 [heading Description]
@@ -693,6 +713,7 @@ If Value copy constructor or copy assignment throws.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1ac9f152c8c96525e3735b81635d8171b1]
 [section size()]
+'''<indexterm><primary>size</primary></indexterm>'''
 Returns the number of stored values. 
 
 [heading Synopsis]
@@ -711,6 +732,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1aa5302ce1c26105d722aac20793e83f0e]
 [section empty()]
+'''<indexterm><primary>empty</primary></indexterm>'''
 Query if the container is empty. 
 
 [heading Synopsis]
@@ -729,6 +751,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a1bec40977c175983f585c4488cf8fe3c]
 [section clear()]
+'''<indexterm><primary>clear</primary></indexterm>'''
 Removes all values stored in the container. 
 
 [heading Synopsis]
@@ -744,6 +767,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a0dad06d0f117f45ed54b5c123cb41d6e]
 [section bounds()]
+'''<indexterm><primary>bounds</primary></indexterm>'''
 Returns the box able to contain all values stored in the container. 
 
 [heading Description]
@@ -763,6 +787,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1aaa834c241c191ac9de67f134564f36fa]
 [section count(ValueOrIndexable const &)]
+'''<indexterm><primary>count</primary></indexterm>'''
 Count Values or Indexables stored in the container. 
 
 [heading Description]
@@ -787,6 +812,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a9076baef90a3a9c6018871fa25115a73]
 [section parameters()]
+'''<indexterm><primary>parameters</primary></indexterm>'''
 Returns parameters. 
 
 [heading Synopsis]
@@ -805,6 +831,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1af391fd642a218c5fb10fc68d643a62b5]
 [section indexable_get()]
+'''<indexterm><primary>indexable_get</primary></indexterm>'''
 Returns function retrieving Indexable from Value. 
 
 [heading Synopsis]
@@ -823,6 +850,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a16424563d0973960ac01f7a1969eeebe]
 [section value_eq()]
+'''<indexterm><primary>value_eq</primary></indexterm>'''
 Returns function comparing Values. 
 
 [heading Synopsis]
@@ -841,6 +869,7 @@ Nothing.
 
 [#classboost_1_1geometry_1_1index_1_1rtree_1a17d9cef211feb7f674a5b4602f4cc81e]
 [section get_allocator()]
+'''<indexterm><primary>get_allocator</primary></indexterm>'''
 Returns allocator used by the rtree. 
 
 [heading Synopsis]

@@ -3,6 +3,7 @@
 [#structboost_1_1geometry_1_1index_1_1linear]
 [section boost::geometry::index::linear]
 
+'''<indexterm><primary>boost</primary></indexterm><indexterm><primary>geometry</primary></indexterm><indexterm><primary>index</primary></indexterm><indexterm><primary>linear</primary></indexterm>'''
 Linear r-tree creation algorithm parameters. 
 
 [heading Header]
