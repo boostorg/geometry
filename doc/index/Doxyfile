@@ -285,7 +285,7 @@ SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = "BOOST_RV_REF(T)=T &&" \
-                         "BOOST_COPY_ASSIGN_REF(T)=const T &"
+                         "BOOST_COPY_ASSIGN_REF(T)=T const &"
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------

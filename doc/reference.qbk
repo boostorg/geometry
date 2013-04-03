@@ -244,11 +244,9 @@
 [section:spatial_indexes Spatial indexes]
 
 [section:rtree R-tree]
-
 [include index/generated/rtree.qbk]
 [include index/generated/rtree_functions.qbk]
-
-[section:parameters Parameters (boost::geometry::index::)]
+[section:parameters R-tree parameters (boost::geometry::index::)]
 [include index/generated/rtree_linear.qbk]
 [include index/generated/rtree_quadratic.qbk]
 [include index/generated/rtree_rstar.qbk]
@@ -256,18 +254,17 @@
 [include index/generated/rtree_dynamic_quadratic.qbk]
 [include index/generated/rtree_dynamic_rstar.qbk]
 [endsect]
-
 [endsect]
 
-[/section:function_objects Function objects (boost::geometry::index::)/]
+[section:observers Observers (boost::geometry::index::)]
 [include index/generated/indexable.qbk]
 [include index/generated/equal_to.qbk]
-[/endsect/]
+[endsect]
+[include index/generated/inserters.qbk]
+[include index/generated/adaptors.qbk]
 
 [include index/generated/predicates.qbk]
 [include index/generated/nearest_relations.qbk]
-[include index/generated/adaptors.qbk]
-[include index/generated/inserters.qbk]
 
 [endsect]
 
