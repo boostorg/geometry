@@ -67,10 +67,6 @@ void quickbook_template_parameter_list(std::vector<parameter> const& parameters,
         BOOST_FOREACH(parameter const& p, parameters)
         {
             out << (first ? "" : ", ") << p.fulltype;
-
-            if ( !p.default_value.empty() )
-                out << " = " << p.default_value;
-
             first = false;
         }
         out << ">" << std::endl;
@@ -569,22 +565,12 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
 
         BOOST_FOREACH(parameter const& p, cos.template_parameters)
         {
-            out << "[[``";
-            if ( p.fulltype.find("typename") == 0 )
-                out << p.fulltype.substr(8);
-            else if ( p.fulltype.find("class") == 0 )
-                out << p.fulltype.substr(5);
-            else
-                out << p.fulltype;
-
-            out << "``]";
-
-            if (has_default && !p.default_value.empty())
-                out << "[``" << p.default_value << "``]";
-            else
-                out << "[]";
-
-            out << " [" << p.brief_description << "]]" << std::endl;
+            out << "[[" << p.fulltype;
+            if (has_default)
+            {
+                out << "] [" << p.default_value;
+            }
+            out << "] [" << p.brief_description << "]]" << std::endl;
         }
         out << "]" << std::endl
             << std::endl;
