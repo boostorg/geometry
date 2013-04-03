@@ -153,7 +153,7 @@ void test_3d()
     BOOST_CHECK_EQUAL(bg::within(point_type(2, 2, 5), box), false);
 
     box_type box2(point_type(2, 2, 2), point_type(3, 3, 3));
-    BOOST_CHECK_EQUAL(bg::within(box2, box), false);
+    BOOST_CHECK_EQUAL(bg::within(box2, box), true);
 
 }
 
@@ -213,12 +213,15 @@ void test_strategy()
 
     bool r = bg::within(p, b, 
         bg::strategy::within::point_in_box<point_type, box_type>());
+    BOOST_CHECK_EQUAL(r, true);
 
     r = bg::within(b, b, 
         bg::strategy::within::box_in_box<box_type, box_type>());
+    BOOST_CHECK_EQUAL(r, false);
 
     r = bg::within(p, b, 
         bg::strategy::within::point_in_box_by_side<point_type, box_type>());
+    BOOST_CHECK_EQUAL(r, true);
 }
 
 
