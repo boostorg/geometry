@@ -9,6 +9,7 @@
 
 [#group__inserters_1gab22c33d31b9805250e54ee6d6d240a47]
 [section inserter(Container &)]
+'''<indexterm><primary>inserter</primary></indexterm>'''
 Insert iterator generator. 
 
 [heading Description]

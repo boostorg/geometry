@@ -11,6 +11,7 @@
 
 [#group__nearest__relations_1gace3c7dbc60840c2a61da36e975d56636]
 [section to_nearest(T const &)]
+'''<indexterm><primary>to_nearest</primary></indexterm>'''
 Generate [link group__nearest__relations_1gace3c7dbc60840c2a61da36e975d56636 to_nearest()] relationship. 
 
 [heading Description]
@@ -35,6 +36,7 @@ Generate a nearest query Point and Value's Indexable relationship while calculat
 
 [#group__nearest__relations_1gaccbba95d864d8dcf8a694796c840fbe0]
 [section to_centroid(T const &)]
+'''<indexterm><primary>to_centroid</primary></indexterm>'''
 Generate [link group__nearest__relations_1gaccbba95d864d8dcf8a694796c840fbe0 to_centroid()] relationship. 
 
 [heading Description]
@@ -59,6 +61,7 @@ Generate a nearest query Point and Value's Indexable relationship while calculat
 
 [#group__nearest__relations_1ga67dddd8a7fcaae150970e1db0401de02]
 [section to_furthest(T const &)]
+'''<indexterm><primary>to_furthest</primary></indexterm>'''
 Generate [link group__nearest__relations_1ga67dddd8a7fcaae150970e1db0401de02 to_furthest()] relationship. 
 
 [heading Description]

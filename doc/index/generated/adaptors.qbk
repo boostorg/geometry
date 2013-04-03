@@ -9,6 +9,7 @@
 
 [#group__adaptors_1ga4716cd5423bfed3ff3e69e9ec274ac81]
 [section queried(Predicates const &)]
+'''<indexterm><primary>queried</primary></indexterm>'''
 The query index adaptor generator. 
 
 [heading Synopsis]

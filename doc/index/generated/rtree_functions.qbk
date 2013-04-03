@@ -20,6 +20,7 @@
 
 [#group__rtree__functions_1gada4f62111ed22eb2860ea30995c1ce60]
 [section insert(rtree<...> &, Value const &)]
+'''<indexterm><primary>insert</primary></indexterm>'''
 Insert a value to the index. 
 
 [heading Description]
@@ -43,6 +44,7 @@ It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1ad47980467e66b8644df1
 
 [#group__rtree__functions_1ga056469ea699e609e67762fe1b789997f]
 [section insert(rtree<...> &, Iterator, Iterator)]
+'''<indexterm><primary>insert</primary></indexterm>'''
 Insert a range of values to the index. 
 
 [heading Description]
@@ -70,6 +72,7 @@ It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a60d4c8790fd8810ff8b5
 
 [#group__rtree__functions_1ga524e332717347c3ffb54d2497047215b]
 [section insert(rtree<...> &, Range const &)]
+'''<indexterm><primary>insert</primary></indexterm>'''
 Insert a range of values to the index. 
 
 [heading Description]
@@ -94,6 +97,7 @@ It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a39be117f85cc9ebc508d
 
 [#group__rtree__functions_1gaf353d90fd933e6110b031f63166fb45a]
 [section remove(rtree<...> &, Value const &)]
+'''<indexterm><primary>remove</primary></indexterm>'''
 Remove a value from the container. 
 
 [heading Description]
@@ -121,6 +125,7 @@ It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a1ce933b0b833faec5349
 
 [#group__rtree__functions_1gaa460a8985496cf133f63f245527ac6e7]
 [section remove(rtree<...> &, Iterator, Iterator)]
+'''<indexterm><primary>remove</primary></indexterm>'''
 Remove a range of values from the container. 
 
 [heading Description]
@@ -152,6 +157,7 @@ The number of removed values.
 
 [#group__rtree__functions_1ga421f4fe0554d1b436b9e7e64794e6349]
 [section remove(rtree<...> &, Range const &)]
+'''<indexterm><primary>remove</primary></indexterm>'''
 Remove a range of values from the container. 
 
 [heading Description]
@@ -180,6 +186,7 @@ The number of removed values.
 
 [#group__rtree__functions_1gadb43b211d5d743ebe2ef256328286e95]
 [section query(rtree<...> const &, Predicates const &, OutIter)]
+'''<indexterm><primary>query</primary></indexterm>'''
 Finds values meeting passed predicates e.g. nearest to some Point and/or intersecting some Box. 
 
 [heading Description]
@@ -266,6 +273,7 @@ If Value copy constructor or copy assignment throws.
 
 [#group__rtree__functions_1gabaca6c24c3838a8164aa3700c459e7a4]
 [section clear(rtree<...> &)]
+'''<indexterm><primary>clear</primary></indexterm>'''
 Remove all values from the index. 
 
 [heading Description]
@@ -288,6 +296,7 @@ It calls [^[link classboost_1_1geometry_1_1index_1_1rtree_1a1bec40977c175983f585
 
 [#group__rtree__functions_1gaa19a09e7b5f0a86a4b74ef2342de1d68]
 [section size(rtree<...> const &)]
+'''<indexterm><primary>size</primary></indexterm>'''
 Get the number of values stored in the index. 
 
 [heading Description]
@@ -312,6 +321,7 @@ The number of values stored in the index.
 
 [#group__rtree__functions_1gaba44e2fb12fdc7b528bfee56a88e0844]
 [section empty(rtree<...> const &)]
+'''<indexterm><primary>empty</primary></indexterm>'''
 Query if there are no values stored in the index. 
 
 [heading Description]
@@ -336,6 +346,7 @@ true if there are no values in the index.
 
 [#group__rtree__functions_1ga4e43e7720c66e88959ff511a7462a3ff]
 [section bounds(rtree<...> const &)]
+'''<indexterm><primary>bounds</primary></indexterm>'''
 Get the box containing all stored values or an invalid box if the index has no values. 
 
 [heading Description]
@@ -360,6 +371,7 @@ The box containing all stored values or an invalid box.
 
 [#group__rtree__functions_1gaa1250318a78d7e27ba8f3537eb0ddb3f]
 [section swap(rtree<...> &, rtree<...> &)]
+'''<indexterm><primary>swap</primary></indexterm>'''
 Exchanges the contents of the container with those of other. 
 
 [heading Description]

@@ -3,6 +3,7 @@
 [#classboost_1_1geometry_1_1index_1_1dynamic__quadratic]
 [section boost::geometry::index::dynamic_quadratic]
 
+'''<indexterm><primary>boost</primary></indexterm><indexterm><primary>geometry</primary></indexterm><indexterm><primary>index</primary></indexterm><indexterm><primary>dynamic_quadratic</primary></indexterm>'''
 Quadratic r-tree creation algorithm parameters - run-time version. 
 
 [heading Header]
@@ -25,6 +26,7 @@ Quadratic r-tree creation algorithm parameters - run-time version.
 
 [#classboost_1_1geometry_1_1index_1_1dynamic__quadratic_1a19f526af4c76e09402164f966fdfca91]
 [section dynamic_quadratic(size_t, size_t)]
+'''<indexterm><primary>dynamic_quadratic</primary></indexterm>'''
 The constructor. 
 
 [heading Synopsis]

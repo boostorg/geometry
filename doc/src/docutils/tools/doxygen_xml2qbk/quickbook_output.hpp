@@ -1040,6 +1040,8 @@ void quickbook_output_functions_details(std::vector<function> const& functions,
             quickbook_synopsis_short(f, ss);
             out << "[#" << f.id << "]" << std::endl;
             out << "[section " << replace_brackets(ss.str()) << "]" << std::endl;
+
+            quickbook_output_indexterm(f.name, out);
             
             // Brief description
             out << f.brief_description << std::endl;
@@ -1155,6 +1157,12 @@ void quickbook_output_enumeration_details(enumeration const& e, configuration co
     out << "[section " << e.name << "]" << std::endl
         << std::endl;
 
+    quickbook_output_indexterm(e.name, out);
+    BOOST_FOREACH(enumeration_value const& value, e.enumeration_values)
+    {
+        quickbook_output_indexterm(value.name, out);
+    }
+
     out << e.brief_description << std::endl;
     out << std::endl;
 
@@ -1244,8 +1252,8 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
         out << "[#" << cos.id << "]" << std::endl;
     out << "[section " << short_name << "]" << std::endl << std::endl;
 
-    // Can't be used in the case of specializations and probably isn't needed in alt output
-    //quickbook_output_indexterm(short_name, out);
+    // WARNING! Can't be used in the case of specializations
+    quickbook_output_indexterm(short_name, out);
 
     // Brief
 
