@@ -49,8 +49,15 @@ struct indexable
         NOT_VALID_INDEXABLE_TYPE,
         (Value)
     );
-
+    /*! \brief The type of result returned by function object. */
     typedef Value const& result_type;
+
+    /*!
+    \brief Return indexable extracted from the value.
+    
+    \param v The value.
+    \return The indexable.
+    */
     result_type operator()(Value const& v) const
     {
         return v;
@@ -74,7 +81,15 @@ struct indexable< std::pair<Indexable, T2> >
         (Indexable)
     );
 
+    /*! \brief The type of result returned by function object. */
     typedef Indexable const& result_type;
+
+    /*!
+    \brief Return indexable extracted from the value.
+    
+    \param v The value.
+    \return The indexable.
+    */
     result_type operator()(std::pair<Indexable, T2> const& v) const
     {
         return v.first;
@@ -100,7 +115,15 @@ struct indexable< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
         (Indexable)
         );
 
+    /*! \brief The type of result returned by function object. */
     typedef Indexable const& result_type;
+
+    /*!
+    \brief Return indexable extracted from the value.
+    
+    \param v The value.
+    \return The indexable.
+    */
     result_type operator()(value_type const& v) const
     {
         return boost::get<0>(v);
@@ -115,6 +138,14 @@ struct indexable< boost::tuple<Indexable, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 
 namespace boost { namespace geometry { namespace index {
 
+/*!
+\brief The function object extracting Indexable from Value.
+
+This specialization translates from std::tuple<Indexable, Args...>.
+It's defined if the compiler supports tuples and variadic templates.
+
+\tparam Indexable   The Indexable type.
+*/
 template <typename Indexable, typename ...Args>
 struct indexable< std::tuple<Indexable, Args...> >
 {
@@ -126,7 +157,15 @@ struct indexable< std::tuple<Indexable, Args...> >
         (Indexable)
         );
 
+    /*! \brief The type of result returned by function object. */
     typedef Indexable const& result_type;
+
+    /*!
+    \brief Return indexable extracted from the value.
+    
+    \param v The value.
+    \return The indexable.
+    */
     result_type operator()(value_type const& v) const
     {
         return std::get<0>(v);
