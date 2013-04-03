@@ -59,7 +59,7 @@
 // TODO change the name to bounding_tree
 
 /*!
-\defgroup rtree_functions Functions related to the rtree
+\defgroup rtree_functions R-tree free functions (boost::geometry::index::)
 */
 
 namespace boost { namespace geometry { namespace index {
