@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2013 Adam Wulkiewicz, Lodz, Poland.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -79,15 +80,7 @@ static void parse_para(rapidxml::xml_node<>* node, configuration const& config, 
         {
             //std::cout << "ELEMENT: " << node->name() << "=" << node->value() << std::endl;
             std::string name = node->name();
-            if (boost::equals(name, "qbk.skip"))
-            {
-                // TODO: this qbk.skip condition can be removed. It is not used anymore.
-                // Then the skip parameter is also redundant.
-                // Can be done after merging with the doxygen_xml2qbk version for Spatial.Index
-                skip = true;
-                return;
-            }
-            else if ( boost::equals(name, "itemizedlist") )
+            if ( boost::equals(name, "itemizedlist") )
             {
                 contents += "\n\n";
                 parse_para(node->first_node(), config, contents, skip, true, tb);
