@@ -12,7 +12,7 @@
 
 [section Template parameters]
 
-__rtree__ has 4 parameters:
+__rtree__ has 5 parameters:
 
  rtree<Value,
        Parameters,
@@ -31,7 +31,7 @@ __rtree__ has 4 parameters:
 [section Values and Indexables]
 
 __rtree__ may store `__value__`s of any type as long as passed function objects know how to interpret those `__value__`s, that is
-extract an `__indexable__` that the __rtree__ can handle and compare `__values__`.
+extract an `__indexable__` that the __rtree__ can handle and compare `__value__`s.
 
 By default function objects `index::indexable<Value>` and `index::equal_to<Value>` are defined for some typically used `__value__`
 types which may be stored without defining any additional classes. By default the rtree may store pure `__indexable__`s, pairs

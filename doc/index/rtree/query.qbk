@@ -83,8 +83,7 @@ All predicates may be negated, e.g.:
 
 Nearest neighbours queries returns `__value__`s which are closest to some point in space.
 Additionally it is possible to define how the distance to the `Value` should be calculated.
-The examples of some knn queries may be found in the table below. All queries return 5 closest `Values`.
-The query point and Values are orange.
+The example of knn query is presented below. 5 `__value__`s nearest to some point are orange.
 
 [$img/index/rtree/knn.png]
 
