@@ -13,7 +13,7 @@ R*-tree creation algorithm parameters.
 `template<``size_t MaxElements``,`
          `size_t MinElements``,`
          `size_t OverlapCostThreshold` = `0``,`
-         `size_t ReinsertedElements` = [^[link structboost_1_1geometry_1_1index_1_1detail_1_1default__rstar__reinserted__elements__s detail::default_rstar_reinserted_elements_s]]`<MaxElements>::value``>`
+         `size_t ReinsertedElements` = `detail::default_rstar_reinserted_elements_s<MaxElements>::value``>`
 `struct rstar`
 `{`
 `  // ...`

@@ -26,5 +26,38 @@ It compares Geometries using geometry::equals() function. Other types are compar
 [[`Value`][The type of objects which are compared by this function object. ]]
 ]
 
+[heading Typedef(s)]
+[table
+[[Type] [Description]]
+[[[#structboost_1_1geometry_1_1index_1_1equal__to_1a96a4ec5188f34ad90ea154308a93ebae] `result_type`][The type of result returned by function object. ]]
+]
+
+[heading Member(s)]
+[table
+[[Modifier][Function][Description]]
+[[ `const`][[link structboost_1_1geometry_1_1index_1_1equal__to_1adb497915885d69df9aff938d16922ff3 `operator()(Value const &, Value const &)`]][Compare values. If Value is a Geometry geometry::equals() function is used. ]]
+]
+
+[#structboost_1_1geometry_1_1index_1_1equal__to_1adb497915885d69df9aff938d16922ff3]
+[section operator()(Value const &, Value const &)]
+Compare values. If Value is a Geometry geometry::equals() function is used. 
+
+[heading Synopsis]
+[pre
+
+`bool` `operator()``(``Value const &` `l``,` `Value const &` `r``)`
+]
+
+[heading Modifier(s)]
+``const ``[heading Parameter(s)]
+[table 
+[[Type][Name][Description]]
+[[`Value const &`][ `l` ][First value. ]]
+[[`Value const &`][ `r` ][Second value. ]]
+]
+[heading Returns]
+true if values are equal. 
+[endsect]
+
 [endsect]
 
