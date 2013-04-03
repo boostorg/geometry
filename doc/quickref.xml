@@ -710,7 +710,7 @@
   </row>
   <row>
    <entry valign="top">
-    <bridgehead renderas="sect3">Observers</bridgehead>
+    <bridgehead renderas="sect3">Observers (boost::geometry::index::)</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.spatial_indexes.observers.boost__geometry__index__indexable">boost::geometry::index::indexable</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.observers.boost__geometry__index__equal_to">boost::geometry::index::equal_to</link></member>
