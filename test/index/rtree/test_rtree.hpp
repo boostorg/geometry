@@ -22,14 +22,16 @@
 //#include <boost/geometry/geometries/ring.hpp>
 //#include <boost/geometry/geometries/polygon.hpp>
 
+namespace generate {
+
 // Set point's coordinates
 
 template <typename Point>
-struct generate_outside_point
+struct outside_point
 {};
 
 template <typename T, typename C>
-struct generate_outside_point< bg::model::point<T, 2, C> >
+struct outside_point< bg::model::point<T, 2, C> >
 {
     typedef bg::model::point<T, 2, C> P;
     static P apply()
@@ -39,7 +41,7 @@ struct generate_outside_point< bg::model::point<T, 2, C> >
 };
 
 template <typename T, typename C>
-struct generate_outside_point< bg::model::point<T, 3, C> >
+struct outside_point< bg::model::point<T, 3, C> >
 {
     typedef bg::model::point<T, 3, C> P;
     static P apply()
@@ -51,7 +53,7 @@ struct generate_outside_point< bg::model::point<T, 3, C> >
 // Default value generation
 
 template <typename Value>
-struct generate_value_default
+struct value_default
 {
     static Value apply(){ return Value(); }
 };
@@ -59,11 +61,11 @@ struct generate_value_default
 // Values, input and rtree generation
 
 template <typename Value>
-struct generate_value
+struct value
 {};
 
 template <typename T, typename C>
-struct generate_value< bg::model::point<T, 2, C> >
+struct value< bg::model::point<T, 2, C> >
 {
     typedef bg::model::point<T, 2, C> P;
     static P apply(int x, int y)
@@ -73,7 +75,7 @@ struct generate_value< bg::model::point<T, 2, C> >
 };
 
 template <typename T, typename C>
-struct generate_value< bg::model::box< bg::model::point<T, 2, C> > >
+struct value< bg::model::box< bg::model::point<T, 2, C> > >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef bg::model::box<P> B;
@@ -84,7 +86,7 @@ struct generate_value< bg::model::box< bg::model::point<T, 2, C> > >
 };
 
 template <typename T, typename C>
-struct generate_value< std::pair<bg::model::point<T, 2, C>, int> >
+struct value< std::pair<bg::model::point<T, 2, C>, int> >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef std::pair<P, int> R;
@@ -95,7 +97,7 @@ struct generate_value< std::pair<bg::model::point<T, 2, C>, int> >
 };
 
 template <typename T, typename C>
-struct generate_value< std::pair<bg::model::box< bg::model::point<T, 2, C> >, int> >
+struct value< std::pair<bg::model::box< bg::model::point<T, 2, C> >, int> >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef bg::model::box<P> B;
@@ -107,7 +109,7 @@ struct generate_value< std::pair<bg::model::box< bg::model::point<T, 2, C> >, in
 };
 
 template <typename T, typename C>
-struct generate_value< boost::tuple<bg::model::point<T, 2, C>, int, int> >
+struct value< boost::tuple<bg::model::point<T, 2, C>, int, int> >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef boost::tuple<P, int, int> R;
@@ -118,7 +120,7 @@ struct generate_value< boost::tuple<bg::model::point<T, 2, C>, int, int> >
 };
 
 template <typename T, typename C>
-struct generate_value< boost::tuple<bg::model::box< bg::model::point<T, 2, C> >, int, int> >
+struct value< boost::tuple<bg::model::box< bg::model::point<T, 2, C> >, int, int> >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef bg::model::box<P> B;
@@ -130,7 +132,7 @@ struct generate_value< boost::tuple<bg::model::box< bg::model::point<T, 2, C> >,
 };
 
 template <typename T, typename C>
-struct generate_value< bg::model::point<T, 3, C> >
+struct value< bg::model::point<T, 3, C> >
 {
     typedef bg::model::point<T, 3, C> P;
     static P apply(int x, int y, int z)
@@ -140,7 +142,7 @@ struct generate_value< bg::model::point<T, 3, C> >
 };
 
 template <typename T, typename C>
-struct generate_value< bg::model::box< bg::model::point<T, 3, C> > >
+struct value< bg::model::box< bg::model::point<T, 3, C> > >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef bg::model::box<P> B;
@@ -151,7 +153,7 @@ struct generate_value< bg::model::box< bg::model::point<T, 3, C> > >
 };
 
 template <typename T, typename C>
-struct generate_value< std::pair<bg::model::point<T, 3, C>, int> >
+struct value< std::pair<bg::model::point<T, 3, C>, int> >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef std::pair<P, int> R;
@@ -162,7 +164,7 @@ struct generate_value< std::pair<bg::model::point<T, 3, C>, int> >
 };
 
 template <typename T, typename C>
-struct generate_value< std::pair<bg::model::box< bg::model::point<T, 3, C> >, int> >
+struct value< std::pair<bg::model::box< bg::model::point<T, 3, C> >, int> >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef bg::model::box<P> B;
@@ -174,7 +176,7 @@ struct generate_value< std::pair<bg::model::box< bg::model::point<T, 3, C> >, in
 };
 
 template <typename T, typename C>
-struct generate_value< boost::tuple<bg::model::point<T, 3, C>, int, int> >
+struct value< boost::tuple<bg::model::point<T, 3, C>, int, int> >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef boost::tuple<P, int, int> R;
@@ -185,7 +187,7 @@ struct generate_value< boost::tuple<bg::model::point<T, 3, C>, int, int> >
 };
 
 template <typename T, typename C>
-struct generate_value< boost::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int> >
+struct value< boost::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int> >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef bg::model::box<P> B;
@@ -199,7 +201,7 @@ struct generate_value< boost::tuple<bg::model::box< bg::model::point<T, 3, C> >,
 #if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
 
 template <typename T, typename C>
-struct generate_value< std::tuple<bg::model::point<T, 2, C>, int, int> >
+struct value< std::tuple<bg::model::point<T, 2, C>, int, int> >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef std::tuple<P, int, int> R;
@@ -210,7 +212,7 @@ struct generate_value< std::tuple<bg::model::point<T, 2, C>, int, int> >
 };
 
 template <typename T, typename C>
-struct generate_value< std::tuple<bg::model::box< bg::model::point<T, 2, C> >, int, int> >
+struct value< std::tuple<bg::model::box< bg::model::point<T, 2, C> >, int, int> >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef bg::model::box<P> B;
@@ -222,7 +224,7 @@ struct generate_value< std::tuple<bg::model::box< bg::model::point<T, 2, C> >, i
 };
 
 template <typename T, typename C>
-struct generate_value< std::tuple<bg::model::point<T, 3, C>, int, int> >
+struct value< std::tuple<bg::model::point<T, 3, C>, int, int> >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef std::tuple<P, int, int> R;
@@ -233,7 +235,7 @@ struct generate_value< std::tuple<bg::model::point<T, 3, C>, int, int> >
 };
 
 template <typename T, typename C>
-struct generate_value< std::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int> >
+struct value< std::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int> >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef bg::model::box<P> B;
@@ -245,6 +247,8 @@ struct generate_value< std::tuple<bg::model::box< bg::model::point<T, 3, C> >, i
 };
 
 #endif // #if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+
+} // namespace generate
 
 // shared_ptr value
 
@@ -271,8 +275,10 @@ struct indexable< boost::shared_ptr< test_object<Indexable> > >
 
 }}}
 
+namespace generate {
+
 template <typename T, typename C>
-struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 2, C> > > >
+struct value< boost::shared_ptr<test_object<bg::model::point<T, 2, C> > > >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef test_object<P> O;
@@ -285,7 +291,7 @@ struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 2, C> >
 };
 
 template <typename T, typename C>
-struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> > > >
+struct value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> > > >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef test_object<P> O;
@@ -296,6 +302,8 @@ struct generate_value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> >
         return R(new O(P(x, y, z)));
     }
 };
+
+} //namespace generate
 
 // counting value
 
@@ -337,8 +345,10 @@ struct equal_to< counting_value<Indexable> >
 
 }}}
 
+namespace generate {
+
 template <typename T, typename C>
-struct generate_value< counting_value<bg::model::point<T, 2, C> > >
+struct value< counting_value<bg::model::point<T, 2, C> > >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef counting_value<P> R;
@@ -346,7 +356,7 @@ struct generate_value< counting_value<bg::model::point<T, 2, C> > >
 };
 
 template <typename T, typename C>
-struct generate_value< counting_value<bg::model::point<T, 3, C> > >
+struct value< counting_value<bg::model::point<T, 3, C> > >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef counting_value<P> R;
@@ -354,7 +364,7 @@ struct generate_value< counting_value<bg::model::point<T, 3, C> > >
 };
 
 template <typename T, typename C>
-struct generate_value< counting_value<bg::model::box<bg::model::point<T, 2, C> > > >
+struct value< counting_value<bg::model::box<bg::model::point<T, 2, C> > > >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef bg::model::box<P> B;
@@ -363,13 +373,15 @@ struct generate_value< counting_value<bg::model::box<bg::model::point<T, 2, C> >
 };
 
 template <typename T, typename C>
-struct generate_value< counting_value<bg::model::box<bg::model::point<T, 3, C> > > >
+struct value< counting_value<bg::model::box<bg::model::point<T, 3, C> > > >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef bg::model::box<P> B;
     typedef counting_value<B> R;
     static R apply(int x, int y, int z) { return R(B(P(x, y, z), P(x+2, y+3, z+4))); }
 };
+
+} // namespace generate
 
 // value without default constructor
 
@@ -406,14 +418,16 @@ struct equal_to< value_no_dctor<Indexable> >
 
 }}}
 
+namespace generate {
+
 template <typename Indexable>
-struct generate_value_default< value_no_dctor<Indexable> >
+struct value_default< value_no_dctor<Indexable> >
 {
     static value_no_dctor<Indexable> apply() { return value_no_dctor<Indexable>(Indexable()); }
 };
 
 template <typename T, typename C>
-struct generate_value< value_no_dctor<bg::model::point<T, 2, C> > >
+struct value< value_no_dctor<bg::model::point<T, 2, C> > >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef value_no_dctor<P> R;
@@ -421,7 +435,7 @@ struct generate_value< value_no_dctor<bg::model::point<T, 2, C> > >
 };
 
 template <typename T, typename C>
-struct generate_value< value_no_dctor<bg::model::point<T, 3, C> > >
+struct value< value_no_dctor<bg::model::point<T, 3, C> > >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef value_no_dctor<P> R;
@@ -429,7 +443,7 @@ struct generate_value< value_no_dctor<bg::model::point<T, 3, C> > >
 };
 
 template <typename T, typename C>
-struct generate_value< value_no_dctor<bg::model::box<bg::model::point<T, 2, C> > > >
+struct value< value_no_dctor<bg::model::box<bg::model::point<T, 2, C> > > >
 {
     typedef bg::model::point<T, 2, C> P;
     typedef bg::model::box<P> B;
@@ -438,7 +452,7 @@ struct generate_value< value_no_dctor<bg::model::box<bg::model::point<T, 2, C> >
 };
 
 template <typename T, typename C>
-struct generate_value< value_no_dctor<bg::model::box<bg::model::point<T, 3, C> > > >
+struct value< value_no_dctor<bg::model::box<bg::model::point<T, 3, C> > > >
 {
     typedef bg::model::point<T, 3, C> P;
     typedef bg::model::box<P> B;
@@ -449,11 +463,11 @@ struct generate_value< value_no_dctor<bg::model::box<bg::model::point<T, 3, C> >
 // generate input
 
 template <size_t Dimension>
-struct generate_input
+struct input
 {};
 
 template <>
-struct generate_input<2>
+struct input<2>
 {
     template <typename Value, typename Box>
     static void apply(std::vector<Value> & input, Box & qbox, int size = 1)
@@ -464,7 +478,7 @@ struct generate_input<2>
         {
             for ( int j = 1 ; j < 25 * size ; j += 4 )
             {
-                input.push_back( generate_value<Value>::apply(i, j) );
+                input.push_back( generate::value<Value>::apply(i, j) );
             }
         }
 
@@ -475,7 +489,7 @@ struct generate_input<2>
 };
 
 template <>
-struct generate_input<3>
+struct input<3>
 {
     template <typename Value, typename Box>
     static void apply(std::vector<Value> & input, Box & qbox, int size = 1)
@@ -488,7 +502,7 @@ struct generate_input<3>
             {
                 for ( int k = 2 ; k < 12 * size ; k += 5 )
                 {
-                    input.push_back( generate_value<Value>::apply(i, j, k) );
+                    input.push_back( generate::value<Value>::apply(i, j, k) );
                 }
             }
         }
@@ -502,55 +516,59 @@ struct generate_input<3>
 // generate_value_outside
 
 template <typename Value, size_t Dimension>
-struct generate_value_outside_impl
+struct value_outside_impl
 {};
 
 template <typename Value>
-struct generate_value_outside_impl<Value, 2>
+struct value_outside_impl<Value, 2>
 {
     static Value apply()
     {
         //TODO - for size > 1 in generate_input<> this won't be outside
-        return generate_value<Value>::apply(13, 26);
+        return generate::value<Value>::apply(13, 26);
     }
 };
 
 template <typename Value>
-struct generate_value_outside_impl<Value, 3>
+struct value_outside_impl<Value, 3>
 {
     static Value apply()
     {
         //TODO - for size > 1 in generate_input<> this won't be outside
-        return generate_value<Value>::apply(13, 26, 13);
+        return generate::value<Value>::apply(13, 26, 13);
     }
 };
 
 template <typename Rtree>
 inline typename Rtree::value_type
-generate_value_outside()
+value_outside()
 {
     typedef typename Rtree::value_type V;
     typedef typename Rtree::indexable_type I;
 
-    return generate_value_outside_impl<V, bgi::detail::traits::dimension<I>::value>::apply();
+    return value_outside_impl<V, bgi::detail::traits::dimension<I>::value>::apply();
 }
 
 template<typename Rtree, typename Elements, typename Box>
-void generate_rtree(Rtree & tree, Elements & input, Box & qbox)
+void rtree(Rtree & tree, Elements & input, Box & qbox)
 {
     typedef typename Rtree::indexable_type I;
 
-    generate_input<
+    generate::input<
         bgi::detail::traits::dimension<I>::value
     >::apply(input, qbox);
 
     tree.insert(input.begin(), input.end());
 }
 
+} // namespace generate
+
+namespace basictest {
+
 // low level test functions
 
 template <typename Rtree, typename Iter, typename Value>
-Iter test_find(Rtree const& rtree, Iter first, Iter last, Value const& value)
+Iter find(Rtree const& rtree, Iter first, Iter last, Value const& value)
 {
     for ( ; first != last ; ++first )
         if ( rtree.value_eq()(value, *first) )
@@ -559,7 +577,7 @@ Iter test_find(Rtree const& rtree, Iter first, Iter last, Value const& value)
 }
 
 template <typename Rtree, typename Value>
-void test_compare_outputs(Rtree const& rtree, std::vector<Value> const& output, std::vector<Value> const& expected_output)
+void compare_outputs(Rtree const& rtree, std::vector<Value> const& output, std::vector<Value> const& expected_output)
 {
     bool are_sizes_ok = (expected_output.size() == output.size());
     BOOST_CHECK( are_sizes_ok );
@@ -567,13 +585,13 @@ void test_compare_outputs(Rtree const& rtree, std::vector<Value> const& output, 
     {
         BOOST_FOREACH(Value const& v, expected_output)
         {
-            BOOST_CHECK(test_find(rtree, output.begin(), output.end(), v) != output.end() );
+            BOOST_CHECK(find(rtree, output.begin(), output.end(), v) != output.end() );
         }
     }
 }
 
 template <typename Rtree, typename Range1, typename Range2>
-void test_exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Range2 const& expected_output)
+void exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Range2 const& expected_output)
 {
     size_t s1 = std::distance(output.begin(), output.end());
     size_t s2 = std::distance(expected_output.begin(), expected_output.end());
@@ -597,7 +615,7 @@ void test_exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Ran
 // spatial query
 
 template <typename Rtree, typename Value, typename Predicates>
-void test_spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
+void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
 {
     BOOST_CHECK( bgi::detail::rtree::are_levels_ok(rtree) );
     if ( !rtree.empty() )
@@ -607,21 +625,21 @@ void test_spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value
     size_t n = rtree.query(pred, std::back_inserter(output));
 
     BOOST_CHECK( expected_output.size() == n );
-    test_compare_outputs(rtree, output, expected_output);
+    compare_outputs(rtree, output, expected_output);
 
     std::vector<Value> output2;
     size_t n2 = query(rtree, pred, std::back_inserter(output2));
     
     BOOST_CHECK( n == n2 );
-    test_exactly_the_same_outputs(rtree, output, output2);
+    exactly_the_same_outputs(rtree, output, output2);
 
-    test_exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::queried(pred));
+    exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::queried(pred));
 }
 
 // rtree specific queries tests
 
 template <typename Rtree, typename Value, typename Box>
-void test_intersects(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+void intersects(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -629,23 +647,23 @@ void test_intersects(Rtree const& tree, std::vector<Value> const& input, Box con
         if ( bg::intersects(tree.indexable_get()(v), qbox) )
             expected_output.push_back(v);
 
-    //test_spatial_query(tree, qbox, expected_output);
-    test_spatial_query(tree, bgi::intersects(qbox), expected_output);
-    test_spatial_query(tree, !bgi::disjoint(qbox), expected_output);
+    //spatial_query(tree, qbox, expected_output);
+    spatial_query(tree, bgi::intersects(qbox), expected_output);
+    spatial_query(tree, !bgi::disjoint(qbox), expected_output);
 
     /*typedef bg::traits::point_type<Box>::type P;
     bg::model::ring<P> qring;
     bg::convert(qbox, qring);
-    test_spatial_query(tree, bgi::intersects(qring), expected_output);
-    test_spatial_query(tree, !bgi::disjoint(qring), expected_output);
+    spatial_query(tree, bgi::intersects(qring), expected_output);
+    spatial_query(tree, !bgi::disjoint(qring), expected_output);
     bg::model::polygon<P> qpoly;
     bg::convert(qbox, qpoly);
-    test_spatial_query(tree, bgi::intersects(qpoly), expected_output);
-    test_spatial_query(tree, !bgi::disjoint(qpoly), expected_output);*/
+    spatial_query(tree, bgi::intersects(qpoly), expected_output);
+    spatial_query(tree, !bgi::disjoint(qpoly), expected_output);*/
 }
 
 template <typename Rtree, typename Value, typename Box>
-void test_disjoint(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+void disjoint(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -653,21 +671,21 @@ void test_disjoint(Rtree const& tree, std::vector<Value> const& input, Box const
         if ( bg::disjoint(tree.indexable_get()(v), qbox) )
             expected_output.push_back(v);
 
-    test_spatial_query(tree, bgi::disjoint(qbox), expected_output);
-    test_spatial_query(tree, !bgi::intersects(qbox), expected_output);
+    spatial_query(tree, bgi::disjoint(qbox), expected_output);
+    spatial_query(tree, !bgi::intersects(qbox), expected_output);
 
     /*typedef bg::traits::point_type<Box>::type P;
     bg::model::ring<P> qring;
     bg::convert(qbox, qring);
-    test_spatial_query(tree, bgi::disjoint(qring), expected_output);
+    spatial_query(tree, bgi::disjoint(qring), expected_output);
     bg::model::polygon<P> qpoly;
     bg::convert(qbox, qpoly);
-    test_spatial_query(tree, bgi::disjoint(qpoly), expected_output);*/
+    spatial_query(tree, bgi::disjoint(qpoly), expected_output);*/
 }
 
 
 template <typename Rtree, typename Value, typename Box>
-void test_covered_by(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+void covered_by(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -675,19 +693,19 @@ void test_covered_by(Rtree const& tree, std::vector<Value> const& input, Box con
         if ( bg::covered_by(tree.indexable_get()(v), qbox) )
             expected_output.push_back(v);
 
-    test_spatial_query(tree, bgi::covered_by(qbox), expected_output);
+    spatial_query(tree, bgi::covered_by(qbox), expected_output);
 
     /*typedef bg::traits::point_type<Box>::type P;
     bg::model::ring<P> qring;
     bg::convert(qbox, qring);
-    test_spatial_query(tree, bgi::covered_by(qring), expected_output);
+    spatial_query(tree, bgi::covered_by(qring), expected_output);
     bg::model::polygon<P> qpoly;
     bg::convert(qbox, qpoly);
-    test_spatial_query(tree, bgi::covered_by(qpoly), expected_output);*/
+    spatial_query(tree, bgi::covered_by(qpoly), expected_output);*/
 }
 
 template <typename Tag>
-struct test_overlap_impl
+struct overlaps_impl
 {
     template <typename Rtree, typename Value, typename Box>
     static void apply(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
@@ -698,20 +716,20 @@ struct test_overlap_impl
             if ( bg::overlaps(tree.indexable_get()(v), qbox) )
                 expected_output.push_back(v);
 
-        test_spatial_query(tree, bgi::overlaps(qbox), expected_output);
+        spatial_query(tree, bgi::overlaps(qbox), expected_output);
 
         /*typedef bg::traits::point_type<Box>::type P;
         bg::model::ring<P> qring;
         bg::convert(qbox, qring);
-        test_spatial_query(tree, bgi::overlaps(qring), expected_output);
+        spatial_query(tree, bgi::overlaps(qring), expected_output);
         bg::model::polygon<P> qpoly;
         bg::convert(qbox, qpoly);
-        test_spatial_query(tree, bgi::overlaps(qpoly), expected_output);*/
+        spatial_query(tree, bgi::overlaps(qpoly), expected_output);*/
     }
 };
 
 template <>
-struct test_overlap_impl<bg::point_tag>
+struct overlaps_impl<bg::point_tag>
 {
     template <typename Rtree, typename Value, typename Box>
     static void apply(Rtree const& /*tree*/, std::vector<Value> const& /*input*/, Box const& /*qbox*/)
@@ -719,9 +737,9 @@ struct test_overlap_impl<bg::point_tag>
 };
 
 template <typename Rtree, typename Value, typename Box>
-void test_overlaps(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+void overlaps(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
-    test_overlap_impl<
+    overlaps_impl<
         typename bgi::detail::traits::tag<
             typename Rtree::indexable_type
         >::type
@@ -729,7 +747,7 @@ void test_overlaps(Rtree const& tree, std::vector<Value> const& input, Box const
 }
 
 //template <typename Tag, size_t Dimension>
-//struct test_touches_impl
+//struct touches_impl
 //{
 //    template <typename Rtree, typename Value, typename Box>
 //    static void apply(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
@@ -737,7 +755,7 @@ void test_overlaps(Rtree const& tree, std::vector<Value> const& input, Box const
 //};
 //
 //template <>
-//struct test_touches_impl<bg::box_tag, 2>
+//struct touches_impl<bg::box_tag, 2>
 //{
 //    template <typename Rtree, typename Value, typename Box>
 //    static void apply(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
@@ -748,21 +766,21 @@ void test_overlaps(Rtree const& tree, std::vector<Value> const& input, Box const
 //            if ( bg::touches(tree.translator()(v), qbox) )
 //                expected_output.push_back(v);
 //
-//        test_spatial_query(tree, bgi::touches(qbox), expected_output);
+//        spatial_query(tree, bgi::touches(qbox), expected_output);
 //    }
 //};
 //
 //template <typename Rtree, typename Value, typename Box>
-//void test_touches(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+//void touches(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 //{
-//    test_touches_impl<
+//    touches_impl<
 //        bgi::traits::tag<typename Rtree::indexable_type>::type,
 //        bgi::traits::dimension<typename Rtree::indexable_type>::value
 //    >::apply(tree, input, qbox);
 //}
 
 template <typename Rtree, typename Value, typename Box>
-void test_within(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+void within(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
 
@@ -770,21 +788,21 @@ void test_within(Rtree const& tree, std::vector<Value> const& input, Box const& 
         if ( bg::within(tree.indexable_get()(v), qbox) )
             expected_output.push_back(v);
 
-    test_spatial_query(tree, bgi::within(qbox), expected_output);
+    spatial_query(tree, bgi::within(qbox), expected_output);
 
     /*typedef bg::traits::point_type<Box>::type P;
     bg::model::ring<P> qring;
     bg::convert(qbox, qring);
-    test_spatial_query(tree, bgi::within(qring), expected_output);
+    spatial_query(tree, bgi::within(qring), expected_output);
     bg::model::polygon<P> qpoly;
     bg::convert(qbox, qpoly);
-    test_spatial_query(tree, bgi::within(qpoly), expected_output);*/
+    spatial_query(tree, bgi::within(qpoly), expected_output);*/
 }
 
 // rtree nearest queries
 
 template <typename Rtree, typename Point>
-struct TestNearestKLess
+struct NearestKLess
 {
     typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
 
@@ -796,7 +814,7 @@ struct TestNearestKLess
 };
 
 template <typename Rtree, typename Point>
-struct TestNearestKTransform
+struct NearestKTransform
 {
     typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
 
@@ -808,7 +826,7 @@ struct TestNearestKTransform
 };
 
 template <typename Rtree, typename Value, typename Point>
-void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point const& pt, unsigned int k)
+void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point const& pt, unsigned int k)
 {
     // TODO: Nearest object may not be the same as found by the rtree if distances are equal
     // All objects with the same closest distance should be picked
@@ -826,21 +844,21 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
             test_output.push_back(std::make_pair(d, v));
         else
         {
-            std::sort(test_output.begin(), test_output.end(), TestNearestKLess<Rtree, Point>());
+            std::sort(test_output.begin(), test_output.end(), NearestKLess<Rtree, Point>());
             if ( d < test_output.back().first )
                 test_output.back() = std::make_pair(d, v);
         }
     }
 
     // caluclate biggest distance
-    std::sort(test_output.begin(), test_output.end(), TestNearestKLess<Rtree, Point>());
+    std::sort(test_output.begin(), test_output.end(), NearestKLess<Rtree, Point>());
     D biggest_d = 0;
     if ( !test_output.empty() )
         biggest_d = test_output.back().first;
     
     // transform test output to vector of values
-    std::vector<Value> expected_output(test_output.size(), generate_value_default<Value>::apply());
-    std::transform(test_output.begin(), test_output.end(), expected_output.begin(), TestNearestKTransform<Rtree, Point>());
+    std::vector<Value> expected_output(test_output.size(), generate::value_default<Value>::apply());
+    std::transform(test_output.begin(), test_output.end(), expected_output.begin(), NearestKTransform<Rtree, Point>());
 
     // calculate output using rtree
     std::vector<Value> output;
@@ -856,7 +874,7 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
             // TODO - perform explicit check here?
             // should all objects which are closest be checked and should exactly the same be found?
 
-            if ( test_find(rtree, expected_output.begin(), expected_output.end(), v) == expected_output.end() )
+            if ( find(rtree, expected_output.begin(), expected_output.end(), v) == expected_output.end() )
             {
                 D d = bgi::detail::comparable_distance_near(pt, rtree.indexable_get()(v));
                 BOOST_CHECK(d == biggest_d);
@@ -864,13 +882,13 @@ void test_nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, P
         }
     }
 
-    test_exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::queried(bgi::nearest(pt, k)));
+    exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::queried(bgi::nearest(pt, k)));
 
-    std::vector<Value> output2(k, generate_value_default<Value>::apply());
+    std::vector<Value> output2(k, generate::value_default<Value>::apply());
     typename Rtree::size_type found_count = rtree.query(bgi::nearest(pt, k), output2.begin());
-    output2.resize(found_count, generate_value_default<Value>::apply());
+    output2.resize(found_count, generate::value_default<Value>::apply());
 
-    test_exactly_the_same_outputs(rtree, output, output2);
+    exactly_the_same_outputs(rtree, output, output2);
 }
 
 // rtree nearest not found
@@ -882,7 +900,7 @@ struct AlwaysFalse
 };
 
 template <typename Rtree, typename Point>
-void test_nearest_query_not_found(Rtree const& rtree, Point const& pt)
+void nearest_query_not_found(Rtree const& rtree, Point const& pt)
 {
     typedef typename Rtree::value_type Value;
 
@@ -893,22 +911,22 @@ void test_nearest_query_not_found(Rtree const& rtree, Point const& pt)
 }
 
 template <typename Value>
-bool test_satisfies_fun(Value const& ) { return true; }
+bool satisfies_fun(Value const& ) { return true; }
 
-struct test_satisfies_obj
+struct satisfies_obj
 {
     template <typename Value>
     bool operator()(Value const& ) const { return true; }
 };
 
 template <typename Rtree, typename Value>
-void test_value_predicate(Rtree const& rtree, std::vector<Value> const& input)
+void satisfies(Rtree const& rtree, std::vector<Value> const& input)
 {
     std::vector<Value> result;
-    rtree.query(bgi::satisfies(test_satisfies_obj()), std::back_inserter(result));
+    rtree.query(bgi::satisfies(satisfies_obj()), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
     result.clear();
-    rtree.query(bgi::satisfies(test_satisfies_fun<Value>), std::back_inserter(result));
+    rtree.query(bgi::satisfies(satisfies_fun<Value>), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
 #ifndef BOOST_NO_CXX11_LAMBDAS
     result.clear();
@@ -920,7 +938,7 @@ void test_value_predicate(Rtree const& rtree, std::vector<Value> const& input)
 // rtree copying and moving
 
 template <typename Rtree, typename Box>
-void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
+void copy_swap_move(Rtree const& tree, Box const& qbox)
 {
     typedef typename Rtree::value_type Value;
     typedef typename Rtree::parameters_type Params;
@@ -941,7 +959,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     std::vector<Value> output;
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
-    test_exactly_the_same_outputs(t1, output, expected_output);
+    exactly_the_same_outputs(t1, output, expected_output);
 
     // copying assignment operator
     t1 = tree;
@@ -953,7 +971,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     output.clear();
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
-    test_exactly_the_same_outputs(t1, output, expected_output);
+    exactly_the_same_outputs(t1, output, expected_output);
     
     Rtree t2(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
     t2.swap(t1);
@@ -973,7 +991,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     output.clear();
     t2.query(bgi::intersects(qbox), std::back_inserter(output));
-    test_exactly_the_same_outputs(t2, output, expected_output);
+    exactly_the_same_outputs(t2, output, expected_output);
     t2.swap(t1);
     // those fails e.g. on darwin 4.2.1 because it can't copy base obejcts properly
     BOOST_CHECK(t1.parameters().get_max_elements() == params.get_max_elements());
@@ -991,7 +1009,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     output.clear();
     t3.query(bgi::intersects(qbox), std::back_inserter(output));
-    test_exactly_the_same_outputs(t3, output, expected_output);
+    exactly_the_same_outputs(t3, output, expected_output);
 
     // moving assignment operator
     t1 = boost::move(t3);
@@ -1003,7 +1021,7 @@ void test_copy_assignment_swap_move(Rtree const& tree, Box const& qbox)
 
     output.clear();
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
-    test_exactly_the_same_outputs(t1, output, expected_output);
+    exactly_the_same_outputs(t1, output, expected_output);
 
     //TODO - test SWAP
 
@@ -1020,7 +1038,7 @@ inline void my_copy(I first, I last, O out)
 // rtree creation and insertion
 
 template <typename Rtree, typename Value, typename Box>
-void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
+void create_insert(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> expected_output;
     tree.query(bgi::intersects(qbox), std::back_inserter(expected_output));
@@ -1032,7 +1050,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
@@ -1041,21 +1059,21 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(input.begin(), input.end(), tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(input, tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
@@ -1063,7 +1081,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
@@ -1071,7 +1089,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
 
     {
@@ -1081,7 +1099,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         bgi::query(t, bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
@@ -1089,7 +1107,7 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         bgi::query(t, bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
@@ -1097,14 +1115,14 @@ void test_create_insert(Rtree & tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         bgi::query(t, bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
 }
 
 // rtree removing
 
 template <typename Rtree, typename Box>
-void test_remove(Rtree & tree, Box const& qbox)
+void remove(Rtree const& tree, Box const& qbox)
 {
     typedef typename Rtree::value_type Value;
 
@@ -1118,7 +1136,7 @@ void test_remove(Rtree & tree, Box const& qbox)
     size_t expected_size_after_remove = tree.size() - values_to_remove.size();
 
     // Add value which is not stored in the Rtree
-    Value outsider = generate_value_outside<Rtree>();
+    Value outsider = generate::value_outside<Rtree>();
     values_to_remove.push_back(outsider);
     
     {
@@ -1131,7 +1149,7 @@ void test_remove(Rtree & tree, Box const& qbox)
         t.query(bgi::disjoint(qbox), std::back_inserter(output));
         BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
-        test_compare_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree);
@@ -1141,7 +1159,7 @@ void test_remove(Rtree & tree, Box const& qbox)
         t.query(bgi::disjoint(qbox), std::back_inserter(output));
         BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
-        test_compare_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree);
@@ -1151,7 +1169,7 @@ void test_remove(Rtree & tree, Box const& qbox)
         t.query(bgi::disjoint(qbox), std::back_inserter(output));
         BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
-        test_compare_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
 
     {
@@ -1164,7 +1182,7 @@ void test_remove(Rtree & tree, Box const& qbox)
         bgi::query(t, bgi::disjoint(qbox), std::back_inserter(output));
         BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
-        test_compare_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree);
@@ -1174,7 +1192,7 @@ void test_remove(Rtree & tree, Box const& qbox)
         bgi::query(t, bgi::disjoint(qbox), std::back_inserter(output));
         BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
-        test_compare_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree);
@@ -1184,12 +1202,12 @@ void test_remove(Rtree & tree, Box const& qbox)
         bgi::query(t, bgi::disjoint(qbox), std::back_inserter(output));
         BOOST_CHECK( t.size() == expected_size_after_remove );
         BOOST_CHECK( output.size() == tree.size() - expected_removed_count );
-        test_compare_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
 }
 
 template <typename Rtree, typename Value, typename Box>
-void test_clear(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
+void clear(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     std::vector<Value> values_to_remove;
     tree.query(bgi::intersects(qbox), std::back_inserter(values_to_remove));
@@ -1209,9 +1227,44 @@ void test_clear(Rtree & tree, std::vector<Value> const& input, Box const& qbox)
         BOOST_CHECK(t.size() == s);
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        test_exactly_the_same_outputs(t, output, expected_output);
+        exactly_the_same_outputs(t, output, expected_output);
     }
 }
+
+// rtree queries
+
+template <typename Rtree, typename Value, typename Box>
+void queries(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+{
+    basictest::intersects(tree, input, qbox);
+    basictest::disjoint(tree, input, qbox);
+    basictest::covered_by(tree, input, qbox);
+    basictest::overlaps(tree, input, qbox);
+    //basictest::touches(tree, input, qbox);
+    basictest::within(tree, input, qbox);
+
+    typedef typename bgi::detail::traits::point_type<Box>::type P;
+    P pt;
+    bg::centroid(qbox, pt);
+
+    basictest::nearest_query_k(tree, input, pt, 10);
+    basictest::nearest_query_not_found(tree, generate::outside_point<P>::apply());
+
+    basictest::satisfies(tree, input);
+}
+
+// rtree creation and modification
+
+template <typename Rtree, typename Value, typename Box>
+void modifiers(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+{
+    basictest::copy_swap_move(tree, qbox);
+    basictest::create_insert(tree, input, qbox);
+    basictest::remove(tree, qbox);
+    basictest::clear(tree, input, qbox);
+}
+
+} // namespace basictest
 
 // run all tests for a single Algorithm and single rtree
 // defined by Value
@@ -1231,44 +1284,19 @@ void test_rtree_by_value(Parameters const& parameters, Allocator const& allocato
     std::vector<Value> input;
     B qbox;
 
-    generate_rtree(tree, input, qbox);
+    generate::rtree(tree, input, qbox);
 
-    test_intersects(tree, input, qbox);
-    test_disjoint(tree, input, qbox);
-    test_covered_by(tree, input, qbox);
-    test_overlaps(tree, input, qbox);
-    //test_touches(tree, input, qbox);
-    test_within(tree, input, qbox);
-
-    typedef typename bgi::detail::traits::point_type<B>::type P;
-    P pt;
-    bg::centroid(qbox, pt);
-    
-    test_nearest_query_k(tree, input, pt, 10);
-    test_nearest_query_not_found(tree, generate_outside_point<P>::apply());
-
-    test_value_predicate(tree, input);
-
-    test_copy_assignment_swap_move(tree, qbox);
-
-    test_create_insert(tree, input, qbox);
-    test_remove(tree, qbox);
-    test_clear(tree, input, qbox);
+    basictest::queries(tree, input, qbox);
+    basictest::modifiers(tree, input, qbox);
 
     // empty tree test
 
     Tree empty_tree(parameters, I(), E(), allocator);
     std::vector<Value> empty_input;
 
-    test_intersects(empty_tree, empty_input, qbox);
-    test_disjoint(empty_tree, empty_input, qbox);
-    test_covered_by(empty_tree, empty_input, qbox);
-    test_overlaps(empty_tree, empty_input, qbox);
-    //test_touches(empty_tree, empty_input, qbox);
-    test_within(empty_tree, empty_input, qbox);
-    test_nearest_query_k(empty_tree, empty_input, pt, 10);
-    test_nearest_query_not_found(empty_tree, generate_outside_point<P>::apply());
-    test_copy_assignment_swap_move(empty_tree, qbox);
+    basictest::queries(empty_tree, empty_input, qbox);
+
+    basictest::copy_swap_move(empty_tree, qbox);
 }
 
 // rtree inserting and removing of counting_value
@@ -1288,7 +1316,7 @@ void test_count_rtree_values(Parameters const& parameters, Allocator const& allo
     std::vector<Value> input;
     B qbox;
 
-    generate_rtree(t, input, qbox);
+    generate::rtree(t, input, qbox);
 
     size_t rest_count = input.size();
 
@@ -1331,7 +1359,7 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
     std::vector<Value> input;
     B qbox;
 
-    generate_rtree(t, input, qbox);
+    generate::rtree(t, input, qbox);
     
     BOOST_CHECK(t.count(input[0]) == 1);
     BOOST_CHECK(t.count(input[0].first) == 1);
@@ -1368,7 +1396,7 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 
     BOOST_CHECK(bg::equals(t.bounds(), b));
 
-    generate_rtree(t, input, qbox);
+    generate::rtree(t, input, qbox);
 
     BOOST_FOREACH(Value const& v, input)
         bg::expand(b, t.indexable_get()(v));

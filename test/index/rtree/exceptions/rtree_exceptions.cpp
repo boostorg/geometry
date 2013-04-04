@@ -25,7 +25,7 @@ void test_rtree_value_exceptions(Parameters const& parameters = Parameters())
     throwing_value::set_max_calls((std::numeric_limits<size_t>::max)());
     std::vector<Value> input;
     B qbox;
-    generate_input<2>::apply(input, qbox);
+    generate::input<2>::apply(input, qbox);
 
     for ( size_t i = 0 ; i < 50 ; i += 2 )
     {
@@ -100,7 +100,7 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
 
     std::vector<Value> input;
     B qbox;
-    generate_input<2>::apply(input, qbox, 2);
+    generate::input<2>::apply(input, qbox, 2);
 
     for ( size_t i = 0 ; i < 100 ; i += 2 )
     {
