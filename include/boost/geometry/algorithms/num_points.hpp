@@ -35,6 +35,13 @@
 namespace boost { namespace geometry
 {
 
+// Silence warning C4127: conditional expression is constant
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127)
+#endif
+
+
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace num_points
 {
@@ -48,9 +55,7 @@ struct range_count
         std::size_t n = boost::size(range);
         if (add_for_open && n > 0)
         {
-            closure_selector /*const*/ s = geometry::closure<Range>::value;
-
-            if (s == open)
+            if (geometry::closure<Range>::value == open)
             {
                 if (geometry::disjoint(*boost::begin(range), *(boost::begin(range) + n - 1)))
                 {
@@ -196,6 +201,10 @@ inline std::size_t num_points(Geometry const& geometry, bool add_for_open = fals
 
     return dispatch::devarianted_num_points<Geometry>::apply(geometry, add_for_open);
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 }} // namespace boost::geometry
 

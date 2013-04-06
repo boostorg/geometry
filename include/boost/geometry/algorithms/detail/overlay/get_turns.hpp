@@ -64,6 +64,12 @@
 namespace boost { namespace geometry
 {
 
+// Silence warning C4127: conditional expression is constant
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127)  
+#endif
+    
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace get_turns
@@ -875,6 +881,9 @@ inline void get_turns(Geometry1 const& geometry1,
             turns, interrupt_policy);
 }
 
+#if defined(_MSC_VER)
+#pragma warning(pop)  
+#endif
 
 }} // namespace boost::geometry
 
