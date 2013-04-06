@@ -48,7 +48,7 @@ struct range_count
         std::size_t n = boost::size(range);
         if (add_for_open && n > 0)
         {
-            closure_selector const s = geometry::closure<Range>::value;
+            closure_selector /*const*/ s = geometry::closure<Range>::value;
 
             if (s == open)
             {
