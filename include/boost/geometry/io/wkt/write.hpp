@@ -40,6 +40,12 @@
 namespace boost { namespace geometry
 {
 
+// Silence warning C4512: 'boost::geometry::wkt_manipulator<Geometry>' : assignment operator could not be generated
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4512)  
+#endif
+
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace wkt
 {
@@ -405,6 +411,10 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 
     return wkt_manipulator<Geometry>(geometry);
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)  
+#endif
 
 }} // namespace boost::geometry
 

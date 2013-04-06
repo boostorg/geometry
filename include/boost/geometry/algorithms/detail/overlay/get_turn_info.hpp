@@ -20,6 +20,13 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 
+// Silence warning C4127: conditional expression is constant
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127)  
+#endif
+
+
 namespace boost { namespace geometry
 {
 
@@ -1107,5 +1114,9 @@ struct get_turn_info
 
 }} // namespace boost::geometry
 
+
+#if defined(_MSC_VER)
+#pragma warning(pop)  
+#endif
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP

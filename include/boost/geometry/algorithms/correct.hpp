@@ -40,6 +40,12 @@
 namespace boost { namespace geometry
 {
 
+// Silence warning C4127: conditional expression is constant
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127)
+#endif
+
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace correct
 {
@@ -131,7 +137,7 @@ struct correct_ring
         {
             // check if closed, if not, close it
             bool const disjoint = geometry::disjoint(*boost::begin(r), *(boost::end(r) - 1));
-            closure_selector /*const*/ s = geometry::closure<Ring>::value;
+            closure_selector const s = geometry::closure<Ring>::value;
 
             if (disjoint && (s == closed))
             {
@@ -256,6 +262,9 @@ inline void correct(Geometry& geometry)
     dispatch::correct<Geometry>::apply(geometry);
 }
 
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 }} // namespace boost::geometry
 

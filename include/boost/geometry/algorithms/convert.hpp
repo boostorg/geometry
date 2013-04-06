@@ -48,6 +48,14 @@
 namespace boost { namespace geometry
 {
 
+// Silence warning C4127: conditional expression is constant
+// Silence warning C4512: assignment operator could not be generated
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127 4512)
+#endif
+
+
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace conversion
 {
@@ -444,8 +452,10 @@ inline void convert(Geometry1 const& geometry1, Geometry2& geometry2)
     dispatch::devarianted_convert<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_CONVERT_HPP
