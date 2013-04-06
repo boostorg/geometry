@@ -57,7 +57,7 @@ struct svg_box
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-                Box const& box, std::string const& style, int size)
+                Box const& box, std::string const& style, int )
     {
         // Prevent invisible boxes, making them >=1, using "max"
         BOOST_USING_STD_MAX();
@@ -86,7 +86,7 @@ struct svg_range
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-        Range const& range, std::string const& style, int size)
+        Range const& range, std::string const& style, int )
     {
         typedef typename boost::range_iterator<Range const>::type iterator;
 
@@ -114,7 +114,7 @@ struct svg_poly
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-        Polygon const& polygon, std::string const& style, int size)
+        Polygon const& polygon, std::string const& style, int )
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
         typedef typename boost::range_iterator<ring_type const>::type iterator_type;

@@ -131,13 +131,13 @@ struct correct_ring
         {
             // check if closed, if not, close it
             bool const disjoint = geometry::disjoint(*boost::begin(r), *(boost::end(r) - 1));
-            closure_selector const s = geometry::closure<Ring>::value;
+            closure_selector /*const*/ s = geometry::closure<Ring>::value;
 
             if (disjoint && (s == closed))
             {
                 geometry::append(r, *boost::begin(r));
             }
-            if (! disjoint && geometry::closure<Ring>::value != closed)
+            if (! disjoint && s != closed)
             {
                 // Open it by removing last point
                 geometry::traits::resize<Ring>::apply(r, boost::size(r) - 1);

@@ -16,6 +16,7 @@
 
 #include <iterator>
 
+#include <boost/concept_check.hpp>
 #include <boost/range.hpp>
 
 #include <boost/mpl/fold.hpp>
@@ -84,6 +85,7 @@ struct range_length
     static inline return_type apply(
             Range const& range, Strategy const& strategy)
     {
+        boost::ignore_unused_variable_warning(strategy);
         typedef typename closeable_view<Range const, Closure>::type view_type;
         typedef typename boost::range_iterator
             <

@@ -14,11 +14,10 @@
 #include <map>
 
 #include <boost/array.hpp>
+#include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
-
-#include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -138,6 +137,11 @@ class get_turns_in_sections
         // About first condition: will be optimized by compiler (static)
         // It checks if it is areal (box,ring,(multi)polygon
         int const n = int(section.range_count);
+
+        boost::ignore_unused_variable_warning(n);
+        boost::ignore_unused_variable_warning(index1);
+        boost::ignore_unused_variable_warning(index2);
+
         return boost::is_same
                     <
                         typename tag_cast
@@ -162,6 +166,8 @@ public :
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
+        boost::ignore_unused_variable_warning(interrupt_policy);
+
         cview_type1 cview1(range_by_section(geometry1, sec1));
         cview_type2 cview2(range_by_section(geometry2, sec2));
         view_type1 view1(cview1);
@@ -599,6 +605,8 @@ private:
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
+        boost::ignore_unused_variable_warning(interrupt_policy);
+
         // Depending on code some relations can be left out
 
         typedef typename boost::range_value<Turns>::type turn_info;

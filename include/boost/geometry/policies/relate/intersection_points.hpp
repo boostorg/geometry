@@ -46,8 +46,8 @@ struct segments_intersection_points
     static inline return_type segments_intersect(side_info const&,
 					R const& r,
                     coordinate_type const& dx1, coordinate_type const& dy1,
-                    coordinate_type const& dx2, coordinate_type const& dy2,
-                    S1 const& s1, S2 const& s2)
+                    coordinate_type const& , coordinate_type const& ,
+                    S1 const& s1, S2 const& )
     {
         typedef typename geometry::coordinate_type
             <
