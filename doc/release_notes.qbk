@@ -4,6 +4,7 @@
   Copyright (c) 2009-2013 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
   Copyright (c) 2009-2013 Mateusz Loskot (mateusz@loskot.net)
   Copyright (c) 2009-2013 Mateusz Lalande, Paris, France.
+  Copyright (c) 2011-2013 Adam Wulkiewicz
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,13 +17,22 @@
 [heading Boost 1.54]
 [/=================]
 
+[*Additional functionality]
+
+* added Spatial Index, developed for Boost.Geometry by Adam Wulkiewicz. The spatial index was originally started by Federico J. Fernandez during the Google Summer of Code 2008 program, mentored by Hartmut Kaiser.
+
 [*Bugfixes]
 * collinear opposite segments did sometimes (in circles) have a robustness issue, fixed
 
 [*Solved tickets]
 
-* [@https://svn.boost.org/trac/boost/ticket/8254 8254] faulty intersection, fixed
 * [@https://svn.boost.org/trac/boost/ticket/7462 7462] degenerate union result for float, fixed
+* [@https://svn.boost.org/trac/boost/ticket/7465 7465] wrong construtors access type in scale_transformer class, fixed
+* [@https://svn.boost.org/trac/boost/ticket/7802 7802] cart_intersect.hpp unused parameter warnings, fixed
+* [@https://svn.boost.org/trac/boost/ticket/8254 8254] faulty intersection, fixed
+* [@https://svn.boost.org/trac/boost/ticket/8393 8393] polygon model doesn't adhere to stated Polygon concept rules, doc updated.
+* [@https://svn.boost.org/trac/boost/ticket/8403 8403] silenced compiler warning C4127: conditional expression is constant
+* [@https://svn.boost.org/trac/boost/ticket/8405 8405] silenced compiler warning C4189: '...' : local variable is initialized but not referenced
 
 
 [/=================]
