@@ -20,9 +20,9 @@ int main()
     typedef boost::tuple<std::string, std::string, std::string> CT;
     std::vector<CT> coordinate_types;
     coordinate_types.push_back(boost::make_tuple("double", "d", ""));
-    coordinate_types.push_back(boost::make_tuple("float", "f", ""));
+    //coordinate_types.push_back(boost::make_tuple("float", "f", ""));
     coordinate_types.push_back(boost::make_tuple("int", "i", ""));
-    coordinate_types.push_back(boost::make_tuple("ttmath_big", "tt", "HAVE_TTMATH"));
+    //coordinate_types.push_back(boost::make_tuple("ttmath_big", "tt", "HAVE_TTMATH"));
 
     std::vector<std::string> dimensions;
     dimensions.push_back("2");
