@@ -6,55 +6,17 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-index-rtree-generated
-    :
-    [ run rtree_p2d_linear.cpp ]
-    [ run rtree_b2d_linear.cpp ]
-    [ run rtree_p2d_quadratic.cpp ]
-    [ run rtree_b2d_quadratic.cpp ]
-    [ run rtree_p2d_rstar.cpp ]
-    [ run rtree_b2d_rstar.cpp ]
-    [ run rtree_p2d_linear_dyn.cpp ]
-    [ run rtree_b2d_linear_dyn.cpp ]
-    [ run rtree_p2d_quadratic_dyn.cpp ]
-    [ run rtree_b2d_quadratic_dyn.cpp ]
-    [ run rtree_p2d_rstar_dyn.cpp ]
-    [ run rtree_b2d_rstar_dyn.cpp ]
-    [ run rtree_p2i_linear.cpp ]
-    [ run rtree_b2i_linear.cpp ]
-    [ run rtree_p2i_quadratic.cpp ]
-    [ run rtree_b2i_quadratic.cpp ]
-    [ run rtree_p2i_rstar.cpp ]
-    [ run rtree_b2i_rstar.cpp ]
-    [ run rtree_p2i_linear_dyn.cpp ]
-    [ run rtree_b2i_linear_dyn.cpp ]
-    [ run rtree_p2i_quadratic_dyn.cpp ]
-    [ run rtree_b2i_quadratic_dyn.cpp ]
-    [ run rtree_p2i_rstar_dyn.cpp ]
-    [ run rtree_b2i_rstar_dyn.cpp ]
-    [ run rtree_p3d_linear.cpp ]
-    [ run rtree_b3d_linear.cpp ]
-    [ run rtree_p3d_quadratic.cpp ]
-    [ run rtree_b3d_quadratic.cpp ]
-    [ run rtree_p3d_rstar.cpp ]
-    [ run rtree_b3d_rstar.cpp ]
-    [ run rtree_p3d_linear_dyn.cpp ]
-    [ run rtree_b3d_linear_dyn.cpp ]
-    [ run rtree_p3d_quadratic_dyn.cpp ]
-    [ run rtree_b3d_quadratic_dyn.cpp ]
-    [ run rtree_p3d_rstar_dyn.cpp ]
-    [ run rtree_b3d_rstar_dyn.cpp ]
-    [ run rtree_p3i_linear.cpp ]
-    [ run rtree_b3i_linear.cpp ]
-    [ run rtree_p3i_quadratic.cpp ]
-    [ run rtree_b3i_quadratic.cpp ]
-    [ run rtree_p3i_rstar.cpp ]
-    [ run rtree_b3i_rstar.cpp ]
-    [ run rtree_p3i_linear_dyn.cpp ]
-    [ run rtree_b3i_linear_dyn.cpp ]
-    [ run rtree_p3i_quadratic_dyn.cpp ]
-    [ run rtree_b3i_quadratic_dyn.cpp ]
-    [ run rtree_p3i_rstar_dyn.cpp ]
-    [ run rtree_b3i_rstar_dyn.cpp ]
-    ;
+rule test_all
+{
+   local all_rules = ;
+
+   for local fileb in [ glob *.cpp ]
+   {
+      all_rules += [ run $(fileb) ] ;
+   }
+
+   return $(all_rules) ;
+}
+
+test-suite boost-geometry-index-rtree-generated : [ test_all r ] ;
 
