@@ -24,8 +24,8 @@ public:
     typedef First first_type;
     typedef Pointer second_type;
     ptr_pair(First const& f, Pointer s) : first(f), second(s) {}
-    ptr_pair(ptr_pair const& p) : first(p.first), second(p.second) {}
-    ptr_pair & operator=(ptr_pair const& p) { first = p.first; second = p.second; return *this; }
+    //ptr_pair(ptr_pair const& p) : first(p.first), second(p.second) {}
+    //ptr_pair & operator=(ptr_pair const& p) { first = p.first; second = p.second; return *this; }
 
     first_type first;
     second_type second;
@@ -37,6 +37,8 @@ make_ptr_pair(First const& f, Pointer s)
 {
     return ptr_pair<First, Pointer>(f, s);
 }
+
+// TODO: It this will be used, rename it to unique_ptr_pair and possibly use unique_ptr.
 
 template <typename First, typename Pointer>
 class exclusive_ptr_pair
