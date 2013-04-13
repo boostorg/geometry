@@ -303,6 +303,34 @@ struct value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> > > >
     }
 };
 
+template <typename T, typename C>
+struct value< boost::shared_ptr<test_object<bg::model::box<bg::model::point<T, 2, C> > > > >
+{
+    typedef bg::model::point<T, 2, C> P;
+    typedef bg::model::box<P> B;
+    typedef test_object<B> O;
+    typedef boost::shared_ptr<O> R;
+
+    static R apply(int x, int y)
+    {
+        return R(new O(B(P(x, y), P(x + 2, y + 3))));
+    }
+};
+
+template <typename T, typename C>
+struct value< boost::shared_ptr<test_object<bg::model::box<bg::model::point<T, 3, C> > > > >
+{
+    typedef bg::model::point<T, 3, C> P;
+    typedef bg::model::box<P> B;
+    typedef test_object<B> O;
+    typedef boost::shared_ptr<O> R;
+
+    static R apply(int x, int y, int z)
+    {   
+        return R(new O(B(P(x, y, z), P(x + 2, y + 3, z + 4))));
+    }
+};
+
 } //namespace generate
 
 // counting value
