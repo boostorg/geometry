@@ -1266,19 +1266,14 @@ void modifiers(Rtree const& tree, std::vector<Value> const& input, Box const& qb
 
 } // namespace basictest
 
-// run all tests for a single Algorithm and single rtree
-// defined by Value
-
 template <typename Value, typename Parameters, typename Allocator>
-void test_rtree_by_value(Parameters const& parameters, Allocator const& allocator)
+void test_rtree_queries(Parameters const& parameters, Allocator const& allocator)
 {
     typedef bgi::indexable<Value> I;
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::box_type B;
-
-    // not empty tree test
 
     Tree tree(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1287,16 +1282,44 @@ void test_rtree_by_value(Parameters const& parameters, Allocator const& allocato
     generate::rtree(tree, input, qbox);
 
     basictest::queries(tree, input, qbox);
-    basictest::modifiers(tree, input, qbox);
-
-    // empty tree test
 
     Tree empty_tree(parameters, I(), E(), allocator);
     std::vector<Value> empty_input;
 
     basictest::queries(empty_tree, empty_input, qbox);
+}
+
+template <typename Value, typename Parameters, typename Allocator>
+void test_rtree_modifiers(Parameters const& parameters, Allocator const& allocator)
+{
+    typedef bgi::indexable<Value> I;
+    typedef bgi::equal_to<Value> E;
+    typedef typename Allocator::template rebind<Value>::other A;
+    typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
+    typedef typename Tree::box_type B;
+
+    Tree tree(parameters, I(), E(), allocator);
+    std::vector<Value> input;
+    B qbox;
+
+    generate::rtree(tree, input, qbox);
+
+    basictest::modifiers(tree, input, qbox);
+
+    Tree empty_tree(parameters, I(), E(), allocator);
+    std::vector<Value> empty_input;
 
     basictest::copy_swap_move(empty_tree, qbox);
+}
+
+// run all tests for a single Algorithm and single rtree
+// defined by Value
+
+template <typename Value, typename Parameters, typename Allocator>
+void test_rtree_by_value(Parameters const& parameters, Allocator const& allocator)
+{
+    test_rtree_queries<Value>(parameters, allocator);
+    test_rtree_modifiers<Value>(parameters, allocator);
 }
 
 // rtree inserting and removing of counting_value
@@ -1432,6 +1455,14 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
     BOOST_CHECK(bg::equals(t.bounds(), b));
 }
 
+template <typename Indexable, typename Parameters, typename Allocator>
+void test_rtree_additional(Parameters const& parameters, Allocator const& allocator)
+{
+    test_count_rtree_values<Indexable>(parameters, allocator);
+    test_rtree_count<Indexable>(parameters, allocator);
+    test_rtree_bounds<Indexable>(parameters, allocator);
+}
+
 // run all tests for one Algorithm for some number of rtrees
 // defined by some number of Values constructed from given Point
 
@@ -1450,10 +1481,7 @@ void test_rtree_for_point(Parameters const& parameters, Allocator const& allocat
     test_rtree_by_value<SharedPtrP, Parameters>(parameters, allocator);
     test_rtree_by_value<VNoDCtor, Parameters>(parameters, allocator);
 
-    test_count_rtree_values<Point>(parameters, allocator);
-
-    test_rtree_count<Point>(parameters, allocator);
-    test_rtree_bounds<Point>(parameters, allocator);
+    test_rtree_additional<Point>(parameters, allocator);
 
 #if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Point, int, int> StdTupleP;
@@ -1475,10 +1503,7 @@ void test_rtree_for_box(Parameters const& parameters, Allocator const& allocator
 
     test_rtree_by_value<VNoDCtor, Parameters>(parameters, allocator);
 
-    test_count_rtree_values<Box>(parameters, allocator);
-
-    test_rtree_count<Box>(parameters, allocator);
-    test_rtree_bounds<Box>(parameters, allocator);
+    test_rtree_additional<Box>(parameters, allocator);
 
 #if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Box, int, int> StdTupleB;
@@ -1497,5 +1522,57 @@ void test_rtree_for_box(Parameters const& parameters)
 {
     test_rtree_for_box<Point>(parameters, std::allocator<int>());
 }
+
+namespace testset {
+
+template<typename Indexable, typename Parameters, typename Allocator>
+void modifiers(Parameters const& parameters, Allocator const& allocator)
+{
+    typedef std::pair<Indexable, int> Pair;
+    typedef boost::tuple<Indexable, int, int> Tuple;
+    typedef boost::shared_ptr< test_object<Indexable> > SharedPtr;
+    typedef value_no_dctor<Indexable> VNoDCtor;
+
+    test_rtree_modifiers<Indexable>(parameters, allocator);
+    test_rtree_modifiers<Pair>(parameters, allocator);
+    test_rtree_modifiers<Tuple>(parameters, allocator);
+
+    test_rtree_modifiers<SharedPtr>(parameters, allocator);
+    test_rtree_modifiers<VNoDCtor>(parameters, allocator);
+
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+    typedef std::tuple<Indexable, int, int> StdTuple;
+    test_rtree_modifiers<StdTuple>(parameters, allocator);
+#endif
+}
+
+template<typename Indexable, typename Parameters, typename Allocator>
+void queries(Parameters const& parameters, Allocator const& allocator)
+{
+    typedef std::pair<Indexable, int> Pair;
+    typedef boost::tuple<Indexable, int, int> Tuple;
+    typedef boost::shared_ptr< test_object<Indexable> > SharedPtr;
+    typedef value_no_dctor<Indexable> VNoDCtor;
+
+    test_rtree_queries<Indexable>(parameters, allocator);
+    test_rtree_queries<Pair>(parameters, allocator);
+    test_rtree_queries<Tuple>(parameters, allocator);
+
+    test_rtree_queries<SharedPtr>(parameters, allocator);
+    test_rtree_queries<VNoDCtor>(parameters, allocator);
+
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+    typedef std::tuple<Indexable, int, int> StdTuple;
+    test_rtree_queries<StdTuple>(parameters, allocator);
+#endif
+}
+
+template<typename Indexable, typename Parameters, typename Allocator>
+void additional(Parameters const& parameters, Allocator const& allocator)
+{
+    test_rtree_additional<Indexable, Parameters>(parameters, allocator);
+}
+
+} // namespace testset
 
 #endif // BOOST_GEOMETRY_INDEX_TEST_RTREE_HPP
