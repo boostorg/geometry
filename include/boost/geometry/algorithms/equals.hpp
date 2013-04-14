@@ -355,8 +355,8 @@ struct devarianted_equals<
 \details \details_check12{equals, is spatially equal}. Spatially equal means 
     that the same point set is included. A box can therefore be spatially equal
     to a ring or a polygon, or a linestring can be spatially equal to a 
-    multi-linestring or a segment. This only theoretically, not all combinations
-    are implemented yet.
+    multi-linestring or a segment. This only works theoretically, not all
+    combinations are implemented yet.
 \ingroup equals
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
