@@ -434,7 +434,7 @@ struct devarianted_convert<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometr
 /*!
 \brief Converts one geometry to another geometry
 \details The convert algorithm converts one geometry, e.g. a BOX, to another
-geometry, e.g. a RING. This only if it is possible and applicable.
+geometry, e.g. a RING. This only works if it is possible and applicable.
 If the point-order is different, or the closure is different between two 
 geometry types, it will be converted correctly by explicitly reversing the 
 points or closing or opening the polygon rings.
