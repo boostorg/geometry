@@ -15,6 +15,6 @@
 int test_main(int, char* [])
 {
     typedef bg::model::box< bg::model::point<double, 3, bg::cs::cartesian> > Indexable;
-    testset::modifiers<Indexable>(bgi::dynamic_rstar(8, 3), std::allocator<int>());
+    testset::modifiers<Indexable>(bgi::dynamic_rstar(5, 2), std::allocator<int>());
     return 0;
 }
