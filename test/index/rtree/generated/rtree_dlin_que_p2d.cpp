@@ -15,6 +15,6 @@
 int test_main(int, char* [])
 {
     typedef bg::model::point<double, 2, bg::cs::cartesian> Indexable;
-    testset::queries<Indexable>(bgi::dynamic_linear(8, 3), std::allocator<int>());
+    testset::queries<Indexable>(bgi::dynamic_linear(5, 2), std::allocator<int>());
     return 0;
 }

@@ -27,12 +27,12 @@ int main()
 
     typedef boost::tuple<std::string, std::string> P;
     std::vector<P> parameters;
-    parameters.push_back(boost::make_tuple("bgi::linear<8, 3>()", "lin"));
-    parameters.push_back(boost::make_tuple("bgi::dynamic_linear(8, 3)", "dlin"));
-    parameters.push_back(boost::make_tuple("bgi::quadratic<8, 3>()", "qua"));
-    parameters.push_back(boost::make_tuple("bgi::dynamic_quadratic(8, 3)", "dqua"));
-    parameters.push_back(boost::make_tuple("bgi::rstar<8, 3>()", "rst"));
-    parameters.push_back(boost::make_tuple("bgi::dynamic_rstar(8, 3)","drst"));
+    parameters.push_back(boost::make_tuple("bgi::linear<5, 2>()", "lin"));
+    parameters.push_back(boost::make_tuple("bgi::dynamic_linear(5, 2)", "dlin"));
+    parameters.push_back(boost::make_tuple("bgi::quadratic<5, 2>()", "qua"));
+    parameters.push_back(boost::make_tuple("bgi::dynamic_quadratic(5, 2)", "dqua"));
+    parameters.push_back(boost::make_tuple("bgi::rstar<5, 2>()", "rst"));
+    parameters.push_back(boost::make_tuple("bgi::dynamic_rstar(5, 2)","drst"));
     
     std::vector<std::string> indexables;
     indexables.push_back("p");
