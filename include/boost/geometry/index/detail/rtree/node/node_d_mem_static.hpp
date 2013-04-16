@@ -114,6 +114,7 @@ class allocators<Allocator, Value, Parameters, Box, node_d_mem_static_tag>
     >::other
 {
 public:
+    typedef Allocator allocator_type;
     typedef typename Allocator::size_type size_type;
 
     typedef typename Allocator::template rebind<
