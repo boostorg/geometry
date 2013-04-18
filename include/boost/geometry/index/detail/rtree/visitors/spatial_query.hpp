@@ -121,14 +121,17 @@ struct spatial_query_incremental
 
     void increment()
     {
+        if ( values )
+            ++value_index;
+
         for (;;)
         {
+            // if leaf is choosen, move to the next value in leaf
             if ( values )
             {
-                // ERROR: infinite loop - value_index isn't incremented
-
                 for ( ;; ++value_index )
                 {
+                    // no more values, clear current leaf
                     if ( values->size() <= value_index )
                     {
                         values = 0;
@@ -136,6 +139,7 @@ struct spatial_query_incremental
                         break;
                     }
 
+                    // return if next value is found
                     Value const& v = (*values)[value_index];
                     if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(pred, v, tr(v)) )
                         return;
@@ -143,19 +147,25 @@ struct spatial_query_incremental
             }
 
             // move to the next leaf if values aren't set
-            for ( ; !values ; ++internal_stack.back().first )
+            while ( !values )
             {
+                // return if there is no more nodes to traverse
                 if ( internal_stack.empty() )
                     return;
 
+                // no more children in current node, remove it from stack
                 if ( internal_stack.back().first == internal_stack.back().second )
                 {
                     internal_stack.pop_back();
                     continue;
                 }
 
-                if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(pred, 0, internal_stack.back().first->first) )
-                    rtree::apply_visitor(*this, *(internal_stack.back().first->second));
+                internal_iterator it = internal_stack.back().first;
+                ++internal_stack.back().first;
+
+                // next node is found, push it to the stack
+                if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(pred, 0, it->first) )
+                    rtree::apply_visitor(*this, *(it->second));
             }
         }
     }
@@ -181,16 +191,14 @@ class spatial_query_iterator
     typedef visitors::spatial_query_incremental<Value, Options, Translator, Box, Allocators, Predicates> visitor_type;
     typedef typename visitor_type::node_pointer node_pointer;
 
-    // WARNING! If const Value is passed to rebind it won't compile for interprocess' allocator
     typedef typename Allocators::allocator_type::template rebind<Value>::other allocator_type;
 
 public:
-
     typedef std::input_iterator_tag iterator_category;
     typedef const Value value_type;
     typedef Value const& reference;
     typedef typename allocator_type::difference_type difference_type;
-    typedef typename allocator_type::pointer pointer;
+    typedef typename allocator_type::const_pointer pointer;
 
     inline spatial_query_iterator(Translator const& t, Predicates const& p)
         : m_visitor(t, p)

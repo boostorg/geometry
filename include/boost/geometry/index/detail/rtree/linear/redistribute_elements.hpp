@@ -293,8 +293,9 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
 
                         // choose group which box content have to be enlarged least or has smaller content or has fewer elements
                         if ( content_increase1 < content_increase2 ||
-                             ( content_increase1 == content_increase2 && content1 < content2 ) ||
-                             ( content1 == content2 && elements1.size() <= elements2.size() ) )
+                                ( content_increase1 == content_increase2 &&
+                                    ( content1 < content2 ||
+                                        ( content1 == content2 && elements1.size() <= elements2.size() ) ) ) )
                         {
                             elements1.push_back(elem);                                                      // MAY THROW, STRONG (copy)
                             box1 = enlarged_box1;
