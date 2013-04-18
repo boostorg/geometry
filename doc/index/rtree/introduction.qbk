@@ -39,9 +39,9 @@ non-overlapping boxes.
 [table
 [[]                         [linear algorithm] [quadratic algorithm] [R*-tree]]
 [[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]]]
-[[*1M Values inserts*]      [2.11s] [2.98s] [5.49s]]
-[[*100k spatial queries*]   [1.52s] [0.45s] [0.17s]]
-[[*100k knn queries*]       [4.51s] [2.22s] [0.6s]]
+[[*1M Values inserts*]      [1.65s] [2.51s] [4.96s]]
+[[*100k spatial queries*]   [0.87s] [0.25s] [0.09s]]
+[[*100k knn queries*]       [3.25s] [1.41s] [0.51s]]
 ]
 
 [heading Implementation details]
