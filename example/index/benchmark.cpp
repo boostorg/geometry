@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 #include <boost/geometry/index/rtree.hpp>
 
 #include <boost/chrono.hpp>
@@ -47,9 +48,9 @@ int main()
 
     typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
-    typedef bgi::rtree<B, bgi::linear<32, 8> > RT;
-    //typedef bgi::rtree<B, bgi::quadratic<32, 8> > RT;
-    //typedef bgi::rtree<B, bgi::rstar<32, 8> > RT;
+    typedef bgi::rtree<B, bgi::linear<16, 4> > RT;
+    //typedef bgi::rtree<B, bgi::quadratic<8, 3> > RT;
+    //typedef bgi::rtree<B, bgi::rstar<8, 3> > RT;
 
     std::cout << "sizeof rtree: " << sizeof(RT) << std::endl;
 
@@ -91,6 +92,25 @@ int main()
             std::cout << time << " - query(B) " << queries_count << " found " << temp << '\n';
         }
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                std::copy(t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                          t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                          std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - query iterator(B) " << queries_count << " found " << temp << '\n';
+        }
+#endif
+
         {
             clock_t::time_point start = clock_t::now();
             size_t temp = 0;
@@ -123,7 +143,7 @@ int main()
         {
             clock_t::time_point start = clock_t::now();
             size_t temp = 0;
-            for (size_t i = 0 ; i < queries_count / 10 ; ++i )
+            for (size_t i = 0 ; i < queries_count / 1 ; ++i )
             {
                 float x = coords[i].first + 100;
                 float y = coords[i].second + 100;

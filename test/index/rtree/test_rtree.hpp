@@ -642,13 +642,6 @@ void exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Range2 c
 
 // spatial query
 
-template <typename Iterator, typename Container>
-void spatial_query_iterator(Iterator first, Iterator last, Container & container)
-{
-    for ( ; first != last ; ++first )
-        container.push_back(*first);
-}
-
 template <typename Rtree, typename Value, typename Predicates>
 void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
 {
@@ -672,8 +665,7 @@ void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> con
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
     std::vector<Value> output3;
-    //std::copy(rtree.qbegin(pred), rtree.qend(pred), std::back_inserter(output3));
-    spatial_query_iterator(rtree.qbegin(pred), rtree.qend(pred), output3);
+    std::copy(rtree.qbegin(pred), rtree.qend(pred), std::back_inserter(output3));
 
     compare_outputs(rtree, output3, expected_output);
 #endif
