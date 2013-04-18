@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_AUTO_PTR_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_AUTO_PTR_HPP
 
-#include <boost/noncopyable.hpp>
-
 #include <boost/geometry/index/detail/rtree/visitors/destroy.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -21,10 +19,12 @@ namespace detail { namespace rtree {
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 class node_auto_ptr
-    : boost::noncopyable
 {
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
     typedef typename Allocators::node_pointer pointer;
+
+    node_auto_ptr(node_auto_ptr const&);
+    node_auto_ptr & operator=(node_auto_ptr const&);
 
 public:
     node_auto_ptr(pointer ptr, Allocators & allocators)
