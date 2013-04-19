@@ -733,7 +733,6 @@ public:
     qbegin(Predicates const& predicates) const
     {
         static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
-        static const bool is_nearest = 0 < nearest_count;
         BOOST_MPL_ASSERT_MSG((nearest_count <= 1), PASS_ONLY_ONE_NEAREST_PREDICATE, (Predicates));
 
         typedef typename boost::mpl::if_c<
@@ -763,7 +762,6 @@ public:
     qend(Predicates const& predicates) const
     {
         static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
-        static const bool is_nearest = 0 < nearest_count;
         BOOST_MPL_ASSERT_MSG((nearest_count <= 1), PASS_ONLY_ONE_NEAREST_PREDICATE, (Predicates));
 
         typedef typename boost::mpl::if_c<
