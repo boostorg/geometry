@@ -25,6 +25,8 @@ int main()
 
     size_t values_count = 1000000;
     size_t queries_count = 100000;
+    size_t nearest_queries_count = 10000;
+    unsigned neighbours_count = 10;
 
     std::vector< std::pair<float, float> > coords;
 
@@ -143,16 +145,39 @@ int main()
         {
             clock_t::time_point start = clock_t::now();
             size_t temp = 0;
-            for (size_t i = 0 ; i < queries_count / 1 ; ++i )
+            for (size_t i = 0 ; i < nearest_queries_count ; ++i )
             {
                 float x = coords[i].first + 100;
                 float y = coords[i].second + 100;
                 result.clear();
-                temp += t.query(bgi::nearest(P(x, y), 5), std::back_inserter(result));
+                temp += t.query(bgi::nearest(P(x, y), neighbours_count), std::back_inserter(result));
             }
             dur_t time = clock_t::now() - start;
-            std::cout << time << " - query(nearest(P, 5)) " << (queries_count / 10) << " found " << temp << '\n';
+            std::cout << time << " - query(nearest(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
         }
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < nearest_queries_count ; ++i )
+            {
+                float x = coords[i].first + 100;
+                float y = coords[i].second + 100;
+                result.clear();
+                if ( i == 3 )
+                {
+                    int a = 10;
+                }
+                std::copy(t.qbegin(bgi::nearest(P(x, y), neighbours_count)),
+                          t.qend(bgi::nearest(P(x, y), neighbours_count)),
+                          std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - nearest_iterator(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
+        }
+#endif
 
         {
             clock_t::time_point start = clock_t::now();

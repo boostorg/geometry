@@ -860,6 +860,28 @@ struct NearestKTransform
     }
 };
 
+template <typename Rtree, typename Value, typename Point, typename Distance>
+void compare_nearest_outputs(Rtree const& rtree, std::vector<Value> const& output, std::vector<Value> const& expected_output, Point const& pt, Distance greatest_distance)
+{
+    // check output
+    bool are_sizes_ok = (expected_output.size() == output.size());
+    BOOST_CHECK( are_sizes_ok );
+    if ( are_sizes_ok )
+    {
+        BOOST_FOREACH(Value const& v, output)
+        {
+            // TODO - perform explicit check here?
+            // should all objects which are closest be checked and should exactly the same be found?
+
+            if ( find(rtree, expected_output.begin(), expected_output.end(), v) == expected_output.end() )
+            {
+                Distance d = bgi::detail::comparable_distance_near(pt, rtree.indexable_get()(v));
+                BOOST_CHECK(d == greatest_distance);
+            }
+        }
+    }
+}
+
 template <typename Rtree, typename Value, typename Point>
 void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point const& pt, unsigned int k)
 {
@@ -887,9 +909,9 @@ void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point 
 
     // caluclate biggest distance
     std::sort(test_output.begin(), test_output.end(), NearestKLess<Rtree, Point>());
-    D biggest_d = 0;
+    D greatest_distance = 0;
     if ( !test_output.empty() )
-        biggest_d = test_output.back().first;
+        greatest_distance = test_output.back().first;
     
     // transform test output to vector of values
     std::vector<Value> expected_output(test_output.size(), generate::value_default<Value>::apply());
@@ -900,22 +922,7 @@ void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point 
     rtree.query(bgi::nearest(pt, k), std::back_inserter(output));
 
     // check output
-    bool are_sizes_ok = (expected_output.size() == output.size());
-    BOOST_CHECK( are_sizes_ok );
-    if ( are_sizes_ok )
-    {
-        BOOST_FOREACH(Value const& v, output)
-        {
-            // TODO - perform explicit check here?
-            // should all objects which are closest be checked and should exactly the same be found?
-
-            if ( find(rtree, expected_output.begin(), expected_output.end(), v) == expected_output.end() )
-            {
-                D d = bgi::detail::comparable_distance_near(pt, rtree.indexable_get()(v));
-                BOOST_CHECK(d == biggest_d);
-            }
-        }
-    }
+    compare_nearest_outputs(rtree, output, expected_output, pt, greatest_distance);
 
     exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::queried(bgi::nearest(pt, k)));
 
@@ -924,6 +931,13 @@ void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point 
     output2.resize(found_count, generate::value_default<Value>::apply());
 
     exactly_the_same_outputs(rtree, output, output2);
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+    std::vector<Value> output3;
+    std::copy(rtree.qbegin(bgi::nearest(pt, k)), rtree.qend(bgi::nearest(pt, k)), std::back_inserter(output3));
+
+    compare_nearest_outputs(rtree, output3, expected_output, pt, greatest_distance);
+#endif
 }
 
 // rtree nearest not found
