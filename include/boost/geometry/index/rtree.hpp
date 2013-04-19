@@ -725,7 +725,10 @@ public:
     typename boost::mpl::if_c<
         detail::predicates_count_nearest<Predicates>::value == 0,
         detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-        void
+        detail::rtree::nearest_query_iterator<
+            value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+            detail::predicates_find_nearest<Predicates>::value
+        >
     >::type
     qbegin(Predicates const& predicates) const
     {
@@ -733,14 +736,29 @@ public:
         static const bool is_nearest = 0 < nearest_count;
         BOOST_MPL_ASSERT_MSG((nearest_count <= 1), PASS_ONLY_ONE_NEAREST_PREDICATE, (Predicates));
 
-        return qbegin_dispatch(predicates, boost::mpl::bool_<is_nearest>());
+        typedef typename boost::mpl::if_c<
+            detail::predicates_count_nearest<Predicates>::value == 0,
+            detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+            detail::rtree::nearest_query_iterator<
+                value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+                detail::predicates_find_nearest<Predicates>::value
+            >
+        >::type iterator_type;
+
+        if ( !m_members.root )
+            return iterator_type(m_members.translator(), predicates);
+
+        return iterator_type(m_members.root, m_members.translator(), predicates);
     }
 
     template <typename Predicates>
     typename boost::mpl::if_c<
         detail::predicates_count_nearest<Predicates>::value == 0,
         detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-        void
+        detail::rtree::nearest_query_iterator<
+            value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+            detail::predicates_find_nearest<Predicates>::value
+        >
     >::type
     qend(Predicates const& predicates) const
     {
@@ -748,7 +766,16 @@ public:
         static const bool is_nearest = 0 < nearest_count;
         BOOST_MPL_ASSERT_MSG((nearest_count <= 1), PASS_ONLY_ONE_NEAREST_PREDICATE, (Predicates));
 
-        return qend_dispatch(predicates, boost::mpl::bool_<is_nearest>());
+        typedef typename boost::mpl::if_c<
+            detail::predicates_count_nearest<Predicates>::value == 0,
+            detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+            detail::rtree::nearest_query_iterator<
+                value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+                detail::predicates_find_nearest<Predicates>::value
+            >
+        >::type iterator_type;
+
+        return iterator_type(m_members.translator(), predicates);
     }
 
 #endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
@@ -1161,57 +1188,6 @@ private:
 
         return result.finish();
     }
-
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-
-    template <typename Predicates>
-    typename
-    boost::mpl::if_c<
-        detail::predicates_count_nearest<Predicates>::value == 0,
-        detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-        void
-    >::type
-    qbegin_dispatch(Predicates const& predicates, boost::mpl::bool_<false> const& /*is_nearest*/) const
-    {
-        typedef detail::rtree::spatial_query_iterator<
-            value_type, options_type, translator_type, box_type, allocators_type, Predicates
-        > iterator_type;
-
-        if ( !m_members.root )
-            return iterator_type(m_members.translator(), predicates);
-
-        return iterator_type(m_members.root, m_members.translator(), predicates);
-    }
-
-    template <typename Predicates>
-    void qbegin_dispatch(Predicates const& predicates, boost::mpl::bool_<true> const& /*is_nearest*/) const
-    {
-        BOOST_MPL_ASSERT_MSG(false, NEAREST_QUERY_ITERATOR_NOT_IMPLEMENTED_YET, (rtree));
-    }
-
-    template <typename Predicates>
-    typename
-    boost::mpl::if_c<
-        detail::predicates_count_nearest<Predicates>::value == 0,
-        detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-        void
-    >::type
-    qend_dispatch(Predicates const& predicates, boost::mpl::bool_<false> const& /*is_nearest*/) const
-    {
-        typedef detail::rtree::spatial_query_iterator<
-            value_type, options_type, translator_type, box_type, allocators_type, Predicates
-        > iterator_type;
-
-        return iterator_type(m_members.translator(), predicates);
-    }
-
-    template <typename Predicates>
-    void qend_dispatch(Predicates const& predicates, boost::mpl::bool_<true> const& /*is_nearest*/) const
-    {
-        BOOST_MPL_ASSERT_MSG(false, NEAREST_QUERY_ITERATOR_NOT_IMPLEMENTED_YET, (rtree));
-    }
-
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
     struct members_holder
         : public translator_type

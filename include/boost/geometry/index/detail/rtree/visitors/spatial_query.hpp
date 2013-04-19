@@ -106,10 +106,7 @@ struct spatial_query_incremental
 
     inline void operator()(leaf const& n)
     {
-        typedef typename rtree::elements_type<leaf>::type elements_type;
-        elements_type const& elements = rtree::elements(n);
-
-        values = &elements;
+        values = boost::addressof(rtree::elements(n));
         value_index = 0;
     }
 
