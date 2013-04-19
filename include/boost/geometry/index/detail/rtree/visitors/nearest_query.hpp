@@ -63,7 +63,7 @@ namespace detail { namespace rtree { namespace visitors {
 //};
 
 template <typename Value, typename Translator, typename Point, typename OutIt>
-struct nearest_query_result_k
+class nearest_query_result_k
 {
 public:
     typedef typename geometry::default_distance_result<
@@ -100,14 +100,14 @@ public:
         }
     }
 
-    inline bool is_comparable_distance_valid() const
+    inline bool has_enough_neighbors() const
     {
-        return m_neighbors.size() == m_count;
+        return m_count <= m_neighbors.size();
     }
 
-    inline distance_type comparable_distance() const
+    inline distance_type greatest_comparable_distance() const
     {
-        // smallest distance is in the first neighbor only
+        // greatest distance is in the first neighbor only
         // if there is at least m_count values found
         // this is just for safety reasons since is_comparable_distance_valid() is checked earlier
         // TODO - may be replaced by ASSERT
@@ -137,7 +137,6 @@ private:
     OutIt m_out_it;
 
     std::vector< std::pair<distance_type, Value> > m_neighbors;
-    distance_type m_biggest_comp_dist;
 };
 
 // TODO: awulkiew - add additional pruning before adding nodes to the ABL
@@ -181,11 +180,6 @@ public:
         index::detail::value_tag
     > value_distances_predicates_check;
 
-    inline distance_predicates_type const& dist_pred() const
-    {
-        return nearest_predicate_access::get(m_pred).distance_predicates;
-    }
-
     static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
 
     inline nearest_query(parameters_type const& parameters, Translator const& translator, Predicates const& pred, Result & r)
@@ -225,8 +219,8 @@ public:
                 //                  after that calculate the rest of distances and check predicates
 
                 // if current node is further than found neighbors - don't analyze it
-                if ( m_result.is_comparable_distance_valid() &&
-                     is_node_prunable(m_result.comparable_distance(), node_dist_data) )
+                if ( m_result.has_enough_neighbors() &&
+                     is_node_prunable(m_result.greatest_comparable_distance(), node_dist_data) )
                 {
                     continue;
                 }
@@ -301,11 +295,11 @@ private:
     inline void prune_nodes(ActiveBranchList & abl) const
     {
         // if some value were found
-        if ( m_result.is_comparable_distance_valid() )
+        if ( m_result.has_enough_neighbors() )
         {
             // prune if box's mindist is further than value's mindist
             while ( !abl.empty() &&
-                    is_node_prunable(m_result.comparable_distance(), abl.back().first) )
+                    is_node_prunable(m_result.greatest_comparable_distance(), abl.back().first) )
             {
                 abl.pop_back();
             }
@@ -323,11 +317,15 @@ private:
     }
 
     template <typename Distance>
-    static inline bool is_node_prunable(Distance const& smallest_dist, node_distances_type const& d)
+    static inline bool is_node_prunable(Distance const& greatest_dist, node_distances_type const& d)
     {
-        return smallest_dist
-            < index::detail::cdist_value<node_distances_type>
-                ::template get<index::detail::to_nearest_tag>(d);
+        return greatest_dist <= index::detail::cdist_value<node_distances_type>
+                                    ::template get<index::detail::to_nearest_tag>(d);
+    }
+
+    inline distance_predicates_type const& dist_pred() const
+    {
+        return nearest_predicate_access::get(m_pred).distance_predicates;
     }
 
     parameters_type const& m_parameters;
@@ -337,7 +335,326 @@ private:
     Result & m_result;
 };
 
-}}} // namespace detail::rtree::visitors
+template <
+    typename Value,
+    typename Options,
+    typename Translator,
+    typename Box,
+    typename Allocators,
+    typename Predicates,
+    unsigned NearestPredicateIndex
+>
+class nearest_query_incremental
+    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+{
+public:
+    typedef typename Options::parameters_type parameters_type;
+
+    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
+    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
+    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+
+    typedef index::detail::predicates_element<NearestPredicateIndex, Predicates> nearest_predicate_access;
+    typedef typename index::detail::distance_predicates_type<typename nearest_predicate_access::type>::type distance_predicates_type;
+    typedef typename geometry::default_distance_result<
+        typename index::detail::relation<
+            typename index::detail::point_relation<distance_predicates_type>::type
+        >::value_type,
+        typename indexable_type<Translator>::type
+    >::type value_distance_type;
+
+    typedef index::detail::distances_calc<distance_predicates_type, Box, index::detail::bounds_tag> node_distances_calc;
+    typedef typename node_distances_calc::result_type node_distances_type;
+    typedef index::detail::distances_predicates_check<distance_predicates_type, Box, index::detail::bounds_tag> node_distances_predicates_check;
+
+    typedef index::detail::distances_calc<
+        distance_predicates_type,
+        typename indexable_type<Translator>::type,
+        index::detail::value_tag
+    > value_distances_calc;
+    typedef typename value_distances_calc::result_type value_distances_type;
+    typedef index::detail::distances_predicates_check<
+        distance_predicates_type,
+        typename indexable_type<Translator>::type,
+        index::detail::value_tag
+    > value_distances_predicates_check;
+
+    typedef typename Allocators::size_type size_type;
+    typedef typename Allocators::node_pointer node_pointer;
+
+    typedef typename rtree::elements_type<internal_node>::type::const_iterator internal_iterator;
+    typedef typename rtree::elements_type<leaf>::type leaf_elements;
+
+    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+
+    inline nearest_query_incremental(Translator const& translator, Predicates const& pred)
+        : m_translator(translator)
+        , m_pred(pred)
+        , current_neighbor(std::numeric_limits<size_type>::max())
+    {
+        BOOST_ASSERT_MSG(0 < max_count(), "k must be greather than 0");
+    }
+
+    Value const& dereference() const
+    {
+        return *(neighbors[current_neighbor].second);
+    }
+
+    void increment()
+    {
+        for (;;)
+        {
+            size_type new_neighbor = current_neighbor == std::numeric_limits<size_type>::max() ? 0 : current_neighbor + 1;
+
+            if ( active_branch_list.empty() )
+            {
+                if ( new_neighbor < neighbors.size() )
+                    current_neighbor = new_neighbor;
+                else
+                {
+                    current_neighbor = std::numeric_limits<size_type>::max();
+// TODO - temporary - used to disable the condition above
+                    neighbors.clear();
+                }
+
+                return;
+            }
+            else
+            {
+                // if there are no nodes which can have closer values, set new value
+                if ( new_neighbor < neighbors.size() &&
+                     is_node_further(neighbors[new_neighbor].first, active_branch_list.front().first) )
+                {
+                    current_neighbor = new_neighbor;
+                    return;
+                }
+
+                std::pair<node_distances_type, node_pointer> active_branch = active_branch_list.front();
+                active_branch_list.pop_front();
+                rtree::apply_visitor(*this, *(active_branch.second));
+
+                // if some values were found
+                BOOST_ASSERT_MSG(neighbors.size() <= max_count(), "unexpected neighbours count");
+                if ( max_count() <= neighbors.size() )
+                {
+                    // prune nodes which mindists are further than furthest value's dist
+                    while ( !active_branch_list.empty() &&
+                            is_node_prunable(neighbors.back().first, active_branch_list.back().first) )
+                    {
+                        active_branch_list.pop_back();
+                    }
+                }
+            }
+        }
+    }
+
+    friend bool operator==(nearest_query_incremental const& l, nearest_query_incremental const& r)
+    {
+        BOOST_ASSERT_MSG(l.current_neighbor != r.current_neighbor ||
+                         l.current_neighbor == std::numeric_limits<size_type>::max() ||
+                         l.neighbors[l.current_neighbor].second == r.neighbors[r.current_neighbor].second,
+                         "not corresponding iterators");
+        return l.current_neighbor == r.current_neighbor;
+    }
+
+    // Put node's elements into the list of active branches if those elements meets predicates
+    // and distance predicates(currently not used)
+    // and aren't further than found neighbours (if there is enough neighbours)
+    inline void operator()(internal_node const& n)
+    {
+        typedef typename rtree::elements_type<internal_node>::type elements_type;
+        elements_type const& elements = rtree::elements(n);
+
+        // fill active branch list array of nodes meeting predicates
+        for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it )
+        {
+            // if current node meets predicates
+            // 0 - dummy value
+            if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(m_pred, 0, it->first) )
+            {
+                // calculate node's distance(s) for distance predicate
+                node_distances_type node_dist_data = node_distances_calc::apply(dist_pred(), it->first);
+
+                // if current node is further than found neighbors - don't analyze it
+                if ( max_count() <= neighbors.size() &&
+                     is_node_prunable(neighbors.back().first, node_dist_data) )
+                {
+                    continue;
+                }
+
+                // if current node distance(s) meets distance predicate
+                if ( node_distances_predicates_check::apply(dist_pred(), node_dist_data) )
+                {
+                    // add current node's data into the list
+                    active_branch_list.push_front( std::make_pair(node_dist_data, it->second) );
+                }
+            }
+        }
+
+        // sort array
+        std::sort(active_branch_list.begin(), active_branch_list.end(), abl_less);
+    }
+
+    // Put values into the list of neighbours if those values meets predicates
+    // and distance predicates(currently not used)
+    // and aren't further than already found neighbours (if there is enough neighbours)
+    inline void operator()(leaf const& n)
+    {
+        typedef typename rtree::elements_type<leaf>::type elements_type;
+        elements_type const& elements = rtree::elements(n);
+
+        // store neighbours old count before addition of new values
+        typename std::vector< std::pair<value_distance_type, const Value *> >
+            ::size_type old_neighbors_count = neighbors.size();
+
+        // search leaf for closest value meeting predicates
+        for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
+        {
+            // if value meets predicates
+            if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(m_pred, *it, m_translator(*it)) )
+            {
+                // calculate values distance for distance predicate
+                value_distances_type distances = value_distances_calc::apply(dist_pred(), m_translator(*it));
+
+                // if distance meets distance predicate
+                if ( value_distances_predicates_check::apply(dist_pred(), distances) )
+                {
+                    typedef typename index::detail::point_relation<distance_predicates_type>::type point_relation_type;
+                    typedef typename index::detail::relation<point_relation_type>::tag point_relation_tag;
+
+                    // store value if it's closer than the furthest neighbour
+                    value_distance_type dist = index::detail::cdist_value<value_distances_type>
+                                                ::template get<point_relation_tag>(distances);
+
+                    // if there is not enough values or current value is further than currently furthest neighbour
+                    if ( neighbors.size() < max_count() || 0 == old_neighbors_count || dist < neighbors[old_neighbors_count - 1].first )
+                    {
+                        neighbors.push_back(std::make_pair(dist, boost::addressof(*it)));
+                    }
+                }
+            }
+        }
+
+        // sort array
+        std::sort(neighbors.begin(), neighbors.end(), neighbors_less);
+        // remove furthest values
+        if ( max_count() < neighbors.size() )
+            neighbors.resize(max_count());
+    }
+
+private:
+    static inline bool abl_less(std::pair<node_distances_type, typename Allocators::node_pointer> const& p1,
+                                std::pair<node_distances_type, typename Allocators::node_pointer> const& p2)
+    {
+        return index::detail::cdist_value<node_distances_type>::template get<index::detail::to_nearest_tag>(p1.first)
+             < index::detail::cdist_value<node_distances_type>::template get<index::detail::to_nearest_tag>(p2.first);
+    }
+
+    static inline bool neighbors_less(std::pair<value_distance_type, const Value *> const& p1,
+                                      std::pair<value_distance_type, const Value *> const& p2)
+    {
+        return p1.first < p2.first;
+    }
+
+    template <typename Distance>
+    static inline bool is_node_prunable(Distance const& greatest_dist, node_distances_type const& d)
+    {
+        return greatest_dist <= index::detail::cdist_value<node_distances_type>
+                                    ::template get<index::detail::to_nearest_tag>(d);
+    }
+
+    template <typename Distance>
+    static inline bool is_node_further(Distance const& dist, node_distances_type const& d)
+    {
+        return dist <= index::detail::cdist_value<node_distances_type>
+                        ::template get<index::detail::to_nearest_tag>(d);
+    }
+
+    inline distance_predicates_type const& dist_pred() const
+    {
+        return nearest_predicate_access::get(m_pred).distance_predicates;
+    }
+
+    inline unsigned max_count() const
+    {
+        return nearest_predicate_access::get(m_pred).count;
+    }
+
+    Translator const& m_translator;
+
+    Predicates m_pred;
+
+    std::deque< std::pair<node_distances_type, node_pointer> > active_branch_list;
+    std::vector< std::pair<value_distance_type, const Value *> > neighbors;
+    size_type current_neighbor;
+};
+
+} // namespace visitors
+
+template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates, unsigned NearestPredicateIndex>
+class nearest_query_iterator
+{
+    typedef visitors::nearest_query_incremental<Value, Options, Translator, Box, Allocators, Predicates, NearestPredicateIndex> visitor_type;
+    typedef typename visitor_type::node_pointer node_pointer;
+
+    typedef typename Allocators::allocator_type::template rebind<Value>::other allocator_type;
+
+public:
+    typedef std::input_iterator_tag iterator_category;
+    typedef const Value value_type;
+    typedef Value const& reference;
+    typedef typename allocator_type::difference_type difference_type;
+    typedef typename allocator_type::const_pointer pointer;
+
+    inline nearest_query_iterator(Translator const& t, Predicates const& p)
+        : m_visitor(t, p)
+    {}
+
+    inline nearest_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
+        : m_visitor(t, p)
+    {
+        detail::rtree::apply_visitor(m_visitor, *root);
+        m_visitor.increment();
+    }
+
+    reference operator*() const
+    {
+        return m_visitor.dereference();
+    }
+
+    const value_type * operator->() const
+    {
+        return boost::addressof(m_visitor.dereference());
+    }
+
+    nearest_query_iterator & operator++()
+    {
+        m_visitor.increment();
+        return *this;
+    }
+
+    nearest_query_iterator operator++(int)
+    {
+        nearest_query_iterator temp = *this;
+        this->operator++();
+        return temp;
+    }
+
+    friend bool operator==(nearest_query_iterator const& l, nearest_query_iterator const& r)
+    {
+        return l.m_visitor == r.m_visitor;
+    }
+
+    friend bool operator!=(nearest_query_iterator const& l, nearest_query_iterator const& r)
+    {
+        return !(l.m_visitor == r.m_visitor);
+    }
+
+private:
+    visitor_type m_visitor;
+};
+
+}} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index
 
