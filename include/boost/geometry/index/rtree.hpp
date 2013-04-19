@@ -1132,10 +1132,34 @@ private:
     size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<true> const& /*is_nearest*/) const
     {
         static const unsigned nearest_index = detail::predicates_find_nearest<Predicates>::value;
-        typedef detail::predicates_element<nearest_index, Predicates> element_access;
-        typename element_access::type const& nearest_pred = element_access::get(predicates);
+        typedef index::detail::predicates_element<nearest_index, Predicates> nearest_predicate_access;
+        typedef typename index::detail::distance_predicates_type<typename nearest_predicate_access::type >::type distance_predicates_type;
+        typedef typename detail::point_relation<distance_predicates_type>::type point_relation;
+        typedef typename detail::relation<point_relation>::value_type point_type;
 
-        return raw_nearest_k(nearest_pred.distance_predicates, nearest_pred.count, predicates, out_it);
+        typedef detail::rtree::visitors::nearest_query_result_k<
+            value_type,
+            translator_type,
+            point_type,
+            OutIter
+        > result_type;
+
+        result_type result(nearest_predicate_access::get(predicates).count, out_it);
+
+        detail::rtree::visitors::nearest_query<
+            value_type,
+            options_type,
+            translator_type,
+            box_type,
+            allocators_type,
+            Predicates,
+            nearest_index,
+            result_type
+        > nearest_v(m_members.parameters(), m_members.translator(), predicates, result);
+
+        detail::rtree::apply_visitor(nearest_v, *m_members.root);
+
+        return result.finish();
     }
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
@@ -1188,43 +1212,6 @@ private:
     }
 
 #endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-
-    /*!
-    \brief Find k values meeting distances and spatial predicates.
-
-    \par Exception-safety
-    strong
-    */
-    template <typename DistancesPredicates, typename Predicates, typename OutIter>
-    inline size_type raw_nearest_k(DistancesPredicates const& dpred, size_t k, Predicates const& pred, OutIter out_it) const
-    {
-        typedef typename detail::point_relation<DistancesPredicates>::type point_relation;
-        typedef typename detail::relation<point_relation>::value_type point_type;
-
-        typedef detail::rtree::visitors::nearest_query_result_k<
-            value_type,
-            translator_type,
-            point_type,
-            OutIter
-        > result_type;
-
-        result_type result(k, out_it);
-
-        detail::rtree::visitors::nearest_query<
-            value_type,
-            options_type,
-            translator_type,
-            box_type,
-            allocators_type,
-            DistancesPredicates,
-            Predicates,
-            result_type
-        > nearest_v(m_members.parameters(), m_members.translator(), dpred, pred, result);
-
-        detail::rtree::apply_visitor(nearest_v, *m_members.root);
-
-        return result.finish();
-    }
 
     struct members_holder
         : public translator_type
