@@ -148,8 +148,8 @@ template <
     typename Translator,
     typename Box,
     typename Allocators,
-    typename DistancesPredicates,
     typename Predicates,
+    unsigned NearestPredicateIndex,
     typename Result
 >
 class nearest_query
@@ -162,27 +162,35 @@ public:
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
-    typedef index::detail::distances_calc<DistancesPredicates, Box, index::detail::bounds_tag> node_distances_calc;
+    typedef index::detail::predicates_element<NearestPredicateIndex, Predicates> nearest_predicate_access;
+    typedef typename index::detail::distance_predicates_type<typename nearest_predicate_access::type>::type distance_predicates_type;
+
+    typedef index::detail::distances_calc<distance_predicates_type, Box, index::detail::bounds_tag> node_distances_calc;
     typedef typename node_distances_calc::result_type node_distances_type;
-    typedef index::detail::distances_predicates_check<DistancesPredicates, Box, index::detail::bounds_tag> node_distances_predicates_check;
+    typedef index::detail::distances_predicates_check<distance_predicates_type, Box, index::detail::bounds_tag> node_distances_predicates_check;
 
     typedef index::detail::distances_calc<
-        DistancesPredicates,
+        distance_predicates_type,
         typename indexable_type<Translator>::type,
         index::detail::value_tag
     > value_distances_calc;
     typedef typename value_distances_calc::result_type value_distances_type;
     typedef index::detail::distances_predicates_check<
-        DistancesPredicates,
+        distance_predicates_type,
         typename indexable_type<Translator>::type,
         index::detail::value_tag
     > value_distances_predicates_check;
 
+    inline distance_predicates_type const& dist_pred() const
+    {
+        return nearest_predicate_access::get(m_pred).distance_predicates;
+    }
+
     static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
 
-    inline nearest_query(parameters_type const& parameters, Translator const& translator, DistancesPredicates const& dist_pred, Predicates const& pred, Result & r)
+    inline nearest_query(parameters_type const& parameters, Translator const& translator, Predicates const& pred, Result & r)
         : m_parameters(parameters), m_translator(translator)
-        , m_dist_pred(dist_pred), m_pred(pred)
+        , m_pred(pred)
         , m_result(r)
     {}
 
@@ -210,7 +218,7 @@ public:
             if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(m_pred, 0, it->first) )
             {
                 // calculate node's distance(s) for distance predicate
-                node_distances_type node_dist_data = node_distances_calc::apply(m_dist_pred, it->first);
+                node_distances_type node_dist_data = node_distances_calc::apply(dist_pred(), it->first);
 
                 // TODO: awulkiew - consider at first calculating near distance only,
                 //                  comparing it with m_result.comparable_distance if it's valid,
@@ -224,7 +232,7 @@ public:
                 }
 
                 // if current node distance(s) meets distance predicate
-                if ( node_distances_predicates_check::apply(m_dist_pred, node_dist_data) )
+                if ( node_distances_predicates_check::apply(dist_pred(), node_dist_data) )
                 {
                     // add current node's data into the list
                     active_branch_list.push_back( std::make_pair(node_dist_data, it->second) );
@@ -265,16 +273,16 @@ public:
             if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(m_pred, *it, m_translator(*it)) )
             {
                 // calculate values distance for distance predicate
-                value_distances_type distances = value_distances_calc::apply(m_dist_pred, m_translator(*it));
+                value_distances_type distances = value_distances_calc::apply(dist_pred(), m_translator(*it));
 
                 // TODO: awulkiew - consider at first calculating point relation distance only,
                 //                  comparing it with m_result.comparable_distance if it's valid,
                 //                  after that calculate the rest of distances and check predicates
 
                 // if distance meets distance predicate
-                if ( value_distances_predicates_check::apply(m_dist_pred, distances) )
+                if ( value_distances_predicates_check::apply(dist_pred(), distances) )
                 {
-                    typedef typename index::detail::point_relation<DistancesPredicates>::type point_relation_type;
+                    typedef typename index::detail::point_relation<distance_predicates_type>::type point_relation_type;
                     typedef typename index::detail::relation<point_relation_type>::tag point_relation_tag;
 
                     // store value
@@ -325,9 +333,7 @@ private:
     parameters_type const& m_parameters;
     Translator const& m_translator;
 
-    DistancesPredicates m_dist_pred;
     Predicates m_pred;
-
     Result & m_result;
 };
 

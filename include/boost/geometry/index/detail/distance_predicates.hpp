@@ -29,6 +29,22 @@
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 // ------------------------------------------------------------------ //
+// distance_predicates_type
+// ------------------------------------------------------------------ //
+
+template <typename NearestPredicate>
+struct distance_predicates_type
+{
+    typedef void type;
+};
+
+template <typename DistancePredicates>
+struct distance_predicates_type< detail::nearest<DistancePredicates> >
+{
+    typedef DistancePredicates type;
+};
+
+// ------------------------------------------------------------------ //
 // relations
 // ------------------------------------------------------------------ //
 
