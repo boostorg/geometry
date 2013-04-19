@@ -205,14 +205,13 @@ The most basic way is creating a temporary container for Values and insert them 
  RTree rt2(result.begin(), result.end());
 
 However there are better ways. One of these methods is mentioned in the "Creation and modification" section.
-The insert iterator may be passed directly to the query, which will be the fastest way of inserting
-query results because temporary container won't be used.
+The insert iterator may be passed directly into the query.
  
  RTree rt3;
  rt1.query(bgi::intersects(Box(/*...*/))), bgi::inserter(rt3));
 
-If you like Boost.Range you'll appreciate the third option. You may pass the result Range directly to the
-constructor. However in this case the temporary container is created.
+If you like Boost.Range you'll appreciate the third option. You may pass the result Range directly into the
+constructor.
 
  RTree rt4(rt1 | bgi::adaptors::queried(bgi::intersects(Box(/*...*/)))));
 
