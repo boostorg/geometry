@@ -503,10 +503,9 @@ public:
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        // store neighbours old count before addition of new values
-        typename std::vector< std::pair<value_distance_type, const Value *> >
-            ::size_type old_neighbors_count = neighbors.size();
-
+        // store distance to the furthest neighbour
+        value_distance_type greatest_distance = max_count() <= neighbors.size() ? neighbors.back().first : std::numeric_limits<value_distance_type>::max();
+        
         // search leaf for closest value meeting predicates
         for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
         {
@@ -527,7 +526,7 @@ public:
                                                 ::template get<point_relation_tag>(distances);
 
                     // if there is not enough values or current value is further than currently furthest neighbour
-                    if ( old_neighbors_count < max_count() || 0 == old_neighbors_count || dist < neighbors[old_neighbors_count - 1].first )
+                    if ( dist < greatest_distance )
                     {
                         neighbors.push_back(std::make_pair(dist, boost::addressof(*it)));
                     }
