@@ -527,7 +527,7 @@ public:
                                                 ::template get<point_relation_tag>(distances);
 
                     // if there is not enough values or current value is further than currently furthest neighbour
-                    if ( neighbors.size() < max_count() || 0 == old_neighbors_count || dist < neighbors[old_neighbors_count - 1].first )
+                    if ( old_neighbors_count < max_count() || 0 == old_neighbors_count || dist < neighbors[old_neighbors_count - 1].first )
                     {
                         neighbors.push_back(std::make_pair(dist, boost::addressof(*it)));
                     }
