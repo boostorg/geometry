@@ -195,10 +195,12 @@ public:
         typedef typename rtree::elements_type<internal_node>::type elements_type;
 
         // array of active nodes
-        typename index::detail::rtree::container_from_elements_type<
+        typedef typename index::detail::rtree::container_from_elements_type<
             elements_type,
             std::pair<node_distances_type, typename Allocators::node_pointer>
-        >::type active_branch_list;
+        >::type active_branch_list_type;
+
+        active_branch_list_type active_branch_list;
         active_branch_list.reserve(m_parameters.get_max_elements());
         
         elements_type const& elements = rtree::elements(n);
@@ -242,15 +244,15 @@ public:
         std::sort(active_branch_list.begin(), active_branch_list.end(), abl_less);
 
         // recursively visit nodes
-        for ( size_t i = 0 ;; ++i )
+        for ( typename active_branch_list_type::const_iterator it = active_branch_list.begin();
+              it != active_branch_list.end() ; ++it )
         {
-            // prune nodes
-            prune_nodes(active_branch_list);
-
-            if ( active_branch_list.size() <= i )
+            // if current node is further than furthest neighbor, the rest of nodes also will be further
+            if ( m_result.has_enough_neighbors() &&
+                 is_node_prunable(m_result.greatest_comparable_distance(), it->first) )
                 break;
 
-            rtree::apply_visitor(*this, *active_branch_list[i].second);
+            rtree::apply_visitor(*this, *(it->second));
         }
     }
 
@@ -291,21 +293,6 @@ public:
     }
 
 private:
-    template <typename ActiveBranchList>
-    inline void prune_nodes(ActiveBranchList & abl) const
-    {
-        // if some value were found
-        if ( m_result.has_enough_neighbors() )
-        {
-            // prune if box's mindist is further than value's mindist
-            while ( !abl.empty() &&
-                    is_node_prunable(m_result.greatest_comparable_distance(), abl.back().first) )
-            {
-                abl.pop_back();
-            }
-        }
-    }
-
     static inline bool abl_less(
         std::pair<node_distances_type, typename Allocators::node_pointer> const& p1,
         std::pair<node_distances_type, typename Allocators::node_pointer> const& p2)
@@ -433,7 +420,7 @@ public:
                 active_branch_list.pop_front();
                 rtree::apply_visitor(*this, *(active_branch.second));
 
-                // if some values were found
+                // remove further nodes
                 BOOST_ASSERT_MSG(neighbors.size() <= max_count(), "unexpected neighbours count");
                 if ( max_count() <= neighbors.size() )
                 {
