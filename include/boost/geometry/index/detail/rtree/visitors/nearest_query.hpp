@@ -420,7 +420,7 @@ public:
                 active_branch_list.pop_front();
                 rtree::apply_visitor(*this, *(active_branch.second));
 
-                // remove further nodes
+                // remove nodes further than the furthest neighbour - not really needed
                 BOOST_ASSERT_MSG(neighbors.size() <= max_count(), "unexpected neighbours count");
                 if ( max_count() <= neighbors.size() )
                 {
@@ -491,7 +491,8 @@ public:
         elements_type const& elements = rtree::elements(n);
 
         // store distance to the furthest neighbour
-        value_distance_type greatest_distance = max_count() <= neighbors.size() ? neighbors.back().first : std::numeric_limits<value_distance_type>::max();
+        bool not_enough_neighbors = neighbors.size() < max_count();
+        value_distance_type greatest_distance = !not_enough_neighbors ? neighbors.back().first : std::numeric_limits<value_distance_type>::max();
         
         // search leaf for closest value meeting predicates
         for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
@@ -512,8 +513,8 @@ public:
                     value_distance_type dist = index::detail::cdist_value<value_distances_type>
                                                 ::template get<point_relation_tag>(distances);
 
-                    // if there is not enough values or current value is further than currently furthest neighbour
-                    if ( dist < greatest_distance )
+                    // if there is not enough values or current value is closer than furthest neighbour
+                    if ( not_enough_neighbors || dist < greatest_distance )
                     {
                         neighbors.push_back(std::make_pair(dist, boost::addressof(*it)));
                     }
