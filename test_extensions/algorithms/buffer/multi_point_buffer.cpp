@@ -145,6 +145,7 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
         area += bg::area(polygon);
     }
 
+#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     // Map input geometry in green
     mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:10");
 
@@ -152,6 +153,7 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
     {
         mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
     }
+#endif
 
     return area;
 }
