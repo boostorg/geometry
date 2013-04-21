@@ -10,8 +10,8 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-#define TEST_WITH_SVG
+//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+//#define TEST_WITH_SVG
 
 #include <fstream>
 #include <iomanip>
@@ -52,6 +52,7 @@
 #endif
 
 
+#if defined(TEST_WITH_SVG)
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 template <typename Geometry, typename Mapper>
 void post_map(Geometry const& geometry, Mapper& mapper)
@@ -74,6 +75,7 @@ void post_map(Geometry const& geometry, Mapper& mapper)
         mapper.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 3);
     }
 }
+#endif
 
 //-----------------------------------------------------------------------------
 template <template<typename, typename> class JoinStrategy>
@@ -177,8 +179,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     std::ostringstream filename;
     filename << "buffer_" << complete.str() << ".svg";
 
+#if defined(TEST_WITH_SVG)
     std::ofstream svg(filename.str().c_str());
-
     bg::svg_mapper<point_type> mapper(svg, 1000, 1000);
 
     {
@@ -197,14 +199,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         bg::buffer(box, box, d * (join_name == "miter" ? 2.0 : 1.1));
         mapper.add(box);
     }
+#endif
 
-
-//#ifdef BOOST_GEOMETRY_BUFFER_FLAT_END
-//            bg::strategy::buffer::end_flat<point_type, output_point_type> end_strategy;
-//#else
-//            bg::strategy::buffer::end_round<point_type, output_point_type> end_strategy;
-//#endif
-//
     JoinStrategy
         <
             point_type,
@@ -296,6 +292,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         }
     }
 
+#if defined(TEST_WITH_SVG)
     // Map input geometry in green
     mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:10");
 
@@ -305,6 +302,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         //mapper.map(polygon, "opacity:0.2;fill:none;stroke:rgb(255,0,0);stroke-width:3");
         post_map(polygon, mapper);
     }
+#endif
 }
 
 
