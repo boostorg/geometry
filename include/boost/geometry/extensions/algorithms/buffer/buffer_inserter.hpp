@@ -314,7 +314,8 @@ struct buffer_inserter<point_tag, Point, RingOutput>
             EndStrategy const& end_strategy)
     {
 		collection.start_new_ring();
-		generate_circle(point, collection, distance, join_strategy, end_strategy);
+	        typedef detail::buffer::buffer_point<Point, RingOutput> base;
+		base::generate_circle(point, collection, distance, join_strategy, end_strategy);
     }
 };
 
