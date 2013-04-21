@@ -24,6 +24,12 @@ namespace boost { namespace geometry
 // or probably there will be more enum's or constants for the buffer
 enum buffer_side_selector { buffer_side_left, buffer_side_right };
 
+// Piece type, temporary here, might be reloaced TODO decid this
+enum piece_type
+{
+    buffered_segment, buffered_join, buffered_round_end, buffered_flat_end, buffered_circle
+};
+
 
 
 }} // namespace boost::geometry

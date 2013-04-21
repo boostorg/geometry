@@ -160,14 +160,17 @@ struct buffered_piece_collection_with_mapper
 
 			segment_identifier seg_id = it->first_seg_id;
 
-			buffered_ring<Ring> const& ring = offsetted_rings[seg_id.multi_index];
+			if (seg_id.segment_index >= 0)
+			{
+				buffered_ring<Ring> const& ring = offsetted_rings[seg_id.multi_index];
 
-            std::copy(boost::begin(ring) + seg_id.segment_index, 
-                    boost::begin(ring) + it->last_segment_index, 
-                    std::back_inserter(corner));
-            std::copy(boost::begin(it->helper_segments), 
-                    boost::end(it->helper_segments), 
-                    std::back_inserter(corner));
+				std::copy(boost::begin(ring) + seg_id.segment_index, 
+						boost::begin(ring) + it->last_segment_index, 
+						std::back_inserter(corner));
+				std::copy(boost::begin(it->helper_segments), 
+						boost::end(it->helper_segments), 
+						std::back_inserter(corner));
+			}
 
 			{
 				// Corners of onesided buffers are empty.
@@ -181,7 +184,7 @@ struct buffered_piece_collection_with_mapper
 				geometry::unique(corner);
 			}
 
-            if (pieces)
+            if (pieces && ! corner.empty())
             {
                 if (it->type == buffered_segment)
                 {
@@ -200,7 +203,7 @@ struct buffered_piece_collection_with_mapper
                 }
             }
 
-            if (indices)
+            if (indices && ! corner.empty())
             {
 
                 // Put starting piece_index / segment_index in centroid

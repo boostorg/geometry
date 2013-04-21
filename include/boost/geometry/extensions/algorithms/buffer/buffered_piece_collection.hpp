@@ -55,11 +55,6 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
-enum piece_type
-{
-    buffered_segment, buffered_join, buffered_flat_end
-};
-
 enum segment_relation_code
 {
     segment_relation_on_left, 
@@ -69,9 +64,10 @@ enum segment_relation_code
 };
 
 
-// In the end this will go (if we have a multi-point within/covered_by geometry)
-// which is optimized for multi-points and skips linestrings
-template <typename tag>
+// Checks if an intersection point is inside a geometry
+// In some cases a trivial check might be done, e.g. using symmetric distance:
+// the point must be further than the distance from the geometry
+template <typename Tag>
 struct check_original
 {
 };
@@ -79,8 +75,8 @@ struct check_original
 template <>
 struct check_original<polygon_tag>
 {
-    template <typename Point, typename Geometry>
-    static inline int apply(Point const& point, Geometry const& geometry)
+    template <typename Point, typename Geometry, typename DistanceStrategy>
+    static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
     {
         return geometry::covered_by(point, geometry) ? 1 : -1;
     }
@@ -89,8 +85,18 @@ struct check_original<polygon_tag>
 template <>
 struct check_original<linestring_tag>
 {
-    template <typename Point, typename Geometry>
-    static inline int apply(Point const& point, Geometry const& geometry)
+    template <typename Point, typename Geometry, typename DistanceStrategy>
+    static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
+    {
+        return 0;
+    }
+};
+
+template <>
+struct check_original<point_tag>
+{
+    template <typename Point, typename Geometry, typename DistanceStrategy>
+    static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
     {
         return 0;
     }
@@ -416,13 +422,6 @@ struct buffered_piece_collection
             }
         }
 
-        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments);
-        if (side_helper == 1)
-        {
-            // Left or outside
-            return;
-        }
-
         segment_identifier seg_id = pc.first_seg_id;
         if (seg_id.segment_index < 0)
         {
@@ -434,6 +433,29 @@ struct buffered_piece_collection
         segment_identifier on_segment_seg_id;
 
         buffered_ring<Ring> const& ring = offsetted_rings[seg_id.multi_index];
+
+        if (pc.type == buffered_circle)
+        {
+            // The piece is a full (pseudo) circle. There are no helper segments. We only check if it is the turn is inside the generated circle,
+            // or on the border.
+            int const side_wrt_circle = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point, 
+                            boost::begin(ring) + seg_id.segment_index, 
+                            boost::begin(ring) + pc.last_segment_index,
+                            seg_id, on_segment_seg_id);
+            switch (side_wrt_circle)
+            {
+                case 0 : turn.count_on_offsetted++; break;
+                case -1 : turn.count_within++; break;
+            }
+            return;
+        }
+
+        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments);
+        if (side_helper == 1)
+        {
+            // Left or outside
+            return;
+        }
 
         int const side_offsetted = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point, 
                         boost::begin(ring) + seg_id.segment_index, 
@@ -985,10 +1007,10 @@ struct buffered_piece_collection
         }
     }
 
-    template <typename Geometry>
-    inline void check_remaining_points(Geometry const& input_geometry, int factor)
+    template <typename Geometry, typename DistanceStrategy>
+    inline void check_remaining_points(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
     {
-        // TODO: this should be done as a collection-of-points, for performance
+        int const factor = distance_strategy.factor();
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
@@ -997,7 +1019,7 @@ struct buffered_piece_collection
                 int code = check_original
                         <
                             typename geometry::tag<Geometry>::type
-                        >::apply(it->point, input_geometry);
+                        >::apply(it->point, input_geometry, distance_strategy);
                 if (code * factor == 1)
                 {
                     it->location = inside_original;
@@ -1053,8 +1075,9 @@ struct buffered_piece_collection
 
     }
 
-    template <typename Geometry>
-    inline void get_turns(Geometry const& input_geometry, int factor)
+
+    template <typename Geometry, typename DistanceStrategy>
+    inline void get_turns(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
     {
         // Now: quadratic
         // TODO use partition
@@ -1101,10 +1124,7 @@ struct buffered_piece_collection
         classify_turns();
         classify_inside();
 
-        if (boost::is_same<typename tag_cast<typename tag<Geometry>::type, areal_tag>::type, areal_tag>())
-        {
-            check_remaining_points(input_geometry, factor);
-        }
+        check_remaining_points(input_geometry, distance_strategy);
     }
 
     inline void start_new_ring()
@@ -1130,7 +1150,9 @@ struct buffered_piece_collection
         return offsetted_rings.back().size();
     }
 
-    inline piece& add_piece(piece_type type, bool decrease_by_one)
+    //-------------------------------------------------------------------------
+
+    inline piece& add_piece(piece_type type, bool decrease_segment_index_by_one)
     {
         piece pc;
         pc.type = type;
@@ -1138,7 +1160,7 @@ struct buffered_piece_collection
         pc.first_seg_id = current_segment_id;
 
         std::size_t const n = boost::size(offsetted_rings.back());
-        pc.first_seg_id.segment_index = decrease_by_one ? n - 1 : n;
+        pc.first_seg_id.segment_index = decrease_segment_index_by_one ? n - 1 : n;
 
         m_pieces.push_back(pc);
         return m_pieces.back();
@@ -1147,15 +1169,19 @@ struct buffered_piece_collection
     inline void add_piece(piece_type type, point_type const& p1, point_type const& p2, 
             point_type const& b1, point_type const& b2)
     {
+        // If the last type was a join, the segment_id of next segment should be decreased by one.
         bool const last_type_join = ! m_pieces.empty() 
                 && m_pieces.back().first_seg_id.multi_index == current_segment_id.multi_index
-                && m_pieces.back().type == buffered_join;
+                && (
+                        m_pieces.back().type == buffered_join 
+                        || m_pieces.back().type == buffered_round_end
+                    );
 
         piece& pc = add_piece(type, last_type_join);
 
-        // If it follows the same piece-type point both should be added.
+        // If it follows a non-join (so basically the same piece-type) point b1 should be added.
         // There should be two intersections later and it should be discarded.
-        // But for need it to calculate intersections
+        // But for now we need it to calculate intersections
         if (! last_type_join)
         {
             add_point(b1);
@@ -1169,9 +1195,9 @@ struct buffered_piece_collection
     }
 
     template <typename Range>
-    inline piece& add_piece(piece_type type, Range const& range)
+    inline piece& add_piece(piece_type type, Range const& range, bool decrease_segment_index_by_one)
     {
-        piece& pc = add_piece(type, true);
+        piece& pc = add_piece(type, decrease_segment_index_by_one);
 
         bool first = true;
         int last = offsetted_rings.back().size() + 1;
@@ -1201,7 +1227,7 @@ struct buffered_piece_collection
     template <typename Range>
     inline void add_piece(piece_type type, point_type const& p, Range const& range)
     {
-        piece& pc = add_piece(type, range);
+        piece& pc = add_piece(type, range, true);
 
         if (boost::size(range) > 0)
         {
@@ -1210,6 +1236,24 @@ struct buffered_piece_collection
             pc.helper_segments.push_back(range.front());
         }
     }
+
+    template <typename EndcapStrategy, typename Range>
+    inline void add_endcap(EndcapStrategy const& strategy, Range const& range, point_type const& end_point)
+    {
+        piece_type pt = strategy.get_piece_type();
+        if (pt == buffered_flat_end)
+        {
+            // It is flat, should just be added, without helper segments
+            add_piece(pt, range, true);
+        }
+        else
+        {
+            // Normal case, it has an "inside", helper segments should be added
+            add_piece(pt, end_point, range);
+        }
+    }
+
+    //-------------------------------------------------------------------------
 
     inline void enrich()
     {

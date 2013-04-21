@@ -23,6 +23,7 @@
 #include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
 
+
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 #  include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection_with_mapper.hpp>
 #endif
@@ -88,13 +89,16 @@ struct buffer_range
         typename Collection,
         typename Iterator,
         typename DistanceStrategy,
-        typename JoinStrategy
+        typename JoinStrategy,
+        typename EndStrategy
     >
     static inline void iterate(Collection& collection,
                 Iterator begin, Iterator end,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
-                JoinStrategy const& join_strategy, bool close = false)
+                JoinStrategy const& join_strategy,
+                EndStrategy const& end_strategy,
+                bool close = false)
     {
         output_point_type previous_p1, previous_p2;
         output_point_type first_p1, first_p2;
@@ -103,9 +107,9 @@ struct buffer_range
 
         Iterator it = begin;
 
-        // We want to memorize the last vector too.
+        // We want to memorize the last segment too.
         typedef BOOST_TYPEOF(*it) point_type;
-        point_type last_ip1, last_ip2;
+        point_type penultimate_point, ultimate_point; // last two points from begin/end
 
 
         for (Iterator prev = it++; it != end; ++it)
@@ -113,8 +117,8 @@ struct buffer_range
             if (! detail::equals::equals_point_point(*prev, *it))
             {
                 output_point_type p1, p2;
-                last_ip1 = *prev;
-                last_ip2 = *it;
+                penultimate_point = *prev;
+                ultimate_point = *it;
                 generate_side(*prev, *it, side, distance, p1, p2);
 
                 std::vector<output_point_type> range_out;
@@ -150,6 +154,8 @@ struct buffer_range
             }
         }
 
+        // TODO: take care of degenerate segments
+
         // Might be replaced by specialization
         if(boost::is_same<Tag, ring_tag>::value)
         {
@@ -173,25 +179,105 @@ struct buffer_range
         }
         else if (boost::is_same<Tag, linestring_tag>::value)
         {
-            // Assume flat-end-strategy for now
+
+            // Generate perpendicular points to the reverse side,
+            // these points are necessary for all end-cap strategies
             // TODO fix this (approach) for one-side buffer (1.5 - -1.0)
             output_point_type rp1, rp2;
-            generate_side(last_ip2, last_ip1, 
+            generate_side(ultimate_point, penultimate_point, 
                     side == buffer_side_left 
                     ? buffer_side_right 
                     : buffer_side_left, 
-                distance, rp2, rp1);
+                    distance, rp2, rp1);
 
-            // For flat end:
             std::vector<output_point_type> range_out;
-            range_out.push_back(previous_p2);
-            if (close)
-            {
-                range_out.push_back(rp2);
-            }
-            collection.add_piece(buffered_flat_end, range_out);
+
+            end_strategy.apply(penultimate_point, previous_p2, ultimate_point, rp2, side, distance, range_out);
+            collection.add_endcap(end_strategy, range_out, ultimate_point);
         }
     }
+};
+
+
+
+template
+<
+	typename Point,
+    typename RingOutput
+>
+struct buffer_point
+{
+    typedef typename point_type<RingOutput>::type output_point_type;
+    typedef typename coordinate_type<RingOutput>::type coordinate_type;
+    typedef model::referring_segment<output_point_type const> segment_type;
+
+    typedef typename geometry::select_most_precise
+        <
+            typename geometry::select_most_precise
+                <
+                    typename geometry::coordinate_type<Point>::type,
+                    typename geometry::coordinate_type<output_point_type>::type
+                >::type,
+            double
+        >::type promoted_type;
+
+
+	template <typename RangeOut>
+    static inline void generate_points(Point const& point,
+                promoted_type const& buffer_distance,
+                RangeOut& range_out)
+    {
+
+		promoted_type two = 2.0;
+        promoted_type two_pi = two * geometry::math::pi<promoted_type>();
+		int point_buffer_count = 88; // 88 gives now fixed problem (collinear opposite / robustness. TODO: make this value flexible
+
+        promoted_type diff = two_pi / promoted_type(point_buffer_count);
+        promoted_type a = 0;
+
+        output_point_type first;
+        for (int i = 0; i < point_buffer_count; i++, a -= diff)
+        {
+            output_point_type p;
+            set<0>(p, get<0>(point) + buffer_distance * cos(a));
+            set<1>(p, get<1>(point) + buffer_distance * sin(a));
+            range_out.push_back(p);
+            if (i == 0)
+            {
+                first = p;
+            }
+        }
+
+        // Close it:
+        range_out.push_back(first);
+    }
+
+
+    template
+    <
+        typename Collection,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename EndStrategy
+    >
+    static inline void generate_circle(Point const& point,
+				Collection& collection,
+                DistanceStrategy const& distance,
+                JoinStrategy const& join_strategy,
+                EndStrategy const& end_strategy)
+    {
+		std::vector<output_point_type> range_out;
+        //RingOutput range_out;
+
+		generate_points(point, 
+			distance.apply(point, point, buffer_side_left),
+			range_out);
+
+        collection.add_piece(buffered_circle, range_out, false);
+
+        //std::cout << std::setprecision(20);
+        //std::cout << geometry::wkt(range_out) << std::endl;
+	}
 };
 
 }} // namespace detail::buffer
@@ -210,6 +296,27 @@ template
 >
 struct buffer_inserter
 {};
+
+
+
+template
+<
+    typename Point,
+    typename RingOutput
+>
+struct buffer_inserter<point_tag, Point, RingOutput>
+	: public detail::buffer::buffer_point<Point, RingOutput>
+{
+    template<typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy>
+    static inline void apply(Point const& point, Collection& collection,
+            DistanceStrategy const& distance,
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy)
+    {
+		collection.start_new_ring();
+		generate_circle(point, collection, distance, join_strategy, end_strategy);
+    }
+};
 
 
 template
@@ -232,18 +339,19 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
 
     template
     <
-        typename Collection, typename DistanceStrategy, typename JoinStrategy
+        typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy
     >
     static inline void apply(RingInput const& ring,
             Collection& collection,
             DistanceStrategy const& distance,
-            JoinStrategy const& join_strategy)
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy)
     {
 		if (boost::size(ring) > 3)
 		{
 			base::iterate(collection, boost::begin(ring), boost::end(ring),
 					buffer_side_left,
-					distance, join_strategy);
+					distance, join_strategy, end_strategy);
 		}
     }
 };
@@ -267,21 +375,22 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             linestring_tag
         > base;
 
-    template<typename Collection, typename DistanceStrategy, typename JoinStrategy>
+    template<typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy>
     static inline void apply(Linestring const& linestring, Collection& collection,
             DistanceStrategy const& distance,
-            JoinStrategy const& join_strategy)
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy)
     {
 		if (boost::size(linestring) > 1)
 		{
 			collection.start_new_ring();
 			base::iterate(collection, boost::begin(linestring), boost::end(linestring),
 					buffer_side_left,
-					distance, join_strategy);
+					distance, join_strategy, end_strategy);
                 
 			base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
 					buffer_side_right,
-					distance, join_strategy, true);
+					distance, join_strategy, end_strategy, true);
 		}
 
     }
@@ -296,10 +405,11 @@ template
 struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
 {
 
-    template <typename Collection, typename DistanceStrategy, typename JoinStrategy>
+    template <typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy>
     static inline void apply(PolygonInput const& polygon, Collection& collection,
             DistanceStrategy const& distance,
-            JoinStrategy const& join_strategy)
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy)
     {
 
         typedef typename ring_type<PolygonInput>::type input_ring_type;
@@ -310,7 +420,7 @@ struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
         {
             collection.start_new_ring();
             policy::apply(exterior_ring(polygon), collection,
-                    distance, join_strategy);
+                    distance, join_strategy, end_strategy);
         }
 
         typename interior_return_type<PolygonInput const>::type rings
@@ -318,7 +428,7 @@ struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
         {
             collection.start_new_ring();
-            policy::apply(*it, collection, distance, join_strategy);
+            policy::apply(*it, collection, distance, join_strategy, end_strategy);
         }
 
     }
@@ -335,13 +445,16 @@ template
     typename GeometryInput,
     typename OutputIterator,
     typename DistanceStrategy,
-    typename JoinStrategy
+    typename JoinStrategy,
+    typename EndStrategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     , typename Mapper
 #endif
 >
 inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
-        DistanceStrategy const& distance_strategy, JoinStrategy const& join_strategy
+        DistanceStrategy const& distance_strategy,
+        JoinStrategy const& join_strategy,
+        EndStrategy const& end_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper
 #endif
@@ -361,9 +474,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             typename tag<GeometryInput>::type, 
             GeometryInput, 
             GeometryOutput
-        >::apply(geometry_input, collection, distance_strategy, join_strategy);
+        >::apply(geometry_input, collection, distance_strategy, join_strategy, end_strategy);
 
-    collection.get_turns(geometry_input, distance_strategy.factor());
+    //std::cout << "BEGIN GET TURNS" << std::endl;
+    collection.get_turns(geometry_input, distance_strategy);
+    //std::cout << "END GET TURNS" << std::endl;
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     //collection.map_offsetted(mapper);
