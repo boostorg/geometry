@@ -38,6 +38,11 @@
 #include <boost/geometry/extensions/algorithms/buffer/buffer_inserter.hpp>
 
 #include <boost/geometry/extensions/strategies/buffer.hpp>
+#include <boost/geometry/extensions/strategies/buffer_end_round.hpp>
+#include <boost/geometry/extensions/strategies/buffer_end_flat.hpp>
+#include <boost/geometry/extensions/strategies/buffer_end_skip.hpp>
+
+
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
@@ -70,16 +75,62 @@ void post_map(Geometry const& geometry, Mapper& mapper)
     }
 }
 
+//-----------------------------------------------------------------------------
+template <template<typename, typename> class JoinStrategy>
+struct JoinTestProperties { };
+
+template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
+{ 
+    static std::string name() { return "round"; }
+    static double tolerance() { return 0.1; }
+};
+
+template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_miter>
+{ 
+    static std::string name() { return "miter"; }
+    static double tolerance() { return 0.001; }
+};
+
+template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round_by_divide>
+{ 
+    static std::string name() { return "divide"; }
+    static double tolerance() { return 0.1; }
+};
+
+
+//-----------------------------------------------------------------------------
+template <template<typename, typename> class EndStrategy>
+struct EndTestProperties { };
+
+template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
+{ 
+    static std::string name() { return "round"; }
+    static double tolerance() { return 0.1; }
+};
+
+template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
+{ 
+    static std::string name() { return "flat"; }
+    static double tolerance() { return 0.001; }
+};
+
+template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
+{ 
+    static std::string name() { return ""; }
+    static double tolerance() { return 0.001; }
+};
+
 template
 <
     typename GeometryOut,
     template<typename, typename> class JoinStrategy,
+    template<typename, typename> class EndStrategy,
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
-            char join,
             bool check, double expected_area,
-            double distance_left, double distance_right, int expected_self_tangencies)
+            double distance_left, double distance_right,
+            int expected_self_tangencies)
 {
     namespace bg = boost::geometry;
 
@@ -100,12 +151,26 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 		: ""
 		;
 
+    typedef typename bg::point_type<GeometryOut>::type output_point_type;
+
+    std::string join_name = JoinTestProperties<JoinStrategy>::name();
+    std::string end_name = EndTestProperties<EndStrategy>::name();
+
+    if (boost::is_same<tag, bg::point_tag>::value 
+        || boost::is_same<tag, bg::multi_point_tag>::value)
+    {
+        join_name.clear();
+    }
+
     std::ostringstream complete;
     complete
         << type << "_"
         << caseid << "_"
         << string_from_type<coordinate_type>::name()
-        << "_" << join;
+        << "_" << join_name
+        << (end_name.empty() ? "" : "_") << end_name
+         // << "_" << point_buffer_count
+        ;
 
     //std::cout << complete.str() << std::endl;
 
@@ -129,30 +194,51 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             distance_right = distance_left;
         }
 
-        bg::buffer(box, box, d * (join == 'm' ? 2.0 : 1.1));
+        bg::buffer(box, box, d * (join_name == "miter" ? 2.0 : 1.1));
         mapper.add(box);
     }
 
-    typedef JoinStrategy
+
+//#ifdef BOOST_GEOMETRY_BUFFER_FLAT_END
+//            bg::strategy::buffer::end_flat<point_type, output_point_type> end_strategy;
+//#else
+//            bg::strategy::buffer::end_round<point_type, output_point_type> end_strategy;
+//#endif
+//
+    JoinStrategy
         <
             point_type,
-            typename bg::point_type<GeometryOut>::type
-        > join_strategy_type;
+            output_point_type
+        > join_strategy;
 
-    join_strategy_type join_strategy;
+    EndStrategy
+        <
+            point_type,
+            output_point_type
+        > end_strategy;
 
-    typedef bg::strategy::buffer::distance_asymmetric<coordinate_type> distance_strategy_type;
-    distance_strategy_type distance_strategy(distance_left, distance_right);
+    bg::strategy::buffer::distance_asymmetric
+        <
+            coordinate_type
+        > 
+    distance_strategy(distance_left, distance_right);
 
     std::vector<GeometryOut> buffered;
 
     bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
                         distance_strategy, 
-                        join_strategy
+                        join_strategy,
+                        end_strategy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                         , mapper
 #endif
                                 );
+
+    //// Remove duplicate point (this step should go automatically in the end)
+    //BOOST_FOREACH(GeometryOut& polygon, buffered)
+    //{
+    //    bg::unique(polygon);
+    //}
 
     typename bg::default_area_result<GeometryOut>::type area = 0;
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
@@ -171,16 +257,16 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     if (expected_area > -0.1)
     {
-		typename bg::default_area_result<GeometryOut>::type tolerance = 0.01;
-		if (join == 'r')
-		{
-			tolerance = 0.1;
-		}
+        double tol = JoinTestProperties<JoinStrategy>::tolerance() 
+            + EndTestProperties<EndStrategy>::tolerance();
 
 		if (expected_area < 1.0e-5)
 		{
-			tolerance = 1.0e-10;
+			tol /= 1.0e6;
 		}
+
+		typename bg::default_area_result<GeometryOut>::type tolerance = tol;
+
 
         BOOST_CHECK_MESSAGE
             (
@@ -230,11 +316,13 @@ template
 <
     typename Geometry,
     template<typename, typename> class JoinStrategy,
+    template<typename, typename> class EndStrategy,
     typename GeometryOut
 >
 void test_one(std::string const& caseid, std::string const& wkt,
-        char join, double expected_area,
-        double distance_left, double distance_right = -999, int expected_self_tangencies = 0)
+        double expected_area,
+        double distance_left, double distance_right = -999,
+        int expected_self_tangencies = 0)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -250,13 +338,13 @@ void test_one(std::string const& caseid, std::string const& wkt,
         << ", '" << caseid << "' as caseid"
         << ", ST_Area(ST_Buffer(ST_GeomFromText('" << wkt << "'), "
         << distance_left
-        << ", 'endcap=flat join=" << (join == 'm' ? "miter" : "round") << "'))"
+        << ", 'endcap=" << end_name << " join=" << join_name << "'))"
         << ", "  << expected_area
         << std::endl;
 #endif
 
-    test_buffer<GeometryOut, JoinStrategy>
-            (caseid, g, join, false, expected_area,
+    test_buffer<GeometryOut, JoinStrategy, EndStrategy>
+            (caseid, g, false, expected_area,
             distance_left, distance_right, expected_self_tangencies);
 }
 

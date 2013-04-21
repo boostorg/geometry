@@ -55,6 +55,11 @@ inline bool collinear_point_on_segment(P0 const& subject, P1 const& p1, P2 const
 template <typename SideStrategy, typename Point, typename Range>
 inline int side_on_convex_range(Point const& subject, Range const& range)
 {
+    if (boost::empty(range))
+    {
+        return 1;
+    }
+
     bool has_collinear = false;
 
     typedef typename boost::range_iterator

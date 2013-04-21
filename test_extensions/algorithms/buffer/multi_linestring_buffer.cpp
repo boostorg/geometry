@@ -22,6 +22,7 @@
 
 static std::string const simplex = "MULTILINESTRING((0 0,4 5),(5 4,10 0))";
 static std::string const two_bends = "MULTILINESTRING((0 0,4 5,7 4,10 6),(1 5,5 9,8 6))";
+static std::string const turn_inside = "MULTILINESTRING((0 0,4 5,7 4,10 6),(1 5,5 9,8 6),(0 4,-2 6))";
 
 
 template <typename P>
@@ -32,11 +33,25 @@ void test_all()
     typedef bg::model::multi_linestring<linestring> multi_linestring_type;
     typedef bg::model::polygon<P> polygon;
 
-    test_one<multi_linestring_type, buf::join_round, polygon>("simplex", simplex, 'r', 38.2623, 1.5, 1.5);
-    test_one<multi_linestring_type, buf::join_round, polygon>("two_bends", two_bends, 'r',  64.6217, 1.5, 1.5);
-    test_one<multi_linestring_type, buf::join_round_by_divide, polygon>("two_bends", two_bends, 'd',  64.6217, 1.5, 1.5);
-    test_one<multi_linestring_type, buf::join_miter, polygon>("two_bends", two_bends, 'm',  65.1834, 1.5, 1.5);
-    test_one<multi_linestring_type, buf::join_round, polygon>("two_bends_asym", two_bends, 'm',  52.3793, 1.5, 0.75);
+    // Round joins / round ends
+    test_one<multi_linestring_type, buf::join_round, buf::end_round, polygon>("simplex", simplex, 49.0217, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_round, buf::end_round, polygon>("two_bends", two_bends, 74.73, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_round, buf::end_round, polygon>("turn_inside", turn_inside, 86.3313, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_round, buf::end_round, polygon>("two_bends_asym", two_bends, 58.3395, 1.5, 0.75);
+
+    // Round joins / flat ends:
+    test_one<multi_linestring_type, buf::join_round, buf::end_flat, polygon>("simplex", simplex, 38.2623, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_round, buf::end_flat, polygon>("two_bends", two_bends, 64.6217, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_round, buf::end_flat, polygon>("turn_inside", turn_inside, 99, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_round, buf::end_flat, polygon>("two_bends_asym", two_bends, 52.3793, 1.5, 0.75);
+
+    // This one is far from done:
+    // test_one<multi_linestring_type, buf::join_round, polygon>("turn_inside_asym_neg", turn_inside, 99, +1.5, -1.0);
+
+    // Miter / divide joins, various ends
+    test_one<multi_linestring_type, buf::join_round_by_divide, buf::end_flat, polygon>("two_bends", two_bends, 64.6217, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_miter, buf::end_flat, polygon>("two_bends", two_bends, 65.1834, 1.5, 1.5);
+    test_one<multi_linestring_type, buf::join_miter, buf::end_round, polygon>("two_bends", two_bends, 75.2917, 1.5, 1.5);
 }
 
 

@@ -7,9 +7,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
+#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 //#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-//#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
+#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 
 #include <geometry_test_common.hpp>
 
@@ -48,7 +48,8 @@ void test_aimes()
     namespace buf = bg::strategy::buffer;
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::polygon<P> polygon;
-	double const aimes_width = 0.000018;
+	//double const aimes_width = 0.000018;
+    double const aimes_width = 0.000072;
 
 	static std::string const aimes1 = "LINESTRING(-3.031075 52.22385,-3.030809 52.223579,-3.030424 52.223207,-3.030212 52.222931,-3.030013 52.222764,-3.029721 52.222584,-3.029469 52.222443,-3.029218 52.222319,-3.028886 52.222187,-3.028859 52.222176,-3.028815 52.222158,-3.028563 52.222016,-3.028462 52.221945,-3.028407 52.221881,-3.028351 52.22179,-3.028301 52.221718,-3.028203 52.221601,-3.028151 52.221552,-3.027982 52.221422,-3.027871 52.221353,-3.027755 52.221293,-3.027573 52.22121,-3.027493 52.221179,-3.027463 52.221165,-3.027147 52.221065,-3.027045 52.221039,-3.026812 52.220989,-3.026691 52.220968,-3.026602 52.220957,-3.026111 52.220898,-3.025715 52.220861,-3.025332 52.220842,-3.025011 52.220845,-3.024587 52.220849,-3.024339 52.220869,-3.024213 52.220881,-3.024103 52.220905,-3.023904 52.220966,-3.023687 52.221027,-3.023575 52.221054,-3.023409 52.221077,-3.023317 52.221072,-3.023259 52.221049,-3.023028 52.220905,-3.022859 52.220819,-3.022799 52.220774,-3.022739 52.220688)";
 	static std::string const aimes2 = "LINESTRING(-3.056646 52.20421,-3.055298 52.204143,-3.054991 52.204119,-3.053966 52.204125,-3.053793 52.204126)";
@@ -71,26 +72,27 @@ void test_aimes()
 	static std::string const aimes19 = "LINESTRING(-3.001027 52.270697,-3.001233 52.270714,-3.00157 52.270711,-3.001614 52.270715,-3.001658 52.270719,-3.001746 52.270736,-3.002 52.270828)";
 	static std::string const aimes20 = "LINESTRING(-3.002514 52.270973,-3.002616 52.270954,-3.00282 52.270916,-3.002878 52.27088,-3.002978 52.270771,-3.003022 52.270752,-3.003066 52.270743,-3.003124 52.270734)";
 
-	test_one<linestring, buf::join_miter, polygon>("aimes1", aimes1, 'm', 3.41515232094025e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes2", aimes2, 'm', 1.02802331980456e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes3", aimes3, 'm', 3.56112451527224e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes4", aimes4, 'm', 4.25305444196056e-008, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes5", aimes5, 'm', 3.69520876120077e-008, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes6", aimes6, 'm', 3.12580681338659e-008, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes7", aimes7, 'm', 2.64535032101776e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes8", aimes8, 'm', 1.26452604831684e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes9", aimes9, 'm', 5.62396706982327e-008, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes10", aimes10, 'm', 7.03945403301987e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes11", aimes11, 'm', 2.05895901217446e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes12", aimes12, 'm', 1.01571146160495e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes13", aimes13, 'm', 2.42559636376427e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes14", aimes14, 'm', 3.41515232094025e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes15", aimes15, 'm', 9.08697614931953e-008, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes16", aimes16, 'm', 6.0466163631645e-008, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes17", aimes17, 'm', 4.04659118657946e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes18", aimes18, 'm', 4.80904560618001e-007, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes19", aimes19, 'm', 3.57066625156222e-008, aimes_width, aimes_width);
-	test_one<linestring, buf::join_miter, polygon>("aimes20", aimes20, 'm', 2.44433664420285e-008, aimes_width, aimes_width);
+	//test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes1", aimes1, 3.41515232094025e-007, aimes_width, aimes_width);
+	//test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes2", aimes2, 1.02802331980456e-007, aimes_width, aimes_width);
+	//test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes3", aimes3, 3.56112451527224e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes4", aimes4, 4.25305444196056e-008, aimes_width, aimes_width);
+    return;
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes5", aimes5, 3.69520876120077e-008, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes6", aimes6, 3.12580681338659e-008, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes7", aimes7, 2.64535032101776e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes8", aimes8, 1.26452604831684e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes9", aimes9, 5.62396706982327e-008, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes10", aimes10, 7.03945403301987e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes11", aimes11, 2.05895901217446e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes12", aimes12, 1.01571146160495e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes13", aimes13, 2.42559636376427e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes14", aimes14, 3.41515232094025e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes15", aimes15, 9.08697614931953e-008, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes16", aimes16, 6.0466163631645e-008, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes17", aimes17, 4.04659118657946e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes18", aimes18, 4.80904560618001e-007, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes19", aimes19, 3.57066625156222e-008, aimes_width, aimes_width);
+	test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes20", aimes20, 2.44433664420285e-008, aimes_width, aimes_width);
 
 /* PostGIS: 
 with viewy as
@@ -150,60 +152,69 @@ void test_all()
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::polygon<P> polygon;
 
-    test_one<linestring, buf::join_round, polygon>("simplex", simplex, 'r', 19.209, 1.5, 1.5);
-    test_one<linestring, buf::join_miter, polygon>("simplex", simplex, 'm', 19.209, 1.5, 1.5);
+    // Simplex (join-type is not relevant)
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("simplex", simplex, 19.209, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, buf::end_round, polygon>("simplex", simplex, 26.2733, 1.5, 1.5);
 
-    test_one<linestring, buf::join_miter, polygon>("simplex_asym_neg", simplex, 'm', 3.202, +1.5, -1.0);
-    test_one<linestring, buf::join_miter, polygon>("simplex_asym_pos", simplex, 'm', 3.202, -1.0, +1.5);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("simplex_asym_neg", simplex, 3.202, +1.5, -1.0);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("simplex_asym_pos", simplex, 3.202, -1.0, +1.5);
+    // Do not work yet:
+    //test_one<linestring, buf::join_miter, buf::end_round, polygon>("simplex_asym_neg", simplex, 3.202, +1.5, -1.0);
+    //test_one<linestring, buf::join_miter, buf::end_round, polygon>("simplex_asym_pos", simplex, 3.202, -1.0, +1.5);
 
-	// Generates a reverse polygon, which will be empty TODO decide about this
-    // test_one<linestring, buf::join_miter, polygon>("simplex_asym_pos", simplex, 'm', 0, -1.5, +1.0); 
+	// Generates a reverse polygon, with a negative area, which will be made empty TODO decide about this
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("simplex_asym_neg_rev", simplex, 0, +1.0, -1.5); 
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("simplex_asym_pos_rev", simplex, 0, -1.5, +1.0); 
 
-    //test_one<linestring, buf::join_round, polygon>("straight", straight, 'r', 19.2093727122985, 1.5, 1.5);
-    //test_one<linestring, buf::join_miter, polygon>("straight", straight, 'm', 19.2093727122985, 1.5, 1.5);
+    //test_one<linestring, buf::join_round, buf::end_flat, polygon>("straight", straight, 19.2093727122985, 1.5, 1.5);
+    //test_one<linestring, buf::join_miter, buf::end_flat, polygon>("straight", straight, 19.2093727122985, 1.5, 1.5);
 
-    test_one<linestring, buf::join_round, polygon>("one_bend", one_bend, 'r', 28.488, 1.5, 1.5);
-    test_one<linestring, buf::join_miter, polygon>("one_bend", one_bend, 'm', 28.696, 1.5, 1.5);
-    test_one<linestring, buf::join_round_by_divide, polygon>("one_bend", one_bend, 'd', 28.488, 1.5, 1.5);
+    // One bend/two bends (tests join-type)
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("one_bend", one_bend, 28.488, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("one_bend", one_bend, 28.696, 1.5, 1.5);
+    test_one<linestring, buf::join_round_by_divide, buf::end_flat, polygon>("one_bend", one_bend, 28.488, 1.5, 1.5);
 
-    test_one<linestring, buf::join_round, polygon>("two_bends", two_bends, 'r', 39.235, 1.5, 1.5);
-    test_one<linestring, buf::join_round_by_divide, polygon>("two_bends", two_bends, 'd', 39.235, 1.5, 1.5);
-    test_one<linestring, buf::join_miter, polygon>("two_bends", two_bends, 'm', 39.513, 1.5, 1.5);
-    test_one<linestring, buf::join_round, polygon>("two_bends_left", two_bends, 'r', 20.028, 1.5, 0.0);
-    test_one<linestring, buf::join_miter, polygon>("two_bends_left", two_bends, 'm', 20.225, 1.5, 0.0);
-    test_one<linestring, buf::join_round, polygon>("two_bends_right", two_bends, 'r', 19.211, 0.0, 1.5);
-    test_one<linestring, buf::join_miter, polygon>("two_bends_right", two_bends, 'm', 19.288, 0.0, 1.5);
+    test_one<linestring, buf::join_round, buf::end_round, polygon>("one_bend", one_bend, 35.5603, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, buf::end_round, polygon>("one_bend", one_bend, 35.7601, 1.5, 1.5);
+
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("two_bends", two_bends, 39.235, 1.5, 1.5);
+    test_one<linestring, buf::join_round_by_divide, buf::end_flat, polygon>("two_bends", two_bends, 39.235, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("two_bends", two_bends, 39.513, 1.5, 1.5);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("two_bends_left", two_bends, 20.028, 1.5, 0.0);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("two_bends_left", two_bends, 20.225, 1.5, 0.0);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("two_bends_right", two_bends, 19.211, 0.0, 1.5);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("two_bends_right", two_bends, 19.288, 0.0, 1.5);
 
 
 	// Next (and all similar cases) which a offsetted-one-sided buffer has to be fixed. TODO
-    //test_one<linestring, buf::join_miter, polygon>("two_bends_neg", two_bends, 'm', 99, +1.5, -1.0);
-    //test_one<linestring, buf::join_miter, polygon>("two_bends_pos", two_bends, 'm', 99, -1.5, +1.0);
-    //test_one<linestring, buf::join_round, polygon>("two_bends_neg", two_bends, 'r', 99, +1.5, -1.0);
-    //test_one<linestring, buf::join_round, polygon>("two_bends_pos", two_bends, 'r', 99, -1.5, +1.0);
+    //test_one<linestring, buf::join_miter, buf::end_flat, polygon>("two_bends_neg", two_bends, 99, +1.5, -1.0);
+    //test_one<linestring, buf::join_miter, buf::end_flat, polygon>("two_bends_pos", two_bends, 99, -1.5, +1.0);
+    //test_one<linestring, buf::join_round, buf::end_flat, polygon>("two_bends_neg", two_bends, 99, +1.5, -1.0);
+    //test_one<linestring, buf::join_round, buf::end_flat, polygon>("two_bends_pos", two_bends, 99, -1.5, +1.0);
 
-    test_one<linestring, buf::join_round, polygon>("overlapping150", overlapping, 'r', 65.646, 1.5, 1.5);
-    test_one<linestring, buf::join_miter, polygon>("overlapping150", overlapping, 'm', 68.140, 1.5, 1.5);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("overlapping150", overlapping, 65.6786, 1.5, 1.5);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("overlapping150", overlapping, 68.140, 1.5, 1.5);
 	// Different cases with intersection points on flat and (left/right from line itself)
-    test_one<linestring, buf::join_round, polygon>("overlapping_asym_150_010", overlapping, 'r', 48.308, 1.5, 0.25);
-    test_one<linestring, buf::join_miter, polygon>("overlapping_asym_150_010", overlapping, 'm', 50.770, 1.5, 0.25);
-    test_one<linestring, buf::join_round, polygon>("overlapping_asym_150_075", overlapping, 'r', 58.506, 1.5, 0.75);
-    test_one<linestring, buf::join_miter, polygon>("overlapping_asym_150_075", overlapping, 'm', 60.985, 1.5, 0.75);
-    test_one<linestring, buf::join_round, polygon>("overlapping_asym_150_100", overlapping, 'r', 62.514, 1.5, 1.0);
-    test_one<linestring, buf::join_miter, polygon>("overlapping_asym_150_100", overlapping, 'm', 64.984, 1.5, 1.0);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("overlapping_asym_150_010", overlapping, 48.308, 1.5, 0.25);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("overlapping_asym_150_010", overlapping, 50.770, 1.5, 0.25);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("overlapping_asym_150_075", overlapping, 58.506, 1.5, 0.75);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("overlapping_asym_150_075", overlapping, 60.985, 1.5, 0.75);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("overlapping_asym_150_100", overlapping, 62.514, 1.5, 1.0);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("overlapping_asym_150_100", overlapping, 64.984, 1.5, 1.0);
 
-    test_one<linestring, buf::join_round, polygon>("for_collinear", for_collinear, 'r', 68.561, 2.0, 2.0);
-    test_one<linestring, buf::join_miter, polygon>("for_collinear", for_collinear, 'm', 72, 2.0, 2.0);
-    test_one<linestring, buf::join_round, polygon>("for_collinear2", for_collinear2, 'r', 74.387, 2.0, 2.0);
-    test_one<linestring, buf::join_miter, polygon>("for_collinear2", for_collinear2, 'm', 78.0, 2.0, 2.0);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("for_collinear", for_collinear, 68.561, 2.0, 2.0);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("for_collinear", for_collinear, 72, 2.0, 2.0);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("for_collinear2", for_collinear2, 74.387, 2.0, 2.0);
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("for_collinear2", for_collinear2, 78.0, 2.0, 2.0);
 
-    //test_one<linestring, buf::join_round, polygon>("curve", curve, 'r', 99, 5.0, 3.0);
-    //test_one<linestring, buf::join_miter, polygon>("curve", curve, 'm', 99, 5.0, 3.0);
+    //test_one<linestring, buf::join_round, buf::end_flat, polygon>("curve", curve, 99, 5.0, 3.0);
+    //test_one<linestring, buf::join_miter, buf::end_flat, polygon>("curve", curve, 99, 5.0, 3.0);
 
-    test_one<linestring, buf::join_round, polygon>("chained2", chained2, 'r', 11.3137, 2.5, 1.5);
-    test_one<linestring, buf::join_round, polygon>("chained3", chained3, 'r', 16.9706, 2.5, 1.5);
-    test_one<linestring, buf::join_round, polygon>("chained4", chained4, 'r', 22.6274, 2.5, 1.5);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("chained2", chained2, 11.3137, 2.5, 1.5);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("chained3", chained3, 16.9706, 2.5, 1.5);
+    test_one<linestring, buf::join_round, buf::end_flat, polygon>("chained4", chained4, 22.6274, 2.5, 1.5);
 
-    //test_one<linestring, buf::join_round, polygon>("reallife1", reallife1, 'r', 99, 16.5, 6.5);
+    //test_one<linestring, buf::join_round, buf::end_flat, polygon>("reallife1", reallife1, 99, 16.5, 6.5);
 }
 
 
@@ -218,7 +229,7 @@ int test_main(int, char* [])
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
 
-	// test_aimes<bg::model::point<double, 2, bg::cs::cartesian> >();
+	//test_aimes<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }
