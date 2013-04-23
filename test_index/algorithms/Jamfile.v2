@@ -6,7 +6,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-index-algorithms
+test-suite geometry/index/algorithms
     :
     [ run content.cpp ]
 	[ run intersection_content.cpp ] # this tests overlap() too
