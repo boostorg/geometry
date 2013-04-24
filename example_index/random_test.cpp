@@ -12,7 +12,6 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 #include <boost/geometry/index/rtree.hpp>
 
-#include <boost/chrono.hpp>
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 
@@ -20,11 +19,9 @@ int main()
 {
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
-    typedef boost::chrono::thread_clock clock_t;
-    typedef boost::chrono::duration<float> dur_t;
 
     size_t values_count = 1000000;
-    size_t queries_count = 100000;
+    size_t queries_count = 10000;
     size_t nearest_queries_count = 10000;
     unsigned neighbours_count = 10;
 
@@ -56,13 +53,11 @@ int main()
 
     std::cout << "sizeof rtree: " << sizeof(RT) << std::endl;
 
-    for (;;)
     {
         RT t;
 
-        // inserting test
+        // inserting
         {
-            clock_t::time_point start = clock_t::now();
             for (size_t i = 0 ; i < values_count ; ++i )
             {
                 float x = coords[i].first;
@@ -71,33 +66,35 @@ int main()
 
                 t.insert(b);
             }
-            dur_t time = clock_t::now() - start;
-            std::cout << time << " - insert " << values_count << '\n';
+            std::cout << "inserted values: " << values_count << '\n';
         }
 
         std::vector<B> result;
         result.reserve(100);
-        B result_one;
+        
+        // test
+        std::vector<size_t> spatial_query_data;
+        size_t spatial_query_index = 0;
 
         {
-            clock_t::time_point start = clock_t::now();
-            size_t temp = 0;
+            size_t found_count = 0;
             for (size_t i = 0 ; i < queries_count ; ++i )
             {
                 float x = coords[i].first;
                 float y = coords[i].second;
                 result.clear();
                 t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
-                temp += result.size();
+                
+                // test
+                spatial_query_data.push_back(result.size());
+                found_count += result.size();
             }
-            dur_t time = clock_t::now() - start;
-            std::cout << time << " - query(B) " << queries_count << " found " << temp << '\n';
+            std::cout << "spatial queries found: " << found_count << '\n';
         }
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
         {
-            clock_t::time_point start = clock_t::now();
-            size_t temp = 0;
+            size_t found_count = 0;
             for (size_t i = 0 ; i < queries_count ; ++i )
             {
                 float x = coords[i].first;
@@ -106,90 +103,80 @@ int main()
                 std::copy(t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
                           t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
                           std::back_inserter(result));
-                temp += result.size();
+
+                // test
+                if ( spatial_query_data[spatial_query_index] != result.size() )
+                    std::cout << "Spatial query error - should be: " << spatial_query_data[spatial_query_index] << ", is: " << result.size() << '\n';
+                ++spatial_query_index;
+                found_count += result.size();
             }
-            dur_t time = clock_t::now() - start;
-            std::cout << time << " - query iterator(B) " << queries_count << " found " << temp << '\n';
+            std::cout << "incremental spatial queries found: " << found_count << '\n';
         }
 #endif
 
-        {
-            clock_t::time_point start = clock_t::now();
-            size_t temp = 0;
-            for (size_t i = 0 ; i < queries_count / 2 ; ++i )
-            {
-                float x1 = coords[i].first;
-                float y1 = coords[i].second;
-                float x2 = coords[i+1].first;
-                float y2 = coords[i+1].second;
-                float x3 = coords[i+2].first;
-                float y3 = coords[i+2].second;
-                result.clear();
-                t.query(
-                    bgi::intersects(B(P(x1 - 10, y1 - 10), P(x1 + 10, y1 + 10)))
-                    &&
-                    !bgi::within(B(P(x2 - 10, y2 - 10), P(x2 + 10, y2 + 10)))
-                    &&
-                    !bgi::overlaps(B(P(x3 - 10, y3 - 10), P(x3 + 10, y3 + 10)))
-                    ,
-                    std::back_inserter(result)
-                    );
-                temp += result.size();
-            }
-            dur_t time = clock_t::now() - start;
-            std::cout << time << " - query(i && !w && !o) " << queries_count << " found " << temp << '\n';
-        }
-
-        result.clear();
+        // test
+        std::vector<float> nearest_query_data;
+        size_t nearest_query_data_index = 0;
 
         {
-            clock_t::time_point start = clock_t::now();
-            size_t temp = 0;
+            size_t found_count = 0;
             for (size_t i = 0 ; i < nearest_queries_count ; ++i )
             {
                 float x = coords[i].first + 100;
                 float y = coords[i].second + 100;
                 result.clear();
-                temp += t.query(bgi::nearest(P(x, y), neighbours_count), std::back_inserter(result));
+                t.query(bgi::nearest(P(x, y), neighbours_count), std::back_inserter(result));
+
+                // test
+                {
+                    float max_dist = 0;
+                    BOOST_FOREACH(B const& b, result)
+                    {
+                        float curr_dist = bgi::detail::comparable_distance_near(P(x, y), b);
+                        if ( max_dist < curr_dist )
+                            max_dist = curr_dist;
+                    }
+                    nearest_query_data.push_back(max_dist);
+                }
+                found_count += result.size();
             }
-            dur_t time = clock_t::now() - start;
-            std::cout << time << " - query(nearest(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
+            std::cout << "nearest queries found: " << found_count << '\n';
         }
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
         {
-            clock_t::time_point start = clock_t::now();
-            size_t temp = 0;
+            size_t found_count = 0;
             for (size_t i = 0 ; i < nearest_queries_count ; ++i )
             {
                 float x = coords[i].first + 100;
                 float y = coords[i].second + 100;
                 result.clear();
+
                 std::copy(t.qbegin(bgi::nearest(P(x, y), neighbours_count)),
                           t.qend(bgi::nearest(P(x, y), neighbours_count)),
                           std::back_inserter(result));
-                temp += result.size();
+
+                // test
+                {
+                    float max_dist = 0;
+                    BOOST_FOREACH(B const& b, result)
+                    {
+                        float curr_dist = bgi::detail::comparable_distance_near(P(x, y), b);
+                        if ( max_dist < curr_dist )
+                            max_dist = curr_dist;
+                    }
+                    if ( nearest_query_data_index < nearest_query_data.size() &&
+                         nearest_query_data[nearest_query_data_index] != max_dist )
+                         std::cout << "Max distance error - should be: " << nearest_query_data[nearest_query_data_index] << ", and is: " << max_dist << "\n";
+                    ++nearest_query_data_index;
+                }
+                found_count += result.size();
             }
-            dur_t time = clock_t::now() - start;
-            std::cout << time << " - nearest_iterator(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
+            std::cout << "incremental nearest queries found: " << found_count << '\n';
         }
 #endif
 
-        {
-            clock_t::time_point start = clock_t::now();
-            for (size_t i = 0 ; i < values_count / 10 ; ++i )
-            {
-                float x = coords[i].first;
-                float y = coords[i].second;
-                B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
-
-                t.remove(b);
-            }
-            dur_t time = clock_t::now() - start;
-            std::cout << time << " - remove " << values_count / 10 << '\n';
-        }
-
-        std::cout << "------------------------------------------------\n";
+        std::cout << "finished\n";
     }
 
     return 0;
