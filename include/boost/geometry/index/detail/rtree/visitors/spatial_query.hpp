@@ -126,25 +126,24 @@ struct spatial_query_incremental
             // if leaf is choosen, move to the next value in leaf
             if ( values )
             {
-                for ( ;; ++value_index )
+                if ( value_index < values->size() )
                 {
-                    // no more values, clear current leaf
-                    if ( values->size() <= value_index )
-                    {
-                        values = 0;
-                        value_index = 0;
-                        break;
-                    }
-
                     // return if next value is found
                     Value const& v = (*values)[value_index];
                     if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(pred, v, tr(v)) )
                         return;
+
+                    ++value_index;
+                }
+                // no more values, clear current leaf
+                else
+                {
+                    values = 0;
+                    value_index = 0;
                 }
             }
-
-            // move to the next leaf if values aren't set
-            while ( !values )
+            // if leaf isn't choosen, move to the next leaf
+            else
             {
                 // return if there is no more nodes to traverse
                 if ( internal_stack.empty() )
