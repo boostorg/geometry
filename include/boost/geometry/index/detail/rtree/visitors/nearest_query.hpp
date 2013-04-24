@@ -387,9 +387,9 @@ public:
     inline nearest_query_incremental(Translator const& translator, Predicates const& pred)
         : m_translator(translator)
         , m_pred(pred)
-        , current_neighbor(std::numeric_limits<size_type>::max())
+        , current_neighbor((std::numeric_limits<size_type>::max)())
 
-        , next_closest_node_distance(std::numeric_limits<node_distance_type>::max())
+        , next_closest_node_distance((std::numeric_limits<node_distance_type>::max)())
     {
         BOOST_ASSERT_MSG(0 < max_count(), "k must be greather than 0");
     }
@@ -403,7 +403,7 @@ public:
     {
         for (;;)
         {
-            size_type new_neighbor = current_neighbor == std::numeric_limits<size_type>::max() ? 0 : current_neighbor + 1;
+            size_type new_neighbor = current_neighbor == (std::numeric_limits<size_type>::max)() ? 0 : current_neighbor + 1;
 
             if ( internal_stack.empty() )
             {
@@ -411,7 +411,7 @@ public:
                     current_neighbor = new_neighbor;
                 else
                 {
-                    current_neighbor = std::numeric_limits<size_type>::max();
+                    current_neighbor = (std::numeric_limits<size_type>::max)();
 // TODO - temporary - used to disable the condition above
                     neighbors.clear();
                 }
@@ -463,7 +463,7 @@ public:
     friend bool operator==(nearest_query_incremental const& l, nearest_query_incremental const& r)
     {
         BOOST_ASSERT_MSG(l.current_neighbor != r.current_neighbor ||
-                         l.current_neighbor == std::numeric_limits<size_type>::max() ||
+                         l.current_neighbor == (std::numeric_limits<size_type>::max)() ||
                          l.neighbors[l.current_neighbor].second == r.neighbors[r.current_neighbor].second,
                          "not corresponding iterators");
         return l.current_neighbor == r.current_neighbor;
@@ -522,7 +522,7 @@ public:
 
         // store distance to the furthest neighbour
         bool not_enough_neighbors = neighbors.size() < max_count();
-        value_distance_type greatest_distance = !not_enough_neighbors ? neighbors.back().first : std::numeric_limits<value_distance_type>::max();
+        value_distance_type greatest_distance = !not_enough_neighbors ? neighbors.back().first : (std::numeric_limits<value_distance_type>::max)();
         
         // search leaf for closest value meeting predicates
         for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
@@ -577,7 +577,7 @@ private:
     calc_closest_node_distance(typename internal_stack_type::const_iterator first,
                                typename internal_stack_type::const_iterator last)
     {
-        node_distance_type result = std::numeric_limits<node_distance_type>::max();
+        node_distance_type result = (std::numeric_limits<node_distance_type>::max)();
         for ( ; first != last ; ++first )
         {
             if ( first->first.size() <= first->second )
