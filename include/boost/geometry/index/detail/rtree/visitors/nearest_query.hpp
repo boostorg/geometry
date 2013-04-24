@@ -353,6 +353,7 @@ public:
     typedef index::detail::distances_calc<distance_predicates_type, Box, index::detail::bounds_tag> node_distances_calc;
     typedef typename node_distances_calc::result_type node_distances_type;
     typedef index::detail::distances_predicates_check<distance_predicates_type, Box, index::detail::bounds_tag> node_distances_predicates_check;
+    typedef typename index::detail::cdist_value<node_distances_type>::type node_distance_type;
 
     typedef index::detail::distances_calc<
         distance_predicates_type,
@@ -369,15 +370,26 @@ public:
     typedef typename Allocators::size_type size_type;
     typedef typename Allocators::node_pointer node_pointer;
 
-    typedef typename rtree::elements_type<internal_node>::type::const_iterator internal_iterator;
+    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+
+    typedef typename rtree::elements_type<internal_node>::type internal_elements;
+    typedef typename internal_elements::const_iterator internal_iterator;
     typedef typename rtree::elements_type<leaf>::type leaf_elements;
 
-    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+    typedef std::pair<node_distances_type, node_pointer> branch_data;
+    typedef typename index::detail::rtree::container_from_elements_type<
+        internal_elements, branch_data
+    >::type active_branch_list_type;
+    typedef std::vector<
+        std::pair<active_branch_list_type, typename active_branch_list_type::size_type>
+    > internal_stack_type;
 
     inline nearest_query_incremental(Translator const& translator, Predicates const& pred)
         : m_translator(translator)
         , m_pred(pred)
         , current_neighbor(std::numeric_limits<size_type>::max())
+
+        , next_closest_node_distance(std::numeric_limits<node_distance_type>::max())
     {
         BOOST_ASSERT_MSG(0 < max_count(), "k must be greather than 0");
     }
@@ -393,7 +405,7 @@ public:
         {
             size_type new_neighbor = current_neighbor == std::numeric_limits<size_type>::max() ? 0 : current_neighbor + 1;
 
-            if ( active_branch_list.empty() )
+            if ( internal_stack.empty() )
             {
                 if ( new_neighbor < neighbors.size() )
                     current_neighbor = new_neighbor;
@@ -408,28 +420,41 @@ public:
             }
             else
             {
+                active_branch_list_type & branches = internal_stack.back().first;
+                typename active_branch_list_type::size_type & current_branch = internal_stack.back().second;
+
+                if ( branches.size() <= current_branch )
+                {
+                    internal_stack.pop_back();
+                    continue;
+                }
+
                 // if there are no nodes which can have closer values, set new value
                 if ( new_neighbor < neighbors.size() &&
-                     is_node_further(neighbors[new_neighbor].first, active_branch_list.front().first) )
+                     // here must be < because otherwise neighbours may be sorted in different order
+                     // if there is another value with equal distance
+                     neighbors[new_neighbor].first < next_closest_node_distance )
                 {
                     current_neighbor = new_neighbor;
                     return;
                 }
 
-                std::pair<node_distances_type, node_pointer> active_branch = active_branch_list.front();
-                active_branch_list.pop_front();
-                rtree::apply_visitor(*this, *(active_branch.second));
-
-                // remove nodes further than the furthest neighbour - not really needed
+                // if node is further than the furthest neighbour, following nodes also will be further
                 BOOST_ASSERT_MSG(neighbors.size() <= max_count(), "unexpected neighbours count");
-                if ( max_count() <= neighbors.size() )
+                if ( max_count() <= neighbors.size() &&
+                     is_node_prunable(neighbors.back().first, branches[current_branch].first) )
                 {
-                    // prune nodes which mindists are further than furthest value's dist
-                    while ( !active_branch_list.empty() &&
-                            is_node_prunable(neighbors.back().first, active_branch_list.back().first) )
-                    {
-                        active_branch_list.pop_back();
-                    }
+                    // stop traversing current level
+                    internal_stack.pop_back();
+                    continue;
+                }
+                else
+                {
+                    // new level - must increment current_branch before traversing of another level (mem reallocation)
+                    ++current_branch;
+                    rtree::apply_visitor(*this, *(branches[current_branch - 1].second));
+
+                    next_closest_node_distance = calc_closest_node_distance(internal_stack.begin(), internal_stack.end());
                 }
             }
         }
@@ -452,6 +477,8 @@ public:
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
+        internal_stack.push_back(std::make_pair(active_branch_list_type(), 0));
+
         // fill active branch list array of nodes meeting predicates
         for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it )
         {
@@ -473,13 +500,16 @@ public:
                 if ( node_distances_predicates_check::apply(dist_pred(), node_dist_data) )
                 {
                     // add current node's data into the list
-                    active_branch_list.push_front( std::make_pair(node_dist_data, it->second) );
+                    internal_stack.back().first.push_back( std::make_pair(node_dist_data, it->second) );
                 }
             }
         }
 
-        // sort array
-        std::sort(active_branch_list.begin(), active_branch_list.end(), abl_less);
+        if ( internal_stack.back().first.empty() )
+            internal_stack.pop_back();
+        else
+            // sort array
+            std::sort(internal_stack.back().first.begin(), internal_stack.back().first.end(), abl_less);
     }
 
     // Put values into the list of neighbours if those values meets predicates
@@ -543,18 +573,29 @@ private:
         return p1.first < p2.first;
     }
 
+    node_distance_type
+    calc_closest_node_distance(typename internal_stack_type::const_iterator first,
+                               typename internal_stack_type::const_iterator last)
+    {
+        node_distance_type result = std::numeric_limits<node_distance_type>::max();
+        for ( ; first != last ; ++first )
+        {
+            if ( first->first.size() <= first->second )
+                continue;
+
+            node_distance_type curr_dist = index::detail::cdist_value<node_distances_type>
+                                            ::template get<index::detail::to_nearest_tag>(first->first[first->second].first);
+            if ( curr_dist < result )
+                result = curr_dist;
+        }
+        return result;
+    }
+
     template <typename Distance>
     static inline bool is_node_prunable(Distance const& greatest_dist, node_distances_type const& d)
     {
         return greatest_dist <= index::detail::cdist_value<node_distances_type>
                                     ::template get<index::detail::to_nearest_tag>(d);
-    }
-
-    template <typename Distance>
-    static inline bool is_node_further(Distance const& dist, node_distances_type const& d)
-    {
-        return dist <= index::detail::cdist_value<node_distances_type>
-                        ::template get<index::detail::to_nearest_tag>(d);
     }
 
     inline distance_predicates_type const& dist_pred() const
@@ -571,9 +612,10 @@ private:
 
     Predicates m_pred;
 
-    std::deque< std::pair<node_distances_type, node_pointer> > active_branch_list;
+    internal_stack_type internal_stack;
     std::vector< std::pair<value_distance_type, const Value *> > neighbors;
     size_type current_neighbor;
+    node_distance_type next_closest_node_distance;
 };
 
 } // namespace visitors
