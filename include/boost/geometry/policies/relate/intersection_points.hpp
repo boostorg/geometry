@@ -42,9 +42,9 @@ struct segments_intersection_points
             S1, S2, CalculationType
         >::type coordinate_type;
 
-	template <typename R>
+    template <typename R>
     static inline return_type segments_intersect(side_info const&,
-					R const& r,
+                    R const& r,
                     coordinate_type const& dx1, coordinate_type const& dy1,
                     coordinate_type const& , coordinate_type const& ,
                     S1 const& s1, S2 const& )

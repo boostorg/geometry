@@ -137,8 +137,8 @@ template
     typename Geometry,
     typename
     CoordinateType,
-	std::size_t Dimension,
-	typename IsPointer
+    std::size_t Dimension,
+    typename IsPointer
 >
 struct access
 {
@@ -153,7 +153,7 @@ template
     typename CoordinateType,
     std::size_t Index,
     std::size_t Dimension,
-	typename IsPointer
+    typename IsPointer
 >
 struct indexed_access
 {
@@ -279,7 +279,7 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
             typename geometry::util::bare_type<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Dimension,
-			typename boost::is_pointer<Geometry>::type
+            typename boost::is_pointer<Geometry>::type
         > coord_access_type;
 
     return coord_access_type::get(geometry);
@@ -314,7 +314,7 @@ inline void set(Geometry& geometry
             typename geometry::util::bare_type<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Dimension,
-			typename boost::is_pointer<Geometry>::type
+            typename boost::is_pointer<Geometry>::type
         > coord_access_type;
 
     coord_access_type::set(geometry, value);
@@ -350,7 +350,7 @@ inline typename coordinate_type<Geometry>::type get(Geometry const& geometry
             typename coordinate_type<Geometry>::type,
             Index,
             Dimension,
-			typename boost::is_pointer<Geometry>::type
+            typename boost::is_pointer<Geometry>::type
         > coord_access_type;
 
     return coord_access_type::get(geometry);
@@ -387,7 +387,7 @@ inline void set(Geometry& geometry
             typename coordinate_type<Geometry>::type,
             Index,
             Dimension,
-			typename boost::is_pointer<Geometry>::type
+            typename boost::is_pointer<Geometry>::type
         > coord_access_type;
 
     coord_access_type::set(geometry, value);

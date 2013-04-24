@@ -150,7 +150,7 @@ public :
             << sides[0].second << " "
             << sides[1].first << " "
             << sides[1].second 
-			<< std::endl;
+            << std::endl;
     }
 
 

@@ -492,26 +492,26 @@ struct equal_opposite : public base_turn_handler
         typename DirInfo
     >
     static inline void apply(Point1 const& pi, Point2 const& qi,
-				/* by value: */ TurnInfo tp,
+                /* by value: */ TurnInfo tp,
                 OutputIterator& out,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info)
     {
         // For equal-opposite segments, normally don't do anything.
-		if (AssignPolicy::include_opposite)
-		{
-			tp.method = method_equal;
-			for (int i = 0; i < 2; i++)
-			{
-				tp.operations[i].operation = operation_opposite;
-			}
-			for (unsigned int i = 0; i < intersection_info.count; i++)
-			{
-				geometry::convert(intersection_info.intersections[i], tp.point);
-				AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
-				*out++ = tp;
-			}
-		}
+        if (AssignPolicy::include_opposite)
+        {
+            tp.method = method_equal;
+            for (int i = 0; i < 2; i++)
+            {
+                tp.operations[i].operation = operation_opposite;
+            }
+            for (unsigned int i = 0; i < intersection_info.count; i++)
+            {
+                geometry::convert(intersection_info.intersections[i], tp.point);
+                AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
+                *out++ = tp;
+            }
+        }
     }
 };
 
@@ -705,7 +705,7 @@ private :
             }
         }
 
-		operation_type blocked = operation_blocked;
+        operation_type blocked = operation_blocked;
         switch(side_rk_r)
         {
 
@@ -723,16 +723,16 @@ private :
                 // two operations blocked, so the whole point does not need
                 // to be generated.
                 // So return false to indicate nothing is to be done.
-				if (AssignPolicy::include_opposite)
-				{
-					tp.operations[Index].operation = operation_opposite;
-					blocked = operation_opposite;
-				}
-				else
-				{
-					return false;
-				}
-				break;
+                if (AssignPolicy::include_opposite)
+                {
+                    tp.operations[Index].operation = operation_opposite;
+                    blocked = operation_opposite;
+                }
+                else
+                {
+                    return false;
+                }
+                break;
         }
 
         // The other direction is always blocked when collinear opposite
@@ -785,24 +785,24 @@ public:
             *out++ = tp;
         }
 
-		if (AssignPolicy::include_opposite)
-		{
-	        // Handle cases not yet handled above
-			if ((dir_info.arrival[1] == -1 && dir_info.arrival[0] == 0)
-				|| (dir_info.arrival[0] == -1 && dir_info.arrival[1] == 0))
-			{
-				for (int i = 0; i < 2; i++)
-				{
-					tp.operations[i].operation = operation_opposite;
-				}
-				for (unsigned int i = 0; i < intersection_info.count; i++)
-				{
-					geometry::convert(intersection_info.intersections[i], tp.point);
-					AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
-					*out++ = tp;
-				}
-			}
-		}
+        if (AssignPolicy::include_opposite)
+        {
+            // Handle cases not yet handled above
+            if ((dir_info.arrival[1] == -1 && dir_info.arrival[0] == 0)
+                || (dir_info.arrival[0] == -1 && dir_info.arrival[1] == 0))
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    tp.operations[i].operation = operation_opposite;
+                }
+                for (unsigned int i = 0; i < intersection_info.count; i++)
+                {
+                    geometry::convert(intersection_info.intersections[i], tp.point);
+                    AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
+                    *out++ = tp;
+                }
+            }
+        }
 
     }
 };
@@ -870,13 +870,13 @@ struct assign_null_policy
     static bool const include_opposite = false;
 
     template 
-	<
-		typename Info,
-		typename Point1,
-		typename Point2,
-		typename IntersectionInfo,
-		typename DirInfo
-	>
+    <
+        typename Info,
+        typename Point1,
+        typename Point2,
+        typename IntersectionInfo,
+        typename DirInfo
+    >
     static inline void apply(Info& , Point1 const& , Point2 const&, IntersectionInfo const&, DirInfo const&)
     {}
 
@@ -1028,15 +1028,15 @@ struct get_turn_info
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
-				else
-				{
+                else
+                {
                     equal_opposite
                         <
                             TurnInfo,
                             AssignPolicy
                         >::apply(pi, qi,
                             tp, out, result.template get<0>(), result.template get<1>());
-				}
+                }
             }
             break;
             case 'c' :
