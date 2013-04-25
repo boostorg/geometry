@@ -125,7 +125,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         elements1.clear();
         BOOST_GEOMETRY_INDEX_ASSERT(elements2.empty(), "second node's elements container should be empty");
 
-        try
+        BOOST_TRY
         {
             // add seeds
             elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW, STRONG (copy)
@@ -224,7 +224,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                 --remaining;
             }
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             //elements_copy.clear();
             elements1.clear();
@@ -233,8 +233,9 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             rtree::destroy_elements<Value, Options, Translator, Box, Allocators>::apply(elements_backup, allocators);
             //elements_backup.clear();
 
-            throw;                                                                                          // RETHROW, BASIC
+            BOOST_RETHROW                                                                                     // RETHROW, BASIC
         }
+        BOOST_CATCH_END
     }
 
     // TODO: awulkiew - change following function to static member of the pick_next class?

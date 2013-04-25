@@ -349,14 +349,18 @@ protected:
             // create new root and add nodes
             node_auto_ptr new_root(rtree::create_node<Allocators, internal_node>::apply(m_allocators), m_allocators); // MAY THROW, STRONG (N:alloc)
 
-            try {
+            BOOST_TRY
+            {
                 rtree::elements(rtree::get<internal_node>(*new_root)).push_back(rtree::make_ptr_pair(n_box, m_root_node));  // MAY THROW, STRONG (E:alloc, copy)
                 rtree::elements(rtree::get<internal_node>(*new_root)).push_back(additional_nodes[0]);                 // MAY THROW, STRONG (E:alloc, copy)
-            } catch (...) {
+            }
+            BOOST_CATCH(...)
+            {
                 // clear new root to not delete in the ~node_auto_ptr() potentially stored old root node
                 rtree::elements(rtree::get<internal_node>(*new_root)).clear();
-                throw;                                                                                                // RETHROW
+                BOOST_RETHROW                                                                                           // RETHROW
             }
+            BOOST_CATCH_END
 
             m_root_node = new_root.get();
             ++m_leafs_level;
@@ -431,20 +435,21 @@ public:
         {
             BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level, "unexpected level");
 
-            try
+            BOOST_TRY
             {
                 // push new child node
                 rtree::elements(n).push_back(base::m_element);                                                  // MAY THROW, STRONG (E: alloc, copy)
             }
-            catch(...)
+            BOOST_CATCH(...)
             {
                 // if the insert fails above, the element won't be stored in the tree
 
                 rtree::visitors::destroy<Value, Options, Translator, Box, Allocators> del_v(base::m_element.second, base::m_allocators);
                 rtree::apply_visitor(del_v, *base::m_element.second);
 
-                throw;                                                                                          // RETHROW
+                BOOST_RETHROW                                                                                     // RETHROW
             }
+            BOOST_CATCH_END
         }
 
         base::post_traverse(n);                                                                                 // MAY THROW (E: alloc, copy, N: alloc)

@@ -194,16 +194,17 @@ private:
         // move node to the container - store node's relative level as well
         m_underflowed_nodes.push_back(std::make_pair(relative_level, underfl_el_it->second));           // MAY THROW (E: alloc, copy)
 
-        try
+        BOOST_TRY
         {
             rtree::move_from_back(elements, underfl_el_it);                                             // MAY THROW (E: copy)
             elements.pop_back();
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             m_underflowed_nodes.pop_back();
-            throw;                                                                                      // RETHROW
+            BOOST_RETHROW                                                                                 // RETHROW
         }
+        BOOST_CATCH_END
 
         // calc underflow
         return elements.size() < m_parameters.get_min_elements();
@@ -213,7 +214,7 @@ private:
     {
         typename UnderflowNodes::reverse_iterator it = m_underflowed_nodes.rbegin();
 
-        try
+        BOOST_TRY
         {
             // reinsert elements from removed nodes
             // begin with levels closer to the root
@@ -237,7 +238,7 @@ private:
 
             //m_underflowed_nodes.clear();
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             // destroy current and remaining nodes
             for ( ; it != m_underflowed_nodes.rend() ; ++it )
@@ -247,8 +248,9 @@ private:
 
             //m_underflowed_nodes.clear();
 
-            throw;                                                                                           // RETHROW
+            BOOST_RETHROW                                                                                      // RETHROW
         }
+        BOOST_CATCH_END
     }
 
     template <typename Node>
@@ -258,7 +260,7 @@ private:
         elements_type & elements = rtree::elements(n);
 
         typename elements_type::iterator it = elements.begin();
-        try
+        BOOST_TRY
         {
             for ( ; it != elements.end() ; ++it )
             {
@@ -274,14 +276,15 @@ private:
                 rtree::apply_visitor(insert_v, *m_root_node);                                               // MAY THROW (V, E: alloc, copy, N: alloc)
             }
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             ++it;
             rtree::destroy_elements<Value, Options, Translator, Box, Allocators>
                 ::apply(it, elements.end(), m_allocators);
             elements.clear();
-            throw;                                                                                          // RETHROW
+            BOOST_RETHROW                                                                                     // RETHROW
         }
+        BOOST_CATCH_END
     }
 
     Value const& m_value;
