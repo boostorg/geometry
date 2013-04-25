@@ -1,15 +1,22 @@
 // Boost.Geometry Index
-// Unit Test
-
+//
+// R-tree nodes based on runtime-polymorphism, storing static-size containers
+// test version throwing exceptions on creation
+//
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
-
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <rtree/exceptions/test_rtree_exceptions.hpp>
+#ifndef BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP
+#define BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP
 
-#include <boost/geometry/geometries/point_xy.hpp>
+#include <rtree/test_rtree.hpp>
+
+#include <rtree/exceptions/test_throwing.hpp>
+#include <rtree/exceptions/test_throwing_node.hpp>
+
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
@@ -162,18 +169,4 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
     }
 }
 
-int test_main(int, char* [])
-{
-    test_rtree_value_exceptions< bgi::linear<4, 2> >();
-    test_rtree_value_exceptions(bgi::dynamic_linear(4, 2));
-    test_rtree_value_exceptions< bgi::quadratic<4, 2> >();
-    test_rtree_value_exceptions(bgi::dynamic_quadratic(4, 2));
-    test_rtree_value_exceptions< bgi::rstar<4, 2, 0, 2> >();
-    test_rtree_value_exceptions(bgi::dynamic_rstar(4, 2, 0, 2));
-
-    test_rtree_elements_exceptions< bgi::linear_throwing<4, 2> >();
-    test_rtree_elements_exceptions< bgi::quadratic_throwing<4, 2> >();
-    test_rtree_elements_exceptions< bgi::rstar_throwing<4, 2, 0, 2> >();
-
-    return 0;
-}
+#endif // BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP
