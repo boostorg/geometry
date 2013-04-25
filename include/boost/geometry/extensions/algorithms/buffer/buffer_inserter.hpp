@@ -202,7 +202,7 @@ struct buffer_range
 
 template
 <
-	typename Point,
+    typename Point,
     typename RingOutput
 >
 struct buffer_point
@@ -222,15 +222,15 @@ struct buffer_point
         >::type promoted_type;
 
 
-	template <typename RangeOut>
+    template <typename RangeOut>
     static inline void generate_points(Point const& point,
                 promoted_type const& buffer_distance,
                 RangeOut& range_out)
     {
 
-		promoted_type two = 2.0;
+        promoted_type two = 2.0;
         promoted_type two_pi = two * geometry::math::pi<promoted_type>();
-		int point_buffer_count = 88; // 88 gives now fixed problem (collinear opposite / robustness. TODO: make this value flexible
+        int point_buffer_count = 88; // 88 gives now fixed problem (collinear opposite / robustness. TODO: make this value flexible
 
         promoted_type diff = two_pi / promoted_type(point_buffer_count);
         promoted_type a = 0;
@@ -261,23 +261,23 @@ struct buffer_point
         typename EndStrategy
     >
     static inline void generate_circle(Point const& point,
-				Collection& collection,
+                Collection& collection,
                 DistanceStrategy const& distance,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy)
     {
-		std::vector<output_point_type> range_out;
+        std::vector<output_point_type> range_out;
         //RingOutput range_out;
 
-		generate_points(point, 
-			distance.apply(point, point, buffer_side_left),
-			range_out);
+        generate_points(point, 
+            distance.apply(point, point, buffer_side_left),
+            range_out);
 
         collection.add_piece(buffered_circle, range_out, false);
 
         //std::cout << std::setprecision(20);
         //std::cout << geometry::wkt(range_out) << std::endl;
-	}
+    }
 };
 
 }} // namespace detail::buffer
@@ -305,7 +305,7 @@ template
     typename RingOutput
 >
 struct buffer_inserter<point_tag, Point, RingOutput>
-	: public detail::buffer::buffer_point<Point, RingOutput>
+    : public detail::buffer::buffer_point<Point, RingOutput>
 {
     template<typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy>
     static inline void apply(Point const& point, Collection& collection,
@@ -313,9 +313,9 @@ struct buffer_inserter<point_tag, Point, RingOutput>
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy)
     {
-		collection.start_new_ring();
-	        typedef detail::buffer::buffer_point<Point, RingOutput> base;
-		base::generate_circle(point, collection, distance, join_strategy, end_strategy);
+        collection.start_new_ring();
+            typedef detail::buffer::buffer_point<Point, RingOutput> base;
+        base::generate_circle(point, collection, distance, join_strategy, end_strategy);
     }
 };
 
@@ -348,12 +348,12 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy)
     {
-		if (boost::size(ring) > 3)
-		{
-			base::iterate(collection, boost::begin(ring), boost::end(ring),
-					buffer_side_left,
-					distance, join_strategy, end_strategy);
-		}
+        if (boost::size(ring) > 3)
+        {
+            base::iterate(collection, boost::begin(ring), boost::end(ring),
+                    buffer_side_left,
+                    distance, join_strategy, end_strategy);
+        }
     }
 };
 
@@ -382,17 +382,17 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy)
     {
-		if (boost::size(linestring) > 1)
-		{
-			collection.start_new_ring();
-			base::iterate(collection, boost::begin(linestring), boost::end(linestring),
-					buffer_side_left,
-					distance, join_strategy, end_strategy);
+        if (boost::size(linestring) > 1)
+        {
+            collection.start_new_ring();
+            base::iterate(collection, boost::begin(linestring), boost::end(linestring),
+                    buffer_side_left,
+                    distance, join_strategy, end_strategy);
                 
-			base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
-					buffer_side_right,
-					distance, join_strategy, end_strategy, true);
-		}
+            base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
+                    buffer_side_right,
+                    distance, join_strategy, end_strategy, true);
+        }
 
     }
 };
@@ -483,8 +483,8 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     //collection.map_offsetted(mapper);
-	//collection.map_offsetted_points(mapper);
-	collection.map_turns(mapper);
+    //collection.map_offsetted_points(mapper);
+    collection.map_turns(mapper);
     //collection.map_opposite_locations(mapper);
 #endif
 

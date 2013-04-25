@@ -22,7 +22,7 @@ namespace detail { namespace buffer
 template <int D>
 struct collinear_point_on_segment_check
 {
-	template <typename T>
+    template <typename T>
     static inline bool apply_sorted(T const& subject, T const& c1, T const& c2)
     {
         return subject >= c1 && subject <= c2;
@@ -31,7 +31,7 @@ struct collinear_point_on_segment_check
     template <typename P0, typename P1, typename P2>
     static inline bool apply(P0 const& subject, P1 const& p1, P2 const& p2)
     {
-	    typedef typename geometry::coordinate_type<P0>::type coordinate_type;
+        typedef typename geometry::coordinate_type<P0>::type coordinate_type;
         coordinate_type const cs = geometry::get<D>(subject);
         coordinate_type const c1 = geometry::get<D>(p1);
         coordinate_type const c2 = geometry::get<D>(p2);
@@ -94,9 +94,9 @@ inline int side_on_convex_range(Point const& subject, Range const& range)
 
 template <typename SideStrategy, typename Point, typename Iterator>
 static inline int side_on_convex_range(Point const& subject,
-			Iterator first, Iterator last,
-			/* by value: */ segment_identifier seg_id,
-			segment_identifier& on_segment_seg_id)
+            Iterator first, Iterator last,
+            /* by value: */ segment_identifier seg_id,
+            segment_identifier& on_segment_seg_id)
 {
     bool has_collinear = false;
     Iterator it = first;
@@ -113,7 +113,7 @@ static inline int side_on_convex_range(Point const& subject,
                 // or it is still on one of the other segments (if segments are collinear)
                 if (collinear_point_on_segment(subject, *prev, *it))
                 {
-					on_segment_seg_id = seg_id;
+                    on_segment_seg_id = seg_id;
                     return 0;
                 }
                 has_collinear = true;

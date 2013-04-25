@@ -87,12 +87,12 @@ struct turn_assign_for_buffer
     template <typename Point1, typename Point2, typename Turn, typename IntersectionInfo, typename DirInfo>
     static inline void apply(Turn& turn, Point1 const& p1, Point2 const& p2, IntersectionInfo const& intersection_info, DirInfo const& dir_info)
     {
-		detail::overlay::calculate_distance_policy::apply(turn, p1, p2,
-						intersection_info, dir_info);
-		if (dir_info.opposite && intersection_info.count == 2)
-		{
-			turn.is_opposite = true;
-		}
+        detail::overlay::calculate_distance_policy::apply(turn, p1, p2,
+                        intersection_info, dir_info);
+        if (dir_info.opposite && intersection_info.count == 2)
+        {
+            turn.is_opposite = true;
+        }
     }
 };
 
@@ -114,13 +114,13 @@ struct buffer_turn_operation : public detail::overlay::traversal_turn_operation<
 template <typename Point>
 struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_operation<Point> >
 {
-	bool is_opposite;
+    bool is_opposite;
     
     intersection_location_type location;
     
     int priority;
     int count_within, count_on_helper, count_on_offsetted, count_on_corner;
-	int count_on_occupied;
+    int count_on_occupied;
     int count_on_multi;
 #if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
     int count_on_uu;
@@ -129,18 +129,18 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
     std::set<int> piece_indices_to_skip;
     
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-	std::string debug_string;
+    std::string debug_string;
 #endif
 
     inline buffer_turn_info()
-		: is_opposite(false)
+        : is_opposite(false)
         , location(location_ok)
         , priority(0)
         , count_within(0)
         , count_on_helper(0)
         , count_on_offsetted(0)
         , count_on_corner(0)
-		, count_on_occupied(0)
+        , count_on_occupied(0)
         , count_on_multi(0)
 #if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
         , count_on_uu(0)
