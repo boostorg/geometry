@@ -9,10 +9,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP
-#define BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP
-
-#include <rtree/test_rtree.hpp>
+#ifndef BOOST_GEOMETRY_INDEX_TEST_RTREE_THROWING_NODE_HPP
+#define BOOST_GEOMETRY_INDEX_TEST_RTREE_THROWING_NODE_HPP
 
 #include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
 
@@ -292,4 +290,4 @@ struct create_node<
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_INDEX_TEST_RTREE_EXCEPTIONS_HPP
+#endif // BOOST_GEOMETRY_INDEX_TEST_RTREE_THROWING_NODE_HPP
