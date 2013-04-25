@@ -248,7 +248,7 @@ struct create_dynamic_node
         P p = Al::allocate(alloc_node, 1);
 
         if ( 0 == p )
-            throw std::bad_alloc(); // TODO throw different exception
+            throw node_creation_failed();
 
         auto_deallocator<AllocNode> deallocator(alloc_node, p);
 

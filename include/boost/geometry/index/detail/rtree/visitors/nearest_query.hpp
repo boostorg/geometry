@@ -15,8 +15,8 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-// TODO: awulkiew - maby it's a good idea to check if curr_mindist < comp_mindist and then check predicates
-// in store() or break store to 2 functions e.g. should_store() and store()
+// TODO: awulkiew - maybe it's a good idea to check if curr_mindist < comp_mindist and then check predicates
+// in store() or divide store() into 2 functions e.g. should_store() and store()
 // - well not with this algorithm of storing k-th neighbor
 
 //template <typename Value, typename Translator, typename Point>
@@ -139,8 +139,6 @@ private:
     std::vector< std::pair<distance_type, Value> > m_neighbors;
 };
 
-// TODO: awulkiew - add additional pruning before adding nodes to the ABL
-
 template <
     typename Value,
     typename Options,
@@ -187,8 +185,6 @@ public:
         , m_pred(pred)
         , m_result(r)
     {}
-
-    //TODO: awulkiew - consider this approach: store one, global vector of active branches, add branches only if mindist is ok
 
     inline void operator()(internal_node const& n)
     {
