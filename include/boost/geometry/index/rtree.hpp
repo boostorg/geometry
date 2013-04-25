@@ -22,6 +22,7 @@
 #include <boost/geometry/index/detail/config_begin.hpp>
 
 #include <boost/geometry/index/detail/assert.hpp>
+#include <boost/geometry/index/detail/exception.hpp>
 
 #include <boost/geometry/index/detail/rtree/options.hpp>
 
@@ -211,15 +212,16 @@ public:
                  allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        try
+        BOOST_TRY
         {
             this->insert(first, last);
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             this->raw_destroy(*this);
-            throw;
+            BOOST_RETHROW
         }
+        BOOST_CATCH_END
     }
 
     /*!
@@ -245,15 +247,16 @@ public:
                           allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        try
+        BOOST_TRY
         {
             this->insert(rng);
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             this->raw_destroy(*this);
-            throw;
+            BOOST_RETHROW
         }
+        BOOST_CATCH_END
     }
 
     /*!
