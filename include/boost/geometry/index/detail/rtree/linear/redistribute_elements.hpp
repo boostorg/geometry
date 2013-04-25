@@ -238,7 +238,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         elements1.clear();
         BOOST_GEOMETRY_INDEX_ASSERT(elements2.empty(), "unexpected container state");
 
-        try
+        BOOST_TRY
         {
             // add seeds
             elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW, STRONG (copy)
@@ -314,7 +314,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
                 }
             }
         }
-        catch (...)
+        BOOST_CATCH(...)
         {
             elements1.clear();
             elements2.clear();
@@ -322,8 +322,9 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
             rtree::destroy_elements<Value, Options, Translator, Box, Allocators>::apply(elements_copy, allocators);
             //elements_copy.clear();
 
-            throw;                                                                                          // RETHROW, BASIC
+            BOOST_RETHROW                                                                                     // RETHROW, BASIC
         }
+        BOOST_CATCH_END
     }
 };
 

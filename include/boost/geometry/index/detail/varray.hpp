@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP
 
 #include <cstddef>
-#include <stdexcept>
 
 #include <boost/move/move.hpp>
 #include <boost/aligned_storage.hpp>
@@ -531,7 +530,7 @@ private:
     {
         size_type count = 0;
         iterator it = dest;
-        try
+        BOOST_TRY
         {
             for ( ; first != last ; ++it, ++first, ++count )
             {
@@ -541,11 +540,12 @@ private:
                 this->uninitialized_fill(it, *first);                              // may throw
             }
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             this->destroy(dest, it);
-            throw;
+            BOOST_RETHROW
         }
+        BOOST_CATCH_END
         return std::make_pair(true, count);
     }
 
@@ -785,16 +785,17 @@ private:
     void uninitialized_move(Iterator first, Iterator last, iterator dst)
     {
         iterator o = dst;
-        try
+        BOOST_TRY
         {
             for (; first != last; ++first, ++o )
                 new (boost::addressof(*o)) value_type(boost::move(*first));
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             destroy(dst, o);
-            throw;
+            BOOST_RETHROW
         }
+        BOOST_CATCH_END
     }
 
     // construct
@@ -812,16 +813,17 @@ private:
                             boost::false_type const& /*has_trivial_constructor*/)
     {
         iterator it = first;
-        try
+        BOOST_TRY
         {
             for ( ; it != last ; ++it )
                 new (&(*it)) value_type();                                                  // may throw
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             this->destroy(first, it);
-            throw;
+            BOOST_RETHROW
         }
+        BOOST_CATCH_END
     }
 
     void check_capacity(size_type BOOST_GEOMETRY_INDEX_ASSERT_UNUSED_PARAM(s)) const

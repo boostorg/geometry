@@ -93,7 +93,7 @@ public:
             result_elements.push_back(it->second);                                                      // MAY THROW (V, E: copy)
         }
 
-        try
+        BOOST_TRY
         {
             // copy remaining elements to the current node
             elements.clear();
@@ -104,7 +104,7 @@ public:
                 elements.push_back(it->second);                                                         // MAY THROW (V, E: copy)
             }
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             elements.clear();
 
@@ -114,8 +114,9 @@ public:
                 destroy_element<Value, Options, Translator, Box, Allocators>::apply(it->second, allocators);
             }
 
-            throw;                                                                                      // RETHROW
+            BOOST_RETHROW                                                                                 // RETHROW
         }
+        BOOST_CATCH_END
 
         BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
@@ -285,12 +286,12 @@ struct level_insert
         {
             BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level, "unexpected level");
 
-            try
+            BOOST_TRY
             {
                 // push new child node
                 rtree::elements(n).push_back(base::m_element);                                              // MAY THROW, STRONG (E: alloc, copy)
             }
-            catch(...)
+            BOOST_CATCH(...)
             {
                 // NOTE: exception-safety
                 // if the insert fails above, the element won't be stored in the tree, so delete it
@@ -298,8 +299,9 @@ struct level_insert
                 rtree::visitors::destroy<Value, Options, Translator, Box, Allocators> del_v(base::m_element.second, base::m_allocators);
                 rtree::apply_visitor(del_v, *base::m_element.second);
 
-                throw;                                                                                      // RETHROW
+                BOOST_RETHROW                                                                                 // RETHROW
             }
+            BOOST_CATCH_END
 
             // first insert
             if ( 0 == InsertIndex )
@@ -501,17 +503,18 @@ private:
             rstar::level_insert<1, element_type, Value, Options, Translator, Box, Allocators> lins_v(
                 m_root, m_leafs_level, *it, m_parameters, m_translator, m_allocators, relative_level);
 
-            try
+            BOOST_TRY
             {
                 rtree::apply_visitor(lins_v, *m_root);                                                          // MAY THROW (V, E: alloc, copy, N: alloc)
             }
-            catch(...)
+            BOOST_CATCH(...)
             {
                 ++it;
                 for ( ; it != elements.rend() ; ++it)
                     rtree::destroy_element<Value, Options, Translator, Box, Allocators>::apply(*it, m_allocators);
-                throw;                                                                                          // RETHROW
+                BOOST_RETHROW                                                                                     // RETHROW
             }
+            BOOST_CATCH_END
 
             BOOST_GEOMETRY_INDEX_ASSERT(relative_level + 1 == lins_v.result_relative_level, "unexpected level");
 

@@ -168,7 +168,7 @@ struct create_static_node
         P p = Al::allocate(alloc_node, 1);
 
         if ( 0 == p )
-            throw node_creation_failed();
+            throw_runtime_error("boost::geometry::index::rtree node creation failed");
 
         auto_deallocator<AllocNode> deallocator(alloc_node, p);
 

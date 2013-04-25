@@ -18,13 +18,6 @@
 #include <boost/geometry/index/detail/rtree/node/pairs.hpp>
 #include <boost/geometry/index/detail/rtree/node/auto_deallocator.hpp>
 
-namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
-struct node_creation_failed : public std::exception
-{
-    const char * what() { return "rtree node creation failed"; }
-};
-}}}}}
-
 #include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_d_mem_dynamic.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_d_mem_static.hpp>

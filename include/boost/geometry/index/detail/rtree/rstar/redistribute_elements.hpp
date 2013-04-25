@@ -376,7 +376,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
             rstar::partial_sort<max_corner, dimension>
                 ::apply(elements_copy, split_axis, split_index, translator);                            // MAY THROW, BASIC (copy)
 
-        try
+        BOOST_TRY
         {
             // copy elements to nodes
             elements1.assign(elements_copy.begin(), elements_copy.begin() + split_index);               // MAY THROW, BASIC
@@ -386,7 +386,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
             box1 = rtree::elements_box<Box>(elements1.begin(), elements1.end(), translator);
             box2 = rtree::elements_box<Box>(elements2.begin(), elements2.end(), translator);
         }
-        catch(...)
+        BOOST_CATCH(...)
         {
             //elements_copy.clear();
             elements1.clear();
@@ -395,8 +395,9 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
             rtree::destroy_elements<Value, Options, Translator, Box, Allocators>::apply(elements_backup, allocators);
             //elements_backup.clear();
 
-            throw;                                                                                      // RETHROW, BASIC
+            BOOST_RETHROW                                                                                 // RETHROW, BASIC
         }
+        BOOST_CATCH_END
     }
 };
 
