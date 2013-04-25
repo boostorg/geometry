@@ -112,7 +112,7 @@ template
     typename PolygonOutput
 >
 struct buffer_inserter<multi_polygon_tag, Multi, PolygonOutput>
-	: public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
+    : public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
 {};
 
 template
@@ -121,7 +121,7 @@ template
     typename PolygonOutput
 >
 struct buffer_inserter<multi_linestring_tag, Multi, PolygonOutput>
-	: public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
+    : public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
 {};
 
 
@@ -131,7 +131,7 @@ template
     typename PolygonOutput
 >
 struct buffer_inserter<multi_point_tag, Multi, PolygonOutput>
-	: public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
+    : public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
 {};
 
 

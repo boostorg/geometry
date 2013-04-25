@@ -58,10 +58,10 @@ class end_round
                 promoted_type const& buffer_distance,
                 RangeOut& range_out) const
     {
-		promoted_type const two = 2.0;
+        promoted_type const two = 2.0;
         promoted_type const two_pi = two * geometry::math::pi<promoted_type>();
 
-		int point_buffer_count = m_steps_per_circle;
+        int point_buffer_count = m_steps_per_circle;
 
         promoted_type const diff = two_pi / promoted_type(point_buffer_count);
 
