@@ -22,39 +22,55 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 
 //struct empty {};
 
+template <typename Fun, bool IsFunction>
+struct satisfies_impl
+{
+    satisfies_impl(Fun f) : fun(&f) {}
+    Fun * fun;
+};
+
+template <typename Fun>
+struct satisfies_impl<Fun, false>
+{
+    satisfies_impl(Fun const& f) : fun(f) {}
+    Fun fun;
+};
+
 template <typename Fun>
 struct satisfies
+    : satisfies_impl<Fun, ::boost::is_function<Fun>::value>
 {
-    satisfies(Fun const& f) : fun(f) {}
-    Fun const& fun;
+    typedef satisfies_impl<Fun, ::boost::is_function<Fun>::value> base;
+
+    satisfies(Fun const& f) : base(f) {}
 };
 
 template <typename Geometry>
 struct covered_by
 {
     covered_by(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
 struct disjoint
 {
     disjoint(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
 struct intersects
 {
     intersects(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
 struct overlaps
 {
     overlaps(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 //template <typename Geometry>
@@ -68,35 +84,35 @@ template <typename Geometry>
 struct within
 {
     within(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
 struct not_covered_by
 {
     not_covered_by(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
 struct not_disjoint
 {
     not_disjoint(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
 struct not_intersects
 {
     not_intersects(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename Geometry>
 struct not_overlaps
 {
     not_overlaps(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 //template <typename Geometry>
@@ -110,7 +126,7 @@ template <typename Geometry>
 struct not_within
 {
     not_within(Geometry const& g) : geometry(g) {}
-    Geometry const& geometry;
+    Geometry geometry;
 };
 
 template <typename DistancePredicates>
@@ -120,7 +136,7 @@ struct nearest
         : distance_predicates(dpred)
         , count(k)
     {}
-    DistancePredicates const& distance_predicates;
+    DistancePredicates distance_predicates;
     unsigned count;
 };
 

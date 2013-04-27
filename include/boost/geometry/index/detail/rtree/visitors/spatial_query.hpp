@@ -76,9 +76,10 @@ struct spatial_query
 };
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates>
-struct spatial_query_incremental
+class spatial_query_incremental
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
 {
+public:
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
@@ -92,8 +93,9 @@ struct spatial_query_incremental
     static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
 
     inline spatial_query_incremental(Translator const& t, Predicates const& p)
-        : tr(t), pred(p)
-        , values(0), value_index(0)
+        : m_translator(::boost::addressof(t))
+        , m_pred(p)
+        , m_values(0), m_value_index(0)
     {}
 
     inline void operator()(internal_node const& n)
@@ -101,66 +103,66 @@ struct spatial_query_incremental
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        internal_stack.push_back(std::make_pair(elements.begin(), elements.end()));
+        m_internal_stack.push_back(std::make_pair(elements.begin(), elements.end()));
     }
 
     inline void operator()(leaf const& n)
     {
-        values = boost::addressof(rtree::elements(n));
-        value_index = 0;
+        m_values = boost::addressof(rtree::elements(n));
+        m_value_index = 0;
     }
 
     Value const& dereference() const
     {
-        BOOST_ASSERT_MSG(values, "not dereferencable");
-        return (*values)[value_index];
+        BOOST_ASSERT_MSG(m_values, "not dereferencable");
+        return (*m_values)[m_value_index];
     }
 
     void increment()
     {
-        if ( values )
-            ++value_index;
+        if ( m_values )
+            ++m_value_index;
 
         for (;;)
         {
             // if leaf is choosen, move to the next value in leaf
-            if ( values )
+            if ( m_values )
             {
-                if ( value_index < values->size() )
+                if ( m_value_index < m_values->size() )
                 {
                     // return if next value is found
-                    Value const& v = (*values)[value_index];
-                    if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(pred, v, tr(v)) )
+                    Value const& v = (*m_values)[m_value_index];
+                    if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(m_pred, v, (*m_translator)(v)) )
                         return;
 
-                    ++value_index;
+                    ++m_value_index;
                 }
                 // no more values, clear current leaf
                 else
                 {
-                    values = 0;
-                    value_index = 0;
+                    m_values = 0;
+                    m_value_index = 0;
                 }
             }
             // if leaf isn't choosen, move to the next leaf
             else
             {
                 // return if there is no more nodes to traverse
-                if ( internal_stack.empty() )
+                if ( m_internal_stack.empty() )
                     return;
 
                 // no more children in current node, remove it from stack
-                if ( internal_stack.back().first == internal_stack.back().second )
+                if ( m_internal_stack.back().first == m_internal_stack.back().second )
                 {
-                    internal_stack.pop_back();
+                    m_internal_stack.pop_back();
                     continue;
                 }
 
-                internal_iterator it = internal_stack.back().first;
-                ++internal_stack.back().first;
+                internal_iterator it = m_internal_stack.back().first;
+                ++m_internal_stack.back().first;
 
                 // next node is found, push it to the stack
-                if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(pred, 0, it->first) )
+                if ( index::detail::predicates_check<index::detail::bounds_tag, 0, predicates_len>(m_pred, 0, it->first) )
                     rtree::apply_visitor(*this, *(it->second));
             }
         }
@@ -168,15 +170,18 @@ struct spatial_query_incremental
 
     friend bool operator==(spatial_query_incremental const& l, spatial_query_incremental const& r)
     {
-        return (l.values == r.values) && (l.value_index == r.value_index);
+        return (l.m_values == r.m_values) && (l.m_value_index == r.m_value_index);
     }
 
-    Translator const& tr;
-    Predicates pred;
+private:
 
-    boost::container::vector< std::pair<internal_iterator, internal_iterator> > internal_stack;
-    const leaf_elements * values;
-    size_type value_index;
+    const Translator * m_translator;
+
+    Predicates m_pred;
+
+    boost::container::vector< std::pair<internal_iterator, internal_iterator> > m_internal_stack;
+    const leaf_elements * m_values;
+    size_type m_value_index;
 };
 
 } // namespace visitors

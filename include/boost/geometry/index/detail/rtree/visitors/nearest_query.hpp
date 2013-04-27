@@ -381,7 +381,7 @@ public:
     > internal_stack_type;
 
     inline nearest_query_incremental(Translator const& translator, Predicates const& pred)
-        : m_translator(translator)
+        : m_translator(::boost::addressof(translator))
         , m_pred(pred)
         , current_neighbor((std::numeric_limits<size_type>::max)())
 
@@ -524,10 +524,10 @@ public:
         for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
         {
             // if value meets predicates
-            if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(m_pred, *it, m_translator(*it)) )
+            if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(m_pred, *it, (*m_translator)(*it)) )
             {
                 // calculate values distance for distance predicate
-                value_distances_type distances = value_distances_calc::apply(dist_pred(), m_translator(*it));
+                value_distances_type distances = value_distances_calc::apply(dist_pred(), (*m_translator)(*it));
 
                 // if distance meets distance predicate
                 if ( value_distances_predicates_check::apply(dist_pred(), distances) )
@@ -604,7 +604,7 @@ private:
         return nearest_predicate_access::get(m_pred).count;
     }
 
-    Translator const& m_translator;
+    const Translator * m_translator;
 
     Predicates m_pred;
 
