@@ -7,18 +7,41 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <iostream>
+#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
 
-#include <boost/geometry/index/rtree.hpp>
+#include <iostream>
 
 #include <boost/chrono.hpp>
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 
+#include <boost/geometry/index/rtree.hpp>
+
+namespace bg = boost::geometry;
+namespace bgi = bg::index;
+
+typedef bg::model::point<double, 2, bg::cs::cartesian> P;
+typedef bg::model::box<P> B;
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+
+#include <boost/type_erasure/iterator.hpp>
+
+typedef boost::type_erasure::any<
+    boost::type_erasure::iterator<
+        boost::single_pass_traversal_tag,
+        boost::type_erasure::_self,
+        B const&,
+        std::ptrdiff_t,
+        const B
+    >
+> iterator;
+
+#endif
+
 int main()
 {
-    namespace bg = boost::geometry;
-    namespace bgi = bg::index;
     typedef boost::chrono::thread_clock clock_t;
     typedef boost::chrono::duration<float> dur_t;
 
@@ -47,8 +70,6 @@ int main()
         std::cout << "randomized\n";
     }
 
-    typedef bg::model::point<double, 2, bg::cs::cartesian> P;
-    typedef bg::model::box<P> B;
     typedef bgi::rtree<B, bgi::linear<16, 4> > RT;
     //typedef bgi::rtree<B, bgi::quadratic<8, 3> > RT;
     //typedef bgi::rtree<B, bgi::rstar<8, 3> > RT;
@@ -93,6 +114,43 @@ int main()
             std::cout << time << " - query(B) " << queries_count << " found " << temp << '\n';
         }
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                std::copy(t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                          t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                          std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - query iterator(B) " << queries_count << " found " << temp << '\n';
+        }
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                iterator first = t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                iterator last = t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                std::copy(first, last, std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - type-erased query iterator(B) " << queries_count << " found " << temp << '\n';
+        }
+#endif
+#endif
+
         {
             clock_t::time_point start = clock_t::now();
             size_t temp = 0;
@@ -135,6 +193,43 @@ int main()
             dur_t time = clock_t::now() - start;
             std::cout << time << " - query(nearest(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
         }
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < nearest_queries_count ; ++i )
+            {
+                float x = coords[i].first + 100;
+                float y = coords[i].second + 100;
+                result.clear();
+                std::copy(t.qbegin(bgi::nearest(P(x, y), neighbours_count)),
+                          t.qend(bgi::nearest(P(x, y), neighbours_count)),
+                          std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - nearest_iterator(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
+        }
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                iterator first = t.qbegin(bgi::nearest(P(x, y), neighbours_count));
+                iterator last = t.qend(bgi::nearest(P(x, y), neighbours_count));
+                std::copy(first, last, std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - type-erased nearest_iterator(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
+        }
+#endif
+#endif
 
         {
             clock_t::time_point start = clock_t::now();
