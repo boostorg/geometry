@@ -25,7 +25,7 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 template <typename Fun, bool IsFunction>
 struct satisfies_impl
 {
-    satisfies_impl(Fun f) : fun(&f) {}
+    satisfies_impl(Fun f) : fun(f) {}
     Fun * fun;
 };
 
