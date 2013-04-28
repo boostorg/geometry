@@ -113,9 +113,20 @@ class allocators<Allocator, Value, Parameters, Box, node_d_mem_static_tag>
         >::type
     >::other
 {
+    typedef typename Allocator::template rebind<
+        Value
+    >::other value_allocator_type;
+
 public:
     typedef Allocator allocator_type;
-    typedef typename Allocator::size_type size_type;
+
+    typedef Value value_type;
+    typedef value_type & reference;
+    typedef const value_type & const_reference;
+    typedef typename value_allocator_type::size_type size_type;
+    typedef typename value_allocator_type::difference_type difference_type;
+    typedef typename value_allocator_type::pointer pointer;
+    typedef typename value_allocator_type::const_pointer const_pointer;
 
     typedef typename Allocator::template rebind<
         typename node<Value, Parameters, Box, allocators, node_d_mem_static_tag>::type

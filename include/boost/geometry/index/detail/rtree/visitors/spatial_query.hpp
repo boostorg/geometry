@@ -85,6 +85,7 @@ public:
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Allocators::size_type size_type;
+    typedef typename Allocators::const_reference const_reference;
     typedef typename Allocators::node_pointer node_pointer;
 
     typedef typename rtree::elements_type<internal_node>::type::const_iterator internal_iterator;
@@ -112,7 +113,7 @@ public:
         m_value_index = 0;
     }
 
-    Value const& dereference() const
+    const_reference dereference() const
     {
         BOOST_ASSERT_MSG(m_values, "not dereferencable");
         return (*m_values)[m_value_index];
@@ -192,14 +193,12 @@ class spatial_query_iterator
     typedef visitors::spatial_query_incremental<Value, Options, Translator, Box, Allocators, Predicates> visitor_type;
     typedef typename visitor_type::node_pointer node_pointer;
 
-    typedef typename Allocators::allocator_type::template rebind<Value>::other allocator_type;
-
 public:
     typedef std::input_iterator_tag iterator_category;
-    typedef const Value value_type;
-    typedef Value const& reference;
-    typedef typename allocator_type::difference_type difference_type;
-    typedef typename allocator_type::const_pointer pointer;
+    typedef Value value_type;
+    typedef typename Allocators::const_reference reference;
+    typedef typename Allocators::difference_type difference_type;
+    typedef typename Allocators::const_pointer pointer;
 
     inline spatial_query_iterator(Translator const& t, Predicates const& p)
         : m_visitor(t, p)
