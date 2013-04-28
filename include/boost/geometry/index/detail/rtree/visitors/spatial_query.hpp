@@ -180,7 +180,7 @@ private:
 
     Predicates m_pred;
 
-    boost::container::vector< std::pair<internal_iterator, internal_iterator> > m_internal_stack;
+    std::vector< std::pair<internal_iterator, internal_iterator> > m_internal_stack;
     const leaf_elements * m_values;
     size_type m_value_index;
 };

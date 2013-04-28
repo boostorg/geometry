@@ -377,9 +377,22 @@ public:
     typedef typename index::detail::rtree::container_from_elements_type<
         internal_elements, branch_data
     >::type active_branch_list_type;
-    typedef std::vector<
-        std::pair<active_branch_list_type, typename active_branch_list_type::size_type>
-    > internal_stack_type;
+    struct internal_stack_element
+    {
+        internal_stack_element() : current_branch(0) {}
+#ifdef BOOST_NO_RVALUE_REFERENCES
+        // Required in c++03 for containers using Boost.Move
+        internal_stack_element & operator=(internal_stack_element const& o)
+        {
+            branches = o.branches;
+            current_branch = o.current_branch;
+            return *this;
+        }
+#endif
+        active_branch_list_type branches;
+        typename active_branch_list_type::size_type current_branch;
+    };
+    typedef std::vector<internal_stack_element> internal_stack_type;
 
     inline nearest_query_incremental(Translator const& translator, Predicates const& pred)
         : m_translator(::boost::addressof(translator))
@@ -409,7 +422,7 @@ public:
                 else
                 {
                     current_neighbor = (std::numeric_limits<size_type>::max)();
-// TODO - temporary - used to disable the condition above
+                    // clear() is used to disable the condition above
                     neighbors.clear();
                 }
 
@@ -417,8 +430,8 @@ public:
             }
             else
             {
-                active_branch_list_type & branches = internal_stack.back().first;
-                typename active_branch_list_type::size_type & current_branch = internal_stack.back().second;
+                active_branch_list_type & branches = internal_stack.back().branches;
+                typename active_branch_list_type::size_type & current_branch = internal_stack.back().current_branch;
 
                 if ( branches.size() <= current_branch )
                 {
@@ -474,7 +487,8 @@ public:
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        internal_stack.push_back(std::make_pair(active_branch_list_type(), 0));
+        // add new element
+        internal_stack.resize(internal_stack.size()+1);
 
         // fill active branch list array of nodes meeting predicates
         for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it )
@@ -497,16 +511,16 @@ public:
                 if ( node_distances_predicates_check::apply(dist_pred(), node_dist_data) )
                 {
                     // add current node's data into the list
-                    internal_stack.back().first.push_back( std::make_pair(node_dist_data, it->second) );
+                    internal_stack.back().branches.push_back( std::make_pair(node_dist_data, it->second) );
                 }
             }
         }
 
-        if ( internal_stack.back().first.empty() )
+        if ( internal_stack.back().branches.empty() )
             internal_stack.pop_back();
         else
             // sort array
-            std::sort(internal_stack.back().first.begin(), internal_stack.back().first.end(), abl_less);
+            std::sort(internal_stack.back().branches.begin(), internal_stack.back().branches.end(), abl_less);
     }
 
     // Put values into the list of neighbours if those values meets predicates
@@ -577,11 +591,11 @@ private:
         node_distance_type result = (std::numeric_limits<node_distance_type>::max)();
         for ( ; first != last ; ++first )
         {
-            if ( first->first.size() <= first->second )
+            if ( first->branches.size() <= first->current_branch )
                 continue;
 
             node_distance_type curr_dist = index::detail::cdist_value<node_distances_type>
-                                            ::template get<index::detail::to_nearest_tag>(first->first[first->second].first);
+                                            ::template get<index::detail::to_nearest_tag>(first->branches[first->current_branch].first);
             if ( curr_dist < result )
                 result = curr_dist;
         }
