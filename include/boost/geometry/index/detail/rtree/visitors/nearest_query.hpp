@@ -364,6 +364,7 @@ public:
     > value_distances_predicates_check;
 
     typedef typename Allocators::size_type size_type;
+    typedef typename Allocators::const_reference const_reference;
     typedef typename Allocators::node_pointer node_pointer;
 
     static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
@@ -390,7 +391,7 @@ public:
         BOOST_ASSERT_MSG(0 < max_count(), "k must be greather than 0");
     }
 
-    Value const& dereference() const
+    const_reference dereference() const
     {
         return *(neighbors[current_neighbor].second);
     }
@@ -622,14 +623,12 @@ class nearest_query_iterator
     typedef visitors::nearest_query_incremental<Value, Options, Translator, Box, Allocators, Predicates, NearestPredicateIndex> visitor_type;
     typedef typename visitor_type::node_pointer node_pointer;
 
-    typedef typename Allocators::allocator_type::template rebind<Value>::other allocator_type;
-
 public:
     typedef std::input_iterator_tag iterator_category;
-    typedef const Value value_type;
-    typedef Value const& reference;
-    typedef typename allocator_type::difference_type difference_type;
-    typedef typename allocator_type::const_pointer pointer;
+    typedef Value value_type;
+    typedef typename Allocators::const_reference reference;
+    typedef typename Allocators::difference_type difference_type;
+    typedef typename Allocators::const_pointer pointer;
 
     inline nearest_query_iterator(Translator const& t, Predicates const& p)
         : m_visitor(t, p)

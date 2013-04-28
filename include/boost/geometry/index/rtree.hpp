@@ -57,6 +57,10 @@
 
 #include <boost/geometry/index/inserter.hpp>
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+#include <boost/geometry/index/detail/type_erased_iterators.hpp>
+#endif
+
 // TODO change the name to bounding_tree
 
 /*!
@@ -117,14 +121,12 @@ public:
     typedef Value value_type;
     /*! \brief R-tree parameters type. */
     typedef Parameters parameters_type;
-    /*! \brief The type of allocator used by the container. */
-    typedef Allocator allocator_type;
-    /*! \brief Unsigned integral type used by the container. */
-    typedef typename allocator_type::size_type size_type;
     /*! \brief The function object extracting Indexable from Value. */
     typedef IndexableGetter indexable_getter;
     /*! \brief The function object comparing objects of type Value. */
     typedef EqualTo value_equal;
+    /*! \brief The type of allocator used by the container. */
+    typedef Allocator allocator_type;
 
     // TODO: SHOULD THIS TYPE BE REMOVED?
     /*! \brief The Indexable type to which Value is translated. */
@@ -151,6 +153,21 @@ private:
 
     typedef typename allocators_type::node_pointer node_pointer;
     typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
+
+public:
+
+    /*! \brief Type of reference to Value. */
+    typedef typename allocators_type::reference reference;
+    /*! \brief Type of reference to const Value. */
+    typedef typename allocators_type::const_reference const_reference;
+    /*! \brief Type of pointer to Value. */
+    typedef typename allocators_type::pointer pointer;
+    /*! \brief Type of pointer to const Value. */
+    typedef typename allocators_type::const_pointer const_pointer;
+    /*! \brief Type of difference type. */
+    typedef typename allocators_type::difference_type difference_type;
+    /*! \brief Unsigned integral type used by the container. */
+    typedef typename allocators_type::size_type size_type;
 
 public:
 
@@ -723,6 +740,14 @@ public:
     }
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+
+    typedef typename index::detail::single_pass_iterator_type<
+        value_type, const_reference, const_pointer, difference_type
+    >::type const_query_iterator;
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
 
     template <typename Predicates>
     typename boost::mpl::if_c<
