@@ -10,11 +10,17 @@
 #ifndef BOOST_GEOMETRY_INDEX_TEST_RTREE_HPP
 #define BOOST_GEOMETRY_INDEX_TEST_RTREE_HPP
 
-#include <geometry_index_test_common.hpp>
-
 #include <boost/foreach.hpp>
 #include <vector>
 #include <algorithm>
+
+#include <geometry_index_test_common.hpp>
+
+#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
+// TEST
+//#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+//#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+#include <boost/geometry/index/rtree.hpp>
 
 #include <boost/geometry/index/detail/rtree/visitors/are_levels_ok.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/are_boxes_ok.hpp>
@@ -668,6 +674,17 @@ void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> con
     std::copy(rtree.qbegin(pred), rtree.qend(pred), std::back_inserter(output3));
 
     compare_outputs(rtree, output3, expected_output);
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+    {
+        typedef typename Rtree::const_query_iterator QI;
+        QI first = rtree.qbegin(pred);
+        QI last = rtree.qend(pred);
+        std::vector<Value> output4;
+        std::copy(first, last, std::back_inserter(output4));
+        compare_outputs(rtree, output4, expected_output);
+    }
+#endif
 #endif
 }
 
@@ -937,6 +954,17 @@ void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point 
     std::copy(rtree.qbegin(bgi::nearest(pt, k)), rtree.qend(bgi::nearest(pt, k)), std::back_inserter(output3));
 
     compare_nearest_outputs(rtree, output3, expected_output, pt, greatest_distance);
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+    {
+        typedef typename Rtree::const_query_iterator QI;
+        QI first = rtree.qbegin(bgi::nearest(pt, k));
+        QI last = rtree.qend(bgi::nearest(pt, k));
+        std::vector<Value> output4;
+        std::copy(first, last, std::back_inserter(output4));
+        compare_nearest_outputs(rtree, output4, expected_output, pt, greatest_distance);
+    }
+#endif
 #endif
 }
 
