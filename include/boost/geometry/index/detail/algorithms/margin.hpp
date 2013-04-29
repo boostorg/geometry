@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_MARGIN_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_MARGIN_HPP
 
+#include <boost/geometry/index/detail/indexable.hpp>
+
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <typename Box>
