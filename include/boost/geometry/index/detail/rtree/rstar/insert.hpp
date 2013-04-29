@@ -48,7 +48,7 @@ public:
         elements_type & elements = rtree::elements(n);
 
         const size_t elements_count = parameters.get_max_elements() + 1;
-        const size_t reinserted_elements_count = parameters.get_reinserted_elements();
+        const size_t reinserted_elements_count = (::std::min)(parameters.get_reinserted_elements(), elements_count - parameters.get_min_elements());
 
         BOOST_GEOMETRY_INDEX_ASSERT(parent, "node shouldn't be the root node");
         BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected elements number");
@@ -466,14 +466,25 @@ public:
     {
         BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<internal_node>(*m_root), "current node should be the root");
 
-        rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
-            m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
-
-        rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
-
-        if ( !lins_v.result_elements.empty() )
+        // Distinguish between situation when reinserts are required and use adequate visitor, otherwise use default one
+        if ( m_parameters.get_reinserted_elements() > 0 )
         {
-            recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);                       // MAY THROW (V, E: alloc, copy, N: alloc)
+            rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
+                m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+
+            rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
+
+            if ( !lins_v.result_elements.empty() )
+            {
+                recursive_reinsert(lins_v.result_elements, lins_v.result_relative_level);                       // MAY THROW (V, E: alloc, copy, N: alloc)
+            }
+        }
+        else
+        {
+            visitors::insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag> ins_v(
+                m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+
+            rtree::apply_visitor(ins_v, *m_root); 
         }
     }
 
@@ -481,13 +492,24 @@ public:
     {
         BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<leaf>(*m_root), "current node should be the root");
 
-        rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
-            m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+        // Distinguish between situation when reinserts are required and use adequate visitor, otherwise use default one
+        if ( m_parameters.get_reinserted_elements() > 0 )
+        {
+            rstar::level_insert<0, Element, Value, Options, Translator, Box, Allocators> lins_v(
+                m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
 
-        rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
+            rtree::apply_visitor(lins_v, *m_root);                                                              // MAY THROW (V, E: alloc, copy, N: alloc)
 
-        // we're in the root, so root should be split and there should be no elements to reinsert
-        BOOST_GEOMETRY_INDEX_ASSERT(lins_v.result_elements.empty(), "unexpected state");
+            // we're in the root, so root should be split and there should be no elements to reinsert
+            BOOST_GEOMETRY_INDEX_ASSERT(lins_v.result_elements.empty(), "unexpected state");
+        }
+        else
+        {
+            visitors::insert<Element, Value, Options, Translator, Box, Allocators, insert_default_tag> ins_v(
+                m_root, m_leafs_level, m_element, m_parameters, m_translator, m_allocators, m_relative_level);
+
+            rtree::apply_visitor(ins_v, *m_root); 
+        }
     }
 
 private:
