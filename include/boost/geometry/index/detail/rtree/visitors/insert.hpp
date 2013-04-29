@@ -413,7 +413,7 @@ public:
 
     inline insert(node_pointer & root,
                   size_t & leafs_level,
-                  Element & element,
+                  Element const& element,
                   parameters_type const& parameters,
                   Translator const& translator,
                   Allocators & allocators,

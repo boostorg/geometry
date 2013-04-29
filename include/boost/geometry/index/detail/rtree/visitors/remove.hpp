@@ -145,8 +145,10 @@ public:
         // if value was removed
         if ( m_is_value_removed )
         {
+            BOOST_ASSERT_MSG(0 < m_parameters.get_min_elements(), "min number of elements is too small");
+
             // calc underflow
-            m_is_underflow = elements.size() <  m_parameters.get_min_elements();
+            m_is_underflow = elements.size() < m_parameters.get_min_elements();
 
             // n is not root - adjust aabb
             if ( 0 != m_parent )
