@@ -218,8 +218,7 @@ public:
     \par Throws
     \li If allocator copy constructor throws.
     \li If Value copy constructor or copy assignment throws.
-    \li If allocation throws.
-    \li When memory allocation for Node fails.
+    \li If allocation throws or returns invalid value.
     */
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last,
@@ -253,8 +252,7 @@ public:
     \par Throws
     \li If allocator copy constructor throws.
     \li If Value copy constructor or copy assignment throws.
-    \li If allocation throws.
-    \li When memory allocation for Node fails.
+    \li If allocation throws or returns invalid value.
     */
     template<typename Range>
     inline explicit rtree(Range const& rng,
@@ -297,8 +295,7 @@ public:
     \par Throws
     \li If allocator copy constructor throws.
     \li If Value copy constructor throws.
-    \li If allocation throws.
-    \li When memory allocation for Node fails.
+    \li If allocation throws or returns invalid value.
     */
     inline rtree(rtree const& src)
         : m_members(src.m_members.indexable_getter(),
@@ -320,8 +317,7 @@ public:
     \par Throws
     \li If allocator copy constructor throws.
     \li If Value copy constructor throws.
-    \li If allocation throws.
-    \li When memory allocation for Node fails.
+    \li If allocation throws or returns invalid value.
     */
     inline rtree(rtree const& src, allocator_type const& allocator)
         : m_members(src.m_members.indexable_getter(),
@@ -363,8 +359,7 @@ public:
     \par Throws
     \li If allocator copy constructor throws.
     \li If Value copy constructor throws (only if allocators aren't equal).
-    \li If allocation throws (only if allocators aren't equal).
-    \li When memory allocation for Node fails (only if allocators aren't equal).
+    \li If allocation throws or returns invalid value (only if allocators aren't equal).
     */
     inline rtree(BOOST_RV_REF(rtree) src, allocator_type const& allocator)
         : m_members(src.m_members.indexable_getter(),
@@ -394,7 +389,7 @@ public:
     \par Throws
     \li If Value copy constructor throws.
     \li If allocation throws.
-    \li When nodes allocation fails.
+    \li If allocation throws or returns invalid value.
     */
     inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
     {
@@ -432,8 +427,7 @@ public:
     \par Throws
     Only if allocators aren't equal.
     \li If Value copy constructor throws.
-    \li If allocation throws.
-    \li When nodes allocation fails.
+    \li If allocation throws or returns invalid value.
     */
     inline rtree & operator=(BOOST_RV_REF(rtree) src)
     {
@@ -512,12 +506,13 @@ public:
 
     \par Throws
     \li If Value copy constructor or copy assignment throws.
-    \li If allocation throws.
-    \li When nodes allocation fails.
+    \li If allocation throws or returns invalid value.
 
     \warning
-    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-    elements must not be inserted or removed, methods may return invalid data.
+    This operation only guarantees that there will be no memory leaks.
+    After an exception is thrown the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed. Other operations are allowed however
+    some of them may return invalid data.
     */
     inline void insert(value_type const& value)
     {
@@ -535,12 +530,13 @@ public:
 
     \par Throws
     \li If Value copy constructor or copy assignment throws.
-    \li If allocation throws.
-    \li When nodes allocation fails.
+    \li If allocation throws or returns invalid value.
 
     \warning
-    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-    elements must not be inserted or removed, methods may return invalid data.
+    This operation only guarantees that there will be no memory leaks.
+    After an exception is thrown the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed. Other operations are allowed however
+    some of them may return invalid data.
     */
     template <typename Iterator>
     inline void insert(Iterator first, Iterator last)
@@ -559,12 +555,13 @@ public:
 
     \par Throws
     \li If Value copy constructor or copy assignment throws.
-    \li If allocation throws.
-    \li When nodes allocation fails.
+    \li If allocation throws or returns invalid value.
 
     \warning
-    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-    elements must not be inserted or removed, methods may return invalid data.
+    This operation only guarantees that there will be no memory leaks.
+    After an exception is thrown the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed. Other operations are allowed however
+    some of them may return invalid data.
     */
     template <typename Range>
     inline void insert(Range const& rng)
@@ -589,12 +586,13 @@ public:
 
     \par Throws
     \li If Value copy constructor or copy assignment throws.
-    \li If allocation throws.
-    \li When nodes allocation fails.
+    \li If allocation throws or returns invalid value.
 
     \warning
-    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-    elements must not be inserted or removed, methods may return invalid data.
+    This operation only guarantees that there will be no memory leaks.
+    After an exception is thrown the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed. Other operations are allowed however
+    some of them may return invalid data.
     */
     inline size_type remove(value_type const& value)
     {
@@ -616,12 +614,13 @@ public:
 
     \par Throws
     \li If Value copy constructor or copy assignment throws.
-    \li If allocation throws.
-    \li When nodes allocation fails.
+    \li If allocation throws or returns invalid value.
 
     \warning
-    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-    elements must not be inserted or removed, methods may return invalid data.
+    This operation only guarantees that there will be no memory leaks.
+    After an exception is thrown the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed. Other operations are allowed however
+    some of them may return invalid data.
     */
     template <typename Iterator>
     inline size_type remove(Iterator first, Iterator last)
@@ -645,12 +644,13 @@ public:
 
     \par Throws
     \li If Value copy constructor or copy assignment throws.
-    \li If allocation throws.
-    \li When nodes allocation fails.
+    \li If allocation throws or returns invalid value.
 
     \warning
-    This operation is not thread safe. If it throws, the R-tree may be left in an inconsistent state,
-    elements must not be inserted or removed, methods may return invalid data.
+    This operation only guarantees that there will be no memory leaks.
+    After an exception is thrown the R-tree may be left in an inconsistent state,
+    elements must not be inserted or removed. Other operations are allowed however
+    some of them may return invalid data.
     */
     template <typename Range>
     inline size_type remove(Range const& rng)
@@ -718,8 +718,8 @@ public:
     \par Throws
     If Value copy constructor or copy assignment throws.
 
-    \warning
-    Only one \c nearest() perdicate may be passed to the query.
+    \info
+    Only one \c nearest() perdicate may be passed to the query. Passing more of them results in compile-time assert.
     
     \param predicates   Predicates.
     \param out_it       The output iterator, e.g. generated by std::back_inserter().
@@ -1444,8 +1444,8 @@ bgi::query(tree, bgi::nearest(bgi::to_centroid(pt), 5) && !bgi::within(box), std
 \par Throws
 If Value copy constructor or copy assignment throws.
 
-\warning
-Only one \c nearest() perdicate may be passed to the query.
+\note
+Only one \c nearest() perdicate may be passed to the query. Passing more of them results in compile-time assert.
 
 \ingroup rtree_functions
 
