@@ -55,14 +55,12 @@ inline void throw_logic_error(const char * str)
 
 inline void throw_invalid_argument(const char * str)
 {
-    throw std::invalid_argument(str);
     BOOST_ASSERT_MSG(!"invalid_argument thrown", str);
     std::abort();
 }
 
 inline void throw_length_error(const char * str)
 {
-    throw std::length_error(str);
     BOOST_ASSERT_MSG(!"length_error thrown", str);
     std::abort();
 }
